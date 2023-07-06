@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -121,28 +120,23 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   }
 
   public static DbTester create() {
-    return new DbTester(System2.INSTANCE, null, new NoOpAuditPersister());
+    return create(System2.INSTANCE, new NoOpAuditPersister());
   }
 
   public static DbTester create(AuditPersister auditPersister) {
-    return new DbTester(System2.INSTANCE, null, auditPersister);
+    return create(System2.INSTANCE, auditPersister);
+  }
+
+  public static DbTester create(System2 system2) {
+    return create(system2, new NoOpAuditPersister());
   }
 
   public static DbTester create(System2 system2, AuditPersister auditPersister) {
     return new DbTester(system2, null, auditPersister);
   }
 
-  public static DbTester create(System2 system2) {
-    return new DbTester(system2, null, new NoOpAuditPersister());
-  }
-
   public static DbTester createWithExtensionMappers(System2 system2, Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
     return new DbTester(system2, null, new NoOpAuditPersister(), new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
-  }
-
-  public static DbTester create(TestSystem2 system2, AuditPersister auditPersister) {
-    return new DbTester(system2, null, auditPersister);
-
   }
 
   private void initDbClient() {
@@ -321,8 +315,8 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
     public DbTesterMyBatisConfExtension(Class<?> firstMapperClass, Class<?>... otherMapperClasses) {
       this.mapperClasses = Stream.concat(
-        Stream.of(firstMapperClass),
-        Arrays.stream(otherMapperClasses))
+          Stream.of(firstMapperClass),
+          Arrays.stream(otherMapperClasses))
         .sorted(Comparator.comparing(Class::getName))
         .toArray(Class<?>[]::new);
     }
