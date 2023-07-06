@@ -19,7 +19,6 @@
  */
 package org.sonar.server.measure.ws;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableSortedSet;
@@ -54,7 +53,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.i18n.I18n;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -149,7 +147,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
   static final Set<String> METRIC_SORT_FILTERS = ImmutableSortedSet.of(ALL_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER);
   static final Set<String> FORBIDDEN_METRIC_TYPES = Set.of(DISTRIB.name(), DATA.name());
   private static final int MAX_METRIC_KEYS = 15;
-  private static final Joiner COMMA_JOINER = Joiner.on(", ");
+  private static final String COMMA_JOIN_SEPARATOR = ", ";
   private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = Set.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
 
   private final DbClient dbClient;
@@ -247,7 +245,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setPossibleValues(METRIC_SORT_FILTERS);
 
     createMetricKeysParameter(action)
-      .setDescription("Comma-separated list of metric keys. Types %s are not allowed.", COMMA_JOINER.join(FORBIDDEN_METRIC_TYPES))
+      .setDescription("Comma-separated list of metric keys. Types %s are not allowed.", String.join(COMMA_JOIN_SEPARATOR, FORBIDDEN_METRIC_TYPES))
       .setMaxValuesAllowed(MAX_METRIC_KEYS);
     createAdditionalFieldsParameter(action);
     createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes));
@@ -519,13 +517,13 @@ public class ComponentTreeAction implements MeasuresWsAction {
         new LinkedHashSet<>(metricKeys),
         new LinkedHashSet<>(foundMetricKeys));
 
-      throw new NotFoundException(format("The following metric keys are not found: %s", COMMA_JOINER.join(missingMetricKeys)));
+      throw new NotFoundException(format("The following metric keys are not found: %s", String.join(COMMA_JOIN_SEPARATOR, missingMetricKeys)));
     }
     String forbiddenMetrics = metrics.stream()
       .filter(metric -> ComponentTreeAction.FORBIDDEN_METRIC_TYPES.contains(metric.getValueType()))
       .map(MetricDto::getKey)
       .sorted()
-      .collect(MoreCollectors.join(COMMA_JOINER));
+      .collect(Collectors.joining(COMMA_JOIN_SEPARATOR));
     checkArgument(forbiddenMetrics.isEmpty(), "Metrics %s can't be requested in this web service. Please use api/measures/component", forbiddenMetrics);
     return metrics;
   }

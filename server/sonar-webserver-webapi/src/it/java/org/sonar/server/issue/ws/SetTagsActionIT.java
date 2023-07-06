@@ -19,8 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.base.Joiner;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -71,7 +69,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.core.util.stream.MoreCollectors.join;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
 
@@ -240,7 +237,7 @@ public class SetTagsActionIT {
     TestRequest request = ws.newRequest();
     ofNullable(issueKey).ifPresent(issue -> request.setParam("issue", issue));
     if (tags.length > 0) {
-      request.setParam("tags", Arrays.stream(tags).collect(join(Joiner.on(","))));
+      request.setParam("tags", String.join(",", tags));
     }
     return request.execute();
   }

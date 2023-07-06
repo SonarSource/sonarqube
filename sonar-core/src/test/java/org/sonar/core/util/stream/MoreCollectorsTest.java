@@ -19,7 +19,6 @@
  */
 package org.sonar.core.util.stream;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.SetMultimap;
 import java.util.Arrays;
@@ -39,7 +38,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.core.util.stream.MoreCollectors.index;
-import static org.sonar.core.util.stream.MoreCollectors.join;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedFlattenIndex;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedIndex;
@@ -510,41 +508,6 @@ public class MoreCollectorsTest {
     SetMultimap<String, String> multimap = HUGE_LIST.parallelStream().collect(unorderedFlattenIndex(identity(), Stream::of));
 
     assertThat(multimap.keySet()).isEqualTo(HUGE_SET);
-  }
-
-  @Test
-  public void join_on_empty_stream_returns_empty_string() {
-    assertThat(Stream.empty().collect(join(Joiner.on(",")))).isEmpty();
-  }
-
-  @Test
-  public void join_fails_with_NPE_if_joiner_is_null() {
-    assertThatThrownBy(() -> join(null))
-      .isInstanceOf(NullPointerException.class)
-      .hasMessage("Joiner can't be null");
-  }
-
-  @Test
-  public void join_applies_joiner_to_stream() {
-    assertThat(Stream.of("1", "2", "3", "4").collect(join(Joiner.on(","))))
-      .isEqualTo("1,2,3,4");
-  }
-
-  @Test
-  public void join_does_not_support_parallel_stream_and_fails_with_ISE() {
-    Stream<String> hugeStream = HUGE_LIST.parallelStream();
-
-    assertThatThrownBy(() -> hugeStream.collect(join(Joiner.on(" "))))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Parallel processing is not supported");
-  }
-
-  @Test
-  public void join_supports_null_if_joiner_does() {
-    Stream<String> stream = Stream.of("1", null);
-
-    assertThatThrownBy(() -> stream.collect(join(Joiner.on(","))))
-      .isInstanceOf(NullPointerException.class);
   }
 
   private static final class MyObj {

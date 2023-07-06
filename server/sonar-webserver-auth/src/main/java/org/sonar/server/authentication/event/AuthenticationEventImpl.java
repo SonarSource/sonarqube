@@ -19,14 +19,12 @@
  */
 package org.sonar.server.authentication.event;
 
-import com.google.common.base.Joiner;
 import java.util.Collections;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.server.http.HttpRequest;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -50,7 +48,7 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
   }
 
   private static String getAllIps(HttpRequest request) {
-    return Collections.list(request.getHeaders("X-Forwarded-For")).stream().collect(MoreCollectors.join(Joiner.on(",")));
+    return String.join(",", Collections.list(request.getHeaders("X-Forwarded-For")));
   }
 
   @Override
