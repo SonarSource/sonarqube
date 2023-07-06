@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,7 +44,6 @@ import org.junit.runner.RunWith;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
@@ -918,7 +918,7 @@ public class CeActivityDaoIT {
   private List<String> selectPageOfUuids(Pagination pagination) {
     return underTest.selectByQuery(db.getSession(), new CeTaskQuery(), pagination).stream()
       .map(CeActivityToUuid.INSTANCE::apply)
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   private enum CeActivityToUuid implements Function<CeActivityDto, String> {

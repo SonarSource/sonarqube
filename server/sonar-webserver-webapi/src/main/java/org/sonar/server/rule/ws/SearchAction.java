@@ -43,7 +43,6 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
@@ -292,7 +291,7 @@ public class SearchAction implements RulesWsAction {
     List<String> templateRuleUuids = rules.stream()
       .map(RuleDto::getTemplateUuid)
       .filter(Objects::nonNull)
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
     List<RuleDto> templateRules = dbClient.ruleDao().selectByUuids(dbSession, templateRuleUuids);
     List<RuleParamDto> ruleParamDtos = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, ruleUuids);
     return new SearchResult()

@@ -23,6 +23,7 @@ import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -46,7 +47,6 @@ import static java.util.Optional.ofNullable;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
@@ -89,8 +89,8 @@ public class ListAction implements BranchWsAction {
 
       Collection<BranchDto> branches = dbClient.branchDao().selectByProject(dbSession, projectOrApp).stream()
         .filter(b -> b.getBranchType() == BRANCH)
-        .collect(toList());
-      List<String> branchUuids = branches.stream().map(BranchDto::getUuid).collect(toList());
+        .collect(Collectors.toList());
+      List<String> branchUuids = branches.stream().map(BranchDto::getUuid).collect(Collectors.toList());
 
       Map<String, LiveMeasureDto> qualityGateMeasuresByComponentUuids = dbClient.liveMeasureDao()
         .selectByComponentUuidsAndMetricKeys(dbSession, branchUuids, singletonList(ALERT_STATUS_KEY)).stream()

@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.server.ws.Request;
@@ -67,7 +68,7 @@ public class ListAction implements NotificationsWsAction {
   public ListAction(NotificationCenter notificationCenter, DbClient dbClient, UserSession userSession, Dispatchers dispatchers) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.channels = notificationCenter.getChannels().stream().map(NotificationChannel::getKey).sorted().collect(MoreCollectors.toList());
+    this.channels = notificationCenter.getChannels().stream().map(NotificationChannel::getKey).sorted().collect(Collectors.toList());
     this.dispatchers = dispatchers;
   }
 

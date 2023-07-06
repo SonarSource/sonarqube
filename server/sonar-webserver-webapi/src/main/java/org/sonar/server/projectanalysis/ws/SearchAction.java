@@ -22,6 +22,7 @@ package org.sonar.server.projectanalysis.ws;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Change;
@@ -45,7 +46,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.component.SnapshotDto.STATUS_LIVE_MEASURE_COMPUTED;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
@@ -185,7 +185,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
   }
 
   private void addEvents(SearchData.Builder data) {
-    List<String> analyses = data.getAnalyses().stream().map(SnapshotDto::getUuid).collect(toList());
+    List<String> analyses = data.getAnalyses().stream().map(SnapshotDto::getUuid).collect(Collectors.toList());
     data.setEvents(dbClient.eventDao().selectByAnalysisUuids(data.getDbSession(), analyses));
     data.setComponentChanges(dbClient.eventComponentChangeDao().selectByAnalysisUuids(data.getDbSession(), analyses));
   }

@@ -1176,21 +1176,21 @@ public class IssueIndex {
     return getSearchResponse(sourceBuilder)
       .getAggregations().asList().stream()
       .map(c -> processSecurityReportIssueSearchResultsWithLevelDistribution((ParsedFilter) c, version, level))
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   private List<SecurityStandardCategoryStatistics> searchWithDistribution(SearchSourceBuilder sourceBuilder, String version, @Nullable Integer level) {
     return getSearchResponse(sourceBuilder)
       .getAggregations().asList().stream()
       .map(c -> processSecurityReportIssueSearchResultsWithDistribution((ParsedFilter) c, version, level))
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   private List<SecurityStandardCategoryStatistics> search(SearchSourceBuilder sourceBuilder, boolean includeDistribution, @Nullable String version) {
     return getSearchResponse(sourceBuilder)
       .getAggregations().asList().stream()
       .map(c -> processSecurityReportIssueSearchResults((ParsedFilter) c, includeDistribution, version))
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   private SearchResponse getSearchResponse(SearchSourceBuilder sourceBuilder) {

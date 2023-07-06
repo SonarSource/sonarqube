@@ -154,7 +154,7 @@ public class PurgeDao implements Dao {
     return mapper.selectPurgeableAnalyses(componentUuid).stream()
       .filter(new NewCodePeriodAnalysisFilter(mapper, componentUuid))
       .sorted()
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   public void purgeCeActivities(DbSession session, PurgeProfiler profiler) {
@@ -307,7 +307,7 @@ public class PurgeDao implements Dao {
     List<String> subviewsOrProjectCopies = nonRootComponents.stream()
       .filter(PurgeDao::isSubview)
       .map(ComponentDto::uuid)
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
     purgeCommands.deleteByRootAndSubviews(subviewsOrProjectCopies);
     List<String> nonRootComponentUuids = nonRootComponents.stream().map(ComponentDto::uuid).collect(Collectors.toList());
     purgeCommands.deleteComponentMeasures(nonRootComponentUuids);

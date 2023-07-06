@@ -29,12 +29,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class MigrationHistoryImpl implements MigrationHistory {
   private static final String SCHEMA_MIGRATIONS_TABLE = "schema_migrations";
@@ -101,7 +101,7 @@ public class MigrationHistoryImpl implements MigrationHistory {
       }
       return res.stream()
         .sorted(Comparator.naturalOrder())
-        .collect(toList());
+        .collect(Collectors.toList());
     }
   }
 }

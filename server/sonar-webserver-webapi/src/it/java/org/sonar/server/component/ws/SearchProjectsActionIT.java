@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -98,7 +99,6 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_003;
@@ -189,7 +189,7 @@ public class SearchProjectsActionIT {
     assertThat(def.isInternal()).isTrue();
     assertThat(def.isPost()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
-    assertThat(def.params().stream().map(Param::key).collect(toList())).containsOnly("filter", "facets", "s", "asc", "ps", "p", "f");
+    assertThat(def.params().stream().map(Param::key).collect(Collectors.toList())).containsOnly("filter", "facets", "s", "asc", "ps", "p", "f");
     assertThat(def.changelog()).hasSize(2);
 
     Param sort = def.param("s");

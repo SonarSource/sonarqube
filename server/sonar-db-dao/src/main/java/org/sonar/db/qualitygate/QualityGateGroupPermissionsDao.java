@@ -21,6 +21,7 @@ package org.sonar.db.qualitygate;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -31,7 +32,6 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.SearchGroupMembershipDto;
 import org.sonar.db.user.SearchPermissionQuery;
 
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class QualityGateGroupPermissionsDao implements Dao {
@@ -52,7 +52,7 @@ public class QualityGateGroupPermissionsDao implements Dao {
   }
 
   public boolean exists(DbSession dbSession, QualityGateDto qualityGate, Collection<GroupDto> groups) {
-    return !executeLargeInputs(groups.stream().map(GroupDto::getUuid).collect(toList()),
+    return !executeLargeInputs(groups.stream().map(GroupDto::getUuid).collect(Collectors.toList()),
       partition -> mapper(dbSession).selectByQualityGateAndGroups(qualityGate.getUuid(), partition))
       .isEmpty();
   }

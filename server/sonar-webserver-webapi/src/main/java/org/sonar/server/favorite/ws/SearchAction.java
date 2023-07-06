@@ -20,13 +20,13 @@
 package org.sonar.server.favorite.ws;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.server.favorite.FavoriteFinder;
 import org.sonar.server.user.UserSession;
@@ -83,7 +83,7 @@ public class SearchAction implements FavoritesWsAction {
     List<EntityDto> displayedFavorites = authorizedFavorites.stream()
       .skip(paging.offset())
       .limit(paging.pageSize())
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
     return new SearchResults(paging, displayedFavorites);
   }
 

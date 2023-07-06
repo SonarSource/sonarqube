@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
@@ -54,7 +55,6 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
@@ -142,7 +142,7 @@ public class RuleIndex {
   public static final List<String> ALL_STATUSES_EXCEPT_REMOVED = Arrays.stream(RuleStatus.values())
     .filter(status -> !RuleStatus.REMOVED.equals(status))
     .map(RuleStatus::toString)
-    .collect(MoreCollectors.toList());
+    .collect(Collectors.toList());
 
   private static final String AGGREGATION_NAME_FOR_TAGS = "tagsAggregation";
 
@@ -290,7 +290,7 @@ public class RuleIndex {
 
     Collection<RuleType> types = query.getTypes();
     if (isNotEmpty(types)) {
-      List<String> typeNames = types.stream().map(RuleType::toString).collect(MoreCollectors.toList());
+      List<String> typeNames = types.stream().map(RuleType::toString).collect(Collectors.toList());
       filters.put(FIELD_RULE_TYPE,
         QueryBuilders.termsQuery(FIELD_RULE_TYPE, typeNames));
     }

@@ -27,12 +27,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
 import org.sonar.server.project.Project;
@@ -252,7 +252,7 @@ public class ComponentTreeBuilder {
     return component.getChildren().stream()
       .map(ComponentTreeBuilder::buildChangedComponentTree)
       .filter(Objects::nonNull)
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   private static ComponentImpl.Builder changedComponentBuilder(Component component, String newShortName) {

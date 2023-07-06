@@ -22,6 +22,7 @@ package org.sonar.db.qualityprofile;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
@@ -32,7 +33,6 @@ import org.sonar.db.audit.model.GroupEditorNewValue;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.SearchGroupMembershipDto;
 
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
@@ -51,7 +51,7 @@ public class QProfileEditGroupsDao implements Dao {
   }
 
   public boolean exists(DbSession dbSession, QProfileDto profile, Collection<GroupDto> groups) {
-    return !executeLargeInputs(groups.stream().map(GroupDto::getUuid).collect(toList()), partition -> mapper(dbSession).selectByQProfileAndGroups(profile.getKee(), partition))
+    return !executeLargeInputs(groups.stream().map(GroupDto::getUuid).collect(Collectors.toList()), partition -> mapper(dbSession).selectByQProfileAndGroups(profile.getKee(), partition))
       .isEmpty();
   }
 
@@ -64,7 +64,7 @@ public class QProfileEditGroupsDao implements Dao {
   }
 
   public List<String> selectQProfileUuidsByGroups(DbSession dbSession, Collection<GroupDto> groups) {
-    return DatabaseUtils.executeLargeInputs(groups.stream().map(GroupDto::getUuid).collect(toList()),
+    return DatabaseUtils.executeLargeInputs(groups.stream().map(GroupDto::getUuid).collect(Collectors.toList()),
       g -> mapper(dbSession).selectQProfileUuidsByGroups(g));
   }
 
@@ -88,7 +88,7 @@ public class QProfileEditGroupsDao implements Dao {
         int deletedRows = mapper(dbSession).deleteByQProfiles(partitionedProfiles
           .stream()
           .map(QProfileDto::getKee)
-          .collect(toList()));
+          .collect(Collectors.toList()));
 
         if (deletedRows > 0) {
           partitionedProfiles.forEach(p -> auditPersister.deleteQualityProfileEditor(dbSession, new GroupEditorNewValue(p)));

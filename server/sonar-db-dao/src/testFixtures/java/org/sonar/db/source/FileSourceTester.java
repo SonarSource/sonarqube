@@ -23,10 +23,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.core.util.Uuids;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbFileSources;
@@ -49,7 +49,7 @@ public class FileSourceTester {
       .setFileUuid(file.uuid())
       .setSrcHash(randomAlphanumeric(50))
       .setDataHash(randomAlphanumeric(50))
-      .setLineHashes(IntStream.range(0, new Random().nextInt(21)).mapToObj(String::valueOf).collect(MoreCollectors.toList()))
+      .setLineHashes(IntStream.range(0, new Random().nextInt(21)).mapToObj(String::valueOf).collect(Collectors.toList()))
       .setRevision(randomAlphanumeric(100))
       .setSourceData(newRandomData(3).build())
       .setCreatedAt(new Date().getTime())
@@ -69,7 +69,7 @@ public class FileSourceTester {
       .setFileUuid(file.uuid())
       .setSrcHash(randomAlphanumeric(50))
       .setDataHash(randomAlphanumeric(50))
-      .setLineHashes(IntStream.range(0, numLines).mapToObj(String::valueOf).collect(MoreCollectors.toList()))
+      .setLineHashes(IntStream.range(0, numLines).mapToObj(String::valueOf).collect(Collectors.toList()))
       .setRevision(randomAlphanumeric(100))
       .setSourceData(newRandomData(numLines).build())
       .setCreatedAt(new Date().getTime())

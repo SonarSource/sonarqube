@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -31,7 +32,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.lang.String.format;
 
@@ -50,7 +50,7 @@ public class RedirectFilter implements Filter {
     Predicate<Redirect> match = redirect -> redirect.test(path);
     List<Redirect> redirects = REDIRECTS.stream()
       .filter(match)
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
 
     switch (redirects.size()) {
       case 0:

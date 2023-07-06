@@ -20,8 +20,8 @@
 package org.sonar.db.notification;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -49,7 +49,7 @@ public class NotificationDbTester {
         .setUserUuid(userUuid)
         .build(), dbSession).stream()
       .filter(prop -> project == null ? prop.getEntityUuid() == null : prop.getEntityUuid() != null)
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getValue()).isEqualTo("true");
   }

@@ -74,7 +74,6 @@ import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
@@ -279,7 +278,7 @@ public class IssueQueryFactory {
     SearchRequest request) {
     builder.onComponentOnly(onComponentOnly);
     if (onComponentOnly) {
-      builder.componentUuids(components.stream().map(ComponentDto::uuid).collect(toList()));
+      builder.componentUuids(components.stream().map(ComponentDto::uuid).collect(Collectors.toList()));
       setBranch(builder, components.get(0), request.getBranch(), request.getPullRequest(), session);
       return;
     }
@@ -334,7 +333,7 @@ public class IssueQueryFactory {
         addDirectories(builder, components);
         break;
       case Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE:
-        builder.componentUuids(components.stream().map(ComponentDto::uuid).collect(toList()));
+        builder.componentUuids(components.stream().map(ComponentDto::uuid).collect(Collectors.toList()));
         break;
       default:
         throw new IllegalArgumentException("Unable to set search root context for components " + Joiner.on(',').join(components));

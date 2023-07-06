@@ -22,13 +22,13 @@ package org.sonar.server.ws.ws;
 import com.google.common.collect.Ordering;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Optional.ofNullable;
@@ -110,7 +110,7 @@ public class ListAction implements WebServicesWsAction {
   }
 
   private static void writeParameters(JsonWriter writer, WebService.Action action, boolean includeInternals) {
-    List<WebService.Param> params = action.params().stream().filter(p -> includeInternals || !p.isInternal()).collect(MoreCollectors.toList());
+    List<WebService.Param> params = action.params().stream().filter(p -> includeInternals || !p.isInternal()).collect(Collectors.toList());
     if (!params.isEmpty()) {
       // sort parameters by key
       Ordering<WebService.Param> ordering = Ordering.natural().onResultOf(WebService.Param::key);

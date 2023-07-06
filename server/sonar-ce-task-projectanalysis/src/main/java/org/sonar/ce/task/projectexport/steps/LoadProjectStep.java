@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectexport.steps;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.task.projectexport.taskprocessor.ProjectDescriptor;
 import org.sonar.ce.task.step.ComputationStep;
@@ -29,7 +30,6 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 
 import static java.lang.String.format;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 /**
  * Loads project from database and verifies that it's valid: it must exist and be a project !
@@ -54,7 +54,7 @@ public class LoadProjectStep implements ComputationStep {
         .orElseThrow(() -> MessageException.of(format("Project with key [%s] does not exist", descriptor.getKey())));
       definitionHolder.setProjectDto(project);
 
-      List<BranchDto> branches = dbClient.branchDao().selectByProject(dbSession, project).stream().collect(toList());
+      List<BranchDto> branches = dbClient.branchDao().selectByProject(dbSession, project).stream().collect(Collectors.toList());
       definitionHolder.setBranches(branches);
     }
   }

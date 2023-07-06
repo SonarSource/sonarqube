@@ -192,7 +192,7 @@ public class ActiveRuleCompleter {
       .map(QProfileDto::getParentKee)
       .filter(StringUtils::isNotEmpty)
       .filter(uuid -> !profilesByUuid.containsKey(uuid))
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
     if (!parentUuids.isEmpty()) {
       dbClient.qualityProfileDao().selectByUuids(dbSession, parentUuids)
         .forEach(p -> profilesByUuid.put(p.getKee(), p));

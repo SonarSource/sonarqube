@@ -108,7 +108,7 @@ public class RegisterQualityProfiles implements Startable {
               String inheritance = change.getActiveRule().getInheritance();
               return inheritance == null || NONE.name().equals(inheritance);
             })
-            .collect(MoreCollectors.toList()));
+            .collect(Collectors.toList()));
         }
       });
       if (!changedProfiles.isEmpty()) {

@@ -33,13 +33,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.dialect.Oracle;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -354,7 +354,7 @@ public class DatabaseUtilsIT {
     List<String> outputs = DatabaseUtils.executeLargeInputs(inputs, input -> {
       // Check that each partition is only done on 1000 elements max
       assertThat(input).hasSizeLessThanOrEqualTo(1000);
-      return input.stream().map(String::valueOf).collect(MoreCollectors.toList());
+      return input.stream().map(String::valueOf).collect(Collectors.toList());
     });
 
     assertThat(outputs).isEqualTo(expectedOutputs);

@@ -60,7 +60,6 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.utils.Paging.forPageIndex;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Users.SearchWsResponse.Groups;
 import static org.sonarqube.ws.Users.SearchWsResponse.ScmAccounts;
@@ -193,7 +192,7 @@ public class SearchAction implements UsersWsAction {
       List<UserDto> users = findUsersAndSortByLogin(request, dbSession, userQuery);
       int totalUsers = dbClient.userDao().countUsers(dbSession, userQuery);
 
-      List<String> logins = users.stream().map(UserDto::getLogin).collect(toList());
+      List<String> logins = users.stream().map(UserDto::getLogin).collect(Collectors.toList());
       Multimap<String, String> groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
       Map<String, Integer> tokenCountsByLogin = dbClient.userTokenDao().countTokensByUsers(dbSession, users);
       Map<String, Boolean> userUuidToIsManaged = managedInstanceService.getUserUuidToManaged(dbSession, getUserUuids(users));

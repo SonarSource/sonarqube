@@ -24,13 +24,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskMessageType;
@@ -432,7 +432,7 @@ public class UserDbTester {
     return keys
       .stream()
       .map(GlobalPermission::fromKey)
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   // USER TOKEN

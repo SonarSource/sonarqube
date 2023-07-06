@@ -61,7 +61,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.component.index.SuggestionQuery.DEFAULT_LIMIT;
 import static org.sonar.server.es.newindex.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
@@ -289,14 +288,14 @@ public class SuggestionsAction implements ComponentsWsAction {
         .map(hit -> toSuggestion(hit, recentlyBrowsedKeys, favoriteUuids, entitiesByUuids))
         .filter(Optional::isPresent)
         .map(Optional::get)
-        .collect(toList());
+        .collect(Collectors.toList());
 
       return Category.newBuilder()
         .setQ(qualifier.getQualifier())
         .setMore(Math.max(0, qualifier.getTotalHits() - coveredItems))
         .addAllItems(suggestions)
         .build();
-    }).collect(toList());
+    }).collect(Collectors.toList());
   }
 
   /**

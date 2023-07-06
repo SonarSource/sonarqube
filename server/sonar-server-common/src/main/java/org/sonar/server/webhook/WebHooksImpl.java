@@ -22,6 +22,7 @@ package org.sonar.server.webhook;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -30,7 +31,6 @@ import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.server.ServerSide;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
@@ -106,7 +106,7 @@ public class WebHooksImpl implements WebHooks {
     List<Webhook> webhooks = readWebHooksFrom(analysis.projectUuid(), taskLogStatistics)
       .map(dto -> new Webhook(dto.getUuid(), analysis.projectUuid(), analysis.ceTaskUuid(), analysis.analysisUuid(),
         dto.getName(), dto.getUrl(), dto.getSecret()))
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
     if (webhooks.isEmpty()) {
       return;
     }

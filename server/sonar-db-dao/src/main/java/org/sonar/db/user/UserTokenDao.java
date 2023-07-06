@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.util.UuidFactory;
@@ -33,7 +34,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserTokenNewValue;
 
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class UserTokenDao implements Dao {
@@ -82,7 +82,7 @@ public class UserTokenDao implements Dao {
   public Map<String, Integer> countTokensByUsers(DbSession dbSession, Collection<UserDto> users) {
     Map<String, Integer> result = new HashMap<>(users.size());
     executeLargeInputs(
-      users.stream().map(UserDto::getUuid).collect(toList()),
+      users.stream().map(UserDto::getUuid).collect(Collectors.toList()),
       input -> {
         List<UserTokenCount> userTokenCounts = mapper(dbSession).countTokensByUserUuids(input);
         for (UserTokenCount userTokenCount : userTokenCounts) {

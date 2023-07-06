@@ -27,9 +27,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -68,7 +68,7 @@ public class CreateTableBuilder {
     checkState(!columnDefs.isEmpty() || !pkColumnDefs.isEmpty(), "at least one column must be specified");
 
     return Stream.concat(of(createTableStatement()), createOracleAutoIncrementStatements())
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   public CreateTableBuilder addColumn(ColumnDef columnDef) {

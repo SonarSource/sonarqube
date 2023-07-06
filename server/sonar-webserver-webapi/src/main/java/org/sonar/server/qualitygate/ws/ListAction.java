@@ -21,6 +21,7 @@ package org.sonar.server.qualitygate.ws;
 
 import com.google.common.io.Resources;
 import java.util.Collection;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -34,7 +35,6 @@ import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonarqube.ws.Qualitygates.ListWsResponse;
 import org.sonarqube.ws.Qualitygates.ListWsResponse.QualityGate;
 
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ListAction implements QualityGatesWsAction {
@@ -91,7 +91,7 @@ public class ListAction implements QualityGatesWsAction {
           .setCaycStatus(qualityGateCaycChecker.checkCaycCompliant(dbSession, qualityGate.getUuid()).toString())
           .setActions(wsSupport.getActions(dbSession, qualityGate, defaultQualityGate))
           .build())
-        .collect(toList()));
+        .collect(Collectors.toList()));
     return builder.build();
   }
 

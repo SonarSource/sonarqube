@@ -21,6 +21,7 @@ package org.sonar.server.qualitygate.ws;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -44,7 +45,6 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.fromParam;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.qualitygate.SearchQualityGatePermissionQuery.builder;
@@ -107,13 +107,13 @@ public class SearchUsersAction implements QualityGatesWsAction {
       int total = dbClient.qualityGateUserPermissionDao().countByQuery(dbSession, query);
       List<SearchUserMembershipDto> usersMembership = dbClient.qualityGateUserPermissionDao().selectByQuery(dbSession, query,
         forPage(wsRequest.getPage()).andSize(wsRequest.getPageSize()));
-      Map<String, UserDto> usersById = dbClient.userDao().selectByUuids(dbSession, usersMembership.stream().map(SearchUserMembershipDto::getUserUuid).collect(toList()))
+      Map<String, UserDto> usersById = dbClient.userDao().selectByUuids(dbSession, usersMembership.stream().map(SearchUserMembershipDto::getUserUuid).collect(Collectors.toList()))
         .stream().collect(uniqueIndex(UserDto::getUuid));
       writeProtobuf(
         SearchUsersResponse.newBuilder()
           .addAllUsers(usersMembership.stream()
             .map(userMembershipDto -> toUser(usersById.get(userMembershipDto.getUserUuid()), userMembershipDto.isSelected()))
-            .collect(toList()))
+            .collect(Collectors.toList()))
           .setPaging(buildPaging(wsRequest, total)).build(),
         request, response);
     }

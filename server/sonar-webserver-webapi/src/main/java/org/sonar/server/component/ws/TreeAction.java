@@ -59,7 +59,6 @@ import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static org.sonar.api.utils.Paging.offset;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
@@ -206,7 +205,7 @@ public class TreeAction implements ComponentsWsAction {
     List<String> referenceComponentIds = components.stream()
       .map(ComponentDto::getCopyComponentUuid)
       .filter(Objects::nonNull)
-      .collect(toList());
+      .collect(Collectors.toList());
     if (referenceComponentIds.isEmpty()) {
       return emptyMap();
     }
@@ -324,7 +323,7 @@ public class TreeAction implements ComponentsWsAction {
 
   private static List<ComponentDto> paginateComponents(List<ComponentDto> components, Request wsRequest) {
     return components.stream().skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
-      .limit(wsRequest.getPageSize()).collect(toList());
+      .limit(wsRequest.getPageSize()).collect(Collectors.toList());
   }
 
   private static List<ComponentDto> sortComponents(List<ComponentDto> components, Request wsRequest) {

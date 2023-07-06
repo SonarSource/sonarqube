@@ -20,6 +20,7 @@
 package org.sonar.db.qualityprofile;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -29,7 +30,6 @@ import org.sonar.db.audit.model.UserEditorNewValue;
 import org.sonar.db.user.SearchUserMembershipDto;
 import org.sonar.db.user.UserDto;
 
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class QProfileEditUsersDao implements Dao {
@@ -78,7 +78,7 @@ public class QProfileEditUsersDao implements Dao {
         int deletedRows = mapper(dbSession).deleteByQProfiles(partitionedProfiles
           .stream()
           .map(QProfileDto::getKee)
-          .collect(toList()));
+          .collect(Collectors.toList()));
 
         if (deletedRows > 0) {
           partitionedProfiles.forEach(p -> auditPersister.deleteQualityProfileEditor(dbSession, new UserEditorNewValue(p)));

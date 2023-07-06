@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -32,7 +33,6 @@ import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache.CacheAppender;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
@@ -113,7 +113,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private List<DefaultIssue> fillNewOpenIssues(Component component, Stream<DefaultIssue> newIssues, Input<DefaultIssue> rawInput) {
     List<DefaultIssue> newIssuesList = newIssues
       .peek(issueLifecycle::initNewOpenIssue)
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
 
     if (newIssuesList.isEmpty()) {
       return newIssuesList;

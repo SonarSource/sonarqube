@@ -21,6 +21,7 @@ package org.sonar.server.measure.ws;
 
 import com.google.common.base.Joiner;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,7 +32,6 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.DefaultResourceTypes;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -890,7 +890,7 @@ public class ComponentTreeActionIT {
     db.components().insertSnapshot(mainBranch);
     List<String> metrics = IntStream.range(0, 20)
       .mapToObj(i -> "metric" + i)
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
     db.commit();
 
     assertThatThrownBy(() -> {

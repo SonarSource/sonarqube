@@ -41,7 +41,6 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion.V3_2;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.security.SecurityStandards.VulnerabilityProbability.HIGH;
@@ -394,7 +393,7 @@ public final class SecurityStandards {
       .stream()
       .filter(k -> cwe.stream().anyMatch(CWES_BY_SQ_CATEGORY.get(k)::contains))
       .sorted(SQ_CATEGORY_ORDERING)
-      .collect(toList());
+      .collect(Collectors.toList());
     return result.isEmpty() ? singletonList(SQCategory.OTHERS) : result;
   }
 

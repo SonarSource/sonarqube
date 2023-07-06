@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -101,7 +102,7 @@ public class ProjectsAction implements QProfileWsAction {
       List<ProjectQprofileAssociationDto> projects = loadAllProjects(profileKey, session, selected, query).stream()
         .sorted(comparing(ProjectQprofileAssociationDto::getProjectName)
           .thenComparing(ProjectQprofileAssociationDto::getProjectUuid))
-        .collect(MoreCollectors.toList());
+        .collect(Collectors.toList());
 
       Collection<String> projectUuids = projects.stream()
         .map(ProjectQprofileAssociationDto::getProjectUuid)
@@ -114,7 +115,7 @@ public class ProjectsAction implements QProfileWsAction {
         .filter(input -> authorizedProjectUuids.contains(input.getProjectUuid()))
         .skip(paging.offset())
         .limit(paging.pageSize())
-        .collect(MoreCollectors.toList());
+        .collect(Collectors.toList());
 
       writeProjects(response, authorizedProjects, paging);
     }

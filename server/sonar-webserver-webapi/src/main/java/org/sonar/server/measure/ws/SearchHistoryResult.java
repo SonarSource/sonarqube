@@ -25,6 +25,7 @@ import com.google.common.collect.Table;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
@@ -68,7 +69,7 @@ public class SearchHistoryResult {
 
   public SearchHistoryResult setAnalyses(List<SnapshotDto> analyses) {
     this.paging = Common.Paging.newBuilder().setPageIndex(page).setPageSize(pageSize).setTotal(analyses.size()).build();
-    this.analyses = analyses.stream().skip(offset(page, pageSize)).limit(pageSize).collect(MoreCollectors.toList());
+    this.analyses = analyses.stream().skip(offset(page, pageSize)).limit(pageSize).collect(Collectors.toList());
 
     return this;
   }

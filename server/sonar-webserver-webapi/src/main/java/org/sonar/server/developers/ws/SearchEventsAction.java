@@ -58,7 +58,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Comparator.comparing;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTimeQuietly;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
@@ -141,7 +140,7 @@ public class SearchEventsAction implements DevelopersWsAction {
         return Stream.empty();
       }
 
-      List<String> branchUuids = analyses.stream().map(SnapshotDto::getRootComponentUuid).collect(toList());
+      List<String> branchUuids = analyses.stream().map(SnapshotDto::getRootComponentUuid).collect(Collectors.toList());
       Map<String, BranchDto> branchesByUuids = dbClient.branchDao().selectByUuids(dbSession, branchUuids).stream().collect(uniqueIndex(BranchDto::getUuid));
 
       return Stream.concat(
@@ -240,7 +239,7 @@ public class SearchEventsAction implements DevelopersWsAction {
         checkArgument(date != null, "'%s' cannot be parsed as either a date or date+time", stringDate);
         return date.getTime() + 1_000L;
       })
-      .collect(toList());
+      .collect(Collectors.toList());
   }
 
   private static String encode(String text) {

@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile.ws;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Language;
@@ -28,7 +29,6 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.GlobalPermission;
@@ -366,10 +366,10 @@ public class SearchActionIT {
     db.qualityProfiles().setAsDefault(sonarWayCs, myCompanyProfile, sonarWayPython);
     // rules
     List<RuleDto> javaRules = range(0, 10).mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(java.getKey())))
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
     List<RuleDto> deprecatedJavaRules = range(0, 5)
       .mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(java.getKey()).setStatus(DEPRECATED)))
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
     range(0, 7).forEach(i -> db.qualityProfiles().activateRule(myCompanyProfile, javaRules.get(i)));
     range(0, 2).forEach(i -> db.qualityProfiles().activateRule(myCompanyProfile, deprecatedJavaRules.get(i)));
     range(0, 10).forEach(i -> db.qualityProfiles().activateRule(myBuProfile, javaRules.get(i)));

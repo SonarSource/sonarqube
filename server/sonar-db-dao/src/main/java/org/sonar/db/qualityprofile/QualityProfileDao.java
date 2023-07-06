@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
@@ -209,7 +210,7 @@ public class QualityProfileDao implements Dao {
   }
 
   public Map<String, Long> countProjectsByProfiles(DbSession dbSession, List<QProfileDto> profiles) {
-    List<String> profileUuids = profiles.stream().map(QProfileDto::getKee).collect(MoreCollectors.toList());
+    List<String> profileUuids = profiles.stream().map(QProfileDto::getKee).collect(Collectors.toList());
     return KeyLongValue.toMap(executeLargeInputs(profileUuids, partition -> mapper(dbSession).countProjectsByProfiles(partition)));
   }
 

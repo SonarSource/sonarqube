@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -45,7 +46,6 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.fromParam;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.qualityprofile.SearchQualityProfilePermissionQuery.ANY;
@@ -117,14 +117,14 @@ public class SearchGroupsAction implements QProfileWsAction {
       List<SearchGroupMembershipDto> groupMemberships = dbClient.qProfileEditGroupsDao().selectByQuery(dbSession, query,
         forPage(wsRequest.getPage()).andSize(wsRequest.getPageSize()));
       Map<String, GroupDto> groupsByUuid = dbClient.groupDao().selectByUuids(dbSession,
-        groupMemberships.stream().map(SearchGroupMembershipDto::getGroupUuid).collect(MoreCollectors.toList()))
+        groupMemberships.stream().map(SearchGroupMembershipDto::getGroupUuid).collect(Collectors.toList()))
         .stream()
         .collect(MoreCollectors.uniqueIndex(GroupDto::getUuid));
       writeProtobuf(
         Qualityprofiles.SearchGroupsResponse.newBuilder()
           .addAllGroups(groupMemberships.stream()
             .map(groupsMembership -> toGroup(groupsByUuid.get(groupsMembership.getGroupUuid()), groupsMembership.isSelected()))
-            .collect(toList()))
+            .collect(Collectors.toList()))
           .setPaging(buildPaging(wsRequest, total)).build(),
         request, response);
     }

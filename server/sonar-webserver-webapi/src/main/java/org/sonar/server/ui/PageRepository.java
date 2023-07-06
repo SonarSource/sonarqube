@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
@@ -42,7 +43,7 @@ import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
 import static org.sonar.api.web.page.Page.Scope.GLOBAL;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 @ServerSide
@@ -135,7 +136,7 @@ public class PageRepository implements Startable {
       .filter(p -> p.getScope().equals(scope))
       .filter(p -> p.isAdmin() == isAdmin)
       .filter(p -> !COMPONENT.equals(p.getScope()) || p.getComponentQualifiers().contains(qualifier))
-      .collect(toList());
+      .collect(Collectors.toList());
   }
 
   @VisibleForTesting

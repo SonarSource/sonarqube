@@ -77,7 +77,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableMap;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
@@ -639,7 +638,7 @@ public class RegisterRules implements Startable {
     // DeprecatedKeys that must be deleted
     List<String> uuidsToBeDeleted = difference(deprecatedRuleKeysFromDB, deprecatedRuleKeysFromDefinition).stream()
       .map(SingleDeprecatedRuleKey::getUuid)
-      .collect(toList());
+      .collect(Collectors.toList());
 
     dbClient.ruleDao().deleteDeprecatedRuleKeys(dbSession, uuidsToBeDeleted);
 
@@ -824,7 +823,7 @@ public class RegisterRules implements Startable {
   private static void verifyRuleKeyConsistency(List<RulesDefinition.Repository> repositories, RegisterRulesContext registerRulesContext) {
     List<RulesDefinition.Rule> definedRules = repositories.stream()
       .flatMap(r -> r.rules().stream())
-      .collect(toList());
+      .collect(Collectors.toList());
 
     Set<RuleKey> definedRuleKeys = definedRules.stream()
       .map(r -> RuleKey.of(r.repository().key(), r.key()))
@@ -832,7 +831,7 @@ public class RegisterRules implements Startable {
 
     List<RuleKey> definedDeprecatedRuleKeys = definedRules.stream()
       .flatMap(r -> r.deprecatedRuleKeys().stream())
-      .collect(toList());
+      .collect(Collectors.toList());
 
     // Find duplicates in declared deprecated rule keys
     Set<RuleKey> duplicates = findDuplicates(definedDeprecatedRuleKeys);

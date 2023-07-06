@@ -21,8 +21,8 @@ package org.sonar.server.es.textsearch;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.newindex.DefaultIndexSettings;
 
 import static org.sonar.server.es.newindex.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
@@ -41,6 +41,6 @@ public class JavaTokenizer {
       queryText.split(DefaultIndexSettings.SEARCH_TERM_TOKENIZER_PATTERN))
       .filter(StringUtils::isNotEmpty)
       .filter(s -> s.length() >= MINIMUM_NGRAM_LENGTH)
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 }

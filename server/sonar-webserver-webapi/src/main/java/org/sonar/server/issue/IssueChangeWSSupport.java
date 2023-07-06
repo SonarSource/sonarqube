@@ -55,7 +55,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_COMMENT;
@@ -115,10 +114,10 @@ public class IssueChangeWSSupport {
         List<IssueChangeDto> all = dbClient.issueChangeDao().selectByIssueKeys(dbSession, issueKeys);
         changes = all.stream()
           .filter(t -> TYPE_FIELD_CHANGE.equals(t.getChangeType()))
-          .collect(toList());
+          .collect(Collectors.toList());
         comments = all.stream()
           .filter(t -> TYPE_COMMENT.equals(t.getChangeType()))
-          .collect(toList());
+          .collect(Collectors.toList());
         break;
       default:
         throw new IllegalStateException("Unsupported Load value:" + load);

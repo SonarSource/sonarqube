@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -48,7 +49,6 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.fromParam;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.Pagination.forPage;
@@ -122,13 +122,13 @@ public class SearchUsersAction implements QProfileWsAction {
       int total = dbClient.qProfileEditUsersDao().countByQuery(dbSession, query);
       List<SearchUserMembershipDto> usersMembership = dbClient.qProfileEditUsersDao().selectByQuery(dbSession, query,
         forPage(wsRequest.getPage()).andSize(wsRequest.getPageSize()));
-      Map<String, UserDto> usersById = dbClient.userDao().selectByUuids(dbSession, usersMembership.stream().map(SearchUserMembershipDto::getUserUuid).collect(toList()))
+      Map<String, UserDto> usersById = dbClient.userDao().selectByUuids(dbSession, usersMembership.stream().map(SearchUserMembershipDto::getUserUuid).collect(Collectors.toList()))
         .stream().collect(uniqueIndex(UserDto::getUuid));
       writeProtobuf(
         SearchUsersResponse.newBuilder()
           .addAllUsers(usersMembership.stream()
             .map(userMembershipDto -> toUser(usersById.get(userMembershipDto.getUserUuid()), userMembershipDto.isSelected()))
-            .collect(toList()))
+            .collect(Collectors.toList()))
           .setPaging(buildPaging(wsRequest, total)).build(),
         request, response);
     }

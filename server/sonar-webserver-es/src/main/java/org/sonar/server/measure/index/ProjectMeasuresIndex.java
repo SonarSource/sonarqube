@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -484,7 +485,7 @@ public class ProjectMeasuresIndex {
     return aggregation.getBuckets().stream()
       .skip((page-1) * size)
       .map(Bucket::getKeyAsString)
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   private interface FacetBuilder {

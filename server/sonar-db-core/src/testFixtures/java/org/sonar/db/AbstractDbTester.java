@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.dbutils.QueryRunner;
@@ -51,7 +52,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.rules.ExternalResource;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.asList;
@@ -391,7 +391,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
         columnNames.stream()
           .sorted(PkColumn.ORDERING_BY_INDEX)
           .map(PkColumn::getName)
-          .collect(MoreCollectors.toList()));
+          .collect(Collectors.toList()));
     }
   }
 

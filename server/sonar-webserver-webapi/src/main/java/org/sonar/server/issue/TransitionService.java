@@ -21,9 +21,9 @@ package org.sonar.server.issue;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.user.UserSession;
@@ -55,7 +55,7 @@ public class TransitionService {
       .stream()
       .filter(transition -> (userSession.isLoggedIn() && isBlank(transition.requiredProjectPermission()))
         || userSession.hasComponentUuidPermission(transition.requiredProjectPermission(), projectUuid))
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   public boolean doTransition(DefaultIssue defaultIssue, IssueChangeContext issueChangeContext, String transitionKey) {

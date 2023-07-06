@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -50,7 +51,6 @@ import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.SUBVIEW;
 import static org.sonar.api.resources.Qualifiers.VIEW;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.updateMeasureBuilder;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -153,7 +153,7 @@ public class SearchAction implements MeasuresWsAction {
 
     private List<MetricDto> searchMetrics() {
       List<MetricDto> dbMetrics = dbClient.metricDao().selectByKeys(dbSession, request.getMetricKeys());
-      List<String> metricKeys = dbMetrics.stream().map(MetricDto::getKey).collect(toList());
+      List<String> metricKeys = dbMetrics.stream().map(MetricDto::getKey).collect(Collectors.toList());
       checkRequest(request.getMetricKeys().size() == dbMetrics.size(), "The following metrics are not found: %s",
         String.join(", ", difference(request.getMetricKeys(), metricKeys)));
       return dbMetrics;
@@ -165,7 +165,7 @@ public class SearchAction implements MeasuresWsAction {
       return expected.stream()
         .filter(value -> !actualSet.contains(value))
         .sorted(String::compareTo)
-        .collect(toList());
+        .collect(Collectors.toList());
     }
 
     private List<LiveMeasureDto> searchMeasures() {
@@ -200,7 +200,7 @@ public class SearchAction implements MeasuresWsAction {
           return measure;
         })
         .sorted(comparing(byMetricKey).thenComparing(byComponentName))
-        .collect(toList());
+        .collect(Collectors.toList());
     }
   }
 

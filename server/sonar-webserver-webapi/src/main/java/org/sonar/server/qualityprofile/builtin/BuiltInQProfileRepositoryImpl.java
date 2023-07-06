@@ -142,7 +142,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
       .filter(BuiltInQProfileRepositoryImpl::ensureAtMostOneDeclaredDefault)
       .map(entry -> toQualityProfiles(entry.getValue()))
       .flatMap(Collection::stream)
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   private Map<RuleKey, RuleDto> loadRuleDefinitionsByRuleKey() {

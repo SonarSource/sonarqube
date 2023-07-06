@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -64,7 +65,6 @@ import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MAX_EXECUTED_AT;
@@ -289,7 +289,7 @@ public class ActivityAction implements CeWsAction {
     } else if (componentQuery != null) {
       query.setEntityUuids(loadEntities(dbSession, componentQuery).stream()
         .map(EntityDto::getUuid)
-        .collect(toList()));
+        .collect(Collectors.toList()));
     }
     return query;
   }

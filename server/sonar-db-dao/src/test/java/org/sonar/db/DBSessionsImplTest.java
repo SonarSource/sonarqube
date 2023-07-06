@@ -76,7 +76,7 @@ public class DBSessionsImplTest {
       .thenReturn(expected[3])
       .thenThrow(oneCallTooMuch());
 
-    assertThat(Arrays.stream(expected).map(ignored -> underTest.openSession(false)).collect(MoreCollectors.toList()))
+    assertThat(Arrays.stream(expected).map(ignored -> underTest.openSession(false)).collect(Collectors.toList()))
       .containsExactly(expected);
   }
 
@@ -90,7 +90,7 @@ public class DBSessionsImplTest {
       .thenReturn(expected[3])
       .thenThrow(oneCallTooMuch());
 
-    assertThat(Arrays.stream(expected).map(ignored -> underTest.openSession(true)).collect(MoreCollectors.toList()))
+    assertThat(Arrays.stream(expected).map(ignored -> underTest.openSession(true)).collect(Collectors.toList()))
       .containsExactly(expected);
   }
 

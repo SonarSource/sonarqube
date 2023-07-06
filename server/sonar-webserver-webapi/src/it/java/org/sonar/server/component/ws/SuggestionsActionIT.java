@@ -30,7 +30,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -79,7 +78,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class SuggestionsActionIT {
   private static final String[] SUGGESTION_QUALIFIERS = Stream.of(SuggestionCategory.values())
     .map(SuggestionCategory::getQualifier)
-    .collect(MoreCollectors.toList()).toArray(new String[0]);
+    .collect(Collectors.toList()).toArray(new String[0]);
 
   @Rule
   public final DbTester db = DbTester.create(System2.INSTANCE);

@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -185,7 +186,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
     Date to = parseEndingDateOrDateTime(request.getTo());
     PastMeasureQuery dbQuery = new PastMeasureQuery(
       result.getComponent().uuid(),
-      result.getMetrics().stream().map(MetricDto::getUuid).collect(MoreCollectors.toList()),
+      result.getMetrics().stream().map(MetricDto::getUuid).collect(Collectors.toList()),
       from == null ? null : from.getTime(),
       to == null ? null : (to.getTime() + 1_000L));
     return dbClient.measureDao().selectPastMeasures(dbSession, dbQuery);

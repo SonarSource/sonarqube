@@ -21,11 +21,10 @@ package org.sonar.server.permission.index;
 
 import java.util.Arrays;
 import java.util.List;
-import org.elasticsearch.action.search.SearchRequest;
+import java.util.stream.Collectors;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.EsClient;
 
 import static org.sonar.server.permission.index.FooIndexDefinition.DESCRIPTOR;
@@ -48,7 +47,7 @@ public class FooIndex {
       .getHits();
     List<String> names = Arrays.stream(hits.getHits())
       .map(h -> h.getSourceAsMap().get(FooIndexDefinition.FIELD_NAME).toString())
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
     return names.size() == 2 && names.contains("bar") && names.contains("baz");
   }
 }

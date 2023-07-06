@@ -22,13 +22,13 @@ package org.sonar.server.qualitygate.ws;
 import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
@@ -147,8 +147,8 @@ public class SearchAction implements QualityGatesWsAction {
   }
 
   private List<ProjectQgateAssociationDto> keepAuthorizedProjects(DbSession dbSession, List<ProjectQgateAssociationDto> projects) {
-    List<String> projectUuids = projects.stream().map(ProjectQgateAssociationDto::getUuid).collect(MoreCollectors.toList());
+    List<String> projectUuids = projects.stream().map(ProjectQgateAssociationDto::getUuid).collect(Collectors.toList());
     Collection<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, projectUuids, userSession.getUuid(), UserRole.USER);
-    return projects.stream().filter(project -> authorizedProjectUuids.contains(project.getUuid())).collect(MoreCollectors.toList());
+    return projects.stream().filter(project -> authorizedProjectUuids.contains(project.getUuid())).collect(Collectors.toList());
   }
 }

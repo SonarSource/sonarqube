@@ -20,9 +20,9 @@
 package org.sonar.server.notification.ws;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.Startable;
 
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 
@@ -52,11 +52,11 @@ public class DispatchersImpl implements Dispatchers, Startable {
     this.globalDispatchers = notificationCenter.getDispatcherKeysForProperty(GLOBAL_NOTIFICATION, "true")
       .stream()
       .sorted()
-      .collect(toList());
+      .collect(Collectors.toList());
     this.projectDispatchers = notificationCenter.getDispatcherKeysForProperty(PER_PROJECT_NOTIFICATION, "true")
       .stream()
       .sorted()
-      .collect(toList());
+      .collect(Collectors.toList());
   }
 
   @Override

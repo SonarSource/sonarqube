@@ -106,7 +106,7 @@ class SearchData {
           .limit(request.getPageSize());
       }
 
-      this.analyses = stream.collect(MoreCollectors.toList());
+      this.analyses = stream.collect(Collectors.toList());
       this.countAnalyses = analyses.size();
       return this;
     }
@@ -165,7 +165,7 @@ class SearchData {
         .filter(byCategory)
         .skip(Paging.offset(request.getPage(), request.getPageSize()))
         .limit(request.getPageSize())
-        .collect(MoreCollectors.toList());
+        .collect(Collectors.toList());
     }
 
     SearchData build() {

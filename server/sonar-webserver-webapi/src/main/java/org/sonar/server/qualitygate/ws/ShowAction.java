@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -40,7 +41,6 @@ import org.sonarqube.ws.Qualitygates.ShowWsResponse;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Optional.ofNullable;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
@@ -115,7 +115,7 @@ public class ShowAction implements QualityGatesWsAction {
       .setCaycStatus(caycStatus.toString())
       .addAllConditions(conditions.stream()
         .map(toWsCondition(metricsByUuid))
-        .collect(toList()))
+        .collect(Collectors.toList()))
       .setActions(wsSupport.getActions(dbSession, qualityGate, defaultQualityGate))
       .build();
   }

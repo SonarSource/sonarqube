@@ -27,13 +27,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.Startable;
 import org.sonar.api.utils.HttpDownloader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
@@ -105,7 +105,7 @@ public class PluginDownloader implements Startable {
     return listPlugins(this.downloadDir)
       .stream()
       .map(PluginInfo::create)
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   public void download(String pluginKey, Version version) {

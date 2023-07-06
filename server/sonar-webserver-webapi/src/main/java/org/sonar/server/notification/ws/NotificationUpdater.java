@@ -21,8 +21,8 @@ package org.sonar.server.notification.ws;
 
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
@@ -60,7 +60,7 @@ public class NotificationUpdater {
           .build(),
         dbSession).stream()
       .filter(notificationScope(project))
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
     checkArgument(existingNotification.isEmpty()
       || !PROP_NOTIFICATION_VALUE.equals(existingNotification.get(0).getValue()), "Notification already added");
 
@@ -90,7 +90,7 @@ public class NotificationUpdater {
           .build(),
         dbSession).stream()
       .filter(notificationScope(project))
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
     checkArgument(!existingNotification.isEmpty() && PROP_NOTIFICATION_VALUE.equals(existingNotification.get(0).getValue()), "Notification doesn't exist");
 
     dbClient.propertiesDao().delete(dbSession, new PropertyDto()

@@ -22,10 +22,10 @@ package org.sonar.server.projecttag;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
@@ -85,7 +85,7 @@ public class TagsWsSupport {
       .map(t -> t.toLowerCase(Locale.ENGLISH))
       .map(TagsWsSupport::checkTag)
       .distinct()
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   private static String checkTag(String tag) {

@@ -52,10 +52,6 @@ public final class MoreCollectors {
     // prevents instantiation
   }
 
-  public static <T> Collector<T, ?, List<T>> toList() {
-    return Collectors.toList();
-  }
-
   public static <E> Collector<E, ?, ImmutableList<E>> toImmutableList() {
     return ImmutableList.toImmutableList();
   }

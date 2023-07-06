@@ -25,13 +25,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.NoOpAuditPersister;
@@ -1010,7 +1010,7 @@ public class GroupPermissionDaoIT {
       .stream()
       .flatMap(map -> map.entrySet().stream())
       .map(entry -> (String) entry.getValue())
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   private ProjectData randomPublicOrPrivateProject() {

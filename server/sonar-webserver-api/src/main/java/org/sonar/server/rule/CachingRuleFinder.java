@@ -37,7 +37,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleQuery;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
@@ -126,7 +125,7 @@ public class CachingRuleFinder implements ServerRuleFinder {
       .filter(entry -> matchQuery(entry.getKey(), query))
       .sorted(FIND_BY_QUERY_ORDER)
       .map(Map.Entry::getValue)
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   private static boolean matchQuery(RuleDto ruleDto, RuleQuery ruleQuery) {

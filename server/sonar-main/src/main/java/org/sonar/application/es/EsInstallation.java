@@ -26,11 +26,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.application.command.EsJvmOptions;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.Props;
 
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
@@ -108,7 +108,7 @@ public class EsInstallation {
     String dataPath = props.nonNullValue(PATH_DATA.getKey());
     return Stream.of("es", "es5", "es6", "es7")
       .map(t -> new File(dataPath, t))
-      .collect(MoreCollectors.toList());
+      .collect(Collectors.toList());
   }
 
   private static File buildDataDir(Props props) {

@@ -58,7 +58,6 @@ import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -179,7 +178,7 @@ public class SearchAction implements QProfileWsAction {
     return Stream.concat(
       dbClient.qProfileEditUsersDao().selectQProfileUuidsByUser(dbSession, user).stream(),
       dbClient.qProfileEditGroupsDao().selectQProfileUuidsByGroups(dbSession, userSession.getGroups()).stream())
-      .collect(toList());
+      .collect(Collectors.toList());
   }
 
   private List<QProfileDto> searchProfiles(DbSession dbSession, SearchRequest request, List<QProfileDto> defaultProfiles, @Nullable ProjectDto project) {
