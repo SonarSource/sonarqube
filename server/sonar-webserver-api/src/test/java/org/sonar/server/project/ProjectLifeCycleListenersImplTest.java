@@ -33,6 +33,8 @@ import org.mockito.Mockito;
 import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.util.Collections.singleton;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
@@ -74,14 +76,14 @@ public class ProjectLifeCycleListenersImplTest {
   }
 
   @Test
-  @UseDataProvider("oneOrManyProjects")
-  public void onProjectsDeleted_does_not_fail_if_there_is_no_listener(Set<Project> projects) {
-    underTestNoListeners.onProjectsDeleted(projects);
+  @UseDataProvider("oneOrManyDeletedProjects")
+  public void onProjectsDeleted_does_not_fail_if_there_is_no_listener(Set<DeletedProject> projects) {
+    assertThatCode(() -> underTestNoListeners.onProjectsDeleted(projects)).doesNotThrowAnyException();
   }
 
   @Test
-  @UseDataProvider("oneOrManyProjects")
-  public void onProjectsDeleted_calls_all_listeners_in_order_of_addition_to_constructor(Set<Project> projects) {
+  @UseDataProvider("oneOrManyDeletedProjects")
+  public void onProjectsDeleted_calls_all_listeners_in_order_of_addition_to_constructor(Set<DeletedProject> projects) {
     InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
 
     underTestWithListeners.onProjectsDeleted(projects);
@@ -93,8 +95,8 @@ public class ProjectLifeCycleListenersImplTest {
   }
 
   @Test
-  @UseDataProvider("oneOrManyProjects")
-  public void onProjectsDeleted_calls_all_listeners_even_if_one_throws_an_Exception(Set<Project> projects) {
+  @UseDataProvider("oneOrManyDeletedProjects")
+  public void onProjectsDeleted_calls_all_listeners_even_if_one_throws_an_Exception(Set<DeletedProject> projects) {
     InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
     doThrow(new RuntimeException("Faking listener2 throwing an exception"))
       .when(listener2)
@@ -109,8 +111,8 @@ public class ProjectLifeCycleListenersImplTest {
   }
 
   @Test
-  @UseDataProvider("oneOrManyProjects")
-  public void onProjectsDeleted_calls_all_listeners_even_if_one_throws_an_Error(Set<Project> projects) {
+  @UseDataProvider("oneOrManyDeletedProjects")
+  public void onProjectsDeleted_calls_all_listeners_even_if_one_throws_an_Error(Set<DeletedProject> projects) {
     InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
     doThrow(new Error("Faking listener2 throwing an Error"))
       .when(listener2)
@@ -204,7 +206,16 @@ public class ProjectLifeCycleListenersImplTest {
       {IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> newUniqueProject()).collect(MoreCollectors.toSet())}
     };
   }
-  // SDSDS
+
+  @DataProvider
+  public static Object[][] oneOrManyDeletedProjects() {
+    return new Object[][] {
+      {singleton(newUniqueProject())},
+      {IntStream.range(0, 1 + new Random().nextInt(10)).mapToObj(i -> new DeletedProject(newUniqueProject(), "branch_" + i))
+        .collect(MoreCollectors.toSet())}
+    };
+  }
+
 
   @Test
   public void onProjectsRekeyed_throws_NPE_if_set_is_null() {

@@ -20,9 +20,11 @@
 package org.sonar.server.project.ws;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,11 +40,13 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.project.DeletedProject;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.project.Visibility;
@@ -118,7 +122,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
 
     action.createParam(PARAM_VISIBILITY)
       .setDescription("Filter the projects that should be visible to everyone (%s), or only specific user/groups (%s).<br/>" +
-          "If no visibility is specified, the default project visibility will be used.",
+        "If no visibility is specified, the default project visibility will be used.",
         Visibility.PUBLIC.getLabel(), Visibility.PRIVATE.getLabel())
       .setRequired(false)
       .setInternal(true)
@@ -154,10 +158,20 @@ public class BulkDeleteAction implements ProjectsWsAction {
       try {
         entities.forEach(p -> componentCleanerService.deleteEntity(dbSession, p));
       } finally {
-        projectLifeCycleListeners.onProjectsDeleted(entities.stream().map(Project::from).collect(Collectors.toSet()));
+        callDeleteListeners(dbSession, componentDtos, entities);
       }
     }
     response.noContent();
+  }
+
+  private void callDeleteListeners(DbSession dbSession, Set<ComponentDto> componentDtos, List<EntityDto> entities) {
+    Set<String> entityUuids = entities.stream().map(EntityDto::getUuid).collect(toSet());
+    Map<String, String> mainBranchUuidByEntityUuid = dbClient.branchDao().selectMainBranchesByProjectUuids(dbSession, entityUuids).stream()
+      .collect(Collectors.toMap(BranchDto::getProjectUuid, BranchDto::getUuid));
+
+    ImmutableSet<DeletedProject> deletedProjects = entities.stream().map(entity -> new DeletedProject(Project.from(entity), mainBranchUuidByEntityUuid.get(entity.getUuid())))
+      .collect(MoreCollectors.toSet(componentDtos.size()));
+    projectLifeCycleListeners.onProjectsDeleted(deletedProjects);
   }
 
   private static void checkAtLeastOneParameterIsPresent(SearchRequest searchRequest) {

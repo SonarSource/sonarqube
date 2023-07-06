@@ -50,7 +50,7 @@ public class ProjectLifeCycleListenersImpl implements ProjectLifeCycleListeners 
   }
 
   @Override
-  public void onProjectsDeleted(Set<Project> projects) {
+  public void onProjectsDeleted(Set<DeletedProject> projects) {
     checkNotNull(projects, "projects can't be null");
     if (projects.isEmpty()) {
       return;

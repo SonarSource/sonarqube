@@ -19,23 +19,18 @@
  */
 package org.sonar.server.project;
 
-import java.util.Set;
-import org.sonar.api.server.ServerSide;
+import javax.annotation.Nullable;
 
-@ServerSide
-public interface ProjectLifeCycleListener {
-  /**
-   * This method is called after the specified projects have been deleted.
-   */
-  void onProjectsDeleted(Set<DeletedProject> projects);
+import static com.google.common.base.Preconditions.checkNotNull;
 
-  /**
-   * This method is called after the specified projects have been deleted.
-   */
-  void onProjectBranchesDeleted(Set<Project> projects);
-
-  /**
-   * This method is called after the specified projects' keys have been modified.
-   */
-  void onProjectsRekeyed(Set<RekeyedProject> rekeyedProjects);
+/**
+ * This record is used to refresh application/portfolio after the deletion of a project / portfolio
+ * @param project could refer to a project or a portfolio deleted
+ * @param mainBranchUuid refer to the main branch of the project deleted, is null when this record is used for a portfolio
+ */
+public record DeletedProject(Project project, @Nullable String mainBranchUuid) {
+  public DeletedProject(Project project, String mainBranchUuid) {
+    this.project = checkNotNull(project, "project can't be null");
+    this.mainBranchUuid = mainBranchUuid;
+  }
 }

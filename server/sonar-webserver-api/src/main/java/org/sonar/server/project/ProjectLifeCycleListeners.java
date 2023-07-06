@@ -30,7 +30,7 @@ public interface ProjectLifeCycleListeners {
    * This method ensures all {@link ProjectLifeCycleListener} implementations are called, even if one or more of
    * them fail with an exception.
    */
-  void onProjectsDeleted(Set<Project> projects);
+  void onProjectsDeleted(Set<DeletedProject> projects);
 
   /**
    * This method is called after the specified project branches have been deleted and will call method

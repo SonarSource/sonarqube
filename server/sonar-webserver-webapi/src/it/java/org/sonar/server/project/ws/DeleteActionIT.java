@@ -39,6 +39,7 @@ import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.project.DeletedProject;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.tester.UserSessionRule;
@@ -80,13 +81,15 @@ public class DeleteActionIT {
   @Test
   public void global_administrator_deletes_project_by_key() {
     ProjectData projectData = db.components().insertPrivateProject();
-    ComponentDto project = projectData.getMainBranchComponent();
+    ComponentDto rootComponent = projectData.getMainBranchComponent();
     userSessionRule.logIn().addPermission(GlobalPermission.ADMINISTER);
 
-    call(tester.newRequest().setParam(PARAM_PROJECT, project.getKey()));
+    call(tester.newRequest().setParam(PARAM_PROJECT, rootComponent.getKey()));
 
-    assertThat(verifyDeletedKey()).isEqualTo(project.getKey());
-    verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(projectData.getProjectDto())));
+    assertThat(verifyDeletedKey()).isEqualTo(rootComponent.getKey());
+    Project from = Project.from(projectData.getProjectDto());
+    String mainBranchUuid = projectData.getMainBranchDto().getUuid();
+    verify(projectLifeCycleListeners).onProjectsDeleted(singleton(new DeletedProject(from, mainBranchUuid)));
   }
 
   @Test
@@ -98,7 +101,7 @@ public class DeleteActionIT {
     call(tester.newRequest().setParam(PARAM_PROJECT, project.getKey()));
 
     assertThat(verifyDeletedKey()).isEqualTo(project.getKey());
-    verify(projectLifeCycleListeners).onProjectsDeleted(singleton(Project.from(projectData.getProjectDto())));
+    verify(projectLifeCycleListeners).onProjectsDeleted(singleton(new DeletedProject(Project.from(projectData.getProjectDto()),projectData.getMainBranchDto().getUuid())));
   }
 
   @Test
