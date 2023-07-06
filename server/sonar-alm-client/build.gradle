@@ -9,7 +9,7 @@ dependencies {
     api 'com.squareup.okhttp3:okhttp'
     api 'commons-codec:commons-codec'
     api 'com.auth0:java-jwt'
-    api 'org.bouncycastle:bcpkix-jdk15on:1.70'
+    api 'org.bouncycastle:bcpkix-jdk18on:1.74'
     api 'org.sonarsource.api.plugin:sonar-plugin-api'
     api project(':server:sonar-auth-github')
 

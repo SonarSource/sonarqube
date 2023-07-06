@@ -45,6 +45,7 @@ shadowJar {
   archiveBaseName = 'sonar-application'
   archiveClassifier = null
   mergeServiceFiles()
+  zip64 true
   manifest {
     attributes('Main-Class': 'org.sonar.application.App')
   }
@@ -311,7 +312,7 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
 // Check the size of the archive
 zip.doLast {
   def minLength = 340000000
-  def maxLength = 371000000
+  def maxLength = 391000000
 
   def length = archiveFile.get().asFile.length()
   if (length < minLength)
