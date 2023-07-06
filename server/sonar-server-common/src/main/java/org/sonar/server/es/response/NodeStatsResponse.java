@@ -37,7 +37,7 @@ public class NodeStatsResponse {
       .map(Map.Entry::getValue)
       .map(JsonElement::getAsJsonObject)
       .map(NodeStats::toNodeStats)
-      .collect(MoreCollectors.toList());
+      .collect(MoreCollectors.toImmutableList());
   }
 
   public static NodeStatsResponse toNodeStatsResponse(JsonObject jsonObject) {

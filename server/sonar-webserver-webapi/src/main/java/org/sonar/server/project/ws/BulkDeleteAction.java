@@ -158,19 +158,19 @@ public class BulkDeleteAction implements ProjectsWsAction {
       try {
         entities.forEach(p -> componentCleanerService.deleteEntity(dbSession, p));
       } finally {
-        callDeleteListeners(dbSession, componentDtos, entities);
+        callDeleteListeners(dbSession, entities);
       }
     }
     response.noContent();
   }
 
-  private void callDeleteListeners(DbSession dbSession, Set<ComponentDto> componentDtos, List<EntityDto> entities) {
+  private void callDeleteListeners(DbSession dbSession, List<EntityDto> entities) {
     Set<String> entityUuids = entities.stream().map(EntityDto::getUuid).collect(toSet());
     Map<String, String> mainBranchUuidByEntityUuid = dbClient.branchDao().selectMainBranchesByProjectUuids(dbSession, entityUuids).stream()
       .collect(Collectors.toMap(BranchDto::getProjectUuid, BranchDto::getUuid));
 
     ImmutableSet<DeletedProject> deletedProjects = entities.stream().map(entity -> new DeletedProject(Project.from(entity), mainBranchUuidByEntityUuid.get(entity.getUuid())))
-      .collect(MoreCollectors.toSet(componentDtos.size()));
+      .collect(MoreCollectors.toImmutableSet());
     projectLifeCycleListeners.onProjectsDeleted(deletedProjects);
   }
 

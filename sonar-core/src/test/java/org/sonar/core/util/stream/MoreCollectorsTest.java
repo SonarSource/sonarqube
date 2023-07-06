@@ -27,7 +27,6 @@ import com.google.common.collect.SetMultimap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +45,8 @@ import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.join;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
+import static org.sonar.core.util.stream.MoreCollectors.toImmutableList;
+import static org.sonar.core.util.stream.MoreCollectors.toImmutableSet;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
@@ -74,7 +75,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void toList_builds_an_ImmutableList() {
-    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toList());
+    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toImmutableList());
     assertThat(res).isInstanceOf(ImmutableList.class)
       .containsExactly(1, 2, 3, 4, 5);
   }
@@ -86,7 +87,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void toList_with_size_builds_an_ImmutableList() {
-    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toList(30));
+    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toImmutableList());
     assertThat(res).isInstanceOf(ImmutableList.class)
       .containsExactly(1, 2, 3, 4, 5);
   }
@@ -98,7 +99,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void toSet_builds_an_ImmutableSet() {
-    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toSet());
+    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toImmutableSet());
     assertThat(res).isInstanceOf(ImmutableSet.class)
       .containsExactly(1, 2, 3, 4, 5);
   }
@@ -110,7 +111,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void toSet_with_size_builds_an_ImmutableSet() {
-    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toSet(30));
+    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toImmutableSet());
     assertThat(res).isInstanceOf(ImmutableSet.class)
       .containsExactly(1, 2, 3, 4, 5);
   }

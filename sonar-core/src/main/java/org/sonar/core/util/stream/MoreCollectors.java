@@ -52,68 +52,28 @@ public final class MoreCollectors {
     // prevents instantiation
   }
 
-  /**
-   * A Collector into an {@link ImmutableList}.
-   */
-  public static <T> Collector<T, List<T>, ImmutableList<T>> toList() {
-    return Collector.of(
-      ArrayList::new,
-      List::add,
-      (left, right) -> {
-        left.addAll(right);
-        return left;
-      },
-      ImmutableList::copyOf);
+  public static <T> Collector<T, ?, List<T>> toList() {
+    return Collectors.toList();
   }
 
-  /**
-   * A Collector into an {@link ImmutableList} of the specified expected size.
-   *
-   * <p>Note: using this method with a parallel stream will likely not have the expected memory usage benefit as all
-   * processing threads will use a List with a capacity large enough for the final size.</p>
-   */
-  public static <T> Collector<T, List<T>, ImmutableList<T>> toList(int expectedSize) {
-    // use ArrayList rather than ImmutableList.Builder because initial capacity of builder can not be specified
-    return Collector.of(
-      () -> new ArrayList<>(expectedSize),
-      List::add,
-      (left, right) -> {
-        left.addAll(right);
-        return left;
-      },
-      ImmutableList::copyOf);
+  public static <E> Collector<E, ?, ImmutableList<E>> toImmutableList() {
+    return ImmutableList.toImmutableList();
   }
 
-  /**
-   * A Collector into an {@link ImmutableSet}.
-   */
-  public static <T> Collector<T, Set<T>, ImmutableSet<T>> toSet() {
-    return Collector.of(
-      HashSet::new,
-      Set::add,
-      (left, right) -> {
-        left.addAll(right);
-        return left;
-      },
-      ImmutableSet::copyOf);
+  public static <T> Collector<T, ?, List<T>> toList(int expectedSize) {
+    return Collectors.toList();
   }
 
-  /**
-   * A Collector into an {@link ImmutableSet} of the specified expected size.
-   *
-   * <p>Note: using this method with a parallel stream will likely not have the expected memory usage benefit as all
-   * processing threads will use a Set with a capacity large enough for the final size.</p>
-   */
-  public static <T> Collector<T, Set<T>, ImmutableSet<T>> toSet(int expectedSize) {
-    // use HashSet rather than ImmutableSet.Builder because initial capacity of builder can not be specified
-    return Collector.of(
-      () -> new HashSet<>(expectedSize),
-      Set::add,
-      (left, right) -> {
-        left.addAll(right);
-        return left;
-      },
-      ImmutableSet::copyOf);
+  public static <T> Collector<T, ?, Set<T>> toSet() {
+    return Collectors.toSet();
+  }
+
+  public static <E> Collector<E, ?, ImmutableSet<E>> toImmutableSet() {
+    return ImmutableSet.toImmutableSet();
+  }
+
+  public static <T> Collector<T, ?, Set<T>> toSet(int expectedSize) {
+    return toSet();
   }
 
   /**
@@ -461,4 +421,5 @@ public final class MoreCollectors {
       throw new IllegalStateException("Parallel processing is not supported");
     };
   }
+
 }

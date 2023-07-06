@@ -132,7 +132,7 @@ public class RegisterQualityGates implements Startable {
     return qualityGateConditionDao.selectForQualityGate(dbSession, builtinQualityGate.getUuid())
       .stream()
       .map(dto -> QualityGateCondition.from(dto, uuidToKeyMetric))
-      .collect(MoreCollectors.toList());
+      .collect(MoreCollectors.toImmutableList());
   }
 
   private List<QualityGateCondition> removeExtraConditions(DbSession dbSession, QualityGateDto builtinQualityGate, List<QualityGateCondition> qualityGateConditions) {

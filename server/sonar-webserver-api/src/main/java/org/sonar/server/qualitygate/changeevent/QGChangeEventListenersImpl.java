@@ -31,7 +31,6 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener.ChangedIssue;
 
 import static java.lang.String.format;
-import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 /**
  * Broadcast a given collection of {@link QGChangeEvent} for a specific trigger to all the registered
@@ -81,7 +80,7 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
   private static ImmutableSet<ChangedIssue> toChangedIssues(Collection<DefaultIssue> defaultIssues, boolean fromAlm) {
     return defaultIssues.stream()
       .map(defaultIssue -> new ChangedIssueImpl(defaultIssue, fromAlm))
-      .collect(toSet());
+      .collect(MoreCollectors.toImmutableSet());
   }
 
   private void broadcastChangeEventToListeners(Set<ChangedIssue> changedIssues, QGChangeEvent changeEvent) {
