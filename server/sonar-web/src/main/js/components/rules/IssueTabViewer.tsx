@@ -19,7 +19,7 @@
  */
 
 import classNames from 'classnames';
-import { ToggleButton } from 'design-system';
+import { LAYOUT_FOOTER_HEIGHT, ToggleButton } from 'design-system';
 import { cloneDeep, debounce, groupBy } from 'lodash';
 import * as React from 'react';
 import { Location } from 'react-router-dom';
@@ -45,7 +45,6 @@ interface IssueTabViewerProps extends CurrentUserContextInterface {
   ruleDescriptionContextKey?: string;
   codeTabContent?: React.ReactNode;
   activityTabContent?: React.ReactNode;
-  scrollInTab?: boolean;
   location: Location;
   selectedFlowIndex?: number;
   selectedLocationIndex?: number;
@@ -338,7 +337,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
   };
 
   render() {
-    const { scrollInTab, issue, ruleDetails } = this.props;
+    const { issue, ruleDetails } = this.props;
     const { tabs, selectedTab } = this.state;
 
     if (!tabs || tabs.length === 0 || !selectedTab) {
@@ -350,9 +349,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
         {({ top }) => (
           <div
             style={{
-              // We substract the footer height with padding (80) and the main layout padding (20)
-              // and the tabs padding (20)
-              maxHeight: scrollInTab ? `calc(100vh - ${top + 120}px)` : 'initial',
+              maxHeight: `calc(100vh - ${top + 20 + LAYOUT_FOOTER_HEIGHT}px)`,
             }}
             className="sw-overflow-y-auto"
           >

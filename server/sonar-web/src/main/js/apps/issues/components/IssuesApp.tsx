@@ -24,6 +24,7 @@ import {
   ButtonSecondary,
   Checkbox,
   FlagMessage,
+  LAYOUT_FOOTER_HEIGHT,
   LargeCenteredLayout,
   PageContentFontWrapper,
   ToggleButton,
@@ -1200,7 +1201,6 @@ export class App extends React.PureComponent<Props, State> {
     } = this.state;
 
     const selectedIndex = this.getSelectedIndex();
-    const topMargin = openIssue ? '120px' : '150px'; // 60px(footer) + 90px(bulk change)/60px(navbar)
 
     return (
       <ScreenPositionHelper>
@@ -1209,7 +1209,7 @@ export class App extends React.PureComponent<Props, State> {
             className={classNames('it__layout-page-main-inner sw-pt-0', {
               'sw-overflow-y-auto': !(openIssue && openRuleDetails),
             })}
-            style={{ height: `calc((100vh - ${top}px) - ${topMargin})` }}
+            style={{ height: `calc((100vh - ${top + LAYOUT_FOOTER_HEIGHT}px)` }}
           >
             {this.renderHeader({ openIssue, paging, selectedIndex })}
 
@@ -1217,7 +1217,7 @@ export class App extends React.PureComponent<Props, State> {
               {/* eslint-disable-next-line local-rules/no-conditional-rendering-of-deferredspinner */}
               {openIssue && openRuleDetails ? (
                 <IssueTabViewer
-                  ruleDetails={openRuleDetails as RuleDetails}
+                  ruleDetails={openRuleDetails}
                   extendedDescription={openRuleDetails.htmlNote}
                   ruleDescriptionContextKey={openIssue.ruleDescriptionContextKey}
                   issue={openIssue}
@@ -1236,7 +1236,6 @@ export class App extends React.PureComponent<Props, State> {
                       selectedLocationIndex={this.state.selectedLocationIndex}
                     />
                   }
-                  scrollInTab
                   activityTabContent={
                     <IssueReviewHistoryAndComments
                       issue={openIssue}
