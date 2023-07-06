@@ -31,7 +31,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
@@ -178,7 +177,7 @@ public class QualityProfileDao implements Dao {
   }
 
   public List<QProfileDto> selectChildren(DbSession dbSession, Collection<QProfileDto> profiles) {
-    List<String> uuids = profiles.stream().map(QProfileDto::getKee).collect(MoreCollectors.toArrayList(profiles.size()));
+    List<String> uuids = profiles.stream().map(QProfileDto::getKee).collect(Collectors.toList());
     return DatabaseUtils.executeLargeInputs(uuids, chunk -> mapper(dbSession).selectChildren(chunk));
   }
 

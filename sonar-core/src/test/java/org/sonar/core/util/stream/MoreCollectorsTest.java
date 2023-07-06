@@ -22,7 +22,6 @@ package org.sonar.core.util.stream;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.SetMultimap;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -41,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.join;
-import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedFlattenIndex;
@@ -78,18 +76,6 @@ public class MoreCollectorsTest {
     Set<MyEnum> res = Stream.<MyEnum>empty().collect(MoreCollectors.toEnumSet(MyEnum.class));
     assertThat(res).isInstanceOf(EnumSet.class)
       .isEmpty();
-  }
-
-  @Test
-  public void toArrayList_with_size_builds_an_ArrayList() {
-    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toArrayList(30));
-    assertThat(res).isInstanceOf(ArrayList.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void toArrayList_with_size_parallel_stream() {
-    assertThat(HUGE_LIST.parallelStream().collect(toArrayList(HUGE_LIST.size()))).isEqualTo(HUGE_LIST);
   }
 
   @Test

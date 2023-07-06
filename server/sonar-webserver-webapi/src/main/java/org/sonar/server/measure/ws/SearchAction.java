@@ -32,7 +32,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -51,14 +50,14 @@ import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.SUBVIEW;
 import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PROJECT_KEYS;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.updateMeasureBuilder;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
-import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PROJECT_KEYS;
 
 public class SearchAction implements MeasuresWsAction {
 
@@ -170,8 +169,8 @@ public class SearchAction implements MeasuresWsAction {
 
     private List<LiveMeasureDto> searchMeasures() {
       return dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession,
-        projects.stream().map(ComponentDto::uuid).collect(MoreCollectors.toArrayList(projects.size())),
-        metrics.stream().map(MetricDto::getUuid).collect(MoreCollectors.toArrayList(metrics.size())));
+        projects.stream().map(ComponentDto::uuid).collect(Collectors.toList()),
+        metrics.stream().map(MetricDto::getUuid).collect(Collectors.toList()));
     }
 
     private SearchWsResponse buildResponse() {

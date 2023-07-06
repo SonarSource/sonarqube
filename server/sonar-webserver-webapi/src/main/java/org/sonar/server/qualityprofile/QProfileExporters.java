@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -171,7 +172,7 @@ public class QProfileExporters {
     List<RuleActivation> activations = activeRules.stream()
       .map(activeRule -> toRuleActivation(activeRule, rulesByRuleKey))
       .filter(Objects::nonNull)
-      .collect(MoreCollectors.toArrayList(activeRules.size()));
+      .collect(Collectors.toList());
     return qProfileRules.activateAndCommit(dbSession, profile, activations);
   }
 

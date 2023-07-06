@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,7 +64,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.db.component.BranchType.BRANCH;
 
 @RunWith(DataProviderRunner.class)
@@ -239,7 +239,7 @@ public class WebhookQGChangeEventListenerIT {
         .setAnalysisUuid(snapshotUuid)
         .setKey(entry.getKey())
         .setValue(entry.getValue()))
-      .collect(toArrayList(properties.size()));
+      .collect(Collectors.toList());
     dbTester.getDbClient().analysisPropertiesDao().insert(dbTester.getSession(), analysisProperties);
     dbTester.getSession().commit();
   }

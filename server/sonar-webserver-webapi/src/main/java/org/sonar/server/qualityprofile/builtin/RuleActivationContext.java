@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -40,7 +41,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.index;
-import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
@@ -194,7 +194,7 @@ public class RuleActivationContext {
     }
     Collection<QProfileDto> baseProfiles = profilesByUuid.values().stream()
       .filter(p -> p.getRulesProfileUuid().equals(baseRulesProfile.getUuid()))
-      .collect(toArrayList(profilesByUuid.size()));
+      .collect(Collectors.toList());
     DescendantProfilesSupplier.Result result = descendantProfilesSupplier.get(baseProfiles, rulesByUuid.keySet());
     register(result.profiles());
     register(result.activeRules(), result.activeRuleParams());

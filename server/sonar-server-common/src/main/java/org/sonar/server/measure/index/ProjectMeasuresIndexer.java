@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -130,14 +129,14 @@ public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, Ne
   private Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> entityUuids) {
     List<EsQueueDto> items = entityUuids.stream()
       .map(entityUuid -> EsQueueDto.create(TYPE_PROJECT_MEASURES.format(), entityUuid, null, entityUuid))
-      .collect(MoreCollectors.toArrayList(entityUuids.size()));
+      .collect(Collectors.toList());
     return dbClient.esQueueDao().insert(dbSession, items);
   }
 
   public IndexingResult commitAndIndex(DbSession dbSession, Collection<String> projectUuids) {
     List<EsQueueDto> items = projectUuids.stream()
       .map(projectUuid -> EsQueueDto.create(TYPE_PROJECT_MEASURES.format(), projectUuid, null, projectUuid))
-      .collect(MoreCollectors.toArrayList(projectUuids.size()));
+      .collect(Collectors.toList());
     dbClient.esQueueDao().insert(dbSession, items);
 
     dbSession.commit();
@@ -154,7 +153,7 @@ public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, Ne
     BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, listener);
     bulkIndexer.start();
 
-    List<String> projectUuids = items.stream().map(EsQueueDto::getDocId).collect(MoreCollectors.toArrayList(items.size()));
+    List<String> projectUuids = items.stream().map(EsQueueDto::getDocId).collect(Collectors.toList());
     Iterator<String> it = projectUuids.iterator();
     while (it.hasNext()) {
       String projectUuid = it.next();

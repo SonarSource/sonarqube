@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -476,7 +477,7 @@ public class RuleActivator {
         .map(QProfileDto::getRulesProfileUuid)
         .collect(MoreCollectors.toHashSet());
       Collection<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRulesAndRuleProfileUuids(dbSession, ruleUuids, ruleProfileUuids);
-      List<String> activeRuleUuids = activeRules.stream().map(ActiveRuleDto::getUuid).collect(MoreCollectors.toArrayList(activeRules.size()));
+      List<String> activeRuleUuids = activeRules.stream().map(ActiveRuleDto::getUuid).collect(Collectors.toList());
       List<ActiveRuleParamDto> activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, activeRuleUuids);
       return new DescendantProfilesSupplier.Result(profiles, activeRules, activeRuleParams);
     };
@@ -491,7 +492,7 @@ public class RuleActivator {
   private void completeWithActiveRules(DbSession dbSession, RuleActivationContext.Builder builder, Collection<String> ruleUuids, Collection<String> ruleProfileUuids) {
     Collection<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRulesAndRuleProfileUuids(dbSession, ruleUuids, ruleProfileUuids);
     builder.setActiveRules(activeRules);
-    List<String> activeRuleUuids = activeRules.stream().map(ActiveRuleDto::getUuid).collect(MoreCollectors.toArrayList(activeRules.size()));
+    List<String> activeRuleUuids = activeRules.stream().map(ActiveRuleDto::getUuid).collect(Collectors.toList());
     builder.setActiveRuleParams(db.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, activeRuleUuids));
   }
 

@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -123,7 +124,7 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
   private static ArrayList<EsQueueDto> createEsQueueDtosFromEntities(Collection<String> entityUuids) {
     return entityUuids.stream()
       .map(entityUuid -> EsQueueDto.create(TYPE_COMPONENT.format(), entityUuid, null, entityUuid))
-      .collect(MoreCollectors.toArrayList(entityUuids.size()));
+      .collect(Collectors.toList());
   }
 
   @Override

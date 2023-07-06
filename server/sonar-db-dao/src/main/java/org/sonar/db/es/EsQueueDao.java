@@ -22,13 +22,13 @@ package org.sonar.db.es;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static java.util.Collections.singletonList;
-import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class EsQueueDao implements Dao {
@@ -65,7 +65,7 @@ public class EsQueueDao implements Dao {
     List<String> uuids = items.stream()
       .map(EsQueueDto::getUuid)
       .filter(Objects::nonNull)
-      .collect(toArrayList(items.size()));
+      .collect(Collectors.toList());
     executeLargeUpdates(uuids, mapper::delete);
   }
 

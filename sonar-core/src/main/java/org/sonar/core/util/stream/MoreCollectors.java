@@ -57,10 +57,6 @@ public final class MoreCollectors {
     return Collectors.toCollection(() -> EnumSet.noneOf(enumClass));
   }
 
-  public static <T> Collector<T, ?, ArrayList<T>> toArrayList(int size) {
-    return java.util.stream.Collectors.toCollection(() -> new ArrayList<>(size));
-  }
-
   public static <T> Collector<T, ?, HashSet<T>> toHashSet() {
     return java.util.stream.Collectors.toCollection(HashSet::new);
   }
