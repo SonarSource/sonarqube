@@ -124,14 +124,6 @@ h6 svg,
   transform: translateY(-1px);
 }
 
-sup {
-  vertical-align: text-top;
-}
-
-sub {
-  vertical-align: text-bottom;
-}
-
 em {
   font-style: italic;
 }
