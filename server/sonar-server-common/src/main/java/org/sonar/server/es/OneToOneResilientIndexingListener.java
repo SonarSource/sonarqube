@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -61,7 +62,7 @@ public class OneToOneResilientIndexingListener implements IndexingListener {
         .map(itemsById::get)
         .flatMap(Collection::stream)
         .filter(Objects::nonNull)
-        .collect(MoreCollectors.toArrayList());
+        .collect(Collectors.toList());
       dbClient.esQueueDao().delete(dbSession, itemsToDelete);
       dbSession.commit();
     }

@@ -22,9 +22,9 @@ package org.sonar.server.qualityprofile;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -89,7 +89,7 @@ public class QProfileTreeImpl implements QProfileTree {
 
     changes = getChangesFromRulesToBeRemoved(dbSession, profile, getRulesDifference(activeRules, parentActiveRules));
 
-    Collection<String> parentRuleUuids = parentActiveRules.stream().map(ActiveRuleDto::getRuleUuid).collect(MoreCollectors.toArrayList());
+    Collection<String> parentRuleUuids = parentActiveRules.stream().map(ActiveRuleDto::getRuleUuid).collect(Collectors.toList());
     RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, parentRuleUuids);
 
     for (ActiveRuleDto parentActiveRule : parentActiveRules) {
@@ -108,7 +108,7 @@ public class QProfileTreeImpl implements QProfileTree {
   private static List<OrgActiveRuleDto> getRulesDifference(Collection<OrgActiveRuleDto> rulesCollection1, Collection<OrgActiveRuleDto> rulesCollection2) {
     Collection<String> rulesCollection2Uuids = rulesCollection2.stream()
       .map(ActiveRuleDto::getRuleUuid)
-      .collect(MoreCollectors.toArrayList());
+      .collect(Collectors.toList());
 
     return rulesCollection1.stream()
       .filter(rule -> !rulesCollection2Uuids.contains(rule.getRuleUuid()))
@@ -134,7 +134,7 @@ public class QProfileTreeImpl implements QProfileTree {
   private List<ActiveRuleChange> getChangesFromRulesToBeRemoved(DbSession dbSession, QProfileDto profile, List<OrgActiveRuleDto> rules) {
     List<ActiveRuleChange> changes = new ArrayList<>();
 
-    Collection<String> ruleUuids = rules.stream().map(ActiveRuleDto::getRuleUuid).collect(MoreCollectors.toArrayList());
+    Collection<String> ruleUuids = rules.stream().map(ActiveRuleDto::getRuleUuid).collect(Collectors.toList());
     RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleUuids);
 
     for (OrgActiveRuleDto activeRule : rules) {

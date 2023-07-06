@@ -92,7 +92,7 @@ public class SearchHistoryResult {
     ImmutableList.Builder<MeasureDto> measuresBuilder = ImmutableList.builder();
     List<MeasureDto> filteredMeasures = measures.stream()
       .filter(measure -> analysisUuids.contains(measure.getAnalysisUuid()))
-      .collect(MoreCollectors.toArrayList());
+      .collect(Collectors.toList());
     measuresBuilder.addAll(filteredMeasures);
     measuresBuilder.addAll(computeBestValues(filteredMeasures));
 

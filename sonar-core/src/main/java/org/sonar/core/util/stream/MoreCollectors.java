@@ -57,44 +57,14 @@ public final class MoreCollectors {
     return Collectors.toCollection(() -> EnumSet.noneOf(enumClass));
   }
 
-  /**
-   * Delegates to {@link java.util.stream.Collectors#toCollection(Supplier)}.
-   */
-  public static <T> Collector<T, ?, ArrayList<T>> toArrayList() {
-    return java.util.stream.Collectors.toCollection(ArrayList::new);
-  }
-
-  /**
-   * Does {@code java.util.stream.MoreCollectors.toCollection(() -> new ArrayList<>(size));} which is equivalent to
-   * {@link #toArrayList()} but avoiding array copies when the size of the resulting list is already known.
-   *
-   * <p>Note: using this method with a parallel stream will likely not have the expected memory usage benefit as all
-   * processing threads will use a ArrayList with a capacity large enough for the final size.</p>
-   *
-   * @see java.util.stream.Collectors#toList()
-   * @see java.util.stream.Collectors#toCollection(Supplier)
-   */
   public static <T> Collector<T, ?, ArrayList<T>> toArrayList(int size) {
     return java.util.stream.Collectors.toCollection(() -> new ArrayList<>(size));
   }
 
-  /**
-   * Delegates to {@link java.util.stream.Collectors#toCollection(Supplier)}.
-   */
   public static <T> Collector<T, ?, HashSet<T>> toHashSet() {
     return java.util.stream.Collectors.toCollection(HashSet::new);
   }
 
-  /**
-   * Does {@code java.util.stream.MoreCollectors.toCollection(() -> new HashSet<>(size));} which is equivalent to
-   * {@link #toHashSet()} but avoiding array copies when the size of the resulting set is already known.
-   *
-   * <p>Note: using this method with a parallel stream will likely not have the expected memory usage benefit as all
-   * processing threads will use a HashSet with a capacity large enough for the final size.</p>
-   *
-   * @see java.util.stream.Collectors#toSet()
-   * @see java.util.stream.Collectors#toCollection(Supplier)
-   */
   public static <T> Collector<T, ?, HashSet<T>> toHashSet(int size) {
     return java.util.stream.Collectors.toCollection(() -> new HashSet<>(size));
   }

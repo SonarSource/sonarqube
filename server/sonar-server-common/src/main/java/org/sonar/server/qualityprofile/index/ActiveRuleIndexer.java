@@ -52,7 +52,6 @@ import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.server.qualityprofile.index.ActiveRuleDoc.docIdOf;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
@@ -98,7 +97,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
     List<EsQueueDto> items = changes.stream()
       .map(ActiveRuleChange::getActiveRule)
       .map(ar -> newQueueDto(docIdOf(ar.getUuid()), ID_TYPE_ACTIVE_RULE_UUID, ar.getRuleUuid()))
-      .collect(toArrayList());
+      .collect(Collectors.toList());
 
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();
@@ -110,7 +109,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
       .map(QProfileDto::getRulesProfileUuid)
       .distinct()
       .map(ruleProfileUuid -> newQueueDto(ruleProfileUuid, ID_TYPE_RULE_PROFILE_UUID, null))
-      .collect(toArrayList());
+      .collect(Collectors.toList());
 
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();

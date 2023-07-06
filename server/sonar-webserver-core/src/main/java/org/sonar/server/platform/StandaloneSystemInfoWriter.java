@@ -20,8 +20,8 @@
 package org.sonar.server.platform;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.ce.http.CeHttpClient;
@@ -47,7 +47,7 @@ public class StandaloneSystemInfoWriter extends AbstractSystemInfoWriter {
 
     List<ProtobufSystemInfo.Section> sections = stream(systemInfoSections)
       .map(SystemInfoSection::toProtobuf)
-      .collect(MoreCollectors.toArrayList());
+      .collect(Collectors.toList());
     ceHttpClient.retrieveSystemInfo()
       .ifPresent(ce -> sections.addAll(ce.getSectionsList()));
 

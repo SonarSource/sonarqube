@@ -23,8 +23,8 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
@@ -76,7 +76,7 @@ public class UserPermissionDao implements Dao {
       // Pagination is done in Java because it's too complex to use SQL pagination in Oracle and MsSQL with the distinct
       .skip(query.getPageOffset())
       .limit(query.getPageSize())
-      .collect(MoreCollectors.toArrayList());
+      .collect(Collectors.toList());
   }
 
   public int countUsersByQuery(DbSession dbSession, PermissionQuery query) {

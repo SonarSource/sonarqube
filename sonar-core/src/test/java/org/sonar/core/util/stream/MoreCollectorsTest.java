@@ -81,18 +81,6 @@ public class MoreCollectorsTest {
   }
 
   @Test
-  public void toArrayList_builds_an_ArrayList() {
-    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toArrayList());
-    assertThat(res).isInstanceOf(ArrayList.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void toArrayList_parallel_stream() {
-    assertThat(HUGE_LIST.parallelStream().collect(toArrayList())).isEqualTo(HUGE_LIST);
-  }
-
-  @Test
   public void toArrayList_with_size_builds_an_ArrayList() {
     List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toArrayList(30));
     assertThat(res).isInstanceOf(ArrayList.class)

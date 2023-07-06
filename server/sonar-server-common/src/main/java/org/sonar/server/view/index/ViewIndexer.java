@@ -24,9 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRequest;
 import org.elasticsearch.action.index.IndexRequest;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -171,7 +171,7 @@ public class ViewIndexer implements ResilientIndexer {
   public void delete(DbSession dbSession, Collection<String> viewUuids) {
     List<EsQueueDto> items = viewUuids.stream()
       .map(l -> EsQueueDto.create(TYPE_VIEW.format(), l))
-      .collect(MoreCollectors.toArrayList());
+      .collect(Collectors.toList());
 
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();

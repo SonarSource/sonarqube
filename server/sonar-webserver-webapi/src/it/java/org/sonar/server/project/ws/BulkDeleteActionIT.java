@@ -38,7 +38,6 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -237,7 +236,7 @@ public class BulkDeleteActionIT {
   @Test
   public void delete_only_the_1000_first_projects() {
     userSession.logIn().addPermission(ADMINISTER);
-    List<String> keys = IntStream.range(0, 1_010).mapToObj(i -> "key" + i).collect(MoreCollectors.toArrayList());
+    List<String> keys = IntStream.range(0, 1_010).mapToObj(i -> "key" + i).collect(Collectors.toList());
     keys.forEach(key -> db.components().insertPrivateProject(p -> p.setKey(key)).getMainBranchComponent());
 
     ws.newRequest()

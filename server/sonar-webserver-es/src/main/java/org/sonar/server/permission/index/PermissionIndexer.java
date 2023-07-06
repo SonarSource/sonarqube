@@ -44,7 +44,6 @@ import org.sonar.server.es.OneToOneResilientIndexingListener;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.util.Collections.emptyList;
-import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 
 /**
  * Populates the types "authorization" of each index requiring entity
@@ -117,7 +116,7 @@ public class PermissionIndexer implements EventIndexer {
   private Collection<EsQueueDto> insertIntoEsQueue(DbSession dbSession, Collection<String> projectUuids) {
     List<EsQueueDto> items = indexTypeByFormat.values().stream()
       .flatMap(indexType -> projectUuids.stream().map(projectUuid -> EsQueueDto.create(indexType.format(), AuthorizationDoc.idOf(projectUuid), null, projectUuid)))
-      .collect(toArrayList());
+      .collect(Collectors.toList());
 
     dbClient.esQueueDao().insert(dbSession, items);
     return items;

@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +90,7 @@ public class RuleIndexer implements ResilientIndexer {
   public void commitAndIndex(DbSession dbSession, Collection<String> ruleUuids) {
     List<EsQueueDto> items = ruleUuids.stream()
       .map(RuleIndexer::createQueueDtoForRule)
-      .collect(MoreCollectors.toArrayList());
+      .collect(Collectors.toList());
 
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();
