@@ -68,6 +68,8 @@ public interface BranchMapper {
 
   long updateNeedIssueSync(@Param("uuid") String uuid, @Param("needIssueSync")boolean needIssueSync,@Param("now") long now);
 
+  long updateIsMain(@Param("uuid") String uuid, @Param("isMain") boolean isMain, @Param("now") long now);
+
   short doAnyOfComponentsNeedIssueSync(@Param("componentKeys") List<String> components);
 
   Optional<BranchDto> selectMainBranchByProjectUuid(String projectUuid);
@@ -75,4 +77,5 @@ public interface BranchMapper {
   List<BranchDto> selectMainBranchesByProjectUuids(@Param("projectUuids") Collection<String> projectUuids);
 
   List<BranchMeasuresDto> selectBranchMeasuresWithCaycMetric(long yesterday);
+
 }

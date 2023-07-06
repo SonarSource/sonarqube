@@ -269,6 +269,15 @@
       uuid = #{uuid, jdbcType=VARCHAR}
   </update>
 
+    <update id="updateIsMain">
+    update project_branches
+    set
+      is_main = #{isMain, jdbcType=BOOLEAN},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      uuid = #{uuid, jdbcType=VARCHAR}
+  </update>
+
   <sql id="doAnyOfComponentsNeedIssueSyncSql">
     select
     case when exists

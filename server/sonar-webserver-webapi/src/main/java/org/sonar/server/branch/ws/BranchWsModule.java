@@ -29,6 +29,7 @@ public class BranchWsModule extends Module {
       DeleteAction.class,
       RenameAction.class,
       SetAutomaticDeletionProtectionAction.class,
+      SetMainBranchAction.class,
       BranchesWs.class);
   }
 }

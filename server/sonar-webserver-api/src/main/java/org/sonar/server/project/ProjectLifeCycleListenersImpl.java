@@ -68,7 +68,7 @@ public class ProjectLifeCycleListenersImpl implements ProjectLifeCycleListeners 
     }
 
     Arrays.stream(listeners)
-      .forEach(safelyCallListener(listener -> listener.onProjectBranchesDeleted(projects)));
+      .forEach(safelyCallListener(listener -> listener.onProjectBranchesChanged(projects)));
   }
 
   @Override

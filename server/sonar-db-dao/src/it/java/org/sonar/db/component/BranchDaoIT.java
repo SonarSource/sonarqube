@@ -485,8 +485,7 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void
-  selectByPullRequestKey() {
+  public void selectByPullRequestKey() {
     BranchDto mainBranch = new BranchDto();
     mainBranch.setProjectUuid("U1");
     mainBranch.setUuid("U1");
@@ -634,8 +633,7 @@ public class BranchDaoIT {
       .containsExactlyInAnyOrder(
         tuple(projectData1.projectUuid(), 3L, 3L),
         tuple(projectData2.projectUuid(), 1L, 1L),
-        tuple(projectData3.projectUuid(), 2L, 0L)
-      );
+        tuple(projectData3.projectUuid(), 2L, 0L));
   }
 
   @Test
@@ -655,7 +653,7 @@ public class BranchDaoIT {
 
     assertThat(underTest.selectProjectUuidsWithIssuesNeedSync(db.getSession(),
       Sets.newHashSet(project1Dto.getUuid(), project2Dto.getUuid(), project3Dto.getUuid(), project4Dto.getUuid())))
-      .containsOnly(project1Dto.getUuid());
+        .containsOnly(project1Dto.getUuid());
   }
 
   @Test
@@ -765,6 +763,23 @@ public class BranchDaoIT {
     Optional<BranchDto> project2 = underTest.selectByUuid(dbSession, uuid2);
     assertThat(project2).isPresent();
     assertThat(project2.get().isNeedIssueSync()).isFalse();
+  }
+
+  @Test
+  public void updateIsMain() {
+    ProjectData projectData = db.components().insertPrivateProject();
+    ProjectDto projectDto = projectData.getProjectDto();
+    BranchDto mainBranch = projectData.getMainBranchDto();
+    BranchDto nonMainBranch = db.components().insertProjectBranch(projectDto).setBranchType(BRANCH).setIsMain(false);
+
+    underTest.updateIsMain(dbSession, mainBranch.getUuid(), false);
+    underTest.updateIsMain(dbSession, nonMainBranch.getUuid(), true);
+
+    Optional<BranchDto> oldMainBranch = underTest.selectByUuid(dbSession, mainBranch.getUuid());
+    assertThat(oldMainBranch).isPresent().get().extracting(BranchDto::isMain).isEqualTo(false);
+    Optional<BranchDto> newMainBranch = underTest.selectByUuid(dbSession, nonMainBranch.getUuid());
+    assertThat(newMainBranch).isPresent().get().extracting(BranchDto::isMain).isEqualTo(true);
+
   }
 
   @Test

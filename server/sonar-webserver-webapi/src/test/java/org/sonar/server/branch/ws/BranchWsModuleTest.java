@@ -29,6 +29,6 @@ public class BranchWsModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     new BranchWsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(5);
+    assertThat(container.getAddedObjects()).hasSize(6);
   }
 }

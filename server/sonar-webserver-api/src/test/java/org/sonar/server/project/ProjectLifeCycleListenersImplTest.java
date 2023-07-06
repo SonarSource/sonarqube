@@ -160,9 +160,9 @@ public class ProjectLifeCycleListenersImplTest {
 
     underTestWithListeners.onProjectBranchesDeleted(projects);
 
-    inOrder.verify(listener1).onProjectBranchesDeleted(same(projects));
-    inOrder.verify(listener2).onProjectBranchesDeleted(same(projects));
-    inOrder.verify(listener3).onProjectBranchesDeleted(same(projects));
+    inOrder.verify(listener1).onProjectBranchesChanged(same(projects));
+    inOrder.verify(listener2).onProjectBranchesChanged(same(projects));
+    inOrder.verify(listener3).onProjectBranchesChanged(same(projects));
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -172,13 +172,13 @@ public class ProjectLifeCycleListenersImplTest {
     InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
     doThrow(new RuntimeException("Faking listener2 throwing an exception"))
       .when(listener2)
-      .onProjectBranchesDeleted(any());
+      .onProjectBranchesChanged(any());
 
     underTestWithListeners.onProjectBranchesDeleted(projects);
 
-    inOrder.verify(listener1).onProjectBranchesDeleted(same(projects));
-    inOrder.verify(listener2).onProjectBranchesDeleted(same(projects));
-    inOrder.verify(listener3).onProjectBranchesDeleted(same(projects));
+    inOrder.verify(listener1).onProjectBranchesChanged(same(projects));
+    inOrder.verify(listener2).onProjectBranchesChanged(same(projects));
+    inOrder.verify(listener3).onProjectBranchesChanged(same(projects));
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -188,13 +188,13 @@ public class ProjectLifeCycleListenersImplTest {
     InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
     doThrow(new Error("Faking listener2 throwing an Error"))
       .when(listener2)
-      .onProjectBranchesDeleted(any());
+      .onProjectBranchesChanged(any());
 
     underTestWithListeners.onProjectBranchesDeleted(projects);
 
-    inOrder.verify(listener1).onProjectBranchesDeleted(same(projects));
-    inOrder.verify(listener2).onProjectBranchesDeleted(same(projects));
-    inOrder.verify(listener3).onProjectBranchesDeleted(same(projects));
+    inOrder.verify(listener1).onProjectBranchesChanged(same(projects));
+    inOrder.verify(listener2).onProjectBranchesChanged(same(projects));
+    inOrder.verify(listener3).onProjectBranchesChanged(same(projects));
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -214,7 +214,6 @@ public class ProjectLifeCycleListenersImplTest {
         .collect(Collectors.toSet())}
     };
   }
-
 
   @Test
   public void onProjectsRekeyed_throws_NPE_if_set_is_null() {

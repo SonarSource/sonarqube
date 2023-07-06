@@ -27,6 +27,7 @@ public class ProjectBranchesParameters {
   public static final String ACTION_LIST = "list";
   public static final String ACTION_DELETE = "delete";
   public static final String ACTION_RENAME = "rename";
+  public static final String ACTION_SET_MAIN_BRANCH = "set_main";
   public static final String ACTION_SET_AUTOMATIC_DELETION_PROTECTION = "set_automatic_deletion_protection";
 
   // parameters

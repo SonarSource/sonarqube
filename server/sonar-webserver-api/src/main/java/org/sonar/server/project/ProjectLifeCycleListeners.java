@@ -33,8 +33,8 @@ public interface ProjectLifeCycleListeners {
   void onProjectsDeleted(Set<DeletedProject> projects);
 
   /**
-   * This method is called after the specified project branches have been deleted and will call method
-   * {@link ProjectLifeCycleListener#onProjectBranchesDeleted(Set)} of all known
+   * This method is called after the specified project have any king of change (branch deleted, change of main branch, ...)
+   *  This method will call method {@link ProjectLifeCycleListener#onProjectBranchesChanged(Set)} of all known
    * {@link ProjectLifeCycleListener} implementations.
    * <p>
    * This method ensures all {@link ProjectLifeCycleListener} implementations are called, even if one or more of
