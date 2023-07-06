@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
@@ -44,6 +43,7 @@ import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.measure.Rating;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
@@ -132,7 +132,7 @@ public class RegisterQualityGates implements Startable {
     return qualityGateConditionDao.selectForQualityGate(dbSession, builtinQualityGate.getUuid())
       .stream()
       .map(dto -> QualityGateCondition.from(dto, uuidToKeyMetric))
-      .collect(MoreCollectors.toImmutableList());
+      .collect(toImmutableList());
   }
 
   private List<QualityGateCondition> removeExtraConditions(DbSession dbSession, QualityGateDto builtinQualityGate, List<QualityGateCondition> qualityGateConditions) {

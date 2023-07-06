@@ -25,7 +25,8 @@ import com.google.gson.JsonObject;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.core.util.stream.MoreCollectors;
+
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 @Immutable
 public class NodeStatsResponse {
@@ -37,7 +38,7 @@ public class NodeStatsResponse {
       .map(Map.Entry::getValue)
       .map(JsonElement::getAsJsonObject)
       .map(NodeStats::toNodeStats)
-      .collect(MoreCollectors.toImmutableList());
+      .collect(toImmutableList());
   }
 
   public static NodeStatsResponse toNodeStatsResponse(JsonObject jsonObject) {

@@ -20,7 +20,6 @@
 package org.sonar.core.util.stream;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.SetMultimap;
@@ -45,7 +44,6 @@ import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.join;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
-import static org.sonar.core.util.stream.MoreCollectors.toImmutableList;
 import static org.sonar.core.util.stream.MoreCollectors.toImmutableSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedFlattenIndex;
@@ -70,20 +68,6 @@ public class MoreCollectorsTest {
   private static final List<MyObj> LIST = Arrays.asList(MY_OBJ_1_A, MY_OBJ_2_B, MY_OBJ_3_C);
   private static final List<MyObj2> LIST2 = Arrays.asList(MY_OBJ2_1_A_X, MY_OBJ2_2_B, MY_OBJ2_3_C);
 
-
-  @Test
-  public void toList_builds_an_ImmutableList() {
-    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toImmutableList());
-    assertThat(res).isInstanceOf(ImmutableList.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void toList_with_size_builds_an_ImmutableList() {
-    List<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toImmutableList());
-    assertThat(res).isInstanceOf(ImmutableList.class)
-      .containsExactly(1, 2, 3, 4, 5);
-  }
 
   @Test
   public void toSet_builds_an_ImmutableSet() {

@@ -20,7 +20,6 @@
 package org.sonar.core.util.stream;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -51,13 +50,10 @@ public final class MoreCollectors {
     // prevents instantiation
   }
 
-  public static <E> Collector<E, ?, ImmutableList<E>> toImmutableList() {
-    return ImmutableList.toImmutableList();
-  }
-
   public static <E> Collector<E, ?, ImmutableSet<E>> toImmutableSet() {
     return ImmutableSet.toImmutableSet();
   }
+
 
   /**
    * A Collector into an {@link EnumSet} of specified enumeration.
