@@ -106,6 +106,7 @@ export class PermissionTemplatesApp extends React.PureComponent<Props, State> {
         ready={this.state.ready}
         refresh={this.requestPermissions}
         topQualifiers={this.props.appState.qualifiers}
+        organization={this.props.organization}
       />
     );
   }

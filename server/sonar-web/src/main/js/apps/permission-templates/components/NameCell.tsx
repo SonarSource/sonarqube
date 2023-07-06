@@ -29,7 +29,7 @@ interface Props {
 }
 
 export default function NameCell({ template, organization }: Props) {
-  const pathname = `/organizations/${organization}/permission_templates`;
+  const pathname = `/organizations/${organization.kee}/permission_templates`;
 
   return (
     <td className="little-padded-left little-padded-right">
