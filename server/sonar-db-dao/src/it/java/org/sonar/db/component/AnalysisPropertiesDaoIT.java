@@ -40,7 +40,7 @@ public class AnalysisPropertiesDaoIT {
   private static final long NOW = 1_000L;
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final System2 system2 = new TestSystem2().setNow(NOW);
   private final DbSession dbSession = dbTester.getSession();

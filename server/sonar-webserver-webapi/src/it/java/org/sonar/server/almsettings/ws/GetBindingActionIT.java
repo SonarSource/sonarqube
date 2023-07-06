@@ -47,7 +47,7 @@ public class GetBindingActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private WsActionTester ws = new WsActionTester(new GetBindingAction(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null)));
 

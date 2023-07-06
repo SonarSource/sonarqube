@@ -49,7 +49,7 @@ import static org.mockito.Mockito.when;
 
 public class CachingRuleFinderIT {
   @org.junit.Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final AlwaysIncreasingSystem2 system2 = new AlwaysIncreasingSystem2();

@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QualityGateConditionDaoIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private DbSession dbSession = dbTester.getSession();
   private QualityGateConditionDao underTest = dbTester.getDbClient().gateConditionDao();

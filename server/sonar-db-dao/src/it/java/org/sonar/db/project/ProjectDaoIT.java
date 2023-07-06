@@ -52,7 +52,6 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -67,7 +66,7 @@ public class ProjectDaoIT {
   private final System2 system2 = new AlwaysIncreasingSystem2(1000L);
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 

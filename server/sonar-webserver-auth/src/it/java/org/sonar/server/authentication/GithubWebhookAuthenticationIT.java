@@ -65,7 +65,7 @@ public class GithubWebhookAuthenticationIT {
   public LogTester logTester = new LogTester();
 
   @Rule
-  public final DbTester db = DbTester.create(true);
+  public final DbTester db = DbTester.create();
 
   private final AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 

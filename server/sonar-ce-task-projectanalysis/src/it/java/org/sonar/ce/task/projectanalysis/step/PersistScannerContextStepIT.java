@@ -42,7 +42,7 @@ public class PersistScannerContextStepIT {
   private static final String ANALYSIS_UUID = "UUID";
 
   @ClassRule
-  public static final DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public static final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();

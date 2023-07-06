@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
@@ -56,7 +55,7 @@ import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
 public class QualityGateConditionsUpdaterIT {
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private final QualityGateConditionsUpdater underTest = new QualityGateConditionsUpdater(db.getDbClient());
 

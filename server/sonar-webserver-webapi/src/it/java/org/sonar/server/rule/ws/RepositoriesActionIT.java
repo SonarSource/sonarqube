@@ -36,7 +36,7 @@ public class RepositoriesActionIT {
   private static final String EMPTY_JSON_RESPONSE = "{\"repositories\":[]}";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   
   private RepositoriesAction underTest = new RepositoriesAction(dbTester.getDbClient());
   private WsActionTester tester = new WsActionTester(underTest);

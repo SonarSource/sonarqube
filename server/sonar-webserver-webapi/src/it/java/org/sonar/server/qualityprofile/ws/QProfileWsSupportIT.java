@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class QProfileWsSupportIT {
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

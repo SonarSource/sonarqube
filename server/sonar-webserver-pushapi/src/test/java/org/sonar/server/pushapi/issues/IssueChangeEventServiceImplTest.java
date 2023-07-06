@@ -59,7 +59,7 @@ import static org.sonarqube.ws.Common.Severity.MAJOR;
 public class IssueChangeEventServiceImplTest {
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   public final IssueChangeEventServiceImpl underTest = new IssueChangeEventServiceImpl(db.getDbClient());
 

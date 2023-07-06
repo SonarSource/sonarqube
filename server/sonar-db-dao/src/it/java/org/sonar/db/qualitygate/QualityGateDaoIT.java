@@ -44,7 +44,7 @@ import static org.sonar.db.qualitygate.QualityGateFindingDto.RATING_VALUE_TYPE;
 public class QualityGateDaoIT {
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, true);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final QualityGateDbTester qualityGateDbTester = new QualityGateDbTester(db);
   private final DbSession dbSession = db.getSession();

@@ -29,7 +29,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
@@ -45,7 +44,7 @@ import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
 
 public class UserPermissionChangerIT {
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
 
   private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);

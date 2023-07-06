@@ -48,7 +48,7 @@ import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 public class ServerUserSessionIT {
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, true);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
   private final DbClient dbClient = db.getDbClient();
 
   @Test

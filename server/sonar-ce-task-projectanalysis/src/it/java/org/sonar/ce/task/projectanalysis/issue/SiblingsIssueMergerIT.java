@@ -62,7 +62,7 @@ public class SiblingsIssueMergerIT {
   private final Branch branch = mock(Branch.class);
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()

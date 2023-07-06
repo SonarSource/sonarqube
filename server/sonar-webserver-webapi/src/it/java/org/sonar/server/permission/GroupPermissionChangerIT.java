@@ -49,7 +49,7 @@ import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 public class GroupPermissionChangerIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);

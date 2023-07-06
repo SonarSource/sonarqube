@@ -29,7 +29,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator.ProjectMeasures;
@@ -50,7 +49,7 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 public class ProjectMeasuresIndexerIteratorIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();

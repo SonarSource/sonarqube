@@ -31,7 +31,7 @@ import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 
 public class ProjectConfigurationFactoryTest {
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private final MapSettings settings = new MapSettings();
   private final ProjectConfigurationFactory underTest = new ProjectConfigurationFactory(settings, db.getDbClient());

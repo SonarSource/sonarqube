@@ -49,7 +49,7 @@ public class UserPermissionDaoWithPersisterIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister, true);
+  public final DbTester db = DbTester.create(System2.INSTANCE, auditPersister);
 
   private final ArgumentCaptor<UserPermissionNewValue> newValueCaptor = ArgumentCaptor.forClass(UserPermissionNewValue.class);
   private final DbSession dbSession = db.getSession();

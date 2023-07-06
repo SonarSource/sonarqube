@@ -42,7 +42,7 @@ import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 public class IssueIteratorFactoryIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Test
   public void iterator_over_one_issue() {

@@ -41,7 +41,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.es.EsQueueDto;
@@ -67,7 +66,7 @@ public class RecoveryIndexerTest {
   @Rule
   public EsTester es = EsTester.createCustom();
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
   @Rule
   public LogTester logTester = new LogTester().setLevel(TRACE);
   @Rule

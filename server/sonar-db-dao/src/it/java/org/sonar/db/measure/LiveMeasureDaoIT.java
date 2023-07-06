@@ -56,7 +56,7 @@ import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
 public class LiveMeasureDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final LiveMeasureDao underTest = db.getDbClient().liveMeasureDao();
   private MetricDto metric;

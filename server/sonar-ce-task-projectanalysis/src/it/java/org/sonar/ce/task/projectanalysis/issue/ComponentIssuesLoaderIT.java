@@ -69,7 +69,7 @@ public class ComponentIssuesLoaderIT {
   private static final Date DATE_LIMIT_30_DAYS_BACK_MIDNIGHT = parseDateTime("2018-07-18T00:00:00+0000");
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbClient dbClient = db.getDbClient();
   private final System2 system2 = mock(System2.class);

@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.tuple;
 public class AlmConfigurationSectionTest {
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private AlmConfigurationSection underTest = new AlmConfigurationSection(db.getDbClient());
 

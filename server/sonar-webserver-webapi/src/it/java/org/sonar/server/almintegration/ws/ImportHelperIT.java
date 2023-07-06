@@ -46,7 +46,7 @@ public class ImportHelperIT {
   private final Request request = mock(Request.class);
 
   @Rule
-  public final DbTester db = DbTester.create(system2, true);
+  public final DbTester db = DbTester.create(system2);
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

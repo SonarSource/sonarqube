@@ -66,7 +66,7 @@ public class ComponentUpdaterIT {
   private final System2 system2 = System2.INSTANCE;
 
   @Rule
-  public final DbTester db = DbTester.create(system2, true);
+  public final DbTester db = DbTester.create(system2);
   @Rule
   public final I18nRule i18n = new I18nRule().put("qualifier.TRK", "Project");
 

@@ -46,7 +46,7 @@ import static org.sonar.db.permission.GlobalPermission.SCAN;
 
 public class ProjectDataLoaderIT {
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

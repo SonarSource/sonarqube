@@ -55,7 +55,7 @@ public class ExportLineHashesStepIT {
   private static final String FILE_UUID_2 = "file-2-uuid";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public LogTester logTester = new LogTester();
 

@@ -75,7 +75,7 @@ public class ExportNewCodePeriodsStepIT {
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
-  public DbTester dbTester = DbTester.createWithExtensionMappers(System2.INSTANCE, true, ProjectExportMapper.class);
+  public DbTester dbTester = DbTester.createWithExtensionMappers(System2.INSTANCE, ProjectExportMapper.class);
 
   private MutableProjectHolder projectHolder = new MutableProjectHolderImpl();
   private FakeDumpWriter dumpWriter = new FakeDumpWriter();

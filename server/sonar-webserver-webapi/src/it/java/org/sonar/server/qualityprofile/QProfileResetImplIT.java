@@ -56,7 +56,7 @@ public class QProfileResetImplIT {
   private static final String LANGUAGE = "xoo";
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

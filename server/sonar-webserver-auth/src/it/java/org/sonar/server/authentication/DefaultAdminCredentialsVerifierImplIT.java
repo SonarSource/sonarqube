@@ -41,7 +41,7 @@ public class DefaultAdminCredentialsVerifierImplIT {
   private static final String ADMIN_LOGIN = "admin";
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public LogTester logTester = new LogTester();
 

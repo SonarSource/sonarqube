@@ -42,7 +42,7 @@ public class AppActionIT {
   private static final Language LANG2 = LanguageTesting.newLanguage("ws", "Whitespace");
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

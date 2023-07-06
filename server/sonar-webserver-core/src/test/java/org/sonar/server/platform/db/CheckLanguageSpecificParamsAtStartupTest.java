@@ -42,7 +42,7 @@ public class CheckLanguageSpecificParamsAtStartupTest {
   @ClassRule
   public static LogTester logTester = new LogTester().setLevel(LoggerLevel.WARN);
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
   private final MapSettings settings = new MapSettings();
   private final CheckLanguageSpecificParamsAtStartup underTest = new CheckLanguageSpecificParamsAtStartup(settings.asConfig());
 

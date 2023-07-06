@@ -88,7 +88,7 @@ import static org.sonar.db.issue.IssueTesting.newIssue;
 public class SetTypeActionIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(true);
+  public DbTester dbTester = DbTester.create();
   @Rule
   public EsTester es = EsTester.create();
   @Rule

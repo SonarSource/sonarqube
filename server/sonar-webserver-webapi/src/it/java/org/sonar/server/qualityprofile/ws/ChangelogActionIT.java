@@ -54,7 +54,7 @@ public class ChangelogActionIT {
   private final TestSystem2 system2 = new TestSystem2().setNow(DateUtils.parseDateTime(DATE).getTime());
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

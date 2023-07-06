@@ -57,7 +57,7 @@ public class AppActionIT {
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public final DbTester db = DbTester.create(true);
+  public final DbTester db = DbTester.create();
 
   private final ComponentViewerJsonWriter componentViewerJsonWriter = new ComponentViewerJsonWriter(db.getDbClient());
   private final WsActionTester ws = new WsActionTester(new AppAction(db.getDbClient(), userSession,

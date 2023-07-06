@@ -50,7 +50,7 @@ public class CredentialsLocalAuthenticationIT {
   private static final String PBKDF2_SALT = generatePBKDF2Salt();
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private static final Random RANDOM = new Random();
   private static final MapSettings settings = new MapSettings();

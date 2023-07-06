@@ -29,7 +29,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
 
@@ -44,7 +43,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
 public class NewCodePeriodDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = db.getSession();
   private final UuidFactory uuidFactory = new SequenceUuidFactory();

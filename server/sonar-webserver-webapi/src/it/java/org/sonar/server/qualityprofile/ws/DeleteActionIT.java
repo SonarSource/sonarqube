@@ -58,7 +58,7 @@ public class DeleteActionIT {
   private static final String A_LANGUAGE = "xoo";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

@@ -80,7 +80,7 @@ public class RuleIndexerIT {
   @Rule
   public EsTester es = EsTester.create();
   @Rule
-  public DbTester dbTester = DbTester.create(true);
+  public DbTester dbTester = DbTester.create();
   @Rule
   public LogTester logTester = new LogTester();
 

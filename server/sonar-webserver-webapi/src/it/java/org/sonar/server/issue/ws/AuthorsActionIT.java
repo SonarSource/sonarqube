@@ -59,7 +59,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class AuthorsActionIT {
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public EsTester es = EsTester.create();
   @Rule

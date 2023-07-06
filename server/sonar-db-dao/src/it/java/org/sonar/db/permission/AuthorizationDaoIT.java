@@ -59,7 +59,7 @@ public class AuthorizationDaoIT {
   private static final String DOES_NOT_EXIST = "does-not-exist";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final Random random = new Random();
   private DbSession dbSession = db.getSession();

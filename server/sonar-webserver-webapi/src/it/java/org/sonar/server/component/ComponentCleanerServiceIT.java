@@ -53,7 +53,7 @@ public class ComponentCleanerServiceIT {
   private final System2 system2 = System2.INSTANCE;
 
   @Rule
-  public final DbTester db = DbTester.create(system2, true);
+  public final DbTester db = DbTester.create(system2);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();

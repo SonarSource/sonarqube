@@ -28,7 +28,6 @@ import org.sonar.api.ce.posttask.PostProjectAnalysisTask.LogStatistics;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.server.async.AsyncExecution;
@@ -48,7 +47,7 @@ public class AsynchronousWebHooksImplIT {
   private final System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester db = create(system2, true);
+  public DbTester db = create(system2);
   private final WebhookDbTester webhookDbTester = db.webhooks();
   private final ComponentDbTester componentDbTester = db.components();
 

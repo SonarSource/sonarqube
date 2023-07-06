@@ -62,7 +62,7 @@ public class SearchMyProjectsActionIT {
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, true);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();

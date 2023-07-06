@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 public class TokenActionIT {
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

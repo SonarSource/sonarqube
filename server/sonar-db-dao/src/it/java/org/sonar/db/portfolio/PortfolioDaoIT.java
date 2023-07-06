@@ -51,7 +51,7 @@ import static org.mockito.Mockito.verify;
 public class PortfolioDaoIT {
   private final System2 system2 = new AlwaysIncreasingSystem2(1L, 1);
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
   private final AuditPersister audit = mock(AuditPersister.class);
   private final PortfolioDao portfolioDao = new PortfolioDao(system2, UuidFactoryFast.getInstance(), audit);
   private final DbSession session = db.getSession();

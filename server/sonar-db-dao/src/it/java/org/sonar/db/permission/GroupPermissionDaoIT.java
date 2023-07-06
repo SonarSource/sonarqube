@@ -55,7 +55,7 @@ public class GroupPermissionDaoIT {
   private static final String MISSING_UUID = "-1";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = db.getSession();
   private final GroupPermissionDao underTest = new GroupPermissionDao(new NoOpAuditPersister());

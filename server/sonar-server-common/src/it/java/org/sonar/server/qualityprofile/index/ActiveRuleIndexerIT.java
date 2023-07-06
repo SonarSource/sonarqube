@@ -47,7 +47,7 @@ public class ActiveRuleIndexerIT {
   private System2 system2 = System2.INSTANCE;
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   @Rule
   public EsTester es = EsTester.create();

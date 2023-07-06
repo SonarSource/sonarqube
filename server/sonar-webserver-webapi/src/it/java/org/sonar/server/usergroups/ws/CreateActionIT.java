@@ -45,7 +45,7 @@ import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 
 public class CreateActionIT {
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   private ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);

@@ -65,7 +65,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 
 public class ReportAnalysisFailureNotificationExecutionListenerIT {
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final Random random = new Random();
   private final DbClient dbClient = dbTester.getDbClient();

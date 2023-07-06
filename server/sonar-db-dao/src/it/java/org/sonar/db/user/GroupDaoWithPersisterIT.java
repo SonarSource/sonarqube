@@ -47,7 +47,7 @@ public class GroupDaoWithPersisterIT {
   private final System2 system2 = mock(System2.class);
 
   @Rule
-  public final DbTester db = DbTester.create(system2, auditPersister, true);
+  public final DbTester db = DbTester.create(system2, auditPersister);
 
   private final DbClient dbClient = db.getDbClient();
   private final GroupDao underTest = db.getDbClient().groupDao();

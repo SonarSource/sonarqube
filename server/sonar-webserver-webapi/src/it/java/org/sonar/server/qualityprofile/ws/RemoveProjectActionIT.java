@@ -57,7 +57,7 @@ public class RemoveProjectActionIT {
   private static final String LANGUAGE_2 = "foo";
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

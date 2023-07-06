@@ -58,7 +58,7 @@ import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
 public class QualityProfileChangeEventServiceImplTest {
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   public final QualityProfileChangeEventServiceImpl underTest = new QualityProfileChangeEventServiceImpl(db.getDbClient());
 

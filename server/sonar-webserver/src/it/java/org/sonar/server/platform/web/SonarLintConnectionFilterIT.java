@@ -45,7 +45,7 @@ public class SonarLintConnectionFilterIT {
   private final TestSystem2 system2 = new TestSystem2();
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2, true);
+  public DbTester dbTester = DbTester.create(system2);
 
   @Test
   public void update() throws IOException {

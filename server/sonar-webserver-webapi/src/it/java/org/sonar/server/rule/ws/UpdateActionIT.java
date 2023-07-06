@@ -72,7 +72,7 @@ public class UpdateActionIT {
   private static final long PAST = 10000L;
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   @Rule
   public EsTester es = EsTester.create();

@@ -47,7 +47,7 @@ public class UpgradeSuggestionsCleanerIT {
   private static final String TASK_UUID = "b8d564dd-4ceb-4dba-8a3d-5fafa2d72cdf";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final SonarRuntime sonarRuntime = mock(SonarRuntime.class);
   private final UpgradeSuggestionsCleaner underTest = new UpgradeSuggestionsCleaner(dbTester.getDbClient(), sonarRuntime);

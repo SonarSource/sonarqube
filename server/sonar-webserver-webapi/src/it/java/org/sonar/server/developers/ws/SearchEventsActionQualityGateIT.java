@@ -56,7 +56,7 @@ import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_PROJECTS;
 public class SearchEventsActionQualityGateIT {
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public EsTester es = EsTester.create();
   @Rule

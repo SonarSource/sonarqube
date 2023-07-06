@@ -80,7 +80,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule

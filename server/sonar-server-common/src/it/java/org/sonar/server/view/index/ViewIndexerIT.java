@@ -49,7 +49,7 @@ public class ViewIndexerIT {
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public EsTester es = EsTester.create();
 

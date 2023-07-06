@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 
 public class DetectPluginChangeIT {
   @Rule
-  public DbTester dbTester = DbTester.create(true);
+  public DbTester dbTester = DbTester.create();
 
   private final ServerPluginRepository pluginRepository = new ServerPluginRepository();
   private final DetectPluginChange detectPluginChange = new DetectPluginChange(pluginRepository, dbTester.getDbClient());

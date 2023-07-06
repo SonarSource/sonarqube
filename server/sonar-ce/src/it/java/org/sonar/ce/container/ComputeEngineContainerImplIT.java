@@ -62,7 +62,7 @@ public class ComputeEngineContainerImplIT {
   public TemporaryFolder tempFolder = new TemporaryFolder();
   @Rule
 
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
   private final ProcessProperties processProperties = new ProcessProperties(serviceLoaderWrapper);

@@ -42,7 +42,7 @@ import static org.sonar.core.plugin.PluginType.EXTERNAL;
 
 public class PluginConsentVerifierTest {
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public LogTester logTester = new LogTester();
 

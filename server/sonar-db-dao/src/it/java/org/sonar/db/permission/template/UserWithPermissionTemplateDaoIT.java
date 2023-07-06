@@ -43,7 +43,7 @@ import static org.sonar.db.permission.PermissionQuery.builder;
 public class UserWithPermissionTemplateDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = db.getSession();
 

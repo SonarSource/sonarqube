@@ -52,7 +52,7 @@ public class ExportActionIT {
   private static final String JAVA_LANGUAGE = "java";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

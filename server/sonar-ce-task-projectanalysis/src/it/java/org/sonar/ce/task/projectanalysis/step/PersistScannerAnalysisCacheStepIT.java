@@ -41,7 +41,7 @@ public class PersistScannerAnalysisCacheStepIT {
   @Rule
   public BatchReportReaderRule reader = new BatchReportReaderRule();
   @Rule
-  public DbTester dbTester = DbTester.create(true);
+  public DbTester dbTester = DbTester.create();
   private final DbClient client = dbTester.getDbClient();
   private final TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   private final PersistScannerAnalysisCacheStep step = new PersistScannerAnalysisCacheStep(reader, dbTester.getDbClient(), treeRootHolder);

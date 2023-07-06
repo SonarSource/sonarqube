@@ -67,7 +67,7 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule

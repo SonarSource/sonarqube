@@ -38,7 +38,7 @@ import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 public class DbSectionIT {
 
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Test
   public void db_info() {

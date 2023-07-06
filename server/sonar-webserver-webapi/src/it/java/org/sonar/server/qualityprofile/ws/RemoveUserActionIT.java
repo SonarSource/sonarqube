@@ -51,7 +51,7 @@ public class RemoveUserActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private final QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession);
   private final WsActionTester ws = new WsActionTester(new RemoveUserAction(db.getDbClient(), wsSupport, LANGUAGES));

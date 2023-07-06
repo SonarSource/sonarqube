@@ -30,7 +30,6 @@ import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.server.async.AsyncExecution;
@@ -96,9 +95,9 @@ public class SynchronousWebHooksImplIT {
 
   @Test
   public void do_nothing_if_no_webhooks() {
-    ComponentDto componentDto = componentDbTester.insertPrivateProject().getMainBranchComponent();
+    ProjectDto projectDto = componentDbTester.insertPrivateProject().getProjectDto();
 
-    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(componentDto.uuid(), "1", "#1"), () -> mock);
+    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(projectDto.getUuid(), "1", "#1"), () -> mock);
 
     assertThat(caller.countSent()).isZero();
     assertNoWebhookLogs();
@@ -107,9 +106,9 @@ public class SynchronousWebHooksImplIT {
 
   @Test
   public void populates_log_statistics_even_if_no_webhooks() {
-    ComponentDto componentDto = componentDbTester.insertPrivateProject().getMainBranchComponent();
+    ProjectDto projectDto = componentDbTester.insertPrivateProject().getProjectDto();
 
-    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(componentDto.uuid(), "1", "#1"), () -> mock, taskStatistics);
+    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(projectDto.getUuid(), "1", "#1"), () -> mock, taskStatistics);
 
     assertThat(caller.countSent()).isZero();
     assertNoWebhookLogs();
@@ -119,19 +118,19 @@ public class SynchronousWebHooksImplIT {
 
   @Test
   public void send_global_webhooks() {
-    ComponentDto componentDto = componentDbTester.insertPrivateProject().getMainBranchComponent();
+    ProjectDto projectDto = componentDbTester.insertPrivateProject().getProjectDto();
     webhookDbTester.insert(newGlobalWebhook().setName("First").setUrl("http://url1"), null, null);
     webhookDbTester.insert(newGlobalWebhook().setName("Second").setUrl("http://url2"), null, null);
     caller.enqueueSuccess(NOW, 200, 1_234);
     caller.enqueueFailure(NOW, new IOException("Fail to connect"));
 
-    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(componentDto.uuid(), "1", "#1"), () -> mock, taskStatistics);
+    underTest.sendProjectAnalysisUpdate(new WebHooks.Analysis(projectDto.getUuid(), "1", "#1"), () -> mock, taskStatistics);
 
     assertThat(caller.countSent()).isEqualTo(2);
     assertThat(logTester.logs(DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
     assertThat(logTester.logs(DEBUG)).contains("Failed to send webhook 'Second' | url=http://url2 | message=Fail to connect");
     verify(deliveryStorage, times(2)).persist(any(WebhookDelivery.class));
-    verify(deliveryStorage).purge(componentDto.uuid());
+    verify(deliveryStorage).purge(projectDto.getUuid());
     verifyLogStatistics(2, 0);
   }
 
@@ -162,8 +161,8 @@ public class SynchronousWebHooksImplIT {
     webhookDbTester.insert(newWebhook(projectDto).setName("1First").setUrl("http://url1"), projectDto.getKey(), projectDto.getName());
     webhookDbTester.insert(newWebhook(projectDto).setName("2Second").setUrl("http://url2"), projectDto.getKey(), projectDto.getName());
     webhookDbTester.insert(newGlobalWebhook().setName("3Third").setUrl("http://url3"), null, null);
-    webhookDbTester.insert(newGlobalWebhook().setName("4Fourth").setUrl("http://url4"), null,null);
-    webhookDbTester.insert(newGlobalWebhook().setName("5Fifth").setUrl("http://url5"), null,null);
+    webhookDbTester.insert(newGlobalWebhook().setName("4Fourth").setUrl("http://url4"), null, null);
+    webhookDbTester.insert(newGlobalWebhook().setName("5Fifth").setUrl("http://url5"), null, null);
     caller.enqueueSuccess(NOW, 200, 1_234);
     caller.enqueueFailure(NOW, new IOException("Fail to connect 1"));
     caller.enqueueFailure(NOW, new IOException("Fail to connect 2"));

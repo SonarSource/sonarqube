@@ -51,7 +51,7 @@ public class WebhookDeliveriesActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private DbClient dbClient = db.getDbClient();
   private WebhookDeliveryDbTester webhookDeliveryDbTester = db.webhookDelivery();

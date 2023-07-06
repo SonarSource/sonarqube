@@ -27,7 +27,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.project.Project;
@@ -38,7 +37,7 @@ import static org.sonar.api.measures.Metric.ValueType.INT;
 
 public class ProjectNclocComputationStepIT {
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   private final DbClient dbClient = db.getDbClient();
 
   @Rule

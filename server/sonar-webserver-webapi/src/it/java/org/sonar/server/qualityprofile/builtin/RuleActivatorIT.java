@@ -64,7 +64,7 @@ import static org.sonar.server.qualityprofile.ActiveRuleInheritance.OVERRIDES;
  */
 public class RuleActivatorIT {
   @Rule
-  public final DbTester db = DbTester.create(true);
+  public final DbTester db = DbTester.create();
 
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();

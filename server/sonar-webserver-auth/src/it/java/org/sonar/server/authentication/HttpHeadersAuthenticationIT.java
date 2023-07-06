@@ -64,7 +64,7 @@ public class HttpHeadersAuthenticationIT {
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
 
   @Rule
-  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2(), true);
+  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
   @Rule
   public EsTester es = EsTester.create();
 

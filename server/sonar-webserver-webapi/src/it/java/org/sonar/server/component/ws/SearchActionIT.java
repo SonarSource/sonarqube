@@ -70,7 +70,7 @@ public class SearchActionIT {
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, true);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public final EsTester es = EsTester.create();
 

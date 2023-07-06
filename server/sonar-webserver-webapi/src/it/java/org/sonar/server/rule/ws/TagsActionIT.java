@@ -43,7 +43,7 @@ public class TagsActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public EsTester es = EsTester.create();
 

@@ -44,7 +44,7 @@ import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_NAME;
 public class RevokeActionIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

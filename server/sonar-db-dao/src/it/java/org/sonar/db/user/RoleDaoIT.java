@@ -43,7 +43,7 @@ public class RoleDaoIT {
   private static final Set<String> PROJECT_QUALIFIER = Set.of(Qualifiers.PROJECT);
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private DbSession dbSession = db.getSession();
   private RoleDao underTest = db.getDbClient().roleDao();

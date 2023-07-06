@@ -38,7 +38,7 @@ public class MetricRepositoryImplIT {
   private static final String SOME_UUID = "uuid";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private DbClient dbClient = dbTester.getDbClient();
   private MetricRepositoryImpl underTest = new MetricRepositoryImpl(dbClient);

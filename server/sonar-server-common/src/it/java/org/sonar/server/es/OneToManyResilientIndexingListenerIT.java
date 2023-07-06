@@ -40,7 +40,7 @@ public class OneToManyResilientIndexingListenerIT {
   @Rule
   public EsTester es = EsTester.create();
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   @Test
   public void ES_QUEUE_rows_are_deleted_when_all_docs_are_successfully_indexed() {

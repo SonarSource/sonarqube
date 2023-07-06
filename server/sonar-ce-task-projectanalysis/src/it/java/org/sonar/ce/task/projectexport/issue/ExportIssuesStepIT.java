@@ -83,7 +83,7 @@ public class ExportIssuesStepIT {
   public static final DbIssues.MessageFormatting MESSAGE_FORMATTING = DbIssues.MessageFormatting.newBuilder().setStart(0).setEnd(4).setType(MessageFormattingType.CODE).build();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public LogTester logTester = new LogTester();
 

@@ -87,7 +87,7 @@ public class UpdateVisibilityActionIT {
     .collect(MoreCollectors.toSet(GlobalPermission.values().length));
 
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public final EsTester es = EsTester.createCustom(new FooIndexDefinition());
   @Rule

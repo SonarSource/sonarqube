@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
 public class DefaultRuleFinderIT {
 
   @org.junit.Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession session = dbTester.getSession();

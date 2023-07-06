@@ -52,7 +52,7 @@ public class ValidateProjectStepIT {
   static final Branch DEFAULT_BRANCH = new DefaultBranchImpl(DEFAULT_MAIN_BRANCH_NAME);
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule

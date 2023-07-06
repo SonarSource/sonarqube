@@ -22,12 +22,10 @@ package org.sonar.db.report;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.ibatis.exceptions.PersistenceException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +35,7 @@ import static org.assertj.core.api.Assertions.tuple;
 public class ReportSubscriptionDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final ReportSubscriptionDao underTest = db.getDbClient().reportSubscriptionDao();
 

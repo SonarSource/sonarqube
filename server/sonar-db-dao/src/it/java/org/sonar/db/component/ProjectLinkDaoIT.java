@@ -39,7 +39,7 @@ public class ProjectLinkDaoIT {
   private System2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private ProjectLinkDao underTest = db.getDbClient().projectLinkDao();
 

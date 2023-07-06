@@ -57,7 +57,7 @@ public class SetSeverityActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private IssueFieldsSetter issueUpdater = new IssueFieldsSetter();
 

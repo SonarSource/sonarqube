@@ -23,7 +23,6 @@ import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeQueue;
@@ -32,18 +31,16 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.process.ProcessProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CeQueueCleanerIT {
 
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
   private final CeQueue queue = mock(CeQueue.class);

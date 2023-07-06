@@ -52,7 +52,7 @@ public class UpdateLoginActionIT {
   private final System2 system2 = new System2();
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setSystemAdministrator();
 

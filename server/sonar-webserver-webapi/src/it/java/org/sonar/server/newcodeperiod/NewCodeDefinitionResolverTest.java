@@ -27,7 +27,6 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +41,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
 public class NewCodeDefinitionResolverTest {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private static final String DEFAULT_PROJECT_ID = "12345";
 

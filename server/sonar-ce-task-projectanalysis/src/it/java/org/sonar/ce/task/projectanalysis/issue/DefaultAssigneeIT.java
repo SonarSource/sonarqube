@@ -36,7 +36,7 @@ public class DefaultAssigneeIT {
   public static final String PROJECT_KEY = "PROJECT_KEY";
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private final MapSettings settings = new MapSettings();
   private final ConfigurationRepository settingsRepository = new TestSettingsRepository(settings.asConfig());

@@ -50,7 +50,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 public class FileSourceDaoIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = dbTester.getSession();
 

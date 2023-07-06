@@ -59,7 +59,7 @@ public class EntityDefinitionIndexerIT {
   @Rule
   public EsTester es = EsTester.create();
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();

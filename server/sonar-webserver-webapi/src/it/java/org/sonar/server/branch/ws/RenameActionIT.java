@@ -44,7 +44,7 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public class RenameActionIT {
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

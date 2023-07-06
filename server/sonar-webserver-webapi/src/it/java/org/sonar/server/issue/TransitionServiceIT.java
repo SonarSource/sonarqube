@@ -47,7 +47,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 public class TransitionServiceIT {
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

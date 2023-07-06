@@ -46,7 +46,7 @@ public class GetByProjectActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private final DbClient dbClient = db.getDbClient();
 

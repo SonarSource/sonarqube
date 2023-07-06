@@ -57,7 +57,7 @@ public class CredentialsAuthenticationIT {
   private static final String DEPRECATED_HASH_METHOD = "SHA1";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
   private final HttpRequest request = mock(HttpRequest.class);

@@ -36,7 +36,6 @@ import org.sonar.core.util.UtcDateUtils;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 
@@ -58,7 +57,7 @@ public class QualityProfileDaoIT {
 
   private final System2 system = mock(System2.class);
   @Rule
-  public DbTester db = DbTester.create(system, true);
+  public DbTester db = DbTester.create(system);
 
   private final DbSession dbSession = db.getSession();
   private final QualityProfileDao underTest = db.getDbClient().qualityProfileDao();

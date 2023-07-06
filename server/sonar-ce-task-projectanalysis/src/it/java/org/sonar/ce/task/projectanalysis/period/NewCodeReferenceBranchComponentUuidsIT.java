@@ -44,7 +44,7 @@ public class NewCodeReferenceBranchComponentUuidsIT {
   @Rule
   public PeriodHolderRule periodHolder = new PeriodHolderRule();
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private NewCodeReferenceBranchComponentUuids underTest = new NewCodeReferenceBranchComponentUuids(analysisMetadataHolder, periodHolder, db.getDbClient());
 

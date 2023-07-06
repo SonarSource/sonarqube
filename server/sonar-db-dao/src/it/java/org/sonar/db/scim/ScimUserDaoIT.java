@@ -48,7 +48,7 @@ import static org.assertj.core.api.Fail.fail;
 public class ScimUserDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   private final DbSession dbSession = db.getSession();
   private final ScimUserDao scimUserDao = db.getDbClient().scimUserDao();
 

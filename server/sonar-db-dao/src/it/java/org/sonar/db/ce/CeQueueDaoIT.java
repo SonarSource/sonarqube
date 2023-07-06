@@ -70,7 +70,7 @@ public class CeQueueDaoIT {
   private final TestSystem2 system2 = new TestSystem2().setNow(INIT_TIME);
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private final System2 mockedSystem2 = mock(System2.class);
   private final System2 alwaysIncreasingSystem2 = new AlwaysIncreasingSystem2();

@@ -55,7 +55,7 @@ public class ListBitbucketServerProjectsActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private final BitbucketServerRestClient bitbucketServerRestClient = mock(BitbucketServerRestClient.class);
   private final WsActionTester ws = new WsActionTester(new ListBitbucketServerProjectsAction(db.getDbClient(), userSession, bitbucketServerRestClient));

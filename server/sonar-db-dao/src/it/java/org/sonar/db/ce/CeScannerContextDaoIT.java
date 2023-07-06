@@ -39,7 +39,7 @@ public class CeScannerContextDaoIT {
   private static final String SOME_UUID = "some UUID";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private System2 system = mock(System2.class);
   private DbSession dbSession = dbTester.getSession();

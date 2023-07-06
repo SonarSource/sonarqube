@@ -44,7 +44,7 @@ import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 public class RegisterMetricsIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final UuidFactory uuidFactory = new SequenceUuidFactory();
   private final DbClient dbClient = dbTester.getDbClient();

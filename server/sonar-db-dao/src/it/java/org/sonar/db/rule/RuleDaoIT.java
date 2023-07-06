@@ -61,7 +61,7 @@ public class RuleDaoIT {
   private static final String UNKNOWN_RULE_UUID = "unknown-uuid";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final RuleDao underTest = db.getDbClient().ruleDao();
 

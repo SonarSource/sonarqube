@@ -46,7 +46,7 @@ public class ExportLinksStepIT {
   private ProjectDto projectDto;
 
   @Rule
-  public DbTester db = DbTester.createWithExtensionMappers(System2.INSTANCE, true, ProjectExportMapper.class);
+  public DbTester db = DbTester.createWithExtensionMappers(System2.INSTANCE, ProjectExportMapper.class);
 
   @Rule
   public LogTester logTester = new LogTester();

@@ -37,7 +37,7 @@ public class IgnoreOrphanBranchStepIT {
   private final String BRANCH_UUID = "branch_uuid";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final CeTask.Component entity = new CeTask.Component(ENTITY_UUID, "component key", "component name");
   private final CeTask.Component component = new CeTask.Component(BRANCH_UUID, "component key", "component name");

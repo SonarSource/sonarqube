@@ -58,7 +58,7 @@ import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_LESS_THA
 public class RegisterQualityGatesIT {
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public LogTester logTester = new LogTester();
 

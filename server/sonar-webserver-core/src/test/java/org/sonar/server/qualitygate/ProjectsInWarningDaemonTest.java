@@ -53,7 +53,7 @@ import static org.sonar.server.qualitygate.ProjectsInWarningDaemon.PROJECTS_IN_W
 public class ProjectsInWarningDaemonTest {
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public EsTester es = EsTester.create();
   @Rule

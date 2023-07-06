@@ -54,7 +54,7 @@ import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 public class UserPermissionDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = db.getSession();
   private final UserPermissionDao underTest = new UserPermissionDao(new NoOpAuditPersister());

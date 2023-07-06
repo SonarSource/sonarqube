@@ -47,7 +47,7 @@ public class PermissionTemplateDaoWithPersisterIT {
   private static final Date NOW = new Date(500_000_000_000L);
 
   @Rule
-  public final DbTester db = DbTester.create(auditPersister, true);
+  public final DbTester db = DbTester.create(auditPersister);
   private final DbSession session = db.getSession();
 
   private final ArgumentCaptor<PermissionTemplateNewValue> newValueCaptor = ArgumentCaptor.forClass(PermissionTemplateNewValue.class);

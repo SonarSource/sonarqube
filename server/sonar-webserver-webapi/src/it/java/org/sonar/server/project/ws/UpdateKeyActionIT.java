@@ -52,7 +52,7 @@ public class UpdateKeyActionIT {
   private static final String ANOTHER_KEY = "another_key";
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, true);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public final UserSessionRule userSessionRule = UserSessionRule.standalone();
   private final DbClient dbClient = db.getDbClient();

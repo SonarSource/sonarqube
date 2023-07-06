@@ -42,7 +42,7 @@ public class CheckAnyonePermissionsAtStartupTest {
   @ClassRule
   public static LogTester logTester = new LogTester().setLevel(LoggerLevel.WARN);
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
   private final DbClient dbClient = dbTester.getDbClient();
   private final MapSettings settings = new MapSettings();
   private final CheckAnyonePermissionsAtStartup underTest = new CheckAnyonePermissionsAtStartup(dbClient, settings.asConfig());

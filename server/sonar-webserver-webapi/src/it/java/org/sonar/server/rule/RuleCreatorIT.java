@@ -55,7 +55,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
-import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
@@ -65,7 +64,7 @@ public class RuleCreatorIT {
   private final System2 system2 = new TestSystem2().setNow(Instant.now().toEpochMilli());
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2, true);
+  public DbTester dbTester = DbTester.create(system2);
 
   @Rule
   public EsTester es = EsTester.create();

@@ -37,7 +37,7 @@ public class UserLastConnectionDatesUpdaterImplIT {
   private static final long TWO_HOUR = ONE_HOUR * 2L;
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private System2 system2 = new TestSystem2().setNow(NOW);
 

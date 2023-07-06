@@ -55,7 +55,7 @@ import static org.sonar.api.web.UserRole.USER;
 public class PermissionIndexerDaoIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE,true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();

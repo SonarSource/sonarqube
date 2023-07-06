@@ -51,7 +51,7 @@ public class QualityGateGroupPermissionsDaoIT {
   private final ArgumentCaptor<GroupEditorNewValue> newValueCaptor = ArgumentCaptor.forClass(GroupEditorNewValue.class);
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, auditPersister, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, auditPersister);
 
   private DbSession dbSession = dbTester.getSession();
   private QualityGateGroupPermissionsDao underTest = dbTester.getDbClient().qualityGateGroupPermissionsDao();

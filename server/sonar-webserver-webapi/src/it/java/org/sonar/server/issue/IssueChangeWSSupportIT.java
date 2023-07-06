@@ -70,7 +70,7 @@ public class IssueChangeWSSupportIT {
   private static final Random RANDOM = new Random();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

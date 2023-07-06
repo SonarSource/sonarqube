@@ -49,7 +49,7 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 public class ComponentKeyUpdaterDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();

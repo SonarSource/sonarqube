@@ -42,7 +42,7 @@ public class IndexIssuesStepIT {
   private final String BRANCH_UUID = "branch_uuid";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final CeTask.Component entity = new CeTask.Component(ENTITY_UUID, "component key", "component name");

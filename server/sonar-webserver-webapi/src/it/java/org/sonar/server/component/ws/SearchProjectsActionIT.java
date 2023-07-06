@@ -123,7 +123,7 @@ public class SearchProjectsActionIT {
   @Rule
   public final EsTester es = EsTester.create();
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, true);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
 
   @DataProvider
   public static Object[][] rating_metric_keys() {

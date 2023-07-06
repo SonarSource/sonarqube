@@ -57,7 +57,7 @@ public class SearchGitlabReposActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private final GitlabHttpClient gitlabHttpClient = mock(GitlabHttpClient.class);
   private final WsActionTester ws = new WsActionTester(new SearchGitlabReposAction(db.getDbClient(), userSession,

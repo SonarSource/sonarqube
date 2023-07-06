@@ -56,7 +56,7 @@ import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG
 public class NewIssuesNotificationIT {
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private DetailsSupplier detailsSupplier = mock(DetailsSupplier.class);
   private NewIssuesNotification underTest = new NewIssuesNotification(new Durations(), detailsSupplier);

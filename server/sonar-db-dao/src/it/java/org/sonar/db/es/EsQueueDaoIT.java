@@ -38,7 +38,7 @@ public class EsQueueDaoIT {
   private static TestSystem2 system2 = new TestSystem2().setNow(1_000);
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2, true);
+  public DbTester dbTester = DbTester.create(system2);
 
   private DbSession dbSession = dbTester.getSession();
   private EsQueueDao underTest = dbTester.getDbClient().esQueueDao();

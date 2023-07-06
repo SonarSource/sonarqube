@@ -47,7 +47,7 @@ public class ExpiredSessionsCleanerIT {
 
   private TestSystem2 system2 = new TestSystem2().setNow(NOW);
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
   @Rule
   public LogTester logTester = new LogTester();
 

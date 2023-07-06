@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IsAliveMapperIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private DbSession session;
   private IsAliveMapper underTest;

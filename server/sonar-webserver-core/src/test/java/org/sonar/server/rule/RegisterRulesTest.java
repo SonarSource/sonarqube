@@ -130,7 +130,7 @@ public class RegisterRulesTest {
   private final TestSystem2 system = new TestSystem2().setNow(DATE1.getTime());
 
   @org.junit.Rule
-  public DbTester db = DbTester.create(system, true);
+  public DbTester db = DbTester.create(system);
   @org.junit.Rule
   public EsTester es = EsTester.create();
   @org.junit.Rule

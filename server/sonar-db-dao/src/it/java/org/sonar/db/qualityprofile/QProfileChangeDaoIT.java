@@ -40,7 +40,7 @@ public class QProfileChangeDaoIT {
   private System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private DbSession dbSession = db.getSession();
   private UuidFactory uuidFactory = new SequenceUuidFactory();

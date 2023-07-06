@@ -64,7 +64,7 @@ public class QProfileExportersIT {
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @org.junit.Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private final RuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient(), mock(RuleDescriptionFormatter.class));
   private final ProfileExporter[] exporters = new ProfileExporter[] {

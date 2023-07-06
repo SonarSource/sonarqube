@@ -71,7 +71,7 @@ public class ActiveRuleDaoIT {
   private System2 system = new TestSystem2().setNow(NOW);
 
   @Rule
-  public DbTester db = DbTester.create(system, true);
+  public DbTester db = DbTester.create(system);
 
   private DbSession dbSession = db.getSession();
 

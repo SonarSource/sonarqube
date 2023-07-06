@@ -42,7 +42,7 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 public class DuplicationDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = db.getSession();
   private final DuplicationDao dao = db.getDbClient().duplicationDao();

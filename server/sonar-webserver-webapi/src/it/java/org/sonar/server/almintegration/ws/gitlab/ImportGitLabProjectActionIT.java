@@ -78,7 +78,7 @@ public class ImportGitLabProjectActionIT {
   public UserSessionRule userSession = standalone();
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
 

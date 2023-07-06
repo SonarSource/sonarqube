@@ -59,7 +59,7 @@ public class PersistDuplicationDataStepIT extends BaseStepTest {
   private static final String FILE_2_UUID = "u3";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
     .setRoot(

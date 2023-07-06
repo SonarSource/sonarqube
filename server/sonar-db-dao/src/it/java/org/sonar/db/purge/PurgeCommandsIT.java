@@ -78,7 +78,7 @@ import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 public class PurgeCommandsIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final AlwaysIncreasingSystem2 system2 = new AlwaysIncreasingSystem2();
   private final PurgeProfiler profiler = new PurgeProfiler();

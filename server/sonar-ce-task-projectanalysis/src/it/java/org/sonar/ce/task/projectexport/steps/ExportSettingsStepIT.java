@@ -29,12 +29,9 @@ import org.slf4j.event.Level;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.task.projectexport.component.ComponentRepositoryImpl;
-import org.sonar.ce.task.projectexport.component.MutableComponentRepository;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ProjectData;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.project.ProjectExportMapper;
@@ -60,7 +57,7 @@ public class ExportSettingsStepIT {
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
-  public DbTester dbTester = DbTester.createWithExtensionMappers(System2.INSTANCE, true, ProjectExportMapper.class);
+  public DbTester dbTester = DbTester.createWithExtensionMappers(System2.INSTANCE, ProjectExportMapper.class);
   private final MutableProjectHolder projectHolder = new MutableProjectHolderImpl();
   private final FakeDumpWriter dumpWriter = new FakeDumpWriter();
   private final ExportSettingsStep underTest = new ExportSettingsStep(dbTester.getDbClient(), projectHolder, dumpWriter);

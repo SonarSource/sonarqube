@@ -62,7 +62,7 @@ public class ListGithubRepositoriesActionIT {
   private final GithubApplicationClientImpl appClient = mock(GithubApplicationClientImpl.class);
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private final ProjectAlmSettingDao projectAlmSettingDao = db.getDbClient().projectAlmSettingDao();
 

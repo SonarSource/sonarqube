@@ -57,7 +57,7 @@ public class CurrentActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final PlatformEditionProvider platformEditionProvider = mock(PlatformEditionProvider.class);
   private final HomepageTypesImpl homepageTypes = new HomepageTypesImpl();

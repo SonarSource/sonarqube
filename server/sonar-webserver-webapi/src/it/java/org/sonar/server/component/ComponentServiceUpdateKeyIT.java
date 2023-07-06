@@ -51,7 +51,7 @@ public class ComponentServiceUpdateKeyIT {
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public final DbTester db = DbTester.create(system2, true);
+  public final DbTester db = DbTester.create(system2);
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();

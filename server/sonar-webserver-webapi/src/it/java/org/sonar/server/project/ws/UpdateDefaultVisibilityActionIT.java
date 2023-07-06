@@ -39,7 +39,7 @@ import static org.sonar.server.project.ws.UpdateDefaultVisibilityAction.PARAM_PR
 
 public class UpdateDefaultVisibilityActionIT {
   @Rule
-  public final DbTester dbTester = DbTester.create(true);
+  public final DbTester dbTester = DbTester.create();
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
   public final ProjectDefaultVisibility projectDefaultVisibility = new ProjectDefaultVisibility(dbTester.getDbClient());

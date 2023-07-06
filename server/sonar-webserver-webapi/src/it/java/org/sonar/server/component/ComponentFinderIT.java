@@ -42,7 +42,7 @@ import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
 public class ComponentFinderIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = db.getSession();
   private final ComponentFinder underTest = TestComponentFinder.from(db);

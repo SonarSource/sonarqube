@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.tuple;
 
 public class CeTaskCharacteristicDaoIT {
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private CeTaskCharacteristicDao underTest = new CeTaskCharacteristicDao();
 

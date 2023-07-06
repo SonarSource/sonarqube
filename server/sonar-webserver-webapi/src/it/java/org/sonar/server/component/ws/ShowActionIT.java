@@ -66,7 +66,7 @@ public class ShowActionIT {
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone().logIn();
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, true);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final WsActionTester ws = new WsActionTester(new ShowAction(userSession, db.getDbClient(), TestComponentFinder.from(db),
     new IssueIndexSyncProgressChecker(db.getDbClient())));

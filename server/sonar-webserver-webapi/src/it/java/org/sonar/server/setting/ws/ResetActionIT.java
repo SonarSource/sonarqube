@@ -67,7 +67,7 @@ public class ResetActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final I18nRule i18n = new I18nRule();
   private final PropertyDbTester propertyDb = new PropertyDbTester(db);

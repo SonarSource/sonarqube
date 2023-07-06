@@ -48,7 +48,7 @@ public class AlmSettingDaoIT {
 
   private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private final DbSession dbSession = db.getSession();
   private final UuidFactory uuidFactory = mock(UuidFactory.class);

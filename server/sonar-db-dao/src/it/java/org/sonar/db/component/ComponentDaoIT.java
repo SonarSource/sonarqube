@@ -108,7 +108,7 @@ public class ComponentDaoIT {
   private final System2 system2 = new AlwaysIncreasingSystem2(1000L);
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 

@@ -71,7 +71,7 @@ import static org.sonar.server.issue.index.IssueScope.TEST;
 @RunWith(MockitoJUnitRunner.class)
 public class SearchResponseFormatFormatOperationTest {
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   private final Durations durations = new Durations();
   private final Languages languages = mock(Languages.class);
   private final TextRangeResponseFormatter textRangeResponseFormatter = mock(TextRangeResponseFormatter.class);

@@ -70,7 +70,7 @@ public class QProfileBackuperImplIT {
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private final DummyReset reset = new DummyReset();
   private final QProfileFactory profileFactory = new DummyProfileFactory();

@@ -27,7 +27,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -55,7 +54,7 @@ public class ExportActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private final ExportSubmitter exportSubmitter = mock(ExportSubmitter.class);
   private final ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW);

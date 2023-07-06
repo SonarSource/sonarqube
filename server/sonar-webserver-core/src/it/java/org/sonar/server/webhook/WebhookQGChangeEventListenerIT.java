@@ -72,7 +72,7 @@ public class WebhookQGChangeEventListenerIT {
   private static final Set<QGChangeEventListener.ChangedIssue> CHANGED_ISSUES_ARE_IGNORED = emptySet();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private DbClient dbClient = dbTester.getDbClient();
 

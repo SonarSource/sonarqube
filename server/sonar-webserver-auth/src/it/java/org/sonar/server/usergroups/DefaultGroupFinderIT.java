@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class DefaultGroupFinderIT {
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private final DefaultGroupFinder underTest = new DefaultGroupFinder(db.getDbClient());
 

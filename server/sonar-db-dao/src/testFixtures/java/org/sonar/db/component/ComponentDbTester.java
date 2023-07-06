@@ -47,13 +47,11 @@ public class ComponentDbTester {
   private final DbTester db;
   private final DbClient dbClient;
   private final DbSession dbSession;
-  private final boolean useDifferentUuids;
 
-  public ComponentDbTester(DbTester db, boolean useDifferentProjectUuids) {
+  public ComponentDbTester(DbTester db) {
     this.db = db;
     this.dbClient = db.getDbClient();
     this.dbSession = db.getSession();
-    this.useDifferentUuids = useDifferentProjectUuids;
   }
 
   public SnapshotDto insertProjectAndSnapshot(ComponentDto component) {
@@ -111,19 +109,11 @@ public class ComponentDbTester {
   }
 
   public ProjectData insertPublicProject(String uuid) {
-    if (useDifferentUuids) {
-      return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(), false, defaults(), defaults(), p -> p.setUuid(uuid));
-    } else {
-      return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(uuid), false);
-    }
+    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(), false, defaults(), defaults(), p -> p.setUuid(uuid));
   }
 
   public ProjectData insertPublicProject(String uuid, Consumer<ComponentDto> dtoPopulator) {
-    if (useDifferentUuids) {
-      return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(), false, defaults(), dtoPopulator, p -> p.setUuid(uuid));
-    } else {
-      return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(uuid), false, defaults(), dtoPopulator);
-    }
+    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(), false, defaults(), dtoPopulator, p -> p.setUuid(uuid));
   }
 
   public ProjectData insertPublicProject(ComponentDto componentDto) {
@@ -131,11 +121,7 @@ public class ComponentDbTester {
   }
 
   public ProjectData insertPrivateProject(String uuid) {
-    if (useDifferentUuids) {
-      return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(), true, defaults(), defaults(), p -> p.setUuid(uuid));
-    } else {
-      return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(uuid), true);
-    }
+    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(), true, defaults(), defaults(), p -> p.setUuid(uuid));
   }
 
   public final ProjectData insertPrivateProject(Consumer<ComponentDto> dtoPopulator) {
@@ -165,11 +151,8 @@ public class ComponentDbTester {
   }
 
   public final ProjectData insertPrivateProject(String uuid, Consumer<ComponentDto> dtoPopulator) {
-    if (useDifferentUuids) {
-      return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(), true, defaults(), dtoPopulator, p -> p.setUuid(uuid));
-    } else {
-      return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(uuid), true, defaults(), dtoPopulator);
-    }
+    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(), true, defaults(), dtoPopulator, p -> p.setUuid(uuid));
+
   }
 
   public final ProjectData insertPrivateProjectWithCustomBranch(String branchKey) {
@@ -310,7 +293,7 @@ public class ComponentDbTester {
   public void addPortfolioReference(String portfolioUuid, String... referencerUuids) {
     for (String uuid : referencerUuids) {
       EntityDto entityDto = dbClient.entityDao().selectByUuid(dbSession, uuid)
-          .orElseThrow();
+        .orElseThrow();
       switch (entityDto.getQualifier()) {
         case APP -> {
           BranchDto appMainBranch = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, entityDto.getUuid())
@@ -419,7 +402,7 @@ public class ComponentDbTester {
     Consumer<ComponentDto> componentDtoPopulator, Consumer<ProjectDto> projectDtoPopulator) {
     insertComponentImpl(component, isPrivate, componentDtoPopulator);
 
-    ProjectDto projectDto = toProjectDto(component, System2.INSTANCE.now(), useDifferentUuids);
+    ProjectDto projectDto = toProjectDto(component, System2.INSTANCE.now());
     projectDtoPopulator.accept(projectDto);
     dbClient.projectDao().insert(dbSession, projectDto);
 
@@ -577,14 +560,9 @@ public class ComponentDbTester {
     return branch;
   }
 
-  // TODO temporary constructor to quickly create project from previous project component.
   public static ProjectDto toProjectDto(ComponentDto componentDto, long createTime) {
-    return toProjectDto(componentDto, createTime, false);
-  }
-
-  public static ProjectDto toProjectDto(ComponentDto componentDto, long createTime, boolean useDifferentProjectUuids) {
     return new ProjectDto()
-      .setUuid(useDifferentProjectUuids ? Uuids.createFast() : componentDto.uuid())
+      .setUuid(Uuids.createFast())
       .setKey(componentDto.getKey())
       .setQualifier(componentDto.qualifier() != null ? componentDto.qualifier() : Qualifiers.PROJECT)
       .setCreatedAt(createTime)

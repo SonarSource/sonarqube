@@ -82,7 +82,7 @@ public class SuggestionsActionIT {
     .collect(MoreCollectors.toList()).toArray(new String[0]);
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, true);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public final EsTester es = EsTester.create();
   @Rule

@@ -73,7 +73,7 @@ public class UserTokenAuthenticationIT {
   private static final String GLOBAL_ANALYSIS_TOKEN_HASH = "global-analysis-token-hash";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final TokenGenerator tokenGenerator = mock(TokenGenerator.class);
   private final UserLastConnectionDatesUpdater userLastConnectionDatesUpdater = mock(UserLastConnectionDatesUpdater.class);

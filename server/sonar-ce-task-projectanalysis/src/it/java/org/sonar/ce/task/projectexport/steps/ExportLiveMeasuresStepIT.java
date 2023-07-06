@@ -47,7 +47,7 @@ public class ExportLiveMeasuresStepIT {
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final ComponentRepositoryImpl componentRepository = new ComponentRepositoryImpl();
   private final MutableMetricRepository metricRepository = new MutableMetricRepositoryImpl();

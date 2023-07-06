@@ -41,7 +41,7 @@ import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 public class DefaultAdminCredentialsVerifierNotificationHandlerIT {
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private EmailNotificationChannel emailNotificationChannel = mock(EmailNotificationChannel.class);
 

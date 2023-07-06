@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verify;
 
 public class PersistentSettingsIT {
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   private Settings delegate = new MapSettings();
   private SettingsChangeNotifier changeNotifier = mock(SettingsChangeNotifier.class);
   private PersistentSettings underTest = new PersistentSettings(delegate, dbTester.getDbClient(), changeNotifier);

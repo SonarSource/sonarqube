@@ -82,7 +82,7 @@ public class InternalPropertiesDaoIT {
   private final String DEFAULT_PROJECT_TEMPLATE = "defaultTemplate.prj";
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2, true);
+  public DbTester dbTester = DbTester.create(system2);
 
   private final DbSession dbSession = dbTester.getSession();
   private final AuditPersister auditPersister = mock(AuditPersister.class);

@@ -33,7 +33,7 @@ import static org.sonar.db.plugin.PluginDto.Type.EXTERNAL;
 public class PluginDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final PluginDao underTest = db.getDbClient().pluginDao();
 

@@ -69,7 +69,7 @@ public class TaskActionIT {
   public final UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, true);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
 
   private final TaskFormatter formatter = new TaskFormatter(db.getDbClient(), System2.INSTANCE);
   private final TaskAction underTest = new TaskAction(db.getDbClient(), formatter, userSession);

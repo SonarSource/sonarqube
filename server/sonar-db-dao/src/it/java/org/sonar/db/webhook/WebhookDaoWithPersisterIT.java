@@ -44,7 +44,7 @@ public class WebhookDaoWithPersisterIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
   @Rule
-  public final DbTester dbTester = DbTester.create(System2.INSTANCE, auditPersister, true);
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE, auditPersister);
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();

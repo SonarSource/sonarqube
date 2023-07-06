@@ -61,7 +61,7 @@ public class RegisterQualityProfilesIT {
 
   private final System2 system2 = new TestSystem2().setNow(1659510722633L);
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule

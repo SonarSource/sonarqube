@@ -82,7 +82,7 @@ public class ListActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   private final DbClient dbClient = db.getDbClient();
   private final ComponentFinder componentFinder = TestComponentFinder.from(db);
   private final NewCodePeriodDao dao = new NewCodePeriodDao(System2.INSTANCE, UuidFactoryFast.getInstance());

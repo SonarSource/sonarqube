@@ -55,7 +55,7 @@ public class ExtractReportStepIT {
 
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private MutableBatchReportDirectoryHolder reportDirectoryHolder = new BatchReportDirectoryHolderImpl();
   private CeTask ceTask = new CeTask.Builder()

@@ -75,7 +75,7 @@ public class PropertiesDaoIT {
   private final AuditPersister auditPersister = mock(AuditPersister.class);
 
   @Rule
-  public DbTester db = DbTester.create(system2, auditPersister, true);
+  public DbTester db = DbTester.create(system2, auditPersister);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession session = db.getSession();

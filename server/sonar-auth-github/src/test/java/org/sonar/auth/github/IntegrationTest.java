@@ -59,7 +59,7 @@ public class IntegrationTest {
   public MockWebServer github = new MockWebServer();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   // load settings with default values
   private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, GitHubSettings.definitions()));

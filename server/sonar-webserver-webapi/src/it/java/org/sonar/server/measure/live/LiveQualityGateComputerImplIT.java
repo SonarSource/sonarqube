@@ -57,7 +57,7 @@ import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 public class LiveQualityGateComputerImplIT {
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private final MapSettings settings = new MapSettings();
   private final Configuration configuration = new ConfigurationBridge(settings);

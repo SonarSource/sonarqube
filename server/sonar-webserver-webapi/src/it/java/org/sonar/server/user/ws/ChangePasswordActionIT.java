@@ -69,7 +69,7 @@ public class ChangePasswordActionIT {
   private static final String NEW_PASSWORD = "12345";
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
 

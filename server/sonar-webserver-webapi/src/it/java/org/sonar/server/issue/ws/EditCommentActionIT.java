@@ -59,7 +59,7 @@ public class EditCommentActionIT {
   private static final long NOW = 10_000_000_000L;
 
   @Rule
-  public DbTester dbTester = DbTester.create(true);
+  public DbTester dbTester = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

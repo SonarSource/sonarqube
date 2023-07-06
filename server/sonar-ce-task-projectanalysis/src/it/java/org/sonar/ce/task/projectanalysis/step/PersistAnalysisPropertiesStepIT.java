@@ -64,7 +64,7 @@ public class PersistAnalysisPropertiesStepIT {
   private static final String SCM_REV_ID = "sha1";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private BatchReportReader batchReportReader = mock(BatchReportReader.class);
   private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);

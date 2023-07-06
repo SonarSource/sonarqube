@@ -69,7 +69,7 @@ public class SearchActionIT {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
   private WsActionTester ws = new WsActionTester(new SearchAction(userSession, db.getDbClient(), new AvatarResolverImpl(), managedInstanceService));

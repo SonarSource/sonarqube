@@ -75,7 +75,7 @@ public class AssignActionIT {
   @Rule
   public EsTester es = EsTester.create();
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
   public DbClient dbClient = db.getDbClient();
   private DbSession session = db.getSession();
   private NotificationManager notificationManager = mock(NotificationManager.class);

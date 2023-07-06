@@ -42,7 +42,7 @@ public class StartupMetadataProviderIT {
   private static final long A_DATE = 1_500_000_000_000L;
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final StartupMetadataProvider underTest = new StartupMetadataProvider();
   private final System2 system = mock(System2.class);

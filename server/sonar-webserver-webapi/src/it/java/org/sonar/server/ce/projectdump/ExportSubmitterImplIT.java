@@ -28,7 +28,6 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.platform.NodeInformation;
 
@@ -43,7 +42,7 @@ public class ExportSubmitterImplIT {
 
   private final System2 system2 = System2.INSTANCE;
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private final DbClient dbClient = db.getDbClient();
   private final CeQueue ceQueue = new CeQueueImpl(system2, db.getDbClient(), UuidFactoryFast.getInstance(), mock(NodeInformation.class));

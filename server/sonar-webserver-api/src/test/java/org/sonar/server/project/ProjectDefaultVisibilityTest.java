@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class ProjectDefaultVisibilityTest {
 
   @Rule
-  public final DbTester db = DbTester.create(true);
+  public final DbTester db = DbTester.create();
 
   private final ProjectDefaultVisibility underTest = new ProjectDefaultVisibility(db.getDbClient());
 

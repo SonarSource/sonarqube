@@ -66,7 +66,7 @@ public class ListActionIT {
   public UserSessionRule userSession = standalone();
 
   @Rule
-  public DbTester db = create(true);
+  public DbTester db = create();
 
   private final DbClient dbClient = db.getDbClient();
   private final Configuration configuration = mock(Configuration.class);

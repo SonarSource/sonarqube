@@ -38,7 +38,6 @@ import org.sonar.db.ce.CeQueueDto.Status;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsIndexSyncInProgressException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +51,7 @@ public class IssueIndexSyncProgressCheckerTest {
   private final System2 system2 = new System2();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final IssueIndexSyncProgressChecker underTest = new IssueIndexSyncProgressChecker(db.getDbClient());
 

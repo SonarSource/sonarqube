@@ -24,7 +24,6 @@ import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
@@ -47,7 +46,7 @@ import static org.sonar.server.qualitygate.QualityGateCaycStatus.OVER_COMPLIANT;
 public class QualityGateCaycCheckerIT {
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   QualityGateCaycChecker underTest = new QualityGateCaycChecker(db.getDbClient());
 
   @Test

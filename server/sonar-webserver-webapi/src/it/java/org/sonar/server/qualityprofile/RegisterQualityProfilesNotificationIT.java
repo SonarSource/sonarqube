@@ -89,7 +89,7 @@ public class RegisterQualityProfilesNotificationIT {
 
   private System2 system2 = mock(System2.class);
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule

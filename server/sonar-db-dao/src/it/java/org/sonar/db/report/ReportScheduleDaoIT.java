@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ReportScheduleDaoIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final ReportScheduleDao underTest = db.getDbClient().reportScheduleDao();
 

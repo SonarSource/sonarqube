@@ -46,7 +46,7 @@ public class IndexationStatusActionIT {
   public IssueIndexSyncProgressChecker issueIndexSyncProgressCheckerMock = mock(IssueIndexSyncProgressChecker.class);
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private WsActionTester ws = new WsActionTester(new IndexationStatusAction(db.getDbClient(), issueIndexSyncProgressCheckerMock));
 

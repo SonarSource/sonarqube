@@ -119,7 +119,7 @@ public class PurgeDaoIT {
   private final System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();

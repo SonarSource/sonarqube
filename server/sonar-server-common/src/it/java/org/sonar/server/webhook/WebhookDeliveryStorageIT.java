@@ -47,7 +47,7 @@ public class WebhookDeliveryStorageIT {
   private final System2 system = mock(System2.class);
 
   @Rule
-  public final DbTester dbTester = DbTester.create(system, true);
+  public final DbTester dbTester = DbTester.create(system);
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();

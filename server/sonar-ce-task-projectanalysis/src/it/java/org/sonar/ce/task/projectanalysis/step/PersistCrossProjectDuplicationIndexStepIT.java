@@ -69,7 +69,7 @@ public class PersistCrossProjectDuplicationIndexStepIT {
   private static final String BASE_ANALYSIS_UUID = "base analysis uuid";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule

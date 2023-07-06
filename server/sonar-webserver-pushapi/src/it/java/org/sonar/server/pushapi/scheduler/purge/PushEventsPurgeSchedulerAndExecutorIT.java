@@ -47,7 +47,7 @@ public class PushEventsPurgeSchedulerAndExecutorIT {
   private static final long INITIAL_AND_ENQUE_DELAY_MS = 1L;
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private PushEventsPurgeScheduler pushEventsPurgeScheduler;
 

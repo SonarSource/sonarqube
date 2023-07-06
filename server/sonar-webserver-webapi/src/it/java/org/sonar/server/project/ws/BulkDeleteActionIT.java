@@ -42,7 +42,6 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.PortfolioData;
 import org.sonar.db.component.ProjectData;
@@ -78,7 +77,7 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFI
 public class BulkDeleteActionIT {
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, true);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
 
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone().logIn();

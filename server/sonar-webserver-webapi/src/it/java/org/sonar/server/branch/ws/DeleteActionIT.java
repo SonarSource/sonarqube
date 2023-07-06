@@ -49,7 +49,7 @@ import static org.mockito.Mockito.verify;
 public class DeleteActionIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
   private final ComponentFinder componentFinder = TestComponentFinder.from(db);

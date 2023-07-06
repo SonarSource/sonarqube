@@ -57,7 +57,7 @@ public class ListActionIT {
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public final DbTester db = DbTester.create(true);
+  public final DbTester db = DbTester.create();
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();

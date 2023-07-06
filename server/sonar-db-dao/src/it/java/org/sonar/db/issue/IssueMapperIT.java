@@ -61,7 +61,7 @@ public class IssueMapperIT {
   private static final long NO_FILTERING_ON_CLOSE_DATE = 1L;
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = dbTester.getSession();
   private final IssueMapper underTest = dbSession.getMapper(IssueMapper.class);

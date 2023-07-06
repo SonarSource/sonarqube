@@ -45,7 +45,7 @@ public class ProjectAlmSettingDaoIT {
   private static final String A_UUID = "SOME_UUID";
   private TestSystem2 system2 = new TestSystem2().setNow(A_DATE);
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private DbSession dbSession = db.getSession();
   private UuidFactory uuidFactory = mock(UuidFactory.class);

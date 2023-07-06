@@ -22,7 +22,6 @@ package org.sonar.server.project.ws;
 import com.google.common.base.Joiner;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -80,7 +79,7 @@ public class SearchActionIT {
   public final UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
-  public final DbTester db = DbTester.create(true);
+  public final DbTester db = DbTester.create();
 
   private final WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession));
 

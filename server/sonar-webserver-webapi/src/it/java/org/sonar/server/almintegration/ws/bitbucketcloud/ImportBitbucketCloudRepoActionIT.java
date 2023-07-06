@@ -83,7 +83,7 @@ public class ImportBitbucketCloudRepoActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public final I18nRule i18n = new I18nRule();
 

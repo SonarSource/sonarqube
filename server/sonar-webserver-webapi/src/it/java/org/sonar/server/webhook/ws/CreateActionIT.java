@@ -62,7 +62,7 @@ public class CreateActionIT {
   public UserSessionRule userSession = standalone();
 
   @Rule
-  public DbTester db = create(true);
+  public DbTester db = create();
   private final DbClient dbClient = db.getDbClient();
   private final WebhookDbTester webhookDbTester = db.webhooks();
   private final ComponentDbTester componentDbTester = db.components();

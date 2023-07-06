@@ -63,7 +63,7 @@ public class LoadReportAnalysisMetadataHolderStepIT {
   private static final long ANALYSIS_DATE = 123456789L;
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule

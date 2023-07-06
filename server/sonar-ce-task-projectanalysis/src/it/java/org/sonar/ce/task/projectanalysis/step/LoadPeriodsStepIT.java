@@ -76,7 +76,7 @@ import static org.sonar.db.event.EventTesting.newEvent;
 @RunWith(DataProviderRunner.class)
 public class LoadPeriodsStepIT extends BaseStepTest {
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule

@@ -43,7 +43,7 @@ public class BackupActionIT {
   private static final String A_LANGUAGE = "xoo";
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

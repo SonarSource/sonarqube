@@ -58,7 +58,7 @@ public class NextPendingTaskPickerIT {
   private NextPendingTaskPicker underTest;
 
   @Rule
-  public DbTester db = DbTester.create(alwaysIncreasingSystem2, true);
+  public DbTester db = DbTester.create(alwaysIncreasingSystem2);
 
   @Before
   public void before() {

@@ -54,7 +54,7 @@ public class ListAzureProjectsActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private final AzureDevOpsHttpClient azureDevOpsHttpClient = mock(AzureDevOpsHttpClient.class);
   private final WsActionTester ws = new WsActionTester(new ListAzureProjectsAction(db.getDbClient(), userSession, azureDevOpsHttpClient));

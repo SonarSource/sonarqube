@@ -35,7 +35,7 @@ import static org.sonar.api.resources.Qualifiers.VIEW;
 public class DefaultTemplatesResolverImplIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private ResourceTypesRule resourceTypesWithPortfoliosInstalled = new ResourceTypesRule().setRootQualifiers(PROJECT, APP, VIEW);
   private ResourceTypesRule resourceTypesWithApplicationInstalled = new ResourceTypesRule().setRootQualifiers(PROJECT, APP);

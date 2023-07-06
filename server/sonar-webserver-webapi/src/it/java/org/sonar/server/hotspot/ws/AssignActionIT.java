@@ -93,7 +93,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 public class AssignActionIT {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE, true);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

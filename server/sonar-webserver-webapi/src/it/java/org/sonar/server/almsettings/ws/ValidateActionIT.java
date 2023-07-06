@@ -62,7 +62,7 @@ public class ValidateActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private final MultipleAlmFeature multipleAlmFeature = mock(MultipleAlmFeature.class);
   private final ComponentFinder componentFinder = new ComponentFinder(db.getDbClient(), mock(ResourceTypes.class));

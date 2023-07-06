@@ -76,7 +76,7 @@ public class InternalCeQueueImplIT {
   private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private final DbSession session = db.getSession();
   private final UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;

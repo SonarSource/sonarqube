@@ -53,7 +53,7 @@ public class PermissionIndexerTest {
   private static final IndexMainType INDEX_TYPE_FOO_AUTH = IndexType.main(FooIndexDefinition.DESCRIPTOR, TYPE_AUTHORIZATION);
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public EsTester es = EsTester.createCustom(new FooIndexDefinition());
   @Rule

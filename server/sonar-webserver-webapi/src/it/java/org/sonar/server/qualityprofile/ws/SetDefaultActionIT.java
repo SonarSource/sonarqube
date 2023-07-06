@@ -50,7 +50,7 @@ public class SetDefaultActionIT {
   private static final String XOO_2_KEY = "xoo2";
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

@@ -55,7 +55,7 @@ public class PersistPushEventsStepIT {
   private final TestSystem2 system2 = new TestSystem2().setNow(1L);
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   public final PushEventFactory pushEventFactory = mock(PushEventFactory.class);
   @Rule

@@ -44,7 +44,7 @@ public class MetricsActionIT {
   public UserSessionRule userSession = standalone();
 
   @Rule
-  public DbTester db = DbTester.create(true);
+  public DbTester db = DbTester.create();
 
   private final BearerPasscode bearerPasscode = mock(BearerPasscode.class);
   private final SystemPasscode systemPasscode = mock(SystemPasscode.class);

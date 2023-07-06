@@ -59,7 +59,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class ChangelogActionIT {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

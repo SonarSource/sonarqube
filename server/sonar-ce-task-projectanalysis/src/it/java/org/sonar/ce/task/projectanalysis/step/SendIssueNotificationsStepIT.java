@@ -134,7 +134,7 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final Random random = new Random();
   private final RuleType[] RULE_TYPES_EXCEPT_HOTSPOTS = Stream.of(RuleType.values()).filter(r -> r != SECURITY_HOTSPOT).toArray(RuleType[]::new);

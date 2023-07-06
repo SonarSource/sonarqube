@@ -66,7 +66,7 @@ public class BranchDaoIT {
   private System2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
 
   private DbSession dbSession = db.getSession();
   private BranchDao underTest = new BranchDao(system2);

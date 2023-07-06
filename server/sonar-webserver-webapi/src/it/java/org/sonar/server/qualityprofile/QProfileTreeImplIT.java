@@ -62,7 +62,7 @@ public class QProfileTreeImplIT {
 
   private System2 system2 = new AlwaysIncreasingSystem2();
   @Rule
-  public DbTester db = DbTester.create(system2, true);
+  public DbTester db = DbTester.create(system2);
   @Rule
   public EsTester es = EsTester.create();
   @Rule

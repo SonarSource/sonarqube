@@ -82,7 +82,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
-import static org.sonar.db.component.ComponentDbTester.toProjectDto;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -98,7 +97,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class ComponentActionIT {
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE, true);
+  public final DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -256,34 +255,36 @@ public class ComponentActionIT {
   @Test
   public void return_canBrowseAllChildProjects_when_component_is_an_application() {
     db.qualityGates().createDefaultQualityGate();
-    ComponentDto application1 = db.components().insertPrivateApplication().getMainBranchComponent();
-    ComponentDto project11 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project12 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData application1 = db.components().insertPrivateApplication();
+    ProjectData project11 = db.components().insertPrivateProject();
+    ProjectData project12 = db.components().insertPrivateProject();
     userSession.registerApplication(
-      toProjectDto(application1, 1L),
-      toProjectDto(project11, 1L),
-      toProjectDto(project12, 1L));
-    userSession.addProjectPermission(UserRole.USER, application1, project11, project12);
+      application1.getProjectDto(),
+      project11.getProjectDto(),
+      project12.getProjectDto());
+    userSession.addProjectPermission(UserRole.USER, application1.getProjectDto(), project11.getProjectDto(), project12.getProjectDto())
+      .registerBranches(application1.getMainBranchDto());
 
-    ComponentDto application2 = db.components().insertPrivateApplication().getMainBranchComponent();
-    ComponentDto project21 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project22 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData application2 = db.components().insertPrivateApplication();
+    ProjectData project21 = db.components().insertPrivateProject();
+    ProjectData project22 = db.components().insertPrivateProject();
     userSession.registerApplication(
-      toProjectDto(application2, 1L),
-      toProjectDto(project21, 1L),
-      toProjectDto(project22, 1L));
-    userSession.addProjectPermission(UserRole.USER, application2, project21);
+      application2.getProjectDto(),
+      project21.getProjectDto(),
+      project22.getProjectDto());
+    userSession.addProjectPermission(UserRole.USER, application2.getProjectDto(), project21.getProjectDto())
+      .registerBranches(application2.getMainBranchDto());
 
     init();
 
     // access to all projects (project11, project12)
-    String json = execute(application1.getKey());
+    String json = execute(application1.projectKey());
     assertJson(json).isSimilarTo("{" +
                                  "\"canBrowseAllChildProjects\":true" +
                                  "}");
 
     // access to some projects (project11)
-    json = execute(application2.getKey());
+    json = execute(application2.projectKey());
     assertJson(json).isSimilarTo("{" +
                                  "\"canBrowseAllChildProjects\":false" +
                                  "}");

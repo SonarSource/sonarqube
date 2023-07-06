@@ -83,7 +83,7 @@ public class IssueDaoIT {
     .build();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE, true);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final IssueDao underTest = db.getDbClient().issueDao();
 
