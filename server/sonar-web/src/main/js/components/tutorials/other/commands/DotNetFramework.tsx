@@ -46,7 +46,7 @@ export default function DotNetFramework(props: DotNetProps) {
             values={{
               code: <code>%PATH%</code>,
               link: (
-                <DocLink to="/analyzing-source-code/scanners/sonarscanner-for-dotnet/">
+                <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                   {translate('onboarding.analysis.msbuild.docs_link')}
                 </DocLink>
               ),

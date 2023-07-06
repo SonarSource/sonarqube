@@ -97,7 +97,7 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
             data-test="branches-support-disabled"
             links={[
               {
-                href: 'https://www.sonarsource.com/plans-and-pricing/developer/',
+                href: 'https://knowledgebase.autorabit.com/codescan/docs/set-up-codescan-payment',
                 label: translate('learn_more'),
                 doc: false,
               },
@@ -123,15 +123,15 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
             data-test="only-one-branch-like"
             links={[
               {
-                href: '/analyzing-source-code/branches/branch-analysis/',
+                href: 'https://knowledgebase.autorabit.com/codescan/docs/understanding-branches-in-codescan-cloud',
                 label: translate('branch_like_navigation.only_one_branch.documentation'),
               },
               {
-                href: '/analyzing-source-code/pull-request-analysis',
+                href: 'https://knowledgebase.autorabit.com/codescan/docs/understanding-branches-in-codescan-cloud',
                 label: translate('branch_like_navigation.only_one_branch.pr_analysis'),
               },
               {
-                href: `/tutorials?id=${component.key}`,
+                href: `https://knowledgebase.autorabit.com/codescan/docs/understanding-branches-in-codescan-cloud`,
                 label: translate('branch_like_navigation.tutorial_for_ci'),
                 inPlace: true,
                 doc: false,

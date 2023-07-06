@@ -56,7 +56,7 @@ export default function ListHeader({ canCreate, refreshQualityGates, organizatio
           content={translate('quality_gates.help')}
           links={[
             {
-              href: '/user-guide/quality-gates/',
+              href: 'https://knowledgebase.autorabit.com/codescan/docs/customising-quality-gates',
               label: translate('learn_more'),
             },
           ]}

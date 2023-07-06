@@ -46,7 +46,7 @@ export default function DownloadScanner(props: DownloadScannerProps) {
               dir: <code>bin</code>,
               env_var: <code>{os === OSs.Windows ? '%PATH%' : 'PATH'}</code>,
               link: (
-                <DocLink to="/analyzing-source-code/scanners/sonarscanner/">
+                <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                   {translate('onboarding.analysis.sq_scanner.docs_link')}
                 </DocLink>
               ),

@@ -77,10 +77,10 @@ export function GlobalFooter({ hideLoggedInInfo, appState }: GlobalFooterProps) 
           </a>
         </li>
         <li className="page-footer-menu-item">
-          <DocLink to="/">{translate('footer.documentation')}</DocLink>
+          <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">{translate('footer.documentation')}</DocLink>
         </li>
         <li className="page-footer-menu-item">
-          <DocLink to="/instance-administration/plugin-version-matrix/">
+          <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
             {translate('footer.plugins')}
           </DocLink>
         </li>

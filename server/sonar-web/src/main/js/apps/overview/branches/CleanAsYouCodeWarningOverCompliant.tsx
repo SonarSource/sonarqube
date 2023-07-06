@@ -54,7 +54,7 @@ export default function CleanAsYouCodeWarningOverCompliant({ component }: Props)
         </p>
       )}
 
-      <DocLink to="/user-guide/clean-as-you-code/#potential-drawbacks">
+      <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
         {translate('overview.quality_gate.conditions.cayc_over_compliant.link')}
       </DocLink>
     </>

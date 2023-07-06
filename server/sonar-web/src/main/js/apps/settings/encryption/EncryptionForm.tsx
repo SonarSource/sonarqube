@@ -130,7 +130,7 @@ export default class EncryptionForm extends React.PureComponent<Props, State> {
               id="encryption.form_note"
               values={{
                 moreInformationLink: (
-                  <DocLink to="/instance-administration/security/">
+                  <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                     {translate('more_information')}
                   </DocLink>
                 ),

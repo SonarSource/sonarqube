@@ -57,7 +57,7 @@ export default function EmptyHotspotsPage(props: EmptyHotspotsPageProps) {
         {translate(`hotspots.${translationRoot}.description`)}
       </div>
       {!(filtered || isStaticListOfHotspots) && (
-        <DocLink className="big-spacer-top" to="/user-guide/security-hotspots/">
+        <DocLink className="big-spacer-top" to="https://knowledgebase.autorabit.com/codescan/docs">
           {translate('hotspots.learn_more')}
         </DocLink>
       )}

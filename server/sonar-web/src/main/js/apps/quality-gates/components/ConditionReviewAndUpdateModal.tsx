@@ -115,7 +115,7 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
               defaultMessage={translate('quality_gates.cayc.review_update_modal.description1')}
               values={{
                 cayc_link: (
-                  <DocLink to="/user-guide/clean-as-you-code/">
+                  <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                     {translate('quality_gates.cayc')}
                   </DocLink>
                 ),

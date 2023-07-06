@@ -129,7 +129,7 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
               defaultMessage={translate('settings.almintegration.form.secret.can_encrypt')}
               values={{
                 learn_more: (
-                  <DocLink to="/instance-administration/security/#settings-encryption">
+                  <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                     {translate('learn_more')}
                   </DocLink>
                 ),

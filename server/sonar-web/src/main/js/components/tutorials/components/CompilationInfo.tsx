@@ -36,7 +36,7 @@ export function CompilationInfo({ className = 'spacer-top spacer-bottom' }: Comp
           defaultMessage={translate('onboarding.tutorial.cfamilly.compilation_database_info')}
           values={{
             link: (
-              <DocLink to="/analyzing-source-code/languages/c-family/">
+              <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                 {translate('onboarding.tutorial.cfamilly.compilation_database_info.link')}
               </DocLink>
             ),
@@ -49,7 +49,7 @@ export function CompilationInfo({ className = 'spacer-top spacer-bottom' }: Comp
           defaultMessage={translate('onboarding.tutorial.cfamilly.speed_caching')}
           values={{
             link: (
-              <DocLink to="/analyzing-source-code/languages/c-family/#analysis-cache">
+              <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                 {translate('onboarding.tutorial.cfamilly.speed_caching.link')}
               </DocLink>
             ),

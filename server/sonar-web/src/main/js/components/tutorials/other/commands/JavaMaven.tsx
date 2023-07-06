@@ -54,7 +54,7 @@ export default function JavaMaven(props: JavaMavenProps) {
           id="onboarding.analysis.docs"
           values={{
             link: (
-              <DocLink to="/analyzing-source-code/scanners/sonarscanner-for-maven/">
+              <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                 {translate('onboarding.analysis.java.maven.docs_link')}
               </DocLink>
             ),

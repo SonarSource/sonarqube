@@ -112,7 +112,7 @@ export default class GenerateSecretKeyForm extends React.PureComponent<Props, St
                 id="encryption.secret_key_description"
                 values={{
                   moreInformationLink: (
-                    <DocLink to="/instance-administration/security/">
+                    <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                       {translate('more_information')}
                     </DocLink>
                   ),

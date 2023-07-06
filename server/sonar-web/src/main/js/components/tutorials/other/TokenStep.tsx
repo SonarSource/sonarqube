@@ -209,7 +209,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                     content={translate('onboarding.token.name.help')}
                     links={[
                       {
-                        href: '/user-guide/user-account/generating-and-using-tokens/',
+                        href: 'https://knowledgebase.autorabit.com/codescan/docs/generate-a-security-token',
                         label: translate('learn_more'),
                       },
                     ]}
@@ -280,7 +280,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                 content={translate('onboarding.token.use_existing_token.help')}
                 links={[
                   {
-                    href: '/user-guide/user-account/generating-and-using-tokens/',
+                    href: 'https://knowledgebase.autorabit.com/codescan/docs/generate-a-security-token',
                     label: translate('learn_more'),
                   },
                 ]}

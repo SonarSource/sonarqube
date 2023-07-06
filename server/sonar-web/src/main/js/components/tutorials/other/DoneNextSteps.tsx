@@ -51,14 +51,14 @@ export default function DoneNextSteps({ component }: DoneNextStepsProps) {
           id="onboarding.analysis.auto_refresh_after_analysis.check_these_links"
           values={{
             link_branches: (
-              <DocLink to="/analyzing-source-code/branches/branch-analysis/">
+              <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                 {translate(
                   'onboarding.analysis.auto_refresh_after_analysis.check_these_links.branches'
                 )}
               </DocLink>
             ),
             link_pr_analysis: (
-              <DocLink to="/analyzing-source-code/pull-request-analysis">
+              <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                 {translate(
                   'onboarding.analysis.auto_refresh_after_analysis.check_these_links.pr_analysis'
                 )}

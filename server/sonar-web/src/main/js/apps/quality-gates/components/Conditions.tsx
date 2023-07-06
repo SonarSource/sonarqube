@@ -184,7 +184,7 @@ export class Conditions extends React.PureComponent<Props, State> {
                 defaultMessage={translate('quality_gates.cayc_over_compliant.banner.description')}
                 values={{
                   link: (
-                    <DocLink to="/user-guide/clean-as-you-code/#potential-drawbacks">
+                    <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                       {translate('quality_gates.cayc_over_compliant.banner.link')}
                     </DocLink>
                   ),
@@ -205,7 +205,7 @@ export class Conditions extends React.PureComponent<Props, State> {
                 defaultMessage={translate('quality_gates.cayc_missing.banner.description')}
                 values={{
                   cayc_link: (
-                    <DocLink to="/user-guide/clean-as-you-code/">
+                    <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                       {translate('quality_gates.cayc')}
                     </DocLink>
                   ),
@@ -243,7 +243,7 @@ export class Conditions extends React.PureComponent<Props, State> {
             content={translate('quality_gates.conditions.help')}
             links={[
               {
-                href: '/user-guide/clean-as-you-code/',
+                href: 'https://knowledgebase.autorabit.com/codescan/docs/customising-quality-gates',
                 label: translate('quality_gates.conditions.help.link'),
               },
             ]}
@@ -320,7 +320,7 @@ export class Conditions extends React.PureComponent<Props, State> {
                 defaultMessage={translate('quality_gates.cayc_unfollow.description')}
                 values={{
                   cayc_link: (
-                    <DocLink to="/user-guide/clean-as-you-code/">
+                    <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                       {translate('quality_gates.cayc')}
                     </DocLink>
                   ),

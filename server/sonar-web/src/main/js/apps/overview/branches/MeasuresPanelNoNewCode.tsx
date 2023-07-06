@@ -96,7 +96,7 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
               id="overview.measures.empty_link"
               values={{
                 learn_more_link: (
-                  <DocLink to="/user-guide/clean-as-you-code/">{translate('learn_more')}</DocLink>
+                  <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">{translate('learn_more')}</DocLink>
                 ),
               }}
             />

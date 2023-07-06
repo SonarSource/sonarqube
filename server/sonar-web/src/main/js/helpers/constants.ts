@@ -57,13 +57,13 @@ export const RATING_COLORS = [
 export const PROJECT_KEY_MAX_LEN = 400;
 
 export const ALM_DOCUMENTATION_PATHS = {
-  [AlmKeys.Azure]: '/devops-platform-integration/azure-devops-integration/',
+  [AlmKeys.Azure]: 'https://knowledgebase.autorabit.com/codescan/docs',
   [AlmKeys.BitbucketServer]:
-    '/devops-platform-integration/bitbucket-integration/bitbucket-server-integration/',
+    'https://knowledgebase.autorabit.com/codescan/docs',
   [AlmKeys.BitbucketCloud]:
-    '/devops-platform-integration/bitbucket-integration/bitbucket-cloud-integration/',
-  [AlmKeys.GitHub]: '/devops-platform-integration/github-integration/',
-  [AlmKeys.GitLab]: '/devops-platform-integration/gitlab-integration/',
+    'https://knowledgebase.autorabit.com/codescan/docs',
+  [AlmKeys.GitHub]: 'https://knowledgebase.autorabit.com/codescan/docs',
+  [AlmKeys.GitLab]: 'https://knowledgebase.autorabit.com/codescan/docs',
 };
 
 export const IMPORT_COMPATIBLE_ALMS = [

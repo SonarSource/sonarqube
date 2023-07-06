@@ -71,7 +71,7 @@ export default function JavaGradle(props: JavaGradleProps) {
             id="onboarding.analysis.java.gradle.latest_version"
             values={{
               link: (
-                <DocLink to="/analyzing-source-code/scanners/sonarscanner-for-gradle/">
+                <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                   {translate('here')}
                 </DocLink>
               ),
@@ -89,7 +89,7 @@ export default function JavaGradle(props: JavaGradleProps) {
           id="onboarding.analysis.docs"
           values={{
             link: (
-              <DocLink to="/analyzing-source-code/scanners/sonarscanner-for-gradle/">
+              <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                 {translate('onboarding.analysis.java.gradle.docs_link')}
               </DocLink>
             ),

@@ -54,7 +54,7 @@ export default function CleanAsYouCodeWarning({ component }: Props) {
         </p>
       )}
 
-      <DocLink to="/user-guide/clean-as-you-code/">
+      <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
         {translate('overview.quality_gate.conditions.cayc.link')}
       </DocLink>
     </>

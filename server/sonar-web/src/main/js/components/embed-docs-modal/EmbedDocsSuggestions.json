@@ -16,7 +16,7 @@
   ],
   "component_measures": [
     {
-      "link": "/documentation/user-guide/clean-as-you-code/",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs",
       "text": "Clean as You Code"
     },
     {
@@ -63,7 +63,7 @@
   ],
   "overview": [
     {
-      "link": "/documentation/user-guide/clean-as-you-code/",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs",
       "text": "Clean as You Code"
     },
     {
@@ -71,7 +71,7 @@
       "text": "Branches Analysis"
     },
     {
-      "link": "/documentation/analysis/pull-request/",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs",
       "text": "Analyzing Pull Requests"
     }
   ],
@@ -85,13 +85,13 @@
   "project_activity": [],
   "project_baseline": [
     {
-      "link": "/documentation/project-administration/new-code-period/",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs/understanding-the-new-code-tab",
       "text": "Defining New Code"
     }
   ],
   "project_quality_gate": [
     {
-      "link": "/documentation/user-guide/clean-as-you-code/",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs",
       "text": "Clean as You Code"
     }
   ],
@@ -117,11 +117,11 @@
   ],
   "quality_gates": [
     {
-      "link": "/documentation/user-guide/clean-as-you-code/",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs",
       "text": "Clean as You Code"
     },
     {
-      "link": "/documentation/analysis/pull-request/",
+      "link": "https://knowledgebase.autorabit.com/codescan/docs",
       "text": "Analyzing Pull Requests"
     }
   ],

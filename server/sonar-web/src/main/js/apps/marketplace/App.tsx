@@ -172,7 +172,7 @@ export class App extends React.PureComponent<Props, State> {
                   defaultMessage={translate('marketplace.page.plugins.description2')}
                   values={{
                     link: (
-                      <DocLink to="/instance-administration/marketplace/">
+                      <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                         {translate('marketplace.page.plugins.description2.link')}
                       </DocLink>
                     ),

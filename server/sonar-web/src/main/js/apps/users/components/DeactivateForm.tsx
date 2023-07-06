@@ -101,7 +101,7 @@ export default class DeactivateForm extends React.PureComponent<Props, State> {
                   id="delete-user-warning"
                   values={{
                     link: (
-                      <DocLink to="/instance-administration/authentication/overview/">
+                      <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                         {translate('users.delete_user.help.link')}
                       </DocLink>
                     ),

@@ -42,7 +42,7 @@ export default function ProjectTokenScopeInfo({ className }: ProjectTokenScopeIn
             </Link>
           ),
           doc_link: (
-            <DocLink to="/user-guide/user-account/generating-and-using-tokens/">
+            <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
               {translate('documentation')}
             </DocLink>
           ),

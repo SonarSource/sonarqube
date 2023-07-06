@@ -165,7 +165,7 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
                   values={{
                     link: (
                       <DocLink
-                        to={`/instance-administration/authentication/${DOCUMENTATION_LINK_SUFFIXES[currentTab]}/`}
+                        to='https://knowledgebase.autorabit.com/codescan/docs'
                       >
                         {translate('settings.authentication.help.link')}
                       </DocLink>

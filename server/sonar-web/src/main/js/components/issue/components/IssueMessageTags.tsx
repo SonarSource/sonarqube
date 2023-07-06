@@ -75,7 +75,7 @@ export default function IssueMessageTags(props: IssueMessageTagsProps) {
             content={translate('rules.status', ruleStatus, 'help')}
             links={[
               {
-                href: '/user-guide/rules/overview/',
+                href: 'https://knowledgebase.autorabit.com/codescan/docs/creating-custom-rules-with-xpath',
                 label: translateWithParameters('see_x', translate('rules')),
               },
             ]}

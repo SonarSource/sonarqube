@@ -39,7 +39,7 @@ export default function AppHeader(props: AppHeaderProps) {
           id="project_baseline.page.description"
           values={{
             link: (
-              <DocLink to="/project-administration/defining-new-code/">
+              <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                 {translate('project_baseline.page.description.link')}
               </DocLink>
             ),

@@ -231,7 +231,7 @@ export default class App extends React.PureComponent<Props, State> {
                           // We cannot use <DocLink> here, as it relies on AppState. However, the maintenance
                           // app is a special app that can run in a "downgraded" environment, where the AppState
                           // may not yet be fully loaded. Hence, we link to this documentation page directly.
-                          to="https://docs.sonarqube.org/latest/setup-and-upgrade/upgrade-the-server/upgrade-guide/"
+                          to="https://knowledgebase.autorabit.com/codescan/docs/codescan-self-hosted"
                           target="_blank"
                         >
                           {translate('maintenance.sonarqube_is_under_maintenance_link.2')}

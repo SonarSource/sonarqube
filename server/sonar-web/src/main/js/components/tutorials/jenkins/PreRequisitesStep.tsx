@@ -72,7 +72,7 @@ export default function PreRequisitesStep(props: PreRequisitesStepProps) {
               id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
               values={{
                 link: (
-                  <DocLink to="/analyzing-source-code/ci-integration/jenkins-integration/">
+                  <DocLink to="https://knowledgebase.autorabit.com/codescan/docs/use-jenkins-with-codescan-salesforce-project">
                     {translate('onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide.link')}
                   </DocLink>
                 ),

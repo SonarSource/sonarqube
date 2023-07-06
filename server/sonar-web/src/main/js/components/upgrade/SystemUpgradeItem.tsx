@@ -100,7 +100,7 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
         >
           {translateWithParameters('system.download_x', lastUpgrade.version)}
         </a>
-        <DocLink className="spacer-left" to="/setup-and-upgrade/upgrade-the-server/upgrade-guide/">
+        <DocLink className="spacer-left" to="https://knowledgebase.autorabit.com/codescan/docs/codescan-self-hosted">
           {translate('system.how_to_upgrade')}
         </DocLink>
       </div>

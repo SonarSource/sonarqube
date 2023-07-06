@@ -283,7 +283,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                     )}
                     values={{
                       learn_more: (
-                        <DocLink to="/branches/overview">{translate('learn_more')}</DocLink>
+                        <DocLink to="https://knowledgebase.autorabit.com/codescan/docs/understanding-branches-in-codescan-cloud">{translate('learn_more')}</DocLink>
                       ),
                     }}
                   />

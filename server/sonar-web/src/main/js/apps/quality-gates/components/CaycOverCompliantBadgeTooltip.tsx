@@ -27,7 +27,7 @@ export default function CaycOverCompliantBadgeTooltip() {
       <p className="spacer-bottom padded-bottom bordered-bottom-cayc">
         {translate('quality_gates.cayc_over_compliant.tooltip.message')}
       </p>
-      <DocLink to="/user-guide/clean-as-you-code/#potential-drawbacks">
+      <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
         {translate('quality_gates.cayc_over_compliant.badge.tooltip.learn_more')}
       </DocLink>
     </div>

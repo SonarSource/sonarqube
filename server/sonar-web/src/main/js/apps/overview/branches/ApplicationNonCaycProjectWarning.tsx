@@ -72,11 +72,11 @@ export default function ApplicationNonCaycProjectWarning({ projects, caycStatus 
       <hr className="big-spacer-top big-spacer-bottom" />
       <div className="spacer spacer-bottom big-spacer-top">
         {caycStatus === CaycStatus.NonCompliant ? (
-          <DocLink to="/user-guide/clean-as-you-code/">
+          <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
             {translate('overview.quality_gate.conditions.cayc.link')}
           </DocLink>
         ) : (
-          <DocLink to="/user-guide/clean-as-you-code/#potential-drawbacks">
+          <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
             {translate('overview.quality_gate.conditions.cayc_over_compliant.link')}
           </DocLink>
         )}

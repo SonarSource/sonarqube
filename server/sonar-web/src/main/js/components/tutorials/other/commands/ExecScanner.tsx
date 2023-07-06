@@ -65,7 +65,7 @@ export default function ExecScanner(props: ExecScannerProps) {
           id="onboarding.analysis.sq_scanner.docs"
           values={{
             link: (
-              <DocLink to="/analyzing-source-code/scanners/sonarscanner/">
+              <DocLink to="https://knowledgebase.autorabit.com/codescan/docs">
                 {translate('onboarding.analysis.sq_scanner.docs_link')}
               </DocLink>
             ),

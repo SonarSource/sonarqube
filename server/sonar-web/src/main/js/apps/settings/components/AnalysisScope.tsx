@@ -30,7 +30,7 @@ export function AnalysisScope(props: AdditionalCategoryComponentProps) {
     <>
       <p className="spacer-bottom">
         {translate('settings.analysis_scope.wildcards.introduction')}
-        <DocLink className="spacer-left" to="/project-administration/narrowing-the-focus/">
+        <DocLink className="spacer-left" to="https://knowledgebase.autorabit.com/codescan/docs">
           {translate('learn_more')}
         </DocLink>
       </p>
