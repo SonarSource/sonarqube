@@ -63,7 +63,8 @@ exports[`should show full size when multiline with no editting 1`] = `
   position: absolute;
 }
 
-.emotion-4:hover {
+.emotion-4:hover,
+.emotion-4:active {
   color: var(--color);
   background-color: var(--backgroundHover);
 }
@@ -271,7 +272,8 @@ exports[`should show reduced size when single line with no editting 1`] = `
   top: 1.5rem;
 }
 
-.emotion-4:hover {
+.emotion-4:hover,
+.emotion-4:active {
   color: var(--color);
   background-color: var(--backgroundHover);
 }

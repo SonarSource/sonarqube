@@ -106,7 +106,7 @@ export const StyledFlag = styled.div<{
     ${tw`sw-flex sw-flex-auto sw-items-center`}
     ${tw`sw-overflow-auto`}
     ${tw`sw-text-left`}
-    ${tw`sw-mx-3 sw-my-2`}
+    ${tw`sw-px-3 sw-py-2`}
     ${tw`sw-body-sm`}
     color: ${themeContrast('flagMessageBackground')};
   }

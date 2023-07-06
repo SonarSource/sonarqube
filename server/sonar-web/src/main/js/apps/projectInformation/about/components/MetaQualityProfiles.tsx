@@ -122,10 +122,8 @@ function ProfileItem({
                   key={profile.key}
                   overlay={translateWithParameters('overview.deprecated_profile', count)}
                 >
-                  <span>
-                    <Badge className="sw-ml-6" variant="deleted">
-                      {translate('deprecated')}
-                    </Badge>
+                  <span className="sw-ml-6">
+                    <Badge variant="deleted">{translate('deprecated')}</Badge>
                   </span>
                 </Tooltip>
               )}

@@ -121,7 +121,7 @@ export const buttonStyle = (props: ThemedProps) => css`
   ${tw`sw-rounded-2`}
   ${tw`sw-cursor-pointer`}
 
-  &:hover {
+  &:hover, &:active {
     color: var(--color);
     background-color: var(--backgroundHover);
   }

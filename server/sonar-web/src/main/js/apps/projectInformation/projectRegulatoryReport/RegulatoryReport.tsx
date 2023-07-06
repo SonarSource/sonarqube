@@ -136,18 +136,20 @@ export default function RegulatoryReport({ component, branchLike }: Props) {
             </FormField>
           </div>
           <FlagMessage className="sw-mb-4 sw-w-full" variant="info">
-            {translate('regulatory_page.available_branches_info.only_keep_when_inactive')}
-            <FormattedMessage
-              id="regulatory_page.available_branches_info.more_info"
-              defaultMessage={translate('regulatory_page.available_branches_info.more_info')}
-              values={{
-                doc_link: (
-                  <DocLink to="/analyzing-source-code/branches/branch-analysis/#inactive-branches">
-                    {translate('regulatory_page.available_branches_info.more_info.doc_link')}
-                  </DocLink>
-                ),
-              }}
-            />
+            <div>
+              {translate('regulatory_page.available_branches_info.only_keep_when_inactive')}
+              <FormattedMessage
+                id="regulatory_page.available_branches_info.more_info"
+                defaultMessage={translate('regulatory_page.available_branches_info.more_info')}
+                values={{
+                  doc_link: (
+                    <DocLink to="/analyzing-source-code/branches/branch-analysis/#inactive-branches">
+                      {translate('regulatory_page.available_branches_info.more_info.doc_link')}
+                    </DocLink>
+                  ),
+                }}
+              />
+            </div>
           </FlagMessage>
         </>
       )}

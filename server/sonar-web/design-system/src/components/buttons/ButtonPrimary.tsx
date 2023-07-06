@@ -25,11 +25,11 @@ import { ThemedProps } from '../../types';
 import { Button, ButtonProps } from './Button';
 
 export const PrimaryStyle = (props: ThemedProps) => css`
-  background: ${themeColor('button')(props)};
-  backgroundhover: ${themeColor('buttonHover')(props)};
-  color: ${themeContrast('primary')(props)};
-  focus: ${themeColor('button', OPACITY_20_PERCENT)(props)};
-  border: ${themeBorder('default', 'transparent')(props)};
+  --background: ${themeColor('button')(props)};
+  --backgroundHover: ${themeColor('buttonHover')(props)};
+  --color: ${themeContrast('primary')(props)};
+  --focus: ${themeColor('button', OPACITY_20_PERCENT)(props)};
+  --border: ${themeBorder('default', 'transparent')(props)};
 `;
 
 export const ButtonPrimary: React.FC<ButtonProps> = styled(Button)`
