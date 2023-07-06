@@ -22,7 +22,6 @@ package org.sonar.db.entity;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 

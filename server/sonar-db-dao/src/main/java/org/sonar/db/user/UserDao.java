@@ -36,9 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserNewValue;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
-import org.sonar.db.project.ProjectDto;
 
 import static java.util.Locale.ENGLISH;
 import static java.util.concurrent.TimeUnit.DAYS;

@@ -32,7 +32,6 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
-import org.sonar.db.project.ProjectDto;
 
 /**
  * Class used to rename the key of a project and its resources.
