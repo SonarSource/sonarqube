@@ -19,17 +19,44 @@
  */
 package org.sonar.server.management;
 
+import org.sonar.db.DbSession;
 import org.sonar.server.exceptions.BadRequestException;
 
 public class ManagedInstanceChecker {
 
-  private final ManagedInstanceService managedInstanceService;
+  private static final String INSTANCE_EXCEPTION_MESSAGE = "Operation not allowed when the instance is externally managed.";
+  private static final String PROJECT_EXCEPTION_MESSAGE = "Operation not allowed when the project is externally managed.";
 
-  public ManagedInstanceChecker(ManagedInstanceService managedInstanceService) {
+  private final ManagedInstanceService managedInstanceService;
+  private final ManagedProjectService managedProjectService;
+
+  public ManagedInstanceChecker(ManagedInstanceService managedInstanceService, ManagedProjectService managedProjectService) {
     this.managedInstanceService = managedInstanceService;
+    this.managedProjectService = managedProjectService;
   }
 
   public void throwIfInstanceIsManaged() {
-    BadRequestException.checkRequest(!managedInstanceService.isInstanceExternallyManaged(), "Operation not allowed when the instance is externally managed.");
+    BadRequestException.checkRequest(!managedInstanceService.isInstanceExternallyManaged(), INSTANCE_EXCEPTION_MESSAGE);
   }
+
+  public void throwIfProjectIsManaged(DbSession dbSession, String projectUuid) {
+    BadRequestException.checkRequest(!managedProjectService.isProjectManaged(dbSession, projectUuid), PROJECT_EXCEPTION_MESSAGE);
+  }
+
+  public void throwIfUserIsManaged(DbSession dbSession, String userUuid) {
+    BadRequestException.checkRequest(!managedInstanceService.isUserManaged(dbSession, userUuid), INSTANCE_EXCEPTION_MESSAGE);
+  }
+
+  public void throwIfUserAndProjectAreManaged(DbSession dbSession, String userUuid, String projectUuid) {
+    boolean isUserManaged = managedInstanceService.isUserManaged(dbSession, userUuid);
+    boolean isProjectManaged = managedProjectService.isProjectManaged(dbSession, projectUuid);
+    BadRequestException.checkRequest(!(isUserManaged && isProjectManaged), PROJECT_EXCEPTION_MESSAGE);
+  }
+
+  public void throwIfGroupAndProjectAreManaged(DbSession dbSession, String groupUuid, String projectUuid) {
+    boolean isGroupManaged = managedInstanceService.isGroupManaged(dbSession, groupUuid);
+    boolean isProjectManaged = managedProjectService.isProjectManaged(dbSession, projectUuid);
+    BadRequestException.checkRequest(!(isGroupManaged && isProjectManaged), PROJECT_EXCEPTION_MESSAGE);
+  }
+
 }

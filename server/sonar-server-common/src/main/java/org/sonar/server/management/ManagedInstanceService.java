@@ -39,5 +39,8 @@ public interface ManagedInstanceService {
 
   String getManagedGroupsSqlFilter(boolean filterByManaged);
 
-  boolean isUserManaged(DbSession dbSession, String login);
+  boolean isUserManaged(DbSession dbSession, String userUuid);
+
+  boolean isGroupManaged(DbSession dbSession, String groupUuid);
+
 }

@@ -28,6 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
@@ -47,15 +48,17 @@ public class AddGroupAction implements PermissionsWsAction {
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
   private final PermissionService permissionService;
+  private final ManagedInstanceChecker managedInstanceChecker;
 
   public AddGroupAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
-                        WsParameters wsParameters, PermissionService permissionService) {
+                        WsParameters wsParameters, PermissionService permissionService, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionUpdater = permissionUpdater;
     this.wsSupport = wsSupport;
     this.wsParameters = wsParameters;
     this.permissionService = permissionService;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -85,12 +88,15 @@ public class AddGroupAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupDto groupDto = wsSupport.findGroupDtoOrNullIfAnyone(dbSession, request);
-      EntityDto project = wsSupport.findEntity(dbSession, request);
-      wsSupport.checkPermissionManagementAccess(userSession, project);
+      EntityDto entityDto = wsSupport.findEntity(dbSession, request);
+      if (entityDto != null && entityDto.isProject()) {
+        managedInstanceChecker.throwIfProjectIsManaged(dbSession, entityDto.getUuid());
+      }
+      wsSupport.checkPermissionManagementAccess(userSession, entityDto);
       GroupPermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.ADD,
         request.mandatoryParam(PARAM_PERMISSION),
-        project,
+        entityDto,
         groupDto,
         permissionService);
       permissionUpdater.applyForGroups(dbSession, List.of(change));

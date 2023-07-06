@@ -26,6 +26,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.UserId;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
@@ -48,15 +49,17 @@ public class RemoveUserAction implements PermissionsWsAction {
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
   private final PermissionService permissionService;
+  private final ManagedInstanceChecker managedInstanceChecker;
 
   public RemoveUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
-    WsParameters wsParameters, PermissionService permissionService) {
+    WsParameters wsParameters, PermissionService permissionService, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionUpdater = permissionUpdater;
     this.wsSupport = wsSupport;
     this.wsParameters = wsParameters;
     this.permissionService = permissionService;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -81,19 +84,25 @@ public class RemoveUserAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserId user = wsSupport.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
+      UserId userIdDto = wsSupport.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
       String permission = request.mandatoryParam(PARAM_PERMISSION);
-      wsSupport.checkRemovingOwnAdminRight(userSession, user, permission);
-      EntityDto entity = wsSupport.findEntity(dbSession, request);
-      wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(userSession, entity, permission, user);
-      wsSupport.checkPermissionManagementAccess(userSession, entity);
+      wsSupport.checkRemovingOwnAdminRight(userSession, userIdDto, permission);
+
+      EntityDto entityDto = wsSupport.findEntity(dbSession, request);
+      if (entityDto != null) {
+        managedInstanceChecker.throwIfUserAndProjectAreManaged(dbSession, userIdDto.getUuid(), entityDto.getUuid());
+      }
+      wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(userSession, entityDto, permission, userIdDto);
+      wsSupport.checkPermissionManagementAccess(userSession, entityDto);
       UserPermissionChange change = new UserPermissionChange(
         PermissionChange.Operation.REMOVE,
         permission,
-        entity,
-        user, permissionService);
+        entityDto,
+        userIdDto,
+        permissionService);
       permissionUpdater.applyForUser(dbSession, singletonList(change));
       response.noContent();
     }
   }
+
 }

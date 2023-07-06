@@ -33,6 +33,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.ws.TestRequest;
@@ -40,6 +41,10 @@ import org.sonar.server.ws.TestRequest;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
@@ -56,6 +61,7 @@ public class RemoveUserActionIT extends BasePermissionWsIT<RemoveUserAction> {
   private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
   private final WsParameters wsParameters = new WsParameters(permissionService);
+  private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
 
   @Before
   public void setUp() {
@@ -64,7 +70,7 @@ public class RemoveUserActionIT extends BasePermissionWsIT<RemoveUserAction> {
 
   @Override
   protected RemoveUserAction buildWsAction() {
-    return new RemoveUserAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport(), wsParameters, permissionService);
+    return new RemoveUserAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport(), wsParameters, permissionService, managedInstanceChecker);
   }
 
   @Test
@@ -253,6 +259,26 @@ public class RemoveUserActionIT extends BasePermissionWsIT<RemoveUserAction> {
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Entity not found");
+  }
+
+  @Test
+  public void wsAction_whenProjectAndUserAreManaged_shouldThrowAndNotRemovePermissions() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.users().insertProjectPermissionOnUser(user, UserRole.CODEVIEWER, project);
+
+    doThrow(new IllegalStateException("Managed project")).when(managedInstanceChecker).throwIfUserAndProjectAreManaged(any(), eq(user.getUuid()), eq(project.getUuid()));
+
+    loginAsAdmin();
+    TestRequest request = newRequest()
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PROJECT_ID, project.getUuid())
+      .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Managed project");
+
+    assertThat(db.users().selectEntityPermissionOfUser(user, project.getUuid())).containsOnly(UserRole.CODEVIEWER);
   }
 
   @Test

@@ -27,7 +27,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.management.DelegatingManagedServices;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.project.VisibilityService;
 import org.sonar.server.user.UserSession;
@@ -36,7 +36,6 @@ import org.sonarqube.ws.client.project.ProjectsWsParameters;
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY;
 import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
@@ -48,15 +47,15 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   private final UserSession userSession;
   private final Configuration configuration;
   private final VisibilityService visibilityService;
-  private final DelegatingManagedServices delegatingInstanceService;
+  private final ManagedInstanceChecker managedInstanceChecker;
 
   public UpdateVisibilityAction(DbClient dbClient, UserSession userSession, Configuration configuration,
-    VisibilityService visibilityService, DelegatingManagedServices delegatingInstanceService) {
+    VisibilityService visibilityService, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.configuration = configuration;
     this.visibilityService = visibilityService;
-    this.delegatingInstanceService = delegatingInstanceService;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   public void define(WebService.NewController context) {
@@ -103,12 +102,9 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
     if (!isProjectAdmin || (!isGlobalAdmin && !allowChangingPermissionsByProjectAdmins)) {
       throw insufficientPrivilegesException();
     }
-    checkRequest(!isManagedProject(dbSession, entityDto), "Cannot change visibility of a managed project");
-  }
-
-
-  private boolean isManagedProject(DbSession dbSession, EntityDto entityDto) {
-    return entityDto.isProject() && delegatingInstanceService.isProjectManaged(dbSession, entityDto.getKey());
+    if (entityDto.isProject()) {
+      managedInstanceChecker.throwIfProjectIsManaged(dbSession, entityDto.getUuid());
+    }
   }
 
 }

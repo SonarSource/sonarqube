@@ -59,7 +59,7 @@ import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.management.DelegatingManagedServices;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.index.FooIndexDefinition;
@@ -77,6 +77,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY;
@@ -109,10 +110,10 @@ public class UpdateVisibilityActionIT {
   private final DbSession dbSession = dbTester.getSession();
   private final TestIndexers projectIndexers = new TestIndexers();
   private final Configuration configuration = mock(Configuration.class);
-  private final DelegatingManagedServices delegatingManagedServices = mock(DelegatingManagedServices.class);
+  private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
 
   private final VisibilityService visibilityService = new VisibilityService(dbClient, projectIndexers, new SequenceUuidFactory());
-  private final UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, userSessionRule, configuration, visibilityService, delegatingManagedServices);
+  private final UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, userSessionRule, configuration, visibilityService, managedInstanceChecker);
   private final WsActionTester ws = new WsActionTester(underTest);
 
   private final Random random = new Random();
@@ -309,16 +310,17 @@ public class UpdateVisibilityActionIT {
   }
 
   @Test
-  public void execute_throws_BadRequestException_if_entity_is_project_and_managed() {
-    when(delegatingManagedServices.isProjectManaged(any(), eq(MANAGED_PROJECT_KEY))).thenReturn(true);
+  public void execute_throws_if_project_is_managed() {
     ProjectDto project = dbTester.components().insertPublicProject(p -> p.setKey(MANAGED_PROJECT_KEY)).getProjectDto();
     request.setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_VISIBILITY, Visibility.PUBLIC.getLabel());
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
+    doThrow(new IllegalStateException("Managed project")).when(managedInstanceChecker).throwIfProjectIsManaged(any(), eq(project.getUuid()));
+
     assertThatThrownBy(request::execute)
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("Cannot change visibility of a managed project");
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Managed project");
   }
 
   @Test

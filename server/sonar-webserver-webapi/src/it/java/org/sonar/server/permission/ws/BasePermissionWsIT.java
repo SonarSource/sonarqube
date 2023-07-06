@@ -29,7 +29,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexersImpl;
 import org.sonar.server.permission.GroupPermissionChanger;
@@ -73,7 +72,7 @@ public abstract class BasePermissionWsIT<A extends PermissionsWsAction> {
 
   protected PermissionWsSupport newPermissionWsSupport() {
     DbClient dbClient = db.getDbClient();
-    return new PermissionWsSupport(dbClient, configuration, new ComponentFinder(dbClient, newRootResourceTypes()), newGroupWsSupport());
+    return new PermissionWsSupport(dbClient, configuration, newGroupWsSupport());
   }
 
   protected ResourceTypesRule newRootResourceTypes() {

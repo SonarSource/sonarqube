@@ -27,6 +27,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.UserId;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
@@ -51,9 +52,10 @@ public class AddUserAction implements PermissionsWsAction {
   private final WsParameters wsParameters;
   private final PermissionService permissionService;
   private final Configuration configuration;
+  private final ManagedInstanceChecker managedInstanceChecker;
 
   public AddUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
-    WsParameters wsParameters, PermissionService permissionService, Configuration configuration) {
+    WsParameters wsParameters, PermissionService permissionService, Configuration configuration, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionUpdater = permissionUpdater;
@@ -61,6 +63,7 @@ public class AddUserAction implements PermissionsWsAction {
     this.wsParameters = wsParameters;
     this.permissionService = permissionService;
     this.configuration = configuration;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -86,17 +89,22 @@ public class AddUserAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String userLogin = request.mandatoryParam(PARAM_USER_LOGIN);
-      EntityDto entity = wsSupport.findEntity(dbSession, request);
-      checkProjectAdmin(userSession, configuration, entity);
+      EntityDto entityDto = wsSupport.findEntity(dbSession, request);
+      if (entityDto != null && entityDto.isProject()) {
+        managedInstanceChecker.throwIfProjectIsManaged(dbSession, entityDto.getUuid());
+      }
+      checkProjectAdmin(userSession, configuration, entityDto);
       UserId user = wsSupport.findUser(dbSession, userLogin);
 
       UserPermissionChange change = new UserPermissionChange(
         PermissionChange.Operation.ADD,
         request.mandatoryParam(PARAM_PERMISSION),
-        entity,
-        user, permissionService);
+        entityDto,
+        user,
+        permissionService);
       permissionUpdater.applyForUser(dbSession, singletonList(change));
     }
     response.noContent();
   }
+
 }

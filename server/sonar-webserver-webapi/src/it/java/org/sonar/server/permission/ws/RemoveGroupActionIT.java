@@ -40,6 +40,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.ws.TestRequest;
@@ -47,6 +48,10 @@ import org.sonar.server.ws.TestRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
@@ -62,6 +67,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
   private final WsParameters wsParameters = new WsParameters(permissionService);
+  private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
 
   @Before
   public void setUp() {
@@ -70,7 +76,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
 
   @Override
   protected RemoveGroupAction buildWsAction() {
-    return new RemoveGroupAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport(), wsParameters, permissionService);
+    return new RemoveGroupAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport(), wsParameters, permissionService, managedInstanceChecker);
   }
 
   @Test
@@ -221,6 +227,25 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Entity not found");
+  }
+
+  @Test
+  public void wsAction_whenGroupAndProjectAreManaged_shouldFailAndNotRemovePermissions() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.users().insertEntityPermissionOnGroup(aGroup, UserRole.CODEVIEWER, project);
+
+    doThrow(new IllegalStateException("Managed project and group")).when(managedInstanceChecker).throwIfGroupAndProjectAreManaged(any(), eq(aGroup.getUuid()), eq(project.getUuid()));
+
+    TestRequest request = newRequest()
+      .setParam(PARAM_GROUP_NAME, aGroup.getName())
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey());
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Managed project and group");
+
+    assertThat(db.users().selectGroupPermissions(aGroup, project)).containsOnly(UserRole.CODEVIEWER);
   }
 
   @Test

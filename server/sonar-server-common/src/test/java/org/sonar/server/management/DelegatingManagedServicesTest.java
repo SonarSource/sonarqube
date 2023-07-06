@@ -117,14 +117,28 @@ public class DelegatingManagedServicesTest {
   public void isUserManaged_delegatesToRightService_andPropagateAnswer() {
     DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of(new NeverManagedInstanceService(), new AlwaysManagedInstanceService()));
 
-    assertThat(managedInstanceService.isUserManaged(dbSession, "login")).isTrue();
+    assertThat(managedInstanceService.isUserManaged(dbSession, "whatever")).isTrue();
   }
 
   @Test
   public void isUserManaged_whenNoDelegates_returnsFalse() {
     DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of());
 
-    assertThat(managedInstanceService.isUserManaged(dbSession, "login")).isFalse();
+    assertThat(managedInstanceService.isUserManaged(dbSession, "whatever")).isFalse();
+  }
+
+  @Test
+  public void isGroupManaged_delegatesToRightService_andPropagateAnswer() {
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of(new NeverManagedInstanceService(), new AlwaysManagedInstanceService()));
+
+    assertThat(managedInstanceService.isGroupManaged(dbSession, "whatever")).isTrue();
+  }
+
+  @Test
+  public void isGroupManaged_whenNoDelegates_returnsFalse() {
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of());
+
+    assertThat(managedInstanceService.isGroupManaged(dbSession, "whatever")).isFalse();
   }
 
   @Test
@@ -206,14 +220,14 @@ public class DelegatingManagedServicesTest {
   public void isProjectManaged_whenManagedInstanceServices_shouldDelegatesToRightService() {
     DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of(new NeverManagedInstanceService(), new AlwaysManagedInstanceService()));
 
-    assertThat(managedInstanceService.isProjectManaged(dbSession, "project_key")).isTrue();
+    assertThat(managedInstanceService.isProjectManaged(dbSession, "whatever")).isTrue();
   }
 
   @Test
   public void isProjectManaged_whenManagedNoInstanceServices_returnsFalse() {
     DelegatingManagedServices managedInstanceService = NO_MANAGED_SERVICES;
 
-    assertThat(managedInstanceService.isProjectManaged(dbSession, "project_key")).isFalse();
+    assertThat(managedInstanceService.isProjectManaged(dbSession, "whatever")).isFalse();
   }
 
   private static class NeverManagedInstanceService implements ManagedInstanceService, ManagedProjectService {
@@ -249,12 +263,17 @@ public class DelegatingManagedServicesTest {
     }
 
     @Override
-    public boolean isUserManaged(DbSession dbSession, String login) {
+    public boolean isUserManaged(DbSession dbSession, String userUuid) {
       return false;
     }
 
     @Override
-    public boolean isProjectManaged(DbSession dbSession, String projectKey) {
+    public boolean isGroupManaged(DbSession dbSession, String groupUuid) {
+      return false;
+    }
+
+    @Override
+    public boolean isProjectManaged(DbSession dbSession, String projectUuid) {
       return false;
     }
   }
@@ -292,12 +311,17 @@ public class DelegatingManagedServicesTest {
     }
 
     @Override
-    public boolean isUserManaged(DbSession dbSession, String login) {
+    public boolean isUserManaged(DbSession dbSession, String userUuid) {
       return true;
     }
 
     @Override
-    public boolean isProjectManaged(DbSession dbSession, String projectKey) {
+    public boolean isGroupManaged(DbSession dbSession, String groupUuid) {
+      return true;
+    }
+
+    @Override
+    public boolean isProjectManaged(DbSession dbSession, String projectUuid) {
       return true;
     }
   }

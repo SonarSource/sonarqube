@@ -35,12 +35,16 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -57,6 +61,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
   private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
   private final WsParameters wsParameters = new WsParameters(permissionService);
   private final Configuration configuration = mock(Configuration.class);
+  private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
 
   @Before
   public void setUp() {
@@ -65,7 +70,8 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
 
   @Override
   protected AddUserAction buildWsAction() {
-    return new AddUserAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport(), wsParameters, permissionService, configuration);
+    return new AddUserAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport(),
+      wsParameters, permissionService, configuration, managedInstanceChecker);
   }
 
   @Test
@@ -204,6 +210,24 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
         .execute();
     })
       .isInstanceOf(NotFoundException.class);
+  }
+
+  @Test
+  public void fail_when_project_is_managed_and_no_permissions_update() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+
+    doThrow(new IllegalStateException("Managed project")).when(managedInstanceChecker).throwIfProjectIsManaged(any(), eq(project.getUuid()));
+
+    TestRequest request = newRequest()
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PERMISSION, UserRole.CODEVIEWER);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Managed project");
+
+    assertThat(db.users().selectEntityPermissionOfUser(user, project.getUuid())).doesNotContain(UserRole.CODEVIEWER);
   }
 
   @Test

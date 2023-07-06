@@ -48,7 +48,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.management.ManagedInstanceService;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.ws.TestRequest;
@@ -57,12 +57,11 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -79,10 +78,9 @@ public class DeactivateActionIT {
   private final DbSession dbSession = db.getSession();
   private final UserAnonymizer userAnonymizer = new UserAnonymizer(db.getDbClient(), () -> "anonymized");
   private final UserDeactivator userDeactivator = new UserDeactivator(dbClient, userAnonymizer);
-  private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
+  private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
 
-  private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userSession, new UserJsonWriter(userSession), userDeactivator, managedInstanceService
-  ));
+  private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userSession, new UserJsonWriter(userSession), userDeactivator, managedInstanceChecker));
 
   @Test
   public void deactivate_user_and_delete_their_related_data() {
@@ -434,15 +432,16 @@ public class DeactivateActionIT {
   }
 
   @Test
-  public void handle_whenUserManagedAndInstanceManaged_shouldThrowBadRequestException() {
+  public void handle_whenUserManagedAndInstanceManaged_shouldThrow() {
     createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
-    when(managedInstanceService.isUserManaged(any(), eq(user.getLogin()))).thenReturn(true);
+    doThrow(new IllegalStateException("User managed")).when(managedInstanceChecker).throwIfUserIsManaged(any(), eq(user.getUuid()));
 
-    assertThatExceptionOfType(BadRequestException.class)
-      .isThrownBy(() -> deactivate(user.getLogin()))
-      .withMessage("Operation not allowed when the instance is externally managed.");
+    String login = user.getLogin();
+    assertThatThrownBy(() -> deactivate(login))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("User managed");
   }
 
   @Test

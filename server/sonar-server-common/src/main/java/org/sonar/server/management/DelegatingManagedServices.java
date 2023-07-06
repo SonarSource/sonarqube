@@ -83,9 +83,16 @@ public class DelegatingManagedServices implements ManagedInstanceService, Manage
   }
 
   @Override
-  public boolean isUserManaged(DbSession dbSession, String login) {
+  public boolean isUserManaged(DbSession dbSession, String userUuid) {
     return findManagedInstanceService()
-      .map(managedInstanceService -> managedInstanceService.isUserManaged(dbSession, login))
+      .map(managedInstanceService -> managedInstanceService.isUserManaged(dbSession, userUuid))
+      .orElse(false);
+  }
+
+  @Override
+  public boolean isGroupManaged(DbSession dbSession, String groupUuid) {
+    return findManagedInstanceService()
+      .map(managedInstanceService -> managedInstanceService.isGroupManaged(dbSession, groupUuid))
       .orElse(false);
   }
 
@@ -104,9 +111,9 @@ public class DelegatingManagedServices implements ManagedInstanceService, Manage
   }
 
   @Override
-  public boolean isProjectManaged(DbSession dbSession, String projectKey) {
+  public boolean isProjectManaged(DbSession dbSession, String projectUuid) {
     return findManagedProjectService()
-      .map(managedProjectService -> managedProjectService.isProjectManaged(dbSession, projectKey))
+      .map(managedProjectService -> managedProjectService.isProjectManaged(dbSession, projectUuid))
       .orElse(false);
   }
 

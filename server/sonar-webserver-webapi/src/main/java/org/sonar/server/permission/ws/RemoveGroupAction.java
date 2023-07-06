@@ -27,6 +27,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.PermissionChange;
@@ -49,15 +50,17 @@ public class RemoveGroupAction implements PermissionsWsAction {
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
   private final PermissionService permissionService;
+  private final ManagedInstanceChecker managedInstanceChecker;
 
   public RemoveGroupAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
-    WsParameters wsParameters, PermissionService permissionService) {
+    WsParameters wsParameters, PermissionService permissionService, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionUpdater = permissionUpdater;
     this.wsSupport = wsSupport;
     this.wsParameters = wsParameters;
     this.permissionService = permissionService;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
@@ -86,18 +89,20 @@ public class RemoveGroupAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      EntityDto entity = wsSupport.findEntity(dbSession, request);
+      EntityDto entityDto = wsSupport.findEntity(dbSession, request);
       GroupDto groupDto = wsSupport.findGroupDtoOrNullIfAnyone(dbSession, request);
-
-      wsSupport.checkPermissionManagementAccess(userSession, entity);
+      if (entityDto != null && entityDto.isProject() && groupDto != null) {
+        managedInstanceChecker.throwIfGroupAndProjectAreManaged(dbSession, groupDto.getUuid(), entityDto.getUuid());
+      }
+      wsSupport.checkPermissionManagementAccess(userSession, entityDto);
 
       String permission = request.mandatoryParam(PARAM_PERMISSION);
-      wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(dbSession, userSession, entity, permission, GroupUuidOrAnyone.from(groupDto));
+      wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(dbSession, userSession, entityDto, permission, GroupUuidOrAnyone.from(groupDto));
 
       GroupPermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.REMOVE,
         permission,
-        entity,
+        entityDto,
         groupDto,
         permissionService);
       permissionUpdater.applyForGroups(dbSession, singletonList(change));

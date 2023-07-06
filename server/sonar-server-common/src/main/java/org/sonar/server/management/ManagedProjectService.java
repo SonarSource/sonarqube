@@ -23,6 +23,6 @@ import org.sonar.db.DbSession;
 
 public interface ManagedProjectService {
 
-  boolean isProjectManaged(DbSession dbSession, String projectKey);
+  boolean isProjectManaged(DbSession dbSession, String projectUuid);
 
 }

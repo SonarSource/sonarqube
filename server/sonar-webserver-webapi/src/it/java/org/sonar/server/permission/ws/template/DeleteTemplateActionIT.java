@@ -34,7 +34,6 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -76,7 +75,7 @@ public class DeleteTemplateActionIT {
   public void setUp() {
     GroupWsSupport groupWsSupport = new GroupWsSupport(dbClient, new DefaultGroupFinder(db.getDbClient()));
     this.underTest = new WsActionTester(new DeleteTemplateAction(dbClient, userSession,
-      new PermissionWsSupport(dbClient, configuration, new ComponentFinder(dbClient, resourceTypes), groupWsSupport), defaultTemplatesResolver));
+      new PermissionWsSupport(dbClient, configuration, groupWsSupport), defaultTemplatesResolver));
   }
 
   @Test

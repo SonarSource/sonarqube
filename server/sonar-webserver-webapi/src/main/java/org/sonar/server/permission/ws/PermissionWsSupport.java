@@ -35,7 +35,6 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserId;
 import org.sonar.db.user.UserIdDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.GroupUuidOrAnyone;
@@ -57,15 +56,13 @@ public class PermissionWsSupport {
   private static final String ERROR_REMOVING_OWN_BROWSE_PERMISSION = "Permission 'Browse' cannot be removed from a private project for a project administrator.";
 
   private final DbClient dbClient;
-  private final ComponentFinder componentFinder;
   private final GroupWsSupport groupWsSupport;
   private final Configuration configuration;
 
-  public PermissionWsSupport(DbClient dbClient, Configuration configuration, ComponentFinder componentFinder, GroupWsSupport groupWsSupport) {
+  public PermissionWsSupport(DbClient dbClient, Configuration configuration, GroupWsSupport groupWsSupport) {
 
     this.dbClient = dbClient;
     this.configuration = configuration;
-    this.componentFinder = componentFinder;
     this.groupWsSupport = groupWsSupport;
   }
 
