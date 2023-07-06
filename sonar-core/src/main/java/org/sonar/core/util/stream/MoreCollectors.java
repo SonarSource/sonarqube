@@ -164,22 +164,6 @@ public final class MoreCollectors {
       Collector.Characteristics.UNORDERED);
   }
 
-  /**
-   * For stream of one expected element, return the element
-   *
-   * @throws IllegalArgumentException if stream has no element or more than 1 element
-   */
-  public static <T> Collector<T, ?, T> toOneElement() {
-    return java.util.stream.Collectors.collectingAndThen(
-      java.util.stream.Collectors.toList(),
-      list -> {
-        if (list.size() != 1) {
-          throw new IllegalStateException("Stream should have only one element");
-        }
-        return list.get(0);
-      });
-  }
-
   private static <K, V> Supplier<Map<K, V>> newHashMapSupplier(int expectedSize) {
     return () -> expectedSize == DEFAULT_HASHMAP_CAPACITY ? new HashMap<>() : new HashMap<>(expectedSize);
   }

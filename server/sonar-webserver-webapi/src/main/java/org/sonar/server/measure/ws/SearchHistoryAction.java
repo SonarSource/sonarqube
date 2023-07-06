@@ -22,10 +22,10 @@ package org.sonar.server.measure.ws;
 import com.google.common.collect.Sets;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -36,7 +36,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -136,11 +135,11 @@ public class SearchHistoryAction implements MeasuresWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    SearchHistoryResponse searchHistoryResponse = Stream.of(request)
+    SearchHistoryResponse searchHistoryResponse = Optional.of(request)
       .map(SearchHistoryAction::toWsRequest)
       .map(search())
       .map(result -> new SearchHistoryResponseFactory(result).apply())
-      .collect(MoreCollectors.toOneElement());
+      .orElseThrow();
 
     writeProtobuf(searchHistoryResponse, request, response);
   }

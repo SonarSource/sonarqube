@@ -22,8 +22,8 @@ package org.sonar.server.measure.ws;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.UnaryOperator;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.SnapshotDto;
@@ -48,11 +48,11 @@ class SearchHistoryResponseFactory {
   }
 
   public SearchHistoryResponse apply() {
-    return Stream.of(SearchHistoryResponse.newBuilder())
+    return Optional.of(SearchHistoryResponse.newBuilder())
       .map(addPaging())
       .map(addMeasures())
       .map(SearchHistoryResponse.Builder::build)
-      .collect(MoreCollectors.toOneElement());
+      .orElseThrow();
   }
 
   private UnaryOperator<SearchHistoryResponse.Builder> addPaging() {

@@ -23,12 +23,12 @@ import com.google.common.base.Splitter;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -50,7 +50,6 @@ import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsFirst;
 import static java.util.Optional.ofNullable;
-import static org.sonar.core.util.stream.MoreCollectors.toOneElement;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.ACTION_LIST;
 import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
@@ -102,14 +101,14 @@ public class ListAction implements NotificationsWsAction {
       checkPermissions(request);
       UserDto user = getUser(dbSession, request);
 
-      return Stream
+      return Optional
         .of(ListResponse.newBuilder())
         .map(r -> r.addAllChannels(channels))
         .map(r -> r.addAllGlobalTypes(dispatchers.getGlobalDispatchers()))
         .map(r -> r.addAllPerProjectTypes(dispatchers.getProjectDispatchers()))
         .map(addNotifications(dbSession, user))
         .map(ListResponse.Builder::build)
-        .collect(toOneElement());
+        .orElseThrow();
     }
   }
 
