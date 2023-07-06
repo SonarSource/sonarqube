@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { getSizeRatingLabel } from '../../../helpers/ratings';
+import { MetricKey } from '../../../types/metrics';
 import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
-import Filter from './Filter';
-import FilterHeader from './FilterHeader';
+import RangeFacetBase from './RangeFacetBase';
 
 export interface Props {
   facet?: Facet;
@@ -34,22 +34,21 @@ export interface Props {
 }
 
 export default function NewLinesFilter(props: Props) {
-  const { property = 'new_lines' } = props;
+  const { facet, maxFacetValue, property = MetricKey.new_lines, value } = props;
 
   return (
-    <Filter
-      className="leak-facet-box"
-      facet={props.facet}
+    <RangeFacetBase
+      facet={facet}
       getFacetValueForOption={getFacetValueForOption}
-      header={<FilterHeader name={translate('projects.facets.new_lines')} />}
+      header={translate('projects.facets.new_lines')}
       highlightUnder={1}
-      maxFacetValue={props.maxFacetValue}
+      maxFacetValue={maxFacetValue}
       onQueryChange={props.onQueryChange}
       options={[1, 2, 3, 4, 5]}
       property={property}
       renderAccessibleLabel={renderAccessibleLabel}
       renderOption={renderOption}
-      value={props.value}
+      value={value}
     />
   );
 }

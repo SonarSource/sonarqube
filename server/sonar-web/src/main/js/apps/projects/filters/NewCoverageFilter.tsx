@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { MetricKey } from '../../../types/metrics';
 import CoverageFilter, { Props } from './CoverageFilter';
 
 export default function NewCoverageFilter(props: Props) {
-  return <CoverageFilter {...props} className="leak-facet-box" property="new_coverage" />;
+  return <CoverageFilter {...props} property={MetricKey.new_coverage} />;
 }

@@ -18,14 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import CodeSmellIcon from '../../../components/icons/CodeSmellIcon';
-import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
-import IssuesFilter from './IssuesFilter';
+import RatingFacet from './RatingFacet';
 
 interface Props {
-  className?: string;
   facet?: Facet;
   maxFacetValue?: number;
   onQueryChange: (change: RawQuery) => void;
@@ -33,20 +30,5 @@ interface Props {
 }
 
 export default function NewMaintainabilityFilter(props: Props) {
-  return (
-    <IssuesFilter
-      {...props}
-      className="leak-facet-box"
-      headerDetail={
-        <span className="note little-spacer-left">
-          {'( '}
-          <CodeSmellIcon className="little-spacer-right" />
-          {translate('metric.code_smells.name')}
-          {' )'}
-        </span>
-      }
-      name="Maintainability"
-      property="new_maintainability"
-    />
-  );
+  return <RatingFacet {...props} name="Maintainability" property="new_maintainability" />;
 }

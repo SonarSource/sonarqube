@@ -17,19 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { MetricsEnum, MetricsRatingBadge } from 'design-system';
 import * as React from 'react';
-import Rating from '../../../components/ui/Rating';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import { MetricType } from '../../../types/metrics';
 import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
-import Filter from './Filter';
-import FilterHeader from './FilterHeader';
+import RangeFacetBase from './RangeFacetBase';
 
 interface Props {
-  className?: string;
   facet?: Facet;
-  headerDetail?: React.ReactNode;
   maxFacetValue?: number;
   name: string;
   onQueryChange: (change: RawQuery) => void;
@@ -37,8 +35,8 @@ interface Props {
   value?: any;
 }
 
-export default function IssuesFilter(props: Props) {
-  const { name } = props;
+export default function RatingFacet(props: Props) {
+  const { facet, maxFacetValue, name, property, value } = props;
 
   const renderAccessibleLabel = React.useCallback(
     (option: number) => {
@@ -46,47 +44,39 @@ export default function IssuesFilter(props: Props) {
         return translateWithParameters(
           'projects.facets.rating_label_single_x',
           translate('metric_domain', name),
-          formatMeasure(option, 'RATING')
+          formatMeasure(option, MetricType.Rating)
         );
       }
 
       return translateWithParameters(
         'projects.facets.rating_label_multi_x',
         translate('metric_domain', name),
-        formatMeasure(option, 'RATING')
+        formatMeasure(option, MetricType.Rating)
       );
     },
     [name]
   );
 
   return (
-    <Filter
-      className={props.className}
-      facet={props.facet}
-      header={
-        <FilterHeader name={translate('metric_domain', props.name)}>
-          {props.headerDetail}
-        </FilterHeader>
-      }
+    <RangeFacetBase
+      facet={facet}
+      header={translate('metric_domain', name)}
       highlightUnder={1}
-      maxFacetValue={props.maxFacetValue}
+      maxFacetValue={maxFacetValue}
       onQueryChange={props.onQueryChange}
       options={[1, 2, 3, 4, 5]}
-      property={props.property}
+      property={property}
       renderAccessibleLabel={renderAccessibleLabel}
       renderOption={renderOption}
-      value={props.value}
+      value={value}
     />
   );
 }
 
-function renderOption(option: number, selected: boolean) {
+function renderOption(option: number) {
+  const ratingFormatted = formatMeasure(option, MetricType.Rating);
+
   return (
-    <span>
-      <Rating muted={!selected} value={option} />
-      <span className="spacer-left">
-        {translateWithParameters('projects.facets.rating_x', formatMeasure(option, 'RATING'))}
-      </span>
-    </span>
+    <MetricsRatingBadge label={ratingFormatted} rating={ratingFormatted as MetricsEnum} size="xs" />
   );
 }

@@ -31,15 +31,11 @@ it('should render the right facets for overview', () => {
     query: { size: '3' },
   });
 
-  expect(screen.getByRole('heading', { level: 3, name: 'metric_domain.Size' })).toBeInTheDocument();
+  expect(screen.getByText('metric_domain.Size')).toBeInTheDocument();
 
-  expect(
-    screen.getByRole('heading', { level: 3, name: 'projects.facets.qualifier' })
-  ).toBeInTheDocument();
+  expect(screen.getByText('projects.facets.qualifier')).toBeInTheDocument();
 
-  expect(
-    screen.queryByRole('heading', { level: 3, name: 'projects.facets.new_lines' })
-  ).not.toBeInTheDocument();
+  expect(screen.queryByText('projects.facets.new_lines')).not.toBeInTheDocument();
 });
 
 it('should not show the qualifier facet with no applications', () => {
@@ -48,9 +44,7 @@ it('should not show the qualifier facet with no applications', () => {
     query: { size: '3' },
   });
 
-  expect(
-    screen.queryByRole('heading', { level: 3, name: 'projects.facets.qualifier' })
-  ).not.toBeInTheDocument();
+  expect(screen.queryByText('projects.facets.qualifier')).not.toBeInTheDocument();
 });
 
 it('should show "new lines" instead of "size" when in `leak` view', () => {
@@ -59,13 +53,8 @@ it('should show "new lines" instead of "size" when in `leak` view', () => {
     view: 'leak',
   });
 
-  expect(
-    screen.queryByRole('heading', { level: 3, name: 'metric_domain.Size' })
-  ).not.toBeInTheDocument();
-
-  expect(
-    screen.getByRole('heading', { level: 3, name: 'projects.facets.new_lines' })
-  ).toBeInTheDocument();
+  expect(screen.queryByText('metric_domain.Size')).not.toBeInTheDocument();
+  expect(screen.getByText('projects.facets.new_lines')).toBeInTheDocument();
 });
 
 it('should allow to clear all filters', async () => {
@@ -98,6 +87,7 @@ function renderPageSidebar(overrides: Partial<PageSidebarProps> = {}, currentUse
     >
       <PageSidebar
         applicationsEnabled
+        loadSearchResultCount={jest.fn().mockResolvedValue({})}
         onClearAll={jest.fn()}
         onQueryChange={jest.fn()}
         query={{ view: 'overall' }}

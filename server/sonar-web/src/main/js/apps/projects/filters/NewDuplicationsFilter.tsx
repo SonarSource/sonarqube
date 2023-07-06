@@ -21,5 +21,5 @@ import * as React from 'react';
 import DuplicationsFilter, { Props } from './DuplicationsFilter';
 
 export default function NewDuplicationsFilter(props: Props) {
-  return <DuplicationsFilter {...props} className="leak-facet-box" property="new_duplications" />;
+  return <DuplicationsFilter {...props} property="new_duplications" />;
 }

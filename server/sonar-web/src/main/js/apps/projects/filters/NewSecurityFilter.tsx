@@ -18,14 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import VulnerabilityIcon from '../../../components/icons/VulnerabilityIcon';
-import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
-import IssuesFilter from './IssuesFilter';
+import RatingFacet from './RatingFacet';
 
 interface Props {
-  className?: string;
   facet?: Facet;
   maxFacetValue?: number;
   onQueryChange: (change: RawQuery) => void;
@@ -33,20 +30,5 @@ interface Props {
 }
 
 export default function NewSecurityFilter(props: Props) {
-  return (
-    <IssuesFilter
-      {...props}
-      className="leak-facet-box"
-      headerDetail={
-        <span className="note little-spacer-left">
-          {'( '}
-          <VulnerabilityIcon className="little-spacer-right" />
-          {translate('metric.vulnerabilities.name')}
-          {' )'}
-        </span>
-      }
-      name="Security"
-      property="new_security"
-    />
-  );
+  return <RatingFacet {...props} name="Security" property="new_security" />;
 }

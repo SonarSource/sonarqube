@@ -17,59 +17,70 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FacetBox, FacetItem } from 'design-system';
 import * as React from 'react';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
+import { isDefined } from '../../../helpers/types';
 import { ComponentQualifier } from '../../../types/component';
 import { RawQuery } from '../../../types/types';
+import { FacetItemsList } from '../../issues/sidebar/FacetItemsList';
+import { formatFacetStat } from '../../issues/utils';
 import { Facet } from '../types';
-import Filter from './Filter';
-import FilterHeader from './FilterHeader';
 
-export interface QualifierFilterProps {
+export interface QualifierFacetProps {
   facet?: Facet;
   maxFacetValue?: number;
   onQueryChange: (change: RawQuery) => void;
   value: ComponentQualifier | undefined;
 }
 
+const HEADER_ID = `facet_qualifier`;
+
 const options = [ComponentQualifier.Project, ComponentQualifier.Application];
 
-export default function QualifierFilter(props: QualifierFilterProps) {
-  const { facet, maxFacetValue, value } = props;
+export default function QualifierFacet(props: QualifierFacetProps) {
+  const { facet, maxFacetValue, onQueryChange, value } = props;
+
+  const onItemClick = React.useCallback(
+    (itemValue: string) => {
+      const active = value === itemValue;
+
+      onQueryChange({
+        qualifier: active ? '' : itemValue,
+      });
+    },
+    [onQueryChange, value]
+  );
 
   return (
-    <Filter
-      facet={facet}
-      header={<FilterHeader name={translate('projects.facets.qualifier')} />}
-      maxFacetValue={maxFacetValue}
-      onQueryChange={props.onQueryChange}
-      options={options}
-      property="qualifier"
-      renderAccessibleLabel={renderAccessibleLabel}
-      renderOption={renderOption}
-      value={value}
-    />
+    <FacetBox id={HEADER_ID} open name={translate('projects.facets.qualifier')}>
+      <FacetItemsList labelledby={HEADER_ID}>
+        {options.map((option) => {
+          const facetValue = facet?.[option];
+
+          const statBarPercent =
+            isDefined(facetValue) && isDefined(maxFacetValue) && maxFacetValue > 0
+              ? facetValue / maxFacetValue
+              : undefined;
+
+          return (
+            <FacetItem
+              disableZero={false}
+              key={option}
+              active={value === option}
+              name={renderOption(option)}
+              onClick={onItemClick}
+              value={option}
+              stat={formatFacetStat(facet?.[option]) ?? 0}
+              statBarPercent={statBarPercent}
+            />
+          );
+        })}
+      </FacetItemsList>
+    </FacetBox>
   );
 }
 
-function renderAccessibleLabel(option: string) {
-  return translateWithParameters(
-    'projects.facets.label_text_x',
-    translate('projects.facets.qualifier'),
-    translate('qualifier', option)
-  );
-}
-
-function renderOption(option: string, selected: boolean) {
-  return (
-    <span className="display-flex-center">
-      <QualifierIcon
-        className="spacer-right"
-        fill={selected ? undefined : 'currentColor'}
-        qualifier={option}
-      />
-      {translate('qualifier', option)}
-    </span>
-  );
+function renderOption(option: string) {
+  return <div className="sw-flex sw-items-center">{translate('qualifier', option)}</div>;
 }

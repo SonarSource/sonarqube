@@ -47,12 +47,6 @@ export function getDuplicationsRatingLabel(rating: number): string {
   return mapping[rating - 1];
 }
 
-export function getDuplicationsRatingAverageValue(rating: number): number {
-  checkNumberRating(rating);
-  const mapping = [1.5, 4, 7.5, 15, 30];
-  return mapping[rating - 1];
-}
-
 export function getSizeRatingLabel(rating: number): string {
   checkNumberRating(rating);
   const mapping = ['< 1k', '1k - 10k', '10k - 100k', '100k - 500k', '> 500k'];
@@ -73,3 +67,8 @@ export const getMaintainabilityGrid = (ratingGridSetting: string) => {
 
   return numbers.length === RATING_GRID_SIZE ? numbers : [0, 0, 0, 0];
 };
+
+const DUPLICATION_RATINGS: ['A', 'B', 'C', 'D', 'E', 'F'] = ['A', 'B', 'C', 'D', 'E', 'F'];
+export function duplicationValueToRating(val: number) {
+  return DUPLICATION_RATINGS[val - 1];
+}

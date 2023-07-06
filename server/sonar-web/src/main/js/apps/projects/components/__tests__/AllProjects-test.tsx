@@ -160,7 +160,7 @@ it('handles updating the favorite status of a project', () => {
 
 it('handles showing favorite projects on load', () => {
   const wrapper = shallowRender({
-    props: { currentUser: { dismissedNotices: {}, isLoggedIn: false }, isFavorite: true },
+    props: { isFavorite: true },
   });
 
   expect(wrapper.state('projects')).toMatchSnapshot();

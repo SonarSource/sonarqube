@@ -19,12 +19,13 @@
  */
 
 import { FacetBox, FacetItem, FlagMessage, InputSearch } from 'design-system';
-import { sortBy, without } from 'lodash';
+import { max, sortBy, values, without } from 'lodash';
 import * as React from 'react';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { queriesEqual } from '../../../helpers/query';
+import { isDefined } from '../../../helpers/types';
 import { MetricType } from '../../../types/metrics';
 import { Dict, Paging, RawQuery } from '../../../types/types';
 import { FacetItemsList } from './FacetItemsList';
@@ -39,6 +40,7 @@ interface SearchResponse<S> {
 
 export interface Props<S> {
   disabled?: boolean;
+  disableZero?: boolean;
   facetHeader: string;
   fetching: boolean;
   getFacetItemText: (item: string) => string;
@@ -54,7 +56,7 @@ export interface Props<S> {
   onClear?: () => void;
   onItemClick?: (itemValue: string, multiple: boolean) => void;
   onSearch: (query: string, page?: number) => Promise<SearchResponse<S>>;
-  onToggle: (property: string) => void;
+  onToggle?: (property: string) => void;
   open: boolean;
   property: string;
   query?: RawQuery;
@@ -63,6 +65,7 @@ export interface Props<S> {
   searchPlaceholder: string;
   showLessAriaLabel?: string;
   showMoreAriaLabel?: string;
+  showStatBar?: boolean;
   stats: Dict<number> | undefined;
   values: string[];
 }
@@ -155,7 +158,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
   };
 
   handleHeaderClick = () => {
-    this.props.onToggle(this.props.property);
+    this.props.onToggle?.(this.props.property);
   };
 
   handleClear = () => {
@@ -241,6 +244,24 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
     return stats?.[item];
   }
 
+  getStatBarPercent = (item: string) => {
+    const { showStatBar, stats } = this.props;
+    const { searchResultsCounts } = this.state;
+
+    if (!showStatBar) {
+      return undefined;
+    }
+
+    const combined = { ...stats, ...searchResultsCounts };
+
+    const maxFacetValue = max(values(combined));
+    const facetValue = combined?.[item];
+
+    return isDefined(facetValue) && isDefined(maxFacetValue) && maxFacetValue > 0
+      ? facetValue / maxFacetValue
+      : undefined;
+  };
+
   getFacetHeaderId = (property: string) => {
     return `facet_${property}`;
   };
@@ -255,6 +276,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
 
   renderList() {
     const {
+      disableZero,
       maxInitialItems,
       maxItems,
       property,
@@ -293,11 +315,13 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
           {limitedList.map((item) => (
             <FacetItem
               active={this.props.values.includes(item)}
+              disableZero={disableZero}
               className="it__search-navigator-facet"
               key={item}
               name={this.props.renderFacetItem(item)}
               onClick={this.handleItemClick}
               stat={formatFacetStat(this.getStat(item)) ?? 0}
+              statBarPercent={this.getStatBarPercent(item)}
               tooltip={this.props.getFacetItemText(item)}
               value={item}
             />
@@ -313,10 +337,12 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
                 <FacetItem
                   active
                   className="it__search-navigator-facet"
+                  disableZero={disableZero}
                   key={item}
                   name={this.props.renderFacetItem(item)}
                   onClick={this.handleItemClick}
                   stat={formatFacetStat(this.getStat(item)) ?? 0}
+                  statBarPercent={this.getStatBarPercent(item)}
                   tooltip={this.props.getFacetItemText(item)}
                   value={item}
                 />
@@ -344,6 +370,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
   }
 
   renderSearch() {
+    const { minSearchLength } = this.props;
     return (
       <InputSearch
         className="it__search-box-input sw-mb-4 sw-w-full"
@@ -354,6 +381,8 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
         value={this.state.query}
         searchInputAriaLabel={translate('search_verb')}
         clearIconAriaLabel={translate('clear')}
+        minLength={minSearchLength}
+        tooShortText={translateWithParameters('select2.tooShort', minSearchLength)}
       />
     );
   }
@@ -399,6 +428,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
   }
 
   renderSearchResult(result: S) {
+    const { disableZero } = this.props;
     const key = this.props.getSearchResultKey(result);
     const active = this.props.values.includes(key);
     const stat = formatFacetStat(this.getStat(key) ?? this.state.searchResultsCounts[key]) ?? 0;
@@ -407,10 +437,12 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
       <FacetItem
         active={active}
         className="it__search-navigator-facet"
+        disableZero={disableZero}
         key={key}
         name={this.props.renderSearchResult(result, this.state.query)}
         onClick={this.handleItemClick}
         stat={stat}
+        statBarPercent={this.getStatBarPercent(key)}
         tooltip={this.props.getSearchResultText(result)}
         value={key}
       />
@@ -423,6 +455,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
       facetHeader,
       fetching,
       inner,
+      minSearchLength,
       open,
       property,
       stats = {},
@@ -436,7 +469,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
     const loadingResults =
       query !== '' && searching && (searchResults === undefined || searchResults.length === 0);
 
-    const showList = !query || loadingResults;
+    const showList = query.length < minSearchLength || loadingResults;
 
     const nbSelectableItems = Object.keys(stats).length;
     const nbSelectedItems = values.length;
@@ -447,13 +480,14 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
         clearIconLabel={translate('clear')}
         count={nbSelectedItems}
         countLabel={translateWithParameters('x_selected', nbSelectedItems)}
+        data-property={property}
         disabled={disabled}
         id={this.getFacetHeaderId(property)}
         inner={inner}
         loading={fetching}
         name={facetHeader}
         onClear={this.handleClear}
-        onClick={disabled ? undefined : this.handleHeaderClick}
+        onClick={disabled || !this.props.onToggle ? undefined : this.handleHeaderClick}
         open={open && !disabled}
       >
         {!disabled && (

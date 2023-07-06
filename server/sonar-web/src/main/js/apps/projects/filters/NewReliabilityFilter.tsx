@@ -18,14 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BugIcon from '../../../components/icons/BugIcon';
-import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../types/types';
 import { Facet } from '../types';
-import IssuesFilter from './IssuesFilter';
+import RatingFacet from './RatingFacet';
 
 interface Props {
-  className?: string;
   facet?: Facet;
   maxFacetValue?: number;
   onQueryChange: (change: RawQuery) => void;
@@ -33,20 +30,5 @@ interface Props {
 }
 
 export default function NewReliabilityFilter(props: Props) {
-  return (
-    <IssuesFilter
-      {...props}
-      className="leak-facet-box"
-      headerDetail={
-        <span className="note little-spacer-left">
-          {'( '}
-          <BugIcon className="little-spacer-right" />
-          {translate('metric.bugs.name')}
-          {' )'}
-        </span>
-      }
-      name="Reliability"
-      property="new_reliability"
-    />
-  );
+  return <RatingFacet {...props} name="Reliability" property="new_reliability" />;
 }

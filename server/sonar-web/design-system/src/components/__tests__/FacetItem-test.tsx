@@ -21,7 +21,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { render } from '../../helpers/testUtils';
-import { FacetItem, FacetItemProps } from '../FacetItem';
+import { BaseFacetItem, FacetItemProps } from '../FacetItem';
 
 it('should render a disabled facet item', async () => {
   const user = userEvent.setup();
@@ -69,5 +69,7 @@ it('should not add an aria label if the name is not a string', () => {
 });
 
 function renderComponent(props: Partial<FacetItemProps> = {}) {
-  return render(<FacetItem name="Test facet item" onClick={jest.fn()} value="Value" {...props} />);
+  return render(
+    <BaseFacetItem name="Test facet item" onClick={jest.fn()} value="Value" {...props} />
+  );
 }

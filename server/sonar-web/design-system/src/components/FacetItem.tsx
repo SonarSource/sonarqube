@@ -22,34 +22,42 @@ import styled from '@emotion/styled';
 import * as React from 'react';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../helpers';
+import { isDefined } from '../helpers/types';
 import { ButtonProps, ButtonSecondary } from './buttons';
 
 export type FacetItemProps = Omit<ButtonProps, 'name' | 'onClick'> & {
   active?: boolean;
+  /** Disable the item if its value is 0. True by default. */
+  disableZero?: boolean;
   name: string | React.ReactNode;
   onClick: (x: string, multiple?: boolean) => void;
   small?: boolean;
   stat?: React.ReactNode;
+  statBarPercent?: number;
   /** Textual version of `name` */
   tooltip?: string;
   value: string;
 };
 
-export function FacetItem({
+const STATBAR_MAX_WIDTH = 60;
+
+export function BaseFacetItem({
   active,
   className,
   disabled: disabledProp = false,
+  disableZero = true,
   icon,
   name,
   onClick,
   small,
   stat,
+  statBarPercent,
   tooltip,
   value,
 }: FacetItemProps) {
   // alow an active facet to be disabled even if it now has a "0" stat
   // (it was activated when a different value of My issues/All/New code was selected)
-  const disabled = disabledProp || (!active && stat !== undefined && stat === 0);
+  const disabled = disabledProp || (disableZero && !active && stat !== undefined && stat === 0);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -71,15 +79,26 @@ export function FacetItem({
       small={small}
       title={tooltip}
     >
-      <span className="container">
+      <div className="container">
         <span className="name">{name}</span>
-        <span className="stat">{stat}</span>
-      </span>
+        <div>
+          <span className="stat">{stat}</span>
+          {isDefined(statBarPercent) && (
+            <FacetStatBar>
+              <FacetStatBarInner
+                style={{ '--statBarWidth': `${statBarPercent * STATBAR_MAX_WIDTH}px` }}
+              />
+            </FacetStatBar>
+          )}
+        </div>
+      </div>
     </StyledButton>
   );
 }
 
-FacetItem.displayName = 'FacetItem'; // so that tests don't see the obfuscated production name
+BaseFacetItem.displayName = 'FacetItem'; // so that tests don't see the obfuscated production name
+
+export const FacetItem = styled(BaseFacetItem)``;
 
 const StyledButton = styled(ButtonSecondary)<{ active?: boolean; small?: boolean }>`
   ${tw`sw-body-sm`};
@@ -103,7 +122,13 @@ const StyledButton = styled(ButtonSecondary)<{ active?: boolean; small?: boolean
     --border: ${themeBorder('default', 'facetItemSelectedBorder')};
   }
 
-  & span.container {
+  &:hover,
+  &:active,
+  &:focus {
+    border-color: ${themeColor('facetItemSelectedBorder')};
+  }
+
+  & div.container {
     ${tw`sw-container`};
     ${tw`sw-flex`};
     ${tw`sw-items-center`};
@@ -135,6 +160,75 @@ const StyledButton = styled(ButtonSecondary)<{ active?: boolean; small?: boolean
     &:hover {
       background-color: transparent;
       border-color: transparent;
+    }
+  }
+`;
+
+const FacetStatBar = styled.div`
+  ${tw`sw-inline-block`}
+  ${tw`sw-ml-2`}
+
+  width: ${STATBAR_MAX_WIDTH}px;
+`;
+
+const FacetStatBarInner = styled.div`
+  width: var(--statBarWidth);
+  min-width: 5px;
+  height: 10px;
+  background-color: ${themeColor('facetItemGraph')};
+  transition: width 0.3s ease;
+`;
+
+export const HighlightedFacetItems = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  ${FacetItem} {
+    padding-top: 1px;
+    padding-bottom: 1px;
+
+    &:is(:hover, .active) {
+      border-color: ${themeColor('facetItemSelectedBorder')};
+      border-bottom-width: 0;
+      border-bottom-right-radius: 0rem;
+      border-bottom-left-radius: 0rem;
+
+      &:last-of-type {
+        border-bottom-width: 1px;
+        border-radius: 0.25rem;
+      }
+
+      & ~ ${FacetItem} {
+        border-color: ${themeColor('facetItemSelectedBorder')};
+        border-top-width: 0;
+        border-bottom-width: 0;
+        border-radius: 0;
+      }
+
+      & ~ ${FacetItem}:last-of-type {
+        padding-bottom: 0;
+        border-bottom-width: 1px;
+        border-bottom-right-radius: 0.25rem;
+        border-bottom-left-radius: 0.25rem;
+      }
+    }
+
+    &.active {
+      background-color: ${themeColor('facetItemSelected')};
+
+      & ~ ${FacetItem} {
+        background-color: ${themeColor('facetItemSelected')};
+      }
+
+      & ~ ${FacetItem}:hover, & ~ ${FacetItem}:hover ~ ${FacetItem} {
+        background-color: ${themeColor('facetItemSelectedHover')};
+      }
+    }
+
+    &.active ~ ${FacetItem}:hover, &:hover ~ ${FacetItem}.active {
+      padding-top: 0;
+      border-top-width: 1px;
     }
   }
 `;

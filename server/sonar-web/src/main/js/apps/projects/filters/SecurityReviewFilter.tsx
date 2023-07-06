@@ -17,18 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { MetricsEnum, MetricsRatingBadge } from 'design-system';
 import * as React from 'react';
-import SecurityHotspotIcon from '../../../components/icons/SecurityHotspotIcon';
-import Rating from '../../../components/ui/Rating';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import { MetricType } from '../../../types/metrics';
 import { Dict, RawQuery } from '../../../types/types';
 import { Facet } from '../types';
-import Filter from './Filter';
-import FilterHeader from './FilterHeader';
+import RangeFacetBase from './RangeFacetBase';
 
 export interface Props {
-  className?: string;
   facet?: Facet;
   maxFacetValue?: number;
   onQueryChange: (change: RawQuery) => void;
@@ -45,30 +43,20 @@ const labels: Dict<string> = {
 };
 
 export default function SecurityReviewFilter(props: Props) {
-  const { property = 'security_review' } = props;
+  const { facet, maxFacetValue, property = 'security_review', value } = props;
 
   return (
-    <Filter
-      className={props.className}
-      facet={props.facet}
-      header={
-        <FilterHeader name={translate('metric_domain.SecurityReview')}>
-          <span className="note little-spacer-left">
-            {'( '}
-            <SecurityHotspotIcon className="little-spacer-right" />
-            {translate('metric.security_hotspots.name')}
-            {' )'}
-          </span>
-        </FilterHeader>
-      }
+    <RangeFacetBase
+      facet={facet}
+      header={translate('metric_domain.SecurityReview')}
       highlightUnder={1}
-      maxFacetValue={props.maxFacetValue}
+      maxFacetValue={maxFacetValue}
       onQueryChange={props.onQueryChange}
       options={[1, 2, 3, 4, 5]}
       property={property}
       renderAccessibleLabel={renderAccessibleLabel}
       renderOption={renderOption}
-      value={props.value}
+      value={value}
     />
   );
 }
@@ -78,22 +66,28 @@ function renderAccessibleLabel(option: number) {
     return translateWithParameters(
       'projects.facets.rating_label_single_x',
       translate('metric_domain.SecurityReview'),
-      formatMeasure(option, 'RATING')
+      formatMeasure(option, MetricType.Rating)
     );
   }
 
   return translateWithParameters(
     'projects.facets.rating_label_multi_x',
     translate('metric_domain.SecurityReview'),
-    formatMeasure(option, 'RATING')
+    formatMeasure(option, MetricType.Rating)
   );
 }
 
-function renderOption(option: number, selected: boolean) {
+function renderOption(option: number) {
+  const ratingFormatted = formatMeasure(option, MetricType.Rating);
+
   return (
-    <span>
-      <Rating muted={!selected} value={option} />
-      <span className="spacer-left">{labels[option]}</span>
-    </span>
+    <div className="sw-flex sw-items-center">
+      <MetricsRatingBadge
+        label={ratingFormatted}
+        rating={ratingFormatted as MetricsEnum}
+        size="xs"
+      />
+      <span className="sw-ml-2">{labels[option]}</span>
+    </div>
   );
 }

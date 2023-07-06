@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { omitBy } from 'lodash';
+import { keyBy, mapValues, omitBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSearchParams } from 'react-router-dom';
+import { searchProjects } from '../../../api/components';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
@@ -41,7 +42,7 @@ import { CurrentUser, isLoggedIn } from '../../../types/users';
 import { Query, hasFilterParams, parseUrlQuery } from '../query';
 import '../styles.css';
 import { Facets, Project } from '../types';
-import { SORTING_SWITCH, fetchProjects, parseSorting } from '../utils';
+import { SORTING_SWITCH, convertToQueryData, fetchProjects, parseSorting } from '../utils';
 import PageHeader from './PageHeader';
 import PageSidebar from './PageSidebar';
 import ProjectsList from './ProjectsList';
@@ -192,6 +193,21 @@ export class AllProjects extends React.PureComponent<Props, State> {
     save(LS_PROJECTS_SORT, asString);
   };
 
+  loadSearchResultCount = (property: string, values: string[]) => {
+    const { isFavorite } = this.props;
+    const { query = {} } = this.state;
+
+    const data = convertToQueryData({ ...query, [property]: values }, isFavorite, {
+      ps: 1,
+      facets: property,
+    });
+
+    return searchProjects(data).then(({ facets }) => {
+      const values = facets.find((facet) => facet.property === property)?.values ?? [];
+      return mapValues(keyBy(values, 'val'), 'count');
+    });
+  };
+
   stopLoading = () => {
     if (this.mounted) {
       this.setState({ loading: false });
@@ -224,6 +240,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
                   ComponentQualifier.Application
                 )}
                 facets={this.state.facets}
+                loadSearchResultCount={this.loadSearchResultCount}
                 onClearAll={this.handleClearAll}
                 onQueryChange={this.updateLocationQuery}
                 query={this.state.query}

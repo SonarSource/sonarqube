@@ -17,26 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import QualityGateFilter, { Props } from '../QualityGateFilter';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { FCProps } from '../../../../helpers/testUtils';
+import QualityGateFacet from '../QualityGateFilter';
 
-it('renders', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+it('renders options', () => {
+  renderQualityGateFilter();
 
-  const renderOption = wrapper.prop('renderOption');
-  expect(renderOption(2, false)).toMatchSnapshot();
+  expect(screen.getByRole('checkbox', { name: 'metric.level.OK 6' })).toBeInTheDocument();
+  expect(screen.getByRole('checkbox', { name: 'metric.level.ERROR 3' })).toBeInTheDocument();
 });
 
-it('should render with warning facet', () => {
-  expect(
-    shallowRender({ facet: { ERROR: 1, WARN: 2, OK: 3 } })
-      .find('Filter')
-      .prop('options')
-  ).toEqual(['OK', 'WARN', 'ERROR']);
+it('updates the filter query', async () => {
+  const user = userEvent.setup();
+
+  const onQueryChange = jest.fn();
+
+  renderQualityGateFilter({ onQueryChange });
+
+  await user.click(screen.getByRole('checkbox', { name: 'metric.level.OK 6' }));
+
+  expect(onQueryChange).toHaveBeenCalledWith({ gate: 'OK' });
 });
 
-function shallowRender(props: Partial<Props> = {}) {
-  return shallow(<QualityGateFilter onQueryChange={jest.fn()} {...props} />);
+it('handles multiselection', async () => {
+  const user = userEvent.setup();
+
+  const onQueryChange = jest.fn();
+
+  renderQualityGateFilter({ onQueryChange, value: ['OK'] });
+
+  await user.keyboard('{Control>}');
+  await user.click(screen.getByRole('checkbox', { name: 'metric.level.ERROR 3' }));
+  await user.keyboard('{/Control}');
+
+  expect(onQueryChange).toHaveBeenCalledWith({ gate: 'OK,ERROR' });
+});
+
+function renderQualityGateFilter(props: Partial<FCProps<typeof QualityGateFacet>> = {}) {
+  renderComponent(
+    <QualityGateFacet
+      maxFacetValue={9}
+      onQueryChange={jest.fn()}
+      facet={{ OK: 6, ERROR: 3 }}
+      {...props}
+    />
+  );
 }

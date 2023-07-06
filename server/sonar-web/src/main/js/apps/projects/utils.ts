@@ -26,7 +26,7 @@ import { isDiffMetric } from '../../helpers/measures';
 import { RequestData } from '../../helpers/request';
 import { MetricKey } from '../../types/metrics';
 import { Dict } from '../../types/types';
-import { convertToFilter, Query } from './query';
+import { Query, convertToFilter } from './query';
 
 interface SortingOption {
   class?: string;
@@ -219,7 +219,7 @@ function defineFacets(query: Query): string[] {
   return FACETS;
 }
 
-function convertToQueryData(query: Query, isFavorite: boolean, defaultData = {}) {
+export function convertToQueryData(query: Query, isFavorite: boolean, defaultData = {}) {
   const data: RequestData = { ...defaultData };
   const filter = convertToFilter(query, isFavorite);
   const sort = convertToSorting(query);

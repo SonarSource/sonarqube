@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ToggleButton } from 'design-system';
 import * as React from 'react';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import ButtonToggle from '../../../components/controls/ButtonToggle';
 import { withRouter, WithRouterProps } from '../../../components/hoc/withRouter';
 import { translate } from '../../../helpers/l10n';
 import { save } from '../../../helpers/storage';
@@ -62,13 +62,13 @@ export class FavoriteFilter extends React.PureComponent<Props> {
     }
 
     return (
-      <div className="page-header text-center display-flex-justify-center">
-        <ButtonToggle
+      <div className="sw-mb-8">
+        <ToggleButton
           options={[
             { value: true, label: translate('my_favorites') },
             { value: false, label: translate('all') },
           ]}
-          onCheck={this.onFavoriteChange}
+          onChange={this.onFavoriteChange}
           value={pathname === FAVORITE_PATHNAME}
         />
       </div>
