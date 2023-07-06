@@ -1,4 +1,5 @@
 import groovy.json.JsonOutput
+import org.sonar.build.BlackBoxTest
 
 import static org.gradle.api.JavaVersion.VERSION_17
 
@@ -211,6 +212,15 @@ subprojects {
         srcDirs += ['src/it/java']
       }
     }
+
+    bbt {
+      resources {
+        srcDirs = ['src/bbt/resources']
+      }
+      java {
+        srcDirs += ['src/bbt/java']
+      }
+    }
   }
 
   // Central place for definition dependency versions and exclusions.
@@ -407,10 +417,16 @@ subprojects {
     }
   }
 
-  // global exclusions
-  configurations.all {
-    // do not conflict with com.sun.mail:javax.mail
-    exclude group: 'javax.mail', module: 'mail'
+  configurations {
+    bbtCompile.extendsFrom testCompile
+    bbtRuntime.extendsFrom testRuntime
+    bbtImplementation.extendsFrom testImplementation
+
+    // global exclusions
+    all {
+      // do not conflict with com.sun.mail:javax.mail
+      exclude group: 'javax.mail', module: 'mail'
+    }
   }
 
   tasks.withType(Javadoc) {
@@ -586,7 +602,6 @@ subprojects {
 
 
   tasks.withType(Test) {
-
     configurations {
       utMonitoring
     }
@@ -595,6 +610,27 @@ subprojects {
       testImplementation project(":ut-monitoring")
 
       utMonitoring 'org.aspectj:aspectjweaver:1.9.19'
+    }
+  }
+
+  tasks.withType(BlackBoxTest) {
+    jacoco.enabled = false
+    testClassesDirs = sourceSets.bbt.output.classesDirs
+    classpath = sourceSets.bbt.runtimeClasspath
+
+    configurations {
+      includeInTestResources
+    }
+
+    dependencies {
+      bbtRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+      bbtRuntimeOnly 'com.oracle.database.jdbc:ojdbc11'
+      bbtRuntimeOnly 'org.postgresql:postgresql'
+      bbtRuntimeOnly project(':plugins:sonar-xoo-plugin')
+
+      bbtImplementation 'org.sonarsource.orchestrator:sonar-orchestrator'
+      bbtImplementation project(":sonar-testing-harness")
+      bbtImplementation project(":private:it-common")
     }
   }
 
