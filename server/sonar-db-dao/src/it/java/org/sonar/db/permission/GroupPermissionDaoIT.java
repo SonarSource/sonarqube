@@ -39,6 +39,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -516,43 +517,6 @@ public class GroupPermissionDaoIT {
   }
 
   @Test
-  public void selectAllPermissionsByGroupUuid_on_public_project() {
-    GroupDto group1 = db.users().insertGroup("group1");
-    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
-    db.users().insertPermissionOnAnyone("perm1");
-    db.users().insertPermissionOnGroup(group1, "perm2");
-    db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
-    db.users().insertProjectPermissionOnGroup(group1, "perm4", project1);
-    db.users().insertProjectPermissionOnGroup(group1, "perm5", project2);
-    db.users().insertProjectPermissionOnAnyone("perm6", project1);
-
-    List<GroupPermissionDto> result = new ArrayList<>();
-    underTest.selectAllPermissionsByGroupUuid(dbSession, group1.getUuid(), context -> result.add(context.getResultObject()));
-    assertThat(result).extracting(GroupPermissionDto::getEntityUuid, GroupPermissionDto::getRole).containsOnly(
-      tuple(null, "perm2"),
-      tuple(project1.uuid(), "perm3"), tuple(project1.uuid(), "perm4"), tuple(project2.uuid(), "perm5"));
-  }
-
-  @Test
-  public void selectAllPermissionsByGroupUuid_on_private_project() {
-    GroupDto group1 = db.users().insertGroup("group1");
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    db.users().insertPermissionOnAnyone("perm1");
-    db.users().insertPermissionOnGroup(group1, "perm2");
-    db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
-    db.users().insertProjectPermissionOnGroup(group1, "perm4", project1);
-    db.users().insertProjectPermissionOnGroup(group1, "perm5", project2);
-
-    List<GroupPermissionDto> result = new ArrayList<>();
-    underTest.selectAllPermissionsByGroupUuid(dbSession, group1.getUuid(), context -> result.add(context.getResultObject()));
-    assertThat(result).extracting(GroupPermissionDto::getEntityUuid, GroupPermissionDto::getRole).containsOnly(
-      tuple(null, "perm2"),
-      tuple(project1.uuid(), "perm3"), tuple(project1.uuid(), "perm4"), tuple(project2.uuid(), "perm5"));
-  }
-
-  @Test
   public void selectGroupUuidsWithPermissionOnEntityBut_returns_empty_if_project_does_not_exist() {
     ProjectData project = randomPublicOrPrivateProject();
     GroupDto group = db.users().insertGroup();
@@ -827,7 +791,7 @@ public class GroupPermissionDaoIT {
     GroupDto group = db.users().insertGroup();
     ProjectDto projectDto = new ProjectDto().setUuid("1234");
 
-    assertThat(underTest.deleteByEntityAndGroupUuid(dbSession,  null, projectDto)).isZero();
+    assertThat(underTest.deleteByEntityAndGroupUuid(dbSession, null, projectDto)).isZero();
     assertThat(underTest.deleteByEntityAndGroupUuid(dbSession, group.getUuid(), projectDto)).isZero();
   }
 
@@ -836,7 +800,7 @@ public class GroupPermissionDaoIT {
     ProjectData project = randomPublicOrPrivateProject();
     GroupDto group = db.users().insertGroup();
 
-    assertThat(underTest.deleteByEntityAndGroupUuid(dbSession,  null, project.getProjectDto())).isZero();
+    assertThat(underTest.deleteByEntityAndGroupUuid(dbSession, null, project.getProjectDto())).isZero();
     assertThat(underTest.deleteByEntityAndGroupUuid(dbSession, group.getUuid(), project.getProjectDto())).isZero();
   }
 
@@ -917,7 +881,7 @@ public class GroupPermissionDaoIT {
     assertThat(getProjectPermissionsForAnyOne(project.getUuid())).containsOnly("p2");
     assertThat(getProjectPermissionsForGroup(project.getUuid(), group)).containsOnly("p2");
 
-    deletedRows = underTest.deleteByEntityAndPermission(dbSession,  "p2", project);
+    deletedRows = underTest.deleteByEntityAndPermission(dbSession, "p2", project);
 
     assertThat(deletedRows).isEqualTo(2);
     assertThat(getGlobalPermissionsForAnyone()).containsOnly("p1", "p2");
@@ -985,6 +949,41 @@ public class GroupPermissionDaoIT {
     Set<String> results = underTest.selectGroupUuidsWithPermissionOnEntity(dbSession, project.getUuid(), anyPermission);
 
     assertThat(results).containsOnly(group1.getUuid());
+  }
+
+  @Test
+  public void selectGroupPermissionsOnEntity_whenPermissionsExist_returnsGroupPermissions() {
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+    GroupDto group3 = db.users().insertGroup();
+    UserDto user = db.users().insertUser();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto otherProject = db.components().insertPrivateProject().getProjectDto();
+    String permission1 = "permission_1";
+    String permission2 = "permission_2";
+    db.users().insertEntityPermissionOnGroup(group1, permission1, project);
+    db.users().insertEntityPermissionOnGroup(group1, permission2, project);
+    db.users().insertEntityPermissionOnGroup(group2, permission1, project);
+    db.users().insertEntityPermissionOnGroup(group3, permission2, otherProject);
+    db.users().insertProjectPermissionOnUser(user, permission1, project);
+
+    List<GroupPermissionDto> results = underTest.selectGroupPermissionsOnEntity(dbSession, project.getUuid());
+
+    assertThat(results)
+      .extracting(
+        GroupPermissionDto::getGroupUuid, GroupPermissionDto::getEntityUuid, GroupPermissionDto::getRole)
+      .containsExactlyInAnyOrder(
+        tuple(group1.getUuid(), project.getUuid(), permission1),
+        tuple(group1.getUuid(), project.getUuid(), permission2),
+        tuple(group2.getUuid(), project.getUuid(), permission1));
+  }
+
+  @Test
+  public void selectGroupPermissionsOnEntity_whenPermissionsDontExist_returnEmptyList() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+
+    assertThat(underTest.selectGroupPermissionsOnEntity(dbSession, project.getUuid()))
+      .isEmpty();
   }
 
   private Collection<String> getGlobalPermissionsForAnyone() {

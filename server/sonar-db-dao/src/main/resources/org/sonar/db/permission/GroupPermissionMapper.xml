@@ -193,12 +193,6 @@
     </choose>
   </select>
 
-  <select id="selectAllPermissionsByGroupUuid" parameterType="map" resultType="GroupPermission">
-    select gr.group_uuid as groupUuid, gr.entity_uuid as entityUuid, gr.role as role
-    from group_roles gr
-    where gr.group_uuid = #{groupUuid,jdbcType=VARCHAR}
-  </select>
-
   <select id="selectGroupUuidsWithPermissionOnEntityBut" resultType="string">
     select
       distinct gr1.group_uuid
@@ -228,6 +222,12 @@
       gr1.entity_uuid = #{entityUuid,jdbcType=VARCHAR}
       and gr1.group_uuid is not null
       and gr1.role = #{role,jdbcType=VARCHAR}
+  </select>
+
+ <select id="selectGroupPermissionsOnEntity" resultType="GroupPermission">
+    select gr.group_uuid as groupUuid, gr.entity_uuid as entityUuid, gr.role as role
+    from group_roles gr
+    where gr.entity_uuid = #{entityUuid,jdbcType=VARCHAR}
   </select>
 
   <insert id="insert" parameterType="GroupPermission">

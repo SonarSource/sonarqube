@@ -49,8 +49,6 @@ public interface GroupPermissionMapper {
 
   List<String> selectEntityPermissionsOfGroup(@Nullable @Param("groupUuid") String groupUuid, @Param("entityUuid") String entityUuid);
 
-  void selectAllPermissionsByGroupUuid(@Param("groupUuid") String groupUuid, ResultHandler<GroupPermissionDto> resultHandler);
-
   /**
    * Lists uuid of groups with at least one permission on the specified entity but which do not have the specified
    * permission, <strong>excluding group "AnyOne"</strong> (which implies the returned {@code Set} can't contain
@@ -59,6 +57,8 @@ public interface GroupPermissionMapper {
   Set<String> selectGroupUuidsWithPermissionOnEntityBut(@Param("entityUuid") String entityUuid, @Param("role") String permission);
 
   Set<String> selectGroupUuidsWithPermissionOnEntity(@Param("entityUuid") String entityUuid, @Param("role") String permission);
+
+  List<GroupPermissionDto> selectGroupPermissionsOnEntity(@Param("entityUuid") String entityUuid);
 
   int deleteByEntityUuid(@Param("entityUuid") String entityUuid);
 
