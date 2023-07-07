@@ -17,14 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Highlight } from 'design-system';
 import * as React from 'react';
-import '../../../components/common/EmptySearch.css';
 import { translate } from '../../../helpers/l10n';
 
 export default function NoIssues() {
   return (
-    <div className="empty-search">
-      <h3>{translate('issues.no_issues')}</h3>
+    <div className="sw-text-center sw-py-8">
+      <Highlight as="h3" className="sw-body-md-highlight">
+        {translate('issues.no_issues')}
+      </Highlight>
     </div>
   );
 }

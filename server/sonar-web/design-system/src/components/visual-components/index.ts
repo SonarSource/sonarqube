@@ -17,10 +17,4 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.empty-search {
-  padding: 60px 0;
-  border: 1px solid var(--barBorderColor);
-  border-radius: 2px;
-  color: var(--secondFontColor);
-  text-align: center;
-}
+export * from './FishVisual';

@@ -79,10 +79,10 @@ export default function PageHeader(props: Props) {
         <div className="sw-flex sw-items-center">
           {total != null && (
             <>
-              <LightPrimary id="projects-total" className="sw-font-semibold sw-mr-1">
+              <LightPrimary id="projects-total" className="sw-body-sm-highlight sw-mr-1">
                 {total}
               </LightPrimary>
-              <LightLabel>{translate('projects_')}</LightLabel>
+              <LightLabel className="sw-body-sm">{translate('projects_')}</LightLabel>
             </>
           )}
           <HomePageSelect currentPage={{ type: 'PROJECTS' }} />

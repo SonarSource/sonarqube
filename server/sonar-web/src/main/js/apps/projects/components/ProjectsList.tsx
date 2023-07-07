@@ -31,7 +31,7 @@ import EmptyInstance from './EmptyInstance';
 import NoFavoriteProjects from './NoFavoriteProjects';
 import ProjectCard from './project-card/ProjectCard';
 
-const PROJECT_CARD_HEIGHT = 185;
+const PROJECT_CARD_HEIGHT = 181;
 const PROJECT_CARD_MARGIN = 20;
 
 interface Props {

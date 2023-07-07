@@ -92,3 +92,4 @@ export * from './layouts';
 export * from './modal/Modal';
 export * from './popups';
 export * from './subnavigation';
+export * from './visual-components';

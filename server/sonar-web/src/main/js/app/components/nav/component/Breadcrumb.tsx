@@ -39,7 +39,7 @@ export function Breadcrumb(props: BreadcrumbProps) {
         const isLast = !isNotLast;
 
         return (
-          <div key={breadcrumbElement.key} className="sw-flex">
+          <div key={breadcrumbElement.key} className="sw-flex sw-items-center">
             {isLast && isLoggedIn(currentUser) && (
               <Favorite
                 className="sw-mr-2"

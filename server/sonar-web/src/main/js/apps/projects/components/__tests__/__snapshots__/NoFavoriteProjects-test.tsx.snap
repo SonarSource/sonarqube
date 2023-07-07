@@ -2,26 +2,29 @@
 
 exports[`renders 1`] = `
 <div
-  className="projects-empty-list"
+  className="sw-py-8 sw-text-center"
 >
-  <h3>
+  <Highlight
+    as="h3"
+    className="sw-mb-2 sw-body-md-highlight"
+  >
     projects.no_favorite_projects
-  </h3>
+  </Highlight>
   <div>
     <p
-      className="big-spacer-top"
+      className="sw-mt-2 sw-body-sm"
     >
       projects.no_favorite_projects.engagement
     </p>
     <p
-      className="big-spacer-top"
+      className="sw-mt-6"
     >
-      <ForwardRef(Link)
-        className="button"
+      <StandoutLink
+        className="sw-mt-6 sw-body-sm-highlight"
         to="/projects/all"
       >
         projects.explore_projects
-      </ForwardRef(Link)>
+      </StandoutLink>
     </p>
   </div>
 </div>

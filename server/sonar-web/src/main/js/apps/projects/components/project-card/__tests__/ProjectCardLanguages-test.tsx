@@ -27,21 +27,30 @@ const languages = {
   js: { key: 'js', name: 'JavaScript' },
 };
 
-it('renders', () => {
+it('should render normally', () => {
   renderProjectCardLanguages('java=137;js=15');
   expect(screen.getByText('Java, JavaScript')).toBeInTheDocument();
 });
 
-it('sorts languages', () => {
+it('shoould sorts languages', () => {
   renderProjectCardLanguages('java=13;js=152');
   expect(screen.getByText('JavaScript, Java')).toBeInTheDocument();
 });
 
-it('handles unknown languages', () => {
+it('should handle unknown languages', () => {
   renderProjectCardLanguages('java=13;cpp=18');
   expect(screen.getByText('cpp, Java')).toBeInTheDocument();
 });
 
+it('should handle more then 3 languages', async () => {
+  renderProjectCardLanguages('java=137;js=18;cpp=10;c=8;php=4');
+  await expect(screen.getByText('Java, JavaScript, ...')).toHaveATooltipWithContent(
+    'JavaJavaScriptcppcphp'
+  );
+});
+
 function renderProjectCardLanguages(distribution?: string) {
-  renderComponent(<ProjectCardLanguages languages={languages} distribution={distribution} />);
+  return renderComponent(
+    <ProjectCardLanguages languages={languages} distribution={distribution} />
+  );
 }

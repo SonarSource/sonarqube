@@ -20,6 +20,7 @@
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import withLanguagesContext from '../../../../app/components/languages/withLanguagesContext';
+import Tooltip from '../../../../components/controls/Tooltip';
 import { translate } from '../../../../helpers/l10n';
 import { Languages } from '../../../../types/languages';
 
@@ -28,6 +29,8 @@ interface Props {
   distribution?: string;
   languages: Languages;
 }
+
+const MAX_DISPLAYED_LANGUAGES = 2;
 
 export function ProjectCardLanguages({ className, distribution, languages }: Props) {
   if (distribution === undefined) {
@@ -39,12 +42,28 @@ export function ProjectCardLanguages({ className, distribution, languages }: Pro
     getLanguageName(languages, l[0])
   );
 
-  const languagesText = finalLanguages.join(', ');
+  const languagesText =
+    finalLanguages.slice(0, MAX_DISPLAYED_LANGUAGES).join(', ') +
+    (finalLanguages.length > MAX_DISPLAYED_LANGUAGES ? ', ...' : '');
+
+  const tooltip =
+    finalLanguages.length > MAX_DISPLAYED_LANGUAGES ? (
+      <span>
+        {finalLanguages.map((language) => (
+          <span key={language}>
+            {language}
+            <br />
+          </span>
+        ))}
+      </span>
+    ) : null;
 
   return (
-    <span className={className} title={languagesText}>
-      {languagesText}
-    </span>
+    <Tooltip overlay={tooltip}>
+      <span className={className} title={languagesText}>
+        {languagesText}
+      </span>
+    </Tooltip>
   );
 }
 

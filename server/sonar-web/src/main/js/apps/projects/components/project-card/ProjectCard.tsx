@@ -22,10 +22,13 @@ import classNames from 'classnames';
 import {
   Badge,
   Card,
+  LightLabel,
+  LightPrimary,
   Note,
   QualityGateIndicator,
   SeparatorCircleIcon,
   StandoutLink,
+  SubnavigationFlowSeparator,
   Tags,
   themeBorder,
   themeColor,
@@ -45,7 +48,6 @@ import { MetricKey, MetricType } from '../../../../types/metrics';
 import { Status } from '../../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../../types/users';
 import { Project } from '../../types';
-import './ProjectCard.css';
 import ProjectCardLanguages from './ProjectCardLanguages';
 import ProjectCardMeasures from './ProjectCardMeasures';
 
@@ -75,12 +77,12 @@ function renderFirstLine(
   const formatted = formatMeasure(measures[MetricKey.alert_status], MetricType.Level);
   const qualityGateLabel = translateWithParameters('overview.quality_gate_x', formatted);
   return (
-    <div>
+    <>
       <div className="sw-flex sw-justify-between sw-items-center ">
         <div className="sw-flex sw-items-center ">
           {isFavorite !== undefined && (
             <Favorite
-              className="spacer-right"
+              className="sw-mr-2"
               component={key}
               componentName={name}
               favorite={isFavorite}
@@ -108,36 +110,35 @@ function renderFirstLine(
                 </span>
               }
             >
-              <span className="sw-ml-2">
-                <Badge>{translate('qualifier.APP')}</Badge>
+              <span>
+                <Badge className="sw-ml-2 sw-font-sans">{translate('qualifier.APP')}</Badge>
               </span>
             </Tooltip>
           )}
 
           {visibility === Visibility.Private && (
             <Tooltip overlay={translate('visibility', visibility, 'description', qualifier)}>
-              <span className="sw-ml-2">
-                <Badge>{translate('visibility', visibility)}</Badge>
+              <span>
+                <Badge className="sw-ml-2 sw-font-sans">
+                  {translate('visibility', visibility)}
+                </Badge>
               </span>
             </Tooltip>
           )}
         </div>
         {analysisDate && (
-          <div>
-            <Tooltip overlay={qualityGateLabel}>
-              <span className="sw-flex sw-items-center">
-                <QualityGateIndicator
-                  status={(measures[MetricKey.alert_status] as Status) ?? 'NONE'}
-                  className="sw-mr-2"
-                  ariaLabel={qualityGateLabel}
-                />
-                <span className="sw-ml-2 sw-body-sm-highlight">{formatted}</span>
-              </span>
-            </Tooltip>
-          </div>
+          <Tooltip overlay={qualityGateLabel}>
+            <span className="sw-flex sw-items-center">
+              <QualityGateIndicator
+                status={(measures[MetricKey.alert_status] as Status) ?? 'NONE'}
+                ariaLabel={qualityGateLabel}
+              />
+              <LightPrimary className="sw-ml-2 sw-body-sm-highlight">{formatted}</LightPrimary>
+            </span>
+          </Tooltip>
         )}
       </div>
-      <div className="sw-flex sw-items-center sw-mt-4">
+      <LightLabel as="div" className="sw-flex sw-items-center sw-mt-3">
         {analysisDate && (
           <DateTimeFormatter date={analysisDate}>
             {(formattedAnalysisDate) => (
@@ -158,15 +159,12 @@ function renderFirstLine(
               <>
                 <SeparatorCircleIcon className="sw-mx-1" />
                 <div>
-                  <span
-                    className="js-project-card-measure sw-body-sm-highlight"
-                    data-key={MetricKey.ncloc}
-                  >
+                  <span className="sw-body-sm-highlight sw-mr-1" data-key={MetricKey.new_lines}>
                     <Measure
-                      metricKey={MetricKey.ncloc}
+                      metricKey={MetricKey.new_lines}
                       metricType={MetricType.ShortInteger}
                       value={measures.new_lines}
-                    />{' '}
+                    />
                   </span>
                   <span>{translate('metric.new_lines.name')}</span>
                 </div>
@@ -176,23 +174,17 @@ function renderFirstLine(
               <>
                 <SeparatorCircleIcon className="sw-mx-1" />
                 <div>
-                  <span
-                    className="js-project-card-measure sw-body-sm-highlight"
-                    data-key={MetricKey.ncloc}
-                  >
+                  <span className="sw-body-sm-highlight sw-mr-1" data-key={MetricKey.ncloc}>
                     <Measure
                       metricKey={MetricKey.ncloc}
                       metricType={MetricType.ShortInteger}
                       value={measures.ncloc}
-                    />{' '}
+                    />
                   </span>
                   <span>{translate('metric.ncloc.name')}</span>
                 </div>
                 <SeparatorCircleIcon className="sw-mx-1" />
-                <span
-                  className="js-project-card-measure sw-body-sm"
-                  data-key={MetricKey.ncloc_language_distribution}
-                >
+                <span className="sw-body-sm" data-key={MetricKey.ncloc_language_distribution}>
                   <ProjectCardLanguages distribution={measures.ncloc_language_distribution} />
                 </span>
               </>
@@ -200,11 +192,17 @@ function renderFirstLine(
         {tags.length > 0 && (
           <>
             <SeparatorCircleIcon className="sw-mx-1" />
-            <Tags emptyText="random" ariaTagsListLabel="why not" tooltip={Tooltip} tags={tags} />
+            <Tags
+              emptyText={translate('issue.no_tag')}
+              ariaTagsListLabel={translate('issue.tags')}
+              tooltip={Tooltip}
+              tags={tags}
+              tagsToDisplay={2}
+            />
           </>
         )}
-      </div>
-    </div>
+      </LightLabel>
+    </>
   );
 }
 
@@ -226,8 +224,8 @@ function renderSecondLine(
   }
 
   return (
-    <div className="sw-flex">
-      <Note>
+    <div className="sw-flex sw-items-center">
+      <Note className="sw-py-4">
         {isNewCode && analysisDate
           ? translate('projects.no_new_code_period', qualifier)
           : translate('projects.not_analyzed', qualifier)}
@@ -236,7 +234,7 @@ function renderSecondLine(
         !analysisDate &&
         isLoggedIn(currentUser) &&
         !needIssueSync && (
-          <StandoutLink className="sw-ml-1" to={getProjectUrl(key)}>
+          <StandoutLink className="sw-ml-2 sw-body-sm-highlight" to={getProjectUrl(key)}>
             {translate('projects.configure_analysis')}
           </StandoutLink>
         )}
@@ -260,20 +258,16 @@ export default function ProjectCard(props: Props) {
       data-key={project.key}
     >
       {renderFirstLine(project, props.handleFavorite, isNewCode)}
-      <Separator className="sw-h-0 sw-mx-1 sw-my-3" />
+      <SubnavigationFlowSeparator className="sw-my-3" />
       {renderSecondLine(currentUser, project, isNewCode)}
     </ProjectCardWrapper>
   );
 }
 
-const Separator = styled.hr`
-  border-top: ${themeBorder('default', 'projectCardBorder')};
-`;
-
 const ProjectCardWrapper = styled(Card)`
   background-color: ${themeColor('projectCardBackground')};
   border: ${themeBorder('default', 'projectCardBorder')};
-  &.project-card-disabled {
+  &.project-card-disabled *:not(g):not(path) {
     color: ${themeColor('projectCardDisabled')} !important;
   }
 `;

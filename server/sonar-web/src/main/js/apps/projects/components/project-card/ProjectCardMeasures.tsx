@@ -23,6 +23,7 @@ import {
   MetricsLabel,
   MetricsRatingBadge,
   Note,
+  PageContentFontWrapper,
 } from 'design-system';
 import * as React from 'react';
 import Measure from '../../../../components/measure/Measure';
@@ -48,18 +49,13 @@ function renderCoverage(props: ProjectCardMeasuresProps) {
   return (
     <ProjectCardMeasure metricKey={coverageMetric} label={translate('metric.coverage.name')}>
       <div>
-        {measures[coverageMetric] && (
-          <span>
-            <CoverageIndicator value={measures[coverageMetric]} />
-          </span>
-        )}
-        <span className="sw-ml-2 sw-body-md-highlight">
-          <Measure
-            metricKey={coverageMetric}
-            metricType={MetricType.Percent}
-            value={measures[coverageMetric]}
-          />
-        </span>
+        {measures[coverageMetric] && <CoverageIndicator value={measures[coverageMetric]} />}
+        <Measure
+          metricKey={coverageMetric}
+          metricType={MetricType.Percent}
+          value={measures[coverageMetric]}
+          className="sw-ml-2 sw-body-md-highlight"
+        />
       </div>
     </ProjectCardMeasure>
   );
@@ -82,18 +78,13 @@ function renderDuplication(props: ProjectCardMeasuresProps) {
       label={translate('metric.duplicated_lines_density.short_name')}
     >
       <div>
-        {measures[duplicationMetric] != null && (
-          <span>
-            <DuplicationsIndicator rating={rating} />
-          </span>
-        )}
-        <span className="sw-ml-2 sw-body-md-highlight">
-          <Measure
-            metricKey={duplicationMetric}
-            metricType={MetricType.Percent}
-            value={measures[duplicationMetric]}
-          />
-        </span>
+        {measures[duplicationMetric] != null && <DuplicationsIndicator rating={rating} />}
+        <Measure
+          metricKey={duplicationMetric}
+          metricType={MetricType.Percent}
+          value={measures[duplicationMetric]}
+          className="sw-ml-2 sw-body-md-highlight"
+        />
       </div>
     </ProjectCardMeasure>
   );
@@ -142,10 +133,12 @@ function renderRatings(props: ProjectCardMeasuresProps) {
     return (
       <ProjectCardMeasure key={metricKey} metricKey={metricKey} label={iconLabel}>
         <MetricsRatingBadge label={metricKey} rating={value as MetricsLabel} />
-
-        <span className="sw-ml-2 sw-body-md-highlight">
-          <Measure metricKey={metricKey} metricType={metricType} value={measures[metricKey]} />
-        </span>
+        <Measure
+          metricKey={metricKey}
+          metricType={metricType}
+          value={measures[metricKey]}
+          className="sw-ml-2 sw-body-md-highlight"
+        />
       </ProjectCardMeasure>
     );
   });
@@ -158,7 +151,7 @@ export default function ProjectCardMeasures(props: ProjectCardMeasuresProps) {
 
   if (!isNewCode && !ncloc) {
     return (
-      <Note>
+      <Note className="sw-py-4">
         {componentQualifier === ComponentQualifier.Application
           ? translate('portfolio.app.empty')
           : translate('overview.project.main_branch_empty')}
@@ -173,11 +166,11 @@ export default function ProjectCardMeasures(props: ProjectCardMeasuresProps) {
   ].filter(isDefined);
 
   return (
-    <div className="sw-flex sw-gap-8">
+    <PageContentFontWrapper className="sw-flex sw-gap-8">
       {measureList.map((measure, i) => (
         // eslint-disable-next-line react/no-array-index-key
         <React.Fragment key={i}>{measure}</React.Fragment>
       ))}
-    </div>
+    </PageContentFontWrapper>
   );
 }
