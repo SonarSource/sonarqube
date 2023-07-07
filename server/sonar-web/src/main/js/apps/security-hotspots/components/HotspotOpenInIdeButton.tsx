@@ -99,10 +99,10 @@ export default class HotspotOpenInIdeButton extends React.PureComponent<Props, S
           </DropdownOverlay>
         }
       >
-        <Button onClick={this.handleOnClick}>
+        {/* <Button onClick={this.handleOnClick}>
           {translate('hotspots.open_in_ide.open')}
           <DeferredSpinner loading={this.state.loading} className="spacer-left" />
-        </Button>
+        </Button> */}
       </Toggler>
     );
   }
