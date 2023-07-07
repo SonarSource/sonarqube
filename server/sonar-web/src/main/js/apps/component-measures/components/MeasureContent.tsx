@@ -34,7 +34,7 @@ import { RequestData } from '../../../helpers/request';
 import { isDefined } from '../../../helpers/types';
 import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { isFile, isView } from '../../../types/component';
+import { isApplication, isFile, isView } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';
 import {
@@ -373,15 +373,22 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
             <div className="sw-flex sw-items-center">
               {!isFileComponent && metric && (
                 <>
-                  <Highlight className="sw-whitespace-nowrap" id="measures-view-selection-label">
-                    {translate('component_measures.view_as')}
-                  </Highlight>
-                  <MeasureViewSelect
-                    className="measure-view-select sw-ml-2 sw-mr-4"
-                    handleViewChange={this.updateView}
-                    metric={metric}
-                    view={view}
-                  />
+                  {!isApplication(baseComponent.qualifier) && (
+                    <>
+                      <Highlight
+                        className="sw-whitespace-nowrap"
+                        id="measures-view-selection-label"
+                      >
+                        {translate('component_measures.view_as')}
+                      </Highlight>
+                      <MeasureViewSelect
+                        className="measure-view-select sw-ml-2 sw-mr-4"
+                        handleViewChange={this.updateView}
+                        metric={metric}
+                        view={view}
+                      />
+                    </>
+                  )}
 
                   {view !== MeasurePageView.treemap && (
                     <>

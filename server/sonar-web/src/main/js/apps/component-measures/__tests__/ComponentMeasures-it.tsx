@@ -236,6 +236,23 @@ describe('rendering', () => {
       '/project/activity?id=foo&graph=custom&custom_metrics=code_smells'
     );
   });
+
+  it('should not render View select options for application metrics', async () => {
+    const { ui } = getPageObject();
+    const app = mockComponent({ key: 'app', qualifier: ComponentQualifier.Application });
+    const tree = {
+      component: app,
+      children: [],
+      ancestors: [],
+    };
+
+    componentsHandler.registerComponentTree(tree, true);
+    measuresHandler.setComponents(tree);
+    renderMeasuresApp('component_measures?id=app&metric=new_code_smells', { component: app });
+    await ui.appLoaded();
+
+    expect(ui.viewSelect.query()).not.toBeInTheDocument();
+  });
 });
 
 describe('navigation', () => {
