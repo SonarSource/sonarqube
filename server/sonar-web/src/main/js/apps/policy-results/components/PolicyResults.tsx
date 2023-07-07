@@ -393,8 +393,8 @@ class PolicyResults extends React.PureComponent<Props, State> {
                             }
                     </div>
                 </div>
-
-        {!loading && component?.analysisDate ?  (
+        {!loadingProjects && projects?.length >0 ? (<>
+          {!loading && !loadingProjects && component?.analysisDate ?  (
             <div style={style}> 
           <BranchOverview
             branch={branchLike}
@@ -405,7 +405,12 @@ class PolicyResults extends React.PureComponent<Props, State> {
           />
           </div>
         ): (<div className='spacer-top'><DeferredSpinner className="spacer-right" loading={true} /></div>)}    
-            </>)}
+        </>) : (<>
+        
+        </>)}
+
+        
+      </>)}
 
                             
         
