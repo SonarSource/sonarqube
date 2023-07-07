@@ -62,7 +62,7 @@ public class OneToOneResilientIndexingListener implements IndexingListener {
         .map(itemsById::get)
         .flatMap(Collection::stream)
         .filter(Objects::nonNull)
-        .collect(Collectors.toList());
+        .toList();
       dbClient.esQueueDao().delete(dbSession, itemsToDelete);
       dbSession.commit();
     }

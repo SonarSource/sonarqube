@@ -47,7 +47,7 @@ public abstract class PermissionChange {
     if (entity == null) {
       checkRequest(permissionService.getGlobalPermissions().stream().anyMatch(p -> p.getKey().equals(permission)),
         "Invalid global permission '%s'. Valid values are %s", permission,
-        permissionService.getGlobalPermissions().stream().map(GlobalPermission::getKey).collect(Collectors.toList()));
+        permissionService.getGlobalPermissions().stream().map(GlobalPermission::getKey).toList());
     } else {
       checkRequest(permissionService.getAllProjectPermissions().contains(permission), "Invalid project permission '%s'. Valid values are %s", permission,
         permissionService.getAllProjectPermissions());

@@ -99,7 +99,7 @@ public class PluginUninstaller implements Startable {
   public Collection<PluginInfo> getUninstalledPlugins() {
     return listJarFiles(fs.getUninstalledPluginsDir()).stream()
       .map(PluginInfo::create)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static Collection<File> listJarFiles(File dir) {

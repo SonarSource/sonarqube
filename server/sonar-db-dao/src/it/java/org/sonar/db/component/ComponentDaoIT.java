@@ -1390,7 +1390,7 @@ public class ComponentDaoIT {
     return underTest.selectByQuery(dbSession, builder.build(), 0, 5)
       .stream()
       .map(ComponentDto::uuid)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Test

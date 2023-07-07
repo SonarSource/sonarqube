@@ -21,7 +21,6 @@ package org.sonar.server.language;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 
@@ -45,6 +44,6 @@ public class LanguageParamUtils {
     return Arrays.stream(all)
       .map(Language::getKey)
       .sorted()
-      .collect(Collectors.toList());
+      .toList();
   }
 }

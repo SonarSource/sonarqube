@@ -101,7 +101,7 @@ public class MigrationHistoryImpl implements MigrationHistory {
       }
       return res.stream()
         .sorted(Comparator.naturalOrder())
-        .collect(Collectors.toList());
+        .toList();
     }
   }
 }

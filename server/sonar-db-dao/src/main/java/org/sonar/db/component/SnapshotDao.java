@@ -106,7 +106,7 @@ public class SnapshotDao implements Dao {
       String.valueOf(fromDates.size()));
     List<ProjectUuidFromDatePair> projectUuidFromDatePairs = IntStream.range(0, projectUuids.size())
       .mapToObj(i -> new ProjectUuidFromDatePair(projectUuids.get(i), fromDates.get(i)))
-      .collect(Collectors.toList());
+      .toList();
 
     return executeLargeInputs(projectUuidFromDatePairs, partition -> mapper(dbSession).selectFinishedByProjectUuidsAndFromDates(partition), i -> i / 2);
   }

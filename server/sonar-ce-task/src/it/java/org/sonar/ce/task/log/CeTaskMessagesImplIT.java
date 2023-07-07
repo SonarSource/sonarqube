@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Rule;
@@ -132,7 +131,7 @@ public class CeTaskMessagesImplIT {
       }
     });
 
-    underTest.addAll(Arrays.stream(messages).collect(Collectors.toList()));
+    underTest.addAll(Arrays.stream(messages).toList());
 
     assertThat(dbTester.select("select uuid as \"UUID\", task_uuid as \"TASK_UUID\", message as \"MESSAGE\", created_at as \"CREATED_AT\" from ce_task_message"))
       .extracting(t -> t.get("UUID"), t -> t.get("TASK_UUID"), t -> t.get("MESSAGE"), t -> t.get("CREATED_AT"))

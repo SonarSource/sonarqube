@@ -177,7 +177,7 @@ public class QualityProfileDao implements Dao {
   }
 
   public List<QProfileDto> selectChildren(DbSession dbSession, Collection<QProfileDto> profiles) {
-    List<String> uuids = profiles.stream().map(QProfileDto::getKee).collect(Collectors.toList());
+    List<String> uuids = profiles.stream().map(QProfileDto::getKee).toList();
     return DatabaseUtils.executeLargeInputs(uuids, chunk -> mapper(dbSession).selectChildren(chunk));
   }
 
@@ -209,7 +209,7 @@ public class QualityProfileDao implements Dao {
   }
 
   public Map<String, Long> countProjectsByProfiles(DbSession dbSession, List<QProfileDto> profiles) {
-    List<String> profileUuids = profiles.stream().map(QProfileDto::getKee).collect(Collectors.toList());
+    List<String> profileUuids = profiles.stream().map(QProfileDto::getKee).toList();
     return KeyLongValue.toMap(executeLargeInputs(profileUuids, partition -> mapper(dbSession).countProjectsByProfiles(partition)));
   }
 

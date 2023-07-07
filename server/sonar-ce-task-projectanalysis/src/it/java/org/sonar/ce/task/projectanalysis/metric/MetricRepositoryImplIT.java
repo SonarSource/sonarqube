@@ -190,7 +190,7 @@ public class MetricRepositoryImplIT {
   public void getMetricsByType_givenRatingTypeAndWantedMilisecType_returnEmptyList() {
     IntStream.range(0, 1 + new Random().nextInt(12))
       .mapToObj(i -> dbTester.measures().insertMetric(t -> t.setKey("key_enabled_" + i).setEnabled(true).setValueType("RATING")))
-      .collect(Collectors.toList());
+      .toList();
 
     underTest.start();
     assertThat(underTest.getMetricsByType(Metric.MetricType.MILLISEC)).isEmpty();

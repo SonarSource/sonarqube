@@ -54,7 +54,7 @@ public class LoadProjectStep implements ComputationStep {
         .orElseThrow(() -> MessageException.of(format("Project with key [%s] does not exist", descriptor.getKey())));
       definitionHolder.setProjectDto(project);
 
-      List<BranchDto> branches = dbClient.branchDao().selectByProject(dbSession, project).stream().collect(Collectors.toList());
+      List<BranchDto> branches = dbClient.branchDao().selectByProject(dbSession, project).stream().toList();
       definitionHolder.setBranches(branches);
     }
   }

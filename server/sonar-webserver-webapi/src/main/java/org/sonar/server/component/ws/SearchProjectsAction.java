@@ -143,7 +143,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setPossibleValues(Arrays.stream(ProjectMeasuresIndex.Facet.values())
         .map(ProjectMeasuresIndex.Facet::getName)
         .sorted()
-        .collect(Collectors.toList()));
+        .toList());
     action
       .createParam(PARAM_FILTER)
       .setMinimumLength(2)
@@ -204,7 +204,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         ALERT_STATUS_KEY, SORT_BY_LAST_ANALYSIS_DATE, PARAM_FILTER)
       .setDefaultValue(SORT_BY_NAME)
       .setPossibleValues(
-        Stream.concat(METRIC_KEYS.stream(), NON_METRIC_SORT_KEYS.stream()).sorted().collect(Collectors.toList()))
+        Stream.concat(METRIC_KEYS.stream(), NON_METRIC_SORT_KEYS.stream()).sorted().toList())
       .setSince("6.4");
     action.createParam(Param.ASCENDING)
       .setDescription("Ascending sort")

@@ -22,9 +22,8 @@ package org.sonar.db.purge.period;
 import com.google.common.base.Strings;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.sonar.api.utils.DateUtils;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 
 class KeepWithVersionFilter implements Filter {
@@ -40,7 +39,7 @@ class KeepWithVersionFilter implements Filter {
     return history.stream()
       .filter(analysis -> analysis.getDate().before(before))
       .filter(KeepWithVersionFilter::isDeletable)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override

@@ -123,7 +123,7 @@ public class CeTasksMBeanImplTest {
     List<String> workerUuids = underTest.getWorkerUuids();
 
     assertThat(workerUuids).
-      isEqualTo(WORKERS.stream().map(CeWorker::getUUID).sorted().collect(Collectors.toList()))
+      isEqualTo(WORKERS.stream().map(CeWorker::getUUID).sorted().toList())
       // ImmutableSet can not be serialized
       .isNotInstanceOf(ImmutableSet.class);
   }
@@ -146,7 +146,7 @@ public class CeTasksMBeanImplTest {
     List<String> enabledWorkerUuids = underTest.getEnabledWorkerUuids();
 
     assertThat(enabledWorkerUuids)
-      .isEqualTo(Stream.of(enabledWorkers).map(CeWorker::getUUID).sorted().collect(Collectors.toList()))
+      .isEqualTo(Stream.of(enabledWorkers).map(CeWorker::getUUID).sorted().toList())
       // ImmutableSet can not be serialized
       .isNotInstanceOf(ImmutableSet.class);
   }

@@ -212,7 +212,7 @@ public class ComponentAction implements MeasuresWsAction {
     List<MetricDtoWithBestValue> metricWithBestValueList = metrics.stream()
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
       .map(MetricDtoWithBestValue::new)
-      .collect(Collectors.toList());
+      .toList();
     Map<String, LiveMeasureDto> measuresByMetricUuid = Maps.uniqueIndex(measures, LiveMeasureDto::getMetricUuid);
 
     for (MetricDtoWithBestValue metricWithBestValue : metricWithBestValueList) {

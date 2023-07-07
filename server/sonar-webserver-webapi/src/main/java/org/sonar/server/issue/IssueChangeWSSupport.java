@@ -113,10 +113,10 @@ public class IssueChangeWSSupport {
         List<IssueChangeDto> all = dbClient.issueChangeDao().selectByIssueKeys(dbSession, issueKeys);
         changes = all.stream()
           .filter(t -> TYPE_FIELD_CHANGE.equals(t.getChangeType()))
-          .collect(Collectors.toList());
+          .toList();
         comments = all.stream()
           .filter(t -> TYPE_COMMENT.equals(t.getChangeType()))
-          .collect(Collectors.toList());
+          .toList();
         break;
       default:
         throw new IllegalStateException("Unsupported Load value:" + load);
@@ -139,7 +139,7 @@ public class IssueChangeWSSupport {
         t -> t.getValue().stream()
           .map(transform)
           .sorted(sortingComparator)
-          .collect(Collectors.toList())));
+          .toList()));
   }
 
   private Map<String, UserDto> loadUsers(DbSession dbSession, Map<String, List<FieldDiffs>> changesByRuleKey,

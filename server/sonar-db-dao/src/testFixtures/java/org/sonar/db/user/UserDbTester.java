@@ -432,7 +432,7 @@ public class UserDbTester {
     return keys
       .stream()
       .map(GlobalPermission::fromKey)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   // USER TOKEN

@@ -83,7 +83,7 @@ public class SearchAction implements FavoritesWsAction {
     List<EntityDto> displayedFavorites = authorizedFavorites.stream()
       .skip(paging.offset())
       .limit(paging.pageSize())
-      .collect(Collectors.toList());
+      .toList();
     return new SearchResults(paging, displayedFavorites);
   }
 

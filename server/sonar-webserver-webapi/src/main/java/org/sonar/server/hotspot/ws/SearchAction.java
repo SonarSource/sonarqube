@@ -343,7 +343,7 @@ public class SearchAction implements HotspotsWsAction {
     result.getHits();
     List<String> issueKeys = Arrays.stream(result.getHits().getHits())
       .map(SearchHit::getId)
-      .collect(Collectors.toList());
+      .toList();
 
     List<IssueDto> hotspots = toIssueDtos(dbSession, issueKeys);
 

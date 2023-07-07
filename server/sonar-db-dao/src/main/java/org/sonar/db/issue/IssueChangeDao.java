@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.Dao;
@@ -40,7 +39,7 @@ public class IssueChangeDao implements Dao {
     return selectByTypeAndIssueKeys(session, singletonList(issueKey), IssueChangeDto.TYPE_FIELD_CHANGE)
       .stream()
       .map(IssueChangeDto::toFieldDiffs)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public List<IssueChangeDto> selectByTypeAndIssueKeys(DbSession session, Collection<String> issueKeys, String changeType) {

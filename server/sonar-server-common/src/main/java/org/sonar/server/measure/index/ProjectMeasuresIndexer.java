@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -129,14 +128,14 @@ public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, Ne
   private Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> entityUuids) {
     List<EsQueueDto> items = entityUuids.stream()
       .map(entityUuid -> EsQueueDto.create(TYPE_PROJECT_MEASURES.format(), entityUuid, null, entityUuid))
-      .collect(Collectors.toList());
+      .toList();
     return dbClient.esQueueDao().insert(dbSession, items);
   }
 
   public IndexingResult commitAndIndex(DbSession dbSession, Collection<String> projectUuids) {
     List<EsQueueDto> items = projectUuids.stream()
       .map(projectUuid -> EsQueueDto.create(TYPE_PROJECT_MEASURES.format(), projectUuid, null, projectUuid))
-      .collect(Collectors.toList());
+      .toList();
     dbClient.esQueueDao().insert(dbSession, items);
 
     dbSession.commit();
@@ -153,26 +152,25 @@ public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, Ne
     BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, listener);
     bulkIndexer.start();
 
-    List<String> projectUuids = items.stream().map(EsQueueDto::getDocId).collect(Collectors.toList());
-    Iterator<String> it = projectUuids.iterator();
-    while (it.hasNext()) {
-      String projectUuid = it.next();
+    List<String> projectUuids = items.stream().map(EsQueueDto::getDocId).toList();
+    List<String> projectToDelete = new ArrayList<>(projectUuids);
+
+    for (String projectUuid : projectUuids) {
       try (ProjectMeasuresIndexerIterator rowIt = ProjectMeasuresIndexerIterator.create(dbSession, projectUuid)) {
         while (rowIt.hasNext()) {
           bulkIndexer.add(toProjectMeasuresDoc(rowIt.next()).toIndexRequest());
-          it.remove();
+          projectToDelete.remove(projectUuid);
         }
       }
     }
 
     // the remaining uuids reference projects that don't exist in db. They must be deleted from index.
-    projectUuids.forEach(projectUuid -> bulkIndexer.addDeletion(TYPE_PROJECT_MEASURES, projectUuid, AuthorizationDoc.idOf(projectUuid)));
+    projectToDelete.forEach(projectUuid -> bulkIndexer.addDeletion(TYPE_PROJECT_MEASURES, projectUuid, AuthorizationDoc.idOf(projectUuid)));
 
     return bulkIndexer.stop();
   }
 
   private void doIndex(Size size, @Nullable String branchUuid) {
-
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       String projectUuid = null;

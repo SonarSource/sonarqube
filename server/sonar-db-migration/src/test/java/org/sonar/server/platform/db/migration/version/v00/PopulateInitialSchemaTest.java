@@ -228,7 +228,7 @@ public class PopulateInitialSchemaTest {
       "where u.login='admin'");
     List<String> groupNames = rows.stream()
       .map(row -> (String) row.get("groupName"))
-      .collect(Collectors.toList());
+      .toList();
     assertThat(groupNames).containsOnly("sonar-administrators", "sonar-users");
   }
 

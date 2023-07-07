@@ -21,7 +21,6 @@ package org.sonar.server.permission.index;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -47,7 +46,7 @@ public class FooIndex {
       .getHits();
     List<String> names = Arrays.stream(hits.getHits())
       .map(h -> h.getSourceAsMap().get(FooIndexDefinition.FIELD_NAME).toString())
-      .collect(Collectors.toList());
+      .toList();
     return names.size() == 2 && names.contains("bar") && names.contains("baz");
   }
 }

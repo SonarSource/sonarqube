@@ -172,7 +172,7 @@ public class QProfileExporters {
     List<RuleActivation> activations = activeRules.stream()
       .map(activeRule -> toRuleActivation(activeRule, rulesByRuleKey))
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
     return qProfileRules.activateAndCommit(dbSession, profile, activations);
   }
 

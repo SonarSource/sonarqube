@@ -21,7 +21,6 @@ package org.sonar.server.issue.index;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.sonar.api.impl.utils.TestSystem2;
@@ -68,7 +67,7 @@ public class IssueIndexTestCommon {
   protected List<String> searchAndReturnKeys(IssueQuery.Builder query) {
     return Arrays.stream(underTest.search(query.build(), new SearchOptions()).getHits().getHits())
       .map(SearchHit::getId)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   protected void assertThatSearchReturnsOnly(IssueQuery.Builder query, String... expectedIssueKeys) {

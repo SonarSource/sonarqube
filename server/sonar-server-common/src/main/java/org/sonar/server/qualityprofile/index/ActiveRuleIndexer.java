@@ -97,7 +97,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
     List<EsQueueDto> items = changes.stream()
       .map(ActiveRuleChange::getActiveRule)
       .map(ar -> newQueueDto(docIdOf(ar.getUuid()), ID_TYPE_ACTIVE_RULE_UUID, ar.getRuleUuid()))
-      .collect(Collectors.toList());
+      .toList();
 
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();
@@ -109,7 +109,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
       .map(QProfileDto::getRulesProfileUuid)
       .distinct()
       .map(ruleProfileUuid -> newQueueDto(ruleProfileUuid, ID_TYPE_RULE_PROFILE_UUID, null))
-      .collect(Collectors.toList());
+      .toList();
 
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();

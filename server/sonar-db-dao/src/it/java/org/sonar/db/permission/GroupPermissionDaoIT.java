@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Rule;
@@ -1010,7 +1009,7 @@ public class GroupPermissionDaoIT {
       .stream()
       .flatMap(map -> map.entrySet().stream())
       .map(entry -> (String) entry.getValue())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private ProjectData randomPublicOrPrivateProject() {

@@ -189,7 +189,7 @@ public class SearchProjectsActionIT {
     assertThat(def.isInternal()).isTrue();
     assertThat(def.isPost()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
-    assertThat(def.params().stream().map(Param::key).collect(Collectors.toList())).containsOnly("filter", "facets", "s", "asc", "ps", "p", "f");
+    assertThat(def.params().stream().map(Param::key).toList()).containsOnly("filter", "facets", "s", "asc", "ps", "p", "f");
     assertThat(def.changelog()).hasSize(2);
 
     Param sort = def.param("s");

@@ -480,7 +480,7 @@ public class ValuesActionIT {
 
     ValuesWsResponse result = executeRequestForProjectProperties();
 
-    List<Settings.Setting> settingsList = result.getSettingsList().stream().sorted(comparing(Settings.Setting::getKey)).collect(Collectors.toList());
+    List<Settings.Setting> settingsList = result.getSettingsList().stream().sorted(comparing(Settings.Setting::getKey)).toList();
     assertThat(settingsList).extracting(Settings.Setting::getKey).containsExactly("foo");
     assertThat(settingsList).extracting(Settings.Setting::hasValue).containsExactly(true);
     assertThat(result.getSetSecuredSettingsList()).containsOnly("global.secret.secured", "secret.secured");

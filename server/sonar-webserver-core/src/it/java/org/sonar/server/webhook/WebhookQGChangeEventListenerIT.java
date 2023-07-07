@@ -239,7 +239,7 @@ public class WebhookQGChangeEventListenerIT {
         .setAnalysisUuid(snapshotUuid)
         .setKey(entry.getKey())
         .setValue(entry.getValue()))
-      .collect(Collectors.toList());
+      .toList();
     dbTester.getDbClient().analysisPropertiesDao().insert(dbTester.getSession(), analysisProperties);
     dbTester.getSession().commit();
   }

@@ -476,7 +476,7 @@ public class RuleActivator {
         .map(QProfileDto::getRulesProfileUuid)
         .collect(Collectors.toSet());
       Collection<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRulesAndRuleProfileUuids(dbSession, ruleUuids, ruleProfileUuids);
-      List<String> activeRuleUuids = activeRules.stream().map(ActiveRuleDto::getUuid).collect(Collectors.toList());
+      List<String> activeRuleUuids = activeRules.stream().map(ActiveRuleDto::getUuid).toList();
       List<ActiveRuleParamDto> activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, activeRuleUuids);
       return new DescendantProfilesSupplier.Result(profiles, activeRules, activeRuleParams);
     };
@@ -491,7 +491,7 @@ public class RuleActivator {
   private void completeWithActiveRules(DbSession dbSession, RuleActivationContext.Builder builder, Collection<String> ruleUuids, Collection<String> ruleProfileUuids) {
     Collection<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRulesAndRuleProfileUuids(dbSession, ruleUuids, ruleProfileUuids);
     builder.setActiveRules(activeRules);
-    List<String> activeRuleUuids = activeRules.stream().map(ActiveRuleDto::getUuid).collect(Collectors.toList());
+    List<String> activeRuleUuids = activeRules.stream().map(ActiveRuleDto::getUuid).toList();
     builder.setActiveRuleParams(db.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, activeRuleUuids));
   }
 

@@ -409,7 +409,7 @@ public class PullActionIT {
     return Stream.generate(() -> issueDbTester.insertHotspot(consumer))
       .limit(numberOfIssues)
       .map(IssueDto::getKey)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private List<Hotspots.HotspotLite> readAllIssues(TestResponse response) throws IOException {

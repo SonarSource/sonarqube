@@ -278,7 +278,7 @@ public class ListGithubOrganizationsActionIT {
         .setTotal(2)
         .setOrganizations(Stream.of("github", "octacat")
           .map(login -> new GithubApplicationClient.Organization(login.length(), login, login, null, null, null, null, "Organization"))
-          .collect(Collectors.toList())));
+          .toList()));
   }
 
   private AlmSettingDto setupAlm() {

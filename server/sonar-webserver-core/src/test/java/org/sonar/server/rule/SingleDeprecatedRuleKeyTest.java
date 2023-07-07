@@ -81,7 +81,7 @@ public class SingleDeprecatedRuleKeyTest {
       .containsExactlyInAnyOrder(
         deprecatedRuleKeys.stream().map(
           r -> tuple(null, r.repository(), r.rule(), rule.repository().key(), rule.key(), RuleKey.of(r.repository(), r.rule())))
-          .collect(Collectors.toList()).toArray(new Tuple[deprecatedRuleKeys.size()]));
+          .toList().toArray(new Tuple[deprecatedRuleKeys.size()]));
   }
 
   @Test

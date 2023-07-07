@@ -67,7 +67,7 @@ public class ListAction implements NotificationsWsAction {
   public ListAction(NotificationCenter notificationCenter, DbClient dbClient, UserSession userSession, Dispatchers dispatchers) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.channels = notificationCenter.getChannels().stream().map(NotificationChannel::getKey).sorted().collect(Collectors.toList());
+    this.channels = notificationCenter.getChannels().stream().map(NotificationChannel::getKey).sorted().toList();
     this.dispatchers = dispatchers;
   }
 

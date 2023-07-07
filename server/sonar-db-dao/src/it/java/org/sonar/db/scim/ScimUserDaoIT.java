@@ -129,7 +129,7 @@ public class ScimUserDaoIT {
   private List<String> toScimUsersUuids(Collection<ScimUserDto> scimUserDtos) {
     return scimUserDtos.stream()
       .map(ScimUserDto::getScimUserUuid)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Test
@@ -165,7 +165,7 @@ public class ScimUserDaoIT {
   private List<ScimUserTestData> generateScimUsers(int totalScimUsers) {
     List<String> userNames = IntStream.range(0, totalScimUsers)
       .mapToObj(i -> "username_" + i)
-      .collect(Collectors.toList());
+      .toList();
     return insertScimUsersWithUsers(userNames);
   }
 
@@ -348,7 +348,7 @@ public class ScimUserDaoIT {
   private List<ScimUserTestData> insertScimUsersWithUsers(List<String> userLogins) {
     return IntStream.range(0, userLogins.size())
       .mapToObj(i -> insertScimUserWithUser(userLogins.get(i), String.valueOf(i + 1)))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private ScimUserTestData insertScimUserWithUser(String userLogin, String scimUuid) {

@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -826,7 +827,7 @@ public class BranchDaoIT {
   public void doAnyOfComponentsNeedIssueSync_test_more_than_1000() {
     List<String> componentKeys = IntStream.range(0, 1100).mapToObj(value -> db.components().insertPrivateProject().getMainBranchComponent())
       .map(ComponentDto::getKey)
-      .collect(Collectors.toList());
+      .collect(Collectors.toCollection(ArrayList::new));
 
     assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, componentKeys)).isFalse();
 

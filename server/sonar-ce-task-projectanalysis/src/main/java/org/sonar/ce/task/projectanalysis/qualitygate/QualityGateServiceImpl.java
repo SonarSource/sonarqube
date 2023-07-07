@@ -69,7 +69,7 @@ public class QualityGateServiceImpl implements QualityGateService {
         .map(metric -> new Condition(metric, input.getOperator(), input.getErrorThreshold()))
         .orElse(null))
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
 
     return new QualityGate(qualityGateDto.getUuid(), qualityGateDto.getName(), conditions);
   }

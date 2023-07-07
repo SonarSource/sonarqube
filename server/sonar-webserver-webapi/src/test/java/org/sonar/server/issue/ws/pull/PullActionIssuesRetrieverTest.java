@@ -73,7 +73,7 @@ public class PullActionIssuesRetrieverTest {
   @Test
   public void processIssuesByBatch_givenThousandOneIssuesReturnedByDatabase_thousandOneIssuesConsumed() {
     var pullActionIssuesRetriever = new PullActionIssuesRetriever(dbClient, queryParams);
-    List<IssueDto> thousandIssues = IntStream.rangeClosed(1, 1000).mapToObj(i -> new IssueDto().setKee(Integer.toString(i))).collect(Collectors.toList());
+    List<IssueDto> thousandIssues = IntStream.rangeClosed(1, 1000).mapToObj(i -> new IssueDto().setKee(Integer.toString(i))).toList();
     IssueDto singleIssue = new IssueDto().setKee("kee");
     when(issueDao.selectByBranch(any(), any(), any()))
       .thenReturn(thousandIssues)
@@ -98,7 +98,7 @@ public class PullActionIssuesRetrieverTest {
   public void processIssuesByBatch_correctly_processes_all_issues_regardless_of_creation_timestamp() {
     var pullActionIssuesRetriever = new PullActionIssuesRetriever(dbClient, queryParams);
     List<IssueDto> issuesWithSameCreationTimestamp = IntStream.rangeClosed(1, 100).mapToObj(i -> new IssueDto()
-      .setKee(Integer.toString(i)).setCreatedAt(100L)).collect(Collectors.toList());
+      .setKee(Integer.toString(i)).setCreatedAt(100L)).toList();
     when(issueDao.selectByBranch(any(), any(), any()))
       .thenReturn(issuesWithSameCreationTimestamp);
     List<IssueDto> returnedDtos = new ArrayList<>();

@@ -89,7 +89,7 @@ public class QProfileTreeImpl implements QProfileTree {
 
     changes = getChangesFromRulesToBeRemoved(dbSession, profile, getRulesDifference(activeRules, parentActiveRules));
 
-    Collection<String> parentRuleUuids = parentActiveRules.stream().map(ActiveRuleDto::getRuleUuid).collect(Collectors.toList());
+    Collection<String> parentRuleUuids = parentActiveRules.stream().map(ActiveRuleDto::getRuleUuid).toList();
     RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, parentRuleUuids);
 
     for (ActiveRuleDto parentActiveRule : parentActiveRules) {
@@ -108,7 +108,7 @@ public class QProfileTreeImpl implements QProfileTree {
   private static List<OrgActiveRuleDto> getRulesDifference(Collection<OrgActiveRuleDto> rulesCollection1, Collection<OrgActiveRuleDto> rulesCollection2) {
     Collection<String> rulesCollection2Uuids = rulesCollection2.stream()
       .map(ActiveRuleDto::getRuleUuid)
-      .collect(Collectors.toList());
+      .toList();
 
     return rulesCollection1.stream()
       .filter(rule -> !rulesCollection2Uuids.contains(rule.getRuleUuid()))
@@ -134,7 +134,7 @@ public class QProfileTreeImpl implements QProfileTree {
   private List<ActiveRuleChange> getChangesFromRulesToBeRemoved(DbSession dbSession, QProfileDto profile, List<OrgActiveRuleDto> rules) {
     List<ActiveRuleChange> changes = new ArrayList<>();
 
-    Collection<String> ruleUuids = rules.stream().map(ActiveRuleDto::getRuleUuid).collect(Collectors.toList());
+    Collection<String> ruleUuids = rules.stream().map(ActiveRuleDto::getRuleUuid).toList();
     RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleUuids);
 
     for (OrgActiveRuleDto activeRule : rules) {

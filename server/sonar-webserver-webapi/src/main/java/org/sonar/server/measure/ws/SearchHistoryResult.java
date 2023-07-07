@@ -68,7 +68,7 @@ public class SearchHistoryResult {
 
   public SearchHistoryResult setAnalyses(List<SnapshotDto> analyses) {
     this.paging = Common.Paging.newBuilder().setPageIndex(page).setPageSize(pageSize).setTotal(analyses.size()).build();
-    this.analyses = analyses.stream().skip(offset(page, pageSize)).limit(pageSize).collect(Collectors.toList());
+    this.analyses = analyses.stream().skip(offset(page, pageSize)).limit(pageSize).toList();
 
     return this;
   }
@@ -91,7 +91,7 @@ public class SearchHistoryResult {
     ImmutableList.Builder<MeasureDto> measuresBuilder = ImmutableList.builder();
     List<MeasureDto> filteredMeasures = measures.stream()
       .filter(measure -> analysisUuids.contains(measure.getAnalysisUuid()))
-      .collect(Collectors.toList());
+      .toList();
     measuresBuilder.addAll(filteredMeasures);
     measuresBuilder.addAll(computeBestValues(filteredMeasures));
 

@@ -403,7 +403,7 @@ public class UserUpdater {
         .map(Strings::emptyToNull)
         .filter(Objects::nonNull)
         .sorted(String::compareToIgnoreCase)
-        .collect(Collectors.toList());
+        .toList();
     }
     return emptyList();
   }

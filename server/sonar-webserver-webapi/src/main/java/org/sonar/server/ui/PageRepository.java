@@ -136,7 +136,7 @@ public class PageRepository implements Startable {
       .filter(p -> p.getScope().equals(scope))
       .filter(p -> p.isAdmin() == isAdmin)
       .filter(p -> !COMPONENT.equals(p.getScope()) || p.getComponentQualifiers().contains(qualifier))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @VisibleForTesting

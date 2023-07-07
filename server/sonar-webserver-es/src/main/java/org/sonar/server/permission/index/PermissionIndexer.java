@@ -59,7 +59,7 @@ public class PermissionIndexer implements EventIndexer {
   public PermissionIndexer(DbClient dbClient, EsClient esClient, NeedAuthorizationIndexer... needAuthorizationIndexers) {
     this(dbClient, esClient, Arrays.stream(needAuthorizationIndexers)
       .map(NeedAuthorizationIndexer::getAuthorizationScope)
-      .collect(Collectors.toList()));
+      .toList());
   }
 
   @VisibleForTesting
@@ -116,7 +116,7 @@ public class PermissionIndexer implements EventIndexer {
   private Collection<EsQueueDto> insertIntoEsQueue(DbSession dbSession, Collection<String> projectUuids) {
     List<EsQueueDto> items = indexTypeByFormat.values().stream()
       .flatMap(indexType -> projectUuids.stream().map(projectUuid -> EsQueueDto.create(indexType.format(), AuthorizationDoc.idOf(projectUuid), null, projectUuid)))
-      .collect(Collectors.toList());
+      .toList();
 
     dbClient.esQueueDao().insert(dbSession, items);
     return items;

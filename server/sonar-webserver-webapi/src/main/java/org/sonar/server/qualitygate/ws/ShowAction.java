@@ -114,7 +114,7 @@ public class ShowAction implements QualityGatesWsAction {
       .setCaycStatus(caycStatus.toString())
       .addAllConditions(conditions.stream()
         .map(toWsCondition(metricsByUuid))
-        .collect(Collectors.toList()))
+        .toList())
       .setActions(wsSupport.getActions(dbSession, qualityGate, defaultQualityGate))
       .build();
   }

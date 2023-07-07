@@ -32,7 +32,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -83,13 +82,13 @@ public class IssueChangeWSSupportIT {
     IssueDto issue = dbTester.issues().insertIssue();
     List<IssueChangeDto> comments = IntStream.range(0, 1 + RANDOM.nextInt(20))
       .mapToObj(i -> newComment(issue).setKey("comment_" + i))
-      .collect(Collectors.toList());
+      .toList();
     List<IssueChangeDto> fieldChanges = IntStream.range(0, 1 + RANDOM.nextInt(20))
       .mapToObj(i -> newFieldChange(issue)
         .setChangeData(new FieldDiffs()
           .setDiff("f_change_" + i, null, null)
           .toEncodedString()))
-      .collect(Collectors.toList());
+      .toList();
     insertInRandomOrder(comments, fieldChanges);
 
     FormattingContext formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue), Load.CHANGE_LOG);
@@ -130,13 +129,13 @@ public class IssueChangeWSSupportIT {
     IssueDto issue = dbTester.issues().insertIssue();
     List<IssueChangeDto> comments = IntStream.range(0, 1 + RANDOM.nextInt(20))
       .mapToObj(i -> newComment(issue).setKey("comment_" + i))
-      .collect(Collectors.toList());
+      .toList();
     List<IssueChangeDto> fieldChanges = IntStream.range(0, 1 + RANDOM.nextInt(20))
       .mapToObj(i -> newFieldChange(issue)
         .setChangeData(new FieldDiffs()
           .setDiff("f_change_" + i, null, null)
           .toEncodedString()))
-      .collect(Collectors.toList());
+      .toList();
     insertInRandomOrder(comments, fieldChanges);
 
     FormattingContext formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue), Load.COMMENTS);
@@ -152,13 +151,13 @@ public class IssueChangeWSSupportIT {
     IssueDto issue = dbTester.issues().insertIssue();
     List<IssueChangeDto> comments = IntStream.range(0, 1 + RANDOM.nextInt(20))
       .mapToObj(i -> newComment(issue).setKey("comment_" + i))
-      .collect(Collectors.toList());
+      .toList();
     List<IssueChangeDto> fieldChanges = IntStream.range(0, 1 + RANDOM.nextInt(20))
       .mapToObj(i -> newFieldChange(issue)
         .setChangeData(new FieldDiffs()
           .setDiff("f_change_" + i, null, null)
           .toEncodedString()))
-      .collect(Collectors.toList());
+      .toList();
     insertInRandomOrder(comments, fieldChanges);
 
     FormattingContext formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue), Load.ALL);
@@ -478,13 +477,13 @@ public class IssueChangeWSSupportIT {
     IssueDto issue2 = dbTester.issues().insertIssue();
     List<IssueChangeDto> comments = IntStream.range(0, 1 + RANDOM.nextInt(20))
       .mapToObj(i -> newComment(issue1).setKey("comment_" + i))
-      .collect(Collectors.toList());
+      .toList();
     List<IssueChangeDto> fieldChanges = IntStream.range(0, 1 + RANDOM.nextInt(20))
       .mapToObj(i -> newFieldChange(issue1)
         .setChangeData(new FieldDiffs()
           .setDiff("f_change_" + i, null, null)
           .toEncodedString()))
-      .collect(Collectors.toList());
+      .toList();
     insertInRandomOrder(comments, fieldChanges);
     FormattingContext formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue1), Load.CHANGE_LOG);
 
@@ -507,7 +506,7 @@ public class IssueChangeWSSupportIT {
         .toEncodedString()));
     FormattingContext formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue1), load);
 
-    List<Changelog> wsChangelogList = underTest.formatChangelog(issue1, formattingContext).collect(Collectors.toList());
+    List<Changelog> wsChangelogList = underTest.formatChangelog(issue1, formattingContext).toList();
     assertThat(wsChangelogList).hasSize(1);
     Changelog wsChangelog = wsChangelogList.iterator().next();
     assertThat(wsChangelog.getCreationDate()).isEqualTo(formatDateTime(createdAt));
@@ -570,7 +569,7 @@ public class IssueChangeWSSupportIT {
         .toEncodedString()));
     FormattingContext formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue1), load);
 
-    List<Changelog> wsChangelogList = underTest.formatChangelog(issue1, formattingContext).collect(Collectors.toList());
+    List<Changelog> wsChangelogList = underTest.formatChangelog(issue1, formattingContext).toList();
     assertThat(wsChangelogList)
       .extracting(Changelog::hasUser, t -> t.getDiffsList().iterator().next().getKey())
       .containsExactlyInAnyOrder(
@@ -596,7 +595,7 @@ public class IssueChangeWSSupportIT {
         .toEncodedString()));
     FormattingContext formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue1), load);
 
-    List<Changelog> wsChangelogList = underTest.formatChangelog(issue1, formattingContext).collect(Collectors.toList());
+    List<Changelog> wsChangelogList = underTest.formatChangelog(issue1, formattingContext).toList();
     assertThat(wsChangelogList).hasSize(1);
     assertThat(wsChangelogList.iterator().next().hasAvatar()).isFalse();
   }
@@ -622,7 +621,7 @@ public class IssueChangeWSSupportIT {
     IssueChangeDto noText = dbTester.issues().insertChange(newComment(issue).setChangeData(null));
     FormattingContext formattingContext = underTest.newFormattingContext(dbTester.getSession(), singleton(issue), load);
 
-    List<Comment> comments = underTest.formatComments(issue, Comment.newBuilder(), formattingContext).collect(Collectors.toList());
+    List<Comment> comments = underTest.formatComments(issue, Comment.newBuilder(), formattingContext).toList();
     assertThat(comments)
       .extracting(Comment::getKey, Comment::hasMarkdown, Comment::hasHtmlText)
       .containsExactlyInAnyOrder(

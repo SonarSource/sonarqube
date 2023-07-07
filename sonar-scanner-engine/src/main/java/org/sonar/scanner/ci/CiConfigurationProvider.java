@@ -23,10 +23,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.MessageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.MessageException;
 import org.springframework.context.annotation.Bean;
 
 public class CiConfigurationProvider {

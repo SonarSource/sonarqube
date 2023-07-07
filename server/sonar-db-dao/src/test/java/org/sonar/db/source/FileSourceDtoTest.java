@@ -23,7 +23,6 @@ import com.google.common.base.Joiner;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Test;
 import org.sonar.db.protobuf.DbFileSources;
@@ -109,7 +108,7 @@ public class FileSourceDtoTest {
   public void setLineHashes_sets_lineCount_to_size_of_list_and_rawLineHashes_to_join_by_line_return() {
     FileSourceDto underTest = new FileSourceDto();
     int expected = 1 + new Random().nextInt(96);
-    List<String> lineHashes = IntStream.range(0, expected).mapToObj(String::valueOf).collect(Collectors.toList());
+    List<String> lineHashes = IntStream.range(0, expected).mapToObj(String::valueOf).toList();
     underTest.setLineHashes(lineHashes);
 
     assertThat(underTest.getLineCount()).isEqualTo(expected);

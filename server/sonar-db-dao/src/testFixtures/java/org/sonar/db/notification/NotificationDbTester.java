@@ -49,7 +49,7 @@ public class NotificationDbTester {
         .setUserUuid(userUuid)
         .build(), dbSession).stream()
       .filter(prop -> project == null ? prop.getEntityUuid() == null : prop.getEntityUuid() != null)
-      .collect(Collectors.toList());
+      .toList();
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getValue()).isEqualTo("true");
   }

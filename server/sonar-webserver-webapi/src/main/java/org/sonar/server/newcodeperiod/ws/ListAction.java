@@ -93,7 +93,7 @@ public class ListAction implements NewCodePeriodsWsAction {
       Collection<BranchDto> branches = dbClient.branchDao().selectByProject(dbSession, project).stream()
         .filter(b -> b.getBranchType() == BranchType.BRANCH)
         .sorted(Comparator.comparing(BranchDto::getKey))
-        .collect(Collectors.toList());
+        .toList();
 
       List<NewCodePeriodDto> newCodePeriods = newCodePeriodDao.selectAllByProject(dbSession, project.getUuid());
 

@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -376,7 +377,7 @@ public class JvmOptionsTest {
   }
 
   private static Map<String, String> shuffleThenToMap(Stream<Option> stream) {
-    List<Option> options = stream.collect(Collectors.toList());
+    List<Option> options = stream.collect(Collectors.toCollection(ArrayList::new));
     Collections.shuffle(options);
     Map<String, String> res = new HashMap<>(options.size());
     for (Option option : options) {

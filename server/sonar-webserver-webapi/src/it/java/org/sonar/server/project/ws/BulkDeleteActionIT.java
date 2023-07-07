@@ -194,7 +194,7 @@ public class BulkDeleteActionIT {
     userSession.logIn().addPermission(ADMINISTER);
     ProjectData[] projects = IntStream.range(0, 55).mapToObj(i -> db.components().insertPrivateProject()).toArray(ProjectData[]::new);
 
-    List<String> projectKeys = Stream.of(projects).map(ProjectData::getProjectDto).map(ProjectDto::getKey).collect(Collectors.toList());
+    List<String> projectKeys = Stream.of(projects).map(ProjectData::getProjectDto).map(ProjectDto::getKey).toList();
     ws.newRequest().setParam(PARAM_PROJECTS, String.join(",", projectKeys)).execute();
 
     verifyEntityDeleted(Stream.of(projects).map(ProjectData::getProjectDto).toArray(ProjectDto[]::new));
@@ -236,7 +236,7 @@ public class BulkDeleteActionIT {
   @Test
   public void delete_only_the_1000_first_projects() {
     userSession.logIn().addPermission(ADMINISTER);
-    List<String> keys = IntStream.range(0, 1_010).mapToObj(i -> "key" + i).collect(Collectors.toList());
+    List<String> keys = IntStream.range(0, 1_010).mapToObj(i -> "key" + i).toList();
     keys.forEach(key -> db.components().insertPrivateProject(p -> p.setKey(key)).getMainBranchComponent());
 
     ws.newRequest()

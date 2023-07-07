@@ -147,8 +147,8 @@ public class SearchAction implements QualityGatesWsAction {
   }
 
   private List<ProjectQgateAssociationDto> keepAuthorizedProjects(DbSession dbSession, List<ProjectQgateAssociationDto> projects) {
-    List<String> projectUuids = projects.stream().map(ProjectQgateAssociationDto::getUuid).collect(Collectors.toList());
+    List<String> projectUuids = projects.stream().map(ProjectQgateAssociationDto::getUuid).toList();
     Collection<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedEntityUuids(dbSession, projectUuids, userSession.getUuid(), UserRole.USER);
-    return projects.stream().filter(project -> authorizedProjectUuids.contains(project.getUuid())).collect(Collectors.toList());
+    return projects.stream().filter(project -> authorizedProjectUuids.contains(project.getUuid())).toList();
   }
 }

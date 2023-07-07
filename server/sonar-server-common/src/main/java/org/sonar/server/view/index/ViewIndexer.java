@@ -170,7 +170,7 @@ public class ViewIndexer implements ResilientIndexer {
   public void delete(DbSession dbSession, Collection<String> viewUuids) {
     List<EsQueueDto> items = viewUuids.stream()
       .map(l -> EsQueueDto.create(TYPE_VIEW.format(), l))
-      .collect(Collectors.toList());
+      .toList();
 
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();

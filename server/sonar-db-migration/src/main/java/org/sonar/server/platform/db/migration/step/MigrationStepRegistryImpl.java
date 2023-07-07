@@ -54,7 +54,7 @@ public class MigrationStepRegistryImpl implements InternalMigrationStepRegistry 
     return migrations.entrySet().stream()
       .sorted(Comparator.comparingLong(Map.Entry::getKey))
       .map(Map.Entry::getValue)
-      .collect(Collectors.toList());
+      .toList();
   }
 
 }

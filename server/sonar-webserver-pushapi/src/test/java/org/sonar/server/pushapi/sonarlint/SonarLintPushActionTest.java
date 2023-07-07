@@ -62,7 +62,7 @@ public class SonarLintPushActionTest {
       ProjectDto dto = new ProjectDto();
       dto.setKee("project" + i);
       return dto;
-    }).collect(Collectors.toList());
+    }).toList();
   }
 
   @Test

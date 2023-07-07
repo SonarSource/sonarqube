@@ -198,7 +198,7 @@ public class NewIssuesNotification extends Notification {
       .filter(i -> biggerCriteria.applyAsInt(i.getValue()) > 0)
       .sorted(comparator.reversed())
       .limit(5)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public NewIssuesNotification setDebt(Duration debt) {

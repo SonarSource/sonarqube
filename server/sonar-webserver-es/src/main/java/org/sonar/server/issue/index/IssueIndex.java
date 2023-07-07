@@ -1090,7 +1090,7 @@ public class IssueIndex {
           long lastIssueDate = (long) ((ParsedMax) branchBucket.getAggregations().get("maxFuncCreatedAt")).getValue();
           return Stream.of(new ProjectStatistics(branchBucket.getKeyAsString(), count, lastIssueDate));
         }))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public List<SecurityStandardCategoryStatistics> getCweTop25Reports(String projectUuid, boolean isViewOrApp) {
@@ -1175,21 +1175,21 @@ public class IssueIndex {
     return getSearchResponse(sourceBuilder)
       .getAggregations().asList().stream()
       .map(c -> processSecurityReportIssueSearchResultsWithLevelDistribution((ParsedFilter) c, version, level))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private List<SecurityStandardCategoryStatistics> searchWithDistribution(SearchSourceBuilder sourceBuilder, String version, @Nullable Integer level) {
     return getSearchResponse(sourceBuilder)
       .getAggregations().asList().stream()
       .map(c -> processSecurityReportIssueSearchResultsWithDistribution((ParsedFilter) c, version, level))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private List<SecurityStandardCategoryStatistics> search(SearchSourceBuilder sourceBuilder, boolean includeDistribution, @Nullable String version) {
     return getSearchResponse(sourceBuilder)
       .getAggregations().asList().stream()
       .map(c -> processSecurityReportIssueSearchResults((ParsedFilter) c, includeDistribution, version))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private SearchResponse getSearchResponse(SearchSourceBuilder sourceBuilder) {

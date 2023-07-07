@@ -82,7 +82,7 @@ public class UserTokenDao implements Dao {
   public Map<String, Integer> countTokensByUsers(DbSession dbSession, Collection<UserDto> users) {
     Map<String, Integer> result = new HashMap<>(users.size());
     executeLargeInputs(
-      users.stream().map(UserDto::getUuid).collect(Collectors.toList()),
+      users.stream().map(UserDto::getUuid).toList(),
       input -> {
         List<UserTokenCount> userTokenCounts = mapper(dbSession).countTokensByUserUuids(input);
         for (UserTokenCount userTokenCount : userTokenCounts) {

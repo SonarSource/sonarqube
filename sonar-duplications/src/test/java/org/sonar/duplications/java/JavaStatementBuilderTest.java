@@ -323,9 +323,9 @@ public class JavaStatementBuilderTest {
   @Test
   public void shouldHandleLambda() {
     List<Statement> statements;
-    statements = chunk("List<String> result = lines.stream().filter(line -> !\"mkyong\".equals(line)).collect(Collectors.toList());");
+    statements = chunk("List<String> result = lines.stream().filter(line -> !\"mkyong\".equals(line)).toList();");
     assertThat(statements.size()).isOne();
-    assertThat(statements).extracting(Statement::getValue).containsExactly("List<String>result=lines.stream().filter(line->!$CHARS.equals(line)).collect(Collectors.toList())");
+    assertThat(statements).extracting(Statement::getValue).containsExactly("List<String>result=lines.stream().filter(line->!$CHARS.equals(line)).toList()");
 
     statements = chunk("items.forEach((k,v)->{System.out.println(\"Item : \" + k + \" Count : \" + v); if(\"E\".equals(k)) { System.out.println(\"Hello E\");}});");
     assertThat(statements).hasSize(5);

@@ -78,7 +78,7 @@ public class SiblingsIssuesLoader {
       List<DefaultIssue> issues = dbClient.issueDao().selectByKeys(session, issuesByKey.keySet())
         .stream()
         .map(IssueDto::toDefaultIssue)
-        .collect(Collectors.toList());
+        .toList();
       componentIssuesLoader.loadChanges(session, issues);
       return issues.stream()
         .collect(uniqueIndex(i -> issuesByKey.get(i.key()), i -> i, issues.size()));

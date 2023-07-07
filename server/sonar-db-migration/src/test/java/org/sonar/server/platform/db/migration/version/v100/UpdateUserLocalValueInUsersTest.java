@@ -75,7 +75,7 @@ public class UpdateUserLocalValueInUsersTest {
     String selectSql = String.format("select USER_LOCAL from users where uuid='%s'", userUuid);
     assertThat(db.select(selectSql).stream()
       .map(row -> row.get("USER_LOCAL"))
-      .collect(Collectors.toList()))
+      .toList())
       .containsExactlyInAnyOrder(expected);
   }
 

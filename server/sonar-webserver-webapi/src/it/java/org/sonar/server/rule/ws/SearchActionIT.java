@@ -1063,7 +1063,7 @@ public class SearchActionIT {
     assertThat(response.getP()).isOne();
     assertThat(response.getPaging().getPageIndex()).isOne();
     assertThat(response.getPaging().getPageSize()).isNotZero();
-    RuleKey[] expectedRuleKeys = stream(expectedRules).map(RuleDto::getKey).collect(Collectors.toList()).toArray(new RuleKey[0]);
+    RuleKey[] expectedRuleKeys = stream(expectedRules).map(RuleDto::getKey).toList().toArray(new RuleKey[0]);
     assertThat(response.getRulesList())
       .extracting(r -> RuleKey.parse(r.getKey()))
       .containsExactlyInAnyOrder(expectedRuleKeys);

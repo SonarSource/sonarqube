@@ -28,10 +28,10 @@ public class UuidFromPairs {
   }
 
   public static List<String> projectUuids(List<UuidFromPair> pairs) {
-    return pairs.stream().map(UuidFromPair::getProjectUuid).collect(Collectors.toList());
+    return pairs.stream().map(UuidFromPair::getProjectUuid).toList();
   }
 
   public static List<Long> fromDates(List<UuidFromPair> pairs) {
-    return pairs.stream().map(UuidFromPair::getFrom).collect(Collectors.toList());
+    return pairs.stream().map(UuidFromPair::getFrom).toList();
   }
 }

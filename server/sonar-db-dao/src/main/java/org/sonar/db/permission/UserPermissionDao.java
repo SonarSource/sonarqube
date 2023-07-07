@@ -76,7 +76,7 @@ public class UserPermissionDao implements Dao {
       // Pagination is done in Java because it's too complex to use SQL pagination in Oracle and MsSQL with the distinct
       .skip(query.getPageOffset())
       .limit(query.getPageSize())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public int countUsersByQuery(DbSession dbSession, PermissionQuery query) {

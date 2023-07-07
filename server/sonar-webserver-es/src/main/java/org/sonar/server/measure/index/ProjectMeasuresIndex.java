@@ -484,7 +484,7 @@ public class ProjectMeasuresIndex {
     return aggregation.getBuckets().stream()
       .skip((page-1) * size)
       .map(Bucket::getKeyAsString)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private interface FacetBuilder {

@@ -33,13 +33,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.slf4j.LoggerFactory;
 import org.sonar.db.dialect.Oracle;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,10 +58,10 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.DatabaseUtils.ORACLE_DRIVER_NAME;
 import static org.sonar.db.DatabaseUtils.checkThatNotTooManyConditions;
 import static org.sonar.db.DatabaseUtils.closeQuietly;
+import static org.sonar.db.DatabaseUtils.getColumnMetadata;
 import static org.sonar.db.DatabaseUtils.getDriver;
 import static org.sonar.db.DatabaseUtils.log;
 import static org.sonar.db.DatabaseUtils.tableColumnExists;
-import static org.sonar.db.DatabaseUtils.getColumnMetadata;
 import static org.sonar.db.DatabaseUtils.tableExists;
 import static org.sonar.db.DatabaseUtils.toUniqueAndSortedList;
 
@@ -354,7 +353,7 @@ public class DatabaseUtilsIT {
     List<String> outputs = DatabaseUtils.executeLargeInputs(inputs, input -> {
       // Check that each partition is only done on 1000 elements max
       assertThat(input).hasSizeLessThanOrEqualTo(1000);
-      return input.stream().map(String::valueOf).collect(Collectors.toList());
+      return input.stream().map(String::valueOf).toList();
     });
 
     assertThat(outputs).isEqualTo(expectedOutputs);

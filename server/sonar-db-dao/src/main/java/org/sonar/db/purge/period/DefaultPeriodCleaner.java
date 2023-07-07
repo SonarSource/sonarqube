@@ -67,7 +67,7 @@ public class DefaultPeriodCleaner {
     }
     purgeDao.deleteAnalyses(
       session, profiler,
-      snapshots.stream().map(PurgeableAnalysisDto::getAnalysisUuid).collect(Collectors.toList()));
+      snapshots.stream().map(PurgeableAnalysisDto::getAnalysisUuid).toList());
     return snapshots;
   }
 

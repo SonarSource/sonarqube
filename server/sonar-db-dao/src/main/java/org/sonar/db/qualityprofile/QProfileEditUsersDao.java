@@ -78,7 +78,7 @@ public class QProfileEditUsersDao implements Dao {
         int deletedRows = mapper(dbSession).deleteByQProfiles(partitionedProfiles
           .stream()
           .map(QProfileDto::getKee)
-          .collect(Collectors.toList()));
+          .toList());
 
         if (deletedRows > 0) {
           partitionedProfiles.forEach(p -> auditPersister.deleteQualityProfileEditor(dbSession, new UserEditorNewValue(p)));

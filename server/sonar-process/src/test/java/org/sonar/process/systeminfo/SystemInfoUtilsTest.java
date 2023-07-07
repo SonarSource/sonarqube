@@ -53,7 +53,7 @@ public class SystemInfoUtilsTest {
 
     List<String> ordered = SystemInfoUtils.order(sections, "foo", "bar").stream()
       .map(Section::getName)
-      .collect(Collectors.toList());
+      .toList();
     assertThat(ordered).isEqualTo(asList("foo", "bar", "end1", "end2"));
   }
 

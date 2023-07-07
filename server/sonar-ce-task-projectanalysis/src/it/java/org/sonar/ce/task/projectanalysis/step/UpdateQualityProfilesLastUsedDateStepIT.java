@@ -164,6 +164,6 @@ public class UpdateQualityProfilesLastUsedDateStepIT {
     return QPMeasureData.toJson(new QPMeasureData(
       Arrays.stream(keys)
         .map(key -> new QualityProfile(key, key, key, new Date()))
-        .collect(Collectors.toList())));
+        .toList()));
   }
 }

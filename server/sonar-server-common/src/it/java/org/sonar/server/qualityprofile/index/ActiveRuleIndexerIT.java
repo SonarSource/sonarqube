@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.index;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Rule;
@@ -197,7 +196,7 @@ public class ActiveRuleIndexerIT {
   private void commitAndIndex(RuleDto rule, ActiveRuleDto... ar) {
     underTest.commitAndIndex(db.getSession(), stream(ar)
       .map(a -> new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, a, rule))
-      .collect(Collectors.toList()));
+      .toList());
   }
 
   private void verifyOnlyIndexed(ActiveRuleDto... expected) {

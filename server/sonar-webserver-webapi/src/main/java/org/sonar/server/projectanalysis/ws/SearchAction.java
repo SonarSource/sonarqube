@@ -185,7 +185,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
   }
 
   private void addEvents(SearchData.Builder data) {
-    List<String> analyses = data.getAnalyses().stream().map(SnapshotDto::getUuid).collect(Collectors.toList());
+    List<String> analyses = data.getAnalyses().stream().map(SnapshotDto::getUuid).toList();
     data.setEvents(dbClient.eventDao().selectByAnalysisUuids(data.getDbSession(), analyses));
     data.setComponentChanges(dbClient.eventComponentChangeDao().selectByAnalysisUuids(data.getDbSession(), analyses));
   }

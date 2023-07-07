@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
@@ -252,7 +251,7 @@ public class ComponentTreeBuilder {
     return component.getChildren().stream()
       .map(ComponentTreeBuilder::buildChangedComponentTree)
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static ComponentImpl.Builder changedComponentBuilder(Component component, String newShortName) {

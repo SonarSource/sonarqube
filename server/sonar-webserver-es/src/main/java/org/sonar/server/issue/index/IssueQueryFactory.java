@@ -275,7 +275,7 @@ public class IssueQueryFactory {
     SearchRequest request) {
     builder.onComponentOnly(onComponentOnly);
     if (onComponentOnly) {
-      builder.componentUuids(components.stream().map(ComponentDto::uuid).collect(Collectors.toList()));
+      builder.componentUuids(components.stream().map(ComponentDto::uuid).toList());
       setBranch(builder, components.get(0), request.getBranch(), request.getPullRequest(), session);
       return;
     }
@@ -330,7 +330,7 @@ public class IssueQueryFactory {
         addDirectories(builder, components);
         break;
       case Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE:
-        builder.componentUuids(components.stream().map(ComponentDto::uuid).collect(Collectors.toList()));
+        builder.componentUuids(components.stream().map(ComponentDto::uuid).toList());
         break;
       default:
         throw new IllegalArgumentException("Unable to set search root context for components " + Joiner.on(',').join(components));
@@ -357,7 +357,7 @@ public class IssueQueryFactory {
     List<String> filteredViewUuids = viewOrSubViewUuids.stream()
       .filter(uuid -> userSession.hasComponentPermission(USER, uuid))
       .map(ComponentDto::uuid)
-      .collect(Collectors.toList());
+      .collect(Collectors.toCollection(ArrayList::new));
     if (filteredViewUuids.isEmpty()) {
       filteredViewUuids.add(UNKNOWN);
     }

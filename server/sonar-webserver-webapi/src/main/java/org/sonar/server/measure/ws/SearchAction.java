@@ -152,7 +152,7 @@ public class SearchAction implements MeasuresWsAction {
 
     private List<MetricDto> searchMetrics() {
       List<MetricDto> dbMetrics = dbClient.metricDao().selectByKeys(dbSession, request.getMetricKeys());
-      List<String> metricKeys = dbMetrics.stream().map(MetricDto::getKey).collect(Collectors.toList());
+      List<String> metricKeys = dbMetrics.stream().map(MetricDto::getKey).toList();
       checkRequest(request.getMetricKeys().size() == dbMetrics.size(), "The following metrics are not found: %s",
         String.join(", ", difference(request.getMetricKeys(), metricKeys)));
       return dbMetrics;
@@ -164,13 +164,13 @@ public class SearchAction implements MeasuresWsAction {
       return expected.stream()
         .filter(value -> !actualSet.contains(value))
         .sorted(String::compareTo)
-        .collect(Collectors.toList());
+        .toList();
     }
 
     private List<LiveMeasureDto> searchMeasures() {
       return dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession,
-        projects.stream().map(ComponentDto::uuid).collect(Collectors.toList()),
-        metrics.stream().map(MetricDto::getUuid).collect(Collectors.toList()));
+        projects.stream().map(ComponentDto::uuid).toList(),
+        metrics.stream().map(MetricDto::getUuid).toList());
     }
 
     private SearchWsResponse buildResponse() {
@@ -199,7 +199,7 @@ public class SearchAction implements MeasuresWsAction {
           return measure;
         })
         .sorted(comparing(byMetricKey).thenComparing(byComponentName))
-        .collect(Collectors.toList());
+        .toList();
     }
   }
 

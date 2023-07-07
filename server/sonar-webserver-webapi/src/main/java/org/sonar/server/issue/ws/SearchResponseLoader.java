@@ -124,7 +124,7 @@ public class SearchResponseLoader {
 
     List<IssueDto> loadedIssues = dbClient.issueDao().selectByKeys(dbSession, issueKeysToLoad);
     List<IssueDto> unorderedIssues = concat(preloadedIssues.stream(), loadedIssues.stream())
-      .collect(Collectors.toList());
+      .toList();
 
     return issueKeys.stream()
       .map(new KeyToIssueFunction(unorderedIssues)).filter(Objects::nonNull)
@@ -185,7 +185,7 @@ public class SearchResponseLoader {
     List<RuleDto> preloadedRules = firstNonNull(preloadedResponseData.getRules(), emptyList());
     result.addRules(preloadedRules);
     Set<String> ruleUuidsToLoad = collector.getRuleUuids();
-    preloadedRules.stream().map(RuleDto::getUuid).collect(Collectors.toList())
+    preloadedRules.stream().map(RuleDto::getUuid).toList()
       .forEach(ruleUuidsToLoad::remove);
 
     List<RuleDto> rules = dbClient.ruleDao().selectByUuids(dbSession, ruleUuidsToLoad);

@@ -20,7 +20,6 @@
 package org.sonar.server.user.ws;
 
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.ws.Request;
@@ -60,7 +59,7 @@ public class IdentityProvidersAction implements UsersWsAction {
     response.addAllIdentityProviders(identityProviderRepository.getAllEnabledAndSorted()
       .stream()
       .map(toWsIdentityProvider())
-      .collect(Collectors.toList()));
+      .toList());
     return response.build();
   }
 

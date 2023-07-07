@@ -142,7 +142,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
       .filter(BuiltInQProfileRepositoryImpl::ensureAtMostOneDeclaredDefault)
       .map(entry -> toQualityProfiles(entry.getValue()))
       .flatMap(Collection::stream)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private Map<RuleKey, RuleDto> loadRuleDefinitionsByRuleKey() {
@@ -230,6 +230,6 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     }
     return builders.stream()
       .map(BuiltInQProfile.Builder::build)
-      .collect(Collectors.toList());
+      .toList();
   }
 }

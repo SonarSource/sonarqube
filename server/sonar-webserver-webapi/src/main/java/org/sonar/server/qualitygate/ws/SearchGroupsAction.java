@@ -103,14 +103,14 @@ public class SearchGroupsAction implements QualityGatesWsAction {
       List<SearchGroupMembershipDto> groupMemberships = dbClient.qualityGateGroupPermissionsDao().selectByQuery(dbSession, query,
         forPage(wsRequest.getPage()).andSize(wsRequest.getPageSize()));
       Map<String, GroupDto> groupsByUuid = dbClient.groupDao().selectByUuids(dbSession,
-          groupMemberships.stream().map(SearchGroupMembershipDto::getGroupUuid).collect(Collectors.toList()))
+          groupMemberships.stream().map(SearchGroupMembershipDto::getGroupUuid).toList())
         .stream()
         .collect(MoreCollectors.uniqueIndex(GroupDto::getUuid));
       writeProtobuf(
         Qualitygates.SearchGroupsResponse.newBuilder()
           .addAllGroups(groupMemberships.stream()
             .map(groupsMembership -> toGroup(groupsByUuid.get(groupsMembership.getGroupUuid()), groupsMembership.isSelected()))
-            .collect(Collectors.toList()))
+            .toList())
           .setPaging(buildPaging(wsRequest, total)).build(),
         request, response);
     }

@@ -26,7 +26,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateUtils;
@@ -293,7 +292,7 @@ public class IssueWorkflowForSecurityHotspotsTest {
   }
 
   private Collection<String> keys(List<Transition> transitions) {
-    return transitions.stream().map(Transition::key).collect(Collectors.toList());
+    return transitions.stream().map(Transition::key).toList();
   }
 
   private static void setStatusPreviousToClosed(DefaultIssue hotspot, String previousStatus, @Nullable String previousResolution, @Nullable String newResolution) {

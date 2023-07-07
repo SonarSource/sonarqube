@@ -78,7 +78,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class SuggestionsActionIT {
   private static final String[] SUGGESTION_QUALIFIERS = Stream.of(SuggestionCategory.values())
     .map(SuggestionCategory::getQualifier)
-    .collect(Collectors.toList()).toArray(new String[0]);
+    .toList().toArray(new String[0]);
 
   @Rule
   public final DbTester db = DbTester.create(System2.INSTANCE);
@@ -681,7 +681,7 @@ public class SuggestionsActionIT {
 
     List<ProjectDto> projects = range(0, numberOfProjects)
       .mapToObj(i -> db.components().insertPublicProject(p -> p.setName(namePrefix + i)).getProjectDto())
-      .collect(Collectors.toList());
+      .toList();
 
     entityDefinitionIndexer.indexAll();
     projects.forEach(authorizationIndexerTester::allowOnlyAnyone);

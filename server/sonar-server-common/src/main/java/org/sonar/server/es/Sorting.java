@@ -79,7 +79,7 @@ public class Sorting {
       boolean effectiveMissingLast = asc == field.missingLast;
       sortBuilder.missing(effectiveMissingLast ? "_last" : "_first");
       return sortBuilder;
-    }).collect(Collectors.toList());
+    }).toList();
   }
 
   public static class Field {

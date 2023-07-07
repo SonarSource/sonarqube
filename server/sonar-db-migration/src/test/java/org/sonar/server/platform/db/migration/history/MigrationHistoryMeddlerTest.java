@@ -77,7 +77,7 @@ public class MigrationHistoryMeddlerTest {
     when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.of(oldVersion));
     List<RegisteredMigrationStep> stepsFromNewLastMigrationNumber = IntStream.range(0, 1 + new Random().nextInt(30))
       .mapToObj(i -> new RegisteredMigrationStep(i, "desc_" + i, MigrationStep.class))
-      .collect(Collectors.toList());
+      .toList();
     when(migrationSteps.readFrom(expectedNewVersion)).thenReturn(stepsFromNewLastMigrationNumber);
 
     underTest.meddle(migrationHistory);

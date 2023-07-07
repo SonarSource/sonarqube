@@ -80,7 +80,7 @@ public class SourceService {
       .filter(line -> line.hasLine() && line.getLine() >= from)
       .limit((toInclusive - from) + 1L)
       .map(function)
-      .collect(Collectors.toList()));
+      .toList());
   }
 
   private <E> Optional<Iterable<E>> getLines(DbSession dbSession, String fileUuid, Set<Integer> lines, Function<DbFileSources.Line, E> function) {
@@ -91,7 +91,7 @@ public class SourceService {
     return Optional.of(dto.getSourceData().getLinesList().stream()
       .filter(line -> line.hasLine() && lines.contains(line.getLine()))
       .map(function)
-      .collect(Collectors.toList()));
+      .toList());
   }
 
   private static void verifyLine(int line) {

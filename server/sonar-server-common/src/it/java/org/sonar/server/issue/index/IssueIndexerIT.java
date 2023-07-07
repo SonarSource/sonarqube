@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.assertj.core.api.Assertions;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
@@ -638,7 +637,7 @@ public class IssueIndexerIT {
 
   private void assertThatDbHasOnly(IssueDto... expectedIssues) {
     try (DbSession otherSession = db.getDbClient().openSession(false)) {
-      List<String> keys = Arrays.stream(expectedIssues).map(IssueDto::getKey).collect(Collectors.toList());
+      List<String> keys = Arrays.stream(expectedIssues).map(IssueDto::getKey).toList();
       assertThat(db.getDbClient().issueDao().selectByKeys(otherSession, keys)).hasSize(expectedIssues.length);
     }
   }

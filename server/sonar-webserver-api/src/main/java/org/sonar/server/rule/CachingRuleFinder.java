@@ -125,7 +125,7 @@ public class CachingRuleFinder implements ServerRuleFinder {
       .filter(entry -> matchQuery(entry.getKey(), query))
       .sorted(FIND_BY_QUERY_ORDER)
       .map(Map.Entry::getValue)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static boolean matchQuery(RuleDto ruleDto, RuleQuery ruleQuery) {

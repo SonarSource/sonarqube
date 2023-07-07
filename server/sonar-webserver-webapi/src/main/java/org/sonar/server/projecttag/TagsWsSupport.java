@@ -85,7 +85,7 @@ public class TagsWsSupport {
       .map(t -> t.toLowerCase(Locale.ENGLISH))
       .map(TagsWsSupport::checkTag)
       .distinct()
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static String checkTag(String tag) {

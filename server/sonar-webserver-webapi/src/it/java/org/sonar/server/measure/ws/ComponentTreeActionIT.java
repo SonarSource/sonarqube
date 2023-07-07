@@ -21,7 +21,6 @@ package org.sonar.server.measure.ws;
 
 import com.google.common.base.Joiner;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -890,7 +889,7 @@ public class ComponentTreeActionIT {
     db.components().insertSnapshot(mainBranch);
     List<String> metrics = IntStream.range(0, 20)
       .mapToObj(i -> "metric" + i)
-      .collect(Collectors.toList());
+      .toList();
     db.commit();
 
     assertThatThrownBy(() -> {

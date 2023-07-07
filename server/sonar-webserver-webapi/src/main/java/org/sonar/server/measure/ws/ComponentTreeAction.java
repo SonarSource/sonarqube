@@ -492,7 +492,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     List<String> referenceComponentUUids = components.stream()
       .map(ComponentDto::getCopyComponentUuid)
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
     if (referenceComponentUUids.isEmpty()) {
       return emptyMap();
     }
@@ -565,7 +565,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     List<MetricDtoWithBestValue> metricDtosWithBestValueMeasure = metrics.stream()
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
       .map(new MetricDtoToMetricDtoWithBestValue())
-      .collect(Collectors.toList());
+      .toList();
     if (metricDtosWithBestValueMeasure.isEmpty()) {
       return;
     }
@@ -594,7 +594,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     return components
       .stream()
       .filter(new HasMeasure(measuresByComponentUuidAndMetric, metricToSort.get()))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private List<ComponentDto> filterAuthorizedComponents(List<ComponentDto> components) {
@@ -614,7 +614,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     return components.stream()
       .skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
       .limit(wsRequest.getPageSize())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @CheckForNull

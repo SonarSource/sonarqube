@@ -205,7 +205,7 @@ public class TreeAction implements ComponentsWsAction {
     List<String> referenceComponentIds = components.stream()
       .map(ComponentDto::getCopyComponentUuid)
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
     if (referenceComponentIds.isEmpty()) {
       return emptyMap();
     }
@@ -323,7 +323,7 @@ public class TreeAction implements ComponentsWsAction {
 
   private static List<ComponentDto> paginateComponents(List<ComponentDto> components, Request wsRequest) {
     return components.stream().skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
-      .limit(wsRequest.getPageSize()).collect(Collectors.toList());
+      .limit(wsRequest.getPageSize()).toList();
   }
 
   private static List<ComponentDto> sortComponents(List<ComponentDto> components, Request wsRequest) {

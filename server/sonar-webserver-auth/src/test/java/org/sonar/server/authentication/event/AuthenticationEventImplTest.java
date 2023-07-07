@@ -23,7 +23,6 @@ import com.google.common.base.Joiner;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -380,7 +379,7 @@ public class AuthenticationEventImplTest {
       .thenReturn(Collections.enumeration(
         Arrays.stream(remoteIps)
           .map(Joiner.on(",")::join)
-          .collect(Collectors.toList())));
+          .toList()));
     return res;
   }
 }

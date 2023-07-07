@@ -57,7 +57,7 @@ public class NotificationServiceTest {
     NotificationHandler handler = getMockOfNotificationHandlerForType(Notification1.class);
     List<Notification> notifications = IntStream.range(0, 10)
       .mapToObj(i -> new Notification("i"))
-      .collect(Collectors.toList());
+      .toList();
     NotificationService underTest = new NotificationService(dbClient, new NotificationHandler[]{handler});
 
     assertThatThrownBy(() -> underTest.deliverEmails(notifications))
@@ -69,7 +69,7 @@ public class NotificationServiceTest {
   public void deliverEmails_collection_has_no_effect_if_no_handler_nor_dispatcher() {
     List<Notification> notifications = IntStream.range(0, 10)
       .mapToObj(i -> mock(Notification.class))
-      .collect(Collectors.toList());
+      .toList();
     NotificationService underTest = new NotificationService(dbClient);
 
     assertThat(underTest.deliverEmails(notifications)).isZero();
@@ -81,7 +81,7 @@ public class NotificationServiceTest {
     NotificationDispatcher dispatcher = mock(NotificationDispatcher.class);
     List<Notification> notifications = IntStream.range(0, 10)
       .mapToObj(i -> mock(Notification.class))
-      .collect(Collectors.toList());
+      .toList();
     NotificationService underTest = new NotificationService(dbClient, new NotificationDispatcher[]{dispatcher});
 
     assertThat(underTest.deliverEmails(notifications)).isZero();
@@ -106,10 +106,10 @@ public class NotificationServiceTest {
     NotificationHandler<Notification2> handler2 = getMockOfNotificationHandlerForType(Notification2.class);
     List<Notification1> notification1s = IntStream.range(0, 10)
       .mapToObj(i -> new Notification1())
-      .collect(Collectors.toList());
+      .toList();
     List<Notification2> notification2s = IntStream.range(0, 10)
       .mapToObj(i -> new Notification2())
-      .collect(Collectors.toList());
+      .toList();
     NotificationService noHandler = new NotificationService(dbClient);
     NotificationService onlyHandler1 = new NotificationService(dbClient, new NotificationHandler[]{handler1});
     NotificationService onlyHandler2 = new NotificationService(dbClient, new NotificationHandler[]{handler2});
@@ -128,10 +128,10 @@ public class NotificationServiceTest {
     NotificationHandler<Notification2> handler2 = getMockOfNotificationHandlerForType(Notification2.class);
     List<Notification1> notification1s = IntStream.range(0, 10)
       .mapToObj(i -> new Notification1())
-      .collect(Collectors.toList());
+      .toList();
     List<Notification2> notification2s = IntStream.range(0, 10)
       .mapToObj(i -> new Notification2())
-      .collect(Collectors.toList());
+      .toList();
     NotificationService onlyHandler1 = new NotificationService(dbClient, new NotificationHandler[]{handler1});
     NotificationService onlyHandler2 = new NotificationService(dbClient, new NotificationHandler[]{handler2});
     NotificationService bothHandlers = new NotificationService(dbClient, new NotificationHandler[]{handler1, handler2});
@@ -169,10 +169,10 @@ public class NotificationServiceTest {
 
     List<Notification1> notification1s = IntStream.range(0, 10)
       .mapToObj(i -> new Notification1())
-      .collect(Collectors.toList());
+      .toList();
     List<Notification2> notification2s = IntStream.range(0, 10)
       .mapToObj(i -> new Notification2())
-      .collect(Collectors.toList());
+      .toList();
     NotificationService onlyHandler1A = new NotificationService(dbClient, new NotificationHandler[]{handler1A});
     NotificationService onlyHandler1B = new NotificationService(dbClient, new NotificationHandler[]{handler1B});
     NotificationService bothHandlers = new NotificationService(dbClient, new NotificationHandler[]{handler1A, handler1B});

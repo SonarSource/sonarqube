@@ -52,7 +52,7 @@ public class QualityGateGroupPermissionsDao implements Dao {
   }
 
   public boolean exists(DbSession dbSession, QualityGateDto qualityGate, Collection<GroupDto> groups) {
-    return !executeLargeInputs(groups.stream().map(GroupDto::getUuid).collect(Collectors.toList()),
+    return !executeLargeInputs(groups.stream().map(GroupDto::getUuid).toList(),
       partition -> mapper(dbSession).selectByQualityGateAndGroups(qualityGate.getUuid(), partition))
       .isEmpty();
   }

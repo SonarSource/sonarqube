@@ -210,7 +210,7 @@ public class BulkChangeAction implements IssuesWsAction {
 
     List<DefaultIssue> items = bulkChangeData.issues.stream()
       .filter(bulkChange(issueChangeContext, bulkChangeData, result))
-      .collect(Collectors.toList());
+      .toList();
     issueStorage.save(dbSession, items);
 
     refreshLiveMeasures(dbSession, bulkChangeData, result);
@@ -235,9 +235,9 @@ public class BulkChangeAction implements IssuesWsAction {
       .collect(Collectors.toSet());
     List<ComponentDto> touchedComponents = touchedComponentUuids.stream()
       .map(data.componentsByUuid::get)
-      .collect(Collectors.toList());
+      .toList();
 
-    List<DefaultIssue> changedIssues = data.issues.stream().filter(result.success::contains).collect(Collectors.toList());
+    List<DefaultIssue> changedIssues = data.issues.stream().filter(result.success::contains).toList();
     issueChangePostProcessor.process(dbSession, changedIssues, touchedComponents, false);
   }
 
@@ -399,7 +399,7 @@ public class BulkChangeAction implements IssuesWsAction {
       this.availableActions = actions.stream()
         .filter(action -> propertiesByActions.containsKey(action.key()))
         .filter(action -> action.verify(getProperties(action.key()), issues, userSession))
-        .collect(Collectors.toList());
+        .toList();
     }
 
     private List<ComponentDto> getComponents(DbSession dbSession, Collection<String> componentUuids) {
@@ -415,7 +415,7 @@ public class BulkChangeAction implements IssuesWsAction {
       return allIssues.stream()
         .filter(issue -> branchUuids.contains(issue.getProjectUuid()))
         .map(IssueDto::toDefaultIssue)
-        .collect(Collectors.toList());
+        .toList();
     }
 
     Map<String, Object> getProperties(String actionKey) {
@@ -423,7 +423,7 @@ public class BulkChangeAction implements IssuesWsAction {
     }
 
     List<Action> getActionsWithoutComment() {
-      return availableActions.stream().filter(action -> !action.key().equals(COMMENT_KEY)).collect(Collectors.toList());
+      return availableActions.stream().filter(action -> !action.key().equals(COMMENT_KEY)).toList();
     }
 
     Optional<Action> getCommentAction() {

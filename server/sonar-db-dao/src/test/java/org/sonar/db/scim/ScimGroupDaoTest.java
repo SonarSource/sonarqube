@@ -107,7 +107,7 @@ public class ScimGroupDaoTest {
   private static List<String> toExpectedscimGroupUuids(List<String> expectedScimGroupUuidSuffixes) {
     return expectedScimGroupUuidSuffixes.stream()
       .map(expectedScimGroupUuidSuffix -> "scim_uuid_Scim Group" + expectedScimGroupUuidSuffix)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Test
@@ -179,7 +179,7 @@ public class ScimGroupDaoTest {
   private static List<String> toScimGroupsUuids(Collection<ScimGroupDto> scimGroupDtos) {
     return scimGroupDtos.stream()
       .map(ScimGroupDto::getScimGroupUuid)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Test

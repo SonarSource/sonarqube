@@ -89,7 +89,7 @@ public class RuleIndexer implements ResilientIndexer {
   public void commitAndIndex(DbSession dbSession, Collection<String> ruleUuids) {
     List<EsQueueDto> items = ruleUuids.stream()
       .map(RuleIndexer::createQueueDtoForRule)
-      .collect(Collectors.toList());
+      .toList();
 
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();

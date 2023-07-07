@@ -200,7 +200,7 @@ public class ChangelogAction implements QProfileWsAction {
     List<QProfileChangeDto> changeDtos = dbClient.qProfileChangeDao().selectByQuery(dbSession, query);
     return changeDtos.stream()
       .map(Change::from)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   static class Change {

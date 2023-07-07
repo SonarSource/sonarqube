@@ -374,7 +374,7 @@ public class ServerUserSession extends AbstractUserSession {
           return authorizedProjectUuids.contains(c.branchUuid()) || authorizedProjectUuids.contains(
             getEntityUuid(dbSession, c));
         })
-        .collect(Collectors.toList());
+        .toList();
     }
   }
 

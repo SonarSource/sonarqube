@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.issue;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
@@ -356,7 +355,7 @@ public class IssueCounterTest {
   private final void assertMeasures(Component componentRef, Map.Entry<String, Integer>... entries) {
     List<MeasureRepoEntry> expected = stream(entries)
       .map(e -> entryOf(e.getKey(), newMeasureBuilder().create(e.getValue())))
-      .collect(Collectors.toList());
+      .toList();
 
     assertThat(measureRepository.getRawMeasures(componentRef).entrySet().stream().map(e -> entryOf(e.getKey(), e.getValue())))
       .containsAll(expected);

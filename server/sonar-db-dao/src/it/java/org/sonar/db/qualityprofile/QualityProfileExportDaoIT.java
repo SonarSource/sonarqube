@@ -201,7 +201,7 @@ public class QualityProfileExportDaoIT {
     return IntStream.range(0, numberOfParams)
       .mapToObj(value -> db.rules().insertRuleParam(firstRule,
         ruleParamDto -> ruleParamDto.setName("name_" + firstRule.getUuid() + "_" + value)))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private RuleDto createRule(String language) {
@@ -224,7 +224,7 @@ public class QualityProfileExportDaoIT {
   private List<ActiveRuleDto> activate(QProfileDto profile, RuleDto... rules) {
     return Stream.of(rules)
       .map(ruleDefinitionDto -> db.qualityProfiles().activateRule(profile, ruleDefinitionDto))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private ActiveRuleDto activate(QProfileDto profile, RuleDto rule, Collection<RuleParamDto> params) {

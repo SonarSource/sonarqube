@@ -21,7 +21,6 @@ package org.sonar.server.issue.ws;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -743,7 +742,7 @@ public class BulkChangeActionIT {
 
     assertThatThrownBy(() -> {
       call(builder()
-        .setIssues(IntStream.range(0, 510).mapToObj(String::valueOf).collect(Collectors.toList()))
+        .setIssues(IntStream.range(0, 510).mapToObj(String::valueOf).toList())
         .setSetSeverity(MINOR)
         .build());
     })

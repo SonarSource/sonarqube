@@ -60,7 +60,7 @@ public class NotificationUpdater {
           .build(),
         dbSession).stream()
       .filter(notificationScope(project))
-      .collect(Collectors.toList());
+      .toList();
     checkArgument(existingNotification.isEmpty()
       || !PROP_NOTIFICATION_VALUE.equals(existingNotification.get(0).getValue()), "Notification already added");
 
@@ -90,7 +90,7 @@ public class NotificationUpdater {
           .build(),
         dbSession).stream()
       .filter(notificationScope(project))
-      .collect(Collectors.toList());
+      .toList();
     checkArgument(!existingNotification.isEmpty() && PROP_NOTIFICATION_VALUE.equals(existingNotification.get(0).getValue()), "Notification doesn't exist");
 
     dbClient.propertiesDao().delete(dbSession, new PropertyDto()

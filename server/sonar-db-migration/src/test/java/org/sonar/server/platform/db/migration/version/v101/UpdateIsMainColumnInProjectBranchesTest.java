@@ -79,7 +79,7 @@ public class UpdateIsMainColumnInProjectBranchesTest {
     String selectSql = String.format("select is_main from project_branches where uuid='%s'", branchUuid);
     assertThat(db.select(selectSql).stream()
       .map(row -> row.get("IS_MAIN"))
-      .collect(Collectors.toList()))
+      .toList())
       .containsExactlyInAnyOrder(isMain);
   }
 

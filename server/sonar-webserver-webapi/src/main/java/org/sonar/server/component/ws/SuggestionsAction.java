@@ -191,7 +191,7 @@ public class SuggestionsAction implements ComponentsWsAction {
             .limit(limit)
             .map(EntityDto::getUuid)
             .map(ComponentHit::new)
-            .collect(Collectors.toList());
+            .toList();
           int totalHits = componentsOfThisQualifier.size();
           return new ComponentHitsPerQualifier(q, hits, totalHits);
         })).build();
@@ -287,14 +287,14 @@ public class SuggestionsAction implements ComponentsWsAction {
         .map(hit -> toSuggestion(hit, recentlyBrowsedKeys, favoriteUuids, entitiesByUuids))
         .filter(Optional::isPresent)
         .map(Optional::get)
-        .collect(Collectors.toList());
+        .toList();
 
       return Category.newBuilder()
         .setQ(qualifier.getQualifier())
         .setMore(Math.max(0, qualifier.getTotalHits() - coveredItems))
         .addAllItems(suggestions)
         .build();
-    }).collect(Collectors.toList());
+    }).toList();
   }
 
   /**

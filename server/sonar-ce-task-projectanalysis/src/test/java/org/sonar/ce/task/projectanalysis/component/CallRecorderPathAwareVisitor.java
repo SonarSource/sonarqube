@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -85,7 +84,7 @@ class CallRecorderPathAwareVisitor extends PathAwareVisitorAdapter<Integer> {
   }
 
   private static List<Integer> toValueList(Path<Integer> path) {
-    return StreamSupport.stream(path.getCurrentPath().spliterator(), false).map(PathElement::element).collect(Collectors.toList());
+    return StreamSupport.stream(path.getCurrentPath().spliterator(), false).map(PathElement::element).toList();
   }
 
   private static Integer getParent(Path<Integer> path) {

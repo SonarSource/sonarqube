@@ -142,7 +142,7 @@ public class RuleIndex {
   public static final List<String> ALL_STATUSES_EXCEPT_REMOVED = Arrays.stream(RuleStatus.values())
     .filter(status -> !RuleStatus.REMOVED.equals(status))
     .map(RuleStatus::toString)
-    .collect(Collectors.toList());
+    .toList();
 
   private static final String AGGREGATION_NAME_FOR_TAGS = "tagsAggregation";
 
@@ -290,7 +290,7 @@ public class RuleIndex {
 
     Collection<RuleType> types = query.getTypes();
     if (isNotEmpty(types)) {
-      List<String> typeNames = types.stream().map(RuleType::toString).collect(Collectors.toList());
+      List<String> typeNames = types.stream().map(RuleType::toString).toList();
       filters.put(FIELD_RULE_TYPE,
         QueryBuilders.termsQuery(FIELD_RULE_TYPE, typeNames));
     }

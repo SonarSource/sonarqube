@@ -178,7 +178,7 @@ public class SearchAction implements QProfileWsAction {
     return Stream.concat(
       dbClient.qProfileEditUsersDao().selectQProfileUuidsByUser(dbSession, user).stream(),
       dbClient.qProfileEditGroupsDao().selectQProfileUuidsByGroups(dbSession, userSession.getGroups()).stream())
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private List<QProfileDto> searchProfiles(DbSession dbSession, SearchRequest request, List<QProfileDto> defaultProfiles, @Nullable ProjectDto project) {

@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -108,7 +107,7 @@ public class EsInstallation {
     String dataPath = props.nonNullValue(PATH_DATA.getKey());
     return Stream.of("es", "es5", "es6", "es7")
       .map(t -> new File(dataPath, t))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static File buildDataDir(Props props) {

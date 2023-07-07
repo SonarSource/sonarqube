@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -793,7 +792,7 @@ public class CeQueueDaoIT {
         }
         return res;
       }
-    }).collect(Collectors.toList());
+    }).toList();
   }
 
   private void verifyCeQueueStatuses(String[] taskUuids, CeQueueDto.Status[] statuses) {

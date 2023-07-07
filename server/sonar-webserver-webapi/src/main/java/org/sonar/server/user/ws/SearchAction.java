@@ -192,7 +192,7 @@ public class SearchAction implements UsersWsAction {
       List<UserDto> users = findUsersAndSortByLogin(request, dbSession, userQuery);
       int totalUsers = dbClient.userDao().countUsers(dbSession, userQuery);
 
-      List<String> logins = users.stream().map(UserDto::getLogin).collect(Collectors.toList());
+      List<String> logins = users.stream().map(UserDto::getLogin).toList();
       Multimap<String, String> groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
       Map<String, Integer> tokenCountsByLogin = dbClient.userTokenDao().countTokensByUsers(dbSession, users);
       Map<String, Boolean> userUuidToIsManaged = managedInstanceService.getUserUuidToManaged(dbSession, getUserUuids(users));

@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -918,7 +917,7 @@ public class CeActivityDaoIT {
   private List<String> selectPageOfUuids(Pagination pagination) {
     return underTest.selectByQuery(db.getSession(), new CeTaskQuery(), pagination).stream()
       .map(CeActivityToUuid.INSTANCE::apply)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private enum CeActivityToUuid implements Function<CeActivityDto, String> {

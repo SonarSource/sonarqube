@@ -160,7 +160,7 @@ public class ProjectDaoIT {
         applicationsId.add(x.getKey());
         return tuple(x.getKey(), x.getName(), x.getUuid(), x.getDescription(), x.isPrivate());
       })
-      .collect(Collectors.toList());
+      .toList();
 
     List<ProjectDto> selectedApplications = projectDao.selectApplicationsByKeys(db.getSession(), applicationsId);
 

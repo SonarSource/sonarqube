@@ -392,7 +392,7 @@ public final class SecurityStandards {
       .stream()
       .filter(k -> cwe.stream().anyMatch(CWES_BY_SQ_CATEGORY.get(k)::contains))
       .sorted(SQ_CATEGORY_ORDERING)
-      .collect(Collectors.toList());
+      .toList();
     return result.isEmpty() ? singletonList(SQCategory.OTHERS) : result;
   }
 

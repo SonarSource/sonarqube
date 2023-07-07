@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
@@ -85,7 +84,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
 
     List<ActiveRuleChange> changes = builtInQProfile.getActiveRules().stream()
       .map(activeRule -> insertActiveRule(batchDbSession, ruleProfile, activeRule, now.getTime()))
-      .collect(Collectors.toList());
+      .toList();
 
     changes.forEach(change -> dbClient.qProfileChangeDao().insert(batchDbSession, change.toDto(null)));
 

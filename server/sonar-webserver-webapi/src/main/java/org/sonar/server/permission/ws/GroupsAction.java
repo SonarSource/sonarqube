@@ -26,7 +26,6 @@ import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Change;
@@ -173,7 +172,7 @@ public class GroupsAction implements PermissionsWsAction {
     if (groups.isEmpty()) {
       return emptyList();
     }
-    List<String> uuids = groups.stream().map(GroupDto::getUuid).collect(Collectors.toList());
+    List<String> uuids = groups.stream().map(GroupDto::getUuid).toList();
     return dbClient.groupPermissionDao().selectByGroupUuids(dbSession, uuids, entity != null ? entity.getUuid() : null);
   }
 }

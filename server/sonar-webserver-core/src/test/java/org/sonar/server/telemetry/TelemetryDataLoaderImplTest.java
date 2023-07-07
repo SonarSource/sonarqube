@@ -332,7 +332,7 @@ public class TelemetryDataLoaderImplTest {
       .rangeClosed(1, count)
       .mapToObj(userConfigurator::apply)
       .map(userDbTester::insertUser)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private void assertDatabaseMetadata(TelemetryData.Database database) {

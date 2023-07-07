@@ -208,7 +208,7 @@ public class SearchHistoryActionIT {
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(i * 1_000_000_000)))
       .peek(a -> dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project, a).setValue(101d)))
       .map(a -> formatDateTime(a.getCreatedAt()))
-      .collect(Collectors.toList());
+      .toList();
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
@@ -232,7 +232,7 @@ public class SearchHistoryActionIT {
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(System2.INSTANCE.now() + i * 1_000_000_000L)))
       .peek(a -> dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project, a).setValue(Double.valueOf(a.getCreatedAt()))))
       .map(a -> formatDateTime(a.getCreatedAt()))
-      .collect(Collectors.toList());
+      .toList();
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()

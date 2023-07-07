@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -110,6 +109,6 @@ public class DeleteAction implements QProfileWsAction {
 
   private static List<QProfileDto> merge(QProfileDto profile, Collection<QProfileDto> descendants) {
     return Stream.concat(Stream.of(profile), descendants.stream())
-      .collect(Collectors.toList());
+      .toList();
   }
 }

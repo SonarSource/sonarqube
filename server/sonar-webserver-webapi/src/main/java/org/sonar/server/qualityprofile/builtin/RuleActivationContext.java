@@ -194,7 +194,7 @@ public class RuleActivationContext {
     }
     Collection<QProfileDto> baseProfiles = profilesByUuid.values().stream()
       .filter(p -> p.getRulesProfileUuid().equals(baseRulesProfile.getUuid()))
-      .collect(Collectors.toList());
+      .toList();
     DescendantProfilesSupplier.Result result = descendantProfilesSupplier.get(baseProfiles, rulesByUuid.keySet());
     register(result.profiles());
     register(result.activeRules(), result.activeRuleParams());

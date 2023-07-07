@@ -50,7 +50,7 @@ public class RedirectFilter implements Filter {
     Predicate<Redirect> match = redirect -> redirect.test(path);
     List<Redirect> redirects = REDIRECTS.stream()
       .filter(match)
-      .collect(Collectors.toList());
+      .toList();
 
     switch (redirects.size()) {
       case 0:

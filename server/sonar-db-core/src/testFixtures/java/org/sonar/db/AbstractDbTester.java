@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.dbutils.QueryRunner;
@@ -391,7 +390,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
         columnNames.stream()
           .sorted(PkColumn.ORDERING_BY_INDEX)
           .map(PkColumn::getName)
-          .collect(Collectors.toList()));
+          .toList());
     }
   }
 

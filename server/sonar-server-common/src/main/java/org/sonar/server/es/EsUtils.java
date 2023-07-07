@@ -31,7 +31,6 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchResponse;
@@ -79,7 +78,7 @@ public class EsUtils {
     return terms.getBuckets()
       .stream()
       .map(Terms.Bucket::getKeyAsString)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @CheckForNull

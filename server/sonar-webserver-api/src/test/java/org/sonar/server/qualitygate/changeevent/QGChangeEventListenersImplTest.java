@@ -207,7 +207,7 @@ public class QGChangeEventListenersImplTest {
       Arrays.stream(component4Issues),
       Stream.of(component5Issue))
       .flatMap(s -> s)
-      .collect(Collectors.toList());
+      .toList();
 
     List<DefaultIssue> changedIssues = randomizedList(issues);
     List<QGChangeEvent> qgChangeEvents = Stream.of(
@@ -216,7 +216,7 @@ public class QGChangeEventListenersImplTest {
       Arrays.stream(component3QGChangeEvents),
       Arrays.stream(component4QGChangeEvents))
       .flatMap(s -> s)
-      .collect(Collectors.toList());
+      .toList();
 
     underTest.broadcastOnIssueChange(changedIssues, randomizedList(qgChangeEvents), false);
 

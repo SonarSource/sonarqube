@@ -122,7 +122,7 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
   private static List<EsQueueDto> createEsQueueDtosFromEntities(Collection<String> entityUuids) {
     return entityUuids.stream()
       .map(entityUuid -> EsQueueDto.create(TYPE_COMPONENT.format(), entityUuid, null, entityUuid))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override

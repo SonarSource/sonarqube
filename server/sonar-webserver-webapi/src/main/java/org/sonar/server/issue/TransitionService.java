@@ -55,7 +55,7 @@ public class TransitionService {
       .stream()
       .filter(transition -> (userSession.isLoggedIn() && isBlank(transition.requiredProjectPermission()))
         || userSession.hasComponentUuidPermission(transition.requiredProjectPermission(), projectUuid))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public boolean doTransition(DefaultIssue defaultIssue, IssueChangeContext issueChangeContext, String transitionKey) {

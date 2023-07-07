@@ -140,7 +140,7 @@ public class SearchEventsAction implements DevelopersWsAction {
         return Stream.empty();
       }
 
-      List<String> branchUuids = analyses.stream().map(SnapshotDto::getRootComponentUuid).collect(Collectors.toList());
+      List<String> branchUuids = analyses.stream().map(SnapshotDto::getRootComponentUuid).toList();
       Map<String, BranchDto> branchesByUuids = dbClient.branchDao().selectByUuids(dbSession, branchUuids).stream().collect(uniqueIndex(BranchDto::getUuid));
 
       return Stream.concat(
@@ -153,7 +153,7 @@ public class SearchEventsAction implements DevelopersWsAction {
     Map<String, BranchDto> branchesByUuids,
     List<SnapshotDto> analyses) {
     Map<String, EventDto> eventsByComponentUuid = new HashMap<>();
-    dbClient.eventDao().selectByAnalysisUuids(dbSession, analyses.stream().map(SnapshotDto::getUuid).collect(Collectors.toList()))
+    dbClient.eventDao().selectByAnalysisUuids(dbSession, analyses.stream().map(SnapshotDto::getUuid).toList())
       .stream()
       .sorted(comparing(EventDto::getDate))
       .filter(e -> EventCategory.QUALITY_GATE.getLabel().equals(e.getCategory()))
@@ -229,7 +229,7 @@ public class SearchEventsAction implements DevelopersWsAction {
       .collect(uniqueIndex(projectKeys::get, fromDates::get));
     return authorizedProjects.stream()
       .map(dto -> new UuidFromPair(dto.getUuid(), fromDatesByProjectKey.get(dto.getKey())))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static List<Long> mandatoryParamAsDateTimes(Request request, String param) {
@@ -239,7 +239,7 @@ public class SearchEventsAction implements DevelopersWsAction {
         checkArgument(date != null, "'%s' cannot be parsed as either a date or date+time", stringDate);
         return date.getTime() + 1_000L;
       })
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static String encode(String text) {

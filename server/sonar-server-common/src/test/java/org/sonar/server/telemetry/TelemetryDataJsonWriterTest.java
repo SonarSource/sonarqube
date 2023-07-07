@@ -616,11 +616,11 @@ public class TelemetryDataJsonWriterTest {
       .mapToObj(
         i -> new UserTelemetryDto().setUuid("uuid-" + i).setActive(i % 2 == 0).setLastConnectionDate(1L)
           .setLastSonarlintConnectionDate(2L).setExternalIdentityProvider("gitlab").setScimUuid(i % 2 == 0 ? "scim-uuid-" + i : null))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static List<TelemetryData.Project> attachProjects() {
-    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.Project("uuid-" + i, 1L, "lang-" + i, (i + 1L) * 2L)).collect(Collectors.toList());
+    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.Project("uuid-" + i, 1L, "lang-" + i, (i + 1L) * 2L)).toList();
   }
 
   private static List<TelemetryData.ProjectStatistics> attachProjectStatsWithMetrics() {

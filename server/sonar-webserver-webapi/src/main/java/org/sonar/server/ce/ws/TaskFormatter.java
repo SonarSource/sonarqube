@@ -66,7 +66,7 @@ public class TaskFormatter {
 
   public List<Ce.Task> formatQueue(DbSession dbSession, List<CeQueueDto> dtos) {
     DtoCache cache = DtoCache.forQueueDtos(dbClient, dbSession, dtos);
-    return dtos.stream().map(input -> formatQueue(input, cache)).collect(Collectors.toList());
+    return dtos.stream().map(input -> formatQueue(input, cache)).toList();
   }
 
   public Ce.Task formatQueue(DbSession dbSession, CeQueueDto queue) {
@@ -98,7 +98,7 @@ public class TaskFormatter {
     DtoCache cache = DtoCache.forActivityDtos(dbClient, dbSession, dtos);
     return dtos.stream()
       .map(input -> formatActivity(input, cache, null))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static Ce.Task formatActivity(CeActivityDto activityDto, DtoCache cache, @Nullable String scannerContext) {

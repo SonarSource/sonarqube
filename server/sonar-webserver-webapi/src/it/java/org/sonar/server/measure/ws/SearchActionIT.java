@@ -314,7 +314,7 @@ public class SearchActionIT {
     List<String> keys = IntStream.rangeClosed(1, 101)
       .mapToObj(i -> db.components().insertPrivateProject().getMainBranchComponent())
       .map(ComponentDto::getKey)
-      .collect(Collectors.toList());
+      .toList();
     MetricDto metric = db.measures().insertMetric();
 
     assertThatThrownBy(() -> call(keys, singletonList(metric.getKey())))
@@ -327,7 +327,7 @@ public class SearchActionIT {
     List<String> keys = IntStream.rangeClosed(1, 100)
       .mapToObj(i -> db.components().insertPrivateProject().getMainBranchComponent())
       .map(ComponentDto::getKey)
-      .collect(Collectors.toList());
+      .toList();
     MetricDto metric = db.measures().insertMetric();
 
     call(keys, singletonList(metric.getKey()));

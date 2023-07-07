@@ -118,7 +118,7 @@ public class SourceSimilarityImplTest {
    * Creates a list of {@code numberOfElements} int values as String, starting with zero.
    */
   private static List<String> listOf(int numberOfElements) {
-    return IntStream.range(0, numberOfElements).mapToObj(String::valueOf).collect(Collectors.toList());
+    return IntStream.range(0, numberOfElements).mapToObj(String::valueOf).toList();
   }
 
   @Test

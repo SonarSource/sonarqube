@@ -22,7 +22,6 @@ package org.sonar.server.ws.ws;
 import com.google.common.collect.Ordering;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -110,7 +109,7 @@ public class ListAction implements WebServicesWsAction {
   }
 
   private static void writeParameters(JsonWriter writer, WebService.Action action, boolean includeInternals) {
-    List<WebService.Param> params = action.params().stream().filter(p -> includeInternals || !p.isInternal()).collect(Collectors.toList());
+    List<WebService.Param> params = action.params().stream().filter(p -> includeInternals || !p.isInternal()).toList();
     if (!params.isEmpty()) {
       // sort parameters by key
       Ordering<WebService.Param> ordering = Ordering.natural().onResultOf(WebService.Param::key);

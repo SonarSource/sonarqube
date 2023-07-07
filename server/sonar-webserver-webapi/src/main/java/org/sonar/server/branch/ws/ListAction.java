@@ -23,7 +23,6 @@ import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -89,8 +88,8 @@ public class ListAction implements BranchWsAction {
 
       Collection<BranchDto> branches = dbClient.branchDao().selectByProject(dbSession, projectOrApp).stream()
         .filter(b -> b.getBranchType() == BRANCH)
-        .collect(Collectors.toList());
-      List<String> branchUuids = branches.stream().map(BranchDto::getUuid).collect(Collectors.toList());
+        .toList();
+      List<String> branchUuids = branches.stream().map(BranchDto::getUuid).toList();
 
       Map<String, LiveMeasureDto> qualityGateMeasuresByComponentUuids = dbClient.liveMeasureDao()
         .selectByComponentUuidsAndMetricKeys(dbSession, branchUuids, singletonList(ALERT_STATUS_KEY)).stream()

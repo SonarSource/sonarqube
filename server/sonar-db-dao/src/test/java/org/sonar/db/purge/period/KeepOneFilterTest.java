@@ -22,7 +22,6 @@ package org.sonar.db.purge.period;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.purge.DbCleanerTestUtils;
@@ -33,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class KeepOneFilterTest {
 
   private static List<String> analysisUuids(List<PurgeableAnalysisDto> snapshotDtos) {
-    return snapshotDtos.stream().map(PurgeableAnalysisDto::getAnalysisUuid).collect(Collectors.toList());
+    return snapshotDtos.stream().map(PurgeableAnalysisDto::getAnalysisUuid).toList();
   }
 
   @Test

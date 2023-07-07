@@ -29,7 +29,7 @@ public enum Visibility {
   PRIVATE(true, "private"),
   PUBLIC(false, "public");
 
-  private static final List<String> LABELS = stream(values()).map(Visibility::getLabel).collect(Collectors.toList());
+  private static final List<String> LABELS = stream(values()).map(Visibility::getLabel).toList();
 
   private final boolean isPrivate;
   private final String label;

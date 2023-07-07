@@ -20,7 +20,6 @@
 package org.sonar.db.qualityprofile;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
@@ -34,7 +33,7 @@ public class ActiveRuleCountQuery {
   private final String inheritance;
 
   public ActiveRuleCountQuery(Builder builder) {
-    this.profileUuids = builder.profiles.stream().map(QProfileDto::getKee).collect(Collectors.toList());
+    this.profileUuids = builder.profiles.stream().map(QProfileDto::getKee).toList();
     this.ruleStatus = builder.ruleStatus;
     this.inheritance = builder.inheritance;
   }

@@ -435,7 +435,7 @@ public class SearchAction implements IssuesWsAction {
     result.getHits();
     List<String> issueKeys = Arrays.stream(result.getHits().getHits())
       .map(SearchHit::getId)
-      .collect(Collectors.toList());
+      .toList();
 
     // load the additional information to be returned in response
     SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(issueKeys);

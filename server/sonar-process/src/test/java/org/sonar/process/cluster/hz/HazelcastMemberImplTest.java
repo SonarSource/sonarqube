@@ -129,12 +129,12 @@ public class HazelcastMemberImplTest {
       .map(answer::getFailed)
       .filter(Optional::isPresent)
       .map(Optional::get)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static List<Boolean> extractTimeOuts(DistributedAnswer<Long> answer) {
     return answer.getMembers().stream()
       .map(answer::hasTimedOut)
-      .collect(Collectors.toList());
+      .toList();
   }
 }

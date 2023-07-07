@@ -105,7 +105,7 @@ public class PluginDownloader implements Startable {
     return listPlugins(this.downloadDir)
       .stream()
       .map(PluginInfo::create)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public void download(String pluginKey, Version version) {

@@ -27,7 +27,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -289,7 +288,7 @@ public class ActivityAction implements CeWsAction {
     } else if (componentQuery != null) {
       query.setEntityUuids(loadEntities(dbSession, componentQuery).stream()
         .map(EntityDto::getUuid)
-        .collect(Collectors.toList()));
+        .toList());
     }
     return query;
   }

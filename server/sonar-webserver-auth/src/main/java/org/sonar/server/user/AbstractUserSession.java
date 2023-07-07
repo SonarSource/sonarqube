@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.web.UserRole;
@@ -164,7 +163,7 @@ public abstract class AbstractUserSession implements UserSession {
     boolean allowPublicComponent = PUBLIC_PERMISSIONS.contains(permission);
     return components.stream()
       .filter(c -> (allowPublicComponent && !c.isPrivate()) || hasComponentPermission(permission, c))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override

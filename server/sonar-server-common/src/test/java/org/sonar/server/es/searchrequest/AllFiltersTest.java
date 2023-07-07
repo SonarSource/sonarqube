@@ -21,7 +21,6 @@ package org.sonar.server.es.searchrequest;
 
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -97,7 +96,7 @@ public class AllFiltersTest {
     allFilters.addFilter(name, mock(FilterScope.class), query)
       .addFilter(name2, mock(FilterScope.class), null);
 
-    List<QueryBuilder> all = allFilters.stream().collect(Collectors.toList());
+    List<QueryBuilder> all = allFilters.stream().toList();
     assertThat(all).hasSize(1);
     assertThat(all.iterator().next()).isSameAs(query);
   }

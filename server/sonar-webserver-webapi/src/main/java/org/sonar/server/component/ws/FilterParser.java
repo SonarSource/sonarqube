@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
@@ -51,7 +50,7 @@ public class FilterParser {
   public static List<Criterion> parse(String filter) {
     return StreamSupport.stream(CRITERIA_SPLITTER.split(filter).spliterator(), false)
       .map(FilterParser::parseCriterion)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   private static Criterion parseCriterion(String rawCriterion) {

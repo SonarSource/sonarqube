@@ -316,7 +316,7 @@ public class RegisterRules implements Startable {
   }
 
   private void persistRepositories(DbSession dbSession, List<RulesDefinition.Repository> repositories) {
-    List<String> keys = repositories.stream().map(RulesDefinition.Repository::key).collect(Collectors.toList());
+    List<String> keys = repositories.stream().map(RulesDefinition.Repository::key).toList();
     Set<String> existingKeys = dbClient.ruleRepositoryDao().selectAllKeys(dbSession);
 
     Map<Boolean, List<RuleRepositoryDto>> dtos = repositories.stream()
@@ -637,7 +637,7 @@ public class RegisterRules implements Startable {
     // DeprecatedKeys that must be deleted
     List<String> uuidsToBeDeleted = difference(deprecatedRuleKeysFromDB, deprecatedRuleKeysFromDefinition).stream()
       .map(SingleDeprecatedRuleKey::getUuid)
-      .collect(Collectors.toList());
+      .toList();
 
     dbClient.ruleDao().deleteDeprecatedRuleKeys(dbSession, uuidsToBeDeleted);
 
@@ -822,7 +822,7 @@ public class RegisterRules implements Startable {
   private static void verifyRuleKeyConsistency(List<RulesDefinition.Repository> repositories, RegisterRulesContext registerRulesContext) {
     List<RulesDefinition.Rule> definedRules = repositories.stream()
       .flatMap(r -> r.rules().stream())
-      .collect(Collectors.toList());
+      .toList();
 
     Set<RuleKey> definedRuleKeys = definedRules.stream()
       .map(r -> RuleKey.of(r.repository().key(), r.key()))
@@ -830,7 +830,7 @@ public class RegisterRules implements Startable {
 
     List<RuleKey> definedDeprecatedRuleKeys = definedRules.stream()
       .flatMap(r -> r.deprecatedRuleKeys().stream())
-      .collect(Collectors.toList());
+      .toList();
 
     // Find duplicates in declared deprecated rule keys
     Set<RuleKey> duplicates = findDuplicates(definedDeprecatedRuleKeys);

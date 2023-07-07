@@ -1616,7 +1616,7 @@ public class SearchActionIT {
     RuleDto rule = db.rules().insertHotspotRule();
     List<IssueDto> hotspots = IntStream.range(1, 2 + new Random().nextInt(10))
       .mapToObj(value -> db.issues().insertHotspot(rule, project, file))
-      .collect(Collectors.toList());
+      .toList();
     indexPermissions();
     indexIssues();
 

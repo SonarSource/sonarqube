@@ -198,7 +198,7 @@ public class TaskAction implements CeWsAction {
     public static Collection<String> possibleValues() {
       return Arrays.stream(values())
         .map(AdditionalField::getLabel)
-        .collect(Collectors.toList());
+        .toList();
     }
   }
 }

@@ -22,7 +22,6 @@ package org.sonar.ce.queue;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -398,7 +397,7 @@ public class CeQueueImplIT {
       .contains(dto1.getUuid())
       .contains(uuids3)
       .contains(dto5.getUuid())
-      .containsAll(tasks.stream().map(CeTask::getUuid).collect(Collectors.toList()));
+      .containsAll(tasks.stream().map(CeTask::getUuid).toList());
   }
 
   @Test

@@ -62,7 +62,7 @@ public class HealthCheckerImplTest {
 
   @Test
   public void checkNode_returns_GREEN_status_if_only_GREEN_statuses_returned_by_NodeHealthCheck() {
-    List<Health.Status> statuses = IntStream.range(1, 1 + random.nextInt(20)).mapToObj(i -> GREEN).collect(Collectors.toList());
+    List<Health.Status> statuses = IntStream.range(1, 1 + random.nextInt(20)).mapToObj(i -> GREEN).toList();
     HealthCheckerImpl underTest = newNodeHealthCheckerImpl(statuses.stream());
 
     assertThat(underTest.checkNode().getStatus())
@@ -145,7 +145,7 @@ public class HealthCheckerImplTest {
   @Test
   public void checkCluster_returns_GREEN_status_if_only_GREEN_statuses_returned_by_ClusterHealthChecks() {
     when(nodeInformation.isStandalone()).thenReturn(false);
-    List<Health.Status> statuses = IntStream.range(1, 1 + random.nextInt(20)).mapToObj(i -> GREEN).collect(Collectors.toList());
+    List<Health.Status> statuses = IntStream.range(1, 1 + random.nextInt(20)).mapToObj(i -> GREEN).toList();
     HealthCheckerImpl underTest = newClusterHealthCheckerImpl(statuses.stream());
 
     assertThat(underTest.checkCluster().getHealth().getStatus())

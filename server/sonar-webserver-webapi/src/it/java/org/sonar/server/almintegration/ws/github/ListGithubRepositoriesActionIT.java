@@ -112,7 +112,7 @@ public class ListGithubRepositoriesActionIT {
           .setRepositories(Stream.of("HelloWorld", "HelloUniverse")
             .map(name -> new GithubApplicationClient.Repository(name.length(), name, false, "github/" + name,
               "https://github-enterprise.sonarqube.com/api/v3/github/HelloWorld", "main"))
-            .collect(Collectors.toList())));
+            .toList()));
 
     ProjectDto project = db.components().insertPrivateProject(componentDto -> componentDto.setKey("github_HelloWorld")).getProjectDto();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSettings, project, projectAlmSettingDto -> projectAlmSettingDto.setAlmRepo("github/HelloWorld"));

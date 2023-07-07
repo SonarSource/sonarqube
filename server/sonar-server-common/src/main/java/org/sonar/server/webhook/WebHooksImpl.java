@@ -106,7 +106,7 @@ public class WebHooksImpl implements WebHooks {
     List<Webhook> webhooks = readWebHooksFrom(analysis.projectUuid(), taskLogStatistics)
       .map(dto -> new Webhook(dto.getUuid(), analysis.projectUuid(), analysis.ceTaskUuid(), analysis.analysisUuid(),
         dto.getName(), dto.getUrl(), dto.getSecret()))
-      .collect(Collectors.toList());
+      .toList();
     if (webhooks.isEmpty()) {
       return;
     }

@@ -155,7 +155,7 @@ public class PersistIssuesStep implements ComputationStep {
     });
 
     // retrieve those of the updatedIssues which have not been updated and apply conflictResolver on them
-    List<String> updatedIssueKeys = updatedIssues.stream().map(DefaultIssue::key).collect(Collectors.toList());
+    List<String> updatedIssueKeys = updatedIssues.stream().map(DefaultIssue::key).toList();
     List<IssueDto> conflictIssueKeys = mapper.selectByKeysIfNotUpdatedAt(updatedIssueKeys, now);
     if (!conflictIssueKeys.isEmpty()) {
       Map<String, DefaultIssue> issuesByKeys = updatedIssues.stream().collect(uniqueIndex(DefaultIssue::key, updatedIssues.size()));

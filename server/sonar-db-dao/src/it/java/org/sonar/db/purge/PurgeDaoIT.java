@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -1621,7 +1622,7 @@ public class PurgeDaoIT {
   private void verifyNoEffect(ComponentDto firstRoot, ComponentDto... otherRoots) {
     DbSession dbSession = mock(DbSession.class);
 
-    List<ComponentDto> componentDtos = Stream.concat(Stream.of(firstRoot), Arrays.stream(otherRoots)).collect(Collectors.toList());
+    List<ComponentDto> componentDtos = Stream.concat(Stream.of(firstRoot), Arrays.stream(otherRoots)).collect(Collectors.toCollection(ArrayList::new));
     Collections.shuffle(componentDtos); // order of collection must not matter
     underTest.deleteNonRootComponentsInView(dbSession, componentDtos);
 
@@ -1940,7 +1941,7 @@ public class PurgeDaoIT {
         .setTaskUuid(uuid)
         .setKey("key_" + uuid.hashCode() + i)
         .setValue("value_" + uuid.hashCode() + i))
-      .collect(Collectors.toList());
+      .toList();
     dbClient.ceTaskCharacteristicsDao().insert(dbSession, dtos);
     dbSession.commit();
   }

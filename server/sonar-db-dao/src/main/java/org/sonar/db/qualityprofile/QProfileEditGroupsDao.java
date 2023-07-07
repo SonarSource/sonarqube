@@ -51,7 +51,7 @@ public class QProfileEditGroupsDao implements Dao {
   }
 
   public boolean exists(DbSession dbSession, QProfileDto profile, Collection<GroupDto> groups) {
-    return !executeLargeInputs(groups.stream().map(GroupDto::getUuid).collect(Collectors.toList()), partition -> mapper(dbSession).selectByQProfileAndGroups(profile.getKee(), partition))
+    return !executeLargeInputs(groups.stream().map(GroupDto::getUuid).toList(), partition -> mapper(dbSession).selectByQProfileAndGroups(profile.getKee(), partition))
       .isEmpty();
   }
 
@@ -64,7 +64,7 @@ public class QProfileEditGroupsDao implements Dao {
   }
 
   public List<String> selectQProfileUuidsByGroups(DbSession dbSession, Collection<GroupDto> groups) {
-    return DatabaseUtils.executeLargeInputs(groups.stream().map(GroupDto::getUuid).collect(Collectors.toList()),
+    return DatabaseUtils.executeLargeInputs(groups.stream().map(GroupDto::getUuid).toList(),
       g -> mapper(dbSession).selectQProfileUuidsByGroups(g));
   }
 
@@ -88,7 +88,7 @@ public class QProfileEditGroupsDao implements Dao {
         int deletedRows = mapper(dbSession).deleteByQProfiles(partitionedProfiles
           .stream()
           .map(QProfileDto::getKee)
-          .collect(Collectors.toList()));
+          .toList());
 
         if (deletedRows > 0) {
           partitionedProfiles.forEach(p -> auditPersister.deleteQualityProfileEditor(dbSession, new GroupEditorNewValue(p)));
