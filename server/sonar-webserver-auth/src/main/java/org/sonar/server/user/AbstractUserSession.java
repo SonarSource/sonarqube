@@ -212,7 +212,7 @@ public abstract class AbstractUserSession implements UserSession {
 
   @Override
   public UserSession checkProjectPermission(String projectPermission, ProjectDto project) {
-    if (hasProjectUuidPermission(projectPermission, project.getUuid())) {
+    if (isRoot() || hasProjectUuidPermission(projectPermission, project.getUuid())) {
       return this;
     }
 
