@@ -28,7 +28,10 @@ import SetAssigneePopup from '../popups/SetAssigneePopup';
 
 interface Props {
   isOpen: boolean;
-  issue: Issue;
+  issue: Pick<
+      T.Issue,
+      'assignee' | 'assigneeActive' | 'assigneeAvatar' | 'assigneeName' | 'projectOrganization'
+    >;
   canAssign: boolean;
   onAssign: (login: string) => void;
   togglePopup: (popup: string, show?: boolean) => void;
@@ -78,7 +81,7 @@ export default class IssueAssign extends React.PureComponent<Props> {
             closeOnEscape={true}
             onRequestClose={this.handleClose}
             open={isOpen}
-            overlay={<SetAssigneePopup onSelect={this.props.onAssign} />}
+            overlay={<SetAssigneePopup issue={this.props.issue} onSelect={this.props.onAssign} />}
           >
             <ButtonLink
               aria-expanded={isOpen}

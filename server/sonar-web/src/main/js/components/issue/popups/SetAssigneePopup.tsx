@@ -28,10 +28,12 @@ import { CurrentUser, isLoggedIn, isUserActive, UserActive, UserBase } from '../
 import SelectList from '../../common/SelectList';
 import SelectListItem from '../../common/SelectListItem';
 import Avatar from '../../ui/Avatar';
+import { searchMembers } from '../../../api/organizations';
 
 interface Props {
   currentUser: CurrentUser;
   onSelect: (login: string) => void;
+  issue: Issue;
 }
 
 interface State {
@@ -60,6 +62,14 @@ export class SetAssigneePopup extends React.PureComponent<Props, State> {
     };
   }
 
+  searchMembers = (query: string) => {
+      searchMembers({
+        organization: this.props.issue.projectOrganization,
+        q: query,
+        ps: LIST_SIZE
+      }).then(this.handleSearchResult, () => {});
+    };
+
   searchUsers = (query: string) => {
     searchUsers({ q: query, ps: LIST_SIZE }).then(this.handleSearchResult, () => {});
   };
@@ -81,7 +91,7 @@ export class SetAssigneePopup extends React.PureComponent<Props, State> {
       });
     } else {
       this.setState({ query });
-      this.searchUsers(query);
+      this.searchMembers(query);
     }
   };
 
