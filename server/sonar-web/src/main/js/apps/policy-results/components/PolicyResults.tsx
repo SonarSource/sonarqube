@@ -394,7 +394,7 @@ class PolicyResults extends React.PureComponent<Props, State> {
                     </div>
                 </div>
         {!loadingProjects && projects?.length >0 ? (<>
-          {!loading && !loadingProjects && component?.analysisDate ?  (
+          {!loading && component?.analysisDate ?  (
             <div style={style}> 
           <BranchOverview
             branch={branchLike}

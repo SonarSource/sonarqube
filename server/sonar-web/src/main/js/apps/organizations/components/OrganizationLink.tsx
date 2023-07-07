@@ -28,6 +28,8 @@ interface Props {
 }
 
 function handleClick(){
+}
+
 export default function OrganizationLink(props: Props) {
   const { children, organization, ...other } = props;
 
