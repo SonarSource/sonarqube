@@ -87,7 +87,7 @@ export default function ComponentNav(props: ComponentNavProps) {
   return (
     <>
       <TopBar id="context-navigation" aria-label={translate('qualifier', component.qualifier)}>
-        <div className="sw-flex sw-justify-between">
+        <div className="sw-min-h-10 sw-flex sw-justify-between">
           <Header
             branchLikes={branchLikes}
             component={component}

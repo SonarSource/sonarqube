@@ -86,6 +86,7 @@ export const StyledFlag = styled.div<{
   ${tw`sw-inline-flex`}
   ${tw`sw-min-h-10`}
   ${tw`sw-rounded-1`}
+  ${tw`sw-box-border`}
   border: ${({ borderColor }) => themeBorder('default', borderColor)};
   background-color: ${themeColor('flagMessageBackground')};
 
