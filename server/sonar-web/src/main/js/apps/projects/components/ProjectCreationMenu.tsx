@@ -20,18 +20,13 @@
 import * as React from 'react';
 import { getAlmSettings } from '../../../api/alm-settings';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import Link from '../../../components/common/Link';
 import { Button } from '../../../components/controls/buttons';
-import Dropdown from '../../../components/controls/Dropdown';
-import DropdownIcon from '../../../components/icons/DropdownIcon';
-import EllipsisIcon from '../../../components/icons/EllipsisIcon';
 import { IMPORT_COMPATIBLE_ALMS } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Permissions } from '../../../types/permissions';
 import { LoggedInUser } from '../../../types/users';
-import ProjectCreationMenuItem from './ProjectCreationMenuItem';
 
 interface Props {
   className?: string;
@@ -40,6 +35,7 @@ interface Props {
 
 interface State {
   boundAlms: Array<string>;
+  showProjectsLink: boolean;
 }
 
 const almSettingsValidators = {
@@ -52,10 +48,16 @@ const almSettingsValidators = {
 
 export class ProjectCreationMenu extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { boundAlms: [] };
+  state: State = { boundAlms: [],
+                  showProjectsLink: true };
 
   componentDidMount() {
     this.mounted = true;
+    const href = window.location.href;
+    let boolValue = false;
+    boolValue = href.indexOf("organizations")>0;
+    this.setState({showProjectsLink:boolValue})
+
   }
 
   componentWillUnmount() {
@@ -93,10 +95,20 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
     }
   };
 
-  render() {
-    const { className, currentUser } = this.props;
-    const { boundAlms } = this.state;
+  handleProjectCreate(){
+    let url = window.location.href;
+    let newUrl = "";
+    if(url.endsWith("/projects")){
+      newUrl = url.replace("projects", "extension/developer/projects");
+    }
+    window.location.href = newUrl;
+  }
 
+  render() {
+    const { currentUser } = this.props;
+    const { showProjectsLink } = this.state;
+
+    console.log(currentUser);
     const canCreateProject = hasGlobalPermission(currentUser, Permissions.ProjectCreation);
 
     if (!canCreateProject) {
@@ -104,32 +116,11 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
     }
 
     return (
-      <Dropdown
-        className={className}
-        onOpen={this.fetchAlmBindings}
-        overlay={
-          <ul className="menu">
-            {[...boundAlms, 'manual'].map((alm) => (
-              <li className="little-spacer-bottom" key={alm}>
-                <ProjectCreationMenuItem alm={alm} />
-              </li>
-            ))}
-            {boundAlms.length < IMPORT_COMPATIBLE_ALMS.length && (
-              <li className="bordered-top little-padded-top">
-                <Link className="display-flex-center" to={{ pathname: '/projects/create' }}>
-                  <EllipsisIcon className="spacer-right" size={16} />
-                  {translate('more')}
-                </Link>
-              </li>
-            )}
-          </ul>
-        }
-      >
-        <Button className="button-primary">
+      showProjectsLink ? (
+        <Button className="button-primary" onClick={this.handleProjectCreate}>
           {translate('projects.add')}
-          <DropdownIcon className="spacer-left " />
-        </Button>
-      </Dropdown>
+        </Button>):
+        (<></>)
     );
   }
 }
