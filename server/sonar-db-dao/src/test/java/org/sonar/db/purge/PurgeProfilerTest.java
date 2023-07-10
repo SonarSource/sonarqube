@@ -19,25 +19,22 @@
  */
 package org.sonar.db.purge;
 
+import java.util.List;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
 
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PurgeProfilerTest {
 
   private MockedClock clock;
   private PurgeProfiler profiler;
-  private Logger logger;
 
   @Before
   public void prepare() {
     clock = new MockedClock();
     profiler = new PurgeProfiler(clock);
-    logger = mock(Logger.class);
   }
 
   @Test
@@ -54,9 +51,10 @@ public class PurgeProfilerTest {
     clock.sleep(8);
     profiler.stop();
 
-    profiler.dump(50, logger);
-    verify(logger).info(contains("foo: 18ms"));
-    verify(logger).info(contains("bar: 5ms"));
+    List<String> profilingResult = profiler.getProfilingResult(50);
+    Assertions.assertThat(profilingResult).hasSize(2);
+    assertThat(profilingResult.get(0)).contains("foo: 18ms");
+    assertThat(profilingResult.get(1)).contains("bar: 5ms");
   }
 
   @Test
@@ -75,9 +73,10 @@ public class PurgeProfilerTest {
     clock.sleep(8);
     profiler.stop();
 
-    profiler.dump(50, logger);
-    verify(logger).info(contains("foo: 8ms"));
-    verify(logger).info(contains("bar: 5ms"));
+    List<String> profilingResult = profiler.getProfilingResult(50);
+    Assertions.assertThat(profilingResult).hasSize(2);
+    assertThat(profilingResult.get(0)).contains("foo: 8ms");
+    assertThat(profilingResult.get(1)).contains("bar: 5ms");
   }
 
   private static class MockedClock extends PurgeProfiler.Clock {

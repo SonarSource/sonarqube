@@ -27,11 +27,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -225,7 +225,7 @@ public class PurgeDao implements Dao {
     long start = System2.INSTANCE.now();
 
     List<String> branchUuids = session.getMapper(BranchMapper.class).selectByProjectUuid(uuid).stream()
-      //Main branch is deleted last
+      // Main branch is deleted last
       .sorted(Comparator.comparing(BranchDto::isMain))
       .map(BranchDto::getUuid)
       .toList();
@@ -238,14 +238,19 @@ public class PurgeDao implements Dao {
   }
 
   private static void logProfiling(PurgeProfiler profiler, long start) {
+    if (!LOG.isDebugEnabled()) {
+      return;
+    }
     long duration = System.currentTimeMillis() - start;
-    LOG.info("");
-    LOG.info(" -------- Profiling for project deletion: " + TimeUtils.formatDuration(duration) + " --------");
-    LOG.info("");
-    profiler.dump(duration, LOG);
-    LOG.info("");
-    LOG.info(" -------- End of profiling for project deletion--------");
-    LOG.info("");
+    LOG.debug("");
+    LOG.atDebug().setMessage(" -------- Profiling for project deletion: {} --------").addArgument(() -> TimeUtils.formatDuration(duration)).log();
+    LOG.debug("");
+    for (String line : profiler.getProfilingResult(duration)) {
+      LOG.debug(line);
+    }
+    LOG.debug("");
+    LOG.debug(" -------- End of profiling for project deletion--------");
+    LOG.debug("");
   }
 
   private static void deleteRootComponent(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {

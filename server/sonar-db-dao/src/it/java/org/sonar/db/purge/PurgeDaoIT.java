@@ -41,9 +41,13 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.testfixtures.log.LogAndArguments;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
@@ -120,7 +124,8 @@ public class PurgeDaoIT {
 
   @Rule
   public DbTester db = DbTester.create(system2);
-
+  @Rule
+  public LogTester logTester = new LogTester();
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private final PurgeDao underTest = db.getDbClient().purgeDao();
@@ -364,6 +369,32 @@ public class PurgeDaoIT {
     underTest.deleteAnalyses(dbSession, new PurgeProfiler(), asList(analysis1.getUuid(), analysis3.getUuid(), otherAnalysis1.getUuid()));
 
     assertThat(uuidsIn("snapshots")).containsOnly(analysis2.getUuid());
+  }
+
+  @Test
+  public void purge_should_log_profiling_in_debug() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+
+    logTester.setLevel(Level.DEBUG);
+    underTest.deleteProject(db.getSession(), project.uuid(), Qualifiers.PROJECT, project.name(), project.getKey());
+
+    assertThat(logTester.getLogs(LoggerLevel.DEBUG).stream()
+      .map(LogAndArguments::getFormattedMsg)
+      .collect(Collectors.joining()))
+      .contains("Profiling for project deletion");
+  }
+
+  @Test
+  public void purge_should_not_log_profiling_in_info() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+
+    logTester.setLevel(Level.INFO);
+    underTest.deleteProject(db.getSession(), project.uuid(), Qualifiers.PROJECT, project.name(), project.getKey());
+
+    assertThat(logTester.getLogs(LoggerLevel.DEBUG).stream()
+      .map(LogAndArguments::getFormattedMsg)
+      .collect(Collectors.joining()))
+      .doesNotContain("Profiling for project deletion");
   }
 
   @Test

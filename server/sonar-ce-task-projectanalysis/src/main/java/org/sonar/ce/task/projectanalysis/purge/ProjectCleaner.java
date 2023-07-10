@@ -20,13 +20,13 @@
 package org.sonar.ce.task.projectanalysis.purge;
 
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.TimeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.PurgeConfiguration;
 import org.sonar.db.purge.PurgeDao;
@@ -71,9 +71,11 @@ public class ProjectCleaner {
     if (config.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY).orElse(false)) {
       long duration = System.currentTimeMillis() - start;
       LOG.info("");
-      LOG.info(" -------- Profiling for purge: " + TimeUtils.formatDuration(duration) + " --------");
+      LOG.atInfo().setMessage(" -------- Profiling for purge: {} --------").addArgument(() -> TimeUtils.formatDuration(duration)).log();
       LOG.info("");
-      profiler.dump(duration, LOG);
+      for (String line : profiler.getProfilingResult(duration)) {
+        LOG.info(line);
+      }
       LOG.info("");
       LOG.info(" -------- End of profiling for purge --------");
       LOG.info("");
