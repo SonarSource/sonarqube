@@ -107,8 +107,6 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
   render() {
     const { currentUser } = this.props;
     const { showProjectsLink } = this.state;
-
-    console.log(currentUser);
     const canCreateProject = hasGlobalPermission(currentUser, Permissions.ProjectCreation);
 
     if (!canCreateProject) {
