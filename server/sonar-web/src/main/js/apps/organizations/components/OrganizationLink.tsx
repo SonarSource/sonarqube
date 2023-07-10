@@ -28,10 +28,7 @@ interface Props {
 }
 
 function handleClick(){
-  setTimeout(()=>{
-    window.location.reload();
-  },1000);
-  }
+}
 
 export default function OrganizationLink(props: Props) {
   const { children, organization, ...other } = props;
