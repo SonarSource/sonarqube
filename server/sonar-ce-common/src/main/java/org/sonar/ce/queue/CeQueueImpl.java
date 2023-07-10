@@ -57,7 +57,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
 import static org.sonar.ce.queue.CeQueue.SubmitOption.UNIQUE_QUEUE_PER_ENTITY;
-import static org.sonar.core.util.stream.MoreCollectors.toEnumSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
@@ -92,7 +91,7 @@ public class CeQueueImpl implements CeQueue {
     return submit(submission, toSet(options));
   }
 
-  private Optional<CeTask> submit(CeTaskSubmit submission, EnumSet<SubmitOption> submitOptions) {
+  private Optional<CeTask> submit(CeTaskSubmit submission, Set<SubmitOption> submitOptions) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<CeTask> ceTask = submit(dbSession, submission, submitOptions);
       dbSession.commit();
@@ -100,7 +99,7 @@ public class CeQueueImpl implements CeQueue {
     }
   }
 
-  private Optional<CeTask> submit(DbSession dbSession, CeTaskSubmit submission, EnumSet<SubmitOption> submitOptions) {
+  private Optional<CeTask> submit(DbSession dbSession, CeTaskSubmit submission, Set<SubmitOption> submitOptions) {
     CeTaskQuery query = new CeTaskQuery();
     for (SubmitOption option : submitOptions) {
       switch (option) {
@@ -156,7 +155,7 @@ public class CeQueueImpl implements CeQueue {
   }
 
   private Predicate<CeTaskSubmit> filterBySubmitOptions(SubmitOption[] options, Collection<CeTaskSubmit> submissions, DbSession dbSession) {
-    EnumSet<SubmitOption> submitOptions = toSet(options);
+    Set<SubmitOption> submitOptions = toSet(options);
 
     if (submitOptions.contains(UNIQUE_QUEUE_PER_ENTITY)) {
       Set<String> mainComponentUuids = submissions.stream()
@@ -189,8 +188,8 @@ public class CeQueueImpl implements CeQueue {
     }
   }
 
-  private static EnumSet<SubmitOption> toSet(SubmitOption[] options) {
-    return Arrays.stream(options).collect(toEnumSet(SubmitOption.class));
+  private static Set<SubmitOption> toSet(SubmitOption[] options) {
+    return Arrays.stream(options).collect(Collectors.toSet());
   }
 
   private void insertCharacteristics(DbSession dbSession, CeTaskSubmit submission) {

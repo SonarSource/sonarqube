@@ -22,7 +22,6 @@ package org.sonar.core.util.stream;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSetMultimap;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -30,7 +29,6 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
@@ -45,13 +43,6 @@ public final class MoreCollectors {
     // prevents instantiation
   }
 
-
-  /**
-   * A Collector into an {@link EnumSet} of specified enumeration.
-   */
-  public static <E extends Enum<E>> Collector<E, ?, EnumSet<E>> toEnumSet(Class<E> enumClass) {
-    return Collectors.toCollection(() -> EnumSet.noneOf(enumClass));
-  }
 
   /**
    * Creates an {@link ImmutableMap} from the stream where the values are the values in the stream and the keys are the

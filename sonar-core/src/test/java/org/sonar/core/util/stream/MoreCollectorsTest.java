@@ -23,7 +23,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.SetMultimap;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -60,20 +59,6 @@ public class MoreCollectorsTest {
   private static final List<MyObj2> LIST2_WITH_DUPLICATE_ID = Arrays.asList(MY_OBJ2_1_A_X, MY_OBJ2_2_B, MY_OBJ2_1_C);
   private static final List<MyObj> LIST = Arrays.asList(MY_OBJ_1_A, MY_OBJ_2_B, MY_OBJ_3_C);
   private static final List<MyObj2> LIST2 = Arrays.asList(MY_OBJ2_1_A_X, MY_OBJ2_2_B, MY_OBJ2_3_C);
-
-  @Test
-  public void toEnumSet() {
-    Set<MyEnum> res = Stream.of(MyEnum.ONE, MyEnum.ONE, MyEnum.TWO).collect(MoreCollectors.toEnumSet(MyEnum.class));
-    assertThat(res).isInstanceOf(EnumSet.class)
-      .containsExactly(MyEnum.ONE, MyEnum.TWO);
-  }
-
-  @Test
-  public void toEnumSet_with_empty_stream() {
-    Set<MyEnum> res = Stream.<MyEnum>empty().collect(MoreCollectors.toEnumSet(MyEnum.class));
-    assertThat(res).isInstanceOf(EnumSet.class)
-      .isEmpty();
-  }
 
   @Test
   public void uniqueIndex_empty_stream_returns_empty_map() {
