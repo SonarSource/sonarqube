@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
@@ -43,7 +44,6 @@ import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.server.issue.IssueStorage;
 
 import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class PersistIssuesStep implements ComputationStep {
   // holding up to 1000 DefaultIssue (max size of addedIssues and updatedIssues at any given time) in memory should not
@@ -158,7 +158,7 @@ public class PersistIssuesStep implements ComputationStep {
     List<String> updatedIssueKeys = updatedIssues.stream().map(DefaultIssue::key).toList();
     List<IssueDto> conflictIssueKeys = mapper.selectByKeysIfNotUpdatedAt(updatedIssueKeys, now);
     if (!conflictIssueKeys.isEmpty()) {
-      Map<String, DefaultIssue> issuesByKeys = updatedIssues.stream().collect(uniqueIndex(DefaultIssue::key, updatedIssues.size()));
+      Map<String, DefaultIssue> issuesByKeys = updatedIssues.stream().collect(Collectors.toMap(DefaultIssue::key, Function.identity()));
       conflictIssueKeys
         .forEach(dbIssue -> {
           DefaultIssue updatedIssue = issuesByKeys.get(dbIssue.getKey());

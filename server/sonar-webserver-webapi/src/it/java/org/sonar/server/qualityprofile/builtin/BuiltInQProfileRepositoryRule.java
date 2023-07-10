@@ -25,11 +25,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.resources.Language;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -90,7 +91,7 @@ public class BuiltInQProfileRepositoryRule extends ExternalResource implements B
       .setName(api.name())
       .setDeclaredDefault(api.isDefault());
     Map<RuleKey, RuleDto> rulesByRuleKey = Arrays.stream(rules)
-      .collect(MoreCollectors.uniqueIndex(RuleDto::getKey));
+      .collect(Collectors.toMap(RuleDto::getKey, Function.identity()));
     api.rules().forEach(rule -> {
       RuleKey ruleKey = RuleKey.of(rule.repoKey(), rule.ruleKey());
       RuleDto ruleDto = rulesByRuleKey.get(ruleKey);

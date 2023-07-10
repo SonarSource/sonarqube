@@ -34,7 +34,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
@@ -163,7 +162,7 @@ public class ListAction implements NotificationsWsAction {
     return dbClient.entityDao().selectByUuids(dbSession, entityUuids)
       .stream()
       .filter(c -> authorizedProjectUuids.contains(c.getUuid()))
-      .collect(MoreCollectors.uniqueIndex(EntityDto::getUuid));
+      .collect(Collectors.toMap(EntityDto::getUuid, Function.identity()));
   }
 
   private static Function<PropertyDto, Notification> toWsNotification(Notification.Builder notification, Map<String, EntityDto> projectsByUuid) {

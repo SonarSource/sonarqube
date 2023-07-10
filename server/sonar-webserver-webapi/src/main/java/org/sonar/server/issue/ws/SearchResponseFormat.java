@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -73,7 +74,6 @@ import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.rule.RuleKey.EXTERNAL_RULE_REPO_PREFIX;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
 import static org.sonar.server.issue.ws.SearchAdditionalField.ACTIONS;
@@ -439,7 +439,7 @@ public class SearchResponseFormat {
       return;
     }
 
-    Map<String, RuleKey> ruleUuidsByRuleKeys = data.getRules().stream().collect(uniqueIndex(RuleDto::getUuid, RuleDto::getKey));
+    Map<String, RuleKey> ruleUuidsByRuleKeys = data.getRules().stream().collect(Collectors.toMap(RuleDto::getUuid, RuleDto::getKey));
     Common.Facet.Builder wsFacet = wsFacets.addFacetsBuilder();
     wsFacet.setProperty(PARAM_RULES);
     facet.forEach((ruleUuid, count) -> wsFacet.addValuesBuilder()

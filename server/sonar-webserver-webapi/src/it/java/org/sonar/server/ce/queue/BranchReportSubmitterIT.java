@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ce.queue;
 
-import com.google.common.collect.ImmutableMap;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import java.awt.event.ComponentEvent;
 import java.io.InputStream;
@@ -27,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -73,7 +73,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
@@ -291,10 +290,10 @@ public class BranchReportSubmitterIT {
     return componentKey;
   }
 
-  private static ImmutableMap<String, String> randomNonEmptyMap() {
+  private static Map<String, String> randomNonEmptyMap() {
     return IntStream.range(0, 1 + new Random().nextInt(5))
       .boxed()
-      .collect(uniqueIndex(i -> "key_" + i, i -> "val_" + i));
+      .collect(Collectors.toMap(i -> "key_" + i, i1 -> "val_" + i1));
   }
 
 }

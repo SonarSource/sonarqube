@@ -59,7 +59,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
@@ -105,7 +104,6 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.EsUtils.termsToMap;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
@@ -204,7 +202,7 @@ public class ProjectMeasuresIndex {
   }
 
   private static final Map<String, Facet> FACETS_BY_NAME = Arrays.stream(Facet.values())
-    .collect(uniqueIndex(Facet::getName));
+    .collect(Collectors.toMap(Facet::getName, Function.identity()));
 
   private final EsClient client;
   private final WebAuthorizationTypeSupport authorizationTypeSupport;
@@ -289,7 +287,7 @@ public class ProjectMeasuresIndex {
     Map<String, Long> nclocByLanguage = Stream.of((Nested) response.getAggregations().get(FIELD_NCLOC_DISTRIBUTION))
       .map(nested -> (Terms) nested.getAggregations().get(nested.getName() + "_terms"))
       .flatMap(terms -> terms.getBuckets().stream())
-      .collect(MoreCollectors.uniqueIndex(Bucket::getKeyAsString, bucketToNcloc));
+      .collect(Collectors.toMap(Bucket::getKeyAsString, bucketToNcloc));
     statistics.setNclocByLanguage(nclocByLanguage);
 
     return statistics.build();

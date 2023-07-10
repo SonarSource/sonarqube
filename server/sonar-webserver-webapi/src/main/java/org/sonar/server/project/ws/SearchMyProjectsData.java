@@ -35,7 +35,6 @@ import org.sonar.db.project.ProjectDto;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 class SearchMyProjectsData {
 
@@ -50,7 +49,7 @@ class SearchMyProjectsData {
     this.projects = copyOf(builder.projects);
     this.branchUuidByProjectUuids = buildBranchUuidByProjectUuidMap(builder.branches);
     this.projectLinksByProjectUuid = buildProjectLinks(builder.projectLinks);
-    this.snapshotsByComponentUuid =builder.snapshots.stream().collect(uniqueIndex(SnapshotDto::getRootComponentUuid, identity()));
+    this.snapshotsByComponentUuid =builder.snapshots.stream().collect(Collectors.toMap(SnapshotDto::getRootComponentUuid, identity()));
     this.qualityGateStatuses = buildQualityGateStatuses(builder.qualityGates);
     this.totalNbOfProject = builder.totalNbOfProjects;
   }

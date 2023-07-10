@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -41,7 +42,6 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion.V3_2;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.security.SecurityStandards.VulnerabilityProbability.HIGH;
 import static org.sonar.server.security.SecurityStandards.VulnerabilityProbability.LOW;
 import static org.sonar.server.security.SecurityStandards.VulnerabilityProbability.MEDIUM;
@@ -192,7 +192,7 @@ public final class SecurityStandards {
     PERMISSION("permission", MEDIUM),
     OTHERS("others", LOW);
 
-    private static final Map<String, SQCategory> SQ_CATEGORY_BY_KEY = stream(values()).collect(uniqueIndex(SQCategory::getKey));
+    private static final Map<String, SQCategory> SQ_CATEGORY_BY_KEY = stream(values()).collect(Collectors.toMap(SQCategory::getKey, Function.identity()));
     private final String key;
     private final VulnerabilityProbability vulnerability;
 

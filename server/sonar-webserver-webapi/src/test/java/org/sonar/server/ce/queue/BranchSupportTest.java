@@ -24,6 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +39,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 @RunWith(DataProviderRunner.class)
 public class BranchSupportTest {
@@ -109,6 +109,6 @@ public class BranchSupportTest {
   }
 
   private static Map<String, String> newRandomNonEmptyMap() {
-    return IntStream.range(0, 1 + new Random().nextInt(10)).boxed().collect(uniqueIndex(i -> "key_" + i, i -> "val_" + i));
+    return IntStream.range(0, 1 + new Random().nextInt(10)).boxed().collect(Collectors.toMap(i -> "key_" + i, i1 -> "val_" + i1));
   }
 }

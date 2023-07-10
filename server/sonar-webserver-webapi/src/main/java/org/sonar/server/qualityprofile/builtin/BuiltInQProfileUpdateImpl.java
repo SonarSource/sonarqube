@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -90,7 +89,7 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
 
   private static RuleActivation convert(BuiltInQProfile.ActiveRule ar) {
     Map<String, String> params = ar.getParams().stream()
-      .collect(MoreCollectors.uniqueIndex(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue));
+      .collect(Collectors.toMap(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue));
     return RuleActivation.create(ar.getRuleUuid(), ar.getSeverity(), params);
   }
 

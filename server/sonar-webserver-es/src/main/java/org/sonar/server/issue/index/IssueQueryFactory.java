@@ -72,7 +72,6 @@ import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
@@ -394,7 +393,7 @@ public class IssueQueryFactory {
     Map<String, PeriodStart> leakByProjects = snapshots
       .stream()
       .filter(s -> s.getPeriodDate() != null && !isLastAnalysisFromReAnalyzedReferenceBranch(dbSession, s))
-      .collect(uniqueIndex(SnapshotDto::getRootComponentUuid, s -> new PeriodStart(longToDate(s.getPeriodDate()), false)));
+      .collect(Collectors.toMap(SnapshotDto::getRootComponentUuid, s1 -> new PeriodStart(longToDate(s1.getPeriodDate()), false)));
 
     builder.createdAfterByProjectUuids(leakByProjects);
     builder.newCodeOnReferenceByProjectUuids(newCodeReferenceByProjects);

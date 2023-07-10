@@ -22,6 +22,7 @@ package org.sonar.server.ce.queue;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -66,7 +67,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
@@ -114,7 +114,7 @@ public class ReportSubmitterIT {
       .thenReturn(true);
     Map<String, String> nonEmptyCharacteristics = IntStream.range(0, 1 + new Random().nextInt(5))
       .boxed()
-      .collect(uniqueIndex(i -> randomAlphabetic(i + 10), i -> randomAlphabetic(i + 20)));
+      .collect(Collectors.toMap(i -> randomAlphabetic(i + 10), i1 -> randomAlphabetic(i1 + 20)));
     InputStream reportInput = IOUtils.toInputStream("{binary}", UTF_8);
 
     assertThatThrownBy(() -> underTest.submit(PROJECT_KEY, PROJECT_NAME, nonEmptyCharacteristics, reportInput))

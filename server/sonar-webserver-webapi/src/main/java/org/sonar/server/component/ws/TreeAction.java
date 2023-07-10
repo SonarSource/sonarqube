@@ -42,7 +42,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.i18n.I18n;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -66,8 +65,8 @@ import static org.sonar.server.component.ws.ComponentDtoToWsComponent.projectOrA
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
@@ -211,7 +210,7 @@ public class TreeAction implements ComponentsWsAction {
     }
 
     return dbClient.componentDao().selectByUuids(dbSession, referenceComponentIds).stream()
-      .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
+      .collect(Collectors.toMap(ComponentDto::uuid, java.util.function.Function.identity()));
   }
 
   private void checkPermissions(ComponentDto baseComponent) {

@@ -55,7 +55,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_COMMENT;
 import static org.sonar.db.issue.IssueChangeDto.TYPE_FIELD_CHANGE;
 import static org.sonar.server.issue.IssueFieldsSetter.FILE;
@@ -134,12 +133,10 @@ public class IssueChangeWSSupport {
     Multimap<String, IssueChangeDto> unordered = changes.stream()
       .collect(MoreCollectors.index(IssueChangeDto::getIssueKey, t -> t));
     return unordered.asMap().entrySet().stream()
-      .collect(uniqueIndex(
-        Map.Entry::getKey,
-        t -> t.getValue().stream()
-          .map(transform)
-          .sorted(sortingComparator)
-          .toList()));
+      .collect(Collectors.toMap(Map.Entry::getKey, t -> t.getValue().stream()
+        .map(transform)
+        .sorted(sortingComparator)
+        .toList()));
   }
 
   private Map<String, UserDto> loadUsers(DbSession dbSession, Map<String, List<FieldDiffs>> changesByRuleKey,
@@ -165,14 +162,14 @@ public class IssueChangeWSSupport {
     if (missingUsersUuids.isEmpty()) {
       return preloadedUsers.stream()
         .filter(t -> userUuids.contains(t.getUuid()))
-        .collect(uniqueIndex(UserDto::getUuid, userUuids.size()));
+        .collect(Collectors.toMap(UserDto::getUuid, Function.identity()));
     }
 
     return Stream.concat(
         preloadedUsers.stream(),
         dbClient.userDao().selectByUuids(dbSession, missingUsersUuids).stream())
       .filter(t -> userUuids.contains(t.getUuid()))
-      .collect(uniqueIndex(UserDto::getUuid, userUuids.size()));
+      .collect(Collectors.toMap(UserDto::getUuid, Function.identity()));
   }
 
   private Map<String, ComponentDto> loadFiles(DbSession dbSession, Map<String, List<FieldDiffs>> changesByRuleKey, Set<ComponentDto> preloadedComponents) {
@@ -197,14 +194,14 @@ public class IssueChangeWSSupport {
     if (missingFileUuids.isEmpty()) {
       return preloadedComponents.stream()
         .filter(t -> fileUuids.contains(t.uuid()))
-        .collect(uniqueIndex(ComponentDto::uuid, fileUuids.size()));
+        .collect(Collectors.toMap(ComponentDto::uuid, Function.identity()));
     }
 
     return Stream.concat(
         preloadedComponents.stream(),
         dbClient.componentDao().selectByUuids(dbSession, missingFileUuids).stream())
       .filter(t -> fileUuids.contains(t.uuid()))
-      .collect(uniqueIndex(ComponentDto::uuid, fileUuids.size()));
+      .collect(Collectors.toMap(ComponentDto::uuid, Function.identity()));
   }
 
   private Map<String, Boolean> loadUpdatableFlag(Map<String, List<IssueChangeDto>> commentsByIssueKey) {
@@ -218,7 +215,7 @@ public class IssueChangeWSSupport {
 
     return commentsByIssueKey.values().stream()
       .flatMap(Collection::stream)
-      .collect(uniqueIndex(IssueChangeDto::getKey, t -> userUuid.equals(t.getUserUuid())));
+      .collect(Collectors.toMap(IssueChangeDto::getKey, t -> userUuid.equals(t.getUserUuid())));
   }
 
   public Stream<Common.Changelog> formatChangelog(IssueDto dto, FormattingContext formattingContext) {

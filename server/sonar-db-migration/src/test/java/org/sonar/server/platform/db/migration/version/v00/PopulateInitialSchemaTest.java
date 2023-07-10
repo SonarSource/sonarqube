@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Before;
@@ -34,7 +35,6 @@ import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -158,7 +158,7 @@ public class PopulateInitialSchemaTest {
       " from internal_properties");
     assertThat(rows).hasSize(2);
 
-    Map<String, Map<String, Object>> rowsByKey = rows.stream().collect(MoreCollectors.uniqueIndex(t -> (String) t.get("KEE")));
+    Map<String, Map<String, Object>> rowsByKey = rows.stream().collect(Collectors.toMap(t -> (String) t.get("KEE"), Function.identity()));
     verifyInternalProperty(rowsByKey, "installation.date", String.valueOf(system2.now()));
     verifyInternalProperty(rowsByKey, "installation.version", version.toString());
   }
@@ -181,7 +181,7 @@ public class PopulateInitialSchemaTest {
       " from properties");
     assertThat(rows).hasSize(3);
 
-    Map<String, Map<String, Object>> rowsByKey = rows.stream().collect(MoreCollectors.uniqueIndex(t -> (String) t.get("PROP_KEY")));
+    Map<String, Map<String, Object>> rowsByKey = rows.stream().collect(Collectors.toMap(t -> (String) t.get("PROP_KEY"), Function.identity()));
     verifyProperty(rowsByKey, "sonar.forceAuthentication", "true");
     verifyProperty(rowsByKey, "projects.default.visibility", "public");
     verifyProperty(rowsByKey, "qualitygate.default", qualityGateUuid);

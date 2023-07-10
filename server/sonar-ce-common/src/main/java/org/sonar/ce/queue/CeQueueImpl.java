@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
@@ -57,7 +58,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
 import static org.sonar.ce.queue.CeQueue.SubmitOption.UNIQUE_QUEUE_PER_ENTITY;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 
@@ -228,7 +228,7 @@ public class CeQueueImpl implements CeQueue {
     // these components correspond to a branch or a portfolio (analysis target)
     Map<String, ComponentDto> componentsByUuid = dbClient.componentDao()
       .selectByUuids(dbSession, componentUuids).stream()
-      .collect(uniqueIndex(ComponentDto::uuid));
+      .collect(Collectors.toMap(ComponentDto::uuid, Function.identity()));
     Set<String> entityUuids = dtos.stream().map(CeQueueDto::getEntityUuid).filter(Objects::nonNull).collect(Collectors.toSet());
     Map<String, EntityDto> entitiesByUuid = dbClient.entityDao().selectByUuids(dbSession, entityUuids).stream()
       .collect(Collectors.toMap(EntityDto::getUuid, e -> e));
@@ -249,7 +249,7 @@ public class CeQueueImpl implements CeQueue {
         .map(entitiesByUuid::get)
         .orElse(null);
       Map<String, String> characteristics = characteristicsByTaskUuid.get(dto.getUuid()).stream()
-        .collect(uniqueIndex(CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue));
+        .collect(Collectors.toMap(CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue));
       result.add(convertToTask(dbSession, dto, characteristics, component, entity));
     }
     return result;

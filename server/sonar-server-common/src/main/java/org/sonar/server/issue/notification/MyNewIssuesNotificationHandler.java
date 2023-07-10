@@ -25,10 +25,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.notification.EmailNotificationHandler;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationManager;
@@ -91,7 +91,7 @@ public class MyNewIssuesNotificationHandler extends EmailNotificationHandler<MyN
     Map<String, NotificationManager.EmailRecipient> recipientsByLogin = notificationManager
       .findSubscribedEmailRecipients(KEY, projectKey, assignees, ALL_MUST_HAVE_ROLE_USER)
       .stream()
-      .collect(MoreCollectors.uniqueIndex(NotificationManager.EmailRecipient::login));
+      .collect(Collectors.toMap(NotificationManager.EmailRecipient::login, Function.identity()));
     return notifications.stream()
       .map(notification -> toEmailDeliveryRequest(recipientsByLogin, notification))
       .filter(Objects::nonNull);

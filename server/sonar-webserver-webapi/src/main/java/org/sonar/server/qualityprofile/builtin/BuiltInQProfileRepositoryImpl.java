@@ -133,9 +133,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     Map<String, List<BuiltInQProfile.Builder>> buildersByLanguage = rulesProfilesByLanguage
       .entrySet()
       .stream()
-      .collect(MoreCollectors.uniqueIndex(
-        Map.Entry::getKey,
-        rulesProfilesByLanguageAndName -> toQualityProfileBuilders(rulesProfilesByLanguageAndName, rulesByRuleKey)));
+      .collect(Collectors.toMap(Map.Entry::getKey, rulesProfilesByLanguageAndName -> toQualityProfileBuilders(rulesProfilesByLanguageAndName, rulesByRuleKey)));
     return buildersByLanguage
       .entrySet()
       .stream()

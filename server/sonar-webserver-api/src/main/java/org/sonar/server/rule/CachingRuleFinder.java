@@ -44,7 +44,6 @@ import org.sonar.db.rule.RuleParamDto;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableMap;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 /**
  * A {@link RuleFinder} implementation that retrieves all rule definitions and their parameter when instantiated, cache
@@ -68,7 +67,7 @@ public class CachingRuleFinder implements ServerRuleFinder {
       this.ruleDtosByUuid = dtos.stream().collect(Collectors.toMap(RuleDto::getUuid, d -> d));
       this.ruleByRuleDto = buildRulesByRuleDefinitionDto(dbClient, dbSession, dtos);
       this.rulesByKey = this.ruleByRuleDto.entrySet().stream()
-        .collect(uniqueIndex(entry -> entry.getKey().getKey(), Map.Entry::getValue));
+        .collect(Collectors.toMap(entry -> entry.getKey().getKey(), Map.Entry::getValue));
     }
   }
 

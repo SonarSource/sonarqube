@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -39,7 +41,6 @@ import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.COMPLIANT;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.OVER_COMPLIANT;
@@ -73,7 +74,7 @@ public class QualityGateCaycChecker {
   public QualityGateCaycStatus checkCaycCompliant(DbSession dbSession, String qualityGateUuid) {
     var conditionsByMetricId = dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateUuid)
       .stream()
-      .collect(uniqueIndex(QualityGateConditionDto::getMetricUuid));
+      .collect(Collectors.toMap(QualityGateConditionDto::getMetricUuid, Function.identity()));
 
     if (conditionsByMetricId.size() < CAYC_METRICS.size()) {
       return NON_COMPLIANT;

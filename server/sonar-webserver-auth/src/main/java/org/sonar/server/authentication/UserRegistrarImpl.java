@@ -29,12 +29,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.server.authentication.IdentityProvider;
-import org.sonar.api.server.authentication.UserIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.server.authentication.IdentityProvider;
+import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
@@ -51,7 +53,6 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.user.UserSession.IdentityProvider.SONARQUBE;
 
 public class UserRegistrarImpl implements UserRegistrar {
@@ -235,7 +236,7 @@ public class UserRegistrarImpl implements UserRegistrar {
     allGroups.addAll(groupsToRemove);
     Map<String, GroupDto> groupsByName = dbClient.groupDao().selectByNames(dbSession, allGroups)
       .stream()
-      .collect(uniqueIndex(GroupDto::getName));
+      .collect(Collectors.toMap(GroupDto::getName, Function.identity()));
 
     addGroups(dbSession, userDto, groupsToAdd, groupsByName);
     removeGroups(dbSession, userDto, groupsToRemove, groupsByName);

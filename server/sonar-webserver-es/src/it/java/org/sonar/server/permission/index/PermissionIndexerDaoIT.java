@@ -24,17 +24,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.portfolio.PortfolioDto;
@@ -126,7 +125,7 @@ public class PermissionIndexerDaoIT {
       .selectByUuids(dbClient, dbSession,
         asList(publicProject.getUuid(), privateProject1.getUuid(), privateProject2.getUuid(), view1.getUuid(), view2.getUuid(), application.getUuid()))
       .stream()
-      .collect(MoreCollectors.uniqueIndex(IndexPermissions::getEntityUuid, Function.identity()));
+      .collect(Collectors.toMap(IndexPermissions::getEntityUuid, Function.identity()));
     Assertions.assertThat(dtos).hasSize(6);
 
     IndexPermissions publicProjectAuthorization = dtos.get(publicProject.getUuid());

@@ -21,8 +21,7 @@ package org.sonar.db;
 
 import java.util.List;
 import java.util.Map;
-
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import java.util.stream.Collectors;
 
 public class KeyLongValue {
 
@@ -52,6 +51,6 @@ public class KeyLongValue {
   public static Map<String, Long> toMap(List<KeyLongValue> values) {
     return values
       .stream()
-      .collect(uniqueIndex(KeyLongValue::getKey, KeyLongValue::getValue, values.size()));
+      .collect(Collectors.toMap(KeyLongValue::getKey, KeyLongValue::getValue));
   }
 }

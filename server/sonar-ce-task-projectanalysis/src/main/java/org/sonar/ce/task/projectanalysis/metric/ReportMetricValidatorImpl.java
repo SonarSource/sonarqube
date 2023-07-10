@@ -22,11 +22,12 @@ package org.sonar.ce.task.projectanalysis.metric;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.api.measures.Metric;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.measures.Metric;
 import org.sonar.core.metric.ScannerMetrics;
-import org.sonar.core.util.stream.MoreCollectors;
 
 public class ReportMetricValidatorImpl implements ReportMetricValidator {
   private static final Logger LOG = LoggerFactory.getLogger(ReportMetricValidatorImpl.class);
@@ -35,7 +36,7 @@ public class ReportMetricValidatorImpl implements ReportMetricValidator {
   private final Set<String> alreadyLoggedMetricKeys = new HashSet<>();
 
   public ReportMetricValidatorImpl(ScannerMetrics scannerMetrics) {
-    this.metricByKey = scannerMetrics.getMetrics().stream().collect(MoreCollectors.uniqueIndex(Metric::getKey));
+    this.metricByKey = scannerMetrics.getMetrics().stream().collect(Collectors.toMap(Metric::getKey, Function.identity()));
   }
 
   @Override

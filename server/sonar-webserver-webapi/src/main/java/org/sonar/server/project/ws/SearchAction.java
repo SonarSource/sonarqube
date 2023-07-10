@@ -31,7 +31,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -166,7 +165,7 @@ public class SearchAction implements ProjectsWsAction {
         .collect(Collectors.toMap(ProjectLastAnalysisDateDto::getProjectUuid, ProjectLastAnalysisDateDto::getDate));
       Map<String, SnapshotDto> snapshotsByComponentUuid = dbClient.snapshotDao()
         .selectLastAnalysesByRootComponentUuids(dbSession, componentUuids).stream()
-        .collect(MoreCollectors.uniqueIndex(SnapshotDto::getRootComponentUuid, identity()));
+        .collect(Collectors.toMap(SnapshotDto::getRootComponentUuid, identity()));
 
       return buildResponse(components, snapshotsByComponentUuid, lastAnalysisDateByComponentUuid, projectUuidByComponentUuid, paging);
     }

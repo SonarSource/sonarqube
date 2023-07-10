@@ -55,7 +55,6 @@ import org.sonarqube.ws.Rules.SearchResponse;
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 /**
  * Add details about active rules to api/rules/search and api/rules/show
@@ -86,7 +85,7 @@ public class ActiveRuleCompleter {
       // Load details of active rules on the selected profile
       List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfile(dbSession, profile);
       Map<RuleKey, OrgActiveRuleDto> activeRuleByRuleKey = activeRules.stream()
-        .collect(uniqueIndex(ActiveRuleDto::getRuleKey));
+        .collect(Collectors.toMap(ActiveRuleDto::getRuleKey, Function.identity()));
       ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = loadParams(dbSession, activeRules);
 
       for (RuleDto rule : rules) {

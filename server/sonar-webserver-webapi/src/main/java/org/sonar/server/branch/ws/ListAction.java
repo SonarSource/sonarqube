@@ -23,6 +23,8 @@ import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -46,7 +48,6 @@ import static java.util.Optional.ofNullable;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
@@ -93,10 +94,10 @@ public class ListAction implements BranchWsAction {
 
       Map<String, LiveMeasureDto> qualityGateMeasuresByComponentUuids = dbClient.liveMeasureDao()
         .selectByComponentUuidsAndMetricKeys(dbSession, branchUuids, singletonList(ALERT_STATUS_KEY)).stream()
-        .collect(uniqueIndex(LiveMeasureDto::getComponentUuid));
+        .collect(Collectors.toMap(LiveMeasureDto::getComponentUuid, Function.identity()));
       Map<String, String> analysisDateByBranchUuid = dbClient.snapshotDao()
         .selectLastAnalysesByRootComponentUuids(dbSession, branchUuids).stream()
-        .collect(uniqueIndex(SnapshotDto::getRootComponentUuid, s -> formatDateTime(s.getCreatedAt())));
+        .collect(Collectors.toMap(SnapshotDto::getRootComponentUuid, s -> formatDateTime(s.getCreatedAt())));
 
       ProjectBranches.ListWsResponse.Builder protobufResponse = ProjectBranches.ListWsResponse.newBuilder();
       branches.forEach(b -> addBranch(protobufResponse, b, qualityGateMeasuresByComponentUuids.get(b.getUuid()),

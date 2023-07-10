@@ -22,13 +22,13 @@ package org.sonar.server.qualityprofile.ws;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -118,7 +118,7 @@ public class SearchGroupsAction implements QProfileWsAction {
       Map<String, GroupDto> groupsByUuid = dbClient.groupDao().selectByUuids(dbSession,
         groupMemberships.stream().map(SearchGroupMembershipDto::getGroupUuid).toList())
         .stream()
-        .collect(MoreCollectors.uniqueIndex(GroupDto::getUuid));
+        .collect(Collectors.toMap(GroupDto::getUuid, Function.identity()));
       writeProtobuf(
         Qualityprofiles.SearchGroupsResponse.newBuilder()
           .addAllGroups(groupMemberships.stream()

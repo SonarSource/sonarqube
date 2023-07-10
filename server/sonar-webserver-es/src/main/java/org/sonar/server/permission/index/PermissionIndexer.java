@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
@@ -70,7 +70,7 @@ public class PermissionIndexer implements EventIndexer {
     this.authorizationScopes = authorizationScopes;
     this.indexTypeByFormat = authorizationScopes.stream()
       .map(AuthorizationScope::getIndexType)
-      .collect(MoreCollectors.uniqueIndex(IndexType.IndexMainType::format, t -> t, authorizationScopes.size()));
+      .collect(Collectors.toMap(IndexType.IndexMainType::format, Function.identity()));
   }
 
   @Override

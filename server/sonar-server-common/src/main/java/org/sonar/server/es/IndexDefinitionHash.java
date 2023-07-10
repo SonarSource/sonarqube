@@ -23,10 +23,10 @@ import com.google.common.collect.ImmutableSortedMap;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.server.es.newindex.BuiltIndex;
-
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 /**
  * Hash of index definition is stored in the index itself in order to detect changes of mappings
@@ -44,7 +44,7 @@ class IndexDefinitionHash {
     return of(
       index.getSettings().toString(),
       Map.of(mainType.getIndex(), mainType),
-      index.getRelationTypes().stream().collect(uniqueIndex(IndexType.IndexRelationType::getName, t -> t)),
+      index.getRelationTypes().stream().collect(Collectors.toMap(IndexType.IndexRelationType::getName, Function.identity())),
       index.getAttributes());
   }
 

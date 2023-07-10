@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -58,7 +59,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Comparator.comparing;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTimeQuietly;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.server.developers.ws.UuidFromPairs.fromDates;
@@ -132,7 +132,7 @@ public class SearchEventsAction implements DevelopersWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<ProjectDto> authorizedProjects = searchProjects(dbSession, projectKeys);
-      Map<String, ProjectDto> projectsByUuid = authorizedProjects.stream().collect(uniqueIndex(ProjectDto::getUuid));
+      Map<String, ProjectDto> projectsByUuid = authorizedProjects.stream().collect(Collectors.toMap(ProjectDto::getUuid, Function.identity()));
       List<UuidFromPair> uuidFromPairs = buildUuidFromPairs(fromDates, projectKeys, authorizedProjects);
       List<SnapshotDto> analyses = dbClient.snapshotDao().selectFinishedByProjectUuidsAndFromDates(dbSession, projectUuids(uuidFromPairs), fromDates(uuidFromPairs));
 
@@ -141,7 +141,8 @@ public class SearchEventsAction implements DevelopersWsAction {
       }
 
       List<String> branchUuids = analyses.stream().map(SnapshotDto::getRootComponentUuid).toList();
-      Map<String, BranchDto> branchesByUuids = dbClient.branchDao().selectByUuids(dbSession, branchUuids).stream().collect(uniqueIndex(BranchDto::getUuid));
+      Map<String, BranchDto> branchesByUuids = dbClient.branchDao().selectByUuids(dbSession, branchUuids)
+        .stream().collect(Collectors.toMap(BranchDto::getUuid, Function.identity()));
 
       return Stream.concat(
         computeQualityGateChangeEvents(dbSession, projectsByUuid, branchesByUuids, analyses),
@@ -226,7 +227,7 @@ public class SearchEventsAction implements DevelopersWsAction {
   private static List<UuidFromPair> buildUuidFromPairs(List<Long> fromDates, List<String> projectKeys, List<ProjectDto> authorizedProjects) {
     checkRequest(projectKeys.size() == fromDates.size(), "The number of components (%s) and from dates (%s) must be the same.", projectKeys.size(), fromDates.size());
     Map<String, Long> fromDatesByProjectKey = IntStream.range(0, projectKeys.size()).boxed()
-      .collect(uniqueIndex(projectKeys::get, fromDates::get));
+      .collect(Collectors.toMap(projectKeys::get, fromDates::get));
     return authorizedProjects.stream()
       .map(dto -> new UuidFromPair(dto.getUuid(), fromDatesByProjectKey.get(dto.getKey())))
       .toList();

@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
@@ -49,7 +51,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.groupingBy;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class LiveMeasureComputerImpl implements LiveMeasureComputer {
 
@@ -112,7 +113,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
 
   private MeasureMatrix loadMeasureMatrix(DbSession dbSession, Set<String> componentUuids, QualityGate qualityGate) {
     Collection<String> metricKeys = getKeysOfAllInvolvedMetrics(qualityGate);
-    Map<String, MetricDto> metricsPerUuid = dbClient.metricDao().selectByKeys(dbSession, metricKeys).stream().collect(uniqueIndex(MetricDto::getUuid));
+    Map<String, MetricDto> metricsPerUuid = dbClient.metricDao().selectByKeys(dbSession, metricKeys).stream().collect(Collectors.toMap(MetricDto::getUuid, Function.identity()));
     List<LiveMeasureDto> measures = dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, componentUuids, metricsPerUuid.keySet());
     return new MeasureMatrix(componentUuids, metricsPerUuid.values(), measures);
   }

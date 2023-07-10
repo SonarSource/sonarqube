@@ -90,7 +90,6 @@ import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.issue.AbstractChangeTagsAction.TAGS_PARAMETER;
 import static org.sonar.server.issue.AssignAction.ASSIGNEE_PARAMETER;
@@ -385,16 +384,16 @@ public class BulkChangeAction implements IssuesWsAction {
         .toList();
 
       List<ComponentDto> allBranches = getComponents(dbSession, allIssues.stream().map(IssueDto::getProjectUuid).collect(Collectors.toSet()));
-      this.branchComponentByUuid = getAuthorizedComponents(allBranches).stream().collect(uniqueIndex(ComponentDto::uuid, identity()));
+      this.branchComponentByUuid = getAuthorizedComponents(allBranches).stream().collect(toMap(ComponentDto::uuid, identity()));
       this.branchesByProjectUuid = dbClient.branchDao().selectByUuids(dbSession, branchComponentByUuid.keySet()).stream()
-        .collect(uniqueIndex(BranchDto::getUuid, identity()));
+        .collect(toMap(BranchDto::getUuid, identity()));
       this.issues = getAuthorizedIssues(allIssues);
       this.componentsByUuid = getComponents(dbSession,
         issues.stream().map(DefaultIssue::componentUuid).collect(Collectors.toSet())).stream()
-          .collect(uniqueIndex(ComponentDto::uuid, identity()));
+          .collect(toMap(ComponentDto::uuid, identity()));
       this.rulesByKey = dbClient.ruleDao().selectByKeys(dbSession,
         issues.stream().map(DefaultIssue::ruleKey).collect(Collectors.toSet())).stream()
-        .collect(uniqueIndex(RuleDto::getKey, identity()));
+        .collect(toMap(RuleDto::getKey, identity()));
 
       this.availableActions = actions.stream()
         .filter(action -> propertiesByActions.containsKey(action.key()))

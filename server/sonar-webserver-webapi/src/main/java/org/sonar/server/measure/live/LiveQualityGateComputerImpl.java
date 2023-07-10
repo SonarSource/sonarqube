@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.config.Configuration;
@@ -47,8 +48,6 @@ import org.sonar.server.qualitygate.QualityGateEvaluator;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualitygate.QualityGateFinder.QualityGateData;
 
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-
 public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
 
   private final DbClient dbClient;
@@ -66,7 +65,7 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
     QualityGateData qg = qGateFinder.getEffectiveQualityGate(dbSession, project);
     Collection<QualityGateConditionDto> conditionDtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, qg.getUuid());
     Set<String> metricUuids = conditionDtos.stream().map(QualityGateConditionDto::getMetricUuid).collect(Collectors.toSet());
-    Map<String, MetricDto> metricsByUuid = dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream().collect(uniqueIndex(MetricDto::getUuid));
+    Map<String, MetricDto> metricsByUuid = dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream().collect(Collectors.toMap(MetricDto::getUuid, Function.identity()));
 
     Stream<Condition> conditions = conditionDtos.stream().map(conditionDto -> {
       String metricKey = metricsByUuid.get(conditionDto.getMetricUuid()).getKey();

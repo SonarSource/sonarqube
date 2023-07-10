@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -31,20 +33,19 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.plugin.PluginType;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.plugin.PluginDto;
 import org.sonar.db.plugin.PluginDto.Type;
 import org.sonar.server.plugins.PluginFilesAndMd5;
-import org.sonar.core.plugin.PluginType;
 import org.sonar.server.plugins.ServerPlugin;
 import org.sonar.server.plugins.ServerPluginRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class RegisterPluginsIT {
 
@@ -223,7 +224,7 @@ public class RegisterPluginsIT {
 
   private Map<String, PluginDto> selectAllPlugins() {
     return dbTester.getDbClient().pluginDao().selectAll(dbTester.getSession()).stream()
-      .collect(uniqueIndex(PluginDto::getKee));
+      .collect(Collectors.toMap(PluginDto::getKee, Function.identity()));
   }
 
   private void verify(PluginDto pluginDto, Type type, @Nullable String basePluginKey, String fileHash, boolean removed, @Nullable Long createdAt, long updatedAt) {

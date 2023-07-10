@@ -39,7 +39,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
@@ -130,7 +129,7 @@ public class RegisterQualityProfiles implements Startable {
 
   private Map<QProfileName, RulesProfileDto> loadPersistedProfiles(DbSession dbSession) {
     return dbClient.qualityProfileDao().selectBuiltInRuleProfiles(dbSession).stream()
-      .collect(MoreCollectors.uniqueIndex(rp -> new QProfileName(rp.getLanguage(), rp.getName())));
+      .collect(toMap(rp -> new QProfileName(rp.getLanguage(), rp.getName()), Function.identity()));
   }
 
   private void create(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtIn) {

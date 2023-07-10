@@ -27,12 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.utils.System2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.utils.System2;
 import org.sonar.ce.container.ComputeEngineStatus;
 import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.ce.task.CeTask;
@@ -51,7 +52,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 @ComputeEngineSide
 public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue {
@@ -86,7 +86,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       }
       CeQueueDto taskDto = opt.get();
       Map<String, String> characteristics = dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbSession, singletonList(taskDto.getUuid())).stream()
-        .collect(uniqueIndex(CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue));
+        .collect(Collectors.toMap(CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue));
 
       CeTask task = convertToTask(dbSession, taskDto, characteristics);
       queueStatus.addInProgress();

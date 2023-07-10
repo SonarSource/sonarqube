@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,7 +41,6 @@ import org.sonar.db.metric.MetricDto;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class RegisterMetricsIT {
 
@@ -174,7 +175,7 @@ public class RegisterMetricsIT {
   private Map<String, MetricDto> selectAllMetrics() {
     return dbTester.getDbClient().metricDao().selectAll(dbTester.getSession())
       .stream()
-      .collect(uniqueIndex(MetricDto::getKey));
+      .collect(Collectors.toMap(MetricDto::getKey, Function.identity()));
   }
 
   private void assertEquals(Metric expected, MetricDto actual) {

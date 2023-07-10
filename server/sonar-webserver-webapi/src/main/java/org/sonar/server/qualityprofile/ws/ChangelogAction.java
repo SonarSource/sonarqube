@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.sonar.api.resources.Languages;
@@ -46,7 +47,6 @@ import org.sonar.db.user.UserDto;
 
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SINCE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TO;
@@ -126,7 +126,7 @@ public class ChangelogAction implements QProfileWsAction {
     return dbClient.userDao()
       .selectByUuids(dbSession, userUuids)
       .stream()
-      .collect(uniqueIndex(UserDto::getUuid));
+      .collect(Collectors.toMap(UserDto::getUuid, Function.identity()));
   }
 
   private Map<String, RuleDto> getRulesByRuleUuids(DbSession dbSession, List<Change> changes) {
@@ -137,7 +137,7 @@ public class ChangelogAction implements QProfileWsAction {
     return dbClient.ruleDao()
       .selectByUuids(dbSession, Lists.newArrayList(ruleUuids))
       .stream()
-      .collect(uniqueIndex(RuleDto::getUuid));
+      .collect(Collectors.toMap(RuleDto::getUuid, Function.identity()));
   }
 
   private static void writeResponse(JsonWriter json, int total, int page, int pageSize, List<Change> changelogs,

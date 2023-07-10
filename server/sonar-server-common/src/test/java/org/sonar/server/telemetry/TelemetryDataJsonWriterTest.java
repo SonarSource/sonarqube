@@ -40,7 +40,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.telemetry.TelemetryExtension;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.user.UserTelemetryDto;
 
 import static java.util.stream.Collectors.joining;
@@ -160,7 +159,7 @@ public class TelemetryDataJsonWriterTest {
   public void writes_all_plugins() {
     Map<String, String> plugins = IntStream.range(0, 1 + random.nextInt(10))
       .boxed()
-      .collect(MoreCollectors.uniqueIndex(i -> "P" + i, i -> "V" + i));
+      .collect(Collectors.toMap(i -> "P" + i, i1 -> "V" + i1));
     TelemetryData data = telemetryBuilder()
       .setPlugins(plugins)
       .build();

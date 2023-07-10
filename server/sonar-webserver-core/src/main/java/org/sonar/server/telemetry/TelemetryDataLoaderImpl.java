@@ -42,7 +42,6 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
@@ -151,8 +150,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     data.setVersion(server.getVersion());
     data.setEdition(editionProvider.get().orElse(null));
     Function<PluginInfo, String> getVersion = plugin -> plugin.getVersion() == null ? "undefined" : plugin.getVersion().getName();
-    Map<String, String> plugins = pluginRepository.getPluginInfos().stream().collect(MoreCollectors.uniqueIndex(PluginInfo::getKey,
-      getVersion));
+    Map<String, String> plugins = pluginRepository.getPluginInfos().stream().collect(toMap(PluginInfo::getKey, getVersion));
     data.setPlugins(plugins);
     try (DbSession dbSession = dbClient.openSession(false)) {
       var branchMeasuresDtos = dbClient.branchDao().selectBranchMeasuresWithCaycMetric(dbSession);

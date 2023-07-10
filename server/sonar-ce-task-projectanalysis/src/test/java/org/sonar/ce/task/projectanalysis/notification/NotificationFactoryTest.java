@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -71,7 +72,6 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 @RunWith(DataProviderRunner.class)
 public class NotificationFactoryTest {
@@ -140,7 +140,7 @@ public class NotificationFactoryTest {
       .collect(Collectors.toSet());
 
     MyNewIssuesNotification underTest = this.underTest.newMyNewIssuesNotification(
-      users.stream().collect(uniqueIndex(UserDto::getUuid)));
+      users.stream().collect(Collectors.toMap(UserDto::getUuid, Function.identity())));
 
     DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
     assertThat(detailsSupplier.getUserNameByUuid("foo")).isEmpty();
@@ -184,7 +184,7 @@ public class NotificationFactoryTest {
       .collect(Collectors.toSet());
 
     NewIssuesNotification underTest = this.underTest.newNewIssuesNotification(
-      users.stream().collect(uniqueIndex(UserDto::getUuid)));
+      users.stream().collect(Collectors.toMap(UserDto::getUuid, Function.identity())));
 
     DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
     assertThat(detailsSupplier.getUserNameByUuid("foo")).isEmpty();
@@ -722,7 +722,7 @@ public class NotificationFactoryTest {
     IssuesChangesNotificationBuilder builder = verifyAndCaptureIssueChangeNotificationBuilder();
     assertThat(builder.getIssues()).hasSize(issues.size());
     Map<String, ChangedIssue> changedIssuesByKey = builder.getIssues().stream()
-      .collect(uniqueIndex(ChangedIssue::getKey));
+      .collect(Collectors.toMap(ChangedIssue::getKey, Function.identity()));
     issues.forEach(
       issue -> {
         ChangedIssue changedIssue = changedIssuesByKey.get(issue.key());
@@ -737,7 +737,7 @@ public class NotificationFactoryTest {
   private static Map<String, UserDto> nonEmptyAssigneesByUuid() {
     return IntStream.range(0, 1 + new Random().nextInt(3))
       .boxed()
-      .collect(uniqueIndex(i -> "uuid_" + i, i -> new UserDto()));
+      .collect(Collectors.toMap(i -> "uuid_" + i, i1 -> new UserDto()));
   }
 
   private IssuesChangesNotificationBuilder verifyAndCaptureIssueChangeNotificationBuilder() {

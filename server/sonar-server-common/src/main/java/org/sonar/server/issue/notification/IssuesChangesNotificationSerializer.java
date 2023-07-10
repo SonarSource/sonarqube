@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -36,7 +37,6 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Optional.ofNullable;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class IssuesChangesNotificationSerializer {
   private static final String FIELD_ISSUES_COUNT = "issues.count";
@@ -173,7 +173,7 @@ public class IssuesChangesNotificationSerializer {
       .collect(Collectors.toSet())
       .stream()
       .map(ruleKey -> readRule(notification, ruleKey))
-      .collect(uniqueIndex(Rule::getKey, t -> t));
+      .collect(Collectors.toMap(Rule::getKey, Function.identity()));
   }
 
   private static Rule readRule(IssuesChangesNotification notification, RuleKey ruleKey) {
@@ -210,7 +210,7 @@ public class IssuesChangesNotificationSerializer {
           .setBranchName(notification.getFieldValue(projectPropertyPrefix + ".branchName"))
           .build();
       })
-      .collect(uniqueIndex(Project::getUuid, t -> t));
+      .collect(Collectors.toMap(Project::getUuid, Function.identity()));
   }
 
   private static String getProjectFieldValue(IssuesChangesNotification notification, String fieldName, String uuid) {

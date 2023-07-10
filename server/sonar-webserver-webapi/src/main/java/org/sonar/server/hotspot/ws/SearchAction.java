@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -87,7 +88,6 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
@@ -359,7 +359,7 @@ public class SearchAction implements HotspotsWsAction {
     List<IssueDto> unorderedHotspots = dbClient.issueDao().selectByKeys(dbSession, issueKeys);
     Map<String, IssueDto> hotspotsByKey = unorderedHotspots
       .stream()
-      .collect(uniqueIndex(IssueDto::getKey, unorderedHotspots.size()));
+      .collect(Collectors.toMap(IssueDto::getKey, Function.identity()));
 
     return issueKeys.stream()
       .map(hotspotsByKey::get)
@@ -508,7 +508,7 @@ public class SearchAction implements HotspotsWsAction {
     Map<String, IssueQuery.PeriodStart> leakByProjects = snapshots
       .stream()
       .filter(s -> isNullOrEmpty(s.getPeriodMode()) || !s.getPeriodMode().equals(REFERENCE_BRANCH.name()))
-      .collect(uniqueIndex(SnapshotDto::getRootComponentUuid, s -> new IssueQuery.PeriodStart(longToDate(s.getPeriodDate() == null ? now : s.getPeriodDate()), false)));
+      .collect(Collectors.toMap(SnapshotDto::getRootComponentUuid, s1 -> new IssueQuery.PeriodStart(longToDate(s1.getPeriodDate() == null ? now : s1.getPeriodDate()), false)));
 
     builder.createdAfterByProjectUuids(leakByProjects);
     builder.newCodeOnReferenceByProjectUuids(newCodeReferenceByProjects);

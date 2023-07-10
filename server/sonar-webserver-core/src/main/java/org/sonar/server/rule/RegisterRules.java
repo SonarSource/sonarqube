@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -77,7 +78,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableMap;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 /**
  * Register rules at server startup
@@ -156,7 +156,7 @@ public class RegisterRules implements Startable {
 
   private RegisterRulesContext createRegisterRulesContext(DbSession dbSession) {
     Map<RuleKey, RuleDto> allRules = dbClient.ruleDao().selectAll(dbSession).stream()
-      .collect(uniqueIndex(RuleDto::getKey));
+      .collect(Collectors.toMap(RuleDto::getKey, Function.identity()));
     Map<String, Set<SingleDeprecatedRuleKey>> existingDeprecatedKeysById = loadDeprecatedRuleKeys(dbSession);
     Map<String, List<RuleParamDto>> ruleParamsByRuleUuid = loadAllRuleParameters(dbSession);
     return new RegisterRulesContext(allRules, existingDeprecatedKeysById, ruleParamsByRuleUuid);
@@ -199,7 +199,7 @@ public class RegisterRules implements Startable {
     private static Map<RuleKey, RuleDto> buildDbRulesByDbDeprecatedKey(Map<String, Set<SingleDeprecatedRuleKey>> dbDeprecatedKeysByUuid,
       Map<RuleKey, RuleDto> dbRules) {
       Map<String, RuleDto> dbRulesByRuleUuid = dbRules.values().stream()
-        .collect(uniqueIndex(RuleDto::getUuid));
+        .collect(Collectors.toMap(RuleDto::getUuid, Function.identity()));
 
       Map<RuleKey, RuleDto> rulesByKey = new LinkedHashMap<>();
       for (Map.Entry<String, Set<SingleDeprecatedRuleKey>> entry : dbDeprecatedKeysByUuid.entrySet()) {
@@ -236,7 +236,7 @@ public class RegisterRules implements Startable {
     private Map<RuleKey, SingleDeprecatedRuleKey> getDbDeprecatedKeysByOldRuleKey() {
       return dbDeprecatedKeysByUuid.values().stream()
         .flatMap(Collection::stream)
-        .collect(uniqueIndex(SingleDeprecatedRuleKey::getOldRuleKeyAsRuleKey));
+        .collect(Collectors.toMap(SingleDeprecatedRuleKey::getOldRuleKeyAsRuleKey, Function.identity()));
     }
 
     private Set<SingleDeprecatedRuleKey> getDBDeprecatedKeysFor(RuleDto rule) {

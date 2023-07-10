@@ -20,7 +20,7 @@
 package org.sonar.server.setting;
 
 import java.util.Map;
-import org.sonar.core.util.stream.MoreCollectors;
+import java.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
@@ -49,7 +49,7 @@ public class DatabaseSettingLoader implements SettingLoader {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return dbClient.propertiesDao().selectGlobalProperties(dbSession)
         .stream()
-        .collect(MoreCollectors.uniqueIndex(PropertyDto::getKey, p -> defaultString(p.getValue())));
+        .collect(Collectors.toMap(PropertyDto::getKey, p -> defaultString(p.getValue())));
     }
   }
 

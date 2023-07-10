@@ -38,7 +38,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
@@ -217,7 +216,7 @@ public class SearchAction implements QProfileWsAction {
     }
     Map<String, QProfileDto> effectiveProfiles = defaultProfiles.stream().collect(Collectors.toMap(QProfileDto::getLanguage, identity()));
     effectiveProfiles.putAll(dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguages(dbSession, project, getLanguageKeys()).stream()
-      .collect(MoreCollectors.uniqueIndex(QProfileDto::getLanguage)));
+      .collect(Collectors.toMap(QProfileDto::getLanguage, identity())));
     return p -> Objects.equals(p.getKee(), effectiveProfiles.get(p.getLanguage()).getKee());
   }
 

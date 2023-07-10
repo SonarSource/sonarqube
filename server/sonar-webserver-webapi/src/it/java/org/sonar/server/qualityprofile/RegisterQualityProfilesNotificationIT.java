@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,10 +37,9 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInActiveRule;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInQualityProfile;
-import org.sonar.api.utils.System2;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -322,7 +323,7 @@ public class RegisterQualityProfilesNotificationIT {
 
   private static BuiltInQProfile.ActiveRule[] toActiveRules(List<BuiltInActiveRule> rules, RuleDto[] dbRules) {
     Map<RuleKey, RuleDto> dbRulesByRuleKey = Arrays.stream(dbRules)
-      .collect(MoreCollectors.uniqueIndex(RuleDto::getKey));
+      .collect(Collectors.toMap(RuleDto::getKey, Function.identity()));
     return rules.stream()
       .map(r -> {
         RuleKey ruleKey = RuleKey.of(r.repoKey(), r.ruleKey());

@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -226,7 +225,7 @@ public class SearchResponseLoader {
       Map<String, ComponentDto> componentsByProjectUuid = result.getComponents()
         .stream()
         .filter(ComponentDto::isRootProject)
-        .collect(MoreCollectors.uniqueIndex(ComponentDto::branchUuid));
+        .collect(Collectors.toMap(ComponentDto::branchUuid, Function.identity()));
       for (IssueDto issueDto : result.getIssues()) {
         // so that IssueDto can be used.
         if (fields.contains(ACTIONS)) {

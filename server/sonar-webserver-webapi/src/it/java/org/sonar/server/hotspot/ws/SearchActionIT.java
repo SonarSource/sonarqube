@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -106,7 +108,6 @@ import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newDirectoryOnBranch;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -1109,7 +1110,7 @@ public class SearchActionIT {
     assertThat(response.getComponentsList())
       .extracting(Component::getKey)
       .containsOnly(project.getKey(), directory.getKey(), file.getKey());
-    Map<String, Component> componentByKey = response.getComponentsList().stream().collect(uniqueIndex(Component::getKey));
+    Map<String, Component> componentByKey = response.getComponentsList().stream().collect(Collectors.toMap(Component::getKey, Function.identity()));
     Component actualProject = componentByKey.get(project.getKey());
     assertThat(actualProject.getQualifier()).isEqualTo(project.qualifier());
     assertThat(actualProject.getName()).isEqualTo(project.name());
@@ -1158,7 +1159,7 @@ public class SearchActionIT {
     assertThat(response.getComponentsList())
       .extracting(Component::getKey)
       .containsOnly(project.getKey(), directory.getKey(), file.getKey());
-    Map<String, Component> componentByKey = response.getComponentsList().stream().collect(uniqueIndex(Component::getKey));
+    Map<String, Component> componentByKey = response.getComponentsList().stream().collect(Collectors.toMap(Component::getKey, Function.identity()));
     Component actualProject = componentByKey.get(project.getKey());
     assertThat(actualProject.getBranch()).isEqualTo(branchName);
     assertThat(actualProject.hasPullRequest()).isFalse();
@@ -1196,7 +1197,7 @@ public class SearchActionIT {
     assertThat(response.getComponentsList())
       .extracting(Component::getKey)
       .containsOnly(project.getKey(), directory.getKey(), file.getKey());
-    Map<String, Component> componentByKey = response.getComponentsList().stream().collect(uniqueIndex(Component::getKey));
+    Map<String, Component> componentByKey = response.getComponentsList().stream().collect(Collectors.toMap(Component::getKey, Function.identity()));
     Component actualProject = componentByKey.get(project.getKey());
     assertThat(actualProject.hasBranch()).isFalse();
     assertThat(actualProject.getPullRequest()).isEqualTo(pullRequestKey);

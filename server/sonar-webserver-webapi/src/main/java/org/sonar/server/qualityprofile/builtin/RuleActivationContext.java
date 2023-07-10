@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
@@ -41,7 +42,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.index;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 /**
@@ -312,7 +312,7 @@ public class RuleActivationContext {
 
     private RuleWrapper(RuleDto rule, Collection<RuleParamDto> params) {
       this.rule = rule;
-      this.paramsByKey = params.stream().collect(uniqueIndex(RuleParamDto::getName));
+      this.paramsByKey = params.stream().collect(Collectors.toMap(RuleParamDto::getName, Function.identity()));
     }
 
     public RuleDto get() {
@@ -341,7 +341,7 @@ public class RuleActivationContext {
 
     private ActiveRuleWrapper(ActiveRuleDto activeRule, Collection<ActiveRuleParamDto> params) {
       this.activeRule = activeRule;
-      this.paramsByKey = params.stream().collect(uniqueIndex(ActiveRuleParamDto::getKey));
+      this.paramsByKey = params.stream().collect(Collectors.toMap(ActiveRuleParamDto::getKey, Function.identity()));
     }
 
     ActiveRuleDto get() {

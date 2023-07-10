@@ -23,9 +23,10 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -60,8 +61,8 @@ class SearchHistoryResponseFactory {
   }
 
   private UnaryOperator<SearchHistoryResponse.Builder> addMeasures() {
-    Map<String, MetricDto> metricsByUuid = result.getMetrics().stream().collect(MoreCollectors.uniqueIndex(MetricDto::getUuid));
-    Map<String, SnapshotDto> analysesByUuid = result.getAnalyses().stream().collect(MoreCollectors.uniqueIndex(SnapshotDto::getUuid));
+    Map<String, MetricDto> metricsByUuid = result.getMetrics().stream().collect(Collectors.toMap(MetricDto::getUuid, Function.identity()));
+    Map<String, SnapshotDto> analysesByUuid = result.getAnalyses().stream().collect(Collectors.toMap(SnapshotDto::getUuid, Function.identity()));
     Table<MetricDto, SnapshotDto, MeasureDto> measuresByMetricByAnalysis = HashBasedTable.create(result.getMetrics().size(), result.getAnalyses().size());
     result.getMeasures().forEach(m -> measuresByMetricByAnalysis.put(metricsByUuid.get(m.getMetricUuid()), analysesByUuid.get(m.getAnalysisUuid()), m));
 
