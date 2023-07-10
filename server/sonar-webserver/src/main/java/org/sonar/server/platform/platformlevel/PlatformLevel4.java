@@ -284,11 +284,10 @@ public class PlatformLevel4 extends PlatformLevel {
       MetadataIndexImpl.class,
       EsDbCompatibilityImpl.class);
 
-    addIfCluster(new NodeHealthModule());
+    // addIfCluster(new NodeHealthModule());
 
     add(
       RuleDescriptionFormatter.class,
-      ClusterVerification.class,
       LogServerId.class,
       LogOAuthWarning.class,
       PluginUninstaller.class,
