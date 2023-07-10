@@ -54,3 +54,7 @@ export function excludeBranchFromPurge(projectKey: string, branchName: string, e
     value: excluded,
   }).catch(throwGlobalError);
 }
+
+export function setMainBranch(project: string, branch: string) {
+  return post('/api/project_branches/set_main', { project, branch }).catch(throwGlobalError);
+}

@@ -39,6 +39,7 @@ export interface BranchLikeRowProps {
   displayPurgeSetting?: boolean;
   onDelete: () => void;
   onRename: () => void;
+  onSetAsMain: () => void;
 }
 
 function BranchLikeRow(props: BranchLikeRowProps) {
@@ -72,6 +73,12 @@ function BranchLikeRow(props: BranchLikeRowProps) {
             getBranchLikeDisplayName(branchLike)
           )}
         >
+          {isBranch(branchLike) && !isMainBranch(branchLike) && (
+            <ActionsDropdownItem onClick={props.onSetAsMain}>
+              {translate('project_branch_pull_request.branch.set_main')}
+            </ActionsDropdownItem>
+          )}
+
           {isMainBranch(branchLike) ? (
             <ActionsDropdownItem className="js-rename" onClick={props.onRename}>
               {translate('project_branch_pull_request.branch.rename')}

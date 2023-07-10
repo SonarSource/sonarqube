@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { useEffect } from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Toggle from '../../../components/controls/Toggle';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
@@ -35,6 +36,10 @@ interface Props {
 export default function BranchPurgeSetting(props: Props) {
   const { branch, component } = props;
   const { mutate: excludeFromPurge, isLoading } = useExcludeFromPurgeMutation();
+
+  useEffect(() => {
+    excludeFromPurge({ component, key: branch.name, exclude: branch.excludedFromPurge });
+  }, [branch.excludedFromPurge]);
 
   const handleOnChange = (exclude: boolean) => {
     excludeFromPurge({ component, key: branch.name, exclude });

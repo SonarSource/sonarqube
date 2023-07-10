@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { cloneDeep } from 'lodash';
-import { mockBranch, mockPullRequest } from '../../helpers/mocks/branch-like';
 import { Branch, PullRequest } from '../../types/branch-like';
 import {
   deleteBranch,
@@ -27,56 +26,27 @@ import {
   getBranches,
   getPullRequests,
   renameBranch,
+  setMainBranch,
 } from '../branches';
+import { mockBranchList, mockPullRequestList } from './data/branches';
 
 jest.mock('../branches');
-
-const defaultBranches: Branch[] = [
-  mockBranch({ isMain: true, name: 'main', status: { qualityGateStatus: 'OK' } }),
-  mockBranch({
-    excludedFromPurge: false,
-    name: 'delete-branch',
-    analysisDate: '2018-01-30',
-    status: { qualityGateStatus: 'ERROR' },
-  }),
-  mockBranch({ name: 'normal-branch', status: { qualityGateStatus: 'ERROR' } }),
-];
-
-const defaultPullRequests: PullRequest[] = [
-  mockPullRequest({
-    title: 'TEST-191 update master',
-    key: '01',
-    status: { qualityGateStatus: 'OK' },
-  }),
-  mockPullRequest({
-    title: 'TEST-192 update normal-branch',
-    key: '02',
-    analysisDate: '2018-01-30',
-    base: 'normal-branch',
-    target: 'normal-branch',
-    status: { qualityGateStatus: 'ERROR' },
-  }),
-  mockPullRequest({
-    title: 'TEST-193 dumb commit',
-    key: '03',
-    target: 'normal-branch',
-    status: { qualityGateStatus: 'ERROR' },
-  }),
-];
 
 export default class BranchesServiceMock {
   branches: Branch[];
   pullRequests: PullRequest[];
 
   constructor() {
-    this.branches = cloneDeep(defaultBranches);
-    this.pullRequests = cloneDeep(defaultPullRequests);
+    this.branches = mockBranchList();
+    this.pullRequests = mockPullRequestList();
+
     jest.mocked(getBranches).mockImplementation(this.getBranchesHandler);
     jest.mocked(getPullRequests).mockImplementation(this.getPullRequestsHandler);
     jest.mocked(deleteBranch).mockImplementation(this.deleteBranchHandler);
     jest.mocked(deletePullRequest).mockImplementation(this.deletePullRequestHandler);
     jest.mocked(renameBranch).mockImplementation(this.renameBranchHandler);
     jest.mocked(excludeBranchFromPurge).mockImplementation(this.excludeBranchFromPurgeHandler);
+    jest.mocked(setMainBranch).mockImplementation(this.setMainBranchHandler);
   }
 
   getBranchesHandler = () => {
@@ -89,24 +59,33 @@ export default class BranchesServiceMock {
 
   deleteBranchHandler: typeof deleteBranch = ({ branch }) => {
     this.branches = this.branches.filter((b) => b.name !== branch);
-    return this.reply({});
+    return this.reply(null);
   };
 
   deletePullRequestHandler: typeof deletePullRequest = ({ pullRequest }) => {
     this.pullRequests = this.pullRequests.filter((b) => b.key !== pullRequest);
-    return this.reply({});
+    return this.reply(null);
   };
 
   renameBranchHandler: typeof renameBranch = (_, name) => {
     this.branches = this.branches.map((b) => (b.isMain ? { ...b, name } : b));
-    return this.reply({});
+    return this.reply(null);
   };
 
   excludeBranchFromPurgeHandler: typeof excludeBranchFromPurge = (_, name, value) => {
     this.branches = this.branches.map((b) =>
       b.name === name ? { ...b, excludedFromPurge: value } : b
     );
-    return this.reply({});
+    return this.reply(null);
+  };
+
+  setMainBranchHandler: typeof setMainBranch = (_, branch) => {
+    this.branches = this.branches.map((b) => ({
+      ...b,
+      excludedFromPurge: b.excludedFromPurge || b.isMain || b.name === branch,
+      isMain: b.name === branch,
+    }));
+    return this.reply(null);
   };
 
   emptyBranches = () => {
@@ -127,8 +106,8 @@ export default class BranchesServiceMock {
   };
 
   reset = () => {
-    this.branches = cloneDeep(defaultBranches);
-    this.pullRequests = cloneDeep(defaultPullRequests);
+    this.branches = mockBranchList();
+    this.pullRequests = mockPullRequestList();
   };
 
   reply<T>(response: T): Promise<T> {

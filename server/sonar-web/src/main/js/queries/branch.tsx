@@ -29,6 +29,7 @@ import {
   getBranches,
   getPullRequests,
   renameBranch,
+  setMainBranch,
 } from '../api/branches';
 import { dismissAnalysisWarning, getAnalysisStatus } from '../api/ce';
 import { getQualityGateProjectStatus } from '../api/quality-gates';
@@ -267,6 +268,21 @@ export function useRenameMainBranchMutation() {
   return useMutation({
     mutationFn: async ({ component, name }: RenameMainBranchArg) => {
       await renameBranch(component.key, name);
+    },
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: invalidateKey });
+    },
+  });
+}
+
+export function useSetMainBranchMutation() {
+  type SetAsMainBranchArg = { branchName: string; component: Component };
+  const queryClient = useQueryClient();
+  const invalidateKey = useMutateBranchQueryKey();
+
+  return useMutation({
+    mutationFn: async ({ component, branchName }: SetAsMainBranchArg) => {
+      await setMainBranch(component.key, branchName);
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: invalidateKey });

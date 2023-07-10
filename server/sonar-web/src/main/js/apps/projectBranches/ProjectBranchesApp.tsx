@@ -21,6 +21,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import { translate } from '../../helpers/l10n';
+import { withBranchLikes } from '../../queries/branch';
 import { Component } from '../../types/types';
 import BranchLikeTabs from './components/BranchLikeTabs';
 import LifetimeInformation from './components/LifetimeInformation';
@@ -45,4 +46,4 @@ function ProjectBranchesApp(props: ProjectBranchesAppProps) {
   );
 }
 
-export default withComponentContext(React.memo(ProjectBranchesApp));
+export default withComponentContext(withBranchLikes(React.memo(ProjectBranchesApp)));

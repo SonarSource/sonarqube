@@ -36,6 +36,7 @@ import { Component } from '../../../types/types';
 import BranchLikeTable from './BranchLikeTable';
 import DeleteBranchModal from './DeleteBranchModal';
 import RenameBranchModal from './RenameBranchModal';
+import SetAsMainBranchModal from './SetAsMainBranchModal';
 
 interface Props {
   component: Component;
@@ -75,12 +76,19 @@ export default function BranchLikeTabs(props: Props) {
   const { component } = props;
   const [currentTab, setCurrentTab] = useState<Tabs>(Tabs.Branch);
   const [renaming, setRenaming] = useState<BranchLike>();
-
+  const [settingAsMain, setSettingAsMain] = useState<Branch>();
   const [deleting, setDeleting] = useState<BranchLike>();
 
   const handleClose = () => {
     setRenaming(undefined);
     setDeleting(undefined);
+    setSettingAsMain(undefined);
+  };
+
+  const handleSetAsMainBranch = (branchLike: BranchLike) => {
+    if (isBranch(branchLike)) {
+      setSettingAsMain(branchLike);
+    }
   };
 
   const { data: { branchLikes } = { branchLikes: [] } } = useBranchesQuery(component);
@@ -111,6 +119,7 @@ export default function BranchLikeTabs(props: Props) {
           displayPurgeSetting={isBranchMode}
           onDelete={setDeleting}
           onRename={setRenaming}
+          onSetAsMain={handleSetAsMainBranch}
           title={title}
         />
       </div>
@@ -121,6 +130,15 @@ export default function BranchLikeTabs(props: Props) {
 
       {renaming && isMainBranch(renaming) && (
         <RenameBranchModal branch={renaming} component={component} onClose={handleClose} />
+      )}
+
+      {settingAsMain && !isMainBranch(settingAsMain) && (
+        <SetAsMainBranchModal
+          branch={settingAsMain}
+          component={component}
+          onClose={handleClose}
+          onSetAsMain={handleClose}
+        />
       )}
     </>
   );

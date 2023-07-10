@@ -31,6 +31,7 @@ export interface BranchLikeTableProps {
   displayPurgeSetting?: boolean;
   onDelete: (branchLike: BranchLike) => void;
   onRename: (branchLike: BranchLike) => void;
+  onSetAsMain: (branchLike: BranchLike) => void;
   title: string;
 }
 
@@ -80,6 +81,7 @@ function BranchLikeTable(props: BranchLikeTableProps) {
               key={getBranchLikeKey(branchLike)}
               onDelete={() => props.onDelete(branchLike)}
               onRename={() => props.onRename(branchLike)}
+              onSetAsMain={() => props.onSetAsMain(branchLike)}
             />
           ))}
         </tbody>
