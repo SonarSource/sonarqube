@@ -40,14 +40,20 @@ public class CspFilter implements Filter {
     cspHeaders.add("Content-Security-Policy");
     cspHeaders.add("X-Content-Security-Policy");
     cspHeaders.add("X-WebKit-CSP");
-    
+
     List<String> cspPolicies = new ArrayList<>();
     cspPolicies.add("default-src 'self'");
     cspPolicies.add("base-uri 'none'");
-    cspPolicies.add("connect-src 'self' http: https:");
     cspPolicies.add("img-src * data: blob:");
     cspPolicies.add("object-src 'none'");
-    cspPolicies.add("script-src 'self' 'unsafe-inline' 'unsafe-eval'");
+
+    // Allow list for Google Tag Manager, Pendo and FullStory Scripts
+    cspPolicies.add("connect-src 'self' https://edge.fullstory.com https://rs.fullstory.com http: https:");
+    cspPolicies.add(
+            "script-src 'self' https://www.googletagmanager.com https://pendo-io-static.storage.googleapis.com "
+                    + "https://app.pendo.io https://cdn.pendo.io https://data.pendo.io https://edge.fullstory.com "
+                    + "https://rs.fullstory.com 'unsafe-inline' 'unsafe-eval'");
+
     cspPolicies.add("style-src 'self' 'unsafe-inline'");
     cspPolicies.add("worker-src 'none'");
     this.policies = String.join("; ", cspPolicies).trim();
