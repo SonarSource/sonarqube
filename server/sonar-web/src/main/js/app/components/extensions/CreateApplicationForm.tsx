@@ -82,7 +82,9 @@ export default class CreateApplicationForm extends React.PureComponent<Props, St
     this.setState({ visibility });
   };
 
-  handleFormSubmit = () => {
+  handleFormSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
     const { name, description, key, visibility } = this.state;
     this.setState({ submitting: true });
     return createApplication(name, description, key.length > 0 ? key : undefined, visibility)
@@ -104,7 +106,7 @@ export default class CreateApplicationForm extends React.PureComponent<Props, St
     const { name, description, key, visibility } = this.state;
 
     return (
-      <form onSubmit={this.props.onClose} id="create-application-form">
+      <form onSubmit={this.handleFormSubmit} id="create-application-form">
         <MandatoryFieldsExplanation className="modal-field" />
 
         <FormField
@@ -182,9 +184,6 @@ export default class CreateApplicationForm extends React.PureComponent<Props, St
           <ButtonSecondary
             disabled={submitting || submitDisabled}
             form="create-application-form"
-            onClick={() => {
-              this.handleFormSubmit();
-            }}
             type="submit"
           >
             {translate('create')}

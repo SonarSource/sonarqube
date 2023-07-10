@@ -24,7 +24,7 @@ import {
   themeBorder,
   themeColor,
 } from 'design-system/lib';
-import { keyBy, mapValues, omitBy } from 'lodash';
+import { keyBy, mapValues, omitBy, pick } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSearchParams } from 'react-router-dom';
@@ -147,7 +147,11 @@ export class AllProjects extends React.PureComponent<Props, State> {
   getView = () => this.state.query.view ?? 'overall';
 
   handleClearAll = () => {
-    this.props.router.push({ pathname: this.props.location.pathname });
+    const { pathname, query } = this.props.location;
+
+    const queryWithoutFilters = pick(query, ['view', 'sort']);
+
+    this.props.router.push({ pathname, query: queryWithoutFilters });
   };
 
   handleFavorite = (key: string, isFavorite: boolean) => {

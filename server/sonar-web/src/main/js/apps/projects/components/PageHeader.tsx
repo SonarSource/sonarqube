@@ -20,6 +20,7 @@
 import { InputSearch, LightLabel, LightPrimary } from 'design-system';
 import * as React from 'react';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RawQuery } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
@@ -42,7 +43,7 @@ interface Props {
 const MIN_SEARCH_QUERY_LENGTH = 2;
 
 export default function PageHeader(props: Props) {
-  const { total, currentUser, view } = props;
+  const { query, total, currentUser, view } = props;
   const defaultOption = isLoggedIn(currentUser) ? 'name' : 'analysis_date';
 
   const handleSearch = (search?: string) => {
@@ -57,17 +58,19 @@ export default function PageHeader(props: Props) {
       </div>
       <div className="sw-flex sw-justify-between">
         <div className="sw-flex sw-flex-1">
-          <InputSearch
-            className="sw-mr-4 it__page-header-search sw-max-w-abs-300 sw-flex-1"
-            minLength={MIN_SEARCH_QUERY_LENGTH}
-            onChange={handleSearch}
-            size="auto"
-            placeholder={translate('projects.search')}
-            value={props.query.search ?? ''}
-            tooShortText={translateWithParameters('select2.tooShort', MIN_SEARCH_QUERY_LENGTH)}
-            searchInputAriaLabel={translate('search_verb')}
-            clearIconAriaLabel={translate('clear')}
-          />
+          <Tooltip overlay={translate('projects.search')}>
+            <InputSearch
+              className="sw-mr-4 it__page-header-search sw-max-w-abs-300 sw-flex-1"
+              minLength={MIN_SEARCH_QUERY_LENGTH}
+              onChange={handleSearch}
+              size="auto"
+              placeholder={translate('search.search_for_projects')}
+              value={query.search ?? ''}
+              tooShortText={translateWithParameters('select2.tooShort', MIN_SEARCH_QUERY_LENGTH)}
+              searchInputAriaLabel={translate('search_verb')}
+              clearIconAriaLabel={translate('clear')}
+            />
+          </Tooltip>
           <PerspectiveSelect onChange={props.onPerspectiveChange} view={view} />
           <ProjectsSortingSelect
             defaultOption={defaultOption}
