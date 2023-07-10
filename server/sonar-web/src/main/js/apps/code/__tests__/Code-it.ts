@@ -79,10 +79,12 @@ it('should allow navigating through the tree', async () => {
   // Navigate by clicking on an element.
   await ui.clickOnChildComponent(/folderA$/);
   expect(await ui.childComponent(/out\.tsx/).findAll()).toHaveLength(2); // One for the pin, one for the name column
+  expect(screen.getByRole('navigation', { name: 'breadcrumbs' })).toBeInTheDocument();
 
   // Navigate back using the breadcrumb.
   await ui.clickOnBreadcrumb(/Foo$/);
   expect(await ui.childComponent(/folderA/).find()).toBeInTheDocument();
+  expect(screen.queryByRole('navigation', { name: 'breadcrumbs' })).not.toBeInTheDocument();
 
   // Open "index.tsx" file using keyboard navigation.
   await ui.arrowDown();

@@ -52,6 +52,7 @@ export interface Props {
   rootComponent: ComponentMeasure;
   unclickable?: boolean;
   newCodeSelected?: boolean;
+  showIcon?: boolean;
 }
 
 export default function ComponentName({
@@ -62,6 +63,7 @@ export default function ComponentName({
   previous,
   canBrowse = false,
   newCodeSelected,
+  showIcon = true,
 }: Props) {
   const ariaLabel = unclickable ? translate('code.parent_folder') : undefined;
 
@@ -81,6 +83,7 @@ export default function ComponentName({
             component,
             previous,
             rootComponent,
+            showIcon,
             unclickable,
             canBrowse,
             newCodeSelected
@@ -101,7 +104,15 @@ export default function ComponentName({
   }
   return (
     <span title={getTooltip(component)} aria-label={ariaLabel}>
-      {renderNameWithIcon(branchLike, component, previous, rootComponent, unclickable, canBrowse)}
+      {renderNameWithIcon(
+        branchLike,
+        component,
+        previous,
+        rootComponent,
+        showIcon,
+        unclickable,
+        canBrowse
+      )}
     </span>
   );
 }
@@ -111,6 +122,7 @@ function renderNameWithIcon(
   component: ComponentMeasure,
   previous: ComponentMeasure | undefined,
   rootComponent: ComponentMeasure,
+  showIcon: boolean,
   unclickable = false,
   canBrowse = false,
   newCodeSelected = true
@@ -130,7 +142,7 @@ function renderNameWithIcon(
       : undefined;
     return (
       <HoverLink
-        icon={<QualifierIcon className="sw-mr-2" qualifier={component.qualifier} />}
+        icon={showIcon && <QualifierIcon className="sw-mr-1" qualifier={component.qualifier} />}
         to={getComponentOverviewUrl(
           component.refKey ?? component.key,
           component.qualifier,
@@ -148,7 +160,7 @@ function renderNameWithIcon(
     }
     return (
       <HoverLink
-        icon={<QualifierIcon className="sw-mr-2" qualifier={component.qualifier} />}
+        icon={showIcon && <QualifierIcon qualifier={component.qualifier} />}
         to={{ pathname: '/code', search: queryToSearch(query) }}
       >
         {name}
@@ -157,7 +169,9 @@ function renderNameWithIcon(
   }
   return (
     <span>
-      <QualifierIcon className="sw-mr-2 sw-align-text-bottom" qualifier={component.qualifier} />
+      {showIcon && (
+        <QualifierIcon className="sw-mr-1 sw-align-text-bottom" qualifier={component.qualifier} />
+      )}
       {name}
     </span>
   );
