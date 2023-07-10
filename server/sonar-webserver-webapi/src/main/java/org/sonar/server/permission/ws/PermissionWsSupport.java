@@ -20,8 +20,8 @@
 package org.sonar.server.permission.ws;
 
 import java.util.Optional;
-import javax.annotation.CheckForNull;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Qualifiers;
@@ -89,9 +89,15 @@ public class PermissionWsSupport {
     return null;
   }
 
-  public GroupUuidOrAnyone findGroup(DbSession dbSession, Request request) {
+  public GroupUuidOrAnyone findGroupUuidOrAnyone(DbSession dbSession, Request request) {
     String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
     return groupWsSupport.findGroupOrAnyone(dbSession, groupName);
+  }
+
+  @CheckForNull
+  public GroupDto findGroupDtoOrNullIfAnyone(DbSession dbSession, Request request) {
+    String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
+    return groupWsSupport.findGroupDtoOrNullIfAnyone(dbSession, groupName);
   }
 
   public UserId findUser(DbSession dbSession, String login) {
@@ -149,7 +155,7 @@ public class PermissionWsSupport {
   }
 
   public static boolean isUpdatingBrowsePermissionOnPrivateProject(String permission, @Nullable EntityDto entityDto) {
-    return entityDto != null && entityDto.isPrivate() && permission.equals(UserRole.USER) ;
+    return entityDto != null && entityDto.isPrivate() && permission.equals(UserRole.USER);
   }
 
 }

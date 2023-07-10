@@ -84,7 +84,7 @@ public abstract class BasePermissionWsIT<A extends PermissionsWsAction> {
     return new PermissionUpdater(
       new IndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
       new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory()),
-      new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory()));
+      new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory()), db.getDbClient());
   }
 
   protected TestRequest newRequest() {

@@ -51,13 +51,6 @@ public class VisibilityService {
     this.indexers = indexers;
     this.uuidFactory = uuidFactory;
   }
-  public void changeVisibility(String entityUuid, boolean isPrivate) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      EntityDto entityDto = dbClient.entityDao().selectByUuid(dbSession, entityUuid)
-        .orElseThrow(() -> new IllegalStateException("Component must be a project, a portfolio or an application"));
-      changeVisibility(entityDto, isPrivate);
-    }
-  }
 
   public void changeVisibility(EntityDto entityDto, boolean isPrivate) {
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -90,13 +83,13 @@ public class VisibilityService {
 
     if (entity.isProjectOrApp()) {
       dbClient.projectDao().updateVisibility(dbSession, entity.getUuid(), newIsPrivate);
-
       dbClient.branchDao().selectByProjectUuid(dbSession, entity.getUuid()).stream()
         .filter(branch -> !branch.isMain())
         .forEach(branch -> dbClient.componentDao().setPrivateForBranchUuidWithoutAuditLog(dbSession, branch.getUuid(), newIsPrivate));
     } else {
       dbClient.portfolioDao().updateVisibilityByPortfolioUuid(dbSession, entity.getUuid(), newIsPrivate);
     }
+    entity.setPrivate(newIsPrivate);
   }
 
   private void updatePermissionsToPrivate(DbSession dbSession, EntityDto entity) {

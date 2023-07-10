@@ -138,6 +138,7 @@ public class PortfolioDto extends EntityDto {
     return setKee(key);
   }
 
+  @Override
   public PortfolioDto setPrivate(boolean aPrivate) {
     isPrivate = aPrivate;
     return this;

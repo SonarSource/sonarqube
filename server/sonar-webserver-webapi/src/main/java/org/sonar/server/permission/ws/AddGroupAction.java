@@ -27,8 +27,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.permission.GroupPermissionChange;
-import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
@@ -84,15 +84,16 @@ public class AddGroupAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      GroupUuidOrAnyone group = wsSupport.findGroup(dbSession, request);
+      GroupDto groupDto = wsSupport.findGroupDtoOrNullIfAnyone(dbSession, request);
       EntityDto project = wsSupport.findEntity(dbSession, request);
       wsSupport.checkPermissionManagementAccess(userSession, project);
-      PermissionChange change = new GroupPermissionChange(
+      GroupPermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.ADD,
         request.mandatoryParam(PARAM_PERMISSION),
         project,
-        group, permissionService);
-      permissionUpdater.apply(dbSession, List.of(change));
+        groupDto,
+        permissionService);
+      permissionUpdater.applyForGroups(dbSession, List.of(change));
     }
     response.noContent();
   }

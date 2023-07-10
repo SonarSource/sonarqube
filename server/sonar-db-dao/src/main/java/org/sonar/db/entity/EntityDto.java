@@ -105,4 +105,9 @@ public class EntityDto {
   public int hashCode() {
     return Objects.hash(uuid);
   }
+
+  public <T extends EntityDto> T setPrivate(boolean aPrivate) {
+    isPrivate = aPrivate;
+    return (T) this;
+  }
 }

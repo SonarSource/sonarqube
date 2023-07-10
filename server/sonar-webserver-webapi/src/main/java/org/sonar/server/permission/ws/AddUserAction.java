@@ -90,12 +90,12 @@ public class AddUserAction implements PermissionsWsAction {
       checkProjectAdmin(userSession, configuration, entity);
       UserId user = wsSupport.findUser(dbSession, userLogin);
 
-      PermissionChange change = new UserPermissionChange(
+      UserPermissionChange change = new UserPermissionChange(
         PermissionChange.Operation.ADD,
         request.mandatoryParam(PARAM_PERMISSION),
         entity,
         user, permissionService);
-      permissionUpdater.apply(dbSession, singletonList(change));
+      permissionUpdater.applyForUser(dbSession, singletonList(change));
     }
     response.noContent();
   }

@@ -20,6 +20,7 @@
 package org.sonar.server.usergroups.ws;
 
 import java.util.Optional;
+import javax.annotation.CheckForNull;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
@@ -41,7 +42,6 @@ import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOption
  */
 public class GroupWsSupport {
 
-  static final String PARAM_GROUP_ID = "id";
   static final String PARAM_GROUP_NAME = "name";
   static final String PARAM_GROUP_CURRENT_NAME = "currentName";
   static final String PARAM_GROUP_DESCRIPTION = "description";
@@ -76,8 +76,15 @@ public class GroupWsSupport {
     return findGroupDto(dbSession, groupName);
   }
 
-  public GroupDto findGroupDto(DbSession dbSession, String groupName) {
+  @CheckForNull
+  public GroupDto findGroupDtoOrNullIfAnyone(DbSession dbSession, String groupName) {
+    if (DefaultGroups.isAnyone(groupName)) {
+      return null;
+    }
+    return findGroupDto(dbSession, groupName);
+  }
 
+  public GroupDto findGroupDto(DbSession dbSession, String groupName) {
     Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, groupName);
     checkFoundWithOptional(group, "No group with name '%s'", groupName);
     return group.get();

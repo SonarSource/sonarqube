@@ -19,7 +19,10 @@
  */
 package org.sonar.server.permission;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
@@ -28,14 +31,14 @@ import org.sonar.db.permission.GlobalPermission;
 
 @Immutable
 public class PermissionServiceImpl implements PermissionService {
-  private static final List<String> ALL_PROJECT_PERMISSIONS = List.of(
+  public static final Set<String> ALL_PROJECT_PERMISSIONS = Collections.unmodifiableSet(new LinkedHashSet<>(List.of(
     UserRole.ADMIN,
     UserRole.CODEVIEWER,
     UserRole.ISSUE_ADMIN,
     UserRole.SECURITYHOTSPOT_ADMIN,
     UserRole.SCAN,
     UserRole.USER
-  );
+  )));
 
   private static final List<GlobalPermission> ALL_GLOBAL_PERMISSIONS = List.of(GlobalPermission.values());
 

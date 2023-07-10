@@ -69,6 +69,7 @@ public class ProjectDto extends EntityDto {
     return setKee(key);
   }
 
+  @Override
   public ProjectDto setPrivate(boolean aPrivate) {
     isPrivate = aPrivate;
     return this;

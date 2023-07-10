@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.PermissionChange;
@@ -50,7 +51,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
   private final PermissionService permissionService;
 
   public RemoveGroupAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
-                           WsParameters wsParameters, PermissionService permissionService) {
+    WsParameters wsParameters, PermissionService permissionService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionUpdater = permissionUpdater;
@@ -85,21 +86,21 @@ public class RemoveGroupAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      GroupUuidOrAnyone group = wsSupport.findGroup(dbSession, request);
       EntityDto entity = wsSupport.findEntity(dbSession, request);
+      GroupDto groupDto = wsSupport.findGroupDtoOrNullIfAnyone(dbSession, request);
 
       wsSupport.checkPermissionManagementAccess(userSession, entity);
 
       String permission = request.mandatoryParam(PARAM_PERMISSION);
-      wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(dbSession, userSession, entity, permission, group);
+      wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(dbSession, userSession, entity, permission, GroupUuidOrAnyone.from(groupDto));
 
-      PermissionChange change = new GroupPermissionChange(
+      GroupPermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.REMOVE,
         permission,
         entity,
-        group,
+        groupDto,
         permissionService);
-      permissionUpdater.apply(dbSession, singletonList(change));
+      permissionUpdater.applyForGroups(dbSession, singletonList(change));
     }
     response.noContent();
   }

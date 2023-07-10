@@ -45,6 +45,7 @@ import org.sonar.db.scim.ScimUserDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
@@ -241,12 +242,18 @@ public class UserDbTester {
     return insertPermissionOnAnyone(permission.getKey());
   }
 
+  public Set<GroupPermissionDto> insertPermissionsOnGroup(GroupDto group, String... permissions) {
+    return stream(permissions)
+      .map(p -> insertPermissionOnGroup(group, p))
+      .collect(toSet());
+  }
+
   public GroupPermissionDto insertPermissionOnGroup(GroupDto group, String permission) {
     GroupPermissionDto dto = new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setGroupUuid(group.getUuid())
       .setRole(permission);
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, (EntityDto) null, null);
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, null, null);
     db.commit();
     return dto;
   }
@@ -319,6 +326,12 @@ public class UserDbTester {
     db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, projectDto, null);
     db.commit();
     return dto;
+  }
+
+  public Set<GroupPermissionDto> insertEntityPermissionsOnGroup(GroupDto group, EntityDto entity, String... permissions) {
+    return stream(permissions)
+      .map(permission -> insertEntityPermissionOnGroup(group, permission, entity))
+      .collect(toSet());
   }
 
   public GroupPermissionDto insertEntityPermissionOnGroup(GroupDto group, String permission, EntityDto entity) {
@@ -425,7 +438,6 @@ public class UserDbTester {
   public List<String> selectEntityPermissionOfUser(UserDto user, String entityUuid) {
     return db.getDbClient().userPermissionDao().selectEntityPermissionsOfUser(db.getSession(), user.getUuid(), entityUuid);
   }
-
 
   private static List<GlobalPermission> toListOfGlobalPermissions(List<String> keys) {
     return keys

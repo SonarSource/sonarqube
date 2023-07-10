@@ -19,20 +19,26 @@
  */
 package org.sonar.server.permission;
 
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.db.entity.EntityDto;
+import org.sonar.db.user.GroupDto;
 
 public class GroupPermissionChange extends PermissionChange {
 
-  private final GroupUuidOrAnyone group;
+  private final GroupDto groupDto;
 
   public GroupPermissionChange(Operation operation, String permission, @Nullable EntityDto entityDto,
-    GroupUuidOrAnyone group, PermissionService permissionService) {
+    @Nullable GroupDto groupDto, PermissionService permissionService) {
     super(operation, permission, entityDto, permissionService);
-    this.group = group;
+    this.groupDto = groupDto;
   }
 
   public GroupUuidOrAnyone getGroupUuidOrAnyone() {
-    return group;
+    return GroupUuidOrAnyone.from(groupDto);
+  }
+
+  public Optional<String> getGroupName() {
+    return Optional.ofNullable(groupDto).map(GroupDto::getName);
   }
 }

@@ -19,6 +19,8 @@
  */
 package org.sonar.server.permission;
 
+import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -49,11 +51,29 @@ public class GroupUuidOrAnyone {
     return uuid;
   }
 
-  public static GroupUuidOrAnyone from(GroupDto dto) {
-    return new GroupUuidOrAnyone(dto.getUuid());
+  public static GroupUuidOrAnyone from(@Nullable GroupDto dto) {
+    String groupUuid = Optional.ofNullable(dto).map(GroupDto::getUuid).orElse(null);
+    return new GroupUuidOrAnyone(groupUuid);
   }
 
   public static GroupUuidOrAnyone forAnyone() {
     return new GroupUuidOrAnyone(null);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    GroupUuidOrAnyone that = (GroupUuidOrAnyone) o;
+    return Objects.equals(uuid, that.uuid);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(uuid);
   }
 }
