@@ -28,9 +28,13 @@ import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Permissions } from '../../../types/permissions';
 import { LoggedInUser } from '../../../types/users';
 
+import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+
 interface Props {
   className?: string;
   currentUser: LoggedInUser;
+  location: Location;
+  router: Router;
 }
 
 interface State {
@@ -95,18 +99,20 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
     }
   };
 
-  handleProjectCreate(){
-    let url = window.location.href;
-    let newUrl = "";
-    if(url.endsWith("/projects")){
-      newUrl = url.replace("projects", "extension/developer/projects");
-    }
-    window.location.href = newUrl;
+  handleProjectCreate=()=> {
+    let path = this.props.location.pathname;
+    let newPath = "";
+    if(path.endsWith("/projects")){
+       newPath = path.replace("projects", "extension/developer/projects");
+     }
+     this.props.router.push(newPath);
   }
 
   render() {
     const { currentUser } = this.props;
     const { showProjectsLink } = this.state;
+    console.log("render");
+    console.log(this.props)
     const canCreateProject = hasGlobalPermission(currentUser, Permissions.ProjectCreation);
 
     if (!canCreateProject) {
@@ -123,4 +129,4 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUserContext(ProjectCreationMenu);
+export default withRouter(withCurrentUserContext(ProjectCreationMenu));
