@@ -77,7 +77,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
 
       {hotspot && (
         <div className="big-padded hotspot-content">
-          <HotspotHeader hotspot={hotspot} onUpdateHotspot={props.onUpdateHotspot} />
+          <HotspotHeader component={component} hotspot={hotspot} onUpdateHotspot={props.onUpdateHotspot} />
           <HotspotViewerTabs
             codeTabContent={
               <HotspotSnippetContainer

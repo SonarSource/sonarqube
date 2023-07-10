@@ -18,21 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Component } from '../../../../js/types/types';
 import Link from '../../../components/common/Link';
 import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
 import { translate } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
+
 import Assignee from './assignee/Assignee';
 import Status from './status/Status';
 
 export interface HotspotHeaderProps {
+  component:Component;
   hotspot: Hotspot;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
 }
 
 export function HotspotHeader(props: HotspotHeaderProps) {
-  const { hotspot } = props;
+  const { hotspot, component } = props;
   const { message, messageFormattings, rule } = hotspot;
   return (
     <div className="huge-spacer-bottom hotspot-header">
@@ -42,7 +45,7 @@ export function HotspotHeader(props: HotspotHeaderProps) {
         </div>
         <div className="spacer-top">
           <span className="note padded-right">{rule.name}</span>
-          <Link className="small" to={getRuleUrl(rule.key)} target="_blank">
+          <Link className="small" to={getRuleUrl(rule.key, component.organization )} target="_blank">
             {rule.key}
           </Link>
         </div>

@@ -350,7 +350,7 @@ export function getProjectSettingsUrl(id: string, category?: string): Partial<Pa
 /**
  * Generate URL for the rules page
  */
-export function getRulesUrl(query: Query, organization: string): To {
+export function getRulesUrl(query: Query, organization: string | undefined): To {
   return { pathname: `/organizations/${organization}/rules`, search: queryToSearch(query) };
 }
 
@@ -362,7 +362,7 @@ export function getDeprecatedActiveRulesUrl(query: Query = {}, organization: str
   return getRulesUrl({ ...query, ...baseQuery }, organization);
 }
 
-export function getRuleUrl(rule: string, organization: string) {
+export function getRuleUrl(rule: string, organization: string| undefined) {
   return getRulesUrl({ open: rule, rule_key: rule }, organization);
 }
 

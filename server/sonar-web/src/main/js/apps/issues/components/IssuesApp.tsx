@@ -1102,12 +1102,14 @@ export class App extends React.PureComponent<Props, State> {
       paging,
       loadingRule,
     } = this.state;
+    const organization = this.props.organization?.kee;
     return (
       <div className="layout-page-main-inner">
         <DeferredSpinner loading={loadingRule}>
           {openIssue && openRuleDetails ? (
             <>
               <IssueHeader
+                organization={organization}
                 issue={openIssue}
                 ruleDetails={openRuleDetails}
                 branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
