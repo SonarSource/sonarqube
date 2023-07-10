@@ -57,6 +57,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.SCAN;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.component.BranchType.BRANCH;
@@ -75,13 +76,16 @@ public class TaskActionIT {
   private final TaskAction underTest = new TaskAction(db.getDbClient(), formatter, userSession);
   private final WsActionTester ws = new WsActionTester(underTest);
 
-  private ComponentDto privateProject;
+  private ComponentDto privateProjectMainBranch;
   private ComponentDto publicProjectMainBranch;
   private ProjectDto publicProject;
+  private ProjectDto privateProject;
 
   @Before
   public void setUp() {
-    privateProject = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData privateProjectData = db.components().insertPrivateProject();
+    privateProject = privateProjectData.getProjectDto();
+    privateProjectMainBranch = privateProjectData.getMainBranchComponent();
     userSession.logIn().addProjectPermission(ADMIN, privateProject);
     ProjectData publicProjectData = db.components().insertPublicProject();
     publicProject = publicProjectData.getProjectDto();
@@ -91,12 +95,12 @@ public class TaskActionIT {
   @Test
   public void task_is_in_queue() {
     UserDto user = db.users().insertUser();
-    userSession.addProjectPermission(SCAN, privateProject);
+    loginAndAddProjectPermission(null, SCAN);
 
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setUuid(SOME_TASK_UUID);
-    queueDto.setComponentUuid(privateProject.uuid());
+    queueDto.setComponentUuid(privateProjectMainBranch.uuid());
     queueDto.setStatus(CeQueueDto.Status.PENDING);
     queueDto.setSubmitterUuid(user.getUuid());
     persist(queueDto);
@@ -107,9 +111,9 @@ public class TaskActionIT {
     assertThat(taskResponse.getTask().getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(taskResponse.getTask().getStatus()).isEqualTo(Ce.TaskStatus.PENDING);
     assertThat(taskResponse.getTask().getSubmitterLogin()).isEqualTo(user.getLogin());
-    assertThat(taskResponse.getTask().getComponentId()).isEqualTo(privateProject.uuid());
-    assertThat(taskResponse.getTask().getComponentKey()).isEqualTo(privateProject.getKey());
-    assertThat(taskResponse.getTask().getComponentName()).isEqualTo(privateProject.name());
+    assertThat(taskResponse.getTask().getComponentId()).isEqualTo(privateProjectMainBranch.uuid());
+    assertThat(taskResponse.getTask().getComponentKey()).isEqualTo(privateProjectMainBranch.getKey());
+    assertThat(taskResponse.getTask().getComponentName()).isEqualTo(privateProjectMainBranch.name());
     assertThat(taskResponse.getTask().hasExecutionTimeMs()).isFalse();
     assertThat(taskResponse.getTask().getWarningCount()).isZero();
     assertThat(taskResponse.getTask().getWarningsList()).isEmpty();
@@ -141,7 +145,7 @@ public class TaskActionIT {
   @Test
   public void task_is_archived() {
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN, privateProject);
+    loginAndAddProjectPermission(user, GlobalPermission.SCAN.getKey());
 
     CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID);
     persist(activityDto);
@@ -152,9 +156,9 @@ public class TaskActionIT {
     Ce.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getStatus()).isEqualTo(Ce.TaskStatus.FAILED);
-    assertThat(task.getComponentId()).isEqualTo(privateProject.uuid());
-    assertThat(task.getComponentKey()).isEqualTo(privateProject.getKey());
-    assertThat(task.getComponentName()).isEqualTo(privateProject.name());
+    assertThat(task.getComponentId()).isEqualTo(privateProjectMainBranch.uuid());
+    assertThat(task.getComponentKey()).isEqualTo(privateProjectMainBranch.getKey());
+    assertThat(task.getComponentName()).isEqualTo(privateProjectMainBranch.name());
     assertThat(task.getAnalysisId()).isEqualTo(activityDto.getAnalysisUuid());
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(task.getWarningCount()).isZero();
@@ -164,12 +168,13 @@ public class TaskActionIT {
   @Test
   public void branch_in_past_activity() {
     logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(UserRole.USER, projectData.getProjectDto());
     String branchName = randomAlphanumeric(248);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(BRANCH).setKey(branchName));
     db.components().insertSnapshot(branch);
-    CeActivityDto activity = createAndPersistArchivedTask(project);
+    CeActivityDto activity = createAndPersistArchivedTask(mainBranch);
     insertCharacteristic(activity, BRANCH_KEY, branchName);
     insertCharacteristic(activity, BRANCH_TYPE_KEY, BRANCH.name());
 
@@ -303,8 +308,8 @@ public class TaskActionIT {
   @Test
   public void get_project_queue_task_with_scan_permission_on_project() {
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(GlobalPermission.SCAN.getKey(), privateProject);
-    CeQueueDto task = createAndPersistQueueTask(privateProject, user);
+    loginAndAddProjectPermission(user, GlobalPermission.SCAN.getKey());
+    CeQueueDto task = createAndPersistQueueTask(privateProjectMainBranch, user);
 
     call(task.getUuid());
   }
@@ -324,7 +329,7 @@ public class TaskActionIT {
   public void get_project_queue_task_of_private_project_with_user_permission_fails_with_ForbiddenException() {
     UserDto user = db.users().insertUser();
     userSession.logIn().addProjectPermission(UserRole.USER, privateProject);
-    CeQueueDto task = createAndPersistQueueTask(privateProject, user);
+    CeQueueDto task = createAndPersistQueueTask(privateProjectMainBranch, user);
 
     String uuid = task.getUuid();
     assertThatThrownBy(() -> call(uuid))
@@ -334,25 +339,35 @@ public class TaskActionIT {
   @Test
   public void get_project_queue_task_on_public_project() {
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(GlobalPermission.SCAN.getKey(), privateProject);
-    CeQueueDto task = createAndPersistQueueTask(privateProject, user);
+    loginAndAddProjectPermission(user, GlobalPermission.SCAN.getKey());
+    CeQueueDto task = createAndPersistQueueTask(privateProjectMainBranch, user);
 
     call(task.getUuid());
+  }
+
+  private void loginAndAddProjectPermission(@Nullable UserDto user, String permission) {
+    if (user != null) {
+      userSession.logIn(user);
+    } else {
+      userSession.logIn();
+    }
+    userSession.addProjectPermission(permission, privateProject)
+      .addProjectBranchMapping(privateProject.getUuid(), privateProjectMainBranch);
   }
 
   @Test
   public void get_project_queue_task_with_scan_permission_but_not_on_project() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(GlobalPermission.SCAN);
-    CeQueueDto task = createAndPersistQueueTask(privateProject, user);
+    CeQueueDto task = createAndPersistQueueTask(privateProjectMainBranch, user);
 
     call(task.getUuid());
   }
 
   @Test
   public void get_project_queue_task_with_project_admin_permission() {
-    userSession.logIn().addProjectPermission(ADMIN, privateProject);
-    CeActivityDto task = createAndPersistArchivedTask(privateProject);
+    loginAndAddProjectPermission(null, ADMIN);
+    CeActivityDto task = createAndPersistArchivedTask(privateProjectMainBranch);
 
     call(task.getUuid());
   }
@@ -361,7 +376,7 @@ public class TaskActionIT {
   public void getting_project_queue_task_throws_ForbiddenException_if_no_admin_nor_scan_permissions() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    CeQueueDto task = createAndPersistQueueTask(privateProject, user);
+    CeQueueDto task = createAndPersistQueueTask(privateProjectMainBranch, user);
 
     String uuid = task.getUuid();
     assertThatThrownBy(() -> call(uuid))
@@ -390,8 +405,8 @@ public class TaskActionIT {
 
   @Test
   public void get_project_archived_task_with_scan_permission_on_project() {
-    userSession.logIn().addProjectPermission(GlobalPermission.SCAN.getKey(), privateProject);
-    CeActivityDto task = createAndPersistArchivedTask(privateProject);
+    loginAndAddProjectPermission(null, SCAN);
+    CeActivityDto task = createAndPersistArchivedTask(privateProjectMainBranch);
 
     call(task.getUuid());
   }
@@ -409,7 +424,7 @@ public class TaskActionIT {
   @Test
   public void get_project_archived_task_with_scan_permission_but_not_on_project() {
     userSession.logIn().addPermission(GlobalPermission.SCAN);
-    CeActivityDto task = createAndPersistArchivedTask(privateProject);
+    CeActivityDto task = createAndPersistArchivedTask(privateProjectMainBranch);
 
     call(task.getUuid());
   }
@@ -417,7 +432,7 @@ public class TaskActionIT {
   @Test
   public void getting_project_archived_task_throws_ForbiddenException_if_no_admin_nor_scan_permissions() {
     userSession.logIn();
-    CeActivityDto task = createAndPersistArchivedTask(privateProject);
+    CeActivityDto task = createAndPersistArchivedTask(privateProjectMainBranch);
 
     String uuid = task.getUuid();
     assertThatThrownBy(() -> call(uuid))
@@ -462,23 +477,23 @@ public class TaskActionIT {
   public void get_warnings_on_private_project_archived_task_if_user_fails_with_ForbiddenException() {
     userSession.logIn().addProjectPermission(UserRole.USER, privateProject);
 
-    CeActivityDto persistArchivedTask = createAndPersistArchivedTask(privateProject);
+    CeActivityDto persistArchivedTask = createAndPersistArchivedTask(privateProjectMainBranch);
     assertThatThrownBy(() -> insertWarningsCallEndpointAndAssertWarnings(persistArchivedTask))
       .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void get_warnings_on_private_project_archived_task_if_scan() {
-    userSession.logIn().addProjectPermission(GlobalPermission.SCAN.getKey(), privateProject);
+    loginAndAddProjectPermission(null, GlobalPermission.SCAN.getKey());
 
-    insertWarningsCallEndpointAndAssertWarnings(createAndPersistArchivedTask(privateProject));
+    insertWarningsCallEndpointAndAssertWarnings(createAndPersistArchivedTask(privateProjectMainBranch));
   }
 
   @Test
   public void get_warnings_on_private_project_archived_task_if_global_scan_permission() {
     userSession.logIn().addPermission(GlobalPermission.SCAN);
 
-    insertWarningsCallEndpointAndAssertWarnings(createAndPersistArchivedTask(privateProject));
+    insertWarningsCallEndpointAndAssertWarnings(createAndPersistArchivedTask(privateProjectMainBranch));
   }
 
   @Test
@@ -549,7 +564,7 @@ public class TaskActionIT {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setUuid(uuid);
-    queueDto.setComponentUuid(privateProject.uuid());
+    queueDto.setComponentUuid(privateProjectMainBranch.uuid());
     return queueDto;
   }
 

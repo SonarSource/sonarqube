@@ -369,7 +369,7 @@ public class MeasureActionIT {
 
   @Test
   public void return_error_on_private_project_without_token() throws ParseException {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY).setValueType(INT.name()));

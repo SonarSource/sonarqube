@@ -381,7 +381,7 @@ public class ActivityActionIT {
     // is reserved to roots
     PortfolioData view = db.components().insertPrivatePortfolioData();
     insertActivity("T1", view, SUCCESS);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, view.getRootComponent());
+    userSession.logIn().addPortfolioPermission(UserRole.ADMIN, view.getPortfolioDto());
 
     TestRequest request = ws.newRequest().setParam(TEXT_QUERY, "T1");
     assertThatThrownBy(() -> call(request))

@@ -279,9 +279,10 @@ public class ListActionIT {
 
   @Test
   public void fail_if_not_a_reference_on_project() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-    userSession.logIn().addProjectPermission(USER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(mainBranch));
+    userSession.logIn().addProjectPermission(USER, projectData.getProjectDto());
     TestRequest request = ws.newRequest().setParam("project", file.getKey());
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)

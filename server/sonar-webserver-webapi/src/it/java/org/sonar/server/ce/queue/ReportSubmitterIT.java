@@ -37,6 +37,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -261,7 +262,7 @@ public class ReportSubmitterIT {
   @Test
   public void fail_if_component_is_not_a_project() {
     ComponentDto component = db.components().insertPublicPortfolio();
-    userSession.logIn().addProjectPermission(SCAN.getKey(), component);
+    userSession.logIn().addPortfolioPermission(SCAN.getKey(), component);
     mockSuccessfulPrepareSubmitCall();
 
     String dbKey = component.getKey();
@@ -275,8 +276,9 @@ public class ReportSubmitterIT {
 
   @Test
   public void fail_if_project_key_already_exists_as_other_component() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto dir = db.components().insertComponent(newDirectory(project, "path"));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ProjectDto project = projectData.getProjectDto();
+    ComponentDto dir = db.components().insertComponent(newDirectory(projectData.getMainBranchComponent(), "path"));
     userSession.logIn().addProjectPermission(SCAN.getKey(), project);
     mockSuccessfulPrepareSubmitCall();
 
@@ -303,8 +305,8 @@ public class ReportSubmitterIT {
 
   @Test
   public void fail_with_forbidden_exception_on_new_project_when_only_project_scan_permission() {
-    ComponentDto component = db.components().insertPrivateProject(PROJECT_UUID).getMainBranchComponent();
-    userSession.addProjectPermission(SCAN.getKey(), component);
+    ProjectDto project = db.components().insertPrivateProject(PROJECT_UUID).getProjectDto();
+    userSession.addProjectPermission(SCAN.getKey(), project);
     mockSuccessfulPrepareSubmitCall();
 
     Map<String, String> emptyMap = emptyMap();

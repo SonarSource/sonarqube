@@ -120,8 +120,12 @@ public class ComponentDbTester {
     return insertComponentAndBranchAndProject(componentDto, false);
   }
 
-  public ProjectData insertPrivateProject(String uuid) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(), true, defaults(), defaults(), p -> p.setUuid(uuid));
+  public ProjectData insertPrivateProject(String projectUuid) {
+    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(), true, defaults(), defaults(), p -> p.setUuid(projectUuid));
+  }
+
+  public ProjectData insertPrivateProject(String projectUuid, ComponentDto mainBranch) {
+    return insertComponentAndBranchAndProject(mainBranch, true, defaults(), defaults(), p -> p.setUuid(projectUuid));
   }
 
   public final ProjectData insertPrivateProject(Consumer<ComponentDto> dtoPopulator) {
@@ -328,6 +332,13 @@ public class ComponentDbTester {
 
   public void addPortfolioProject(ComponentDto portfolio, String... projectUuids) {
     addPortfolioProject(portfolio.uuid(), projectUuids);
+  }
+
+  public void addPortfolioProject(ComponentDto portfolio, ProjectDto... projects) {
+    for (ProjectDto project : projects) {
+      dbClient.portfolioDao().addProject(dbSession, portfolio.uuid(), project.getUuid());
+    }
+    db.commit();
   }
 
   public void addPortfolioProject(ComponentDto portfolio, ComponentDto... mainBranches) {

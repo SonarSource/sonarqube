@@ -272,7 +272,7 @@ public class QualityGateActionIT {
 
   @Test
   public void return_error_on_private_project() throws ParseException {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addProjectPermission(USER, project);
 

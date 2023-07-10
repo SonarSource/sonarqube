@@ -200,6 +200,11 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
+  public UserSessionRule addPortfolioPermission(String projectPermission, ComponentDto... components) {
+    ensureAbstractMockUserSession().addProjectPermission(projectPermission, components);
+    return this;
+  }
+
   public UserSessionRule addProjectBranchMapping(String projectUuid, ComponentDto... branchComponents) {
     ensureAbstractMockUserSession().addProjectBranchMapping(projectUuid, branchComponents);
     return this;

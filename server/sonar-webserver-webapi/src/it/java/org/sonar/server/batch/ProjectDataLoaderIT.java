@@ -28,7 +28,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.scanner.protocol.input.FileData;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
@@ -57,8 +59,10 @@ public class ProjectDataLoaderIT {
 
   @Test
   public void throws_NotFoundException_when_branch_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.logIn().addProjectPermission(SCAN.getKey(), project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ProjectDto project = projectData.getProjectDto();
+    userSession.logIn().addProjectPermission(SCAN.getKey(), project)
+        .registerBranches(projectData.getMainBranchDto());
 
     assertThatThrownBy(() -> {
       underTest.load(ProjectDataQuery.create()
@@ -71,9 +75,11 @@ public class ProjectDataLoaderIT {
 
   @Test
   public void return_file_data_from_single_project() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.logIn().addProjectPermission(SCAN.getKey(), project);
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    ProjectData projectData = db.components().insertPrivateProject();
+    ProjectDto project = projectData.getProjectDto();
+    userSession.logIn().addProjectPermission(SCAN.getKey(), project)
+      .registerBranches(projectData.getMainBranchDto());
+    ComponentDto file = db.components().insertComponent(newFileDto(projectData.getMainBranchComponent()));
     dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(file).setSrcHash("123456"));
     db.commit();
 
@@ -86,16 +92,19 @@ public class ProjectDataLoaderIT {
 
   @Test
   public void return_file_data_from_branch() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    userSession.logIn().addProjectPermission(SCAN.getKey(), project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey("my_branch"));
+    userSession.logIn().addProjectPermission(SCAN.getKey(), projectData.getProjectDto())
+      .registerBranches(projectData.getMainBranchDto())
+      .addProjectBranchMapping(projectData.projectUuid(), branch);
     // File on branch
-    ComponentDto projectFile = db.components().insertComponent(newFileDto(branch, project.uuid()));
+    ComponentDto projectFile = db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
     dbClient.fileSourceDao().insert(dbSession, newFileSourceDto(projectFile).setSrcHash("123456"));
     dbSession.commit();
 
     ProjectRepositories ref = underTest.load(ProjectDataQuery.create()
-      .setProjectKey(project.getKey())
+      .setProjectKey(mainBranch.getKey())
       .setBranch("my_branch"));
 
     assertThat(ref.fileDataByPath(projectFile.path()).hash()).isEqualTo("123456");
