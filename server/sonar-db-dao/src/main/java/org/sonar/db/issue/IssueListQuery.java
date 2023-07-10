@@ -21,6 +21,7 @@ package org.sonar.db.issue;
 
 import java.util.Collection;
 import java.util.Collections;
+import javax.annotation.Nullable;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
@@ -121,12 +122,12 @@ public class IssueListQuery {
       return this;
     }
 
-    public IssueListQueryBuilder branch(String branch) {
+    public IssueListQueryBuilder branch(@Nullable String branch) {
       this.branch = branch;
       return this;
     }
 
-    public IssueListQueryBuilder pullRequest(String pullRequest) {
+    public IssueListQueryBuilder pullRequest(@Nullable String pullRequest) {
       this.pullRequest = pullRequest;
       return this;
     }

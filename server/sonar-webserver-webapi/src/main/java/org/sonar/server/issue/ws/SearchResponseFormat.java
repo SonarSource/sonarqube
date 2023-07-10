@@ -121,8 +121,11 @@ public class SearchResponseFormat {
   Issues.ListWsResponse formatList(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging) {
     Issues.ListWsResponse.Builder response = Issues.ListWsResponse.newBuilder();
 
-    response.setPaging(formatPaging(paging));
+    response.setPaging(Common.Paging.newBuilder()
+      .setPageIndex(paging.pageIndex())
+      .setPageSize(data.getIssues().size()));
     response.addAllIssues(createIssues(fields, data));
+    response.addAllComponents(formatComponents(data));
     return response.build();
   }
 

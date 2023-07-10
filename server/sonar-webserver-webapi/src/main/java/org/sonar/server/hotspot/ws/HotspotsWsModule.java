@@ -29,6 +29,7 @@ public class HotspotsWsModule extends Module {
       HotspotWsSupport.class,
       AssignAction.class,
       SearchAction.class,
+      ListAction.class,
       ShowAction.class,
       ChangeStatusAction.class,
       AddCommentAction.class,

@@ -155,11 +155,11 @@ public class SearchActionIT {
   private final IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), mock(AsyncIssueIndexing.class));
   private final ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
   private final PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
-  private final HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter();
+  private final HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(new TextRangeResponseFormatter());
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
   private final ComponentFinder componentFinder = TestComponentFinder.from(dbTester);
   private final SearchAction underTest = new SearchAction(dbClient, userSessionRule, issueIndex,
-    issueIndexSyncProgressChecker, responseFormatter, new TextRangeResponseFormatter(), system2, componentFinder);
+    issueIndexSyncProgressChecker, responseFormatter, system2, componentFinder);
   private final WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
@@ -252,8 +252,8 @@ public class SearchActionIT {
   @DataProvider
   public static Object[][] badStatuses() {
     return Stream.concat(
-        Issue.STATUSES.stream(),
-        Stream.of(randomAlphabetic(3)))
+      Issue.STATUSES.stream(),
+      Stream.of(randomAlphabetic(3)))
       .filter(t -> !STATUS_REVIEWED.equals(t))
       .filter(t -> !STATUS_TO_REVIEW.equals(t))
       .map(t -> new Object[] {t})
@@ -288,9 +288,9 @@ public class SearchActionIT {
   @DataProvider
   public static Object[][] badResolutions() {
     return Stream.of(
-        Issue.RESOLUTIONS.stream(),
-        Issue.SECURITY_HOTSPOT_RESOLUTIONS.stream(),
-        Stream.of(randomAlphabetic(4)))
+      Issue.RESOLUTIONS.stream(),
+      Issue.SECURITY_HOTSPOT_RESOLUTIONS.stream(),
+      Stream.of(randomAlphabetic(4)))
       .flatMap(t -> t)
       .filter(t -> !RESOLUTION_TYPES.contains(t))
       .map(t -> new Object[] {t})
@@ -1260,14 +1260,14 @@ public class SearchActionIT {
     ComponentDto file3 = dbTester.components().insertComponent(newFileDto(project).setPath("a/a/d"));
     RuleDto rule = newRule(SECURITY_HOTSPOT);
     List<IssueDto> hotspots = Stream.of(
-        newHotspot(rule, project, file3).setLine(8),
-        newHotspot(rule, project, file3).setLine(10),
-        newHotspot(rule, project, file1).setLine(null),
-        newHotspot(rule, project, file1).setLine(9),
-        newHotspot(rule, project, file1).setLine(11).setKee("a"),
-        newHotspot(rule, project, file1).setLine(11).setKee("b"),
-        newHotspot(rule, project, file2).setLine(null),
-        newHotspot(rule, project, file2).setLine(2))
+      newHotspot(rule, project, file3).setLine(8),
+      newHotspot(rule, project, file3).setLine(10),
+      newHotspot(rule, project, file1).setLine(null),
+      newHotspot(rule, project, file1).setLine(9),
+      newHotspot(rule, project, file1).setLine(11).setKee("a"),
+      newHotspot(rule, project, file1).setLine(11).setKee("b"),
+      newHotspot(rule, project, file2).setLine(null),
+      newHotspot(rule, project, file2).setLine(2))
       .collect(toList());
     String[] expectedHotspotKeys = hotspots.stream().map(IssueDto::getKey).toArray(String[]::new);
     // insert hotspots in random order
@@ -1294,11 +1294,11 @@ public class SearchActionIT {
     ComponentDto anotherFile = dbTester.components().insertComponent(newFileDto(project));
 
     List<DbIssues.Location> hotspotLocations = Stream.of(
-        newHotspotLocation(file.uuid(), "security hotspot flow message 0", 1, 1, 0, 12),
-        newHotspotLocation(file.uuid(), "security hotspot flow message 1", 3, 3, 0, 10),
-        newHotspotLocation(anotherFile.uuid(), "security hotspot flow message 2", 5, 5, 0, 15),
-        newHotspotLocation(anotherFile.uuid(), "security hotspot flow message 3", 7, 7, 0, 18),
-        newHotspotLocation(null, "security hotspot flow message 4", 12, 12, 2, 8))
+      newHotspotLocation(file.uuid(), "security hotspot flow message 0", 1, 1, 0, 12),
+      newHotspotLocation(file.uuid(), "security hotspot flow message 1", 3, 3, 0, 10),
+      newHotspotLocation(anotherFile.uuid(), "security hotspot flow message 2", 5, 5, 0, 15),
+      newHotspotLocation(anotherFile.uuid(), "security hotspot flow message 3", 7, 7, 0, 18),
+      newHotspotLocation(null, "security hotspot flow message 4", 12, 12, 2, 8))
       .collect(toList());
 
     DbIssues.Locations.Builder locations = DbIssues.Locations.newBuilder().addFlow(DbIssues.Flow.newBuilder().addAllLocation(hotspotLocations));
@@ -1781,9 +1781,9 @@ public class SearchActionIT {
     assertThat(responseAll.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(Stream.of(
-          hotspotsInLeakPeriod.stream(),
-          atLeakPeriod.stream(),
-          hotspotsBefore.stream())
+        hotspotsInLeakPeriod.stream(),
+        atLeakPeriod.stream(),
+        hotspotsBefore.stream())
         .flatMap(t -> t)
         .map(IssueDto::getKey)
         .toArray(String[]::new));
@@ -1794,8 +1794,8 @@ public class SearchActionIT {
     assertThat(responseOnLeak.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(Stream.concat(
-          hotspotsInLeakPeriod.stream(),
-          atLeakPeriod.stream())
+        hotspotsInLeakPeriod.stream(),
+        atLeakPeriod.stream())
         .map(IssueDto::getKey)
         .toArray(String[]::new));
   }
@@ -1826,8 +1826,8 @@ public class SearchActionIT {
     assertThat(responseAll.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(Stream.of(
-          hotspotsInLeakPeriod.stream(),
-          hotspotsNotInLeakPeriod.stream())
+        hotspotsInLeakPeriod.stream(),
+        hotspotsNotInLeakPeriod.stream())
         .flatMap(t -> t)
         .map(IssueDto::getKey)
         .toArray(String[]::new));

@@ -53,6 +53,12 @@ message SearchWsResponse {
   }
 }
 
+// Response of GET api/hotspots/list
+message ListWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated SearchWsResponse.Hotspot hotspots = 2;
+}
+
 // Response of GET api/hotspots/show
 message ShowWsResponse {
   optional string key = 1;

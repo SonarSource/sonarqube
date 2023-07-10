@@ -55,7 +55,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueChangeWSSupport;
 import org.sonar.server.issue.IssueChangeWSSupport.FormattingContext;
 import org.sonar.server.issue.IssueChangeWSSupport.Load;
-import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.ws.UserResponseFormatter;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.ws.MessageFormattingUtils;
@@ -87,16 +86,14 @@ public class ShowAction implements HotspotsWsAction {
   private final DbClient dbClient;
   private final HotspotWsSupport hotspotWsSupport;
   private final HotspotWsResponseFormatter responseFormatter;
-  private final TextRangeResponseFormatter textRangeFormatter;
   private final UserResponseFormatter userFormatter;
   private final IssueChangeWSSupport issueChangeSupport;
 
-  public ShowAction(DbClient dbClient, HotspotWsSupport hotspotWsSupport, HotspotWsResponseFormatter responseFormatter, TextRangeResponseFormatter textRangeFormatter,
+  public ShowAction(DbClient dbClient, HotspotWsSupport hotspotWsSupport, HotspotWsResponseFormatter responseFormatter,
     UserResponseFormatter userFormatter, IssueChangeWSSupport issueChangeSupport) {
     this.dbClient = dbClient;
     this.hotspotWsSupport = hotspotWsSupport;
     this.responseFormatter = responseFormatter;
-    this.textRangeFormatter = textRangeFormatter;
     this.userFormatter = userFormatter;
     this.issueChangeSupport = issueChangeSupport;
   }
@@ -219,7 +216,7 @@ public class ShowAction implements HotspotsWsAction {
   }
 
   private void formatTextRange(ShowWsResponse.Builder hotspotBuilder, IssueDto hotspot) {
-    textRangeFormatter.formatTextRange(hotspot, hotspotBuilder::setTextRange);
+    responseFormatter.formatTextRange(hotspot, hotspotBuilder::setTextRange);
   }
 
   private void formatFlows(DbSession dbSession, ShowWsResponse.Builder hotspotBuilder, IssueDto hotspot) {
@@ -232,7 +229,7 @@ public class ShowAction implements HotspotsWsAction {
     Set<String> componentUuids = readComponentUuidsFromLocations(hotspot, locations);
     Map<String, ComponentDto> componentsByUuids = loadComponents(dbSession, componentUuids);
 
-    hotspotBuilder.addAllFlows(textRangeFormatter.formatFlows(locations, hotspotBuilder.getComponent().getKey(), componentsByUuids));
+    hotspotBuilder.addAllFlows(responseFormatter.formatFlows(locations, hotspotBuilder.getComponent().getKey(), componentsByUuids));
   }
 
   private static Set<String> readComponentUuidsFromLocations(IssueDto hotspot, Locations locations) {
@@ -304,8 +301,6 @@ public class ShowAction implements HotspotsWsAction {
     BranchDto branch = projectAndBranch.getBranch();
     ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, componentUuid)
         .orElseThrow(() -> new NotFoundException(format("Component with uuid '%s' does not exist", componentUuid)));
-    boolean hotspotOnBranch = Objects.equals(branch.getUuid(), componentUuid);
-
     return new Components(projectAndBranch.getProject(), component, branch);
   }
 

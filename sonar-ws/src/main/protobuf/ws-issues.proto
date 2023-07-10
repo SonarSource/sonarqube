@@ -301,4 +301,5 @@ message Flow {
 message ListWsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
   repeated Issue issues = 2;
+  repeated Component components = 3;
 }

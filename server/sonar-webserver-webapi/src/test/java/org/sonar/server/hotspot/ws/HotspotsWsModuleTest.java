@@ -29,6 +29,6 @@ public class HotspotsWsModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     new HotspotsWsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(12);
+    assertThat(container.getAddedObjects()).hasSize(13);
   }
 }

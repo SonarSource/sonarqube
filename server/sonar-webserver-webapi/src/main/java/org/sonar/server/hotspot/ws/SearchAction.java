@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -55,18 +53,16 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ProjectAndBranch;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.issue.TextRangeResponseFormatter;
+import org.sonar.server.hotspot.ws.HotspotWsResponseFormatter.SearchResponseData;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Hotspots.SearchWsResponse;
@@ -84,7 +80,6 @@ import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
-import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.api.web.UserRole.USER;
@@ -92,12 +87,10 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
-import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.WsUtils.nullToEmpty;
 
 public class SearchAction implements HotspotsWsAction {
   private static final Set<String> SUPPORTED_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.APP);
@@ -131,18 +124,16 @@ public class SearchAction implements HotspotsWsAction {
   private final IssueIndex issueIndex;
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
   private final HotspotWsResponseFormatter responseFormatter;
-  private final TextRangeResponseFormatter textRangeFormatter;
   private final System2 system2;
   private final ComponentFinder componentFinder;
 
   public SearchAction(DbClient dbClient, UserSession userSession, IssueIndex issueIndex, IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
-    HotspotWsResponseFormatter responseFormatter, TextRangeResponseFormatter textRangeFormatter, System2 system2, ComponentFinder componentFinder) {
+    HotspotWsResponseFormatter responseFormatter, System2 system2, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
     this.responseFormatter = responseFormatter;
-    this.textRangeFormatter = textRangeFormatter;
     this.system2 = system2;
     this.componentFinder = componentFinder;
   }
@@ -179,7 +170,6 @@ public class SearchAction implements HotspotsWsAction {
       Optional<ProjectAndBranch> project = getAndValidateProjectOrApplication(dbSession, wsRequest);
       SearchResponseData searchResponseData = searchHotspots(wsRequest, dbSession, project.orElse(null));
       loadComponents(dbSession, searchResponseData);
-      loadRules(dbSession, searchResponseData);
       writeProtobuf(formatResponse(searchResponseData), request, response);
     }
   }
@@ -515,11 +505,11 @@ public class SearchAction implements HotspotsWsAction {
   }
 
   private void loadComponents(DbSession dbSession, SearchResponseData searchResponseData) {
-    Set<String> componentUuids = searchResponseData.getOrderedHotspots().stream()
+    Set<String> componentUuids = searchResponseData.getHotspots().stream()
       .flatMap(hotspot -> Stream.of(hotspot.getComponentUuid(), hotspot.getProjectUuid()))
       .collect(Collectors.toSet());
 
-    Set<String> locationComponentUuids = searchResponseData.getOrderedHotspots()
+    Set<String> locationComponentUuids = searchResponseData.getHotspots()
       .stream()
       .flatMap(hotspot -> getHotspotLocationComponentUuids(hotspot).stream())
       .collect(Collectors.toSet());
@@ -560,21 +550,11 @@ public class SearchAction implements HotspotsWsAction {
     return locationComponentUuids;
   }
 
-  private void loadRules(DbSession dbSession, SearchResponseData searchResponseData) {
-    Set<RuleKey> ruleKeys = searchResponseData.getOrderedHotspots()
-      .stream()
-      .map(IssueDto::getRuleKey)
-      .collect(Collectors.toSet());
-    if (!ruleKeys.isEmpty()) {
-      searchResponseData.addRules(dbClient.ruleDao().selectByKeys(dbSession, ruleKeys));
-    }
-  }
-
   private SearchWsResponse formatResponse(SearchResponseData searchResponseData) {
     SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
     formatPaging(searchResponseData, responseBuilder);
-    if (!searchResponseData.isEmpty()) {
-      formatHotspots(searchResponseData, responseBuilder);
+    if (searchResponseData.isPresent()) {
+      responseFormatter.formatHotspots(searchResponseData, responseBuilder);
       formatComponents(searchResponseData, responseBuilder);
     }
     return responseBuilder.build();
@@ -588,52 +568,6 @@ public class SearchAction implements HotspotsWsAction {
       .setTotal(paging.total());
 
     responseBuilder.setPaging(pagingBuilder.build());
-  }
-
-  private void formatHotspots(SearchResponseData searchResponseData, SearchWsResponse.Builder responseBuilder) {
-    List<IssueDto> orderedHotspots = searchResponseData.getOrderedHotspots();
-    if (orderedHotspots.isEmpty()) {
-      return;
-    }
-
-    SearchWsResponse.Hotspot.Builder builder = SearchWsResponse.Hotspot.newBuilder();
-    for (IssueDto hotspot : orderedHotspots) {
-      RuleDto rule = searchResponseData.getRule(hotspot.getRuleKey())
-        // due to join with table Rule when retrieving data from Issues, this can't happen
-        .orElseThrow(() -> new IllegalStateException(format(
-          "Rule with key '%s' not found for Hotspot '%s'", hotspot.getRuleKey(), hotspot.getKey())));
-      SecurityStandards.SQCategory sqCategory = fromSecurityStandards(rule.getSecurityStandards()).getSqCategory();
-      builder
-        .clear()
-        .setKey(hotspot.getKey())
-        .setComponent(hotspot.getComponentKey())
-        .setProject(hotspot.getProjectKey())
-        .setSecurityCategory(sqCategory.getKey())
-        .setVulnerabilityProbability(sqCategory.getVulnerability().name())
-        .setRuleKey(hotspot.getRuleKey().toString());
-      ofNullable(hotspot.getStatus()).ifPresent(builder::setStatus);
-      ofNullable(hotspot.getResolution()).ifPresent(builder::setResolution);
-      ofNullable(hotspot.getLine()).ifPresent(builder::setLine);
-      builder.setMessage(nullToEmpty(hotspot.getMessage()));
-      builder.addAllMessageFormattings(MessageFormattingUtils.dbMessageFormattingToWs(hotspot.parseMessageFormattings()));
-      ofNullable(hotspot.getAssigneeUuid()).ifPresent(builder::setAssignee);
-      builder.setAuthor(nullToEmpty(hotspot.getAuthorLogin()));
-      builder.setCreationDate(formatDateTime(hotspot.getIssueCreationDate()));
-      builder.setUpdateDate(formatDateTime(hotspot.getIssueUpdateDate()));
-      completeHotspotLocations(hotspot, builder, searchResponseData);
-      responseBuilder.addHotspots(builder.build());
-    }
-  }
-
-  private void completeHotspotLocations(IssueDto hotspot, SearchWsResponse.Hotspot.Builder hotspotBuilder, SearchResponseData data) {
-    DbIssues.Locations locations = hotspot.parseLocations();
-
-    if (locations == null) {
-      return;
-    }
-
-    textRangeFormatter.formatTextRange(locations, hotspotBuilder::setTextRange);
-    hotspotBuilder.addAllFlows(textRangeFormatter.formatFlows(locations, hotspotBuilder.getComponent(), data.getComponentsByUuid()));
   }
 
   private void formatComponents(SearchResponseData searchResponseData, SearchWsResponse.Builder responseBuilder) {
@@ -782,63 +716,5 @@ public class SearchAction implements HotspotsWsAction {
     public Set<String> getFiles() {
       return files;
     }
-  }
-
-  private static final class SearchResponseData {
-    private final Paging paging;
-    private final List<IssueDto> orderedHotspots;
-    private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
-    private final Map<RuleKey, RuleDto> rulesByRuleKey = new HashMap<>();
-    private final Map<String, BranchDto> branchesByBranchUuid = new HashMap<>();
-
-    private SearchResponseData(Paging paging, List<IssueDto> orderedHotspots) {
-      this.paging = paging;
-      this.orderedHotspots = orderedHotspots;
-    }
-
-    boolean isEmpty() {
-      return orderedHotspots.isEmpty();
-    }
-
-    public Paging getPaging() {
-      return paging;
-    }
-
-    List<IssueDto> getOrderedHotspots() {
-      return orderedHotspots;
-    }
-
-    void addComponents(Collection<ComponentDto> components) {
-      for (ComponentDto component : components) {
-        componentsByUuid.put(component.uuid(), component);
-      }
-    }
-
-    public void addBranches(List<BranchDto> branchDtos) {
-      for (BranchDto branch : branchDtos) {
-        branchesByBranchUuid.put(branch.getUuid(), branch);
-      }
-    }
-
-    public BranchDto getBranch(String branchUuid) {
-      return branchesByBranchUuid.get(branchUuid);
-    }
-
-    Collection<ComponentDto> getComponents() {
-      return componentsByUuid.values();
-    }
-
-    public Map<String, ComponentDto> getComponentsByUuid() {
-      return componentsByUuid;
-    }
-
-    void addRules(Collection<RuleDto> rules) {
-      rules.forEach(t -> rulesByRuleKey.put(t.getKey(), t));
-    }
-
-    Optional<RuleDto> getRule(RuleKey ruleKey) {
-      return ofNullable(rulesByRuleKey.get(ruleKey));
-    }
-
   }
 }

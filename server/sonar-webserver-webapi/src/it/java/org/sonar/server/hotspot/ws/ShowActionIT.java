@@ -123,12 +123,12 @@ public class ShowActionIT {
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final AvatarResolver avatarResolver = new AvatarResolverImpl();
-  private final HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter();
+  private final TextRangeResponseFormatter textRangeFormatter = new TextRangeResponseFormatter();
+  private final HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(textRangeFormatter);
   private final IssueChangeWSSupport issueChangeSupport = Mockito.mock(IssueChangeWSSupport.class);
   private final HotspotWsSupport hotspotWsSupport = new HotspotWsSupport(dbClient, userSessionRule, System2.INSTANCE);
   private final UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
-  private final TextRangeResponseFormatter textRangeFormatter = new TextRangeResponseFormatter();
-  private final ShowAction underTest = new ShowAction(dbClient, hotspotWsSupport, responseFormatter, textRangeFormatter, userFormatter, issueChangeSupport);
+  private final ShowAction underTest = new ShowAction(dbClient, hotspotWsSupport, responseFormatter, userFormatter, issueChangeSupport);
   private final WsActionTester actionTester = new WsActionTester(underTest);
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 

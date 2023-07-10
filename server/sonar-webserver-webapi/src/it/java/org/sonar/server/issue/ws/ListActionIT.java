@@ -50,6 +50,7 @@ import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.NewCodePeriodResolver;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.workflow.FunctionExecutor;
@@ -58,6 +59,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.MessageFormattingUtils;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.Severity;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
@@ -104,7 +106,7 @@ public class ListActionIT {
   private final SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new TextRangeResponseFormatter(), userFormatter);
   private final ComponentFinder componentFinder = TestComponentFinder.from(db);
   private final WsActionTester ws = new WsActionTester(
-    new ListAction(userSession, dbClient, Clock.systemUTC(), searchResponseLoader, searchResponseFormat, componentFinder));
+    new ListAction(userSession, dbClient, new NewCodePeriodResolver(dbClient, Clock.systemUTC()), searchResponseLoader, searchResponseFormat, componentFinder));
 
   @Before
   public void setUp() {
@@ -220,6 +222,13 @@ public class ListActionIT {
           MessageFormattingUtils.dbMessageFormattingListToWs(List.of(MESSAGE_FORMATTING)), "10min",
           simon.getLogin(), "John", 42, "a227e508d6646b55a086ee11d63b21e9", asList("bug", "owasp"), formatDateTime(issue.getIssueCreationDate()),
           formatDateTime(issue.getIssueUpdateDate()), false, List.of("variant1", "variant2")));
+
+    assertThat(response.getComponentsList())
+      .extracting(
+        Issues.Component::getKey, Issues.Component::getName, Issues.Component::getQualifier, Issues.Component::getLongName, Issues.Component::getPath)
+      .containsExactlyInAnyOrder(
+        tuple(project.getKey(), project.name(), project.qualifier(), project.longName(), ""),
+        tuple(file.getKey(), file.name(), file.qualifier(), file.longName(), file.path()));
   }
 
   @Test
@@ -723,6 +732,9 @@ public class ListActionIT {
       .executeProtobuf(Issues.ListWsResponse.class);
 
     assertThat(response.getIssuesList()).hasSize(expectedNumberOfIssues);
+    assertThat(response.getPaging())
+      .extracting(Common.Paging::getPageIndex, Common.Paging::getPageSize, Common.Paging::getTotal)
+      .containsExactly(Integer.parseInt(page), expectedNumberOfIssues, 0);
   }
 
   private RuleDto newIssueRule() {

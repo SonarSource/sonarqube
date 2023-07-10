@@ -24,6 +24,7 @@ import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.issue.IssueChangeWSSupport;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
+import org.sonar.server.issue.NewCodePeriodResolver;
 import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
@@ -56,6 +57,7 @@ public class IssueWsModule extends Module {
       UserResponseFormatter.class,
       SearchResponseFormat.class,
       OperationResponseWriter.class,
+      NewCodePeriodResolver.class,
       AddCommentAction.class,
       EditCommentAction.class,
       DeleteCommentAction.class,

@@ -19,11 +19,9 @@
  */
 package org.sonar.server.issue.ws;
 
-import java.time.Clock;
 import com.google.common.base.Preconditions;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
@@ -36,24 +34,23 @@ import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueListQuery;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ProjectAndBranch;
+import org.sonar.server.issue.NewCodePeriodResolver;
+import org.sonar.server.issue.NewCodePeriodResolver.ResolvedNewCodePeriod;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.lang.String.format;
 import static java.util.Collections.singletonList;
-import static org.sonar.api.measures.CoreMetrics.ANALYSIS_FROM_SONARQUBE_9_4_KEY;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.utils.Paging.forPageIndex;
-import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_STATUSES;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -71,15 +68,16 @@ public class ListAction implements IssuesWsAction {
   private static final String PARAM_IN_NEW_CODE_PERIOD = "inNewCodePeriod";
   private final UserSession userSession;
   private final DbClient dbClient;
-  private final Clock clock;
+  private final NewCodePeriodResolver newCodePeriodResolver;
   private final SearchResponseLoader searchResponseLoader;
   private final SearchResponseFormat searchResponseFormat;
   private final ComponentFinder componentFinder;
 
-  public ListAction(UserSession userSession, DbClient dbClient, Clock clock, SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat, ComponentFinder componentFinder) {
+  public ListAction(UserSession userSession, DbClient dbClient, NewCodePeriodResolver newCodePeriodResolver, SearchResponseLoader searchResponseLoader,
+    SearchResponseFormat searchResponseFormat, ComponentFinder componentFinder) {
     this.userSession = userSession;
     this.dbClient = dbClient;
-    this.clock = clock;
+    this.newCodePeriodResolver = newCodePeriodResolver;
     this.searchResponseLoader = searchResponseLoader;
     this.searchResponseFormat = searchResponseFormat;
     this.componentFinder = componentFinder;
@@ -204,43 +202,19 @@ public class ListAction implements IssuesWsAction {
         .statuses(ISSUE_STATUSES)
         .types(wsRequest.types);
 
-      if (wsRequest.inNewCodePeriod) {
-        setNewCodePeriod(dbSession, wsRequest, queryBuilder);
+      String branchKey = branch.getBranchKey();
+      if (wsRequest.inNewCodePeriod && wsRequest.pullRequest == null && branchKey != null) {
+        ResolvedNewCodePeriod newCodePeriod = newCodePeriodResolver.resolveForProjectAndBranch(dbSession, wsRequest.project, branchKey);
+        if (NewCodePeriodType.REFERENCE_BRANCH == newCodePeriod.type()) {
+          queryBuilder.newCodeOnReference(true);
+        } else {
+          queryBuilder.createdAfter(newCodePeriod.periodDate());
+        }
       }
 
       Pagination pagination = Pagination.forPage(wsRequest.page).andSize(wsRequest.pageSize);
       return dbClient.issueDao().selectByQuery(dbSession, queryBuilder.build(), pagination);
     }
-  }
-
-  private void setNewCodePeriod(DbSession dbSession, WsRequest wsRequest, IssueListQuery.IssueListQueryBuilder queryBuilder) {
-    ComponentDto componentDto = dbClient.componentDao().selectByKeyAndBranch(dbSession, wsRequest.project, wsRequest.branch)
-      .orElseThrow(() -> new IllegalStateException(format("Could not find component for project: %s,  branch: %s", wsRequest.project, wsRequest.branch)));
-    Optional<SnapshotDto> snapshot = getLastAnalysis(dbSession, componentDto);
-    if (snapshot.isPresent() && isLastAnalysisFromReAnalyzedReferenceBranch(dbSession, snapshot.get())) {
-      queryBuilder.newCodeOnReference(true);
-    } else {
-      // if last analysis has no period date, then no issue should be considered new.
-      long createdAfterFromSnapshot = snapshot.map(SnapshotDto::getPeriodDate).orElse(clock.millis());
-      queryBuilder.createdAfter(createdAfterFromSnapshot);
-    }
-  }
-
-  private Optional<SnapshotDto> getLastAnalysis(DbSession dbSession, ComponentDto component) {
-    return dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.uuid());
-  }
-
-  private boolean isLastAnalysisFromReAnalyzedReferenceBranch(DbSession dbSession, SnapshotDto snapshot) {
-    return isLastAnalysisUsingReferenceBranch(snapshot) &&
-      isLastAnalysisFromSonarQube94Onwards(dbSession, snapshot.getRootComponentUuid());
-  }
-
-  private boolean isLastAnalysisFromSonarQube94Onwards(DbSession dbSession, String componentUuid) {
-    return dbClient.liveMeasureDao().selectMeasure(dbSession, componentUuid, ANALYSIS_FROM_SONARQUBE_9_4_KEY).isPresent();
-  }
-
-  private static boolean isLastAnalysisUsingReferenceBranch(SnapshotDto snapshot) {
-    return !isNullOrEmpty(snapshot.getPeriodMode()) && REFERENCE_BRANCH.name().equals(snapshot.getPeriodMode());
   }
 
   private Issues.ListWsResponse formatResponse(WsRequest request, List<IssueDto> issues) {
