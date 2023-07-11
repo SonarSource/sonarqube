@@ -31,6 +31,7 @@ import Checkbox from '../controls/Checkbox';
 
 export interface PermissionCellProps {
   disabled?: boolean;
+  removeOnly?: boolean;
   loading: string[];
   onCheck: (checked: boolean, permission?: string) => void;
   permission: PermissionDefinition | PermissionDefinitionGroup;
@@ -39,7 +40,8 @@ export interface PermissionCellProps {
 }
 
 export default function PermissionCell(props: PermissionCellProps) {
-  const { disabled, loading, onCheck, permission, permissionItem, selectedPermission } = props;
+  const { disabled, loading, onCheck, permission, permissionItem, selectedPermission, removeOnly } =
+    props;
 
   if (isPermissionDefinitionGroup(permission)) {
     return (
@@ -52,7 +54,7 @@ export default function PermissionCell(props: PermissionCellProps) {
             <div key={permissionDefinition.key}>
               <Checkbox
                 checked={isChecked}
-                disabled={isDisabled}
+                disabled={isDisabled || (!isChecked && removeOnly)}
                 id={permissionDefinition.key}
                 label={translateWithParameters(
                   'permission.assign_x_to_y',
@@ -81,7 +83,7 @@ export default function PermissionCell(props: PermissionCellProps) {
     >
       <Checkbox
         checked={isChecked}
-        disabled={isDisabled}
+        disabled={isDisabled || (!isChecked && removeOnly)}
         id={permission.key}
         label={translateWithParameters(
           'permission.assign_x_to_y',

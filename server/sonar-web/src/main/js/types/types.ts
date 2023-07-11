@@ -454,10 +454,12 @@ export interface PermissionGroup {
   id?: string;
   name: string;
   permissions: string[];
+  managed?: boolean;
 }
 
 export interface PermissionUser extends UserActive {
   permissions: string[];
+  managed?: boolean;
 }
 
 export interface PermissionTemplateGroup {

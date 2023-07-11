@@ -17,103 +17,96 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { without } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
+import { getBaseUrl } from '../../helpers/system';
 import { PermissionDefinitions, PermissionUser } from '../../types/types';
 import LegacyAvatar from '../ui/LegacyAvatar';
 import PermissionCell from './PermissionCell';
+import usePermissionChange from './usePermissionChange';
 
 interface Props {
   onToggle: (user: PermissionUser, permission: string) => Promise<void>;
   permissions: PermissionDefinitions;
   selectedPermission?: string;
   user: PermissionUser;
+  isGitHubProject?: boolean;
+  disabled?: boolean;
+  removeOnly?: boolean;
 }
 
-interface State {
-  loading: string[];
-}
+export default function UserHolder(props: Props) {
+  const { user, disabled, removeOnly, permissions, isGitHubProject, selectedPermission } = props;
+  const { loading, handleCheck, modal } = usePermissionChange({
+    holder: user,
+    onToggle: props.onToggle,
+    permissions,
+    removeOnly,
+  });
 
-export default class UserHolder extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: [] };
+  const permissionCells = permissions.map((permission) => (
+    <PermissionCell
+      key={isPermissionDefinitionGroup(permission) ? permission.category : permission.key}
+      loading={loading}
+      onCheck={handleCheck}
+      permission={permission}
+      disabled={disabled}
+      removeOnly={removeOnly}
+      permissionItem={user}
+      selectedPermission={selectedPermission}
+    />
+  ));
 
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  stopLoading = (permission: string) => {
-    if (this.mounted) {
-      this.setState((state) => ({ loading: without(state.loading, permission) }));
-    }
-  };
-
-  handleCheck = (_checked: boolean, permission?: string) => {
-    if (permission !== undefined) {
-      this.setState((state) => ({ loading: [...state.loading, permission] }));
-      this.props.onToggle(this.props.user, permission).then(
-        () => this.stopLoading(permission),
-        () => this.stopLoading(permission)
-      );
-    }
-  };
-
-  render() {
-    const { user } = this.props;
-    const permissionCells = this.props.permissions.map((permission) => (
-      <PermissionCell
-        key={isPermissionDefinitionGroup(permission) ? permission.category : permission.key}
-        loading={this.state.loading}
-        onCheck={this.handleCheck}
-        permission={permission}
-        permissionItem={user}
-        selectedPermission={this.props.selectedPermission}
-      />
-    ));
-
-    if (user.login === '<creator>') {
-      return (
-        <tr>
-          <td className="nowrap text-middle">
-            <div>
-              <strong>{user.name}</strong>
-            </div>
-            <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
-              {translate('permission_templates.project_creators.explanation')}
-            </div>
-          </td>
-          {permissionCells}
-        </tr>
-      );
-    }
-
+  if (user.login === '<creator>') {
     return (
       <tr>
         <td className="nowrap text-middle">
-          <div className="display-flex-center">
-            <LegacyAvatar
-              className="text-middle big-spacer-right flex-0"
-              hash={user.avatar}
-              name={user.name}
-              size={36}
-            />
-            <div className="max-width-100">
-              <div className="max-width-100 text-ellipsis">
-                <strong>{user.name}</strong>
-                <span className="note spacer-left">{user.login}</span>
-              </div>
-              <div className="little-spacer-top max-width-100 text-ellipsis">{user.email}</div>
-            </div>
+          <div>
+            <strong>{user.name}</strong>
+          </div>
+          <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
+            {translate('permission_templates.project_creators.explanation')}
           </div>
         </td>
         {permissionCells}
       </tr>
     );
   }
+
+  return (
+    <tr>
+      <td className="nowrap text-middle">
+        <div className="display-flex-center">
+          <LegacyAvatar
+            className="text-middle big-spacer-right flex-0"
+            hash={user.avatar}
+            name={user.name}
+            size={36}
+          />
+          <div className="max-width-100">
+            <div className="sw-flex sw-w-fit sw-max-w-full">
+              <div className="sw-flex-1 text-ellipsis">
+                <strong>{user.name}</strong>
+                <span className="note spacer-left">{user.login}</span>
+              </div>
+              {isGitHubProject && user.managed && (
+                <img
+                  alt="github"
+                  className="spacer-left spacer-right"
+                  height={16}
+                  aria-label={translate('project_permission.github_managed')}
+                  src={`${getBaseUrl()}/images/alm/github.svg`}
+                />
+              )}
+            </div>
+
+            <div className="little-spacer-top max-width-100 text-ellipsis">{user.email}</div>
+          </div>
+        </div>
+      </td>
+      {permissionCells}
+      {modal}
+    </tr>
+  );
 }

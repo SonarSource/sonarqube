@@ -342,12 +342,18 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
       order = without(order, Permissions.Browse, Permissions.CodeViewer);
     }
     const permissions = convertToPermissionDefinitions(order, 'projects_role');
+    const isGitHubProject = projectBinding?.alm === AlmKeys.GitHub;
 
     return (
       <main className="page page-limited" id="project-permissions-page">
         <Helmet defer={false} title={translate('permissions.page')} />
 
-        <PageHeader component={component} loadHolders={this.loadHolders} loading={loading} />
+        <PageHeader
+          component={component}
+          isGitHubProject={isGitHubProject}
+          loadHolders={this.loadHolders}
+          loading={loading}
+        />
         <div>
           <UseQuery query={useGithubStatusQuery}>
             {({ data: githubProvisioningStatus, isFetching }) => (
@@ -356,7 +362,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
                 className="big-spacer-top big-spacer-bottom"
                 onChange={this.handleVisibilityChange}
                 loading={loading || isFetching}
-                disabled={projectBinding?.alm === AlmKeys.GitHub && !!githubProvisioningStatus}
+                disabled={isGitHubProject && !!githubProvisioningStatus}
                 visibility={component.visibility}
               />
             )}
@@ -375,6 +381,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
           onGrantPermissionToGroup={this.handleGrantPermissionToGroup}
           onGrantPermissionToUser={this.handleGrantPermissionToUser}
           groups={groups}
+          isGitHubProject={isGitHubProject}
           groupsPaging={groupsPaging}
           onFilter={this.handleFilterChange}
           onLoadMore={this.handleLoadMore}

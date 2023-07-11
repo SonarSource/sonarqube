@@ -47,6 +47,7 @@ interface Props {
   selectedPermission?: string;
   onSelectPermission?: (permissions?: string) => void;
   loading?: boolean;
+  isGitHubProject?: boolean;
 }
 
 export default class AllHoldersList extends React.PureComponent<Props> {
@@ -87,13 +88,23 @@ export default class AllHoldersList extends React.PureComponent<Props> {
   };
 
   render() {
-    const { filter, query, groups, users, permissions, selectedPermission, loading } = this.props;
+    const {
+      filter,
+      query,
+      groups,
+      users,
+      permissions,
+      selectedPermission,
+      loading,
+      isGitHubProject,
+    } = this.props;
     const { count, total } = this.getPaging();
 
     return (
       <>
         <HoldersList
           loading={loading}
+          isGitHubProject={isGitHubProject}
           filter={filter}
           groups={groups}
           onSelectPermission={this.props.onSelectPermission}

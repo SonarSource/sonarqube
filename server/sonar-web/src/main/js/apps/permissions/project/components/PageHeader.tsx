@@ -18,90 +18,104 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
+import Tooltip from '../../../../components/controls/Tooltip';
 import { Button } from '../../../../components/controls/buttons';
+import { Alert } from '../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate } from '../../../../helpers/l10n';
-import { ComponentQualifier, isApplication, isPortfolioLike } from '../../../../types/component';
+import { getBaseUrl } from '../../../../helpers/system';
+import { isApplication, isPortfolioLike, isProject } from '../../../../types/component';
 import { Component } from '../../../../types/types';
+import { useGithubStatusQuery } from '../../../settings/components/authentication/queries/identity-provider';
 import ApplyTemplate from './ApplyTemplate';
 
 interface Props {
   component: Component;
+  isGitHubProject: boolean;
   loadHolders: () => void;
   loading: boolean;
 }
 
-interface State {
-  applyTemplateModal: boolean;
-}
+export default function PageHeader(props: Props) {
+  const [applyTemplateModal, setApplyTemplateModal] = React.useState(false);
+  const { data: githubProvisioningStatus } = useGithubStatusQuery();
 
-export default class PageHeader extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { applyTemplateModal: false };
+  const { component, isGitHubProject, loading } = props;
+  const { configuration } = component;
+  const canApplyPermissionTemplate =
+    configuration != null && configuration.canApplyPermissionTemplate;
+  const provisionedByGitHub = isGitHubProject && !!githubProvisioningStatus;
 
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleApplyTemplate = () => {
-    this.setState({ applyTemplateModal: true });
+  const handleApplyTemplate = () => {
+    setApplyTemplateModal(true);
   };
 
-  handleApplyTemplateClose = () => {
-    if (this.mounted) {
-      this.setState({ applyTemplateModal: false });
-    }
+  const handleApplyTemplateClose = () => {
+    setApplyTemplateModal(false);
   };
 
-  render() {
-    const { component } = this.props;
-    const { configuration } = component;
-    const canApplyPermissionTemplate =
-      configuration != null && configuration.canApplyPermissionTemplate;
+  let description = translate('roles.page.description2');
+  if (isPortfolioLike(component.qualifier)) {
+    description = translate('roles.page.description_portfolio');
+  } else if (isApplication(component.qualifier)) {
+    description = translate('roles.page.description_application');
+  }
 
-    let description = translate('roles.page.description2');
-    if (isPortfolioLike(component.qualifier)) {
-      description = translate('roles.page.description_portfolio');
-    } else if (isApplication(component.qualifier)) {
-      description = translate('roles.page.description_application');
-    }
+  const visibilityDescription =
+    isProject(component.qualifier) && component.visibility
+      ? translate('visibility', component.visibility, 'description', component.qualifier)
+      : undefined;
 
-    const visibilityDescription =
-      component.qualifier === ComponentQualifier.Project && component.visibility
-        ? translate('visibility', component.visibility, 'description', component.qualifier)
-        : undefined;
+  return (
+    <header className="page-header">
+      <h1 className="page-title">
+        {translate('permissions.page')}
+        {provisionedByGitHub && (
+          <Tooltip overlay={translate('roles.page.description.github')}>
+            <img
+              alt="github"
+              className="spacer-left spacer-right"
+              aria-label={translate('project_permission.github_managed')}
+              height={16}
+              src={`${getBaseUrl()}/images/alm/github.svg`}
+            />
+          </Tooltip>
+        )}
+      </h1>
 
-    return (
-      <header className="page-header">
-        <h1 className="page-title">{translate('permissions.page')}</h1>
+      <DeferredSpinner className="spacer-left" loading={loading} />
 
-        <DeferredSpinner className="spacer-left" loading={this.props.loading} />
+      {canApplyPermissionTemplate && (
+        <div className="page-actions">
+          <Button className="js-apply-template" onClick={handleApplyTemplate}>
+            {translate('projects_role.apply_template')}
+          </Button>
 
-        {canApplyPermissionTemplate && (
-          <div className="page-actions">
-            <Button className="js-apply-template" onClick={this.handleApplyTemplate}>
-              {translate('projects_role.apply_template')}
-            </Button>
+          {applyTemplateModal && (
+            <ApplyTemplate
+              onApply={props.loadHolders}
+              onClose={handleApplyTemplateClose}
+              project={component}
+            />
+          )}
+        </div>
+      )}
 
-            {this.state.applyTemplateModal && (
-              <ApplyTemplate
-                onApply={this.props.loadHolders}
-                onClose={this.handleApplyTemplateClose}
-                project={component}
-              />
-            )}
+      <div className="page-description">
+        <p>{description}</p>
+        {visibilityDescription && <p>{visibilityDescription}</p>}
+        {provisionedByGitHub && (
+          <div className="sw-mt-2">
+            <GitHubSynchronisationWarning short />
           </div>
         )}
-
-        <div className="page-description">
-          <p>{description}</p>
-          {visibilityDescription && <p>{visibilityDescription}</p>}
-        </div>
-      </header>
-    );
-  }
+        {githubProvisioningStatus && !isGitHubProject && (
+          <Alert variant="warning" className="sw-mt-2">
+            {translate('project_permission.local_project_with_github_provisioning')}
+          </Alert>
+        )}
+      </div>
+    </header>
+  );
 }

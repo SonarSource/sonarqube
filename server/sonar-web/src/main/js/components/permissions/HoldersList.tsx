@@ -19,6 +19,8 @@
  */
 import { partition } from 'lodash';
 import * as React from 'react';
+import { useGithubStatusQuery } from '../../apps/settings/components/authentication/queries/identity-provider';
+import UseQuery from '../../helpers/UseQuery';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
 import { Dict, PermissionDefinitions, PermissionGroup, PermissionUser } from '../../types/types';
@@ -37,6 +39,7 @@ interface Props {
   permissions: PermissionDefinitions;
   query?: string;
   selectedPermission?: string;
+  isGitHubProject?: boolean;
   users: PermissionUser[];
 }
 
@@ -50,6 +53,9 @@ export default class HoldersList extends React.PureComponent<Props, State> {
       this.setState({ initialPermissionsCount: {} });
     }
   }
+
+  getKey = (item: PermissionGroup | PermissionUser) =>
+    this.isPermissionUser(item) ? item.login : item.id ?? item.name;
 
   isPermissionUser(item: PermissionGroup | PermissionUser): item is PermissionUser {
     return (item as PermissionUser).login !== undefined;
@@ -81,7 +87,7 @@ export default class HoldersList extends React.PureComponent<Props, State> {
   };
 
   getItemInitialPermissionsCount = (item: PermissionGroup | PermissionUser) => {
-    const key = this.isPermissionUser(item) ? item.login : item.id || item.name;
+    const key = this.getKey(item);
     return this.state.initialPermissionsCount[key] !== undefined
       ? this.state.initialPermissionsCount[key]
       : item.permissions.length;
@@ -97,23 +103,38 @@ export default class HoldersList extends React.PureComponent<Props, State> {
   }
 
   renderItem(item: PermissionUser | PermissionGroup, permissions: PermissionDefinitions) {
-    return this.isPermissionUser(item) ? (
-      <UserHolder
-        key={`user-${item.login}`}
-        onToggle={this.handleUserToggle}
-        permissions={permissions}
-        selectedPermission={this.props.selectedPermission}
-        user={item}
-      />
-    ) : (
-      <GroupHolder
-        group={item}
-        isComponentPrivate={this.props.isComponentPrivate}
-        key={`group-${item.id || item.name}`}
-        onToggle={this.handleGroupToggle}
-        permissions={permissions}
-        selectedPermission={this.props.selectedPermission}
-      />
+    const { isGitHubProject, selectedPermission, isComponentPrivate } = this.props;
+    return (
+      <UseQuery key={this.getKey(item)} query={useGithubStatusQuery}>
+        {({ data: githubProvisioningStatus }) => (
+          <>
+            {this.isPermissionUser(item) ? (
+              <UserHolder
+                key={`user-${item.login}`}
+                onToggle={this.handleUserToggle}
+                permissions={permissions}
+                selectedPermission={selectedPermission}
+                user={item}
+                disabled={isGitHubProject && !!githubProvisioningStatus && item.managed}
+                removeOnly={isGitHubProject && !!githubProvisioningStatus && !item.managed}
+                isGitHubProject={isGitHubProject}
+              />
+            ) : (
+              <GroupHolder
+                group={item}
+                isComponentPrivate={isComponentPrivate}
+                key={`group-${item.id || item.name}`}
+                onToggle={this.handleGroupToggle}
+                permissions={permissions}
+                selectedPermission={selectedPermission}
+                disabled={isGitHubProject && !!githubProvisioningStatus && item.managed}
+                removeOnly={isGitHubProject && !!githubProvisioningStatus && !item.managed}
+                isGitHubProject={isGitHubProject}
+              />
+            )}
+          </>
+        )}
+      </UseQuery>
     );
   }
 

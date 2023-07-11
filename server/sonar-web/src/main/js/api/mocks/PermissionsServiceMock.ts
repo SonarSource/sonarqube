@@ -64,6 +64,7 @@ const defaultUsers = [
   mockPermissionUser({
     login: 'gooduser1',
     name: 'John',
+    managed: true,
     permissions: [
       Permissions.IssueAdmin,
       Permissions.SecurityHotspotAdmin,
@@ -79,6 +80,7 @@ const defaultUsers = [
   mockPermissionUser({
     name: 'Siri',
     login: 'gooduser3',
+    managed: true,
   }),
   mockPermissionUser({
     login: 'gooduser4',
@@ -99,6 +101,7 @@ const defaultGroups = [
   mockPermissionGroup({ name: 'sonar-users', permissions: [Permissions.Browse] }),
   mockPermissionGroup({
     name: 'sonar-admins',
+    managed: true,
     permissions: [Permissions.Admin, Permissions.Browse],
   }),
   mockPermissionGroup({ name: 'sonar-losers', permissions: [] }),

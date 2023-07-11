@@ -27,6 +27,9 @@ import { Permissions } from '../../types/permissions';
 export function getPageObject(user: UserEvent) {
   const ui = {
     loading: byLabelText('loading'),
+    pageTitle: byRole('heading', {
+      name: /permissions.page/,
+    }),
     projectPermissionCheckbox: (target: string, permission: Permissions) =>
       byRole('checkbox', {
         name: `permission.assign_x_to_y.projects_role.${permission}.${target}`,
@@ -37,6 +40,11 @@ export function getPageObject(user: UserEvent) {
       }),
     visibilityRadio: (visibility: Visibility) =>
       byRole('radio', { name: `visibility.${visibility}` }),
+    githubLogo: byRole('img', { name: 'project_permission.github_managed' }),
+    confirmRemovePermissionDialog: byRole('dialog', {
+      name: 'project_permission.remove_only_confirmation_title',
+    }),
+    nonGHProjectWarning: byText('project_permission.local_project_with_github_provisioning'),
     makePublicDisclaimer: byText(
       'projects_role.are_you_sure_to_turn_project_to_public.warning.TRK'
     ),
