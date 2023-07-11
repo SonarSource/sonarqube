@@ -200,10 +200,10 @@ public class BranchReportSubmitterIT {
 
     underTest.submit(nonExistingBranch.getKey(), nonExistingBranch.name(), randomCharacteristics, reportInput);
 
-    BranchDto exitingProjectMainBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), nonExistingBranch.uuid()).get();
-    verify(branchSupport).createBranchComponent(any(DbSession.class), same(componentKey), eq(nonExistingBranch), eq(exitingProjectMainBranch));
+    BranchDto existingProjectMainBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), nonExistingBranch.uuid()).get();
+    verify(branchSupport).createBranchComponent(any(DbSession.class), same(componentKey), eq(nonExistingBranch), eq(existingProjectMainBranch));
     verify(branchSupportDelegate).createComponentKey(nonExistingBranch.getKey(), randomCharacteristics);
-    verify(branchSupportDelegate).createBranchComponent(any(DbSession.class), same(componentKey), eq(nonExistingBranch), eq(exitingProjectMainBranch));
+    verify(branchSupportDelegate).createBranchComponent(any(DbSession.class), same(componentKey), eq(nonExistingBranch), eq(existingProjectMainBranch));
     verifyNoMoreInteractions(branchSupportDelegate);
     verifyQueueSubmit(nonExistingBranch, createdBranch, user, randomCharacteristics, taskUuid);
     verify(componentUpdater).commitAndIndex(any(DbSession.class), eq(componentCreationData));
@@ -261,7 +261,6 @@ public class BranchReportSubmitterIT {
 
   private void verifyQueueSubmit(ComponentDto project, ComponentDto branch, UserDto user, Map<String, String> characteristics, String taskUuid) {
     ArgumentCaptor<CeTaskSubmit> captor = ArgumentCaptor.forClass(CeTaskSubmit.class);
-
     verify(queue).submit(captor.capture());
     CeTaskSubmit ceTask = captor.getValue();
     assertThat(ceTask.getUuid()).isEqualTo(taskUuid);
@@ -270,7 +269,8 @@ public class BranchReportSubmitterIT {
     assertThat(ceTask.getType()).isEqualTo(CeTaskTypes.REPORT);
     assertThat(ceTask.getComponent()).isPresent();
     assertThat(ceTask.getComponent().get().getUuid()).isEqualTo(branch.uuid());
-    assertThat(ceTask.getComponent().get().getEntityUuid()).isEqualTo(project.uuid());
+    BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.uuid()).get();
+    assertThat(ceTask.getComponent().get().getEntityUuid()).isEqualTo(branchDto.getProjectUuid());
   }
 
   private static BranchSupport.ComponentKey createComponentKeyOfBranch(String projectKey) {

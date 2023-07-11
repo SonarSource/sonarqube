@@ -118,7 +118,7 @@ public class PurgeDao implements Dao {
     String rootUuid = conf.rootUuid();
     List<String> issueKeys = mapper.selectOldClosedIssueKeys(rootUuid, dateToLong(toDate));
     deleteIssues(mapper, issueKeys);
-    listener.onIssuesRemoval(rootUuid, issueKeys);
+    listener.onIssuesRemoval(conf.projectUuid(), issueKeys);
   }
 
   private static void deleteIssues(PurgeMapper mapper, Collection<String> issueKeys) {

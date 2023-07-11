@@ -27,6 +27,7 @@ import org.sonar.ce.task.CeTask;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -49,10 +50,12 @@ public class ExportSubmitterImpl implements ExportSubmitter {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<ProjectDto> project = dbClient.projectDao().selectProjectByKey(dbSession, projectKey);
+      Optional<ComponentDto> componentDto = dbClient.componentDao().selectByKey(dbSession, projectKey);
       checkArgument(project.isPresent(), "Project with key [%s] does not exist", projectKey);
+      checkArgument(componentDto.isPresent(), "Component with key [%s] does not exist", projectKey);
 
       CeTaskSubmit submit = ceQueue.prepareSubmit()
-        .setComponent(fromDto(project.get().getUuid(), project.get().getUuid()))
+        .setComponent(fromDto(componentDto.get().uuid(), project.get().getUuid()))
         .setType(CeTaskTypes.PROJECT_EXPORT)
         .setSubmitterUuid(submitterUuid)
         .setCharacteristics(emptyMap())

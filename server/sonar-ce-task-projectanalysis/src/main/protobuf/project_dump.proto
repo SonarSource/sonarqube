@@ -210,6 +210,7 @@ message Plugin {
 message LineHashes {
   int64 component_ref = 1;
   string hashes = 2;
+  // this is branch uuid
   string project_uuid = 3;
 }
 

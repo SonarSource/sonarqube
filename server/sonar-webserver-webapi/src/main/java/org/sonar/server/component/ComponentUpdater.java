@@ -204,7 +204,7 @@ public class ComponentUpdater {
 
   private ProjectDto toProjectDto(ComponentDto component, long now) {
     return new ProjectDto()
-      .setUuid(useDifferentUuids ? uuidFactory.create() : component.uuid())
+      .setUuid(uuidFactory.create())
       .setKey(component.getKey())
       .setQualifier(component.qualifier())
       .setName(component.name())

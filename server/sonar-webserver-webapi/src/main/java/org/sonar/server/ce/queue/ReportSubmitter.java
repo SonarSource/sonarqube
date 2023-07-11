@@ -182,7 +182,7 @@ public class ReportSubmitter {
     dbClient.ceTaskInputDao().insert(dbSession, submit.getUuid(), reportInput);
     dbSession.commit();
     submit.setType(CeTaskTypes.REPORT);
-    submit.setComponent(CeTaskSubmit.Component.fromDto(branch.uuid(), mainBranch.getUuid()));
+    submit.setComponent(CeTaskSubmit.Component.fromDto(branch.uuid(), mainBranch.getProjectUuid()));
     submit.setSubmitterUuid(userSession.getUuid());
     submit.setCharacteristics(characteristics);
     return queue.submit(submit.build());

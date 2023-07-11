@@ -218,9 +218,9 @@ public final class IssueDto implements Serializable {
    * The project branch where the issue is located.
    * Note that the name is misleading - it should be branch.
    */
-  public IssueDto setProject(ComponentDto project) {
-    this.projectKey = project.getKey();
-    this.projectUuid = project.uuid();
+  public IssueDto setProject(ComponentDto branch) {
+    this.projectKey = branch.getKey();
+    this.projectUuid = branch.uuid();
     return this;
   }
 
@@ -585,8 +585,7 @@ public final class IssueDto implements Serializable {
   }
 
   /**
-   * Should only be used to persist in E/S
-   * <p/>
+   * This is branch uuid, not a project uuid. The naming is wrong, the javadoc is right.
    * Please use {@link #setProject(ComponentDto)} instead
    */
   public IssueDto setProjectUuid(String s) {

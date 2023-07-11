@@ -85,7 +85,7 @@ public interface ComponentMapper {
   List<KeyWithUuidDto> selectUuidsByKeyFromProjectKeyAndBranchOrPr(@Param("projectKey") String projectKey,
     @Nullable @Param("branch") String branch, @Nullable @Param("pullRequest") String pullRequest);
 
-  Set<String> selectViewKeysWithEnabledCopyOfProject(@Param("projectUuids") Collection<String> projectUuids);
+  Set<String> selectViewKeysWithEnabledCopyOfProject(@Param("branchUuids") Collection<String> branchUuids);
 
   /**
    * Return technical projects from a view or a sub-view

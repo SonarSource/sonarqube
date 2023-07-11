@@ -70,7 +70,7 @@ public class ExportSubmitterImplIT {
     underTest.submitProjectExport(projectDto.getKey(), SOME_SUBMITTER_UUID);
 
     assertThat(dbClient.ceQueueDao().selectAllInAscOrder(db.getSession()))
-      .extracting(CeQueueDto::getComponentUuid, CeQueueDto::getTaskType, CeQueueDto::getSubmitterUuid)
+      .extracting(CeQueueDto::getEntityUuid, CeQueueDto::getTaskType, CeQueueDto::getSubmitterUuid)
       .containsExactlyInAnyOrder(tuple(projectDto.getUuid(), "PROJECT_EXPORT", SOME_SUBMITTER_UUID));
   }
 
@@ -81,7 +81,7 @@ public class ExportSubmitterImplIT {
     underTest.submitProjectExport(projectDto.getKey(), null);
 
     assertThat(dbClient.ceQueueDao().selectAllInAscOrder(db.getSession()))
-      .extracting(CeQueueDto::getComponentUuid, CeQueueDto::getTaskType, CeQueueDto::getSubmitterUuid)
+      .extracting(CeQueueDto::getEntityUuid, CeQueueDto::getTaskType, CeQueueDto::getSubmitterUuid)
       .containsExactlyInAnyOrder(tuple(projectDto.getUuid(), "PROJECT_EXPORT", null));
   }
 

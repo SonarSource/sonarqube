@@ -30,7 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskQuery;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
@@ -80,11 +80,12 @@ public class ComponentAction implements CeWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto component = loadComponent(dbSession, wsRequest);
-      userSession.checkComponentPermission(UserRole.USER, component);
-      List<CeQueueDto> queueDtos = dbClient.ceQueueDao().selectByEntityUuid(dbSession, component.uuid());
+      String entityKey = wsRequest.mandatoryParam(PARAM_COMPONENT);
+      EntityDto entityDto = componentFinder.getEntityByKey(dbSession, entityKey);
+      userSession.checkEntityPermission(UserRole.USER, entityDto);
+      List<CeQueueDto> queueDtos = dbClient.ceQueueDao().selectByEntityUuid(dbSession, entityDto.getUuid());
       CeTaskQuery activityQuery = new CeTaskQuery()
-        .setEntityUuid(component.uuid())
+        .setEntityUuid(entityDto.getUuid())
         .setOnlyCurrents(true);
       List<CeActivityDto> activityDtos = dbClient.ceActivityDao().selectByQuery(dbSession, activityQuery, forPage(1).andSize(1));
 
@@ -95,10 +96,5 @@ public class ComponentAction implements CeWsAction {
       }
       writeProtobuf(wsResponseBuilder.build(), wsRequest, wsResponse);
     }
-  }
-
-  private ComponentDto loadComponent(DbSession dbSession, Request wsRequest) {
-    String componentKey = wsRequest.mandatoryParam(PARAM_COMPONENT);
-    return componentFinder.getByKey(dbSession, componentKey);
   }
 }

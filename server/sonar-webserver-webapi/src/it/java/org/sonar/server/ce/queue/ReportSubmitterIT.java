@@ -38,6 +38,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
@@ -138,17 +139,17 @@ public class ReportSubmitterIT {
 
   @Test
   public void submit_a_report_on_existing_project() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN.getKey(), project);
+    userSession.logIn(user).addProjectPermission(SCAN.getKey(), project.getMainBranchComponent());
     mockSuccessfulPrepareSubmitCall();
 
-    underTest.submit(project.getKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
+    underTest.submit(project.projectKey(), project.getProjectDto().getName(), emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
     verifyReportIsPersisted(TASK_UUID);
     verifyNoInteractions(permissionTemplateService);
     verify(queue).submit(argThat(submit -> submit.getType().equals(CeTaskTypes.REPORT)
-      && submit.getComponent().filter(cpt -> cpt.getUuid().equals(project.uuid()) && cpt.getEntityUuid().equals(project.uuid())).isPresent()
+      && submit.getComponent().filter(cpt -> cpt.getUuid().equals(project.getMainBranchComponent().uuid()) && cpt.getEntityUuid().equals(project.projectUuid())).isPresent()
       && submit.getSubmitterUuid().equals(user.getUuid())
       && submit.getUuid().equals(TASK_UUID)));
   }
@@ -165,9 +166,11 @@ public class ReportSubmitterIT {
     underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
     ComponentDto createdProject = db.getDbClient().componentDao().selectByKey(db.getSession(), PROJECT_KEY).get();
+    EntityDto entityDto = db.getDbClient().entityDao().selectByKey(db.getSession(), PROJECT_KEY).get();
+
     verifyReportIsPersisted(TASK_UUID);
     verify(queue).submit(argThat(submit -> submit.getType().equals(CeTaskTypes.REPORT)
-      && submit.getComponent().filter(cpt -> cpt.getUuid().equals(createdProject.uuid()) && cpt.getEntityUuid().equals(createdProject.uuid())).isPresent()
+      && submit.getComponent().filter(cpt -> cpt.getUuid().equals(createdProject.uuid()) && cpt.getEntityUuid().equals(entityDto.getUuid())).isPresent()
       && submit.getUuid().equals(TASK_UUID)));
   }
 

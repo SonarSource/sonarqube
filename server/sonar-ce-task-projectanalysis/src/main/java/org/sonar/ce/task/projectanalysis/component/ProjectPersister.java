@@ -47,7 +47,7 @@ public class ProjectPersister {
 
     ProjectDto dbProjectDto = dbClient.projectDao().selectProjectByKey(dbSession, treeRootHolder.getRoot().getKey())
       .orElseThrow(() -> new IllegalStateException("Project has been deleted by end-user during analysis"));
-    ProjectDto projectDto = toProjectDto(treeRootHolder.getRoot());
+    ProjectDto projectDto = toProjectDto(treeRootHolder.getRoot(), dbProjectDto);
 
     if (hasChanged(dbProjectDto, projectDto)) {
       // insert or update in projects table
@@ -64,9 +64,10 @@ public class ProjectPersister {
       !StringUtils.equals(dbProject.getDescription(), newProject.getDescription());
   }
 
-  private ProjectDto toProjectDto(Component root) {
+  private ProjectDto toProjectDto(Component root, ProjectDto projectDtoFromDatabase) {
     ProjectDto projectDto = new ProjectDto();
-    projectDto.setUuid(root.getUuid());
+    // Component has different uuid from project
+    projectDto.setUuid(projectDtoFromDatabase.getUuid());
     projectDto.setName(root.getName());
     projectDto.setDescription(root.getDescription());
     projectDto.setUpdatedAt(system2.now());

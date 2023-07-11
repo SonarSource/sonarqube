@@ -36,7 +36,10 @@ import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.entity.EntityDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -73,7 +76,7 @@ public class ComponentActionIT {
 
   @Test
   public void empty_queue_and_empty_activity() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.addProjectPermission(UserRole.USER, project);
 
     Ce.ComponentResponse response = ws.newRequest()
@@ -86,18 +89,18 @@ public class ComponentActionIT {
 
   @Test
   public void project_tasks() {
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    SnapshotDto analysisProject1 = db.components().insertSnapshot(project1);
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project1);
-    insertActivity("T1", project1, CeActivityDto.Status.SUCCESS, analysisProject1);
-    insertActivity("T2", project2, CeActivityDto.Status.FAILED, null);
-    insertActivity("T3", project1, CeActivityDto.Status.FAILED, null);
-    insertQueue("T4", project1, IN_PROGRESS);
-    insertQueue("T5", project1, PENDING);
+    ProjectData project1 = db.components().insertPrivateProject();
+    SnapshotDto analysisProject1 = db.components().insertSnapshot(project1.getMainBranchComponent());
+    ProjectData project2 = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project1.getProjectDto());
+    insertActivity("T1", project1.getMainBranchComponent(), project1.getProjectDto(), CeActivityDto.Status.SUCCESS, analysisProject1);
+    insertActivity("T2", project2.getMainBranchComponent(), project2.getProjectDto(), CeActivityDto.Status.FAILED, null);
+    insertActivity("T3", project1.getMainBranchComponent(), project1.getProjectDto(), CeActivityDto.Status.FAILED, null);
+    insertQueue("T4", project1.getMainBranchComponent(), project1.getProjectDto(), IN_PROGRESS);
+    insertQueue("T5", project1.getMainBranchComponent(), project1.getProjectDto(), PENDING);
 
     Ce.ComponentResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project1.getKey())
+      .setParam(PARAM_COMPONENT, project1.projectKey())
       .executeProtobuf(Ce.ComponentResponse.class);
     assertThat(response.getQueueCount()).isEqualTo(2);
     assertThat(response.getQueue(0).getId()).isEqualTo("T4");
@@ -113,13 +116,13 @@ public class ComponentActionIT {
 
   @Test
   public void search_tasks_by_component_key() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    logInWithBrowsePermission(project);
-    SnapshotDto analysis = db.components().insertSnapshot(project);
-    insertActivity("T1", project, CeActivityDto.Status.SUCCESS, analysis);
+    ProjectData project = db.components().insertPrivateProject();
+    logInWithBrowsePermission(project.getProjectDto());
+    SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchComponent());
+    insertActivity("T1", project.getMainBranchComponent(), project.getProjectDto(), CeActivityDto.Status.SUCCESS, analysis);
 
     Ce.ComponentResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
+      .setParam(PARAM_COMPONENT, project.projectKey())
       .executeProtobuf(Ce.ComponentResponse.class);
     assertThat(response.hasCurrent()).isTrue();
     Ce.Task current = response.getCurrent();
@@ -131,13 +134,13 @@ public class ComponentActionIT {
 
   @Test
   public void search_tasks_by_component() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    logInWithBrowsePermission(project);
-    SnapshotDto analysis = db.components().insertSnapshot(project);
-    insertActivity("T1", project, CeActivityDto.Status.SUCCESS, analysis);
+    ProjectData project = db.components().insertPrivateProject();
+    logInWithBrowsePermission(project.getProjectDto());
+    SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchComponent());
+    insertActivity("T1", project.getMainBranchComponent(), project.getProjectDto(), CeActivityDto.Status.SUCCESS, analysis);
 
     Ce.ComponentResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
+      .setParam(PARAM_COMPONENT, project.projectKey())
       .executeProtobuf(Ce.ComponentResponse.class);
     assertThat(response.hasCurrent()).isTrue();
     Ce.Task current = response.getCurrent();
@@ -149,16 +152,16 @@ public class ComponentActionIT {
 
   @Test
   public void canceled_tasks_must_not_be_picked_as_current_analysis() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    insertActivity("T1", project, CeActivityDto.Status.SUCCESS);
-    insertActivity("T2", project, CeActivityDto.Status.FAILED);
-    insertActivity("T3", project, CeActivityDto.Status.SUCCESS);
-    insertActivity("T4", project, CeActivityDto.Status.CANCELED);
-    insertActivity("T5", project, CeActivityDto.Status.CANCELED);
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    insertActivity("T1", project.getMainBranchComponent(), project.getProjectDto(), CeActivityDto.Status.SUCCESS);
+    insertActivity("T2", project.getMainBranchComponent(), project.getProjectDto(), CeActivityDto.Status.FAILED);
+    insertActivity("T3", project.getMainBranchComponent(), project.getProjectDto(), CeActivityDto.Status.SUCCESS);
+    insertActivity("T4", project.getMainBranchComponent(), project.getProjectDto(), CeActivityDto.Status.CANCELED);
+    insertActivity("T5", project.getMainBranchComponent(), project.getProjectDto(), CeActivityDto.Status.CANCELED);
 
     Ce.ComponentResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
+      .setParam(PARAM_COMPONENT, project.projectKey())
       .executeProtobuf(Ce.ComponentResponse.class);
     assertThat(response.getQueueCount()).isZero();
     // T3 is the latest task executed on PROJECT_1 ignoring Canceled ones
@@ -171,35 +174,35 @@ public class ComponentActionIT {
 
   @Test
   public void branch_in_activity() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
     String branchName = randomAlphanumeric(248);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
+    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH).setKey(branchName));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
-    CeActivityDto activity = insertActivity("T1", project, SUCCESS, analysis);
+    CeActivityDto activity = insertActivity("T1", project.getMainBranchComponent(), project.getProjectDto(), SUCCESS, analysis);
     insertCharacteristic(activity, BRANCH_KEY, branchName);
     insertCharacteristic(activity, BRANCH_TYPE_KEY, BRANCH.name());
 
     Ce.ComponentResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
+      .setParam(PARAM_COMPONENT, project.projectKey())
       .executeProtobuf(Ce.ComponentResponse.class);
 
     assertThat(response.getCurrent())
       .extracting(Ce.Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus, Ce.Task::getComponentKey, Ce.Task::getWarningCount, Ce.Task::getWarningsList)
       .containsOnly(
-        "T1", branchName, Common.BranchType.BRANCH, Ce.TaskStatus.SUCCESS, project.getKey(), 0, emptyList());
+        "T1", branchName, Common.BranchType.BRANCH, Ce.TaskStatus.SUCCESS, project.projectKey(), 0, emptyList());
   }
 
   @Test
   public void branch_in_queue_analysis() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
     String branchName = randomAlphanumeric(248);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey(branchName));
-    CeQueueDto queue1 = insertQueue("T1", project, IN_PROGRESS);
+    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH).setKey(branchName));
+    CeQueueDto queue1 = insertQueue("T1", project.getMainBranchComponent(), project.getProjectDto(), IN_PROGRESS);
     insertCharacteristic(queue1, BRANCH_KEY, branchName);
     insertCharacteristic(queue1, BRANCH_TYPE_KEY, BRANCH.name());
-    CeQueueDto queue2 = insertQueue("T2", project, PENDING);
+    CeQueueDto queue2 = insertQueue("T2", project.getMainBranchComponent(), project.getProjectDto(), PENDING);
     insertCharacteristic(queue2, BRANCH_KEY, branchName);
     insertCharacteristic(queue2, BRANCH_TYPE_KEY, BRANCH.name());
 
@@ -210,44 +213,46 @@ public class ComponentActionIT {
     assertThat(response.getQueueList())
       .extracting(Ce.Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus, Ce.Task::getComponentKey, Ce.Task::getWarningCount, Ce.Task::getWarningsList)
       .containsOnly(
-        tuple("T1", branchName, Common.BranchType.BRANCH, Ce.TaskStatus.IN_PROGRESS, project.getKey(), 0, emptyList()),
-        tuple("T2", branchName, Common.BranchType.BRANCH, Ce.TaskStatus.PENDING, project.getKey(), 0, emptyList()));
+        tuple("T1", branchName, Common.BranchType.BRANCH, Ce.TaskStatus.IN_PROGRESS, project.projectKey(), 0, emptyList()),
+        tuple("T2", branchName, Common.BranchType.BRANCH, Ce.TaskStatus.PENDING, project.projectKey(), 0, emptyList()));
   }
 
   @Test
   public void return_many_tasks_from_same_project() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    insertQueue("Main", project, IN_PROGRESS);
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    insertQueue("Main", project.getMainBranchComponent(), project.getProjectDto(), IN_PROGRESS);
+
     String branchName1 = "Branch1";
-    ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey("branch1"));
-    CeQueueDto branchQueue1 = insertQueue("Branch1", project, IN_PROGRESS);
+    ComponentDto branch1 = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH).setKey("branch1"));
+    CeQueueDto branchQueue1 = insertQueue("Branch1", project.getMainBranchComponent(), project.getProjectDto(), IN_PROGRESS);
     insertCharacteristic(branchQueue1, BRANCH_KEY, branchName1);
     insertCharacteristic(branchQueue1, BRANCH_TYPE_KEY, BRANCH.name());
-    ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH).setKey("branch2"));
+
+    ComponentDto branch2 = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH).setKey("branch2"));
     String branchName2 = "Branch2";
-    CeQueueDto branchQueue2 = insertQueue("Branch2", project, PENDING);
+    CeQueueDto branchQueue2 = insertQueue("Branch2", project.getMainBranchComponent(), project.getProjectDto(), PENDING);
     insertCharacteristic(branchQueue2, BRANCH_KEY, branchName2);
     insertCharacteristic(branchQueue2, BRANCH_TYPE_KEY, BRANCH.name());
 
     Ce.ComponentResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, branch1.getKey())
+      .setParam(PARAM_COMPONENT, project.projectKey())
       .executeProtobuf(Ce.ComponentResponse.class);
 
     assertThat(response.getQueueList())
       .extracting(Ce.Task::getId, Ce.Task::getComponentKey, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getWarningCount, Ce.Task::getWarningsList)
       .containsOnly(
-        tuple("Main", project.getKey(), "", Common.BranchType.UNKNOWN_BRANCH_TYPE, 0, emptyList()),
+        tuple("Main", project.projectKey(), "", Common.BranchType.UNKNOWN_BRANCH_TYPE, 0, emptyList()),
         tuple("Branch1", branch1.getKey(), branchName1, Common.BranchType.BRANCH, 0, emptyList()),
         tuple("Branch2", branch2.getKey(), branchName2, Common.BranchType.BRANCH, 0, emptyList()));
   }
 
   @Test
   public void populates_warning_count_and_warnings_of_activities() {
-    ComponentDto privateProject = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, privateProject);
-    SnapshotDto analysis = db.components().insertSnapshot(privateProject);
-    CeActivityDto activity = insertActivity("Branch", privateProject, SUCCESS, analysis);
+    ProjectData privateProject = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, privateProject.getProjectDto());
+    SnapshotDto analysis = db.components().insertSnapshot(privateProject.getMainBranchComponent());
+    CeActivityDto activity = insertActivity("Branch", privateProject.getMainBranchComponent(), privateProject.getProjectDto(), SUCCESS, analysis);
     int messageCount = 5;
     List<CeTaskMessageDto> ceTaskMessageDtos = IntStream.range(0, messageCount)
       .mapToObj(i -> new CeTaskMessageDto()
@@ -262,7 +267,7 @@ public class ComponentActionIT {
     db.commit();
 
     Ce.ComponentResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, privateProject.getKey())
+      .setParam(PARAM_COMPONENT, privateProject.projectKey())
       .executeProtobuf(Ce.ComponentResponse.class);
     assertThat(response.hasCurrent()).isTrue();
     assertThat(response.getCurrent())
@@ -294,22 +299,22 @@ public class ComponentActionIT {
 
   @Test
   public void fail_when_no_component_parameter() {
-    logInWithBrowsePermission(db.components().insertPrivateProject().getMainBranchComponent());
+    logInWithBrowsePermission(db.components().insertPrivateProject().getProjectDto());
 
     TestRequest request = ws.newRequest();
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class);
   }
 
-  private void logInWithBrowsePermission(ComponentDto project) {
+  private void logInWithBrowsePermission(ProjectDto project) {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
   }
 
-  private CeQueueDto insertQueue(String taskUuid, ComponentDto component, CeQueueDto.Status status) {
+  private CeQueueDto insertQueue(String taskUuid, ComponentDto component, EntityDto entityDto, CeQueueDto.Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(component.uuid());
-    queueDto.setEntityUuid(component.uuid());
+    queueDto.setEntityUuid(entityDto.getUuid());
     queueDto.setUuid(taskUuid);
     queueDto.setStatus(status);
     db.getDbClient().ceQueueDao().insert(db.getSession(), queueDto);
@@ -317,15 +322,15 @@ public class ComponentActionIT {
     return queueDto;
   }
 
-  private CeActivityDto insertActivity(String taskUuid, ComponentDto component, CeActivityDto.Status status) {
-    return insertActivity(taskUuid, component, status, db.components().insertSnapshot(component));
+  private CeActivityDto insertActivity(String taskUuid, ComponentDto component, EntityDto entityDto, CeActivityDto.Status status) {
+    return insertActivity(taskUuid, component, entityDto, status, db.components().insertSnapshot(component));
   }
 
-  private CeActivityDto insertActivity(String taskUuid, ComponentDto component, CeActivityDto.Status status, @Nullable SnapshotDto analysis) {
+  private CeActivityDto insertActivity(String taskUuid, ComponentDto component, EntityDto entityDto, CeActivityDto.Status status, @Nullable SnapshotDto analysis) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(component.uuid());
-    queueDto.setEntityUuid(component.uuid());
+    queueDto.setEntityUuid(entityDto.getUuid());
     queueDto.setUuid(taskUuid);
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);

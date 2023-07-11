@@ -52,8 +52,7 @@ public class ProjectExportTaskProcessor implements CeTaskProcessor {
 
   private void processProjectExport(CeTask task) {
     CeTask.Component exportComponent = mandatoryComponent(task, PROJECT_EXPORT);
-    failIfNotMain(exportComponent, task);
-    ProjectDescriptor projectExportDescriptor = new ProjectDescriptor(exportComponent.getUuid(),
+    ProjectDescriptor projectExportDescriptor = new ProjectDescriptor(task.getEntity().get().getUuid(),
       mandatoryKey(exportComponent), mandatoryName(exportComponent));
 
     try (TaskContainer taskContainer = new TaskContainerImpl(componentContainer,
@@ -62,11 +61,6 @@ public class ProjectExportTaskProcessor implements CeTaskProcessor {
       taskContainer.getComponentByType(ProjectExportProcessor.class).process();
     }
 
-  }
-
-  private static void failIfNotMain(CeTask.Component exportComponent, CeTask task) {
-    task.getEntity().filter(entity -> entity.equals(exportComponent))
-      .orElseThrow(() -> new IllegalStateException("Component of task must be the same as entity"));
   }
 
   private static CeTask.Component mandatoryComponent(CeTask task, String type) {
