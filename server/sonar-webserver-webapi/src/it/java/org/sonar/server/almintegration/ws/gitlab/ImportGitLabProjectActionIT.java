@@ -171,13 +171,14 @@ public class ImportGitLabProjectActionIT {
     Projects.CreateWsResponse.Project result = response.getProject();
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    BranchDto branchDto = db.getDbClient().branchDao().selectMainBranchByProjectUuid(db.getSession(), projectDto.get().getUuid()).orElseThrow();
 
     String projectUuid = projectDto.get().getUuid();
-    assertThat(db.getDbClient().newCodePeriodDao().selectByBranch(db.getSession(), projectUuid, projectUuid))
+    assertThat(db.getDbClient().newCodePeriodDao().selectByBranch(db.getSession(), projectUuid, branchDto.getUuid()))
       .isPresent()
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
-      .containsExactly(NUMBER_OF_DAYS, "30", projectUuid);
+      .containsExactly(NUMBER_OF_DAYS, "30", branchDto.getUuid());
   }
 
   @Test

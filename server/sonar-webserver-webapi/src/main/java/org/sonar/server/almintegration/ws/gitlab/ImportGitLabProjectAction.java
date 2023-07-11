@@ -33,6 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
@@ -89,7 +90,7 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("import_gitlab_project")
       .setDescription("Import a GitLab project to SonarQube, creating a new project and configuring MR decoration<br/>" +
-        "Requires the 'Create Projects' permission")
+                      "Requires the 'Create Projects' permission")
       .setPost(true)
       .setSince("8.5")
       .setHandler(this);
@@ -135,13 +136,14 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
 
       ComponentCreationData componentCreationData = createProject(dbSession, gitlabProject, almMainBranchName.orElse(null));
       ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
+      BranchDto mainBranchDto = Optional.ofNullable(componentCreationData.mainBranchDto()).orElseThrow();
       populateMRSetting(dbSession, gitlabProjectId, projectDto, almSettingDto);
 
       checkNewCodeDefinitionParam(newCodeDefinitionType, newCodeDefinitionValue);
 
       if (newCodeDefinitionType != null) {
-        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(), almMainBranchName.orElse(defaultBranchNameResolver.getEffectiveMainBranchName()),
-          newCodeDefinitionType, newCodeDefinitionValue);
+        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(), mainBranchDto.getUuid(),
+          almMainBranchName.orElse(defaultBranchNameResolver.getEffectiveMainBranchName()), newCodeDefinitionType, newCodeDefinitionValue);
       }
 
       componentUpdater.commitAndIndex(dbSession, componentCreationData);

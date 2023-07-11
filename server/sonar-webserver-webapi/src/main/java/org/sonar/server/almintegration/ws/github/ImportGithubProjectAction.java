@@ -35,6 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
@@ -157,13 +158,14 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
 
       ComponentCreationData componentCreationData = createProject(dbSession, repository, repository.getDefaultBranch());
       ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
+      BranchDto mainBranchDto = Optional.ofNullable(componentCreationData.mainBranchDto()).orElseThrow();
 
       populatePRSetting(dbSession, repository, projectDto, almSettingDto);
 
       checkNewCodeDefinitionParam(newCodeDefinitionType, newCodeDefinitionValue);
 
       if (newCodeDefinitionType != null) {
-        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(),
+        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(), mainBranchDto.getUuid(),
           Optional.ofNullable(repository.getDefaultBranch()).orElse(defaultBranchNameResolver.getEffectiveMainBranchName()),
           newCodeDefinitionType, newCodeDefinitionValue);
       }

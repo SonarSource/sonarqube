@@ -31,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
@@ -90,8 +91,8 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("import_azure_project")
       .setDescription("Create a SonarQube project with the information from the provided Azure DevOps project.<br/>" +
-        "Autoconfigure pull request decoration mechanism.<br/>" +
-        "Requires the 'Create Projects' permission")
+                      "Autoconfigure pull request decoration mechanism.<br/>" +
+                      "Requires the 'Create Projects' permission")
       .setPost(true)
       .setInternal(true)
       .setSince("8.6")
@@ -146,12 +147,13 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
 
       ComponentCreationData componentCreationData = createProject(dbSession, repo);
       ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
+      BranchDto mainBranchDto = Optional.ofNullable(componentCreationData.mainBranchDto()).orElseThrow();
       populatePRSetting(dbSession, repo, projectDto, almSettingDto);
 
       checkNewCodeDefinitionParam(newCodeDefinitionType, newCodeDefinitionValue);
 
       if (newCodeDefinitionType != null) {
-        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(),
+        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(), mainBranchDto.getUuid(),
           Optional.ofNullable(repo.getDefaultBranchName()).orElse(defaultBranchNameResolver.getEffectiveMainBranchName()),
           newCodeDefinitionType, newCodeDefinitionValue);
       }

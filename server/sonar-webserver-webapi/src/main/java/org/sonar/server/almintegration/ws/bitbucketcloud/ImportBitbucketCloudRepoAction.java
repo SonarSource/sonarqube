@@ -32,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
@@ -142,13 +143,14 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
 
       ComponentCreationData componentCreationData = createProject(dbSession, workspace, repo, repo.getMainBranch().getName());
       ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
+      BranchDto mainBranchDto = Optional.ofNullable(componentCreationData.mainBranchDto()).orElseThrow();
 
       populatePRSetting(dbSession, repo, projectDto, almSettingDto);
 
       checkNewCodeDefinitionParam(newCodeDefinitionType, newCodeDefinitionValue);
 
       if (newCodeDefinitionType != null) {
-        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(),
+        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(), mainBranchDto.getUuid(),
           Optional.ofNullable(repo.getMainBranch().getName()).orElse(defaultBranchNameResolver.getEffectiveMainBranchName()),
           newCodeDefinitionType, newCodeDefinitionValue);
       }

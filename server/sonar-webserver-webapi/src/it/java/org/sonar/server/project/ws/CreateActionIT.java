@@ -394,9 +394,9 @@ public class CreateActionIT {
       .setNewCodeDefinitionType(REFERENCE_BRANCH.name())
       .build());
 
-    ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
+    ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
 
-    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), component.uuid()))
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.getUuid()))
       .isPresent()
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
@@ -414,9 +414,9 @@ public class CreateActionIT {
       .setNewCodeDefinitionType(REFERENCE_BRANCH.name())
       .build());
 
-    ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
+    ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
 
-    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), component.uuid()))
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.getUuid()))
       .isPresent()
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
@@ -434,9 +434,9 @@ public class CreateActionIT {
       .setNewCodeDefinitionValue("30")
       .build());
 
-    ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
+    ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
 
-    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), component.uuid()))
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.getUuid()))
       .isPresent()
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
@@ -457,9 +457,10 @@ public class CreateActionIT {
       .setNewCodeDefinitionValue("30")
       .build());
 
+    ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
     ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
 
-    assertThat(db.getDbClient().newCodePeriodDao().selectByBranch(db.getSession(), component.uuid(), component.uuid()))
+    assertThat(db.getDbClient().newCodePeriodDao().selectByBranch(db.getSession(), projectDto.getUuid(), component.uuid()))
       .isPresent()
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
@@ -519,9 +520,9 @@ public class CreateActionIT {
       .setNewCodeDefinitionValue("30")
       .build());
 
-    ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
+    ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
 
-    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), component.uuid()))
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.getUuid()))
       .isPresent()
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)

@@ -28,6 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.server.component.ComponentCreationData;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -40,6 +41,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
 
 public class NewCodeDefinitionResolverTest {
 
+  private static final String MAIN_BRANCH_UUID = "main-branch-uuid";
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -54,49 +56,49 @@ public class NewCodeDefinitionResolverTest {
 
   @Test
   public void createNewCodeDefinition_throw_IAE_if_no_valid_type() {
-    assertThatThrownBy(() -> newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH, "nonValid", null))
+    assertThatThrownBy(() -> newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH_UUID, MAIN_BRANCH, "nonValid", null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Invalid type: nonValid");
   }
 
   @Test
   public void createNewCodeDefinition_throw_IAE_if_type_is_not_allowed() {
-    assertThatThrownBy(() -> newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH, SPECIFIC_ANALYSIS.name(), null))
+    assertThatThrownBy(() -> newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH_UUID, MAIN_BRANCH, SPECIFIC_ANALYSIS.name(), null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Invalid type 'SPECIFIC_ANALYSIS'. `newCodeDefinitionType` can only be set with types: [PREVIOUS_VERSION, NUMBER_OF_DAYS, REFERENCE_BRANCH]");
   }
 
   @Test
   public void createNewCodeDefinition_throw_IAE_if_no_value_for_days() {
-    assertThatThrownBy(() -> newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH, NUMBER_OF_DAYS.name(), null))
+    assertThatThrownBy(() -> newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH_UUID, MAIN_BRANCH, NUMBER_OF_DAYS.name(), null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("New code definition type 'NUMBER_OF_DAYS' requires a newCodeDefinitionValue");
   }
 
   @Test
   public void createNewCodeDefinition_throw_IAE_if_days_is_invalid() {
-    assertThatThrownBy(() -> newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH, NUMBER_OF_DAYS.name(), "unknown"))
+    assertThatThrownBy(() -> newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH_UUID,  MAIN_BRANCH, NUMBER_OF_DAYS.name(), "unknown"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Failed to parse number of days: unknown");
   }
 
   @Test
   public void createNewCodeDefinition_throw_IAE_if_value_is_set_for_reference_branch() {
-    assertThatThrownBy(() -> newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH, REFERENCE_BRANCH.name(), "feature/zw"))
+    assertThatThrownBy(() -> newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH_UUID, MAIN_BRANCH, REFERENCE_BRANCH.name(), "feature/zw"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Unexpected value for newCodeDefinitionType 'REFERENCE_BRANCH'");
   }
 
   @Test
   public void createNewCodeDefinition_throw_IAE_if_previous_version_type_and_value_provided() {
-    assertThatThrownBy(() -> newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH, PREVIOUS_VERSION.name(), "10.2.3"))
+    assertThatThrownBy(() -> newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH_UUID, MAIN_BRANCH, PREVIOUS_VERSION.name(), "10.2.3"))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Unexpected value for newCodeDefinitionType 'PREVIOUS_VERSION'");
   }
 
   @Test
   public void createNewCodeDefinition_persist_previous_version_type() {
-    newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH, PREVIOUS_VERSION.name(), null);
+    newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH_UUID, MAIN_BRANCH, PREVIOUS_VERSION.name(), null);
 
     Optional<NewCodePeriodDto> newCodePeriodDto = dbClient.newCodePeriodDao().selectByProject(dbSession, DEFAULT_PROJECT_ID);
     assertThat(newCodePeriodDto).map(NewCodePeriodDto::getType).hasValue(PREVIOUS_VERSION);
@@ -106,7 +108,7 @@ public class NewCodeDefinitionResolverTest {
   public void createNewCodeDefinition_return_days_value_for_number_of_days_type() {
     String numberOfDays = "30";
 
-    newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH, NUMBER_OF_DAYS.name(), numberOfDays);
+    newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH_UUID, MAIN_BRANCH, NUMBER_OF_DAYS.name(), numberOfDays);
 
     Optional<NewCodePeriodDto> newCodePeriodDto = dbClient.newCodePeriodDao().selectByProject(dbSession, DEFAULT_PROJECT_ID);
 
@@ -119,15 +121,15 @@ public class NewCodeDefinitionResolverTest {
 
   @Test
   public void createNewCodeDefinition_return_branch_value_for_reference_branch_type() {
-    newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH, REFERENCE_BRANCH.name(), null);
+    newCodeDefinitionResolver.createNewCodeDefinition(dbSession, DEFAULT_PROJECT_ID, MAIN_BRANCH_UUID, MAIN_BRANCH, REFERENCE_BRANCH.name(), null);
 
     Optional<NewCodePeriodDto> newCodePeriodDto = dbClient.newCodePeriodDao().selectByProject(dbSession, DEFAULT_PROJECT_ID);
 
     assertThat(newCodePeriodDto)
       .isPresent()
       .get()
-      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
-      .containsExactly(REFERENCE_BRANCH, MAIN_BRANCH);
+      .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid, NewCodePeriodDto::getProjectUuid)
+      .containsExactly(REFERENCE_BRANCH, MAIN_BRANCH, null, DEFAULT_PROJECT_ID);
   }
 
   @Test

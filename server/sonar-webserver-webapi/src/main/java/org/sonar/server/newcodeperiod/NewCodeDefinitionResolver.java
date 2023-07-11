@@ -31,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodParser;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.server.component.ComponentCreationData;
 
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
@@ -70,7 +71,8 @@ public class NewCodeDefinitionResolver {
     this.editionProvider = editionProvider;
   }
 
-  public void createNewCodeDefinition(DbSession dbSession, String projectUuid, String defaultBranchName, String newCodeDefinitionType, String newCodeDefinitionValue) {
+  public void createNewCodeDefinition(DbSession dbSession, String projectUuid, String mainBranchUuid,
+    String defaultBranchName, String newCodeDefinitionType, String newCodeDefinitionValue) {
 
     boolean isCommunityEdition = editionProvider.get().filter(EditionProvider.Edition.COMMUNITY::equals).isPresent();
     NewCodePeriodType newCodePeriodType = parseNewCodeDefinitionType(newCodeDefinitionType);
@@ -80,7 +82,7 @@ public class NewCodeDefinitionResolver {
     dto.setProjectUuid(projectUuid);
 
     if (isCommunityEdition) {
-      dto.setBranchUuid(projectUuid);
+      dto.setBranchUuid(mainBranchUuid);
     }
 
     getNewCodeDefinitionValueProjectCreation(newCodePeriodType, newCodeDefinitionValue, defaultBranchName).ifPresent(dto::setValue);

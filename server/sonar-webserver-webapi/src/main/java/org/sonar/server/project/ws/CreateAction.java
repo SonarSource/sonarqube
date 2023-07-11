@@ -28,7 +28,9 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.entity.EntityDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
@@ -134,13 +136,17 @@ public class CreateAction implements ProjectsWsAction {
       userSession.checkPermission(PROVISION_PROJECTS);
       checkNewCodeDefinitionParam(request.getNewCodeDefinitionType(), request.getNewCodeDefinitionValue());
       ComponentCreationData componentData = createProject(request, dbSession);
+      ProjectDto projectDto = Optional.ofNullable(componentData.projectDto()).orElseThrow();
+      BranchDto mainBranchDto = Optional.ofNullable(componentData.mainBranchDto()).orElseThrow();
+
       if (request.getNewCodeDefinitionType() != null) {
         String defaultBranchName = Optional.ofNullable(request.getMainBranchKey()).orElse(defaultBranchNameResolver.getEffectiveMainBranchName());
-        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, componentData.mainBranchDto().getUuid(), defaultBranchName, request.getNewCodeDefinitionType(),
+        newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(),
+          mainBranchDto.getUuid(), defaultBranchName, request.getNewCodeDefinitionType(),
           request.getNewCodeDefinitionValue());
       }
       componentUpdater.commitAndIndex(dbSession, componentData);
-      return toCreateResponse(componentData.projectDto());
+      return toCreateResponse(projectDto);
     }
   }
 
