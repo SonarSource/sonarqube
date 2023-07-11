@@ -58,10 +58,8 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class StatusActionIT {
 
-  private static final String SOME_UUID = "some uuid";
   private static final String ID_PARAM = "id";
   private static final String KEY_PARAM = "key";
-  private static final String SOME_KEY = "some key";
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -84,7 +82,8 @@ public class StatusActionIT {
 
   @Before
   public void setUp() throws Exception {
-    project = insertProject(SOME_UUID, SOME_KEY);
+    project = db.components().insertPrivateProject().getProjectDto();
+
     logInAsProjectAdministrator("user");
 
     when(config.get("sonar.path.data")).thenReturn(Optional.of("data"));
@@ -126,7 +125,7 @@ public class StatusActionIT {
   public void fails_with_BRE_if_both_params_are_provided() {
     assertThatThrownBy(() -> {
       underTest.newRequest()
-        .setParam(ID_PARAM, SOME_UUID).setParam(KEY_PARAM, SOME_KEY)
+        .setParam(ID_PARAM, project.getUuid()).setParam(KEY_PARAM, project.getKey())
         .execute();
     })
       .isInstanceOf(BadRequestException.class)
@@ -162,7 +161,7 @@ public class StatusActionIT {
   @Test
   public void project_without_snapshot_can_be_imported_but_not_exported() {
     String response = underTest.newRequest()
-      .setParam(KEY_PARAM, SOME_KEY)
+      .setParam(KEY_PARAM, project.getKey())
       .execute()
       .getInput();
 
@@ -176,7 +175,7 @@ public class StatusActionIT {
     insertSnapshot(project, false);
 
     String response = underTest.newRequest()
-      .setParam(KEY_PARAM, SOME_KEY)
+      .setParam(KEY_PARAM, project.getKey())
       .execute()
       .getInput();
 
@@ -191,7 +190,7 @@ public class StatusActionIT {
     insertSnapshot(project, false);
 
     String response = underTest.newRequest()
-      .setParam(KEY_PARAM, SOME_KEY)
+      .setParam(KEY_PARAM, project.getKey())
       .execute()
       .getInput();
 
@@ -201,10 +200,10 @@ public class StatusActionIT {
 
   @Test
   public void exportedDump_field_contains_absolute_path_if_file_exists_and_is_regular_file() throws IOException {
-    final String exportDumpFilePath = ensureDumpFileExists(SOME_KEY, false);
+    final String exportDumpFilePath = ensureDumpFileExists(project.getKey(), false);
 
     String response = underTest.newRequest()
-      .setParam(KEY_PARAM, SOME_KEY)
+      .setParam(KEY_PARAM, project.getKey())
       .execute()
       .getInput();
 
@@ -214,10 +213,10 @@ public class StatusActionIT {
 
   @Test
   public void exportedDump_field_contains_absolute_path_if_file_exists_and_is_link() throws IOException {
-    final String exportDumpFilePath = ensureDumpFileExists(SOME_KEY, false);
+    final String exportDumpFilePath = ensureDumpFileExists(project.getKey(), false);
 
     String response = underTest.newRequest()
-      .setParam(KEY_PARAM, SOME_KEY)
+      .setParam(KEY_PARAM, project.getKey())
       .execute()
       .getInput();
 
@@ -230,7 +229,7 @@ public class StatusActionIT {
     Files.createDirectories(Paths.get(exportDirectoryPathname));
 
     String response = underTest.newRequest()
-      .setParam(KEY_PARAM, SOME_KEY)
+      .setParam(KEY_PARAM, project.getKey())
       .execute()
       .getInput();
 
@@ -240,10 +239,10 @@ public class StatusActionIT {
 
   @Test
   public void dumpToImport_field_contains_absolute_path_if_file_exists_and_is_regular_file() throws IOException {
-    final String importDumpFilePath = ensureDumpFileExists(SOME_KEY, true);
+    final String importDumpFilePath = ensureDumpFileExists(project.getKey(), true);
 
     String response = underTest.newRequest()
-      .setParam(KEY_PARAM, SOME_KEY)
+      .setParam(KEY_PARAM, project.getKey())
       .execute()
       .getInput();
 
@@ -253,10 +252,10 @@ public class StatusActionIT {
 
   @Test
   public void dumpToImport_field_contains_absolute_path_if_file_exists_and_is_link() throws IOException {
-    final String importDumpFilePath = ensureDumpFileExists(SOME_KEY, true);
+    final String importDumpFilePath = ensureDumpFileExists(project.getKey(), true);
 
     String response = underTest.newRequest()
-      .setParam(KEY_PARAM, SOME_KEY)
+      .setParam(KEY_PARAM, project.getKey())
       .execute()
       .getInput();
 
@@ -269,7 +268,7 @@ public class StatusActionIT {
     Files.createDirectories(Paths.get(importDirectoryPathname));
 
     String response = underTest.newRequest()
-      .setParam(KEY_PARAM, SOME_KEY)
+      .setParam(KEY_PARAM, project.getKey())
       .execute()
       .getInput();
 
@@ -290,12 +289,9 @@ public class StatusActionIT {
       .isInstanceOf(NotFoundException.class);
   }
 
-  private ProjectDto insertProject(String uuid, String key) {
-    return db.components().insertPrivateProject(c -> c.setBranchUuid(uuid).setUuid(uuid).setKey(key)).getProjectDto();
-  }
 
   private void insertSnapshot(ProjectDto projectDto, boolean last) {
-    dbClient.snapshotDao().insert(dbSession, SnapshotTesting.newAnalysis(projectDto.getUuid()).setLast(last));
+    db.components().insertSnapshot(projectDto, snapshotDto -> snapshotDto.setLast(last));
     dbSession.commit();
   }
 

@@ -32,6 +32,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
@@ -96,12 +97,13 @@ public class StatusAction implements ProjectDumpAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = getProject(dbSession, uuid, key);
+      BranchDto mainBranch = componentFinder.getMainBranch(dbSession, project);
       userSession.checkEntityPermission(UserRole.ADMIN, project);
 
       WsResponse wsResponse = new WsResponse();
       checkDumps(project, wsResponse);
 
-      SnapshotsStatus snapshots = checkSnapshots(dbSession, project);
+      SnapshotsStatus snapshots = checkSnapshots(dbSession, mainBranch);
       if (snapshots.hasLast) {
         wsResponse.setCanBeExported();
       } else if (!snapshots.hasAny) {
@@ -111,7 +113,7 @@ public class StatusAction implements ProjectDumpAction {
     }
   }
 
-  private SnapshotsStatus checkSnapshots(DbSession dbSession, ProjectDto project) throws SQLException {
+  private SnapshotsStatus checkSnapshots(DbSession dbSession, BranchDto mainBranch) throws SQLException {
     PreparedStatement stmt = null;
     ResultSet rs = null;
     try {
@@ -123,7 +125,7 @@ public class StatusAction implements ProjectDumpAction {
         " group by" +
         " islast";
       stmt = dbClient.getMyBatis().newScrollingSelectStatement(dbSession, sql);
-      stmt.setString(1, project.getUuid());
+      stmt.setString(1, mainBranch.getUuid());
       rs = stmt.executeQuery();
       SnapshotsStatus res = new SnapshotsStatus();
       while (rs.next()) {
