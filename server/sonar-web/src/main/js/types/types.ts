@@ -264,6 +264,7 @@ export interface Issue {
   project: string;
   projectName: string;
   projectKey: string;
+  projectOrganization: string;
   pullRequest?: string;
   resolution?: string;
   rule: string;

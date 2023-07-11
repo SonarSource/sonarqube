@@ -33,6 +33,7 @@ export interface AssigneeRendererProps {
 
   assignee?: UserBase;
   loggedInUser?: LoggedInUser;
+  organization?: string;
 
   onAssign: (user: UserActive) => void;
   onEnterEditionMode: () => void;
@@ -40,7 +41,7 @@ export interface AssigneeRendererProps {
 }
 
 export default function AssigneeRenderer(props: AssigneeRendererProps) {
-  const { assignee, canEdit, loggedInUser, editing, loading } = props;
+  const { assignee, organization, canEdit, loggedInUser, editing, loading } = props;
 
   return (
     <DeferredSpinner loading={loading}>
@@ -67,6 +68,7 @@ export default function AssigneeRenderer(props: AssigneeRendererProps) {
         <EscKeydownHandler onKeydown={props.onExitEditionMode}>
           <OutsideClickHandler onClickOutside={props.onExitEditionMode}>
             <AssigneeSelection
+              organization={organization}
               allowCurrentUserSelection={loggedInUser.login !== assignee?.login}
               loggedInUser={loggedInUser}
               onSelect={props.onAssign}

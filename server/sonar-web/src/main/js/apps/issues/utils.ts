@@ -37,6 +37,7 @@ import { Facet, RawFacet } from '../../types/issues';
 import { SecurityStandard } from '../../types/security';
 import { Dict, Issue, Paging, RawQuery } from '../../types/types';
 import { UserBase } from '../../types/users';
+import { searchMembers } from '../../api/organizations';
 
 const OWASP_ASVS_4_0 = 'owaspAsvs-4.0';
 
@@ -189,13 +190,16 @@ export function formatFacetStat(stat: number | undefined) {
 }
 
 export const searchAssignees = (
-  query: string,
-  page = 1
-): Promise<{ paging: Paging; results: UserBase[] }> => {
-  return searchUsers({ p: page, q: query }).then(({ paging, users }) => ({
-    paging,
-    results: users,
-  }));
+   query: string,
+   organization: string | undefined,
+   page = 1
+ ): Promise<{ paging: T.Paging; results: T.UserBase[] }> => {
+   return organization
+     ? searchMembers({ organization, p: page, ps: 50, q: query }).then(({ paging, users }) => ({
+         paging,
+         results: users
+       }))
+     : searchUsers({ p: page, q: query }).then(({ paging, users }) => ({ paging, results: users }));
 };
 
 const LOCALSTORAGE_MY = 'my';

@@ -40,6 +40,7 @@ export interface FacetsListProps {
   onFacetToggle: (facet: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   openFacets: OpenFacets;
+  organization: string;
   query: Query;
   referencedProfiles: Dict<Profile>;
   referencedRepositories: Dict<{ key: string; language: string; name: string }>;
@@ -79,6 +80,7 @@ export default function FacetsList(props: FacetsListProps) {
         onChange={props.onFilterChange}
         onToggle={props.onFacetToggle}
         open={!!props.openFacets.tags}
+        organization={props.organization}
         stats={props.facets && props.facets.tags}
         values={props.query.tags}
       />

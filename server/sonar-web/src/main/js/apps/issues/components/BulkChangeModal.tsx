@@ -42,6 +42,8 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Component, Dict, Issue, IssueType, Paging } from '../../../types/types';
 import { CurrentUser } from '../../../types/users';
 import AssigneeSelect, { AssigneeOption } from './AssigneeSelect';
+import { withOrganizationContext } from "../../organizations/OrganizationContext";
+import withComponentContext  from '../../../app/components/componentContext/withComponentContext';
 
 const DEBOUNCE_DELAY = 250;
 
@@ -56,6 +58,7 @@ interface Props {
   fetchIssues: (x: {}) => Promise<{ issues: Issue[]; paging: Paging }>;
   onClose: () => void;
   onDone: () => void;
+  organization: Organization;
 }
 
 interface FormFields {
@@ -63,6 +66,7 @@ interface FormFields {
   assignee?: AssigneeOption;
   comment?: string;
   notifications?: boolean;
+  organization: Organization;
   removeTags?: Array<{ label: string; value: string }>;
   severity?: string;
   transition?: string;
@@ -89,11 +93,13 @@ enum InputField {
 
 export const MAX_PAGE_SIZE = 500;
 
-export default class BulkChangeModal extends React.PureComponent<Props, State> {
+export class BulkChangeModal extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
     super(props);
+    const organization  = props.organization.kee;
+    this.state = { initialTags: [], issues: [], loading: true, submitting: false, organization };
     this.state = { initialTags: [], issues: [], loading: true, submitting: false };
 
     this.handleTagsSearch = debounce(this.handleTagsSearch, DEBOUNCE_DELAY);
@@ -102,7 +108,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
 
-    Promise.all([this.loadIssues(), searchIssueTags({})]).then(
+    Promise.all([this.loadIssues(), searchIssueTags({ organization: this.state.organization })]).then(
       ([{ issues, paging }, tags]) => {
         if (this.mounted) {
           if (issues.length > MAX_PAGE_SIZE) {
@@ -134,7 +140,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
   };
 
   handleTagsSearch = (query: string, resolve: (option: TagOption[]) => void) => {
-    searchIssueTags({ q: query })
+    searchIssueTags({ organization: this.props.organization.kee, q: query })
       .then((tags) => tags.map((tag) => ({ label: tag, value: tag })))
       .then(resolve)
       .catch(() => resolve([]));
@@ -273,7 +279,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
   );
 
   renderAssigneeField = () => {
-    const { currentUser } = this.props;
+    const { currentUser, organization } = this.props;
     const { issues } = this.state;
     const affected = this.state.issues.filter(hasAction('assign')).length;
     const field = InputField.assignee;
@@ -287,6 +293,7 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
         inputId={`issues-bulk-change-${field}`}
         currentUser={currentUser}
         issues={issues}
+        organization={organization.kee}
         onAssigneeSelect={this.handleAssigneeSelect}
       />
     );
@@ -544,3 +551,5 @@ function hasAction(action: string) {
 function createTagPrompt(label: string) {
   return translateWithParameters('issue.create_tag_x', label);
 }
+
+export default withComponentContext(withOrganizationContext(BulkChangeModal));

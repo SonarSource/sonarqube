@@ -83,6 +83,7 @@ export function getFacet(
 }
 
 export function searchIssueTags(data: {
+  organization?: string;
   project?: string;
   branch?: string;
   all?: boolean;

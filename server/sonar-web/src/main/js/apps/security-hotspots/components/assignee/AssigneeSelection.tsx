@@ -24,10 +24,12 @@ import { KeyboardKeys } from '../../../../helpers/keycodes';
 import { translate } from '../../../../helpers/l10n';
 import { isUserActive, LoggedInUser, UserActive } from '../../../../types/users';
 import AssigneeSelectionRenderer from './AssigneeSelectionRenderer';
+import { searchMembers } from '../../../../api/organizations';
 
 interface Props {
   allowCurrentUserSelection: boolean;
   loggedInUser: LoggedInUser;
+  organization?: string;
   onSelect: (user: UserActive) => void;
 }
 
@@ -84,9 +86,21 @@ export default class AssigneeSelection extends React.PureComponent<Props, State>
     });
   };
 
+  searchAssignees = (
+        query: string,
+        organization: string,
+        page = 1
+    ): Promise<{ paging: T.Paging; results: T.UserBase[] }> => {
+      return organization
+          ? searchMembers({ organization, p: page, ps: 50, q: query }).then(({ paging, users }) => ({
+            paging,
+            results: users
+          }))
+          : searchUsers({ p: page, q: query }).then(({ paging, users }) => ({ paging, results: users }));
+  };
   handleActualSearch = (query: string) => {
     this.setState({ loading: true, query });
-    searchUsers({ q: query })
+    searchAssignees({ q: query, organization: this.props.organization  })
       .then((result) => {
         if (this.mounted) {
           this.setState({

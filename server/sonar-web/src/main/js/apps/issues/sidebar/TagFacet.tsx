@@ -28,6 +28,8 @@ import { highlightTerm } from '../../../helpers/search';
 import { Facet } from '../../../types/issues';
 import { Component, Dict } from '../../../types/types';
 import { Query } from '../utils';
+import { withOrganizationContext } from "../../organizations/OrganizationContext";
+import withComponentContext  from '../../../app/components/componentContext/withComponentContext';
 
 interface Props {
   component: Component | undefined;
@@ -36,6 +38,7 @@ interface Props {
   loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
+  organization: Organization;
   open: boolean;
   query: Query;
   stats: Dict<number> | undefined;
@@ -44,12 +47,13 @@ interface Props {
 
 const SEARCH_SIZE = 100;
 
-export default class TagFacet extends React.PureComponent<Props> {
+export class TagFacet extends React.PureComponent<Props> {
   handleSearch = (query: string) => {
     const { component, branch } = this.props;
     const project =
       component && ['TRK', 'VW', 'APP'].includes(component.qualifier) ? component.key : undefined;
     return searchIssueTags({
+      organization: this.props.organization.kee,
       project,
       branch,
       ps: SEARCH_SIZE,
@@ -105,3 +109,5 @@ export default class TagFacet extends React.PureComponent<Props> {
     );
   }
 }
+
+export default withComponentContext(withOrganizationContext(TagFacet));

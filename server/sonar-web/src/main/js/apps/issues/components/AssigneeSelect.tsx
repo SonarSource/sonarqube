@@ -43,6 +43,7 @@ export interface AssigneeSelectProps {
   issues: Issue[];
   onAssigneeSelect: (assignee: AssigneeOption) => void;
   inputId: string;
+  organization: string;
 }
 
 export default class AssigneeSelect extends React.Component<AssigneeSelectProps> {
@@ -77,12 +78,13 @@ export default class AssigneeSelect extends React.Component<AssigneeSelectProps>
   };
 
   handleAssigneeSearch = (query: string, resolve: (options: AssigneeOption[]) => void) => {
+    const { organization } = this.props;
     if (query.length < MIN_QUERY_LENGTH) {
       resolve([]);
       return;
     }
 
-    searchAssignees(query)
+    searchAssignees(query, organization)
       .then(({ results }) =>
         results.map((r) => {
           const userInfo = r.name || r.login;
