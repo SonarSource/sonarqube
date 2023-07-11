@@ -350,7 +350,7 @@ export class App extends React.PureComponent<Props, State> {
       return;
     }
     this.setState({ loadingRule: true });
-    const openRuleDetails = await getRuleDetails({ key: openIssue.rule, organization: this.props.organization?.kee})
+    const openRuleDetails = await getRuleDetails({ key: openIssue.rule, organization: openIssue.organization})
       .then((response) => response.rule)
       .catch(() => undefined);
     if (this.mounted) {
