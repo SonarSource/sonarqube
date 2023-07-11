@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -35,7 +36,6 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
@@ -201,7 +201,7 @@ public class ChangelogAction implements QProfileWsAction {
     List<QProfileChangeDto> changeDtos = dbClient.qProfileChangeDao().selectByQuery(dbSession, query);
     return changeDtos.stream()
       .map(Change::from)
-      .collect(MoreCollectors.toList(changeDtos.size()));
+      .collect(Collectors.toList());
   }
 
   static class Change {

@@ -60,10 +60,6 @@ public final class MoreCollectors {
     return ImmutableList.toImmutableList();
   }
 
-  public static <T> Collector<T, ?, List<T>> toList(int expectedSize) {
-    return Collectors.toList();
-  }
-
   public static <T> Collector<T, ?, Set<T>> toSet() {
     return Collectors.toSet();
   }

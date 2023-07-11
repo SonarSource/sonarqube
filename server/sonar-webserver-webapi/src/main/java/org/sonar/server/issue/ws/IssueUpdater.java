@@ -22,13 +22,13 @@ package org.sonar.server.issue.ws;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -87,7 +87,7 @@ public class IssueUpdater {
     result.addComponents(singleton(component));
 
     if (context.refreshMeasures()) {
-      List<DefaultIssue> changedIssues = result.getIssues().stream().map(IssueDto::toDefaultIssue).collect(MoreCollectors.toList(result.getIssues().size()));
+      List<DefaultIssue> changedIssues = result.getIssues().stream().map(IssueDto::toDefaultIssue).collect(Collectors.toList());
       boolean isChangeFromWebhook = isNotEmpty(context.getWebhookSource());
       issueChangePostProcessor.process(dbSession, changedIssues, singleton(component), isChangeFromWebhook);
     }

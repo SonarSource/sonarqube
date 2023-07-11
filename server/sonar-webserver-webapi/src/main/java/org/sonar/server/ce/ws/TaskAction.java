@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
@@ -198,7 +199,7 @@ public class TaskAction implements CeWsAction {
     public static Collection<String> possibleValues() {
       return Arrays.stream(values())
         .map(AdditionalField::getLabel)
-        .collect(MoreCollectors.toList(values().length));
+        .collect(Collectors.toList());
     }
   }
 }

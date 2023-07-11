@@ -1091,7 +1091,7 @@ public class IssueIndex {
           long lastIssueDate = (long) ((ParsedMax) branchBucket.getAggregations().get("maxFuncCreatedAt")).getValue();
           return Stream.of(new ProjectStatistics(branchBucket.getKeyAsString(), count, lastIssueDate));
         }))
-      .collect(MoreCollectors.toList(projectUuids.size()));
+      .collect(Collectors.toList());
   }
 
   public List<SecurityStandardCategoryStatistics> getCweTop25Reports(String projectUuid, boolean isViewOrApp) {

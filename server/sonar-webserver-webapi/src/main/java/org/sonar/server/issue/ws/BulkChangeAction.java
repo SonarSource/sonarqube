@@ -33,6 +33,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -42,8 +44,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -237,7 +237,7 @@ public class BulkChangeAction implements IssuesWsAction {
       .collect(Collectors.toSet());
     List<ComponentDto> touchedComponents = touchedComponentUuids.stream()
       .map(data.componentsByUuid::get)
-      .collect(MoreCollectors.toList(touchedComponentUuids.size()));
+      .collect(Collectors.toList());
 
     List<DefaultIssue> changedIssues = data.issues.stream().filter(result.success::contains).collect(MoreCollectors.toList());
     issueChangePostProcessor.process(dbSession, changedIssues, touchedComponents, false);

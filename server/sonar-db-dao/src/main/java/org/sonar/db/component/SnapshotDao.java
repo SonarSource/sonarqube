@@ -26,11 +26,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
@@ -106,7 +106,7 @@ public class SnapshotDao implements Dao {
       String.valueOf(fromDates.size()));
     List<ProjectUuidFromDatePair> projectUuidFromDatePairs = IntStream.range(0, projectUuids.size())
       .mapToObj(i -> new ProjectUuidFromDatePair(projectUuids.get(i), fromDates.get(i)))
-      .collect(MoreCollectors.toList(projectUuids.size()));
+      .collect(Collectors.toList());
 
     return executeLargeInputs(projectUuidFromDatePairs, partition -> mapper(dbSession).selectFinishedByProjectUuidsAndFromDates(partition), i -> i / 2);
   }

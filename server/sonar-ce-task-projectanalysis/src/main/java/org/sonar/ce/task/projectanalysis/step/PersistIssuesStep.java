@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
@@ -42,7 +43,6 @@ import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.server.issue.IssueStorage;
 
 import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class PersistIssuesStep implements ComputationStep {
@@ -155,7 +155,7 @@ public class PersistIssuesStep implements ComputationStep {
     });
 
     // retrieve those of the updatedIssues which have not been updated and apply conflictResolver on them
-    List<String> updatedIssueKeys = updatedIssues.stream().map(DefaultIssue::key).collect(toList(updatedIssues.size()));
+    List<String> updatedIssueKeys = updatedIssues.stream().map(DefaultIssue::key).collect(Collectors.toList());
     List<IssueDto> conflictIssueKeys = mapper.selectByKeysIfNotUpdatedAt(updatedIssueKeys, now);
     if (!conflictIssueKeys.isEmpty()) {
       Map<String, DefaultIssue> issuesByKeys = updatedIssues.stream().collect(uniqueIndex(DefaultIssue::key, updatedIssues.size()));

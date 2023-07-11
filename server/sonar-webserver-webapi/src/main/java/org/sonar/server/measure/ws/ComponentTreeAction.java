@@ -106,8 +106,8 @@ import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeri
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -494,7 +494,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     List<String> referenceComponentUUids = components.stream()
       .map(ComponentDto::getCopyComponentUuid)
       .filter(Objects::nonNull)
-      .collect(MoreCollectors.toList(components.size()));
+      .collect(Collectors.toList());
     if (referenceComponentUUids.isEmpty()) {
       return emptyMap();
     }
@@ -567,7 +567,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     List<MetricDtoWithBestValue> metricDtosWithBestValueMeasure = metrics.stream()
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
       .map(new MetricDtoToMetricDtoWithBestValue())
-      .collect(MoreCollectors.toList(metrics.size()));
+      .collect(Collectors.toList());
     if (metricDtosWithBestValueMeasure.isEmpty()) {
       return;
     }
@@ -596,7 +596,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     return components
       .stream()
       .filter(new HasMeasure(measuresByComponentUuidAndMetric, metricToSort.get()))
-      .collect(MoreCollectors.toList(components.size()));
+      .collect(Collectors.toList());
   }
 
   private List<ComponentDto> filterAuthorizedComponents(List<ComponentDto> components) {
@@ -616,7 +616,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     return components.stream()
       .skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
       .limit(wsRequest.getPageSize())
-      .collect(MoreCollectors.toList(wsRequest.getPageSize()));
+      .collect(Collectors.toList());
   }
 
   @CheckForNull

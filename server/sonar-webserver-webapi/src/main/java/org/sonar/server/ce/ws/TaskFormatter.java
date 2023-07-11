@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
@@ -66,7 +67,7 @@ public class TaskFormatter {
 
   public List<Ce.Task> formatQueue(DbSession dbSession, List<CeQueueDto> dtos) {
     DtoCache cache = DtoCache.forQueueDtos(dbClient, dbSession, dtos);
-    return dtos.stream().map(input -> formatQueue(input, cache)).collect(MoreCollectors.toList(dtos.size()));
+    return dtos.stream().map(input -> formatQueue(input, cache)).collect(Collectors.toList());
   }
 
   public Ce.Task formatQueue(DbSession dbSession, CeQueueDto queue) {
@@ -98,7 +99,7 @@ public class TaskFormatter {
     DtoCache cache = DtoCache.forActivityDtos(dbClient, dbSession, dtos);
     return dtos.stream()
       .map(input -> formatActivity(input, cache, null))
-      .collect(MoreCollectors.toList(dtos.size()));
+      .collect(Collectors.toList());
   }
 
   private static Ce.Task formatActivity(CeActivityDto activityDto, DtoCache cache, @Nullable String scannerContext) {

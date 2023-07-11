@@ -87,7 +87,6 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
@@ -342,9 +341,10 @@ public class SearchAction implements HotspotsWsAction {
 
   private SearchResponseData searchHotspots(WsRequest wsRequest, DbSession dbSession, @Nullable ProjectAndBranch projectorApp) {
     SearchResponse result = doIndexSearch(wsRequest, dbSession, projectorApp);
+    result.getHits();
     List<String> issueKeys = Arrays.stream(result.getHits().getHits())
       .map(SearchHit::getId)
-      .collect(toList(result.getHits().getHits().length));
+      .collect(Collectors.toList());
 
     List<IssueDto> hotspots = toIssueDtos(dbSession, issueKeys);
 

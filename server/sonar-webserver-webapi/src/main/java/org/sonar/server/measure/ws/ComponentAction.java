@@ -37,7 +37,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -213,7 +212,7 @@ public class ComponentAction implements MeasuresWsAction {
     List<MetricDtoWithBestValue> metricWithBestValueList = metrics.stream()
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
       .map(MetricDtoWithBestValue::new)
-      .collect(MoreCollectors.toList(metrics.size()));
+      .collect(Collectors.toList());
     Map<String, LiveMeasureDto> measuresByMetricUuid = Maps.uniqueIndex(measures, LiveMeasureDto::getMetricUuid);
 
     for (MetricDtoWithBestValue metricWithBestValue : metricWithBestValueList) {

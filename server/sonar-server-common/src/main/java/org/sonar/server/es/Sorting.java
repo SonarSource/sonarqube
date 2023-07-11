@@ -23,10 +23,10 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -79,7 +79,7 @@ public class Sorting {
       boolean effectiveMissingLast = asc == field.missingLast;
       sortBuilder.missing(effectiveMissingLast ? "_last" : "_first");
       return sortBuilder;
-    }).collect(MoreCollectors.toList(fields.size()));
+    }).collect(Collectors.toList());
   }
 
   public static class Field {

@@ -59,7 +59,6 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Stream.concat;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.issue.AssignAction.ASSIGN_KEY;
 import static org.sonar.server.issue.CommentAction.COMMENT_KEY;
 import static org.sonar.server.issue.SetSeverityAction.SET_SEVERITY_KEY;
@@ -125,7 +124,7 @@ public class SearchResponseLoader {
 
     List<IssueDto> loadedIssues = dbClient.issueDao().selectByKeys(dbSession, issueKeysToLoad);
     List<IssueDto> unorderedIssues = concat(preloadedIssues.stream(), loadedIssues.stream())
-      .collect(toList(preloadedIssues.size() + loadedIssues.size()));
+      .collect(Collectors.toList());
 
     return issueKeys.stream()
       .map(new KeyToIssueFunction(unorderedIssues)).filter(Objects::nonNull)
@@ -186,7 +185,7 @@ public class SearchResponseLoader {
     List<RuleDto> preloadedRules = firstNonNull(preloadedResponseData.getRules(), emptyList());
     result.addRules(preloadedRules);
     Set<String> ruleUuidsToLoad = collector.getRuleUuids();
-    preloadedRules.stream().map(RuleDto::getUuid).collect(toList(preloadedRules.size()))
+    preloadedRules.stream().map(RuleDto::getUuid).collect(Collectors.toList())
       .forEach(ruleUuidsToLoad::remove);
 
     List<RuleDto> rules = dbClient.ruleDao().selectByUuids(dbSession, ruleUuidsToLoad);

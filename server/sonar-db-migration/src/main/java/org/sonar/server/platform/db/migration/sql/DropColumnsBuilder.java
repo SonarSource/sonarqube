@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.sonar.core.util.stream.MoreCollectors;
+import java.util.stream.Collectors;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -58,7 +58,7 @@ public class DropColumnsBuilder {
       case Oracle.ID:
         return Collections.singletonList(getOracleStatement());
       case H2.ID:
-        return Arrays.stream(columns).map(this::getMsSQLStatement).collect(MoreCollectors.toList(columns.length));
+        return Arrays.stream(columns).map(this::getMsSQLStatement).collect(Collectors.toList());
       default:
         throw new IllegalStateException(String.format("Unsupported database '%s'", dialect.getId()));
     }

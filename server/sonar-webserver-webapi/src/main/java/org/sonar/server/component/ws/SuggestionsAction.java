@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.ResourceType;
@@ -192,7 +193,7 @@ public class SuggestionsAction implements ComponentsWsAction {
             .limit(limit)
             .map(EntityDto::getUuid)
             .map(ComponentHit::new)
-            .collect(MoreCollectors.toList(limit));
+            .collect(Collectors.toList());
           int totalHits = componentsOfThisQualifier.size();
           return new ComponentHitsPerQualifier(q, hits, totalHits);
         })).build();

@@ -23,7 +23,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.sonar.core.util.stream.MoreCollectors;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -54,7 +54,7 @@ public class MigrationStepRegistryImpl implements InternalMigrationStepRegistry 
     return migrations.entrySet().stream()
       .sorted(Comparator.comparingLong(Map.Entry::getKey))
       .map(Map.Entry::getValue)
-      .collect(MoreCollectors.toList(migrations.size()));
+      .collect(Collectors.toList());
   }
 
 }

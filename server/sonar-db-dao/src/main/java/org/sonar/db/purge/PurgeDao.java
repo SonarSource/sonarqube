@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -308,7 +309,7 @@ public class PurgeDao implements Dao {
       .map(ComponentDto::uuid)
       .collect(MoreCollectors.toList());
     purgeCommands.deleteByRootAndSubviews(subviewsOrProjectCopies);
-    List<String> nonRootComponentUuids = nonRootComponents.stream().map(ComponentDto::uuid).collect(MoreCollectors.toList(nonRootComponents.size()));
+    List<String> nonRootComponentUuids = nonRootComponents.stream().map(ComponentDto::uuid).collect(Collectors.toList());
     purgeCommands.deleteComponentMeasures(nonRootComponentUuids);
     purgeCommands.deleteComponents(nonRootComponentUuids);
   }

@@ -230,6 +230,6 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     }
     return builders.stream()
       .map(BuiltInQProfile.Builder::build)
-      .collect(MoreCollectors.toList(builders.size()));
+      .collect(Collectors.toList());
   }
 }

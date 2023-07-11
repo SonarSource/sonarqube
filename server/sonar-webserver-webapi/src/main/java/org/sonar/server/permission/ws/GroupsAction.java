@@ -26,6 +26,7 @@ import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Change;
@@ -34,7 +35,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
@@ -173,7 +173,7 @@ public class GroupsAction implements PermissionsWsAction {
     if (groups.isEmpty()) {
       return emptyList();
     }
-    List<String> uuids = groups.stream().map(GroupDto::getUuid).collect(MoreCollectors.toList(groups.size()));
+    List<String> uuids = groups.stream().map(GroupDto::getUuid).collect(Collectors.toList());
     return dbClient.groupPermissionDao().selectByGroupUuids(dbSession, uuids, entity != null ? entity.getUuid() : null);
   }
 }

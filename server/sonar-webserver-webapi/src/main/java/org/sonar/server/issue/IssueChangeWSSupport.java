@@ -141,7 +141,7 @@ public class IssueChangeWSSupport {
         t -> t.getValue().stream()
           .map(transform)
           .sorted(sortingComparator)
-          .collect(toList(t.getValue().size()))));
+          .collect(Collectors.toList())));
   }
 
   private Map<String, UserDto> loadUsers(DbSession dbSession, Map<String, List<FieldDiffs>> changesByRuleKey,

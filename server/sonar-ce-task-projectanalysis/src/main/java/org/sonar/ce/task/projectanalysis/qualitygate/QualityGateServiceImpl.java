@@ -22,14 +22,13 @@ package org.sonar.ce.task.projectanalysis.qualitygate;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.project.Project;
-
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class QualityGateServiceImpl implements QualityGateService {
   private final DbClient dbClient;
@@ -70,7 +69,7 @@ public class QualityGateServiceImpl implements QualityGateService {
         .map(metric -> new Condition(metric, input.getOperator(), input.getErrorThreshold()))
         .orElse(null))
       .filter(Objects::nonNull)
-      .collect(toList(dtos.size()));
+      .collect(Collectors.toList());
 
     return new QualityGate(qualityGateDto.getUuid(), qualityGateDto.getName(), conditions);
   }

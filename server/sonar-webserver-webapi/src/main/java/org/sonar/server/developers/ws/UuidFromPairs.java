@@ -20,7 +20,7 @@
 package org.sonar.server.developers.ws;
 
 import java.util.List;
-import org.sonar.core.util.stream.MoreCollectors;
+import java.util.stream.Collectors;
 
 public class UuidFromPairs {
   private UuidFromPairs() {
@@ -28,10 +28,10 @@ public class UuidFromPairs {
   }
 
   public static List<String> projectUuids(List<UuidFromPair> pairs) {
-    return pairs.stream().map(UuidFromPair::getProjectUuid).collect(MoreCollectors.toList(pairs.size()));
+    return pairs.stream().map(UuidFromPair::getProjectUuid).collect(Collectors.toList());
   }
 
   public static List<Long> fromDates(List<UuidFromPair> pairs) {
-    return pairs.stream().map(UuidFromPair::getFrom).collect(MoreCollectors.toList(pairs.size()));
+    return pairs.stream().map(UuidFromPair::getFrom).collect(Collectors.toList());
   }
 }

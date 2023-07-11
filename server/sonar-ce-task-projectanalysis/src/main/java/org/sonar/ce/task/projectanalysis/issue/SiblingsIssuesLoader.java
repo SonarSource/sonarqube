@@ -34,7 +34,6 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.PrIssueDto;
 
 import static org.sonar.api.utils.DateUtils.longToDate;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class SiblingsIssuesLoader {
@@ -79,7 +78,7 @@ public class SiblingsIssuesLoader {
       List<DefaultIssue> issues = dbClient.issueDao().selectByKeys(session, issuesByKey.keySet())
         .stream()
         .map(IssueDto::toDefaultIssue)
-        .collect(toList(issuesByKey.size()));
+        .collect(Collectors.toList());
       componentIssuesLoader.loadChanges(session, issues);
       return issues.stream()
         .collect(uniqueIndex(i -> issuesByKey.get(i.key()), i -> i, issues.size()));

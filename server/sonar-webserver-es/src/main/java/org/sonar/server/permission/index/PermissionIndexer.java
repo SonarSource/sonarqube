@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -59,7 +60,7 @@ public class PermissionIndexer implements EventIndexer {
   public PermissionIndexer(DbClient dbClient, EsClient esClient, NeedAuthorizationIndexer... needAuthorizationIndexers) {
     this(dbClient, esClient, Arrays.stream(needAuthorizationIndexers)
       .map(NeedAuthorizationIndexer::getAuthorizationScope)
-      .collect(MoreCollectors.toList(needAuthorizationIndexers.length)));
+      .collect(Collectors.toList()));
   }
 
   @VisibleForTesting

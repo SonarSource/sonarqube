@@ -82,7 +82,6 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.measure.ProjectMeasuresIndexerIterator.METRIC_KEYS;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.IS_FAVORITE_CRITERION;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
@@ -145,7 +144,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setPossibleValues(Arrays.stream(ProjectMeasuresIndex.Facet.values())
         .map(ProjectMeasuresIndex.Facet::getName)
         .sorted()
-        .collect(toList(ProjectMeasuresIndex.Facet.values().length)));
+        .collect(Collectors.toList()));
     action
       .createParam(PARAM_FILTER)
       .setMinimumLength(2)
@@ -206,7 +205,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         ALERT_STATUS_KEY, SORT_BY_LAST_ANALYSIS_DATE, PARAM_FILTER)
       .setDefaultValue(SORT_BY_NAME)
       .setPossibleValues(
-        Stream.concat(METRIC_KEYS.stream(), NON_METRIC_SORT_KEYS.stream()).sorted().collect(toList(METRIC_KEYS.size() + NON_METRIC_SORT_KEYS.size())))
+        Stream.concat(METRIC_KEYS.stream(), NON_METRIC_SORT_KEYS.stream()).sorted().collect(Collectors.toList()))
       .setSince("6.4");
     action.createParam(Param.ASCENDING)
       .setDescription("Ascending sort")

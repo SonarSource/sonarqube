@@ -23,13 +23,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -110,6 +110,6 @@ public class DeleteAction implements QProfileWsAction {
 
   private static List<QProfileDto> merge(QProfileDto profile, Collection<QProfileDto> descendants) {
     return Stream.concat(Stream.of(profile), descendants.stream())
-      .collect(MoreCollectors.toList(descendants.size() + 1));
+      .collect(Collectors.toList());
   }
 }

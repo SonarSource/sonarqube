@@ -23,11 +23,10 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeProfiler;
@@ -68,7 +67,7 @@ public class DefaultPeriodCleaner {
     }
     purgeDao.deleteAnalyses(
       session, profiler,
-      snapshots.stream().map(PurgeableAnalysisDto::getAnalysisUuid).collect(MoreCollectors.toList(snapshots.size())));
+      snapshots.stream().map(PurgeableAnalysisDto::getAnalysisUuid).collect(Collectors.toList()));
     return snapshots;
   }
 

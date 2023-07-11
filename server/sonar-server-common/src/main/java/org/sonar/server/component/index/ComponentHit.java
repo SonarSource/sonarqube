@@ -21,9 +21,9 @@ package org.sonar.server.component.index;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.search.SearchHit;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static java.util.Arrays.stream;
 import static java.util.Optional.ofNullable;
@@ -59,7 +59,7 @@ public class ComponentHit {
   public static List<ComponentHit> fromSearchHits(SearchHit... hits) {
     return stream(hits)
       .map(ComponentHit::new)
-      .collect(MoreCollectors.toList(hits.length));
+      .collect(Collectors.toList());
   }
 
   public Optional<String> getHighlightedText() {

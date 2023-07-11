@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.ToIntFunction;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.notifications.Notification;
@@ -34,7 +35,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
 import static java.util.Objects.requireNonNull;
@@ -198,7 +198,7 @@ public class NewIssuesNotification extends Notification {
       .filter(i -> biggerCriteria.applyAsInt(i.getValue()) > 0)
       .sorted(comparator.reversed())
       .limit(5)
-      .collect(MoreCollectors.toList(5));
+      .collect(Collectors.toList());
   }
 
   public NewIssuesNotification setDebt(Duration debt) {

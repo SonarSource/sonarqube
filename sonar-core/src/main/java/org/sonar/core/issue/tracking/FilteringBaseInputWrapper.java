@@ -22,8 +22,7 @@ package org.sonar.core.issue.tracking;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
-
-import static org.sonar.core.util.stream.MoreCollectors.toList;
+import java.util.stream.Collectors;
 
 class FilteringBaseInputWrapper<BASE extends Trackable> implements Input<BASE> {
   private final Input<BASE> baseInput;
@@ -34,7 +33,7 @@ class FilteringBaseInputWrapper<BASE extends Trackable> implements Input<BASE> {
     Collection<BASE> baseIssues = baseInput.getIssues();
     this.nonClosedIssues = baseIssues.stream()
       .filter(baseInputFilter)
-      .collect(toList(baseIssues.size()));
+      .collect(Collectors.toList());
   }
 
   @Override

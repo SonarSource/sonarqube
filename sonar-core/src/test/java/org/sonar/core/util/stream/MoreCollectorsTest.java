@@ -93,11 +93,6 @@ public class MoreCollectorsTest {
   }
 
   @Test
-  public void toList_with_size_parallel_stream() {
-    assertThat(HUGE_LIST.parallelStream().collect(toList(HUGE_LIST.size()))).isEqualTo(HUGE_LIST);
-  }
-
-  @Test
   public void toSet_builds_an_ImmutableSet() {
     Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toImmutableSet());
     assertThat(res).isInstanceOf(ImmutableSet.class)

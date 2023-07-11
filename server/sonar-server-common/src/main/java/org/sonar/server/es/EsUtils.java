@@ -31,6 +31,7 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchResponse;
@@ -42,7 +43,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.joda.time.format.ISODateTimeFormat;
-import org.sonar.core.util.stream.MoreCollectors;
 
 public class EsUtils {
 
@@ -75,10 +75,11 @@ public class EsUtils {
   }
 
   public static List<String> termsKeys(Terms terms) {
+    terms.getBuckets();
     return terms.getBuckets()
       .stream()
       .map(Terms.Bucket::getKeyAsString)
-      .collect(MoreCollectors.toList(terms.getBuckets().size()));
+      .collect(Collectors.toList());
   }
 
   @CheckForNull

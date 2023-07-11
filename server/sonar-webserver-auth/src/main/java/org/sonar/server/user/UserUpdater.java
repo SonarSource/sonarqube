@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.apache.commons.lang.math.RandomUtils;
@@ -51,7 +52,6 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.core.util.Slug.slugify;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 @ServerSide
@@ -403,7 +403,7 @@ public class UserUpdater {
         .map(Strings::emptyToNull)
         .filter(Objects::nonNull)
         .sorted(String::compareToIgnoreCase)
-        .collect(toList(scmAccounts.size()));
+        .collect(Collectors.toList());
     }
     return emptyList();
   }

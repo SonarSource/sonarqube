@@ -154,7 +154,7 @@ public class SearchEventsAction implements DevelopersWsAction {
     Map<String, BranchDto> branchesByUuids,
     List<SnapshotDto> analyses) {
     Map<String, EventDto> eventsByComponentUuid = new HashMap<>();
-    dbClient.eventDao().selectByAnalysisUuids(dbSession, analyses.stream().map(SnapshotDto::getUuid).collect(toList(analyses.size())))
+    dbClient.eventDao().selectByAnalysisUuids(dbSession, analyses.stream().map(SnapshotDto::getUuid).collect(Collectors.toList()))
       .stream()
       .sorted(comparing(EventDto::getDate))
       .filter(e -> EventCategory.QUALITY_GATE.getLabel().equals(e.getCategory()))
@@ -230,7 +230,7 @@ public class SearchEventsAction implements DevelopersWsAction {
       .collect(uniqueIndex(projectKeys::get, fromDates::get));
     return authorizedProjects.stream()
       .map(dto -> new UuidFromPair(dto.getUuid(), fromDatesByProjectKey.get(dto.getKey())))
-      .collect(toList(authorizedProjects.size()));
+      .collect(Collectors.toList());
   }
 
   private static List<Long> mandatoryParamAsDateTimes(Request request, String param) {

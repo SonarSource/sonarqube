@@ -41,7 +41,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
@@ -434,9 +433,10 @@ public class SearchAction implements IssuesWsAction {
 
     // execute request
     SearchResponse result = issueIndex.search(query, options);
+    result.getHits();
     List<String> issueKeys = Arrays.stream(result.getHits().getHits())
       .map(SearchHit::getId)
-      .collect(MoreCollectors.toList(result.getHits().getHits().length));
+      .collect(Collectors.toList());
 
     // load the additional information to be returned in response
     SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(issueKeys);
