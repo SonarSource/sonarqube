@@ -579,21 +579,20 @@ public class IssueDaoIT {
   }
 
   @Test
-  public void selectByQuery_shouldBePaginated() {
+  public void selectIssueKeysByQuery_shouldBePaginated() {
     List<IssueDto> issues = generateIssues(10, i -> createIssueWithKey("i-" + i));
     issues.forEach(issue -> underTest.insert(db.getSession(), issue));
 
-    List<IssueDto> results = underTest.selectByQuery(
+    List<String> results = underTest.selectIssueKeysByQuery(
       db.getSession(),
       newIssueListQueryBuilder().project(PROJECT_KEY).build(),
       Pagination.forPage(2).andSize(3));
 
-    List<String> expectedKeys = List.of("i-3", "i-4", "i-5");
-    assertThat(results.stream().map(IssueDto::getKey).toList()).containsExactlyElementsOf(expectedKeys);
+    assertThat(results.stream().toList()).hasSize(3);
   }
 
   @Test
-  public void selectByQuery_whenFilteredByBranch_shouldGetOnlyBranchIssues() {
+  public void selectIssueKeysByQuery_whenFilteredByBranch_shouldGetOnlyBranchIssues() {
     BranchDto branchDto = ComponentTesting.newBranchDto(PROJECT_UUID, BRANCH);
     ComponentDto branch = db.components().insertProjectBranch(projectDto, branchDto);
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
@@ -602,17 +601,17 @@ public class IssueDaoIT {
     Stream.concat(mainBranchIssues.stream(), otherBranchIssues.stream())
       .forEach(issue -> underTest.insert(db.getSession(), issue));
 
-    List<IssueDto> results = underTest.selectByQuery(
+    List<String> results = underTest.selectIssueKeysByQuery(
       db.getSession(),
       newIssueListQueryBuilder().project(PROJECT_KEY).branch(branchDto.getKey()).build(),
       Pagination.forPage(1).andSize(6));
 
     List<String> expectedKeys = List.of("branch-0", "branch-1", "branch-2");
-    assertThat(results.stream().map(IssueDto::getKey).toList()).containsExactlyElementsOf(expectedKeys);
+    assertThat(results.stream().toList()).containsExactlyInAnyOrderElementsOf(expectedKeys);
   }
 
   @Test
-  public void selectByQuery_whenFilteredByPullRequest_shouldGetOnlyPRIssues() {
+  public void selectIssueKeysByQuery_whenFilteredByPullRequest_shouldGetOnlyPRIssues() {
     BranchDto pullRequestDto = ComponentTesting.newBranchDto(PROJECT_UUID, PULL_REQUEST);
     ComponentDto branch = db.components().insertProjectBranch(projectDto, pullRequestDto);
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
@@ -621,34 +620,34 @@ public class IssueDaoIT {
     Stream.concat(mainBranchIssues.stream(), otherBranchIssues.stream())
       .forEach(issue -> underTest.insert(db.getSession(), issue));
 
-    List<IssueDto> results = underTest.selectByQuery(
+    List<String> results = underTest.selectIssueKeysByQuery(
       db.getSession(),
       newIssueListQueryBuilder().project(PROJECT_KEY).pullRequest(pullRequestDto.getKey()).build(),
       Pagination.forPage(1).andSize(6));
 
     List<String> expectedKeys = List.of("pr-0", "pr-1", "pr-2");
-    assertThat(results.stream().map(IssueDto::getKey).toList()).containsExactlyElementsOf(expectedKeys);
+    assertThat(results.stream().toList()).containsExactlyInAnyOrderElementsOf(expectedKeys);
   }
 
   @Test
-  public void selectByQuery_whenFilteredByTypes_shouldGetIssuesWithSpecifiedTypes() {
+  public void selectIssueKeysByQuery_whenFilteredByTypes_shouldGetIssuesWithSpecifiedTypes() {
     List<IssueDto> bugs = generateIssues(3, i -> createIssueWithKey("bug-" + i).setType(RuleType.BUG));
     List<IssueDto> codeSmells = generateIssues(3, i -> createIssueWithKey("codesmell-" + i).setType(RuleType.CODE_SMELL));
     Stream.of(bugs, codeSmells)
       .flatMap(Collection::stream)
       .forEach(issue -> underTest.insert(db.getSession(), issue));
 
-    List<IssueDto> results = underTest.selectByQuery(
+    List<String> results = underTest.selectIssueKeysByQuery(
       db.getSession(),
       newIssueListQueryBuilder().project(PROJECT_KEY).types(List.of(RuleType.BUG.getDbConstant())).build(),
       Pagination.forPage(1).andSize(10));
 
     List<String> expectedKeys = List.of("bug-0", "bug-1", "bug-2");
-    assertThat(results.stream().map(IssueDto::getKey).toList()).containsExactlyElementsOf(expectedKeys);
+    assertThat(results.stream().toList()).containsExactlyInAnyOrderElementsOf(expectedKeys);
   }
 
   @Test
-  public void selectByQuery_whenFilteredByFilteredStatuses_shouldGetIssuesWithoutSpecifiedStatuses() {
+  public void selectIssueKeysByQuery_whenFilteredByFilteredStatuses_shouldGetIssuesWithoutSpecifiedStatuses() {
     List<IssueDto> openIssues = generateIssues(3, i -> createIssueWithKey("open-" + i).setStatus("OPEN"));
     List<IssueDto> closedIssues = generateIssues(3, i -> createIssueWithKey("closed-" + i).setStatus("CLOSED"));
     List<IssueDto> resolvedIssues = generateIssues(3, i -> createIssueWithKey("resolved-" + i).setStatus("RESOLVED"));
@@ -656,17 +655,17 @@ public class IssueDaoIT {
       .flatMap(Collection::stream)
       .forEach(issue -> underTest.insert(db.getSession(), issue));
 
-    List<IssueDto> results = underTest.selectByQuery(
+    List<String> results = underTest.selectIssueKeysByQuery(
       db.getSession(),
       newIssueListQueryBuilder().project(PROJECT_KEY).statuses(List.of("OPEN")).build(),
       Pagination.forPage(1).andSize(10));
 
     List<String> expectedKeys = List.of("open-0", "open-1", "open-2");
-    assertThat(results.stream().map(IssueDto::getKey).toList()).containsExactlyElementsOf(expectedKeys);
+    assertThat(results.stream().toList()).containsExactlyInAnyOrderElementsOf(expectedKeys);
   }
 
   @Test
-  public void selectByQuery_whenFilteredByFilteredResolutions_shouldGetIssuesWithoutSpecifiedResolution() {
+  public void selectIssueKeysByQuery_whenFilteredByFilteredResolutions_shouldGetIssuesWithoutSpecifiedResolution() {
     List<IssueDto> unresolvedIssues = generateIssues(3, i -> createIssueWithKey("open-" + i).setResolution(null));
     List<IssueDto> wontfixIssues = generateIssues(3, i -> createIssueWithKey("wf-" + i).setResolution("WONTFIX"));
     List<IssueDto> falsePositiveIssues = generateIssues(3, i -> createIssueWithKey("fp-" + i).setResolution("FALSE-POSITIVE"));
@@ -674,17 +673,17 @@ public class IssueDaoIT {
       .flatMap(Collection::stream)
       .forEach(issue -> underTest.insert(db.getSession(), issue));
 
-    List<IssueDto> results = underTest.selectByQuery(
+    List<String> results = underTest.selectIssueKeysByQuery(
       db.getSession(),
       newIssueListQueryBuilder().project(PROJECT_KEY).resolutions(List.of("WONTFIX")).build(),
       Pagination.forPage(1).andSize(10));
 
     List<String> expectedKeys = List.of("wf-0", "wf-1", "wf-2");
-    assertThat(results.stream().map(IssueDto::getKey).toList()).containsExactlyElementsOf(expectedKeys);
+    assertThat(results.stream().toList()).containsExactlyInAnyOrderElementsOf(expectedKeys);
   }
 
   @Test
-  public void selectByQuery_whenFilteredByFileComponent_shouldGetIssuesWithinFileOnly() {
+  public void selectIssueKeysByQuery_whenFilteredByFileComponent_shouldGetIssuesWithinFileOnly() {
     ComponentDto otherFileDto = db.components().insertComponent(newFileDto(projectDto).setUuid("OTHER_UUID").setKey("OTHER_KEY"));
     List<IssueDto> fromFileIssues = generateIssues(3, i -> createIssueWithKey("file-" + i));
     List<IssueDto> fromOtherFileIssues = generateIssues(3, i -> createIssueWithKey("otherfile-" + i, PROJECT_UUID, otherFileDto.uuid()));
@@ -692,17 +691,17 @@ public class IssueDaoIT {
       .flatMap(Collection::stream)
       .forEach(issue -> underTest.insert(db.getSession(), issue));
 
-    List<IssueDto> results = underTest.selectByQuery(
+    List<String> results = underTest.selectIssueKeysByQuery(
       db.getSession(),
       newIssueListQueryBuilder().component(otherFileDto.getKey()).build(),
       Pagination.forPage(1).andSize(10));
 
     List<String> expectedKeys = List.of("otherfile-0", "otherfile-1", "otherfile-2");
-    assertThat(results.stream().map(IssueDto::getKey).toList()).containsExactlyElementsOf(expectedKeys);
+    assertThat(results.stream().toList()).containsExactlyInAnyOrderElementsOf(expectedKeys);
   }
 
   @Test
-  public void selectByQuery_whenFilteredWithInNewCodeReference_shouldGetNewCodeReferenceIssues() {
+  public void selectIssueKeysByQuery_whenFilteredWithInNewCodeReference_shouldGetNewCodeReferenceIssues() {
     List<IssueDto> issues = generateIssues(3, i -> createIssueWithKey("i-" + i));
     List<IssueDto> newCodeRefIssues = generateIssues(3, i -> createIssueWithKey("newCodeRef-" + i));
     Stream.of(issues, newCodeRefIssues)
@@ -710,30 +709,30 @@ public class IssueDaoIT {
       .forEach(issue -> underTest.insert(db.getSession(), issue));
     newCodeRefIssues.forEach(issue -> db.issues().insertNewCodeReferenceIssue(issue));
 
-    List<IssueDto> results = underTest.selectByQuery(
+    List<String> results = underTest.selectIssueKeysByQuery(
       db.getSession(),
       newIssueListQueryBuilder().project(PROJECT_KEY).newCodeOnReference(true).build(),
       Pagination.forPage(1).andSize(10));
 
     List<String> expectedKeys = List.of("newCodeRef-0", "newCodeRef-1", "newCodeRef-2");
-    assertThat(results.stream().map(IssueDto::getKey).toList()).containsExactlyElementsOf(expectedKeys);
+    assertThat(results.stream().toList()).containsExactlyInAnyOrderElementsOf(expectedKeys);
   }
 
   @Test
-  public void selectByQuery_whenFilteredWithCreatedAfter_shouldGetIssuesCreatedAfterDate() {
+  public void selectIssueKeysByQuery_whenFilteredWithCreatedAfter_shouldGetIssuesCreatedAfterDate() {
     List<IssueDto> createdBeforeIssues = generateIssues(3, i -> createIssueWithKey("createdBefore-" + i).setResolution(null).setIssueCreationDate(new Date(1_400_000_000_000L)));
     List<IssueDto> createdAfterIssues = generateIssues(3, i -> createIssueWithKey("createdAfter-" + i).setResolution(null).setIssueCreationDate(new Date(1_420_000_000_000L)));
     Stream.of(createdBeforeIssues, createdAfterIssues)
       .flatMap(Collection::stream)
       .forEach(issue -> underTest.insert(db.getSession(), issue));
 
-    List<IssueDto> results = underTest.selectByQuery(
+    List<String> results = underTest.selectIssueKeysByQuery(
       db.getSession(),
       newIssueListQueryBuilder().project(PROJECT_KEY).createdAfter(1_410_000_000_000L).build(),
       Pagination.forPage(1).andSize(10));
 
     List<String> expectedKeys = List.of("createdAfter-0", "createdAfter-1", "createdAfter-2");
-    assertThat(results.stream().map(IssueDto::getKey).toList()).containsExactlyElementsOf(expectedKeys);
+    assertThat(results.stream().toList()).containsExactlyInAnyOrderElementsOf(expectedKeys);
   }
 
   private static IssueDto createIssueWithKey(String issueKey) {

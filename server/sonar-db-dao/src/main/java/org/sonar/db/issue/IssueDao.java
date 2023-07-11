@@ -127,8 +127,11 @@ public class IssueDao implements Dao {
     return mapper(dbSession).selectRecentlyClosedIssues(issueQueryParams);
   }
 
-  public List<IssueDto> selectByQuery(DbSession dbSession, IssueListQuery issueListQuery, Pagination pagination) {
-    return mapper(dbSession).selectByQuery(issueListQuery, pagination);
+  /**
+   * Returned results are unordered.
+   */
+  public List<String> selectIssueKeysByQuery(DbSession dbSession, IssueListQuery issueListQuery, Pagination pagination) {
+    return mapper(dbSession).selectIssueKeysByQuery(issueListQuery, pagination);
   }
 
 }

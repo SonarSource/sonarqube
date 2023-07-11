@@ -165,13 +165,14 @@ public class ListAction implements HotspotsWsAction {
   }
 
   private SearchResponseData searchHotspots(DbSession dbSession, WsRequest wsRequest, ProjectAndBranch projectAndBranch) {
-    List<IssueDto> hotspots = getHotspotKeys(dbSession, wsRequest, projectAndBranch);
+    List<String> hotspotKeys = getHotspotKeys(dbSession, wsRequest, projectAndBranch);
 
-    Paging paging = forPageIndex(wsRequest.page).withPageSize(wsRequest.pageSize).andTotal(hotspots.size());
+    Paging paging = forPageIndex(wsRequest.page).withPageSize(wsRequest.pageSize).andTotal(hotspotKeys.size());
+    List<IssueDto> hotspots = dbClient.issueDao().selectByKeys(dbSession, hotspotKeys);
     return new SearchResponseData(paging, hotspots);
   }
 
-  private List<IssueDto> getHotspotKeys(DbSession dbSession, WsRequest wsRequest, ProjectAndBranch projectAndBranch) {
+  private List<String> getHotspotKeys(DbSession dbSession, WsRequest wsRequest, ProjectAndBranch projectAndBranch) {
     BranchDto branch = projectAndBranch.getBranch();
     IssueListQuery.IssueListQueryBuilder queryBuilder = IssueListQuery.IssueListQueryBuilder.newIssueListQueryBuilder()
       .project(wsRequest.project)
@@ -192,7 +193,7 @@ public class ListAction implements HotspotsWsAction {
     }
 
     Pagination pagination = Pagination.forPage(wsRequest.page).andSize(wsRequest.pageSize);
-    return dbClient.issueDao().selectByQuery(dbSession, queryBuilder.build(), pagination);
+    return dbClient.issueDao().selectIssueKeysByQuery(dbSession, queryBuilder.build(), pagination);
   }
 
   private void loadComponents(DbSession dbSession, SearchResponseData searchResponseData) {

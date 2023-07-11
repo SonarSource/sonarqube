@@ -34,7 +34,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueListQuery;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.project.ProjectDto;
@@ -47,6 +46,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
@@ -136,8 +136,8 @@ public class ListAction implements IssuesWsAction {
   public final void handle(Request request, Response response) {
     WsRequest wsRequest = toWsRequest(request);
     ProjectAndBranch projectAndBranch = validateRequest(wsRequest);
-    List<IssueDto> issues = getIssueKeys(wsRequest, projectAndBranch);
-    Issues.ListWsResponse wsResponse = formatResponse(wsRequest, issues);
+    List<String> issueKeys = getIssueKeys(wsRequest, projectAndBranch);
+    Issues.ListWsResponse wsResponse = formatResponse(wsRequest, issueKeys);
     writeProtobuf(wsResponse, request, response);
   }
 
@@ -190,7 +190,7 @@ public class ListAction implements IssuesWsAction {
     return projectAndBranch;
   }
 
-  private List<IssueDto> getIssueKeys(WsRequest wsRequest, ProjectAndBranch projectAndBranch) {
+  private List<String> getIssueKeys(WsRequest wsRequest, ProjectAndBranch projectAndBranch) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       BranchDto branch = projectAndBranch.getBranch();
       IssueListQuery.IssueListQueryBuilder queryBuilder = IssueListQuery.IssueListQueryBuilder.newIssueListQueryBuilder()
@@ -213,21 +213,20 @@ public class ListAction implements IssuesWsAction {
       }
 
       Pagination pagination = Pagination.forPage(wsRequest.page).andSize(wsRequest.pageSize);
-      return dbClient.issueDao().selectByQuery(dbSession, queryBuilder.build(), pagination);
+      return dbClient.issueDao().selectIssueKeysByQuery(dbSession, queryBuilder.build(), pagination);
     }
   }
 
-  private Issues.ListWsResponse formatResponse(WsRequest request, List<IssueDto> issues) {
+  private Issues.ListWsResponse formatResponse(WsRequest request, List<String> issueKeys) {
     Issues.ListWsResponse.Builder response = Issues.ListWsResponse.newBuilder();
     response.setPaging(Common.Paging.newBuilder()
       .setPageIndex(request.page)
-      .setPageSize(issues.size())
+      .setPageSize(issueKeys.size())
       .build());
 
-    List<String> issueKeys = issues.stream().map(IssueDto::getKey).toList();
     SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(issueKeys);
     collectLoggedInUser(collector);
-    SearchResponseData preloadedData = new SearchResponseData(issues);
+    SearchResponseData preloadedData = new SearchResponseData(emptyList());
     EnumSet<SearchAdditionalField> additionalFields = EnumSet.of(SearchAdditionalField.ACTIONS, SearchAdditionalField.COMMENTS, SearchAdditionalField.TRANSITIONS);
     SearchResponseData data = searchResponseLoader.load(preloadedData, collector, additionalFields, null);
 

@@ -718,11 +718,10 @@
         </if>
   </select>
 
-  <select id="selectByQuery" parameterType="map" resultType="Issue">
+  <select id="selectIssueKeysByQuery" parameterType="map" resultType="string">
     select
-    <include refid="issueColumns"/>
+    i.kee
     from issues i
-    inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
     inner join project_branches pb on pb.uuid=i.project_uuid
@@ -768,8 +767,10 @@
         AND i.issue_creation_date &gt;= #{query.createdAfter,jdbcType=BIGINT}
       </if>
     </where>
-    order by i.kee asc
+      <if test="_databaseId == 'mssql'">
+        <!--  order by clause is required if using offset rows fetch next on MSSQL Database   -->
+        order by (select null)
+      </if>
     offset (#{pagination.startRowNumber,jdbcType=INTEGER}-1) rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
   </select>
-
 </mapper>
