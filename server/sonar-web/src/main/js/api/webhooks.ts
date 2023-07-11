@@ -24,6 +24,7 @@ import {
   WebhookCreatePayload,
   WebhookDelivery,
   WebhookResponse,
+  WebhookSearchDeliveriesPayload,
   WebhookUpdatePayload,
 } from '../types/webhook';
 
@@ -45,13 +46,7 @@ export function updateWebhook(data: WebhookUpdatePayload): Promise<void | Respon
   return post('/api/webhooks/update', data).catch(throwGlobalError);
 }
 
-export function searchDeliveries(data: {
-  ceTaskId?: string;
-  componentKey?: string;
-  webhook?: string;
-  p?: number;
-  ps?: number;
-}): Promise<{
+export function searchDeliveries(data: WebhookSearchDeliveriesPayload): Promise<{
   deliveries: WebhookDelivery[];
   paging: Paging;
 }> {

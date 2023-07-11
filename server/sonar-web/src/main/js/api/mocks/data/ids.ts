@@ -114,3 +114,11 @@ export const STANDARDS_TO_RULES: Partial<{
     '297': [RULE_1, RULE_4],
   },
 };
+
+// Webhooks.
+export const WEBHOOK_GLOBAL_1 = 'global-webhook1';
+export const WEBHOOK_GLOBAL_1_LATEST_DELIVERY_ID = 'global-delivery1';
+export const WEBHOOK_GLOBAL_2 = 'global-webhook2';
+export const WEBHOOK_PROJECT_1 = 'project1';
+export const WEBHOOK_PROJECT_1_1 = 'project1-webhook1';
+export const WEBHOOK_PROJECT_1_2 = 'project1-webhook2';

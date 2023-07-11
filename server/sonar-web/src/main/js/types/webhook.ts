@@ -47,3 +47,11 @@ export interface WebhookDelivery {
   id: string;
   success: boolean;
 }
+
+export type WebhookSearchDeliveriesPayload = {
+  ceTaskId?: string;
+  componentKey?: string;
+  webhook?: string;
+  p?: number;
+  ps?: number;
+};

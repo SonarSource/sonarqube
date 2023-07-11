@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { WebhookDelivery } from '../../types/webhook';
+import { WebhookDelivery, WebhookResponse } from '../../types/webhook';
 import { HttpStatus } from '../request';
 
 export function mockWebhookDelivery(overrides: Partial<WebhookDelivery> = {}): WebhookDelivery {
@@ -27,6 +27,16 @@ export function mockWebhookDelivery(overrides: Partial<WebhookDelivery> = {}): W
     httpStatus: HttpStatus.Ok,
     id: '1',
     success: true,
+    ...overrides,
+  };
+}
+
+export function mockWebhook(overrides: Partial<WebhookResponse> = {}): WebhookResponse {
+  return {
+    hasSecret: false,
+    key: 'webhook1',
+    name: 'name',
+    url: 'http://example.com',
     ...overrides,
   };
 }
