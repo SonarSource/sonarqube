@@ -40,11 +40,10 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspAsvsVersion;
+import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2017;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
-import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.server.issue.IssueDocTesting.newDoc;
 import static org.sonar.server.issue.IssueDocTesting.newDocForProject;
 import static org.sonar.server.security.SecurityStandards.UNKNOWN_STANDARD;
 

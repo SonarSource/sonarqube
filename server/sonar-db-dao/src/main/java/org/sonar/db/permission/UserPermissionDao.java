@@ -23,7 +23,6 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;

@@ -22,7 +22,6 @@ package org.sonar.server.platform.db.migration.version.v101;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.util.UuidFactory;

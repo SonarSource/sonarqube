@@ -21,7 +21,6 @@ package org.sonar.server.notification.ws;
 
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;

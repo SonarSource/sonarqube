@@ -20,15 +20,12 @@
 package org.sonar.ce.task.projectanalysis.qualitygate;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Collections;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.db.DbClient;
-import org.sonar.db.property.PropertiesDao;
-import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;

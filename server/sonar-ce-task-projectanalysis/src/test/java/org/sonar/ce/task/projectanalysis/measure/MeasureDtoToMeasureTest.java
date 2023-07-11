@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.measure;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
 import org.assertj.core.data.Offset;
 import org.junit.Test;

@@ -20,7 +20,6 @@
 package org.sonar.server.developers.ws;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class UuidFromPairs {
   private UuidFromPairs() {

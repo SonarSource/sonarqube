@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.junit.Rule;
 import org.junit.Test;

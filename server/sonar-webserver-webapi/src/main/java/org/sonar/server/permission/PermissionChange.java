@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission;
 
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.entity.EntityDto;

@@ -20,7 +20,6 @@
 package org.sonar.server.ce.queue;
 
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import java.awt.event.ComponentEvent;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;

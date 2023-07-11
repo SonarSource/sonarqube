@@ -26,7 +26,6 @@ import org.mockito.ArgumentCaptor;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;

@@ -20,7 +20,6 @@
 package org.sonar.server.component.index;
 
 import org.junit.Test;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;

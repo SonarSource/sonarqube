@@ -22,7 +22,6 @@ package org.sonar.server.measure.ws;
 import com.google.common.base.Joiner;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;

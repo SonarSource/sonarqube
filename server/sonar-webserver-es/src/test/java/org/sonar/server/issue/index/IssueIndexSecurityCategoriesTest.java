@@ -30,7 +30,6 @@ import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.server.issue.IssueDocTesting.newDoc;
 import static org.sonar.server.issue.IssueDocTesting.newDocForProject;
 
 public class IssueIndexSecurityCategoriesTest extends IssueIndexTestCommon {

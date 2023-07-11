@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectexport.steps;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.task.projectexport.taskprocessor.ProjectDescriptor;
 import org.sonar.ce.task.step.ComputationStep;

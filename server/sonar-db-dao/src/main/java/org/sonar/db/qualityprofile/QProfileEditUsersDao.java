@@ -20,7 +20,6 @@
 package org.sonar.db.qualityprofile;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;

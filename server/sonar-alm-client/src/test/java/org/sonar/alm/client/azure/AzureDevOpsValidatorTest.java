@@ -22,7 +22,6 @@ package org.sonar.alm.client.azure;
 import org.junit.Test;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonarqube.ws.AlmSettings;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;

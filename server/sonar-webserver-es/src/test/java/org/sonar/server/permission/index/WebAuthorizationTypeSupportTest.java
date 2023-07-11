@@ -19,8 +19,6 @@
  */
 package org.sonar.server.permission.index;
 
-import org.elasticsearch.index.query.MatchAllQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.join.query.HasParentQueryBuilder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,7 +28,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.tester.UserSessionRule;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class WebAuthorizationTypeSupportTest {

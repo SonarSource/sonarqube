@@ -20,7 +20,6 @@
 package org.sonar.ce.task.projectanalysis.purge;
 
 import org.junit.Test;
-import org.sonar.server.component.index.EntityDefinitionIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 
 import static java.util.Arrays.asList;

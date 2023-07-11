@@ -23,7 +23,6 @@ import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.test.TestUtils;
 

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.almintegration.ws.github;
 
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.BeforeClass;
 import org.junit.Rule;

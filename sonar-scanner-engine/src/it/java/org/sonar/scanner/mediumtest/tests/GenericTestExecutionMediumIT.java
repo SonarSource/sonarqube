@@ -20,8 +20,6 @@
 package org.sonar.scanner.mediumtest.tests;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;

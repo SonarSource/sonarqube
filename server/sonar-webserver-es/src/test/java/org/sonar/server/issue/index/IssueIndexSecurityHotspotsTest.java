@@ -26,15 +26,11 @@ import org.sonar.api.rule.Severity;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.permission.index.IndexPermissions;
 
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.rule.Severity.INFO;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rules.RuleType.BUG;

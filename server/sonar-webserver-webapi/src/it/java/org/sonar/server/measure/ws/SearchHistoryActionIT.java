@@ -20,7 +20,6 @@
 package org.sonar.server.measure.ws;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import org.junit.Before;
 import org.junit.Rule;

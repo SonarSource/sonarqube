@@ -21,7 +21,6 @@ package org.sonar.server.component.index;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 

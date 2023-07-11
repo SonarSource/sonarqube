@@ -22,7 +22,6 @@ package org.sonar.server.qualitygate.ws;
 import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;

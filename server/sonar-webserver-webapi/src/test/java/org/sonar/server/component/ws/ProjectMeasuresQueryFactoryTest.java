@@ -21,12 +21,10 @@ package org.sonar.server.component.ws;
 
 import java.util.Collections;
 import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.server.component.ws.FilterParser.Criterion;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
-import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;

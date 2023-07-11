@@ -35,7 +35,6 @@ import org.sonar.db.audit.model.PropertyNewValue;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;

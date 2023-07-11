@@ -20,7 +20,6 @@
 package org.sonar.server.pushapi.sonarlint;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;

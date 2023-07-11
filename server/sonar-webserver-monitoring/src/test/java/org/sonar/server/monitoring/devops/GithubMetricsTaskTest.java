@@ -24,7 +24,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
-import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
 import org.sonar.api.config.Configuration;
 import org.sonar.db.DbClient;
 import org.sonar.db.alm.setting.ALM;

@@ -21,7 +21,6 @@ package org.sonar.server.issue;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.workflow.IssueWorkflow;

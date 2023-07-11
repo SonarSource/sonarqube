@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.metric;
 
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;

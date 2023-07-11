@@ -21,7 +21,6 @@ package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.assertj.core.groups.Tuple;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;

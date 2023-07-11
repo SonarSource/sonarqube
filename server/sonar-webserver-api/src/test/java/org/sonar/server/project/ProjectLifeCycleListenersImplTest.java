@@ -33,15 +33,14 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 import static java.util.Collections.singleton;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(DataProviderRunner.class)
 public class ProjectLifeCycleListenersImplTest {

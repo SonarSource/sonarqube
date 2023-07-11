@@ -23,7 +23,6 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.joran.spi.JoranException;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.rules.ExternalResource;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;

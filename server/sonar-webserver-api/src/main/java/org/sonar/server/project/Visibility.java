@@ -20,7 +20,6 @@
 package org.sonar.server.project;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
 

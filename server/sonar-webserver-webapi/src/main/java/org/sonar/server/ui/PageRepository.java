@@ -23,7 +23,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
@@ -35,6 +34,7 @@ import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.ui.page.CorePageDefinition;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.copyOf;
@@ -43,8 +43,6 @@ import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
 import static org.sonar.api.web.page.Page.Scope.GLOBAL;
-
-import org.springframework.beans.factory.annotation.Autowired;
 
 @ServerSide
 public class PageRepository implements Startable {
