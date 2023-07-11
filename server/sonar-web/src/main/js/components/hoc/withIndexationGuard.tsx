@@ -19,21 +19,20 @@
  */
 
 import * as React from 'react';
-import { IndexationContext } from '../../app/components/indexation/IndexationContext';
 import PageUnavailableDueToIndexation from '../../app/components/indexation/PageUnavailableDueToIndexation';
 
-export default function withIndexationGuard<P>(WrappedComponent: React.ComponentType<P>) {
+export default function withIndexationGuard<P>({
+  Component,
+  showIndexationMessage,
+}: {
+  Component: React.ComponentType<P>;
+  showIndexationMessage: (props: P) => boolean;
+}) {
   return function WithIndexationGuard(props: React.PropsWithChildren<P>) {
-    return (
-      <IndexationContext.Consumer>
-        {(context) =>
-          context?.status.isCompleted && !context?.status.hasFailures ? (
-            <WrappedComponent {...props} />
-          ) : (
-            <PageUnavailableDueToIndexation />
-          )
-        }
-      </IndexationContext.Consumer>
+    return showIndexationMessage(props) ? (
+      <PageUnavailableDueToIndexation />
+    ) : (
+      <Component {...props} />
     );
   };
 }

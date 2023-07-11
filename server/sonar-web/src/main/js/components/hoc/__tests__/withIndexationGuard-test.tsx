@@ -17,37 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mount } from 'enzyme';
+
+import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { IndexationContext } from '../../../app/components/indexation/IndexationContext';
-import { IndexationContextInterface } from '../../../types/indexation';
 import withIndexationGuard from '../withIndexationGuard';
 
-it('should not render children because indexation is in progress', () => {
-  const wrapper = mountRender();
-  expect(wrapper.find(TestComponent).exists()).toBe(false);
-});
-
-it('should not render children because indexation has failures', () => {
-  const wrapper = mountRender({
-    status: { isCompleted: true, percentCompleted: 100, hasFailures: true },
+describe('withIndexationGuard', () => {
+  it('should render indexation message when showIndexationMessage returns true', () => {
+    renderComponentWithIndexationGuard(() => true);
+    expect(screen.getByText(/indexation\.page_unavailable\.description/)).toBeInTheDocument();
   });
-  expect(wrapper.find(TestComponent).exists()).toBe(false);
-});
 
-it('should render children because indexation is completed without failures', () => {
-  const wrapper = mountRender({
-    status: { isCompleted: true, percentCompleted: 100, hasFailures: false },
+  it('should render children when showIndexationMessage returns false', () => {
+    renderComponentWithIndexationGuard(() => false);
+    expect(screen.getByText('TestComponent')).toBeInTheDocument();
   });
-  expect(wrapper.find(TestComponent).exists()).toBe(true);
 });
 
-function mountRender(context?: Partial<IndexationContextInterface>) {
-  return mount(
+function renderComponentWithIndexationGuard(showIndexationMessage: () => boolean) {
+  const TestComponentWithGuard = withIndexationGuard({
+    Component: TestComponent,
+    showIndexationMessage,
+  });
+
+  return render(
     <IndexationContext.Provider
       value={{
         status: { isCompleted: false, percentCompleted: 23, hasFailures: false },
-        ...context,
       }}
     >
       <TestComponentWithGuard />
@@ -55,10 +52,6 @@ function mountRender(context?: Partial<IndexationContextInterface>) {
   );
 }
 
-class TestComponent extends React.PureComponent {
-  render() {
-    return <h1>TestComponent</h1>;
-  }
+function TestComponent() {
+  return <h1>TestComponent</h1>;
 }
-
-const TestComponentWithGuard = withIndexationGuard(TestComponent);

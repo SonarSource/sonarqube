@@ -24,6 +24,7 @@ import { getMeasures } from '../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-hotspots';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
+import withIndexationGuard from '../../components/hoc/withIndexationGuard';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { getLeakValue } from '../../components/measure/utils';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
@@ -32,6 +33,7 @@ import { KeyboardKeys } from '../../helpers/keycodes';
 import { getStandards } from '../../helpers/security-standard';
 import { withBranchLikes } from '../../queries/branch';
 import { BranchLike } from '../../types/branch-like';
+import { ComponentQualifier } from '../../types/component';
 import { MetricKey } from '../../types/metrics';
 import { SecurityStandard, Standards } from '../../types/security';
 import {
@@ -108,7 +110,9 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
+
     this.fetchInitialData();
+
     this.registerKeyboardEvents();
   }
 
@@ -472,12 +476,12 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
+        assignedToMe: undefined,
         file: undefined,
         fileUuid: undefined,
         hotspots: [],
-        sinceLeakPeriod: undefined,
-        assignedToMe: undefined,
         id: this.props.component.key,
+        sinceLeakPeriod: undefined,
       },
     });
   };
@@ -551,6 +555,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
   render() {
     const { branchLike, component } = this.props;
+
     const {
       filterByCategory,
       filterByCWE,
@@ -572,10 +577,10 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       <SecurityHotspotsAppRenderer
         branchLike={branchLike}
         component={component}
-        filters={filters}
         filterByCategory={filterByCategory}
         filterByCWE={filterByCWE}
         filterByFile={filterByFile}
+        filters={filters}
         hotspots={hotspots}
         hotspotsReviewedMeasure={hotspotsReviewedMeasure}
         hotspotsTotal={hotspotsTotal}
@@ -586,12 +591,12 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         loadingMeasure={loadingMeasure}
         loadingMore={loadingMore}
         onChangeFilters={this.handleChangeFilters}
-        onShowAllHotspots={this.handleShowAllHotspots}
         onHotspotClick={this.handleHotspotClick}
         onLoadMore={this.handleLoadMore}
+        onLocationClick={this.handleLocationClick}
+        onShowAllHotspots={this.handleShowAllHotspots}
         onSwitchStatusFilter={this.handleChangeStatusFilter}
         onUpdateHotspot={this.handleHotspotUpdate}
-        onLocationClick={this.handleLocationClick}
         securityCategories={standards[SecurityStandard.SONARSOURCE]}
         selectedHotspot={selectedHotspot}
         selectedHotspotLocation={selectedHotspotLocationIndex}
@@ -602,5 +607,15 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 }
 
 export default withRouter(
-  withComponentContext(withCurrentUserContext(withBranchLikes(SecurityHotspotsApp)))
+  withComponentContext(
+    withCurrentUserContext(
+      withBranchLikes(
+        withIndexationGuard({
+          Component: SecurityHotspotsApp,
+          showIndexationMessage: ({ component }) =>
+            !!(component.qualifier === ComponentQualifier.Application && component.needIssueSync),
+        })
+      )
+    )
+  )
 );
