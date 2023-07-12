@@ -8,22 +8,28 @@ exports[`should render correctly 1`] = `
     className="sw-m-10"
     variant="info"
   >
-    indexation.page_unavailable.description
-    <br />
-    <FormattedMessage
-      defaultMessage="indexation.page_unavailable.description.additional_information"
-      id="indexation.page_unavailable.description.additional_information"
-      values={
-        {
-          "link": <StandoutLink
-            className="sw-ml-4"
-            to="https://docs.sonarqube.org/latest/instance-administration/reindexing/"
-          >
-            learn_more
-          </StandoutLink>,
-        }
-      }
-    />
+    <span
+      className="sw-w-[290px]"
+    >
+      indexation.page_unavailable.description
+      <span
+        className="sw-ml-1"
+      >
+        <FormattedMessage
+          defaultMessage="indexation.page_unavailable.description.additional_information"
+          id="indexation.page_unavailable.description.additional_information"
+          values={
+            {
+              "link": <StandoutLink
+                to="https://docs.sonarqube.org/latest/instance-administration/reindexing/"
+              >
+                learn_more
+              </StandoutLink>,
+            }
+          }
+        />
+      </span>
+    </span>
   </FlagMessage>
 </div>
 `;

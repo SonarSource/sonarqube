@@ -40,24 +40,24 @@ export class PageUnavailableDueToIndexation extends React.PureComponent<WithInde
     return (
       <div className="page-wrapper-simple">
         <FlagMessage className="sw-m-10" variant="info">
-          {translate('indexation.page_unavailable.description')}
-          <br />
-          <FormattedMessage
-            defaultMessage={translate(
-              'indexation.page_unavailable.description.additional_information'
-            )}
-            id="indexation.page_unavailable.description.additional_information"
-            values={{
-              link: (
-                <Link
-                  className="sw-ml-4"
-                  to="https://docs.sonarqube.org/latest/instance-administration/reindexing/"
-                >
-                  {translate('learn_more')}
-                </Link>
-              ),
-            }}
-          />
+          <span className="sw-w-[290px]">
+            {translate('indexation.page_unavailable.description')}
+            <span className="sw-ml-1">
+              <FormattedMessage
+                defaultMessage={translate(
+                  'indexation.page_unavailable.description.additional_information'
+                )}
+                id="indexation.page_unavailable.description.additional_information"
+                values={{
+                  link: (
+                    <Link to="https://docs.sonarqube.org/latest/instance-administration/reindexing/">
+                      {translate('learn_more')}
+                    </Link>
+                  ),
+                }}
+              />
+            </span>
+          </span>
         </FlagMessage>
       </div>
     );

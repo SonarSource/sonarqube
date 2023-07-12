@@ -26,7 +26,9 @@ import withIndexationGuard from '../withIndexationGuard';
 describe('withIndexationGuard', () => {
   it('should render indexation message when showIndexationMessage returns true', () => {
     renderComponentWithIndexationGuard(() => true);
-    expect(screen.getByText(/indexation\.page_unavailable\.description/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/indexation\.page_unavailable\.description\.additional_information/)
+    ).toBeInTheDocument();
   });
 
   it('should render children when showIndexationMessage returns false', () => {
