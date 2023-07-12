@@ -24,6 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.concurrent.Callable;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -47,6 +48,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
+import static org.sonar.alm.client.github.GithubApplicationHttpClient.RateLimit;
 
 @RunWith(DataProviderRunner.class)
 public class GithubApplicationHttpClientImplTest {
@@ -405,4 +407,67 @@ public class GithubApplicationHttpClientImplTest {
     assertThat(response.getContent()).contains(randomBody);
   }
 
+  @Test
+  public void get_whenRateLimitHeadersArePresent_returnsRateLimit() throws Exception {
+    testRateLimitHeader(() -> underTest.get(appUrl, accessToken, randomEndPoint));
+  }
+
+  private void testRateLimitHeader(Callable<Response> request ) throws Exception {
+    server.enqueue(new MockResponse().setBody(randomBody)
+      .setHeader("x-ratelimit-remaining", "1")
+      .setHeader("x-ratelimit-limit", "10")
+      .setHeader("x-ratelimit-reset", "1000"));
+
+    Response response = request.call();
+
+    assertThat(response.getRateLimit())
+      .isEqualTo(new RateLimit(1, 10, 1000L));
+  }
+
+  @Test
+  public void get_whenRateLimitHeadersAreMissing_returnsNull() throws Exception {
+
+    testMissingRateLimitHeader(() -> underTest.get(appUrl, accessToken, randomEndPoint));
+
+  }
+
+  private void testMissingRateLimitHeader(Callable<Response> request ) throws Exception {
+    server.enqueue(new MockResponse().setBody(randomBody));
+
+    Response response = request.call();
+    assertThat(response.getRateLimit())
+      .isNull();
+  }
+
+  @Test
+  public void delete_whenRateLimitHeadersArePresent_returnsRateLimit() throws Exception {
+    testRateLimitHeader(() -> underTest.delete(appUrl, accessToken, randomEndPoint));
+
+  }
+
+  @Test
+  public void delete_whenRateLimitHeadersAreMissing_returnsNull() throws Exception {
+    testMissingRateLimitHeader(() -> underTest.delete(appUrl, accessToken, randomEndPoint));
+
+  }
+
+  @Test
+  public void patch_whenRateLimitHeadersArePresent_returnsRateLimit() throws Exception {
+    testRateLimitHeader(() -> underTest.patch(appUrl, accessToken, randomEndPoint, "body"));
+  }
+
+  @Test
+  public void patch_whenRateLimitHeadersAreMissing_returnsNull() throws Exception {
+    testMissingRateLimitHeader(() -> underTest.patch(appUrl, accessToken, randomEndPoint, "body"));
+  }
+
+  @Test
+  public void post_whenRateLimitHeadersArePresent_returnsRateLimit() throws Exception {
+    testRateLimitHeader(() -> underTest.post(appUrl, accessToken, randomEndPoint));
+  }
+
+  @Test
+  public void post_whenRateLimitHeadersAreMissing_returnsNull() throws Exception {
+    testMissingRateLimitHeader(() -> underTest.post(appUrl, accessToken, randomEndPoint));
+  }
 }

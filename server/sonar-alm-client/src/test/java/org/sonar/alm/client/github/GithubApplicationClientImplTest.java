@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.alm.client.github.GithubApplicationHttpClient.RateLimit;
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
 import org.sonar.alm.client.github.config.GithubAppInstallation;
 import org.sonar.alm.client.github.security.AccessToken;
@@ -54,39 +55,42 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.alm.client.github.GithubApplicationHttpClient.GetResponse;
 
 @RunWith(DataProviderRunner.class)
 public class GithubApplicationClientImplTest {
 
   private static final String APP_JWT_TOKEN = "APP_TOKEN_JWT";
   private static final String PAYLOAD_2_ORGS = """
-      [
-        {
-          "id": 1,
-          "account": {
-            "login": "org1",
-            "type": "Organization"
-          },
-          "target_type": "Organization",
-          "permissions": {
-            "members": "read",
-            "metadata": "read"
-          },
-          "suspended_at": "2023-05-30T08:40:55Z"
+    [
+      {
+        "id": 1,
+        "account": {
+          "login": "org1",
+          "type": "Organization"
         },
-        {
-          "id": 2,
-          "account": {
-            "login": "org2",
-            "type": "Organization"
-          },
-          "target_type": "Organization",
-          "permissions": {
-            "members": "read",
-            "metadata": "read"
-          }
+        "target_type": "Organization",
+        "permissions": {
+          "members": "read",
+          "metadata": "read"
+        },
+        "suspended_at": "2023-05-30T08:40:55Z"
+      },
+      {
+        "id": 2,
+        "account": {
+          "login": "org2",
+          "type": "Organization"
+        },
+        "target_type": "Organization",
+        "permissions": {
+          "members": "read",
+          "metadata": "read"
         }
-      ]""";
+      }
+    ]""";
+
+  private static final RateLimit RATE_LIMIT = new RateLimit(Integer.MAX_VALUE, Integer.MAX_VALUE, 0L);
 
   @ClassRule
   public static LogTester logTester = new LogTester().setLevel(LoggerLevel.WARN);
@@ -713,7 +717,7 @@ public class GithubApplicationClientImplTest {
       + "}";
 
     when(httpClient.get(appUrl, accessToken, String.format("/search/repositories?q=%s&page=%s&per_page=%s", "world+fork:true+org:github", 1, 100)))
-      .thenReturn(new GithubApplicationHttpClient.GetResponse() {
+      .thenReturn(new GetResponse() {
         @Override
         public Optional<String> getNextEndPoint() {
           return Optional.empty();
@@ -727,6 +731,11 @@ public class GithubApplicationClientImplTest {
         @Override
         public Optional<String> getContent() {
           return Optional.of(responseJson);
+        }
+
+        @Override
+        public RateLimit getRateLimit() {
+          return RATE_LIMIT;
         }
       });
 
@@ -905,7 +914,7 @@ public class GithubApplicationClientImplTest {
       + "}";
 
     when(httpClient.get(appUrl, accessToken, "/repos/octocat/Hello-World"))
-      .thenReturn(new GithubApplicationHttpClient.GetResponse() {
+      .thenReturn(new GetResponse() {
         @Override
         public Optional<String> getNextEndPoint() {
           return Optional.empty();
@@ -919,6 +928,11 @@ public class GithubApplicationClientImplTest {
         @Override
         public Optional<String> getContent() {
           return Optional.of(responseJson);
+        }
+
+        @Override
+        public RateLimit getRateLimit() {
+          return RATE_LIMIT;
         }
       });
 
@@ -954,7 +968,7 @@ public class GithubApplicationClientImplTest {
     }
   }
 
-  private static class Response implements GithubApplicationHttpClient.GetResponse {
+  private static class Response implements GetResponse {
     private final int code;
     private final String content;
     private final String nextEndPoint;
@@ -977,6 +991,11 @@ public class GithubApplicationClientImplTest {
     @Override
     public Optional<String> getContent() {
       return Optional.ofNullable(content);
+    }
+
+    @Override
+    public RateLimit getRateLimit() {
+      return RATE_LIMIT;
     }
 
     @Override

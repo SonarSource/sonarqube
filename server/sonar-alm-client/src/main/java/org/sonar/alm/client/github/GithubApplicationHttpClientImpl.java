@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
@@ -34,10 +35,10 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.alm.client.TimeoutConfiguration;
-import org.sonar.alm.client.github.security.AccessToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.alm.client.TimeoutConfiguration;
+import org.sonar.alm.client.github.security.AccessToken;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -55,6 +56,10 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
   private static final Pattern NEXT_LINK_PATTERN = Pattern.compile("<([^<]+)>; rel=\"next\"");
   private static final String GH_API_VERSION_HEADER = "X-GitHub-Api-Version";
   private static final String GH_API_VERSION = "2022-11-28";
+
+  private static final String GH_RATE_LIMIT_REMAINING_HEADER = "x-ratelimit-remaining";
+  private static final String GH_RATE_LIMIT_LIMIT_HEADER = "x-ratelimit-limit";
+  private static final String GH_RATE_LIMIT_RESET_HEADER = "x-ratelimit-reset";
 
   private final OkHttpClient client;
 
@@ -80,17 +85,17 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
     validateEndPoint(endPoint);
     try (okhttp3.Response response = client.newCall(newGetRequest(appUrl, token, endPoint)).execute()) {
       int responseCode = response.code();
+      RateLimit rateLimit = readRateLimit(response);
       if (responseCode != HTTP_OK) {
         String content = StringUtils.trimToNull(attemptReadContent(response));
         if (withLog) {
           LOG.warn("GET response did not have expected HTTP code (was {}): {}", responseCode, content);
         }
-        return new GetResponseImpl(responseCode, content, null);
+        return new GetResponseImpl(responseCode, content, null, rateLimit);
       }
-      return new GetResponseImpl(responseCode, readContent(response.body()).orElse(null), readNextEndPoint(response));
+      return new GetResponseImpl(responseCode, readContent(response.body()).orElse(null), readNextEndPoint(response), rateLimit);
     }
   }
-
 
   private static void validateEndPoint(String endPoint) {
     checkArgument(endPoint.startsWith("/") || endPoint.startsWith("http") || endPoint.isEmpty(),
@@ -124,12 +129,13 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
 
     try (okhttp3.Response response = client.newCall(newDeleteRequest(appUrl, token, endPoint)).execute()) {
       int responseCode = response.code();
+      RateLimit rateLimit = readRateLimit(response);
       if (responseCode != HTTP_NO_CONTENT) {
         String content = attemptReadContent(response);
         LOG.warn("DELETE response did not have expected HTTP code (was {}): {}", responseCode, content);
-        return new ResponseImpl(responseCode, content);
+        return new ResponseImpl(responseCode, content, rateLimit);
       }
-      return new ResponseImpl(responseCode, null);
+      return new ResponseImpl(responseCode, null, rateLimit);
     }
   }
 
@@ -142,14 +148,15 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
 
     try (okhttp3.Response response = client.newCall(newPostRequest(appUrl, token, endPoint, body)).execute()) {
       int responseCode = response.code();
+      RateLimit rateLimit = readRateLimit(response);
       if (responseCode == HTTP_OK || responseCode == HTTP_CREATED || responseCode == HTTP_ACCEPTED) {
-        return new ResponseImpl(responseCode, readContent(response.body()).orElse(null));
+        return new ResponseImpl(responseCode, readContent(response.body()).orElse(null), rateLimit);
       } else if (responseCode == HTTP_NO_CONTENT) {
-        return new ResponseImpl(responseCode, null);
+        return new ResponseImpl(responseCode, null, rateLimit);
       }
       String content = attemptReadContent(response);
       LOG.warn("POST response did not have expected HTTP code (was {}): {}", responseCode, content);
-      return new ResponseImpl(responseCode, content);
+      return new ResponseImpl(responseCode, content, rateLimit);
     }
   }
 
@@ -158,14 +165,15 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
 
     try (okhttp3.Response response = client.newCall(newPatchRequest(token, appUrl, endPoint, body)).execute()) {
       int responseCode = response.code();
+      RateLimit rateLimit = readRateLimit(response);
       if (responseCode == HTTP_OK) {
-        return new ResponseImpl(responseCode, readContent(response.body()).orElse(null));
+        return new ResponseImpl(responseCode, readContent(response.body()).orElse(null), rateLimit);
       } else if (responseCode == HTTP_NO_CONTENT) {
-        return new ResponseImpl(responseCode, null);
+        return new ResponseImpl(responseCode, null, rateLimit);
       }
       String content = attemptReadContent(response);
       LOG.warn("PATCH response did not have expected HTTP code (was {}): {}", responseCode, content);
-      return new ResponseImpl(responseCode, content);
+      return new ResponseImpl(responseCode, content, rateLimit);
     }
   }
 
@@ -231,13 +239,32 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
     return nextLinkMatcher.group(1);
   }
 
+  @CheckForNull
+  private static RateLimit readRateLimit(okhttp3.Response response) {
+    Integer remaining = headerValueOrNull(response, GH_RATE_LIMIT_REMAINING_HEADER, Integer::valueOf);
+    Integer limit = headerValueOrNull(response, GH_RATE_LIMIT_LIMIT_HEADER, Integer::valueOf);
+    Long reset = headerValueOrNull(response, GH_RATE_LIMIT_RESET_HEADER, Long::valueOf);
+    if (remaining == null || limit == null || reset == null) {
+      return null;
+    }
+    return new RateLimit(remaining, limit, reset);
+  }
+
+  @CheckForNull
+  private static <T> T headerValueOrNull(okhttp3.Response response, String header, Function<String, T> mapper) {
+    return ofNullable(response.header(header)).map(mapper::apply).orElse(null);
+  }
+
   private static class ResponseImpl implements Response {
     private final int code;
     private final String content;
 
-    private ResponseImpl(int code, @Nullable String content) {
+    private final RateLimit rateLimit;
+
+    private ResponseImpl(int code, @Nullable String content, @Nullable RateLimit rateLimit) {
       this.code = code;
       this.content = content;
+      this.rateLimit = rateLimit;
     }
 
     @Override
@@ -249,13 +276,20 @@ public class GithubApplicationHttpClientImpl implements GithubApplicationHttpCli
     public Optional<String> getContent() {
       return ofNullable(content);
     }
+
+    @Override
+    @CheckForNull
+    public RateLimit getRateLimit() {
+      return rateLimit;
+    }
+
   }
 
   private static final class GetResponseImpl extends ResponseImpl implements GetResponse {
     private final String nextEndPoint;
 
-    private GetResponseImpl(int code, @Nullable String content, @Nullable String nextEndPoint) {
-      super(code, content);
+    private GetResponseImpl(int code, @Nullable String content, @Nullable String nextEndPoint, @Nullable RateLimit rateLimit) {
+      super(code, content, rateLimit);
       this.nextEndPoint = nextEndPoint;
     }
 

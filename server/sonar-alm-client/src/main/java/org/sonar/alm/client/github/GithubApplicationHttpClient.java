@@ -68,7 +68,10 @@ public interface GithubApplicationHttpClient {
    */
   Response delete(String appUrl, AccessToken token, String endPoint) throws IOException;
 
+  record RateLimit(int remaining, int limit, long reset) {
+  }
   interface Response {
+
     /**
      * @return the HTTP code of the response.
      */
@@ -79,9 +82,12 @@ public interface GithubApplicationHttpClient {
      *         HTTP method (see {@link #get(String, AccessToken, String)} and {@link #post(String, AccessToken, String)}).
      */
     Optional<String> getContent();
+
+    RateLimit getRateLimit();
   }
 
   interface GetResponse extends Response {
     Optional<String> getNextEndPoint();
   }
+
 }
