@@ -230,7 +230,7 @@ public class SetMainBranchActionIT {
 
   private void checkCallToProjectLifeCycleListenersOnProjectBranchesChanges(ProjectDto projectDto) {
     Project project = Project.from(projectDto);
-    verify(projectLifeCycleListeners).onProjectBranchesDeleted(Set.of(project));
+    verify(projectLifeCycleListeners).onProjectBranchesChanged(Set.of(project));
   }
 
   private void checkNewMainBranch(String projectUuid, String newBranchUuid) {

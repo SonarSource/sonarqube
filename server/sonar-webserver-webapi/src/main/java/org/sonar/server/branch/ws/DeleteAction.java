@@ -86,7 +86,7 @@ public class DeleteAction implements BranchWsAction {
         "Branch '%s' not found for project '%s'", branchKey, projectKey);
 
       componentCleanerService.deleteBranch(dbSession, branch);
-      projectLifeCycleListeners.onProjectBranchesDeleted(singleton(Project.fromProjectDtoWithTags(project)));
+      projectLifeCycleListeners.onProjectBranchesChanged(singleton(Project.fromProjectDtoWithTags(project)));
       response.noContent();
     }
   }

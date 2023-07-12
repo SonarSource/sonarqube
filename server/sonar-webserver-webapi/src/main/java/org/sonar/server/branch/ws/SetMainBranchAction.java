@@ -122,7 +122,7 @@ public class SetMainBranchAction implements BranchWsAction {
   }
 
   private void refreshApplicationsAndPortfoliosComputedByProject(ProjectDto projectDto) {
-    projectLifeCycleListeners.onProjectBranchesDeleted(singleton(Project.from(projectDto)));
+    projectLifeCycleListeners.onProjectBranchesChanged(singleton(Project.from(projectDto)));
   }
 
   private void updateNewMainBranch(DbSession dbSession, BranchDto newMainBranch) {

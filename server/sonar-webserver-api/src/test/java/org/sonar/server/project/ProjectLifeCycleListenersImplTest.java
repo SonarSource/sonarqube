@@ -34,6 +34,7 @@ import org.mockito.Mockito;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
@@ -126,39 +127,39 @@ public class ProjectLifeCycleListenersImplTest {
   }
 
   @Test
-  public void onProjectBranchesDeleted_throws_NPE_if_set_is_null() {
-    assertThatThrownBy(() -> underTestWithListeners.onProjectBranchesDeleted(null))
+  public void onProjectBranchesChanged_throws_NPE_if_set_is_null() {
+    assertThatThrownBy(() -> underTestWithListeners.onProjectBranchesChanged(null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("projects can't be null");
   }
 
   @Test
-  public void onProjectBranchesDeleted_throws_NPE_if_set_is_null_even_if_no_listeners() {
-    assertThatThrownBy(() -> underTestNoListeners.onProjectBranchesDeleted(null))
+  public void onProjectBranchesChanged_throws_NPE_if_set_is_null_even_if_no_listeners() {
+    assertThatThrownBy(() -> underTestNoListeners.onProjectBranchesChanged(null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("projects can't be null");
   }
 
   @Test
-  public void onProjectBranchesDeleted_has_no_effect_if_set_is_empty() {
-    underTestNoListeners.onProjectBranchesDeleted(Collections.emptySet());
+  public void onProjectBranchesChanged_has_no_effect_if_set_is_empty() {
+    underTestNoListeners.onProjectBranchesChanged(Collections.emptySet());
 
-    underTestWithListeners.onProjectBranchesDeleted(Collections.emptySet());
+    underTestWithListeners.onProjectBranchesChanged(Collections.emptySet());
     verifyNoInteractions(listener1, listener2, listener3);
   }
 
   @Test
   @UseDataProvider("oneOrManyProjects")
-  public void onProjectBranchesDeleted_does_not_fail_if_there_is_no_listener(Set<Project> projects) {
-    underTestNoListeners.onProjectBranchesDeleted(projects);
+  public void onProjectBranchesChanged_does_not_fail_if_there_is_no_listener(Set<Project> projects) {
+     assertThatNoException().isThrownBy(()-> underTestNoListeners.onProjectBranchesChanged(projects));
   }
 
   @Test
   @UseDataProvider("oneOrManyProjects")
-  public void onProjectBranchesDeleted_calls_all_listeners_in_order_of_addition_to_constructor(Set<Project> projects) {
+  public void onProjectBranchesChanged_calls_all_listeners_in_order_of_addition_to_constructor(Set<Project> projects) {
     InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
 
-    underTestWithListeners.onProjectBranchesDeleted(projects);
+    underTestWithListeners.onProjectBranchesChanged(projects);
 
     inOrder.verify(listener1).onProjectBranchesChanged(same(projects));
     inOrder.verify(listener2).onProjectBranchesChanged(same(projects));
@@ -168,13 +169,13 @@ public class ProjectLifeCycleListenersImplTest {
 
   @Test
   @UseDataProvider("oneOrManyProjects")
-  public void onProjectBranchesDeleted_calls_all_listeners_even_if_one_throws_an_Exception(Set<Project> projects) {
+  public void onProjectBranchesChanged_calls_all_listeners_even_if_one_throws_an_Exception(Set<Project> projects) {
     InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
     doThrow(new RuntimeException("Faking listener2 throwing an exception"))
       .when(listener2)
       .onProjectBranchesChanged(any());
 
-    underTestWithListeners.onProjectBranchesDeleted(projects);
+    underTestWithListeners.onProjectBranchesChanged(projects);
 
     inOrder.verify(listener1).onProjectBranchesChanged(same(projects));
     inOrder.verify(listener2).onProjectBranchesChanged(same(projects));
@@ -184,13 +185,13 @@ public class ProjectLifeCycleListenersImplTest {
 
   @Test
   @UseDataProvider("oneOrManyProjects")
-  public void onProjectBranchesDeleted_calls_all_listeners_even_if_one_throws_an_Error(Set<Project> projects) {
+  public void onProjectBranchesChanged_calls_all_listeners_even_if_one_throws_an_Error(Set<Project> projects) {
     InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
     doThrow(new Error("Faking listener2 throwing an Error"))
       .when(listener2)
       .onProjectBranchesChanged(any());
 
-    underTestWithListeners.onProjectBranchesDeleted(projects);
+    underTestWithListeners.onProjectBranchesChanged(projects);
 
     inOrder.verify(listener1).onProjectBranchesChanged(same(projects));
     inOrder.verify(listener2).onProjectBranchesChanged(same(projects));
@@ -240,7 +241,7 @@ public class ProjectLifeCycleListenersImplTest {
   @Test
   @UseDataProvider("oneOrManyRekeyedProjects")
   public void onProjectsRekeyed_does_not_fail_if_there_is_no_listener(Set<RekeyedProject> projects) {
-    underTestNoListeners.onProjectsRekeyed(projects);
+    assertThatNoException().isThrownBy(() -> underTestNoListeners.onProjectsRekeyed(projects));
   }
 
   @Test
