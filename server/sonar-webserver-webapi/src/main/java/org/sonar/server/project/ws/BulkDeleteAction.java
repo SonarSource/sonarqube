@@ -154,23 +154,22 @@ public class BulkDeleteAction implements ProjectsWsAction {
       ComponentQuery query = buildDbQuery(searchRequest);
       Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, query, 0, Integer.MAX_VALUE));
       List<EntityDto> entities = dbClient.entityDao().selectByKeys(dbSession, componentDtos.stream().map(ComponentDto::getKey).collect(toSet()));
+      Set<String> entityUuids = entities.stream().map(EntityDto::getUuid).collect(toSet());
+      Map<String, String> mainBranchUuidByEntityUuid = dbClient.branchDao().selectMainBranchesByProjectUuids(dbSession, entityUuids).stream()
+        .collect(Collectors.toMap(BranchDto::getProjectUuid, BranchDto::getUuid));
 
       try {
         entities.forEach(p -> componentCleanerService.deleteEntity(dbSession, p));
       } finally {
-        callDeleteListeners(dbSession, entities);
+        callDeleteListeners(dbSession, mainBranchUuidByEntityUuid, entities);
       }
     }
     response.noContent();
   }
 
-  private void callDeleteListeners(DbSession dbSession, List<EntityDto> entities) {
-    Set<String> entityUuids = entities.stream().map(EntityDto::getUuid).collect(toSet());
-    Map<String, String> mainBranchUuidByEntityUuid = dbClient.branchDao().selectMainBranchesByProjectUuids(dbSession, entityUuids).stream()
-      .collect(Collectors.toMap(BranchDto::getProjectUuid, BranchDto::getUuid));
-
-    ImmutableSet<DeletedProject> deletedProjects = entities.stream().map(entity -> new DeletedProject(Project.from(entity), mainBranchUuidByEntityUuid.get(entity.getUuid())))
-      .collect(toImmutableSet());
+  private void callDeleteListeners(DbSession dbSession, Map<String, String> mainBranchUuidByEntityUuid , List<EntityDto> entities) {
+    Set<DeletedProject> deletedProjects = entities.stream().map(entity -> new DeletedProject(Project.from(entity),
+        mainBranchUuidByEntityUuid.get(entity.getUuid()))).collect(toSet());
     projectLifeCycleListeners.onProjectsDeleted(deletedProjects);
   }
 

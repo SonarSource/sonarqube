@@ -80,7 +80,7 @@ public class ComponentUpdaterIT {
   private final ComponentUpdater underTest = new ComponentUpdater(db.getDbClient(), i18n, system2,
     permissionTemplateService,
     new FavoriteUpdater(db.getDbClient()),
-    projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, true);
+    projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver);
 
   @Before
   public void before() {

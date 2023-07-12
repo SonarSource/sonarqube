@@ -84,7 +84,7 @@ public class ImportGitLabProjectActionIT {
 
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), System2.INSTANCE,
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestIndexers(), new SequenceUuidFactory(),
-    defaultBranchNameResolver, true);
+    defaultBranchNameResolver);
 
   private final GitlabHttpClient gitlabHttpClient = mock(GitlabHttpClient.class);
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);

@@ -52,7 +52,9 @@ public class ProjectExportTaskProcessor implements CeTaskProcessor {
 
   private void processProjectExport(CeTask task) {
     CeTask.Component exportComponent = mandatoryComponent(task, PROJECT_EXPORT);
-    ProjectDescriptor projectExportDescriptor = new ProjectDescriptor(task.getEntity().get().getUuid(),
+    CeTask.Component entity = task.getEntity()
+      .orElseThrow(() -> new IllegalStateException("Compute engine task for project export doesn't contain entity"));
+    ProjectDescriptor projectExportDescriptor = new ProjectDescriptor(entity.getUuid(),
       mandatoryKey(exportComponent), mandatoryName(exportComponent));
 
     try (TaskContainer taskContainer = new TaskContainerImpl(componentContainer,

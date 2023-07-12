@@ -65,20 +65,11 @@ public class ComponentUpdater {
   private final Indexers indexers;
   private final UuidFactory uuidFactory;
   private final DefaultBranchNameResolver defaultBranchNameResolver;
-  private final boolean useDifferentUuids;
 
   @Autowired
   public ComponentUpdater(DbClient dbClient, I18n i18n, System2 system2,
     PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
     Indexers indexers, UuidFactory uuidFactory, DefaultBranchNameResolver defaultBranchNameResolver) {
-    this(dbClient, i18n, system2, permissionTemplateService, favoriteUpdater, indexers, uuidFactory, defaultBranchNameResolver, false);
-  }
-
-  @VisibleForTesting
-  public ComponentUpdater(DbClient dbClient, I18n i18n, System2 system2,
-    PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
-    Indexers indexers, UuidFactory uuidFactory, DefaultBranchNameResolver defaultBranchNameResolver,
-    boolean useDifferentUuids) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.system2 = system2;
@@ -87,7 +78,6 @@ public class ComponentUpdater {
     this.indexers = indexers;
     this.uuidFactory = uuidFactory;
     this.defaultBranchNameResolver = defaultBranchNameResolver;
-    this.useDifferentUuids = useDifferentUuids;
   }
 
   /**

@@ -77,9 +77,9 @@ public class ProjectPersisterIT {
     ProjectDto p1 = dbTester.components().insertPublicProject("PROJECT_UUID",
       p -> p.setKey(ROOT.getKey()).setName(ROOT.getName()).setDescription("OLD_DESC")).getProjectDto();
 
-    assertProject("OLD_DESC", ROOT.getName(), p1.getUpdatedAt());
+    assertProject(p1.getUuid(), "OLD_DESC", ROOT.getName(), p1.getUpdatedAt());
     underTest.persist(dbTester.getSession());
-    assertProject(ROOT.getDescription(), ROOT.getName(), 1000L);
+    assertProject(ROOT.getUuid(), ROOT.getDescription(), ROOT.getName(), 1000L);
   }
 
   @Test
@@ -87,9 +87,9 @@ public class ProjectPersisterIT {
     ProjectDto p1 = dbTester.components().insertPublicProject("PROJECT_UUID",
       p -> p.setKey(ROOT.getKey()).setName("OLD_NAME").setDescription(ROOT.getDescription())).getProjectDto();
 
-    assertProject(ROOT.getDescription(), "OLD_NAME", p1.getUpdatedAt());
+    assertProject(p1.getUuid(), ROOT.getDescription(), "OLD_NAME", p1.getUpdatedAt());
     underTest.persist(dbTester.getSession());
-    assertProject(ROOT.getDescription(), ROOT.getName(), 1000L);
+    assertProject(ROOT.getUuid(), ROOT.getDescription(), ROOT.getName(), 1000L);
   }
 
   @Test
@@ -97,15 +97,15 @@ public class ProjectPersisterIT {
     ProjectDto p1 = dbTester.components().insertPublicProject(
       c -> c.setUuid("PROJECT_UUID").setKey(ROOT.getKey()).setName(ROOT.getName()).setDescription(ROOT.getDescription())).getProjectDto();
 
-    assertProject(ROOT.getDescription(), ROOT.getName(), p1.getUpdatedAt());
+    assertProject(p1.getUuid(), ROOT.getDescription(), ROOT.getName(), p1.getUpdatedAt());
     underTest.persist(dbTester.getSession());
-    assertProject(ROOT.getDescription(), ROOT.getName(), p1.getUpdatedAt());
+    assertProject(p1.getUuid(), ROOT.getDescription(), ROOT.getName(), p1.getUpdatedAt());
   }
 
-  private void assertProject(String description, String name, long updated) {
+  private void assertProject(String uuid, String description, String name, long updated) {
     assertThat(dbTester.getDbClient().projectDao().selectProjectByKey(dbTester.getSession(), ROOT.getKey()).get())
-      .extracting(ProjectDto::getName, ProjectDto::getDescription, ProjectDto::getUpdatedAt)
-      .containsExactly(name, description, updated);
+      .extracting(ProjectDto::getUuid, ProjectDto::getName, ProjectDto::getDescription, ProjectDto::getUpdatedAt)
+      .containsExactly(uuid, name, description, updated);
 
   }
 }

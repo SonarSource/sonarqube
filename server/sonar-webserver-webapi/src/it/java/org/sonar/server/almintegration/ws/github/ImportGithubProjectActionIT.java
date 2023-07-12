@@ -94,7 +94,7 @@ public class ImportGithubProjectActionIT {
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), System2.INSTANCE,
     permissionTemplateService, new FavoriteUpdater(db.getDbClient()), new TestIndexers(), new SequenceUuidFactory(),
-    defaultBranchNameResolver, true);
+    defaultBranchNameResolver);
 
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);

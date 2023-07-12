@@ -100,7 +100,10 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
@@ -1219,6 +1222,7 @@ public class PurgeDaoIT {
 
   @Test
   public void should_delete_old_closed_issues() {
+    PurgeListener listener = mock(PurgeListener.class);
     RuleDto rule = db.rules().insert();
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
@@ -1241,7 +1245,7 @@ public class PurgeDaoIT {
     db.issues().insertNewCodeReferenceIssue(newCodeReferenceIssue(notClosed));
 
     when(system2.now()).thenReturn(new Date().getTime());
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), listener, new PurgeProfiler());
     dbSession.commit();
 
     // old closed got deleted
@@ -1260,6 +1264,8 @@ public class PurgeDaoIT {
 
     Optional<IssueDto> oldClosedFromQuery = db.getDbClient().issueDao().selectByKey(dbSession, oldClosed.getKey());
     assertThat(oldClosedFromQuery).isEmpty();
+
+    verify(listener, only()).onIssuesRemoval(projectData.projectUuid(), List.of(oldClosed.getKee()));
   }
 
   @Test
