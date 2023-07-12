@@ -41,6 +41,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -161,10 +162,15 @@ public class SearchActionIT {
   }
 
   @Test
-  public void response_contains_all_fields_except_additional_fields() {
+  public void givenPrivateProject_responseContainsAllFieldsExceptAdditionalFields() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+
+    ProjectDto projectDto = projectData.getProjectDto();
+    db.users().insertProjectPermissionOnUser(user, UserRole.USER, projectDto);
+
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     UserDto simon = db.users().insertUser();
     RuleDto rule = newIssueRule();
