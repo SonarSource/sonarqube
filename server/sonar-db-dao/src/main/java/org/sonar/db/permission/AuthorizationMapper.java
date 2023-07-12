@@ -53,6 +53,11 @@ public interface AuthorizationMapper {
 
   Set<String> selectEntityPermissions(@Param("entityUuid") String entityUuid, @Param("userUuid") String userUuid);
 
+  Set<UserAndPermissionDto> selectEntityPermissionsObtainedViaManagedGroup(
+    @Param("entityUuid") String entityUuid,
+    @Param("managedInstanceProvider") String managedInstanceProvider
+  );
+
   Set<String> selectEntityPermissionsOfAnonymous(@Param("entityUuid") String entityUuid);
 
   Set<String> keepAuthorizedLoginsOnEntity(@Param("logins") List<String> logins, @Param("entityKey") String projectKey, @Param("permission") String permission);

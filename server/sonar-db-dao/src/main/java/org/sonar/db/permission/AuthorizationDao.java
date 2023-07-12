@@ -66,6 +66,10 @@ public class AuthorizationDao implements Dao {
     return mapper(dbSession).selectEntityPermissions(entityUuid, userUuid);
   }
 
+  public Set<UserAndPermissionDto> selectEntityPermissionsObtainedViaManagedGroup(DbSession dbSession, String entityUuid, String managedInstanceProvider) {
+    return mapper(dbSession).selectEntityPermissionsObtainedViaManagedGroup(entityUuid, managedInstanceProvider);
+  }
+
   /**
    * Loads all the permissions granted to anonymous for the specified entity <strong>stored in *_ROLES
    * tables</strong>.

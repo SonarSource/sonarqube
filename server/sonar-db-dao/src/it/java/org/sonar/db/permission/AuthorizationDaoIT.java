@@ -40,6 +40,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.user.ExternalGroupDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -789,6 +790,106 @@ public class AuthorizationDaoIT {
     db.users().insertMember(group1, user);
 
     assertThat(underTest.selectEntityPermissions(dbSession, project.getUuid(), user.getUuid())).containsOnly("p1", "p2", "p3");
+  }
+
+  @Test
+  public void selectEntityPermissionsObtainedViaManagedGroup_shouldOnlyReturnGroupLevelPermissions() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    GroupDto groupDto = insertExternalGroup("github");
+    db.users().insertEntityPermissionOnGroup(groupDto, "groupLevelPermissionThatShouldBeRetrieved", project);
+    db.users().insertProjectPermissionOnUser(user, "userLevelPermissionThatShouldBeIgnored", project);
+
+    Set<UserAndPermissionDto> permissionsViaGroup = underTest.selectEntityPermissionsObtainedViaManagedGroup(dbSession, project.getUuid(), "github");
+    assertThat(permissionsViaGroup)
+      .containsExactlyInAnyOrder(new UserAndPermissionDto(user.getUuid(), "groupLevelPermissionThatShouldBeRetrieved"));
+  }
+
+  @Test
+  public void selectEntityPermissionsObtainedViaManagedGroup_shouldOnlyReturnPermissionsFromRightManagedInstanceProvider() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    GroupDto groupDto = insertExternalGroup("github");
+    db.users().insertEntityPermissionOnGroup(groupDto, "groupLevelPermissionThatShouldBeRetrieved", project);
+
+    GroupDto groupDtoManagedByGithero = insertExternalGroup("githero");
+    db.users().insertEntityPermissionOnGroup(groupDtoManagedByGithero, "groupLevelPermissionThatShouldBeIgnored", project);
+
+    Set<UserAndPermissionDto> permissionsViaGroup = underTest.selectEntityPermissionsObtainedViaManagedGroup(dbSession, project.getUuid(), "github");
+    assertThat(permissionsViaGroup)
+      .containsExactlyInAnyOrder(new UserAndPermissionDto(user.getUuid(), "groupLevelPermissionThatShouldBeRetrieved"));
+  }
+
+  @Test
+  public void selectEntityPermissionsObtainedViaManagedGroup_shouldOnlyReturnPermissionsFromExpectedProject() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    GroupDto groupDto = insertExternalGroup("github");
+    db.users().insertEntityPermissionOnGroup(groupDto, "groupLevelPermissionThatShouldBeRetrieved", project);
+
+    ProjectDto projectNotInScope = db.components().insertPublicProject().getProjectDto();
+    db.users().insertEntityPermissionOnGroup(groupDto, "groupLevelPermissionThatShouldBeIgnored", projectNotInScope);
+
+    Set<UserAndPermissionDto> permissionsViaGroup = underTest.selectEntityPermissionsObtainedViaManagedGroup(dbSession, project.getUuid(), "github");
+    assertThat(permissionsViaGroup)
+      .containsExactlyInAnyOrder(new UserAndPermissionDto(user.getUuid(), "groupLevelPermissionThatShouldBeRetrieved"));
+  }
+
+  @Test
+  public void selectEntityPermissionsObtainedViaManagedGroup_whenSeveralRoles_shouldReturnsThemAll() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    GroupDto groupDto = insertExternalGroup("github");
+    db.users().insertEntityPermissionOnGroup(groupDto, "groupLevelPermissionThatShouldBeRetrieved", project);
+    db.users().insertEntityPermissionOnGroup(groupDto, "groupLevelPermissionThatShouldBeRetrieved2", project);
+
+    Set<UserAndPermissionDto> permissionsViaGroup = underTest.selectEntityPermissionsObtainedViaManagedGroup(dbSession, project.getUuid(), "github");
+    assertThat(permissionsViaGroup)
+      .containsExactlyInAnyOrder(
+        new UserAndPermissionDto(user.getUuid(), "groupLevelPermissionThatShouldBeRetrieved"),
+        new UserAndPermissionDto(user.getUuid(), "groupLevelPermissionThatShouldBeRetrieved2")
+      );
+  }
+
+  @Test
+  public void selectEntityPermissionsObtainedViaManagedGroup_whenSeveralUsers_shouldReturnsThemAll() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    GroupDto groupDto = insertExternalGroup("github");
+    db.users().insertEntityPermissionOnGroup(groupDto, "groupLevelPermissionThatShouldBeRetrieved", project);
+
+    UserDto user2 = db.users().insertUser();
+    db.users().insertMember(groupDto, user2);
+
+    Set<UserAndPermissionDto> permissionsViaGroup = underTest.selectEntityPermissionsObtainedViaManagedGroup(dbSession, project.getUuid(), "github");
+    assertThat(permissionsViaGroup)
+      .containsExactlyInAnyOrder(
+        new UserAndPermissionDto(user.getUuid(), "groupLevelPermissionThatShouldBeRetrieved"),
+        new UserAndPermissionDto(user2.getUuid(), "groupLevelPermissionThatShouldBeRetrieved")
+      );
+  }
+
+  @Test
+  public void selectEntityPermissionsObtainedViaManagedGroup_whenMultipleGroupsAndUsers_shouldMergeEqualsObjects() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    GroupDto groupDto = insertExternalGroup("github");
+    db.users().insertEntityPermissionOnGroup(groupDto, "groupLevelPermissionThatShouldBeRetrieved", project);
+
+    UserDto user2 = db.users().insertUser();
+    db.users().insertMember(groupDto, user2);
+
+    GroupDto groupDto2 = insertExternalGroup("github");
+    db.users().insertEntityPermissionOnGroup(groupDto2, "groupLevelPermissionThatShouldBeRetrieved", project);
+    db.users().insertMember(groupDto2, user2);
+
+    Set<UserAndPermissionDto> permissionsViaGroup = underTest.selectEntityPermissionsObtainedViaManagedGroup(dbSession, project.getUuid(), "github");
+    assertThat(permissionsViaGroup)
+      .containsExactlyInAnyOrder(
+        new UserAndPermissionDto(user.getUuid(), "groupLevelPermissionThatShouldBeRetrieved"),
+        new UserAndPermissionDto(user2.getUuid(), "groupLevelPermissionThatShouldBeRetrieved")
+      );
+  }
+
+  private GroupDto insertExternalGroup(String managedInstanceProvider) {
+    GroupDto groupDto = db.users().insertGroup();
+    db.users().insertExternalGroup(new ExternalGroupDto(groupDto.getUuid(), "ext_" + groupDto.getUuid(), managedInstanceProvider));
+    db.users().insertMember(groupDto, user);
+    return groupDto;
   }
 
   @Test
