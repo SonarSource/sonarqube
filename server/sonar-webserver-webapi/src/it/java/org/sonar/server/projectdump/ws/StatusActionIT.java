@@ -39,7 +39,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
@@ -123,9 +122,11 @@ public class StatusActionIT {
 
   @Test
   public void fails_with_BRE_if_both_params_are_provided() {
+    String projectUuid = project.getUuid();
+    String projectKey = project.getKey();
     assertThatThrownBy(() -> {
       underTest.newRequest()
-        .setParam(ID_PARAM, project.getUuid()).setParam(KEY_PARAM, project.getKey())
+        .setParam(ID_PARAM, projectUuid).setParam(KEY_PARAM, projectKey)
         .execute();
     })
       .isInstanceOf(BadRequestException.class)

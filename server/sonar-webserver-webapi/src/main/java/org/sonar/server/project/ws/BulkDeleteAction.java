@@ -20,7 +20,6 @@
 package org.sonar.server.project.ws;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;

@@ -31,7 +31,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodParser;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
-import org.sonar.server.component.ComponentCreationData;
 
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
