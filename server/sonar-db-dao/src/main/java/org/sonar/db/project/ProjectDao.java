@@ -152,4 +152,12 @@ public class ProjectDao implements Dao {
   public long getNclocSum(DbSession dbSession, @Nullable String projectUuidToExclude) {
     return Optional.ofNullable(mapper(dbSession).getNclocSum(projectUuidToExclude)).orElse(0L);
   }
+
+  public int countIndexedProjects(DbSession session) {
+    return mapper(session).countIndexedProjects();
+  }
+
+  public int countProjects(DbSession session) {
+    return mapper(session).countProjects();
+  }
 }

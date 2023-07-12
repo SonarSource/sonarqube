@@ -19,9 +19,7 @@
  */
 package org.sonar.server.issue.index;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -56,30 +54,27 @@ public class IssueIndexSyncProgressCheckerTest {
   private final IssueIndexSyncProgressChecker underTest = new IssueIndexSyncProgressChecker(db.getDbClient());
 
   @Test
-  public void return_100_if_there_is_no_tasks_left() {
+  public void getIssueSyncProgress_whenNoTasksLeft_shouldReturnCompleted() {
     IssueSyncProgress issueSyncProgress = underTest.getIssueSyncProgress(db.getSession());
-    assertThat(issueSyncProgress.getCompleted()).isZero();
+    assertThat(issueSyncProgress.getCompletedCount()).isZero();
     assertThat(issueSyncProgress.getTotal()).isZero();
-    assertThat(issueSyncProgress.toPercentCompleted()).isEqualTo(100);
     assertThat(issueSyncProgress.isCompleted()).isTrue();
     assertThat(issueSyncProgress.hasFailures()).isFalse();
   }
 
   @Test
-  public void return_100_if_all_branches_have_need_issue_sync_set_FALSE() {
-    IntStream.range(0, 13).forEach(value -> insertProjectWithBranches(false, 2));
-    IntStream.range(0, 14).forEach(value -> insertProjectWithBranches(false, 4));
-    IntStream.range(0, 4).forEach(value -> insertProjectWithBranches(false, 10));
+  public void getIssueSyncProgress_whenNoBranchesNeedsIssueSync_shouldReturnCompleted() {
+    IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(false, 1));
+    IntStream.range(0, 20).forEach(value -> insertProjectWithBranches(false, 2));
 
     IssueSyncProgress result = underTest.getIssueSyncProgress(db.getSession());
-    assertThat(result.getCompleted()).isEqualTo(153);
-    assertThat(result.getTotal()).isEqualTo(153);
-    assertThat(result.toPercentCompleted()).isEqualTo(100);
+    assertThat(result.getCompletedCount()).isEqualTo(30);
+    assertThat(result.getTotal()).isEqualTo(30);
     assertThat(result.isCompleted()).isTrue();
   }
 
   @Test
-  public void return_has_failure_true_if_exists_task() {
+  public void getIssueSyncProgress_whenTasksExist_shouldReturnFailures() {
     assertThat(underTest.getIssueSyncProgress(db.getSession()).hasFailures()).isFalse();
 
     ProjectData projectData1 = insertProjectWithBranches(false, 0);
@@ -97,36 +92,8 @@ public class IssueIndexSyncProgressCheckerTest {
   }
 
   @Test
-  @UseDataProvider("various_task_numbers")
-  public void return_correct_percent_value_for_branches_to_sync(int toSync, int synced, int expectedPercent) {
-    IntStream.range(0, toSync).forEach(value -> insertProjectWithBranches(true, 0));
-    IntStream.range(0, synced).forEach(value -> insertProjectWithBranches(false, 0));
-
-    IssueSyncProgress result = underTest.getIssueSyncProgress(db.getSession());
-    assertThat(result.getCompleted()).isEqualTo(synced);
-    assertThat(result.getTotal()).isEqualTo(toSync + synced);
-    assertThat(result.toPercentCompleted()).isEqualTo(expectedPercent);
-  }
-
-  @DataProvider
-  public static Object[][] various_task_numbers() {
-    return new Object[][] {
-      // toSync, synced, expected result
-      {0, 0, 100},
-      {0, 9, 100},
-      {10, 0, 0},
-      {99, 1, 1},
-      {2, 1, 33},
-      {6, 4, 40},
-      {7, 7, 50},
-      {1, 2, 66},
-      {4, 10, 71},
-      {1, 99, 99},
-    };
-  }
-
-  @Test
-  public void return_0_if_all_branches_have_need_issue_sync_set_true() {
+  public void getIssueSyncProgress_whenBranchesNeedIssueSync_shouldReturnNotCompleted() {
+    insertCeQueue("TASK_1", Status.PENDING);
     // only project
     IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(true, 0));
 
@@ -134,9 +101,9 @@ public class IssueIndexSyncProgressCheckerTest {
     IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(true, 1));
 
     IssueSyncProgress result = underTest.getIssueSyncProgress(db.getSession());
-    assertThat(result.getCompleted()).isZero();
-    assertThat(result.getTotal()).isEqualTo(30);
-    assertThat(result.toPercentCompleted()).isZero();
+    assertThat(result.getCompletedCount()).isZero();
+    assertThat(result.getTotal()).isEqualTo(20);
+    assertThat(result.isCompleted()).isFalse();
   }
 
   @Test

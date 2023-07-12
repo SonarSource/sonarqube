@@ -217,4 +217,18 @@
       and uuid &lt;&gt; #{projectUuidToExclude,jdbcType=VARCHAR}
     </if>
   </select>
+
+  <select id="countIndexedProjects" resultType="int">
+    select count(p.uuid)
+    from projects p
+    where p.qualifier = 'TRK'
+    and not exists (select 1 from project_branches pb where pb.project_uuid = p.uuid and pb.need_issue_sync = ${_true})
+  </select>
+
+  <select id="countProjects" resultType="int">
+    select count(p.uuid)
+    from projects p
+    where p.qualifier = 'TRK'
+  </select>
+
 </mapper>

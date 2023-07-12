@@ -160,14 +160,6 @@ public class BranchDao implements Dao {
     return mapper(dbSession).countByTypeAndCreationDate(branchType.name(), sinceDate);
   }
 
-  public int countByNeedIssueSync(DbSession session, boolean needIssueSync) {
-    return mapper(session).countByNeedIssueSync(needIssueSync);
-  }
-
-  public int countAll(DbSession session) {
-    return mapper(session).countAll();
-  }
-
   private static BranchMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(BranchMapper.class);
   }

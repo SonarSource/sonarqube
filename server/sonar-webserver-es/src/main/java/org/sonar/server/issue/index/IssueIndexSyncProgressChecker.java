@@ -41,11 +41,11 @@ public class IssueIndexSyncProgressChecker {
   }
 
   public IssueSyncProgress getIssueSyncProgress(DbSession dbSession) {
-    int completed = dbClient.branchDao().countByNeedIssueSync(dbSession, false);
+    int completedCount = dbClient.projectDao().countIndexedProjects(dbSession);
+    int total = dbClient.projectDao().countProjects(dbSession);
     boolean hasFailures = dbClient.ceActivityDao().hasAnyFailedOrCancelledIssueSyncTask(dbSession);
     boolean isCompleted = !dbClient.ceQueueDao().hasAnyIssueSyncTaskPendingOrInProgress(dbSession);
-    int total = dbClient.branchDao().countAll(dbSession);
-    return new IssueSyncProgress(isCompleted, completed, total, hasFailures);
+    return new IssueSyncProgress(isCompleted, completedCount, total, hasFailures);
   }
 
   public void checkIfAnyComponentsNeedIssueSync(DbSession dbSession, List<String> componentKeys) {

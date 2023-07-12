@@ -74,4 +74,8 @@ public interface ProjectMapper {
 
   @CheckForNull
   Long getNclocSum(@Nullable @Param("projectUuidToExclude") String projectUuidToExclude);
+
+  int countIndexedProjects();
+
+  int countProjects();
 }

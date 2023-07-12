@@ -228,20 +228,6 @@
     from dual
   </select>
 
-  <select id="countByNeedIssueSync" parameterType="map" resultType="int">
-    select
-    count(pb.uuid)
-    from project_branches pb
-    where
-    pb.need_issue_sync = #{needIssueSync, jdbcType=BOOLEAN}
-  </select>
-
-  <select id="countAll" parameterType="map" resultType="int">
-    select
-    count(pb.uuid)
-    from project_branches pb
-  </select>
-
   <select id="selectBranchNeedingIssueSync" resultType="org.sonar.db.component.BranchDto">
     select
     <include refid="columns"/>

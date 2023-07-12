@@ -55,8 +55,9 @@ message ActivityStatusWsResponse {
 // GET api/ce/indexation_status
 message IndexationStatusWsResponse {
   optional bool isCompleted = 1;
-  optional int32 percentCompleted = 2;
-  optional bool hasFailures = 3;
+  optional bool hasFailures = 2;
+  optional int32 completedCount = 3;
+  optional int32 total = 4;
 }
 
 // GET api/ce/analysis_status

@@ -48,7 +48,7 @@ public class IndexationStatusActionIT {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private WsActionTester ws = new WsActionTester(new IndexationStatusAction(db.getDbClient(), issueIndexSyncProgressCheckerMock));
+  private final WsActionTester ws = new WsActionTester(new IndexationStatusAction(db.getDbClient(), issueIndexSyncProgressCheckerMock));
 
   @Test
   public void definition() {
@@ -61,27 +61,29 @@ public class IndexationStatusActionIT {
 
   @Test
   public void verify_example_of_response() {
-    when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(true,0, 0, false));
+    when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(false, 22, 38, false));
     ws.newRequest().execute().assertJson(ws.getDef().responseExampleAsString());
   }
 
   @Test
-  public void return_100_if_there_is_no_tasks_left() {
+  public void call_whenNoTasksLeft_shouldReturnCompleted() {
     when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(true, 10, 10, false));
     IndexationStatusWsResponse response = ws.newRequest()
       .executeProtobuf(IndexationStatusWsResponse.class);
-    assertThat(response.getPercentCompleted()).isEqualTo(100);
+    assertThat(response.getCompletedCount()).isEqualTo(10);
+    assertThat(response.getTotal()).isEqualTo(10);
     assertThat(response.getIsCompleted()).isTrue();
     assertThat(response.getHasFailures()).isFalse();
   }
 
   @Test
-  public void return_0_if_all_branches_have_need_issue_sync_set_TRUE() {
-    when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(false,0, 10, false));
+  public void call_whenBranchesNeedIssueSync_shouldReturnNotCompleted() {
+    when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(false, 0, 10, false));
 
     IndexationStatusWsResponse response = ws.newRequest()
       .executeProtobuf(IndexationStatusWsResponse.class);
-    assertThat(response.getPercentCompleted()).isZero();
+    assertThat(response.getCompletedCount()).isZero();
+    assertThat(response.getTotal()).isEqualTo(10);
     assertThat(response.getIsCompleted()).isFalse();
     assertThat(response.getHasFailures()).isFalse();
   }

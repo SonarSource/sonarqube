@@ -43,6 +43,7 @@ import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.measure.LiveMeasureDto;
@@ -367,6 +368,33 @@ public class ProjectDaoIT {
     List<ProjectDto> projectDtos = projectDao.selectByUuids(db.getSession(), projectUuids, Pagination.forPage(2).andSize(2));
 
     assertThat(projectDtos).extracting(ProjectDto::getName).containsOnly("Project_2", "Project_3");
+  }
+
+  @Test
+  public void countIndexedProjects() {
+    assertThat(projectDao.countIndexedProjects(db.getSession())).isZero();
+
+    // master branch with flag set to false
+    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    // branches & PRs
+    db.components().insertProjectBranch(project1, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
+    db.components().insertProjectBranch(project1, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
+    db.components().insertProjectBranch(project2, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
+    db.components().insertProjectBranch(project1, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
+    db.components().insertProjectBranch(project1, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(false));
+    db.components().insertProjectBranch(project2, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(false));
+
+    assertThat(projectDao.countIndexedProjects(db.getSession())).isEqualTo(1);
+  }
+
+  @Test
+  public void countProjects() {
+    assertThat(projectDao.countProjects(db.getSession())).isZero();
+
+    IntStream.range(0, 10).forEach(x -> db.components().insertPrivateProject());
+
+    assertThat(projectDao.countProjects(db.getSession())).isEqualTo(10);
   }
 
   private void insertDefaultQualityProfile(String language) {

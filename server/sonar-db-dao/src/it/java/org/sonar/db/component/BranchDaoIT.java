@@ -691,42 +691,6 @@ public class BranchDaoIT {
   }
 
   @Test
-  public void countByNeedIssueSync() {
-    assertThat(underTest.countByNeedIssueSync(dbSession, true)).isZero();
-    assertThat(underTest.countByNeedIssueSync(dbSession, false)).isZero();
-
-    // master branch with flag set to false
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    // branches & PRs
-    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
-    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
-    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
-    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
-    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
-    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(false));
-    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
-
-    assertThat(underTest.countByNeedIssueSync(dbSession, true)).isEqualTo(4);
-    assertThat(underTest.countByNeedIssueSync(dbSession, false)).isEqualTo(4);
-  }
-
-  @Test
-  public void countAll() {
-    assertThat(underTest.countAll(dbSession)).isZero();
-
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
-    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
-    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
-    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
-    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
-    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(false));
-    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
-
-    assertThat(underTest.countAll(dbSession)).isEqualTo(8);
-  }
-
-  @Test
   public void selectBranchNeedingIssueSync() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     String uuid = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();

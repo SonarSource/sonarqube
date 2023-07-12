@@ -58,10 +58,6 @@ public interface BranchMapper {
 
   short hasAnyBranchWhereNeedIssueSync(@Param("needIssueSync") boolean needIssueSync);
 
-  int countByNeedIssueSync(@Param("needIssueSync") boolean needIssueSync);
-
-  int countAll();
-
   List<BranchDto> selectBranchNeedingIssueSync();
 
   List<BranchDto> selectBranchNeedingIssueSyncForProject(@Param("projectUuid") String projectUuid);
