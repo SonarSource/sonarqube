@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { noop } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
@@ -53,38 +54,31 @@ export default class ProjectAnalysisStep extends React.PureComponent<Props, Stat
   renderForm = () => {
     const { component, baseUrl, isLocal, token } = this.props;
     return (
-      <div className="boxed-group-inner">
-        <div className="display-flex-column">
-          <BuildToolForm onDone={this.handleBuildToolSelect} />
+      <div className="sw-pb-4">
+        <BuildToolForm onDone={this.handleBuildToolSelect} />
 
-          {this.state.config && (
-            <div className="big-spacer-top">
-              <AnalysisCommand
-                component={component}
-                baseUrl={baseUrl}
-                isLocal={isLocal}
-                languageConfig={this.state.config}
-                token={token}
-              />
-            </div>
-          )}
-        </div>
+        {this.state.config && (
+          <div className="sw-mt-4">
+            <AnalysisCommand
+              component={component}
+              baseUrl={baseUrl}
+              isLocal={isLocal}
+              languageConfig={this.state.config}
+              token={token}
+            />
+          </div>
+        )}
       </div>
     );
   };
-
-  renderResult = () => null;
 
   render() {
     return (
       <Step
         finished={false}
-        onOpen={() => {
-          /* noop */
-        }}
+        onOpen={noop}
         open={this.props.open}
         renderForm={this.renderForm}
-        renderResult={this.renderResult}
         stepNumber={this.props.stepNumber}
         stepTitle={translate('onboarding.analysis.header')}
       />

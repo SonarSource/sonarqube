@@ -102,54 +102,62 @@ it('can choose build tools and copy provided settings', async () => {
 
   // Maven
   await user.click(ui.mavenBuildButton.get());
-  expect(getCopyToClipboardValue()).toMatchSnapshot('maven: execute scanner');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('maven: execute scanner');
 
   // Gradle
   await user.click(ui.gradleBuildButton.get());
-  expect(getCopyToClipboardValue()).toMatchSnapshot('gradle: sonarqube plugin');
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('gradle: execute scanner');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('gradle: sonarqube plugin');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('gradle: execute scanner');
 
   // Dotnet - Core
   await user.click(ui.dotnetBuildButton.get());
-  expect(getCopyToClipboardValue()).toMatchSnapshot('dotnet core: install scanner globally');
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('dotnet core: execute command 1');
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('dotnet core: execute command 2');
-  expect(getCopyToClipboardValue(3)).toMatchSnapshot('dotnet core: execute command 3');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    'dotnet core: install scanner globally'
+  );
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('dotnet core: execute command 1');
+  expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot('dotnet core: execute command 2');
+  expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot('dotnet core: execute command 3');
 
   // Dotnet - Framework
   await user.click(ui.dotnetFrameworkButton.get());
-  expect(getCopyToClipboardValue()).toMatchSnapshot('dotnet framework: execute command 1');
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('dotnet framework: execute command 2');
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('dotnet framework: execute command 3');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('dotnet framework: execute command 1');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('dotnet framework: execute command 2');
+  expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot('dotnet framework: execute command 3');
 
   // C Family - Linux
   await user.click(ui.cFamilyBuildButton.get());
   await user.click(ui.linuxButton.get());
-  expect(getCopyToClipboardValue()).toMatchSnapshot('cfamily linux: execute build wrapper');
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('cfamily linux: execute scanner');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    'cfamily linux: execute build wrapper'
+  );
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('cfamily linux: execute scanner');
 
   // C Family - Windows
   await user.click(ui.windowsButton.get());
-  expect(getCopyToClipboardValue()).toMatchSnapshot('cfamily windows: execute build wrapper');
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('cfamily windows: execute scanner');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    'cfamily windows: execute build wrapper'
+  );
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('cfamily windows: execute scanner');
 
   // C Family - MacOS
   await user.click(ui.macosButton.get());
-  expect(getCopyToClipboardValue()).toMatchSnapshot('cfamily macos: execute build wrapper');
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('cfamily macos: execute scanner');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    'cfamily macos: execute build wrapper'
+  );
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('cfamily macos: execute scanner');
 
   // Other - Linux
   await user.click(ui.otherBuildButton.get());
   await user.click(ui.linuxButton.get());
-  expect(getCopyToClipboardValue()).toMatchSnapshot('other linux: execute scanner');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('other linux: execute scanner');
 
   // Other - Windows
   await user.click(ui.windowsButton.get());
-  expect(getCopyToClipboardValue()).toMatchSnapshot('other windows: execute scanner');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('other windows: execute scanner');
 
   // Other - MacOS
   await user.click(ui.macosButton.get());
-  expect(getCopyToClipboardValue()).toMatchSnapshot('other macos: execute scanner');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('other macos: execute scanner');
 });
 
 function renderOtherTutorial({

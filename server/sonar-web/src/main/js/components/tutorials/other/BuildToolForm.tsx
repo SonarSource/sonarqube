@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ToggleButton } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import ButtonToggle from '../../controls/ButtonToggle';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../components/RenderOptions';
@@ -70,10 +70,10 @@ export class BuildToolForm extends React.PureComponent<Props, State> {
     return (
       <>
         <div>
-          <h4 className="spacer-bottom">{translate('onboarding.build')}</h4>
-          <ButtonToggle
+          <label className="sw-block sw-mb-1">{translate('onboarding.build')}</label>
+          <ToggleButton
             label={translate('onboarding.build')}
-            onCheck={this.handleBuildToolChange}
+            onChange={this.handleBuildToolChange}
             options={buildTools.map((tool) => ({
               label: translate('onboarding.build', tool),
               value: tool,
@@ -95,7 +95,7 @@ export class BuildToolForm extends React.PureComponent<Props, State> {
 
         {config.buildTool === BuildTools.CFamily && config.os && (
           <GithubCFamilyExampleRepositories
-            className="big-spacer-top abs-width-600"
+            className="sw-mt-4"
             os={config.os}
             ci={TutorialModes.Local}
           />

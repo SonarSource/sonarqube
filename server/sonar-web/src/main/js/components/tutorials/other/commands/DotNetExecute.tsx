@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CodeSnippet, Link, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
-import CodeSnippet from '../../../common/CodeSnippet';
-import DocLink from '../../../common/DocLink';
 import InstanceMessage from '../../../common/InstanceMessage';
 import DoneNextSteps from '../DoneNextSteps';
 
@@ -32,27 +32,36 @@ export interface DotNetExecuteProps {
 }
 
 export default function DotNetExecute({ commands, component }: DotNetExecuteProps) {
+  const docUrl = useDocUrl();
+
   return (
     <>
-      <h4 className="huge-spacer-top spacer-bottom">
+      <SubHeading className="sw-mt-8 sw-mb-2">
         {translate('onboarding.analysis.sq_scanner.execute')}
-      </h4>
+      </SubHeading>
 
       <InstanceMessage message={translate('onboarding.analysis.msbuild.execute.text')}>
-        {(transformedMessage) => <p className="spacer-bottom markdown">{transformedMessage}</p>}
+        {(transformedMessage) => <p className="sw-mb-2">{transformedMessage}</p>}
       </InstanceMessage>
-      {commands.map((command, index) => (
-        <CodeSnippet key={index} snippet={command} />
+      {commands.map((command) => (
+        <CodeSnippet
+          className="sw-px-4"
+          key={command}
+          language="bash"
+          isOneLine
+          wrap
+          snippet={command}
+        />
       ))}
-      <p className="big-spacer-top markdown">
+      <p className="sw-mt-4">
         <FormattedMessage
           defaultMessage={translate('onboarding.analysis.docs')}
           id="onboarding.analysis.docs"
           values={{
             link: (
-              <DocLink to="/analyzing-source-code/scanners/sonarscanner-for-dotnet/">
+              <Link to={docUrl('/analyzing-source-code/scanners/sonarscanner-for-dotnet/')}>
                 {translate('onboarding.analysis.msbuild.docs_link')}
-              </DocLink>
+              </Link>
             ),
           }}
         />

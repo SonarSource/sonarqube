@@ -33,7 +33,7 @@ it('should show full size when multiline with no editting', () => {
 it('should show reduced size when single line with no editting', () => {
   const { container } = setupWithProps({ isOneLine: true, snippet: 'foobar' });
   const copyButton = screen.getByRole('button', { name: 'Copy' });
-  expect(copyButton).toHaveStyle('top: 1.5rem');
+  expect(copyButton).toHaveStyle('top: 1rem');
   expect(container).toMatchSnapshot();
 });
 

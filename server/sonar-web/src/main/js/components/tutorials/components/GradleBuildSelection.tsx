@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ToggleButton } from 'design-system';
 import React from 'react';
-import ButtonToggle from '../../controls/ButtonToggle';
 import { GradleBuildDSL } from '../types';
 
 interface Props {
@@ -37,10 +37,10 @@ export default function GradleBuildSelection({ children, className }: Props) {
   return (
     <>
       <div className={className}>
-        <ButtonToggle
+        <ToggleButton
           options={buildOptions}
           value={build}
-          onCheck={(value: GradleBuildDSL) => setBuild(value)}
+          onChange={(value: GradleBuildDSL) => setBuild(value)}
         />
       </div>
       {children(build)}

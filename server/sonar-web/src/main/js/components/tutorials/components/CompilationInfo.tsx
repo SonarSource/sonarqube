@@ -17,45 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Alert } from '../../../components/ui/Alert';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
-import DocLink from '../../common/DocLink';
 
 export interface CompilationInfoProps {
   className?: string;
 }
 
-export function CompilationInfo({ className = 'spacer-top spacer-bottom' }: CompilationInfoProps) {
+export function CompilationInfo({ className = 'sw-my-2' }: CompilationInfoProps) {
+  const docUrl = useDocUrl();
+
   return (
-    <Alert className={className} variant="info">
-      <p className="spacer-bottom">
-        <FormattedMessage
-          id="onboarding.tutorial.cfamilly.compilation_database_info"
-          defaultMessage={translate('onboarding.tutorial.cfamilly.compilation_database_info')}
-          values={{
-            link: (
-              <DocLink to="/analyzing-source-code/languages/c-family/">
-                {translate('onboarding.tutorial.cfamilly.compilation_database_info.link')}
-              </DocLink>
-            ),
-          }}
-        />
-      </p>
-      <p>
-        <FormattedMessage
-          id="onboarding.tutorial.cfamilly.speed_caching"
-          defaultMessage={translate('onboarding.tutorial.cfamilly.speed_caching')}
-          values={{
-            link: (
-              <DocLink to="/analyzing-source-code/languages/c-family/#analysis-cache">
-                {translate('onboarding.tutorial.cfamilly.speed_caching.link')}
-              </DocLink>
-            ),
-          }}
-        />
-      </p>
-    </Alert>
+    <FlagMessage className={className} variant="info">
+      <div>
+        <p className="sw-mb-2">
+          <FormattedMessage
+            id="onboarding.tutorial.cfamilly.compilation_database_info"
+            defaultMessage={translate('onboarding.tutorial.cfamilly.compilation_database_info')}
+            values={{
+              link: (
+                <Link to={docUrl('/analyzing-source-code/languages/c-family/')}>
+                  {translate('onboarding.tutorial.cfamilly.compilation_database_info.link')}
+                </Link>
+              ),
+            }}
+          />
+        </p>
+        <p>
+          <FormattedMessage
+            id="onboarding.tutorial.cfamilly.speed_caching"
+            defaultMessage={translate('onboarding.tutorial.cfamilly.speed_caching')}
+            values={{
+              link: (
+                <Link to={docUrl('/analyzing-source-code/languages/c-family/#analysis-cache')}>
+                  {translate('onboarding.tutorial.cfamilly.speed_caching.link')}
+                </Link>
+              ),
+            }}
+          />
+        </p>
+      </div>
+    </FlagMessage>
   );
 }

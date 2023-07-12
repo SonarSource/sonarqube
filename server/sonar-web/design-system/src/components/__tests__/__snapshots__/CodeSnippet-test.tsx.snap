@@ -168,7 +168,7 @@ exports[`should show full size when multiline with no editting 1`] = `
 
 <div>
   <div
-    class="fs-mask emotion-0 emotion-1"
+    class="sw-code fs-mask emotion-0 emotion-1"
   >
     <button
       aria-describedby="tooltip-1"
@@ -270,8 +270,8 @@ exports[`should show reduced size when single line with no editting 1`] = `
   right: 1.5rem;
   top: 1.5rem;
   position: absolute;
-  bottom: 1.5rem;
-  top: 1.5rem;
+  bottom: 1rem;
+  top: 1rem;
 }
 
 .emotion-4:hover,
@@ -379,7 +379,7 @@ exports[`should show reduced size when single line with no editting 1`] = `
 
 <div>
   <div
-    class="code-snippet-highlighted-oneline fs-mask emotion-0 emotion-1"
+    class="sw-code sw-py-6 code-snippet-highlighted-oneline fs-mask emotion-0 emotion-1"
   >
     <button
       aria-describedby="tooltip-2"

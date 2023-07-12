@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LightLabel, PageContentFontWrapper, Title } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
-import InstanceMessage from '../../common/InstanceMessage';
 import ProjectAnalysisStep from './ProjectAnalysisStep';
 import TokenStep from './TokenStep';
 
@@ -58,12 +58,10 @@ export default class OtherTutorial extends React.PureComponent<Props, State> {
     const { step, token } = this.state;
 
     return (
-      <>
-        <div className="page-header big-spacer-bottom">
-          <h2 className="page-title">{translate('onboarding.project_analysis.header')}</h2>
-          <p className="page-description">
-            <InstanceMessage message={translate('onboarding.project_analysis.description')} />
-          </p>
+      <PageContentFontWrapper className="sw-body-sm">
+        <div className="sw-mb-4">
+          <Title>{translate('onboarding.project_analysis.header')} </Title>
+          <LightLabel>{translate('onboarding.project_analysis.description')}</LightLabel>
         </div>
 
         <TokenStep
@@ -85,7 +83,7 @@ export default class OtherTutorial extends React.PureComponent<Props, State> {
           token={token}
           stepNumber={2}
         />
-      </>
+      </PageContentFontWrapper>
     );
   }
 }

@@ -17,12 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ClipboardIconButton,
+  CodeSnippet,
+  Link,
+  NumberedList,
+  NumberedListItem,
+  SubHeading,
+} from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import CodeSnippet from '../../../common/CodeSnippet';
-import DocLink from '../../../common/DocLink';
-import { ClipboardButton } from '../../../controls/clipboard';
+import { InlineSnippet } from '../../components/InlineSnippet';
 import { OSs } from '../../types';
 
 export interface DownloadScannerProps {
@@ -34,43 +41,57 @@ export interface DownloadScannerProps {
 export default function DownloadScanner(props: DownloadScannerProps) {
   const { os, isLocal, token } = props;
 
+  const docUrl = useDocUrl();
+
   return (
-    <div>
-      <h4 className="spacer-bottom">{translate('onboarding.analysis.sq_scanner.header', os)}</h4>
+    <div className="sw-mb-4">
+      <SubHeading className="sw-mb-2">
+        {translate('onboarding.analysis.sq_scanner.header', os)}
+      </SubHeading>
       {isLocal ? (
-        <p className="spacer-bottom markdown">
+        <p className="sw-mb-2">
           <FormattedMessage
             defaultMessage={translate('onboarding.analysis.sq_scanner.text')}
             id="onboarding.analysis.sq_scanner.text"
             values={{
-              dir: <code>bin</code>,
-              env_var: <code>{os === OSs.Windows ? '%PATH%' : 'PATH'}</code>,
+              dir: <InlineSnippet snippet="bin" />,
+              env_var: <InlineSnippet snippet={os === OSs.Windows ? '%PATH%' : 'PATH'} />,
               link: (
-                <DocLink to="/analyzing-source-code/scanners/sonarscanner/">
+                <Link to={docUrl('/analyzing-source-code/scanners/sonarscanner/')}>
                   {translate('onboarding.analysis.sq_scanner.docs_link')}
-                </DocLink>
+                </Link>
               ),
             }}
           />
         </p>
       ) : (
         <>
-          <CodeSnippet snippet={getRemoteDownloadSnippet(os)} />
-          <h4 className="spacer-bottom big-spacer-top">
+          <CodeSnippet
+            className="sw-p-4"
+            wrap
+            language={os === OSs.Windows ? 'powershell' : 'bash'}
+            snippet={getRemoteDownloadSnippet(os)}
+            render={`<code>${getRemoteDownloadSnippet(os)}</code>`}
+          />
+          <SubHeading className="sw-mb-2 sw-mt-4">
             {translate('onboarding.analysis.sq_scanner.sonar_token_env.header')}
-          </h4>
-          <ul className="list-styled">
-            <li className="markdown">
-              {translate('onboarding.analysis.sq_scanner.sonar_token_env.var_name')}:{' '}
-              <code>SONAR_TOKEN</code>
-              <ClipboardButton className="spacer-left" copyValue="SONAR_TOKEN" />
-            </li>
-            <li className="markdown">
-              {translate('onboarding.analysis.sq_scanner.sonar_token_env.var_value')}:{' '}
-              <code>{token}</code>
-              <ClipboardButton className="spacer-left" copyValue={token} />
-            </li>
-          </ul>
+          </SubHeading>
+          <NumberedList>
+            <NumberedListItem className="sw-flex sw-items-center">
+              <span className="sw-mr-1">
+                {translate('onboarding.analysis.sq_scanner.sonar_token_env.var_name')}:
+              </span>
+              <InlineSnippet snippet="SONAR_TOKEN" />
+              <ClipboardIconButton className="sw-ml-2" copyValue="SONAR_TOKEN" />
+            </NumberedListItem>
+            <NumberedListItem className="sw-flex sw-items-center">
+              <span className="sw-mr-1">
+                {translate('onboarding.analysis.sq_scanner.sonar_token_env.var_value')}:
+              </span>
+              <InlineSnippet snippet={token} />
+              <ClipboardIconButton className="sw-ml-2" copyValue={token} />
+            </NumberedListItem>
+          </NumberedList>
         </>
       )}
     </div>

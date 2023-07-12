@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BasicSeparator, FlagVisual, Link } from 'design-system';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
-import DocLink from '../../common/DocLink';
 
 export interface DoneNextStepsProps {
   component: Component;
@@ -30,43 +30,49 @@ export interface DoneNextStepsProps {
 export default function DoneNextSteps({ component }: DoneNextStepsProps) {
   const isProjectAdmin = component.configuration?.showSettings;
 
+  const docUrl = useDocUrl();
+
   return (
     <>
-      <hr className="big-spacer-top big-spacer-bottom" />
+      <BasicSeparator className="sw-my-8" />
+
+      <div className="sw-flex sw-justify-center sw-mb-12">
+        <FlagVisual />
+      </div>
 
       <p>
-        <strong>{translate('onboarding.analysis.auto_refresh_after_analysis.done')}</strong>{' '}
+        <strong className="sw-font-semibold sw-mr-1">
+          {translate('onboarding.analysis.auto_refresh_after_analysis.done')}
+        </strong>
         {translate('onboarding.analysis.auto_refresh_after_analysis.auto_refresh')}
       </p>
-      <p className="big-spacer-top">
+      <p className="sw-mt-4">
         {isProjectAdmin
           ? translate('onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci.admin')
           : translate('onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci')}
       </p>
-      <p className="big-spacer-top">
-        <FormattedMessage
-          defaultMessage={translate(
-            'onboarding.analysis.auto_refresh_after_analysis.check_these_links'
-          )}
-          id="onboarding.analysis.auto_refresh_after_analysis.check_these_links"
-          values={{
-            link_branches: (
-              <DocLink to="/analyzing-source-code/branches/branch-analysis/">
-                {translate(
-                  'onboarding.analysis.auto_refresh_after_analysis.check_these_links.branches'
-                )}
-              </DocLink>
-            ),
-            link_pr_analysis: (
-              <DocLink to="/analyzing-source-code/pull-request-analysis">
-                {translate(
-                  'onboarding.analysis.auto_refresh_after_analysis.check_these_links.pr_analysis'
-                )}
-              </DocLink>
-            ),
-          }}
-        />
-      </p>
+      <div className="sw-mt-4">
+        <span>
+          {translate('onboarding.analysis.auto_refresh_after_analysis.check_these_links')}
+        </span>
+        <ul className="sw-flex sw-flex-col sw-gap-2 sw-mt-2">
+          <li>
+            <Link to={docUrl('/analyzing-source-code/branches/branch-analysis/')}>
+              {translate(
+                'onboarding.analysis.auto_refresh_after_analysis.check_these_links.branches'
+              )}
+            </Link>
+          </li>
+
+          <li>
+            <Link to={docUrl('/analyzing-source-code/pull-request-analysis')}>
+              {translate(
+                'onboarding.analysis.auto_refresh_after_analysis.check_these_links.pr_analysis'
+              )}
+            </Link>
+          </li>
+        </ul>
+      </div>
     </>
   );
 }

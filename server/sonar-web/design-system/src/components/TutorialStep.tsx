@@ -23,14 +23,15 @@ import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 
 interface Props {
   children: React.ReactNode;
+  stepNumber?: number;
   title: React.ReactNode;
 }
 
-export function TutorialStep(props: Props) {
+export function TutorialStep({ children, title, stepNumber }: Props) {
   return (
-    <Step>
-      <Title>{props.title}</Title>
-      <StepDetails>{props.children}</StepDetails>
+    <Step stepNumber={stepNumber}>
+      <Title>{title}</Title>
+      <StepDetails>{children}</StepDetails>
     </Step>
   );
 }
@@ -61,9 +62,9 @@ const Title = styled.h2`
   color: ${themeColor('pageTitle')};
 `;
 
-const Step = styled.li`
+const Step = styled.li<{ stepNumber?: number }>`
   list-style: none;
-  counter-increment: li;
+  counter-increment: li ${(props) => props.stepNumber};
 
   ${tw`sw-mt-10`}
 

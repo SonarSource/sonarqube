@@ -29,8 +29,14 @@ export function getUrlForDoc(url: string, version: string, to: string) {
     : `${url}/${path}`;
 }
 
-export function useDocUrl(to: string) {
+export function useDocUrl(to: string): string;
+export function useDocUrl(): (to: string) => string;
+export function useDocUrl(to?: string) {
   const { version, documentationUrl } = React.useContext(AppStateContext);
 
-  return getUrlForDoc(documentationUrl, version, to);
+  if (to) {
+    return getUrlForDoc(documentationUrl, version, to);
+  }
+
+  return (to: string) => getUrlForDoc(documentationUrl, version, to);
 }

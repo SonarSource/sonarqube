@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CodeSnippet, DownloadButton, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
-import CodeSnippet from '../../../common/CodeSnippet';
+import { InlineSnippet } from '../../components/InlineSnippet';
 import { OSs } from '../../types';
 
 export interface DownloadBuildWrapperProps {
@@ -39,33 +40,38 @@ const FILENAMES: { [x in OSs]: string } = {
 export default function DownloadBuildWrapper(props: DownloadBuildWrapperProps) {
   const { os, isLocal, baseUrl } = props;
   return (
-    <div className="spacer-bottom">
-      <h4 className="spacer-bottom">{translate('onboarding.analysis.build_wrapper.header', os)}</h4>
+    <div className="sw-mb-4">
+      <SubHeading className="sw-mb-2">
+        {translate('onboarding.analysis.build_wrapper.header', os)}
+      </SubHeading>
       {isLocal ? (
         <>
-          <p className="spacer-bottom markdown">
+          <p className="sw-mb-2">
             <FormattedMessage
               defaultMessage={translate('onboarding.analysis.build_wrapper.text')}
               id="onboarding.analysis.build_wrapper.text"
               values={{
-                env_var: <code>{os === 'win' ? '%PATH%' : 'PATH'}</code>,
+                env_var: <InlineSnippet snippet={os === 'win' ? '%PATH%' : 'PATH'} />,
               }}
             />
           </p>
-          <p>
-            <a
-              className="button"
+          <p className="sw-mb-2">
+            <DownloadButton
               download={`${FILENAMES[os]}.zip`}
               href={`${getBaseUrl()}/static/cpp/${FILENAMES[os]}.zip`}
               rel="noopener noreferrer"
               target="_blank"
             >
               {translate('download_verb')}
-            </a>
+            </DownloadButton>
           </p>
         </>
       ) : (
-        <CodeSnippet snippet={getRemoteDownloadSnippet(os, baseUrl)} />
+        <CodeSnippet
+          className="sw-p-4"
+          language={os === OSs.Windows ? 'powershell' : 'bash'}
+          snippet={getRemoteDownloadSnippet(os, baseUrl)}
+        />
       )}
     </div>
   );

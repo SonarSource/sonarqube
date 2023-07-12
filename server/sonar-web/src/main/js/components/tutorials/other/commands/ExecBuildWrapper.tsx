@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CodeSnippet, Link, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
-import CodeSnippet from '../../../common/CodeSnippet';
-import DocLink from '../../../common/DocLink';
 import { OSs } from '../../types';
 
 export interface ExecBuildWrapperProps {
@@ -37,28 +37,30 @@ const executables: { [x in OSs]: string } = {
 export default function ExecBuildWrapper(props: ExecBuildWrapperProps) {
   const { os } = props;
 
+  const docUrl = useDocUrl();
+
   return (
     <>
-      <h4 className="huge-spacer-top spacer-bottom">
+      <SubHeading className="sw-mt-8 sw-mb-2">
         {translate('onboarding.analysis.build_wrapper.execute')}
-      </h4>
-      <p className="spacer-bottom markdown">
-        {translate('onboarding.analysis.build_wrapper.execute_text')}
-      </p>
+      </SubHeading>
+      <p className="sw-mb-2">{translate('onboarding.analysis.build_wrapper.execute_text')}</p>
       <CodeSnippet
+        className="sw-px-4"
+        isOneLine
         snippet={`${executables[os]} --out-dir bw-output ${translate(
           'onboarding.analysis.build_wrapper.execute_build_command'
         )}`}
       />
-      <p className="big-spacer-top markdown">
+      <p className="sw-mt-4">
         <FormattedMessage
           defaultMessage={translate('onboarding.analysis.build_wrapper.docs')}
           id="onboarding.analysis.build_wrapper.docs"
           values={{
             link: (
-              <DocLink to="/analyzing-source-code/languages/c-family/">
+              <Link to={docUrl('/analyzing-source-code/languages/c-family/')}>
                 {translate('onboarding.analysis.build_wrapper.docs_link')}
-              </DocLink>
+              </Link>
             ),
           }}
         />

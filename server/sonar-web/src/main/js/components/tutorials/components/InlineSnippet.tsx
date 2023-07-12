@@ -17,40 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ToggleButton } from 'design-system';
+import { CodeSnippet } from 'design-system';
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { FCProps } from '../../../types/misc';
 
-export interface RenderOptionsProps {
-  checked: string | undefined;
-  label?: string;
-  onCheck: (checked: string) => void;
-  optionLabelKey: string;
-  options: string[];
-  titleLabelKey?: string;
-}
-
-export default function RenderOptions({
-  checked,
-  label,
-  onCheck,
-  optionLabelKey,
-  options,
-  titleLabelKey,
-}: RenderOptionsProps) {
+export function InlineSnippet({ snippet }: Pick<FCProps<typeof CodeSnippet>, 'snippet'>) {
   return (
-    <div className="sw-mt-4">
-      {titleLabelKey && <label className="sw-block sw-mb-1">{translate(titleLabelKey)}</label>}
-
-      <ToggleButton
-        label={label}
-        onChange={onCheck}
-        options={options.map((build) => ({
-          label: translate(optionLabelKey, build),
-          value: build,
-        }))}
-        value={checked}
-      />
-    </div>
+    <CodeSnippet className="sw-code sw-inline-block sw-px-1" noCopy isOneLine snippet={snippet} />
   );
 }

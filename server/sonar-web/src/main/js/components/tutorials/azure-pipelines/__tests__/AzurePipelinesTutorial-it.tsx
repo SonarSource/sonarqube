@@ -27,7 +27,7 @@ import { mockLanguage, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { RenderContext, renderApp } from '../../../../helpers/testReactTestingUtils';
 import { Permissions } from '../../../../types/permissions';
 import { TokenType } from '../../../../types/token';
-import { getCopyToClipboardValue } from '../../test-utils';
+import { getCopyToClipboardValue, getTutorialBuildButtons } from '../../test-utils';
 import { OSs } from '../../types';
 import AzurePipelinesTutorial, { AzurePipelinesTutorialProps } from '../AzurePipelinesTutorial';
 
@@ -82,32 +82,32 @@ it('should render correctly and allow navigating between the different steps', a
   await goToNextStep(user);
 
   //// Analysis step: .NET
-  await clickButton(user, 'onboarding.build.dotnet');
+  await user.click(getTutorialBuildButtons().dotnetBuildButton.get());
   assertDotNetStepIsCorrectlyRendered();
 
   //// Analysis step: Maven
-  await clickButton(user, 'onboarding.build.maven');
+  await user.click(getTutorialBuildButtons().mavenBuildButton.get());
   assertMavenStepIsCorrectlyRendered();
 
   //// Analysis step: Gradle
-  await clickButton(user, 'onboarding.build.gradle');
+  await user.click(getTutorialBuildButtons().gradleBuildButton.get());
   assertGradleStepIsCorrectlyRendered();
 
   //// Analysis step: C Family
-  await clickButton(user, 'onboarding.build.cfamily');
+  await user.click(getTutorialBuildButtons().cFamilyBuildButton.get());
 
   // OS's
-  await clickButton(user, `onboarding.build.other.os.${OSs.Linux}`);
+  await user.click(getTutorialBuildButtons().linuxButton.get());
   assertCFamilyStepIsCorrectlyRendered(OSs.Linux);
 
-  await clickButton(user, `onboarding.build.other.os.${OSs.Windows}`);
+  await user.click(getTutorialBuildButtons().windowsButton.get());
   assertCFamilyStepIsCorrectlyRendered(OSs.Windows);
 
-  await clickButton(user, `onboarding.build.other.os.${OSs.MacOS}`);
+  await user.click(getTutorialBuildButtons().macosButton.get());
   assertCFamilyStepIsCorrectlyRendered(OSs.MacOS);
 
   //// Analysis step: Other
-  await clickButton(user, 'onboarding.build.other');
+  await user.click(getTutorialBuildButtons().otherBuildButton.get());
   assertOtherStepIsCorrectlyRendered();
 
   //// Finish tutorial
@@ -122,7 +122,7 @@ it('allows to navigate back to a previous step', async () => {
   // No clickable steps.
   expect(
     screen.queryByRole('button', {
-      name: '1 onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title',
+      name: 'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title',
     })
   ).not.toBeInTheDocument();
 
@@ -133,22 +133,22 @@ it('allows to navigate back to a previous step', async () => {
   // The first 2 steps become clickable.
   expect(
     screen.getByRole('button', {
-      name: '1 onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title',
+      name: 'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title',
     })
   ).toBeInTheDocument();
   expect(
     screen.getByRole('button', {
-      name: '2 onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.title',
+      name: 'onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.title',
     })
   ).toBeInTheDocument();
 
   // Navigate back to the first step.
-  await clickButton(user, '1 onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title');
+  await clickButton(user, 'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title');
 
   // No more clickable steps.
   expect(
     screen.queryByRole('button', {
-      name: '1 onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title',
+      name: 'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title',
     })
   ).not.toBeInTheDocument();
 });
@@ -161,10 +161,8 @@ it('should not offer CFamily analysis if the language is not available', async (
   await goToNextStep(user);
   await goToNextStep(user);
 
-  expect(screen.getByRole('button', { name: 'onboarding.build.dotnet' })).toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', { name: 'onboarding.build.cfamily' })
-  ).not.toBeInTheDocument();
+  expect(getTutorialBuildButtons().dotnetBuildButton.get()).toBeInTheDocument();
+  expect(getTutorialBuildButtons().cFamilyBuildButton.query()).not.toBeInTheDocument();
 });
 
 function assertDefaultStepIsCorrectlyRendered() {

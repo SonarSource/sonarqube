@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CodeSnippet, Link, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
-import CodeSnippet from '../../../common/CodeSnippet';
-import DocLink from '../../../common/DocLink';
 import InstanceMessage from '../../../common/InstanceMessage';
 import { OSs } from '../../types';
 import { quote } from '../../utils';
@@ -40,6 +40,8 @@ export interface ExecScannerProps {
 export default function ExecScanner(props: ExecScannerProps) {
   const { baseUrl, os, isLocal, component, token, cfamily } = props;
 
+  const docUrl = useDocUrl();
+
   const q = quote(os);
   const command = [
     os === OSs.Windows ? 'sonar-scanner.bat' : 'sonar-scanner',
@@ -52,22 +54,22 @@ export default function ExecScanner(props: ExecScannerProps) {
 
   return (
     <div>
-      <h4 className="big-spacer-top spacer-bottom">
+      <SubHeading className="sw-mt-4 sw-mb-2">
         {translate('onboarding.analysis.sq_scanner.execute')}
-      </h4>
+      </SubHeading>
       <InstanceMessage message={translate('onboarding.analysis.sq_scanner.execute.text')}>
-        {(transformedMessage) => <p className="spacer-bottom markdown">{transformedMessage}</p>}
+        {(transformedMessage) => <p className="sw-mb-2">{transformedMessage}</p>}
       </InstanceMessage>
-      <CodeSnippet isOneLine={os === OSs.Windows} snippet={command} />
-      <p className="big-spacer-top markdown">
+      <CodeSnippet className="sw-p-4" isOneLine={os === OSs.Windows} snippet={command} />
+      <p className="sw-mt-4">
         <FormattedMessage
           defaultMessage={translate('onboarding.analysis.sq_scanner.docs')}
           id="onboarding.analysis.sq_scanner.docs"
           values={{
             link: (
-              <DocLink to="/analyzing-source-code/scanners/sonarscanner/">
+              <Link to={docUrl('/analyzing-source-code/scanners/sonarscanner/')}>
                 {translate('onboarding.analysis.sq_scanner.docs_link')}
-              </DocLink>
+              </Link>
             ),
           }}
         />

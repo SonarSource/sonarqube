@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CodeSnippet, Link, SubHeading } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
-import CodeSnippet from '../../../common/CodeSnippet';
-import DocLink from '../../../common/DocLink';
 import InstanceMessage from '../../../common/InstanceMessage';
 import DoneNextSteps from '../DoneNextSteps';
 
@@ -42,22 +42,26 @@ export default function JavaMaven(props: JavaMavenProps) {
     `-Dsonar.token=${token}`,
   ];
 
+  const docUrl = useDocUrl();
+
   return (
     <div>
-      <h4 className="spacer-bottom">{translate('onboarding.analysis.java.maven.header')}</h4>
-      <p className="spacer-bottom markdown">
+      <SubHeading className="sw-mb-2">
+        {translate('onboarding.analysis.java.maven.header')}
+      </SubHeading>
+      <p className="sw-mb-2">
         <InstanceMessage message={translate('onboarding.analysis.java.maven.text')} />
       </p>
-      <CodeSnippet snippet={command} />
-      <p className="big-spacer-top markdown">
+      <CodeSnippet className="sw-p-4" snippet={command} />
+      <p className="sw-mt-4">
         <FormattedMessage
           defaultMessage={translate('onboarding.analysis.docs')}
           id="onboarding.analysis.docs"
           values={{
             link: (
-              <DocLink to="/analyzing-source-code/scanners/sonarscanner-for-maven/">
+              <Link to={docUrl('/analyzing-source-code/scanners/sonarscanner-for-maven/')}>
                 {translate('onboarding.analysis.java.maven.docs_link')}
-              </DocLink>
+              </Link>
             ),
           }}
         />

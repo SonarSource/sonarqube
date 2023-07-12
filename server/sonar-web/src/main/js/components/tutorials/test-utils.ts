@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
-import { byRole, byText } from '../../helpers/testSelector';
+import { byLabelText, byRole, byText } from '../../helpers/testSelector';
 import { BuildTools, GradleBuildDSL, OSs, TutorialModes } from './types';
 
 const CI_TRANSLATE_MAP: Partial<Record<TutorialModes, string>> = {
@@ -67,30 +67,30 @@ export function getTutorialActionButtons() {
 
 export function getTutorialBuildButtons() {
   return {
-    describeBuildTitle: byRole('heading', { name: 'onboarding.build' }),
-    mavenBuildButton: byRole('button', { name: `onboarding.build.${BuildTools.Maven}` }),
-    gradleBuildButton: byRole('button', { name: `onboarding.build.${BuildTools.Gradle}` }),
-    gradleDSLButton: (name: GradleBuildDSL) => byRole('button', { name }),
-    dotnetBuildButton: byRole('button', { name: `onboarding.build.${BuildTools.DotNet}` }),
-    cFamilyBuildButton: byRole('button', { name: `onboarding.build.${BuildTools.CFamily}` }),
-    otherBuildButton: byRole('button', { name: `onboarding.build.${BuildTools.Other}` }),
-    windowsDotnetCoreButton: byRole('button', {
+    describeBuildTitle: byLabelText('onboarding.build'),
+    mavenBuildButton: byRole('radio', { name: `onboarding.build.${BuildTools.Maven}` }),
+    gradleBuildButton: byRole('radio', { name: `onboarding.build.${BuildTools.Gradle}` }),
+    gradleDSLButton: (name: GradleBuildDSL) => byRole('radio', { name }),
+    dotnetBuildButton: byRole('radio', { name: `onboarding.build.${BuildTools.DotNet}` }),
+    cFamilyBuildButton: byRole('radio', { name: `onboarding.build.${BuildTools.CFamily}` }),
+    otherBuildButton: byRole('radio', { name: `onboarding.build.${BuildTools.Other}` }),
+    windowsDotnetCoreButton: byRole('radio', {
       name: `onboarding.build.${BuildTools.DotNet}.win_core`,
     }),
-    windowsDotnetFrameworkButton: byRole('button', {
+    windowsDotnetFrameworkButton: byRole('radio', {
       name: `onboarding.build.${BuildTools.DotNet}.win_msbuild`,
     }),
-    linuxDotnetCoreButton: byRole('button', {
+    linuxDotnetCoreButton: byRole('radio', {
       name: `onboarding.build.${BuildTools.DotNet}.linux_core`,
     }),
-    dotnetCoreButton: byRole('button', {
+    dotnetCoreButton: byRole('radio', {
       name: `onboarding.build.${BuildTools.DotNet}.variant.dotnet_core`,
     }),
-    dotnetFrameworkButton: byRole('button', {
+    dotnetFrameworkButton: byRole('radio', {
       name: `onboarding.build.${BuildTools.DotNet}.variant.dotnet_framework`,
     }),
-    linuxButton: byRole('button', { name: `onboarding.build.other.os.${OSs.Linux}` }),
-    windowsButton: byRole('button', { name: `onboarding.build.other.os.${OSs.Windows}` }),
-    macosButton: byRole('button', { name: `onboarding.build.other.os.${OSs.MacOS}` }),
+    linuxButton: byRole('radio', { name: `onboarding.build.other.os.${OSs.Linux}` }),
+    windowsButton: byRole('radio', { name: `onboarding.build.other.os.${OSs.Windows}` }),
+    macosButton: byRole('radio', { name: `onboarding.build.other.os.${OSs.MacOS}` }),
   };
 }

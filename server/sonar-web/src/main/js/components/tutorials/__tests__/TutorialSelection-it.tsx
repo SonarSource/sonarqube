@@ -187,7 +187,7 @@ async function startLocalTutorial(user: UserEvent) {
   await user.click(ui.chooseTutorialLink(TutorialModes.Local).get());
   await user.click(screen.getByRole('button', { name: 'onboarding.token.generate' }));
   await user.click(screen.getByRole('button', { name: 'continue' }));
-  await user.click(screen.getByRole('button', { name: 'onboarding.build.maven' }));
+  await user.click(screen.getByRole('radio', { name: 'onboarding.build.maven' }));
 }
 
 async function startJenkinsTutorial(user: UserEvent) {

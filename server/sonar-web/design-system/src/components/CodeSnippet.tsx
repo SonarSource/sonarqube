@@ -57,8 +57,11 @@ export function CodeSnippet(props: Props) {
 
   return (
     <Wrapper
+      as={isSimpleOneLine ? 'span' : undefined}
       className={classNames(
+        'sw-code',
         {
+          'sw-py-6': isOneLine && !noCopy,
           'code-snippet-highlighted-oneline': isOneLine,
           'code-snippet-simple-oneline': isSimpleOneLine,
         },
@@ -103,5 +106,5 @@ const StyledClipboardButton = styled(ClipboardButton)`
 `;
 
 const StyledSingleLineClipboardButton = styled(StyledClipboardButton)`
-  ${tw`sw-top-6 sw-bottom-6`}
+  ${tw`sw-top-4 sw-bottom-4`}
 `;
