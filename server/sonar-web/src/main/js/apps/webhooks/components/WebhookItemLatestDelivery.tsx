@@ -23,7 +23,7 @@ import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import BulletListIcon from '../../../components/icons/BulletListIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { WebhookResponse } from '../../../types/webhook';
 import LatestDeliveryForm from './LatestDeliveryForm';
 
@@ -73,7 +73,11 @@ export default class WebhookItemLatestDelivery extends React.PureComponent<Props
         )}
         <span className="spacer-left display-inline-flex-center">
           <DateTimeFormatter date={webhook.latestDelivery.at} />
-          <ButtonIcon className="button-small little-spacer-left" onClick={this.handleClick}>
+          <ButtonIcon
+            aria-label={translateWithParameters('webhooks.last_execution.open_for_x', webhook.name)}
+            className="button-small little-spacer-left"
+            onClick={this.handleClick}
+          >
             <BulletListIcon />
           </ButtonIcon>
         </span>

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button } from '../../../components/controls/buttons';
 import Tooltip from '../../../components/controls/Tooltip';
+import { Button } from '../../../components/controls/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import CreateWebhookForm from './CreateWebhookForm';
 
@@ -33,7 +33,7 @@ interface State {
   openCreate: boolean;
 }
 
-const WEBHOOKS_LIMIT = 10;
+export const WEBHOOKS_LIMIT = 10;
 
 export default class PageActions extends React.PureComponent<Props, State> {
   mounted = false;
@@ -61,14 +61,16 @@ export default class PageActions extends React.PureComponent<Props, State> {
     if (this.props.webhooksCount >= WEBHOOKS_LIMIT) {
       return (
         <Tooltip overlay={translateWithParameters('webhooks.maximum_reached', WEBHOOKS_LIMIT)}>
-          <Button className="js-webhook-create disabled">{translate('create')}</Button>
+          <Button className="it__webhook-create" disabled>
+            {translate('create')}
+          </Button>
         </Tooltip>
       );
     }
 
     return (
       <>
-        <Button className="js-webhook-create" onClick={this.handleCreateOpen}>
+        <Button className="it__webhook-create" onClick={this.handleCreateOpen}>
           {translate('create')}
         </Button>
         {this.state.openCreate && (
