@@ -59,6 +59,8 @@ export * from './MainMenuItem';
 export * from './MetricsRatingBadge';
 export * from './NavBarTabs';
 export * from './NewCodeLegend';
+export * from './NumberedList';
+export * from './NumberedListItem';
 export * from './OutsideClickHandler';
 export { QualityGateIndicator } from './QualityGateIndicator';
 export * from './SearchHighlighter';

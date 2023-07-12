@@ -341,6 +341,7 @@ export const lightTheme = {
 
     // numbered list
     numberedList: COLORS.indigo[50],
+    numberedListText: COLORS.indigo[800],
 
     // unordered list
     listMarker: COLORS.blueGrey[300],
