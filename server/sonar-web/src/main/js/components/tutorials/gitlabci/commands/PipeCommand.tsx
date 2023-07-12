@@ -29,11 +29,11 @@ export interface PipeCommandProps {
 
 const BUILD_TOOL_SPECIFIC = {
   [BuildTools.Gradle]: {
-    image: 'gradle:jre11-slim',
+    image: 'gradle:8.2.0-jdk17-jammy',
     script: () => 'gradle sonar',
   },
   [BuildTools.Maven]: {
-    image: 'maven:3.6.3-jdk-11',
+    image: 'maven:3.9.3-eclipse-temurin-17',
     script: () => `
     - mvn verify sonar:sonar`,
   },

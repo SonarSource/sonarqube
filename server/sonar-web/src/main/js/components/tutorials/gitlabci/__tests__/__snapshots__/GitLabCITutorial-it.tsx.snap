@@ -56,7 +56,7 @@ exports[`should follow and complete all steps: Gradle: gitlab-ci.yml 1`] = `
 
 sonarqube-check:
   stage: sonarqube-check
-  image: gradle:jre11-slim
+  image: gradle:8.2.0-jdk17-jammy
   variables:
     SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
@@ -126,7 +126,7 @@ exports[`should follow and complete all steps: Maven: gitlab-ci.yml 1`] = `
 
 sonarqube-check:
   stage: sonarqube-check
-  image: maven:3.6.3-jdk-11
+  image: maven:3.9.3-eclipse-temurin-17
   variables:
     SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
