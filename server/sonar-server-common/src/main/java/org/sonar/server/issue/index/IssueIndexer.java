@@ -161,7 +161,8 @@ public class IssueIndexer implements EventIndexer, AnalysisIndexer, NeedAuthoriz
         // Measures, permissions, project key and tags are not used in type issues/issue
         emptyList();
 
-      case DELETION -> {
+      case DELETION, SWITCH_OF_MAIN_BRANCH -> {
+        //switch of main branch requires to reindex the project issues
         List<EsQueueDto> items = createBranchRecoveryItems(branchUuids);
         yield dbClient.esQueueDao().insert(dbSession, items);
       }

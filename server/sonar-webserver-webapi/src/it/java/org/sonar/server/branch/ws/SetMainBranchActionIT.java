@@ -19,6 +19,7 @@
  */
 package org.sonar.server.branch.ws;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.Rule;
@@ -33,6 +34,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.server.es.Indexers;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -44,6 +46,8 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_SET_MAIN_BRANCH;
@@ -59,7 +63,9 @@ public class SetMainBranchActionIT {
   @Rule
   public LogTester logTester = new LogTester().setLevel(Level.INFO);
   ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
-  private WsActionTester tester = new WsActionTester(new SetMainBranchAction(db.getDbClient(), userSession, projectLifeCycleListeners));
+
+  private final Indexers indexers = mock(Indexers.class);
+  private WsActionTester tester = new WsActionTester(new SetMainBranchAction(db.getDbClient(), userSession, projectLifeCycleListeners, indexers));
 
   @Test
   public void testDefinition() {
@@ -214,6 +220,7 @@ public class SetMainBranchActionIT {
       .setParam(PARAM_BRANCH, newMainBranch.getKey()).execute();
 
     checkCallToProjectLifeCycleListenersOnProjectBranchesChanges(projectData.getProjectDto());
+    verify(indexers).commitAndIndexBranches(any(), eq(List.of(projectData.getMainBranchDto(), newMainBranch)), eq(Indexers.BranchEvent.SWITCH_OF_MAIN_BRANCH));
     checkNewMainBranch(projectData.projectUuid(), newMainBranch.getUuid());
     checkPreviousMainBranch(projectData);
     assertThat(logTester.logs(Level.INFO))

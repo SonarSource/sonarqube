@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -115,14 +116,18 @@ public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, Ne
   public Collection<EsQueueDto> prepareForRecoveryOnBranchEvent(DbSession dbSession, Collection<String> branchUuids, Indexers.BranchEvent cause) {
     return switch (cause) {
       case DELETION -> Collections.emptyList();
-      case MEASURE_CHANGE -> {
-        // when MEASURE_CHANGE or PROJECT_KEY_UPDATE project must be re-indexed because key is used in this index
-        Set<String> entityUuids = dbClient.branchDao().selectByUuids(dbSession, branchUuids)
-          .stream().map(BranchDto::getProjectUuid)
-          .collect(Collectors.toSet());
-        yield prepareForRecovery(dbSession, entityUuids);
+      case MEASURE_CHANGE, SWITCH_OF_MAIN_BRANCH -> {
+        Set<String> projectUuids = retrieveProjectUuidsFromBranchUuids(dbSession, branchUuids);
+        yield prepareForRecovery(dbSession, projectUuids);
       }
     };
+  }
+
+  @NotNull
+  private Set<String> retrieveProjectUuidsFromBranchUuids(DbSession dbSession, Collection<String> branchUuids) {
+    return dbClient.branchDao().selectByUuids(dbSession, branchUuids)
+      .stream().map(BranchDto::getProjectUuid)
+      .collect(Collectors.toSet());
   }
 
   private Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> entityUuids) {

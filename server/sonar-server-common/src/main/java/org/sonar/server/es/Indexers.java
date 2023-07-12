@@ -37,7 +37,8 @@ public interface Indexers {
   enum BranchEvent {
     // Note that when a project/app is deleted, no events are sent for each branch removed as part of that process
     DELETION,
-    MEASURE_CHANGE
+    MEASURE_CHANGE,
+    SWITCH_OF_MAIN_BRANCH
   }
 
   /**

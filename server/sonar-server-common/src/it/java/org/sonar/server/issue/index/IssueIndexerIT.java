@@ -62,6 +62,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.es.Indexers.BranchEvent.DELETION;
 import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_KEY_UPDATE;
@@ -257,7 +258,7 @@ public class IssueIndexerIT {
 
     assertThatIndexHasSize(3);
 
-    IndexingResult result = indexBranch(branch1.getUuid(), DELETION);
+    IndexingResult result = indexBranches(List.of(branch1.getUuid()), DELETION);
 
     assertThat(result.getTotal()).isEqualTo(2);
     assertThat(result.getSuccess()).isEqualTo(2);
@@ -414,7 +415,7 @@ public class IssueIndexerIT {
 
     es.lockWrites(TYPE_ISSUE);
 
-    IndexingResult result = indexBranch(project.uuid(), DELETION);
+    IndexingResult result = indexBranches(List.of(project.uuid()), DELETION);
     assertThat(result.getTotal()).isEqualTo(2L);
     assertThat(result.getFailures()).isEqualTo(2L);
 
@@ -433,8 +434,8 @@ public class IssueIndexerIT {
     assertThatEsQueueTableHasSize(0);
   }
 
-  private IndexingResult indexBranch(String branchUuid, Indexers.BranchEvent cause) {
-    Collection<EsQueueDto> items = underTest.prepareForRecoveryOnBranchEvent(db.getSession(), singletonList(branchUuid), cause);
+  private IndexingResult indexBranches(List<String> branchUuids, Indexers.BranchEvent cause) {
+    Collection<EsQueueDto> items = underTest.prepareForRecoveryOnBranchEvent(db.getSession(), branchUuids, cause);
     db.commit();
     return underTest.index(db.getSession(), items);
   }
@@ -461,7 +462,7 @@ public class IssueIndexerIT {
 
   @Test
   public void deleteByKeys_shouldNotRecoverFromErrors() {
-    addIssueToIndex("P1", "B1","Issue1");
+    addIssueToIndex("P1", "B1", "Issue1");
     es.lockWrites(TYPE_ISSUE);
 
     List<String> issues = List.of("Issue1");
@@ -517,6 +518,34 @@ public class IssueIndexerIT {
     assertThat(doc.branchUuid()).isEqualTo(branch.uuid());
     assertThat(doc.isMainBranch()).isFalse();
     assertThat(doc.scope()).isEqualTo(IssueScope.MAIN);
+  }
+
+  @Test
+  public void indexIssue_whenSwitchMainBranch_shouldIndexIsMainBranch() {
+    RuleDto rule = db.rules().insert();
+    ProjectData projectData = db.components().insertPrivateProject();
+    BranchDto mainBranchDto = projectData.getMainBranchDto();
+    ComponentDto mainBranchComponent = projectData.getMainBranchComponent();
+    BranchDto newMainBranchDto = db.components().insertProjectBranch(projectData.getProjectDto(), b -> b.setKey("newMainBranch"));
+    ComponentDto newMainBranchComponent = db.components().getComponentDto(newMainBranchDto);
+    IssueDto issue1 = createIssue(rule, mainBranchComponent);
+    IssueDto issue2 = createIssue(rule, newMainBranchComponent);
+    underTest.indexAllIssues();
+    assertThat(es.getDocuments(TYPE_ISSUE, IssueDoc.class)).extracting(IssueDoc::branchUuid, IssueDoc::isMainBranch)
+      .containsExactlyInAnyOrder(tuple(issue1.getProjectUuid(), true), tuple(issue2.getProjectUuid(), false));
+
+    db.getDbClient().branchDao().updateIsMain(db.getSession(), projectData.getMainBranchDto().getUuid(), false);
+    db.getDbClient().branchDao().updateIsMain(db.getSession(), newMainBranchDto.getUuid(), true);
+    indexBranches(List.of(mainBranchDto.getUuid(), newMainBranchDto.getUuid()), Indexers.BranchEvent.SWITCH_OF_MAIN_BRANCH);
+
+    assertThat(es.getDocuments(TYPE_ISSUE, IssueDoc.class)).extracting(IssueDoc::branchUuid, IssueDoc::isMainBranch)
+      .containsExactlyInAnyOrder(tuple(issue1.getProjectUuid(), false), tuple(issue2.getProjectUuid(), true));
+  }
+
+  private IssueDto createIssue(RuleDto rule, ComponentDto branch) {
+    ComponentDto dir2 = db.components().insertComponent(ComponentTesting.newDirectory(branch, "src/main/java/foo"));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(branch, dir2));
+    return db.issues().insert(rule, branch, file2);
   }
 
   @Test

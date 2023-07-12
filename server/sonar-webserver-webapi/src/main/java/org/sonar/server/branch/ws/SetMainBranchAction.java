@@ -19,6 +19,7 @@
  */
 package org.sonar.server.branch.ws;
 
+import java.util.List;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.server.es.Indexers;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.user.UserSession;
@@ -46,11 +48,13 @@ public class SetMainBranchAction implements BranchWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ProjectLifeCycleListeners projectLifeCycleListeners;
+  private final Indexers indexers;
 
-  public SetMainBranchAction(DbClient dbClient, UserSession userSession, ProjectLifeCycleListeners projectLifeCycleListeners) {
+  public SetMainBranchAction(DbClient dbClient, UserSession userSession, ProjectLifeCycleListeners projectLifeCycleListeners, Indexers indexers) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.projectLifeCycleListeners = projectLifeCycleListeners;
+    this.indexers = indexers;
   }
 
   @Override
@@ -94,7 +98,7 @@ public class SetMainBranchAction implements BranchWsAction {
       }
       configureProjectWithNewMainBranch(dbSession, projectDto.getKey(), oldMainBranch, newMainBranch);
       refreshApplicationsAndPortfoliosComputedByProject(projectDto);
-      // todo : refresh elasticSearchIndexes
+      indexers.commitAndIndexBranches(dbSession, List.of(oldMainBranch, newMainBranch), Indexers.BranchEvent.SWITCH_OF_MAIN_BRANCH);
 
       dbSession.commit();
       response.noContent();

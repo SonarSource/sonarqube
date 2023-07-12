@@ -21,13 +21,17 @@ package org.sonar.server.measure.index;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -37,6 +41,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.es.EsQueueDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Indexers;
@@ -49,6 +54,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -58,6 +64,9 @@ import static org.sonar.server.es.Indexers.EntityEvent.CREATION;
 import static org.sonar.server.es.Indexers.EntityEvent.DELETION;
 import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_KEY_UPDATE;
 import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_TAGS_UPDATE;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_MEASURE_KEY;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_MEASURE_VALUE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALIFIER;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_UUID;
@@ -240,6 +249,27 @@ public class ProjectMeasuresIndexerIT {
   }
 
   @Test
+  public void prepareForRecoveryOnEntityEvent_shouldReindexProject_whenSwitchMainBranch() {
+    ProjectData projectData = db.components().insertPrivateProject(defaults(), p -> p.setTagsString("foo"));
+    ProjectDto project = projectData.getProjectDto();
+    BranchDto oldMainBranchDto = projectData.getMainBranchDto();
+    BranchDto newMainBranchDto = db.components().insertProjectBranch(project);
+    MetricDto nloc = db.measures().insertMetric(m -> m.setKey(CoreMetrics.NCLOC_KEY));
+    db.measures().insertLiveMeasure(oldMainBranchDto, nloc, e -> e.setValue(1d));
+    db.measures().insertLiveMeasure(newMainBranchDto, nloc, e -> e.setValue(2d));
+    indexProject(project, CREATION);
+    assertThatProjectHasMeasure(project, CoreMetrics.NCLOC_KEY, 1d);
+
+    db.getDbClient().branchDao().updateIsMain(db.getSession(), oldMainBranchDto.getUuid(), false);
+    db.getDbClient().branchDao().updateIsMain(db.getSession(), newMainBranchDto.getUuid(), true);
+    IndexingResult result = indexBranches(List.of(oldMainBranchDto, newMainBranchDto), Indexers.BranchEvent.SWITCH_OF_MAIN_BRANCH);
+
+    assertThatProjectHasMeasure(project, CoreMetrics.NCLOC_KEY, 2d);
+    assertThat(result.getTotal()).isOne();
+    assertThat(result.getSuccess()).isOne();
+  }
+
+  @Test
   public void delete_doc_from_index_when_project_is_deleted() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     indexProject(project, CREATION);
@@ -306,12 +336,35 @@ public class ProjectMeasuresIndexerIT {
     return underTest.index(dbSession, items);
   }
 
+  private IndexingResult indexBranches(List<BranchDto> branches, Indexers.BranchEvent cause) {
+    DbSession dbSession = db.getSession();
+    Collection<EsQueueDto> items = underTest.prepareForRecoveryOnBranchEvent(dbSession, branches.stream().map(BranchDto::getUuid).collect(Collectors.toSet()), cause);
+    dbSession.commit();
+    return underTest.index(dbSession, items);
+  }
+
   private void assertThatProjectHasTag(ProjectDto project, String expectedTag) {
     SearchRequest request = prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
       .source(new SearchSourceBuilder()
         .query(boolQuery()
           .filter(termQuery(FIELD_INDEX_TYPE, TYPE_PROJECT_MEASURES.getName()))
           .filter(termQuery(FIELD_TAGS, expectedTag))));
+
+    assertThat(es.client().search(request).getHits().getHits())
+      .extracting(SearchHit::getId)
+      .contains(project.getUuid());
+  }
+
+  private void assertThatProjectHasMeasure(ProjectDto project, String metric, Double value) {
+    SearchRequest request = prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
+      .source(new SearchSourceBuilder()
+        .query(nestedQuery(
+          FIELD_MEASURES,
+          boolQuery()
+            .filter(termQuery(FIELD_MEASURES_MEASURE_KEY, metric))
+            .filter(termQuery(FIELD_MEASURES_MEASURE_VALUE, value)),
+          ScoreMode.Avg
+        )));
 
     assertThat(es.client().search(request).getHits().getHits())
       .extracting(SearchHit::getId)
