@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+import React, { useState } from 'react';
 import { createPermissionTemplate } from '../../../api/permissions';
 import { Button } from '../../../components/controls/buttons';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { throwGlobalError } from '../../../helpers/error';
 import { translate } from '../../../helpers/l10n';
+import { useGithubStatusQuery } from '../../settings/components/authentication/queries/identity-provider';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import Form from './Form';
 
@@ -32,71 +35,57 @@ interface Props {
   router: Router;
 }
 
-interface State {
-  createModal: boolean;
-}
+function Header(props: Props) {
+  const { ready, router } = props;
+  const [createModal, setCreateModal] = useState(false);
+  const { data: gitHubProvisioningStatus } = useGithubStatusQuery();
 
-class Header extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { createModal: false };
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleCreateClick = () => {
-    this.setState({ createModal: true });
-  };
-
-  handleCreateModalClose = () => {
-    if (this.mounted) {
-      this.setState({ createModal: false });
-    }
-  };
-
-  handleCreateModalSubmit = (data: {
+  const handleCreateModalSubmit = async (data: {
     description: string;
     name: string;
     projectKeyPattern: string;
   }) => {
-    return createPermissionTemplate({ ...data }).then((response) => {
-      this.props.refresh().then(() => {
-        this.props.router.push({
-          pathname: PERMISSION_TEMPLATES_PATH,
-          query: { id: response.permissionTemplate.id },
-        });
+    try {
+      const response = await createPermissionTemplate({ ...data });
+      await props.refresh();
+      router.push({
+        pathname: PERMISSION_TEMPLATES_PATH,
+        query: { id: response.permissionTemplate.id },
       });
-    });
+    } catch (e) {
+      throwGlobalError(e);
+    }
   };
 
-  render() {
-    return (
+  return (
+    <>
       <header className="page-header" id="project-permissions-header">
         <h1 className="page-title">{translate('permission_templates.page')}</h1>
 
-        <DeferredSpinner loading={!this.props.ready} />
+        <DeferredSpinner loading={!ready} />
 
         <div className="page-actions">
-          <Button onClick={this.handleCreateClick}>{translate('create')}</Button>
+          <Button onClick={() => setCreateModal(true)}>{translate('create')}</Button>
 
-          {this.state.createModal && (
+          {createModal && (
             <Form
               confirmButtonText={translate('create')}
               header={translate('permission_template.new_template')}
-              onClose={this.handleCreateModalClose}
-              onSubmit={this.handleCreateModalSubmit}
+              onClose={() => setCreateModal(false)}
+              onSubmit={handleCreateModalSubmit}
             />
           )}
         </div>
 
         <p className="page-description">{translate('permission_templates.page.description')}</p>
       </header>
-    );
-  }
+      {gitHubProvisioningStatus && (
+        <Alert variant="warning" className="sw-w-fit">
+          {translate('permission_templates.github_warning')}
+        </Alert>
+      )}
+    </>
+  );
 }
 
 export default withRouter(Header);

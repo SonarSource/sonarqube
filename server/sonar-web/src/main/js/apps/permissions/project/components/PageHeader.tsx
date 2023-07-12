@@ -43,9 +43,9 @@ export default function PageHeader(props: Props) {
 
   const { component, isGitHubProject, loading } = props;
   const { configuration } = component;
-  const canApplyPermissionTemplate =
-    configuration != null && configuration.canApplyPermissionTemplate;
   const provisionedByGitHub = isGitHubProject && !!githubProvisioningStatus;
+  const canApplyPermissionTemplate =
+    configuration?.canApplyPermissionTemplate && !provisionedByGitHub;
 
   const handleApplyTemplate = () => {
     setApplyTemplateModal(true);

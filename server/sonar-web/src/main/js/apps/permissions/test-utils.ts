@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { waitFor } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import selectEvent from 'react-select-event';
 import { byLabelText, byRole, byText } from '../../helpers/testSelector';
@@ -49,7 +49,7 @@ export function getPageObject(user: UserEvent) {
       'projects_role.are_you_sure_to_turn_project_to_public.warning.TRK'
     ),
     confirmPublicBtn: byRole('button', { name: 'projects_role.turn_project_to_public.TRK' }),
-    openModalBtn: byRole('button', { name: 'projects_role.apply_template' }),
+    applyTemplateBtn: byRole('button', { name: 'projects_role.apply_template' }),
     closeModalBtn: byRole('button', { name: 'close' }),
     templateSelect: byRole('combobox', { name: /template/ }),
     templateSuccessfullyApplied: byText('projects_role.apply_template.success'),
@@ -71,7 +71,7 @@ export function getPageObject(user: UserEvent) {
       });
     },
     async toggleProjectPermission(target: string, permission: Permissions) {
-      await user.click(ui.projectPermissionCheckbox(target, permission).get());
+      await act(() => user.click(ui.projectPermissionCheckbox(target, permission).get()));
     },
     async toggleGlobalPermission(target: string, permission: Permissions) {
       await user.click(ui.globalPermissionCheckbox(target, permission).get());
@@ -86,7 +86,7 @@ export function getPageObject(user: UserEvent) {
       await user.click(ui.confirmPublicBtn.get());
     },
     async openTemplateModal() {
-      await user.click(ui.openModalBtn.get());
+      await user.click(ui.applyTemplateBtn.get());
     },
     async closeTemplateModal() {
       await user.click(ui.closeModalBtn.get());

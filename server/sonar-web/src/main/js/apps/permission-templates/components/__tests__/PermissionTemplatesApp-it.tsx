@@ -21,24 +21,25 @@ import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { uniq } from 'lodash';
+import AuthenticationServiceMock from '../../../../api/mocks/AuthenticationServiceMock';
 import PermissionsServiceMock from '../../../../api/mocks/PermissionsServiceMock';
 import { mockPermissionGroup, mockPermissionUser } from '../../../../helpers/mocks/permissions';
 import { PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE } from '../../../../helpers/permissions';
 import { mockAppState } from '../../../../helpers/testMocks';
-import {
-  findTooltipWithContent,
-  renderAppWithAdminContext,
-} from '../../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole } from '../../../../helpers/testSelector';
+import { renderAppWithAdminContext } from '../../../../helpers/testReactTestingUtils';
+import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import { ComponentQualifier } from '../../../../types/component';
+import { Feature } from '../../../../types/features';
 import { Permissions } from '../../../../types/permissions';
 import { PermissionGroup, PermissionUser } from '../../../../types/types';
 import routes from '../../routes';
 
 const serviceMock = new PermissionsServiceMock();
+const authServiceMock = new AuthenticationServiceMock();
 
 beforeEach(() => {
   serviceMock.reset();
+  authServiceMock.reset();
 });
 
 describe('rendering', () => {
@@ -52,19 +53,13 @@ describe('rendering', () => {
     expect(ui.templateLink('Permission Template 1').get()).toBeInTheDocument();
     expect(ui.templateLink('Permission Template 2').get()).toBeInTheDocument();
 
-    // Shows all permission table headers.
-    PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE.forEach((permission, i) => {
-      expect(
-        ui.getTableHeaderHelpTooltip(i + 1, `projects_role.${permission}.desc`)
-      ).toBeInTheDocument();
-    });
-
     // Shows warning for browse and code viewer permissions.
-    [Permissions.Browse, Permissions.CodeViewer].forEach((_permission, i) => {
-      expect(
-        ui.getTableHeaderHelpTooltip(i + 1, 'projects_role.public_projects_warning')
-      ).toBeInTheDocument();
-    });
+    await expect(ui.getHeaderTooltipIconByIndex(1)).toHaveATooltipWithContent(
+      'projects_role.public_projects_warning'
+    );
+    await expect(ui.getHeaderTooltipIconByIndex(2)).toHaveATooltipWithContent(
+      'projects_role.public_projects_warning'
+    );
 
     // Check summaries.
     // Note: because of the intricacies of these table cells, and the verbosity
@@ -91,17 +86,28 @@ describe('rendering', () => {
     renderPermissionTemplatesApp();
     await ui.appLoaded();
 
+    expect(ui.githubWarning.query()).not.toBeInTheDocument();
     await ui.openTemplateDetails('Permission Template 1');
     await ui.appLoaded();
 
+    expect(ui.githubWarning.query()).not.toBeInTheDocument();
+
     expect(screen.getByText('This is permission template 1')).toBeInTheDocument();
-    PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE.forEach((permission, i) => {
-      expect(ui.permissionCheckbox('johndoe', permission).get()).toBeInTheDocument();
-      expect(
-        ui.getTableHeaderHelpTooltip(i, `projects_role.${permission}.desc`)
-      ).toBeInTheDocument();
-    });
   });
+
+  it.each(PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE.map((p, i) => [p, i]))(
+    'should show the correct tooltips',
+    async (permission, i) => {
+      const user = userEvent.setup();
+      const ui = getPageObject(user);
+      renderPermissionTemplatesApp();
+      await ui.appLoaded();
+
+      await expect(ui.getHeaderTooltipIconByIndex(i)).toHaveATooltipWithContent(
+        `projects_role.${permission}.desc`
+      );
+    }
+  );
 });
 
 describe('CRUD', () => {
@@ -391,6 +397,18 @@ it.each([ComponentQualifier.Project, ComponentQualifier.Application, ComponentQu
   }
 );
 
+it('should show github warning', async () => {
+  const user = userEvent.setup();
+  const ui = getPageObject(user);
+  authServiceMock.githubProvisioningStatus = true;
+  renderPermissionTemplatesApp(undefined, [Feature.GithubProvisioning]);
+
+  expect(await ui.githubWarning.find()).toBeInTheDocument();
+  await ui.openTemplateDetails('Permission Template 1');
+
+  expect(await ui.githubWarning.find()).toBeInTheDocument();
+});
+
 function getPageObject(user: UserEvent) {
   const ui = {
     loading: byLabelText('loading'),
@@ -403,6 +421,7 @@ function getPageObject(user: UserEvent) {
       byRole('link', { name: `projects_role.${permission}` }),
     onlyUsersBtn: byRole('button', { name: 'users.page' }),
     onlyGroupsBtn: byRole('button', { name: 'user_groups.page' }),
+    githubWarning: byText('permission_templates.github_warning'),
     showAllBtn: byRole('button', { name: 'all' }),
     searchInput: byRole('searchbox', { name: 'search.search_for_users_or_groups' }),
     loadMoreBtn: byRole('button', { name: 'show_more' }),
@@ -453,7 +472,7 @@ function getPageObject(user: UserEvent) {
       await user.click(ui.loadMoreBtn.get());
     },
     async togglePermission(target: string, permission: Permissions) {
-      await user.click(ui.permissionCheckbox(target, permission).get());
+      await act(() => user.click(ui.permissionCheckbox(target, permission).get()));
     },
     async openCreateModal() {
       await user.click(ui.createNewTemplateBtn.get());
@@ -516,22 +535,18 @@ function getPageObject(user: UserEvent) {
       await user.click(ui.cogMenuBtn(name).get());
       await user.click(ui.setDefaultBtn(qualifier).get());
     },
-    getTableHeaderHelpTooltip(i: number, text: string) {
-      const th = byRole('columnheader').getAll().at(i);
-      if (th === undefined) {
-        throw new Error(`Couldn't locate the <th> at index ${i}`);
-      }
-      return findTooltipWithContent((_content, element) => {
-        // For some reason, using the `content` parameter doesn't work for 1 of the
-        // tests. Explicitly using the element's `textContent` always works.
-        return Boolean(element?.textContent?.includes(text));
-      }, th);
+    getHeaderTooltipIconByIndex(i: number) {
+      return byRole('columnheader').byTestId('help-tooltip-activator').getAll()[i];
     },
   };
 }
 
-function renderPermissionTemplatesApp(qualifiers = [ComponentQualifier.Project]) {
+function renderPermissionTemplatesApp(
+  qualifiers = [ComponentQualifier.Project],
+  featureList: Feature[] = []
+) {
   renderAppWithAdminContext('admin/permission_templates', routes, {
     appState: mockAppState({ qualifiers }),
+    featureList,
   });
 }

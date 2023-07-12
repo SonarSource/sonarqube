@@ -127,7 +127,11 @@ class ChainDispatch extends ChainingQuery {
   }
 
   getAll<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {
-    return this.elementQuery.getAll<T>(this.insideQuery.get(container));
+    const containers = this.insideQuery.getAll(container);
+    return containers.reduce(
+      (acc, item) => [...acc, ...(this.elementQuery.queryAll<T>(item) ?? [])],
+      []
+    );
   }
 
   query<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {

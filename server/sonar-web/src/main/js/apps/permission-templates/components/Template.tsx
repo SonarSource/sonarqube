@@ -23,12 +23,15 @@ import { Helmet } from 'react-helmet-async';
 import * as api from '../../../api/permissions';
 import AllHoldersList from '../../../components/permissions/AllHoldersList';
 import { FilterOption } from '../../../components/permissions/SearchForm';
+import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import {
   convertToPermissionDefinitions,
   PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
 } from '../../../helpers/permissions';
+import UseQuery from '../../../helpers/UseQuery';
 import { Paging, PermissionGroup, PermissionTemplate, PermissionUser } from '../../../types/types';
+import { useGithubStatusQuery } from '../../settings/components/authentication/queries/identity-provider';
 import TemplateDetails from './TemplateDetails';
 import TemplateHeader from './TemplateHeader';
 
@@ -329,6 +332,15 @@ export default class Template extends React.PureComponent<Props, State> {
         />
         <main>
           <TemplateDetails template={template} />
+          <UseQuery query={useGithubStatusQuery}>
+            {({ data: githubProvisioningStatus }) =>
+              githubProvisioningStatus ? (
+                <Alert variant="warning" className="sw-w-fit">
+                  {translate('permission_templates.github_warning')}
+                </Alert>
+              ) : null
+            }
+          </UseQuery>
 
           <AllHoldersList
             filter={filter}

@@ -323,12 +323,14 @@ it('should have disabled permissions for GH Project', async () => {
     'aria-disabled',
     'false'
   );
-  await user.click(ui.projectPermissionCheckbox('Alexa', Permissions.IssueAdmin).get());
+  await ui.toggleProjectPermission('Alexa', Permissions.IssueAdmin);
   expect(ui.confirmRemovePermissionDialog.get()).toBeInTheDocument();
   expect(ui.confirmRemovePermissionDialog.get()).toHaveTextContent(
     `${Permissions.IssueAdmin}Alexa`
   );
-  await user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get());
+  await act(() =>
+    user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get())
+  );
   expect(ui.projectPermissionCheckbox('Alexa', Permissions.IssueAdmin).get()).not.toBeChecked();
 
   expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).toBeChecked();
@@ -336,12 +338,14 @@ it('should have disabled permissions for GH Project', async () => {
     'aria-disabled',
     'false'
   );
-  await user.click(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get());
+  await ui.toggleProjectPermission('sonar-users', Permissions.Browse);
   expect(ui.confirmRemovePermissionDialog.get()).toBeInTheDocument();
   expect(ui.confirmRemovePermissionDialog.get()).toHaveTextContent(
     `${Permissions.Browse}sonar-users`
   );
-  await user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get());
+  await act(() =>
+    user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get())
+  );
   expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).not.toBeChecked();
   expect(ui.projectPermissionCheckbox('sonar-admins', Permissions.Admin).get()).toBeChecked();
   expect(ui.projectPermissionCheckbox('sonar-admins', Permissions.Admin).get()).toHaveAttribute(
@@ -362,6 +366,8 @@ it('should have disabled permissions for GH Project', async () => {
   expect(adminsGroupRow).toHaveTextContent('sonar-admins');
   expect(ui.githubLogo.query(adminsGroupRow)).toBeInTheDocument();
 
+  expect(ui.applyTemplateBtn.query()).not.toBeInTheDocument();
+
   // not possible to grant permissions at all
   expect(
     screen
@@ -375,10 +381,9 @@ it('should allow to change permissions for GH Project without auto-provisioning'
   const ui = getPageObject(user);
   authHandler.githubProvisioningStatus = false;
   renderPermissionsProjectApp(
-    {},
+    { visibility: Visibility.Private },
     { featureList: [Feature.GithubProvisioning] },
     {
-      component: mockComponent({ visibility: Visibility.Private }),
       projectBinding: { alm: AlmKeys.GitHub, key: 'test', repository: 'test', monorepo: false },
     }
   );
@@ -386,6 +391,8 @@ it('should allow to change permissions for GH Project without auto-provisioning'
 
   expect(ui.pageTitle.get()).toBeInTheDocument();
   expect(ui.pageTitle.byRole('img').query()).not.toBeInTheDocument();
+
+  expect(ui.applyTemplateBtn.get()).toBeInTheDocument();
 
   // no restrictions
   expect(
@@ -403,6 +410,8 @@ it('should allow to change permissions for non-GH Project', async () => {
   expect(ui.pageTitle.get()).toBeInTheDocument();
   expect(ui.nonGHProjectWarning.get()).toBeInTheDocument();
   expect(ui.pageTitle.byRole('img').query()).not.toBeInTheDocument();
+
+  expect(ui.applyTemplateBtn.get()).toBeInTheDocument();
 
   // no restrictions
   expect(
