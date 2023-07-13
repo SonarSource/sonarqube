@@ -75,4 +75,6 @@ public abstract class PermissionChange {
   public String getProjectUuid() {
     return entity == null ? null : entity.getUuid();
   }
+
+  public abstract String getUuidOfGrantee();
 }

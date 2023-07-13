@@ -47,14 +47,14 @@ public class AddUserAction implements PermissionsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final PermissionUpdater permissionUpdater;
+  private final PermissionUpdater<UserPermissionChange> permissionUpdater;
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
   private final PermissionService permissionService;
   private final Configuration configuration;
   private final ManagedInstanceChecker managedInstanceChecker;
 
-  public AddUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
+  public AddUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater<UserPermissionChange> permissionUpdater, PermissionWsSupport wsSupport,
     WsParameters wsParameters, PermissionService permissionService, Configuration configuration, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
@@ -102,9 +102,8 @@ public class AddUserAction implements PermissionsWsAction {
         entityDto,
         user,
         permissionService);
-      permissionUpdater.applyForUser(dbSession, singletonList(change));
+      permissionUpdater.apply(dbSession, singletonList(change));
     }
     response.noContent();
   }
-
 }

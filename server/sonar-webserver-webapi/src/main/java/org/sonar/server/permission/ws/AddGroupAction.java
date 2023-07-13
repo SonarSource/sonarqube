@@ -44,13 +44,13 @@ public class AddGroupAction implements PermissionsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final PermissionUpdater permissionUpdater;
+  private final PermissionUpdater<GroupPermissionChange> permissionUpdater;
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
   private final PermissionService permissionService;
   private final ManagedInstanceChecker managedInstanceChecker;
 
-  public AddGroupAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
+  public AddGroupAction(DbClient dbClient, UserSession userSession, PermissionUpdater<GroupPermissionChange> permissionUpdater, PermissionWsSupport wsSupport,
                         WsParameters wsParameters, PermissionService permissionService, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
@@ -99,7 +99,7 @@ public class AddGroupAction implements PermissionsWsAction {
         entityDto,
         groupDto,
         permissionService);
-      permissionUpdater.applyForGroups(dbSession, List.of(change));
+      permissionUpdater.apply(dbSession, List.of(change));
     }
     response.noContent();
   }

@@ -19,7 +19,9 @@
  */
 package org.sonar.server.permission;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import org.jetbrains.annotations.Nullable;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -35,7 +37,7 @@ import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
 /**
  * Adds and removes user permissions. Both global and project scopes are supported.
  */
-public class UserPermissionChanger {
+public class UserPermissionChanger implements GranteeTypeSpecificPermissionUpdater<UserPermissionChange> {
 
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
@@ -45,16 +47,30 @@ public class UserPermissionChanger {
     this.uuidFactory = uuidFactory;
   }
 
-  public boolean apply(DbSession dbSession, UserPermissionChange change) {
+  @Override
+  public Class<UserPermissionChange> getHandledClass() {
+    return UserPermissionChange.class;
+  }
+
+  @Override
+  public Set<String> loadExistingEntityPermissions(DbSession dbSession, String uuidOfGrantee, @Nullable String entityUuid) {
+    if (entityUuid != null) {
+      return new HashSet<>(dbClient.userPermissionDao().selectEntityPermissionsOfUser(dbSession, uuidOfGrantee, entityUuid));
+    }
+    return new HashSet<>(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, uuidOfGrantee));
+  }
+
+  @Override
+  public boolean apply(DbSession dbSession, Set<String> existingPermissions, UserPermissionChange change) {
     ensureConsistencyWithVisibility(change);
     if (isImplicitlyAlreadyDone(change)) {
       return false;
     }
     switch (change.getOperation()) {
       case ADD:
-        return addPermission(dbSession, change);
+        return addPermission(dbSession, existingPermissions, change);
       case REMOVE:
-        return removePermission(dbSession, change);
+        return removePermission(dbSession, existingPermissions, change);
       default:
         throw new UnsupportedOperationException("Unsupported permission change: " + change.getOperation());
     }
@@ -92,8 +108,8 @@ public class UserPermissionChanger {
       && UserRole.PUBLIC_PERMISSIONS.contains(change.getPermission());
   }
 
-  private boolean addPermission(DbSession dbSession, UserPermissionChange change) {
-    if (loadExistingPermissions(dbSession, change).contains(change.getPermission())) {
+  private boolean addPermission(DbSession dbSession, Set<String> existingPermissions, UserPermissionChange change) {
+    if (existingPermissions.contains(change.getPermission())) {
       return false;
     }
     UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), change.getPermission(), change.getUserId().getUuid(),
@@ -102,8 +118,8 @@ public class UserPermissionChanger {
     return true;
   }
 
-  private boolean removePermission(DbSession dbSession, UserPermissionChange change) {
-    if (!loadExistingPermissions(dbSession, change).contains(change.getPermission())) {
+  private boolean removePermission(DbSession dbSession, Set<String> existingPermissions, UserPermissionChange change) {
+    if (!existingPermissions.contains(change.getPermission())) {
       return false;
     }
     checkOtherAdminsExist(dbSession, change);
@@ -116,18 +132,11 @@ public class UserPermissionChanger {
     return true;
   }
 
-  private List<String> loadExistingPermissions(DbSession dbSession, UserPermissionChange change) {
-    String projectUuid = change.getProjectUuid();
-    if (projectUuid != null) {
-      return dbClient.userPermissionDao().selectEntityPermissionsOfUser(dbSession, change.getUserId().getUuid(), projectUuid);
-    }
-    return dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, change.getUserId().getUuid());
-  }
-
   private void checkOtherAdminsExist(DbSession dbSession, UserPermissionChange change) {
     if (GlobalPermission.ADMINISTER.getKey().equals(change.getPermission()) && change.getProjectUuid() == null) {
       int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUserPermission(dbSession, change.getPermission(), change.getUserId().getUuid());
       checkRequest(remaining > 0, "Last user with permission '%s'. Permission cannot be removed.", GlobalPermission.ADMINISTER.getKey());
     }
   }
+
 }

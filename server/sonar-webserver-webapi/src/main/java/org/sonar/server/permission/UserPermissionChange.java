@@ -38,4 +38,9 @@ public class UserPermissionChange extends PermissionChange {
   public UserId getUserId() {
     return userId;
   }
+
+  @Override
+  public String getUuidOfGrantee() {
+    return userId.getUuid();
+  }
 }

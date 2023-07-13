@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission.ws;
 
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
 import org.sonar.api.config.Configuration;
@@ -54,7 +55,6 @@ public abstract class BasePermissionWsIT<A extends PermissionsWsAction> {
   @Rule
   public EsTester es = EsTester.createCustom(new FooIndexDefinition());
 
-
   protected UserSessionRule userSession = UserSessionRule.standalone();
   protected WsActionTester wsTester;
   protected Configuration configuration = mock(Configuration.class);
@@ -82,8 +82,8 @@ public abstract class BasePermissionWsIT<A extends PermissionsWsAction> {
   protected PermissionUpdater newPermissionUpdater() {
     return new PermissionUpdater(
       new IndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
-      new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory()),
-      new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory()), db.getDbClient());
+      Set.of(new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory()),
+        new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory())));
   }
 
   protected TestRequest newRequest() {

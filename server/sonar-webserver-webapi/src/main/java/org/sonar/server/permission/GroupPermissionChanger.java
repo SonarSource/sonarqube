@@ -19,7 +19,9 @@
  */
 package org.sonar.server.permission;
 
+import java.util.HashSet;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -34,7 +36,7 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.permission.PermissionChange.Operation.ADD;
 import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
 
-public class GroupPermissionChanger {
+public class GroupPermissionChanger implements GranteeTypeSpecificPermissionUpdater<GroupPermissionChange> {
 
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
@@ -44,6 +46,20 @@ public class GroupPermissionChanger {
     this.uuidFactory = uuidFactory;
   }
 
+  @Override
+  public Class<GroupPermissionChange> getHandledClass() {
+    return GroupPermissionChange.class;
+  }
+
+  @Override
+  public Set<String> loadExistingEntityPermissions(DbSession dbSession, String uuidOfGrantee, @Nullable String entityUuid) {
+    if (entityUuid != null) {
+      return new HashSet<>(dbClient.groupPermissionDao().selectEntityPermissionsOfGroup(dbSession, uuidOfGrantee, entityUuid));
+    }
+    return new HashSet<>(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, uuidOfGrantee));
+  }
+
+  @Override
   public boolean apply(DbSession dbSession, Set<String> existingPermissions, GroupPermissionChange change) {
     ensureConsistencyWithVisibility(change);
     if (isImplicitlyAlreadyDone(change)) {

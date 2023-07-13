@@ -19,33 +19,14 @@
  */
 package org.sonar.server.permission;
 
-import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.db.entity.EntityDto;
-import org.sonar.db.user.GroupDto;
+import org.sonar.db.DbSession;
 
-public class GroupPermissionChange extends PermissionChange {
+interface GranteeTypeSpecificPermissionUpdater<T extends PermissionChange> {
+  Class<T> getHandledClass();
 
-  private final GroupDto groupDto;
+  Set<String> loadExistingEntityPermissions(DbSession dbSession, String uuidOfGrantee, @Nullable String entityUuid);
 
-  public GroupPermissionChange(Operation operation, String permission, @Nullable EntityDto entityDto,
-    @Nullable GroupDto groupDto, PermissionService permissionService) {
-    super(operation, permission, entityDto, permissionService);
-    this.groupDto = groupDto;
-  }
-
-  public GroupUuidOrAnyone getGroupUuidOrAnyone() {
-    return GroupUuidOrAnyone.from(groupDto);
-  }
-
-  public Optional<String> getGroupName() {
-    return Optional.ofNullable(groupDto).map(GroupDto::getName);
-  }
-
-  @Override
-  public String getUuidOfGrantee() {
-    return getGroupUuidOrAnyone().getUuid();
-  }
-
-
+  boolean apply(DbSession dbSession, Set<String> existingPermissions, T change);
 }

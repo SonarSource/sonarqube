@@ -21,79 +21,58 @@ package org.sonar.server.permission;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import org.sonar.db.DbClient;
+import java.util.function.Function;
 import org.sonar.db.DbSession;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.server.es.Indexers;
 
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.utils.Preconditions.checkState;
 import static org.sonar.server.es.Indexers.EntityEvent.PERMISSION_CHANGE;
 
-/**
- * Add or remove global/project permissions to a group. This class does not verify that caller has administration right on the related project.
- */
-public class PermissionUpdater {
+public class PermissionUpdater<T extends PermissionChange> {
 
   private final Indexers indexers;
-  private final UserPermissionChanger userPermissionChanger;
-  private final GroupPermissionChanger groupPermissionChanger;
-  private final DbClient dbClient;
 
-  public PermissionUpdater(Indexers indexers,
-    UserPermissionChanger userPermissionChanger, GroupPermissionChanger groupPermissionChanger, DbClient dbClient) {
+  private final Map<Class<?>, GranteeTypeSpecificPermissionUpdater<T>> specificPermissionClassToHandler;
+
+  public PermissionUpdater(Indexers indexers, Set<GranteeTypeSpecificPermissionUpdater<T>> permissionChangers) {
     this.indexers = indexers;
-    this.userPermissionChanger = userPermissionChanger;
-    this.groupPermissionChanger = groupPermissionChanger;
-    this.dbClient = dbClient;
+    specificPermissionClassToHandler = permissionChangers.stream()
+      .collect(toMap(GranteeTypeSpecificPermissionUpdater::getHandledClass, Function.identity()));
   }
 
-  public void applyForUser(DbSession dbSession, Collection<UserPermissionChange> changes) {
-    List<String> projectOrViewUuids = new ArrayList<>();
-    for (UserPermissionChange change : changes) {
-      boolean changed = userPermissionChanger.apply(dbSession, change);
-      String projectUuid = change.getProjectUuid();
-      if (changed && projectUuid != null) {
-        projectOrViewUuids.add(projectUuid);
-      }
-    }
-    indexers.commitAndIndexOnEntityEvent(dbSession, projectOrViewUuids, PERMISSION_CHANGE);
-  }
-
-  public void applyForGroups(DbSession dbSession, Collection<GroupPermissionChange> groupsPermissionChanges) {
-    checkState(groupsPermissionChanges.stream().map(PermissionChange::getProjectUuid).distinct().count() <= 1,
-      "Only one project per group of changes is supported");
+  public void apply(DbSession dbSession, Collection<T> changes) {
+    checkState(changes.stream().map(PermissionChange::getProjectUuid).distinct().count() <= 1,
+      "Only one project per changes is supported");
 
     List<String> projectOrViewUuids = new ArrayList<>();
-    Map<GroupUuidOrAnyone, List<GroupPermissionChange>> groupUuidToChanges = groupsPermissionChanges.stream().collect(groupingBy(GroupPermissionChange::getGroupUuidOrAnyone));
-    groupUuidToChanges.values().forEach(groupPermissionChanges -> applyForSingleGroup(dbSession, projectOrViewUuids, groupPermissionChanges));
+    Map<Optional<String>, List<T>> granteeUuidToPermissionChanges = changes.stream().collect(groupingBy(change -> Optional.ofNullable(change.getUuidOfGrantee())));
+    granteeUuidToPermissionChanges.values().forEach(permissionChanges -> applyForSingleGrantee(dbSession, projectOrViewUuids, permissionChanges));
 
     indexers.commitAndIndexOnEntityEvent(dbSession, projectOrViewUuids, PERMISSION_CHANGE);
   }
 
-  private void applyForSingleGroup(DbSession dbSession, List<String> projectOrViewUuids, List<GroupPermissionChange> groupPermissionChanges) {
-    GroupPermissionChange anyGroupPermissionChange = groupPermissionChanges.iterator().next();
-    Set<String> existingPermissions = loadExistingEntityPermissions(dbSession, anyGroupPermissionChange);
-    for (GroupPermissionChange groupPermissionChange : groupPermissionChanges) {
-      if (doApplyForGroup(dbSession, existingPermissions, groupPermissionChange) && groupPermissionChange.getProjectUuid() != null) {
-        projectOrViewUuids.add(groupPermissionChange.getProjectUuid());
+  private void applyForSingleGrantee(DbSession dbSession, List<String> projectOrViewUuids, List<T> permissionChanges) {
+    T anyPermissionChange = permissionChanges.iterator().next();
+    EntityDto entity = anyPermissionChange.getEntity();
+    String entityUuid = Optional.ofNullable(entity).map(EntityDto::getUuid).orElse(null);
+    GranteeTypeSpecificPermissionUpdater<T> granteeTypeSpecificPermissionUpdater = getSpecificProjectUpdater(anyPermissionChange);
+    Set<String> existingPermissions = granteeTypeSpecificPermissionUpdater.loadExistingEntityPermissions(dbSession, anyPermissionChange.getUuidOfGrantee(), entityUuid);
+    for (T permissionChange : permissionChanges) {
+      if (granteeTypeSpecificPermissionUpdater.apply(dbSession, existingPermissions, permissionChange) && permissionChange.getProjectUuid() != null) {
+        projectOrViewUuids.add(permissionChange.getProjectUuid());
       }
     }
   }
 
-  private boolean doApplyForGroup(DbSession dbSession, Set<String> existingPermissions, GroupPermissionChange change) {
-    return groupPermissionChanger.apply(dbSession, existingPermissions, change);
+  private GranteeTypeSpecificPermissionUpdater<T> getSpecificProjectUpdater(T anyPermissionChange) {
+    return specificPermissionClassToHandler.get(anyPermissionChange.getClass());
   }
 
-  private Set<String> loadExistingEntityPermissions(DbSession dbSession, GroupPermissionChange change) {
-    String projectUuid = change.getProjectUuid();
-    String groupUuid = change.getGroupUuidOrAnyone().getUuid();
-    if (projectUuid != null) {
-      return new HashSet<>(dbClient.groupPermissionDao().selectEntityPermissionsOfGroup(dbSession, groupUuid, projectUuid));
-    }
-    return new HashSet<>(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupUuid));
-  }
 }
