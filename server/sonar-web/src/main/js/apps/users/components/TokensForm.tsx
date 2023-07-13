@@ -131,10 +131,12 @@ export class TokensForm extends React.PureComponent<Props, State> {
   constructTokenTypeOptions = (projects: BasicSelectOption[]) => {
     const { currentUser } = this.props;
 
-    const tokenTypeOptions = [
-      { label: translate('users.tokens', TokenType.User), value: TokenType.User },
-    ];
-    if (hasGlobalPermission(currentUser, Permissions.Scan)) {
+    const tokenTypeOptions = [];
+    if (hasGlobalPermission(currentUser, Permissions.Admin)) {
+      tokenTypeOptions.unshift({
+        label: translate('users.tokens', TokenType.User),
+        value: TokenType.User,
+      });
       tokenTypeOptions.unshift({
         label: translate('users.tokens', TokenType.Global),
         value: TokenType.Global,
