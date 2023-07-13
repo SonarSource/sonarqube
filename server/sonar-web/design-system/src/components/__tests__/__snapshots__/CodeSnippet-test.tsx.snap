@@ -200,8 +200,10 @@ bar"
     <span
       class="hljs sw-pr-24 sw-flex emotion-6 emotion-7"
     >
-      foo
+      <pre>
+        foo
 bar
+      </pre>
     </span>
   </div>
 </div>

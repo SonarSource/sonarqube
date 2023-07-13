@@ -53,6 +53,8 @@ export function CodeSnippet(props: Props) {
     <StyledClipboardButton copyValue={finalSnippet} />
   );
 
+  const renderSnippet = render ?? (wrap || isOneLine ? finalSnippet : `<pre>${finalSnippet}</pre>`);
+
   return (
     <Wrapper
       className={classNames(
@@ -67,7 +69,7 @@ export function CodeSnippet(props: Props) {
       {!noCopy && copyButton}
       <CodeSyntaxHighlighter
         className={classNames({ 'sw-pr-24': !noCopy, 'sw-flex': !noCopy })}
-        htmlAsString={render ?? finalSnippet}
+        htmlAsString={renderSnippet}
         language={language}
         wrap={wrap}
       />
