@@ -31,7 +31,7 @@ interface Props extends BasicProps {
   languages: Languages;
 }
 
-export class LanguageFacet extends React.PureComponent<Props> {
+class LanguageFacet extends React.PureComponent<Props> {
   getLanguageName = (languageKey: string) => {
     const language = this.props.languages[languageKey];
     return language ? language.name : languageKey;

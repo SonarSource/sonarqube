@@ -37,6 +37,7 @@ export interface SearchRulesQuery {
   is_template?: boolean | string;
   languages?: string;
   owaspTop10?: string;
+  ['owaspTop10-2021']?: string;
   p?: number;
   ps?: number;
   q?: string;

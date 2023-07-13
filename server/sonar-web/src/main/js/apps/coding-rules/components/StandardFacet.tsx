@@ -28,6 +28,7 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import ListStyleFacetFooter from '../../../components/facet/ListStyleFacetFooter';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
+import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import {
@@ -171,22 +172,6 @@ export class StandardFacet extends React.PureComponent<Props, State> {
     return `facet_${property}`;
   };
 
-  handleHeaderClick = () => {
-    this.props.onToggle(this.property);
-  };
-
-  handleOwaspTop10HeaderClick = () => {
-    this.props.onToggle('owaspTop10');
-  };
-
-  handleOwaspTop102021HeaderClick = () => {
-    this.props.onToggle('owaspTop10-2021');
-  };
-
-  handleSonarSourceSecurityHeaderClick = () => {
-    this.props.onToggle('sonarsourceSecurity');
-  };
-
   handleClear = () => {
     this.props.onChange({
       [this.property]: [],
@@ -241,7 +226,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
       : Promise.resolve({});
   };
 
-  renderList = (
+  renderOwaspList = (
     statsProp: StatsProp,
     valuesProp: ValuesProp,
     renderName: (standards: Standards, category: string) => string,
@@ -251,7 +236,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
     const values = this.props[valuesProp];
 
     if (!stats) {
-      return null;
+      return <DeferredSpinner className="sw-ml-4" />;
     }
 
     const categories = sortBy(Object.keys(stats), (key) => -stats[key]);
@@ -314,7 +299,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
   };
 
   renderOwaspTop10List() {
-    return this.renderList(
+    return this.renderOwaspList(
       'owaspTop10Stats',
       SecurityStandard.OWASP_TOP10,
       renderOwaspTop10Category,
@@ -323,7 +308,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
   }
 
   renderOwaspTop102021List() {
-    return this.renderList(
+    return this.renderOwaspList(
       'owaspTop10-2021Stats',
       SecurityStandard.OWASP_TOP10_2021,
       renderOwaspTop102021Category,
@@ -336,7 +321,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
     const values = this.props.sonarsourceSecurity;
 
     if (!stats) {
-      return null;
+      return <DeferredSpinner className="sw-ml-4" />;
     }
 
     const sortedItems = sortBy(
@@ -440,7 +425,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
             fetching={fetchingSonarSourceSecurity}
             id={this.getFacetHeaderId(SecurityStandard.SONARSOURCE)}
             name={translate('issues.facet.sonarsourceSecurity')}
-            onClick={this.handleSonarSourceSecurityHeaderClick}
+            onClick={() => this.props.onToggle('sonarsourceSecurity')}
             open={sonarsourceSecurityOpen}
             values={sonarsourceSecurity.map((item) =>
               renderSonarSourceSecurityCategory(this.state.standards, item)
@@ -460,7 +445,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
             fetching={fetchingOwaspTop102021}
             id={this.getFacetHeaderId(SecurityStandard.OWASP_TOP10_2021)}
             name={translate('issues.facet.owaspTop10_2021')}
-            onClick={this.handleOwaspTop102021HeaderClick}
+            onClick={() => this.props.onToggle('owaspTop10-2021')}
             open={owaspTop102021Open}
             values={owaspTop102021.map((item) =>
               renderOwaspTop102021Category(this.state.standards, item)
@@ -480,7 +465,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
             fetching={fetchingOwaspTop10}
             id={this.getFacetHeaderId(SecurityStandard.OWASP_TOP10)}
             name={translate('issues.facet.owaspTop10')}
-            onClick={this.handleOwaspTop10HeaderClick}
+            onClick={() => this.props.onToggle('owaspTop10')}
             open={owaspTop10Open}
             values={owaspTop10.map((item) => renderOwaspTop10Category(this.state.standards, item))}
           />
@@ -528,7 +513,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
           id={this.getFacetHeaderId(this.property)}
           name={translate('issues.facet', this.property)}
           onClear={this.handleClear}
-          onClick={this.handleHeaderClick}
+          onClick={() => this.props.onToggle(this.property)}
           open={open}
           values={this.getValues()}
         />

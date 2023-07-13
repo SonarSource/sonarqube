@@ -82,7 +82,7 @@ describe('Rules app', () => {
   });
 
   describe('filtering', () => {
-    it('filters by facets', async () => {
+    it('combine facet filters', async () => {
       const { ui, user } = getPageObjects();
       const { pickDate } = dateInputEvent(user);
       renderCodingRulesApp(mockCurrentUser());
@@ -91,16 +91,117 @@ describe('Rules app', () => {
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
 
       // Filter by language facet
-      await user.click(ui.facetItem('py').get());
+      await act(async () => {
+        await user.type(ui.facetSearchInput('search.search_for_languages').get(), 'ja');
+        await user.click(ui.facetItem('JavaScript').get());
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(2);
+
+      // Clear language facet and search box, and filter by python language
+      await act(async () => {
+        await user.clear(ui.facetSearchInput('search.search_for_languages').get());
+        await user.click(ui.facetItem('py').get());
+      });
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(6);
 
       // Filter by date facet
-      await user.click(await ui.availableSinceFacet.find());
-      await pickDate(ui.availableSinceDateField.get(), parseDate('Nov 1, 2022'));
+      await act(async () => {
+        await user.click(await ui.availableSinceFacet.find());
+        await pickDate(ui.availableSinceDateField.get(), parseDate('Nov 1, 2022'));
+      });
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
 
       // Clear filters
-      await user.click(ui.clearAllFiltersButton.get());
+      await act(async () => {
+        await user.click(ui.clearAllFiltersButton.get());
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
+
+      // Filter by repository
+      await act(async () => {
+        await user.click(ui.repositoriesFacet.get());
+        await user.click(ui.facetItem('Repository 1').get());
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(2);
+
+      // Search second repository
+      await act(async () => {
+        await user.type(ui.facetSearchInput('search.search_for_repositories').get(), 'y 2');
+        await user.click(ui.facetItem('Repository 2').get());
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
+
+      // Clear filters
+      await act(async () => {
+        await user.click(ui.clearAllFiltersButton.get());
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
+
+      // Filter by quality profile
+      await act(async () => {
+        await user.click(ui.qpFacet.get());
+        await user.click(ui.facetItem('QP FooBar Java').get());
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(8);
+
+      // Filter by tag
+      await act(async () => {
+        await user.click(ui.facetClear('coding_rules.facet.qprofile').get()); // Clear quality profile facet
+        await user.click(ui.tagsFacet.get());
+        await user.click(ui.facetItem('awesome').get());
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(5);
+
+      // Search by tag
+      await act(async () => {
+        await user.type(ui.facetSearchInput('search.search_for_tags').get(), 'te');
+        await user.click(ui.facetItem('cute').get());
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
+    });
+
+    it('filter by standards', async () => {
+      const { ui, user } = getPageObjects();
+      renderCodingRulesApp(mockCurrentUser());
+      await ui.appLoaded();
+
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
+      await act(async () => {
+        await user.click(ui.standardsFacet.get());
+        await user.click(ui.facetItem('Buffer Overflow').get());
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(6);
+
+      await act(async () => {
+        await user.click(ui.standardsOwasp2021Top10Facet.get());
+        await user.click(ui.facetItem('A2 - Cryptographic Failures').get());
+        await user.click(ui.standardsOwasp2021Top10Facet.get()); // Close facet
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(5);
+
+      await act(async () => {
+        await user.click(ui.standardsOwasp2017Top10Facet.get());
+        await user.click(ui.facetItem('A3 - Sensitive Data Exposure').get());
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(4);
+
+      await act(async () => {
+        await user.click(ui.standardsCweFacet.get());
+        await user.click(ui.facetItem('CWE-102 - Struts: Duplicate Validation Forms').get());
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(3);
+
+      await act(async () => {
+        await user.type(ui.facetSearchInput('search.search_for_cwe').get(), 'Certificate');
+        await user.click(
+          ui.facetItem('CWE-297 - Improper Validation of Certificate with Host Mismatch').get()
+        );
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(2);
+
+      await act(async () => {
+        await user.click(ui.facetClear('issues.facet.standards').get());
+      });
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
     });
 

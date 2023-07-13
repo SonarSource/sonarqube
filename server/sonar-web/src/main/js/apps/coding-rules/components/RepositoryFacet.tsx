@@ -35,7 +35,7 @@ interface Props extends BasicProps, StateProps {
   referencedRepositories: Dict<{ key: string; language: string; name: string }>;
 }
 
-export class RepositoryFacet extends React.PureComponent<Props> {
+class RepositoryFacet extends React.PureComponent<Props> {
   getLanguageName = (languageKey: string) => {
     const { languages } = this.props;
     const language = languages[languageKey];
