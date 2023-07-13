@@ -141,6 +141,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
             <td colSpan={2}>
               <textarea
                 autoFocus
+                aria-label={translate('coding_rules.extend_description')}
                 className="width-100 little-spacer-bottom"
                 id="coding-rules-detail-extend-description-text"
                 onChange={this.handleDescriptionChange}

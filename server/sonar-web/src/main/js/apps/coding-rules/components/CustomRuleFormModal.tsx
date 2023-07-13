@@ -53,7 +53,7 @@ interface State {
   severity: string;
   status: string;
   submitting: boolean;
-  type: string;
+  type: RuleType;
 }
 
 export default class CustomRuleFormModal extends React.PureComponent<Props, State> {
@@ -334,7 +334,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
     const header = customRule
       ? translate('coding_rules.update_custom_rule')
       : translate('coding_rules.create_custom_rule');
-    let submit = this.props.customRule ? translate('save') : translate('create');
+    let submit = translate(customRule ? 'save' : 'create');
     if (this.state.reactivating) {
       submit = translate('coding_rules.reactivate');
     }

@@ -21,8 +21,8 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { deleteRule, searchRules } from '../../../api/rules';
 import Link from '../../../components/common/Link';
-import { Button } from '../../../components/controls/buttons';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
+import { Button } from '../../../components/controls/buttons';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -132,7 +132,11 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
             onConfirm={this.handleRuleDelete}
           >
             {({ onClick }) => (
-              <Button className="button-red js-delete-custom-rule" onClick={onClick}>
+              <Button
+                className="button-red js-delete-custom-rule"
+                aria-label={translateWithParameters('coding_rules.delete_rule_x', rule.name)}
+                onClick={onClick}
+              >
                 {translate('delete')}
               </Button>
             )}

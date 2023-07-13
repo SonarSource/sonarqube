@@ -17,27 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
+import { act, fireEvent, screen } from '@testing-library/react';
+import { last } from 'lodash';
+import selectEvent from 'react-select-event';
+import CodingRulesServiceMock, { RULE_TAGS_MOCK } from '../../../api/mocks/CodingRulesServiceMock';
+import { RULE_TYPES } from '../../../helpers/constants';
+import { parseDate } from '../../../helpers/dates';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
-import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
-import { byPlaceholderText, byRole } from '../../../helpers/testSelector';
+import { dateInputEvent, renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
+import { getPageObjects } from '../utils-test';
 
 jest.mock('../../../api/rules');
 jest.mock('../../../api/issues');
 jest.mock('../../../api/users');
 jest.mock('../../../api/quality-profiles');
-
-const ui = {
-  rulesList: byRole('list', { name: 'list_of_rules' }),
-  activateInSelectOption: byRole('combobox', { name: 'coding_rules.activate_in' }),
-  deactivateInSelectOption: byRole('combobox', { name: 'coding_rules.deactivate_in' }),
-  availableSinceFacet: byRole('button', { name: 'coding_rules.facet.available_since' }),
-  availableSinceDateField: byPlaceholderText('date'),
-};
 
 let handler: CodingRulesServiceMock;
 
@@ -49,482 +44,525 @@ beforeAll(() => {
 
 afterEach(() => handler.reset());
 
-it('should select rules with keyboard navigation', async () => {
-  const user = userEvent.setup();
-  renderCodingRulesApp();
-  let listitem = await screen.findByRole('listitem', { current: true });
-  expect(within(listitem).getByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
-  await user.keyboard('{ArrowDown}');
-  listitem = await screen.findByRole('listitem', { current: true });
-  expect(within(listitem).getByRole('link', { name: 'Hot hotspot' })).toBeInTheDocument();
-  await user.keyboard('{ArrowUp}');
-  listitem = await screen.findByRole('listitem', { current: true });
-  expect(within(listitem).getByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
-  await user.keyboard('{ArrowRight}');
-  expect(screen.getByRole('heading', { level: 1, name: 'Awsome java rule' })).toBeInTheDocument();
-  await user.keyboard('{ArrowLeft}');
-  listitem = await screen.findByRole('listitem', { current: true });
-  expect(within(listitem).getByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
-});
+describe('Rules app', () => {
+  it('renders correctly', async () => {
+    const { ui } = getPageObjects();
+    renderCodingRulesApp();
 
-it('should open with permalink', async () => {
-  renderCodingRulesApp(undefined, 'coding_rules?rule_key=rule1');
-  expect(await screen.findByRole('link', { name: 'Awsome java rule' })).toBeInTheDocument();
-  expect(screen.queryByRole('link', { name: 'Hot hotspot' })).not.toBeInTheDocument();
-});
+    await ui.appLoaded();
 
-it('should show open rule with default description section', async () => {
-  renderCodingRulesApp(undefined, 'coding_rules?open=rule1');
-  expect(
-    await screen.findByRole('heading', { level: 1, name: 'Awsome java rule' })
-  ).toBeInTheDocument();
-  expect(document.title).toEqual('page_title.template.with_category.coding_rules.page');
-  expect(screen.getByText('Why')).toBeInTheDocument();
-  expect(screen.getByText('Because')).toBeInTheDocument();
-});
-
-it('should show open rule with no description', async () => {
-  renderCodingRulesApp(undefined, 'coding_rules?open=rule6');
-  expect(
-    await screen.findByRole('heading', { level: 1, name: 'Bad Python rule' })
-  ).toBeInTheDocument();
-  expect(screen.getByText('issue.external_issue_description.Bad Python rule')).toBeInTheDocument();
-});
-
-it('should show hotspot rule section', async () => {
-  const user = userEvent.setup();
-  renderCodingRulesApp(undefined, 'coding_rules?open=rule2');
-  expect(await screen.findByRole('heading', { level: 1, name: 'Hot hotspot' })).toBeInTheDocument();
-  expect(screen.getByText('Introduction to this rule')).toBeInTheDocument();
-  expect(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.root_cause.SECURITY_HOTSPOT',
-    })
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.assess_the_problem',
-    })
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info',
-    })
-  ).toBeInTheDocument();
-  // Check that we render plain html
-  await user.click(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info',
-    })
-  );
-  expect(screen.getByRole('link', { name: 'Awsome Reading' })).toBeInTheDocument();
-});
-
-it('should show rule advanced section', async () => {
-  const user = userEvent.setup();
-  renderCodingRulesApp(undefined, 'coding_rules?open=rule5');
-  expect(
-    await screen.findByRole('heading', { level: 1, name: 'Awsome Python rule' })
-  ).toBeInTheDocument();
-  expect(screen.getByText('Introduction to this rule')).toBeInTheDocument();
-  expect(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.how_to_fix',
-    })
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info',
-    })
-  ).toBeInTheDocument();
-  // Check that we render plain html
-  await user.click(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info',
-    })
-  );
-  expect(screen.getByRole('link', { name: 'Awsome Reading' })).toBeInTheDocument();
-});
-
-it('should show rule advanced section with context', async () => {
-  const user = userEvent.setup();
-  renderCodingRulesApp(undefined, 'coding_rules?open=rule7');
-  expect(
-    await screen.findByRole('heading', { level: 1, name: 'Python rule with context' })
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.how_to_fix',
-    })
-  ).toBeInTheDocument();
-
-  await user.click(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.how_to_fix',
-    })
-  );
-  expect(screen.getByRole('radio', { name: 'Spring' })).toBeInTheDocument();
-  expect(screen.getByRole('radio', { name: 'Spring boot' })).toBeInTheDocument();
-  expect(
-    screen.getByRole('radio', { name: 'coding_rules.description_context.other' })
-  ).toBeInTheDocument();
-  expect(screen.getByText('coding_rules.description_context.sub_title.Spring')).toBeInTheDocument();
-  expect(screen.getByText('This is how to fix for spring')).toBeInTheDocument();
-
-  await user.click(screen.getByRole('radio', { name: 'Spring boot' }));
-  expect(
-    screen.getByText('coding_rules.description_context.sub_title.Spring boot')
-  ).toBeInTheDocument();
-  expect(screen.getByText('This is how to fix for spring boot')).toBeInTheDocument();
-
-  await user.click(screen.getByRole('radio', { name: 'coding_rules.description_context.other' }));
-  expect(
-    screen.queryByText(
-      'coding_rules.description_context.sub_title.coding_rules.description_context.other'
-    )
-  ).not.toBeInTheDocument();
-  expect(screen.getByText('coding_rules.context.others.title')).toBeInTheDocument();
-  expect(screen.getByText('coding_rules.context.others.description.first')).toBeInTheDocument();
-
-  const productBoardLink = screen.getByRole('link', {
-    name: 'coding_rules.context.others.feedback_description.link',
-  });
-  expect(productBoardLink).toBeInTheDocument();
-  expect(productBoardLink).toHaveAttribute('target', '_blank');
-});
-
-it('should be able to extend the rule description', async () => {
-  const user = userEvent.setup();
-  handler.setIsAdmin();
-  renderCodingRulesApp(undefined, 'coding_rules?open=rule5');
-  expect(
-    await screen.findByRole('heading', { level: 1, name: 'Awsome Python rule' })
-  ).toBeInTheDocument();
-
-  // Add
-  await user.click(screen.getByRole('button', { name: 'coding_rules.extend_description' }));
-  expect(screen.getByRole('textbox')).toBeInTheDocument();
-  await user.click(screen.getByRole('textbox'));
-  await user.keyboard('TEST DESC');
-  await user.click(screen.getByRole('button', { name: 'save' }));
-  expect(await screen.findByText('TEST DESC')).toBeInTheDocument();
-
-  // Edit
-  await user.click(screen.getByRole('button', { name: 'coding_rules.extend_description' }));
-  await user.click(screen.getByRole('textbox'));
-  await user.keyboard('{Control>}A{/Control}NEW DESC');
-  await user.click(screen.getByRole('button', { name: 'save' }));
-  expect(await screen.findByText('NEW DESC')).toBeInTheDocument();
-
-  //Cancel
-  await user.click(screen.getByRole('button', { name: 'coding_rules.extend_description' }));
-  await user.dblClick(screen.getByRole('textbox'));
-  await user.keyboard('DIFFERENCE');
-  await user.click(screen.getByRole('button', { name: 'cancel' }));
-  expect(await screen.findByText('NEW DESC')).toBeInTheDocument();
-
-  //Remove
-  await user.click(screen.getByRole('button', { name: 'coding_rules.extend_description' }));
-  await user.click(screen.getByRole('button', { name: 'remove' }));
-  await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'remove' }));
-  await waitFor(() => expect(screen.queryByText('NEW DESC')).not.toBeInTheDocument());
-});
-
-it('should list all rules', async () => {
-  renderCodingRulesApp();
-
-  await waitFor(() => {
+    // Renders list
     handler
       .allRulesName()
-      .forEach((name) => expect(screen.getByRole('link', { name })).toBeInTheDocument());
-  });
-});
+      .forEach((name) => expect(ui.ruleListItemLink(name).get()).toBeInTheDocument());
 
-it('should have all type facet', async () => {
-  renderCodingRulesApp();
+    // Renders type facets
+    RULE_TYPES.map((type) => `issue.type.${type}`).forEach((name) =>
+      expect(ui.facetItem(name).get()).toBeInTheDocument()
+    );
 
-  await waitFor(() => {
+    // Renders language facets
+    ['JavaScript', 'Java', 'C'].forEach((name) =>
+      expect(ui.facetItem(name).get()).toBeInTheDocument()
+    );
+
+    // Other facets are collapsed
     [
-      'issue.type.BUG',
-      'issue.type.VULNERABILITY',
-      'issue.type.CODE_SMELL',
-      'issue.type.SECURITY_HOTSPOT',
-    ].forEach((name) => expect(screen.getByRole('checkbox', { name })).toBeInTheDocument());
+      ui.tagsFacet,
+      ui.repositoriesFacet,
+      ui.severetiesFacet,
+      ui.statusesFacet,
+      ui.standardsFacet,
+      ui.availableSinceFacet,
+      ui.templateFacet,
+      ui.qpFacet,
+    ].forEach((facet) => {
+      expect(facet.get()).toHaveAttribute('aria-expanded', 'false');
+    });
+  });
+
+  describe('filtering', () => {
+    it('filters by facets', async () => {
+      const { ui, user } = getPageObjects();
+      const { pickDate } = dateInputEvent(user);
+      renderCodingRulesApp(mockCurrentUser());
+      await ui.appLoaded();
+
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
+
+      // Filter by language facet
+      await user.click(ui.facetItem('py').get());
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(6);
+
+      // Filter by date facet
+      await user.click(await ui.availableSinceFacet.find());
+      await pickDate(ui.availableSinceDateField.get(), parseDate('Nov 1, 2022'));
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
+
+      // Clear filters
+      await user.click(ui.clearAllFiltersButton.get());
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
+    });
+
+    it('filters by similar rules', async () => {
+      const { ui, user } = getPageObjects();
+      renderCodingRulesApp(mockCurrentUser());
+      await ui.appLoaded();
+
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
+
+      const lastRule = last(ui.ruleListItem.getAll());
+
+      await user.click(ui.similarIssuesButton.get(lastRule));
+      await user.click(ui.similarIssuesFilterByLang('Python').get(lastRule));
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(6);
+
+      await user.click(ui.similarIssuesButton.get(lastRule));
+      await user.click(ui.similarIssuesFilterByType('issue.type.VULNERABILITY').get(lastRule));
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(3);
+      expect(ui.facetItem('issue.type.VULNERABILITY').get()).toBeChecked();
+
+      await user.click(ui.similarIssuesButton.get(lastRule));
+      await user.click(ui.similarIssuesFilterBySeverity('MINOR').get(lastRule));
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(2);
+
+      await user.click(ui.similarIssuesButton.get(lastRule));
+      await user.click(ui.similarIssuesFilterByTag('awesome').get(lastRule));
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
+    });
+
+    it('filters by search', async () => {
+      const { ui, user } = getPageObjects();
+      renderCodingRulesApp(mockCurrentUser());
+      await ui.appLoaded();
+
+      await user.type(ui.searchInput.get(), 'Python');
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(4);
+
+      await user.clear(ui.searchInput.get());
+      await user.type(ui.searchInput.get(), 'Hot hotspot');
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
+    });
+  });
+
+  describe('bulk change', () => {
+    it('no quality profile for bulk change based on language search', async () => {
+      const { ui, user } = getPageObjects();
+      handler.setIsAdmin();
+      renderCodingRulesApp(mockLoggedInUser());
+      await ui.appLoaded();
+
+      await user.click(ui.facetItem('C').get());
+      await user.click(ui.bulkChangeButton.get());
+      await user.click(ui.activateIn.get());
+
+      const dialog = ui.bulkChangeDialog(1).get();
+      expect(dialog).toBeInTheDocument();
+
+      selectEvent.openMenu(ui.activateInSelect.get());
+      expect(ui.noQualityProfiles.get(dialog)).toBeInTheDocument();
+    });
+
+    it('should be able to bulk activate quality profile', async () => {
+      const { ui, user } = getPageObjects();
+      handler.setIsAdmin();
+      renderCodingRulesApp(mockLoggedInUser());
+      await ui.appLoaded();
+
+      const [selectQPSuccess, selectQPWarning] = handler.allQualityProfile('java');
+
+      const rulesCount = handler.allRulesCount();
+
+      await ui.bulkActivate(rulesCount, selectQPSuccess);
+
+      expect(
+        ui.bulkSuccessMessage(selectQPSuccess.name, selectQPSuccess.languageName, rulesCount).get()
+      ).toBeInTheDocument();
+
+      await user.click(ui.bulkClose.get());
+
+      // Try bulk change when quality profile has warnning.
+      handler.activateWithWarning();
+
+      await ui.bulkActivate(rulesCount, selectQPWarning);
+      expect(
+        ui
+          .bulkWarningMessage(selectQPWarning.name, selectQPWarning.languageName, rulesCount - 1)
+          .get()
+      ).toBeInTheDocument();
+    });
+
+    it('should be able to bulk deactivate quality profile', async () => {
+      const { ui } = getPageObjects();
+      handler.setIsAdmin();
+      renderCodingRulesApp(mockLoggedInUser());
+      await ui.appLoaded();
+
+      const [selectQP] = handler.allQualityProfile('java');
+      const rulesCount = handler.allRulesCount();
+
+      await ui.bulkDeactivate(rulesCount, selectQP);
+
+      expect(
+        ui.bulkSuccessMessage(selectQP.name, selectQP.languageName, rulesCount).get()
+      ).toBeInTheDocument();
+    });
+
+    it('should be able to activate for specific quality profile', async () => {});
+
+    it('should be able to deactivate for specific quality profile', async () => {});
+  });
+
+  it('can activate/deactivate specific rule for quality profile', async () => {});
+
+  it('navigates by keyboard', async () => {
+    const { user, ui } = getPageObjects();
+    renderCodingRulesApp();
+    await ui.appLoaded();
+
+    expect(
+      ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get())
+    ).toBeInTheDocument();
+
+    await user.keyboard('{ArrowDown}');
+    expect(ui.ruleListItemLink('Hot hotspot').get(ui.currentListItem.get())).toBeInTheDocument();
+
+    await user.keyboard('{ArrowUp}');
+    expect(
+      ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get())
+    ).toBeInTheDocument();
+
+    await user.keyboard('{ArrowRight}');
+    expect(screen.getByRole('heading', { level: 1, name: 'Awsome java rule' })).toBeInTheDocument();
+
+    await user.keyboard('{ArrowLeft}');
+    expect(
+      ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get())
+    ).toBeInTheDocument();
   });
 });
 
-it('select the correct quality profile for bulk change base on language search', async () => {
-  const user = userEvent.setup();
-  handler.setIsAdmin();
-  renderCodingRulesApp(mockLoggedInUser());
-  const selectQP = handler.allQualityProfile('js')[0];
+describe('Rule app', () => {
+  describe('rendering', () => {
+    it('shows rule with default description section and params', async () => {
+      const { ui } = getPageObjects();
+      renderCodingRulesApp(undefined, 'coding_rules?open=rule1');
+      await ui.appLoaded();
+      expect(ui.ruleTitle('Awsome java rule').get()).toBeInTheDocument();
+      expect(document.title).toEqual('page_title.template.with_category.coding_rules.page');
+      expect(screen.getByText('Why')).toBeInTheDocument();
+      expect(screen.getByText('Because')).toBeInTheDocument();
 
-  await user.click(await screen.findByRole('checkbox', { name: 'JavaScript' }));
-  await user.click(await screen.findByRole('button', { name: 'bulk_change' }));
-  await user.click(await screen.findByRole('link', { name: 'coding_rules.activate_in…' }));
-  const dialog = screen.getByRole('dialog', {
-    name: 'coding_rules.activate_in_quality_profile (2 coding_rules._rules)',
+      // Check params data
+      expect(screen.getByText('html description for key 1')).toBeInTheDocument();
+      expect(screen.getByText('default value for key 2')).toBeInTheDocument();
+    });
+
+    it('shows external rule', async () => {
+      const { ui } = getPageObjects();
+      renderCodingRulesApp(undefined, 'coding_rules?open=rule6');
+      await ui.appLoaded();
+      expect(ui.ruleTitle('Bad Python rule').get()).toBeInTheDocument();
+      expect(ui.externalDescription('Bad Python rule').get()).toBeInTheDocument();
+    });
+
+    it('shows hotspot rule', async () => {
+      const { ui, user } = getPageObjects();
+      renderCodingRulesApp(undefined, 'coding_rules?open=rule2');
+      await ui.appLoaded();
+      expect(ui.ruleTitle('Hot hotspot').get()).toBeInTheDocument();
+      expect(ui.introTitle.get()).toBeInTheDocument();
+
+      // Shows correct tabs
+      [ui.whatRiskTab, ui.assessTab, ui.moreInfoTab].forEach((tab) => {
+        expect(tab.get()).toBeInTheDocument();
+      });
+
+      await user.click(ui.moreInfoTab.get());
+      expect(ui.resourceLink.get()).toBeInTheDocument();
+    });
+
+    it('shows rule advanced section', async () => {
+      const { ui } = getPageObjects();
+      renderCodingRulesApp(undefined, 'coding_rules?open=rule5');
+      await ui.appLoaded();
+      expect(ui.ruleTitle('Awsome Python rule').get()).toBeInTheDocument();
+      expect(ui.introTitle.get()).toBeInTheDocument();
+      // Shows correct tabs
+      [ui.howToFixTab, ui.moreInfoTab].forEach((tab) => {
+        expect(tab.get()).toBeInTheDocument();
+      });
+    });
+
+    it('shows rule advanced section with context', async () => {
+      const { ui, user } = getPageObjects();
+      renderCodingRulesApp(undefined, 'coding_rules?open=rule7');
+      await ui.appLoaded();
+      expect(ui.ruleTitle('Python rule with context').get()).toBeInTheDocument();
+
+      await user.click(ui.howToFixTab.get());
+
+      expect(ui.contextSubtitle('Spring').get()).toBeInTheDocument();
+      expect(screen.getByText('This is how to fix for spring')).toBeInTheDocument();
+
+      await user.click(ui.contextRadio('Spring boot').get());
+      expect(ui.contextSubtitle('Spring boot').get()).toBeInTheDocument();
+      expect(screen.getByText('This is how to fix for spring boot')).toBeInTheDocument();
+
+      await user.click(ui.contextRadio('coding_rules.description_context.other').get());
+      expect(ui.otherContextTitle.get()).toBeInTheDocument();
+    });
+
+    it('should show CYAC notification for rule advanced section and removes it after user`s visit', async () => {
+      const { ui, user } = getPageObjects();
+      renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule10');
+      await ui.appLoaded();
+      await user.click(ui.moreInfoTab.get());
+
+      expect(ui.caycNotificationButton.get()).toBeInTheDocument();
+
+      // navigate away and come back
+      await user.click(ui.howToFixTab.get());
+      await user.click(ui.moreInfoTab.get());
+
+      expect(ui.caycNotificationButton.query()).not.toBeInTheDocument();
+    });
+
+    it('should show CAYC notification for rule advanced section and removes it when user scrolls to the principles', async () => {
+      const { ui, user } = getPageObjects();
+      renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule10');
+      await ui.appLoaded();
+      await user.click(ui.moreInfoTab.get());
+      expect(ui.caycNotificationButton.get()).toBeInTheDocument();
+
+      fireEvent.scroll(screen.getByText('coding_rules.more_info.education_principles.title'));
+
+      // navigate away and come back
+      await user.click(ui.howToFixTab.get());
+      await user.click(ui.moreInfoTab.get());
+
+      expect(ui.caycNotificationButton.query()).not.toBeInTheDocument();
+    });
+
+    it('should not show notification for anonymous users', async () => {
+      const { ui, user } = getPageObjects();
+      renderCodingRulesApp(mockCurrentUser(), 'coding_rules?open=rule10');
+
+      await ui.appLoaded();
+      await user.click(ui.moreInfoTab.get());
+
+      expect(ui.caycNotificationButton.query()).not.toBeInTheDocument();
+    });
   });
 
-  expect(dialog).toBeInTheDocument();
-  const dialogScreen = within(dialog);
-  expect(dialogScreen.getByText(`${selectQP.name} - ${selectQP.languageName}`)).toBeInTheDocument();
-});
+  it('can activate/change/deactivate rule in quality profile', async () => {
+    const { ui, user } = getPageObjects();
+    handler.setIsAdmin();
+    renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule1');
+    await ui.appLoaded();
+    expect(ui.qpLink('QP Foo').get()).toBeInTheDocument();
 
-it('no quality profile for bulk cahnge base on language search', async () => {
-  const user = userEvent.setup();
-  handler.setIsAdmin();
-  renderCodingRulesApp(mockLoggedInUser());
+    // Activate rule in quality profile
+    await user.click(ui.activateButton.get());
+    await selectEvent.select(ui.qualityProfileSelect.get(), 'QP FooBar');
+    await selectEvent.select(ui.severitySelect.get(), 'severity.MINOR');
+    await user.type(ui.paramInput('1').get(), 'OK');
 
-  await user.click(await screen.findByRole('checkbox', { name: 'C' }));
-  await user.click(await screen.findByRole('button', { name: 'bulk_change' }));
-  await user.click(await screen.findByRole('link', { name: 'coding_rules.activate_in…' }));
-  const dialog = screen.getByRole('dialog', {
-    name: 'coding_rules.activate_in_quality_profile (1 coding_rules._rules)',
+    await act(() => user.click(ui.activateButton.get(ui.activateQPDialog.get())));
+    expect(ui.qpLink('QP FooBar').get()).toBeInTheDocument();
+
+    // Change rule details in quality profile
+    await user.click(ui.changeButton('QP FooBar').get());
+    await selectEvent.select(ui.severitySelect.get(), 'severity.BLOCKER');
+    await act(() => user.click(ui.saveButton.get(ui.changeQPDialog.get())));
+    expect(screen.getByText('severity.BLOCKER')).toBeInTheDocument();
+
+    // activate last java rule
+    await user.click(ui.activateButton.get());
+    await act(() => user.click(ui.activateButton.get(ui.activateQPDialog.get())));
+    expect(ui.qpLink('QP FooBarBaz').get()).toBeInTheDocument();
+
+    // Rule is activated in all quality profiles - show notification in dialog
+    await user.click(ui.activateButton.get());
+    expect(ui.activaInAllQPs.get()).toBeInTheDocument();
+    expect(ui.activateButton.get(ui.activateQPDialog.get())).toBeDisabled();
+    await user.click(ui.cancelButton.get());
+
+    // Deactivate rule in quality profile
+    await user.click(ui.deactivateButton('QP FooBar').get());
+    await act(() => user.click(ui.yesButton.get()));
+    expect(ui.qpLink('QP FooBar').query()).not.toBeInTheDocument();
   });
 
-  expect(dialog).toBeInTheDocument();
-  const dialogScreen = within(dialog);
-  await user.click(ui.activateInSelectOption.get());
-  expect(dialogScreen.getByText('coding_rules.bulk_change.no_quality_profile')).toBeInTheDocument();
-});
+  it('can extend the rule description', async () => {
+    const { ui, user } = getPageObjects();
+    handler.setIsAdmin();
+    renderCodingRulesApp(undefined, 'coding_rules?open=rule5');
+    await ui.appLoaded();
+    expect(ui.ruleTitle('Awsome Python rule').get()).toBeInTheDocument();
 
-it('should be able to bulk activate quality profile', async () => {
-  const user = userEvent.setup();
-  handler.setIsAdmin();
-  renderCodingRulesApp(mockLoggedInUser());
+    // Add
+    await user.click(ui.extendDescriptionButton.get());
+    await user.type(ui.extendDescriptionTextbox.get(), 'TEST DESC');
+    await user.click(ui.saveButton.get());
+    expect(await screen.findByText('TEST DESC')).toBeInTheDocument();
 
-  const selectQPSuccess = handler.allQualityProfile('java')[0];
-  const selectQPWarning = handler.allQualityProfile('java')[1];
+    // Edit
+    await user.click(ui.extendDescriptionButton.get());
+    await user.clear(ui.extendDescriptionTextbox.get());
+    await user.type(ui.extendDescriptionTextbox.get(), 'NEW DESC');
+    await user.click(ui.saveButton.get());
+    expect(await screen.findByText('NEW DESC')).toBeInTheDocument();
 
-  await user.click(await screen.findByRole('button', { name: 'bulk_change' }));
-  await user.click(await screen.findByRole('link', { name: 'coding_rules.activate_in…' }));
+    // Cancel
+    await user.click(ui.extendDescriptionButton.get());
+    await user.type(ui.extendDescriptionTextbox.get(), 'Difference');
+    await user.click(ui.cancelButton.get());
+    expect(await screen.findByText('NEW DESC')).toBeInTheDocument();
 
-  const dialog = screen.getByRole('dialog', {
-    name: `coding_rules.activate_in_quality_profile (${handler.allRulesCount()} coding_rules._rules)`,
+    // Remove
+    await user.click(ui.extendDescriptionButton.get());
+    await user.click(ui.removeButton.get());
+    await user.click(ui.removeButton.get(screen.getByRole('dialog')));
+    expect(screen.queryByText('NEW DESC')).not.toBeInTheDocument();
   });
-  expect(dialog).toBeInTheDocument();
 
-  let dialogScreen = within(dialog);
-  await user.click(ui.activateInSelectOption.get());
-  await user.click(
-    dialogScreen.getByText(`${selectQPSuccess.name} - ${selectQPSuccess.languageName}`)
-  );
-  expect(
-    dialogScreen.getByText(`${selectQPSuccess.name} - ${selectQPSuccess.languageName}`)
-  ).toBeInTheDocument();
+  it('can set tags', async () => {
+    const { ui, user } = getPageObjects();
+    handler.setIsAdmin();
+    renderCodingRulesApp(undefined, 'coding_rules?open=rule10');
+    await ui.appLoaded();
 
-  await user.click(dialogScreen.getByRole('button', { name: 'apply' }));
-  expect(
-    dialogScreen.getByText(
-      `coding_rules.bulk_change.success.${selectQPSuccess.name}.${selectQPSuccess.languageName}.${
-        handler.allRulesName().length
-      }`
-    )
-  ).toBeInTheDocument();
+    await user.click(ui.tagsDropdown.get());
+    expect(ui.tagsMenu.get()).toBeInTheDocument();
 
-  await user.click(dialogScreen.getByRole('button', { name: 'close' }));
+    RULE_TAGS_MOCK.forEach((tag) => {
+      expect(ui.tagCheckbox(tag).get()).toBeInTheDocument();
+    });
 
-  // Try bulk change when quality profile has warnning.
-  handler.activateWithWarning();
+    // Rule already has this tag
+    expect(ui.tagCheckbox(RULE_TAGS_MOCK[0]).get()).toBeChecked();
 
-  await user.click(await screen.findByRole('button', { name: 'bulk_change' }));
-  await user.click(await screen.findByRole('link', { name: 'coding_rules.activate_in…' }));
-  dialogScreen = within(
-    screen.getByRole('dialog', {
-      name: `coding_rules.activate_in_quality_profile (${handler.allRulesCount()} coding_rules._rules)`,
-    })
-  );
-  await user.click(ui.activateInSelectOption.get());
-  await user.click(
-    dialogScreen.getByText(`${selectQPWarning.name} - ${selectQPWarning.languageName}`)
-  );
-  await user.click(dialogScreen.getByRole('button', { name: 'apply' }));
-  expect(
-    dialogScreen.getByText(
-      `coding_rules.bulk_change.warning.${selectQPWarning.name}.${selectQPWarning.languageName}.${
-        handler.allRulesName().length - 1
-      }.1`
-    )
-  ).toBeInTheDocument();
-});
+    // Set tag
+    await user.click(ui.tagCheckbox(RULE_TAGS_MOCK[1]).get());
+    expect(ui.tagCheckbox(RULE_TAGS_MOCK[1]).get()).toBeChecked();
+    await user.click(ui.tagCheckbox(RULE_TAGS_MOCK[1]).get());
 
-it('should be able to bulk deactivate quality profile', async () => {
-  const user = userEvent.setup();
-  handler.setIsAdmin();
-  renderCodingRulesApp(mockLoggedInUser());
-
-  const selectQP = handler.allQualityProfile('java')[0];
-
-  await user.click(await screen.findByRole('button', { name: 'bulk_change' }));
-  await user.click(await screen.findByRole('link', { name: 'coding_rules.deactivate_in…' }));
-  const dialogScreen = within(
-    screen.getByRole('dialog', {
-      name: `coding_rules.deactivate_in_quality_profile (${handler.allRulesCount()} coding_rules._rules)`,
-    })
-  );
-  await user.click(ui.deactivateInSelectOption.get());
-
-  await user.click(dialogScreen.getByText(`${selectQP.name} - ${selectQP.languageName}`));
-  await user.click(dialogScreen.getByRole('button', { name: 'apply' }));
-  expect(
-    dialogScreen.getByText(
-      `coding_rules.bulk_change.success.${selectQP.name}.${selectQP.languageName}.${
-        handler.allRulesName().length
-      }`
-    )
-  ).toBeInTheDocument();
-});
-
-it('should handle hash parameters', async () => {
-  renderCodingRulesApp(mockLoggedInUser(), 'coding_rules#languages=c,js|types=BUG');
-
-  // 2 languages
-  expect(await screen.findByText('x_selected.2')).toBeInTheDocument();
-  expect(screen.getAllByTitle('issue.type.BUG')).toHaveLength(2);
-  // Only 3 rules shown
-  expect(screen.getByText('x_of_y_shown.3.3')).toBeInTheDocument();
-});
-
-it('should show notification for rule advanced section and remove it after user visits', async () => {
-  const user = userEvent.setup();
-  renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule8');
-  await screen.findByRole('heading', {
-    level: 1,
-    name: 'Awesome Python rule with education principles',
+    // Search for specific tag
+    await user.type(ui.tagSearch.get(), RULE_TAGS_MOCK[2]);
+    expect(ui.tagCheckbox(RULE_TAGS_MOCK[2]).get()).toBeInTheDocument();
+    expect(ui.tagCheckbox(RULE_TAGS_MOCK[1]).query()).not.toBeInTheDocument();
   });
-  expect(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info',
-    })
-  ).toBeInTheDocument();
 
-  await user.click(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info',
-    })
-  );
+  describe('custom rule', () => {
+    it('can create custom rule', async () => {
+      const { ui, user } = getPageObjects();
+      handler.setIsAdmin();
+      renderCodingRulesApp(mockLoggedInUser());
+      await ui.appLoaded();
 
-  expect(screen.getByText('coding_rules.more_info.notification_message')).toBeInTheDocument();
-  expect(
-    screen.getByRole('button', {
-      name: 'coding_rules.more_info.scroll_message',
-    })
-  ).toBeInTheDocument();
-  await user.click(
-    screen.getByRole('button', {
-      name: 'coding_rules.more_info.scroll_message',
-    })
-  );
-  // navigate away and come back
-  await user.click(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.how_to_fix',
-    })
-  );
-  await user.click(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info',
-    })
-  );
-  expect(screen.queryByText('coding_rules.more_info.notification_message')).not.toBeInTheDocument();
-});
+      await user.click(ui.templateFacet.get());
+      await user.click(ui.facetItem('coding_rules.filters.template.is_template').get());
 
-it('should show notification for rule advanced section and removes it when user scroll to the principles', async () => {
-  const user = userEvent.setup();
-  renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule8');
+      // Shows only one template rule
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
 
-  await screen.findByRole('heading', {
-    level: 1,
-    name: 'Awesome Python rule with education principles',
+      // Show template rule details
+      await user.click(ui.ruleListItemLink('Template rule').get());
+      expect(ui.ruleTitle('Template rule').get()).toBeInTheDocument();
+      expect(ui.customRuleSectionTitle.get()).toBeInTheDocument();
+
+      // Create custom rule
+      await user.click(ui.createCustomRuleButton.get());
+      await user.type(ui.ruleNameTextbox.get(), 'New Custom Rule');
+      expect(ui.keyTextbox.get()).toHaveValue('New_Custom_Rule');
+      await user.clear(ui.keyTextbox.get());
+      await user.type(ui.keyTextbox.get(), 'new_custom_rule');
+
+      await selectEvent.select(ui.typeSelect.get(), 'issue.type.BUG');
+      await selectEvent.select(ui.severitySelect.get(), 'severity.MINOR');
+      await selectEvent.select(ui.statusSelect.get(), 'rules.status.BETA');
+
+      await user.type(ui.descriptionTextbox.get(), 'Some description for custom rule');
+      await user.type(ui.paramInput('1').get(), 'Default value');
+
+      await user.click(ui.createButton.get());
+
+      // Verify the rule is created
+      expect(ui.customRuleItemLink('New Custom Rule').get()).toBeInTheDocument();
+    });
+
+    it('can edit custom rule', async () => {
+      const { ui, user } = getPageObjects();
+      handler.setIsAdmin();
+      renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule9');
+      await ui.appLoaded();
+
+      await user.click(ui.editCustomRuleButton.get());
+
+      // Change name and description of custom rule
+      await user.clear(ui.ruleNameTextbox.get());
+      await user.type(ui.ruleNameTextbox.get(), 'Updated custom rule name');
+      await user.type(ui.descriptionTextbox.get(), 'Some description for custom rule');
+
+      await user.click(ui.saveButton.get(ui.updateCustomRuleDialog.get()));
+
+      expect(ui.ruleTitle('Updated custom rule name').get()).toBeInTheDocument();
+    });
+
+    it('can delete custom rule', async () => {
+      const { ui, user } = getPageObjects();
+      handler.setIsAdmin();
+      renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule9');
+      await ui.appLoaded();
+
+      await user.click(ui.deleteButton.get());
+      await user.click(ui.deleteButton.get(ui.deleteCustomRuleDialog.get()));
+
+      // Shows the list of rules, custom rule should not be included
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(9);
+      expect(ui.ruleListItemLink('Custom Rule based on rule8').query()).not.toBeInTheDocument();
+    });
+
+    it('can delete custom rule from template page', async () => {
+      const { ui, user } = getPageObjects();
+      handler.setIsAdmin();
+      renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule8');
+      await ui.appLoaded();
+
+      await user.click(ui.deleteCustomRuleButton('Custom Rule based on rule8').get());
+      await user.click(ui.deleteButton.get(ui.deleteCustomRuleDialog.get()));
+      expect(ui.customRuleItemLink('Custom Rule based on rule8').query()).not.toBeInTheDocument();
+    });
+
+    it('anonymous user cannot modify custom rule', async () => {
+      const { ui } = getPageObjects();
+      renderCodingRulesApp(undefined, 'coding_rules?open=rule9');
+      await ui.appLoaded();
+
+      expect(ui.editCustomRuleButton.query()).not.toBeInTheDocument();
+      expect(ui.deleteButton.query()).not.toBeInTheDocument();
+    });
   });
-  expect(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info',
-    })
-  ).toBeInTheDocument();
-
-  // navigate away and come back
-  await user.click(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.how_to_fix',
-    })
-  );
-  await user.click(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info',
-    })
-  );
-
-  expect(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info',
-    })
-  ).toBeInTheDocument();
-
-  await user.click(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info',
-    })
-  );
-
-  expect(screen.getByText('coding_rules.more_info.notification_message')).toBeInTheDocument();
-  expect(
-    screen.getByRole('button', {
-      name: 'coding_rules.more_info.scroll_message',
-    })
-  ).toBeInTheDocument();
-
-  fireEvent.scroll(screen.getByText('coding_rules.more_info.education_principles.title'));
-
-  // navigate away and come back
-  await user.click(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.how_to_fix',
-    })
-  );
-  await user.click(
-    screen.getByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info',
-    })
-  );
-  expect(screen.queryByText('coding_rules.more_info.notification_message')).not.toBeInTheDocument();
 });
 
-it('should not show notification for anonymous users', async () => {
-  const user = userEvent.setup();
-  renderCodingRulesApp(mockCurrentUser(), 'coding_rules?open=rule8');
+describe('redirects', () => {
+  it('should open with permalink', async () => {
+    const { ui } = getPageObjects();
+    renderCodingRulesApp(undefined, 'coding_rules?rule_key=rule1');
+    await ui.appLoaded();
+    expect(ui.ruleListItemLink('Awsome java rule').get()).toBeInTheDocument();
+    expect(ui.ruleListItemLink('Hot hotspot').query()).not.toBeInTheDocument();
+  });
 
-  await user.click(
-    await screen.findByRole('tab', {
-      name: 'coding_rules.description_section.title.more_info',
-    })
-  );
-
-  expect(screen.queryByText('coding_rules.more_info.notification_message')).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', {
-      name: 'coding_rules.more_info.scroll_message',
-    })
-  ).not.toBeInTheDocument();
-});
-
-it('should filter correctly', async () => {
-  const user = userEvent.setup();
-  renderCodingRulesApp(mockCurrentUser());
-
-  expect(await within(await ui.rulesList.find()).findAllByRole('listitem')).toHaveLength(8);
-  await user.click(await ui.availableSinceFacet.find());
-  await user.click(await ui.availableSinceDateField.find());
-  await userEvent.selectOptions(
-    await screen.findByRole('combobox', { name: 'Month:' }),
-    'November'
-  );
-  await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Year:' }), '2022');
-  await user.click(screen.getByRole('gridcell', { name: '1' }));
-  expect(ui.availableSinceDateField.get()).toHaveDisplayValue('Nov 1, 2022');
-  // eslint-disable-next-line jest-dom/prefer-in-document
-  expect(within(ui.rulesList.get()).getAllByRole('listitem')).toHaveLength(1);
+  it('should handle hash parameters', async () => {
+    renderCodingRulesApp(mockLoggedInUser(), 'coding_rules#languages=c,js|types=BUG');
+    // 2 languages
+    expect(await screen.findByText('x_selected.2')).toBeInTheDocument();
+    expect(screen.getAllByTitle('issue.type.BUG')).toHaveLength(2);
+    // Only 3 rules shown
+    expect(screen.getByText('x_of_y_shown.2.2')).toBeInTheDocument();
+  });
 });
 
 function renderCodingRulesApp(currentUser?: CurrentUser, navigateTo?: string) {

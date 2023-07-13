@@ -158,7 +158,7 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
             {selectedContext.key !== OTHERS_KEY && (
               <h2>
                 {translateWithParameters(
-                  'coding_rules.description_context.sub_title',
+                  'coding_rules.description_context.subtitle',
                   selectedContext.displayName
                 )}
               </h2>

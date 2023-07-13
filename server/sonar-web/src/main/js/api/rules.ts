@@ -21,7 +21,19 @@ import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, postJSON } from '../helpers/request';
 import { GetRulesAppResponse, SearchRulesResponse } from '../types/coding-rules';
 import { SearchRulesQuery } from '../types/rules';
-import { RuleActivation, RuleDetails, RulesUpdateRequest } from '../types/types';
+import { RuleActivation, RuleDetails, RuleType, RulesUpdateRequest } from '../types/types';
+
+export interface CreateRuleData {
+  customKey: string;
+  markdownDescription: string;
+  name: string;
+  params?: string;
+  preventReactivation?: boolean;
+  severity?: string;
+  status?: string;
+  templateKey: string;
+  type?: RuleType;
+}
 
 export function getRulesApp(): Promise<GetRulesAppResponse> {
   return getJSON('/api/rules/app').catch(throwGlobalError);
@@ -51,17 +63,7 @@ export function getRuleTags(parameters: { ps?: number; q: string }): Promise<str
   return getJSON('/api/rules/tags', parameters).then((r) => r.tags, throwGlobalError);
 }
 
-export function createRule(data: {
-  customKey: string;
-  markdownDescription: string;
-  name: string;
-  params?: string;
-  preventReactivation?: boolean;
-  severity?: string;
-  status?: string;
-  templateKey: string;
-  type?: string;
-}): Promise<RuleDetails> {
+export function createRule(data: CreateRuleData): Promise<RuleDetails> {
   return postJSON('/api/rules/create', data).then(
     (r) => r.rule,
     (response) => {

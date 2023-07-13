@@ -23,29 +23,46 @@ import {
   mockCurrentUser,
   mockPaging,
   mockQualityProfile,
+  mockRuleActivation,
   mockRuleDetails,
   mockRuleRepository,
 } from '../../helpers/testMocks';
 import { RuleRepository, SearchRulesResponse } from '../../types/coding-rules';
 import { RawIssuesResponse } from '../../types/issues';
 import { SearchRulesQuery } from '../../types/rules';
-import { Rule, RuleActivation, RuleDetails, RulesUpdateRequest } from '../../types/types';
+import { Dict, Rule, RuleActivation, RuleDetails, RulesUpdateRequest } from '../../types/types';
 import { NoticeType } from '../../types/users';
 import { getFacet } from '../issues';
 import {
   Profile,
   SearchQualityProfilesParameters,
   SearchQualityProfilesResponse,
+  activateRule,
   bulkActivateRules,
   bulkDeactivateRules,
+  deactivateRule,
   searchQualityProfiles,
 } from '../quality-profiles';
-import { getRuleDetails, getRulesApp, searchRules, updateRule } from '../rules';
+import {
+  CreateRuleData,
+  createRule,
+  deleteRule,
+  getRuleDetails,
+  getRuleTags,
+  getRulesApp,
+  searchRules,
+  updateRule,
+} from '../rules';
 import { dismissNotice, getCurrentUser } from '../users';
 
 interface FacetFilter {
   languages?: string;
+  tags?: string;
   available_since?: string;
+  q?: string;
+  types?: string;
+  severities?: string;
+  is_template?: string | boolean;
 }
 
 const FACET_RULE_MAP: { [key: string]: keyof Rule } = {
@@ -53,8 +70,12 @@ const FACET_RULE_MAP: { [key: string]: keyof Rule } = {
   types: 'type',
 };
 
+export const RULE_TAGS_MOCK = ['awesome', 'cute', 'nice'];
+
 export default class CodingRulesServiceMock {
   defaultRules: RuleDetails[] = [];
+  defaultRulesActivations: Dict<RuleActivation[]> = {};
+  rulesActivations: Dict<RuleActivation[]> = {};
   rules: RuleDetails[] = [];
   qualityProfile: Profile[] = [];
   repositories: RuleRepository[] = [];
@@ -71,6 +92,12 @@ export default class CodingRulesServiceMock {
       mockQualityProfile({ key: 'p1', name: 'QP Foo', language: 'java', languageName: 'Java' }),
       mockQualityProfile({ key: 'p2', name: 'QP Bar', language: 'js' }),
       mockQualityProfile({ key: 'p3', name: 'QP FooBar', language: 'java', languageName: 'Java' }),
+      mockQualityProfile({
+        key: 'p4',
+        name: 'QP FooBarBaz',
+        language: 'java',
+        languageName: 'Java',
+      }),
     ];
 
     const resourceContent = 'Some link <a href="http://example.com">Awsome Reading</a>';
@@ -85,6 +112,10 @@ export default class CodingRulesServiceMock {
         lang: 'java',
         langName: 'Java',
         name: 'Awsome java rule',
+        params: [
+          { key: '1', type: 'TEXT', htmlDesc: 'html description for key 1' },
+          { key: '2', type: 'NUMBER', defaultValue: 'default value for key 2' },
+        ],
       }),
       mockRuleDetails({
         key: 'rule2',
@@ -128,7 +159,7 @@ export default class CodingRulesServiceMock {
       }),
       mockRuleDetails({
         key: 'rule6',
-        type: 'VULNERABILITY',
+        type: 'BUG',
         lang: 'py',
         langName: 'Python',
         name: 'Bad Python rule',
@@ -138,6 +169,7 @@ export default class CodingRulesServiceMock {
       mockRuleDetails({
         key: 'rule7',
         type: 'VULNERABILITY',
+        severity: 'MINOR',
         lang: 'py',
         langName: 'Python',
         name: 'Python rule with context',
@@ -163,11 +195,42 @@ export default class CodingRulesServiceMock {
         ],
       }),
       mockRuleDetails({
-        createdAt: '2022-12-16T17:26:54+0100',
         key: 'rule8',
-        type: 'VULNERABILITY',
+        type: 'BUG',
+        severity: 'MINOR',
         lang: 'py',
         langName: 'Python',
+        tags: ['awesome'],
+        name: 'Template rule',
+        params: [
+          { key: '1', type: 'TEXT', htmlDesc: 'html description for key 1' },
+          { key: '2', type: 'NUMBER', defaultValue: 'default value for key 2' },
+        ],
+        isTemplate: true,
+      }),
+      mockRuleDetails({
+        key: 'rule9',
+        type: 'BUG',
+        severity: 'MINOR',
+        lang: 'py',
+        langName: 'Python',
+        tags: ['awesome'],
+        name: 'Custom Rule based on rule8',
+        params: [
+          { key: '1', type: 'TEXT', htmlDesc: 'html description for key 1' },
+          { key: '2', type: 'NUMBER', defaultValue: 'default value for key 2' },
+        ],
+        templateKey: 'rule8',
+      }),
+      // Keep this last
+      mockRuleDetails({
+        createdAt: '2022-12-16T17:26:54+0100',
+        key: 'rule10',
+        type: 'VULNERABILITY',
+        severity: 'MINOR',
+        lang: 'py',
+        langName: 'Python',
+        tags: ['awesome'],
         name: 'Awesome Python rule with education principles',
         descriptionSections: [
           { key: RuleDescriptionSections.INTRODUCTION, content: introTitle },
@@ -181,17 +244,27 @@ export default class CodingRulesServiceMock {
       }),
     ];
 
-    (updateRule as jest.Mock).mockImplementation(this.handleUpdateRule);
-    (searchRules as jest.Mock).mockImplementation(this.handleSearchRules);
-    (getRuleDetails as jest.Mock).mockImplementation(this.handleGetRuleDetails);
-    (searchQualityProfiles as jest.Mock).mockImplementation(this.handleSearchQualityProfiles);
-    (getRulesApp as jest.Mock).mockImplementation(this.handleGetRulesApp);
-    (bulkActivateRules as jest.Mock).mockImplementation(this.handleBulkActivateRules);
-    (bulkDeactivateRules as jest.Mock).mockImplementation(this.handleBulkDeactivateRules);
-    (getFacet as jest.Mock).mockImplementation(this.handleGetGacet);
-    (getCurrentUser as jest.Mock).mockImplementation(this.handleGetCurrentUser);
-    (dismissNotice as jest.Mock).mockImplementation(this.handleDismissNotification);
+    this.defaultRulesActivations = {
+      [this.defaultRules[0].key]: [mockRuleActivation({ qProfile: 'p1' })],
+    };
+
+    jest.mocked(updateRule).mockImplementation(this.handleUpdateRule);
+    jest.mocked(createRule).mockImplementation(this.handleCreateRule);
+    jest.mocked(deleteRule).mockImplementation(this.handleDeleteRule);
+    jest.mocked(searchRules).mockImplementation(this.handleSearchRules);
+    jest.mocked(getRuleDetails).mockImplementation(this.handleGetRuleDetails);
+    jest.mocked(searchQualityProfiles).mockImplementation(this.handleSearchQualityProfiles);
+    jest.mocked(getRulesApp).mockImplementation(this.handleGetRulesApp);
+    jest.mocked(bulkActivateRules).mockImplementation(this.handleBulkActivateRules);
+    jest.mocked(bulkDeactivateRules).mockImplementation(this.handleBulkDeactivateRules);
+    jest.mocked(activateRule).mockImplementation(this.handleActivateRule);
+    jest.mocked(deactivateRule).mockImplementation(this.handleDeactivateRule);
+    jest.mocked(getFacet).mockImplementation(this.handleGetGacet);
+    jest.mocked(getRuleTags).mockImplementation(this.handleGetRuleTags);
+    jest.mocked(getCurrentUser).mockImplementation(this.handleGetCurrentUser);
+    jest.mocked(dismissNotice).mockImplementation(this.handleDismissNotification);
     this.rules = cloneDeep(this.defaultRules);
+    this.rulesActivations = cloneDeep(this.defaultRulesActivations);
   }
 
   getRulesWithoutDetails(rules: RuleDetails[]) {
@@ -212,15 +285,39 @@ export default class CodingRulesServiceMock {
     );
   }
 
-  filterFacet({ languages, available_since }: FacetFilter) {
+  filterFacet({
+    languages,
+    available_since,
+    q,
+    severities,
+    types,
+    tags,
+    is_template,
+  }: FacetFilter) {
     let filteredRules = this.rules;
+    if (types) {
+      filteredRules = filteredRules.filter((r) => types.includes(r.type));
+    }
     if (languages) {
       filteredRules = filteredRules.filter((r) => r.lang && languages.includes(r.lang));
+    }
+    if (severities) {
+      filteredRules = filteredRules.filter((r) => r.severity && severities.includes(r.severity));
     }
     if (available_since) {
       filteredRules = filteredRules.filter(
         (r) => r.createdAt && new Date(r.createdAt) > new Date(available_since)
       );
+    }
+    if (is_template !== undefined) {
+      filteredRules = filteredRules.filter((r) => (is_template ? r.isTemplate : !r.isTemplate));
+    }
+    if (q && q.length > 2) {
+      filteredRules = filteredRules.filter((r) => r.name.includes(q));
+    }
+
+    if (tags) {
+      filteredRules = filteredRules.filter((r) => r.tags && r.tags.some((t) => tags.includes(t)));
     }
     return this.getRulesWithoutDetails(filteredRules);
   }
@@ -238,6 +335,7 @@ export default class CodingRulesServiceMock {
     this.applyWithWarning = false;
     this.dismissedNoticesEP = false;
     this.rules = cloneDeep(this.defaultRules);
+    this.rulesActivations = cloneDeep(this.defaultRulesActivations);
   }
 
   allRulesCount() {
@@ -279,7 +377,10 @@ export default class CodingRulesServiceMock {
         errors: [{ msg: `No rule has been found for id ${parameters.key}` }],
       });
     }
-    return this.reply({ actives: parameters.actives ? [] : undefined, rule });
+    return this.reply({
+      actives: parameters.actives ? this.rulesActivations[rule.key] ?? [] : undefined,
+      rule,
+    });
   };
 
   handleUpdateRule = (data: RulesUpdateRequest): Promise<RuleDetails> => {
@@ -325,13 +426,42 @@ export default class CodingRulesServiceMock {
     return this.reply(rule);
   };
 
+  handleCreateRule = (data: CreateRuleData) => {
+    const newRule = mockRuleDetails({
+      descriptionSections: [
+        { key: RuleDescriptionSections.DEFAULT, content: data.markdownDescription },
+      ],
+      ...pick(data, ['templateKey', 'severity', 'type', 'name', 'status']),
+      key: data.customKey,
+      params:
+        data.params?.split(';').map((param: string) => {
+          const [key, value] = param.split('=');
+          return { key, defaultValue: value, type: 'TEXT' };
+        }) ?? [],
+    });
+
+    this.rules.push(newRule);
+
+    return this.reply(newRule);
+  };
+
+  handleDeleteRule = (data: { key: string }) => {
+    this.rules = this.rules.filter((r) => r.key !== data.key);
+    return this.reply(undefined);
+  };
+
   handleSearchRules = ({
     facets,
+    types,
     languages,
     p,
     ps,
     available_since,
+    severities,
+    tags,
+    q,
     rule_key,
+    is_template,
   }: SearchRulesQuery): Promise<SearchRulesResponse> => {
     const countFacet = (facets || '').split(',').map((facet: keyof Rule) => {
       const facetCount = countBy(
@@ -348,7 +478,15 @@ export default class CodingRulesServiceMock {
     if (rule_key) {
       filteredRules = this.getRulesWithoutDetails(this.rules).filter((r) => r.key === rule_key);
     } else {
-      filteredRules = this.filterFacet({ languages, available_since });
+      filteredRules = this.filterFacet({
+        languages,
+        available_since,
+        q,
+        severities,
+        types,
+        tags,
+        is_template,
+      });
     }
     const responseRules = filteredRules.slice((currentP - 1) * currentPs, currentP * currentPs);
     return this.reply({
@@ -384,6 +522,32 @@ export default class CodingRulesServiceMock {
     });
   };
 
+  handleActivateRule = (data: {
+    key: string;
+    params?: Dict<string>;
+    reset?: boolean;
+    rule: string;
+    severity?: string;
+  }) => {
+    const nextActivation = mockRuleActivation({ qProfile: data.key, severity: data.severity });
+    const activationIndex = this.rulesActivations[data.rule]?.findIndex((activation) => {
+      return activation.qProfile === data.key;
+    });
+    if (activationIndex !== -1) {
+      this.rulesActivations[data.rule][activationIndex] = nextActivation;
+    } else {
+      this.rulesActivations[data.rule] = [...this.rulesActivations[data.rule], nextActivation];
+    }
+    return this.reply(undefined);
+  };
+
+  handleDeactivateRule = (data: { key: string; rule: string }) => {
+    this.rulesActivations[data.rule] = this.rulesActivations[data.rule]?.filter(
+      (activation) => activation.qProfile !== data.key
+    );
+    return this.reply(undefined);
+  };
+
   handleSearchQualityProfiles = ({
     language,
   }: SearchQualityProfilesParameters = {}): Promise<SearchQualityProfilesResponse> => {
@@ -394,6 +558,10 @@ export default class CodingRulesServiceMock {
       profiles = profiles.filter((p) => p.language === language);
     }
     return this.reply({ profiles });
+  };
+
+  handleGetRuleTags = (data: { ps?: number; q: string }) => {
+    return this.reply(RULE_TAGS_MOCK.filter((tag) => tag.includes(data.q)));
   };
 
   handleGetRulesApp = () => {

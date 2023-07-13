@@ -196,9 +196,12 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
             ) : (
               params.map((param) => (
                 <div className="modal-field" key={param.key}>
-                  <label title={param.key}>{param.key}</label>
+                  <label title={param.key} htmlFor={param.key}>
+                    {param.key}
+                  </label>
                   {param.type === 'TEXT' ? (
                     <textarea
+                      id={param.key}
                       disabled={submitting}
                       name={param.key}
                       onChange={this.handleParameterChange}
@@ -208,6 +211,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
                     />
                   ) : (
                     <input
+                      id={param.key}
                       disabled={submitting}
                       name={param.key}
                       onChange={this.handleParameterChange}

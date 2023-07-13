@@ -135,6 +135,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
             {!ruleDetails.isTemplate && (
               <ActivationButton
                 activation={activation}
+                ariaLabel={translateWithParameters('coding_rules.change_details_x', profile.name)}
                 buttonText={translate('change_verb')}
                 className="coding-rules-detail-quality-profile-change"
                 modalHeader={translate('coding_rules.change_details')}
@@ -177,6 +178,10 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
                 {({ onClick }) => (
                   <Button
                     className="coding-rules-detail-quality-profile-deactivate button-red spacer-left"
+                    aria-label={translateWithParameters(
+                      'coding_rules.deactivate_in_quality_profile_x',
+                      profile.name
+                    )}
                     onClick={onClick}
                   >
                     {translate('coding_rules.deactivate')}

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
+import { RULE_TYPES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import Facet, { BasicProps } from './Facet';
 
@@ -33,12 +34,10 @@ export default class TypeFacet extends React.PureComponent<BasicProps> {
   renderTextName = (type: string) => translate('issue.type', type);
 
   render() {
-    const options = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
-
     return (
       <Facet
         {...this.props}
-        options={options}
+        options={RULE_TYPES}
         property="types"
         renderName={this.renderName}
         renderTextName={this.renderTextName}

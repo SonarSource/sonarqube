@@ -31,45 +31,34 @@ interface Props {
   onDone: (severity: string) => Promise<void>;
   profiles: BaseProfile[];
   rule: Rule | RuleDetails;
+  ariaLabel?: string;
 }
 
-interface State {
-  modal: boolean;
-}
+export default function ActivationButton(props: Props) {
+  const { className, ariaLabel, buttonText, activation, modalHeader, profiles, rule } = props;
+  const [openModal, setOpenModal] = React.useState(false);
 
-export default class ActivationButton extends React.PureComponent<Props, State> {
-  state: State = { modal: false };
+  return (
+    <>
+      <Button
+        aria-label={ariaLabel}
+        className={className}
+        id="coding-rules-quality-profile-activate"
+        onClick={() => setOpenModal(true)}
+      >
+        {buttonText}
+      </Button>
 
-  handleButtonClick = () => {
-    this.setState({ modal: true });
-  };
-
-  handleCloseModal = () => {
-    this.setState({ modal: false });
-  };
-
-  render() {
-    return (
-      <>
-        <Button
-          className={this.props.className}
-          id="coding-rules-quality-profile-activate"
-          onClick={this.handleButtonClick}
-        >
-          {this.props.buttonText}
-        </Button>
-
-        {this.state.modal && (
-          <ActivationFormModal
-            activation={this.props.activation}
-            modalHeader={this.props.modalHeader}
-            onClose={this.handleCloseModal}
-            onDone={this.props.onDone}
-            profiles={this.props.profiles}
-            rule={this.props.rule}
-          />
-        )}
-      </>
-    );
-  }
+      {openModal && (
+        <ActivationFormModal
+          activation={activation}
+          modalHeader={modalHeader}
+          onClose={() => setOpenModal(false)}
+          onDone={props.onDone}
+          profiles={profiles}
+          rule={rule}
+        />
+      )}
+    </>
+  );
 }

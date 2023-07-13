@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Matcher, RenderResult, fireEvent, render, screen, within } from '@testing-library/react';
+import { Matcher, RenderResult, render, screen, within } from '@testing-library/react';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { omit } from 'lodash';
 import * as React from 'react';
@@ -220,43 +220,23 @@ function renderRoutedApp(
   );
 }
 
-/* eslint-disable testing-library/no-node-access */
 export function dateInputEvent(user: UserEvent) {
   return {
-    async openDatePicker(element: HTMLElement) {
-      await user.click(element);
-    },
     async pickDate(element: HTMLElement, date: Date) {
       await user.click(element);
 
-      const monthSelect =
-        element.parentNode?.querySelector<HTMLSelectElement>('select[name="months"]');
-      if (!monthSelect) {
-        throw new Error('Could not find the month selector of the date picker element');
-      }
+      const formatter = new Intl.DateTimeFormat('en', { month: 'long' });
 
-      const yearSelect =
-        element.parentNode?.querySelector<HTMLSelectElement>('select[name="years"]');
-      if (!yearSelect) {
-        throw new Error('Could not find the year selector of the date picker element');
-      }
-
-      fireEvent.change(monthSelect, { target: { value: date.getMonth() } });
-      fireEvent.change(yearSelect, { target: { value: date.getFullYear() } });
-
-      const dayButtons =
-        element.parentNode?.querySelectorAll<HTMLSelectElement>('button[name="day"]');
-      if (!dayButtons) {
-        throw new Error('Could not find the day buttons of the date picker element');
-      }
-      const dayButton = Array.from(dayButtons).find(
-        (button) => Number(button.textContent) === date.getDate()
+      await user.selectOptions(
+        await screen.findByRole('combobox', { name: 'Month:' }),
+        formatter.format(date)
       );
-      if (!dayButton) {
-        throw new Error(`Could not find the button for day ${date.getDate()}`);
-      }
+      await user.selectOptions(
+        screen.getByRole('combobox', { name: 'Year:' }),
+        String(date.getFullYear())
+      );
 
-      await user.click(dayButton);
+      await user.click(screen.getByRole('gridcell', { name: String(date.getDate()) }));
     },
   };
 }

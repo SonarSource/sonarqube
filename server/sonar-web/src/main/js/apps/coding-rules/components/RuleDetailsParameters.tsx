@@ -26,36 +26,36 @@ interface Props {
   params: RuleParameter[];
 }
 
-export default class RuleDetailsParameters extends React.PureComponent<Props> {
-  renderParameter = (param: RuleParameter) => (
-    <tr className="coding-rules-detail-parameter" key={param.key}>
-      <td className="coding-rules-detail-parameter-name">{param.key}</td>
-      <td className="coding-rules-detail-parameter-description">
-        {param.htmlDesc !== undefined && (
-          <p
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
-          />
-        )}
-        {param.defaultValue !== undefined && (
-          <div className="note spacer-top">
-            {translate('coding_rules.parameters.default_value')}
-            <br />
-            <span className="coding-rules-detail-parameter-value">{param.defaultValue}</span>
-          </div>
-        )}
-      </td>
-    </tr>
+export default function RuleDetailsParameters({ params }: Props) {
+  return (
+    <div className="js-rule-parameters">
+      <h3 className="coding-rules-detail-title">{translate('coding_rules.parameters')}</h3>
+      <table className="coding-rules-detail-parameters">
+        <tbody>
+          {params.map((param) => (
+            <tr className="coding-rules-detail-parameter" key={param.key}>
+              <td className="coding-rules-detail-parameter-name">{param.key}</td>
+              <td className="coding-rules-detail-parameter-description">
+                {param.htmlDesc !== undefined && (
+                  <p
+                    // eslint-disable-next-line react/no-danger
+                    dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
+                  />
+                )}
+                {param.defaultValue !== undefined && (
+                  <div className="note spacer-top">
+                    {translate('coding_rules.parameters.default_value')}
+                    <br />
+                    <span className="coding-rules-detail-parameter-value">
+                      {param.defaultValue}
+                    </span>
+                  </div>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
-
-  render() {
-    return (
-      <div className="js-rule-parameters">
-        <h3 className="coding-rules-detail-title">{translate('coding_rules.parameters')}</h3>
-        <table className="coding-rules-detail-parameters">
-          <tbody>{this.props.params.map(this.renderParameter)}</tbody>
-        </table>
-      </div>
-    );
-  }
 }

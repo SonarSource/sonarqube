@@ -28,50 +28,26 @@ interface Props {
   templateRule: RuleDetails;
 }
 
-interface State {
-  modal: boolean;
-}
+export default function CustomRuleButton(props: Props) {
+  const { customRule, templateRule } = props;
+  const [modalOpen, setModalOpen] = React.useState(false);
 
-export default class CustomRuleButton extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { modal: false };
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleClick = () => {
-    this.setState({ modal: true });
+  const handleDone = (newRuleDetails: RuleDetails) => {
+    setModalOpen(false);
+    props.onDone(newRuleDetails);
   };
 
-  handleModalClose = () => {
-    if (this.mounted) {
-      this.setState({ modal: false });
-    }
-  };
-
-  handleDone = (newRuleDetails: RuleDetails) => {
-    this.handleModalClose();
-    this.props.onDone(newRuleDetails);
-  };
-
-  render() {
-    return (
-      <>
-        {this.props.children({ onClick: this.handleClick })}
-        {this.state.modal && (
-          <CustomRuleFormModal
-            customRule={this.props.customRule}
-            onClose={this.handleModalClose}
-            onDone={this.handleDone}
-            templateRule={this.props.templateRule}
-          />
-        )}
-      </>
-    );
-  }
+  return (
+    <>
+      {props.children({ onClick: () => setModalOpen(true) })}
+      {modalOpen && (
+        <CustomRuleFormModal
+          customRule={customRule}
+          onClose={() => setModalOpen(false)}
+          onDone={handleDone}
+          templateRule={templateRule}
+        />
+      )}
+    </>
+  );
 }
