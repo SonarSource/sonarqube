@@ -29,6 +29,9 @@ import { Organization } from "../../../types/types";
 import OrganizationAvatar from "./OrganizationAvatar";
 import { withOrganizationContext } from "../OrganizationContext";
 import { updateOrganization } from "../../../api/organizations";
+import OrganizationAvatarUrlInput from '../../create/components/OrganizationAvatarUrlInput';
+import OrganizationNameInput from '../../create/components/OrganizationNameInput';
+import OrganizationDescriptionInput from '../../create/components/OrganizationDescriptionInput';
 
 interface Props {
   organization: Organization;
@@ -67,11 +70,19 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleAvatarInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = event.target;
+  handleAvatarInputChange = (value:string) => {
+    
     this.setState({ avatar: value });
     this.changeAvatarImage(value);
   };
+
+  handleNameChange = (value:string) =>{
+    this.setState({name: value});
+  }
+
+  handleDescriptionChange = (value:string) =>{
+    this.setState({description: value});
+  }
 
   changeAvatarImage = (value: string) => {
     this.setState({ avatarImage: value });
@@ -125,40 +136,20 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
 
           <div className="boxed-group boxed-group-inner">
             <h2 className="boxed-title">{translate('organization.details')}</h2>
+          
             <form onSubmit={this.handleSubmit}>
               <div className="form-field">
                 <label htmlFor="organization-name">
                   {translate('organization.name')}
                   <em className="mandatory">*</em>
                 </label>
-                <input
-                    className="input-super-large"
-                    disabled={this.state.loading}
-                    id="organization-name"
-                    maxLength={80}
-                    name="name"
-                    onChange={e => this.setState({ name: e.target.value })}
-                    required={true}
-                    type="text"
-                    value={this.state.name}
-                />
+                <OrganizationNameInput  showHelpIcon = {false} initialValue = {this.state.name} onChange={this.handleNameChange}></OrganizationNameInput>
                 <div className="form-field-description">
                   {translate('organization.name.description')}
                 </div>
-              </div>
+                </div>
               <div className="form-field">
-                <label htmlFor="organization-avatar">{translate('organization.avatar')}</label>
-                <input
-                    className="input-super-large"
-                    disabled={this.state.loading}
-                    id="organization-avatar"
-                    maxLength={256}
-                    name="avatar"
-                    onChange={this.handleAvatarInputChange}
-                    placeholder={translate('onboarding.create_organization.avatar.placeholder')}
-                    type="text"
-                    value={this.state.avatar}
-                />
+                <OrganizationAvatarUrlInput initialValue={this.state.avatar} onChange={this.handleAvatarInputChange}/>
                 <div className="form-field-description">
                   {translate('organization.avatar.description')}
                 </div>
@@ -179,16 +170,8 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
               </div>
               <div className="form-field">
                 <label htmlFor="organization-description">{translate('description')}</label>
-                <textarea
-                    className="input-super-large"
-                    disabled={this.state.loading}
-                    id="organization-description"
-                    maxLength={256}
-                    name="description"
-                    onChange={e => this.setState({ description: e.target.value })}
-                    rows={3}
-                    value={this.state.description}
-                />
+                <OrganizationDescriptionInput  showHelpIcon = {false} initialValue = {this.state.description} onChange={this.handleDescriptionChange}></OrganizationDescriptionInput>
+                
                 <div className="form-field-description">
                   {translate('organization.description.description')}
                 </div>

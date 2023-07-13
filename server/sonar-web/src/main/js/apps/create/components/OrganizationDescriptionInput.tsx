@@ -38,7 +38,7 @@ interface State {
   
 }
 
-export default class OrganizationNameInput extends React.PureComponent<Props, State> {
+export default class OrganizationDescriptionInput extends React.PureComponent<Props, State> {
   mounted = false;
   constructor(props: Props) {
     super(props);
@@ -48,10 +48,9 @@ export default class OrganizationNameInput extends React.PureComponent<Props, St
 
   componentDidMount() {
     this.mounted = true;
-    console.log(this.props.initialValue);
     if (this.props.initialValue !== undefined) {
       this.setState({ value: this.props.initialValue });
-      this.validateKey(this.props.initialValue);
+      this.validateDescription(this.props.initialValue);
     }
   }
 
@@ -65,21 +64,21 @@ export default class OrganizationNameInput extends React.PureComponent<Props, St
     this.props.onChange(key)
   };
 
-  handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  handleChange = (event: React.ChangeEvent<any>) => {
     const { value } = event.currentTarget;
     this.setState({ touched: true, value });
-    this.validateKey(value);
+    this.validateDescription(value);
   };
 
-  validateKey(key: string) {
-    if (key.length > 80 || !/^[a-z0-9A-Z][A-Za-z0-9-]*[A-Za-z0-9]?$/.test(key)) {
+  validateDescription(desc: string) {
+    if (desc.length > 256 || !/^[A-Za-z0-9][A-Za-z0-9- ]*[A-Za-z0-9]?$/.test(desc)) {
       this.setState({
         error: translate('onboarding.create_organization.organization_name.error'),
         touched: true
       });
       this.props.onChange(undefined);
     } else {
-      this.checkFreeKey(key);
+      this.checkFreeKey(desc);
     }
   }
 
@@ -94,16 +93,16 @@ export default class OrganizationNameInput extends React.PureComponent<Props, St
         isValid={isValid}
         label={translate('onboarding.create_organization.organization_name')}>
         <div className="display-inline-flex-center">
-          <input
+          <textarea
             className={classNames('input-super-large', {
               'is-invalid': isInvalid,
               'is-valid': isValid
             })}
-            id="organization-name"
-            maxLength={80}
+            id="organization-description"
+            maxLength={256}
             onChange={this.handleChange}
-            type="text"
             value={this.state.value}
+            rows={3}
           />
           {
             showHelpIcon ? (<HelpTooltip
