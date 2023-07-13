@@ -318,6 +318,19 @@ export function getQualityGateUrl(name: string): To {
   };
 }
 
+/**
+ * Generate URL for the project tutorial page
+ */
+export function getProjectTutorialLocation(
+  project: string,
+  selectedTutorial?: string
+): Partial<Path> {
+  return {
+    pathname: PROJECT_BASE_URL,
+    search: queryToSearch({ id: project, selectedTutorial }),
+  };
+}
+
 export function getQualityGatesUrl(): To {
   return {
     pathname: '/quality_gates',

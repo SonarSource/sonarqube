@@ -17,12 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
-import { themeBorder } from 'design-system';
+import {
+  Breadcrumbs,
+  Card,
+  HoverLink,
+  LightLabel,
+  LightPrimary,
+  StandoutLink,
+  SubTitle,
+  Title,
+} from 'design-system';
 import * as React from 'react';
-import EllipsisIcon from '../../components/icons/EllipsisIcon';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
+import { getProjectTutorialLocation, getProjectUrl } from '../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import { Component } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
@@ -43,33 +51,29 @@ export interface TutorialSelectionRendererProps {
   currentUserCanScanProject: boolean;
   loading: boolean;
   mainBranchName: string;
-  onSelectTutorial: (mode: TutorialModes) => void;
   projectBinding?: ProjectAlmBindingResponse;
   selectedTutorial?: TutorialModes;
   willRefreshAutomatically?: boolean;
 }
 
-const DEFAULT_ICON_SIZE = 60;
-const GH_ACTION_ICON_SIZE = 46;
-
-function renderButton(
-  mode: TutorialModes,
-  onSelectTutorial: (mode: TutorialModes) => void,
-  icon: React.ReactNode
-) {
+function renderAlm(mode: TutorialModes, project: string, icon?: React.ReactNode) {
   return (
-    <StyledTutorialButtons
-      className={`button button-huge display-flex-column big-spacer-right big-spacer-bottom tutorial-mode-${mode}`}
-      // Currently, OtherCI is the same tutorial as Manual. We might update it to its own stand-alone
-      // tutorial in the future.
-      onClick={() => onSelectTutorial(mode)}
-      type="button"
-    >
-      {icon}
-      <div className="medium big-spacer-top">
+    <Card className="sw-col-span-4 sw-p-4">
+      <StandoutLink icon={icon} to={getProjectTutorialLocation(project, mode)}>
         {translate('onboarding.tutorial.choose_method', mode)}
-      </div>
-    </StyledTutorialButtons>
+      </StandoutLink>
+
+      {mode === TutorialModes.Local && (
+        <LightLabel as="p" className="sw-mt-3">
+          {translate('onboarding.mode.help.manual')}
+        </LightLabel>
+      )}
+      {mode === TutorialModes.OtherCI && (
+        <LightLabel as="p" className="sw-mt-3">
+          {translate('onboarding.mode.help.otherci')}
+        </LightLabel>
+      )}
+    </Card>
   );
 }
 
@@ -86,7 +90,6 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
     selectedTutorial,
     willRefreshAutomatically,
   } = props;
-
   if (loading) {
     return <i aria-label={translate('loading')} className="spinner" />;
   }
@@ -115,97 +118,88 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
   }
 
   return (
-    <>
+    <div className="sw-body-sm">
       {selectedTutorial === undefined && (
-        <>
-          <h2 className="spacer-top huge-spacer-bottom">
+        <div className="sw-flex sw-flex-col">
+          <Title className="sw-mb-6 sw-heading-lg">
+            {translate('onboarding.tutorial.page.title')}
+          </Title>
+          <LightPrimary>{translate('onboarding.tutorial.page.description')}</LightPrimary>
+          <SubTitle className="sw-mt-12 sw-mb-4 sw-heading-md">
             {translate('onboarding.tutorial.choose_method')}
-          </h2>
+          </SubTitle>
 
-          <div className="tutorial-selection">
-            <p className="big-spacer-bottom">
-              {translate('onboarding.tutorial.choose_method.devops_platform.description')}
-            </p>
-            <div className="display-flex-start display-flex-wrap">
-              {showJenkins &&
-                renderButton(
-                  TutorialModes.Jenkins,
-                  props.onSelectTutorial,
-                  <img
-                    alt="" // Should be ignored by screen readers
-                    height={DEFAULT_ICON_SIZE}
-                    src={`${getBaseUrl()}/images/tutorials/jenkins.svg`}
-                  />
-                )}
-
-              {showGitHubActions &&
-                renderButton(
-                  TutorialModes.GitHubActions,
-                  props.onSelectTutorial,
-                  <img
-                    alt="" // Should be ignored by screen readers
-                    height={GH_ACTION_ICON_SIZE}
-                    className="spacer-bottom spacer-top"
-                    src={`${getBaseUrl()}/images/tutorials/github-actions.svg`}
-                  />
-                )}
-
-              {showBitbucketPipelines &&
-                renderButton(
-                  TutorialModes.BitbucketPipelines,
-                  props.onSelectTutorial,
-                  <img
-                    alt="" // Should be ignored by screen readers
-                    height={DEFAULT_ICON_SIZE}
-                    src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
-                  />
-                )}
-
-              {showGitLabCICD &&
-                renderButton(
-                  TutorialModes.GitLabCI,
-                  props.onSelectTutorial,
-                  <img
-                    alt="" // Should be ignored by screen readers
-                    height={DEFAULT_ICON_SIZE}
-                    src={`${getBaseUrl()}/images/alm/gitlab.svg`}
-                  />
-                )}
-
-              {showAzurePipelines &&
-                renderButton(
-                  TutorialModes.AzurePipelines,
-                  props.onSelectTutorial,
-                  <img
-                    alt="" // Should be ignored by screen readers
-                    height={DEFAULT_ICON_SIZE}
-                    src={`${getBaseUrl()}/images/tutorials/azure-pipelines.svg`}
-                  />
-                )}
-
-              {renderButton(
-                TutorialModes.OtherCI,
-                props.onSelectTutorial,
-                <EllipsisIcon size={DEFAULT_ICON_SIZE} />
-              )}
-            </div>
-
-            <p className="big-spacer-bottom spacer-top">
-              {translate('onboarding.tutorial.choose_method.local.description')}
-            </p>
-            <div>
-              {renderButton(
-                TutorialModes.Local,
-                props.onSelectTutorial,
+          <div className="it__tutorial-selection sw-grid sw-gap-6 sw-grid-cols-12">
+            {showJenkins &&
+              renderAlm(
+                TutorialModes.Jenkins,
+                component.key,
                 <img
                   alt="" // Should be ignored by screen readers
-                  height={DEFAULT_ICON_SIZE}
-                  src={`${getBaseUrl()}/images/tutorials/manual.svg`}
+                  className="sw-h-4 sw-w-4"
+                  src={`${getBaseUrl()}/images/tutorials/jenkins.svg`}
                 />
               )}
-            </div>
+
+            {showGitHubActions &&
+              renderAlm(
+                TutorialModes.GitHubActions,
+                component.key,
+                <img
+                  alt="" // Should be ignored by screen readers
+                  className="sw-h-4 sw-w-4"
+                  src={`${getBaseUrl()}/images/tutorials/github-actions.svg`}
+                />
+              )}
+
+            {showBitbucketPipelines &&
+              renderAlm(
+                TutorialModes.BitbucketPipelines,
+                component.key,
+                <img
+                  alt="" // Should be ignored by screen readers
+                  className="sw-h-4 sw-w-4"
+                  src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
+                />
+              )}
+
+            {showGitLabCICD &&
+              renderAlm(
+                TutorialModes.GitLabCI,
+                component.key,
+                <img
+                  alt="" // Should be ignored by screen readers
+                  className="sw-h-4 sw-w-4"
+                  src={`${getBaseUrl()}/images/alm/gitlab.svg`}
+                />
+              )}
+
+            {showAzurePipelines &&
+              renderAlm(
+                TutorialModes.AzurePipelines,
+                component.key,
+                <img
+                  alt="" // Should be ignored by screen readers
+                  className="sw-h-4 sw-w-4"
+                  src={`${getBaseUrl()}/images/tutorials/azure-pipelines.svg`}
+                />
+              )}
+
+            {renderAlm(TutorialModes.OtherCI, component.key)}
+            {renderAlm(TutorialModes.Local, component.key)}
           </div>
-        </>
+        </div>
+      )}
+
+      {selectedTutorial && (
+        <Breadcrumbs className="sw-mb-3">
+          <HoverLink to={getProjectUrl(component.key)}>
+            {translate('onboarding.tutorial.breadcrumbs.home')}
+          </HoverLink>
+          <HoverLink to={getProjectTutorialLocation(component.key, selectedTutorial)}>
+            {translate('onboarding.tutorial.breadcrumbs', selectedTutorial)}
+          </HoverLink>
+        </Breadcrumbs>
       )}
 
       {selectedTutorial === TutorialModes.Local && (
@@ -268,17 +262,6 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           willRefreshAutomatically={willRefreshAutomatically}
         />
       )}
-    </>
+    </div>
   );
 }
-
-const StyledTutorialButtons = styled.button`
-  border: ${themeBorder('default', 'projectCardBorder')};
-  &:hover,
-  &:focus,
-  &:focus-visible,
-  &:active {
-    border: ${themeBorder('default', 'tabBorder')};
-    outline: none;
-  }
-`;

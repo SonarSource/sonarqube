@@ -21,7 +21,7 @@ import SettingsServiceMock from '../../../../api/mocks/SettingsServiceMock';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import handleRequiredAuthentication from '../../../../helpers/handleRequiredAuthentication';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
+import { renderAppWithComponentContext } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole } from '../../../../helpers/testSelector';
 import { Permissions } from '../../../../types/permissions';
 import routes from '../../routes';
@@ -47,7 +47,7 @@ beforeEach(jest.clearAllMocks);
 
 const ui = {
   loading: byLabelText('loading'),
-  localScanButton: byRole('button', { name: 'onboarding.tutorial.choose_method.local' }),
+  localScanButton: byRole('heading', { name: 'onboarding.tutorial.choose_method' }),
 };
 
 it('renders tutorials page', async () => {
@@ -64,7 +64,7 @@ it('should redirect if user is not logged in', () => {
 });
 
 function renderTutorialsApp(currentUser = mockCurrentUser()) {
-  return renderAppRoutes('tutorials', routes, {
+  return renderAppWithComponentContext('tutorials', routes, {
     currentUser,
   });
 }

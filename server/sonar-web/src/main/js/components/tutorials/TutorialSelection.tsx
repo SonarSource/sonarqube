@@ -31,7 +31,7 @@ import { Permissions } from '../../types/permissions';
 import { SettingsKey } from '../../types/settings';
 import { Component } from '../../types/types';
 import { LoggedInUser } from '../../types/users';
-import { Location, Router, withRouter } from '../hoc/withRouter';
+import { Location, withRouter } from '../hoc/withRouter';
 import TutorialSelectionRenderer from './TutorialSelectionRenderer';
 import { TutorialModes } from './types';
 
@@ -41,7 +41,6 @@ interface Props {
   projectBinding?: ProjectAlmBindingResponse;
   willRefreshAutomatically?: boolean;
   location: Location;
-  router: Router;
 }
 
 interface State {
@@ -114,18 +113,6 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
     }
   };
 
-  handleSelectTutorial = (selectedTutorial: TutorialModes) => {
-    const {
-      router,
-      location: { pathname, query },
-    } = this.props;
-
-    router.push({
-      pathname,
-      query: { ...query, selectedTutorial },
-    });
-  };
-
   render() {
     const { component, currentUser, location, projectBinding, willRefreshAutomatically } =
       this.props;
@@ -147,7 +134,6 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
               (branchLikes.find((b) => isMainBranch(b)) as MainBranch | undefined)?.name ||
               DEFAULT_MAIN_BRANCH_NAME
             }
-            onSelectTutorial={this.handleSelectTutorial}
             projectBinding={projectBinding}
             selectedTutorial={selectedTutorial}
             willRefreshAutomatically={willRefreshAutomatically}

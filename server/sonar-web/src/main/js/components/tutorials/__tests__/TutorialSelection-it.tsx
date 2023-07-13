@@ -74,8 +74,8 @@ beforeEach(jest.clearAllMocks);
 const ui = {
   loading: byLabelText('loading'),
   noScanRights: byText('onboarding.tutorial.no_scan_rights'),
-  chooseTutorialBtn: (mode: TutorialModes) =>
-    byRole('button', { name: `onboarding.tutorial.choose_method.${mode}` }),
+  chooseTutorialLink: (mode: TutorialModes) =>
+    byRole('link', { name: `onboarding.tutorial.choose_method.${mode}` }),
 };
 
 it.each([
@@ -89,15 +89,18 @@ it.each([
   [TutorialModes.GitLabCI, 'onboarding.tutorial.with.gitlab_ci.title'],
   [TutorialModes.Local, 'onboarding.project_analysis.header'],
   [TutorialModes.OtherCI, 'onboarding.project_analysis.header'],
-])('should behave correctly for %s', async (mode, title) => {
+])('should properly click link for %s', async (mode, title) => {
   const user = userEvent.setup();
-  renderTutorialSelection();
+  const breadcrumbs = `onboarding.tutorial.breadcrumbs.${mode}`;
+  renderTutorialSelection({});
   await waitOnDataLoaded();
 
   expect(screen.getByText('onboarding.tutorial.choose_method')).toBeInTheDocument();
 
-  await user.click(ui.chooseTutorialBtn(mode).get());
+  expect(screen.queryByText(breadcrumbs)).not.toBeInTheDocument();
+  await user.click(ui.chooseTutorialLink(mode).get());
   expect(screen.getByText(title)).toBeInTheDocument();
+  expect(screen.getByText(breadcrumbs)).toBeInTheDocument();
 });
 
 it.each([
@@ -113,7 +116,7 @@ it.each([
   renderTutorialSelection({ projectBinding: mockProjectAlmBindingResponse({ alm }) });
   await waitOnDataLoaded();
 
-  modes.forEach((mode) => expect(ui.chooseTutorialBtn(mode).get()).toBeInTheDocument());
+  modes.forEach((mode) => expect(ui.chooseTutorialLink(mode).get()).toBeInTheDocument());
 });
 
 it('should correctly fetch the corresponding ALM setting', async () => {
@@ -121,9 +124,12 @@ it('should correctly fetch the corresponding ALM setting', async () => {
     mockGithubBindingDefinition({ key: 'binding', url: 'https://enterprise.github.com' }),
   ]);
   const user = userEvent.setup();
-  renderTutorialSelection({
-    projectBinding: mockProjectAlmBindingResponse({ alm: AlmKeys.GitHub, key: 'binding' }),
-  });
+  renderTutorialSelection(
+    {
+      projectBinding: mockProjectAlmBindingResponse({ alm: AlmKeys.GitHub, key: 'binding' }),
+    },
+    `dashboard?selectedTutorial=${TutorialModes.Jenkins}&id=bar`
+  );
   await waitOnDataLoaded();
 
   await startJenkinsTutorial(user);
@@ -175,31 +181,33 @@ async function waitOnDataLoaded() {
 }
 
 async function startLocalTutorial(user: UserEvent) {
-  await user.click(ui.chooseTutorialBtn(TutorialModes.Local).get());
+  await user.click(ui.chooseTutorialLink(TutorialModes.Local).get());
   await user.click(screen.getByRole('button', { name: 'onboarding.token.generate' }));
   await user.click(screen.getByRole('button', { name: 'continue' }));
   await user.click(screen.getByRole('button', { name: 'onboarding.build.maven' }));
 }
 
 async function startJenkinsTutorial(user: UserEvent) {
-  await user.click(ui.chooseTutorialBtn(TutorialModes.Jenkins).get());
   await user.click(
     screen.getByRole('button', { name: 'onboarding.tutorial.with.jenkins.prereqs.done' })
   );
 }
 
-function renderTutorialSelection(props: Partial<TutorialSelection['props']> = {}) {
-  const Wrapper = withRouter(({ router, location, ...subProps }: TutorialSelection['props']) => {
-    return <TutorialSelection location={location} router={router} {...subProps} />;
+function renderTutorialSelection(
+  props: Partial<TutorialSelection['props']> = {},
+  navigateTo: string = 'dashboard?id=bar'
+) {
+  const Wrapper = withRouter(({ location, ...subProps }: TutorialSelection['props']) => {
+    return <TutorialSelection location={location} {...subProps} />;
   });
 
   return renderApp(
-    '/',
+    '/dashboard',
     <Wrapper
       component={mockComponent({ key: 'foo' })}
       currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Scan] } })}
       {...props}
     />,
-    { featureList: [Feature.BranchSupport] }
+    { featureList: [Feature.BranchSupport], navigateTo }
   );
 }
