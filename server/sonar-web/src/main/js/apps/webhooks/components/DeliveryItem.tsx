@@ -23,6 +23,7 @@ import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { WebhookDelivery } from '../../../types/webhook';
+import { formatPayload } from '../utils';
 
 interface Props {
   className?: string;
@@ -52,12 +53,4 @@ export default function DeliveryItem({ className, delivery, loading, payload }: 
       </DeferredSpinner>
     </div>
   );
-}
-
-function formatPayload(payload: string) {
-  try {
-    return JSON.stringify(JSON.parse(payload), undefined, 2);
-  } catch (error) {
-    return payload;
-  }
 }

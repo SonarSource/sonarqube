@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { useState } from 'react';
 import { ButtonIcon } from '../../../components/controls/buttons';
 import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
@@ -31,65 +32,38 @@ interface Props {
   webhook: WebhookResponse;
 }
 
-interface State {
-  modal: boolean;
-}
+export default function WebhookItemLatestDelivery({ webhook }: Props) {
+  const [modalOpen, setModalOpen] = useState(false);
 
-export default class WebhookItemLatestDelivery extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { modal: false };
-
-  componentDidMount() {
-    this.mounted = true;
+  if (!webhook.latestDelivery) {
+    return <span>{translate('webhooks.last_execution.none')}</span>;
   }
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+  return (
+    <>
+      {webhook.latestDelivery.success ? (
+        <AlertSuccessIcon className="text-text-top" />
+      ) : (
+        <AlertErrorIcon className="text-text-top" />
+      )}
+      <span className="spacer-left display-inline-flex-center">
+        <DateTimeFormatter date={webhook.latestDelivery.at} />
+        <ButtonIcon
+          aria-label={translateWithParameters('webhooks.last_execution.open_for_x', webhook.name)}
+          className="button-small little-spacer-left"
+          onClick={() => setModalOpen(true)}
+        >
+          <BulletListIcon />
+        </ButtonIcon>
+      </span>
 
-  handleClick = () => {
-    this.setState({ modal: true });
-  };
-
-  handleModalClose = () => {
-    if (this.mounted) {
-      this.setState({ modal: false });
-    }
-  };
-
-  render() {
-    const { webhook } = this.props;
-    if (!webhook.latestDelivery) {
-      return <span>{translate('webhooks.last_execution.none')}</span>;
-    }
-
-    const { modal } = this.state;
-    return (
-      <>
-        {webhook.latestDelivery.success ? (
-          <AlertSuccessIcon className="text-text-top" />
-        ) : (
-          <AlertErrorIcon className="text-text-top" />
-        )}
-        <span className="spacer-left display-inline-flex-center">
-          <DateTimeFormatter date={webhook.latestDelivery.at} />
-          <ButtonIcon
-            aria-label={translateWithParameters('webhooks.last_execution.open_for_x', webhook.name)}
-            className="button-small little-spacer-left"
-            onClick={this.handleClick}
-          >
-            <BulletListIcon />
-          </ButtonIcon>
-        </span>
-
-        {modal && (
-          <LatestDeliveryForm
-            delivery={webhook.latestDelivery}
-            onClose={this.handleModalClose}
-            webhook={webhook}
-          />
-        )}
-      </>
-    );
-  }
+      {modalOpen && (
+        <LatestDeliveryForm
+          delivery={webhook.latestDelivery}
+          onClose={() => setModalOpen(false)}
+          webhook={webhook}
+        />
+      )}
+    </>
+  );
 }

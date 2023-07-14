@@ -40,21 +40,23 @@ interface Props {
   value?: string;
 }
 
-export default function UpdateWebhookSecretField({
-  isUpdateForm,
-  description,
-  dirty,
-  disabled,
-  error,
-  id,
-  label,
-  name,
-  onBlur,
-  onChange,
-  touched,
-  type,
-  value,
-}: Props) {
+export default function UpdateWebhookSecretField(props: Props) {
+  const {
+    isUpdateForm,
+    description,
+    dirty,
+    disabled,
+    error,
+    id,
+    label,
+    name,
+    onBlur,
+    onChange,
+    touched,
+    type,
+    value,
+  } = props;
+
   const [isSecretInputDisplayed, setIsSecretInputDisplayed] = React.useState(false);
   const [, , { setValue: setSecretValue }] = useField('secret');
 

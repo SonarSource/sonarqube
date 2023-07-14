@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { useState } from 'react';
 import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem,
@@ -34,107 +35,61 @@ interface Props {
   webhook: WebhookResponse;
 }
 
-interface State {
-  deleting: boolean;
-  deliveries: boolean;
-  updating: boolean;
-}
+export default function WebhookActions(props: Props) {
+  const { onDelete, onUpdate, webhook } = props;
 
-export default class WebhookActions extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { deleting: false, deliveries: false, updating: false };
+  const [deleting, setDeleting] = useState(false);
+  const [deliveries, setDeliveries] = useState(false);
+  const [updating, setUpdating] = useState(false);
 
-  componentDidMount() {
-    this.mounted = true;
+  function handleUpdate(data: { name: string; secret?: string; url: string }) {
+    return onUpdate({ ...data, webhook: webhook.key });
   }
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleDelete = () => {
-    return this.props.onDelete(this.props.webhook.key);
-  };
-
-  handleDeleteClick = () => {
-    this.setState({ deleting: true });
-  };
-
-  handleDeletingStop = () => {
-    if (this.mounted) {
-      this.setState({ deleting: false });
-    }
-  };
-
-  handleDeliveriesClick = () => {
-    this.setState({ deliveries: true });
-  };
-
-  handleDeliveriesStop = () => {
-    this.setState({ deliveries: false });
-  };
-
-  handleUpdate = (data: { name: string; secret?: string; url: string }) => {
-    return this.props.onUpdate({ ...data, webhook: this.props.webhook.key });
-  };
-
-  handleUpdateClick = () => {
-    this.setState({ updating: true });
-  };
-
-  handleUpdatingStop = () => {
-    this.setState({ updating: false });
-  };
-
-  render() {
-    const { webhook } = this.props;
-    return (
-      <>
-        <ActionsDropdown
-          className="big-spacer-left"
-          label={translateWithParameters('webhooks.show_actions', webhook.name)}
-        >
-          <ActionsDropdownItem className="js-webhook-update" onClick={this.handleUpdateClick}>
-            {translate('update_verb')}
-          </ActionsDropdownItem>
-          {webhook.latestDelivery && (
-            <ActionsDropdownItem
-              className="js-webhook-deliveries"
-              onClick={this.handleDeliveriesClick}
-            >
-              {translate('webhooks.deliveries.show')}
-            </ActionsDropdownItem>
-          )}
-          <ActionsDropdownDivider />
+  return (
+    <>
+      <ActionsDropdown
+        className="big-spacer-left"
+        label={translateWithParameters('webhooks.show_actions', webhook.name)}
+      >
+        <ActionsDropdownItem onClick={() => setUpdating(true)}>
+          {translate('update_verb')}
+        </ActionsDropdownItem>
+        {webhook.latestDelivery && (
           <ActionsDropdownItem
-            className="js-webhook-delete"
-            destructive
-            onClick={this.handleDeleteClick}
+            className="it__webhook-deliveries"
+            onClick={() => setDeliveries(true)}
           >
-            {translate('delete')}
+            {translate('webhooks.deliveries.show')}
           </ActionsDropdownItem>
-        </ActionsDropdown>
-
-        {this.state.deliveries && (
-          <DeliveriesForm onClose={this.handleDeliveriesStop} webhook={webhook} />
         )}
+        <ActionsDropdownDivider />
+        <ActionsDropdownItem
+          className="it__webhook-delete"
+          destructive
+          onClick={() => setDeleting(true)}
+        >
+          {translate('delete')}
+        </ActionsDropdownItem>
+      </ActionsDropdown>
 
-        {this.state.updating && (
-          <CreateWebhookForm
-            onClose={this.handleUpdatingStop}
-            onDone={this.handleUpdate}
-            webhook={webhook}
-          />
-        )}
+      {deliveries && <DeliveriesForm onClose={() => setDeliveries(false)} webhook={webhook} />}
 
-        {this.state.deleting && (
-          <DeleteWebhookForm
-            onClose={this.handleDeletingStop}
-            onSubmit={this.handleDelete}
-            webhook={webhook}
-          />
-        )}
-      </>
-    );
-  }
+      {updating && (
+        <CreateWebhookForm
+          onClose={() => setUpdating(false)}
+          onDone={handleUpdate}
+          webhook={webhook}
+        />
+      )}
+
+      {deleting && (
+        <DeleteWebhookForm
+          onClose={() => setDeleting(false)}
+          onSubmit={() => onDelete(webhook.key)}
+          webhook={webhook}
+        />
+      )}
+    </>
+  );
 }

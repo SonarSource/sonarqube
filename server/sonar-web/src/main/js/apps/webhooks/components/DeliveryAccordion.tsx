@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { useState } from 'react';
 import { getDelivery } from '../../../api/webhooks';
 import BoxedGroupAccordion from '../../../components/controls/BoxedGroupAccordion';
 import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
@@ -31,79 +32,47 @@ interface Props {
   delivery: WebhookDelivery;
 }
 
-interface State {
-  loading: boolean;
-  open: boolean;
-  payload?: string;
-}
+export default function DeliveryAccordion({ delivery }: Props) {
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [payload, setPayload] = useState<string | undefined>(undefined);
 
-export default class DeliveryAccordion extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: false, open: false };
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchPayload = ({ delivery } = this.props) => {
-    this.setState({ loading: true });
-    return getDelivery({ deliveryId: delivery.id }).then(
-      ({ delivery }) => {
-        if (this.mounted) {
-          this.setState({ payload: delivery.payload, loading: false });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
-  };
-
-  formatPayload = (payload: string) => {
+  async function fetchPayload() {
+    setLoading(true);
     try {
-      return JSON.stringify(JSON.parse(payload), undefined, 2);
-    } catch (error) {
-      return payload;
+      const response = await getDelivery({ deliveryId: delivery.id });
+      setPayload(response.delivery.payload);
+    } finally {
+      setLoading(false);
     }
-  };
-
-  handleClick = () => {
-    if (!this.state.payload) {
-      this.fetchPayload();
-    }
-    this.setState(({ open }) => ({ open: !open }));
-  };
-
-  render() {
-    const { delivery } = this.props;
-    const { loading, open, payload } = this.state;
-
-    return (
-      <BoxedGroupAccordion
-        onClick={this.handleClick}
-        open={open}
-        renderHeader={() =>
-          delivery.success ? (
-            <AlertSuccessIcon aria-label={translate('success')} className="js-success" />
-          ) : (
-            <AlertErrorIcon aria-label={translate('error')} className="js-error" />
-          )
-        }
-        title={<DateTimeFormatter date={delivery.at} />}
-      >
-        <DeliveryItem
-          className="big-spacer-left"
-          delivery={delivery}
-          loading={loading}
-          payload={payload}
-        />
-      </BoxedGroupAccordion>
-    );
   }
+
+  function handleClick() {
+    if (!payload) {
+      fetchPayload();
+    }
+    setOpen(!open);
+  }
+
+  return (
+    <BoxedGroupAccordion
+      onClick={handleClick}
+      open={open}
+      renderHeader={() =>
+        delivery.success ? (
+          <AlertSuccessIcon aria-label={translate('success')} className="it__success" />
+        ) : (
+          <AlertErrorIcon aria-label={translate('error')} />
+        )
+      }
+      title={<DateTimeFormatter date={delivery.at} />}
+    >
+      <DeliveryItem
+        className="big-spacer-left"
+        delivery={delivery}
+        loading={loading}
+        payload={payload}
+      />
+    </BoxedGroupAccordion>
+  );
 }

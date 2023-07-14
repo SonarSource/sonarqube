@@ -29,38 +29,32 @@ interface Props {
   webhooks: WebhookResponse[];
 }
 
-export default class WebhooksList extends React.PureComponent<Props> {
-  renderHeader = () => (
-    <thead>
-      <tr>
-        <th>{translate('name')}</th>
-        <th>{translate('webhooks.url')}</th>
-        <th>{translate('webhooks.secret_header')}</th>
-        <th>{translate('webhooks.last_execution')}</th>
-        <th className="sw-text-right">{translate('actions')}</th>
-      </tr>
-    </thead>
-  );
-
-  render() {
-    const { webhooks } = this.props;
-    if (webhooks.length < 1) {
-      return <p>{translate('webhooks.no_result')}</p>;
-    }
-    return (
-      <table className="data zebra">
-        {this.renderHeader()}
-        <tbody>
-          {sortBy(webhooks, (webhook) => webhook.name.toLowerCase()).map((webhook) => (
-            <WebhookItem
-              key={webhook.key}
-              onDelete={this.props.onDelete}
-              onUpdate={this.props.onUpdate}
-              webhook={webhook}
-            />
-          ))}
-        </tbody>
-      </table>
-    );
+export default function WebhooksList({ webhooks, onDelete, onUpdate }: Props) {
+  if (webhooks.length < 1) {
+    return <p>{translate('webhooks.no_result')}</p>;
   }
+
+  return (
+    <table className="data zebra">
+      <thead>
+        <tr>
+          <th>{translate('name')}</th>
+          <th>{translate('webhooks.url')}</th>
+          <th>{translate('webhooks.secret_header')}</th>
+          <th>{translate('webhooks.last_execution')}</th>
+          <th className="sw-text-right">{translate('actions')}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {sortBy(webhooks, (webhook) => webhook.name.toLowerCase()).map((webhook) => (
+          <WebhookItem
+            key={webhook.key}
+            onDelete={onDelete}
+            onUpdate={onUpdate}
+            webhook={webhook}
+          />
+        ))}
+      </tbody>
+    </table>
+  );
 }

@@ -25,7 +25,7 @@ import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockWebhook } from '../../../../helpers/mocks/webhook';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
-import { App } from '../App';
+import { App, AppProps } from '../App';
 import { WEBHOOKS_LIMIT } from '../PageActions';
 
 const webhookService = new WebhooksMock();
@@ -248,7 +248,7 @@ describe('should properly show deliveries', () => {
   });
 });
 
-function renderWebhooksApp(overrides: Partial<App['props']> = {}) {
+function renderWebhooksApp(overrides: Partial<AppProps> = {}) {
   return renderComponent(<App {...overrides} />);
 }
 

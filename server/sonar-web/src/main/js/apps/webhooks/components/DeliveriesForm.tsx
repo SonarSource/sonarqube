@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { searchDeliveries } from '../../../api/webhooks';
 import ListFooter from '../../../components/controls/ListFooter';
 import Modal from '../../../components/controls/Modal';
@@ -33,93 +34,74 @@ interface Props {
   webhook: WebhookResponse;
 }
 
-interface State {
-  deliveries: WebhookDelivery[];
-  loading: boolean;
-  paging?: Paging;
-}
-
 const PAGE_SIZE = 10;
 
-export default class DeliveriesForm extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { deliveries: [], loading: true };
+export default function DeliveriesForm({ onClose, webhook }: Props) {
+  const [deliveries, setDeliveries] = useState<WebhookDelivery[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [paging, setPaging] = useState<Paging | undefined>(undefined);
 
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchDeliveries();
-  }
+  const header = translateWithParameters('webhooks.deliveries_for_x', webhook.name);
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+  const fetchDeliveries = useCallback(async () => {
+    try {
+      const { deliveries, paging } = await searchDeliveries({
+        webhook: webhook.key,
+        ps: PAGE_SIZE,
+      });
+      setDeliveries(deliveries);
+      setPaging(paging);
+    } finally {
+      setLoading(false);
+    }
+  }, [webhook.key]);
 
-  fetchDeliveries = ({ webhook } = this.props) => {
-    searchDeliveries({ webhook: webhook.key, ps: PAGE_SIZE }).then(({ deliveries, paging }) => {
-      if (this.mounted) {
-        this.setState({ deliveries, loading: false, paging });
-      }
-    }, this.stopLoading);
-  };
+  useEffect(() => {
+    fetchDeliveries();
+  }, [fetchDeliveries]);
 
-  fetchMoreDeliveries = ({ webhook } = this.props) => {
-    const { paging } = this.state;
+  async function fetchMoreDeliveries() {
     if (paging) {
-      this.setState({ loading: true });
-      searchDeliveries({ webhook: webhook.key, p: paging.pageIndex + 1, ps: PAGE_SIZE }).then(
-        ({ deliveries, paging }) => {
-          if (this.mounted) {
-            this.setState((state: State) => ({
-              deliveries: [...state.deliveries, ...deliveries],
-              loading: false,
-              paging,
-            }));
-          }
-        },
-        this.stopLoading
-      );
+      setLoading(true);
+      try {
+        const response = await searchDeliveries({
+          webhook: webhook.key,
+          p: paging.pageIndex + 1,
+          ps: PAGE_SIZE,
+        });
+        setDeliveries((deliveries) => [...deliveries, ...response.deliveries]);
+        setPaging(response.paging);
+      } finally {
+        setLoading(false);
+      }
     }
-  };
-
-  stopLoading = () => {
-    if (this.mounted) {
-      this.setState({ loading: false });
-    }
-  };
-
-  render() {
-    const { webhook } = this.props;
-    const { deliveries, loading, paging } = this.state;
-    const header = translateWithParameters('webhooks.deliveries_for_x', webhook.name);
-
-    return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <div className="modal-body modal-container">
-          {deliveries.map((delivery) => (
-            <DeliveryAccordion delivery={delivery} key={delivery.id} />
-          ))}
-          <div className="text-center">
-            <DeferredSpinner loading={loading} />
-          </div>
-          {paging !== undefined && (
-            <ListFooter
-              className="little-spacer-bottom"
-              count={deliveries.length}
-              loadMore={this.fetchMoreDeliveries}
-              ready={!loading}
-              total={paging.total}
-            />
-          )}
-        </div>
-        <footer className="modal-foot">
-          <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
-            {translate('close')}
-          </ResetButtonLink>
-        </footer>
-      </Modal>
-    );
   }
+
+  return (
+    <Modal contentLabel={header} onRequestClose={onClose}>
+      <header className="modal-head">
+        <h2>{header}</h2>
+      </header>
+      <div className="modal-body modal-container">
+        {deliveries.map((delivery) => (
+          <DeliveryAccordion delivery={delivery} key={delivery.id} />
+        ))}
+        <div className="text-center">
+          <DeferredSpinner loading={loading} />
+        </div>
+        {paging !== undefined && (
+          <ListFooter
+            className="little-spacer-bottom"
+            count={deliveries.length}
+            loadMore={fetchMoreDeliveries}
+            ready={!loading}
+            total={paging.total}
+          />
+        )}
+      </div>
+      <footer className="modal-foot">
+        <ResetButtonLink onClick={onClose}>{translate('close')}</ResetButtonLink>
+      </footer>
+    </Modal>
+  );
 }

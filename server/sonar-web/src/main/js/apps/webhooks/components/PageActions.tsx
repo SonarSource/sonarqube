@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { useState } from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import { Button } from '../../../components/controls/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -29,62 +30,43 @@ interface Props {
   webhooksCount: number;
 }
 
-interface State {
-  openCreate: boolean;
-}
-
 export const WEBHOOKS_LIMIT = 10;
 
-export default class PageActions extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { openCreate: false };
+export default function PageActions(props: Props) {
+  const { loading, onCreate, webhooksCount } = props;
 
-  componentDidMount() {
-    this.mounted = true;
+  const [openCreate, setOpenCreate] = useState(false);
+
+  function handleCreateClose() {
+    setOpenCreate(false);
   }
 
-  componentWillUnmount() {
-    this.mounted = false;
+  function handleCreateOpen() {
+    setOpenCreate(true);
   }
 
-  handleCreateClose = () => {
-    if (this.mounted) {
-      this.setState({ openCreate: false });
-    }
-  };
+  if (loading) {
+    return null;
+  }
 
-  handleCreateOpen = () => {
-    this.setState({ openCreate: true });
-  };
-
-  renderCreate = () => {
-    if (this.props.webhooksCount >= WEBHOOKS_LIMIT) {
-      return (
+  if (webhooksCount >= WEBHOOKS_LIMIT) {
+    return (
+      <div className="page-actions">
         <Tooltip overlay={translateWithParameters('webhooks.maximum_reached', WEBHOOKS_LIMIT)}>
           <Button className="it__webhook-create" disabled>
             {translate('create')}
           </Button>
         </Tooltip>
-      );
-    }
-
-    return (
-      <>
-        <Button className="it__webhook-create" onClick={this.handleCreateOpen}>
-          {translate('create')}
-        </Button>
-        {this.state.openCreate && (
-          <CreateWebhookForm onClose={this.handleCreateClose} onDone={this.props.onCreate} />
-        )}
-      </>
+      </div>
     );
-  };
-
-  render() {
-    if (this.props.loading) {
-      return null;
-    }
-
-    return <div className="page-actions">{this.renderCreate()}</div>;
   }
+
+  return (
+    <div className="page-actions">
+      <Button className="it__webhook-create" onClick={handleCreateOpen}>
+        {translate('create')}
+      </Button>
+      {openCreate && <CreateWebhookForm onClose={handleCreateClose} onDone={onCreate} />}
+    </div>
+  );
 }

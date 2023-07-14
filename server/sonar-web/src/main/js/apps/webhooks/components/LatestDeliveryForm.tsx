@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getDelivery } from '../../../api/webhooks';
 import Modal from '../../../components/controls/Modal';
 import { ResetButtonLink } from '../../../components/controls/buttons';
@@ -31,69 +32,40 @@ interface Props {
   webhook: WebhookResponse;
 }
 
-interface State {
-  loading: boolean;
-  payload?: string;
-}
+export default function LatestDeliveryForm(props: Props) {
+  const { delivery, webhook, onClose } = props;
+  const [loading, setLoading] = useState(true);
+  const [payload, setPayload] = useState<string | undefined>(undefined);
 
-export default class LatestDeliveryForm extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: true };
+  const header = translateWithParameters('webhooks.latest_delivery_for_x', webhook.name);
 
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchPayload();
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchPayload = ({ delivery } = this.props) => {
-    return getDelivery({ deliveryId: delivery.id }).then(
-      ({ delivery }) => {
-        if (this.mounted) {
-          this.setState({ payload: delivery.payload, loading: false });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
-  };
-
-  formatPayload = (payload: string) => {
+  const fetchPayload = useCallback(async () => {
     try {
-      return JSON.stringify(JSON.parse(payload), undefined, 2);
-    } catch (error) {
-      return payload;
+      const response = await getDelivery({ deliveryId: delivery.id });
+      setPayload(response.delivery.payload);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [delivery.id]);
 
-  render() {
-    const { delivery, webhook } = this.props;
-    const { loading, payload } = this.state;
-    const header = translateWithParameters('webhooks.latest_delivery_for_x', webhook.name);
+  useEffect(() => {
+    fetchPayload();
+  }, [fetchPayload]);
 
-    return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <DeliveryItem
-          className="modal-body modal-container"
-          delivery={delivery}
-          loading={loading}
-          payload={payload}
-        />
-        <footer className="modal-foot">
-          <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
-            {translate('close')}
-          </ResetButtonLink>
-        </footer>
-      </Modal>
-    );
-  }
+  return (
+    <Modal contentLabel={header} onRequestClose={onClose}>
+      <header className="modal-head">
+        <h2>{header}</h2>
+      </header>
+      <DeliveryItem
+        className="modal-body modal-container"
+        delivery={delivery}
+        loading={loading}
+        payload={payload}
+      />
+      <footer className="modal-foot">
+        <ResetButtonLink onClick={onClose}>{translate('close')}</ResetButtonLink>
+      </footer>
+    </Modal>
+  );
 }
