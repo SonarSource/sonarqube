@@ -43,6 +43,7 @@ export interface ProjectBase {
 
 export interface Project extends ProjectBase {
   lastAnalysisDate?: string;
+  managed?: boolean;
 }
 
 export interface SearchProjectsParameters extends BaseSearchProjectsParameters {

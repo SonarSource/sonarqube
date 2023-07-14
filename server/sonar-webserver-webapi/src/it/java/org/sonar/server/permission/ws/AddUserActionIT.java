@@ -213,8 +213,26 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
   }
 
   @Test
-  public void fail_when_project_is_managed_and_no_permissions_update() {
+  public void succeed_when_project_is_managed_and_user_is_sysadmin() {
+    loginAsAdmin();
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+
+    doThrow(new IllegalStateException("Managed project")).when(managedInstanceChecker).throwIfProjectIsManaged(any(), eq(project.getUuid()));
+
+    newRequest()
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PROJECT_ID, project.getUuid())
+      .setParam(PARAM_PERMISSION, UserRole.SCAN)
+      .execute();
+
+    assertThat(db.users().selectPermissionsOfUser(user)).isEmpty();
+    assertThat(db.users().selectEntityPermissionOfUser(user, project.getUuid())).containsOnly(UserRole.SCAN);
+  }
+
+  @Test
+  public void fail_when_project_is_managed_and_user_not_sysadmin() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     doThrow(new IllegalStateException("Managed project")).when(managedInstanceChecker).throwIfProjectIsManaged(any(), eq(project.getUuid()));
 

@@ -38,7 +38,7 @@ const defaultProject = [
   mockProject({ key: 'project1', name: 'Project 1' }),
   mockProject({ key: 'project2', name: 'Project 2', visibility: Visibility.Private }),
   mockProject({ key: 'project3', name: 'Project 3', lastAnalysisDate: undefined }),
-  mockProject({ key: 'projectProvisioned', name: 'Project 4' }),
+  mockProject({ key: 'projectProvisioned', name: 'Project 4', managed: true }),
   mockProject({ key: 'portfolio1', name: 'Portfolio 1', qualifier: ComponentQualifier.Portfolio }),
   mockProject({
     key: 'portfolio2',

@@ -90,10 +90,10 @@ public class AddUserAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String userLogin = request.mandatoryParam(PARAM_USER_LOGIN);
       EntityDto entityDto = wsSupport.findEntity(dbSession, request);
-      if (entityDto != null && entityDto.isProject()) {
+      checkProjectAdmin(userSession, configuration, entityDto);
+      if (!userSession.isSystemAdministrator() && entityDto != null && entityDto.isProject()) {
         managedInstanceChecker.throwIfProjectIsManaged(dbSession, entityDto.getUuid());
       }
-      checkProjectAdmin(userSession, configuration, entityDto);
       UserId user = wsSupport.findUser(dbSession, userLogin);
 
       UserPermissionChange change = new UserPermissionChange(

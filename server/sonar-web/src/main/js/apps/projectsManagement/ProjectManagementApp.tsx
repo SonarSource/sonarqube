@@ -188,7 +188,9 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
   };
 
   onAllSelected = () => {
-    this.setState(({ projects }) => ({ selection: projects.map((project) => project.key) }));
+    this.setState(({ projects }) => ({
+      selection: projects.filter((p) => !p.managed).map((project) => project.key),
+    }));
   };
 
   onAllDeselected = () => {

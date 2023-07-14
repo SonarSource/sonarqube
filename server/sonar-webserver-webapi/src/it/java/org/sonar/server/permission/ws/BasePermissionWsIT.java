@@ -91,7 +91,7 @@ public abstract class BasePermissionWsIT<A extends PermissionsWsAction> {
   }
 
   protected void loginAsAdmin() {
-    userSession.logIn().addPermission(ADMINISTER);
+    userSession.logIn().addPermission(ADMINISTER).setSystemAdministrator();
   }
 
   protected PermissionTemplateDto selectPermissionTemplate(String name) {

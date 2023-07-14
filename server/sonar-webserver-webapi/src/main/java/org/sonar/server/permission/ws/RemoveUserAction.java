@@ -89,11 +89,11 @@ public class RemoveUserAction implements PermissionsWsAction {
       wsSupport.checkRemovingOwnAdminRight(userSession, userIdDto, permission);
 
       EntityDto entityDto = wsSupport.findEntity(dbSession, request);
-      if (entityDto != null) {
-        managedInstanceChecker.throwIfUserAndProjectAreManaged(dbSession, userIdDto.getUuid(), entityDto.getUuid());
-      }
       wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(userSession, entityDto, permission, userIdDto);
       wsSupport.checkPermissionManagementAccess(userSession, entityDto);
+      if (entityDto != null && entityDto.isProject()) {
+        managedInstanceChecker.throwIfUserAndProjectAreManaged(dbSession, userIdDto.getUuid(), entityDto.getUuid());
+      }
       UserPermissionChange change = new UserPermissionChange(
         PermissionChange.Operation.REMOVE,
         permission,
