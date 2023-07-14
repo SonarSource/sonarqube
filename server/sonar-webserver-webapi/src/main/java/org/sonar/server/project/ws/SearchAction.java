@@ -84,8 +84,13 @@ public class SearchAction implements ProjectsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_SEARCH)
       .setSince("6.3")
-      .setDescription("Search for projects or views to administrate them.<br>" +
-        "Requires 'Administer System' permission")
+      .setDescription("""
+        Search for projects or views to administrate them.
+        <ul>
+          <li>The response field 'lastAnalysisDate' takes into account the analysis of all branches and pull requests, not only the main branch.</li>
+          <li>The response field 'revision' takes into account the analysis of the main branch only.</li>
+        </ul>
+        Requires 'Administer System' permission""")
       .addPagingParams(100, MAX_PAGE_SIZE)
       .setResponseExample(getClass().getResource("search-example.json"))
       .setChangelog(new Change("10.2", "Response includes 'managed' field."))
@@ -193,7 +198,7 @@ public class SearchAction implements ProjectsWsAction {
   static ComponentQuery buildDbQuery(SearchRequest request) {
     List<String> qualifiers = request.getQualifiers();
     ComponentQuery.Builder query = ComponentQuery.builder()
-      .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]));
+      .setQualifiers(qualifiers.toArray(new String[0]));
 
     ofNullable(request.getQuery()).ifPresent(q -> {
       query.setNameOrKeyQuery(q);

@@ -31,7 +31,6 @@ import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
@@ -324,51 +323,30 @@ public class SearchActionIT {
     WebService.Action action = ws.getDef();
     assertThat(action.key()).isEqualTo("search");
     assertThat(action.isPost()).isFalse();
-    assertThat(action.description()).isEqualTo("Search for projects or views to administrate them.<br>Requires 'Administer System' permission");
+    assertThat(action.description()).isEqualTo("""
+      Search for projects or views to administrate them.
+      <ul>
+        <li>The response field 'lastAnalysisDate' takes into account the analysis of all branches and pull requests, not only the main branch.</li>
+        <li>The response field 'revision' takes into account the analysis of the main branch only.</li>
+      </ul>
+      Requires 'Administer System' permission""");
     assertThat(action.isInternal()).isFalse();
     assertThat(action.since()).isEqualTo("6.3");
     assertThat(action.handler()).isEqualTo(ws.getDef().handler());
-    assertThat(action.params()).extracting(Param::key)
-      .containsExactlyInAnyOrder("q", "qualifiers", "p", "ps", "visibility", "analyzedBefore", "onProvisionedOnly", "projects");
     assertThat(action.responseExample()).isEqualTo(getClass().getResource("search-example.json"));
 
-    Param qParam = action.param("q");
-    assertThat(qParam.isRequired()).isFalse();
-    assertThat(qParam.description()).isEqualTo("Limit search to: " +
-      "<ul>" +
-      "<li>component names that contain the supplied string</li>" +
-      "<li>component keys that contain the supplied string</li>" +
-      "</ul>");
-
-    Param qualifierParam = action.param("qualifiers");
-    assertThat(qualifierParam.isRequired()).isFalse();
-    assertThat(qualifierParam.description()).isEqualTo("Comma-separated list of component qualifiers. Filter the results with the specified qualifiers");
-    assertThat(qualifierParam.possibleValues()).containsOnly("TRK", "VW", "APP");
-    assertThat(qualifierParam.defaultValue()).isEqualTo("TRK");
-
-    Param pParam = action.param("p");
-    assertThat(pParam.isRequired()).isFalse();
-    assertThat(pParam.defaultValue()).isEqualTo("1");
-    assertThat(pParam.description()).isEqualTo("1-based page number");
-
-    Param psParam = action.param("ps");
-    assertThat(psParam.isRequired()).isFalse();
-    assertThat(psParam.defaultValue()).isEqualTo("100");
-    assertThat(psParam.description()).isEqualTo("Page size. Must be greater than 0 and less or equal than 500");
-
-    Param visibilityParam = action.param("visibility");
-    assertThat(visibilityParam.isRequired()).isFalse();
-    assertThat(visibilityParam.description()).isEqualTo("Filter the projects that should be visible to everyone (public), or only specific user/groups (private).<br/>" +
-      "If no visibility is specified, the default project visibility will be used.");
-
-    Param lastAnalysisBefore = action.param("analyzedBefore");
-    assertThat(lastAnalysisBefore.isRequired()).isFalse();
-    assertThat(lastAnalysisBefore.since()).isEqualTo("6.6");
-
-    Param onProvisionedOnly = action.param("onProvisionedOnly");
-    assertThat(onProvisionedOnly.possibleValues()).containsExactlyInAnyOrder("true", "false", "yes", "no");
-    assertThat(onProvisionedOnly.defaultValue()).isEqualTo("false");
-    assertThat(onProvisionedOnly.since()).isEqualTo("6.6");
+    var definition = ws.getDef();
+    assertThat(definition.params()).extracting(WebService.Param::key, WebService.Param::isRequired, WebService.Param::description, WebService.Param::possibleValues, WebService.Param::defaultValue, WebService.Param::since)
+      .containsExactlyInAnyOrder(
+        tuple("q", false, "Limit search to: <ul><li>component names that contain the supplied string</li><li>component keys that contain the supplied string</li></ul>", null, null, null),
+        tuple("qualifiers", false, "Comma-separated list of component qualifiers. Filter the results with the specified qualifiers", Set.of("TRK", "VW", "APP"), "TRK", null),
+        tuple("p", false, "1-based page number", null, "1", null),
+        tuple("projects", false, "Comma-separated list of project keys", null, null, "6.6"),
+        tuple("ps", false, "Page size. Must be greater than 0 and less or equal than 500", null, "100", null),
+        tuple("visibility", false, "Filter the projects that should be visible to everyone (public), or only specific user/groups (private).<br/>If no visibility is specified, the default project visibility will be used.", Set.of("private", "public"), null, "6.4"),
+        tuple("analyzedBefore", false, "Filter the projects for which the last analysis of all branches are older than the given date (exclusive).<br> Either a date (server timezone) or datetime can be provided.", null, null, "6.6"),
+        tuple("onProvisionedOnly", false, "Filter the projects that are provisioned", Set.of("true", "false", "yes", "no"), "false", "6.6")
+      );
   }
 
   @Test
