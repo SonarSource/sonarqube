@@ -60,6 +60,11 @@ import { STANDARDS_TO_RULES } from './data/ids';
 import { mockQualityProfilesList } from './data/qualityProfiles';
 import { mockRuleDetailsList, mockRulesActivationsInQP } from './data/rules';
 
+jest.mock('../rules');
+jest.mock('../issues');
+jest.mock('../users');
+jest.mock('../quality-profiles');
+
 type FacetFilter = Pick<
   SearchRulesQuery,
   | 'languages'

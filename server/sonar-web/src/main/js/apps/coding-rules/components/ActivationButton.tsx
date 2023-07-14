@@ -36,7 +36,7 @@ interface Props {
 
 export default function ActivationButton(props: Props) {
   const { className, ariaLabel, buttonText, activation, modalHeader, profiles, rule } = props;
-  const [openModal, setOpenModal] = React.useState(false);
+  const [modalOpen, setModalOpen] = React.useState(false);
 
   return (
     <>
@@ -44,16 +44,16 @@ export default function ActivationButton(props: Props) {
         aria-label={ariaLabel}
         className={className}
         id="coding-rules-quality-profile-activate"
-        onClick={() => setOpenModal(true)}
+        onClick={() => setModalOpen(true)}
       >
         {buttonText}
       </Button>
 
-      {openModal && (
+      {modalOpen && (
         <ActivationFormModal
           activation={activation}
           modalHeader={modalHeader}
-          onClose={() => setOpenModal(false)}
+          onClose={() => setModalOpen(false)}
           onDone={props.onDone}
           profiles={profiles}
           rule={rule}

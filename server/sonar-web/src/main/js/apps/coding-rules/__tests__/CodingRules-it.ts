@@ -28,22 +28,11 @@ import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
 import { getPageObjects } from '../utils-tests';
 
-jest.mock('../../../api/rules');
-jest.mock('../../../api/issues');
-jest.mock('../../../api/users');
-jest.mock('../../../api/quality-profiles');
-
-let handler: CodingRulesServiceMock;
-
-beforeAll(() => {
-  window.scrollTo = jest.fn();
-  window.HTMLElement.prototype.scrollIntoView = jest.fn();
-  handler = new CodingRulesServiceMock();
-});
+const handler: CodingRulesServiceMock = new CodingRulesServiceMock();
 
 afterEach(() => handler.reset());
 
-describe('Rules app', () => {
+describe('Rules app list', () => {
   it('renders correctly', async () => {
     const { ui } = getPageObjects();
     renderCodingRulesApp();
@@ -213,21 +202,29 @@ describe('Rules app', () => {
 
       const ruleName = 'Awesome Python rule with education principles';
 
-      await user.click(ui.similarIssuesButton(ruleName).get());
-      await user.click(ui.similarIssuesFilterByLang('Python').get());
+      await act(async () => {
+        await user.click(ui.similarIssuesButton(ruleName).get());
+        await user.click(ui.similarIssuesFilterByLang('Python').get());
+      });
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(6);
 
-      await user.click(ui.similarIssuesButton(ruleName).get());
-      await user.click(ui.similarIssuesFilterByType('issue.type.VULNERABILITY').get());
+      await act(async () => {
+        await user.click(ui.similarIssuesButton(ruleName).get());
+        await user.click(ui.similarIssuesFilterByType('issue.type.VULNERABILITY').get());
+      });
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(3);
       expect(ui.facetItem('issue.type.VULNERABILITY').get()).toBeChecked();
 
-      await user.click(ui.similarIssuesButton(ruleName).get());
-      await user.click(ui.similarIssuesFilterBySeverity('MINOR').get());
+      await act(async () => {
+        await user.click(ui.similarIssuesButton(ruleName).get());
+        await user.click(ui.similarIssuesFilterBySeverity('MINOR').get());
+      });
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(2);
 
-      await user.click(ui.similarIssuesButton(ruleName).get());
-      await user.click(ui.similarIssuesFilterByTag('awesome').get());
+      await act(async () => {
+        await user.click(ui.similarIssuesButton(ruleName).get());
+        await user.click(ui.similarIssuesFilterByTag('awesome').get());
+      });
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
     });
 
@@ -236,11 +233,15 @@ describe('Rules app', () => {
       renderCodingRulesApp(mockCurrentUser());
       await ui.appLoaded();
 
-      await user.type(ui.searchInput.get(), 'Python');
+      await act(async () => {
+        await user.type(ui.searchInput.get(), 'Python');
+      });
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(4);
 
-      await user.clear(ui.searchInput.get());
-      await user.type(ui.searchInput.get(), 'Hot hotspot');
+      await act(async () => {
+        await user.clear(ui.searchInput.get());
+        await user.type(ui.searchInput.get(), 'Hot hotspot');
+      });
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
     });
   });
@@ -252,7 +253,9 @@ describe('Rules app', () => {
       renderCodingRulesApp(mockLoggedInUser());
       await ui.appLoaded();
 
-      await user.click(ui.facetItem('C').get());
+      await act(async () => {
+        await user.click(ui.facetItem('C').get());
+      });
       await user.click(ui.bulkChangeButton.get());
       await user.click(ui.activateIn.get());
 
@@ -307,10 +310,6 @@ describe('Rules app', () => {
         ui.bulkSuccessMessage(selectQP.name, selectQP.languageName, rulesCount).get()
       ).toBeInTheDocument();
     });
-
-    it('should be able to activate for specific quality profile', async () => {});
-
-    it('should be able to deactivate for specific quality profile', async () => {});
   });
 
   it('can activate/deactivate specific rule for quality profile', async () => {
@@ -318,14 +317,18 @@ describe('Rules app', () => {
     renderCodingRulesApp(mockLoggedInUser());
     await ui.appLoaded();
 
-    await user.click(ui.qpFacet.get());
-    await user.click(ui.facetItem('QP Foo Java').get());
+    await act(async () => {
+      await user.click(ui.qpFacet.get());
+      await user.click(ui.facetItem('QP Foo Java').get());
+    });
 
     // Only one rule is activated in selected QP
     expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
 
     // Switch to inactive rules
-    await user.click(ui.qpInactiveRadio.get(ui.facetItem('QP Foo Java').get()));
+    await act(async () => {
+      await user.click(ui.qpInactiveRadio.get(ui.facetItem('QP Foo Java').get()));
+    });
     expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
 
     // Activate Rule for qp
@@ -350,25 +353,33 @@ describe('Rules app', () => {
       ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get())
     ).toBeInTheDocument();
 
-    await user.keyboard('{ArrowDown}');
+    await act(async () => {
+      await user.keyboard('{ArrowDown}');
+    });
     expect(ui.ruleListItemLink('Hot hotspot').get(ui.currentListItem.get())).toBeInTheDocument();
 
-    await user.keyboard('{ArrowUp}');
+    await act(async () => {
+      await user.keyboard('{ArrowUp}');
+    });
     expect(
       ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get())
     ).toBeInTheDocument();
 
-    await user.keyboard('{ArrowRight}');
+    await act(async () => {
+      await user.keyboard('{ArrowRight}');
+    });
     expect(screen.getByRole('heading', { level: 1, name: 'Awsome java rule' })).toBeInTheDocument();
 
-    await user.keyboard('{ArrowLeft}');
+    await act(async () => {
+      await user.keyboard('{ArrowLeft}');
+    });
     expect(
       ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get())
     ).toBeInTheDocument();
   });
 });
 
-describe('Rule app', () => {
+describe('Rule app details', () => {
   describe('rendering', () => {
     it('shows rule with default description section and params', async () => {
       const { ui } = getPageObjects();
@@ -587,14 +598,17 @@ describe('Rule app', () => {
       renderCodingRulesApp(mockLoggedInUser());
       await ui.appLoaded();
 
-      await user.click(ui.templateFacet.get());
-      await user.click(ui.facetItem('coding_rules.filters.template.is_template').get());
-
+      await act(async () => {
+        await user.click(ui.templateFacet.get());
+        await user.click(ui.facetItem('coding_rules.filters.template.is_template').get());
+      });
       // Shows only one template rule
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
 
       // Show template rule details
-      await user.click(ui.ruleListItemLink('Template rule').get());
+      await act(async () => {
+        await user.click(ui.ruleListItemLink('Template rule').get());
+      });
       expect(ui.ruleTitle('Template rule').get()).toBeInTheDocument();
       expect(ui.customRuleSectionTitle.get()).toBeInTheDocument();
 
@@ -612,7 +626,9 @@ describe('Rule app', () => {
       await user.type(ui.descriptionTextbox.get(), 'Some description for custom rule');
       await user.type(ui.paramInput('1').get(), 'Default value');
 
-      await user.click(ui.createButton.get());
+      await act(async () => {
+        await user.click(ui.createButton.get());
+      });
 
       // Verify the rule is created
       expect(ui.customRuleItemLink('New Custom Rule').get()).toBeInTheDocument();
@@ -631,7 +647,9 @@ describe('Rule app', () => {
       await user.type(ui.ruleNameTextbox.get(), 'Updated custom rule name');
       await user.type(ui.descriptionTextbox.get(), 'Some description for custom rule');
 
-      await user.click(ui.saveButton.get(ui.updateCustomRuleDialog.get()));
+      await act(async () => {
+        await user.click(ui.saveButton.get(ui.updateCustomRuleDialog.get()));
+      });
 
       expect(ui.ruleTitle('Updated custom rule name').get()).toBeInTheDocument();
     });
@@ -643,7 +661,9 @@ describe('Rule app', () => {
       await ui.appLoaded();
 
       await user.click(ui.deleteButton.get());
-      await user.click(ui.deleteButton.get(ui.deleteCustomRuleDialog.get()));
+      await act(async () => {
+        await user.click(ui.deleteButton.get(ui.deleteCustomRuleDialog.get()));
+      });
 
       // Shows the list of rules, custom rule should not be included
       expect(ui.ruleListItemLink('Custom Rule based on rule8').query()).not.toBeInTheDocument();
