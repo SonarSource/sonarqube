@@ -64,7 +64,7 @@ export default function PipeCommand(props: PipeCommandProps) {
 
   const command = `stages:
     - sonarqube-check
-    - vulnerability-report
+    - sonarqube-vulnerability-report
 
 sonarqube-check:
   stage: sonarqube-check
@@ -84,8 +84,8 @@ sonarqube-check:
     - main
     - develop
 
-vulnerability-report:
-  stage: vulnerability-report
+sonarqube-vulnerability-report:
+  stage: sonarqube-vulnerability-report
   script:
     - 'curl -u "\${SONAR_TOKEN}:" "\${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=${projectKey}&branch=\${CI_COMMIT_BRANCH}&pullRequest=\${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json'
   allow_failure: true
