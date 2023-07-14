@@ -130,6 +130,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
 
   renderActions = () => {
     const { activation, isLoggedIn, rule, selectedProfile } = this.props;
+
     if (!selectedProfile || !isLoggedIn) {
       return null;
     }

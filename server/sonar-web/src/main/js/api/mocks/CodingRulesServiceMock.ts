@@ -68,6 +68,7 @@ type FacetFilter = Pick<
   | 'severities'
   | 'repositories'
   | 'qprofile'
+  | 'activation'
   | 'sonarsourceSecurity'
   | 'owaspTop10'
   | 'owaspTop10-2021'
@@ -98,15 +99,19 @@ export default class CodingRulesServiceMock {
   standardsToRules: Partial<{ [category in keyof Standards]: { [standard: string]: string[] } }> =
     {};
 
-  qualityProfilesToRules: { [qp: string]: string[] } = {};
-
   constructor() {
     this.repositories = [
       mockRuleRepository({ key: 'repo1', name: 'Repository 1' }),
       mockRuleRepository({ key: 'repo2', name: 'Repository 2' }),
     ];
     this.qualityProfile = [
-      mockQualityProfile({ key: 'p1', name: 'QP Foo', language: 'java', languageName: 'Java' }),
+      mockQualityProfile({
+        key: 'p1',
+        name: 'QP Foo',
+        language: 'java',
+        languageName: 'Java',
+        actions: { edit: true },
+      }),
       mockQualityProfile({ key: 'p2', name: 'QP Bar', language: 'js' }),
       mockQualityProfile({ key: 'p3', name: 'QP FooBar', language: 'java', languageName: 'Java' }),
       mockQualityProfile({
@@ -249,7 +254,6 @@ export default class CodingRulesServiceMock {
         ],
         templateKey: 'rule8',
       }),
-      // Keep this last
       mockRuleDetails({
         createdAt: '2022-12-16T17:26:54+0100',
         key: 'rule10',
@@ -268,6 +272,13 @@ export default class CodingRulesServiceMock {
           },
         ],
         educationPrinciples: ['defense_in_depth', 'never_trust_user_input'],
+      }),
+      mockRuleDetails({
+        key: 'rule11',
+        type: 'BUG',
+        lang: 'java',
+        langName: 'Java',
+        name: 'Common java rule',
       }),
     ];
 
@@ -289,10 +300,6 @@ export default class CodingRulesServiceMock {
         '102': ['rule1', 'rule2', 'rule3'],
         '297': ['rule1', 'rule4'],
       },
-    };
-
-    this.qualityProfilesToRules = {
-      p3: ['rule1', 'rule2', 'rule3', 'rule4', 'rule5', 'rule6', 'rule7', 'rule8'],
     };
 
     jest.mocked(updateRule).mockImplementation(this.handleUpdateRule);
@@ -347,6 +354,7 @@ export default class CodingRulesServiceMock {
     owaspTop10,
     'owaspTop10-2021': owasp2021Top10,
     cwe,
+    activation,
   }: FacetFilter) {
     let filteredRules = this.rules;
     if (types) {
@@ -358,6 +366,18 @@ export default class CodingRulesServiceMock {
     if (severities) {
       filteredRules = filteredRules.filter((r) => r.severity && severities.includes(r.severity));
     }
+    if (qprofile && activation !== undefined) {
+      const qProfileLang = this.qualityProfile.find((p) => p.key === qprofile)?.language;
+      filteredRules = filteredRules
+        .filter((r) => r.lang === qProfileLang)
+        .filter((r) => {
+          const qProfilesInRule = this.rulesActivations[r.key]?.map((ra) => ra.qProfile) ?? [];
+          const ruleHasQueriedProfile = qProfilesInRule.includes(qprofile);
+          return activation === 'true' ? ruleHasQueriedProfile : !ruleHasQueriedProfile;
+        });
+
+      console.log(filteredRules);
+    }
     if (available_since) {
       filteredRules = filteredRules.filter(
         (r) => r.createdAt && new Date(r.createdAt) > new Date(available_since)
@@ -368,10 +388,6 @@ export default class CodingRulesServiceMock {
     }
     if (repositories) {
       filteredRules = filteredRules.filter((r) => r.lang && repositories.includes(r.repo));
-    }
-    if (qprofile) {
-      const rules = this.qualityProfilesToRules[qprofile] ?? [];
-      filteredRules = filteredRules.filter((r) => rules.includes(r.key));
     }
     if (sonarsourceSecurity) {
       const matchingRules =
@@ -552,6 +568,7 @@ export default class CodingRulesServiceMock {
     q,
     rule_key,
     is_template,
+    activation,
   }: SearchRulesQuery): Promise<SearchRulesResponse> => {
     const standards = await getStandards();
     const facetCounts: Array<{ property: string; values: { val: string; count: number }[] }> = [];
@@ -595,6 +612,7 @@ export default class CodingRulesServiceMock {
       filteredRules = this.getRulesWithoutDetails(this.rules).filter((r) => r.key === rule_key);
     } else {
       filteredRules = this.filterFacet({
+        qprofile,
         languages,
         available_since,
         q,
@@ -603,11 +621,11 @@ export default class CodingRulesServiceMock {
         types,
         tags,
         is_template,
-        qprofile,
         sonarsourceSecurity,
         owaspTop10,
         'owaspTop10-2021': owasp2021Top10,
         cwe,
+        activation,
       });
     }
     const responseRules = filteredRules.slice((currentP - 1) * currentPs, currentP * currentPs);
@@ -652,13 +670,20 @@ export default class CodingRulesServiceMock {
     severity?: string;
   }) => {
     const nextActivation = mockRuleActivation({ qProfile: data.key, severity: data.severity });
+
+    if (!this.rulesActivations[data.rule]) {
+      this.rulesActivations[data.rule] = [nextActivation];
+      return this.reply(undefined);
+    }
+
     const activationIndex = this.rulesActivations[data.rule]?.findIndex((activation) => {
       return activation.qProfile === data.key;
     });
+
     if (activationIndex !== -1) {
       this.rulesActivations[data.rule][activationIndex] = nextActivation;
     } else {
-      this.rulesActivations[data.rule] = [...this.rulesActivations[data.rule], nextActivation];
+      this.rulesActivations[data.rule].push(nextActivation);
     }
     return this.reply(undefined);
   };

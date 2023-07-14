@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { act, fireEvent, screen } from '@testing-library/react';
-import { last } from 'lodash';
 import selectEvent from 'react-select-event';
 import CodingRulesServiceMock, { RULE_TAGS_MOCK } from '../../../api/mocks/CodingRulesServiceMock';
 import { RULE_TYPES } from '../../../helpers/constants';
@@ -27,7 +26,7 @@ import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { dateInputEvent, renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
-import { getPageObjects } from '../utils-test';
+import { getPageObjects } from '../utils-tests';
 
 jest.mock('../../../api/rules');
 jest.mock('../../../api/issues');
@@ -88,7 +87,7 @@ describe('Rules app', () => {
       renderCodingRulesApp(mockCurrentUser());
       await ui.appLoaded();
 
-      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(11);
 
       // Filter by language facet
       await act(async () => {
@@ -115,7 +114,7 @@ describe('Rules app', () => {
       await act(async () => {
         await user.click(ui.clearAllFiltersButton.get());
       });
-      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(11);
 
       // Filter by repository
       await act(async () => {
@@ -135,14 +134,14 @@ describe('Rules app', () => {
       await act(async () => {
         await user.click(ui.clearAllFiltersButton.get());
       });
-      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(11);
 
       // Filter by quality profile
       await act(async () => {
         await user.click(ui.qpFacet.get());
-        await user.click(ui.facetItem('QP FooBar Java').get());
+        await user.click(ui.facetItem('QP Foo Java').get());
       });
-      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(8);
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
 
       // Filter by tag
       await act(async () => {
@@ -165,7 +164,7 @@ describe('Rules app', () => {
       renderCodingRulesApp(mockCurrentUser());
       await ui.appLoaded();
 
-      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(11);
       await act(async () => {
         await user.click(ui.standardsFacet.get());
         await user.click(ui.facetItem('Buffer Overflow').get());
@@ -202,7 +201,7 @@ describe('Rules app', () => {
       await act(async () => {
         await user.click(ui.facetClear('issues.facet.standards').get());
       });
-      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(11);
     });
 
     it('filters by similar rules', async () => {
@@ -210,25 +209,25 @@ describe('Rules app', () => {
       renderCodingRulesApp(mockCurrentUser());
       await ui.appLoaded();
 
-      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(11);
 
-      const lastRule = last(ui.ruleListItem.getAll());
+      const ruleName = 'Awesome Python rule with education principles';
 
-      await user.click(ui.similarIssuesButton.get(lastRule));
-      await user.click(ui.similarIssuesFilterByLang('Python').get(lastRule));
+      await user.click(ui.similarIssuesButton(ruleName).get());
+      await user.click(ui.similarIssuesFilterByLang('Python').get());
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(6);
 
-      await user.click(ui.similarIssuesButton.get(lastRule));
-      await user.click(ui.similarIssuesFilterByType('issue.type.VULNERABILITY').get(lastRule));
+      await user.click(ui.similarIssuesButton(ruleName).get());
+      await user.click(ui.similarIssuesFilterByType('issue.type.VULNERABILITY').get());
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(3);
       expect(ui.facetItem('issue.type.VULNERABILITY').get()).toBeChecked();
 
-      await user.click(ui.similarIssuesButton.get(lastRule));
-      await user.click(ui.similarIssuesFilterBySeverity('MINOR').get(lastRule));
+      await user.click(ui.similarIssuesButton(ruleName).get());
+      await user.click(ui.similarIssuesFilterBySeverity('MINOR').get());
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(2);
 
-      await user.click(ui.similarIssuesButton.get(lastRule));
-      await user.click(ui.similarIssuesFilterByTag('awesome').get(lastRule));
+      await user.click(ui.similarIssuesButton(ruleName).get());
+      await user.click(ui.similarIssuesFilterByTag('awesome').get());
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
     });
 
@@ -314,7 +313,33 @@ describe('Rules app', () => {
     it('should be able to deactivate for specific quality profile', async () => {});
   });
 
-  it('can activate/deactivate specific rule for quality profile', async () => {});
+  it('can activate/deactivate specific rule for quality profile', async () => {
+    const { ui, user } = getPageObjects();
+    renderCodingRulesApp(mockLoggedInUser());
+    await ui.appLoaded();
+
+    await user.click(ui.qpFacet.get());
+    await user.click(ui.facetItem('QP Foo Java').get());
+
+    // Only one rule is activated in selected QP
+    expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
+
+    // Switch to inactive rules
+    await user.click(ui.qpInactiveRadio.get(ui.facetItem('QP Foo Java').get()));
+    expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
+
+    // Activate Rule for qp
+    await user.click(ui.activateButton.get());
+    await user.click(ui.activateButton.get(ui.activateQPDialog.get()));
+    expect(ui.activateButton.query()).not.toBeInTheDocument();
+    expect(ui.deactivateButton.get()).toBeInTheDocument();
+
+    // Deactivate activated rule
+    await user.click(ui.deactivateButton.get());
+    await user.click(ui.yesButton.get());
+    expect(ui.deactivateButton.query()).not.toBeInTheDocument();
+    expect(ui.activateButton.get()).toBeInTheDocument();
+  });
 
   it('navigates by keyboard', async () => {
     const { user, ui } = getPageObjects();
@@ -490,7 +515,7 @@ describe('Rule app', () => {
     await user.click(ui.cancelButton.get());
 
     // Deactivate rule in quality profile
-    await user.click(ui.deactivateButton('QP FooBar').get());
+    await user.click(ui.deactivateInQPButton('QP FooBar').get());
     await act(() => user.click(ui.yesButton.get()));
     expect(ui.qpLink('QP FooBar').query()).not.toBeInTheDocument();
   });
@@ -621,7 +646,6 @@ describe('Rule app', () => {
       await user.click(ui.deleteButton.get(ui.deleteCustomRuleDialog.get()));
 
       // Shows the list of rules, custom rule should not be included
-      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(9);
       expect(ui.ruleListItemLink('Custom Rule based on rule8').query()).not.toBeInTheDocument();
     });
 

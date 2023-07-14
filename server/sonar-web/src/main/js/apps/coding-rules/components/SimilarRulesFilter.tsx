@@ -19,8 +19,8 @@
  */
 import classNames from 'classnames';
 import * as React from 'react';
-import { Button, ButtonPlain } from '../../../components/controls/buttons';
 import Dropdown from '../../../components/controls/Dropdown';
+import { Button, ButtonPlain } from '../../../components/controls/buttons';
 import DropdownIcon from '../../../components/icons/DropdownIcon';
 import FilterIcon from '../../../components/icons/FilterIcon';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
@@ -139,7 +139,7 @@ export default class SimilarRulesFilter extends React.PureComponent<Props> {
       >
         <Button
           className="js-rule-filter spacer-left"
-          title={translate('coding_rules.filter_similar_rules')}
+          title={translateWithParameters('coding_rules.filter_similar_rules_x', rule.name)}
         >
           <FilterIcon />
           <DropdownIcon />

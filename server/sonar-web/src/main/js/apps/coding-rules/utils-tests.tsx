@@ -30,7 +30,8 @@ const selectors = {
   ruleListItemLink: (name: string) => byRole('link', { name }),
   ruleListItem: byRole('listitem'),
   currentListItem: byRole('listitem', { current: true }),
-  similarIssuesButton: byRole('button', { name: 'coding_rules.filter_similar_rules' }),
+  similarIssuesButton: (rule: string) =>
+    byRole('button', { name: `coding_rules.filter_similar_rules_x.${rule}` }),
   similarIssuesFilterByLang: (lang: string) =>
     byRole('button', { name: `coding_rules.filter_by_language.${lang}` }),
   similarIssuesFilterByType: (type: string) =>
@@ -62,6 +63,8 @@ const selectors = {
   facetSearchInput: (name: string) => byRole('searchbox', { name }),
   facetItem: (name: string) => byRole('checkbox', { name }),
   availableSinceDateField: byPlaceholderText('date'),
+  qpActiveRadio: byRole('radio', { name: `active` }),
+  qpInactiveRadio: byRole('radio', { name: `inactive` }),
 
   // Bulk change
   bulkChangeButton: byRole('button', { name: 'bulk_change' }),
@@ -126,13 +129,14 @@ const selectors = {
   // Rule Quality Profiles
   qpLink: (name: string) => byRole('link', { name }),
   activateButton: byRole('button', { name: 'coding_rules.activate' }),
+  deactivateButton: byRole('button', { name: 'coding_rules.deactivate' }),
   severitySelect: byRole('combobox', { name: 'severity' }),
   qualityProfileSelect: byRole('combobox', { name: 'coding_rules.quality_profile' }),
   activateQPDialog: byRole('dialog', { name: 'coding_rules.activate_in_quality_profile' }),
   changeButton: (profile: string) =>
     byRole('button', { name: `coding_rules.change_details_x.${profile}` }),
   changeQPDialog: byRole('dialog', { name: 'coding_rules.change_details' }),
-  deactivateButton: (profile: string) =>
+  deactivateInQPButton: (profile: string) =>
     byRole('button', { name: `coding_rules.deactivate_in_quality_profile_x.${profile}` }),
   activaInAllQPs: byText('coding_rules.active_in_all_profiles'),
   yesButton: byRole('button', { name: 'yes' }),
