@@ -34,7 +34,6 @@ export interface AnalysisCommandProps extends WithAvailableFeaturesProps {
   buildTool: BuildTools;
   mainBranchName: string;
   component: Component;
-  onDone: () => void;
 }
 
 export function AnalysisCommand(props: AnalysisCommandProps) {
@@ -48,7 +47,6 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
           component={component}
-          onDone={props.onDone}
         />
       );
     case BuildTools.Gradle:
@@ -57,7 +55,6 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
           component={component}
-          onDone={props.onDone}
         />
       );
     case BuildTools.DotNet:
@@ -66,7 +63,6 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
           component={component}
-          onDone={props.onDone}
         />
       );
     case BuildTools.CFamily:
@@ -75,7 +71,6 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
           component={component}
-          onDone={props.onDone}
         />
       );
     case BuildTools.Other:
@@ -84,7 +79,6 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
           branchesEnabled={branchSupportEnabled}
           mainBranchName={mainBranchName}
           component={component}
-          onDone={props.onDone}
         />
       );
   }

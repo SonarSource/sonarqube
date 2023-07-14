@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { Component } from '../../../../types/types';
 import CreateYmlFile from '../../components/CreateYmlFile';
-import FinishButton from '../../components/FinishButton';
 import { GITHUB_ACTIONS_RUNS_ON_LINUX } from '../constants';
 import { generateGitHubActionsYaml } from '../utils';
 
@@ -28,7 +27,6 @@ export interface JavaMavenProps {
   branchesEnabled?: boolean;
   mainBranchName: string;
   component: Component;
-  onDone: () => void;
 }
 
 function mavenYamlSteps(projectKey: string, projectName: string) {
@@ -60,17 +58,14 @@ function mavenYamlSteps(projectKey: string, projectName: string) {
 export default function JavaMaven(props: JavaMavenProps) {
   const { component, branchesEnabled, mainBranchName } = props;
   return (
-    <>
-      <CreateYmlFile
-        yamlFileName=".github/workflows/build.yml"
-        yamlTemplate={generateGitHubActionsYaml(
-          mainBranchName,
-          !!branchesEnabled,
-          GITHUB_ACTIONS_RUNS_ON_LINUX,
-          mavenYamlSteps(component.key, component.name)
-        )}
-      />
-      <FinishButton onClick={props.onDone} />
-    </>
+    <CreateYmlFile
+      yamlFileName=".github/workflows/build.yml"
+      yamlTemplate={generateGitHubActionsYaml(
+        mainBranchName,
+        !!branchesEnabled,
+        GITHUB_ACTIONS_RUNS_ON_LINUX,
+        mavenYamlSteps(component.key, component.name)
+      )}
+    />
   );
 }

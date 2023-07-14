@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { NumberedListItem } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
 import { CompilationInfo } from '../../components/CompilationInfo';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
-import FinishButton from '../../components/FinishButton';
 import GithubCFamilyExampleRepositories from '../../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../../components/RenderOptions';
 import { OSs, TutorialModes } from '../../types';
@@ -33,7 +33,6 @@ export interface CFamilyProps {
   branchesEnabled?: boolean;
   mainBranchName: string;
   component: Component;
-  onDone: () => void;
 }
 
 const STEPS = {
@@ -118,12 +117,12 @@ const STEPS = {
 
 export default function CFamily(props: CFamilyProps) {
   const { component, branchesEnabled, mainBranchName } = props;
-  const [os, setOs] = React.useState<undefined | OSs>();
+  const [os, setOs] = React.useState<undefined | OSs>(OSs.Linux);
 
   return (
     <>
       <DefaultProjectKey component={component} />
-      <li className="abs-width-600">
+      <NumberedListItem>
         <span>{translate('onboarding.build.other.os')}</span>
         <RenderOptions
           label={translate('onboarding.build.other.os')}
@@ -134,12 +133,12 @@ export default function CFamily(props: CFamilyProps) {
         />
         {os && (
           <GithubCFamilyExampleRepositories
-            className="big-spacer-top"
+            className="sw-mt-4"
             os={os}
             ci={TutorialModes.GitHubActions}
           />
         )}
-      </li>
+      </NumberedListItem>
       {os && (
         <>
           <CreateYmlFile
@@ -151,8 +150,7 @@ export default function CFamily(props: CFamilyProps) {
               STEPS[os]
             )}
           />
-          <CompilationInfo className="abs-width-800" />
-          <FinishButton onClick={props.onDone} />
+          <CompilationInfo />
         </>
       )}
     </>

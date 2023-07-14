@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
@@ -80,7 +79,7 @@ const ui = {
   jenkinsStepTitle: byRole('heading', {
     name: 'onboarding.tutorial.with.jenkins.jenkinsfile.title',
   }),
-  allSetSentence: byText('onboarding.tutorial.ci_outro.all_set.sentence'),
+  allSetSentence: byText('onboarding.tutorial.ci_outro.done'),
   ...getTutorialActionButtons(),
   ...getTutorialBuildButtons(),
 };
@@ -139,23 +138,23 @@ it.each([AlmKeys.BitbucketCloud, AlmKeys.BitbucketServer, AlmKeys.GitHub, AlmKey
 
     // CFamilly
     await user.click(ui.cFamilyBuildButton.get());
-    expect(getCopyToClipboardValue()).toMatchSnapshot(`sonar-project.properties code`);
+    expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(`sonar-project.properties code`);
 
     await user.click(ui.linuxButton.get());
-    expect(getCopyToClipboardValue(1)).toMatchSnapshot(`cfamily linux jenkinsfile`);
+    expect(getCopyToClipboardValue()).toMatchSnapshot(`cfamily linux jenkinsfile`);
 
     await user.click(ui.windowsButton.get());
-    expect(getCopyToClipboardValue(1)).toMatchSnapshot(`cfamily windows jenkinsfile`);
+    expect(getCopyToClipboardValue()).toMatchSnapshot(`cfamily windows jenkinsfile`);
 
     await user.click(ui.macosButton.get());
-    expect(getCopyToClipboardValue(1)).toMatchSnapshot(`cfamily macos jenkinsfile`);
+    expect(getCopyToClipboardValue()).toMatchSnapshot(`cfamily macos jenkinsfile`);
 
     // Other
     await user.click(ui.otherBuildButton.get());
-    expect(getCopyToClipboardValue()).toMatchSnapshot(
+    expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
       `other build tools sonar-project.properties code`
     );
-    expect(getCopyToClipboardValue(1)).toMatchSnapshot(`other build tools jenkinsfile`);
+    expect(getCopyToClipboardValue()).toMatchSnapshot(`other build tools jenkinsfile`);
 
     await user.click(ui.finishTutorialButton.get());
     expect(ui.allSetSentence.get()).toBeInTheDocument();

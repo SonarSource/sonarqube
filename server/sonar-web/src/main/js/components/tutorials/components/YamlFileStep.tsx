@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { NumberedList, NumberedListItem } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
@@ -26,6 +27,7 @@ import { BuildTools } from '../types';
 export interface YamlFileStepProps {
   children?: (buildTool: BuildTools) => React.ReactElement<{}>;
   hasCLanguageFeature: boolean;
+  setDone?: (doneStatus: boolean) => void;
 }
 
 export function YamlFileStep(props: YamlFileStepProps) {
@@ -40,8 +42,8 @@ export function YamlFileStep(props: YamlFileStepProps) {
   const [buildToolSelected, setBuildToolSelected] = React.useState<BuildTools>();
 
   return (
-    <ol className="list-styled big-spacer-top big-spacer-bottom">
-      <li className="abs-width-600">
+    <NumberedList>
+      <NumberedListItem>
         {translate('onboarding.build')}
         <RenderOptions
           label={translate('onboarding.build')}
@@ -49,10 +51,11 @@ export function YamlFileStep(props: YamlFileStepProps) {
           onCheck={(value) => setBuildToolSelected(value as BuildTools)}
           options={buildTools}
           optionLabelKey="onboarding.build"
+          setDone={props.setDone}
         />
-      </li>
+      </NumberedListItem>
       {children && buildToolSelected && children(buildToolSelected)}
-    </ol>
+    </NumberedList>
   );
 }
 

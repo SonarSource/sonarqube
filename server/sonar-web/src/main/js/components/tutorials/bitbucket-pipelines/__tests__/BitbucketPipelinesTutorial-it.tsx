@@ -28,7 +28,7 @@ import {
 } from '../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLanguage, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { renderApp, RenderContext } from '../../../../helpers/testReactTestingUtils';
+import { RenderContext, renderApp } from '../../../../helpers/testReactTestingUtils';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import {
@@ -75,28 +75,28 @@ it('should follow and complete all steps', async () => {
   // Create/update configuration file step
   // Maven
   await user.click(ui.mavenBuildButton.get());
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('Maven: bitbucket-pipelines.yml');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Maven: bitbucket-pipelines.yml');
 
   // Gradle
   await user.click(ui.gradleBuildButton.get());
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('Groovy: build.gradle');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Groovy: build.gradle');
   await user.click(ui.gradleDSLButton(GradleBuildDSL.Kotlin).get());
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('Kotlin: build.gradle.kts');
-  expect(getCopyToClipboardValue(4)).toMatchSnapshot('Gradle: bitbucket-pipelines.yml');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Kotlin: build.gradle.kts');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('Gradle: bitbucket-pipelines.yml');
 
   // .NET
   await user.click(ui.dotnetBuildButton.get());
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('.NET: bitbucket-pipelines.yml');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('.NET: bitbucket-pipelines.yml');
 
   // CFamily
   await user.click(ui.cFamilyBuildButton.get());
-  expect(getCopyToClipboardValue()).toMatchSnapshot('CFamily: sonar-project.properties');
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('CFamily: bitbucket-pipelines.yml');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('CFamily: sonar-project.properties');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('CFamily: bitbucket-pipelines.yml');
 
   // Other
   await user.click(ui.otherBuildButton.get());
-  expect(getCopyToClipboardValue()).toMatchSnapshot('Other: sonar-project.properties');
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('Other: .github/workflows/build.yml');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Other: sonar-project.properties');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('Other: .github/workflows/build.yml');
 
   await user.click(ui.finishTutorialButton.get());
   expect(ui.allSetSentence.get()).toBeInTheDocument();

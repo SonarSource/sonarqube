@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ClipboardIconButton, CodeSnippet, NumberedListItem } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { ClipboardIconButton } from '../../../components/controls/clipboard';
 import { translate } from '../../../helpers/l10n';
-import CodeSnippet from '../../common/CodeSnippet';
+import { InlineSnippet } from './InlineSnippet';
 
 export interface CreateYmlFileProps {
   yamlFileName: string;
@@ -31,20 +31,20 @@ export interface CreateYmlFileProps {
 export default function CreateYmlFile(props: CreateYmlFileProps) {
   const { yamlTemplate, yamlFileName } = props;
   return (
-    <li className="abs-width-800">
+    <NumberedListItem>
       <FormattedMessage
         defaultMessage={translate('onboarding.tutorial.with.github_action.yaml.create_yml')}
         id="onboarding.tutorial.with.github_action.yaml.create_yml"
         values={{
           file: (
             <>
-              <code className="rule">{yamlFileName}</code>
+              <InlineSnippet snippet={yamlFileName} />
               <ClipboardIconButton copyValue={yamlFileName} />
             </>
           ),
         }}
       />
-      <CodeSnippet snippet={yamlTemplate} />
-    </li>
+      <CodeSnippet className="sw-p-6 sw-overflow-auto" snippet={yamlTemplate} language="yml" />
+    </NumberedListItem>
   );
 }

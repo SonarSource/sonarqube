@@ -21,7 +21,6 @@ import * as React from 'react';
 import { Component } from '../../../../types/types';
 import CreateYmlFile from '../../components/CreateYmlFile';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
-import FinishButton from '../../components/FinishButton';
 import { GITHUB_ACTIONS_RUNS_ON_LINUX } from '../constants';
 import { generateGitHubActionsYaml } from '../utils';
 
@@ -29,7 +28,6 @@ export interface OthersProps {
   branchesEnabled?: boolean;
   mainBranchName: string;
   component: Component;
-  onDone: () => void;
 }
 
 function otherYamlSteps(branchesEnabled: boolean) {
@@ -70,7 +68,6 @@ export default function Others(props: OthersProps) {
           otherYamlSteps(!!branchesEnabled)
         )}
       />
-      <FinishButton onClick={props.onDone} />
     </>
   );
 }

@@ -21,6 +21,12 @@ import React from 'react';
 
 (window as any).React = React;
 
+const MockObserver = {
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+};
+
 const content = document.createElement('div');
 content.id = 'content';
 document.documentElement.appendChild(content);
@@ -37,3 +43,10 @@ jest.mock('../../src/main/js/helpers/l10n', () => ({
   translateWithParameters: (messageKey: string, ...parameters: Array<string | number>) =>
     [messageKey, ...parameters].join('.'),
 }));
+
+const MockIntersectionObserverEntries = [{ isIntersecting: true }];
+
+(window as any).IntersectionObserver = jest.fn().mockImplementation((callback) => {
+  callback(MockIntersectionObserverEntries, MockObserver);
+  return MockObserver;
+});

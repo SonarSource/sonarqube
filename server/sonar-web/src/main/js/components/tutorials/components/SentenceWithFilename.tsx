@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
+import { InlineSnippet } from './InlineSnippet';
 
 export interface SentenceWithFilenameProps {
   filename: string;
@@ -36,7 +37,7 @@ export default function SentenceWithFilename({
         defaultMessage={translate(translationKey, 'sentence')}
         id={`${translationKey}.sentence`}
         values={{
-          file: <code>{filename}</code>,
+          file: <InlineSnippet snippet={filename} />,
         }}
       />
     </span>

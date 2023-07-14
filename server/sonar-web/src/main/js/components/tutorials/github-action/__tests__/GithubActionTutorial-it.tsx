@@ -28,7 +28,7 @@ import {
 } from '../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLanguage, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { renderApp, RenderContext } from '../../../../helpers/testReactTestingUtils';
+import { RenderContext, renderApp } from '../../../../helpers/testReactTestingUtils';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { Feature } from '../../../../types/features';
 import {
@@ -65,45 +65,49 @@ it('should follow and complete all steps', async () => {
   expect(await ui.secretsStepTitle.find()).toBeInTheDocument();
 
   // Env variables step
-  expect(getCopyToClipboardValue()).toMatchSnapshot('sonar token key');
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('sonarqube host url key');
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('sonarqube host url value');
-  await user.click(ui.continueButton.get());
+  expect(getCopyToClipboardValue(0, 'Copy to clipboard')).toMatchSnapshot('sonar token key');
+  expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toMatchSnapshot('sonarqube host url key');
+  expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
+    'sonarqube host url value'
+  );
 
   // Create/update configuration file step
   // Maven
   await user.click(ui.mavenBuildButton.get());
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('Maven: .github/workflows/build.yml');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Maven: .github/workflows/build.yml');
 
   // Gradle
   await user.click(ui.gradleBuildButton.get());
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('Groovy: build.gradle');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Groovy: build.gradle');
   await user.click(ui.gradleDSLButton(GradleBuildDSL.Kotlin).get());
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('Kotlin: build.gradle.kts');
-  expect(getCopyToClipboardValue(4)).toMatchSnapshot('Gradle: .github/workflows/build.yml');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Kotlin: build.gradle.kts');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('Gradle: .github/workflows/build.yml');
 
   // .NET
   await user.click(ui.dotnetBuildButton.get());
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('.NET: .github/workflows/build.yml');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('.NET: .github/workflows/build.yml');
 
   // CFamily
   await user.click(ui.cFamilyBuildButton.get());
-  expect(getCopyToClipboardValue()).toMatchSnapshot('CFamily: sonar-project.properties');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('CFamily: sonar-project.properties');
   await user.click(ui.linuxButton.get());
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('CFamily Linux: .github/workflows/build.yml');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+    'CFamily Linux: .github/workflows/build.yml'
+  );
   await user.click(ui.windowsButton.get());
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot(
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
     'CFamily Windows: .github/workflows/build.yml'
   );
   await user.click(ui.macosButton.get());
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('CFamily MacOS: .github/workflows/build.yml');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
+    'CFamily MacOS: .github/workflows/build.yml'
+  );
 
   // Other
   await user.click(ui.otherBuildButton.get());
-  expect(getCopyToClipboardValue()).toMatchSnapshot('Other: sonar-project.properties');
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('Other: .github/workflows/build.yml');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Other: sonar-project.properties');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('Other: .github/workflows/build.yml');
 
-  await user.click(ui.finishTutorialButton.get());
   expect(ui.allSetSentence.get()).toBeInTheDocument();
 });
 
@@ -116,7 +120,7 @@ it('should generate/delete a new token or use existing one', async () => {
   // Generate token
   await user.click(ui.genTokenDialogButton.get());
   await user.click(ui.generateTokenButton.get());
-  expect(getCopyToClipboardValue(3)).toEqual('generatedtoken2');
+  expect(getCopyToClipboardValue()).toEqual('generatedtoken2');
 
   // Revoke current token and create new one
   await user.click(ui.deleteTokenButton.get());
@@ -124,7 +128,7 @@ it('should generate/delete a new token or use existing one', async () => {
   await selectEvent.select(ui.expiresInSelect.get(), 'users.tokens.expiration.365');
   await user.click(ui.generateTokenButton.get());
   expect(ui.tokenValue.get()).toBeInTheDocument();
-  await user.click(ui.continueButton.getAll()[1]);
+  await user.click(ui.continueButton.getAll()[0]);
   expect(ui.tokenValue.query()).not.toBeInTheDocument();
 });
 
@@ -141,9 +145,7 @@ it('navigates between steps', async () => {
   // If project is bound, link to repo is visible
   expect(await ui.linkToRepo.find()).toBeInTheDocument();
 
-  await user.click(await ui.continueButton.find());
   await user.click(ui.mavenBuildButton.get());
-  await user.click(ui.finishTutorialButton.get());
   expect(ui.allSetSentence.get()).toBeInTheDocument();
 
   await user.click(ui.ymlFileStepTitle.get());

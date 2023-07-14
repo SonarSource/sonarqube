@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { Component } from '../../../../types/types';
 import CreateYmlFile from '../../components/CreateYmlFile';
-import FinishButton from '../../components/FinishButton';
 import GradleBuild from '../../components/GradleBuild';
 import { GITHUB_ACTIONS_RUNS_ON_LINUX } from '../constants';
 import { generateGitHubActionsYaml } from '../utils';
@@ -29,7 +28,6 @@ export interface GradleProps {
   branchesEnabled?: boolean;
   mainBranchName: string;
   component: Component;
-  onDone: () => void;
 }
 
 const GRADLE_YAML_STEPS = `
@@ -71,7 +69,6 @@ export default function Gradle(props: GradleProps) {
           GRADLE_YAML_STEPS
         )}
       />
-      <FinishButton onClick={props.onDone} />
     </>
   );
 }

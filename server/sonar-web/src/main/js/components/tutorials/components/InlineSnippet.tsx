@@ -17,12 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import { CodeSnippet } from 'design-system';
 import * as React from 'react';
 import { FCProps } from '../../../types/misc';
 
-export function InlineSnippet({ snippet }: Pick<FCProps<typeof CodeSnippet>, 'snippet'>) {
+export function InlineSnippet({
+  snippet,
+  className,
+}: Pick<FCProps<typeof CodeSnippet>, 'snippet'> & { className?: string }) {
   return (
-    <CodeSnippet className="sw-code sw-inline-block sw-px-1" noCopy isOneLine snippet={snippet} />
+    <CodeSnippet
+      className={classNames('sw-code sw-inline-block sw-px-1', className)}
+      noCopy
+      isOneLine
+      snippet={snippet}
+    />
   );
 }

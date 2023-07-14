@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ClipboardIconButton, CodeSnippet, NumberedListItem } from 'design-system/lib';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
-import CodeSnippet from '../../common/CodeSnippet';
-import { ClipboardIconButton } from '../../controls/clipboard';
 import { GradleBuildDSL } from '../types';
 import { buildGradleSnippet } from '../utils';
 import GradleBuildSelection from './GradleBuildSelection';
+import { InlineSnippet } from './InlineSnippet';
 
 interface Props {
   component: Component;
@@ -33,31 +33,35 @@ interface Props {
 
 export default function GradleBuild({ component }: Props) {
   return (
-    <li className="abs-width-600">
+    <NumberedListItem>
       <FormattedMessage
         defaultMessage={translate('onboarding.tutorial.with.yaml.gradle')}
         id="onboarding.tutorial.with.yaml.gradle"
         values={{
           groovy: (
             <>
-              <code className="rule">{GradleBuildDSL.Groovy}</code>
+              <InlineSnippet snippet={GradleBuildDSL.Groovy} />
               <ClipboardIconButton copyValue={GradleBuildDSL.Groovy} />
             </>
           ),
           kotlin: (
             <>
-              <code className="rule">{GradleBuildDSL.Kotlin}</code>
+              <InlineSnippet snippet={GradleBuildDSL.Kotlin} />
               <ClipboardIconButton copyValue={GradleBuildDSL.Kotlin} />
             </>
           ),
-          sq: <code className="rule">org.sonarqube</code>,
+          sq: <InlineSnippet snippet="org.sonarqube" />,
         }}
       />
-      <GradleBuildSelection className="big-spacer-top big-spacer-bottom">
+      <GradleBuildSelection className="sw-my-4">
         {(build) => (
-          <CodeSnippet snippet={buildGradleSnippet(component.key, component.name, build)} />
+          <CodeSnippet
+            language="gradle"
+            className="sw-p-6"
+            snippet={buildGradleSnippet(component.key, component.name, build)}
+          />
         )}
       </GradleBuildSelection>
-    </li>
+    </NumberedListItem>
   );
 }

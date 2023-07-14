@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary, NumberedListItem } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Button } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
@@ -39,21 +39,25 @@ export default function TokenStepGenerator(props: TokenStepGeneratorProps) {
 
   return (
     <>
-      <li className="big-spacer-bottom">
+      <NumberedListItem>
         <FormattedMessage
           defaultMessage={translate('onboarding.tutorial.env_variables')}
           id="onboarding.tutorial.env_variables"
           values={{
             extra: (
-              <Button className="spacer-left" onClick={toggleTokenModal}>
+              <ButtonSecondary className="sw-ml-2" onClick={toggleTokenModal}>
                 {translate('onboarding.token.generate.long')}
-              </Button>
+              </ButtonSecondary>
             ),
-            field: <strong>{translate('onboarding.tutorial.env_variables.field')}</strong>,
+            field: (
+              <span className="sw-body-sm-highlight">
+                {translate('onboarding.tutorial.env_variables.field')}
+              </span>
+            ),
             value: translate('onboarding.tutorial.env_variables.token_generator.value'),
           }}
         />
-      </li>
+      </NumberedListItem>
       {isModalVisible && (
         <EditTokenModal component={component} currentUser={currentUser} onClose={closeTokenModal} />
       )}

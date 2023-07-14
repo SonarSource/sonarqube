@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { Component } from '../../../../types/types';
 import CreateYmlFile from '../../components/CreateYmlFile';
-import FinishButton from '../../components/FinishButton';
 import { GITHUB_ACTIONS_RUNS_ON_WINDOWS } from '../constants';
 import { generateGitHubActionsYaml } from '../utils';
 
@@ -28,7 +27,6 @@ export interface DotNetProps {
   branchesEnabled?: boolean;
   mainBranchName: string;
   component: Component;
-  onDone: () => void;
 }
 
 function dotnetYamlSteps(projectKey: string) {
@@ -69,17 +67,14 @@ function dotnetYamlSteps(projectKey: string) {
 export default function DotNet(props: DotNetProps) {
   const { component, branchesEnabled, mainBranchName } = props;
   return (
-    <>
-      <CreateYmlFile
-        yamlFileName=".github/workflows/build.yml"
-        yamlTemplate={generateGitHubActionsYaml(
-          mainBranchName,
-          !!branchesEnabled,
-          GITHUB_ACTIONS_RUNS_ON_WINDOWS,
-          dotnetYamlSteps(component.key)
-        )}
-      />
-      <FinishButton onClick={props.onDone} />
-    </>
+    <CreateYmlFile
+      yamlFileName=".github/workflows/build.yml"
+      yamlTemplate={generateGitHubActionsYaml(
+        mainBranchName,
+        !!branchesEnabled,
+        GITHUB_ACTIONS_RUNS_ON_WINDOWS,
+        dotnetYamlSteps(component.key)
+      )}
+    />
   );
 }

@@ -28,23 +28,32 @@ export interface RenderOptionsProps {
   optionLabelKey: string;
   options: string[];
   titleLabelKey?: string;
+  setDone?: (doneStatus: boolean) => void;
 }
 
 export default function RenderOptions({
   checked,
   label,
   onCheck,
+  setDone,
   optionLabelKey,
   options,
   titleLabelKey,
 }: RenderOptionsProps) {
+  const onChange = (checked: string) => {
+    if (setDone) {
+      setDone(true);
+    }
+    onCheck(checked);
+  };
+
   return (
     <div className="sw-mt-4">
       {titleLabelKey && <label className="sw-block sw-mb-1">{translate(titleLabelKey)}</label>}
 
       <ToggleButton
         label={label}
-        onChange={onCheck}
+        onChange={onChange}
         options={options.map((build) => ({
           label: translate(optionLabelKey, build),
           value: build,

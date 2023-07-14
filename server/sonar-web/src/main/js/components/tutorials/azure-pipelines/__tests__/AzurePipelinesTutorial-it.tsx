@@ -216,7 +216,7 @@ function assertOtherStepIsCorrectlyRendered() {
 function assertFinishStepIsCorrectlyRendered() {
   expect(
     screen.getByRole('heading', {
-      name: 'onboarding.tutorial.ci_outro.all_set.title',
+      name: 'onboarding.tutorial.ci_outro.done',
     })
   ).toBeInTheDocument();
 }

@@ -52,7 +52,7 @@ export function getCommonNodes(ci: TutorialModes) {
         ci === TutorialModes.GitHubActions ? 'secret' : 'variables'
       }.intro.link`,
     }),
-    allSetSentence: byText('onboarding.tutorial.ci_outro.all_set.sentence'),
+    allSetSentence: byText('onboarding.tutorial.ci_outro.done'),
   };
 }
 

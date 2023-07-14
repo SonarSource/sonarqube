@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { Card, LightLabel, StandoutLink } from 'design-system';
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
-import Link from '../../common/Link';
 import { OSs, TutorialModes } from '../types';
 import './GithubCFamilyExampleRepositories.css';
 
@@ -57,26 +57,21 @@ export default function GithubCFamilyExampleRepositories(
   const link = `https://github.com/orgs/sonarsource-cfamily-examples/repositories?q=${queryParams}`;
 
   return (
-    <div
-      className={classNames(
-        'github-cfamily-example-repositories-box big-padded boxed-group',
-        className
-      )}
-    >
-      <div className="display-flex-center">
+    <Card className={classNames('sw-p-4', className)}>
+      <div>
         <img
           alt="" // Should be ignored by screen readers
           className="spacer-right"
           height={20}
           src={`${getBaseUrl()}/images/alm/github.svg`}
         />
-        <Link className="spacer-left big" target="_blank" to={link}>
+        <StandoutLink target="_blank" to={link}>
           sonarsource-cfamily-examples
-        </Link>
+        </StandoutLink>
       </div>
-      <p className="spacer-top">
+      <LightLabel as="p" className="sw-mt-4">
         {translate('onboarding.tutorial.cfamily.examples_repositories_description')}
-      </p>
-    </div>
+      </LightLabel>
+    </Card>
   );
 }
