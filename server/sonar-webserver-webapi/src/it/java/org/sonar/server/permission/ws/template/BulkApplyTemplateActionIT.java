@@ -44,6 +44,7 @@ import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.l18n.I18nRule;
+import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.DefaultTemplatesResolver;
 import org.sonar.server.permission.DefaultTemplatesResolverImpl;
 import org.sonar.server.permission.PermissionTemplateService;
@@ -51,6 +52,10 @@ import org.sonar.server.permission.ws.BasePermissionWsIT;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
@@ -75,11 +80,14 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
   private final ResourceTypesRule resourceTypesRule = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP);
   private final DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(db.getDbClient(), resourceTypesRule);
 
+  private final ManagedProjectService managedProjectService = mock(ManagedProjectService.class);
+
   @Override
   protected BulkApplyTemplateAction buildWsAction() {
     PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
       indexers, userSession, defaultTemplatesResolver, new SequenceUuidFactory());
-    return new BulkApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport(), new I18nRule(), newRootResourceTypes());
+    return new BulkApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport(), new I18nRule(), newRootResourceTypes(),
+      managedProjectService);
   }
 
   @Before
@@ -289,6 +297,22 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
     assertTemplate1AppliedToPrivateProject(privateProject1);
     assertTemplate1AppliedToPrivateProject(privateProject2);
     assertNoPermissionOnEntity(publicProject);
+  }
+
+  @Test
+  public void apply_template_filters_out_managed_projects() {
+    ProjectDto managedProject = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto nonManagedProject = db.components().insertPrivateProject().getProjectDto();
+    when(managedProjectService.isProjectManaged(any(), eq(managedProject.getUuid()))).thenReturn(true);
+    loginAsAdmin();
+
+    newRequest()
+      .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
+      .setParam(PARAM_VISIBILITY, "private")
+      .execute();
+
+    assertNoPermissionOnEntity(managedProject);
+    assertTemplate1AppliedToPrivateProject(nonManagedProject);
   }
 
   @Test

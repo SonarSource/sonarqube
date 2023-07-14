@@ -38,6 +38,8 @@ import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.management.ManagedInstanceChecker;
+import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.DefaultTemplatesResolver;
 import org.sonar.server.permission.DefaultTemplatesResolverImpl;
 import org.sonar.server.permission.PermissionTemplateService;
@@ -46,6 +48,10 @@ import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
@@ -72,9 +78,12 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
   private final PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
     new TestIndexers(), userSession, defaultTemplatesResolver, new SequenceUuidFactory());
 
+  private final ManagedProjectService managedProjectService = mock(ManagedProjectService.class);
+  private final ManagedInstanceChecker managedInstanceChecker = new ManagedInstanceChecker(null, managedProjectService);
+
   @Override
   protected ApplyTemplateAction buildWsAction() {
-    return new ApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport());
+    return new ApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport(), managedInstanceChecker);
   }
 
   @Before
@@ -184,6 +193,19 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
     })
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Project id or project key can be provided, not both.");
+  }
+
+  @Test
+  public void fail_when_project_is_managed() {
+    loginAsAdmin();
+
+    when(managedProjectService.isProjectManaged(any(), eq(project.getUuid()))).thenReturn(true);
+
+    String templateUuid = template1.getUuid();
+    String projectUuid = project.getUuid();
+    assertThatThrownBy(() -> newRequest(templateUuid, projectUuid, null))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Operation not allowed when the project is externally managed.");
   }
 
   @Test

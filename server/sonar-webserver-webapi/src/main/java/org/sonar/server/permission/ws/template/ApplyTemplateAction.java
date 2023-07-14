@@ -32,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
@@ -53,12 +54,15 @@ public class ApplyTemplateAction implements PermissionsWsAction {
   private final PermissionTemplateService permissionTemplateService;
   private final PermissionWsSupport wsSupport;
 
+  private final ManagedInstanceChecker managedInstanceChecker;
+
   public ApplyTemplateAction(DbClient dbClient, UserSession userSession, PermissionTemplateService permissionTemplateService,
-    PermissionWsSupport wsSupport) {
+    PermissionWsSupport wsSupport, ManagedInstanceChecker managedInstanceChecker) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionTemplateService = permissionTemplateService;
     this.wsSupport = wsSupport;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   private static ApplyTemplateRequest toApplyTemplateWsRequest(Request request) {
@@ -99,6 +103,9 @@ public class ApplyTemplateAction implements PermissionsWsAction {
       EntityDto entityDto = getEntityByKeyOrUuid(request.getProjectId(), request.getProjectKey(), dbSession);
       checkGlobalAdmin(userSession);
 
+      if (entityDto.isProject()) {
+        managedInstanceChecker.throwIfProjectIsManaged(dbSession, entityDto.getUuid());
+      }
       permissionTemplateService.applyAndCommit(dbSession, template, Collections.singletonList(entityDto));
     }
   }
