@@ -28,6 +28,10 @@ export function checkOrganizationKeyExistence(key: string): Promise<Organization
   );
 }
 
+export function getWhiteListDomains(): Promise<string[]>{
+  return getJSON('/_codescan/whitelisted_domains');
+}
+
 export function createOrganization(data: OrganizationBase): Promise<Organization> {
   return postJSONBody('/_codescan/organizations', data).catch(throwGlobalError);
 }

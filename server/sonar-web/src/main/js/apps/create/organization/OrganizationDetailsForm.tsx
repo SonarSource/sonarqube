@@ -178,10 +178,16 @@ export default class OrganizationDetailsForm extends React.PureComponent<Props, 
                 onChange={this.handleDescriptionUpdate}
                 value={this.state.description}>
                 </OrganizationDescriptionInput>
+                <div className="note abs-width-400">
+                  {translate('organization.description.description')}
+                </div>
             </div>
           </div>
           <div className="big-spacer-top">
             <OrganizationUrlInput initialValue={this.state.url} onChange={this.handleUrlUpdate} />
+            <div className="note abs-width-400">
+                {translate('organization.url.description')}
+              </div>
           </div>
         </div>
 

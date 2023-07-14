@@ -22,6 +22,8 @@ import classNames from 'classnames';
 import { isWebUri } from 'valid-url';
 import { translate } from "../../../helpers/l10n";
 import ValidationInput from "../../../components/controls/ValidationInput";
+import { getWhiteListDomains } from '../../../../js/api/organizations';
+import { throwGlobalError } from '../../../../js/helpers/error';
 
 interface Props {
   initialValue?: string;
@@ -37,14 +39,25 @@ interface State {
 
 export default class OrganizationAvatarUrlInput extends React.PureComponent<Props, State> {
   state: State = {error: undefined, editing: false, touched: false, value: ''};
+  whiteListDomains: string[] = [];
 
-  componentDidMount() {
-    if (this.props.initialValue) {
-      const value = this.props.initialValue;
-      const error = this.validateUrl(value);
-      this.setState({error, touched: Boolean(error), value});
-    }
+  fetchWhiteListDomains() {
+    getWhiteListDomains().then((data : string[])=>{
+      this.whiteListDomains = data;
+    },
+    throwGlobalError)
   }
+
+  async componentDidMount() {
+    await this.fetchWhiteListDomains();
+    setTimeout(()=>{
+      if (this.props.initialValue) {
+        const value = this.props.initialValue;
+        const error = this.validateUrl(value);
+        this.setState({error, touched: Boolean(error), value});
+      }
+    },5000)
+  }  
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.currentTarget.value.trim();
@@ -61,9 +74,39 @@ export default class OrganizationAvatarUrlInput extends React.PureComponent<Prop
     this.setState({editing: true});
   };
 
-  validateUrl(url: string) {
-    if (url.length > 0 && !isWebUri(url)) {
+  domainFromUrl = (url:string) => {
+    let result;
+    let match;
+    if (match = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n\?\=]+)/im)) {
+        result = match[1]
+        if (match = result.match(/^[^\.]+\.(.+\..+)$/)) {
+            result = match[1]
+        }
+    }
+    return result
+  }
+  
+  isValidDomain = (url : string) => {
+    const validDomainUrls = this.whiteListDomains;
+    let isUrlValid = false;
+    
+    let domain = this.domainFromUrl(url);
+    for(let i=0;i<validDomainUrls.length; i++){
+      if(domain?.endsWith(validDomainUrls[i])){
+        isUrlValid = true;
+        break;
+      }  
+    }
+    return isUrlValid;
+  }
+  
+
+  validateUrl=(url: string)=> {
+    if (url.length > 0 && !isWebUri(url) ){
       return translate('onboarding.create_organization.url.error');
+    }
+    if(url.length > 0 && !this.isValidDomain(url)){
+      return translate('onboarding.create_organization.url.domain.error');
     }
     return undefined;
   }

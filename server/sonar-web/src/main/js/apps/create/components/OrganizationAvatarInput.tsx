@@ -23,6 +23,8 @@ import { isWebUri } from 'valid-url';
 import ValidationInput from "../../../components/controls/ValidationInput";
 import { translate } from "../../../helpers/l10n";
 import OrganizationAvatar from "../../organizations/components/OrganizationAvatar";
+import { getWhiteListDomains } from '../../../../js/api/organizations';
+import { throwGlobalError } from '../../../../js/helpers/error';
 
 interface Props {
   initialValue?: string;
@@ -39,6 +41,15 @@ interface State {
 
 export default class OrganizationAvatarInput extends React.PureComponent<Props, State> {
   state: State = {error: undefined, editing: false, touched: false, value: ''};
+  whiteListDomains: string[] = [];
+
+  fetchWhiteListDomains() {
+    getWhiteListDomains().then((data : string[])=>{
+      this.whiteListDomains = data;
+    },
+    throwGlobalError)
+  }
+
 
   componentDidMount() {
     if (this.props.initialValue) {
@@ -46,6 +57,7 @@ export default class OrganizationAvatarInput extends React.PureComponent<Props, 
       const error = this.validateUrl(value);
       this.setState({error, touched: Boolean(error), value});
     }
+    this.fetchWhiteListDomains();
   }
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,7 +88,7 @@ export default class OrganizationAvatarInput extends React.PureComponent<Props, 
   }
   
   isValidDomain = (url : string) => {
-    const validDomainUrls = ['amazon.com','amazon.in','google.com'];
+    const validDomainUrls = this.whiteListDomains;
     let isUrlValid = false;
     
     let domain = this.domainFromUrl(url);
@@ -94,7 +106,8 @@ export default class OrganizationAvatarInput extends React.PureComponent<Props, 
     if (url.length > 0 && !isWebUri(url) ){
       return translate('onboarding.create_organization.url.error');
     }
-    if(!this.isValidDomain(url)){
+
+    if(url.length > 0 && !this.isValidDomain(url)){
       return translate('onboarding.create_organization.url.domain.error');
     }
     return undefined;
