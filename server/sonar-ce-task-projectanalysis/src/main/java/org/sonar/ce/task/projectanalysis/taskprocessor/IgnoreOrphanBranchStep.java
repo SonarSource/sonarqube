@@ -27,6 +27,7 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 
 public final class IgnoreOrphanBranchStep implements ComputationStep {
   private static final Logger LOG = LoggerFactory.getLogger(IgnoreOrphanBranchStep.class);
@@ -44,8 +45,9 @@ public final class IgnoreOrphanBranchStep implements ComputationStep {
     String componentUuid = ceTask.getComponent().orElseThrow(() -> new UnsupportedOperationException("component not found in task")).getUuid();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(dbSession, entityUuid);
-      if(!componentDto.isPresent()){
+      Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
+      Optional<EntityDto> entityDto = dbClient.entityDao().selectByUuid(dbSession, entityUuid);
+      if (componentDto.isEmpty() || entityDto.isEmpty()) {
         LOG.info("reindexation task has been trigger on an orphan branch. removing any exclude_from_purge flag, and skip the indexation");
         dbClient.branchDao().updateExcludeFromPurge(dbSession, componentUuid, false);
         dbClient.branchDao().updateNeedIssueSync(dbSession, componentUuid, false);

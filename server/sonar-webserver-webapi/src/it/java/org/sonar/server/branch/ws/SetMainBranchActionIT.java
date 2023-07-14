@@ -219,7 +219,7 @@ public class SetMainBranchActionIT {
       .setParam(PARAM_PROJECT, projectData.projectKey())
       .setParam(PARAM_BRANCH, newMainBranch.getKey()).execute();
 
-    checkCallToProjectLifeCycleListenersOnProjectBranchesChanges(projectData.getProjectDto());
+    checkCallToProjectLifeCycleListenersOnProjectBranchesChanges(projectData.getProjectDto(), projectData.getMainBranchDto().getUuid());
     verify(indexers).commitAndIndexBranches(any(), eq(List.of(projectData.getMainBranchDto(), newMainBranch)), eq(Indexers.BranchEvent.SWITCH_OF_MAIN_BRANCH));
     checkNewMainBranch(projectData.projectUuid(), newMainBranch.getUuid());
     checkPreviousMainBranch(projectData);
@@ -228,9 +228,9 @@ public class SetMainBranchActionIT {
         .formatted(projectData.projectKey(), newMainBranch.getKey(), projectData.getMainBranchDto().getKey()));
   }
 
-  private void checkCallToProjectLifeCycleListenersOnProjectBranchesChanges(ProjectDto projectDto) {
+  private void checkCallToProjectLifeCycleListenersOnProjectBranchesChanges(ProjectDto projectDto, String oldMainBranchUuid) {
     Project project = Project.from(projectDto);
-    verify(projectLifeCycleListeners).onProjectBranchesChanged(Set.of(project));
+    verify(projectLifeCycleListeners).onProjectBranchesChanged(Set.of(project), Set.of(oldMainBranchUuid) );
   }
 
   private void checkNewMainBranch(String projectUuid, String newBranchUuid) {

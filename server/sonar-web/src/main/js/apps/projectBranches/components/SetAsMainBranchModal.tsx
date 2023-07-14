@@ -43,10 +43,11 @@ export default function SetAsMainBranchModal(props: SetAsMainBranchModalProps) {
 
   return (
     <Modal
-      headerTitle={translateWithParameters(
-        'project_branch_pull_request.branch.set_x_as_main',
-        branch.name
-      )}
+      headerTitle={
+        <span className="sw-break-all">
+          {translateWithParameters('project_branch_pull_request.branch.set_x_as_main', branch.name)}
+        </span>
+      }
       loading={isLoading}
       onClose={onClose}
       body={

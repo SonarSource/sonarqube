@@ -32,12 +32,15 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -128,30 +131,30 @@ public class ProjectLifeCycleListenersImplTest {
 
   @Test
   public void onProjectBranchesChanged_throws_NPE_if_set_is_null() {
-    assertThatThrownBy(() -> underTestWithListeners.onProjectBranchesChanged(null))
+    assertThatThrownBy(() -> underTestWithListeners.onProjectBranchesChanged(null, null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("projects can't be null");
   }
 
   @Test
   public void onProjectBranchesChanged_throws_NPE_if_set_is_null_even_if_no_listeners() {
-    assertThatThrownBy(() -> underTestNoListeners.onProjectBranchesChanged(null))
+    assertThatThrownBy(() -> underTestNoListeners.onProjectBranchesChanged(null, null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("projects can't be null");
   }
 
   @Test
   public void onProjectBranchesChanged_has_no_effect_if_set_is_empty() {
-    underTestNoListeners.onProjectBranchesChanged(Collections.emptySet());
+    underTestNoListeners.onProjectBranchesChanged(Collections.emptySet(), emptySet());
 
-    underTestWithListeners.onProjectBranchesChanged(Collections.emptySet());
+    underTestWithListeners.onProjectBranchesChanged(Collections.emptySet(), emptySet());
     verifyNoInteractions(listener1, listener2, listener3);
   }
 
   @Test
   @UseDataProvider("oneOrManyProjects")
   public void onProjectBranchesChanged_does_not_fail_if_there_is_no_listener(Set<Project> projects) {
-     assertThatNoException().isThrownBy(()-> underTestNoListeners.onProjectBranchesChanged(projects));
+     assertThatNoException().isThrownBy(()-> underTestNoListeners.onProjectBranchesChanged(projects, emptySet()));
   }
 
   @Test
@@ -159,11 +162,11 @@ public class ProjectLifeCycleListenersImplTest {
   public void onProjectBranchesChanged_calls_all_listeners_in_order_of_addition_to_constructor(Set<Project> projects) {
     InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
 
-    underTestWithListeners.onProjectBranchesChanged(projects);
+    underTestWithListeners.onProjectBranchesChanged(projects, emptySet());
 
-    inOrder.verify(listener1).onProjectBranchesChanged(same(projects));
-    inOrder.verify(listener2).onProjectBranchesChanged(same(projects));
-    inOrder.verify(listener3).onProjectBranchesChanged(same(projects));
+    inOrder.verify(listener1).onProjectBranchesChanged(same(projects), eq(emptySet()));
+    inOrder.verify(listener2).onProjectBranchesChanged(same(projects), eq(emptySet()));
+    inOrder.verify(listener3).onProjectBranchesChanged(same(projects), eq(emptySet()));
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -173,13 +176,13 @@ public class ProjectLifeCycleListenersImplTest {
     InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
     doThrow(new RuntimeException("Faking listener2 throwing an exception"))
       .when(listener2)
-      .onProjectBranchesChanged(any());
+      .onProjectBranchesChanged(any(), anySet());
 
-    underTestWithListeners.onProjectBranchesChanged(projects);
+    underTestWithListeners.onProjectBranchesChanged(projects, emptySet());
 
-    inOrder.verify(listener1).onProjectBranchesChanged(same(projects));
-    inOrder.verify(listener2).onProjectBranchesChanged(same(projects));
-    inOrder.verify(listener3).onProjectBranchesChanged(same(projects));
+    inOrder.verify(listener1).onProjectBranchesChanged(same(projects), eq(emptySet()));
+    inOrder.verify(listener2).onProjectBranchesChanged(same(projects), eq(emptySet()));
+    inOrder.verify(listener3).onProjectBranchesChanged(same(projects), eq(emptySet()));
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -189,13 +192,13 @@ public class ProjectLifeCycleListenersImplTest {
     InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
     doThrow(new Error("Faking listener2 throwing an Error"))
       .when(listener2)
-      .onProjectBranchesChanged(any());
+      .onProjectBranchesChanged(any(), anySet());
 
-    underTestWithListeners.onProjectBranchesChanged(projects);
+    underTestWithListeners.onProjectBranchesChanged(projects, emptySet());
 
-    inOrder.verify(listener1).onProjectBranchesChanged(same(projects));
-    inOrder.verify(listener2).onProjectBranchesChanged(same(projects));
-    inOrder.verify(listener3).onProjectBranchesChanged(same(projects));
+    inOrder.verify(listener1).onProjectBranchesChanged(same(projects), eq(emptySet()));
+    inOrder.verify(listener2).onProjectBranchesChanged(same(projects), eq(emptySet()));
+    inOrder.verify(listener3).onProjectBranchesChanged(same(projects), eq(emptySet()));
     inOrder.verifyNoMoreInteractions();
   }
 

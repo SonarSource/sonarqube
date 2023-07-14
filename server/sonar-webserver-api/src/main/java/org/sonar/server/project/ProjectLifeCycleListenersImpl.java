@@ -61,14 +61,14 @@ public class ProjectLifeCycleListenersImpl implements ProjectLifeCycleListeners 
   }
 
   @Override
-  public void onProjectBranchesChanged(Set<Project> projects) {
+  public void onProjectBranchesChanged(Set<Project> projects, Set<String> impactedBranches) {
     checkNotNull(projects, "projects can't be null");
     if (projects.isEmpty()) {
       return;
     }
 
     Arrays.stream(listeners)
-      .forEach(safelyCallListener(listener -> listener.onProjectBranchesChanged(projects)));
+      .forEach(safelyCallListener(listener -> listener.onProjectBranchesChanged(projects, impactedBranches)));
   }
 
   @Override

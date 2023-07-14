@@ -32,7 +32,7 @@ public interface ProjectLifeCycleListener {
   /**
    * This method is called after the specified projects have branches deleted or main branch changed.
    */
-  void onProjectBranchesChanged(Set<Project> projects);
+  void onProjectBranchesChanged(Set<Project> projects, Set<String> impactedBranches);
 
   /**
    * This method is called after the specified projects' keys have been modified.

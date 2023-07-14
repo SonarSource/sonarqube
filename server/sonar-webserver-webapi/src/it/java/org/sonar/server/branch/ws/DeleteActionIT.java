@@ -39,6 +39,7 @@ import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -72,7 +73,7 @@ public class DeleteActionIT {
       .execute();
 
     verifyDeletedKey("branch1");
-    verify(projectLifeCycleListeners).onProjectBranchesChanged(singleton(Project.fromProjectDtoWithTags(project)));
+    verify(projectLifeCycleListeners).onProjectBranchesChanged(singleton(Project.fromProjectDtoWithTags(project)), emptySet());
   }
 
   @Test

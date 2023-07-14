@@ -21,6 +21,7 @@ package org.sonar.server.branch.ws;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Request;
@@ -97,7 +98,7 @@ public class SetMainBranchAction implements BranchWsAction {
         return;
       }
       configureProjectWithNewMainBranch(dbSession, projectDto.getKey(), oldMainBranch, newMainBranch);
-      refreshApplicationsAndPortfoliosComputedByProject(projectDto);
+      refreshApplicationsAndPortfoliosComputedByProject(projectDto, Set.of(oldMainBranch.getUuid()));
       indexers.commitAndIndexBranches(dbSession, List.of(oldMainBranch, newMainBranch), Indexers.BranchEvent.SWITCH_OF_MAIN_BRANCH);
 
       dbSession.commit();
@@ -121,8 +122,8 @@ public class SetMainBranchAction implements BranchWsAction {
     return false;
   }
 
-  private void refreshApplicationsAndPortfoliosComputedByProject(ProjectDto projectDto) {
-    projectLifeCycleListeners.onProjectBranchesChanged(singleton(Project.from(projectDto)));
+  private void refreshApplicationsAndPortfoliosComputedByProject(ProjectDto projectDto, Set<String> impactedBranchesUuids) {
+    projectLifeCycleListeners.onProjectBranchesChanged(singleton(Project.from(projectDto)), impactedBranchesUuids);
   }
 
   private void updateNewMainBranch(DbSession dbSession, BranchDto newMainBranch) {

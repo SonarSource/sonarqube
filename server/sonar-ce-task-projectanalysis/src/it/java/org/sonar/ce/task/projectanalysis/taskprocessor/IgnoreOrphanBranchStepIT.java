@@ -27,6 +27,10 @@ import org.sonar.ce.task.CeTask;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -102,6 +106,51 @@ public class IgnoreOrphanBranchStepIT {
     assertThatThrownBy(() -> underTest.execute(() -> null))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("entity not found in task");
+  }
+
+  @Test
+  public void execute_givenMainBranchWithDifferentUuidFromProject_shouldNotIncludeItInPurge() {
+    BranchDto branchDto = new BranchDto()
+      .setBranchType(BRANCH)
+      .setKey("main")
+      .setUuid(BRANCH_UUID)
+      .setProjectUuid(ENTITY_UUID)
+      .setIsMain(true)
+      .setNeedIssueSync(true)
+      .setExcludeFromPurge(true);
+    dbClient.branchDao().insert(dbTester.getSession(), branchDto);
+
+    ProjectDto projectDto = ComponentTesting.newProjectDto().setUuid(ENTITY_UUID).setKey("component key");
+    ComponentDto componentDto = ComponentTesting.newBranchComponent(projectDto, branchDto);
+    dbClient.componentDao().insert(dbTester.getSession(), componentDto, false);
+    dbClient.projectDao().insert(dbTester.getSession(), projectDto, false);
+    dbTester.commit();
+
+    underTest.execute(() -> null);
+
+    Optional<BranchDto> branch = dbClient.branchDao().selectByUuid(dbTester.getSession(), BRANCH_UUID);
+    assertThat(branch.get().isNeedIssueSync()).isTrue();
+    assertThat(branch.get().isExcludeFromPurge()).isTrue();
+  }
+
+  @Test
+  public void execute_givenNotExistingEntityUuid_shouldIncludeItInPurge() {
+    BranchDto branchDto = new BranchDto()
+      .setBranchType(BRANCH)
+      .setKey("main")
+      .setUuid(BRANCH_UUID)
+      .setProjectUuid(ENTITY_UUID)
+      .setIsMain(false)
+      .setNeedIssueSync(true)
+      .setExcludeFromPurge(true);
+    dbClient.branchDao().insert(dbTester.getSession(), branchDto);
+    dbTester.commit();
+
+    underTest.execute(() -> null);
+
+    Optional<BranchDto> branch = dbClient.branchDao().selectByUuid(dbTester.getSession(), BRANCH_UUID);
+    assertThat(branch.get().isNeedIssueSync()).isFalse();
+    assertThat(branch.get().isExcludeFromPurge()).isFalse();
   }
 
   @Test

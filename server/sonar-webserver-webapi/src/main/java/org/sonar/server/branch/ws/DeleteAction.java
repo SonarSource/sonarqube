@@ -34,6 +34,7 @@ import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.sonar.server.branch.ws.BranchesWs.addBranchParam;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
@@ -86,7 +87,7 @@ public class DeleteAction implements BranchWsAction {
         "Branch '%s' not found for project '%s'", branchKey, projectKey);
 
       componentCleanerService.deleteBranch(dbSession, branch);
-      projectLifeCycleListeners.onProjectBranchesChanged(singleton(Project.fromProjectDtoWithTags(project)));
+      projectLifeCycleListeners.onProjectBranchesChanged(singleton(Project.fromProjectDtoWithTags(project)), emptySet());
       response.noContent();
     }
   }

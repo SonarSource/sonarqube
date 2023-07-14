@@ -58,11 +58,10 @@ export function EmptyOverview(props: EmptyOverviewProps) {
     branchLikes.length > 2 ||
     (branchLikes.length === 2 && branchLikes.some((branch) => isBranch(branch)));
 
-  const showWarning = isMainBranch(branchLike) && hasBranches;
   const showTutorial = isMainBranch(branchLike) && !hasBranches && !hasAnalyses;
 
   let warning;
-  if (isLoggedIn(currentUser) && showWarning && hasBadBranchConfig) {
+  if (isLoggedIn(currentUser) && isMainBranch(branchLike) && hasBranches && hasBadBranchConfig) {
     warning = translateWithParameters(
       'provisioning.no_analysis_on_main_branch.bad_configuration',
       getBranchLikeDisplayName(branchLike),
@@ -79,7 +78,7 @@ export function EmptyOverview(props: EmptyOverviewProps) {
     <div className="page page-limited">
       {isLoggedIn(currentUser) ? (
         <>
-          {showWarning && (
+          {hasBranches && (
             <Alert variant="warning" aria-label={warning}>
               {warning}
             </Alert>
