@@ -31,8 +31,10 @@ import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingManagedServicesTest {
@@ -217,6 +219,36 @@ public class DelegatingManagedServicesTest {
   }
 
   @Test
+  public void getProjectUuidToManaged_whenNoDelegates_setAllProjectsAsNonManaged() {
+    Set<String> projectUuids = Set.of("a", "b");
+    DelegatingManagedServices managedInstanceService = NO_MANAGED_SERVICES;
+
+    Map<String, Boolean> projectUuidToManaged = managedInstanceService.getProjectUuidToManaged(dbSession, projectUuids);
+
+    assertThat(projectUuidToManaged).containsExactlyInAnyOrderEntriesOf(Map.of("a", false, "b", false));
+  }
+
+  @Test
+  public void getProjectUuidToManaged_delegatesToRightService_andPropagateAnswer() {
+    Set<String> projectUuids = Set.of("a", "b");
+    Map<String, Boolean> serviceResponse = Map.of("a", false, "b", true);
+
+    ManagedInstanceService anotherManagedProjectService = getManagedProjectService(projectUuids, serviceResponse);
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of(new NeverManagedInstanceService(), anotherManagedProjectService));
+
+    Map<String, Boolean> projectUuidToManaged = managedInstanceService.getProjectUuidToManaged(dbSession, projectUuids);
+
+    assertThat(projectUuidToManaged).containsExactlyInAnyOrderEntriesOf(serviceResponse);
+  }
+
+  private ManagedInstanceService getManagedProjectService(Set<String> projectUuids, Map<String, Boolean> uuidsToManaged) {
+    ManagedInstanceService anotherManagedProjectService = mock(ManagedInstanceService.class, withSettings().extraInterfaces(ManagedProjectService.class));
+    when(anotherManagedProjectService.isInstanceExternallyManaged()).thenReturn(true);
+    doReturn(uuidsToManaged).when((ManagedProjectService) anotherManagedProjectService).getProjectUuidToManaged(dbSession, projectUuids);
+    return anotherManagedProjectService;
+  }
+
+  @Test
   public void isProjectManaged_whenManagedInstanceServices_shouldDelegatesToRightService() {
     DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of(new NeverManagedInstanceService(), new AlwaysManagedInstanceService()));
 
@@ -273,6 +305,11 @@ public class DelegatingManagedServicesTest {
     }
 
     @Override
+    public Map<String, Boolean> getProjectUuidToManaged(DbSession dbSession, Set<String> projectUuids) {
+      return null;
+    }
+
+    @Override
     public boolean isProjectManaged(DbSession dbSession, String projectUuid) {
       return false;
     }
@@ -318,6 +355,11 @@ public class DelegatingManagedServicesTest {
     @Override
     public boolean isGroupManaged(DbSession dbSession, String groupUuid) {
       return true;
+    }
+
+    @Override
+    public Map<String, Boolean> getProjectUuidToManaged(DbSession dbSession, Set<String> projectUuids) {
+      return null;
     }
 
     @Override

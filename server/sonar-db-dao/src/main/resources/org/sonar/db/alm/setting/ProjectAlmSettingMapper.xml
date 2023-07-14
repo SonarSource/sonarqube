@@ -58,7 +58,7 @@
       </foreach>
   </select>
 
-  <select id="selectByAlm" parameterType="string" resultType="org.sonar.db.alm.setting.ProjectAlmSettingDto">
+  <sql id="selectByAlmSql">
     select <include refid="sqlColumns"/>
     from
       project_alm_settings p
@@ -66,6 +66,18 @@
       alm_settings alm_settings on p.alm_setting_uuid = alm_settings.uuid
     where
       alm_settings.alm_id=#{alm, jdbcType=VARCHAR}
+  </sql>
+
+  <select id="selectByAlm" parameterType="string" resultType="org.sonar.db.alm.setting.ProjectAlmSettingDto">
+    <include refid="selectByAlmSql"/>
+  </select>
+
+  <select id="selectByProjectUuidsAndAlm" parameterType="map" resultType="org.sonar.db.alm.setting.ProjectAlmSettingDto">
+    <include refid="selectByAlmSql"/>
+    and p.project_uuid in
+      <foreach collection="projectUuids" open="(" close=")" item="projectUuid" separator=",">
+        #{projectUuid, jdbcType=VARCHAR}
+      </foreach>
   </select>
 
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">

@@ -111,6 +111,13 @@ public class DelegatingManagedServices implements ManagedInstanceService, Manage
   }
 
   @Override
+  public Map<String, Boolean> getProjectUuidToManaged(DbSession dbSession, Set<String> projectUuids) {
+    return findManagedProjectService()
+      .map(managedProjectService -> managedProjectService.getProjectUuidToManaged(dbSession, projectUuids))
+      .orElse(returnNonManagedForAll(projectUuids));
+  }
+
+  @Override
   public boolean isProjectManaged(DbSession dbSession, String projectUuid) {
     return findManagedProjectService()
       .map(managedProjectService -> managedProjectService.isProjectManaged(dbSession, projectUuid))

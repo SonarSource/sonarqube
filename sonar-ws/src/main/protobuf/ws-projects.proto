@@ -71,6 +71,7 @@ message SearchWsResponse {
     optional string visibility = 6;
     optional string lastAnalysisDate = 7;
     optional string revision = 8;
+    optional bool managed = 9;
   }
 }
 

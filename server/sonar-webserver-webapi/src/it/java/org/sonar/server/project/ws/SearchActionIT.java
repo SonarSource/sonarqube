@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -37,6 +39,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -51,6 +54,10 @@ import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -79,7 +86,9 @@ public class SearchActionIT {
   @Rule
   public final DbTester db = DbTester.create();
 
-  private final WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession));
+  private final ManagedProjectService managedProjectService = mock(ManagedProjectService.class);
+
+  private final WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession, managedProjectService));
 
   @Test
   public void search_by_key_query_with_partial_match_case_insensitive() {
@@ -201,6 +210,26 @@ public class SearchActionIT {
 
     result = call(SearchRequest.builder().setAnalyzedBefore(toStringAtUTC(new Date(aLongTimeAgo + 1_000L))).build());
     assertThat(result.getComponentsList()).isEmpty();
+  }
+
+  @Test
+  public void search_return_manage_status() {
+    userSession.addPermission(ADMINISTER);
+    ProjectData managedProject = db.components().insertPrivateProject();
+    ProjectData notManagedProject = db.components().insertPrivateProject();
+
+    when(managedProjectService.getProjectUuidToManaged(any(), eq(Set.of(managedProject.projectUuid(), notManagedProject.projectUuid()))))
+      .thenReturn(Map.of(
+        managedProject.projectUuid(), true,
+        notManagedProject.projectUuid(), false
+      ));
+
+    SearchWsResponse result = call(SearchRequest.builder().build());
+    assertThat(result.getComponentsList())
+      .extracting(Component::getKey, Component::getManaged)
+      .containsExactlyInAnyOrder(
+        tuple(managedProject.projectKey(), true),
+        tuple(notManagedProject.projectKey(), false));
   }
 
   private static String toStringAtUTC(Date d) {
@@ -346,7 +375,7 @@ public class SearchActionIT {
   public void json_example() {
     userSession.addPermission(ADMINISTER);
     ProjectData publicProject = db.components().insertPublicProject("project-uuid-1", p -> p.setName("Project Name 1").setKey("project-key-1").setPrivate(false));
-    ProjectData privateProject = db.components().insertPrivateProject("project-uuid-2", p -> p.setName("Project Name 1").setKey("project-key-2"));
+    ProjectData privateProject = db.components().insertPrivateProject("project-uuid-2", p -> p.setName("Project Name 2").setKey("project-key-2"));
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(publicProject.getMainBranchDto())
       .setCreatedAt(parseDateTime("2017-03-01T11:39:03+0300").getTime())
       .setRevision("cfb82f55c6ef32e61828c4cb3db2da12795fd767"));

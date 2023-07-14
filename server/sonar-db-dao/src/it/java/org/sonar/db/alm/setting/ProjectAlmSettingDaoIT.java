@@ -107,6 +107,23 @@ public class ProjectAlmSettingDaoIT {
       .containsExactlyInAnyOrder(githubProject1, githubProject2);
   }
 
+  @Test
+  public void selectByProjectUuidsAndAlm_whenGivenGithubAndProjectUuids_shouldOnlyReturnThose() {
+    AlmSettingDto githubSetting = db.almSettings().insertGitHubAlmSetting();
+    ProjectAlmSettingDto githubProject = createAlmProject(githubSetting);
+    createAlmProject(githubSetting);
+
+    AlmSettingDto gitlabSetting = db.almSettings().insertGitlabAlmSetting();
+    ProjectAlmSettingDto gitlabProject = createAlmProject(gitlabSetting);
+
+    List<ProjectAlmSettingDto> projectAlmSettingDtos =
+      underTest.selectByProjectUuidsAndAlm(dbSession, Set.of(githubProject.getProjectUuid(), gitlabProject.getProjectUuid()), ALM.GITHUB);
+
+    assertThat(projectAlmSettingDtos)
+      .usingRecursiveFieldByFieldElementComparator()
+      .containsExactlyInAnyOrder(githubProject);
+  }
+
   private ProjectAlmSettingDto createAlmProject(AlmSettingDto almSettingsDto) {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     when(uuidFactory.create()).thenReturn(project.getUuid() + "_forSetting");

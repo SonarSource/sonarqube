@@ -107,6 +107,10 @@ public class ProjectAlmSettingDao implements Dao {
     return getMapper(dbSession).selectByAlm(alm.getId().toLowerCase(Locale.ROOT));
   }
 
+  public List<ProjectAlmSettingDto> selectByProjectUuidsAndAlm(DbSession dbSession, Set<String> projectUuids, ALM alm) {
+    return getMapper(dbSession).selectByProjectUuidsAndAlm(projectUuids, alm.getId().toLowerCase(Locale.ROOT));
+  }
+
   public List<ProjectAlmKeyAndProject> selectAlmTypeAndUrlByProject(DbSession dbSession) {
     return getMapper(dbSession).selectAlmTypeAndUrlByProject();
   }

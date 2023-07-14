@@ -19,9 +19,13 @@
  */
 package org.sonar.server.management;
 
+import java.util.Map;
+import java.util.Set;
 import org.sonar.db.DbSession;
 
 public interface ManagedProjectService {
+
+  Map<String, Boolean> getProjectUuidToManaged(DbSession dbSession, Set<String> projectUuids);
 
   boolean isProjectManaged(DbSession dbSession, String projectUuid);
 
