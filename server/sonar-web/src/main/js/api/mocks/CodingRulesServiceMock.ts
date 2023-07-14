@@ -23,7 +23,6 @@ import { getStandards } from '../../helpers/security-standard';
 import {
   mockCurrentUser,
   mockPaging,
-  mockQualityProfile,
   mockRuleActivation,
   mockRuleDetails,
   mockRuleRepository,
@@ -31,7 +30,7 @@ import {
 import { RuleRepository, SearchRulesResponse } from '../../types/coding-rules';
 import { RawIssuesResponse } from '../../types/issues';
 import { SearchRulesQuery } from '../../types/rules';
-import { SecurityStandard, Standards } from '../../types/security';
+import { SecurityStandard } from '../../types/security';
 import { Dict, Rule, RuleActivation, RuleDetails, RulesUpdateRequest } from '../../types/types';
 import { NoticeType } from '../../types/users';
 import { getFacet } from '../issues';
@@ -57,6 +56,9 @@ import {
   updateRule,
 } from '../rules';
 import { dismissNotice, getCurrentUser } from '../users';
+import { STANDARDS_TO_RULES } from './data/ids';
+import { mockQualityProfilesList } from './data/qualityProfiles';
+import { mockRuleDetailsList, mockRulesActivationsInQP } from './data/rules';
 
 type FacetFilter = Pick<
   SearchRulesQuery,
@@ -87,8 +89,6 @@ const FACET_RULE_MAP: { [key: string]: keyof Rule } = {
 export const RULE_TAGS_MOCK = ['awesome', 'cute', 'nice'];
 
 export default class CodingRulesServiceMock {
-  defaultRules: RuleDetails[] = [];
-  defaultRulesActivations: Dict<RuleActivation[]> = {};
   rulesActivations: Dict<RuleActivation[]> = {};
   rules: RuleDetails[] = [];
   qualityProfile: Profile[] = [];
@@ -96,211 +96,15 @@ export default class CodingRulesServiceMock {
   isAdmin = false;
   applyWithWarning = false;
   dismissedNoticesEP = false;
-  standardsToRules: Partial<{ [category in keyof Standards]: { [standard: string]: string[] } }> =
-    {};
 
   constructor() {
     this.repositories = [
       mockRuleRepository({ key: 'repo1', name: 'Repository 1' }),
       mockRuleRepository({ key: 'repo2', name: 'Repository 2' }),
     ];
-    this.qualityProfile = [
-      mockQualityProfile({
-        key: 'p1',
-        name: 'QP Foo',
-        language: 'java',
-        languageName: 'Java',
-        actions: { edit: true },
-      }),
-      mockQualityProfile({ key: 'p2', name: 'QP Bar', language: 'js' }),
-      mockQualityProfile({ key: 'p3', name: 'QP FooBar', language: 'java', languageName: 'Java' }),
-      mockQualityProfile({
-        key: 'p4',
-        name: 'QP FooBarBaz',
-        language: 'java',
-        languageName: 'Java',
-      }),
-    ];
-
-    const resourceContent = 'Some link <a href="http://example.com">Awsome Reading</a>';
-    const introTitle = 'Introduction to this rule';
-    const rootCauseContent = 'Root cause';
-    const howToFixContent = 'This is how to fix';
-
-    this.defaultRules = [
-      mockRuleDetails({
-        key: 'rule1',
-        repo: 'repo1',
-        type: 'BUG',
-        lang: 'java',
-        langName: 'Java',
-        name: 'Awsome java rule',
-        tags: ['awesome'],
-        params: [
-          { key: '1', type: 'TEXT', htmlDesc: 'html description for key 1' },
-          { key: '2', type: 'NUMBER', defaultValue: 'default value for key 2' },
-        ],
-      }),
-      mockRuleDetails({
-        key: 'rule2',
-        repo: 'repo1',
-        name: 'Hot hotspot',
-        tags: ['awesome'],
-        type: 'SECURITY_HOTSPOT',
-        lang: 'js',
-        descriptionSections: [
-          { key: RuleDescriptionSections.INTRODUCTION, content: introTitle },
-          { key: RuleDescriptionSections.ROOT_CAUSE, content: rootCauseContent },
-          { key: RuleDescriptionSections.HOW_TO_FIX, content: howToFixContent },
-          { key: RuleDescriptionSections.ASSESS_THE_PROBLEM, content: 'Assess' },
-          {
-            key: RuleDescriptionSections.RESOURCES,
-            content: resourceContent,
-          },
-        ],
-        langName: 'JavaScript',
-      }),
-      mockRuleDetails({
-        key: 'rule3',
-        repo: 'repo2',
-        name: 'Unknown rule',
-        lang: 'js',
-        langName: 'JavaScript',
-      }),
-      mockRuleDetails({
-        key: 'rule4',
-        type: 'BUG',
-        lang: 'c',
-        langName: 'C',
-        name: 'Awsome C rule',
-      }),
-      mockRuleDetails({
-        key: 'rule5',
-        type: 'VULNERABILITY',
-        lang: 'py',
-        langName: 'Python',
-        name: 'Awsome Python rule',
-        descriptionSections: [
-          { key: RuleDescriptionSections.INTRODUCTION, content: introTitle },
-          { key: RuleDescriptionSections.HOW_TO_FIX, content: rootCauseContent },
-          {
-            key: RuleDescriptionSections.RESOURCES,
-            content: resourceContent,
-          },
-        ],
-      }),
-      mockRuleDetails({
-        key: 'rule6',
-        type: 'BUG',
-        lang: 'py',
-        langName: 'Python',
-        name: 'Bad Python rule',
-        isExternal: true,
-        descriptionSections: undefined,
-      }),
-      mockRuleDetails({
-        key: 'rule7',
-        type: 'VULNERABILITY',
-        severity: 'MINOR',
-        lang: 'py',
-        langName: 'Python',
-        name: 'Python rule with context',
-        descriptionSections: [
-          {
-            key: RuleDescriptionSections.INTRODUCTION,
-            content: 'Introduction to this rule with context',
-          },
-          {
-            key: RuleDescriptionSections.HOW_TO_FIX,
-            content: 'This is how to fix for spring',
-            context: { key: 'spring', displayName: 'Spring' },
-          },
-          {
-            key: RuleDescriptionSections.HOW_TO_FIX,
-            content: 'This is how to fix for spring boot',
-            context: { key: 'spring_boot', displayName: 'Spring boot' },
-          },
-          {
-            key: RuleDescriptionSections.RESOURCES,
-            content: resourceContent,
-          },
-        ],
-      }),
-      mockRuleDetails({
-        key: 'rule8',
-        type: 'BUG',
-        severity: 'MINOR',
-        lang: 'py',
-        langName: 'Python',
-        tags: ['awesome'],
-        name: 'Template rule',
-        params: [
-          { key: '1', type: 'TEXT', htmlDesc: 'html description for key 1' },
-          { key: '2', type: 'NUMBER', defaultValue: 'default value for key 2' },
-        ],
-        isTemplate: true,
-      }),
-      mockRuleDetails({
-        key: 'rule9',
-        type: 'BUG',
-        severity: 'MINOR',
-        lang: 'py',
-        langName: 'Python',
-        tags: ['awesome', 'cute'],
-        name: 'Custom Rule based on rule8',
-        params: [
-          { key: '1', type: 'TEXT', htmlDesc: 'html description for key 1' },
-          { key: '2', type: 'NUMBER', defaultValue: 'default value for key 2' },
-        ],
-        templateKey: 'rule8',
-      }),
-      mockRuleDetails({
-        createdAt: '2022-12-16T17:26:54+0100',
-        key: 'rule10',
-        type: 'VULNERABILITY',
-        severity: 'MINOR',
-        lang: 'py',
-        langName: 'Python',
-        tags: ['awesome'],
-        name: 'Awesome Python rule with education principles',
-        descriptionSections: [
-          { key: RuleDescriptionSections.INTRODUCTION, content: introTitle },
-          { key: RuleDescriptionSections.HOW_TO_FIX, content: rootCauseContent },
-          {
-            key: RuleDescriptionSections.RESOURCES,
-            content: resourceContent,
-          },
-        ],
-        educationPrinciples: ['defense_in_depth', 'never_trust_user_input'],
-      }),
-      mockRuleDetails({
-        key: 'rule11',
-        type: 'BUG',
-        lang: 'java',
-        langName: 'Java',
-        name: 'Common java rule',
-      }),
-    ];
-
-    this.defaultRulesActivations = {
-      [this.defaultRules[0].key]: [mockRuleActivation({ qProfile: 'p1' })],
-    };
-
-    this.standardsToRules = {
-      [SecurityStandard.SONARSOURCE]: {
-        'buffer-overflow': ['rule1', 'rule2', 'rule3', 'rule4', 'rule5', 'rule6'],
-      },
-      [SecurityStandard.OWASP_TOP10_2021]: {
-        a2: ['rule1', 'rule2', 'rule3', 'rule4', 'rule5'],
-      },
-      [SecurityStandard.OWASP_TOP10]: {
-        a3: ['rule1', 'rule2', 'rule3', 'rule4'],
-      },
-      [SecurityStandard.CWE]: {
-        '102': ['rule1', 'rule2', 'rule3'],
-        '297': ['rule1', 'rule4'],
-      },
-    };
+    this.qualityProfile = mockQualityProfilesList();
+    this.rules = mockRuleDetailsList();
+    this.rulesActivations = mockRulesActivationsInQP();
 
     jest.mocked(updateRule).mockImplementation(this.handleUpdateRule);
     jest.mocked(createRule).mockImplementation(this.handleCreateRule);
@@ -318,8 +122,6 @@ export default class CodingRulesServiceMock {
     jest.mocked(getRuleTags).mockImplementation(this.handleGetRuleTags);
     jest.mocked(getCurrentUser).mockImplementation(this.handleGetCurrentUser);
     jest.mocked(dismissNotice).mockImplementation(this.handleDismissNotification);
-    this.rules = cloneDeep(this.defaultRules);
-    this.rulesActivations = cloneDeep(this.defaultRulesActivations);
   }
 
   getRulesWithoutDetails(rules: RuleDetails[]) {
@@ -366,7 +168,7 @@ export default class CodingRulesServiceMock {
     if (severities) {
       filteredRules = filteredRules.filter((r) => r.severity && severities.includes(r.severity));
     }
-    if (qprofile && activation !== undefined) {
+    if (qprofile) {
       const qProfileLang = this.qualityProfile.find((p) => p.key === qprofile)?.language;
       filteredRules = filteredRules
         .filter((r) => r.lang === qProfileLang)
@@ -375,8 +177,6 @@ export default class CodingRulesServiceMock {
           const ruleHasQueriedProfile = qProfilesInRule.includes(qprofile);
           return activation === 'true' ? ruleHasQueriedProfile : !ruleHasQueriedProfile;
         });
-
-      console.log(filteredRules);
     }
     if (available_since) {
       filteredRules = filteredRules.filter(
@@ -391,20 +191,20 @@ export default class CodingRulesServiceMock {
     }
     if (sonarsourceSecurity) {
       const matchingRules =
-        this.standardsToRules[SecurityStandard.SONARSOURCE]?.[sonarsourceSecurity] ?? [];
+        STANDARDS_TO_RULES[SecurityStandard.SONARSOURCE]?.[sonarsourceSecurity] ?? [];
       filteredRules = filteredRules.filter((r) => matchingRules.includes(r.key));
     }
     if (owasp2021Top10) {
       const matchingRules =
-        this.standardsToRules[SecurityStandard.OWASP_TOP10_2021]?.[owasp2021Top10] ?? [];
+        STANDARDS_TO_RULES[SecurityStandard.OWASP_TOP10_2021]?.[owasp2021Top10] ?? [];
       filteredRules = filteredRules.filter((r) => matchingRules.includes(r.key));
     }
     if (owaspTop10) {
-      const matchingRules = this.standardsToRules[SecurityStandard.OWASP_TOP10]?.[owaspTop10] ?? [];
+      const matchingRules = STANDARDS_TO_RULES[SecurityStandard.OWASP_TOP10]?.[owaspTop10] ?? [];
       filteredRules = filteredRules.filter((r) => matchingRules.includes(r.key));
     }
     if (cwe) {
-      const matchingRules = this.standardsToRules[SecurityStandard.CWE]?.[cwe] ?? [];
+      const matchingRules = STANDARDS_TO_RULES[SecurityStandard.CWE]?.[cwe] ?? [];
       filteredRules = filteredRules.filter((r) => matchingRules.includes(r.key));
     }
     if (q && q.length > 2) {
@@ -428,8 +228,8 @@ export default class CodingRulesServiceMock {
     this.isAdmin = false;
     this.applyWithWarning = false;
     this.dismissedNoticesEP = false;
-    this.rules = cloneDeep(this.defaultRules);
-    this.rulesActivations = cloneDeep(this.defaultRulesActivations);
+    this.rules = mockRuleDetailsList();
+    this.rulesActivations = mockRulesActivationsInQP();
   }
 
   allRulesCount() {

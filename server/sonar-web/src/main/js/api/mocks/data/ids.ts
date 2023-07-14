@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { SecurityStandard, Standards } from '../../../types/security';
+
 // Component tree.
 export const PARENT_COMPONENT_KEY = 'foo';
 //// Root folder.
@@ -37,6 +39,23 @@ export const SIMPLE_RULE = 'simpleRuleId';
 export const ADVANCED_RULE = 'advancedRuleId';
 export const S6069_RULE = 'cpp:S6069';
 export const S131_RULE = 'tsql:S131';
+export const RULE_1 = 'rule1';
+export const RULE_2 = 'rule2';
+export const RULE_3 = 'rule3';
+export const RULE_4 = 'rule4';
+export const RULE_5 = 'rule5';
+export const RULE_6 = 'rule6';
+export const RULE_7 = 'rule7';
+export const RULE_8 = 'rule8';
+export const RULE_9 = 'rule9';
+export const RULE_10 = 'rule10';
+export const RULE_11 = 'rule11';
+
+// Quality Profiles.
+export const QP_1 = 'p1';
+export const QP_2 = 'p2';
+export const QP_3 = 'p3';
+export const QP_4 = 'p4';
 
 // Issues.
 export const ISSUE_0 = 'issue0';
@@ -76,4 +95,22 @@ export const ISSUE_TO_FILES = {
   [ISSUE_1101]: [`${FOLDER1_KEY}/${FILE7_KEY}`],
   [ISSUE_1102]: [`${FOLDER1_KEY}/${FILE8_KEY}`],
   [ISSUE_1103]: [`${FOLDER1_KEY}/${FILE8_KEY}`],
+};
+
+export const STANDARDS_TO_RULES: Partial<{
+  [category in keyof Standards]: { [standard: string]: string[] };
+}> = {
+  [SecurityStandard.SONARSOURCE]: {
+    'buffer-overflow': [RULE_1, RULE_2, RULE_3, RULE_4, RULE_5, RULE_6],
+  },
+  [SecurityStandard.OWASP_TOP10_2021]: {
+    a2: [RULE_1, RULE_2, RULE_3, RULE_4, RULE_5],
+  },
+  [SecurityStandard.OWASP_TOP10]: {
+    a3: [RULE_1, RULE_2, RULE_3, RULE_4],
+  },
+  [SecurityStandard.CWE]: {
+    '102': [RULE_1, RULE_2, RULE_3],
+    '297': [RULE_1, RULE_4],
+  },
 };
