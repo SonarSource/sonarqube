@@ -31,7 +31,7 @@ import * as React from 'react';
 import { isMainBranch } from '../../helpers/branch-like';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
-import { getProjectTutorialLocation, getProjectUrl } from '../../helpers/urls';
+import { getProjectTutorialLocation } from '../../helpers/urls';
 import { useBranchesQuery } from '../../queries/branch';
 import { AlmKeys, AlmSettingsInstance, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import { MainBranch } from '../../types/branch-like';
@@ -203,7 +203,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
 
       {selectedTutorial && (
         <Breadcrumbs className="sw-mb-3">
-          <HoverLink to={getProjectUrl(component.key)}>
+          <HoverLink to={getProjectTutorialLocation(component.key)}>
             {translate('onboarding.tutorial.breadcrumbs.home')}
           </HoverLink>
           <HoverLink to={getProjectTutorialLocation(component.key, selectedTutorial)}>

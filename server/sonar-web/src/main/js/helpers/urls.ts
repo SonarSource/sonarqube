@@ -326,7 +326,6 @@ export function getProjectTutorialLocation(
   selectedTutorial?: string
 ): Partial<Path> {
   return {
-    pathname: PROJECT_BASE_URL,
     search: queryToSearch({ id: project, selectedTutorial }),
   };
 }
