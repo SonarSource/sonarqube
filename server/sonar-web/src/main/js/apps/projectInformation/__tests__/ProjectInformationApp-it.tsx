@@ -63,8 +63,6 @@ const ui = {
   newKeyInput: byRole('textbox'),
   updateInputButton: byRole('button', { name: 'update_verb' }),
   resetInputButton: byRole('button', { name: 'reset_verb' }),
-  projectHomeCheckbox: byRole('checkbox', { name: 'project.info.make_home.label' }),
-  applicationHomeCheckbox: byRole('checkbox', { name: 'application.info.make_home.label' }),
 };
 
 afterEach(() => {
@@ -100,8 +98,6 @@ it('should show fields for project', async () => {
   expect(screen.getByText('visibility.private')).toBeInTheDocument();
   expect(ui.tags.get()).toHaveTextContent('bar');
   expect(ui.size.get()).toHaveTextContent('1short_number_suffix.k');
-  expect(ui.projectHomeCheckbox.get()).toBeInTheDocument();
-  expect(ui.applicationHomeCheckbox.query()).not.toBeInTheDocument();
 });
 
 it('should show application fields', async () => {
@@ -130,8 +126,6 @@ it('should show application fields', async () => {
   expect(ui.tags.get()).toHaveTextContent('bar');
   expect(ui.size.get()).toHaveTextContent('1short_number_suffix.k');
   expect(screen.getByRole('link', { name: '2' })).toBeInTheDocument();
-  expect(ui.applicationHomeCheckbox.get()).toBeInTheDocument();
-  expect(ui.projectHomeCheckbox.query()).not.toBeInTheDocument();
 });
 
 it('should hide some fields for application', async () => {
@@ -142,7 +136,6 @@ it('should hide some fields for application', async () => {
   expect(screen.getByText('application.info.empty_description')).toBeInTheDocument();
   expect(screen.queryByText(/visibility/)).not.toBeInTheDocument();
   expect(ui.tags.get()).toHaveTextContent('no_tags');
-  expect(ui.applicationHomeCheckbox.query()).not.toBeInTheDocument();
 });
 
 it('should not show field that is not configured', async () => {
@@ -156,7 +149,6 @@ it('should not show field that is not configured', async () => {
   expect(screen.queryByText(/visibility/)).not.toBeInTheDocument();
   expect(ui.tags.get()).toHaveTextContent('no_tags');
   expect(screen.getByText('project.info.empty_description')).toBeInTheDocument();
-  expect(ui.projectHomeCheckbox.query()).not.toBeInTheDocument();
 });
 
 it('should hide visibility if public', async () => {
@@ -171,7 +163,6 @@ it('should hide visibility if public', async () => {
   expect(screen.queryByText(/visibility/)).not.toBeInTheDocument();
   expect(ui.tags.get()).toHaveTextContent('no_tags');
   expect(screen.getByText('project.info.empty_description')).toBeInTheDocument();
-  expect(ui.projectHomeCheckbox.query()).not.toBeInTheDocument();
 });
 
 function renderProjectInformationApp(

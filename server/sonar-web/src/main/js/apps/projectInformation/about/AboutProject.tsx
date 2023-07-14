@@ -19,15 +19,12 @@
  */
 import classNames from 'classnames';
 import { BasicSeparator, SubTitle } from 'design-system';
-import React, { PropsWithChildren, useContext, useEffect, useState } from 'react';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { getProjectLinks } from '../../../api/projectLinks';
-import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import { translate } from '../../../helpers/l10n';
 import { ComponentQualifier, Visibility } from '../../../types/component';
 import { Component, Measure, ProjectLink } from '../../../types/types';
-import { isLoggedIn } from '../../../types/users';
 import MetaDescription from './components/MetaDescription';
-import MetaHome from './components/MetaHome';
 import MetaKey from './components/MetaKey';
 import MetaLinks from './components/MetaLinks';
 import MetaQualityGate from './components/MetaQualityGate';
@@ -43,7 +40,6 @@ export interface AboutProjectProps {
 }
 
 export default function AboutProject(props: AboutProjectProps) {
-  const { currentUser } = useContext(CurrentUserContext);
   const { component, measures = [] } = props;
   const isApp = component.qualifier === ComponentQualifier.Application;
   const [links, setLinks] = useState<ProjectLink[] | undefined>(undefined);
@@ -96,19 +92,13 @@ export default function AboutProject(props: AboutProjectProps) {
         <MetaTags component={component} onComponentChange={props.onComponentChange} />
       </ProjectInformationSection>
 
-      <ProjectInformationSection last={!isLoggedIn(currentUser) && (isApp || !links?.length)}>
+      <ProjectInformationSection last={isApp || !links?.length}>
         <MetaSize component={component} measures={measures} />
       </ProjectInformationSection>
 
       {!isApp && links && links.length > 0 && (
-        <ProjectInformationSection last={!isLoggedIn(currentUser)}>
-          <MetaLinks links={links} />
-        </ProjectInformationSection>
-      )}
-
-      {isLoggedIn(currentUser) && (
         <ProjectInformationSection last>
-          <MetaHome componentKey={component.key} currentUser={currentUser} isApp={isApp} />
+          <MetaLinks links={links} />
         </ProjectInformationSection>
       )}
     </>

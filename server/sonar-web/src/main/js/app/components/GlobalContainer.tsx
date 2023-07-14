@@ -47,6 +47,7 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND = [
   '/code',
   '/project/extension/securityreport/securityreport',
   '/projects',
+  '/project/information',
 ];
 
 export default function GlobalContainer() {
