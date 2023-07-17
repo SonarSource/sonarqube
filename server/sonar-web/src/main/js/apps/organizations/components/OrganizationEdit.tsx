@@ -32,6 +32,7 @@ import { updateOrganization } from "../../../api/organizations";
 import OrganizationAvatarUrlInput from '../../create/components/OrganizationAvatarUrlInput';
 import OrganizationNameInput from '../../create/components/OrganizationNameInput';
 import OrganizationDescriptionInput from '../../create/components/OrganizationDescriptionInput';
+import { addGlobalSuccessMessage } from '../../../../js/helpers/globalMessages';
 
 interface Props {
   organization: Organization;
@@ -100,8 +101,11 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
     updateOrganization(this.props.organization.kee, { ...changes, kee: this.props.organization.kee })
         .then(()=>{
           this.stopLoading,
-          window.location.reload();
-        }, this.stopLoading);
+          addGlobalSuccessMessage(translate('organization.updated'));
+          setTimeout(()=>{
+            window.location.reload();
+          },2000)
+          }, this.stopLoading);
   };
 
   stopLoading = () => {
