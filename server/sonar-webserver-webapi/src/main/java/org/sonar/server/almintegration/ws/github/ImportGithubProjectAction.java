@@ -29,6 +29,7 @@ import org.sonar.alm.client.github.security.UserAccessToken;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.auth.github.GitHubSettings;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
@@ -40,6 +41,7 @@ import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
@@ -76,11 +78,13 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
 
   private final DefaultBranchNameResolver defaultBranchNameResolver;
 
+  private final GitHubSettings gitHubSettings;
+
   @Inject
   public ImportGithubProjectAction(DbClient dbClient, UserSession userSession, ProjectDefaultVisibility projectDefaultVisibility,
     GithubApplicationClientImpl githubApplicationClient, ComponentUpdater componentUpdater, ImportHelper importHelper,
     ProjectKeyGenerator projectKeyGenerator, NewCodeDefinitionResolver newCodeDefinitionResolver,
-    DefaultBranchNameResolver defaultBranchNameResolver) {
+    DefaultBranchNameResolver defaultBranchNameResolver, GitHubSettings gitHubSettings) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.projectDefaultVisibility = projectDefaultVisibility;
@@ -90,6 +94,7 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
     this.projectKeyGenerator = projectKeyGenerator;
     this.newCodeDefinitionResolver = newCodeDefinitionResolver;
     this.defaultBranchNameResolver = defaultBranchNameResolver;
+    this.gitHubSettings = gitHubSettings;
   }
 
   @Override
@@ -137,7 +142,6 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
     importHelper.checkProvisionProjectPermission();
     AlmSettingDto almSettingDto = importHelper.getAlmSetting(request);
 
-
     String newCodeDefinitionType = request.param(PARAM_NEW_CODE_DEFINITION_TYPE);
     String newCodeDefinitionValue = request.param(PARAM_NEW_CODE_DEFINITION_VALUE);
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -181,13 +185,19 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
   private ComponentCreationData createProject(DbSession dbSession, Repository repo, String mainBranchName) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
     String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(repo.getFullName());
-    return componentUpdater.createWithoutCommit(dbSession, newComponentBuilder()
-        .setKey(uniqueProjectKey)
-        .setName(repo.getName())
-        .setPrivate(visibility)
-        .setQualifier(PROJECT)
-        .build(),
-      userSession.getUuid(), userSession.getLogin(), mainBranchName);
+    NewComponent projectComponent = newComponentBuilder()
+      .setKey(uniqueProjectKey)
+      .setName(repo.getName())
+      .setPrivate(visibility)
+      .setQualifier(PROJECT)
+      .build();
+    return componentUpdater.createWithoutCommit(
+      dbSession,
+      projectComponent,
+      userSession.getUuid(),
+      userSession.getLogin(),
+      mainBranchName,
+      gitHubSettings.isProvisioningEnabled());
   }
 
   private void populatePRSetting(DbSession dbSession, Repository repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {

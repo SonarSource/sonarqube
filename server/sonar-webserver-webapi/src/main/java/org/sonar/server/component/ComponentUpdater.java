@@ -116,7 +116,12 @@ public class ComponentUpdater {
    */
   public ComponentCreationData createWithoutCommit(DbSession dbSession, NewComponent newComponent,
     @Nullable String userUuid, @Nullable String userLogin) {
-    return createWithoutCommit(dbSession, newComponent, userUuid, userLogin, null);
+    return createWithoutCommit(dbSession, newComponent, userUuid, userLogin, null, false);
+  }
+
+  public ComponentCreationData createWithoutCommit(DbSession dbSession, NewComponent newComponent,
+    @Nullable String userUuid, @Nullable String userLogin, @Nullable String mainBranchName) {
+    return createWithoutCommit(dbSession, newComponent, userUuid, userLogin, mainBranchName, false);
   }
 
   /**
@@ -124,7 +129,7 @@ public class ComponentUpdater {
    * Don't forget to call commitAndIndex(...) when ready to commit.
    */
   public ComponentCreationData createWithoutCommit(DbSession dbSession, NewComponent newComponent,
-    @Nullable String userUuid, @Nullable String userLogin, @Nullable String mainBranchName) {
+    @Nullable String userUuid, @Nullable String userLogin, @Nullable String mainBranchName, boolean isManaged) {
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
     checkKeyAlreadyExists(dbSession, newComponent);
 
@@ -141,7 +146,9 @@ public class ComponentUpdater {
       dbClient.projectDao().insert(dbSession, projectDto);
       addToFavourites(dbSession, projectDto, userUuid, userLogin);
       mainBranch = createMainBranch(dbSession, componentDto.uuid(), projectDto.getUuid(), mainBranchName);
-      permissionTemplateService.applyDefaultToNewComponent(dbSession, projectDto, userUuid);
+      if (!isManaged) {
+        permissionTemplateService.applyDefaultToNewComponent(dbSession, projectDto, userUuid);
+      }
     } else if (isPortfolio(componentDto)) {
       portfolioDto = toPortfolioDto(componentDto, now);
       dbClient.portfolioDao().insert(dbSession, portfolioDto);

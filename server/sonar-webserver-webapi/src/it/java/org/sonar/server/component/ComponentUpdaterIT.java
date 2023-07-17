@@ -51,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.APP;
@@ -387,5 +388,17 @@ public class ComponentUpdaterIT {
     Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), app.branchUuid());
     assertThat(branch).isPresent();
     assertThat(branch.get().getBranchKey()).isEqualTo(DEFAULT_MAIN_BRANCH_NAME);
+  }
+
+  @Test
+  public void createWithoutCommit_whenProjectIsManaged_doesntApplyPermissionTemplate() {
+    String userUuid = "42";
+    NewComponent project = NewComponent.newComponentBuilder()
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .build();
+    underTest.createWithoutCommit(db.getSession(), project, userUuid, "user-login", null, true);
+
+    verify(permissionTemplateService, never()).applyDefaultToNewComponent(any(), any(), any());
   }
 }

@@ -23,17 +23,21 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.auth.github.GitHubSettings;
 import org.sonar.core.i18n.I18n;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
@@ -59,7 +63,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
@@ -84,20 +91,22 @@ public class ImportGithubProjectActionIT {
 
   @Rule
   public DbTester db = DbTester.create(system2);
-
-
+  private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), System2.INSTANCE,
-    mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestIndexers(), new SequenceUuidFactory(),
+    permissionTemplateService, new FavoriteUpdater(db.getDbClient()), new TestIndexers(), new SequenceUuidFactory(),
     defaultBranchNameResolver, true);
 
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
   private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+
+  private final GitHubSettings gitHubSettings = mock(GitHubSettings.class);
   private NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
+
   private final WsActionTester ws = new WsActionTester(new ImportGithubProjectAction(db.getDbClient(), userSession,
     projectDefaultVisibility, appClient, componentUpdater, importHelper, projectKeyGenerator, newCodeDefinitionResolver,
-    defaultBranchNameResolver));
+    defaultBranchNameResolver, gitHubSettings));
 
   @Before
   public void before() {
@@ -129,8 +138,7 @@ public class ImportGithubProjectActionIT {
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
     assertThat(projectDto).isPresent();
     assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
-    Optional<BranchDto> mainBranch =
-      db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get()).stream().filter(BranchDto::isMain).findAny();
+    Optional<BranchDto> mainBranch = db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get()).stream().filter(BranchDto::isMain).findAny();
     assertThat(mainBranch).isPresent();
     assertThat(mainBranch.get().getKey()).isEqualTo("default-branch");
 
@@ -288,6 +296,53 @@ public class ImportGithubProjectActionIT {
     Projects.CreateWsResponse.Project result = response.getProject();
     assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
     assertThat(result.getName()).isEqualTo(repository.getName());
+  }
+
+  @Test
+  public void importProject_whenGithubProvisioningIsDisabled_shouldApplyPermissionTemplate() {
+    AlmSettingDto githubAlmSetting = setupAlm();
+    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+
+    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
+      "octocat/" + PROJECT_KEY_NAME,
+      "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "default-branch");
+    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
+    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+    when(gitHubSettings.isProvisioningEnabled()).thenReturn(false);
+
+    ws.newRequest()
+      .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
+      .setParam(PARAM_ORGANIZATION, "octocat")
+      .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    ArgumentCaptor<EntityDto> projectDtoArgumentCaptor = ArgumentCaptor.forClass(EntityDto.class);
+    verify(permissionTemplateService).applyDefaultToNewComponent(any(DbSession.class), projectDtoArgumentCaptor.capture(), eq(userSession.getUuid()));
+    String projectKey = projectDtoArgumentCaptor.getValue().getKey();
+    assertThat(projectKey).isEqualTo(PROJECT_KEY_NAME);
+
+  }
+
+  @Test
+  public void importProject_whenGithubProvisioningIsEnabled_shouldNotApplyPermissionTemplate() {
+    AlmSettingDto githubAlmSetting = setupAlm();
+    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+
+    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
+      "octocat/" + PROJECT_KEY_NAME,
+      "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "default-branch");
+    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
+    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
+
+    ws.newRequest()
+      .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
+      .setParam(PARAM_ORGANIZATION, "octocat")
+      .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    verify(permissionTemplateService, never()).applyDefaultToNewComponent(any(), any(), any());
+
   }
 
   @Test
