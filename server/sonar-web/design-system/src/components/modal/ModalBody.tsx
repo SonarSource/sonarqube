@@ -26,11 +26,18 @@ import { themeColor } from '../../helpers/theme';
 
 interface Props {
   children: ReactNode;
+  isOverflowVisible?: boolean;
   isScrollable?: boolean;
 }
 
-export function ModalBody({ children, isScrollable = true }: Props) {
-  return <StyledMain className={classNames({ scrollable: isScrollable })}>{children}</StyledMain>;
+export function ModalBody({ children, isScrollable = true, isOverflowVisible = false }: Props) {
+  return (
+    <StyledMain
+      className={classNames({ scrollable: isScrollable, overflowVisible: isOverflowVisible })}
+    >
+      {children}
+    </StyledMain>
+  );
 }
 
 const StyledMain = styled.div`
@@ -44,5 +51,9 @@ const StyledMain = styled.div`
 
   &.scrollable {
     overflow-y: auto;
+  }
+
+  &.overflowVisible {
+    overflow: visible;
   }
 `;

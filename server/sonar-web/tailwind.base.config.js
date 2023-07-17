@@ -116,9 +116,9 @@ module.exports = {
       'core-concepts': '422',
       'global-popup': '5000',
       'dropdown-menu': '7500',
-      tooltip: '8000',
       'modal-overlay': 8500,
       modal: '9000',
+      tooltip: '9001',
     },
     extend: {
       width: {

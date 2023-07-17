@@ -38,6 +38,7 @@ interface CommonProps {
   closeOnOverlayClick?: boolean;
   isLarge?: boolean;
   isOpen?: boolean;
+  isOverflowVisible?: boolean;
   isScrollable?: boolean;
   onClose: VoidFunction;
 }
@@ -77,6 +78,7 @@ export function Modal({
   closeOnOverlayClick = true,
   isLarge,
   isOpen = true,
+  isOverflowVisible = false,
   isScrollable = true,
   onClose,
   ...props
@@ -102,7 +104,9 @@ export function Modal({
           <>
             <ModalHeader description={props.headerDescription} title={props.headerTitle} />
 
-            <ModalBody isScrollable={isScrollable}>{props.body}</ModalBody>
+            <ModalBody isOverflowVisible={isOverflowVisible} isScrollable={isScrollable}>
+              {props.body}
+            </ModalBody>
 
             <ModalFooter
               loading={props.loading}

@@ -20,6 +20,10 @@ exports[`renders with children 1`] = `
   overflow-y: auto;
 }
 
+.emotion-0.overflowVisible {
+  overflow: visible;
+}
+
 <div>
   <div
     class="scrollable emotion-0 emotion-1"

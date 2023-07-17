@@ -258,7 +258,7 @@ module.exports = {
 
     contextbarZIndex: '420',
 
-    tooltipZIndex: '8000',
+    tooltipZIndex: '9001',
 
     dropdownMenuZIndex: '7500',
 
