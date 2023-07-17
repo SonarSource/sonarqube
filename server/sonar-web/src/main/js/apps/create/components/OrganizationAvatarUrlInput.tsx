@@ -41,8 +41,8 @@ export default class OrganizationAvatarUrlInput extends React.PureComponent<Prop
   state: State = {error: undefined, editing: false, touched: false, value: ''};
   whiteListDomains: string[] = [];
 
-  fetchWhiteListDomains() {
-    getWhiteListDomains().then((data : string[])=>{
+  async fetchWhiteListDomains() {
+    await getWhiteListDomains().then((data : string[])=>{
       this.whiteListDomains = data;
     },
     throwGlobalError)
@@ -56,7 +56,7 @@ export default class OrganizationAvatarUrlInput extends React.PureComponent<Prop
         const error = this.validateUrl(value);
         this.setState({error, touched: Boolean(error), value});
       }
-    },5000)
+    },0)
   }  
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
