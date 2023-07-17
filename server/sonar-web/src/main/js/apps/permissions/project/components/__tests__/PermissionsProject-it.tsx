@@ -309,9 +309,8 @@ it('should have disabled permissions for GH Project', async () => {
 
   expect(ui.pageTitle.get()).toBeInTheDocument();
   expect(ui.pageTitle.get()).toHaveAccessibleName(/project_permission.github_managed/);
-  await expect(ui.pageTitle.byRole('img').get()).toHaveATooltipWithContent(
-    'roles.page.description.github'
-  );
+  expect(ui.pageTitle.byRole('img').get()).toBeInTheDocument();
+  expect(ui.githubExplanations.get()).toBeInTheDocument();
 
   expect(ui.projectPermissionCheckbox('John', Permissions.Admin).get()).toBeChecked();
   expect(ui.projectPermissionCheckbox('John', Permissions.Admin).get()).toHaveAttribute(

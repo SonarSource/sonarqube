@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
-import Tooltip from '../../../../components/controls/Tooltip';
 import { Button } from '../../../../components/controls/buttons';
 import { Alert } from '../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
@@ -72,15 +71,13 @@ export default function PageHeader(props: Props) {
       <h1 className="page-title">
         {translate('permissions.page')}
         {provisionedByGitHub && (
-          <Tooltip overlay={translate('roles.page.description.github')}>
-            <img
-              alt="github"
-              className="spacer-left spacer-right"
-              aria-label={translate('project_permission.github_managed')}
-              height={16}
-              src={`${getBaseUrl()}/images/alm/github.svg`}
-            />
-          </Tooltip>
+          <img
+            alt="github"
+            className="spacer-left spacer-right"
+            aria-label={translate('project_permission.github_managed')}
+            height={16}
+            src={`${getBaseUrl()}/images/alm/github.svg`}
+          />
         )}
       </h1>
 
@@ -106,9 +103,12 @@ export default function PageHeader(props: Props) {
         <p>{description}</p>
         {visibilityDescription && <p>{visibilityDescription}</p>}
         {provisionedByGitHub && (
-          <div className="sw-mt-2">
-            <GitHubSynchronisationWarning short />
-          </div>
+          <>
+            <p>{translate('roles.page.description.github')}</p>
+            <div className="sw-mt-2">
+              <GitHubSynchronisationWarning short />
+            </div>
+          </>
         )}
         {githubProvisioningStatus && !isGitHubProject && (
           <Alert variant="warning" className="sw-mt-2">

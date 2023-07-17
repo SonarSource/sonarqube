@@ -41,6 +41,7 @@ export function getPageObject(user: UserEvent) {
     visibilityRadio: (visibility: Visibility) =>
       byRole('radio', { name: `visibility.${visibility}` }),
     githubLogo: byRole('img', { name: 'project_permission.github_managed' }),
+    githubExplanations: byText('roles.page.description.github'),
     confirmRemovePermissionDialog: byRole('dialog', {
       name: 'project_permission.remove_only_confirmation_title',
     }),
