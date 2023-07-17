@@ -367,7 +367,7 @@ it('should create project', async () => {
   expect(ui.successMsg.get(dialog)).toBeInTheDocument();
   await user.click(ui.close.get(dialog));
   expect(ui.row.getAll()).toHaveLength(6);
-  expect(ui.row.getAll()[1]).toHaveTextContent('qualifier.TRKa Testlocalvisibility.privatetest—');
+  expect(ui.row.getAll()[1]).toHaveTextContent('qualifier.TRKa Testvisibility.privatetest—');
 });
 
 it('should edit permissions of single project', async () => {
@@ -401,7 +401,7 @@ it('should apply template for single object', async () => {
 
 it('should restore access to admin', async () => {
   const user = userEvent.setup();
-  renderProjectManagementApp({}, { login: 'gooduser2' });
+  renderProjectManagementApp({}, { login: 'gooduser2', local: true });
   await act(async () => user.click(await ui.firstProjectActions.find()));
   expect(await ui.restoreAccess.find()).toBeInTheDocument();
   expect(ui.editPermissions.query()).not.toBeInTheDocument();
@@ -412,6 +412,44 @@ it('should restore access to admin', async () => {
   await act(async () => user.click(await ui.firstProjectActions.find()));
   expect(ui.restoreAccess.query()).not.toBeInTheDocument();
   expect(ui.editPermissions.get()).toBeInTheDocument();
+});
+
+it('should restore access for github project', async () => {
+  const user = userEvent.setup();
+  authHandler.githubProvisioningStatus = true;
+  renderProjectManagementApp(
+    {},
+    { login: 'gooduser2', local: true },
+    { featureList: [Feature.GithubProvisioning] }
+  );
+  await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
+  const rows = ui.row.getAll();
+  await act(async () => user.click(await ui.projectActions.find(rows[4])));
+  expect(await ui.restoreAccess.find()).toBeInTheDocument();
+  expect(ui.showPermissions.query()).not.toBeInTheDocument();
+  await user.click(ui.restoreAccess.get());
+  expect(ui.restoreAccessDialog.get()).toBeInTheDocument();
+  await act(() => user.click(ui.restore.get(ui.restoreAccessDialog.get())));
+  expect(ui.restoreAccessDialog.query()).not.toBeInTheDocument();
+  await act(async () => user.click(await ui.projectActions.find(rows[4])));
+  expect(ui.restoreAccess.query()).not.toBeInTheDocument();
+  expect(ui.showPermissions.get()).toBeInTheDocument();
+});
+
+it('should not allow to restore access on github project for GH user', async () => {
+  const user = userEvent.setup();
+  authHandler.githubProvisioningStatus = true;
+  renderProjectManagementApp(
+    {},
+    { login: 'gooduser2', local: false },
+    { featureList: [Feature.GithubProvisioning] }
+  );
+  await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
+  const rows = ui.row.getAll();
+  await act(async () => user.click(await ui.projectActions.find(rows[4])));
+  expect(ui.restoreAccess.query()).not.toBeInTheDocument();
+  await act(async () => user.click(await ui.projectActions.find(rows[1])));
+  expect(ui.restoreAccess.get()).toBeInTheDocument();
 });
 
 it('should show github warning on changing default visibility to admin', async () => {
@@ -428,10 +466,6 @@ it('should not allow apply permissions for managed projects', async () => {
   renderProjectManagementApp();
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
   const rows = ui.row.getAll();
-  expect(rows[1]).toHaveTextContent('local');
-  expect(rows[2]).toHaveTextContent('local');
-  expect(rows[3]).toHaveTextContent('local');
-  expect(rows[4]).not.toHaveTextContent('local');
   expect(ui.checkbox.get(rows[4])).toHaveAttribute('aria-disabled', 'true');
   expect(ui.checkbox.get(rows[1])).not.toHaveAttribute('aria-disabled');
   await user.click(ui.checkAll.get());
@@ -439,7 +473,6 @@ it('should not allow apply permissions for managed projects', async () => {
   expect(ui.checkbox.get(rows[1])).toBeChecked();
   await act(() => user.click(ui.projectActions.get(rows[4])));
   expect(ui.applyPermissionTemplate.query()).not.toBeInTheDocument();
-  expect(ui.restoreAccess.query()).not.toBeInTheDocument();
   expect(ui.editPermissions.query()).not.toBeInTheDocument();
   expect(ui.showPermissions.get()).toBeInTheDocument();
   await act(() => user.click(ui.projectActions.get(rows[1])));
@@ -449,13 +482,20 @@ it('should not allow apply permissions for managed projects', async () => {
 });
 
 it('should not show local badge for applications and portfolios', async () => {
-  renderProjectManagementApp();
+  authHandler.githubProvisioningStatus = true;
+  renderProjectManagementApp({}, {}, { featureList: [Feature.GithubProvisioning] });
   await waitFor(() => expect(screen.getAllByText('local')).toHaveLength(3));
 
   await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.VW');
   expect(screen.queryByText('local')).not.toBeInTheDocument();
 
   await selectEvent.select(ui.qualifierFilter.get(), 'qualifiers.APP');
+  expect(screen.queryByText('local')).not.toBeInTheDocument();
+});
+
+it('should not show local badge if provisioning is not enabled', async () => {
+  renderProjectManagementApp();
+  await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
   expect(screen.queryByText('local')).not.toBeInTheDocument();
 });
 

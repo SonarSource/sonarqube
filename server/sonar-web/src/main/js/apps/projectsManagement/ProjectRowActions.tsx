@@ -26,10 +26,11 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
 import { LoggedInUser } from '../../types/users';
 import ApplyTemplate from '../permissions/project/components/ApplyTemplate';
+import { useGithubStatusQuery } from '../settings/components/authentication/queries/identity-provider';
 import RestoreAccessModal from './RestoreAccessModal';
 
 export interface Props {
-  currentUser: Pick<LoggedInUser, 'login'>;
+  currentUser: Pick<LoggedInUser, 'login' | 'local'>;
   project: Project;
 }
 
@@ -38,6 +39,7 @@ export default function ProjectRowActions({ currentUser, project }: Props) {
   const [hasAccess, setHasAccess] = useState<boolean | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [restoreAccessModal, setRestoreAccessModal] = useState(false);
+  const { data: githubProvisioningEnabled } = useGithubStatusQuery();
 
   const fetchPermissions = () => {
     setLoading(true);
@@ -87,14 +89,15 @@ export default function ProjectRowActions({ currentUser, project }: Props) {
               </ActionsDropdownItem>
             )}
 
-            {hasAccess === false && !project.managed && (
-              <ActionsDropdownItem
-                className="js-restore-access"
-                onClick={() => setRestoreAccessModal(true)}
-              >
-                {translate('global_permissions.restore_access')}
-              </ActionsDropdownItem>
-            )}
+            {hasAccess === false &&
+              (!project.managed || currentUser.local || !githubProvisioningEnabled) && (
+                <ActionsDropdownItem
+                  className="js-restore-access"
+                  onClick={() => setRestoreAccessModal(true)}
+                >
+                  {translate('global_permissions.restore_access')}
+                </ActionsDropdownItem>
+              )}
           </>
         )}
 

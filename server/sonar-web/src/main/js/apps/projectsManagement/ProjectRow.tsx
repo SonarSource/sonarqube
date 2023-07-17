@@ -29,6 +29,7 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getComponentOverviewUrl } from '../../helpers/urls';
 import { ComponentQualifier } from '../../types/component';
 import { LoggedInUser } from '../../types/users';
+import { useGithubStatusQuery } from '../settings/components/authentication/queries/identity-provider';
 import './ProjectRow.css';
 import ProjectRowActions from './ProjectRowActions';
 
@@ -41,6 +42,7 @@ interface Props {
 
 export default function ProjectRow(props: Props) {
   const { currentUser, project, selected } = props;
+  const { data: githubProvisioningEnabled } = useGithubStatusQuery();
 
   const handleProjectCheck = (checked: boolean) => {
     props.onProjectCheck(project, checked);
@@ -68,9 +70,9 @@ export default function ProjectRow(props: Props) {
             <span>{project.name}</span>
           </Tooltip>
         </Link>
-        {project.qualifier === ComponentQualifier.Project && !project.managed && (
-          <span className="badge sw-ml-1">{translate('local')}</span>
-        )}
+        {project.qualifier === ComponentQualifier.Project &&
+          githubProvisioningEnabled &&
+          !project.managed && <span className="badge sw-ml-1">{translate('local')}</span>}
       </td>
 
       <td className="thin nowrap">
