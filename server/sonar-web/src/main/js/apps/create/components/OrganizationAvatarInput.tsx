@@ -43,8 +43,8 @@ export default class OrganizationAvatarInput extends React.PureComponent<Props, 
   state: State = {error: undefined, editing: false, touched: false, value: ''};
   whiteListDomains: string[] = [];
 
-  fetchWhiteListDomains() {
-    getWhiteListDomains().then((data : string[])=>{
+  async fetchWhiteListDomains() {
+    await getWhiteListDomains().then((data : string[])=>{
       this.whiteListDomains = data;
     },
     throwGlobalError)
@@ -52,12 +52,14 @@ export default class OrganizationAvatarInput extends React.PureComponent<Props, 
 
 
   componentDidMount() {
-    if (this.props.initialValue) {
-      const value = this.props.initialValue;
-      const error = this.validateUrl(value);
-      this.setState({error, touched: Boolean(error), value});
-    }
     this.fetchWhiteListDomains();
+    setTimeout(()=>{
+      if (this.props.initialValue) {
+        const value = this.props.initialValue;
+        const error = this.validateUrl(value);
+        this.setState({error, touched: Boolean(error), value});
+      }
+    },0);
   }
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

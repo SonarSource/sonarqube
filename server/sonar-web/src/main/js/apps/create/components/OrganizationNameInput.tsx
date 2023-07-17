@@ -27,6 +27,7 @@ import HelpTooltip from "../../../components/controls/HelpTooltip";
 interface Props {
   initialValue?: string;
   showHelpIcon: boolean;
+  isEditMode: boolean;
   onChange: (value: string | undefined) => void;
 }
 
@@ -48,7 +49,6 @@ export default class OrganizationNameInput extends React.PureComponent<Props, St
 
   componentDidMount() {
     this.mounted = true;
-    console.log(this.props.initialValue);
     if (this.props.initialValue !== undefined) {
       this.setState({ value: this.props.initialValue });
       this.validateKey(this.props.initialValue);
@@ -59,7 +59,7 @@ export default class OrganizationNameInput extends React.PureComponent<Props, St
     this.mounted = false;
   }
 
-  checkFreeKey = (key: string) => {
+  checkFreeKey = (key: string | undefined) => {
     this.setState({ validating: false });
     this.setState({ error: undefined});
     this.props.onChange(key)
@@ -72,15 +72,37 @@ export default class OrganizationNameInput extends React.PureComponent<Props, St
   };
 
   validateKey(key: string) {
-    if (key.length > 80 || !/^[a-z0-9A-Z][A-Za-z0-9-]*[A-Za-z0-9]?$/.test(key)) {
-      this.setState({
-        error: translate('onboarding.create_organization.organization_name.error'),
-        touched: true
-      });
-      this.props.onChange(undefined);
-    } else {
-      this.checkFreeKey(key);
+  
+    if(this.props.isEditMode){
+      if(key.length === 0){
+        this.setState({
+          error: translate('onboarding.create_organization.organization_name.required'),
+          touched: true
+        });
+        this.props.onChange(undefined);
+      }else if (key.length > 80 || !/^[a-z0-9A-Z][A-Za-z0-9-]*[A-Za-z0-9]?$/.test(key)) {
+        this.setState({
+          error: translate('onboarding.create_organization.organization_name.error'),
+          touched: true
+        });
+        this.props.onChange(undefined);
+      } else {
+        this.checkFreeKey(key);
+      }
+    }else{
+      if(key.length == 0){
+        this.checkFreeKey("");
+      }else if (key.length > 80 || !/^[a-z0-9A-Z][A-Za-z0-9-]*[A-Za-z0-9]?$/.test(key)) {
+        this.setState({
+          error: translate('onboarding.create_organization.organization_name.error'),
+          touched: true
+        });
+        this.props.onChange(undefined);
+      } else {
+        this.checkFreeKey(key);
+      }
     }
+     
   }
 
   render() {
@@ -89,6 +111,7 @@ export default class OrganizationNameInput extends React.PureComponent<Props, St
     const {showHelpIcon} = this.props;
     return (
       <ValidationInput
+        required={true}
         error={this.state.error}
         isInvalid={isInvalid}
         isValid={isValid}

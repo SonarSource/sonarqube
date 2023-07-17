@@ -98,7 +98,10 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
     };
     this.setState({ loading: true });
     updateOrganization(this.props.organization.kee, { ...changes, kee: this.props.organization.kee })
-        .then(this.stopLoading, this.stopLoading);
+        .then(()=>{
+          this.stopLoading,
+          window.location.reload();
+        }, this.stopLoading);
   };
 
   stopLoading = () => {
@@ -143,7 +146,7 @@ export class OrganizationEdit extends React.PureComponent<Props, State> {
                   {translate('organization.name')}
                   <em className="mandatory">*</em>
                 </label>
-                <OrganizationNameInput  showHelpIcon = {false} initialValue = {this.state.name} onChange={this.handleNameChange}></OrganizationNameInput>
+                <OrganizationNameInput  isEditMode={true} showHelpIcon = {false} initialValue = {this.state.name} onChange={this.handleNameChange}></OrganizationNameInput>
                 <div className="form-field-description">
                   {translate('organization.name.description')}
                 </div>
