@@ -23,7 +23,6 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { OSs, TutorialModes } from '../types';
-import './GithubCFamilyExampleRepositories.css';
 
 export interface GithubCFamilyExampleRepositoriesProps {
   className?: string;
@@ -61,7 +60,7 @@ export default function GithubCFamilyExampleRepositories(
       <div>
         <img
           alt="" // Should be ignored by screen readers
-          className="spacer-right"
+          className="sw-mr-2"
           height={20}
           src={`${getBaseUrl()}/images/alm/github.svg`}
         />

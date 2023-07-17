@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { NumberedList, NumberedListItem, UnorderedList, UnorderedListItem } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
@@ -36,8 +37,8 @@ export default function JavaMaven(props: JavaMavenProps) {
   return (
     <>
       <AlertClassicEditor />
-      <ol className="list-styled big-spacer-top">
-        <li>
+      <NumberedList className="sw-mt-4">
+        <NumberedListItem>
           <SentenceWithHighlights
             translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare"
             highlightKeys={['pipeline', 'task', 'before']}
@@ -48,27 +49,27 @@ export default function JavaMaven(props: JavaMavenProps) {
             projectKey={projectKey}
             projectName={projectName}
           />
-        </li>
+        </NumberedListItem>
 
         <JavaToolInstallation />
 
-        <li>
+        <NumberedListItem>
           {translateWithParameters(
             'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java',
             translate('onboarding.build', BuildTools.Maven)
           )}
-          <ul className="list-styled list-alpha big-spacer-bottom">
-            <li>
+          <UnorderedList ticks className="sw-ml-12 sw-mb-4">
+            <UnorderedListItem>
               <SentenceWithHighlights
                 translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java.settings"
                 highlightKeys={['section', 'option']}
               />
-            </li>
-          </ul>
-        </li>
+            </UnorderedListItem>
+          </UnorderedList>
+        </NumberedListItem>
 
         <PublishSteps />
-      </ol>
+      </NumberedList>
     </>
   );
 }

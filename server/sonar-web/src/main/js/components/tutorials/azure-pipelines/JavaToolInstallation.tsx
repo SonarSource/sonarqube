@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { NumberedListItem, UnorderedList, UnorderedListItem } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
@@ -33,8 +34,8 @@ function renderSentenceWithFieldAndValue(props: {
         'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.sentence'
       )}
       values={{
-        field: <strong>{field}</strong>,
-        value: <strong>{value}</strong>,
+        field: <b className="sw-font-semibold">{field}</b>,
+        value: <b className="sw-font-semibold">{value}</b>,
       }}
     />
   );
@@ -42,10 +43,10 @@ function renderSentenceWithFieldAndValue(props: {
 
 export default function JavaToolInstallation() {
   return (
-    <li>
+    <NumberedListItem>
       {translate('onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.title')}
-      <ul className="list-styled list-alpha">
-        <li>
+      <UnorderedList ticks className="sw-ml-12">
+        <UnorderedListItem>
           {renderSentenceWithFieldAndValue({
             field: translate(
               'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_version'
@@ -56,16 +57,16 @@ export default function JavaToolInstallation() {
           {translate(
             'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.or_higher'
           )}
-        </li>
-        <li>
+        </UnorderedListItem>
+        <UnorderedListItem>
           {renderSentenceWithFieldAndValue({
             field: translate(
               'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_architecture'
             ),
             value: 'x64',
           })}
-        </li>
-        <li>
+        </UnorderedListItem>
+        <UnorderedListItem>
           {renderSentenceWithFieldAndValue({
             field: translate(
               'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_source'
@@ -74,8 +75,8 @@ export default function JavaToolInstallation() {
               'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.pre-installed'
             ),
           })}
-        </li>
-      </ul>
-    </li>
+        </UnorderedListItem>
+      </UnorderedList>
+    </NumberedListItem>
   );
 }

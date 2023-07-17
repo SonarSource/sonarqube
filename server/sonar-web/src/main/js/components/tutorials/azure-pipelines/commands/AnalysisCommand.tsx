@@ -33,13 +33,13 @@ export interface AnalysisCommandProps {
 }
 
 export default function AnalysisCommand(props: AnalysisCommandProps) {
-  const { buildTool, projectKey, projectName } = props;
+  const { buildTool, onStepValidationChange, projectKey, projectName } = props;
 
   React.useEffect(() => {
     if (buildTool && buildTool !== BuildTools.CFamily) {
-      props.onStepValidationChange(true);
+      onStepValidationChange(true);
     }
-  }, [buildTool, props.onStepValidationChange]);
+  }, [buildTool, onStepValidationChange]);
 
   if (!buildTool) {
     return null;

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ClipboardIconButton, CodeSnippet, UnorderedList, UnorderedListItem } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { ClipboardIconButton } from '../../../../components/controls/clipboard';
 import { translate } from '../../../../helpers/l10n';
-import CodeSnippet from '../../../common/CodeSnippet';
+import { InlineSnippet } from '../../components/InlineSnippet';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 import { BuildTools } from '../../types';
 
@@ -51,14 +51,14 @@ sonar.projectName=${projectName}
 `;
 
   return (
-    <ul className="list-styled list-alpha spacer-top">
-      <li>
+    <UnorderedList ticks className="sw-ml-12 sw-my-2">
+      <UnorderedListItem>
         <SentenceWithHighlights
           translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.endpoint"
           highlightKeys={['endpoint']}
         />
-      </li>
-      <li>
+      </UnorderedListItem>
+      <UnorderedListItem>
         <FormattedMessage
           id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis"
           defaultMessage={translate(
@@ -66,34 +66,114 @@ sonar.projectName=${projectName}
           )}
           values={{
             section: (
-              <strong>
+              <b className="sw-font-semibold">
                 {translate(
                   'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis.section'
                 )}
-              </strong>
+              </b>
             ),
             run_analysis_value: (
-              <strong>
+              <b className="sw-font-semibold">
                 {translate(
                   'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis.values',
                   buildTool
                 )}
-              </strong>
+              </b>
             ),
           }}
         />
-      </li>
+      </UnorderedListItem>
 
       {kind === PrepareType.StandAlone && (
         <>
-          <li>
+          <UnorderedListItem>
             <SentenceWithHighlights
               translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.manual"
               highlightKeys={['mode']}
             />
-          </li>
+          </UnorderedListItem>
 
-          <li>
+          <UnorderedListItem>
+            <span className="sw-flex sw-items-center">
+              <FormattedMessage
+                id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence"
+                defaultMessage={translate(
+                  'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence'
+                )}
+                values={{
+                  project_key: (
+                    <b className="sw-font-semibold sw-mx-1">
+                      {translate(
+                        'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence.project_key'
+                      )}
+                    </b>
+                  ),
+                  key: (
+                    <span className="sw-ml-1">
+                      <InlineSnippet snippet={projectKey} />
+                    </span>
+                  ),
+                  button: <ClipboardIconButton className="sw-ml-2" copyValue={projectKey} />,
+                }}
+              />
+            </span>
+          </UnorderedListItem>
+          {buildTool === BuildTools.CFamily && (
+            <UnorderedListItem>
+              <span className="sw-flex sw-items-center sw-flex-wrap">
+                <FormattedMessage
+                  id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp"
+                  defaultMessage={translate(
+                    'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp'
+                  )}
+                  values={{
+                    advanced: (
+                      <b className="sw-font-semibold sw-mx-1">
+                        {translate(
+                          'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp.advanced'
+                        )}
+                      </b>
+                    ),
+                    additional: (
+                      <b className="sw-font-semibold sw-mx-1">
+                        {translate(
+                          'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp.additional'
+                        )}
+                      </b>
+                    ),
+                    property: (
+                      <span className="sw-ml-1">
+                        <InlineSnippet snippet={ADDITIONAL_PROPERTY} />
+                      </span>
+                    ),
+                    button: (
+                      <ClipboardIconButton className="sw-ml-2" copyValue={ADDITIONAL_PROPERTY} />
+                    ),
+                  }}
+                />
+              </span>
+            </UnorderedListItem>
+          )}
+        </>
+      )}
+
+      {kind === PrepareType.JavaMavenGradle && (
+        <UnorderedListItem>
+          <SentenceWithHighlights
+            translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.advanced_properties"
+            highlightKeys={['section', 'properties']}
+          />
+          :
+          <CodeSnippet
+            className="sw-p-6"
+            language="properties"
+            snippet={MAVEN_GRADLE_PROPS_SNIPPET}
+          />
+        </UnorderedListItem>
+      )}
+      {kind === PrepareType.MSBuild && (
+        <UnorderedListItem>
+          <span className="sw-flex sw-items-center">
             <FormattedMessage
               id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence"
               defaultMessage={translate(
@@ -101,79 +181,23 @@ sonar.projectName=${projectName}
               )}
               values={{
                 project_key: (
-                  <b>
+                  <b className="sw-font-semibold sw-mx-1">
                     {translate(
                       'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence.project_key'
                     )}
                   </b>
                 ),
-                key: <code className="rule">{projectKey}</code>,
-                button: <ClipboardIconButton copyValue={projectKey} />,
+                key: (
+                  <span className="sw-ml-1">
+                    <InlineSnippet snippet={projectKey} />
+                  </span>
+                ),
+                button: <ClipboardIconButton className="sw-ml-2" copyValue={projectKey} />,
               }}
             />
-          </li>
-          {buildTool === BuildTools.CFamily && (
-            <li>
-              <FormattedMessage
-                id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp"
-                defaultMessage={translate(
-                  'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp'
-                )}
-                values={{
-                  advanced: (
-                    <b>
-                      {translate(
-                        'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp.advanced'
-                      )}
-                    </b>
-                  ),
-                  additional: (
-                    <b>
-                      {translate(
-                        'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp.additional'
-                      )}
-                    </b>
-                  ),
-                  property: <code className="rule">{ADDITIONAL_PROPERTY}</code>,
-                  button: <ClipboardIconButton copyValue={ADDITIONAL_PROPERTY} />,
-                }}
-              />
-            </li>
-          )}
-        </>
+          </span>
+        </UnorderedListItem>
       )}
-
-      {kind === PrepareType.JavaMavenGradle && (
-        <li>
-          <SentenceWithHighlights
-            translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.advanced_properties"
-            highlightKeys={['section', 'properties']}
-          />
-          :
-          <CodeSnippet snippet={MAVEN_GRADLE_PROPS_SNIPPET} />
-        </li>
-      )}
-      {kind === PrepareType.MSBuild && (
-        <li>
-          <FormattedMessage
-            id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence"
-            defaultMessage={translate(
-              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence'
-            )}
-            values={{
-              project_key: (
-                <b>
-                  {translate(
-                    'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence.project_key'
-                  )}
-                </b>
-              ),
-              key: <code className="rule">{projectKey}</code>,
-              button: <ClipboardIconButton copyValue={projectKey} />,
-            }}
-          />
-        </li>
-      )}
-    </ul>
+    </UnorderedList>
   );
 }

@@ -29,8 +29,7 @@ import AnalysisCommand from './commands/AnalysisCommand';
 export interface BranchesAnalysisStepProps {
   languages: Languages;
   component: Component;
-
-  onStepValidationChange: (isValid: boolean) => void;
+  onDone: (done: boolean) => void;
 }
 
 const BUILD_TOOLS_ORDERED: Array<BuildTools> = [
@@ -42,7 +41,7 @@ const BUILD_TOOLS_ORDERED: Array<BuildTools> = [
 ];
 
 export function BranchAnalysisStepContent(props: BranchesAnalysisStepProps) {
-  const { component, onStepValidationChange, languages } = props;
+  const { component, languages } = props;
 
   const [buildTechnology, setBuildTechnology] = React.useState<BuildTools | undefined>();
   const buildToolsList = languages['c']
@@ -59,7 +58,7 @@ export function BranchAnalysisStepContent(props: BranchesAnalysisStepProps) {
         options={buildToolsList}
       />
       <AnalysisCommand
-        onStepValidationChange={onStepValidationChange}
+        onStepValidationChange={props.onDone}
         buildTool={buildTechnology}
         projectKey={component.key}
         projectName={component.name}

@@ -1,33 +1,33 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly and allow navigating between the different steps: cfamily linux, copy additional properties 1`] = `"sonar.cfamily.build-wrapper-output=bw-output"`;
+exports[`should render correctly and allow token generation: cfamily linux, copy additional properties 1`] = `"sonar.cfamily.build-wrapper-output=bw-output"`;
 
-exports[`should render correctly and allow navigating between the different steps: cfamily linux, copy build-wrapper command 1`] = `"./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your build command here>"`;
+exports[`should render correctly and allow token generation: cfamily linux, copy build-wrapper command 1`] = `"./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output <your build command here>"`;
 
-exports[`should render correctly and allow navigating between the different steps: cfamily linux, copy shell script 1`] = `
+exports[`should render correctly and allow token generation: cfamily linux, copy shell script 1`] = `
 "curl 'http://localhost/static/cpp/build-wrapper-linux-x86.zip' --output build-wrapper.zip
 unzip build-wrapper.zip"
 `;
 
-exports[`should render correctly and allow navigating between the different steps: cfamily mac, copy additional properties 1`] = `"sonar.cfamily.build-wrapper-output=bw-output"`;
+exports[`should render correctly and allow token generation: cfamily mac, copy additional properties 1`] = `"sonar.cfamily.build-wrapper-output=bw-output"`;
 
-exports[`should render correctly and allow navigating between the different steps: cfamily mac, copy build-wrapper command 1`] = `"./build-wrapper-macos-x86/build-wrapper-macos-x86 --out-dir bw-output <your build command here>"`;
+exports[`should render correctly and allow token generation: cfamily mac, copy build-wrapper command 1`] = `"./build-wrapper-macos-x86/build-wrapper-macos-x86 --out-dir bw-output <your build command here>"`;
 
-exports[`should render correctly and allow navigating between the different steps: cfamily mac, copy shell script 1`] = `
+exports[`should render correctly and allow token generation: cfamily mac, copy shell script 1`] = `
 "curl 'http://localhost/static/cpp/build-wrapper-macosx-x86.zip' --output build-wrapper.zip
 unzip build-wrapper.zip"
 `;
 
-exports[`should render correctly and allow navigating between the different steps: cfamily win, copy additional properties 1`] = `"sonar.cfamily.build-wrapper-output=bw-output"`;
+exports[`should render correctly and allow token generation: cfamily win, copy additional properties 1`] = `"sonar.cfamily.build-wrapper-output=bw-output"`;
 
-exports[`should render correctly and allow navigating between the different steps: cfamily win, copy build-wrapper command 1`] = `"build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir bw-output <your build command here>"`;
+exports[`should render correctly and allow token generation: cfamily win, copy build-wrapper command 1`] = `"build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir bw-output <your build command here>"`;
 
-exports[`should render correctly and allow navigating between the different steps: cfamily win, copy shell script 1`] = `
+exports[`should render correctly and allow token generation: cfamily win, copy shell script 1`] = `
 "Invoke-WebRequest -Uri 'http://localhost/static/cpp/build-wrapper-win-x86.zip' -OutFile 'build-wrapper.zip'
 Expand-Archive -Path 'build-wrapper.zip' -DestinationPath '.'"
 `;
 
-exports[`should render correctly and allow navigating between the different steps: gradle, copy additional properties 1`] = `
+exports[`should render correctly and allow token generation: gradle, copy additional properties 1`] = `
 "# Additional properties that will be passed to the scanner,
 # Put one key=value per line, example:
 # sonar.exclusions=**/*.bin
@@ -36,7 +36,7 @@ sonar.projectName=MyProject
 "
 `;
 
-exports[`should render correctly and allow navigating between the different steps: maven, copy additional properties 1`] = `
+exports[`should render correctly and allow token generation: maven, copy additional properties 1`] = `
 "# Additional properties that will be passed to the scanner,
 # Put one key=value per line, example:
 # sonar.exclusions=**/*.bin

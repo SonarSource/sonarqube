@@ -37,7 +37,11 @@ export default function SentenceWithHighlights({
 
   const transhighlightPrefixKeys = highlightPrefixKeys || translationKey;
   highlightKeys.forEach((key) => {
-    values[key] = <strong>{translate(transhighlightPrefixKeys, 'sentence', key)}</strong>;
+    values[key] = (
+      <strong className="sw-font-semibold">
+        {translate(transhighlightPrefixKeys, 'sentence', key)}
+      </strong>
+    );
   });
   return (
     <FormattedMessage

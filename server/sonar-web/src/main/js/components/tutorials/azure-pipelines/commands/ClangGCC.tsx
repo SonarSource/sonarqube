@@ -17,10 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  CodeSnippet,
+  NumberedList,
+  NumberedListItem,
+  UnorderedList,
+  UnorderedListItem,
+} from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { getHostUrl } from '../../../../helpers/urls';
-import CodeSnippet from '../../../common/CodeSnippet';
 import { CompilationInfo } from '../../components/CompilationInfo';
 import GithubCFamilyExampleRepositories from '../../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../../components/RenderOptions';
@@ -44,7 +50,7 @@ type OsConstant = {
 };
 
 export default function ClangGCC(props: ClangGCCProps) {
-  const { projectKey } = props;
+  const { projectKey, onStepValidationChange } = props;
   const [os, setOs] = React.useState<OSs | undefined>();
   const host = getHostUrl();
 
@@ -77,11 +83,11 @@ unzip build-wrapper.zip`,
 
   React.useEffect(() => {
     if (os) {
-      props.onStepValidationChange(true);
+      onStepValidationChange(true);
     } else {
-      props.onStepValidationChange(false);
+      onStepValidationChange(false);
     }
-  }, [os, props.onStepValidationChange]);
+  }, [os, onStepValidationChange]);
 
   const handlOsChange = (value: OSs) => {
     setOs(value);
@@ -89,9 +95,7 @@ unzip build-wrapper.zip`,
 
   return (
     <>
-      <span className="big-spacer-top display-block">
-        {translate('onboarding.tutorial.with.azure_pipelines.os')}
-      </span>
+      <div className="sw-mt-4">{translate('onboarding.tutorial.with.azure_pipelines.os')}</div>
       <RenderOptions
         label={translate('onboarding.tutorial.with.azure_pipelines.os')}
         checked={os}
@@ -103,31 +107,34 @@ unzip build-wrapper.zip`,
       {os && (
         <>
           <GithubCFamilyExampleRepositories
-            className="big-spacer-top abs-width-600"
+            className="sw-mt-4 sw-w-abs-600"
             os={os}
             ci={TutorialModes.AzurePipelines}
           />
           <AlertClassicEditor />
-          <ol className="list-styled big-spacer-top">
-            <li>
+          <NumberedList className="sw-mt-4">
+            <NumberedListItem>
               <SentenceWithHighlights
                 translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp"
                 highlightPrefixKeys="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare"
                 highlightKeys={['pipeline']}
               />
-              <ul className="list-styled list-alpha spacer-top">
-                <li>
+              <UnorderedList ticks className="sw-ml-12 sw-mt-2">
+                <UnorderedListItem>
                   <SentenceWithHighlights
                     translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp.script"
                     highlightPrefixKeys={codeSnippetDownload[os].highlightScriptKey}
                     highlightKeys={['task', 'inline']}
                   />
-                  <CodeSnippet snippet={codeSnippetDownload[os].script} />
-                </li>
-              </ul>
-            </li>
+                  <CodeSnippet
+                    className="sw-px-4 sw-py-6"
+                    snippet={codeSnippetDownload[os].script}
+                  />
+                </UnorderedListItem>
+              </UnorderedList>
+            </NumberedListItem>
 
-            <li>
+            <NumberedListItem>
               <SentenceWithHighlights
                 translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.ccpp"
                 highlightPrefixKeys="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare"
@@ -138,34 +145,39 @@ unzip build-wrapper.zip`,
                 kind={PrepareType.StandAlone}
                 projectKey={projectKey}
               />
-            </li>
+            </NumberedListItem>
 
-            <li>
+            <NumberedListItem>
               <SentenceWithHighlights
                 translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build.ccpp"
                 highlightKeys={['task']}
               />
-              <ul className="list-styled list-alpha spacer-top">
-                <li>
+              <UnorderedList className="sw-mt-2">
+                <UnorderedListItem>
                   <SentenceWithHighlights
                     translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_script.ccpp"
                     highlightKeys={['build_wrapper']}
                   />
-                  <CodeSnippet snippet={codeSnippetDownload[os].scriptBuild} />
+                  <CodeSnippet
+                    className="sw-px-4 sw-py-6"
+                    isOneLine
+                    snippet={codeSnippetDownload[os].scriptBuild}
+                  />
                   <CompilationInfo />
-                </li>
-              </ul>
-            </li>
+                </UnorderedListItem>
+              </UnorderedList>
+            </NumberedListItem>
 
-            <li>
+            <NumberedListItem>
               <SentenceWithHighlights
                 translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.ccpp"
                 highlightPrefixKeys="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run"
                 highlightKeys={['task', 'after']}
               />
-            </li>
+            </NumberedListItem>
+
             <PublishSteps />
-          </ol>
+          </NumberedList>
         </>
       )}
     </>

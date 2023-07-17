@@ -80,6 +80,8 @@ export * from './TreeMap';
 export * from './TreeMapRect';
 export * from './TutorialStep';
 export * from './TutorialStepList';
+export * from './UnorderedList';
+export * from './UnorderedListItem';
 export * from './buttons';
 export { ClipboardIconButton } from './clipboard';
 export * from './code-line/LineCoverage';

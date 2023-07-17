@@ -21,8 +21,8 @@
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
 
-export const UnorderedList = styled.ul`
-  list-style: none;
+export const UnorderedList = styled.ul<{ ticks?: boolean }>`
+  list-style: ${({ ticks }) => (ticks ? 'disc' : 'none')};
   ${tw`sw-mt-4`}
   ${tw`sw-pl-0`}
 
