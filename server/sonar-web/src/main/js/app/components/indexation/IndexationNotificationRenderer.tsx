@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 /* eslint-disable react/no-unused-prop-types */
 
 import classNames from 'classnames';
@@ -30,9 +31,9 @@ import { IndexationNotificationType } from '../../../types/indexation';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 
 export interface IndexationNotificationRendererProps {
+  completedCount?: number;
+  total?: number;
   type?: IndexationNotificationType;
-  percentCompleted: number;
-  isSystemAdmin: boolean;
 }
 
 const NOTIFICATION_VARIANTS: { [key in IndexationNotificationType]: AlertProps['variant'] } = {
@@ -43,7 +44,7 @@ const NOTIFICATION_VARIANTS: { [key in IndexationNotificationType]: AlertProps['
 };
 
 export default function IndexationNotificationRenderer(props: IndexationNotificationRendererProps) {
-  const { type } = props;
+  const { completedCount, total, type } = props;
 
   return (
     <div className={classNames({ 'indexation-notification-wrapper': type })}>
@@ -55,12 +56,16 @@ export default function IndexationNotificationRenderer(props: IndexationNotifica
       >
         {type !== undefined && (
           <div className="display-flex-center">
-            {type === IndexationNotificationType.Completed && renderCompletedBanner(props)}
+            {type === IndexationNotificationType.Completed && renderCompletedBanner()}
+
             {type === IndexationNotificationType.CompletedWithFailure &&
-              renderCompletedWithFailureBanner(props)}
-            {type === IndexationNotificationType.InProgress && renderInProgressBanner(props)}
+              renderCompletedWithFailureBanner()}
+
+            {type === IndexationNotificationType.InProgress &&
+              renderInProgressBanner(completedCount as number, total as number)}
+
             {type === IndexationNotificationType.InProgressWithFailure &&
-              renderInProgressWithFailureBanner(props)}
+              renderInProgressWithFailureBanner(completedCount as number, total as number)}
           </div>
         )}
       </Alert>
@@ -68,78 +73,77 @@ export default function IndexationNotificationRenderer(props: IndexationNotifica
   );
 }
 
-function renderCompletedBanner(_props: IndexationNotificationRendererProps) {
+function renderCompletedBanner() {
   return <span className="spacer-right">{translate('indexation.completed')}</span>;
 }
 
-function renderCompletedWithFailureBanner(props: IndexationNotificationRendererProps) {
-  const { isSystemAdmin } = props;
-
+function renderCompletedWithFailureBanner() {
   return (
     <span className="spacer-right">
       <FormattedMessage
-        id="indexation.completed_with_error"
         defaultMessage={translate('indexation.completed_with_error')}
+        id="indexation.completed_with_error"
         values={{
-          link: isSystemAdmin
-            ? renderBackgroundTasksPageLink(true, translate('indexation.completed_with_error.link'))
-            : translate('indexation.completed_with_error.link'),
+          link: renderBackgroundTasksPageLink(
+            true,
+            translate('indexation.completed_with_error.link')
+          ),
         }}
       />
     </span>
   );
 }
 
-function renderInProgressBanner(props: IndexationNotificationRendererProps) {
-  const { percentCompleted, isSystemAdmin } = props;
-
+function renderInProgressBanner(completedCount: number, total: number) {
   return (
     <>
       <span className="spacer-right">{`${translate('indexation.in_progress')} ${translate(
         'indexation.projects_unavailable'
       )}`}</span>
       <i className="spinner spacer-right" />
+
       <span className="spacer-right">
-        {translateWithParameters('indexation.progression', percentCompleted)}
+        {translateWithParameters(
+          'indexation.progression',
+          completedCount.toString(),
+          total.toString()
+        )}
       </span>
-      {isSystemAdmin && (
-        <span className="spacer-right">
-          <FormattedMessage
-            id="indexation.admin_link"
-            defaultMessage={translate('indexation.admin_link')}
-            values={{
-              link: renderBackgroundTasksPageLink(false, translate('background_tasks.page')),
-            }}
-          />
-        </span>
-      )}
+
+      <span className="spacer-right">
+        <FormattedMessage
+          id="indexation.admin_link"
+          defaultMessage={translate('indexation.admin_link')}
+          values={{
+            link: renderBackgroundTasksPageLink(false, translate('background_tasks.page')),
+          }}
+        />
+      </span>
     </>
   );
 }
 
-function renderInProgressWithFailureBanner(props: IndexationNotificationRendererProps) {
-  const { percentCompleted, isSystemAdmin } = props;
-
+function renderInProgressWithFailureBanner(completedCount: number, total: number) {
   return (
     <>
       <span className="spacer-right">{`${translate('indexation.in_progress')} ${translate(
         'indexation.projects_unavailable'
       )}`}</span>
       <i className="spinner spacer-right" />
+
       <span className="spacer-right">
         <FormattedMessage
           id="indexation.progression_with_error"
           defaultMessage={translateWithParameters(
             'indexation.progression_with_error',
-            percentCompleted
+            completedCount.toString(),
+            total.toString()
           )}
           values={{
-            link: isSystemAdmin
-              ? renderBackgroundTasksPageLink(
-                  true,
-                  translate('indexation.progression_with_error.link')
-                )
-              : translate('indexation.progression_with_error.link'),
+            link: renderBackgroundTasksPageLink(
+              true,
+              translate('indexation.progression_with_error.link')
+            ),
           }}
         />
       </span>

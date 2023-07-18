@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
 import withIndexationContext, {
   WithIndexationContextProps,
@@ -67,6 +68,7 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
 
     if (!isCompleted) {
       IndexationNotificationHelper.markCompletedNotificationAsToDisplay();
+
       this.setState({
         notificationType: hasFailures
           ? IndexationNotificationType.InProgressWithFailure
@@ -78,6 +80,7 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
       this.setState({
         notificationType: IndexationNotificationType.Completed,
       });
+
       IndexationNotificationHelper.markCompletedNotificationAsDisplayed();
 
       // Hide after some time
@@ -91,17 +94,18 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
 
   render() {
     const { notificationType } = this.state;
+
     const {
       indexationContext: {
-        status: { percentCompleted },
+        status: { completedCount, total },
       },
     } = this.props;
 
     return !this.isSystemAdmin ? null : (
       <IndexationNotificationRenderer
+        completedCount={completedCount}
+        total={total}
         type={notificationType}
-        percentCompleted={percentCompleted}
-        isSystemAdmin={this.isSystemAdmin}
       />
     );
   }

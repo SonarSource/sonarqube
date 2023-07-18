@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { IndexationNotificationType } from '../../../../types/indexation';
@@ -25,27 +26,20 @@ import IndexationNotificationRenderer, {
 } from '../IndexationNotificationRenderer';
 
 it.each([
-  [IndexationNotificationType.InProgress, false],
-  [IndexationNotificationType.InProgress, true],
-  [IndexationNotificationType.InProgressWithFailure, false],
-  [IndexationNotificationType.InProgressWithFailure, true],
-  [IndexationNotificationType.Completed, false],
-  [IndexationNotificationType.Completed, true],
-  [IndexationNotificationType.CompletedWithFailure, false],
-  [IndexationNotificationType.CompletedWithFailure, true],
-])(
-  'should render correctly for type=%p & isSystemAdmin=%p',
-  (type: IndexationNotificationType, isSystemAdmin: boolean) => {
-    expect(shallowRender({ type, isSystemAdmin })).toMatchSnapshot();
-  }
-);
+  [IndexationNotificationType.InProgress],
+  [IndexationNotificationType.InProgressWithFailure],
+  [IndexationNotificationType.Completed],
+  [IndexationNotificationType.CompletedWithFailure],
+])('should render correctly for type=%p', (type: IndexationNotificationType) => {
+  expect(shallowRender({ type })).toMatchSnapshot();
+});
 
 function shallowRender(props: Partial<IndexationNotificationRendererProps> = {}) {
   return shallow<IndexationNotificationRendererProps>(
     <IndexationNotificationRenderer
+      completedCount={23}
+      total={42}
       type={IndexationNotificationType.InProgress}
-      percentCompleted={25}
-      isSystemAdmin={false}
       {...props}
     />
   );

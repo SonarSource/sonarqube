@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { mount } from 'enzyme';
 import * as React from 'react';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { IndexationStatus } from '../../../../types/indexation';
-import { IndexationContext } from '../IndexationContext';
 import {
   IndexationContextProvider,
   IndexationContextProviderProps,
@@ -46,22 +46,22 @@ it('should not start polling if no issue sync is needed', () => {
   expect(IndexationNotificationHelper.startPolling).not.toHaveBeenCalled();
 
   const expectedStatus: IndexationStatus = {
-    isCompleted: true,
-    percentCompleted: 100,
     hasFailures: false,
+    isCompleted: true,
   };
+
   expect(wrapper.state().status).toEqual(expectedStatus);
 });
 
 it('should update the state on new status', () => {
   const wrapper = mountRender();
 
-  const triggerNewStatus = (IndexationNotificationHelper.startPolling as jest.Mock).mock
+  const triggerNewStatus = jest.mocked(IndexationNotificationHelper.startPolling).mock
     .calls[0][0] as (status: IndexationStatus) => void;
+
   const newStatus: IndexationStatus = {
-    isCompleted: true,
-    percentCompleted: 100,
     hasFailures: false,
+    isCompleted: true,
   };
 
   triggerNewStatus(newStatus);
@@ -85,11 +85,6 @@ function mountRender(props?: IndexationContextProviderProps) {
   );
 }
 
-class TestComponent extends React.PureComponent {
-  context: IndexationStatus = { hasFailures: false, isCompleted: false, percentCompleted: 0 };
-  static contextType = IndexationContext;
-
-  render() {
-    return <h1>TestComponent</h1>;
-  }
+function TestComponent() {
+  return <h1>TestComponent</h1>;
 }

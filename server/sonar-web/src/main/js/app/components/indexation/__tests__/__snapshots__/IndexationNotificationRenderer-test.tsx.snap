@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly for type="Completed" & isSystemAdmin=false 1`] = `
+exports[`should render correctly for type="Completed" 1`] = `
 <div
   className="indexation-notification-wrapper"
 >
@@ -23,61 +23,7 @@ exports[`should render correctly for type="Completed" & isSystemAdmin=false 1`] 
 </div>
 `;
 
-exports[`should render correctly for type="Completed" & isSystemAdmin=true 1`] = `
-<div
-  className="indexation-notification-wrapper"
->
-  <Alert
-    aria-live="assertive"
-    className="indexation-notification-banner"
-    display="banner"
-    variant="success"
-  >
-    <div
-      className="display-flex-center"
-    >
-      <span
-        className="spacer-right"
-      >
-        indexation.completed
-      </span>
-    </div>
-  </Alert>
-</div>
-`;
-
-exports[`should render correctly for type="CompletedWithFailure" & isSystemAdmin=false 1`] = `
-<div
-  className="indexation-notification-wrapper"
->
-  <Alert
-    aria-live="assertive"
-    className="indexation-notification-banner"
-    display="banner"
-    variant="error"
-  >
-    <div
-      className="display-flex-center"
-    >
-      <span
-        className="spacer-right"
-      >
-        <FormattedMessage
-          defaultMessage="indexation.completed_with_error"
-          id="indexation.completed_with_error"
-          values={
-            {
-              "link": "indexation.completed_with_error.link",
-            }
-          }
-        />
-      </span>
-    </div>
-  </Alert>
-</div>
-`;
-
-exports[`should render correctly for type="CompletedWithFailure" & isSystemAdmin=true 1`] = `
+exports[`should render correctly for type="CompletedWithFailure" 1`] = `
 <div
   className="indexation-notification-wrapper"
 >
@@ -117,7 +63,7 @@ exports[`should render correctly for type="CompletedWithFailure" & isSystemAdmin
 </div>
 `;
 
-exports[`should render correctly for type="InProgress" & isSystemAdmin=false 1`] = `
+exports[`should render correctly for type="InProgress" 1`] = `
 <div
   className="indexation-notification-wrapper"
 >
@@ -141,38 +87,7 @@ exports[`should render correctly for type="InProgress" & isSystemAdmin=false 1`]
       <span
         className="spacer-right"
       >
-        indexation.progression.25
-      </span>
-    </div>
-  </Alert>
-</div>
-`;
-
-exports[`should render correctly for type="InProgress" & isSystemAdmin=true 1`] = `
-<div
-  className="indexation-notification-wrapper"
->
-  <Alert
-    aria-live="assertive"
-    className="indexation-notification-banner"
-    display="banner"
-    variant="warning"
-  >
-    <div
-      className="display-flex-center"
-    >
-      <span
-        className="spacer-right"
-      >
-        indexation.in_progress indexation.projects_unavailable
-      </span>
-      <i
-        className="spinner spacer-right"
-      />
-      <span
-        className="spacer-right"
-      >
-        indexation.progression.25
+        indexation.progression.23.42
       </span>
       <span
         className="spacer-right"
@@ -201,7 +116,7 @@ exports[`should render correctly for type="InProgress" & isSystemAdmin=true 1`] 
 </div>
 `;
 
-exports[`should render correctly for type="InProgressWithFailure" & isSystemAdmin=false 1`] = `
+exports[`should render correctly for type="InProgressWithFailure" 1`] = `
 <div
   className="indexation-notification-wrapper"
 >
@@ -226,46 +141,7 @@ exports[`should render correctly for type="InProgressWithFailure" & isSystemAdmi
         className="spacer-right"
       >
         <FormattedMessage
-          defaultMessage="indexation.progression_with_error.25"
-          id="indexation.progression_with_error"
-          values={
-            {
-              "link": "indexation.progression_with_error.link",
-            }
-          }
-        />
-      </span>
-    </div>
-  </Alert>
-</div>
-`;
-
-exports[`should render correctly for type="InProgressWithFailure" & isSystemAdmin=true 1`] = `
-<div
-  className="indexation-notification-wrapper"
->
-  <Alert
-    aria-live="assertive"
-    className="indexation-notification-banner"
-    display="banner"
-    variant="error"
-  >
-    <div
-      className="display-flex-center"
-    >
-      <span
-        className="spacer-right"
-      >
-        indexation.in_progress indexation.projects_unavailable
-      </span>
-      <i
-        className="spinner spacer-right"
-      />
-      <span
-        className="spacer-right"
-      >
-        <FormattedMessage
-          defaultMessage="indexation.progression_with_error.25"
+          defaultMessage="indexation.progression_with_error.23.42"
           id="indexation.progression_with_error"
           values={
             {

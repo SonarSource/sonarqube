@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
@@ -30,15 +31,15 @@ jest.mock('../IndexationNotificationHelper');
 
 describe('Completed banner', () => {
   it('should be displayed', () => {
-    (
-      IndexationNotificationHelper.shouldDisplayCompletedNotification as jest.Mock
-    ).mockReturnValueOnce(true);
+    jest
+      .mocked(IndexationNotificationHelper.shouldDisplayCompletedNotification)
+      .mockReturnValueOnce(true);
 
     const wrapper = shallowRender();
 
     wrapper.setProps({
       indexationContext: {
-        status: { isCompleted: true, percentCompleted: 100, hasFailures: false },
+        status: { hasFailures: false, isCompleted: true },
       },
     });
 
@@ -47,13 +48,13 @@ describe('Completed banner', () => {
   });
 
   it('should be displayed at startup', () => {
-    (
-      IndexationNotificationHelper.shouldDisplayCompletedNotification as jest.Mock
-    ).mockReturnValueOnce(true);
+    jest
+      .mocked(IndexationNotificationHelper.shouldDisplayCompletedNotification)
+      .mockReturnValueOnce(true);
 
     const wrapper = shallowRender({
       indexationContext: {
-        status: { isCompleted: true, percentCompleted: 100, hasFailures: false },
+        status: { hasFailures: false, isCompleted: true },
       },
     });
 
@@ -61,15 +62,16 @@ describe('Completed banner', () => {
     expect(wrapper.state().notificationType).toBe(IndexationNotificationType.Completed);
   });
 
-  it('should be hidden once displayed', () => {
+  it('should be hidden once completed without failure', () => {
     jest.useFakeTimers();
-    (
-      IndexationNotificationHelper.shouldDisplayCompletedNotification as jest.Mock
-    ).mockReturnValueOnce(true);
+
+    jest
+      .mocked(IndexationNotificationHelper.shouldDisplayCompletedNotification)
+      .mockReturnValueOnce(true);
 
     const wrapper = shallowRender({
       indexationContext: {
-        status: { isCompleted: true, percentCompleted: 100, hasFailures: false },
+        status: { hasFailures: false, isCompleted: true },
       },
     });
 
@@ -77,6 +79,7 @@ describe('Completed banner', () => {
     expect(IndexationNotificationHelper.markCompletedNotificationAsDisplayed).toHaveBeenCalled();
 
     jest.runAllTimers();
+
     expect(wrapper.state().notificationType).toBeUndefined();
 
     jest.useRealTimers();
@@ -85,7 +88,9 @@ describe('Completed banner', () => {
 
 it('should display the completed-with-failure banner', () => {
   const wrapper = shallowRender({
-    indexationContext: { status: { isCompleted: true, percentCompleted: 100, hasFailures: true } },
+    indexationContext: {
+      status: { hasFailures: true, isCompleted: true },
+    },
   });
 
   expect(wrapper.state().notificationType).toBe(IndexationNotificationType.CompletedWithFailure);
@@ -93,7 +98,9 @@ it('should display the completed-with-failure banner', () => {
 
 it('should display the progress banner', () => {
   const wrapper = shallowRender({
-    indexationContext: { status: { isCompleted: false, percentCompleted: 23, hasFailures: false } },
+    indexationContext: {
+      status: { completedCount: 23, hasFailures: false, isCompleted: false, total: 42 },
+    },
   });
 
   expect(IndexationNotificationHelper.markCompletedNotificationAsToDisplay).toHaveBeenCalled();
@@ -102,7 +109,9 @@ it('should display the progress banner', () => {
 
 it('should display the progress-with-failure banner', () => {
   const wrapper = shallowRender({
-    indexationContext: { status: { isCompleted: false, percentCompleted: 23, hasFailures: true } },
+    indexationContext: {
+      status: { completedCount: 23, hasFailures: true, isCompleted: false, total: 42 },
+    },
   });
 
   expect(IndexationNotificationHelper.markCompletedNotificationAsToDisplay).toHaveBeenCalled();
@@ -114,7 +123,7 @@ function shallowRender(props?: Partial<IndexationNotification['props']>) {
     <IndexationNotification
       currentUser={mockCurrentUser()}
       indexationContext={{
-        status: { isCompleted: false, percentCompleted: 23, hasFailures: false },
+        status: { completedCount: 23, hasFailures: false, isCompleted: false, total: 42 },
       }}
       {...props}
     />

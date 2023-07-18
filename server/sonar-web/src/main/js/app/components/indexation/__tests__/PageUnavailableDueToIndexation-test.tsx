@@ -41,7 +41,9 @@ it('should not refresh the page once the indexation is complete if there were fa
   expect(reload).not.toHaveBeenCalled();
 
   wrapper.setProps({
-    indexationContext: { status: { isCompleted: true, percentCompleted: 100, hasFailures: true } },
+    indexationContext: {
+      status: { hasFailures: true, isCompleted: true },
+    },
   });
 
   wrapper.update();
@@ -62,7 +64,9 @@ it('should refresh the page once the indexation is complete if there were NO fai
   expect(reload).not.toHaveBeenCalled();
 
   wrapper.setProps({
-    indexationContext: { status: { isCompleted: true, percentCompleted: 100, hasFailures: false } },
+    indexationContext: {
+      status: { hasFailures: false, isCompleted: true },
+    },
   });
 
   wrapper.update();
@@ -74,7 +78,7 @@ function shallowRender() {
   return shallow<PageUnavailableDueToIndexation>(
     <PageUnavailableDueToIndexation
       indexationContext={{
-        status: { isCompleted: false, percentCompleted: 23, hasFailures: false },
+        status: { completedCount: 23, hasFailures: false, isCompleted: false, total: 42 },
       }}
     />
   );

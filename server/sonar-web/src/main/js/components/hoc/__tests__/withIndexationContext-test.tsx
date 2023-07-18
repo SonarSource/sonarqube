@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { mount } from 'enzyme';
 import * as React from 'react';
 import { IndexationContext } from '../../../app/components/indexation/IndexationContext';
@@ -25,7 +26,7 @@ import withIndexationContext, { WithIndexationContextProps } from '../withIndexa
 
 it('should render correctly', () => {
   const indexationContext: IndexationContextInterface = {
-    status: { isCompleted: true, percentCompleted: 87, hasFailures: false },
+    status: { hasFailures: false, isCompleted: true },
   };
 
   const wrapper = mountRender(indexationContext);
@@ -37,7 +38,7 @@ function mountRender(indexationContext?: Partial<IndexationContextInterface>) {
   return mount(
     <IndexationContext.Provider
       value={{
-        status: { isCompleted: false, percentCompleted: 23, hasFailures: false },
+        status: { completedCount: 23, hasFailures: false, isCompleted: false, total: 42 },
         ...indexationContext,
       }}
     >
@@ -46,10 +47,8 @@ function mountRender(indexationContext?: Partial<IndexationContextInterface>) {
   );
 }
 
-class TestComponent extends React.PureComponent<WithIndexationContextProps> {
-  render() {
-    return <h1>TestComponent</h1>;
-  }
+function TestComponent(_props: WithIndexationContextProps) {
+  return <h1>TestComponent</h1>;
 }
 
 const TestComponentWithIndexationContext = withIndexationContext(TestComponent);

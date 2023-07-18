@@ -46,7 +46,7 @@ function renderComponentWithIndexationGuard(showIndexationMessage: () => boolean
   return render(
     <IndexationContext.Provider
       value={{
-        status: { isCompleted: false, percentCompleted: 23, hasFailures: false },
+        status: { completedCount: 23, isCompleted: false, hasFailures: false, total: 42 },
       }}
     >
       <TestComponentWithGuard />
