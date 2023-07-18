@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BasicSeparator, Title } from 'design-system';
 import * as React from 'react';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
@@ -29,7 +30,7 @@ import {
 } from '../../../types/alm-settings';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
-import AllSetStep from '../components/AllSetStep';
+import AllSet from '../components/AllSet';
 import JenkinsfileStep from './JenkinsfileStep';
 import MultiBranchPipelineStep from './MultiBranchPipelineStep';
 import PipelineStep from './PipelineStep';
@@ -45,97 +46,48 @@ export interface JenkinsTutorialProps extends WithAvailableFeaturesProps {
   willRefreshAutomatically?: boolean;
 }
 
-enum Steps {
-  SelectAlm = 0,
-  PreRequisites = 1,
-  MultiBranchPipeline = 2,
-  Webhook = 3,
-  Jenkinsfile = 4,
-  AllSet = 5,
-}
-
 export function JenkinsTutorial(props: JenkinsTutorialProps) {
   const { almBinding, baseUrl, component, projectBinding, willRefreshAutomatically } = props;
   const hasSelectAlmStep = projectBinding?.alm === undefined;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
   const [alm, setAlm] = React.useState<AlmKeys | undefined>(projectBinding?.alm);
-  const [step, setStep] = React.useState(alm ? Steps.PreRequisites : Steps.SelectAlm);
+  const [done, setDone] = React.useState(false);
 
   return (
     <>
-      <div className="page-header big-spacer-bottom">
-        <h2 className="page-title">{translate('onboarding.tutorial.with.jenkins.title')}</h2>
-      </div>
+      <Title>{translate('onboarding.tutorial.with.jenkins.title')}</Title>
 
-      {hasSelectAlmStep && (
-        <SelectAlmStep
-          alm={alm}
-          open={step === Steps.SelectAlm}
-          onCheck={(value) => {
-            setAlm(value);
-            setStep(Steps.PreRequisites);
-          }}
-          onOpen={() => setStep(Steps.SelectAlm)}
-        />
-      )}
+      {hasSelectAlmStep && <SelectAlmStep alm={alm} onChange={setAlm} />}
 
       {alm && (
         <>
-          <PreRequisitesStep
-            alm={alm}
-            branchesEnabled={branchSupportEnabled}
-            finished={step > Steps.PreRequisites}
-            onDone={() => setStep(Steps.MultiBranchPipeline)}
-            onOpen={() => setStep(Steps.PreRequisites)}
-            open={step === Steps.PreRequisites}
-          />
+          <PreRequisitesStep alm={alm} branchesEnabled={branchSupportEnabled} />
 
           {branchSupportEnabled ? (
             <MultiBranchPipelineStep
               alm={alm}
               almBinding={almBinding}
-              finished={step > Steps.MultiBranchPipeline}
-              onDone={() => setStep(Steps.Webhook)}
-              onOpen={() => setStep(Steps.MultiBranchPipeline)}
-              open={step === Steps.MultiBranchPipeline}
               projectBinding={projectBinding}
             />
           ) : (
-            <PipelineStep
-              alm={alm}
-              finished={step > Steps.MultiBranchPipeline}
-              onDone={() => setStep(Steps.Webhook)}
-              onOpen={() => setStep(Steps.MultiBranchPipeline)}
-              open={step === Steps.MultiBranchPipeline}
-            />
+            <PipelineStep alm={alm} />
           )}
 
           <WebhookStep
             alm={alm}
             almBinding={almBinding}
             branchesEnabled={branchSupportEnabled}
-            finished={step > Steps.Webhook}
-            onDone={() => setStep(Steps.Jenkinsfile)}
-            onOpen={() => setStep(Steps.Webhook)}
-            open={step === Steps.Webhook}
             projectBinding={projectBinding}
           />
 
-          <JenkinsfileStep
-            component={component}
-            baseUrl={baseUrl}
-            finished={step > Steps.Jenkinsfile}
-            onDone={() => setStep(Steps.AllSet)}
-            onOpen={() => setStep(Steps.Jenkinsfile)}
-            open={step === Steps.Jenkinsfile}
-          />
+          <JenkinsfileStep component={component} baseUrl={baseUrl} onDone={setDone} />
 
-          <AllSetStep
-            alm={alm}
-            open={step === Steps.AllSet}
-            stepNumber={4}
-            willRefreshAutomatically={willRefreshAutomatically}
-          />
+          {done && (
+            <>
+              <BasicSeparator className="sw-my-10" />
+              <AllSet alm={alm} willRefreshAutomatically={willRefreshAutomatically} />
+            </>
+          )}
         </>
       )}
     </>

@@ -17,13 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, NumberedList, NumberedListItem, TutorialStep } from 'design-system';
 import * as React from 'react';
-import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
 import { withCLanguageFeature } from '../../hoc/withCLanguageFeature';
 import RenderOptions from '../components/RenderOptions';
-import Step from '../components/Step';
 import { BuildTools } from '../types';
 import CFamilly from './buildtool-steps/CFamilly';
 import DotNet from './buildtool-steps/DotNet';
@@ -31,21 +30,11 @@ import Gradle from './buildtool-steps/Gradle';
 import Maven from './buildtool-steps/Maven';
 import Other from './buildtool-steps/Other';
 
-export interface JenkinsfileStepProps {
-  baseUrl: string;
-  component: Component;
-  hasCLanguageFeature: boolean;
-  finished: boolean;
-  onDone: () => void;
-  onOpen: () => void;
-  open: boolean;
-}
-
-export interface LanguageProps {
-  onDone: () => void;
-  component: Component;
-  baseUrl: string;
-}
+const BUILD_TOOLS_WITH_NO_ADDITIONAL_OPTIONS = [
+  BuildTools.Maven,
+  BuildTools.Gradle,
+  BuildTools.Other,
+];
 
 const BUILDTOOL_COMPONENT_MAP: {
   [x in BuildTools]: React.ComponentType<LanguageProps>;
@@ -57,48 +46,60 @@ const BUILDTOOL_COMPONENT_MAP: {
   [BuildTools.Other]: Other,
 };
 
+export interface JenkinsfileStepProps {
+  baseUrl: string;
+  component: Component;
+  hasCLanguageFeature: boolean;
+  onDone: (done: boolean) => void;
+}
+
+export interface LanguageProps {
+  onDone: (done: boolean) => void;
+  component: Component;
+  baseUrl: string;
+}
+
 export function JenkinsfileStep(props: JenkinsfileStepProps) {
-  const { component, hasCLanguageFeature, baseUrl, finished, open } = props;
+  const { component, hasCLanguageFeature, baseUrl, onDone } = props;
+
   const [buildTool, setBuildTool] = React.useState<BuildTools>();
+
   const buildToolOrder = Object.keys(BUILDTOOL_COMPONENT_MAP);
   if (!hasCLanguageFeature) {
     buildToolOrder.splice(buildToolOrder.indexOf(BuildTools.CFamily), 1);
   }
+
+  const BuildToolComponent = buildTool ? BUILDTOOL_COMPONENT_MAP[buildTool] : undefined;
+
+  React.useEffect(() => {
+    if (buildTool && BUILD_TOOLS_WITH_NO_ADDITIONAL_OPTIONS.includes(buildTool)) {
+      onDone(true);
+    }
+  }, [buildTool, onDone]);
+
   return (
-    <Step
-      finished={finished}
-      onOpen={props.onOpen}
-      open={open}
-      renderForm={() => (
-        <div className="boxed-group-inner">
-          <ol className="list-styled">
-            <li>
-              {translate('onboarding.build')}
-              <RenderOptions
-                label={translate('onboarding.build')}
-                checked={buildTool}
-                onCheck={(value) => setBuildTool(value as BuildTools)}
-                optionLabelKey="onboarding.build"
-                options={buildToolOrder}
-              />
-              {buildTool === BuildTools.CFamily && (
-                <Alert variant="info" className="spacer-top abs-width-600">
-                  {translate('onboarding.tutorial.with.jenkins.jenkinsfile.cfamilly.agent_setup')}
-                </Alert>
-              )}
-            </li>
-            {buildTool !== undefined &&
-              React.createElement(BUILDTOOL_COMPONENT_MAP[buildTool], {
-                component,
-                baseUrl,
-                onDone: props.onDone,
-              })}
-          </ol>
-        </div>
-      )}
-      stepNumber={3}
-      stepTitle={translate('onboarding.tutorial.with.jenkins.jenkinsfile.title')}
-    />
+    <TutorialStep title={translate('onboarding.tutorial.with.jenkins.jenkinsfile.title')}>
+      <NumberedList>
+        <NumberedListItem>
+          {translate('onboarding.build')}
+          <RenderOptions
+            label={translate('onboarding.build')}
+            checked={buildTool}
+            onCheck={(value) => setBuildTool(value as BuildTools)}
+            optionLabelKey="onboarding.build"
+            options={buildToolOrder}
+          />
+          {buildTool === BuildTools.CFamily && (
+            <FlagMessage variant="info" className="sw-mt-2 sw-w-abs-600">
+              {translate('onboarding.tutorial.with.jenkins.jenkinsfile.cfamilly.agent_setup')}
+            </FlagMessage>
+          )}
+        </NumberedListItem>
+        {BuildToolComponent !== undefined && (
+          <BuildToolComponent component={component} baseUrl={baseUrl} onDone={props.onDone} />
+        )}
+      </NumberedList>
+    </TutorialStep>
   );
 }
 

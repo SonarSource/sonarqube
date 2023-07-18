@@ -50,13 +50,10 @@ const ui = {
   devopsPlatformTitle: byRole('heading', {
     name: 'onboarding.tutorial.with.jenkins.alm_selection.title',
   }),
-  devopsPlatformButton: (alm: AlmKeys) => byRole('button', { name: `alm.${alm}.long` }),
+  devopsPlatformButton: (alm: AlmKeys) => byRole('radio', { name: `alm.${alm}.long` }),
   prerequisitesTitle: byRole('heading', { name: 'onboarding.tutorial.with.jenkins.prereqs.title' }),
   branchSourcePluginBulletPoint: (alm: AlmKeys) =>
     byText(`onboarding.tutorial.with.jenkins.prereqs.plugins.branch_source.${alm}`),
-  configureAnalysisButton: byRole('button', {
-    name: 'onboarding.tutorial.with.jenkins.prereqs.done',
-  }),
   multiBranchStepTitle: byRole('heading', {
     name: 'onboarding.tutorial.with.jenkins.multi_branch_pipeline.title',
   }),
@@ -98,65 +95,60 @@ it.each([AlmKeys.BitbucketCloud, AlmKeys.BitbucketServer, AlmKeys.GitHub, AlmKey
     // 2. Prerequisites
     expect(ui.branchSourcePluginBulletPoint(alm).get()).toBeInTheDocument();
 
-    await user.click(ui.configureAnalysisButton.get());
-
     // 3. Multibranch Pipeline Job
     expect(ui.multiBranchPipelineSecondListItem(alm).get()).toBeInTheDocument();
-    expect(getCopyToClipboardValue()).toMatchSnapshot(`ref spec`);
-
-    await user.click(ui.continueButton.get());
+    expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(`ref spec`);
 
     // 4. Create DevOps platform webhook
     expect(ui.webhookStepTitle(alm).get()).toBeInTheDocument();
-    expect(getCopyToClipboardValue()).toMatchSnapshot(`jenkins url`);
-
-    await user.click(ui.continueButton.get());
+    expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(`jenkins url`);
 
     // 5. Create jenkinsfile
     // Maven
     await user.click(ui.mavenBuildButton.get());
-    expect(getCopyToClipboardValue()).toMatchSnapshot(`maven jenkinsfile`);
+    expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(`maven jenkinsfile`);
 
     // Gradle (Groovy)
     await user.click(ui.gradleBuildButton.get());
-    expect(getCopyToClipboardValue()).toMatchSnapshot(`Groovy: build.gradle file`);
+    expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(`Groovy: build.gradle file`);
     // Gradle(Kotlin)
     await user.click(ui.gradleDSLButton(GradleBuildDSL.Kotlin).get());
-    expect(getCopyToClipboardValue()).toMatchSnapshot(`Kotlin: build.gradle.kts file`);
-    expect(getCopyToClipboardValue(1)).toMatchSnapshot(`gradle jenkinsfile`);
+    expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(`Kotlin: build.gradle.kts file`);
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(`gradle jenkinsfile`);
 
     // .NET
     await user.click(ui.dotnetBuildButton.get());
     await user.click(ui.windowsDotnetCoreButton.get());
-    expect(getCopyToClipboardValue(1)).toMatchSnapshot(`windows dotnet core jenkinsfile`);
+    expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(`windows dotnet core jenkinsfile`);
 
     await user.click(ui.windowsDotnetFrameworkButton.get());
-    expect(getCopyToClipboardValue(2)).toMatchSnapshot(`windows dotnet framework jenkinsfile`);
+    expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(
+      `windows dotnet framework jenkinsfile`
+    );
 
     await user.click(ui.linuxDotnetCoreButton.get());
-    expect(getCopyToClipboardValue(1)).toMatchSnapshot(`linux dotnet core jenkinsfile`);
+    expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(`linux dotnet core jenkinsfile`);
 
     // CFamilly
     await user.click(ui.cFamilyBuildButton.get());
-    expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(`sonar-project.properties code`);
+    expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(`sonar-project.properties code`);
 
     await user.click(ui.linuxButton.get());
-    expect(getCopyToClipboardValue()).toMatchSnapshot(`cfamily linux jenkinsfile`);
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(`cfamily linux jenkinsfile`);
 
     await user.click(ui.windowsButton.get());
-    expect(getCopyToClipboardValue()).toMatchSnapshot(`cfamily windows jenkinsfile`);
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(`cfamily windows jenkinsfile`);
 
     await user.click(ui.macosButton.get());
-    expect(getCopyToClipboardValue()).toMatchSnapshot(`cfamily macos jenkinsfile`);
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(`cfamily macos jenkinsfile`);
 
     // Other
     await user.click(ui.otherBuildButton.get());
-    expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
+    expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(
       `other build tools sonar-project.properties code`
     );
-    expect(getCopyToClipboardValue()).toMatchSnapshot(`other build tools jenkinsfile`);
+    expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(`other build tools jenkinsfile`);
 
-    await user.click(ui.finishTutorialButton.get());
     expect(ui.allSetSentence.get()).toBeInTheDocument();
   }
 );
@@ -169,13 +161,7 @@ it.each([AlmKeys.GitHub, AlmKeys.GitLab, AlmKeys.BitbucketCloud])(
 
     expect(await ui.devopsPlatformTitle.find()).toBeInTheDocument();
     await user.click(ui.devopsPlatformButton(alm).get());
-    await user.click(ui.configureAnalysisButton.get());
     expect(ui.pipelineIntroText.get()).toBeInTheDocument();
-    await user.click(ui.continueButton.get());
-    // navigate back and forth
-    await user.click(ui.pipelineStepTitle.get());
-    await user.click(ui.continueButton.get());
-    expect(ui.webhookStepIntroSentence.get()).toBeInTheDocument();
   }
 );
 
@@ -199,14 +185,8 @@ it.each([AlmKeys.GitHub, AlmKeys.BitbucketCloud])(
 
     expect(ui.devopsPlatformTitle.query()).not.toBeInTheDocument();
 
-    await user.click(ui.configureAnalysisButton.get());
-    await user.click(ui.continueButton.get());
-
     expect(ui.webhookAlmLink(alm).get()).toBeInTheDocument();
-
-    await user.click(ui.continueButton.get());
     await user.click(ui.mavenBuildButton.get());
-    await user.click(ui.finishTutorialButton.get());
     expect(ui.allSetSentence.get()).toBeInTheDocument();
   }
 );
@@ -216,11 +196,7 @@ it('navigates between steps', async () => {
   renderJenkinsTutorial();
 
   await user.click(ui.devopsPlatformButton(AlmKeys.GitHub).get());
-  await user.click(ui.configureAnalysisButton.get());
-  await user.click(ui.continueButton.get());
-  await user.click(ui.continueButton.get());
   await user.click(ui.mavenBuildButton.get());
-  await user.click(ui.finishTutorialButton.get());
   expect(ui.allSetSentence.get()).toBeInTheDocument();
 
   // Navigate back
@@ -234,7 +210,6 @@ it('navigates between steps', async () => {
   expect(ui.multiBranchPipelineSecondListItem(AlmKeys.GitHub).get()).toBeInTheDocument();
 
   await user.click(ui.prerequisitesTitle.get());
-  expect(ui.configureAnalysisButton.get()).toBeInTheDocument();
 
   await user.click(ui.devopsPlatformTitle.get());
   expect(ui.devopsPlatformButton(AlmKeys.BitbucketCloud).get()).toBeInTheDocument();

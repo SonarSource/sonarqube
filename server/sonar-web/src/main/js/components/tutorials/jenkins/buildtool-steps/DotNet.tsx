@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { NumberedListItem } from 'design-system/lib';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
-import FinishButton from '../../components/FinishButton';
 import RenderOptions from '../../components/RenderOptions';
 import { OSs } from '../../types';
 import { LanguageProps } from '../JenkinsfileStep';
@@ -42,26 +42,30 @@ const DotOS: { [key in keyof typeof DotNetFlavor]: OSDotNet } = {
 };
 
 export default function DotNet(props: LanguageProps) {
-  const { component } = props;
-  const [flavorComponent, setFlavorComponet] = React.useState<keyof typeof DotNetFlavor>();
+  const { component, onDone } = props;
+  const [flavorComponent, setFlavorComponent] = React.useState<keyof typeof DotNetFlavor>();
   const DotNetTutorial = flavorComponent && DotNetFlavor[flavorComponent];
+
+  React.useEffect(() => {
+    onDone(flavorComponent !== undefined);
+  }, [flavorComponent, onDone]);
+
   return (
     <>
-      <li>
+      <NumberedListItem>
         {translate('onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.build_agent')}
-        <RenderOptions
-          label={translate('onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.build_agent')}
-          checked={flavorComponent}
-          optionLabelKey="onboarding.build.dotnet"
-          onCheck={(value) => setFlavorComponet(value as keyof typeof DotNetFlavor)}
-          options={Object.keys(DotNetFlavor)}
-        />
-      </li>
+        <div className="sw-ml-8">
+          <RenderOptions
+            label={translate('onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.build_agent')}
+            checked={flavorComponent}
+            optionLabelKey="onboarding.build.dotnet"
+            onCheck={(value) => setFlavorComponent(value as keyof typeof DotNetFlavor)}
+            options={Object.keys(DotNetFlavor)}
+          />
+        </div>
+      </NumberedListItem>
       {DotNetTutorial && flavorComponent && (
-        <>
-          <DotNetTutorial component={component} os={DotOS[flavorComponent]} />
-          <FinishButton onClick={props.onDone} />
-        </>
+        <DotNetTutorial component={component} os={DotOS[flavorComponent]} />
       )}
     </>
   );

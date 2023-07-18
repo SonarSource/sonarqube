@@ -17,78 +17,65 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, Link, ListItem, TutorialStep, UnorderedList } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { rawSizes } from '../../../app/theme';
-import { Button } from '../../../components/controls/buttons';
-import ChevronRightIcon from '../../../components/icons/ChevronRightIcon';
-import { Alert } from '../../../components/ui/Alert';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
-import DocLink from '../../common/DocLink';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
-import Step from '../components/Step';
 
 export interface PreRequisitesStepProps {
   alm: AlmKeys;
   branchesEnabled: boolean;
-  finished: boolean;
-  onDone: () => void;
-  onOpen: () => void;
-  open: boolean;
 }
 
 export default function PreRequisitesStep(props: PreRequisitesStepProps) {
-  const { alm, branchesEnabled, finished, open } = props;
+  const { alm, branchesEnabled } = props;
+
+  const docUrl = useDocUrl();
+
   return (
-    <Step
-      finished={finished}
-      onOpen={props.onOpen}
-      open={open}
-      renderForm={() => (
-        <div className="boxed-group-inner">
-          <Alert className="big-spacer-bottom" variant="warning">
-            <SentenceWithHighlights
-              highlightKeys={['installed', 'configured']}
-              translationKey="onboarding.tutorial.with.jenkins.prereqs.intro"
-            />
-          </Alert>
-          <ul className="list-styled big-spacer-bottom">
-            {branchesEnabled && (
-              <li>
-                {translate('onboarding.tutorial.with.jenkins.prereqs.plugins.branch_source', alm)}
-              </li>
-            )}
-            {!branchesEnabled && alm === AlmKeys.GitLab && (
-              <li>{translate('onboarding.tutorial.with.jenkins.prereqs.plugins.gitlab_plugin')}</li>
-            )}
-            <li>{translate('onboarding.tutorial.with.jenkins.prereqs.plugins.sonar_scanner')}</li>
-          </ul>
-          <p className="big-spacer-bottom">
-            <FormattedMessage
-              defaultMessage={translate(
-                'onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide'
-              )}
-              id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
-              values={{
-                link: (
-                  <DocLink to="/analyzing-source-code/ci-integration/jenkins-integration/">
-                    {translate('onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide.link')}
-                  </DocLink>
-                ),
-              }}
-            />
-          </p>
-          <p className="big-spacer-bottom">
-            {translate('onboarding.tutorial.with.jenkins.prereqs.following_are_recommendations')}
-          </p>
-          <Button className="big-spacer-top" onClick={props.onDone}>
-            {translate('onboarding.tutorial.with.jenkins.prereqs.done')}
-            <ChevronRightIcon size={rawSizes.baseFontSizeRaw} />
-          </Button>
-        </div>
-      )}
-      stepTitle={translate('onboarding.tutorial.with.jenkins.prereqs.title')}
-    />
+    <TutorialStep title={translate('onboarding.tutorial.with.jenkins.prereqs.title')}>
+      <FlagMessage className="sw-mb-4" variant="warning">
+        <span>
+          <SentenceWithHighlights
+            highlightKeys={['installed', 'configured']}
+            translationKey="onboarding.tutorial.with.jenkins.prereqs.intro"
+          />
+        </span>
+      </FlagMessage>
+      <UnorderedList ticks className="sw-ml-8 sw-mb-4">
+        {branchesEnabled && (
+          <ListItem>
+            {translate('onboarding.tutorial.with.jenkins.prereqs.plugins.branch_source', alm)}
+          </ListItem>
+        )}
+        {!branchesEnabled && alm === AlmKeys.GitLab && (
+          <ListItem>
+            {translate('onboarding.tutorial.with.jenkins.prereqs.plugins.gitlab_plugin')}
+          </ListItem>
+        )}
+        <ListItem>
+          {translate('onboarding.tutorial.with.jenkins.prereqs.plugins.sonar_scanner')}
+        </ListItem>
+      </UnorderedList>
+      <p className="sw-mb-4">
+        <FormattedMessage
+          defaultMessage={translate('onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide')}
+          id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
+          values={{
+            link: (
+              <Link to={docUrl('/analyzing-source-code/ci-integration/jenkins-integration/')}>
+                {translate('onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide.link')}
+              </Link>
+            ),
+          }}
+        />
+      </p>
+      <p className="sw-mb-4">
+        {translate('onboarding.tutorial.with.jenkins.prereqs.following_are_recommendations')}
+      </p>
+    </TutorialStep>
   );
 }

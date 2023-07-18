@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import FinishButton from '../../components/FinishButton';
 import { LanguageProps } from '../JenkinsfileStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
 
@@ -36,14 +35,11 @@ function jenkinsfileSnippet(projectKey: string, projectName: string) {
 }`;
 }
 
-export default function Maven({ component, onDone }: LanguageProps) {
+export default function Maven({ component }: LanguageProps) {
   return (
-    <>
-      <CreateJenkinsfileBulletPoint
-        alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.maven.step3"
-        snippet={jenkinsfileSnippet(component.key, component.name)}
-      />
-      <FinishButton onClick={onDone} />
-    </>
+    <CreateJenkinsfileBulletPoint
+      alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.maven.step3"
+      snippet={jenkinsfileSnippet(component.key, component.name)}
+    />
   );
 }

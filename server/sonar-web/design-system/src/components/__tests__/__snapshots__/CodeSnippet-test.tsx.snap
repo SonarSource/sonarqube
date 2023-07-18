@@ -198,7 +198,7 @@ bar"
       Copy
     </button>
     <span
-      class="hljs sw-pr-24 sw-flex emotion-6 emotion-7"
+      class="hljs sw-overflow-auto sw-pr-24 sw-flex emotion-6 emotion-7"
     >
       <pre>
         foo
@@ -408,7 +408,7 @@ exports[`should show reduced size when single line with no editting 1`] = `
       Copy
     </button>
     <span
-      class="hljs sw-pr-24 sw-flex emotion-6 emotion-7"
+      class="hljs sw-overflow-auto sw-pr-24 sw-flex emotion-6 emotion-7"
     >
       foobar
     </span>

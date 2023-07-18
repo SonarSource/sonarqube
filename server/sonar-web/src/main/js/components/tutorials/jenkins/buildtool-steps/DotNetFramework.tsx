@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CodeSnippet, NumberedListItem } from 'design-system';
 import * as React from 'react';
-import CodeSnippet from '../../../common/CodeSnippet';
 import SentenceWithFilename from '../../components/SentenceWithFilename';
 import { DotNetCoreFrameworkProps } from './DotNet';
 import DotNetPrereqsMSBuild from './DotNetPrereqsMSBuild';
@@ -45,13 +45,17 @@ export default function DotNetFramework({ component }: DotNetCoreFrameworkProps)
     <>
       <DotNetPrereqsScanner />
       <DotNetPrereqsMSBuild />
-      <li className="abs-width-600">
+      <NumberedListItem className="sw-max-w-2/3">
         <SentenceWithFilename
           filename="Jenkinsfile"
           translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.jenkinsfile_step"
         />
-        <CodeSnippet snippet={jenkinsfileSnippet(component.key)} />
-      </li>
+        <CodeSnippet
+          className="sw-ml-8 sw-p-6"
+          language="groovy"
+          snippet={jenkinsfileSnippet(component.key)}
+        />
+      </NumberedListItem>
     </>
   );
 }

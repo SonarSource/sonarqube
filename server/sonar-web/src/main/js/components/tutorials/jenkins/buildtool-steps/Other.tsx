@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
-import FinishButton from '../../components/FinishButton';
 import { LanguageProps } from '../JenkinsfileStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
 
@@ -44,7 +43,6 @@ export default function Other(props: LanguageProps) {
         alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.other.step3"
         snippet={JENKINSFILE_SNIPPET}
       />
-      <FinishButton onClick={props.onDone} />
     </>
   );
 }

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { NumberedListItem } from 'design-system/lib';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { CompilationInfo } from '../../components/CompilationInfo';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
-import FinishButton from '../../components/FinishButton';
 import GithubCFamilyExampleRepositories from '../../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../../components/RenderOptions';
 import { OSs, TutorialModes } from '../../types';
@@ -103,38 +103,42 @@ const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
 };
 
 export default function CFamilly(props: LanguageProps) {
-  const { baseUrl, component } = props;
+  const { baseUrl, component, onDone } = props;
   const [os, setOs] = React.useState<OSs>();
+
+  React.useEffect(() => {
+    onDone(os !== undefined);
+  }, [os, onDone]);
+
   return (
     <>
       <DefaultProjectKey component={component} />
-      <li className="abs-width-600">
+      <NumberedListItem className="sw-max-w-2/3">
         {translate('onboarding.build.other.os')}
-        <RenderOptions
-          label={translate('onboarding.build.other.os')}
-          checked={os}
-          optionLabelKey="onboarding.build.other.os"
-          onCheck={(value) => setOs(value as OSs)}
-          options={Object.values(OSs)}
-        />
-        {os && (
-          <GithubCFamilyExampleRepositories
-            className="big-spacer-top big-spacer-bottom"
-            os={os}
-            ci={TutorialModes.Jenkins}
+        <div className="sw-ml-8">
+          <RenderOptions
+            label={translate('onboarding.build.other.os')}
+            checked={os}
+            optionLabelKey="onboarding.build.other.os"
+            onCheck={(value) => setOs(value as OSs)}
+            options={Object.values(OSs)}
           />
-        )}
-      </li>
+          {os && (
+            <GithubCFamilyExampleRepositories
+              className="sw-my-4 sw-bg-inherit"
+              os={os}
+              ci={TutorialModes.Jenkins}
+            />
+          )}
+        </div>
+      </NumberedListItem>
       {os && (
-        <>
-          <CreateJenkinsfileBulletPoint
-            alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.other.step3"
-            snippet={YAML_MAP[os](baseUrl)}
-          >
-            <CompilationInfo />
-          </CreateJenkinsfileBulletPoint>
-          <FinishButton onClick={props.onDone} />
-        </>
+        <CreateJenkinsfileBulletPoint
+          alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.other.step3"
+          snippet={YAML_MAP[os](baseUrl)}
+        >
+          <CompilationInfo />
+        </CreateJenkinsfileBulletPoint>
       )}
     </>
   );

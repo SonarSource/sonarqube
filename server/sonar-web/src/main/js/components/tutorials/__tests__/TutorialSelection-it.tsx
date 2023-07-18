@@ -124,7 +124,6 @@ it('should correctly fetch the corresponding ALM setting', async () => {
     .mockResolvedValueOnce([
       { key: 'binding', url: 'https://enterprise.github.com', alm: AlmKeys.GitHub },
     ]);
-  const user = userEvent.setup();
   renderTutorialSelection(
     {
       projectBinding: mockProjectAlmBindingResponse({ alm: AlmKeys.GitHub, key: 'binding' }),
@@ -133,7 +132,6 @@ it('should correctly fetch the corresponding ALM setting', async () => {
   );
   await waitOnDataLoaded();
 
-  await startJenkinsTutorial(user);
   expect(screen.getByText('https://enterprise.github.com', { exact: false })).toBeInTheDocument();
 });
 
@@ -188,12 +186,6 @@ async function startLocalTutorial(user: UserEvent) {
   await user.click(screen.getByRole('button', { name: 'onboarding.token.generate' }));
   await user.click(screen.getByRole('button', { name: 'continue' }));
   await user.click(screen.getByRole('radio', { name: 'onboarding.build.maven' }));
-}
-
-async function startJenkinsTutorial(user: UserEvent) {
-  await user.click(
-    screen.getByRole('button', { name: 'onboarding.tutorial.with.jenkins.prereqs.done' })
-  );
 }
 
 function renderTutorialSelection(

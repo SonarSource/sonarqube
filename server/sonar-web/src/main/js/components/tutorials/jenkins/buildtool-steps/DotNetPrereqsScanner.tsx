@@ -17,50 +17,59 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ClipboardIconButton,
+  FlagMessage,
+  ListItem,
+  NumberedListItem,
+  OrderedList,
+} from 'design-system';
 import * as React from 'react';
-import { ClipboardIconButton } from '../../../../components/controls/clipboard';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
+import { InlineSnippet } from '../../components/InlineSnippet';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 
 export default function DotNetPrereqsScanner() {
   return (
-    <li className="abs-width-600">
+    <NumberedListItem className="sw-max-w-2/3">
       <SentenceWithHighlights
         highlightKeys={['default_scanner']}
         translationKey="onboarding.tutorial.with.jenkins.dotnet.scanner.prereqs.title"
       />
-      <Alert className="spacer-top" variant="info">
+      <FlagMessage className="sw-ml-8 sw-mt-2" variant="info">
         {translate('onboarding.tutorial.with.jenkins.dotnet.scanner.prereqs.info')}
-      </Alert>
-      <ol className="list-styled list-roman">
-        <li>
+      </FlagMessage>
+      <OrderedList tickStyle="ALPHA" className="sw-ml-12">
+        <ListItem>
           <SentenceWithHighlights
             highlightKeys={['path']}
             translationKey="onboarding.tutorial.with.jenkins.dotnet.scanner.prereqs.step1"
           />
-        </li>
-        <li>
+        </ListItem>
+        <ListItem>
           <SentenceWithHighlights
             highlightKeys={['default_scanner', 'add_scanner_for_msbuild']}
             translationKey="onboarding.tutorial.with.jenkins.dotnet.scanner.prereqs.step2"
           />
-        </li>
-        <li>
+        </ListItem>
+        <ListItem>
           <SentenceWithHighlights
             highlightKeys={['name']}
             translationKey="onboarding.tutorial.with.jenkins.dotnet.scanner.prereqs.step3"
           />
-          <code className="rule">SonarScanner for MSBuild</code>
-          <ClipboardIconButton copyValue="SonarScanner for MSBuild" />
-        </li>
-        <li>
+          <InlineSnippet className="sw-ml-1" snippet="SonarScanner for MSBuild" />
+          <ClipboardIconButton
+            className="sw-ml-2 sw-align-sub"
+            copyValue="SonarScanner for MSBuild"
+          />
+        </ListItem>
+        <ListItem>
           <SentenceWithHighlights
             highlightKeys={['install_from']}
             translationKey="onboarding.tutorial.with.jenkins.dotnet.scanner.prereqs.step5"
           />
-        </li>
-      </ol>
-    </li>
+        </ListItem>
+      </OrderedList>
+    </NumberedListItem>
   );
 }

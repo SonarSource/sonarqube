@@ -32,7 +32,7 @@ export default function SentenceWithFilename({
   translationKey,
 }: SentenceWithFilenameProps) {
   return (
-    <span className="markdown">
+    <span>
       <FormattedMessage
         defaultMessage={translate(translationKey, 'sentence')}
         id={`${translationKey}.sentence`}
