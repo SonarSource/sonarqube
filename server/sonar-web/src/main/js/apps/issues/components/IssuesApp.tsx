@@ -35,16 +35,18 @@ import { keyBy, omit, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
-import { searchIssues } from '../../../api/issues';
+import { listIssues, searchIssues } from '../../../api/issues';
 import { getRuleDetails } from '../../../api/rules';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import { PageContext } from '../../../app/components/indexation/PageUnavailableDueToIndexation';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import EmptySearch from '../../../components/common/EmptySearch';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
+import withIndexationContext, {
+  WithIndexationContextProps,
+} from '../../../components/hoc/withIndexationContext';
 import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import IssueTabViewer from '../../../components/rules/IssueTabViewer';
@@ -106,7 +108,7 @@ import NoMyIssues from './NoMyIssues';
 import PageActions from './PageActions';
 import StyledHeader, { PSEUDO_SHADOW_HEIGHT } from './StyledHeader';
 
-interface Props {
+interface Props extends WithIndexationContextProps {
   branchLike?: BranchLike;
   component?: Component;
   currentUser: CurrentUser;
@@ -147,6 +149,7 @@ export interface State {
 const DEFAULT_QUERY = { resolved: 'false' };
 const MAX_INITAL_FETCH = 1000;
 const VARIANTS_FACET = 'codeVariants';
+const ISSUES_PAGE_SIZE = 100;
 
 export class App extends React.PureComponent<Props, State> {
   mounted = false;
@@ -456,6 +459,19 @@ export class App extends React.PureComponent<Props, State> {
   createdAfterIncludesTime = () => Boolean(this.props.location.query.createdAfter?.includes('T'));
 
   fetchIssuesHelper = (query: RawQuery) => {
+    if (this.props.component?.needIssueSync) {
+      return listIssues({
+        ...query,
+      }).then((response) => {
+        const { components, issues, rules } = response;
+        const parsedIssues = issues.map((issue) =>
+          parseIssueFromResponse(issue, components, undefined, rules)
+        );
+
+        return { ...response, issues: parsedIssues } as FetchIssuesPromise;
+      });
+    }
+
     return searchIssues({
       ...query,
       additionalFields: '_all',
@@ -487,15 +503,23 @@ export class App extends React.PureComponent<Props, State> {
       facets = facets ? `${facets},${VARIANTS_FACET}` : VARIANTS_FACET;
     }
 
-    const parameters: Dict<string | undefined> = {
-      ...getBranchLikeQuery(this.props.branchLike),
-      componentKeys: component?.key,
-      s: 'FILE_LINE',
-      ...serializeQuery(query),
-      ps: '100',
-      facets,
-      ...additional,
-    };
+    const parameters: Dict<string | undefined> = component?.needIssueSync
+      ? {
+          ...getBranchLikeQuery(this.props.branchLike, true),
+          project: component?.key,
+          ...serializeQuery(query),
+          ps: `${ISSUES_PAGE_SIZE}`,
+          ...additional,
+        }
+      : {
+          ...getBranchLikeQuery(this.props.branchLike),
+          componentKeys: component?.key,
+          s: 'FILE_LINE',
+          ...serializeQuery(query),
+          ps: `${ISSUES_PAGE_SIZE}`,
+          facets,
+          ...additional,
+        };
 
     if (query.createdAfter !== undefined && this.createdAfterIncludesTime()) {
       parameters.createdAfter = serializeDate(query.createdAfter);
@@ -535,50 +559,51 @@ export class App extends React.PureComponent<Props, State> {
       fetchPromise = this.fetchIssues({}, true, firstRequest);
     }
 
-    return fetchPromise.then(
-      ({ effortTotal, facets, issues, paging, ...other }) => {
-        if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
-          const openIssue = getOpenIssue(this.props, issues);
-          let selected: string | undefined = undefined;
-
-          if (issues.length > 0) {
-            selected = openIssue ? openIssue.key : issues[0].key;
-          }
-
-          this.setState(({ showVariantsFilter }) => ({
-            cannotShowOpenIssue: Boolean(openIssueKey && !openIssue),
-            effortTotal,
-            facets: parseFacets(facets),
-            showVariantsFilter: firstRequest
-              ? Boolean(facets.find((f) => f.property === VARIANTS_FACET)?.values.length)
-              : showVariantsFilter,
-            loading: false,
-            locationsNavigator: true,
-            issues,
-            openIssue,
-            paging,
-            referencedComponentsById: keyBy(other.components, 'uuid'),
-            referencedComponentsByKey: keyBy(other.components, 'key'),
-            referencedLanguages: keyBy(other.languages, 'key'),
-            referencedRules: keyBy(other.rules, 'key'),
-            referencedUsers: keyBy(other.users, 'login'),
-            selected,
-            selectedFlowIndex: 0,
-            selectedLocationIndex: undefined,
-          }));
-        }
-
-        return issues;
-      },
-      () => {
-        if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
-          this.setState({ loading: false });
-        }
-
-        return [];
+    return fetchPromise.then(this.parseFirstIssues(firstRequest, openIssueKey, prevQuery), () => {
+      if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
+        this.setState({ loading: false });
       }
-    );
+
+      return [];
+    });
   }
+
+  parseFirstIssues =
+    (firstRequest: boolean, openIssueKey: string | undefined, prevQuery: RawQuery) =>
+    ({ effortTotal, facets, issues, paging, ...other }: FetchIssuesPromise) => {
+      if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
+        const openIssue = getOpenIssue(this.props, issues);
+        let selected: string | undefined = undefined;
+
+        if (issues.length > 0) {
+          selected = openIssue ? openIssue.key : issues[0].key;
+        }
+
+        this.setState(({ showVariantsFilter }) => ({
+          cannotShowOpenIssue: Boolean(openIssueKey && !openIssue),
+          effortTotal,
+          facets: parseFacets(facets),
+          showVariantsFilter: firstRequest
+            ? Boolean(facets?.find((f) => f.property === VARIANTS_FACET)?.values.length)
+            : showVariantsFilter,
+          loading: false,
+          locationsNavigator: true,
+          issues,
+          openIssue,
+          paging,
+          referencedComponentsById: keyBy(other.components, 'uuid'),
+          referencedComponentsByKey: keyBy(other.components, 'key'),
+          referencedLanguages: keyBy(other.languages, 'key'),
+          referencedRules: keyBy(other.rules, 'key'),
+          referencedUsers: keyBy(other.users, 'login'),
+          selected,
+          selectedFlowIndex: 0,
+          selectedLocationIndex: undefined,
+        }));
+      }
+
+      return issues;
+    };
 
   fetchIssuesPage = (p: number) => {
     return this.fetchIssues({ p });
@@ -966,7 +991,7 @@ export class App extends React.PureComponent<Props, State> {
       >
         {warning && <div className="sw-pb-6">{warning}</div>}
 
-        {currentUser.isLoggedIn && (
+        {currentUser.isLoggedIn && !component?.needIssueSync && (
           <div className="sw-flex sw-justify-start sw-mb-8">
             <ToggleButton
               onChange={this.handleMyIssuesChange}
@@ -1089,7 +1114,7 @@ export class App extends React.PureComponent<Props, State> {
 
     let noIssuesMessage = null;
 
-    if (paging.total === 0 && !loading) {
+    if (issues.length === 0 && !loading) {
       if (this.isFiltered()) {
         noIssuesMessage = <EmptySearch />;
       } else if (this.state.myIssues) {
@@ -1103,7 +1128,7 @@ export class App extends React.PureComponent<Props, State> {
       <div>
         <h2 className="a11y-hidden">{translate('list_of_issues')}</h2>
 
-        {paging.total > 0 && (
+        {issues.length > 0 && (
           <IssuesList
             branchLike={branchLike}
             checked={this.state.checked}
@@ -1120,13 +1145,14 @@ export class App extends React.PureComponent<Props, State> {
           />
         )}
 
-        {paging.total > 0 && (
+        {issues.length > 0 && (
           <ListFooter
             count={issues.length}
             loadMore={() => {
               this.fetchMoreIssues().catch(() => undefined);
             }}
             loading={loadingMore}
+            pageSize={ISSUES_PAGE_SIZE}
             total={paging.total}
             useMIUIButtons
           />
@@ -1158,7 +1184,7 @@ export class App extends React.PureComponent<Props, State> {
             <PageActions
               canSetHome={!this.props.component}
               effortTotal={this.state.effortTotal}
-              paging={paging}
+              paging={this.props.component?.needIssueSync ? undefined : paging}
               selectedIndex={selectedIndex}
             />
           </div>
@@ -1302,9 +1328,22 @@ export class App extends React.PureComponent<Props, State> {
   }
 }
 
-export default withIndexationGuard(
-  withRouter(withComponentContext(withCurrentUserContext(withBranchLikes(App)))),
-  PageContext.Issues
+export default withRouter(
+  withComponentContext(
+    withCurrentUserContext(
+      withBranchLikes(
+        withIndexationContext(
+          withIndexationGuard<Props & WithIndexationContextProps>({
+            Component: App,
+            showIndexationMessage: ({ component, indexationContext }) =>
+              (!component && indexationContext.status.isCompleted === false) ||
+              (component?.qualifier !== ComponentQualifier.Project &&
+                component?.needIssueSync === true),
+          })
+        )
+      )
+    )
+  )
 );
 
 const PageWrapperStyle = styled.div`

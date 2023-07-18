@@ -20,7 +20,6 @@
 import { mount } from 'enzyme';
 import * as React from 'react';
 import { IndexationContext } from '../../../app/components/indexation/IndexationContext';
-import { PageContext } from '../../../app/components/indexation/PageUnavailableDueToIndexation';
 import { IndexationContextInterface } from '../../../types/indexation';
 import withIndexationGuard from '../withIndexationGuard';
 
@@ -62,4 +61,4 @@ class TestComponent extends React.PureComponent {
   }
 }
 
-const TestComponentWithGuard = withIndexationGuard(TestComponent, PageContext.Issues);
+const TestComponentWithGuard = withIndexationGuard(TestComponent);

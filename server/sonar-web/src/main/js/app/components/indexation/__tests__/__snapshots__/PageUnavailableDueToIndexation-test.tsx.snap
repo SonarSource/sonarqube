@@ -4,37 +4,26 @@ exports[`should render correctly 1`] = `
 <div
   className="page-wrapper-simple"
 >
-  <div
-    className="page-simple"
+  <FlagMessage
+    className="sw-m-10"
+    variant="info"
   >
-    <h1
-      className="big-spacer-bottom"
-    >
-      <FormattedMessage
-        defaultMessage="indexation.page_unavailable.title.issues"
-        id="indexation.page_unavailable.title.issues"
-        values={
-          {
-            "componentName": <em>
-              test-portfolio
-            </em>,
-            "componentQualifier": "qualifier.VW",
-          }
+    indexation.page_unavailable.description
+    <br />
+    <FormattedMessage
+      defaultMessage="indexation.page_unavailable.description.additional_information"
+      id="indexation.page_unavailable.description.additional_information"
+      values={
+        {
+          "link": <StandoutLink
+            className="sw-ml-4"
+            to="https://docs.sonarqube.org/latest/instance-administration/reindexing/"
+          >
+            learn_more
+          </StandoutLink>,
         }
-      />
-    </h1>
-    <Alert
-      variant="info"
-    >
-      <p>
-        indexation.page_unavailable.description
-      </p>
-      <p
-        className="spacer-top"
-      >
-        indexation.page_unavailable.description.additional_information
-      </p>
-    </Alert>
-  </div>
+      }
+    />
+  </FlagMessage>
 </div>
 `;

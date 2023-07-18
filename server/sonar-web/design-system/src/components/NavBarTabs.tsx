@@ -24,9 +24,9 @@ import React from 'react';
 import tw, { theme } from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { isDefined } from '../helpers/types';
+import { ChevronDownIcon } from './icons/ChevronDownIcon';
 import NavLink, { NavLinkProps } from './NavLink';
 import Tooltip from './Tooltip';
-import { ChevronDownIcon } from './icons/ChevronDownIcon';
 
 interface Props extends React.HTMLAttributes<HTMLUListElement> {
   children?: React.ReactNode;
@@ -126,7 +126,7 @@ const NavBarTabLinkWrapper = styled.li`
   &:has(a.disabled-link) > a:hover,
   &:has(a.disabled-link) > a.hover,
   &:has(a.disabled-link)[aria-expanded='true'] {
-    ${tw`sw-cursor-not-allowed`};
+    ${tw`sw-cursor-default`};
     border-bottom: ${themeBorder('xsActive', 'transparent', 1)};
     color: ${themeContrast('subnavigationDisabled')};
   }
