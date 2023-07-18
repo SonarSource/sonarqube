@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
@@ -33,6 +34,7 @@ import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
 import { byDisplayValue, byRole, byTestId, byText } from '../../../helpers/testSelector';
 import { ComponentContextShape } from '../../../types/component';
+import { MetricKey } from '../../../types/metrics';
 import SecurityHotspotsApp from '../SecurityHotspotsApp';
 import useScrollDownCompress from '../hooks/useScrollDownCompress';
 
@@ -50,64 +52,70 @@ jest.mock('../../../helpers/sonarlint', () => ({
   openHotspot: jest.fn().mockResolvedValue(null),
   probeSonarLintServers: jest.fn().mockResolvedValue([
     {
-      port: 1234,
-      ideName: 'VIM',
       description: 'I use VIM',
+      ideName: 'VIM',
+      port: 1234,
     },
   ]),
 }));
 jest.mock('.../../../helpers/storage');
 
 const ui = {
-  inputAssignee: byRole('combobox', { name: 'search.search_for_users' }),
-  filterAssigneeToMe: byRole('checkbox', {
-    name: 'hotspot.filters.assignee.assigned_to_me',
-  }),
-  clearFilters: byRole('menuitem', { name: 'hotspot.filters.clear' }),
-  filterDropdown: byRole('button', { name: 'hotspot.filters.title' }),
-  filterToReview: byRole('radio', { name: 'hotspot.filters.status.to_review' }),
-  filterByStatus: byRole('combobox', { name: 'hotspot.filters.status' }),
-  filterByPeriod: byRole('combobox', { name: 'hotspot.filters.period' }),
-  filterNewCode: byRole('checkbox', { name: 'hotspot.filters.period.since_leak_period' }),
-  noHotspotForFilter: byText('hotspots.no_hotspots_for_filters.title'),
-  reviewButton: byRole('button', { name: 'hotspots.status.review' }),
-  toReviewStatus: byText('hotspots.status_option.TO_REVIEW'),
-  changeStatus: byRole('button', { name: 'hotspots.status.change_status' }),
-  hotspotTitle: (name: string | RegExp) => byRole('heading', { name }),
-  hotspotStatus: byRole('heading', { name: 'status: hotspots.status_option.FIXED' }),
-  hotpostListTitle: byText('hotspots.list_title'),
-  hotspotCommentBox: byRole('textbox', { name: 'hotspots.comment.field' }),
-  commentSubmitButton: byRole('button', { name: 'hotspots.comment.submit' }),
-  commentEditButton: byRole('button', { name: 'issue.comment.edit' }),
-  commentDeleteButton: byRole('button', { name: 'issue.comment.delete' }),
-  textboxWithText: (value: string) => byDisplayValue(value),
   activeAssignee: byRole('combobox', { name: 'hotspots.assignee.change_user' }),
-  successGlobalMessage: byTestId('global-message__SUCCESS'),
-  currentUserSelectionItem: byText('foo'),
-  panel: byTestId('security-hotspot-test'),
-  codeTab: byRole('tab', { name: /hotspots.tabs.code/ }),
-  codeContent: byRole('table'),
-  riskTab: byRole('tab', { name: /hotspots.tabs.risk_description/ }),
-  riskContent: byText('Root cause'),
-  vulnerabilityTab: byRole('tab', { name: /hotspots.tabs.vulnerability_description/ }),
-  vulnerabilityContent: byText('Assess'),
-  fixTab: byRole('tab', { name: /hotspots.tabs.fix_recommendations/ }),
-  fixContent: byText('This is how to fix'),
-  showAllHotspotLink: byRole('link', { name: 'hotspot.filters.show_all' }),
   activityTab: byRole('tab', { name: /hotspots.tabs.activity/ }),
   addCommentButton: byRole('button', { name: 'hotspots.status.add_comment' }),
-  openInIDEButton: byRole('button', { name: 'hotspots.open_in_ide.open' }),
+  changeStatus: byRole('button', { name: 'hotspots.status.change_status' }),
+  clearFilters: byRole('menuitem', { name: 'hotspot.filters.clear' }),
+  codeContent: byRole('table'),
+  codeTab: byRole('tab', { name: /hotspots.tabs.code/ }),
+  commentDeleteButton: byRole('button', { name: 'issue.comment.delete' }),
+  commentEditButton: byRole('button', { name: 'issue.comment.edit' }),
+  commentSubmitButton: byRole('button', { name: 'hotspots.comment.submit' }),
   continueReviewingButton: byRole('button', { name: 'hotspots.continue_to_next_hotspot' }),
-  seeStatusHotspots: byRole('button', { name: /hotspots.see_x_hotspots/ }),
+  currentUserSelectionItem: byText('foo'),
   dontShowSuccessDialogCheckbox: byRole('checkbox', {
     name: 'hotspots.success_dialog.do_not_show',
   }),
+  filterAssigneeToMe: byRole('checkbox', {
+    name: 'hotspot.filters.assignee.assigned_to_me',
+  }),
+  filterByPeriod: byRole('combobox', { name: 'hotspot.filters.period' }),
+  filterByStatus: byRole('combobox', { name: 'hotspot.filters.status' }),
+  filterDropdown: byRole('button', { name: 'hotspot.filters.title' }),
+  filterNewCode: byRole('checkbox', { name: 'hotspot.filters.period.since_leak_period' }),
+  filterToReview: byRole('radio', { name: 'hotspot.filters.status.to_review' }),
+  fixContent: byText('This is how to fix'),
+  fixTab: byRole('tab', { name: /hotspots.tabs.fix_recommendations/ }),
+  hotpostListTitle: byText('hotspots.list_title'),
+  hotspotCommentBox: byRole('textbox', { name: 'hotspots.comment.field' }),
+  hotspotStatus: byRole('heading', { name: 'status: hotspots.status_option.FIXED' }),
+  hotspotTitle: (name: string | RegExp) => byRole('heading', { name }),
+  inputAssignee: byRole('combobox', { name: 'search.search_for_users' }),
+  noHotspotForFilter: byText('hotspots.no_hotspots_for_filters.title'),
+  openInIDEButton: byRole('button', { name: 'hotspots.open_in_ide.open' }),
+  panel: byTestId('security-hotspot-test'),
+  reviewButton: byRole('button', { name: 'hotspots.status.review' }),
+  riskContent: byText('Root cause'),
+  riskTab: byRole('tab', { name: /hotspots.tabs.risk_description/ }),
+  seeStatusHotspots: byRole('button', { name: /hotspots.see_x_hotspots/ }),
+  showAllHotspotLink: byRole('link', { name: 'hotspot.filters.show_all' }),
+  successGlobalMessage: byTestId('global-message__SUCCESS'),
+  textboxWithText: (value: string) => byDisplayValue(value),
+  toReviewStatus: byText('hotspots.status_option.TO_REVIEW'),
+  vulnerabilityContent: byText('Assess'),
+  vulnerabilityTab: byRole('tab', { name: /hotspots.tabs.vulnerability_description/ }),
 };
 
 const originalScrollTo = window.scrollTo;
 const hotspotsHandler = new SecurityHotspotServiceMock();
 const rulesHandles = new CodingRulesServiceMock();
 const branchHandler = new BranchesServiceMock();
+
+const mockComponentInstance = mockComponent({
+  key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
+  name: 'benflix',
+});
+
 let showDialog = 'true';
 
 jest.mocked(save).mockImplementation((_key: string, value?: string) => {
@@ -115,6 +123,7 @@ jest.mocked(save).mockImplementation((_key: string, value?: string) => {
     showDialog = value;
   }
 });
+
 jest.mocked(get).mockImplementation(() => showDialog);
 
 beforeAll(() => {
@@ -152,13 +161,15 @@ describe('rendering', () => {
     renderSecurityHotspotsApp(
       'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=test-2'
     );
+
     expect(await screen.findAllByText('variant 1, variant 2')).toHaveLength(2);
   });
 
   it('should render the simple list when a file is selected', async () => {
     const user = userEvent.setup();
+
     renderSecurityHotspotsApp(
-      `security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&files=src%2Findex.js`
+      `security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&files=src%2Findex.js&cwe=foo&inNewCodePeriod=true`
     );
 
     expect(ui.filterDropdown.query()).not.toBeInTheDocument();
@@ -177,6 +188,7 @@ describe('rendering', () => {
       isCompressed: true,
       resetScrollDownCompress: jest.fn(),
     }));
+
     renderSecurityHotspotsApp();
 
     expect(await ui.reviewButton.find()).toBeInTheDocument();
@@ -256,6 +268,7 @@ describe('CRUD', () => {
       saveButton: byRole('button', { name: 'hotspots.comment.submit' }),
       deleteButton: byRole('button', { name: 'delete' }),
     };
+
     const user = userEvent.setup();
     const comment = 'This is a comment from john doe';
     renderSecurityHotspotsApp();
@@ -358,6 +371,7 @@ describe('navigation', () => {
 
   it('should allow to open a hotspot in an IDE', async () => {
     const user = userEvent.setup();
+
     renderSecurityHotspotsApp();
 
     await user.click(await ui.openInIDEButton.find());
@@ -377,6 +391,7 @@ describe('navigation', () => {
         description: 'I use MS Paint cuz Ima boss',
       },
     ]);
+
     const user = userEvent.setup();
     renderSecurityHotspotsApp();
 
@@ -392,6 +407,7 @@ it('after status change, should be able to disable success dialog show', async (
   renderSecurityHotspotsApp();
   await user.click(await ui.reviewButton.find());
   await user.click(ui.toReviewStatus.get());
+
   await act(async () => {
     await user.click(ui.changeStatus.get());
   });
@@ -403,9 +419,11 @@ it('after status change, should be able to disable success dialog show', async (
   // Repeat status change and verify that dialog is not shown
   await user.click(await ui.reviewButton.find());
   await user.click(ui.toReviewStatus.get());
+
   await act(async () => {
     await user.click(ui.changeStatus.get());
   });
+
   expect(ui.continueReviewingButton.query()).not.toBeInTheDocument();
 });
 
@@ -416,33 +434,43 @@ it('should be able to filter the hotspot list', async () => {
   expect(await ui.hotpostListTitle.find()).toBeInTheDocument();
 
   await user.click(ui.filterDropdown.get());
+
+  expect(ui.filterAssigneeToMe.get()).toBeEnabled();
+
   await user.click(ui.filterAssigneeToMe.get());
+
   expect(await ui.noHotspotForFilter.find()).toBeInTheDocument();
 
   await user.click(ui.filterToReview.get());
 
-  expect(getSecurityHotspots).toHaveBeenLastCalledWith({
-    inNewCodePeriod: false,
-    onlyMine: true,
-    p: 1,
-    projectKey: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
-    ps: 500,
-    resolution: undefined,
-    status: 'TO_REVIEW',
-  });
+  expect(getSecurityHotspots).toHaveBeenLastCalledWith(
+    {
+      inNewCodePeriod: false,
+      onlyMine: true,
+      p: 1,
+      projectKey: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
+      ps: 500,
+      resolution: undefined,
+      status: 'TO_REVIEW',
+    },
+    undefined
+  );
 
   await user.click(ui.filterDropdown.get());
   await user.click(await ui.filterNewCode.find());
 
-  expect(getSecurityHotspots).toHaveBeenLastCalledWith({
-    inNewCodePeriod: true,
-    onlyMine: true,
-    p: 1,
-    projectKey: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
-    ps: 500,
-    resolution: undefined,
-    status: 'TO_REVIEW',
-  });
+  expect(getSecurityHotspots).toHaveBeenLastCalledWith(
+    {
+      inNewCodePeriod: true,
+      onlyMine: true,
+      p: 1,
+      projectKey: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
+      ps: 500,
+      resolution: undefined,
+      status: 'TO_REVIEW',
+    },
+    undefined
+  );
 
   await user.click(ui.filterDropdown.get());
   await user.click(ui.clearFilters.get());
@@ -450,28 +478,38 @@ it('should be able to filter the hotspot list', async () => {
   expect(ui.hotpostListTitle.get()).toBeInTheDocument();
 });
 
+it('should disable the "assigned to me" filter if the project is indexing', async () => {
+  const user = userEvent.setup();
+
+  renderSecurityHotspotsApp(
+    'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
+    { component: { ...mockComponentInstance, needIssueSync: true } }
+  );
+
+  await user.click(ui.filterDropdown.get());
+
+  expect(ui.filterAssigneeToMe.get()).toHaveAttribute('disabled');
+});
+
 function renderSecurityHotspotsApp(
   navigateTo?: string,
   component?: Partial<ComponentContextShape>
 ) {
   return renderAppWithComponentContext(
-    'security_hotspots',
-    () => <Route path="security_hotspots" element={<SecurityHotspotsApp />} />,
+    MetricKey.security_hotspots,
+    () => <Route path={MetricKey.security_hotspots} element={<SecurityHotspotsApp />} />,
     {
-      navigateTo:
-        navigateTo ??
-        'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
       currentUser: mockLoggedInUser({
         login: 'foo',
         name: 'foo',
       }),
+      navigateTo:
+        navigateTo ??
+        'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
     },
     {
       onComponentChange: jest.fn(),
-      component: mockComponent({
-        key: 'guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
-        name: 'benflix',
-      }),
+      component: mockComponentInstance,
       ...component,
     }
   );

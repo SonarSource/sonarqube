@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly and stop event propagation 1`] = `
+<div>
+  <div
+    class="sw-body-sm sw-w-[190px]"
+  >
+    <p>
+      indexation.page_unavailable.description
+       
+      indexation.filter_unavailable.description
+    </p>
+    <hr
+      class="sw-mx-0 sw-my-3 sw-p-0 sw-w-full"
+    />
+    <span
+      class="sw-body-sm-highlight"
+    >
+      indexation.learn_more
+    </span>
+    <a
+      class="sw-ml-1"
+      href="https://docs.sonarqube.org/latest/instance-administration/reindexing/"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      <svg
+        class="little-spacer-right"
+        height="14"
+        style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 1.41421;"
+        version="1.1"
+        viewBox="0 0 16 16"
+        width="14"
+        xml:space="preserve"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+      >
+        <title>
+          opens_in_new_window
+        </title>
+        <path
+          d="M12 9.25v2.5A2.25 2.25 0 0 1 9.75 14h-6.5A2.25 2.25 0 0 1 1 11.75v-6.5A2.25 2.25 0 0 1 3.25 3h5.5c.14 0 .25.11.25.25v.5c0 .14-.11.25-.25.25h-5.5C2.562 4 2 4.563 2 5.25v6.5c0 .688.563 1.25 1.25 1.25h6.5c.688 0 1.25-.563 1.25-1.25v-2.5c0-.14.11-.25.25-.25h.5c.14 0 .25.11.25.25zm3-6.75v4c0 .273-.227.5-.5.5a.497.497 0 0 1-.352-.148l-1.375-1.375L7.68 10.57a.27.27 0 0 1-.18.078.27.27 0 0 1-.18-.078l-.89-.89a.27.27 0 0 1-.078-.18.27.27 0 0 1 .078-.18l5.093-5.093-1.375-1.375A.497.497 0 0 1 10 2.5c0-.273.227-.5.5-.5h4c.273 0 .5.227.5.5z"
+          style="fill: currentColor;"
+        />
+      </svg>
+      indexation.reindexing
+    </a>
+  </div>
+</div>
+`;

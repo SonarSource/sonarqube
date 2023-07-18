@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   CoverageIndicator,
   DiscreetInteractiveIcon,
@@ -29,51 +30,59 @@ import {
   ItemHeader,
 } from 'design-system';
 import * as React from 'react';
+import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
+import Tooltip from '../../../components/controls/Tooltip';
 import Measure from '../../../components/measure/Measure';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { isBranch } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentContextShape } from '../../../types/component';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { HotspotFilters } from '../../../types/security-hotspots';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
+import { HotspotDisabledFilterTooltip } from './HotspotDisabledFilterTooltip';
 
-export interface SecurityHotspotsAppRendererProps {
+export interface SecurityHotspotsAppRendererProps extends ComponentContextShape {
   branchLike?: BranchLike;
+  currentUser: CurrentUser;
   filters: HotspotFilters;
   hotspotsReviewedMeasure?: string;
+  isStaticListOfHotspots: boolean;
   loadingMeasure: boolean;
   onChangeFilters: (filters: Partial<HotspotFilters>) => void;
-  currentUser: CurrentUser;
-  isStaticListOfHotspots: boolean;
 }
 
 function HotspotSidebarHeader(props: SecurityHotspotsAppRendererProps) {
   const {
     branchLike,
+    component,
+    currentUser,
     filters,
     hotspotsReviewedMeasure,
-    loadingMeasure,
-    currentUser,
     isStaticListOfHotspots,
+    loadingMeasure,
   } = props;
 
   const userLoggedIn = isLoggedIn(currentUser);
+
   const filtersCount =
     Number(filters.assignedToMe) + Number(isBranch(branchLike) && filters.inNewCodePeriod);
+
   const isFiltered = Boolean(filtersCount);
 
   return (
-    <div className="sw-flex sw-py-4 sw-items-center sw-h-6 sw-px-4">
+    <div className="sw-flex sw-h-6 sw-items-center sw-px-4 sw-py-4">
       <DeferredSpinner loading={loadingMeasure}>
         {hotspotsReviewedMeasure !== undefined && (
           <CoverageIndicator value={hotspotsReviewedMeasure} />
         )}
+
         <Measure
-          className="sw-ml-2 sw-body-sm-highlight it__hs-review-percentage"
+          className="it__hs-review-percentage sw-body-sm-highlight sw-ml-2"
           metricKey={
             isBranch(branchLike) && !filters.inNewCodePeriod
               ? MetricKey.security_hotspots_reviewed
@@ -82,19 +91,22 @@ function HotspotSidebarHeader(props: SecurityHotspotsAppRendererProps) {
           metricType={MetricType.Percent}
           value={hotspotsReviewedMeasure}
         />
-        <span className="sw-ml-1 sw-body-sm">
+
+        <span className="sw-body-sm sw-ml-1">
           {translate('metric.security_hotspots_reviewed.name')}
         </span>
+
         <HelpTooltip className="sw-ml-1" overlay={translate('hotspots.reviewed.tooltip')}>
           <HelperHintIcon aria-label="help-tooltip" />
         </HelpTooltip>
 
         {!isStaticListOfHotspots && (isBranch(branchLike) || userLoggedIn || isFiltered) && (
-          <div className="sw-flex-grow sw-flex sw-justify-end">
+          <div className="sw-flex sw-flex-grow sw-justify-end">
             <Dropdown
               allowResizing
               closeOnClick={false}
               id="filter-hotspots-menu"
+              isPortal
               overlay={
                 <>
                   <ItemHeader>{translate('hotspot.filters.title')}</ItemHeader>
@@ -113,14 +125,21 @@ function HotspotSidebarHeader(props: SecurityHotspotsAppRendererProps) {
                   )}
 
                   {userLoggedIn && (
-                    <ItemCheckbox
-                      checked={Boolean(filters.assignedToMe)}
-                      onCheck={(assignedToMe: boolean) => props.onChangeFilters({ assignedToMe })}
+                    <Tooltip
+                      classNameSpace={component?.needIssueSync ? 'tooltip' : 'sw-hidden'}
+                      overlay={<HotspotDisabledFilterTooltip />}
+                      placement="right"
                     >
-                      <span className="sw-mx-2">
-                        {translate('hotspot.filters.assignee.assigned_to_me')}
-                      </span>
-                    </ItemCheckbox>
+                      <ItemCheckbox
+                        checked={Boolean(filters.assignedToMe)}
+                        disabled={component?.needIssueSync}
+                        onCheck={(assignedToMe: boolean) => props.onChangeFilters({ assignedToMe })}
+                      >
+                        <span className="sw-mx-2">
+                          {translate('hotspot.filters.assignee.assigned_to_me')}
+                        </span>
+                      </ItemCheckbox>
+                    </Tooltip>
                   )}
 
                   {isFiltered && <ItemDivider />}
@@ -140,7 +159,6 @@ function HotspotSidebarHeader(props: SecurityHotspotsAppRendererProps) {
                 </>
               }
               placement={PopupPlacement.BottomRight}
-              isPortal
             >
               <DiscreetInteractiveIcon
                 Icon={FilterIcon}
@@ -156,4 +174,4 @@ function HotspotSidebarHeader(props: SecurityHotspotsAppRendererProps) {
   );
 }
 
-export default withCurrentUserContext(HotspotSidebarHeader);
+export default withComponentContext(withCurrentUserContext(HotspotSidebarHeader));

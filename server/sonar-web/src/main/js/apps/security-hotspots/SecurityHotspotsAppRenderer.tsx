@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
@@ -68,15 +69,15 @@ export interface SecurityHotspotsAppRendererProps {
   loadingMeasure: boolean;
   loadingMore: boolean;
   onChangeFilters: (filters: Partial<HotspotFilters>) => void;
-  onShowAllHotspots: VoidFunction;
   onHotspotClick: (hotspot: RawHotspot) => void;
-  onLocationClick: (index?: number) => void;
   onLoadMore: () => void;
+  onLocationClick: (index?: number) => void;
+  onShowAllHotspots: VoidFunction;
   onSwitchStatusFilter: (option: HotspotStatusFilter) => void;
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
+  securityCategories: StandardSecurityCategories;
   selectedHotspot?: RawHotspot;
   selectedHotspotLocation?: number;
-  securityCategories: StandardSecurityCategories;
   standards: Standards;
 }
 
@@ -97,25 +98,29 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
     loading,
     loadingMeasure,
     loadingMore,
+    onChangeFilters,
+    onShowAllHotspots,
     securityCategories,
     selectedHotspot,
     selectedHotspotLocation,
     standards,
-    onChangeFilters,
-    onShowAllHotspots,
   } = props;
 
   const isProject = component.qualifier === ComponentQualifier.Project;
 
   const { top: topScroll } = useFollowScroll();
+
   const distanceFromBottom = topScroll + window.innerHeight - document.body.clientHeight;
+
   const footerVisibleHeight =
     distanceFromBottom > -LAYOUT_FOOTER_HEIGHT ? LAYOUT_FOOTER_HEIGHT + distanceFromBottom : 0;
 
   return (
     <>
-      <Suggestions suggestions="security_hotspots" />
+      <Suggestions suggestions={MetricKey.security_hotspots} />
+
       <Helmet title={translate('hotspots.page')} />
+
       <A11ySkipTarget anchor="security_hotspots_main" />
 
       <LargeCenteredLayout id={MetricKey.security_hotspots}>
@@ -130,27 +135,28 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                   <HotspotSidebarHeader
                     branchLike={branchLike}
                     filters={filters}
-                    isStaticListOfHotspots={isStaticListOfHotspots}
                     hotspotsReviewedMeasure={hotspotsReviewedMeasure}
+                    isStaticListOfHotspots={isStaticListOfHotspots}
                     loadingMeasure={loadingMeasure}
                     onChangeFilters={onChangeFilters}
                   />
                 </StyledSidebarHeader>
               )}
+
               <StyledSidebarContent
                 className="sw-p-4 it__hotspot-list"
                 style={{
+                  height: `calc(
+                    100vh - ${
+                      LAYOUT_GLOBAL_NAV_HEIGHT +
+                      LAYOUT_PROJECT_NAV_HEIGHT +
+                      STICKY_HEADER_HEIGHT -
+                      footerVisibleHeight
+                    }px
+                  )`,
                   top: `${
                     LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT + STICKY_HEADER_HEIGHT
                   }px`,
-                  height: `calc(
-                  100vh - ${
-                    LAYOUT_GLOBAL_NAV_HEIGHT +
-                    LAYOUT_PROJECT_NAV_HEIGHT +
-                    STICKY_HEADER_HEIGHT -
-                    footerVisibleHeight
-                  }px
-                )`,
                 }}
               >
                 <DeferredSpinner className="sw-mt-3" loading={loading}>
@@ -173,8 +179,8 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                           onHotspotClick={props.onHotspotClick}
                           onLoadMore={props.onLoadMore}
                           onLocationClick={props.onLocationClick}
-                          selectedHotspotLocation={selectedHotspotLocation}
                           selectedHotspot={selectedHotspot}
+                          selectedHotspotLocation={selectedHotspotLocation}
                           standards={standards}
                         />
                       ) : (
@@ -197,25 +203,26 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                 </DeferredSpinner>
               </StyledSidebarContent>
             </StyledSidebar>
+
             <StyledMain className="sw-col-span-8 sw-relative sw-ml-12">
               {hotspots.length === 0 || !selectedHotspot ? (
                 <EmptyHotspotsPage
+                  filterByFile={Boolean(filterByFile)}
                   filtered={
                     filters.assignedToMe ||
                     (isBranch(branchLike) && filters.inNewCodePeriod) ||
                     filters.status !== HotspotStatusFilter.TO_REVIEW
                   }
-                  filterByFile={Boolean(filterByFile)}
                   isStaticListOfHotspots={isStaticListOfHotspots}
                 />
               ) : (
                 <HotspotViewer
-                  hotspotsReviewedMeasure={hotspotsReviewedMeasure}
                   component={component}
                   hotspotKey={selectedHotspot.key}
+                  hotspotsReviewedMeasure={hotspotsReviewedMeasure}
+                  onLocationClick={props.onLocationClick}
                   onSwitchStatusFilter={props.onSwitchStatusFilter}
                   onUpdateHotspot={props.onUpdateHotspot}
-                  onLocationClick={props.onLocationClick}
                   selectedHotspotLocation={selectedHotspotLocation}
                   standards={standards}
                 />

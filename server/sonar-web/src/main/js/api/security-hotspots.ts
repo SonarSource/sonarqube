@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { throwGlobalError } from '../helpers/error';
 import { getJSON, post } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
@@ -31,6 +32,7 @@ import {
 } from '../types/security-hotspots';
 import { UserBase } from '../types/users';
 
+const HOTSPOTS_LIST_URL = '/api/hotspots/list';
 const HOTSPOTS_SEARCH_URL = '/api/hotspots/search';
 
 export function assignSecurityHotspot(
@@ -70,27 +72,34 @@ export function editSecurityHotspotComment(
 
 export function getSecurityHotspots(
   data: {
-    projectKey: string;
-    p: number;
-    ps: number;
-    status?: HotspotStatus;
-    resolution?: HotspotResolution;
-    onlyMine?: boolean;
     inNewCodePeriod?: boolean;
-  } & BranchParameters
+    onlyMine?: boolean;
+    p: number;
+    projectKey: string;
+    ps: number;
+    resolution?: HotspotResolution;
+    status?: HotspotStatus;
+  } & BranchParameters,
+  projectIsIndexing = false
 ): Promise<HotspotSearchResponse> {
-  return getJSON(HOTSPOTS_SEARCH_URL, data).catch(throwGlobalError);
+  return getJSON(
+    projectIsIndexing ? HOTSPOTS_LIST_URL : HOTSPOTS_SEARCH_URL,
+    projectIsIndexing ? { ...data, project: data.projectKey } : data
+  ).catch(throwGlobalError);
 }
 
 export function getSecurityHotspotList(
   hotspotKeys: string[],
   data: {
     projectKey: string;
-  } & BranchParameters
+  } & BranchParameters,
+  projectIsIndexing = false
 ): Promise<HotspotSearchResponse> {
-  return getJSON(HOTSPOTS_SEARCH_URL, { ...data, hotspots: hotspotKeys.join() }).catch(
-    throwGlobalError
-  );
+  return getJSON(projectIsIndexing ? HOTSPOTS_LIST_URL : HOTSPOTS_SEARCH_URL, {
+    ...data,
+    hotspots: hotspotKeys.join(),
+    ...(projectIsIndexing ? { project: data.projectKey } : {}),
+  }).catch(throwGlobalError);
 }
 
 export function getSecurityHotspotDetails(securityHotspotKey: string): Promise<Hotspot> {
@@ -105,10 +114,12 @@ export function getSecurityHotspotDetails(securityHotspotKey: string): Promise<H
             login: hotspot.assignee,
           };
         }
+
         hotspot.authorUser = users.find((u) => u.login === hotspot.author) || {
           active: true,
           login: hotspot.author,
         };
+
         hotspot.comment.forEach((c) => {
           c.user = users.find((u) => u.login === c.login) || { active: true, login: c.login };
         });
