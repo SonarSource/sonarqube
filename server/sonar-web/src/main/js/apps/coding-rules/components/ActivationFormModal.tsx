@@ -241,14 +241,12 @@ handleKeyChange = (index: any, value: any, paramKey: any) => {
     const isCustomRule = !!(rule as RuleDetails).templateKey;
     const activeInAllProfiles = profilesWithDepth.length <= 0;
     const isUpdateMode = !!activation;
-    console.log("printing all params")
-    console.log(this.state.allParams);
-
+    
     return (
       <Modal contentLabel={this.props.modalHeader} onRequestClose={this.props.onClose} size="small">
         <form onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
-            <h2>{this.props.modalHeader} hello world</h2>
+            <h2>{this.props.modalHeader}</h2>
           </div>
 
           <div className={classNames('modal-body', { 'modal-container': params.length > 0 })}>
