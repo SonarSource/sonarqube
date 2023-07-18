@@ -38,7 +38,7 @@ export default function DefaultProjectKey(props: DefaultProjectKeyProps) {
       />
       <CodeSnippet
         snippet={sonarProjectSnippet(component.key)}
-        className="sw-p-8 sw-overflow-auto"
+        className="sw-p-9 sw-overflow-auto"
       />
     </NumberedListItem>
   );

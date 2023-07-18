@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { CodeSnippet } from 'design-system';
 import * as React from 'react';
-import CodeSnippet from '../../../common/CodeSnippet';
 import { BuildTools } from '../../types';
 
 export interface PipeCommandProps {
@@ -102,5 +102,5 @@ sonarqube-vulnerability-report:
     - sonarqube-check
 `;
 
-  return <CodeSnippet snippet={command} />;
+  return <CodeSnippet className="sw-p-6 sw-overflow-auto" snippet={command} language="yml" />;
 }

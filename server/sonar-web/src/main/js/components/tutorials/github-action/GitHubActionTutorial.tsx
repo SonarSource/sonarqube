@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BasicSeparator, TutorialStep, TutorialStepList } from 'design-system';
+import { BasicSeparator, Title, TutorialStep, TutorialStepList } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import {
@@ -54,36 +54,42 @@ export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
     willRefreshAutomatically,
   } = props;
   return (
-    <TutorialStepList className="sw-mb-8">
-      <TutorialStep title={translate('onboarding.tutorial.with.github_action.create_secret.title')}>
-        <SecretStep
-          almBinding={almBinding}
-          baseUrl={baseUrl}
-          component={component}
-          currentUser={currentUser}
-          projectBinding={projectBinding}
-        />
-      </TutorialStep>
-      <TutorialStep title={translate('onboarding.tutorial.with.github_action.yaml.title')}>
-        <YamlFileStep setDone={setDone}>
-          {(buildTool) => (
-            <AnalysisCommand
-              buildTool={buildTool}
-              mainBranchName={mainBranchName}
-              component={component}
-            />
-          )}
-        </YamlFileStep>
-      </TutorialStep>
-      {done && (
-        <>
-          <BasicSeparator className="sw-my-10" />
-          <AllSet
-            alm={almBinding?.alm || AlmKeys.GitHub}
-            willRefreshAutomatically={willRefreshAutomatically}
+    <>
+      <Title>{translate('onboarding.tutorial.with.github_ci.title')}</Title>
+
+      <TutorialStepList className="sw-mb-8">
+        <TutorialStep
+          title={translate('onboarding.tutorial.with.github_action.create_secret.title')}
+        >
+          <SecretStep
+            almBinding={almBinding}
+            baseUrl={baseUrl}
+            component={component}
+            currentUser={currentUser}
+            projectBinding={projectBinding}
           />
-        </>
-      )}
-    </TutorialStepList>
+        </TutorialStep>
+        <TutorialStep title={translate('onboarding.tutorial.with.github_action.yaml.title')}>
+          <YamlFileStep setDone={setDone}>
+            {(buildTool) => (
+              <AnalysisCommand
+                buildTool={buildTool}
+                mainBranchName={mainBranchName}
+                component={component}
+              />
+            )}
+          </YamlFileStep>
+        </TutorialStep>
+        {done && (
+          <>
+            <BasicSeparator className="sw-my-10" />
+            <AllSet
+              alm={almBinding?.alm || AlmKeys.GitHub}
+              willRefreshAutomatically={willRefreshAutomatically}
+            />
+          </>
+        )}
+      </TutorialStepList>
+    </>
   );
 }

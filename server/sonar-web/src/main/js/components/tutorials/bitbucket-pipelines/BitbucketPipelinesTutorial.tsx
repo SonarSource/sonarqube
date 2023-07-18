@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BasicSeparator, Title, TutorialStep, TutorialStepList } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import {
@@ -26,10 +27,8 @@ import {
 } from '../../../types/alm-settings';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
-import AllSetStep from '../components/AllSetStep';
-import FinishButton from '../components/FinishButton';
+import AllSet from '../components/AllSet';
 import GithubCFamilyExampleRepositories from '../components/GithubCFamilyExampleRepositories';
-import Step from '../components/Step';
 import YamlFileStep from '../components/YamlFileStep';
 import { BuildTools, TutorialModes } from '../types';
 import AnalysisCommand from './AnalysisCommand';
@@ -62,37 +61,30 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
     mainBranchName,
   } = props;
 
-  const [step, setStep] = React.useState<Steps>(Steps.REPOSITORY_VARIABLES);
+  const [done, setDone] = React.useState<boolean>(false);
   return (
     <>
-      <Step
-        finished={step > Steps.REPOSITORY_VARIABLES}
-        onOpen={() => setStep(Steps.REPOSITORY_VARIABLES)}
-        open={step === Steps.REPOSITORY_VARIABLES}
-        renderForm={() => (
+      <Title>{translate('onboarding.tutorial.with.bitbucket_ci.title')}</Title>
+
+      <TutorialStepList className="sw-mb-8">
+        <TutorialStep
+          title={translate('onboarding.tutorial.with.bitbucket_pipelines.variables.title')}
+        >
           <RepositoryVariables
             almBinding={almBinding}
             baseUrl={baseUrl}
             component={component}
             currentUser={currentUser}
-            onDone={() => setStep(Steps.YAML)}
             projectBinding={projectBinding}
           />
-        )}
-        stepNumber={Steps.REPOSITORY_VARIABLES}
-        stepTitle={translate('onboarding.tutorial.with.bitbucket_pipelines.variables.title')}
-      />
-      <Step
-        finished={step > Steps.YAML}
-        onOpen={() => setStep(Steps.YAML)}
-        open={step === Steps.YAML}
-        renderForm={() => (
-          <YamlFileStep>
+        </TutorialStep>
+        <TutorialStep title={translate('onboarding.tutorial.with.bitbucket_pipelines.yaml.title')}>
+          <YamlFileStep setDone={setDone}>
             {(buildTool) => (
               <>
                 {buildTool === BuildTools.CFamily && (
                   <GithubCFamilyExampleRepositories
-                    className="big-spacer-top"
+                    className="sw-my-4 sw-bg-inherit sw-w-abs-600"
                     ci={TutorialModes.BitbucketPipelines}
                   />
                 )}
@@ -101,20 +93,18 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
                   component={component}
                   mainBranchName={mainBranchName}
                 />
-                <FinishButton onClick={() => setStep(Steps.ALL_SET)} />
               </>
             )}
           </YamlFileStep>
+        </TutorialStep>
+
+        {done && (
+          <>
+            <BasicSeparator className="sw-my-10" />
+            <AllSet alm={AlmKeys.GitLab} willRefreshAutomatically={willRefreshAutomatically} />
+          </>
         )}
-        stepNumber={Steps.YAML}
-        stepTitle={translate('onboarding.tutorial.with.bitbucket_pipelines.yaml.title')}
-      />
-      <AllSetStep
-        alm={almBinding?.alm || AlmKeys.BitbucketCloud}
-        open={step === Steps.ALL_SET}
-        stepNumber={Steps.ALL_SET}
-        willRefreshAutomatically={willRefreshAutomatically}
-      />
+      </TutorialStepList>
     </>
   );
 }

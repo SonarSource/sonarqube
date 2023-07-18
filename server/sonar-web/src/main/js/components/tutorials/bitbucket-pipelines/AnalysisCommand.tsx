@@ -27,12 +27,12 @@ import { Component } from '../../../types/types';
 import { CompilationInfo } from '../components/CompilationInfo';
 import CreateYmlFile from '../components/CreateYmlFile';
 import { BuildTools } from '../types';
+import { PreambuleYaml } from './PreambuleYaml';
 import cFamilyExample from './commands/CFamily';
 import dotNetExample from './commands/DotNet';
 import gradleExample from './commands/Gradle';
 import mavenExample from './commands/Maven';
 import othersExample from './commands/Others';
-import { PreambuleYaml } from './PreambuleYaml';
 
 export interface AnalysisCommandProps extends WithAvailableFeaturesProps {
   buildTool: BuildTools;
@@ -70,7 +70,7 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
     <>
       <PreambuleYaml buildTool={buildTool} component={component} />
       <CreateYmlFile yamlFileName="bitbucket-pipelines.yml" yamlTemplate={yamlTemplate} />
-      {buildTool === BuildTools.CFamily && <CompilationInfo className="abs-width-800" />}
+      {buildTool === BuildTools.CFamily && <CompilationInfo />}
     </>
   );
 }

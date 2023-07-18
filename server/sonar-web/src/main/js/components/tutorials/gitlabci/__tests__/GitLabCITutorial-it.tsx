@@ -59,34 +59,34 @@ it('should follow and complete all steps', async () => {
   expect(await ui.secretsStepTitle.find()).toBeInTheDocument();
 
   // Env variables step
-  expect(getCopyToClipboardValue()).toMatchSnapshot('sonar token key');
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('sonarqube host url key');
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('sonarqube host url value');
-  await user.click(ui.continueButton.get());
+  expect(getCopyToClipboardValue(0, 'Copy to clipboard')).toMatchSnapshot('sonar token key');
+  expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toMatchSnapshot('sonarqube host url key');
+  expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
+    'sonarqube host url value'
+  );
 
   // Create/update configuration file step
   // Maven
   await user.click(ui.mavenBuildButton.get());
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('Maven: pom.xml');
-  expect(getCopyToClipboardValue(3)).toMatchSnapshot('Maven: gitlab-ci.yml');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Maven: pom.xml');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('Maven: gitlab-ci.yml');
 
   // Gradle
   await user.click(ui.gradleBuildButton.get());
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('Groovy: build.gradle');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Groovy: build.gradle');
   await user.click(ui.gradleDSLButton(GradleBuildDSL.Kotlin).get());
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('Kotlin: build.gradle.kts');
-  expect(getCopyToClipboardValue(4)).toMatchSnapshot('Gradle: gitlab-ci.yml');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Kotlin: build.gradle.kts');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('Gradle: gitlab-ci.yml');
 
   // .NET
   await user.click(ui.dotnetBuildButton.get());
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('.NET: gitlab-ci.yml');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('.NET: gitlab-ci.yml');
 
   // Other
   await user.click(ui.otherBuildButton.get());
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('Other: sonar-project.properties');
-  expect(getCopyToClipboardValue(3)).toMatchSnapshot('Other: gitlab-ci.yml');
+  expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Other: sonar-project.properties');
+  expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('Other: gitlab-ci.yml');
 
-  await user.click(ui.finishTutorialButton.get());
   expect(ui.allSetSentence.get()).toBeInTheDocument();
 });
 
@@ -99,7 +99,7 @@ it('should generate/delete a new token or use existing one', async () => {
   // Generate token
   await user.click(ui.genTokenDialogButton.get());
   await user.click(ui.generateTokenButton.get());
-  expect(getCopyToClipboardValue(3)).toEqual('generatedtoken2');
+  expect(getCopyToClipboardValue()).toEqual('generatedtoken2');
 
   // Revoke current token and create new one
   await user.click(ui.deleteTokenButton.get());
@@ -107,23 +107,8 @@ it('should generate/delete a new token or use existing one', async () => {
   await selectEvent.select(ui.expiresInSelect.get(), 'users.tokens.expiration.365');
   await user.click(ui.generateTokenButton.get());
   expect(ui.tokenValue.get()).toBeInTheDocument();
-  await user.click(ui.continueButton.getAll()[1]);
+  await user.click(ui.continueButton.getAll()[0]);
   expect(ui.tokenValue.query()).not.toBeInTheDocument();
-});
-
-it('navigates between steps', async () => {
-  const user = userEvent.setup();
-  renderGitLabTutorial();
-
-  await user.click(await ui.continueButton.find());
-  await user.click(ui.mavenBuildButton.get());
-  await user.click(ui.finishTutorialButton.get());
-  expect(ui.allSetSentence.get()).toBeInTheDocument();
-
-  await user.click(ui.ymlFileStepTitle.get());
-  expect(ui.finishTutorialButton.get()).toBeInTheDocument();
-  await user.click(ui.secretsStepTitle.get());
-  expect(ui.continueButton.get()).toBeInTheDocument();
 });
 
 function renderGitLabTutorial(

@@ -67,10 +67,11 @@ it('should follow and complete all steps', async () => {
   expect(await ui.secretsStepTitle.find()).toBeInTheDocument();
 
   // Env variables step
-  expect(getCopyToClipboardValue()).toMatchSnapshot('sonar token key');
-  expect(getCopyToClipboardValue(1)).toMatchSnapshot('sonarqube host url key');
-  expect(getCopyToClipboardValue(2)).toMatchSnapshot('sonarqube host url value');
-  await user.click(ui.continueButton.get());
+  expect(getCopyToClipboardValue(0, 'Copy to clipboard')).toMatchSnapshot('sonar token key');
+  expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toMatchSnapshot('sonarqube host url key');
+  expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
+    'sonarqube host url value'
+  );
 
   // Create/update configuration file step
   // Maven
@@ -98,7 +99,6 @@ it('should follow and complete all steps', async () => {
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('Other: sonar-project.properties');
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('Other: .github/workflows/build.yml');
 
-  await user.click(ui.finishTutorialButton.get());
   expect(ui.allSetSentence.get()).toBeInTheDocument();
 });
 
@@ -111,7 +111,7 @@ it('should generate/delete a new token or use existing one', async () => {
   // Generate token
   await user.click(ui.genTokenDialogButton.get());
   await user.click(ui.generateTokenButton.get());
-  expect(getCopyToClipboardValue(3)).toEqual('generatedtoken2');
+  expect(getCopyToClipboardValue()).toEqual('generatedtoken2');
 
   // Revoke current token and create new one
   await user.click(ui.deleteTokenButton.get());
@@ -119,7 +119,7 @@ it('should generate/delete a new token or use existing one', async () => {
   await selectEvent.select(ui.expiresInSelect.get(), 'users.tokens.expiration.365');
   await user.click(ui.generateTokenButton.get());
   expect(ui.tokenValue.get()).toBeInTheDocument();
-  await user.click(ui.continueButton.getAll()[1]);
+  await user.click(ui.continueButton.getAll()[0]);
   expect(ui.tokenValue.query()).not.toBeInTheDocument();
 });
 
@@ -139,9 +139,7 @@ it('navigates between steps', async () => {
   // If project is bound, link to repo is visible
   expect(await ui.linkToRepo.find()).toBeInTheDocument();
 
-  await user.click(await ui.continueButton.find());
   await user.click(ui.mavenBuildButton.get());
-  await user.click(ui.finishTutorialButton.get());
   expect(ui.allSetSentence.get()).toBeInTheDocument();
 
   await user.click(ui.ymlFileStepTitle.get());

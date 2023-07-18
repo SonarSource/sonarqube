@@ -81,9 +81,11 @@ export default function SecretStep(props: SecretStepProps) {
             highlightKeys={['name']}
           />
           <InlineSnippet snippet="SONAR_TOKEN" className="sw-ml-1" />
-          <ClipboardIconButton copyValue="SONAR_TOKEN" />
+          <ClipboardIconButton copyValue="SONAR_TOKEN" className="sw-ml-2" />
         </NumberedListItem>
-        <TokenStepGenerator component={component} currentUser={currentUser} />
+        <NumberedListItem>
+          <TokenStepGenerator component={component} currentUser={currentUser} />
+        </NumberedListItem>
         <NumberedListItem>
           <SentenceWithHighlights
             translationKey="onboarding.tutorial.with.github_action.secret.add"
@@ -105,7 +107,7 @@ export default function SecretStep(props: SecretStepProps) {
             highlightKeys={['name']}
           />
           <InlineSnippet snippet="SONAR_HOST_URL" className="sw-ml-1" />
-          <ClipboardIconButton copyValue="SONAR_HOST_URL" />
+          <ClipboardIconButton copyValue="SONAR_HOST_URL" className="sw-ml-2" />
         </NumberedListItem>
         <NumberedListItem>
           <FormattedMessage

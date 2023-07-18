@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BasicSeparator, Title, TutorialStepList } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { AlmKeys } from '../../../types/alm-settings';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
-import AllSetStep from '../components/AllSetStep';
+import AllSet from '../components/AllSet';
 import EnvironmentVariablesStep from './EnvironmentVariablesStep';
 import YmlFileStep from './YmlFileStep';
 
@@ -42,38 +43,27 @@ export interface GitLabCITutorialProps {
 export default function GitLabCITutorial(props: GitLabCITutorialProps) {
   const { baseUrl, component, currentUser, willRefreshAutomatically } = props;
 
-  const [step, setStep] = React.useState(Steps.ENV_VARIABLES);
-
+  const [done, setDone] = React.useState<boolean>(false);
   return (
     <>
-      <div className="page-header big-spacer-bottom">
-        <h2 className="page-title">{translate('onboarding.tutorial.with.gitlab_ci.title')}</h2>
-      </div>
+      <Title>{translate('onboarding.tutorial.with.gitlab_ci.title')}</Title>
 
-      <EnvironmentVariablesStep
-        baseUrl={baseUrl}
-        component={component}
-        currentUser={currentUser}
-        finished={step > Steps.ENV_VARIABLES}
-        onDone={() => setStep(Steps.YML)}
-        onOpen={() => setStep(Steps.ENV_VARIABLES)}
-        open={step === Steps.ENV_VARIABLES}
-      />
+      <TutorialStepList className="sw-mb-8">
+        <EnvironmentVariablesStep
+          baseUrl={baseUrl}
+          component={component}
+          currentUser={currentUser}
+        />
 
-      <YmlFileStep
-        finished={step > Steps.YML}
-        component={component}
-        onDone={() => setStep(Steps.ALL_SET)}
-        onOpen={() => setStep(Steps.YML)}
-        open={step === Steps.YML}
-      />
+        <YmlFileStep component={component} setDone={setDone} />
+      </TutorialStepList>
 
-      <AllSetStep
-        alm={AlmKeys.GitLab}
-        open={step === Steps.ALL_SET}
-        stepNumber={3}
-        willRefreshAutomatically={willRefreshAutomatically}
-      />
+      {done && (
+        <>
+          <BasicSeparator className="sw-my-10" />
+          <AllSet alm={AlmKeys.GitLab} willRefreshAutomatically={willRefreshAutomatically} />
+        </>
+      )}
     </>
   );
 }

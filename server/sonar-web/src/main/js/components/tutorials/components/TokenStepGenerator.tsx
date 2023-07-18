@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonSecondary, NumberedListItem } from 'design-system';
+import { ButtonSecondary } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
@@ -39,25 +39,23 @@ export default function TokenStepGenerator(props: TokenStepGeneratorProps) {
 
   return (
     <>
-      <NumberedListItem>
-        <FormattedMessage
-          defaultMessage={translate('onboarding.tutorial.env_variables')}
-          id="onboarding.tutorial.env_variables"
-          values={{
-            extra: (
-              <ButtonSecondary className="sw-ml-2" onClick={toggleTokenModal}>
-                {translate('onboarding.token.generate.long')}
-              </ButtonSecondary>
-            ),
-            field: (
-              <span className="sw-body-sm-highlight">
-                {translate('onboarding.tutorial.env_variables.field')}
-              </span>
-            ),
-            value: translate('onboarding.tutorial.env_variables.token_generator.value'),
-          }}
-        />
-      </NumberedListItem>
+      <FormattedMessage
+        defaultMessage={translate('onboarding.tutorial.env_variables')}
+        id="onboarding.tutorial.env_variables"
+        values={{
+          extra: (
+            <ButtonSecondary className="sw-ml-2" onClick={toggleTokenModal}>
+              {translate('onboarding.token.generate.long')}
+            </ButtonSecondary>
+          ),
+          field: (
+            <span className="sw-body-sm-highlight">
+              {translate('onboarding.tutorial.env_variables.field')}
+            </span>
+          ),
+          value: translate('onboarding.tutorial.env_variables.token_generator.value'),
+        }}
+      />
       {isModalVisible && (
         <EditTokenModal component={component} currentUser={currentUser} onClose={closeTokenModal} />
       )}
