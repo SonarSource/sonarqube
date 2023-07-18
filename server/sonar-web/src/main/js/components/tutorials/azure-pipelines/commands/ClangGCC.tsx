@@ -51,7 +51,7 @@ type OsConstant = {
 
 export default function ClangGCC(props: ClangGCCProps) {
   const { projectKey, onStepValidationChange } = props;
-  const [os, setOs] = React.useState<OSs | undefined>();
+  const [os, setOs] = React.useState<OSs | undefined>(OSs.Linux);
   const host = getHostUrl();
 
   const codeSnippetDownload: OsConstant = {
@@ -126,10 +126,7 @@ unzip build-wrapper.zip`,
                     highlightPrefixKeys={codeSnippetDownload[os].highlightScriptKey}
                     highlightKeys={['task', 'inline']}
                   />
-                  <CodeSnippet
-                    className="sw-px-4 sw-py-6"
-                    snippet={codeSnippetDownload[os].script}
-                  />
+                  <CodeSnippet className="sw-p-6" snippet={codeSnippetDownload[os].script} />
                 </UnorderedListItem>
               </UnorderedList>
             </NumberedListItem>
@@ -159,7 +156,7 @@ unzip build-wrapper.zip`,
                     highlightKeys={['build_wrapper']}
                   />
                   <CodeSnippet
-                    className="sw-px-4 sw-py-6"
+                    className="sw-p-6"
                     isOneLine
                     snippet={codeSnippetDownload[os].scriptBuild}
                   />
