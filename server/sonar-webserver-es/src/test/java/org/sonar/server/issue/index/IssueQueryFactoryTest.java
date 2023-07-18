@@ -284,7 +284,7 @@ public class IssueQueryFactoryTest {
 
     assertThatThrownBy(() -> underTest.create(request))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("At most one of the following parameters can be provided: componentKeys and componentUuids");
+      .hasMessageContaining("At most one of the following parameters can be provided: components and componentUuids");
   }
 
   @Test

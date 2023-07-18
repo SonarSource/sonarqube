@@ -120,7 +120,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CODE_VARIANTS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_HIDE_COMMENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE_PERIOD;
@@ -620,7 +620,7 @@ public class SearchActionIT {
     session.commit();
     indexIssues();
 
-    ws.newRequest().setParam(PARAM_COMPONENT_KEYS, file.getKey()).execute()
+    ws.newRequest().setParam(PARAM_COMPONENTS, file.getKey()).execute()
       .assertJson(this.getClass(), "apply_paging_with_one_component.json");
   }
 
@@ -711,7 +711,7 @@ public class SearchActionIT {
 
     ws.newRequest()
       .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
-      .setParam(PARAM_COMPONENT_KEYS, "PROJECT_KEY")
+      .setParam(PARAM_COMPONENTS, "PROJECT_KEY")
       .execute()
       .assertJson(this.getClass(), "filter_by_leak_period.json");
 
@@ -759,7 +759,7 @@ public class SearchActionIT {
     userSession.logIn(john);
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, "PROJECT_KEY")
+      .setParam(PARAM_COMPONENTS, "PROJECT_KEY")
       .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
       .execute()
       .assertJson(this.getClass(), "empty_result.json");
@@ -804,7 +804,7 @@ public class SearchActionIT {
     userSession.logIn(john);
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, "PROJECT_KEY")
+      .setParam(PARAM_COMPONENTS, "PROJECT_KEY")
       .setParam(PARAM_PULL_REQUEST, "pr")
       .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
       .execute()
@@ -1749,7 +1749,7 @@ public class SearchActionIT {
   public void empty_search_with_unknown_branch() {
     SearchWsResponse response = ws.newRequest()
       .setParam("onComponentOnly", "true")
-      .setParam("componentKeys", "foo")
+      .setParam("components", "foo")
       .setParam("branch", "bar")
       .executeProtobuf(SearchWsResponse.class);
 
@@ -1787,7 +1787,7 @@ public class SearchActionIT {
     assertThat(def.responseExampleAsString()).isNotEmpty();
 
     assertThat(def.params()).extracting("key").containsExactlyInAnyOrder(
-      "additionalFields", "asc", "assigned", "assignees", "author", "componentKeys", "branch", "pullRequest", "createdAfter", "createdAt",
+      "additionalFields", "asc", "assigned", "assignees", "author", "components", "branch", "pullRequest", "createdAfter", "createdAt",
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4.0", "owaspAsvs-4.0",
       "owaspAsvsLevel", "owaspTop10",

@@ -73,7 +73,7 @@ import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_IN_LAST;
@@ -251,7 +251,7 @@ public class IssueQueryFactory {
     boolean effectiveOnComponentOnly = false;
 
     checkArgument(atMostOneNonNullElement(componentKeys, componentUuids),
-      "At most one of the following parameters can be provided: %s and %s", PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS);
+      "At most one of the following parameters can be provided: %s and %s", PARAM_COMPONENTS, PARAM_COMPONENT_UUIDS);
 
     if (componentKeys != null) {
       allComponents.addAll(getComponentsFromKeys(session, componentKeys, branch, pullRequest));

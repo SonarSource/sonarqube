@@ -56,6 +56,7 @@ public class IssuesWsParameters {
   public static final String PARAM_STATUSES = "statuses";
   public static final String PARAM_RESOLUTIONS = "resolutions";
   public static final String PARAM_RESOLVED = "resolved";
+  public static final String PARAM_COMPONENTS = "components";
   public static final String PARAM_COMPONENT_KEYS = "componentKeys";
   public static final String PARAM_COMPONENT_UUIDS = "componentUuids";
   public static final String PARAM_PROJECTS = "projects";

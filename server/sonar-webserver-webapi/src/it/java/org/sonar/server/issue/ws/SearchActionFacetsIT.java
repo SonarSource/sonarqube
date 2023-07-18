@@ -62,7 +62,7 @@ import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.tester.UserSessionRule.standalone;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 
@@ -106,7 +106,7 @@ public class SearchActionFacetsIT {
     indexIssues();
 
     SearchWsResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
+      .setParam(PARAM_COMPONENTS, project.getKey())
       .setParam(FACETS, "severities,statuses,resolutions,rules,types,languages,projects,files,assignees")
       .executeProtobuf(SearchWsResponse.class);
 
@@ -183,7 +183,7 @@ public class SearchActionFacetsIT {
 
     SearchWsResponse response = ws.newRequest()
       .setParam("resolved", "false")
-      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
+      .setParam(PARAM_COMPONENTS, project.getKey())
       .setParam(WebService.Param.FACETS, "directories")
       .executeProtobuf(SearchWsResponse.class);
 
@@ -224,7 +224,7 @@ public class SearchActionFacetsIT {
     indexIssues();
 
     SearchWsResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
+      .setParam(PARAM_COMPONENTS, project.getKey())
       .setParam(PARAM_FILES, file1.path())
       .setParam(WebService.Param.FACETS, "files")
       .executeProtobuf(SearchWsResponse.class);
@@ -284,7 +284,7 @@ public class SearchActionFacetsIT {
     indexIssues();
 
     SearchWsResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
+      .setParam(PARAM_COMPONENTS, project.getKey())
       .setParam(FACETS, "files,directories,statuses,resolutions,severities,types,rules,languages,assignees")
       .executeProtobuf(SearchWsResponse.class);
 

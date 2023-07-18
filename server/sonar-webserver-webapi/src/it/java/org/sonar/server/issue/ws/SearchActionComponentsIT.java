@@ -75,7 +75,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE_PERIOD;
@@ -169,7 +169,7 @@ public class SearchActionComponentsIT {
     indexIssues();
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
+      .setParam(PARAM_COMPONENTS, project.getKey())
       .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
       .execute()
       .assertJson(this.getClass(), "search_since_leak_period.json");
@@ -209,12 +209,12 @@ public class SearchActionComponentsIT {
     indexIssues();
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, file.getKey())
+      .setParam(PARAM_COMPONENTS, file.getKey())
       .execute()
       .assertJson(this.getClass(), "search_by_file_key.json");
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, unitTest.getKey())
+      .setParam(PARAM_COMPONENTS, unitTest.getKey())
       .execute()
       .assertJson(this.getClass(), "search_by_test_key.json");
   }
@@ -231,7 +231,7 @@ public class SearchActionComponentsIT {
     indexIssues();
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, directory.getKey())
+      .setParam(PARAM_COMPONENTS, directory.getKey())
       .execute()
       .assertJson(this.getClass(), "search_by_file_uuid.json");
 
@@ -266,7 +266,7 @@ public class SearchActionComponentsIT {
     indexIssuesAndViews();
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, view.getKey())
+      .setParam(PARAM_COMPONENTS, view.getKey())
       .execute()
       .assertJson(this.getClass(), "search_by_view_uuid.json");
   }
@@ -286,7 +286,7 @@ public class SearchActionComponentsIT {
     indexIssuesAndViews();
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, subView.getKey())
+      .setParam(PARAM_COMPONENTS, subView.getKey())
       .execute()
       .assertJson(this.getClass(), "search_by_view_uuid.json");
   }
@@ -306,7 +306,7 @@ public class SearchActionComponentsIT {
     indexIssuesAndViews();
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, subView.getKey())
+      .setParam(PARAM_COMPONENTS, subView.getKey())
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
   }
@@ -330,7 +330,7 @@ public class SearchActionComponentsIT {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, application.getKey())
+      .setParam(PARAM_COMPONENTS, application.getKey())
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList()).extracting(Issue::getKey)
@@ -373,7 +373,7 @@ public class SearchActionComponentsIT {
 
     // All issues on applicationBranch1
     assertThat(ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, applicationBranch1.getKey())
+      .setParam(PARAM_COMPONENTS, applicationBranch1.getKey())
       .setParam(PARAM_BRANCH, appBranch1)
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
         .extracting(Issue::getKey, Issue::getComponent, Issue::getProject, Issue::getBranch, Issue::hasBranch)
@@ -384,7 +384,7 @@ public class SearchActionComponentsIT {
 
     // Issues on project1Branch1
     assertThat(ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, applicationBranch1.getKey())
+      .setParam(PARAM_COMPONENTS, applicationBranch1.getKey())
       .setParam(PARAM_PROJECTS, project1.getKey())
       .setParam(PARAM_BRANCH, appBranch1)
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
@@ -406,7 +406,7 @@ public class SearchActionComponentsIT {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, application.getKey())
+      .setParam(PARAM_COMPONENTS, application.getKey())
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList()).isEmpty();
@@ -424,7 +424,7 @@ public class SearchActionComponentsIT {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, application.getKey())
+      .setParam(PARAM_COMPONENTS, application.getKey())
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList()).isEmpty();
@@ -456,7 +456,7 @@ public class SearchActionComponentsIT {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, application.getKey())
+      .setParam(PARAM_COMPONENTS, application.getKey())
       .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
       .executeProtobuf(SearchWsResponse.class);
 
@@ -483,7 +483,7 @@ public class SearchActionComponentsIT {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, application.getKey())
+      .setParam(PARAM_COMPONENTS, application.getKey())
       .setParam(PARAM_PROJECTS, project1.getKey())
       .executeProtobuf(SearchWsResponse.class);
 
@@ -518,7 +518,7 @@ public class SearchActionComponentsIT {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, application.getKey())
+      .setParam(PARAM_COMPONENTS, application.getKey())
       .setParam(PARAM_PROJECTS, project1.getKey())
       .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
       .executeProtobuf(SearchWsResponse.class);
@@ -554,7 +554,7 @@ public class SearchActionComponentsIT {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, application.getKey())
+      .setParam(PARAM_COMPONENTS, application.getKey())
       .setParam(PARAM_IN_NEW_CODE_PERIOD, "true")
       .executeProtobuf(SearchWsResponse.class);
 
@@ -580,7 +580,7 @@ public class SearchActionComponentsIT {
 
     // On component key + branch
     assertThat(ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
+      .setParam(PARAM_COMPONENTS, project.getKey())
       .setParam(PARAM_BRANCH, branchName)
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
         .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
@@ -595,7 +595,7 @@ public class SearchActionComponentsIT {
         .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchName));
     // On file key + branch
     assertThat(ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, branchFile.getKey())
+      .setParam(PARAM_COMPONENTS, branchFile.getKey())
       .setParam(PARAM_BRANCH, branchName)
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
         .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
@@ -617,7 +617,7 @@ public class SearchActionComponentsIT {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, branch.getKey())
+      .setParam(PARAM_COMPONENTS, branch.getKey())
       .setParam(PARAM_BRANCH, branchName)
       .executeProtobuf(SearchWsResponse.class);
 
@@ -644,7 +644,7 @@ public class SearchActionComponentsIT {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, pullRequest.getKey())
+      .setParam(PARAM_COMPONENTS, pullRequest.getKey())
       .setParam(PARAM_PULL_REQUEST, pullRequestKey)
       .executeProtobuf(SearchWsResponse.class);
 
@@ -669,7 +669,7 @@ public class SearchActionComponentsIT {
     indexIssuesAndViews();
 
     SearchWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
+      .setParam(PARAM_COMPONENTS, project.getKey())
       .setParam(PARAM_BRANCH, DEFAULT_MAIN_BRANCH_NAME)
       .executeProtobuf(SearchWsResponse.class);
 

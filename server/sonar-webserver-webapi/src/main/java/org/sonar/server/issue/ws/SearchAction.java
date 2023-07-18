@@ -95,6 +95,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHOR;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CODE_VARIANTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
@@ -193,6 +194,7 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.2", format("Parameter '%s' renamed to '%s'", PARAM_COMPONENT_KEYS, PARAM_COMPONENTS)),
         new Change("10.1", "Add the 'codeVariants' parameter, facet and response field"),
         new Change("10.0", "Parameter 'sansTop25' is deprecated"),
         new Change("10.0", "The value 'sansTop25' for the parameter 'facets' has been deprecated"),
@@ -370,7 +372,8 @@ public class SearchAction implements IssuesWsAction {
       .setBooleanPossibleValues()
       .setDefaultValue("false");
 
-    action.createParam(PARAM_COMPONENT_KEYS)
+    action.createParam(PARAM_COMPONENTS)
+      .setDeprecatedKey(PARAM_COMPONENT_KEYS, "10.2")
       .setDescription("Comma-separated list of component keys. Retrieve issues associated to a specific list of components (and all its descendants). " +
         "A component can be a portfolio, project, module, directory or file.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
@@ -549,7 +552,7 @@ public class SearchAction implements IssuesWsAction {
       .setAssigned(request.paramAsBoolean(PARAM_ASSIGNED))
       .setAssigneesUuid(getLogins(dbSession, request.paramAsStrings(PARAM_ASSIGNEES)))
       .setAuthors(request.multiParam(PARAM_AUTHOR))
-      .setComponentKeys(request.paramAsStrings(PARAM_COMPONENT_KEYS))
+      .setComponentKeys(request.paramAsStrings(PARAM_COMPONENTS))
       .setCreatedAfter(request.param(PARAM_CREATED_AFTER))
       .setCreatedAt(request.param(PARAM_CREATED_AT))
       .setCreatedBefore(request.param(PARAM_CREATED_BEFORE))
