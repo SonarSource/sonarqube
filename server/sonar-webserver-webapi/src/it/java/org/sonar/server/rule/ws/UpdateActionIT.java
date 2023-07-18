@@ -127,7 +127,7 @@ public class UpdateActionIT {
     TestResponse request = ws.newRequest().setMethod("POST")
       .setParam("key", customRule.getKey().toString())
       .setParam("name", "My custom rule")
-      .setParam("markdown_description", "Description")
+      .setParam("markdownDescription", "Description")
       .setParam("severity", "MAJOR")
       .setParam("status", "BETA")
       .setParam("params", "regex=a.*")
@@ -260,7 +260,7 @@ public class UpdateActionIT {
       ws.newRequest().setMethod("POST")
         .setParam("key", customRule.getKey().toString())
         .setParam("name", "My custom rule")
-        .setParam("markdown_description", "")
+        .setParam("markdownDescription", "")
         .execute();
     })
       .isInstanceOf(IllegalArgumentException.class)

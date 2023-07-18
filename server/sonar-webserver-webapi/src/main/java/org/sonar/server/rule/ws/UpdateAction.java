@@ -62,7 +62,7 @@ public class UpdateAction implements RulesWsAction {
   public static final String PARAM_REMEDIATION_FN_BASE_EFFORT = "remediation_fn_base_effort";
   public static final String PARAM_REMEDIATION_FN_GAP_MULTIPLIER = "remediation_fy_gap_multiplier";
   public static final String PARAM_NAME = "name";
-  public static final String PARAM_DESCRIPTION = "markdown_description";
+  public static final String PARAM_DESCRIPTION = "markdownDescription";
   public static final String PARAM_SEVERITY = "severity";
   public static final String PARAM_STATUS = "status";
   public static final String PARAMS = "params";
@@ -132,7 +132,8 @@ public class UpdateAction implements RulesWsAction {
     action
       .createParam(PARAM_DESCRIPTION)
       .setDescription("Rule description (mandatory for custom rule and manual rule) in <a href='/formatting/help'>markdown format</a>")
-      .setExampleValue("Description of my custom rule");
+      .setExampleValue("Description of my custom rule")
+      .setDeprecatedKey("markdown_description", "10.2");
 
     action
       .createParam(PARAM_SEVERITY)
