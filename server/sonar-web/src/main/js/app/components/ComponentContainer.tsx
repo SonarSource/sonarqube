@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { differenceBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -43,7 +44,6 @@ import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from './available-features/withAvailableFeatures';
 import { ComponentContext } from './componentContext/ComponentContext';
-import PageUnavailableDueToIndexation from './indexation/PageUnavailableDueToIndexation';
 import ComponentNav from './nav/component/ComponentNav';
 
 interface Props extends WithAvailableFeaturesProps {
@@ -98,6 +98,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
         getComponentNavigation({ component: key, branch, pullRequest }),
         getComponentData({ component: key, branch, pullRequest }),
       ]);
+
       componentWithQualifier = this.addQualifier({ ...nav, ...component });
     } catch (e) {
       if (this.mounted) {
@@ -107,6 +108,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
           this.setState({ component: undefined, loading: false });
         }
       }
+
       return;
     }
 
@@ -123,6 +125,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     }
 
     let projectBinding;
+
     if (componentWithQualifier.qualifier === ComponentQualifier.Project) {
       projectBinding = await getProjectAlmBinding(key).catch(() => undefined);
     }
@@ -144,6 +147,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       ({ current, queue }) => {
         if (this.mounted) {
           let shouldFetchComponent = false;
+
           this.setState(
             ({ component, currentTask, tasksInProgress }) => {
               const newCurrentTask = this.getCurrentTask(current);
@@ -161,6 +165,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               if (this.needsAnotherCheck(shouldFetchComponent, component, newTasksInProgress)) {
                 // Refresh the status as long as there is tasks in progress or no analysis
                 window.clearTimeout(this.watchStatusTimer);
+
                 this.watchStatusTimer = window.setTimeout(
                   () => this.fetchStatus(componentKey),
                   FETCH_STATUS_WAIT_TIME
@@ -168,6 +173,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               }
 
               const isPending = pendingTasks.some((task) => task.status === TaskStatuses.Pending);
+
               return {
                 currentTask: newCurrentTask,
                 isPending,
@@ -195,6 +201,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       const projectBindingErrors = await validateProjectAlmBinding(component.key).catch(
         () => undefined
       );
+
       if (this.mounted) {
         this.setState({ projectBindingErrors });
       }
@@ -280,12 +287,15 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     if (!pullRequest && !branch) {
       return !task.branch && !task.pullRequest;
     }
+
     if (pullRequest) {
       return pullRequest === task.pullRequest;
     }
+
     if (branch) {
       return branch === task.branch;
     }
+
     return false;
   };
 
@@ -296,6 +306,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
           const newComponent: Component = { ...state.component, ...changes };
           return { component: newComponent };
         }
+
         return null;
       });
     }
@@ -308,12 +319,9 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       return <ComponentContainerNotFound />;
     }
 
-    if (component?.needIssueSync) {
-      return <PageUnavailableDueToIndexation component={component} />;
-    }
-
     const { currentTask, isPending, projectBinding, projectBindingErrors, tasksInProgress } =
       this.state;
+
     const isInProgress = tasksInProgress && tasksInProgress.length > 0;
 
     return (
@@ -325,6 +333,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             component?.name ?? ''
           )}
         />
+
         {component &&
           !([ComponentQualifier.File, ComponentQualifier.TestFile] as string[]).includes(
             component.qualifier
@@ -338,6 +347,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               projectBindingErrors={projectBindingErrors}
             />
           )}
+
         {loading ? (
           <div className="page page-limited">
             <i className="spinner" />

@@ -46,12 +46,6 @@ const PROJECT: Project = {
 const USER_LOGGED_OUT = mockCurrentUser();
 const USER_LOGGED_IN = mockLoggedInUser();
 
-it('should display correclty when project need issue sync and not setup', () => {
-  renderProjectCard({ ...PROJECT, needIssueSync: true });
-  expect(screen.getByLabelText('overview.quality_gate_x.OK')).toBeInTheDocument();
-  expect(screen.getByText('overview.project.main_branch_empty')).toBeInTheDocument();
-});
-
 it('should not display the quality gate', () => {
   const project = { ...PROJECT, analysisDate: undefined };
   renderProjectCard(project);

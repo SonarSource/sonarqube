@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getProjectAlmBinding, validateProjectAlmBinding } from '../../../api/alm-settings';
@@ -37,12 +38,12 @@ import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import { Component } from '../../../types/types';
 import handleRequiredAuthorization from '../../utils/handleRequiredAuthorization';
 import { ComponentContainer } from '../ComponentContainer';
-import PageUnavailableDueToIndexation from '../indexation/PageUnavailableDueToIndexation';
 
 jest.mock('../../../api/branches', () => {
   const { mockMainBranch, mockPullRequest } = jest.requireActual(
     '../../../helpers/mocks/branch-like'
   );
+
   return {
     getBranches: jest
       .fn()
@@ -82,6 +83,7 @@ jest.mock('../../utils/handleRequiredAuthorization', () => ({
   default: jest.fn(),
 }));
 
+// eslint-disable-next-line react/function-component-definition
 const Inner = () => <div />;
 
 beforeEach(() => {
@@ -96,6 +98,7 @@ afterEach(() => {
 
 it('changes component', () => {
   const wrapper = shallowRender();
+
   wrapper.setState({
     component: {
       qualifier: ComponentQualifier.Project,
@@ -105,6 +108,7 @@ it('changes component', () => {
   });
 
   wrapper.instance().handleComponentChange({ visibility: Visibility.Private });
+
   expect(wrapper.state().component).toEqual({
     qualifier: ComponentQualifier.Project,
     visibility: Visibility.Private,
@@ -115,14 +119,25 @@ it('loads the project binding, if any', async () => {
   const component = mockComponent({
     breadcrumbs: [{ key: 'foo', name: 'foo', qualifier: ComponentQualifier.Project }],
   });
-  (getComponentNavigation as jest.Mock).mockResolvedValueOnce({});
-  (getComponentData as jest.Mock<any>)
-    .mockResolvedValueOnce({ component })
-    .mockResolvedValueOnce({ component });
-  (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce(undefined).mockResolvedValueOnce({
-    alm: AlmKeys.GitHub,
-    key: 'foo',
-  });
+
+  jest
+    .mocked(getComponentNavigation)
+    .mockResolvedValueOnce({} as unknown as Awaited<ReturnType<typeof getComponentNavigation>>);
+
+  jest
+    .mocked(getComponentData)
+    .mockResolvedValueOnce({ component } as unknown as Awaited<ReturnType<typeof getComponentData>>)
+    .mockResolvedValueOnce({ component } as unknown as Awaited<
+      ReturnType<typeof getComponentData>
+    >);
+
+  jest
+    .mocked(getProjectAlmBinding)
+    .mockResolvedValueOnce(undefined as unknown as Awaited<ReturnType<typeof getProjectAlmBinding>>)
+    .mockResolvedValueOnce({
+      alm: AlmKeys.GitHub,
+      key: 'foo',
+    } as unknown as Awaited<ReturnType<typeof getProjectAlmBinding>>);
 
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
@@ -147,9 +162,9 @@ it("doesn't load branches portfolio", async () => {
 });
 
 it('fetches status', async () => {
-  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
+  jest.mocked(getComponentData).mockResolvedValueOnce({
     component: {},
-  });
+  } as unknown as Awaited<ReturnType<typeof getComponentData>>);
 
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
@@ -187,13 +202,15 @@ it('filters correctly the pending tasks for a main branch', () => {
 });
 
 it('reload component after task progress finished', async () => {
-  (getTasksForComponent as jest.Mock<any>)
+  jest
+    .mocked(getTasksForComponent)
     .mockResolvedValueOnce({
       queue: [{ id: 'foo', status: TaskStatuses.InProgress, type: TaskTypes.ViewRefresh }],
-    })
+    } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>)
     .mockResolvedValueOnce({
       queue: [],
-    });
+    } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
+
   const wrapper = shallowRender();
 
   // First round, there's something in the queue, and component navigation was
@@ -226,15 +243,20 @@ it('reload component after task progress finished', async () => {
 });
 
 it('reloads component after task progress finished, and moves straight to current', async () => {
-  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
+  jest.mocked(getComponentData).mockResolvedValueOnce({
     component: { key: 'bar' },
-  });
-  (getTasksForComponent as jest.Mock<any>)
-    .mockResolvedValueOnce({ queue: [] })
+  } as unknown as Awaited<ReturnType<typeof getComponentData>>);
+
+  jest
+    .mocked(getTasksForComponent)
+    .mockResolvedValueOnce({ queue: [] } as unknown as Awaited<
+      ReturnType<typeof getTasksForComponent>
+    >)
     .mockResolvedValueOnce({
       queue: [],
       current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.AppRefresh },
-    });
+    } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
+
   const wrapper = shallowRender();
 
   // First round, nothing in the queue, and component navigation was not called
@@ -260,13 +282,15 @@ it('reloads component after task progress finished, and moves straight to curren
 });
 
 it('only fully loads a non-empty component once', async () => {
-  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
+  jest.mocked(getComponentData).mockResolvedValueOnce({
     component: { key: 'bar', analysisDate: '2019-01-01' },
-  });
-  (getTasksForComponent as jest.Mock<any>).mockResolvedValueOnce({
+  } as unknown as Awaited<ReturnType<typeof getComponentData>>);
+
+  jest.mocked(getTasksForComponent).mockResolvedValueOnce({
     queue: [],
     current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.Report },
-  });
+  } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
+
   const wrapper = shallowRender();
 
   await waitAndUpdate(wrapper);
@@ -275,17 +299,20 @@ it('only fully loads a non-empty component once', async () => {
 });
 
 it('only fully reloads a non-empty component if there was previously some task in progress', async () => {
-  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
+  jest.mocked(getComponentData).mockResolvedValueOnce({
     component: { key: 'bar', analysisDate: '2019-01-01' },
-  });
-  (getTasksForComponent as jest.Mock<any>)
+  } as unknown as Awaited<ReturnType<typeof getComponentData>>);
+
+  jest
+    .mocked(getTasksForComponent)
     .mockResolvedValueOnce({
       queue: [{ id: 'foo', status: TaskStatuses.InProgress, type: TaskTypes.AppRefresh }],
-    })
+    } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>)
     .mockResolvedValueOnce({
       queue: [],
       current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.AppRefresh },
-    });
+    } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
+
   const wrapper = shallowRender();
 
   // First round, a pending task in the queue. This should trigger a reload of the
@@ -309,18 +336,20 @@ it('only fully reloads a non-empty component if there was previously some task i
 });
 
 it('should show component not found if it does not exist', async () => {
-  (getComponentNavigation as jest.Mock).mockRejectedValueOnce(
-    new Response(null, { status: HttpStatus.NotFound })
-  );
+  jest
+    .mocked(getComponentNavigation)
+    .mockRejectedValueOnce(new Response(null, { status: HttpStatus.NotFound }));
+
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should redirect if the user has no access', async () => {
-  (getComponentNavigation as jest.Mock).mockRejectedValueOnce(
-    new Response(null, { status: HttpStatus.Forbidden })
-  );
+  jest
+    .mocked(getComponentNavigation)
+    .mockRejectedValueOnce(new Response(null, { status: HttpStatus.Forbidden }));
+
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(handleRequiredAuthorization).toHaveBeenCalled();
@@ -328,9 +357,10 @@ it('should redirect if the user has no access', async () => {
 
 it('should redirect if the component is a portfolio', async () => {
   const componentKey = 'comp-key';
-  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
+
+  jest.mocked(getComponentData).mockResolvedValueOnce({
     component: { key: componentKey, breadcrumbs: [{ qualifier: ComponentQualifier.Portfolio }] },
-  });
+  } as unknown as Awaited<ReturnType<typeof getComponentData>>);
 
   const replace = jest.fn();
 
@@ -338,20 +368,9 @@ it('should redirect if the component is a portfolio', async () => {
     location: mockLocation({ pathname: '/dashboard' }),
     router: mockRouter({ replace }),
   });
+
   await waitAndUpdate(wrapper);
   expect(replace).toHaveBeenCalledWith({ pathname: '/portfolio', search: `?id=${componentKey}` });
-});
-
-it('should display display the unavailable page if the component needs issue sync', async () => {
-  (getComponentData as jest.Mock).mockResolvedValueOnce({
-    component: { key: 'test', qualifier: ComponentQualifier.Project, needIssueSync: true },
-  });
-
-  const wrapper = shallowRender();
-
-  await waitAndUpdate(wrapper);
-
-  expect(wrapper.find(PageUnavailableDueToIndexation).exists()).toBe(true);
 });
 
 describe('should correctly validate the project binding depending on the context', () => {
@@ -365,11 +384,18 @@ describe('should correctly validate the project binding depending on the context
     ['has a project binding; check is OK', COMPONENT, undefined, 1],
     ['has a project binding; check is not OK', COMPONENT, PROJECT_BINDING_ERRORS, 1],
   ])('%s', async (_, component, projectBindingErrors = undefined, n = 0) => {
-    (getComponentNavigation as jest.Mock).mockResolvedValueOnce({});
-    (getComponentData as jest.Mock<any>).mockResolvedValueOnce({ component });
+    jest
+      .mocked(getComponentNavigation)
+      .mockResolvedValueOnce({} as unknown as Awaited<ReturnType<typeof getComponentNavigation>>);
+
+    jest
+      .mocked(getComponentData)
+      .mockResolvedValueOnce({ component } as unknown as Awaited<
+        ReturnType<typeof getComponentData>
+      >);
 
     if (n > 0) {
-      (validateProjectAlmBinding as jest.Mock).mockResolvedValueOnce(projectBindingErrors);
+      jest.mocked(validateProjectAlmBinding).mockResolvedValueOnce(projectBindingErrors);
     }
 
     const wrapper = shallowRender({ hasFeature: () => true });
@@ -390,8 +416,16 @@ it.each([
     const component = mockComponent({
       breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: componentQualifier }],
     });
-    (getComponentNavigation as jest.Mock).mockResolvedValueOnce({});
-    (getComponentData as jest.Mock<any>).mockResolvedValueOnce({ component });
+
+    jest
+      .mocked(getComponentNavigation)
+      .mockResolvedValueOnce({} as unknown as Awaited<ReturnType<typeof getComponentNavigation>>);
+
+    jest
+      .mocked(getComponentData)
+      .mockResolvedValueOnce({ component } as unknown as Awaited<
+        ReturnType<typeof getComponentData>
+      >);
 
     const wrapper = shallowRender();
     await waitAndUpdate(wrapper);

@@ -51,18 +51,6 @@ export interface SearchProjectsParameters extends BaseSearchProjectsParameters {
   ps?: number;
 }
 
-export interface ComponentRaw {
-  key: string;
-  name: string;
-  isFavorite?: boolean;
-  analysisDate?: string;
-  qualifier: ComponentQualifier;
-  tags: string[];
-  visibility: Visibility;
-  leakPeriodDate?: string;
-  needIssueSync?: boolean;
-}
-
 export function getComponents(parameters: SearchProjectsParameters): Promise<{
   components: Project[];
   paging: Paging;

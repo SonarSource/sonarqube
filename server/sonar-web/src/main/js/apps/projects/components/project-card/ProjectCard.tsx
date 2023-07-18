@@ -63,17 +63,7 @@ function renderFirstLine(
   handleFavorite: Props['handleFavorite'],
   isNewCode: boolean
 ) {
-  const {
-    analysisDate,
-    tags,
-    qualifier,
-    isFavorite,
-    needIssueSync,
-    key,
-    name,
-    measures,
-    visibility,
-  } = project;
+  const { analysisDate, isFavorite, key, measures, name, qualifier, tags, visibility } = project;
   const formatted = formatMeasure(measures[MetricKey.alert_status], MetricType.Level);
   const qualityGateLabel = translateWithParameters('overview.quality_gate_x', formatted);
   return (
@@ -92,7 +82,7 @@ function renderFirstLine(
           )}
 
           <h3 className="it__project-card-name" title={name}>
-            {needIssueSync ? name : <StandoutLink to={getProjectUrl(key)}>{name}</StandoutLink>}
+            <StandoutLink to={getProjectUrl(key)}>{name}</StandoutLink>
           </h3>
 
           {qualifier === ComponentQualifier.Application && (
@@ -211,7 +201,7 @@ function renderSecondLine(
   project: Props['project'],
   isNewCode: boolean
 ) {
-  const { measures, analysisDate, needIssueSync, leakPeriodDate, qualifier, key } = project;
+  const { analysisDate, key, leakPeriodDate, measures, qualifier } = project;
 
   if (analysisDate && (!isNewCode || leakPeriodDate)) {
     return (
@@ -230,14 +220,11 @@ function renderSecondLine(
           ? translate('projects.no_new_code_period', qualifier)
           : translate('projects.not_analyzed', qualifier)}
       </Note>
-      {qualifier !== ComponentQualifier.Application &&
-        !analysisDate &&
-        isLoggedIn(currentUser) &&
-        !needIssueSync && (
-          <StandoutLink className="sw-ml-2 sw-body-sm-highlight" to={getProjectUrl(key)}>
-            {translate('projects.configure_analysis')}
-          </StandoutLink>
-        )}
+      {qualifier !== ComponentQualifier.Application && !analysisDate && isLoggedIn(currentUser) && (
+        <StandoutLink className="sw-ml-2 sw-body-sm-highlight" to={getProjectUrl(key)}>
+          {translate('projects.configure_analysis')}
+        </StandoutLink>
+      )}
     </div>
   );
 }
@@ -249,12 +236,8 @@ export default function ProjectCard(props: Props) {
   return (
     <ProjectCardWrapper
       className={classNames(
-        'it_project_card sw-relative sw-box-border sw-rounded-1 sw-mb-page sw-h-full',
-        {
-          'project-card-disabled': project.needIssueSync,
-        }
+        'it_project_card sw-relative sw-box-border sw-rounded-1 sw-mb-page sw-h-full'
       )}
-      aria-disabled={project.needIssueSync}
       data-key={project.key}
     >
       {renderFirstLine(project, props.handleFavorite, isNewCode)}

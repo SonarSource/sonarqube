@@ -121,11 +121,12 @@ const NavBarTabLinkWrapper = styled.li`
     ${tw`sw-invisible`};
     content: attr(data-text);
   }
-  & > a.disabled-link,
-  & > a.disabled-link:hover,
-  & > a.disabled-link.hover,
-  & > a.disabled-link[aria-expanded='true'] {
-    ${tw`sw-cursor-default`};
+
+  &:has(a.disabled-link) > a,
+  &:has(a.disabled-link) > a:hover,
+  &:has(a.disabled-link) > a.hover,
+  &:has(a.disabled-link)[aria-expanded='true'] {
+    ${tw`sw-cursor-not-allowed`};
     border-bottom: ${themeBorder('xsActive', 'transparent', 1)};
     color: ${themeContrast('subnavigationDisabled')};
   }
