@@ -118,6 +118,7 @@ export class PageHeader extends React.PureComponent<Props, State> {
           <RestoreProfileForm
             onClose={this.closeRestoreForm}
             onRestore={this.props.updateProfiles}
+            organization={organization}
           />
         )}
 

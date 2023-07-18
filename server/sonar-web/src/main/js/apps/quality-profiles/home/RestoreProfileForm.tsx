@@ -29,6 +29,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 interface Props {
   onClose: () => void;
   onRestore: () => void;
+  organization: string;
 }
 
 interface State {
@@ -56,6 +57,9 @@ export default class RestoreProfileForm extends React.PureComponent<Props, State
     this.setState({ loading: true });
 
     const data = new FormData(event.currentTarget);
+    if (this.props.organization) {
+          data.append('organization', this.props.organization);
+    }
 
     restoreQualityProfile(data).then(
       (response: any) => {
