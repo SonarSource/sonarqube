@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
@@ -41,13 +42,15 @@ export function TutorialsApp(props: TutorialsAppProps) {
   }
 
   return (
-    <div className="page page-limited">
-      <TutorialSelection
-        component={component}
-        currentUser={currentUser}
-        projectBinding={projectBinding}
-      />
-    </div>
+    <LargeCenteredLayout className="sw-pt-8">
+      <PageContentFontWrapper>
+        <TutorialSelection
+          component={component}
+          currentUser={currentUser}
+          projectBinding={projectBinding}
+        />
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }
 

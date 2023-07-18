@@ -49,6 +49,8 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND = [
   '/project/information',
 ];
 
+const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = ['/tutorials'];
+
 export default function GlobalContainer() {
   // it is important to pass `location` down to `GlobalNav` to trigger render on url change
   const location = useLocation();
@@ -63,6 +65,9 @@ export default function GlobalContainer() {
               <div
                 className={classNames('page-wrapper', {
                   'new-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND.includes(location.pathname),
+                  'white-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE.includes(
+                    location.pathname
+                  ),
                 })}
                 id="container"
               >

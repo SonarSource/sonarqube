@@ -71,7 +71,6 @@ export function App(props: AppProps) {
               branchLikes={branchLikes}
               component={component}
               hasAnalyses={isPending ?? isInProgress}
-              projectBinding={projectBinding}
             />
           )}
 

@@ -29,7 +29,7 @@ import { getComponentNavigation } from '../../api/navigation';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { translateWithParameters } from '../../helpers/l10n';
 import { HttpStatus } from '../../helpers/request';
-import { getPortfolioUrl } from '../../helpers/urls';
+import { getPortfolioUrl, getProjectUrl } from '../../helpers/urls';
 import {
   ProjectAlmBindingConfigurationErrors,
   ProjectAlmBindingResponse,
@@ -88,7 +88,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     window.clearTimeout(this.watchStatusTimer);
   }
 
-  fetchComponent = async () => {
+  fetchComponent = async (shouldRedirectToDashboard = false) => {
     const { branch, id: key, pullRequest } = this.props.location.query;
     this.setState({ loading: true });
 
@@ -131,11 +131,18 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     }
 
     if (this.mounted) {
-      this.setState({
-        component: componentWithQualifier,
-        projectBinding,
-        loading: false,
-      });
+      this.setState(
+        {
+          component: componentWithQualifier,
+          projectBinding,
+          loading: false,
+        },
+        () => {
+          if (shouldRedirectToDashboard && this.props.location.pathname.match('tutorials')) {
+            this.props.router.replace(getProjectUrl(key));
+          }
+        }
+      );
 
       this.fetchStatus(componentWithQualifier.key);
       this.fetchProjectBindingErrors(componentWithQualifier);
@@ -147,7 +154,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       ({ current, queue }) => {
         if (this.mounted) {
           let shouldFetchComponent = false;
-
+          let shouldRedirectToDashboard = false;
           this.setState(
             ({ component, currentTask, tasksInProgress }) => {
               const newCurrentTask = this.getCurrentTask(current);
@@ -161,6 +168,9 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
                 newCurrentTask,
                 component
               );
+
+              shouldRedirectToDashboard =
+                component !== undefined && Boolean(!component.analysisDate);
 
               if (this.needsAnotherCheck(shouldFetchComponent, component, newTasksInProgress)) {
                 // Refresh the status as long as there is tasks in progress or no analysis
@@ -182,7 +192,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             },
             () => {
               if (shouldFetchComponent) {
-                this.fetchComponent();
+                this.fetchComponent(shouldRedirectToDashboard);
               }
             }
           );

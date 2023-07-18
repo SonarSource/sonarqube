@@ -298,6 +298,25 @@ it('only fully loads a non-empty component once', async () => {
   expect(getTasksForComponent).toHaveBeenCalledTimes(1);
 });
 
+it('should redirect if in tutorials and ends the first analyses', async () => {
+  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
+    component: { key: 'bar', analysisDate: undefined },
+  });
+  (getTasksForComponent as jest.Mock<any>).mockResolvedValueOnce({
+    queue: [],
+    current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.Report },
+  });
+
+  const replace = jest.fn();
+  const wrapper = shallowRender({
+    location: mockLocation({ pathname: '/tutorials' }),
+    router: mockRouter({ replace }),
+  });
+
+  await waitAndUpdate(wrapper);
+  expect(replace).toHaveBeenCalledTimes(1);
+});
+
 it('only fully reloads a non-empty component if there was previously some task in progress', async () => {
   jest.mocked(getComponentData).mockResolvedValueOnce({
     component: { key: 'bar', analysisDate: '2019-01-01' },

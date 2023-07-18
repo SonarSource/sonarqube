@@ -128,7 +128,7 @@ it('should correctly fetch the corresponding ALM setting', async () => {
     {
       projectBinding: mockProjectAlmBindingResponse({ alm: AlmKeys.GitHub, key: 'binding' }),
     },
-    `dashboard?selectedTutorial=${TutorialModes.Jenkins}&id=bar`
+    `tutorials?selectedTutorial=${TutorialModes.Jenkins}&id=bar`
   );
   await waitOnDataLoaded();
 
@@ -190,10 +190,10 @@ async function startLocalTutorial(user: UserEvent) {
 
 function renderTutorialSelection(
   props: Partial<ComponentPropsType<typeof TutorialSelection>> = {},
-  navigateTo: string = 'dashboard?id=bar'
+  navigateTo: string = 'tutorials?id=bar'
 ) {
   return renderApp(
-    '/dashboard',
+    '/tutorials',
     <TutorialSelection
       component={mockComponent({ key: 'foo' })}
       currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Scan] } })}

@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
+import { Navigate } from 'react-router-dom';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import TutorialSelection from '../../../components/tutorials/TutorialSelection';
-import { Alert } from '../../../components/ui/Alert';
 import { getBranchLikeDisplayName, isBranch, isMainBranch } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import { getProjectTutorialLocation } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { Component } from '../../../types/types';
@@ -35,19 +35,22 @@ export interface EmptyOverviewProps {
   component: Component;
   currentUser: CurrentUser;
   hasAnalyses?: boolean;
-  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function EmptyOverview(props: EmptyOverviewProps) {
-  const { branchLike, branchLikes, component, currentUser, hasAnalyses, projectBinding } = props;
+  const { branchLike, branchLikes, component, currentUser, hasAnalyses } = props;
 
   if (component.qualifier === ComponentQualifier.Application) {
     return (
-      <div className="page page-limited">
-        <Alert variant="warning" aria-label={translate('provisioning.no_analysis.application')}>
+      <LargeCenteredLayout className="sw-pt-8">
+        <FlagMessage
+          className="sw-w-full"
+          variant="warning"
+          aria-label={translate('provisioning.no_analysis.application')}
+        >
           {translate('provisioning.no_analysis.application')}
-        </Alert>
-      </div>
+        </FlagMessage>
+      </LargeCenteredLayout>
     );
   } else if (!isBranch(branchLike)) {
     return null;
@@ -59,6 +62,10 @@ export function EmptyOverview(props: EmptyOverviewProps) {
     (branchLikes.length === 2 && branchLikes.some((branch) => isBranch(branch)));
 
   const showTutorial = isMainBranch(branchLike) && !hasBranches && !hasAnalyses;
+
+  if (showTutorial && isLoggedIn(currentUser)) {
+    return <Navigate replace to={getProjectTutorialLocation(component.key)} />;
+  }
 
   let warning;
   if (isLoggedIn(currentUser) && isMainBranch(branchLike) && hasBranches && hasBadBranchConfig) {
@@ -75,29 +82,23 @@ export function EmptyOverview(props: EmptyOverviewProps) {
   }
 
   return (
-    <div className="page page-limited">
-      {isLoggedIn(currentUser) ? (
-        <>
-          {hasBranches && (
-            <Alert variant="warning" aria-label={warning}>
-              {warning}
-            </Alert>
-          )}
-          {showTutorial && (
-            <TutorialSelection
-              component={component}
-              currentUser={currentUser}
-              projectBinding={projectBinding}
-              willRefreshAutomatically
-            />
-          )}
-        </>
-      ) : (
-        <Alert variant="warning" aria-label={warning}>
-          {warning}
-        </Alert>
-      )}
-    </div>
+    <LargeCenteredLayout className="sw-pt-8">
+      <PageContentFontWrapper>
+        {isLoggedIn(currentUser) ? (
+          <>
+            {hasBranches && (
+              <FlagMessage className="sw-w-full" variant="warning" aria-label={warning}>
+                {warning}
+              </FlagMessage>
+            )}
+          </>
+        ) : (
+          <FlagMessage className="sw-w-full" variant="warning" aria-label={warning}>
+            {warning}
+          </FlagMessage>
+        )}
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }
 
