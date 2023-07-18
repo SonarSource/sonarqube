@@ -30,6 +30,7 @@ import { MultipleSelectionHint } from './MultipleSelectionHint';
 
 interface Props {
   fetching: boolean;
+  needIssueSync?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
@@ -79,6 +80,7 @@ export class TypeFacet extends React.PureComponent<Props> {
   }
 
   renderItem = (type: string) => {
+    const { needIssueSync } = this.props;
     const active = this.isFacetItemActive(type);
     const stat = this.getStat(type);
 
@@ -94,7 +96,7 @@ export class TypeFacet extends React.PureComponent<Props> {
         key={type}
         name={translate('issue.type', type)}
         onClick={this.handleItemClick}
-        stat={formatFacetStat(stat) ?? 0}
+        stat={(!needIssueSync && formatFacetStat(stat)) ?? 0}
         value={type}
       />
     );

@@ -32,6 +32,7 @@ import {
   IssueStatus,
   IssueTransition,
   IssueType,
+  ListIssuesResponse,
   RawFacet,
   RawIssue,
   RawIssuesResponse,
@@ -49,6 +50,7 @@ import {
   editIssueComment,
   getIssueChangelog,
   getIssueFlowSnippets,
+  listIssues,
   searchIssueAuthors,
   searchIssueTags,
   searchIssues,
@@ -116,6 +118,7 @@ export default class IssuesServiceMock {
     jest.mocked(getIssueChangelog).mockImplementation(this.handleGetIssueChangelog);
     jest.mocked(getIssueFlowSnippets).mockImplementation(this.handleGetIssueFlowSnippets);
     jest.mocked(getRuleDetails).mockImplementation(this.handleGetRuleDetails);
+    jest.mocked(listIssues).mockImplementation(this.handleListIssues);
     jest.mocked(searchIssueAuthors).mockImplementation(this.handleSearchIssueAuthors);
     jest.mocked(searchIssues).mockImplementation(this.handleSearchIssues);
     jest.mocked(searchIssueTags).mockImplementation(this.handleSearchIssueTags);
@@ -376,6 +379,32 @@ export default class IssuesServiceMock {
           count: 1, // if 0, the facet can't be clicked in tests
         })),
       };
+    });
+  };
+
+  handleListIssues = (query: RequestData): Promise<ListIssuesResponse> => {
+    const filteredList = this.list
+      .filter((item) => !query.types || query.types.split(',').includes(item.issue.type))
+      .filter(
+        (item) =>
+          !query.inNewCodePeriod || new Date(item.issue.creationDate) > new Date('2023-01-10')
+      );
+
+    // Splice list items according to paging using a fixed page size
+    const pageIndex = query.p || 1;
+    const pageSize = 7;
+    const listItems = filteredList.slice((pageIndex - 1) * pageSize, pageIndex * pageSize);
+
+    // Generate response
+    return this.reply({
+      components: generateReferenceComponentsForIssues(filteredList),
+      issues: listItems.map((line) => line.issue),
+      paging: mockPaging({
+        pageIndex,
+        pageSize,
+        total: filteredList.length,
+      }),
+      rules: this.rulesList,
     });
   };
 

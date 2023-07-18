@@ -67,6 +67,7 @@ export const ui = {
   scopeFacet: byRole('button', { name: 'issues.facet.scopes' }),
   statusFacet: byRole('button', { name: 'issues.facet.statuses' }),
   tagFacet: byRole('button', { name: 'issues.facet.tags' }),
+  typeFacet: byRole('button', { name: 'issues.facet.types' }),
 
   clearAssigneeFacet: byTestId('clear-issues.facet.assignees'),
   clearAuthorFacet: byTestId('clear-issues.facet.authors'),

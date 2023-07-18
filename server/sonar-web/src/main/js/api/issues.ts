@@ -28,7 +28,7 @@ import {
   postJSON,
   RequestData,
 } from '../helpers/request';
-import { IssueResponse, RawIssuesResponse } from '../types/issues';
+import { IssueResponse, ListIssuesResponse, RawIssuesResponse } from '../types/issues';
 import { Dict, FacetValue, IssueChangelog, SnippetsByComponent, SourceLine } from '../types/types';
 
 type FacetName =
@@ -53,6 +53,10 @@ type FacetName =
 
 export function searchIssues(query: RequestData): Promise<RawIssuesResponse> {
   return getJSON('/api/issues/search', query).catch(throwGlobalError);
+}
+
+export function listIssues(query: RequestData): Promise<ListIssuesResponse> {
+  return getJSON('/api/issues/list', query).catch(throwGlobalError);
 }
 
 export function getFacets(

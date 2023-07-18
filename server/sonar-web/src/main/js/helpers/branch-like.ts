@@ -113,8 +113,11 @@ export function getBrancheLikesAsTree(branchLikes: BranchLike[]): BranchLikeTree
   }
 }
 
-export function getBranchLikeQuery(branchLike?: BranchLike): BranchParameters {
-  if (isBranch(branchLike) && !isMainBranch(branchLike)) {
+export function getBranchLikeQuery(
+  branchLike?: BranchLike,
+  includeMainBranch = false
+): BranchParameters {
+  if (isBranch(branchLike) && (includeMainBranch || !isMainBranch(branchLike))) {
     return { branch: branchLike.name };
   } else if (isPullRequest(branchLike)) {
     return { pullRequest: branchLike.key };

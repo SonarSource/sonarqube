@@ -153,15 +153,28 @@ export interface RawIssuesResponse {
   users?: UserBase[];
 }
 
-export interface FetchIssuesPromise {
+export interface ListIssuesResponse {
   components: ReferencedComponent[];
-  effortTotal: number;
-  facets: RawFacet[];
+  issues: RawIssue[];
+  paging: Paging;
+  rules?: Array<{}>;
+}
+
+export interface FetchIssuesPromise {
+  components?: ReferencedComponent[];
+  effortTotal?: number;
+  facets?: RawFacet[];
   issues: Issue[];
-  languages: ReferencedLanguage[];
+  languages?: ReferencedLanguage[];
   paging: Paging;
   rules: ReferencedRule[];
-  users: UserBase[];
+  users?: UserBase[];
+}
+
+export interface ListIssuesPromise {
+  issues: Issue[];
+  paging: Paging;
+  rules: ReferencedRule[];
 }
 
 export interface ReferencedComponent {

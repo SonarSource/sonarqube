@@ -169,7 +169,7 @@ export function serializeQuery(query: Query): RawQuery {
 export const areQueriesEqual = (a: RawQuery, b: RawQuery) =>
   queriesEqual(parseQuery(a), parseQuery(b));
 
-export function parseFacets(facets: RawFacet[]): Dict<Facet> {
+export function parseFacets(facets?: RawFacet[]): Dict<Facet> {
   if (!facets) {
     return {};
   }
