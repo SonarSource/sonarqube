@@ -23,6 +23,7 @@ import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { ComponentQualifier } from '../../../../types/component';
 import { IssueType } from '../../../../types/issues';
 import { MetricKey } from '../../../../types/metrics';
 import { IssueLabel, IssueLabelProps } from '../IssueLabel';
@@ -72,6 +73,26 @@ it('should render correctly for hotspots with tooltip', async () => {
   ).toBeInTheDocument();
 
   expect(screen.getByText('tooltip text')).toBeInTheDocument();
+});
+
+it('should render correctly for a re-indexing Application', () => {
+  const type = IssueType.SecurityHotspot;
+  const measures = [
+    mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.security_hotspots }) }),
+    mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_security_hotspots }) }),
+  ];
+
+  renderIssueLabel({
+    component: mockComponent({ needIssueSync: true, qualifier: ComponentQualifier.Application }),
+    measures,
+    type,
+  });
+
+  expect(
+    screen.queryByRole('link', {
+      name: 'overview.see_list_of_x_y_issues.1.0.metric.security_hotspots.name',
+    })
+  ).not.toBeInTheDocument();
 });
 
 function renderIssueLabel(props: Partial<IssueLabelProps> = {}) {

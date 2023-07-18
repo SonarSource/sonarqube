@@ -95,7 +95,9 @@ function renderInProgressBanner(props: IndexationNotificationRendererProps) {
 
   return (
     <>
-      <span className="spacer-right">{translate('indexation.in_progress')}</span>
+      <span className="spacer-right">{`${translate('indexation.in_progress')} ${translate(
+        'indexation.projects_unavailable'
+      )}`}</span>
       <i className="spinner spacer-right" />
       <span className="spacer-right">
         {translateWithParameters('indexation.progression', percentCompleted)}
@@ -120,7 +122,9 @@ function renderInProgressWithFailureBanner(props: IndexationNotificationRenderer
 
   return (
     <>
-      <span className="spacer-right">{translate('indexation.in_progress')}</span>
+      <span className="spacer-right">{`${translate('indexation.in_progress')} ${translate(
+        'indexation.projects_unavailable'
+      )}`}</span>
       <i className="spinner spacer-right" />
       <span className="spacer-right">
         <FormattedMessage

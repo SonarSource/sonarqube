@@ -22,11 +22,13 @@ import {
   CoverageIndicator,
   DeferredSpinner,
   DuplicationsIndicator,
+  FlagMessage,
   LightLabel,
   PageTitle,
   ToggleButton,
 } from 'design-system';
 import * as React from 'react';
+import DocLink from '../../../components/common/DocLink';
 import ComponentReportActions from '../../../components/controls/ComponentReportActions';
 import { Location, withRouter } from '../../../components/hoc/withRouter';
 import { duplicationRatingConverter } from '../../../components/measure/utils';
@@ -137,7 +139,6 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
               </LightLabel>
             )}
           </div>
-
           {tab === MeasuresPanelTabs.New && leakPeriod ? (
             <LightLabel className="sw-body-sm sw-flex sw-items-center sw-mt-4">
               <span className="sw-mr-1">{translate('overview.new_code')}:</span>
@@ -145,6 +146,22 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
             </LightLabel>
           ) : (
             <div className="sw-h-4 sw-pt-1 sw-mt-4" />
+          )}
+
+          {component.qualifier === ComponentQualifier.Application && component.needIssueSync && (
+            <FlagMessage className="sw-mt-4" variant="info">
+              <span>
+                {`${translate('indexation.in_progress')} ${translate(
+                  'indexation.details_unavailable'
+                )}`}
+                <DocLink
+                  className="sw-ml-1 sw-whitespace-nowrap"
+                  to="/instance-administration/reindexing/"
+                >
+                  {translate('learn_more')}
+                </DocLink>
+              </span>
+            </FlagMessage>
           )}
 
           {!hasDiffMeasures && isNewCodeTab ? (

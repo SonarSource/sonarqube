@@ -133,7 +133,7 @@ exports[`should render correctly for type="InProgress" & isSystemAdmin=false 1`]
       <span
         className="spacer-right"
       >
-        indexation.in_progress
+        indexation.in_progress indexation.projects_unavailable
       </span>
       <i
         className="spinner spacer-right"
@@ -164,7 +164,7 @@ exports[`should render correctly for type="InProgress" & isSystemAdmin=true 1`] 
       <span
         className="spacer-right"
       >
-        indexation.in_progress
+        indexation.in_progress indexation.projects_unavailable
       </span>
       <i
         className="spinner spacer-right"
@@ -217,7 +217,7 @@ exports[`should render correctly for type="InProgressWithFailure" & isSystemAdmi
       <span
         className="spacer-right"
       >
-        indexation.in_progress
+        indexation.in_progress indexation.projects_unavailable
       </span>
       <i
         className="spinner spacer-right"
@@ -256,7 +256,7 @@ exports[`should render correctly for type="InProgressWithFailure" & isSystemAdmi
       <span
         className="spacer-right"
       >
-        indexation.in_progress
+        indexation.in_progress indexation.projects_unavailable
       </span>
       <i
         className="spinner spacer-right"

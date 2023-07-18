@@ -148,9 +148,13 @@ export const DrilldownLink = styled(StyledBaseLink)`
   ${tw`sw-tracking-tight`}
   ${tw`sw-whitespace-nowrap`}
 
-  --active: ${themeColor('linkActive')};
-  --border: ${themeBorder('default', 'drilldownBorder')};
-  --borderActive: ${themeBorder('default', 'linkActive')};
+  ${({ disabled, theme }) =>
+    disabled
+      ? tw`sw-cursor-default`
+      : `--active: ${themeColor('linkActive')({ theme })};
+         --border: ${themeBorder('default', 'drilldownBorder')({ theme })};
+         --borderActive: ${themeBorder('default', 'linkActive')({ theme })};`};
+
   --color: ${themeColor('drilldown')};
 `;
 
