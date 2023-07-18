@@ -19,6 +19,7 @@
  */
 package org.sonar.ce;
 
+import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.spi.exception.RetryableHazelcastException;
 import java.util.Map;
 import java.util.Set;
@@ -82,8 +83,8 @@ public class CeDistributedInformationImpl implements CeDistributedInformation, S
     try {
       // Removing the worker UUIDs
       getClusteredWorkerUUIDs().remove(hazelcastMember.getUuid());
-    } catch (RetryableHazelcastException e) {
-      LOGGER.debug("Unable to remove worker UUID from the list of active workers", e.getMessage());
+    } catch (HazelcastInstanceNotActiveException | RetryableHazelcastException e) {
+      LOGGER.debug("Hazelcast is not active anymore", e);
     }
   }
 
