@@ -119,7 +119,7 @@ import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 @RunWith(DataProviderRunner.class)
 public class SearchActionIT {
 
-  private static final String PARAM_PROJECT_KEY = "projectKey";
+  private static final String PARAM_PROJECT = "project";
   private static final String PARAM_STATUS = "status";
   private static final String PARAM_RESOLUTION = "resolution";
   private static final String PARAM_HOTSPOTS = "hotspots";
@@ -195,40 +195,40 @@ public class SearchActionIT {
   }
 
   @Test
-  public void fails_with_IAE_if_parameters_projectKey_and_hotspots_are_missing() {
+  public void fails_with_IAE_if_parameters_project_and_hotspots_are_missing() {
     TestRequest request = actionTester.newRequest();
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("A value must be provided for either parameter 'projectKey' or parameter 'hotspots'");
+      .hasMessage("A value must be provided for either parameter 'project' or parameter 'hotspots'");
   }
 
   @Test
-  public void fail_with_IAE_if_parameter_branch_is_used_without_parameter_projectKey() {
+  public void fail_with_IAE_if_parameter_branch_is_used_without_parameter_project() {
     TestRequest request = actionTester.newRequest()
       .setParam(PARAM_HOTSPOTS, randomAlphabetic(2))
       .setParam(PARAM_BRANCH, randomAlphabetic(1));
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Parameter 'branch' must be used with parameter 'projectKey'");
+      .hasMessage("Parameter 'branch' must be used with parameter 'project'");
   }
 
   @Test
-  public void fail_with_IAE_if_parameter_pullRequest_is_used_without_parameter_projectKey() {
+  public void fail_with_IAE_if_parameter_pullRequest_is_used_without_parameter_project() {
     TestRequest request = actionTester.newRequest()
       .setParam(PARAM_HOTSPOTS, randomAlphabetic(2))
       .setParam(PARAM_PULL_REQUEST, randomAlphabetic(1));
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Parameter 'pullRequest' must be used with parameter 'projectKey'");
+      .hasMessage("Parameter 'pullRequest' must be used with parameter 'project'");
   }
 
   @Test
   public void fail_with_IAE_if_both_parameters_pullRequest_and_branch_are_provided() {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_PROJECT_KEY, randomAlphabetic(2))
+      .setParam(PARAM_PROJECT, randomAlphabetic(2))
       .setParam(PARAM_BRANCH, randomAlphabetic(1))
       .setParam(PARAM_PULL_REQUEST, randomAlphabetic(1));
 
@@ -241,7 +241,7 @@ public class SearchActionIT {
   @UseDataProvider("badStatuses")
   public void fails_with_IAE_if_status_parameter_is_neither_TO_REVIEW_or_REVIEWED(String badStatus) {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_PROJECT_KEY, randomAlphabetic(13))
+      .setParam(PARAM_PROJECT, randomAlphabetic(13))
       .setParam(PARAM_STATUS, badStatus);
 
     assertThatThrownBy(request::execute)
@@ -276,7 +276,7 @@ public class SearchActionIT {
   @UseDataProvider("badResolutions")
   public void fails_with_IAE_if_resolution_parameter_is_neither_FIXED_nor_SAFE(String badResolution) {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_PROJECT_KEY, randomAlphabetic(13))
+      .setParam(PARAM_PROJECT, randomAlphabetic(13))
       .setParam(PARAM_STATUS, STATUS_TO_REVIEW)
       .setParam(PARAM_RESOLUTION, badResolution);
 
@@ -301,7 +301,7 @@ public class SearchActionIT {
   @UseDataProvider("fixedOrSafeResolution")
   public void fails_with_IAE_if_resolution_is_provided_with_status_TO_REVIEW(String resolution) {
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_PROJECT_KEY, randomAlphabetic(13))
+      .setParam(PARAM_PROJECT, randomAlphabetic(13))
       .setParam(PARAM_STATUS, STATUS_TO_REVIEW)
       .setParam(PARAM_RESOLUTION, resolution);
 
@@ -334,7 +334,7 @@ public class SearchActionIT {
   public void fails_with_NotFoundException_if_project_does_not_exist() {
     String key = randomAlphabetic(12);
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_PROJECT_KEY, key);
+      .setParam(PARAM_PROJECT, key);
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
@@ -350,7 +350,7 @@ public class SearchActionIT {
     TestRequest request = actionTester.newRequest();
 
     for (ComponentDto component : Arrays.asList(directory, file, portfolio)) {
-      request.setParam(PARAM_PROJECT_KEY, component.getKey());
+      request.setParam(PARAM_PROJECT, component.getKey());
 
       assertThatThrownBy(request::execute)
         .isInstanceOf(NotFoundException.class)
@@ -823,7 +823,7 @@ public class SearchActionIT {
       .setParam(PARAM_ONLY_MINE, "true");
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Parameter 'onlyMine' can be used with parameter 'projectKey' only");
+      .hasMessage("Parameter 'onlyMine' can be used with parameter 'project' only");
   }
 
   @Test
@@ -833,7 +833,7 @@ public class SearchActionIT {
     userSessionRule.anonymous();
 
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_ONLY_MINE, "true");
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -2135,7 +2135,7 @@ public class SearchActionIT {
   private TestRequest newRequest(ComponentDto project, @Nullable String status, @Nullable String resolution,
     @Nullable String branch, @Nullable String pullRequest, Consumer<TestRequest> consumer) {
     TestRequest res = actionTester.newRequest()
-      .setParam(PARAM_PROJECT_KEY, project.getKey());
+      .setParam(PARAM_PROJECT, project.getKey());
     if (branch != null) {
       res.setParam(PARAM_BRANCH, branch);
     }

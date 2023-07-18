@@ -94,6 +94,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements HotspotsWsAction {
   private static final Set<String> SUPPORTED_QUALIFIERS = Set.of(Qualifiers.PROJECT, Qualifiers.APP);
+  private static final String PARAM_PROJECT = "project";
   private static final String PARAM_PROJECT_KEY = "projectKey";
   private static final String PARAM_STATUS = "status";
   private static final String PARAM_RESOLUTION = "resolution";
@@ -155,7 +156,7 @@ public class SearchAction implements HotspotsWsAction {
     Set<String> files = setFromList(request.paramAsStrings(PARAM_FILES));
 
     return new WsRequest(
-      request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE), request.param(PARAM_PROJECT_KEY), request.param(PARAM_BRANCH),
+      request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE), request.param(PARAM_PROJECT), request.param(PARAM_BRANCH),
       request.param(PARAM_PULL_REQUEST), hotspotKeys, request.param(PARAM_STATUS), request.param(PARAM_RESOLUTION),
       request.paramAsBoolean(PARAM_IN_NEW_CODE_PERIOD), request.paramAsBoolean(PARAM_ONLY_MINE), request.paramAsInt(PARAM_OWASP_ASVS_LEVEL),
       pciDss32, pciDss40, owaspAsvs40, owasp2017Top10, owasp2021Top10, sansTop25, sonarsourceSecurity, cwes, files);
@@ -223,6 +224,7 @@ public class SearchAction implements HotspotsWsAction {
         + "When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("8.1")
       .setChangelog(
+        new Change("10.2", format("Parameter '%s' renamed to '%s'", PARAM_PROJECT_KEY, PARAM_PROJECT)),
         new Change("10.0", "Parameter 'sansTop25' is deprecated"),
         new Change("9.6", "Added parameters 'pciDss-3.2' and 'pciDss-4.0"),
         new Change("9.7", "Hotspot flows in the response may contain a description and a type"),
@@ -231,7 +233,8 @@ public class SearchAction implements HotspotsWsAction {
         new Change("9.8", "Add message formatting to issue and locations response"));
 
     action.addPagingParams(100);
-    action.createParam(PARAM_PROJECT_KEY)
+    action.createParam(PARAM_PROJECT)
+      .setDeprecatedKey(PARAM_PROJECT_KEY, "10.2")
       .setDescription(format(
         "Key of the project or application. This parameter is required unless %s is provided.",
         PARAM_HOTSPOTS))
@@ -245,16 +248,16 @@ public class SearchAction implements HotspotsWsAction {
     action.createParam(PARAM_HOTSPOTS)
       .setDescription(format(
         "Comma-separated list of Security Hotspot keys. This parameter is required unless %s is provided.",
-        PARAM_PROJECT_KEY))
+        PARAM_PROJECT))
       .setExampleValue("AWhXpLoInp4On-Y3xc8x");
     action.createParam(PARAM_STATUS)
-      .setDescription("If '%s' is provided, only Security Hotspots with the specified status are returned.", PARAM_PROJECT_KEY)
+      .setDescription("If '%s' is provided, only Security Hotspots with the specified status are returned.", PARAM_PROJECT)
       .setPossibleValues(STATUSES)
       .setRequired(false);
     action.createParam(PARAM_RESOLUTION)
       .setDescription(format(
         "If '%s' is provided and if status is '%s', only Security Hotspots with the specified resolution are returned.",
-        PARAM_PROJECT_KEY, STATUS_REVIEWED))
+        PARAM_PROJECT, STATUS_REVIEWED))
       .setPossibleValues(RESOLUTION_FIXED, RESOLUTION_SAFE, RESOLUTION_ACKNOWLEDGED)
       .setRequired(false);
     action.createParam(PARAM_IN_NEW_CODE_PERIOD)
@@ -414,14 +417,14 @@ public class SearchAction implements HotspotsWsAction {
     Set<String> hotspotKeys = wsRequest.getHotspotKeys();
     checkArgument(
       projectKey.isPresent() || !hotspotKeys.isEmpty(),
-      "A value must be provided for either parameter '%s' or parameter '%s'", PARAM_PROJECT_KEY, PARAM_HOTSPOTS);
+      "A value must be provided for either parameter '%s' or parameter '%s'", PARAM_PROJECT, PARAM_HOTSPOTS);
 
     checkArgument(
       branch.isEmpty() || projectKey.isPresent(),
-      "Parameter '%s' must be used with parameter '%s'", PARAM_BRANCH, PARAM_PROJECT_KEY);
+      "Parameter '%s' must be used with parameter '%s'", PARAM_BRANCH, PARAM_PROJECT);
     checkArgument(
       pullRequest.isEmpty() || projectKey.isPresent(),
-      "Parameter '%s' must be used with parameter '%s'", PARAM_PULL_REQUEST, PARAM_PROJECT_KEY);
+      "Parameter '%s' must be used with parameter '%s'", PARAM_PULL_REQUEST, PARAM_PROJECT);
     checkArgument(
       !(branch.isPresent() && pullRequest.isPresent()),
       "Only one of parameters '%s' and '%s' can be provided", PARAM_BRANCH, PARAM_PULL_REQUEST);
@@ -442,7 +445,7 @@ public class SearchAction implements HotspotsWsAction {
       checkArgument(userSession.isLoggedIn(),
         "Parameter '%s' requires user to be logged in", PARAM_ONLY_MINE);
       checkArgument(wsRequest.getProjectKey().isPresent(),
-        "Parameter '%s' can be used with parameter '%s' only", PARAM_ONLY_MINE, PARAM_PROJECT_KEY);
+        "Parameter '%s' can be used with parameter '%s' only", PARAM_ONLY_MINE, PARAM_PROJECT);
     }
   }
 
