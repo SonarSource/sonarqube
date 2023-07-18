@@ -1,6 +1,59 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`loadIssues should load issues 1`] = `
+exports[`loadIssues should load issues with listIssues if re-indexing 1`] = `
+[
+  {
+    "actions": [
+      "set_tags",
+      "comment",
+      "assign",
+    ],
+    "assignee": "luke",
+    "author": "luke@sonarsource.com",
+    "comments": [],
+    "component": "foo.java",
+    "componentEnabled": true,
+    "componentKey": "foo.java",
+    "componentLongName": "Foo.java",
+    "componentName": "foo.java",
+    "componentPath": "/foo.java",
+    "componentQualifier": "FIL",
+    "creationDate": "2016-08-15T15:25:38+0200",
+    "flows": [],
+    "flowsWithType": [],
+    "hash": "78417dcee7ba927b7e7c9161e29e02b8",
+    "key": "AWaqVGl3tut9VbnJvk6M",
+    "line": 62,
+    "message": "Make sure this file handling is safe here.",
+    "project": "org.sonarsource.java:java",
+    "projectEnabled": true,
+    "projectKey": "org.sonarsource.java:java",
+    "projectLongName": "SonarJava",
+    "projectName": "SonarJava",
+    "projectQualifier": "TRK",
+    "rule": "squid:S4797",
+    "secondaryLocations": [],
+    "status": "OPEN",
+    "tags": [
+      "cert",
+      "cwe",
+      "owasp-a1",
+      "owasp-a3",
+    ],
+    "textRange": {
+      "endLine": 62,
+      "endOffset": 96,
+      "startLine": 62,
+      "startOffset": 93,
+    },
+    "transitions": [],
+    "type": "SECURITY_HOTSPOT",
+    "updateDate": "2018-10-25T10:23:08+0200",
+  },
+]
+`;
+
+exports[`loadIssues should load issues with searchIssues if not re-indexing 1`] = `
 [
   {
     "actions": [

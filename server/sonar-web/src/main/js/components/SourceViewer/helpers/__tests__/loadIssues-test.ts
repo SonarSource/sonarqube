@@ -17,72 +17,87 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { ComponentQualifier } from '../../../../types/component';
 import loadIssues from '../loadIssues';
 
+const mockListResolvedValue = {
+  components: [
+    {
+      enabled: true,
+      key: 'org.sonarsource.java:java',
+      longName: 'SonarJava',
+      name: 'SonarJava',
+      qualifier: ComponentQualifier.Project,
+    },
+    {
+      enabled: true,
+      key: 'foo.java',
+      longName: 'Foo.java',
+      name: 'foo.java',
+      path: '/foo.java',
+      qualifier: ComponentQualifier.File,
+    },
+  ],
+  issues: [
+    {
+      actions: ['set_tags', 'comment', 'assign'],
+      assignee: 'luke',
+      author: 'luke@sonarsource.com',
+      comments: [],
+      component: 'foo.java',
+      creationDate: '2016-08-15T15:25:38+0200',
+      flows: [],
+      hash: '78417dcee7ba927b7e7c9161e29e02b8',
+      key: 'AWaqVGl3tut9VbnJvk6M',
+      line: 62,
+      message: 'Make sure this file handling is safe here.',
+      project: 'org.sonarsource.java:java',
+      rule: 'squid:S4797',
+      status: 'OPEN',
+      tags: ['cert', 'cwe', 'owasp-a1', 'owasp-a3'],
+      textRange: { startLine: 62, endLine: 62, startOffset: 93, endOffset: 96 },
+      transitions: [],
+      type: 'SECURITY_HOTSPOT',
+      updateDate: '2018-10-25T10:23:08+0200',
+    },
+  ],
+  paging: { pageIndex: 1, pageSize: 500, total: 1 },
+};
+
+const mockSearchResolvedValue = {
+  ...mockListResolvedValue,
+  debtTotal: 15,
+  effortTotal: 15,
+  facets: [],
+  languages: [{ key: 'java', name: 'Java' }],
+  rules: [
+    {
+      key: 'squid:S4797',
+      lang: 'java',
+      langName: 'Java',
+      name: 'Handling files is security-sensitive',
+      status: 'READY',
+    },
+  ],
+  users: [{ active: true, avatar: 'lukavatar', login: 'luke', name: 'Luke' }],
+};
+
 jest.mock('../../../../api/issues', () => ({
-  searchIssues: jest.fn().mockResolvedValue({
-    paging: { pageIndex: 1, pageSize: 500, total: 1 },
-    effortTotal: 15,
-    debtTotal: 15,
-    issues: [
-      {
-        key: 'AWaqVGl3tut9VbnJvk6M',
-        rule: 'squid:S4797',
-        component: 'foo.java',
-        project: 'org.sonarsource.java:java',
-        line: 62,
-        hash: '78417dcee7ba927b7e7c9161e29e02b8',
-        textRange: { startLine: 62, endLine: 62, startOffset: 93, endOffset: 96 },
-        flows: [],
-        status: 'OPEN',
-        message: 'Make sure this file handling is safe here.',
-        assignee: 'luke',
-        author: 'luke@sonarsource.com',
-        tags: ['cert', 'cwe', 'owasp-a1', 'owasp-a3'],
-        transitions: [],
-        actions: ['set_tags', 'comment', 'assign'],
-        comments: [],
-        creationDate: '2016-08-15T15:25:38+0200',
-        updateDate: '2018-10-25T10:23:08+0200',
-        type: 'SECURITY_HOTSPOT',
-      },
-    ],
-    components: [
-      {
-        key: 'org.sonarsource.java:java',
-        enabled: true,
-        qualifier: 'TRK',
-        name: 'SonarJava',
-        longName: 'SonarJava',
-      },
-      {
-        key: 'foo.java',
-        enabled: true,
-        qualifier: 'FIL',
-        name: 'foo.java',
-        longName: 'Foo.java',
-        path: '/foo.java',
-      },
-    ],
-    rules: [
-      {
-        key: 'squid:S4797',
-        name: 'Handling files is security-sensitive',
-        lang: 'java',
-        status: 'READY',
-        langName: 'Java',
-      },
-    ],
-    users: [{ login: 'luke', name: 'Luke', avatar: 'lukavatar', active: true }],
-    languages: [{ key: 'java', name: 'Java' }],
-    facets: [],
-  }),
+  listIssues: jest.fn().mockImplementation(() => Promise.resolve(mockListResolvedValue)),
+  searchIssues: jest.fn().mockImplementation(() => Promise.resolve(mockSearchResolvedValue)),
 }));
 
 describe('loadIssues', () => {
-  it('should load issues', async () => {
+  it('should load issues with searchIssues if not re-indexing', async () => {
     const result = await loadIssues('foo.java', mockMainBranch());
+
+    expect(result).toMatchSnapshot();
+  });
+
+  it('should load issues with listIssues if re-indexing', async () => {
+    const result = await loadIssues('foo.java', mockMainBranch(), true);
     expect(result).toMatchSnapshot();
   });
 });

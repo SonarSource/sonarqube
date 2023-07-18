@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { queryHelpers, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
@@ -27,7 +28,7 @@ import { HttpStatus } from '../../../helpers/request';
 import { mockIssue } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { byText } from '../../../helpers/testSelector';
-import SourceViewer from '../SourceViewer';
+import SourceViewer, { Props } from '../SourceViewer';
 import loadIssues from '../helpers/loadIssues';
 
 jest.mock('../../../api/components');
@@ -57,6 +58,7 @@ const ui = {
 
 const componentsHandler = new ComponentsServiceMock();
 const issuesHandler = new IssuesServiceMock();
+const message = 'First Issue';
 
 beforeEach(() => {
   issuesHandler.reset();
@@ -69,6 +71,7 @@ it('should show a permalink on line number', async () => {
   let row = await screen.findByRole('row', { name: /\/\*$/ });
   expect(row).toBeInTheDocument();
   const rowScreen = within(row);
+
   await user.click(
     rowScreen.getByRole('button', {
       name: 'source_viewer.line_X.1',
@@ -117,31 +120,34 @@ it('should show a permalink on line number', async () => {
 });
 
 it('should show issue on empty file', async () => {
-  (loadIssues as jest.Mock).mockResolvedValueOnce([
+  jest.mocked(loadIssues).mockResolvedValueOnce([
     mockIssue(false, {
       key: 'first-issue',
-      message: 'First Issue',
+      message,
       line: undefined,
       textRange: undefined,
     }),
   ]);
+
   renderSourceViewer({
     component: componentsHandler.getEmptyFileKey(),
   });
+
   expect(await screen.findByRole('table')).toBeInTheDocument();
   expect(await screen.findByRole('row', { name: 'First Issue' })).toBeInTheDocument();
 });
 
 it('should be able to interact with issue action', async () => {
-  (loadIssues as jest.Mock).mockResolvedValueOnce([
+  jest.mocked(loadIssues).mockResolvedValueOnce([
     mockIssue(false, {
       actions: ['set_type', 'set_tags', 'comment', 'set_severity', 'assign'],
       key: 'issue1',
-      message: 'First Issue',
+      message,
       line: 1,
       textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 1 },
     }),
   ]);
+
   const user = userEvent.setup();
   renderSourceViewer();
 
@@ -149,12 +155,14 @@ it('should be able to interact with issue action', async () => {
   await user.click(
     await screen.findByLabelText('issue.type.type_x_click_to_change.issue.type.BUG')
   );
+
   expect(ui.codeSmellTypeButton.get()).toBeInTheDocument();
 
   // Open severity
   await user.click(
     await screen.findByLabelText('issue.severity.severity_x_click_to_change.severity.MAJOR')
   );
+
   expect(ui.minorSeverityButton.get()).toBeInTheDocument();
 
   // Close
@@ -165,8 +173,10 @@ it('should be able to interact with issue action', async () => {
   await user.click(
     await screen.findByLabelText('issue.severity.severity_x_click_to_change.severity.MAJOR')
   );
+
   expect(ui.minorSeverityButton.get()).toBeInTheDocument();
   await user.click(ui.minorSeverityButton.get());
+
   expect(
     screen.getByLabelText('issue.severity.severity_x_click_to_change.severity.MINOR')
   ).toBeInTheDocument();
@@ -177,6 +187,7 @@ it('should load line when looking around unloaded line', async () => {
     aroundLine: 50,
     component: componentsHandler.getHugeFileKey(),
   });
+
   expect(await screen.findByRole('row', { name: /Line 50$/ })).toBeInTheDocument();
   rerender({ aroundLine: 100, component: componentsHandler.getHugeFileKey() });
 
@@ -189,9 +200,11 @@ it('should show SCM information', async () => {
   let row = await screen.findByRole('row', { name: /\/\*$/ });
   expect(row).toBeInTheDocument();
   const firstRowScreen = within(row);
+
   expect(
     firstRowScreen.getByRole('cell', { name: 'stas.vilchik@sonarsource.com' })
   ).toBeInTheDocument();
+
   await user.click(
     firstRowScreen.getByRole('button', {
       name: 'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info.1',
@@ -206,6 +219,7 @@ it('should show SCM information', async () => {
   row = screen.getByRole('row', { name: /\* SonarQube$/ });
   expect(row).toBeInTheDocument();
   const secondRowScreen = within(row);
+
   expect(
     secondRowScreen.queryByRole('cell', { name: 'stas.vilchik@sonarsource.com' })
   ).not.toBeInTheDocument();
@@ -214,6 +228,7 @@ it('should show SCM information', async () => {
   row = await screen.findByRole('row', { name: /\* mailto:info AT sonarsource DOT com$/ });
   expect(row).toBeInTheDocument();
   const fourthRowScreen = within(row);
+
   await act(async () => {
     await user.click(
       fourthRowScreen.getByRole('button', {
@@ -227,6 +242,7 @@ it('should show SCM information', async () => {
   expect(row).toBeInTheDocument();
   const fithRowScreen = within(row);
   expect(fithRowScreen.getByText('…')).toBeInTheDocument();
+
   await act(async () => {
     await user.click(
       fithRowScreen.getByRole('button', {
@@ -239,15 +255,16 @@ it('should show SCM information', async () => {
   row = await screen.findByRole('row', {
     name: /\* This program is free software; you can redistribute it and\/or$/,
   });
+
   expect(row).toBeInTheDocument();
   expect(within(row).queryByRole('button')).not.toBeInTheDocument();
 });
 
 it('should show issue indicator', async () => {
-  (loadIssues as jest.Mock).mockResolvedValueOnce([
+  jest.mocked(loadIssues).mockResolvedValueOnce([
     mockIssue(false, {
       key: 'first-issue',
-      message: 'First Issue',
+      message,
       line: 1,
       textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 1 },
     }),
@@ -258,15 +275,19 @@ it('should show issue indicator', async () => {
       textRange: { startLine: 1, endLine: 1, startOffset: 1, endOffset: 2 },
     }),
   ]);
+
   const user = userEvent.setup();
   const onIssueSelect = jest.fn();
+
   renderSourceViewer({
     onIssueSelect,
     displayAllIssues: false,
   });
+
   const row = await screen.findByRole('row', { name: /.*\/ \*$/ });
   const issueRow = within(row);
   expect(issueRow.getByText('2')).toBeInTheDocument();
+
   await user.click(
     issueRow.getByRole('button', {
       name: 'source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.show.2.issue.type.BUG.plural',
@@ -276,9 +297,11 @@ it('should show issue indicator', async () => {
 
 it('should show coverage information', async () => {
   renderSourceViewer();
+
   const coverdLine = within(
     await screen.findByRole('row', { name: /\* mailto:info AT sonarsource DOT com$/ })
   );
+
   expect(
     coverdLine.getByLabelText('source_viewer.tooltip.covered.conditions.1')
   ).toBeInTheDocument();
@@ -286,6 +309,7 @@ it('should show coverage information', async () => {
   const partialyCoveredWithConditionLine = within(
     await screen.findByRole('row', { name: / \* 5$/ })
   );
+
   expect(
     partialyCoveredWithConditionLine.getByLabelText(
       'source_viewer.tooltip.partially-covered.conditions.1.2'
@@ -293,6 +317,7 @@ it('should show coverage information', async () => {
   ).toBeInTheDocument();
 
   const partialyCoveredLine = within(await screen.findByRole('row', { name: /\/\*$/ }));
+
   expect(
     partialyCoveredLine.getByLabelText('source_viewer.tooltip.partially-covered')
   ).toBeInTheDocument();
@@ -303,11 +328,13 @@ it('should show coverage information', async () => {
   const uncoveredWithConditionLine = within(
     await screen.findByRole('row', { name: / \* SonarQube$/ })
   );
+
   expect(
     uncoveredWithConditionLine.getByLabelText('source_viewer.tooltip.uncovered.conditions.1')
   ).toBeInTheDocument();
 
   const coveredWithNoCondition = within(await screen.findByRole('row', { name: /\* Copyright$/ }));
+
   expect(
     coveredWithNoCondition.getByLabelText('source_viewer.tooltip.covered')
   ).toBeInTheDocument();
@@ -317,6 +344,7 @@ it('should show duplication block', async () => {
   const user = userEvent.setup();
   renderSourceViewer();
   const duplicateLine = within(await screen.findByRole('row', { name: /\* 7$/ }));
+
   expect(
     duplicateLine.getByLabelText('source_viewer.tooltip.duplicated_block')
   ).toBeInTheDocument();
@@ -351,6 +379,7 @@ it('should highlight symbol', async () => {
 it('should show correct message when component is not asscessible', async () => {
   componentsHandler.setFailLoadingComponentStatus(HttpStatus.Forbidden);
   renderSourceViewer();
+
   expect(
     await screen.findByText('code_viewer.no_source_code_displayed_due_to_security')
   ).toBeInTheDocument();
@@ -362,7 +391,7 @@ it('should show correct message when component does not exist', async () => {
   expect(await screen.findByText('component_viewer.no_component')).toBeInTheDocument();
 });
 
-function renderSourceViewer(override?: Partial<SourceViewer['props']>) {
+function renderSourceViewer(override?: Partial<Props>) {
   const { rerender } = renderComponent(
     <SourceViewer
       aroundLine={1}
@@ -376,7 +405,8 @@ function renderSourceViewer(override?: Partial<SourceViewer['props']>) {
       {...override}
     />
   );
-  return function (reoverride?: Partial<SourceViewer['props']>) {
+
+  return function (reoverride?: Partial<Props>) {
     rerender(
       <SourceViewer
         aroundLine={1}

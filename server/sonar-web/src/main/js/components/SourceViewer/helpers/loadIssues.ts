@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { searchIssues } from '../../../api/issues';
+
+import { listIssues, searchIssues } from '../../../api/issues';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { BranchLike } from '../../../types/branch-like';
@@ -28,17 +29,33 @@ const PAGE_SIZE = 500;
 // Maximum issues return 20*500 for the API.
 const PAGE_MAX = 20;
 
-function buildQuery(component: string, branchLike: BranchLike | undefined) {
+function buildListQuery(component: string, branchLike: BranchLike | undefined) {
+  return {
+    component,
+    resolved: 'false',
+    ...getBranchLikeQuery(branchLike),
+  };
+}
+
+function buildSearchQuery(component: string, branchLike: BranchLike | undefined) {
   return {
     additionalFields: '_all',
-    resolved: 'false',
     componentKeys: component,
+    resolved: 'false',
     s: 'FILE_LINE',
     ...getBranchLikeQuery(branchLike),
   };
 }
 
-function loadPage(query: RawQuery, page: number, pageSize = PAGE_SIZE): Promise<Issue[]> {
+function loadListPage(query: RawQuery, page: number, pageSize = PAGE_SIZE): Promise<Issue[]> {
+  return listIssues({
+    ...query,
+    p: page,
+    ps: pageSize,
+  }).then((r) => r.issues.map((issue) => parseIssueFromResponse(issue, r.components)));
+}
+
+function loadSearchPage(query: RawQuery, page: number, pageSize = PAGE_SIZE): Promise<Issue[]> {
   return searchIssues({
     ...query,
     p: page,
@@ -48,8 +65,15 @@ function loadPage(query: RawQuery, page: number, pageSize = PAGE_SIZE): Promise<
   );
 }
 
-async function loadPageAndNext(query: RawQuery, page = 1, pageSize = PAGE_SIZE): Promise<Issue[]> {
-  const issues = await loadPage(query, page);
+async function loadPageAndNext(
+  query: RawQuery,
+  needIssueSync = false,
+  page = 1,
+  pageSize = PAGE_SIZE
+): Promise<Issue[]> {
+  const issues = needIssueSync
+    ? await loadListPage(query, page)
+    : await loadSearchPage(query, page);
 
   if (issues.length === 0) {
     return [];
@@ -59,14 +83,19 @@ async function loadPageAndNext(query: RawQuery, page = 1, pageSize = PAGE_SIZE):
     return issues;
   }
 
-  const nextIssues = await loadPageAndNext(query, page + 1, pageSize);
+  const nextIssues = await loadPageAndNext(query, needIssueSync, page + 1, pageSize);
+
   return [...issues, ...nextIssues];
 }
 
 export default function loadIssues(
   component: string,
-  branchLike: BranchLike | undefined
+  branchLike: BranchLike | undefined,
+  needIssueSync = false
 ): Promise<Issue[]> {
-  const query = buildQuery(component, branchLike);
-  return loadPageAndNext(query);
+  const query = needIssueSync
+    ? buildListQuery(component, branchLike)
+    : buildSearchQuery(component, branchLike);
+
+  return loadPageAndNext(query, needIssueSync);
 }
