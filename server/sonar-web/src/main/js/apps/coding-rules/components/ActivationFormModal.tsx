@@ -241,7 +241,7 @@ handleKeyChange = (index: any, value: any, paramKey: any) => {
     const isCustomRule = !!(rule as RuleDetails).templateKey;
     const activeInAllProfiles = profilesWithDepth.length <= 0;
     const isUpdateMode = !!activation;
-
+    
     return (
       <Modal contentLabel={this.props.modalHeader} onRequestClose={this.props.onClose} size="small">
         <form onSubmit={this.handleFormSubmit}>
@@ -299,8 +299,7 @@ handleKeyChange = (index: any, value: any, paramKey: any) => {
                       )
                     }
                     {param.type.startsWith('SINGLE_SELECT_LIST') &&
-                      (
-                        <Select
+                      ( <Select
                           className="js-list"
                           clearable={false}
                           onChange={this.handleSingleSelectListChange}
@@ -309,9 +308,8 @@ handleKeyChange = (index: any, value: any, paramKey: any) => {
                             label: item,
                             value: item
                           }))}
-                          value={this.state.params[param.key] || ''}
-                        />
-                      )
+                          value={{labelKey: param.key, label: this.state.params[param.key], value: this.state.params[param.key]}}
+                        />)
                     }
                     {param.type === 'KEY_VALUE_MAP' &&
                       (
