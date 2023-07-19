@@ -91,8 +91,8 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("import_azure_project")
       .setDescription("Create a SonarQube project with the information from the provided Azure DevOps project.<br/>" +
-                      "Autoconfigure pull request decoration mechanism.<br/>" +
-                      "Requires the 'Create Projects' permission")
+        "Autoconfigure pull request decoration mechanism.<br/>" +
+        "Requires the 'Create Projects' permission")
       .setPost(true)
       .setInternal(true)
       .setSince("8.6")
@@ -175,11 +175,11 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
     String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(repo.getProject().getName(), repo.getName());
     return componentUpdater.createWithoutCommit(dbSession, newComponentBuilder()
-        .setKey(uniqueProjectKey)
-        .setName(repo.getName())
-        .setPrivate(visibility)
-        .setQualifier(PROJECT)
-        .build(),
+      .setKey(uniqueProjectKey)
+      .setName(repo.getName())
+      .setPrivate(visibility)
+      .setQualifier(PROJECT)
+      .build(),
       userSession.isLoggedIn() ? userSession.getUuid() : null,
       userSession.isLoggedIn() ? userSession.getLogin() : null,
       repo.getDefaultBranchName());

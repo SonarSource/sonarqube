@@ -71,7 +71,7 @@ public class NewCodeDefinitionResolver {
   }
 
   public void createNewCodeDefinition(DbSession dbSession, String projectUuid, String mainBranchUuid,
-    String defaultBranchName, String newCodeDefinitionType, String newCodeDefinitionValue) {
+    String defaultBranchName, String newCodeDefinitionType, @Nullable String newCodeDefinitionValue) {
 
     boolean isCommunityEdition = editionProvider.get().filter(EditionProvider.Edition.COMMUNITY::equals).isPresent();
     NewCodePeriodType newCodePeriodType = parseNewCodeDefinitionType(newCodeDefinitionType);
