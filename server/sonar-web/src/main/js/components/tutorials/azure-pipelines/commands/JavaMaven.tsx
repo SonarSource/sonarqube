@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { NumberedList, NumberedListItem, UnorderedList, UnorderedListItem } from 'design-system';
+import { ListItem, NumberedList, NumberedListItem, UnorderedList } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
@@ -59,12 +59,12 @@ export default function JavaMaven(props: JavaMavenProps) {
             translate('onboarding.build', BuildTools.Maven)
           )}
           <UnorderedList ticks className="sw-ml-12 sw-mb-4">
-            <UnorderedListItem>
+            <ListItem>
               <SentenceWithHighlights
                 translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java.settings"
                 highlightKeys={['section', 'option']}
               />
-            </UnorderedListItem>
+            </ListItem>
           </UnorderedList>
         </NumberedListItem>
 

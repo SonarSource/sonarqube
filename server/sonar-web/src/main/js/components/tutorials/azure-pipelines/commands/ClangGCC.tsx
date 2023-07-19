@@ -19,10 +19,10 @@
  */
 import {
   CodeSnippet,
+  ListItem,
   NumberedList,
   NumberedListItem,
   UnorderedList,
-  UnorderedListItem,
 } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
@@ -120,14 +120,14 @@ unzip build-wrapper.zip`,
                 highlightKeys={['pipeline']}
               />
               <UnorderedList ticks className="sw-ml-12 sw-mt-2">
-                <UnorderedListItem>
+                <ListItem>
                   <SentenceWithHighlights
                     translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp.script"
                     highlightPrefixKeys={codeSnippetDownload[os].highlightScriptKey}
                     highlightKeys={['task', 'inline']}
                   />
                   <CodeSnippet className="sw-p-6" snippet={codeSnippetDownload[os].script} />
-                </UnorderedListItem>
+                </ListItem>
               </UnorderedList>
             </NumberedListItem>
 
@@ -150,7 +150,7 @@ unzip build-wrapper.zip`,
                 highlightKeys={['task']}
               />
               <UnorderedList className="sw-mt-2">
-                <UnorderedListItem>
+                <ListItem>
                   <SentenceWithHighlights
                     translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_script.ccpp"
                     highlightKeys={['build_wrapper']}
@@ -161,7 +161,7 @@ unzip build-wrapper.zip`,
                     snippet={codeSnippetDownload[os].scriptBuild}
                   />
                   <CompilationInfo />
-                </UnorderedListItem>
+                </ListItem>
               </UnorderedList>
             </NumberedListItem>
 

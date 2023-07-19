@@ -20,11 +20,11 @@
 import {
   BasicSeparator,
   ClipboardIconButton,
+  ListItem,
   NumberedList,
   NumberedListItem,
   TutorialStep,
   UnorderedList,
-  UnorderedListItem,
 } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -66,7 +66,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
         />
 
         <UnorderedList ticks className="sw-ml-10">
-          <UnorderedListItem>
+          <ListItem>
             <FormattedMessage
               defaultMessage={fieldValueTranslation}
               id="onboarding.tutorial.with.gitlab_ci.variables.step1"
@@ -80,11 +80,11 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
                 value: <InlineSnippet snippet="SONAR_TOKEN" />,
               }}
             />
-          </UnorderedListItem>
-          <UnorderedListItem>
+          </ListItem>
+          <ListItem>
             <TokenStepGenerator component={component} currentUser={currentUser} />
-          </UnorderedListItem>
-          <UnorderedListItem>
+          </ListItem>
+          <ListItem>
             <FormattedMessage
               defaultMessage={translate('onboarding.tutorial.with.gitlab_ci.variables.step3')}
               id="onboarding.tutorial.with.gitlab_ci.variables.step3"
@@ -96,8 +96,8 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
                 ),
               }}
             />
-          </UnorderedListItem>
-          <UnorderedListItem>
+          </ListItem>
+          <ListItem>
             <FormattedMessage
               defaultMessage={translate(
                 'onboarding.tutorial.with.gitlab_ci.variables.section.step4'
@@ -111,7 +111,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
                 ),
               }}
             />
-          </UnorderedListItem>
+          </ListItem>
         </UnorderedList>
         <BasicSeparator className="sw-my-6" />
       </NumberedListItem>
@@ -130,7 +130,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
         />
 
         <UnorderedList ticks className="sw-ml-10">
-          <UnorderedListItem>
+          <ListItem>
             <FormattedMessage
               defaultMessage={fieldValueTranslation}
               id="onboarding.tutorial.with.gitlab_ci.variables.step1"
@@ -144,8 +144,8 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
                 value: <InlineSnippet snippet="SONAR_HOST_URL" />,
               }}
             />
-          </UnorderedListItem>
-          <UnorderedListItem>
+          </ListItem>
+          <ListItem>
             <FormattedMessage
               defaultMessage={fieldValueTranslation}
               id="onboarding.tutorial.with.gitlab_ci.variables.step2"
@@ -159,8 +159,8 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
                 value: <InlineSnippet snippet={baseUrl} />,
               }}
             />
-          </UnorderedListItem>
-          <UnorderedListItem>
+          </ListItem>
+          <ListItem>
             <FormattedMessage
               defaultMessage={translate('onboarding.tutorial.with.gitlab_ci.variables.step3')}
               id="onboarding.tutorial.with.gitlab_ci.variables.step3"
@@ -172,8 +172,8 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
                 ),
               }}
             />
-          </UnorderedListItem>
-          <UnorderedListItem>
+          </ListItem>
+          <ListItem>
             <FormattedMessage
               defaultMessage={translate(
                 'onboarding.tutorial.with.gitlab_ci.variables.section2.step4'
@@ -187,7 +187,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
                 ),
               }}
             />
-          </UnorderedListItem>
+          </ListItem>
         </UnorderedList>
       </NumberedListItem>
     </NumberedList>

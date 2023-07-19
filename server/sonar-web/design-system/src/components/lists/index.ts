@@ -17,17 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen } from '@testing-library/react';
-import { render } from '../../helpers/testUtils';
-import { UnorderedList } from '../UnorderedList';
-import { UnorderedListItem } from '../UnorderedListItem';
-
-it('renders correctly', () => {
-  render(
-    <UnorderedList>
-      <UnorderedListItem>First item</UnorderedListItem>
-      <UnorderedListItem>Second item</UnorderedListItem>
-    </UnorderedList>
-  );
-  expect(screen.getAllByRole('listitem')).toHaveLength(2);
-});
+export * from './ListItem';
+export * from './NumberedList';
+export * from './NumberedListItem';
+export * from './OrderedList';
+export * from './UnorderedList';

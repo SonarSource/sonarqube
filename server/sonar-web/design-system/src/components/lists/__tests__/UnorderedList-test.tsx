@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
-import { render } from '../../helpers/testUtils';
-import { NumberedList } from '../NumberedList';
-import { NumberedListItem } from '../NumberedListItem';
+import { render } from '../../../helpers/testUtils';
+import { ListItem } from '../ListItem';
+import { UnorderedList } from '../UnorderedList';
 
 it('renders correctly', () => {
   render(
-    <NumberedList>
-      <NumberedListItem>First item</NumberedListItem>
-      <NumberedListItem>Second item</NumberedListItem>
-    </NumberedList>
+    <UnorderedList>
+      <ListItem>First item</ListItem>
+      <ListItem>Second item</ListItem>
+    </UnorderedList>
   );
   expect(screen.getAllByRole('listitem')).toHaveLength(2);
 });

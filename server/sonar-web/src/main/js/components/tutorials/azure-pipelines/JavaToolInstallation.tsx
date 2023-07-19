@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { NumberedListItem, UnorderedList, UnorderedListItem } from 'design-system';
+import { ListItem, NumberedListItem, UnorderedList } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
@@ -46,7 +46,7 @@ export default function JavaToolInstallation() {
     <NumberedListItem>
       {translate('onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.title')}
       <UnorderedList ticks className="sw-ml-12">
-        <UnorderedListItem>
+        <ListItem>
           {renderSentenceWithFieldAndValue({
             field: translate(
               'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_version'
@@ -57,16 +57,16 @@ export default function JavaToolInstallation() {
           {translate(
             'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.or_higher'
           )}
-        </UnorderedListItem>
-        <UnorderedListItem>
+        </ListItem>
+        <ListItem>
           {renderSentenceWithFieldAndValue({
             field: translate(
               'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_architecture'
             ),
             value: 'x64',
           })}
-        </UnorderedListItem>
-        <UnorderedListItem>
+        </ListItem>
+        <ListItem>
           {renderSentenceWithFieldAndValue({
             field: translate(
               'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_source'
@@ -75,7 +75,7 @@ export default function JavaToolInstallation() {
               'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.pre-installed'
             ),
           })}
-        </UnorderedListItem>
+        </ListItem>
       </UnorderedList>
     </NumberedListItem>
   );

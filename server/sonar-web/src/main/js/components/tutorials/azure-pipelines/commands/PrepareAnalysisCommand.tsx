@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ClipboardIconButton, CodeSnippet, UnorderedList, UnorderedListItem } from 'design-system';
+import { ClipboardIconButton, CodeSnippet, ListItem, UnorderedList } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
@@ -52,13 +52,13 @@ sonar.projectName=${projectName}
 
   return (
     <UnorderedList ticks className="sw-ml-12 sw-my-2">
-      <UnorderedListItem>
+      <ListItem>
         <SentenceWithHighlights
           translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.endpoint"
           highlightKeys={['endpoint']}
         />
-      </UnorderedListItem>
-      <UnorderedListItem>
+      </ListItem>
+      <ListItem>
         <FormattedMessage
           id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis"
           defaultMessage={translate(
@@ -82,18 +82,18 @@ sonar.projectName=${projectName}
             ),
           }}
         />
-      </UnorderedListItem>
+      </ListItem>
 
       {kind === PrepareType.StandAlone && (
         <>
-          <UnorderedListItem>
+          <ListItem>
             <SentenceWithHighlights
               translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.manual"
               highlightKeys={['mode']}
             />
-          </UnorderedListItem>
+          </ListItem>
 
-          <UnorderedListItem>
+          <ListItem>
             <span className="sw-flex sw-items-center">
               <FormattedMessage
                 id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence"
@@ -117,9 +117,9 @@ sonar.projectName=${projectName}
                 }}
               />
             </span>
-          </UnorderedListItem>
+          </ListItem>
           {buildTool === BuildTools.CFamily && (
-            <UnorderedListItem>
+            <ListItem>
               <span className="sw-flex sw-items-center sw-flex-wrap">
                 <FormattedMessage
                   id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp"
@@ -152,13 +152,13 @@ sonar.projectName=${projectName}
                   }}
                 />
               </span>
-            </UnorderedListItem>
+            </ListItem>
           )}
         </>
       )}
 
       {kind === PrepareType.JavaMavenGradle && (
-        <UnorderedListItem>
+        <ListItem>
           <SentenceWithHighlights
             translationKey="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.advanced_properties"
             highlightKeys={['section', 'properties']}
@@ -169,10 +169,10 @@ sonar.projectName=${projectName}
             language="properties"
             snippet={MAVEN_GRADLE_PROPS_SNIPPET}
           />
-        </UnorderedListItem>
+        </ListItem>
       )}
       {kind === PrepareType.MSBuild && (
-        <UnorderedListItem>
+        <ListItem>
           <span className="sw-flex sw-items-center">
             <FormattedMessage
               id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence"
@@ -196,7 +196,7 @@ sonar.projectName=${projectName}
               }}
             />
           </span>
-        </UnorderedListItem>
+        </ListItem>
       )}
     </UnorderedList>
   );

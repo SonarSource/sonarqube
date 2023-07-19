@@ -20,9 +20,27 @@
 
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
+import { themeColor } from '../../helpers/theme';
 
-export const UnorderedListItem = styled.li`
-  ${tw`sw-my-3`}
+export const NumberedListItem = styled.li`
+  counter-increment: li;
+  ${tw`sw-mb-4`}
+  ${tw`sw-ml-1`}
+
+  &::before {
+    width: 19px;
+    height: 19px;
+    color: ${themeColor('numberedListText')};
+    background-color: ${themeColor('numberedList')};
+    border-radius: 20px;
+    content: counter(li);
+
+    ${tw`sw-body-sm-highlight`}
+    ${tw`sw-p-1`}
+    ${tw`sw-mr-3`}
+    ${tw`sw-inline-block`}
+    ${tw`sw-text-center`}
+  }
 `;
 
-UnorderedListItem.displayName = 'UnorderedListItem';
+NumberedListItem.displayName = 'NumberedListItem';
