@@ -30,7 +30,6 @@ import IndexationNotification from './indexation/IndexationNotification';
 import LanguagesContextProvider from './languages/LanguagesContextProvider';
 import MetricsContextProvider from './metrics/MetricsContextProvider';
 import GlobalNav from './nav/global/GlobalNav';
-import PromotionNotification from './promotion-notification/PromotionNotification';
 import StartupModal from './StartupModal';
 import SystemAnnouncement from './SystemAnnouncement';
 import UpdateNotification from './update-notification/UpdateNotification';
@@ -63,7 +62,7 @@ export default function GlobalContainer() {
                   </Workspace>
                 </BranchStatusContextProvider>
               </div>
-              <PromotionNotification />
+              {/* <PromotionNotification /> */}
             </div>
             <GlobalFooterCodescan />
           </div>
