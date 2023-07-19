@@ -17,14 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue;
+package org.sonar.server.v2.api.response;
 
-import org.sonar.db.user.UserDto;
-
-public interface AvatarResolver {
-
-  /**
-   * Creates an avatar ID to load a user's avatar (ex: Gravatar identified by an email hash)
-   */
-  String create(UserDto user);
+public record PageRestResponse(int pageIndex, int pageSize, int total) {
 }

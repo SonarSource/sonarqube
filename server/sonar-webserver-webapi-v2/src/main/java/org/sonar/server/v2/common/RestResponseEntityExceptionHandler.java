@@ -20,11 +20,16 @@
 package org.sonar.server.v2.common;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.v2.api.model.RestError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -34,25 +39,29 @@ public class RestResponseEntityExceptionHandler {
 
   @ExceptionHandler(IllegalStateException.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-  protected ResponseEntity<Object> handleIllegalStateException(IllegalStateException illegalStateException) {
-    return new ResponseEntity<>(illegalStateException.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+  protected ResponseEntity<RestError> handleIllegalStateException(IllegalStateException illegalStateException) {
+    return new ResponseEntity<>(new RestError(illegalStateException.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  @ExceptionHandler(ForbiddenException.class)
-  @ResponseStatus(HttpStatus.FORBIDDEN)
-  protected ResponseEntity<Object> handleForbiddenException(ForbiddenException forbiddenException) {
-    return handleServerException(forbiddenException);
+  @ExceptionHandler(BindException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  protected ResponseEntity<RestError> handleBindException(BindException bindException) {
+    String validationErrors = bindException.getFieldErrors().stream()
+      .map(RestResponseEntityExceptionHandler::handleFieldError)
+      .collect(Collectors.joining());
+    return new ResponseEntity<>(new RestError(validationErrors), HttpStatus.BAD_REQUEST);
   }
 
-  @ExceptionHandler(UnauthorizedException.class)
-  @ResponseStatus(HttpStatus.UNAUTHORIZED)
-  protected ResponseEntity<Object> handleUnauthorizedException(UnauthorizedException unauthorizedException) {
-    return handleServerException(unauthorizedException);
+  private static String handleFieldError(FieldError fieldError) {
+    String fieldName = fieldError.getField();
+    String rejectedValueAsString = Optional.ofNullable(fieldError.getRejectedValue()).map(Object::toString).orElse("{}");
+    String defaultMessage = fieldError.getDefaultMessage();
+    return String.format("Value %s for field %s was rejected. Error: %s", rejectedValueAsString, fieldName, defaultMessage);
   }
 
-
-  @ExceptionHandler(ServerException.class)
-  protected ResponseEntity<Object> handleServerException(ServerException serverException) {
-    return new ResponseEntity<>(serverException.getMessage(), Optional.ofNullable(HttpStatus.resolve(serverException.httpCode())).orElse(HttpStatus.INTERNAL_SERVER_ERROR));
+  @ExceptionHandler({ServerException.class, ForbiddenException.class, UnauthorizedException.class, BadRequestException.class})
+  protected ResponseEntity<RestError> handleServerException(ServerException serverException) {
+    return new ResponseEntity<>(new RestError(serverException.getMessage()),
+      Optional.ofNullable(HttpStatus.resolve(serverException.httpCode())).orElse(HttpStatus.INTERNAL_SERVER_ERROR));
   }
 }

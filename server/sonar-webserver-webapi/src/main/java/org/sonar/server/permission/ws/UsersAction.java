@@ -38,7 +38,7 @@ import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.issue.AvatarResolver;
+import org.sonar.server.common.avatar.AvatarResolver;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.user.UserSession;

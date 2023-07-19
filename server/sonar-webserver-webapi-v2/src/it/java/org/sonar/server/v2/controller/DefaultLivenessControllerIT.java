@@ -73,7 +73,7 @@ public class DefaultLivenessControllerIT extends ControllerIT {
     mockMvc.perform(get(LIVENESS_ENDPOINT))
       .andExpectAll(
         status().isForbidden(),
-        content().string("Insufficient privileges"));
+        content().json("{\"message\":\"Insufficient privileges\"}"));
   }
 
   @Test
@@ -84,7 +84,7 @@ public class DefaultLivenessControllerIT extends ControllerIT {
     mockMvc.perform(get(LIVENESS_ENDPOINT).header(PASSCODE_HTTP_HEADER, INVALID_PASSCODE))
       .andExpectAll(
         status().isForbidden(),
-        content().string("Insufficient privileges"));
+        content().json("{\"message\":\"Insufficient privileges\"}"));
   }
 
   @Test
@@ -95,6 +95,6 @@ public class DefaultLivenessControllerIT extends ControllerIT {
     mockMvc.perform(get(LIVENESS_ENDPOINT).header(PASSCODE_HTTP_HEADER, VALID_PASSCODE))
       .andExpectAll(
         status().isInternalServerError(),
-        content().string("Liveness check failed"));
+        content().json("{\"message\":\"Liveness check failed\"}"));
   }
 }

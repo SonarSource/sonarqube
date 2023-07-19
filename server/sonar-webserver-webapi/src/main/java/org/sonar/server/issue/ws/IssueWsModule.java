@@ -20,7 +20,7 @@
 package org.sonar.server.issue.ws;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.issue.AvatarResolverImpl;
+import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.issue.IssueChangeWSSupport;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;

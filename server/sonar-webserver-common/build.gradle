@@ -1,0 +1,29 @@
+sonar {
+    properties {
+        property 'sonar.projectName', "${projectTitle} :: WebServer :: Common"
+    }
+}
+
+dependencies {
+    // please keep the list grouped by configuration and ordered by name
+    api 'com.google.guava:guava'
+
+    api project(':server:sonar-db-dao')
+    api project(':server:sonar-webserver-ws')
+
+    compileOnlyApi 'com.google.code.findbugs:jsr305'
+    compileOnlyApi 'javax.servlet:javax.servlet-api'
+
+    testImplementation 'org.apache.logging.log4j:log4j-api'
+    testImplementation 'org.apache.logging.log4j:log4j-core'
+    testImplementation 'com.google.code.findbugs:jsr305'
+    testImplementation 'com.tngtech.java:junit-dataprovider'
+
+    testImplementation 'junit:junit'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.mockito:mockito-core'
+
+    testImplementation project(':sonar-testing-harness')
+    testImplementation testFixtures(project(':server:sonar-db-dao'))
+
+}

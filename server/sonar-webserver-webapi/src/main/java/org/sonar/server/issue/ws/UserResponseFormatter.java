@@ -20,7 +20,7 @@
 package org.sonar.server.issue.ws;
 
 import org.sonar.db.user.UserDto;
-import org.sonar.server.issue.AvatarResolver;
+import org.sonar.server.common.avatar.AvatarResolver;
 import org.sonarqube.ws.Common;
 
 import static com.google.common.base.Strings.emptyToNull;

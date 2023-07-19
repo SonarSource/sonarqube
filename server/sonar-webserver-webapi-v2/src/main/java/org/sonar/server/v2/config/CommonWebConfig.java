@@ -22,10 +22,14 @@ package org.sonar.server.v2.config;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
+import org.springdoc.core.SpringDocConfigProperties;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.MediaType;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
@@ -33,6 +37,10 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @ComponentScan(basePackages = {"org.springdoc"})
 @PropertySource("classpath:springdoc.properties")
 public class CommonWebConfig {
+  @Bean
+  public LocalValidatorFactoryBean validator() {
+    return new LocalValidatorFactoryBean();
+  }
 
   @Bean
   public RestResponseEntityExceptionHandler restResponseEntityExceptionHandler() {
@@ -45,9 +53,14 @@ public class CommonWebConfig {
       .info(
         new Info()
           .title("SonarQube Web API")
-          .version("0.0.1 alpha")
+          .version("1.0.0 beta")
           .description("Documentation of SonarQube Web API")
       );
+  }
+
+  @Bean
+  public BeanFactoryPostProcessor beanFactoryPostProcessor1(SpringDocConfigProperties springDocConfigProperties) {
+    return beanFactory -> springDocConfigProperties.setDefaultProducesMediaType(MediaType.APPLICATION_JSON_VALUE);
   }
 
 }

@@ -36,7 +36,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.issue.AvatarResolverImpl;
+import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.issue.IssueChangeWSSupport;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.tester.UserSessionRule;

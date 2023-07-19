@@ -6,11 +6,15 @@ sonarqube {
 
 dependencies {
     // please keep the list grouped by configuration and ordered by name
-    api 'org.springdoc:springdoc-openapi-ui'
+    api 'org.springdoc:springdoc-openapi-webmvc-core'
     api 'org.springframework:spring-webmvc'
+    api 'org.hibernate:hibernate-validator'
+    api 'javax.el:javax.el-api'
+    api 'org.glassfish:javax.el'
 
     api project(':server:sonar-db-dao')
-    // We are not suppose to have a v1 dependency. The ideal would be to have another common module between webapi and webapi-v2 but that needs a lot of refactoring.
+    api project(':server:sonar-webserver-common')
+    // We are not supposed to have a v1 dependency. The ideal would be to have another common module between webapi and webapi-v2 but that needs a lot of refactoring.
     api project(':server:sonar-webserver-webapi')
 
     testImplementation 'org.mockito:mockito-core'

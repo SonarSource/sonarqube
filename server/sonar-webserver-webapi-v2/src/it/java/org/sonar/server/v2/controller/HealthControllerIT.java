@@ -101,7 +101,7 @@ public class HealthControllerIT extends ControllerIT {
     mockMvc.perform(get(HEALTH_ENDPOINT))
       .andExpectAll(
         status().isForbidden(),
-        content().string("Insufficient privileges"));
+        content().json("{\"message\":\"Insufficient privileges\"}"));
   }
 
   @Test
@@ -112,7 +112,7 @@ public class HealthControllerIT extends ControllerIT {
     mockMvc.perform(get(HEALTH_ENDPOINT).header(PASSCODE_HTTP_HEADER, INVALID_PASSCODE))
       .andExpectAll(
         status().isForbidden(),
-        content().string("Insufficient privileges"));
+        content().json("{\"message\":\"Insufficient privileges\"}"));
   }
 
   @Test
@@ -122,7 +122,7 @@ public class HealthControllerIT extends ControllerIT {
     mockMvc.perform(get(HEALTH_ENDPOINT))
       .andExpectAll(
         status().isUnauthorized(),
-        content().string("UnauthorizedException"));
+        content().json("{\"message\":\"UnauthorizedException\"}"));
   }
 
   @Test
@@ -133,6 +133,6 @@ public class HealthControllerIT extends ControllerIT {
     mockMvc.perform(get(HEALTH_ENDPOINT).header(PASSCODE_HTTP_HEADER, VALID_PASSCODE))
       .andExpectAll(
         status().is(HTTP_NOT_IMPLEMENTED),
-        content().string("Unsupported in cluster mode"));
+        content().json("{\"message\":\"Unsupported in cluster mode\"}"));
   }
 }

@@ -18,6 +18,7 @@ dependencies {
   api project(':server:sonar-db-dao')
   api project(':server:sonar-process')
   api project(':server:sonar-webserver-auth')
+  api project(':server:sonar-webserver-common')
   api project(':server:sonar-webserver-es')
   api project(':server:sonar-webserver-ws')
   api project(':server:sonar-webserver-pushapi')

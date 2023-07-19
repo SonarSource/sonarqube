@@ -20,6 +20,7 @@
 package org.sonar.server.v2.config;
 
 import javax.annotation.Nullable;
+import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.health.CeStatusNodeCheck;
 import org.sonar.server.health.DbConnectionNodeCheck;
 import org.sonar.server.health.EsStatusNodeCheck;
@@ -30,6 +31,9 @@ import org.sonar.server.platform.ws.LivenessChecker;
 import org.sonar.server.platform.ws.LivenessCheckerImpl;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.v2.api.user.controller.DefaultUserController;
+import org.sonar.server.v2.api.user.controller.UserController;
+import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
 import org.sonar.server.v2.controller.DefautLivenessController;
 import org.sonar.server.v2.controller.HealthController;
 import org.sonar.server.v2.controller.LivenessController;
@@ -57,4 +61,15 @@ public class PlatformLevel4WebConfig {
     UserSession userSession) {
     return new HealthController(healthChecker, systemPasscode, nodeInformation, userSession);
   }
+
+  @Bean
+  public UsersSearchRestResponseGenerator usersSearchResponseGenerator(UserSession userSession) {
+    return new UsersSearchRestResponseGenerator(userSession);
+  }
+
+  @Bean
+  public UserController userController(UserSession userSession, UsersSearchRestResponseGenerator usersSearchResponseGenerator, UserService userService) {
+    return new DefaultUserController(userSession, userService, usersSearchResponseGenerator);
+  }
+
 }

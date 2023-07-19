@@ -48,6 +48,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
+import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.issue.IssueChangeWSSupport.FormattingContext;
 import org.sonar.server.issue.IssueChangeWSSupport.Load;
 import org.sonar.server.tester.UserSessionRule;

@@ -17,25 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue;
+package org.sonar.server.common.user.service;
 
-import com.google.common.hash.Hashing;
+import java.util.Collection;
+import java.util.Optional;
 import org.sonar.db.user.UserDto;
 
-import static com.google.common.base.Strings.emptyToNull;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Locale.ENGLISH;
-import static java.util.Objects.requireNonNull;
-
-public class AvatarResolverImpl implements AvatarResolver {
-
-  @Override
-  public String create(UserDto user) {
-    UserDto userDto = requireNonNull(user, "User cannot be null");
-    return hash(requireNonNull(emptyToNull(userDto.getEmail()), "Email cannot be null"));
-  }
-
-  private static String hash(String text) {
-    return Hashing.md5().hashString(text.toLowerCase(ENGLISH), UTF_8).toString();
-  }
+public record UserSearchResult(UserDto userDto, boolean managed, Optional<String> avatar, Collection<String> groups, int tokensCount) {
 }

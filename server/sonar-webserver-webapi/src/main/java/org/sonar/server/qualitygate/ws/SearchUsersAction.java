@@ -33,7 +33,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.SearchPermissionQuery;
 import org.sonar.db.user.SearchUserMembershipDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.issue.AvatarResolver;
+import org.sonar.server.common.avatar.AvatarResolver;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Qualitygates.SearchUsersResponse;
 

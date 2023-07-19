@@ -20,6 +20,7 @@
 package org.sonar.server.v2.config;
 
 import org.sonar.db.DbClient;
+import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.health.CeStatusNodeCheck;
 import org.sonar.server.health.DbConnectionNodeCheck;
 import org.sonar.server.health.EsStatusNodeCheck;
@@ -97,5 +98,10 @@ public class MockConfigForControllers {
   @Bean
   ManagedInstanceChecker managedInstanceChecker() {
     return mock(ManagedInstanceChecker.class);
+  }
+
+  @Bean
+  UserService userService() {
+    return mock(UserService.class);
   }
 }

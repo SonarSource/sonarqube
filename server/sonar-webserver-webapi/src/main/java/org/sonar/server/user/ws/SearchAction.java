@@ -19,57 +19,31 @@
  */
 package org.sonar.server.user.ws;
 
-import com.google.common.collect.Multimap;
-import java.time.OffsetDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.Paging;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserQuery;
+import org.sonar.server.common.SearchResults;
+import org.sonar.server.common.user.service.UserSearchResult;
+import org.sonar.server.common.user.service.UserService;
+import org.sonar.server.common.user.service.UsersSearchRequest;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.issue.AvatarResolver;
-import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Users;
-import org.sonarqube.ws.Users.SearchWsResponse;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.emptyToNull;
-import static java.lang.Boolean.TRUE;
-import static java.util.Comparator.comparing;
-import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.Users.SearchWsResponse.Groups;
-import static org.sonarqube.ws.Users.SearchWsResponse.ScmAccounts;
-import static org.sonarqube.ws.Users.SearchWsResponse.User;
-import static org.sonarqube.ws.Users.SearchWsResponse.newBuilder;
 
 public class SearchAction implements UsersWsAction {
   private static final String DEACTIVATED_PARAM = "deactivated";
   private static final String MANAGED_PARAM = "managed";
-
 
   private static final int MAX_PAGE_SIZE = 500;
   static final String LAST_CONNECTION_DATE_FROM = "lastConnectedAfter";
@@ -77,16 +51,15 @@ public class SearchAction implements UsersWsAction {
   static final String SONAR_LINT_LAST_CONNECTION_DATE_FROM = "slLastConnectedAfter";
   static final String SONAR_LINT_LAST_CONNECTION_DATE_TO = "slLastConnectedBefore";
   private final UserSession userSession;
-  private final DbClient dbClient;
-  private final AvatarResolver avatarResolver;
-  private final ManagedInstanceService managedInstanceService;
 
-  public SearchAction(UserSession userSession, DbClient dbClient, AvatarResolver avatarResolver,
-    ManagedInstanceService managedInstanceService) {
+  private final UserService userService;
+  private final SearchWsReponseGenerator searchWsReponseGenerator;
+
+  public SearchAction(UserSession userSession,
+    UserService userService, SearchWsReponseGenerator searchWsReponseGenerator) {
     this.userSession = userSession;
-    this.dbClient = dbClient;
-    this.avatarResolver = avatarResolver;
-    this.managedInstanceService = managedInstanceService;
+    this.userService = userService;
+    this.searchWsReponseGenerator = searchWsReponseGenerator;
   }
 
   @Override
@@ -182,113 +155,31 @@ public class SearchAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    throwIfAdminOnlyParametersAreUsed(request);
     Users.SearchWsResponse wsResponse = doHandle(toSearchRequest(request));
     writeProtobuf(wsResponse, request, response);
   }
 
-  private Users.SearchWsResponse doHandle(SearchRequest request) {
-    UserQuery userQuery = buildUserQuery(request);
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      List<UserDto> users = findUsersAndSortByLogin(request, dbSession, userQuery);
-      int totalUsers = dbClient.userDao().countUsers(dbSession, userQuery);
-
-      List<String> logins = users.stream().map(UserDto::getLogin).toList();
-      Multimap<String, String> groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
-      Map<String, Integer> tokenCountsByLogin = dbClient.userTokenDao().countTokensByUsers(dbSession, users);
-      Map<String, Boolean> userUuidToIsManaged = managedInstanceService.getUserUuidToManaged(dbSession, getUserUuids(users));
-      Paging paging = forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(totalUsers);
-      return buildResponse(users, groupsByLogin, tokenCountsByLogin, userUuidToIsManaged, paging);
+  private void throwIfAdminOnlyParametersAreUsed(Request request) {
+    if (!userSession.isSystemAdministrator()) {
+      throwIfParameterValuePresent(request, LAST_CONNECTION_DATE_FROM);
+      throwIfParameterValuePresent(request, LAST_CONNECTION_DATE_TO);
+      throwIfParameterValuePresent(request, SONAR_LINT_LAST_CONNECTION_DATE_FROM);
+      throwIfParameterValuePresent(request, SONAR_LINT_LAST_CONNECTION_DATE_TO);
     }
   }
 
-  private static Set<String> getUserUuids(List<UserDto> users) {
-    return users.stream().map(UserDto::getUuid).collect(Collectors.toSet());
+  private Users.SearchWsResponse doHandle(UsersSearchRequest request) {
+    SearchResults<UserSearchResult> userSearchResults = userService.findUsers(request);
+    Paging paging = forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(userSearchResults.total());
+
+    return searchWsReponseGenerator.toUsersForResponse(userSearchResults.searchResults(), paging);
   }
 
-  private UserQuery buildUserQuery(SearchRequest request) {
-    UserQuery.UserQueryBuilder builder = UserQuery.builder();
-    if(!userSession.isSystemAdministrator()) {
-      request.getLastConnectionDateFrom().ifPresent(v -> throwForbiddenFor(LAST_CONNECTION_DATE_FROM));
-      request.getLastConnectionDateTo().ifPresent(v -> throwForbiddenFor(LAST_CONNECTION_DATE_TO));
-      request.getSonarLintLastConnectionDateFrom().ifPresent(v -> throwForbiddenFor(SONAR_LINT_LAST_CONNECTION_DATE_FROM));
-      request.getSonarLintLastConnectionDateTo().ifPresent(v -> throwForbiddenFor(SONAR_LINT_LAST_CONNECTION_DATE_TO));
-    }
-    request.getLastConnectionDateFrom().ifPresent(builder::lastConnectionDateFrom);
-    request.getLastConnectionDateTo().ifPresent(builder::lastConnectionDateTo);
-    request.getSonarLintLastConnectionDateFrom().ifPresent(builder::sonarLintLastConnectionDateFrom);
-    request.getSonarLintLastConnectionDateTo().ifPresent(builder::sonarLintLastConnectionDateTo);
-
-    if (managedInstanceService.isInstanceExternallyManaged()) {
-      String managedInstanceSql = Optional.ofNullable(request.isManaged())
-        .map(managedInstanceService::getManagedUsersSqlFilter)
-        .orElse(null);
-      builder.isManagedClause(managedInstanceSql);
-    } else if (request.isManaged() != null) {
-      throw BadRequestException.create("The 'managed' parameter is only available for managed instances.");
-    }
-
-    return builder
-      .isActive(!request.isDeactivated())
-      .searchText(request.getQuery())
-      .build();
-  }
-
-  private static void throwForbiddenFor(String parameterName) {
-    throw new ServerException(403, "parameter " + parameterName + " requires Administer System permission.");
-  }
-
-  private List<UserDto> findUsersAndSortByLogin(SearchRequest request, DbSession dbSession, UserQuery userQuery) {
-    return dbClient.userDao().selectUsers(dbSession, userQuery, request.getPage(), request.getPageSize())
-      .stream()
-      .sorted(comparing(UserDto::getLogin))
-      .toList();
-  }
-
-  private SearchWsResponse buildResponse(List<UserDto> users, Multimap<String, String> groupsByLogin, Map<String, Integer> tokenCountsByLogin,
-    Map<String, Boolean> userUuidToIsManaged, Paging paging) {
-    SearchWsResponse.Builder responseBuilder = newBuilder();
-    users.forEach(user -> responseBuilder.addUsers(
-      towsUser(user, firstNonNull(tokenCountsByLogin.get(user.getUuid()), 0), groupsByLogin.get(user.getLogin()), userUuidToIsManaged.get(user.getUuid()))
-    ));
-    responseBuilder.getPagingBuilder()
-      .setPageIndex(paging.pageIndex())
-      .setPageSize(paging.pageSize())
-      .setTotal(paging.total())
-      .build();
-    return responseBuilder.build();
-  }
-
-  private User towsUser(UserDto user, @Nullable Integer tokensCount, Collection<String> groups, Boolean managed) {
-    User.Builder userBuilder = User.newBuilder().setLogin(user.getLogin());
-    ofNullable(user.getName()).ifPresent(userBuilder::setName);
-    if (userSession.isLoggedIn()) {
-      ofNullable(emptyToNull(user.getEmail())).ifPresent(u -> userBuilder.setAvatar(avatarResolver.create(user)));
-      userBuilder.setActive(user.isActive());
-      userBuilder.setLocal(user.isLocal());
-      ofNullable(user.getExternalIdentityProvider()).ifPresent(userBuilder::setExternalProvider);
-      if (!user.getSortedScmAccounts().isEmpty()) {
-        userBuilder.setScmAccounts(ScmAccounts.newBuilder().addAllScmAccounts(user.getSortedScmAccounts()));
-      }
-    }
-    if (userSession.isSystemAdministrator() || Objects.equals(userSession.getUuid(), user.getUuid())) {
-      ofNullable(user.getEmail()).ifPresent(userBuilder::setEmail);
-      if (!groups.isEmpty()) {
-        userBuilder.setGroups(Groups.newBuilder().addAllGroups(groups));
-      }
-      ofNullable(user.getExternalLogin()).ifPresent(userBuilder::setExternalIdentity);
-      ofNullable(tokensCount).ifPresent(userBuilder::setTokensCount);
-      ofNullable(user.getLastConnectionDate()).map(DateUtils::formatDateTime).ifPresent(userBuilder::setLastConnectionDate);
-      ofNullable(user.getLastSonarlintConnectionDate())
-        .map(DateUtils::formatDateTime).ifPresent(userBuilder::setSonarLintLastConnectionDate);
-      userBuilder.setManaged(TRUE.equals(managed));
-    }
-    return userBuilder.build();
-  }
-
-  private static SearchRequest toSearchRequest(Request request) {
+  private UsersSearchRequest toSearchRequest(Request request) {
     int pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
     checkArgument(pageSize <= MAX_PAGE_SIZE, "The '%s' parameter must be less than %s", PAGE_SIZE, MAX_PAGE_SIZE);
-    return SearchRequest.builder()
+    return UsersSearchRequest.builder()
       .setQuery(request.param(TEXT_QUERY))
       .setDeactivated(request.mandatoryParamAsBoolean(DEACTIVATED_PARAM))
       .setManaged(request.paramAsBoolean(MANAGED_PARAM))
@@ -301,139 +192,12 @@ public class SearchAction implements UsersWsAction {
       .build();
   }
 
-  private static class SearchRequest {
-    private final Integer page;
-    private final Integer pageSize;
-    private final String query;
-    private final boolean deactivated;
-    private final Boolean managed;
-    private final OffsetDateTime lastConnectionDateFrom;
-    private final OffsetDateTime lastConnectionDateTo;
-    private final OffsetDateTime sonarLintLastConnectionDateFrom;
-    private final OffsetDateTime sonarLintLastConnectionDateTo;
-
-    private SearchRequest(Builder builder) {
-      this.page = builder.page;
-      this.pageSize = builder.pageSize;
-      this.query = builder.query;
-      this.deactivated = builder.deactivated;
-      this.managed = builder.managed;
-      try {
-        this.lastConnectionDateFrom = Optional.ofNullable(builder.lastConnectionDateFrom).map(DateUtils::parseOffsetDateTime).orElse(null);
-        this.lastConnectionDateTo = Optional.ofNullable(builder.lastConnectionDateTo).map(DateUtils::parseOffsetDateTime).orElse(null);
-        this.sonarLintLastConnectionDateFrom = Optional.ofNullable(builder.sonarLintLastConnectionDateFrom).map(DateUtils::parseOffsetDateTime).orElse(null);
-        this.sonarLintLastConnectionDateTo = Optional.ofNullable(builder.sonarLintLastConnectionDateTo).map(DateUtils::parseOffsetDateTime).orElse(null);
-      } catch (MessageException me) {
-        throw new ServerException(400, me.getMessage());
-      }
-    }
-
-    public Integer getPage() {
-      return page;
-    }
-
-    public Integer getPageSize() {
-      return pageSize;
-    }
-
-    @CheckForNull
-    public String getQuery() {
-      return query;
-    }
-
-    public boolean isDeactivated() {
-      return deactivated;
-    }
-
-    @CheckForNull
-    private Boolean isManaged() {
-      return managed;
-    }
-
-    public Optional<OffsetDateTime> getLastConnectionDateFrom() {
-      return Optional.ofNullable(lastConnectionDateFrom);
-    }
-
-    public Optional<OffsetDateTime> getLastConnectionDateTo() {
-      return Optional.ofNullable(lastConnectionDateTo);
-    }
-
-    public Optional<OffsetDateTime> getSonarLintLastConnectionDateFrom() {
-      return Optional.ofNullable(sonarLintLastConnectionDateFrom);
-    }
-
-    public Optional<OffsetDateTime> getSonarLintLastConnectionDateTo() {
-      return Optional.ofNullable(sonarLintLastConnectionDateTo);
-    }
-
-    public static Builder builder() {
-      return new Builder();
-    }
+  private static void throwIfParameterValuePresent(Request request, String parameter) {
+    Optional.ofNullable(request.param(parameter)).ifPresent(v -> throwForbiddenFor(parameter));
   }
 
-  private static class Builder {
-    private Integer page;
-    private Integer pageSize;
-    private String query;
-    private boolean deactivated;
-    private Boolean managed;
-    private String lastConnectionDateFrom;
-    private String lastConnectionDateTo;
-    private String sonarLintLastConnectionDateFrom;
-    private String sonarLintLastConnectionDateTo;
-
-
-    private Builder() {
-      // enforce factory method use
-    }
-
-    public Builder setPage(Integer page) {
-      this.page = page;
-      return this;
-    }
-
-    public Builder setPageSize(Integer pageSize) {
-      this.pageSize = pageSize;
-      return this;
-    }
-
-    public Builder setQuery(@Nullable String query) {
-      this.query = query;
-      return this;
-    }
-
-    public Builder setDeactivated(boolean deactivated) {
-      this.deactivated = deactivated;
-      return this;
-    }
-
-    public Builder setManaged(@Nullable Boolean managed) {
-      this.managed = managed;
-      return this;
-    }
-
-    public Builder setLastConnectionDateFrom(@Nullable String lastConnectionDateFrom) {
-      this.lastConnectionDateFrom = lastConnectionDateFrom;
-      return this;
-    }
-
-    public Builder setLastConnectionDateTo(@Nullable String lastConnectionDateTo) {
-      this.lastConnectionDateTo = lastConnectionDateTo;
-      return this;
-    }
-
-    public Builder setSonarLintLastConnectionDateFrom(@Nullable String sonarLintLastConnectionDateFrom) {
-      this.sonarLintLastConnectionDateFrom = sonarLintLastConnectionDateFrom;
-      return this;
-    }
-
-    public Builder setSonarLintLastConnectionDateTo(@Nullable String sonarLintLastConnectionDateTo) {
-      this.sonarLintLastConnectionDateTo = sonarLintLastConnectionDateTo;
-      return this;
-    }
-
-    public SearchRequest build() {
-      return new SearchRequest(this);
-    }
+  private static void throwForbiddenFor(String parameterName) {
+    throw new ServerException(403, "parameter " + parameterName + " requires Administer System permission.");
   }
+
 }

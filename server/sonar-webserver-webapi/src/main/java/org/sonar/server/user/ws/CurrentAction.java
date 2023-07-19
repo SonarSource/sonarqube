@@ -36,7 +36,7 @@ import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.issue.AvatarResolver;
+import org.sonar.server.common.avatar.AvatarResolver;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Users.CurrentWsResponse;

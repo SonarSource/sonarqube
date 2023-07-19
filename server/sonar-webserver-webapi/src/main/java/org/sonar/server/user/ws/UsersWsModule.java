@@ -20,6 +20,7 @@
 package org.sonar.server.user.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.common.user.service.UserService;
 
 public class UsersWsModule extends Module {
 
@@ -36,6 +37,8 @@ public class UsersWsModule extends Module {
       ChangePasswordAction.class,
       CurrentAction.class,
       SearchAction.class,
+      UserService.class,
+      SearchWsReponseGenerator.class,
       GroupsAction.class,
       IdentityProvidersAction.class,
       UserJsonWriter.class,

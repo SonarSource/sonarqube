@@ -39,7 +39,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.issue.AvatarResolverImpl;
+import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.tester.UserSessionRule;

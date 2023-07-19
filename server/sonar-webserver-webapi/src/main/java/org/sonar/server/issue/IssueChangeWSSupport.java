@@ -47,6 +47,7 @@ import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
+import org.sonar.server.common.avatar.AvatarResolver;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 

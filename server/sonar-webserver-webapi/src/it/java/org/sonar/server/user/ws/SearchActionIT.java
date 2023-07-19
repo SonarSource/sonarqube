@@ -36,9 +36,10 @@ import org.sonar.db.DbTester;
 import org.sonar.db.scim.ScimUserDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.avatar.AvatarResolverImpl;
+import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -71,8 +72,13 @@ public class SearchActionIT {
   @Rule
   public DbTester db = DbTester.create();
 
-  private ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
-  private WsActionTester ws = new WsActionTester(new SearchAction(userSession, db.getDbClient(), new AvatarResolverImpl(), managedInstanceService));
+  private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
+
+  private final UserService userService = new UserService(db.getDbClient(), new AvatarResolverImpl(), managedInstanceService);
+
+  private final SearchWsReponseGenerator searchWsReponseGenerator = new SearchWsReponseGenerator(userSession);
+
+  private final WsActionTester ws = new WsActionTester(new SearchAction(userSession, userService, searchWsReponseGenerator));
 
   @Test
   public void search_for_all_active_users() {
@@ -528,7 +534,6 @@ public class SearchActionIT {
     assertUserWithFilter(SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_FROM, lastConnection, user.getLogin(), true);
     assertUserWithFilter(SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_TO, lastConnection, user.getLogin(), true);
   }
-
 
   @Test
   public void search_whenNoLastConnection_shouldReturnForBeforeOnly() {

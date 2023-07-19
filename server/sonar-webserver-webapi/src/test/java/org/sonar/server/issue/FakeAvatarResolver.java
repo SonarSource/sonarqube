@@ -20,6 +20,7 @@
 package org.sonar.server.issue;
 
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.avatar.AvatarResolver;
 
 public class FakeAvatarResolver implements AvatarResolver {
 

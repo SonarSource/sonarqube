@@ -38,7 +38,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.issue.AvatarResolverImpl;
+import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;

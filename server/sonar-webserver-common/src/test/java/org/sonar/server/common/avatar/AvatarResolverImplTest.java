@@ -17,29 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue;
+package org.sonar.server.common.avatar;
 
 import org.junit.Test;
+import org.sonar.db.user.UserTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class AvatarResolverImplTest {
-
 
   private AvatarResolverImpl underTest = new AvatarResolverImpl();
 
   @Test
   public void create() {
-    String avatar = underTest.create(newUserDto("john", "John", "john@doo.com"));
+    String avatar = underTest.create(UserTesting.newUserDto("john", "John", "john@doo.com"));
 
     assertThat(avatar).isEqualTo("9297bfb538f650da6143b604e82a355d");
   }
 
   @Test
   public void create_is_case_insensitive() {
-    assertThat(underTest.create(newUserDto("john", "John", "john@doo.com"))).isEqualTo(underTest.create(newUserDto("john", "John", "John@Doo.com")));
+    assertThat(underTest.create(UserTesting.newUserDto("john", "John", "john@doo.com"))).isEqualTo(underTest.create(UserTesting.newUserDto("john", "John", "John@Doo.com")));
   }
 
   @Test
@@ -51,14 +50,14 @@ public class AvatarResolverImplTest {
 
   @Test
   public void fail_with_NP_when_email_is_null() {
-    assertThatThrownBy(() -> underTest.create(newUserDto("john", "John", null)))
+    assertThatThrownBy(() -> underTest.create(UserTesting.newUserDto("john", "John", null)))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("Email cannot be null");
   }
 
   @Test
   public void fail_when_email_is_empty() {
-    assertThatThrownBy(() -> underTest.create(newUserDto("john", "John", "")))
+    assertThatThrownBy(() -> underTest.create(UserTesting.newUserDto("john", "John", "")))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("Email cannot be null");
   }

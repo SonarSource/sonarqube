@@ -20,15 +20,16 @@
 package org.sonar.server.v2.controller;
 
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.ws.LivenessChecker;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
 public class DefautLivenessController implements LivenessController {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefautLivenessController.class);
   private final LivenessChecker livenessChecker;
   private final UserSession userSession;
   private final SystemPasscode systemPasscode;
