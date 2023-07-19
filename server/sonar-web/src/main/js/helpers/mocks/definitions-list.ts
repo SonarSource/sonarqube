@@ -1514,7 +1514,8 @@ export const definitions: ExtendedSettingDefinition[] = [
   {
     key: 'sonar.lf.logoWidthPx',
     name: 'Width of image in pixels',
-    description: 'Width in pixels, given that the height of the the image is constrained to 30px.',
+    description:
+      'Width in pixels, constrained to 150px (the height of the image is constrained to 40px).',
     category: 'general',
     subCategory: 'looknfeel',
     options: [],

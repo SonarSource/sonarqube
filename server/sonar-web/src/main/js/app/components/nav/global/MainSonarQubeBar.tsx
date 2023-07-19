@@ -24,15 +24,22 @@ import { translate } from '../../../../helpers/l10n';
 import { GlobalSettingKeys } from '../../../../types/settings';
 import { AppStateContext } from '../../app-state/AppStateContext';
 
+const DEFAULT_CUSTOM_LOGO_WIDTH_IN_PX = 100;
+
 function LogoWithAriaText() {
   const { settings } = React.useContext(AppStateContext);
   const customLogoUrl = settings[GlobalSettingKeys.LogoUrl];
+  const customLogoWidth = settings[GlobalSettingKeys.LogoWidth] ?? DEFAULT_CUSTOM_LOGO_WIDTH_IN_PX;
 
   const title = translate('layout.nav.home_logo_alt');
 
   return (
     <div aria-label={title} role="img">
-      {customLogoUrl ? <img alt={title} src={customLogoUrl} /> : <SonarQubeLogo />}
+      {customLogoUrl ? (
+        <img alt={title} src={customLogoUrl} width={customLogoWidth} />
+      ) : (
+        <SonarQubeLogo />
+      )}
     </div>
   );
 }

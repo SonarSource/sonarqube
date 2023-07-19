@@ -141,7 +141,7 @@ public class CorePropertyDefinitions {
       PropertyDefinition.builder(WebConstants.SONAR_LF_LOGO_WIDTH_PX)
         .deprecatedKey("sonar.branding.image.width")
         .name("Width of image in pixels")
-        .description("Width in pixels, given that the height of the the image is constrained to 30px.")
+        .description("Width in pixels, constrained to 150px (the height of the image is constrained to 40px).")
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),
