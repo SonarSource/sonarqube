@@ -1335,8 +1335,14 @@ export default withRouter(
         withIndexationContext(
           withIndexationGuard<Props & WithIndexationContextProps>({
             Component: App,
-            showIndexationMessage: ({ component, indexationContext }) =>
-              (!component && indexationContext.status.isCompleted === false) ||
+            showIndexationMessage: ({
+              component,
+              indexationContext: {
+                status: { completedCount, hasFailures, isCompleted, total },
+              },
+            }) =>
+              (!component &&
+                (isCompleted === false || hasFailures === true || completedCount !== total)) ||
               (component?.qualifier !== ComponentQualifier.Project &&
                 component?.needIssueSync === true),
           })
