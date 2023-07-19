@@ -41,6 +41,7 @@ export enum GlobalSettingKeys {
   AnnouncementMessage = 'sonar.announcement.message',
   MainBranchName = 'sonar.projectCreation.mainBranchName',
   OrganizationsAnyoneCanCreate = 'sonar.organizations.anyoneCanCreate',
+  CodescanWhiteLabelProduct = 'codescan.cloud.whiteLabelProduct',
 }
 
 export type SettingDefinitionAndValue = {

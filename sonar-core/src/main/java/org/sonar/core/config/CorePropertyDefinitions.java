@@ -50,6 +50,7 @@ public class CorePropertyDefinitions {
   public static final String ORGANIZATIONS_ANYONE_CAN_CREATE = "sonar.organizations.anyoneCanCreate";
   public static final String ORGANIZATIONS_CREATE_PERSONAL_ORG = "sonar.organizations.createPersonalOrg";
   public static final String ORGANIZATIONS_DEFAULT_PUBLIC_VISIBILITY = "sonar.organizations.defaultPublicVisibility";
+  public static final String CODESCAN_WHITE_LABEL_PRODUCT = "codescan.cloud.whiteLabelProduct";
 
   public static final String PLUGINS_RISK_CONSENT = "sonar.plugins.risk.consent";
   public static final String SUBCATEGORY_PROJECT_CREATION = "subProjectCreation";
