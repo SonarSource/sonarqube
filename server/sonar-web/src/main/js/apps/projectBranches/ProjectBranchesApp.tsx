@@ -28,10 +28,11 @@ import LifetimeInformation from './components/LifetimeInformation';
 
 export interface ProjectBranchesAppProps {
   component: Component;
+  fetchComponent: () => Promise<void>;
 }
 
 function ProjectBranchesApp(props: ProjectBranchesAppProps) {
-  const { component } = props;
+  const { component, fetchComponent } = props;
 
   return (
     <div className="page page-limited" id="project-branch-like">
@@ -41,7 +42,7 @@ function ProjectBranchesApp(props: ProjectBranchesAppProps) {
         <LifetimeInformation />
       </header>
 
-      <BranchLikeTabs component={component} />
+      <BranchLikeTabs component={component} fetchComponent={fetchComponent} />
     </div>
   );
 }

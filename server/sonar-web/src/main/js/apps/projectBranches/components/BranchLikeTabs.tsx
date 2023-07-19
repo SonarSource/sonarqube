@@ -40,6 +40,7 @@ import SetAsMainBranchModal from './SetAsMainBranchModal';
 
 interface Props {
   component: Component;
+  fetchComponent: () => Promise<void>;
 }
 
 export enum Tabs {
@@ -73,7 +74,7 @@ const TABS = [
 ];
 
 export default function BranchLikeTabs(props: Props) {
-  const { component } = props;
+  const { component, fetchComponent } = props;
   const [currentTab, setCurrentTab] = useState<Tabs>(Tabs.Branch);
   const [renaming, setRenaming] = useState<BranchLike>();
   const [settingAsMain, setSettingAsMain] = useState<Branch>();
@@ -85,7 +86,12 @@ export default function BranchLikeTabs(props: Props) {
     setSettingAsMain(undefined);
   };
 
-  const handleSetAsMainBranch = (branchLike: BranchLike) => {
+  const handleSetAsMainBranch = () => {
+    handleClose();
+    fetchComponent();
+  };
+
+  const handleSetAsMainBranchOption = (branchLike: BranchLike) => {
     if (isBranch(branchLike)) {
       setSettingAsMain(branchLike);
     }
@@ -119,7 +125,7 @@ export default function BranchLikeTabs(props: Props) {
           displayPurgeSetting={isBranchMode}
           onDelete={setDeleting}
           onRename={setRenaming}
-          onSetAsMain={handleSetAsMainBranch}
+          onSetAsMain={handleSetAsMainBranchOption}
           title={title}
         />
       </div>
@@ -134,10 +140,10 @@ export default function BranchLikeTabs(props: Props) {
 
       {settingAsMain && !isMainBranch(settingAsMain) && (
         <SetAsMainBranchModal
-          branch={settingAsMain}
           component={component}
+          branch={settingAsMain}
           onClose={handleClose}
-          onSetAsMain={handleClose}
+          onSetAsMain={handleSetAsMainBranch}
         />
       )}
     </>

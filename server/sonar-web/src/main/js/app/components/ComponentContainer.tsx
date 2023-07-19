@@ -359,6 +359,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               isInProgress,
               isPending,
               onComponentChange: this.handleComponentChange,
+              fetchComponent: this.fetchComponent,
               projectBinding,
             }}
           >

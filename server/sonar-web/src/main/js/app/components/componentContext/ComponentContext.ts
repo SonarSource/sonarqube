@@ -23,4 +23,5 @@ import { ComponentContextShape } from '../../../types/component';
 
 export const ComponentContext = React.createContext<ComponentContextShape>({
   onComponentChange: noop,
+  fetchComponent: () => new Promise(noop),
 });

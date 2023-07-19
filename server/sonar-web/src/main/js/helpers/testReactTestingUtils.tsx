@@ -137,6 +137,7 @@ export function renderAppWithComponentContext(
           onComponentChange: (changes: Partial<Component>) => {
             setRealComponent({ ...realComponent, ...changes });
           },
+          fetchComponent: jest.fn(),
           component: realComponent,
           ...omit(componentContext, 'component'),
         }}

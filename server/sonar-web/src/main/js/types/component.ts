@@ -100,5 +100,6 @@ export interface ComponentContextShape {
   isInProgress?: boolean;
   isPending?: boolean;
   onComponentChange: (changes: Partial<Component>) => void;
+  fetchComponent: () => Promise<void>;
   projectBinding?: ProjectAlmBindingResponse;
 }

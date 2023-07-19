@@ -248,6 +248,7 @@ function renderProjectBranchesApp(overrides?: Partial<AppState>) {
     <ComponentContext.Provider
       value={{
         onComponentChange: jest.fn(),
+        fetchComponent: jest.fn(),
         component: mockComponent(),
       }}
     >
