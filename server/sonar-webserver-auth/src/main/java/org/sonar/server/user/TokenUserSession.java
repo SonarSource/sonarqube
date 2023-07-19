@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import java.util.Set;
 import org.sonar.db.DbClient;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
@@ -62,5 +63,22 @@ public class TokenUserSession extends ServerUserSession {
 
   public UserTokenDto getUserToken() {
     return userToken;
+  }
+
+  @Override
+  protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
+    TokenType tokenType = TokenType.valueOf(userToken.getType());
+    switch (tokenType) {
+      case USER_TOKEN:
+        return super.hasPermissionImpl(permission, organizationUuid);
+      case PROJECT_ANALYSIS_TOKEN:
+        return false;
+      case GLOBAL_ANALYSIS_TOKEN:
+        //The case with a global analysis token has to return false always, since it is based on the assumption that the user
+        // has global analysis privileges
+        return false;
+      default:
+        throw new IllegalArgumentException("Unsupported token type " + tokenType.name());
+    }
   }
 }
