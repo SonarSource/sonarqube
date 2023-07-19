@@ -81,6 +81,7 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_027, "Populate column 'created_at_temp' in 'components' table", PopulateCreatedAtTempInComponents.class)
       .add(10_2_028, "Drop column 'created_at' in 'components' table", DropCreatedAtInComponents.class)
       .add(10_2_029, "Rename column 'created_at_temp' to 'created_at' in 'components' table", RenameCreatedAtTempInComponents.class)
+
       .add(10_2_030, "Create table 'anticipated_transitions'", CreateAnticipatedTransitionsTable.class)
 
       .add(10_2_031, "Increase size of 'ce_queue.is_last_key' from 55 to 80 characters", IncreaseIsLastKeyInCeActivity.class)
@@ -89,11 +90,12 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_034, "Populate 'clean_code_attribute' column in 'rules' table", PopulateCleanCodeAttributeColumnInRules.class)
       //TODO SONAR-20073
       //.add(10_2_035, "Make 'clean_code_attribute' column not nullable in 'rules' table", MakeCleanCodeAttributeColumnNotNullableInRules.class);
-    
+
       .add(10_2_036, "Create 'rules_default_impacts' table", CreateRulesDefaultImpactsTable.class)
       .add(10_2_037, "Create unique constraint index on 'rules_default_impacts' table", CreateUniqueConstraintOnRulesDefaultImpacts.class)
       .add(10_2_038, "Create 'issues_impacts' table", CreateIssueImpactsTable.class)
       .add(10_2_039, "Create unique constraint index on 'issues_impacts' table", CreateUniqueConstraintOnIssuesImpacts.class)
-      .add(10_2_040, "Populate default impacts for existing rules", PopulateDefaultImpactsInRules.class);
+      .add(10_2_040, "Populate default impacts for existing rules", PopulateDefaultImpactsInRules.class)
+      .add(10_2_041, "Fix sqale_index metric description in 'metrics' table", FixSqaleIndexMetricDescription.class);
   }
 }
