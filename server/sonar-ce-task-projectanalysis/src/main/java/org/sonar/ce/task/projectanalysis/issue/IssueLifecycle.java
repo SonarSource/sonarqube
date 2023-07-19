@@ -24,6 +24,7 @@ import com.google.common.base.Preconditions;
 import java.util.Date;
 import java.util.Optional;
 import javax.inject.Inject;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -206,6 +207,22 @@ public class IssueLifecycle {
 
   public void doAutomaticTransition(DefaultIssue issue) {
     workflow.doAutomaticTransition(issue, changeContext);
+  }
+
+  public void doManualTransition(DefaultIssue issue, String transitionKey, String userUuid) {
+    workflow.doManualTransition(issue, transitionKey, getIssueChangeContextWithUser(userUuid));
+  }
+
+  public void addComment(DefaultIssue issue, String comment, String userUuid) {
+    updater.addComment(issue, comment, getIssueChangeContextWithUser(userUuid));
+  }
+
+  @NotNull
+  private IssueChangeContext getIssueChangeContextWithUser(String userUuid) {
+    return IssueChangeContext.newBuilder()
+      .setDate(changeContext.date())
+      .setWebhookSource(changeContext.getWebhookSource())
+      .setUserUuid(userUuid).build();
   }
 
   private void copyFields(DefaultIssue toIssue, DefaultIssue fromIssue) {

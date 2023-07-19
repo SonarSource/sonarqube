@@ -44,7 +44,7 @@ public class IssueStorage {
         changeDto.setProjectUuid(issue.projectUuid());
         mapper.insert(changeDto);
       }
-    } else if (!issue.isNew() && diffs != null) {
+    } else if ((!issue.isNew() || issue.hasAnticipatedTransitions()) && diffs != null) {
       IssueChangeDto changeDto = IssueChangeDto.of(issue.key(), diffs, issue.projectUuid());
       changeDto.setUuid(uuidFactory.create());
       changeDto.setProjectUuid(issue.projectUuid());

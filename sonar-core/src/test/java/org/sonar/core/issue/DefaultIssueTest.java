@@ -282,4 +282,17 @@ public class DefaultIssueTest {
   public void codeVariants_whenNull_shouldReturnEmptySet() {
     assertThat(issue.codeVariants()).isEmpty();
   }
+
+  @Test
+  public void issueByDefault_shouldNotHaveAppliedAnticipatedTransitions() {
+    DefaultIssue defaultIssue = new DefaultIssue();
+    assertThat(defaultIssue.hasAnticipatedTransitions()).isFalse();
+  }
+
+  @Test
+  public void anticipatedTransitions_WhenSetTrue_shouldReturnTrue() {
+    DefaultIssue defaultIssue = new DefaultIssue();
+    defaultIssue.setAnticipatedTransitions(true);
+    assertThat(defaultIssue.hasAnticipatedTransitions()).isTrue();
+  }
 }

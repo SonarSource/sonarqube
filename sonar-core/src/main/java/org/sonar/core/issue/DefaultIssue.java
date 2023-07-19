@@ -131,6 +131,8 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   private String ruleDescriptionContextKey = null;
 
+  private boolean anticipatedTransitions = false;
+
   @Override
   public String key() {
     return key;
@@ -686,6 +688,15 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setRuleDescriptionContextKey(@Nullable String ruleDescriptionContextKey) {
     this.ruleDescriptionContextKey = ruleDescriptionContextKey;
+    return this;
+  }
+
+  public boolean hasAnticipatedTransitions() {
+    return anticipatedTransitions;
+  }
+
+  public DefaultIssue setAnticipatedTransitions(boolean anticipatedTransitions) {
+    this.anticipatedTransitions = anticipatedTransitions;
     return this;
   }
 

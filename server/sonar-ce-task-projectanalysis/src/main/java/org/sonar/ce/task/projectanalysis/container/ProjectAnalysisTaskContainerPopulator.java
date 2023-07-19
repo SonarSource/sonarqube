@@ -51,6 +51,7 @@ import org.sonar.ce.task.projectanalysis.filemove.MutableMovedFilesRepositoryImp
 import org.sonar.ce.task.projectanalysis.filemove.ScoreMatrixDumperImpl;
 import org.sonar.ce.task.projectanalysis.filemove.SourceSimilarityImpl;
 import org.sonar.ce.task.projectanalysis.filesystem.ComputationTempFolderProvider;
+import org.sonar.ce.task.projectanalysis.issue.AnticipatedTransitionRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.issue.BaseIssuesLoader;
 import org.sonar.ce.task.projectanalysis.issue.CloseIssuesOnRemovedComponentsVisitor;
 import org.sonar.ce.task.projectanalysis.issue.ClosedIssuesInputFactory;
@@ -94,6 +95,7 @@ import org.sonar.ce.task.projectanalysis.issue.TrackerRawInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerReferenceBranchInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerSourceBranchInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerTargetBranchInputFactory;
+import org.sonar.ce.task.projectanalysis.issue.TransitionIssuesToAnticipatedStatesVisitor;
 import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
 import org.sonar.ce.task.projectanalysis.language.LanguageRepositoryImpl;
@@ -256,6 +258,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       // debt)
       RuleTagsCopier.class,
       IssueCreationDateCalculator.class,
+      TransitionIssuesToAnticipatedStatesVisitor.class,
       ComputeLocationHashesVisitor.class,
       DebtCalculator.class,
       EffortAggregator.class,
@@ -326,7 +329,10 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       WebhookPostTask.class,
 
       // notifications
-      NotificationFactory.class);
+      NotificationFactory.class,
+
+      // anticipated transitions
+      AnticipatedTransitionRepositoryImpl.class);
   }
 
 }

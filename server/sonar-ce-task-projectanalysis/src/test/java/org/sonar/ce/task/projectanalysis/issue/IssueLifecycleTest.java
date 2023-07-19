@@ -350,6 +350,35 @@ public class IssueLifecycleTest {
   }
 
   @Test
+  public void doManualTransition() {
+    DefaultIssue issue = new DefaultIssue();
+    String transitionKey = "transitionKey";
+    String userUuid = "userUuid";
+
+    underTest.doManualTransition(issue, transitionKey, userUuid);
+
+    verify(workflow).doManualTransition(issue, transitionKey, getIssueChangeContextWithUser(userUuid));
+  }
+
+  @Test
+  public void addComment() {
+    DefaultIssue issue = new DefaultIssue();
+    String comment = "comment";
+    String userUuid = "userUuid";
+
+    underTest.addComment(issue, comment, userUuid);
+
+    verify(updater).addComment(issue, comment, getIssueChangeContextWithUser(userUuid));
+  }
+
+  private IssueChangeContext getIssueChangeContextWithUser(String userUuid) {
+    return IssueChangeContext.newBuilder()
+      .setDate(issueChangeContext.date())
+      .setWebhookSource(issueChangeContext.getWebhookSource())
+      .setUserUuid(userUuid).build();
+  }
+
+  @Test
   public void mergeExistingOpenIssue() {
     DefaultIssue raw = new DefaultIssue()
       .setNew(true)
