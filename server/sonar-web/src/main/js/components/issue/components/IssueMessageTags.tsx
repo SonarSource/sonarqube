@@ -34,10 +34,12 @@ export interface IssueMessageTagsProps {
 }
 
 export default function IssueMessageTags(props: IssueMessageTagsProps) {
-  const { engine, quickFixAvailable, ruleStatus } = props;
+  const { engine, ruleStatus } = props;
+  let { quickFixAvailable } = props;
 
   const { externalRulesRepoNames } = React.useContext(WorkspaceContext);
   const ruleEngine = (engine && externalRulesRepoNames && externalRulesRepoNames[engine]) || engine;
+  quickFixAvailable = false;
 
   return (
     <>
