@@ -32,6 +32,10 @@ import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.issue.ws.anticipatedtransition.AnticipatedTransitionHandler;
+import org.sonar.server.issue.ws.anticipatedtransition.AnticipatedTransitionParser;
+import org.sonar.server.issue.ws.anticipatedtransition.AnticipatedTransitionsAction;
+import org.sonar.server.issue.ws.anticipatedtransition.AnticipatedTransitionsActionValidator;
 import org.sonar.server.issue.ws.pull.PullActionProtobufObjectGenerator;
 import org.sonar.server.issue.ws.pull.PullActionResponseWriter;
 import org.sonar.server.issue.ws.pull.PullTaintActionProtobufObjectGenerator;
@@ -80,6 +84,11 @@ public class IssueWsModule extends Module {
       PullTaintAction.class,
       PullActionResponseWriter.class,
       PullActionProtobufObjectGenerator.class,
-      PullTaintActionProtobufObjectGenerator.class);
+      PullTaintActionProtobufObjectGenerator.class,
+      AnticipatedTransitionParser.class,
+      AnticipatedTransitionHandler.class,
+      AnticipatedTransitionsActionValidator.class,
+      AnticipatedTransitionsAction.class
+    );
   }
 }

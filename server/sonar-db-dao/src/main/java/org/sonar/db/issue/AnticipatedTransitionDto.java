@@ -20,6 +20,7 @@
 package org.sonar.db.issue;
 
 import javax.annotation.Nullable;
+import org.sonar.core.issue.AnticipatedTransition;
 
 public class AnticipatedTransitionDto {
   private String uuid;
@@ -137,5 +138,19 @@ public class AnticipatedTransitionDto {
 
   public void setRuleKey(String ruleKey) {
     this.ruleKey = ruleKey;
+  }
+
+  public static AnticipatedTransitionDto toDto(AnticipatedTransition anticipatedTransition, String uuid, String projectUuid) {
+    return new AnticipatedTransitionDto(
+      uuid,
+      projectUuid,
+      anticipatedTransition.getUserUuid(),
+      anticipatedTransition.getTransition(),
+      anticipatedTransition.getStatus(),
+      anticipatedTransition.getComment(),
+      anticipatedTransition.getLine(),
+      anticipatedTransition.getMessage(),
+      anticipatedTransition.getLineHash(),
+      anticipatedTransition.getRuleKey().toString());
   }
 }

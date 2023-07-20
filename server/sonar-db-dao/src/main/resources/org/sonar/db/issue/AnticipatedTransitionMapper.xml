@@ -30,6 +30,10 @@
     delete from anticipated_transitions where uuid=#{uuid}
   </delete>
 
+  <delete id="deleteByProjectAndUser" parameterType="string">
+    delete from anticipated_transitions where project_uuid=#{projectUuid,jdbcType=VARCHAR} and user_uuid=#{userUuid,jdbcType=VARCHAR}
+  </delete>
+
   <select id="selectByProjectUuid" parameterType="string" resultType="AnticipatedTransition">
     select
     <include refid="anticipatedTransitionsColumns"/>

@@ -17,17 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.issue;
+package org.sonar.server.issue.ws.anticipatedtransition;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import com.google.gson.annotations.SerializedName;
 
-public interface AnticipatedTransitionMapper {
-  void insert(AnticipatedTransitionDto anticipatedTransitionDto);
-
-  void delete(@Param("uuid") String uuid);
-
-  void deleteByProjectAndUser(@Param("projectUuid") String projectUuid, @Param("userUuid") String userUuid);
-
-  List<AnticipatedTransitionDto> selectByProjectUuid(@Param("projectUuid") String projectUuid);
+public record GsonAnticipatedTransition(@SerializedName("ruleKey") String ruleKey, @SerializedName("issueMessage") String message,
+                                        @SerializedName("filePath") String filePath, @SerializedName("line") Integer line,
+                                        @SerializedName("lineHash") String lineHash, @SerializedName("transition") String transition,
+                                        @SerializedName("comment") String comment) {
 }
