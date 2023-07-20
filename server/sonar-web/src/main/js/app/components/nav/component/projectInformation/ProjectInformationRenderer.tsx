@@ -118,7 +118,7 @@ export function ProjectInformationRenderer(props: ProjectInformationRendererProp
         </div>
 
         <ul>
-          {canUseBadges && (
+          {/* {canUseBadges && (
             <li>
               <DrawerLink
                 label={translate('overview.badges.get_badge', component.qualifier)}
@@ -126,7 +126,7 @@ export function ProjectInformationRenderer(props: ProjectInformationRendererProp
                 to={ProjectInformationPages.badges}
               />
             </li>
-          )}
+          )} */}
           {canConfigureNotifications && (
             <li>
               <DrawerLink

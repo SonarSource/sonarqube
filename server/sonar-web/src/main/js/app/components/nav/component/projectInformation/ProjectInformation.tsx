@@ -102,14 +102,14 @@ export class ProjectInformation extends React.PureComponent<Props, State> {
           onComponentChange={this.props.onComponentChange}
           onPageChange={this.setPage}
         />
-        {canUseBadges && (
+        {/* {canUseBadges && (
           <InfoDrawerPage
             displayed={page === ProjectInformationPages.badges}
             onPageChange={this.setPage}
           >
             <ProjectBadges branchLike={branchLike} component={component} />
           </InfoDrawerPage>
-        )}
+        )} */}
         {canConfigureNotifications && (
           <InfoDrawerPage
             displayed={page === ProjectInformationPages.notifications}
