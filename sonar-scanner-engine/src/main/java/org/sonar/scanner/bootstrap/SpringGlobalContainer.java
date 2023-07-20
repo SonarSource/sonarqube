@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Priority;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarEdition;
@@ -34,8 +36,6 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.Version;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.core.documentation.DefaultDocumentationLinkGenerator;
 import org.sonar.core.extension.CoreExtensionRepositoryImpl;
 import org.sonar.core.extension.CoreExtensionsLoader;
@@ -114,7 +114,8 @@ public class SpringGlobalContainer extends SpringComponentContainer {
       ScannerCoreExtensionsInstaller.class,
       DefaultGlobalSettingsLoader.class,
       DefaultNewCodePeriodLoader.class,
-      DefaultMetricsRepositoryLoader.class);
+      DefaultMetricsRepositoryLoader.class,
+      RuntimeJavaVersion.class);
   }
 
   @Override
@@ -134,6 +135,7 @@ public class SpringGlobalContainer extends SpringComponentContainer {
     if (!analysisMode.equals("publish")) {
       throw MessageException.of("The preview mode, along with the 'sonar.analysis.mode' parameter, is no more supported. You should stop using this parameter.");
     }
+    getComponentByType(RuntimeJavaVersion.class).checkJavaVersion();
     new SpringProjectScanContainer(this).execute();
 
     LOG.info("Analysis total time: {}", formatTime(System.currentTimeMillis() - startTime));
