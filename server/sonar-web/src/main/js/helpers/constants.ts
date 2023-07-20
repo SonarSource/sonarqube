@@ -75,4 +75,3 @@ export const IMPORT_COMPATIBLE_ALMS = [
 ];
 
 export const GRADLE_SCANNER_VERSION = '3.5.0.2730';
-export const FEATURE_FLAG_AMAZON = 'AMAZON';

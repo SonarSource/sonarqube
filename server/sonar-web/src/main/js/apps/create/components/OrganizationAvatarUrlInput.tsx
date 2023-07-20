@@ -21,14 +21,11 @@ import * as React from 'react';
 import classNames from 'classnames';
 import { isWebUri } from 'valid-url';
 import { translate } from "../../../helpers/l10n";
-import { FEATURE_FLAG_AMAZON } from "../../../helpers/constants";
 import ValidationInput from "../../../components/controls/ValidationInput";
 import { getWhiteListDomains } from '../../../../js/api/organizations';
 import { throwGlobalError } from '../../../../js/helpers/error';
-import { AppState } from '../../../types/appstate';
 
 interface Props {
-  appState: AppState;
   initialValue?: string;
   onChange: (value: string | undefined) => void;
 }
@@ -43,12 +40,16 @@ interface State {
 export default class OrganizationAvatarUrlInput extends React.PureComponent<Props, State> {
   state: State = {error: undefined, editing: false, touched: false, value: ''};
   whiteListDomains: string[] = [];
-  whiteLabel = this.props.appState.whiteLabel;
+
+  async fetchWhiteListDomains() {
+    await getWhiteListDomains().then((data : string[])=>{
+      this.whiteListDomains = data;
+    },
+    throwGlobalError)
+  }
 
   async componentDidMount() {
-    if (this.whiteLabel === FEATURE_FLAG_AMAZON) {
-      await this.fetchWhiteListDomains();
-    }
+    await this.fetchWhiteListDomains();
     setTimeout(()=>{
       if (this.props.initialValue) {
         const value = this.props.initialValue;
@@ -56,14 +57,7 @@ export default class OrganizationAvatarUrlInput extends React.PureComponent<Prop
         this.setState({error, touched: Boolean(error), value});
       }
     },0)
-  }
-  
-  async fetchWhiteListDomains() {
-    await getWhiteListDomains().then((data : string[])=>{
-      this.whiteListDomains = data;
-    },
-    throwGlobalError)
-  }
+  }  
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.currentTarget.value.trim();
@@ -111,7 +105,7 @@ export default class OrganizationAvatarUrlInput extends React.PureComponent<Prop
     if (url.length > 0 && !isWebUri(url) ){
       return translate('onboarding.create_organization.url.error');
     }
-    if(url.length > 0 && this.whiteLabel === FEATURE_FLAG_AMAZON &&  !this.isValidDomain(url)){
+    if(url.length > 0 && !this.isValidDomain(url)){
       return translate('onboarding.create_organization.url.domain.error');
     }
     return undefined;
