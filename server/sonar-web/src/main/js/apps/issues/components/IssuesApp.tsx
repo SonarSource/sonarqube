@@ -167,8 +167,8 @@ export class App extends React.PureComponent<Props, State> {
       issues: [],
       loading: true,
       loadingFacets: {},
-      loadingRule: false,
       loadingMore: false,
+      loadingRule: false,
       locationsNavigator: false,
       myIssues: areMyIssuesSelected(props.location.query),
       openFacets: {
@@ -183,7 +183,6 @@ export class App extends React.PureComponent<Props, State> {
         standards: shouldOpenStandardsFacet({}, query),
         types: true,
       },
-      showVariantsFilter: false,
       query,
       referencedComponentsById: {},
       referencedComponentsByKey: {},
@@ -191,6 +190,7 @@ export class App extends React.PureComponent<Props, State> {
       referencedRules: {},
       referencedUsers: {},
       selected: getOpen(props.location.query),
+      showVariantsFilter: false,
     };
   }
 
@@ -201,8 +201,8 @@ export class App extends React.PureComponent<Props, State> {
 
     return {
       myIssues: areMyIssuesSelected(query),
-      query: parseQuery(query),
       openIssue: getOpenIssue(props, state.issues),
+      query: parseQuery(query),
     };
   }
 
@@ -283,6 +283,7 @@ export class App extends React.PureComponent<Props, State> {
     if (event.key === KeyboardKeys.Alt) {
       event.preventDefault();
       this.setState(actions.enableLocationsNavigator);
+
       return;
     }
 
@@ -464,6 +465,7 @@ export class App extends React.PureComponent<Props, State> {
         ...query,
       }).then((response) => {
         const { components, issues, rules } = response;
+
         const parsedIssues = issues.map((issue) =>
           parseIssueFromResponse(issue, components, undefined, rules)
         );
@@ -580,15 +582,12 @@ export class App extends React.PureComponent<Props, State> {
         }
 
         this.setState(({ showVariantsFilter }) => ({
-          cannotShowOpenIssue: Boolean(openIssueKey && !openIssue),
+          cannotShowOpenIssue: Boolean(openIssueKey) && !openIssue,
           effortTotal,
           facets: parseFacets(facets),
-          showVariantsFilter: firstRequest
-            ? Boolean(facets?.find((f) => f.property === VARIANTS_FACET)?.values.length)
-            : showVariantsFilter,
+          issues,
           loading: false,
           locationsNavigator: true,
-          issues,
           openIssue,
           paging,
           referencedComponentsById: keyBy(other.components, 'uuid'),
@@ -599,6 +598,9 @@ export class App extends React.PureComponent<Props, State> {
           selected,
           selectedFlowIndex: 0,
           selectedLocationIndex: undefined,
+          showVariantsFilter: firstRequest
+            ? Boolean(facets?.find((f) => f.property === VARIANTS_FACET)?.values.length)
+            : showVariantsFilter,
         }));
       }
 
@@ -642,8 +644,8 @@ export class App extends React.PureComponent<Props, State> {
       (response) => {
         if (this.mounted) {
           this.setState((state) => ({
-            loadingMore: false,
             issues: [...state.issues, ...response.issues],
+            loadingMore: false,
             paging: response.paging,
           }));
         }
@@ -709,7 +711,7 @@ export class App extends React.PureComponent<Props, State> {
 
     let count;
 
-    if (checkAll && paging) {
+    if (checkAll && paging && !this.props.component?.needIssueSync) {
       count = paging.total > MAX_PAGE_SIZE ? MAX_PAGE_SIZE : paging.total;
     } else {
       count = Math.min(checked.length, MAX_PAGE_SIZE);
@@ -923,7 +925,7 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   renderBulkChange() {
-    const { currentUser } = this.props;
+    const { component, currentUser } = this.props;
     const { checkAll, bulkChangeModal, checked, issues, paging } = this.state;
 
     const isAllChecked = checked.length > 0 && issues.length === checked.length;
@@ -947,9 +949,9 @@ export class App extends React.PureComponent<Props, State> {
         />
 
         <ButtonSecondary
-          innerRef={this.bulkButtonRef}
           disabled={checked.length === 0}
           id="issues-bulk-change"
+          innerRef={this.bulkButtonRef}
           onClick={this.handleOpenBulkChange}
         >
           {this.getButtonLabel(checked, checkAll, paging)}
@@ -957,7 +959,10 @@ export class App extends React.PureComponent<Props, State> {
 
         {bulkChangeModal && (
           <BulkChangeModal
-            fetchIssues={checkAll ? this.fetchIssues : this.getCheckedIssues}
+            fetchIssues={
+              checkAll && !component?.needIssueSync ? this.fetchIssues : this.getCheckedIssues
+            }
+            needIssueSync={component?.needIssueSync}
             onClose={this.handleCloseBulkChange}
             onDone={this.handleBulkChangeDone}
           />
@@ -969,17 +974,17 @@ export class App extends React.PureComponent<Props, State> {
   renderFacets(warning?: React.ReactNode) {
     const { component, currentUser, branchLike } = this.props;
     const {
-      query,
       facets,
       loadingFacets,
       myIssues,
       openFacets,
-      showVariantsFilter,
+      query,
       referencedComponentsById,
       referencedComponentsByKey,
       referencedLanguages,
       referencedRules,
       referencedUsers,
+      showVariantsFilter,
     } = this.state;
 
     return (
@@ -1011,19 +1016,19 @@ export class App extends React.PureComponent<Props, State> {
           component={component}
           createdAfterIncludesTime={this.createdAfterIncludesTime()}
           facets={facets}
-          loadSearchResultCount={this.loadSearchResultCount}
           loadingFacets={loadingFacets}
+          loadSearchResultCount={this.loadSearchResultCount}
           myIssues={myIssues}
           onFacetToggle={this.handleFacetToggle}
           onFilterChange={this.handleFilterChange}
           openFacets={openFacets}
-          showVariantsFilter={showVariantsFilter}
           query={query}
           referencedComponentsById={referencedComponentsById}
           referencedComponentsByKey={referencedComponentsByKey}
           referencedLanguages={referencedLanguages}
           referencedRules={referencedRules}
           referencedUsers={referencedUsers}
+          showVariantsFilter={showVariantsFilter}
         />
       </div>
     );
@@ -1222,13 +1227,12 @@ export class App extends React.PureComponent<Props, State> {
               {/* eslint-disable-next-line local-rules/no-conditional-rendering-of-deferredspinner */}
               {openIssue && openRuleDetails ? (
                 <IssueTabViewer
-                  ruleDetails={openRuleDetails}
-                  extendedDescription={openRuleDetails.htmlNote}
-                  ruleDescriptionContextKey={openIssue.ruleDescriptionContextKey}
-                  issue={openIssue}
-                  selectedFlowIndex={this.state.selectedFlowIndex}
-                  selectedLocationIndex={this.state.selectedLocationIndex}
-                  onIssueChange={this.handleIssueChange}
+                  activityTabContent={
+                    <IssueReviewHistoryAndComments
+                      issue={openIssue}
+                      onChange={this.handleIssueChange}
+                    />
+                  }
                   codeTabContent={
                     <IssuesSourceViewer
                       branchLike={fillBranchLike(openIssue.branch, openIssue.pullRequest)}
@@ -1241,12 +1245,13 @@ export class App extends React.PureComponent<Props, State> {
                       selectedLocationIndex={this.state.selectedLocationIndex}
                     />
                   }
-                  activityTabContent={
-                    <IssueReviewHistoryAndComments
-                      issue={openIssue}
-                      onChange={this.handleIssueChange}
-                    />
-                  }
+                  extendedDescription={openRuleDetails.htmlNote}
+                  issue={openIssue}
+                  onIssueChange={this.handleIssueChange}
+                  ruleDescriptionContextKey={openIssue.ruleDescriptionContextKey}
+                  ruleDetails={openRuleDetails}
+                  selectedFlowIndex={this.state.selectedFlowIndex}
+                  selectedLocationIndex={this.state.selectedLocationIndex}
                 />
               ) : (
                 <div
@@ -1254,20 +1259,22 @@ export class App extends React.PureComponent<Props, State> {
                   style={{ marginTop: `-${PSEUDO_SHADOW_HEIGHT}px` }}
                 >
                   <DeferredSpinner
+                    ariaLabel={translate('issues.loading_issues')}
                     className="sw-mt-4"
                     loading={loading}
-                    ariaLabel={translate('issues.loading_issues')}
                   >
                     {checkAll && paging && paging.total > MAX_PAGE_SIZE && (
-                      <FlagMessage variant="warning">
-                        <span>
-                          <FormattedMessage
-                            defaultMessage={translate('issue_bulk_change.max_issues_reached')}
-                            id="issue_bulk_change.max_issues_reached"
-                            values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
-                          />
-                        </span>
-                      </FlagMessage>
+                      <div className="sw-mt-3">
+                        <FlagMessage variant="warning">
+                          <span>
+                            <FormattedMessage
+                              defaultMessage={translate('issue_bulk_change.max_issues_reached')}
+                              id="issue_bulk_change.max_issues_reached"
+                              values={{ max: <strong>{MAX_PAGE_SIZE}</strong> }}
+                            />
+                          </span>
+                        </FlagMessage>
+                      </div>
                     )}
 
                     {cannotShowOpenIssue && (!paging || paging.total > 0) && (
