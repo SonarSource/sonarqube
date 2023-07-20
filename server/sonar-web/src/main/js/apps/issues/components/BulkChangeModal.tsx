@@ -50,6 +50,7 @@ import TagsSelect from './TagsSelect';
 
 interface Props {
   fetchIssues: (x: {}) => Promise<{ issues: Issue[]; paging: Paging }>;
+  needIssueSync?: boolean;
   onClose: () => void;
   onDone: () => void;
   refreshBranchStatus: () => void;
@@ -432,6 +433,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
   );
 
   renderForm = () => {
+    const { needIssueSync } = this.props;
     const { issues, loading, paging } = this.state;
 
     const limitReached = paging && paging.total > MAX_PAGE_SIZE;
@@ -454,8 +456,9 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
           {this.renderAssigneeField()}
           {this.renderTypeField()}
           {this.renderSeverityField()}
-          {this.renderTagsField(InputField.addTags, 'issue.add_tags', true)}
-          {this.renderTagsField(InputField.removeTags, 'issue.remove_tags', false)}
+          {!needIssueSync && this.renderTagsField(InputField.addTags, 'issue.add_tags', true)}
+          {!needIssueSync &&
+            this.renderTagsField(InputField.removeTags, 'issue.remove_tags', false)}
           {this.renderTransitionsField()}
           {this.renderCommentField()}
           {issues.length > 0 && this.renderNotificationsField()}
