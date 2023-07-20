@@ -43,6 +43,7 @@ import org.sonar.db.entity.EntityDao;
 import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.event.EventComponentChangeDao;
 import org.sonar.db.event.EventDao;
+import org.sonar.db.issue.AnticipatedTransitionDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.measure.LiveMeasureDao;
@@ -180,6 +181,7 @@ public class DbClient {
   private final ScimUserDao scimUserDao;
   private final ScimGroupDao scimGroupDao;
   private final EntityDao entityDao;
+  private final AnticipatedTransitionDao anticipatedTransitionDao;
 
   private final ReportScheduleDao reportScheduleDao;
   private final ReportSubscriptionDao reportSubscriptionDao;
@@ -270,6 +272,7 @@ public class DbClient {
     entityDao = getDao(map, EntityDao.class);
     reportScheduleDao = getDao(map, ReportScheduleDao.class);
     reportSubscriptionDao = getDao(map, ReportSubscriptionDao.class);
+    anticipatedTransitionDao = getDao(map, AnticipatedTransitionDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -590,12 +593,16 @@ public class DbClient {
     return entityDao;
   }
 
-  public ReportScheduleDao reportScheduleDao(){
+  public ReportScheduleDao reportScheduleDao() {
     return reportScheduleDao;
   }
 
   public ReportSubscriptionDao reportSubscriptionDao() {
     return reportSubscriptionDao;
+  }
+
+  public AnticipatedTransitionDao anticipatedTransitionDao() {
+    return anticipatedTransitionDao;
   }
 }
 

@@ -70,6 +70,8 @@ import org.sonar.db.es.EsQueueMapper;
 import org.sonar.db.event.EventComponentChangeMapper;
 import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventMapper;
+import org.sonar.db.issue.AnticipatedTransitionDto;
+import org.sonar.db.issue.AnticipatedTransitionMapper;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
@@ -194,6 +196,7 @@ public class MyBatis {
     confBuilder.loadAlias("ActiveRule", ActiveRuleDto.class);
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);
     confBuilder.loadAlias("ApplicationProject", ApplicationProjectDto.class);
+    confBuilder.loadAlias("AnticipatedTransition", AnticipatedTransitionDto.class);
     confBuilder.loadAlias("CeTaskCharacteristic", CeTaskCharacteristicDto.class);
     confBuilder.loadAlias("Component", ComponentDto.class);
     confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);
@@ -256,6 +259,7 @@ public class MyBatis {
       AlmPatMapper.class,
       AlmSettingMapper.class,
       AnalysisPropertiesMapper.class,
+      AnticipatedTransitionMapper.class,
       ApplicationProjectsMapper.class,
       AuditMapper.class,
       AuthorizationMapper.class,

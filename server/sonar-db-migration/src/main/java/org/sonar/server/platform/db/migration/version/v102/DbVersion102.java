@@ -82,6 +82,7 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_027, "Populate column 'created_at_temp' in 'components' table", PopulateCreatedAtTempInComponents.class)
       .add(10_2_028, "Drop column 'created_at' in 'components' table", DropCreatedAtInComponents.class)
       .add(10_2_029, "Rename column 'created_at_temp' to 'created_at' in 'components' table", RenameCreatedAtTempInComponents.class)
-    ;
+
+      .add(10_2_030, "Create table 'anticipated_transitions'", CreateAnticipatedTransitionsTable.class);
   }
 }
