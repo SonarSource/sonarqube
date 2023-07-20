@@ -14,7 +14,7 @@
         and s.islast=#{islast}
       </if>
       <if test="notPurged != null and notPurged">
-        and (s.purge_status is null or s.purge_status=0)
+        and s.purged = ${_false}
       </if>
       <if test="status != null">
         and s.status in
@@ -178,7 +178,7 @@
     update
       snapshots
     set
-      purge_status = 1
+      purged = ${_true}
     where
       uuid in
       <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">

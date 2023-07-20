@@ -215,7 +215,8 @@
       period1_mode,
       period1_param,
       period1_date,
-      revision
+      revision,
+      purged
     )
     values (
       #{uuid, jdbcType=VARCHAR},
@@ -229,7 +230,8 @@
       #{periodMode, jdbcType=VARCHAR},
       #{periodParam, jdbcType=VARCHAR},
       #{periodDate, jdbcType=BIGINT},
-      #{revision, jdbcType=VARCHAR}
+      #{revision, jdbcType=VARCHAR},
+      ${_false}
     )
   </insert>
 </mapper>

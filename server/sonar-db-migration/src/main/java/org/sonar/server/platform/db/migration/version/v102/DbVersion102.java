@@ -70,6 +70,11 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_018, "Drop index 'component_uuid' in 'snapshots' table", DropIndexComponentUuidInSnapshots.class)
       .add(10_2_019, "Rename 'component_uuid' in 'snapshots' table to 'root_component_uuid'", RenameComponentUuidInSnapshots.class)
       .add(10_2_020, "Create index 'snapshots_root_component_uuid' in 'snapshots' table", CreateIndexRootComponentUuidInSnapshots.class)
+
+      .add(10_2_021, "Create 'purged' column in 'snapshots' table", CreateBooleanPurgedColumnInSnapshots.class)
+      .add(10_2_022, "Populate 'purged' column in 'snapshots' table", PopulatePurgedColumnInSnapshots.class)
+      .add(10_2_023, "Make 'purged' column not nullable in 'snapshots' table", MakePurgedColumnNotNullableInSnapshots.class)
+      .add(10_2_024, "Drop 'purge_status' column in 'snapshots' table", DropPurgeStatusColumnInSnapshots.class)
     ;
   }
 }
