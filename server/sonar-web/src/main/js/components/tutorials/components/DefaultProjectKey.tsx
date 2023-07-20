@@ -36,11 +36,7 @@ export default function DefaultProjectKey(props: DefaultProjectKeyProps) {
         filename="sonar-project.properties"
         translationKey="onboarding.tutorial.other.project_key"
       />
-      <CodeSnippet
-        snippet={sonarProjectSnippet(component.key)}
-        isOneLine
-        className="sw-p-6 sw-overflow-auto"
-      />
+      <CodeSnippet snippet={sonarProjectSnippet(component.key)} isOneLine className="sw-p-6" />
     </NumberedListItem>
   );
 }

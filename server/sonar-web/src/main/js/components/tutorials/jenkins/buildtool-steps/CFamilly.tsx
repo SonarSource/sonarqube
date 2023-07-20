@@ -125,7 +125,7 @@ export default function CFamilly(props: LanguageProps) {
           />
           {os && (
             <GithubCFamilyExampleRepositories
-              className="sw-my-4 sw-bg-inherit"
+              className="sw-my-4"
               os={os}
               ci={TutorialModes.Jenkins}
             />

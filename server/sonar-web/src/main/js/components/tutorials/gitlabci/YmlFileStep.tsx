@@ -130,7 +130,7 @@ export function YmlFileStep(props: YmlFileStepProps) {
         {buildTool === BuildTools.CFamily && (
           <GithubCFamilyExampleRepositories
             ci={TutorialModes.GitLabCI}
-            className="sw-my-4 sw-bg-inherit sw-w-abs-600"
+            className="sw-my-4 sw-w-abs-600"
           />
         )}
       </NumberedListItem>
@@ -177,7 +177,7 @@ export function YmlFileStep(props: YmlFileStepProps) {
               <GradleBuildSelection className="sw-mb-4 sw-mt-2">
                 {(build) => (
                   <CodeSnippet
-                    className="sw-p-6 sw-overflow-auto"
+                    className="sw-p-6"
                     language="yml"
                     snippet={snippetForBuildTool[buildTool](component.key, component.name, build)}
                   />
@@ -185,7 +185,7 @@ export function YmlFileStep(props: YmlFileStepProps) {
               </GradleBuildSelection>
             ) : (
               <CodeSnippet
-                className="sw-p-6 sw-overflow-auto"
+                className="sw-p-6"
                 language="yml"
                 snippet={snippetForBuildTool[buildTool](component.key, component.name)}
               />

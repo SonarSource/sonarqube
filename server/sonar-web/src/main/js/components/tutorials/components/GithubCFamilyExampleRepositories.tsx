@@ -56,7 +56,7 @@ export default function GithubCFamilyExampleRepositories(
   const link = `https://github.com/orgs/sonarsource-cfamily-examples/repositories?q=${queryParams}`;
 
   return (
-    <Card className={classNames('sw-p-4', className)}>
+    <Card className={classNames('sw-p-4 sw-bg-inherit', className)}>
       <div>
         <img
           alt="" // Should be ignored by screen readers

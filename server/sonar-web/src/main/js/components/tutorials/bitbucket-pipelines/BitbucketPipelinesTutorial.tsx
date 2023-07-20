@@ -84,7 +84,7 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
               <>
                 {buildTool === BuildTools.CFamily && (
                   <GithubCFamilyExampleRepositories
-                    className="sw-my-4 sw-bg-inherit sw-w-abs-600"
+                    className="sw-my-4 sw-w-abs-600"
                     ci={TutorialModes.BitbucketPipelines}
                   />
                 )}

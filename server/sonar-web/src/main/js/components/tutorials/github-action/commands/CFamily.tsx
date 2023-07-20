@@ -133,7 +133,7 @@ export default function CFamily(props: CFamilyProps) {
         />
         {os && (
           <GithubCFamilyExampleRepositories
-            className="sw-mt-4 sw-bg-inherit sw-w-abs-600"
+            className="sw-mt-4 sw-w-abs-600"
             os={os}
             ci={TutorialModes.GitHubActions}
           />

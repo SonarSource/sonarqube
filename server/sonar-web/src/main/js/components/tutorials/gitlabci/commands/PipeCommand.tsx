@@ -102,5 +102,5 @@ sonarqube-vulnerability-report:
     - sonarqube-check
 `;
 
-  return <CodeSnippet className="sw-p-6 sw-overflow-auto" snippet={command} language="yml" />;
+  return <CodeSnippet className="sw-p-6" snippet={command} language="yml" />;
 }
