@@ -52,7 +52,7 @@ public class ExportAnalysesStep implements ComputationStep {
     " inner join components p on s.root_component_uuid=p.uuid" +
     " inner join project_branches pb on pb.uuid=p.uuid" +
     " where pb.project_uuid=? and pb.branch_type = 'BRANCH' and pb.exclude_from_purge=? and s.status=? and p.enabled=?" +
-    " order by s.build_date asc";
+    " order by s.analysis_date asc";
 
   private final DbClient dbClient;
   private final ProjectHolder projectHolder;

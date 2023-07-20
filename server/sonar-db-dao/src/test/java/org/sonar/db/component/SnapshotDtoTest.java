@@ -31,17 +31,9 @@ public class SnapshotDtoTest {
 
   @Test
   public void test_getter_and_setter() {
-    SnapshotDto snapshotDto = new SnapshotDto()
-      .setBuildDate(parseDate("2014-07-02").getTime())
-      .setRootComponentUuid("uuid_21")
-      .setLast(true)
-      .setProjectVersion("1.0")
-      .setBuildString("1.0.1.123")
-      .setPeriodMode("mode1")
-      .setPeriodParam("param1")
-      .setPeriodDate(parseDate("2014-06-01").getTime());
+    SnapshotDto snapshotDto = create();
 
-    assertThat(snapshotDto.getBuildDate()).isEqualTo(parseDate("2014-07-02").getTime());
+    assertThat(snapshotDto.getAnalysisDate()).isEqualTo(parseDate("2014-07-02").getTime());
     assertThat(snapshotDto.getRootComponentUuid()).isEqualTo("uuid_21");
     assertThat(snapshotDto.getLast()).isTrue();
     assertThat(snapshotDto.getProjectVersion()).isEqualTo("1.0");
@@ -78,4 +70,66 @@ public class SnapshotDtoTest {
         " length (101) is longer than the maximum authorized (100). " +
         "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided.");
   }
+
+  @Test
+  public void equals_whenSameObject_shouldReturnTrue() {
+    SnapshotDto snapshotDto = create();
+    assertThat(snapshotDto.equals(snapshotDto)).isTrue();
+  }
+
+  @Test
+  public void equals_whenComparedToNull_shouldReturnFalse() {
+    SnapshotDto snapshotDto = create();
+    assertThat(snapshotDto.equals(null)).isFalse();
+  }
+
+  @Test
+  public void equals_whenComparedToDifferentClass_shouldReturnFalse() {
+    SnapshotDto snapshotDto = create();
+    Object differentObject = new Object();
+    assertThat(snapshotDto.equals(differentObject)).isFalse();
+  }
+
+  @Test
+  public void equals_whenComparedToDifferentInstanceWithSameValues_shouldReturnTrue() {
+    SnapshotDto snapshotDto1 = create();
+    SnapshotDto snapshotDto2 = create();
+    assertThat(snapshotDto1.equals(snapshotDto2)).isTrue();
+    assertThat(snapshotDto2.equals(snapshotDto1)).isTrue();
+  }
+
+  @Test
+  public void equals_whenComparedToDifferentInstanceWithDifferentValues_shouldReturnFalse() {
+    SnapshotDto snapshotDto1 = create();
+    SnapshotDto snapshotDto2 = create().setBuildString("some-other-string");
+    assertThat(snapshotDto1.equals(snapshotDto2)).isFalse();
+    assertThat(snapshotDto2.equals(snapshotDto1)).isFalse();
+  }
+
+  @Test
+  public void hashcode_whenDifferentInstanceWithSameValues_shouldBeEqual() {
+    SnapshotDto snapshotDto1 = create();
+    SnapshotDto snapshotDto2 = create();
+    assertThat(snapshotDto1).hasSameHashCodeAs(snapshotDto2);
+  }
+
+  @Test
+  public void hashcode_whenDifferentInstanceWithDifferentValues_shouldNotBeEqual() {
+    SnapshotDto snapshotDto1 = create();
+    SnapshotDto snapshotDto2 = create().setBuildString("some-other-string");
+    assertThat(snapshotDto1).doesNotHaveSameHashCodeAs(snapshotDto2);
+  }
+
+  private SnapshotDto create() {
+    return new SnapshotDto()
+      .setAnalysisDate(parseDate("2014-07-02").getTime())
+      .setRootComponentUuid("uuid_21")
+      .setLast(true)
+      .setProjectVersion("1.0")
+      .setBuildString("1.0.1.123")
+      .setPeriodMode("mode1")
+      .setPeriodParam("param1")
+      .setPeriodDate(parseDate("2014-06-01").getTime());
+  }
+
 }

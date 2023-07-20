@@ -88,7 +88,7 @@ public class AnalysisCacheCleaningSchedulerImplIT {
     assertThat(scannerAnalysisCacheDao.selectData(dbSession, snapshot4.getRootComponentUuid())).isNull();
   }
 
-  private static SnapshotDto createSnapshot(long buildtime) {
+  private static SnapshotDto createSnapshot(long analysisTime) {
     return new SnapshotDto()
       .setUuid(uuidFactory.create())
       .setRootComponentUuid(uuidFactory.create())
@@ -97,8 +97,8 @@ public class AnalysisCacheCleaningSchedulerImplIT {
       .setProjectVersion("2.1-SNAPSHOT")
       .setPeriodMode("days1")
       .setPeriodParam("30")
-      .setPeriodDate(buildtime)
-      .setBuildDate(buildtime);
+      .setPeriodDate(analysisTime)
+      .setAnalysisDate(analysisTime);
   }
 
 }

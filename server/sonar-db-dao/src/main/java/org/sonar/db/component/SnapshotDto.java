@@ -40,7 +40,7 @@ public final class SnapshotDto {
   private String uuid;
   private String rootComponentUuid;
   private Long createdAt;
-  private Long buildDate;
+  private Long analysisDate;
   private String status = STATUS_UNPROCESSED;
   private Boolean last;
   // maps to "version" column in the table
@@ -65,12 +65,12 @@ public final class SnapshotDto {
     return this.uuid;
   }
 
-  public Long getBuildDate() {
-    return buildDate;
+  public Long getAnalysisDate() {
+    return analysisDate;
   }
 
-  public SnapshotDto setBuildDate(Long buildDate) {
-    this.buildDate = buildDate;
+  public SnapshotDto setAnalysisDate(Long analysisDate) {
+    this.analysisDate = analysisDate;
     return this;
   }
 
@@ -209,7 +209,7 @@ public final class SnapshotDto {
     return Objects.equals(uuid, that.uuid) &&
       Objects.equals(rootComponentUuid, that.rootComponentUuid) &&
       Objects.equals(createdAt, that.createdAt) &&
-      Objects.equals(buildDate, that.buildDate) &&
+      Objects.equals(analysisDate, that.analysisDate) &&
       Objects.equals(status, that.status) &&
       Objects.equals(last, that.last) &&
       Objects.equals(projectVersion, that.projectVersion) &&
@@ -221,7 +221,7 @@ public final class SnapshotDto {
 
   @Override
   public int hashCode() {
-    return Objects.hash(uuid, rootComponentUuid, createdAt, buildDate, status, last, projectVersion, buildString, periodMode, periodParam, periodDate);
+    return Objects.hash(uuid, rootComponentUuid, createdAt, analysisDate, status, last, projectVersion, buildString, periodMode, periodParam, periodDate);
   }
 
   @Override
@@ -230,7 +230,7 @@ public final class SnapshotDto {
       "uuid='" + uuid + '\'' +
       ", componentUuid='" + rootComponentUuid + '\'' +
       ", createdAt=" + createdAt +
-      ", buildDate=" + buildDate +
+      ", analysisDate=" + analysisDate +
       ", status='" + status + '\'' +
       ", last=" + last +
       ", projectVersion='" + projectVersion + '\'' +

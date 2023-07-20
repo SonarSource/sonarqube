@@ -316,7 +316,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     List<String> branchUuids = branchesWithLargestNcloc.stream().map(ProjectLocDistributionDto::branchUuid).toList();
     Map<String, Long> latestSnapshotMap = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, branchUuids)
       .stream()
-      .collect(toMap(SnapshotDto::getRootComponentUuid, SnapshotDto::getBuildDate));
+      .collect(toMap(SnapshotDto::getRootComponentUuid, SnapshotDto::getAnalysisDate));
     data.setProjects(buildProjectsList(branchesWithLargestNcloc, latestSnapshotMap));
   }
 

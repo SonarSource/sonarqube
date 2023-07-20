@@ -185,8 +185,8 @@ public class TelemetryDataLoaderImplTest {
     db.measures().insertLiveMeasure(mainBranch2, coverage, m -> m.setValue(80d));
     db.measures().insertLiveMeasure(mainBranch2, nclocDistrib, m -> m.setValue(null).setData("java=180;js=20"));
 
-    SnapshotDto project1Analysis = db.components().insertSnapshot(mainBranch1, t -> t.setLast(true).setBuildDate(analysisDate));
-    SnapshotDto project2Analysis = db.components().insertSnapshot(mainBranch2, t -> t.setLast(true).setBuildDate(analysisDate));
+    SnapshotDto project1Analysis = db.components().insertSnapshot(mainBranch1, t -> t.setLast(true).setAnalysisDate(analysisDate));
+    SnapshotDto project2Analysis = db.components().insertSnapshot(mainBranch2, t -> t.setLast(true).setAnalysisDate(analysisDate));
     db.measures().insertMeasure(mainBranch1, project1Analysis, nclocDistrib, m -> m.setData("java=70;js=30;kotlin=10"));
     db.measures().insertMeasure(mainBranch2, project2Analysis, nclocDistrib, m -> m.setData("java=180;js=20"));
 
@@ -294,9 +294,9 @@ public class TelemetryDataLoaderImplTest {
     ProjectData projectData2 = db.components().insertPrivateProject();
     ComponentDto mainBranch2 = projectData2.getMainBranchComponent();
 
-    SnapshotDto project1Analysis1 = db.components().insertSnapshot(mainBranch1, t -> t.setLast(true).setBuildDate(analysisDate));
-    SnapshotDto project1Analysis2 = db.components().insertSnapshot(mainBranch1, t -> t.setLast(true).setBuildDate(analysisDate));
-    SnapshotDto project2Analysis = db.components().insertSnapshot(mainBranch2, t -> t.setLast(true).setBuildDate(analysisDate));
+    SnapshotDto project1Analysis1 = db.components().insertSnapshot(mainBranch1, t -> t.setLast(true).setAnalysisDate(analysisDate));
+    SnapshotDto project1Analysis2 = db.components().insertSnapshot(mainBranch1, t -> t.setLast(true).setAnalysisDate(analysisDate));
+    SnapshotDto project2Analysis = db.components().insertSnapshot(mainBranch2, t -> t.setLast(true).setAnalysisDate(analysisDate));
     db.measures().insertMeasure(mainBranch1, project1Analysis1, qg, pm -> pm.setData("OK"));
     db.measures().insertMeasure(mainBranch1, project1Analysis2, qg, pm -> pm.setData("ERROR"));
     db.measures().insertMeasure(mainBranch2, project2Analysis, qg, pm -> pm.setData("ERROR"));

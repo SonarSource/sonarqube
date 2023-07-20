@@ -83,7 +83,7 @@ public class SnapshotDaoIT {
       .setPeriodDate(1500000000001L)
       .setProjectVersion("2.1.0")
       .setBuildString("2.1.0.2336")
-      .setBuildDate(1500000000006L)
+      .setAnalysisDate(1500000000006L)
       .setCreatedAt(1403042400000L)
       .setRevision("sha1"));
 
@@ -97,7 +97,7 @@ public class SnapshotDaoIT {
     assertThat(result.getPeriodMode()).isEqualTo("days");
     assertThat(result.getPeriodModeParameter()).isEqualTo("30");
     assertThat(result.getPeriodDate()).isEqualTo(1500000000001L);
-    assertThat(result.getBuildDate()).isEqualTo(1500000000006L);
+    assertThat(result.getAnalysisDate()).isEqualTo(1500000000006L);
     assertThat(result.getCreatedAt()).isEqualTo(1403042400000L);
     assertThat(result.getRevision()).isEqualTo("sha1");
 
@@ -410,7 +410,7 @@ public class SnapshotDaoIT {
       .setPeriodParam("30")
       .setPeriodDate(1500000000001L)
       .setProjectVersion("2.1-SNAPSHOT")
-      .setBuildDate(1500000000006L)
+      .setAnalysisDate(1500000000006L)
       .setCreatedAt(1403042400000L));
 
     assertThat(dto.getUuid()).isNotNull();
@@ -420,7 +420,7 @@ public class SnapshotDaoIT {
     assertThat(dto.getPeriodMode()).isEqualTo("days");
     assertThat(dto.getPeriodModeParameter()).isEqualTo("30");
     assertThat(dto.getPeriodDate()).isEqualTo(1500000000001L);
-    assertThat(dto.getBuildDate()).isEqualTo(1500000000006L);
+    assertThat(dto.getAnalysisDate()).isEqualTo(1500000000006L);
     assertThat(dto.getCreatedAt()).isEqualTo(1403042400000L);
     assertThat(dto.getProjectVersion()).isEqualTo("2.1-SNAPSHOT");
   }
@@ -558,7 +558,7 @@ public class SnapshotDaoIT {
       .setPeriodMode("days1")
       .setPeriodParam("30")
       .setPeriodDate(1_500_000_000_001L)
-      .setBuildDate(1_500_000_000_006L);
+      .setAnalysisDate(1_500_000_000_006L);
   }
 
   private CeActivityDto insertActivity(String projectUuid, SnapshotDto analysis, CeActivityDto.Status status) {

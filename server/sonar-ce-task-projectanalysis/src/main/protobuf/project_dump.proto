@@ -49,7 +49,7 @@ message Branch {
 
 // Stream of analyses stored in file analyses.pb, including project.
 // Only analyses with status 'P' (processed) are exported. They are ordered
-// by build_date, so that parents are always located before children.
+// by analysis_date, so that parents are always located before children.
 message Analysis {
   int64 component_ref = 2;
   int64 date = 3;

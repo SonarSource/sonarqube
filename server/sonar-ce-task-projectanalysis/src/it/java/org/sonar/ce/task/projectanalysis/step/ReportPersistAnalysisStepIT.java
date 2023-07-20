@@ -126,7 +126,7 @@ public class ReportPersistAnalysisStepIT extends BaseStepTest {
     assertThat(projectSnapshot.getLast()).isFalse();
     assertThat(projectSnapshot.getStatus()).isEqualTo("U");
     assertThat(projectSnapshot.getCreatedAt()).isEqualTo(analysisDate);
-    assertThat(projectSnapshot.getBuildDate()).isEqualTo(now);
+    assertThat(projectSnapshot.getAnalysisDate()).isEqualTo(now);
     assertThat(projectSnapshot.getRevision()).isEqualTo(REVISION_ID);
   }
 

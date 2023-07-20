@@ -111,7 +111,7 @@ public class PersistAnalysisStep implements ComputationStep {
         .setLast(false)
         .setStatus(SnapshotDto.STATUS_UNPROCESSED)
         .setCreatedAt(analysisDate)
-        .setBuildDate(system2.now());
+        .setAnalysisDate(system2.now());
 
       if (component.getType() == PROJECT) {
         component.getProjectAttributes().getScmRevisionId().ifPresent(dto::setRevision);

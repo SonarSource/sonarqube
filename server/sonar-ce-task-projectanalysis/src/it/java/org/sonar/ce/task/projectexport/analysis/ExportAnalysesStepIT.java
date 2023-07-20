@@ -192,7 +192,7 @@ public class ExportAnalysesStepIT {
       .hasMessage("Analysis Export failed after processing 1 analyses successfully");
   }
 
-  private static SnapshotDto newAnalysis(String uuid, long date, String componentUuid, @Nullable String version, boolean isLast, @Nullable String buildString, long buildDate) {
+  private static SnapshotDto newAnalysis(String uuid, long date, String componentUuid, @Nullable String version, boolean isLast, @Nullable String buildString, long analysisDate) {
     return new SnapshotDto()
       .setUuid(uuid)
       .setCreatedAt(date)
@@ -201,7 +201,7 @@ public class ExportAnalysesStepIT {
       .setBuildString(buildString)
       .setLast(isLast)
       .setStatus(SnapshotDto.STATUS_PROCESSED)
-      .setBuildDate(buildDate);
+      .setAnalysisDate(analysisDate);
   }
 
   private static void assertAnalysis(ProjectDump.Analysis analysis, ComponentDto component, SnapshotDto dto) {

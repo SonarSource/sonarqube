@@ -111,7 +111,7 @@ public class ViewsPersistAnalysisStepIT extends BaseStepTest {
     assertThat(viewSnapshot.getLast()).isFalse();
     assertThat(viewSnapshot.getStatus()).isEqualTo("U");
     assertThat(viewSnapshot.getCreatedAt()).isEqualTo(analysisDate);
-    assertThat(viewSnapshot.getBuildDate()).isEqualTo(now);
+    assertThat(viewSnapshot.getAnalysisDate()).isEqualTo(now);
   }
 
   @Test

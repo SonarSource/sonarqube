@@ -47,7 +47,7 @@ public class SnapshotTesting {
       .setRootComponentUuid(uuid)
       .setStatus(SnapshotDto.STATUS_PROCESSED)
       .setCreatedAt(System.currentTimeMillis())
-      .setBuildDate(System.currentTimeMillis())
+      .setAnalysisDate(System.currentTimeMillis())
       .setRevision(randomAlphanumeric(50))
       .setLast(true);
   }
@@ -58,7 +58,7 @@ public class SnapshotTesting {
       .setRootComponentUuid(randomAlphanumeric(40))
       .setStatus(randomAscii(1))
       .setCreatedAt(System.currentTimeMillis())
-      .setBuildDate(System.currentTimeMillis())
+      .setAnalysisDate(System.currentTimeMillis())
       .setLast(true);
   }
 }
