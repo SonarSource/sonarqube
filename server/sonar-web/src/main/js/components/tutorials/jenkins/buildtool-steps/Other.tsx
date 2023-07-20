@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import DefaultProjectKey from '../../components/DefaultProjectKey';
-import { LanguageProps } from '../JenkinsfileStep';
+import { LanguageProps } from '../JenkinsStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
 
 const JENKINSFILE_SNIPPET = `node {

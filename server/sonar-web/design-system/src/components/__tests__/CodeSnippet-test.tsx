@@ -23,17 +23,22 @@ import { renderWithContext } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
 import { CodeSnippet } from '../CodeSnippet';
 
-it('should show full size when multiline with no editting', () => {
+it('should show full size when multiline with no editing', () => {
   const { container } = setupWithProps();
   const copyButton = screen.getByRole('button', { name: 'Copy' });
   expect(copyButton).toHaveStyle('top: 1.5rem');
   expect(container).toMatchSnapshot();
 });
 
-it('should show reduced size when single line with no editting', () => {
+it('should show reduced size when single line with no editing', () => {
   const { container } = setupWithProps({ isOneLine: true, snippet: 'foobar' });
   const copyButton = screen.getByRole('button', { name: 'Copy' });
   expect(copyButton).toHaveStyle('top: 1rem');
+  expect(container).toMatchSnapshot();
+});
+
+it('should highlight code content correctly', () => {
+  const { container } = setupWithProps({ snippet: '<prop>foobar<prop>' });
   expect(container).toMatchSnapshot();
 });
 

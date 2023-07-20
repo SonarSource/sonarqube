@@ -31,7 +31,7 @@ import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 
 export default function DotNetPrereqsMSBuild() {
   return (
-    <NumberedListItem className="sw-max-w-2/3">
+    <NumberedListItem>
       <SentenceWithHighlights
         highlightKeys={['default_msbuild']}
         translationKey="onboarding.tutorial.with.jenkins.dotnet.msbuild.prereqs.title"

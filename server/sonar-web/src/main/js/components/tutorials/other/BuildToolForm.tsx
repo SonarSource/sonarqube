@@ -95,7 +95,7 @@ export class BuildToolForm extends React.PureComponent<Props, State> {
 
         {config.buildTool === BuildTools.CFamily && config.os && (
           <GithubCFamilyExampleRepositories
-            className="sw-mt-4"
+            className="sw-mt-4 sw-w-abs-600"
             os={config.os}
             ci={TutorialModes.Local}
           />

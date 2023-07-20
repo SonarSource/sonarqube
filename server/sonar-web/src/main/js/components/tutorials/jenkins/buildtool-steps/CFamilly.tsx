@@ -25,7 +25,7 @@ import DefaultProjectKey from '../../components/DefaultProjectKey';
 import GithubCFamilyExampleRepositories from '../../components/GithubCFamilyExampleRepositories';
 import RenderOptions from '../../components/RenderOptions';
 import { OSs, TutorialModes } from '../../types';
-import { LanguageProps } from '../JenkinsfileStep';
+import { LanguageProps } from '../JenkinsStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
 
 const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
@@ -104,7 +104,7 @@ const YAML_MAP: Record<OSs, (baseUrl: string) => string> = {
 
 export default function CFamilly(props: LanguageProps) {
   const { baseUrl, component, onDone } = props;
-  const [os, setOs] = React.useState<OSs>();
+  const [os, setOs] = React.useState<OSs>(OSs.Linux);
 
   React.useEffect(() => {
     onDone(os !== undefined);
@@ -113,24 +113,22 @@ export default function CFamilly(props: LanguageProps) {
   return (
     <>
       <DefaultProjectKey component={component} />
-      <NumberedListItem className="sw-max-w-2/3">
+      <NumberedListItem>
         {translate('onboarding.build.other.os')}
-        <div className="sw-ml-8">
-          <RenderOptions
-            label={translate('onboarding.build.other.os')}
-            checked={os}
-            optionLabelKey="onboarding.build.other.os"
-            onCheck={(value) => setOs(value as OSs)}
-            options={Object.values(OSs)}
+        <RenderOptions
+          label={translate('onboarding.build.other.os')}
+          checked={os}
+          optionLabelKey="onboarding.build.other.os"
+          onCheck={(value) => setOs(value as OSs)}
+          options={Object.values(OSs)}
+        />
+        {os && (
+          <GithubCFamilyExampleRepositories
+            className="sw-my-4 sw-w-abs-600"
+            os={os}
+            ci={TutorialModes.Jenkins}
           />
-          {os && (
-            <GithubCFamilyExampleRepositories
-              className="sw-my-4"
-              os={os}
-              ci={TutorialModes.Jenkins}
-            />
-          )}
-        </div>
+        )}
       </NumberedListItem>
       {os && (
         <CreateJenkinsfileBulletPoint

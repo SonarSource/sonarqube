@@ -93,7 +93,7 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
           <ListItem>
             <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.step1.name" />
           </ListItem>
-          <ListItem className="sw-w-abs-600">
+          <ListItem>
             <p>
               <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.url" />
             </p>

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BasicSeparator, Title } from 'design-system';
+import { BasicSeparator, Title, TutorialStepList } from 'design-system';
 import * as React from 'react';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
@@ -31,7 +31,7 @@ import {
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import AllSet from '../components/AllSet';
-import JenkinsfileStep from './JenkinsfileStep';
+import JenkinsfileStep from './JenkinsStep';
 import MultiBranchPipelineStep from './MultiBranchPipelineStep';
 import PipelineStep from './PipelineStep';
 import PreRequisitesStep from './PreRequisitesStep';
@@ -58,30 +58,30 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
       <Title>{translate('onboarding.tutorial.with.jenkins.title')}</Title>
 
       {hasSelectAlmStep && <SelectAlmStep alm={alm} onChange={setAlm} />}
-
       {alm && (
         <>
-          <PreRequisitesStep alm={alm} branchesEnabled={branchSupportEnabled} />
+          <TutorialStepList className="sw-mb-10">
+            <PreRequisitesStep alm={alm} branchesEnabled={branchSupportEnabled} />
 
-          {branchSupportEnabled ? (
-            <MultiBranchPipelineStep
+            {branchSupportEnabled ? (
+              <MultiBranchPipelineStep
+                alm={alm}
+                almBinding={almBinding}
+                projectBinding={projectBinding}
+              />
+            ) : (
+              <PipelineStep alm={alm} />
+            )}
+
+            <WebhookStep
               alm={alm}
               almBinding={almBinding}
+              branchesEnabled={branchSupportEnabled}
               projectBinding={projectBinding}
             />
-          ) : (
-            <PipelineStep alm={alm} />
-          )}
 
-          <WebhookStep
-            alm={alm}
-            almBinding={almBinding}
-            branchesEnabled={branchSupportEnabled}
-            projectBinding={projectBinding}
-          />
-
-          <JenkinsfileStep component={component} baseUrl={baseUrl} onDone={setDone} />
-
+            <JenkinsfileStep component={component} baseUrl={baseUrl} onDone={setDone} />
+          </TutorialStepList>
           {done && (
             <>
               <BasicSeparator className="sw-my-10" />

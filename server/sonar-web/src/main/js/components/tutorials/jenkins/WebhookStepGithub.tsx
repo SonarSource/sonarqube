@@ -61,7 +61,7 @@ export default function WebhookStepGithub(props: WebhookStepGithubProps) {
           }}
         />
         <UnorderedList ticks className="sw-ml-12">
-          <ListItem className="sw-w-abs-600">
+          <ListItem>
             <p>
               <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.github.step1.url" />
             </p>

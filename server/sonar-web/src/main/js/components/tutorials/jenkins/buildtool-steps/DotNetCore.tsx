@@ -48,13 +48,13 @@ export default function DotNetCore({ component, os }: DotNetCoreFrameworkProps) 
   return (
     <>
       <DotNetPrereqsScanner />
-      <NumberedListItem className="sw-max-w-2/3">
+      <NumberedListItem>
         <SentenceWithFilename
           filename="Jenkinsfile"
           translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.jenkinsfile_step"
         />
         <CodeSnippet
-          className="sw-ml-8 sw-p-6"
+          className="sw-p-6"
           language="groovy"
           snippet={jenkinsfileSnippet(component.key, os)}
         />

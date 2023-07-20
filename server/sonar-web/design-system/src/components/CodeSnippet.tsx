@@ -19,6 +19,7 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
+import { escape as lodashEscape } from 'lodash';
 import tw from 'twin.macro';
 import { themeBorder, themeColor } from '../helpers/theme';
 import { isDefined } from '../helpers/types';
@@ -53,7 +54,10 @@ export function CodeSnippet(props: Props) {
     <StyledClipboardButton copyValue={finalSnippet} />
   );
 
-  const renderSnippet = render ?? (wrap || isOneLine ? finalSnippet : `<pre>${finalSnippet}</pre>`);
+  const renderSnippet =
+    render ?? (wrap || isOneLine)
+      ? `<code>${lodashEscape(finalSnippet)}</code>`
+      : `<pre>${lodashEscape(finalSnippet)}</pre>`;
 
   return (
     <Wrapper

@@ -100,6 +100,13 @@ const filenameForBuildTool = {
   [BuildTools.Other]: 'sonar-project.properties',
 };
 
+const snippetLanguageForBuildTool = {
+  [BuildTools.CFamily]: undefined,
+  [BuildTools.Gradle]: undefined,
+  [BuildTools.Maven]: 'xml',
+  [BuildTools.Other]: undefined,
+};
+
 export function YmlFileStep(props: YmlFileStepProps) {
   const { component, hasCLanguageFeature } = props;
 
@@ -178,7 +185,7 @@ export function YmlFileStep(props: YmlFileStepProps) {
                 {(build) => (
                   <CodeSnippet
                     className="sw-p-6"
-                    language="yml"
+                    language="gradle"
                     snippet={snippetForBuildTool[buildTool](component.key, component.name, build)}
                   />
                 )}
@@ -186,7 +193,7 @@ export function YmlFileStep(props: YmlFileStepProps) {
             ) : (
               <CodeSnippet
                 className="sw-p-6"
-                language="yml"
+                language={snippetLanguageForBuildTool[buildTool]}
                 snippet={snippetForBuildTool[buildTool](component.key, component.name)}
               />
             )}

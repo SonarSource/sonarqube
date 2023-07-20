@@ -25,7 +25,7 @@ import GradleBuildSelection from '../../components/GradleBuildSelection';
 import { InlineSnippet } from '../../components/InlineSnippet';
 import { GradleBuildDSL } from '../../types';
 import { buildGradleSnippet } from '../../utils';
-import { LanguageProps } from '../JenkinsfileStep';
+import { LanguageProps } from '../JenkinsStep';
 import CreateJenkinsfileBulletPoint from './CreateJenkinsfileBulletPoint';
 
 const JENKINSFILE_SNIPPET = `node {
@@ -44,7 +44,7 @@ export default function Gradle(props: LanguageProps) {
 
   return (
     <>
-      <NumberedListItem className="sw-max-w-2/3">
+      <NumberedListItem>
         <span>
           <FormattedMessage
             defaultMessage={translate(
@@ -58,17 +58,15 @@ export default function Gradle(props: LanguageProps) {
             }}
           />
         </span>
-        <div className="sw-ml-8">
-          <GradleBuildSelection className="sw-my-4">
-            {(build) => (
-              <CodeSnippet
-                className="sw-p-6"
-                language={build === GradleBuildDSL.Groovy ? 'groovy' : 'kotlin'}
-                snippet={buildGradleSnippet(component.key, component.name, build)}
-              />
-            )}
-          </GradleBuildSelection>
-        </div>
+        <GradleBuildSelection className="sw-my-4">
+          {(build) => (
+            <CodeSnippet
+              className="sw-p-6"
+              language={build === GradleBuildDSL.Groovy ? 'groovy' : 'kotlin'}
+              snippet={buildGradleSnippet(component.key, component.name, build)}
+            />
+          )}
+        </GradleBuildSelection>
       </NumberedListItem>
       <CreateJenkinsfileBulletPoint snippet={JENKINSFILE_SNIPPET} />
     </>

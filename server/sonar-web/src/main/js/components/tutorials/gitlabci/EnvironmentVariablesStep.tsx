@@ -71,7 +71,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
               defaultMessage={fieldValueTranslation}
               id="onboarding.tutorial.with.gitlab_ci.variables.step1"
               values={{
-                extra: <ClipboardIconButton copyValue="SONAR_TOKEN" />,
+                extra: <ClipboardIconButton copyValue="SONAR_TOKEN" className="sw-ml-1" />,
                 field: (
                   <span className="sw-body-sm-highlight">
                     {translate('onboarding.tutorial.with.gitlab_ci.variables.step1')}
@@ -135,7 +135,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
               defaultMessage={fieldValueTranslation}
               id="onboarding.tutorial.with.gitlab_ci.variables.step1"
               values={{
-                extra: <ClipboardIconButton copyValue="SONAR_HOST_URL" />,
+                extra: <ClipboardIconButton copyValue="SONAR_HOST_URL" className="sw-ml-1" />,
                 field: (
                   <span className="sw-body-sm-highlight">
                     {translate('onboarding.tutorial.with.gitlab_ci.variables.step1')}
@@ -150,7 +150,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
               defaultMessage={fieldValueTranslation}
               id="onboarding.tutorial.with.gitlab_ci.variables.step2"
               values={{
-                extra: <ClipboardIconButton copyValue={baseUrl} />,
+                extra: <ClipboardIconButton copyValue={baseUrl} className="sw-ml-1" />,
                 field: (
                   <span className="sw-body-sm-highlight">
                     {translate('onboarding.tutorial.env_variables.field')}

@@ -41,7 +41,7 @@ export default function WebhookStepGitLab({ branchesEnabled }: WebhookStepGitLab
         />
         <UnorderedList ticks className="sw-ml-12">
           {branchesEnabled ? (
-            <ListItem className="sw-w-abs-600">
+            <ListItem>
               <p>
                 <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.webhook.gitlab.step1.url_with_branches" />
               </p>

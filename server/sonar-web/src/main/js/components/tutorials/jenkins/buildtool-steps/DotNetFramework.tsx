@@ -45,7 +45,7 @@ export default function DotNetFramework({ component }: DotNetCoreFrameworkProps)
     <>
       <DotNetPrereqsScanner />
       <DotNetPrereqsMSBuild />
-      <NumberedListItem className="sw-max-w-2/3">
+      <NumberedListItem>
         <SentenceWithFilename
           filename="Jenkinsfile"
           translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.jenkinsfile_step"

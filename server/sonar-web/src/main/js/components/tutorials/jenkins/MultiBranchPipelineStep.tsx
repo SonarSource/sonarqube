@@ -181,7 +181,7 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                 )}
                 :
               </strong>
-              <UnorderedList ticks className="sw-ml-4 sw-mt-1 sw-w-abs-600">
+              <UnorderedList ticks className="sw-ml-4 sw-mt-1">
                 <ListItem>
                   <LabelActionPair
                     translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.${

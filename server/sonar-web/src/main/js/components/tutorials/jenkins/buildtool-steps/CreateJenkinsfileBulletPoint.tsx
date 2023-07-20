@@ -33,46 +33,45 @@ export default function CreateJenkinsfileBulletPoint(props: CreateJenkinsfileBul
   const { children, snippet, alertTranslationKeyPart } = props;
 
   return (
-    <NumberedListItem className="sw-max-w-2/3">
+    <NumberedListItem>
       <SentenceWithFilename
         filename="Jenkinsfile"
         translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.jenkinsfile_step"
       />
-      <div className="sw-ml-8">
-        {alertTranslationKeyPart && (
-          <FlagMessage className="sw-mt-2" variant="info">
-            <div>
-              <SentenceWithHighlights
-                highlightKeys={['default', 'in_jenkins']}
-                translationKey={`${alertTranslationKeyPart}.replace`}
-              />
-              <HelpTooltip
-                className="sw-ml-1"
-                overlay={
-                  <>
-                    <p className="sw-mb-2">
-                      <SentenceWithHighlights
-                        highlightKeys={['path']}
-                        translationKey={`${alertTranslationKeyPart}.help1`}
-                      />
-                    </p>
-                    <p>
-                      <SentenceWithHighlights
-                        highlightKeys={['path', 'name']}
-                        translationKey={`${alertTranslationKeyPart}.help2`}
-                      />
-                    </p>
-                  </>
-                }
-              >
-                <HelperHintIcon />
-              </HelpTooltip>
-            </div>
-          </FlagMessage>
-        )}
-        <CodeSnippet className="sw-p-6" language="groovy" snippet={snippet} />
-        {children}
-      </div>
+      <br />
+      {alertTranslationKeyPart && (
+        <FlagMessage className="sw-mt-2" variant="info">
+          <div>
+            <SentenceWithHighlights
+              highlightKeys={['default', 'in_jenkins']}
+              translationKey={`${alertTranslationKeyPart}.replace`}
+            />
+            <HelpTooltip
+              className="sw-ml-1"
+              overlay={
+                <>
+                  <p className="sw-mb-2">
+                    <SentenceWithHighlights
+                      highlightKeys={['path']}
+                      translationKey={`${alertTranslationKeyPart}.help1`}
+                    />
+                  </p>
+                  <p>
+                    <SentenceWithHighlights
+                      highlightKeys={['path', 'name']}
+                      translationKey={`${alertTranslationKeyPart}.help2`}
+                    />
+                  </p>
+                </>
+              }
+            >
+              <HelperHintIcon />
+            </HelpTooltip>
+          </div>
+        </FlagMessage>
+      )}
+      <CodeSnippet className="sw-p-6" language="groovy" snippet={snippet} />
+      {children}
     </NumberedListItem>
   );
 }

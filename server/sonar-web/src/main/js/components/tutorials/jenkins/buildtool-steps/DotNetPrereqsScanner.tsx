@@ -31,12 +31,13 @@ import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 
 export default function DotNetPrereqsScanner() {
   return (
-    <NumberedListItem className="sw-max-w-2/3">
+    <NumberedListItem>
       <SentenceWithHighlights
         highlightKeys={['default_scanner']}
         translationKey="onboarding.tutorial.with.jenkins.dotnet.scanner.prereqs.title"
       />
-      <FlagMessage className="sw-ml-8 sw-mt-2" variant="info">
+      <br />
+      <FlagMessage className="sw-mt-2" variant="info">
         {translate('onboarding.tutorial.with.jenkins.dotnet.scanner.prereqs.info')}
       </FlagMessage>
       <OrderedList tickStyle="ALPHA" className="sw-ml-12">

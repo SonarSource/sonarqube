@@ -112,7 +112,7 @@ export default function RepositoryVariables(props: RepositoryVariablesProps) {
             defaultMessage={translate('onboarding.tutorial.env_variables')}
             id="onboarding.tutorial.env_variables"
             values={{
-              extra: <ClipboardIconButton copyValue={baseUrl} />,
+              extra: <ClipboardIconButton copyValue={baseUrl} className="sw-ml-1" />,
               field: (
                 <span className="sw-body-sm-highlight">
                   {translate('onboarding.tutorial.env_variables.field')}

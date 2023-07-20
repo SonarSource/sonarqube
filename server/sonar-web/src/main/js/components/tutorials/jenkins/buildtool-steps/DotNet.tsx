@@ -23,7 +23,7 @@ import { translate } from '../../../../helpers/l10n';
 import { Component } from '../../../../types/types';
 import RenderOptions from '../../components/RenderOptions';
 import { OSs } from '../../types';
-import { LanguageProps } from '../JenkinsfileStep';
+import { LanguageProps } from '../JenkinsStep';
 import DotNetCore from './DotNetCore';
 import DotNetFramework from './DotNetFramework';
 
@@ -43,7 +43,8 @@ const DotOS: { [key in keyof typeof DotNetFlavor]: OSDotNet } = {
 
 export default function DotNet(props: LanguageProps) {
   const { component, onDone } = props;
-  const [flavorComponent, setFlavorComponent] = React.useState<keyof typeof DotNetFlavor>();
+  const [flavorComponent, setFlavorComponent] =
+    React.useState<keyof typeof DotNetFlavor>('win_core');
   const DotNetTutorial = flavorComponent && DotNetFlavor[flavorComponent];
 
   React.useEffect(() => {
@@ -54,15 +55,13 @@ export default function DotNet(props: LanguageProps) {
     <>
       <NumberedListItem>
         {translate('onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.build_agent')}
-        <div className="sw-ml-8">
-          <RenderOptions
-            label={translate('onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.build_agent')}
-            checked={flavorComponent}
-            optionLabelKey="onboarding.build.dotnet"
-            onCheck={(value) => setFlavorComponent(value as keyof typeof DotNetFlavor)}
-            options={Object.keys(DotNetFlavor)}
-          />
-        </div>
+        <RenderOptions
+          label={translate('onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.build_agent')}
+          checked={flavorComponent}
+          optionLabelKey="onboarding.build.dotnet"
+          onCheck={(value) => setFlavorComponent(value as keyof typeof DotNetFlavor)}
+          options={Object.keys(DotNetFlavor)}
+        />
       </NumberedListItem>
       {DotNetTutorial && flavorComponent && (
         <DotNetTutorial component={component} os={DotOS[flavorComponent]} />
