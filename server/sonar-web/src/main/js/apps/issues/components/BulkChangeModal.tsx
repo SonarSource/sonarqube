@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonPrimary,
   Checkbox,
@@ -96,9 +97,14 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
+    const { needIssueSync } = this.props;
+
     this.mounted = true;
 
-    Promise.all([this.loadIssues(), searchIssueTags({})]).then(
+    Promise.all([
+      this.loadIssues(),
+      needIssueSync ? Promise.resolve([]) : searchIssueTags({}),
+    ]).then(
       ([{ issues, paging }, tags]) => {
         if (this.mounted) {
           if (issues.length > MAX_PAGE_SIZE) {
@@ -185,6 +191,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     const issueKeys = this.state.issues.map((issue) => issue.key);
 
     this.setState({ submitting: true });
+
     bulkChangeIssues(issueKeys, query).then(
       () => {
         this.setState({ submitting: false });
@@ -200,6 +207,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
 
   getAvailableTransitions(issues: Issue[]) {
     const transitions: Dict<number> = {};
+
     issues.forEach((issue) => {
       if (issue.transitions) {
         issue.transitions.forEach((t) => {
@@ -211,6 +219,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
         });
       }
     });
+
     return sortBy(Object.keys(transitions)).map((transition) => ({
       transition,
       count: transitions[transition],
@@ -239,6 +248,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     <FormField htmlFor={`issues-bulk-change-${field}`} label={translate(label)}>
       <div className="sw-flex sw-items-center sw-justify-between">
         {input}
+
         {affected !== undefined && (
           <LightLabel>
             ({translateWithParameters('issue_bulk_change.x_issues', affected)})
@@ -282,7 +292,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     const options: LabelValueSelectOption<IssueType>[] = types.map((type) => ({
       label: translate('issue.type', type),
       value: type,
-      Icon: <IssueTypeIcon height={16} type={type} />,
+      Icon: <IssueTypeIcon type={type} />,
     }));
 
     const input = (
@@ -311,7 +321,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     const options: LabelValueSelectOption<IssueSeverity>[] = SEVERITIES.map((severity) => ({
       label: translate('severity', severity),
       value: severity,
-      Icon: <IssueSeverityIcon height={16} severity={severity} />,
+      Icon: <IssueSeverityIcon severity={severity} />,
     }));
 
     const input = (
@@ -399,13 +409,13 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
 
     return (
       <FormField
-        label={translate('issue.comment.formlink')}
-        htmlFor="comment"
         help={
           <div className="-sw-mt-1" title={translate('issue_bulk_change.comment.help')}>
             <HelperHintIcon />
           </div>
         }
+        htmlFor="comment"
+        label={translate('issue.comment.formlink')}
       >
         <textarea
           id="comment"
@@ -457,11 +467,14 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
           {this.renderTypeField()}
           {this.renderSeverityField()}
           {!needIssueSync && this.renderTagsField(InputField.addTags, 'issue.add_tags', true)}
+
           {!needIssueSync &&
             this.renderTagsField(InputField.removeTags, 'issue.remove_tags', false)}
+
           {this.renderTransitionsField()}
           {this.renderCommentField()}
           {issues.length > 0 && this.renderNotificationsField()}
+
           {issues.length === 0 && (
             <FlagMessage variant="warning">{translate('issue_bulk_change.no_match')}</FlagMessage>
           )}
@@ -477,7 +490,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
 
     return (
       <Modal
-        onClose={this.props.onClose}
+        body={this.renderForm()}
         headerTitle={
           loading
             ? translate('bulk_change')
@@ -485,13 +498,13 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
         }
         isScrollable
         loading={submitting}
-        body={this.renderForm()}
+        onClose={this.props.onClose}
         primaryButton={
           <ButtonPrimary
-            id="bulk-change-submit"
-            form="bulk-change-form"
-            type="submit"
             disabled={!canSubmit || submitting || issues.length === 0}
+            form="bulk-change-form"
+            id="bulk-change-submit"
+            type="submit"
           >
             {translate('apply')}
           </ButtonPrimary>
@@ -503,7 +516,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
 }
 
 function hasAction(action: string) {
-  return (issue: Issue) => issue.actions && issue.actions.includes(action);
+  return (issue: Issue) => issue.actions?.includes(action);
 }
 
 export default withBranchStatusRefresh(BulkChangeModal);

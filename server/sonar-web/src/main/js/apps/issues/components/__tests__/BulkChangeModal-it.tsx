@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
@@ -33,8 +34,8 @@ import { CurrentUser } from '../../../../types/users';
 import BulkChangeModal, { MAX_PAGE_SIZE } from '../BulkChangeModal';
 
 jest.mock('../../../../api/issues', () => ({
-  searchIssueTags: jest.fn().mockResolvedValue(['tag1', 'tag2']),
   bulkChangeIssues: jest.fn().mockResolvedValue({}),
+  searchIssueTags: jest.fn().mockResolvedValue(['tag1', 'tag2']),
 }));
 
 afterEach(() => {
@@ -49,14 +50,17 @@ it('should display error message when no issues available', async () => {
 
 it('should display warning when too many issues are passed', async () => {
   const issues: Issue[] = [];
+
   for (let i = MAX_PAGE_SIZE + 1; i > 0; i--) {
     issues.push(mockIssue());
   }
-  renderBulkChangeModal(issues);
+
+  renderBulkChangeModal(issues, { needIssueSync: true });
 
   expect(
     await screen.findByText(`issue_bulk_change.form.title.${MAX_PAGE_SIZE}`)
   ).toBeInTheDocument();
+
   expect(await screen.findByText('issue_bulk_change.max_issues_reached')).toBeInTheDocument();
 });
 
@@ -108,16 +112,17 @@ it('should disable the submit button unless some change is configured', async ()
 it('should properly submit', async () => {
   const onDone = jest.fn();
   const user = userEvent.setup();
+
   renderBulkChangeModal(
     [
       mockIssue(false, {
-        key: 'issue1',
         actions: ['assign', 'set_transition', 'set_tags', 'set_type', 'set_severity', 'comment'],
+        key: 'issue1',
         transitions: ['Transition1', 'Transition2'],
       }),
       mockIssue(false, {
-        key: 'issue2',
         actions: ['assign', 'set_transition', 'set_tags', 'set_type', 'set_severity', 'comment'],
+        key: 'issue2',
         transitions: ['Transition1', 'Transition2'],
       }),
     ],
@@ -137,6 +142,7 @@ it('should properly submit', async () => {
   await user.click(
     await screen.findByRole('combobox', { name: 'issue_bulk_change.assignee.change' })
   );
+
   await user.click(await screen.findByText('Toto'));
 
   // Transition
@@ -175,14 +181,15 @@ it('should properly submit', async () => {
 
   expect(bulkChangeIssues).toHaveBeenCalledTimes(1);
   expect(onDone).toHaveBeenCalledTimes(1);
+
   expect(bulkChangeIssues).toHaveBeenCalledWith(['issue1', 'issue2'], {
+    add_tags: 'tag1,tag2',
     assign: 'toto',
     comment: 'some comment',
-    set_severity: 'BLOCKER',
-    add_tags: 'tag1,tag2',
     do_transition: 'Transition2',
-    set_type: IssueType.CodeSmell,
     sendNotifications: true,
+    set_severity: 'BLOCKER',
+    set_type: IssueType.CodeSmell,
   });
 });
 
