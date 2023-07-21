@@ -56,7 +56,6 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
 
     underTest.beforeComponent(component);
     underTest.onIssue(component, issue);
-    underTest.afterComponent(component);
 
     assertThat(issue.isBeingClosed()).isTrue();
     assertThat(issue.hasAnticipatedTransitions()).isTrue();
@@ -73,7 +72,6 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
 
     underTest.beforeComponent(component);
     underTest.onIssue(component, issue);
-    underTest.afterComponent(component);
 
     assertThat(issue.isBeingClosed()).isFalse();
     assertThat(issue.hasAnticipatedTransitions()).isFalse();

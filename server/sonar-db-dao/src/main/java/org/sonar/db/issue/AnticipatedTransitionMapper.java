@@ -30,4 +30,6 @@ public interface AnticipatedTransitionMapper {
   void deleteByProjectAndUser(@Param("projectUuid") String projectUuid, @Param("userUuid") String userUuid);
 
   List<AnticipatedTransitionDto> selectByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  List<AnticipatedTransitionDto> selectByProjectUuidAndFilePath(@Param("projectUuid") String projectUuid, @Param("filePath") String filePath);
 }

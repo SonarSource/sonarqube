@@ -48,7 +48,6 @@ public class CreateAnticipatedTransitionsTableTest {
     db.assertColumnDefinition(ANTICIPATED_TRANSITIONS_TABLE_NAME, "project_uuid", Types.VARCHAR, UUID_SIZE, false);
     db.assertColumnDefinition(ANTICIPATED_TRANSITIONS_TABLE_NAME, "user_uuid", Types.VARCHAR, USER_UUID_SIZE, false);
     db.assertColumnDefinition(ANTICIPATED_TRANSITIONS_TABLE_NAME, "transition", Types.VARCHAR, 20, false);
-    db.assertColumnDefinition(ANTICIPATED_TRANSITIONS_TABLE_NAME, "status", Types.VARCHAR, 20, false);
     db.assertColumnDefinition(ANTICIPATED_TRANSITIONS_TABLE_NAME, "transition_comment", Types.VARCHAR, MAX_SIZE, true);
     db.assertColumnDefinition(ANTICIPATED_TRANSITIONS_TABLE_NAME, "line", Types.INTEGER, 11, true);
     db.assertColumnDefinition(ANTICIPATED_TRANSITIONS_TABLE_NAME, "message", Types.VARCHAR, MAX_SIZE, true);

@@ -27,14 +27,13 @@ public class AnticipatedTransitionDto {
   private String projectUuid;
   private String userUuid;
   private String transition;
-  private String status;
   private String comment;
   private Integer line;
   private String message;
   private String lineHash;
   private String ruleKey;
-  // TODO: private String filePath
-  // TODO: private Instant createdAt
+  private String filePath;
+  private Long createdAt;
 
 
   public AnticipatedTransitionDto(
@@ -42,22 +41,22 @@ public class AnticipatedTransitionDto {
     String projectUuid,
     String userUuid,
     String transition,
-    String status,
     @Nullable String comment,
     @Nullable Integer line,
     @Nullable String message,
     @Nullable String lineHash,
-    String ruleKey) {
+    String ruleKey, String filePath, Long createdAt) {
     this.uuid = uuid;
     this.projectUuid = projectUuid;
     this.userUuid = userUuid;
     this.transition = transition;
-    this.status = status;
     this.comment = comment;
     this.line = line;
     this.message = message;
     this.lineHash = lineHash;
     this.ruleKey = ruleKey;
+    this.filePath = filePath;
+    this.createdAt = createdAt;
   }
 
   public String getUuid() {
@@ -90,14 +89,6 @@ public class AnticipatedTransitionDto {
 
   public void setTransition(String transition) {
     this.transition = transition;
-  }
-
-  public String getStatus() {
-    return status;
-  }
-
-  public void setStatus(String status) {
-    this.status = status;
   }
 
   public String getComment() {
@@ -140,17 +131,34 @@ public class AnticipatedTransitionDto {
     this.ruleKey = ruleKey;
   }
 
+  public String getFilePath() {
+    return filePath;
+  }
+
+  public void setFilePath(String filePath) {
+    this.filePath = filePath;
+  }
+
+  public Long getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(Long createdAt) {
+    this.createdAt = createdAt;
+  }
+
   public static AnticipatedTransitionDto toDto(AnticipatedTransition anticipatedTransition, String uuid, String projectUuid) {
     return new AnticipatedTransitionDto(
       uuid,
       projectUuid,
       anticipatedTransition.getUserUuid(),
       anticipatedTransition.getTransition(),
-      anticipatedTransition.getStatus(),
       anticipatedTransition.getComment(),
       anticipatedTransition.getLine(),
       anticipatedTransition.getMessage(),
       anticipatedTransition.getLineHash(),
-      anticipatedTransition.getRuleKey().toString());
+      anticipatedTransition.getRuleKey().toString(),
+      anticipatedTransition.getFilePath(),
+      anticipatedTransition.getUpdateDate().getTime());
   }
 }

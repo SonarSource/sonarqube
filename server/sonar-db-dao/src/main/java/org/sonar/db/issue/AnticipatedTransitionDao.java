@@ -41,6 +41,10 @@ public class AnticipatedTransitionDao implements Dao {
     return mapper(session).selectByProjectUuid(projectUuid);
   }
 
+  public List<AnticipatedTransitionDto> selectByProjectUuidAndFilePath(DbSession session, String projectUuid, String filePath) {
+    return mapper(session).selectByProjectUuidAndFilePath(projectUuid, filePath);
+  }
+
   private static AnticipatedTransitionMapper mapper(DbSession session) {
     return session.getMapper(AnticipatedTransitionMapper.class);
   }

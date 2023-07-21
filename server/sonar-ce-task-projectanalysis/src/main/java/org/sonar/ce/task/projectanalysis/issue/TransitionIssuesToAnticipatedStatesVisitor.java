@@ -49,7 +49,7 @@ public class TransitionIssuesToAnticipatedStatesVisitor extends IssueVisitor {
   @Override
   public void beforeComponent(Component component) {
     if (FILE.equals(component.getType())) {
-      anticipatedTransitions = anticipatedTransitionRepository.getAnticipatedTransitionByProjectUuid(component.getUuid(), component.getName());
+      anticipatedTransitions = anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component);
     }
   }
 
@@ -62,11 +62,6 @@ public class TransitionIssuesToAnticipatedStatesVisitor extends IssueVisitor {
         performAnticipatedTransition(issue, matchedRaws.get(issue));
       }
     }
-  }
-
-  @Override
-  public void afterComponent(Component component) {
-    anticipatedTransitions.clear();
   }
 
   private void performAnticipatedTransition(DefaultIssue issue, AnticipatedTransition anticipatedTransition) {

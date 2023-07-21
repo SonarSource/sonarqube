@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.issue;
 import java.util.Collection;
 import java.util.List;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.AnticipatedTransition;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -37,12 +38,19 @@ public class AnticipatedTransitionRepositoryImpl implements AnticipatedTransitio
   }
 
   @Override
-  public Collection<AnticipatedTransition> getAnticipatedTransitionByProjectUuid(String componentUuid, String filePath) {
+  public Collection<AnticipatedTransition> getAnticipatedTransitionByComponent(Component component) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      EntityDto entityDto = dbClient.entityDao().selectByComponentUuid(dbSession, componentUuid).orElseThrow(IllegalStateException::new);
-      List<AnticipatedTransitionDto> anticipatedTransitionDtos = dbClient.anticipatedTransitionDao().selectByProjectUuid(dbSession, entityDto.getUuid());
+      String projectUuid = dbClient.entityDao().selectByComponentUuid(dbSession, component.getUuid()).map(EntityDto::getUuid)
+        .orElse(calculateProjectUuidFromComponentKey(dbSession, component));
+      List<AnticipatedTransitionDto> anticipatedTransitionDtos = dbClient.anticipatedTransitionDao()
+        .selectByProjectUuidAndFilePath(dbSession, projectUuid, component.getName());
       return getAnticipatedTransitions(anticipatedTransitionDtos);
     }
+  }
+
+  private String calculateProjectUuidFromComponentKey(DbSession dbSession, Component component) {
+    String projectKey = component.getKey().split(":")[0];
+    return dbClient.projectDao().selectProjectByKey(dbSession, projectKey).map(EntityDto::getUuid).orElse("");
   }
 
   private Collection<AnticipatedTransition> getAnticipatedTransitions(List<AnticipatedTransitionDto> anticipatedTransitionDtos) {
@@ -59,7 +67,7 @@ public class AnticipatedTransitionRepositoryImpl implements AnticipatedTransitio
       transitionDto.getUserUuid(),
       RuleKey.parse(transitionDto.getRuleKey()),
       transitionDto.getMessage(),
-      "filepath",
+      transitionDto.getFilePath(),
       transitionDto.getLine(),
       transitionDto.getLineHash(),
       transitionDto.getTransition(),

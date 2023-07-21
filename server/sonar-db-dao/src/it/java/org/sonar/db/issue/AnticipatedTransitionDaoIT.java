@@ -19,6 +19,7 @@
  */
 package org.sonar.db.issue;
 
+import java.time.Instant;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -36,33 +37,50 @@ public class AnticipatedTransitionDaoIT {
   public void select_anticipated_transition() {
     final String projectUuid = "project147852";
     String atUuid = "uuid_123456";
-    AnticipatedTransitionDto transition = new AnticipatedTransitionDto(
-      atUuid,
-      projectUuid,
-      "userUuid",
-      "transition",
-      "status",
-      "comment",
-      1,
-      "message",
-      "lineHash",
-      "ruleKey");
-
+    String atUuid2 = "uuid_123457";
     // insert one
-    underTest.insert(db.getSession(), transition);
+    generateAndInsertAnticipatedTransition(atUuid, projectUuid, "userUuid", "filePath1");
+    generateAndInsertAnticipatedTransition(atUuid2, projectUuid, "userUuid", "filePath2");
 
     // select all
     var anticipatedTransitionDtos = underTest.selectByProjectUuid(db.getSession(), projectUuid);
-    assertThat(anticipatedTransitionDtos).hasSize(1);
+    assertThat(anticipatedTransitionDtos).hasSize(2);
     assertThat(anticipatedTransitionDtos.get(0))
       .extracting("uuid").isEqualTo(atUuid);
+    assertThat(anticipatedTransitionDtos.get(1))
+      .extracting("uuid").isEqualTo(atUuid2);
 
     // delete one
     underTest.delete(db.getSession(), atUuid);
 
     // select all
     var anticipatedTransitionDtosDeleted = underTest.selectByProjectUuid(db.getSession(), projectUuid);
-    assertThat(anticipatedTransitionDtosDeleted).isEmpty();
+    assertThat(anticipatedTransitionDtosDeleted).hasSize(1);
+  }
+
+  @Test
+  public void select_anticipated_transition_by_project_and_filepath() {
+    final String projectUuid = "project147852";
+    String atUuid = "uuid_123456";
+    String atUuid2 = "uuid_123457";
+    String filePath = "filePath1";
+
+    // insert two
+    generateAndInsertAnticipatedTransition(atUuid, projectUuid, "userUuid", filePath);
+    generateAndInsertAnticipatedTransition(atUuid2, projectUuid, "userUuid", "filePath2");
+
+    // select one by project filePath
+    var anticipatedTransitionDtos = underTest.selectByProjectUuidAndFilePath(db.getSession(), projectUuid, filePath);
+    assertThat(anticipatedTransitionDtos).hasSize(1);
+    assertThat(anticipatedTransitionDtos.get(0))
+      .extracting("uuid", "filePath").containsExactly(atUuid, filePath);
+
+    // delete one
+    underTest.delete(db.getSession(), atUuid);
+
+    // select all
+    var anticipatedTransitionDtosDeleted = underTest.selectByProjectUuid(db.getSession(), projectUuid);
+    assertThat(anticipatedTransitionDtosDeleted).hasSize(1);
   }
 
   @Test
@@ -88,18 +106,23 @@ public class AnticipatedTransitionDaoIT {
     assertThat(underTest.selectByProjectUuid(db.getSession(), projectUuid2)).hasSize(2);
   }
 
-  private void generateAndInsertAnticipatedTransition(String uuid, String projectUuid1, String userUuid1) {
-		    AnticipatedTransitionDto transition = new AnticipatedTransitionDto(
+  private void generateAndInsertAnticipatedTransition(String uuid, String projectUuid, String userUuid) {
+    generateAndInsertAnticipatedTransition(uuid, projectUuid, userUuid, "filePath");
+  }
+
+  private void generateAndInsertAnticipatedTransition(String uuid, String projectUuid, String userUuid, String filePath) {
+    AnticipatedTransitionDto transition = new AnticipatedTransitionDto(
       uuid,
-      projectUuid1,
-      userUuid1,
+      projectUuid,
+      userUuid,
       "transition",
       "status",
-      "comment",
       1,
       "message",
       "lineHash",
-      "ruleKey");
+      "ruleKey",
+      filePath,
+      Instant.now().getEpochSecond());
 
     // insert one
     underTest.insert(db.getSession(), transition);

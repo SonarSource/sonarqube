@@ -20,9 +20,10 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Collection;
+import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.AnticipatedTransition;
 
 public interface AnticipatedTransitionRepository {
-  Collection<AnticipatedTransition> getAnticipatedTransitionByProjectUuid(String projectKey, String filePath);
+  Collection<AnticipatedTransition> getAnticipatedTransitionByComponent(Component component);
 
 }

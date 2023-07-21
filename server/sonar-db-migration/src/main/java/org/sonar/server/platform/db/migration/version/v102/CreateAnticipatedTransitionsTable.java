@@ -25,6 +25,7 @@ import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
 import org.sonar.server.platform.db.migration.step.CreateTableChange;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
+import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.IntegerColumnDef.newIntegerColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.MAX_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.USER_UUID_SIZE;
@@ -45,12 +46,13 @@ public class CreateAnticipatedTransitionsTable extends CreateTableChange {
       .addColumn(newVarcharColumnDefBuilder().setColumnName("project_uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("user_uuid").setIsNullable(false).setLimit(USER_UUID_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("transition").setIsNullable(false).setLimit(20).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("status").setIsNullable(false).setLimit(20).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("transition_comment").setLimit(MAX_SIZE).build())
       .addColumn(newIntegerColumnDefBuilder().setColumnName("line").build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("message").setLimit(MAX_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("line_hash").setLimit(255).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("rule_key").setIsNullable(false).setLimit(200).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("file_path").setIsNullable(false).setLimit(1500).build())
+      .addColumn(newBigIntegerColumnDefBuilder().setColumnName("created_at").setIsNullable(false).build())
       .build());
   }
 }

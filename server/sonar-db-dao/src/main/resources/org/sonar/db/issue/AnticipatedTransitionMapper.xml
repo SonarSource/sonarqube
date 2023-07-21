@@ -10,20 +10,22 @@
     at.project_uuid as projectUuid,
     at.user_uuid as userUuid,
     at.transition as transition,
-    at.status as status,
     at.transition_comment as "comment",
     at.line as line,
     at.message as message,
     at.line_hash as lineHash,
-    at.rule_key as ruleKey
+    at.rule_key as ruleKey,
+    at.file_path as filePath,
+    at.created_at as createdAt
   </sql>
 
   <insert id="insert" useGeneratedKeys="false" parameterType="AnticipatedTransition">
-    INSERT INTO anticipated_transitions (uuid, project_uuid, user_uuid, transition, status,
-    transition_comment, line, message, line_hash, rule_key)
+    INSERT INTO anticipated_transitions (uuid, project_uuid, user_uuid, transition,
+    transition_comment, line, message, line_hash, rule_key, file_path, created_at)
     VALUES (#{uuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{userUuid,jdbcType=VARCHAR},
-    #{transition,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{comment,jdbcType=VARCHAR},
-    #{line,jdbcType=INTEGER}, #{message,jdbcType=VARCHAR}, #{lineHash,jdbcType=VARCHAR}, #{ruleKey,jdbcType=VARCHAR})
+    #{transition,jdbcType=VARCHAR}, #{comment,jdbcType=VARCHAR},
+    #{line,jdbcType=INTEGER}, #{message,jdbcType=VARCHAR}, #{lineHash,jdbcType=VARCHAR}, #{ruleKey,jdbcType=VARCHAR},
+    #{filePath,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT})
   </insert>
 
   <delete id="delete" parameterType="string">
@@ -40,4 +42,12 @@
     from anticipated_transitions at
     where at.project_uuid=#{projectUuid,jdbcType=VARCHAR}
   </select>
+
+    <select id="selectByProjectUuidAndFilePath" parameterType="string" resultType="AnticipatedTransition">
+    select
+    <include refid="anticipatedTransitionsColumns"/>
+    from anticipated_transitions at
+    where at.project_uuid=#{projectUuid,jdbcType=VARCHAR} and at.file_path=#{filePath,jdbcType=VARCHAR}
+  </select>
+
 </mapper>
