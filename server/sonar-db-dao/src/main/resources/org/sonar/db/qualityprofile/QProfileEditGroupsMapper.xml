@@ -60,6 +60,7 @@
     FROM groups g
     LEFT JOIN qprofile_edit_groups qeg ON qeg.group_uuid=g.uuid AND qeg.qprofile_uuid=#{query.qProfileUuid, jdbcType=VARCHAR}
     <where>
+      AND g.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
       <choose>
         <when test="query.getMembership() == 'IN'">
           AND qeg.uuid IS NOT NULL
