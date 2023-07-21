@@ -118,7 +118,9 @@ describe('issues app', () => {
       renderIssueApp();
 
       // Select an issue with an advanced rule
-      await user.click(await screen.findByRole('link', { name: 'Fix that' }));
+      await act(async () => {
+        await user.click(await screen.findByRole('link', { name: 'Fix that' }));
+      });
       expect(screen.getByRole('tab', { name: 'issue.tabs.code' })).toBeInTheDocument();
 
       // Are rule headers present?
@@ -126,15 +128,19 @@ describe('issues app', () => {
       expect(screen.getByRole('link', { name: 'advancedRuleId' })).toBeInTheDocument();
 
       // Select the "why is this an issue" tab and check its content
-      await user.click(
-        screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` })
-      );
+      await act(async () => {
+        await user.click(
+          screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` })
+        );
+      });
       expect(screen.getByRole('heading', { name: 'Because' })).toBeInTheDocument();
 
       // Select the "how to fix it" tab
-      await user.click(
-        screen.getByRole('tab', { name: `coding_rules.description_section.title.how_to_fix` })
-      );
+      await act(async () => {
+        await user.click(
+          screen.getByRole('tab', { name: `coding_rules.description_section.title.how_to_fix` })
+        );
+      });
 
       // Is the context selector present with the expected values and default selection?
       expect(screen.getByRole('radio', { name: 'Context 2' })).toBeInTheDocument();
@@ -146,13 +152,17 @@ describe('issues app', () => {
       expect(screen.getByRole('radio', { name: 'Spring', current: true })).toBeInTheDocument();
 
       // Select context 2 and check tab content
-      await user.click(screen.getByRole('radio', { name: 'Context 2' }));
+      await act(async () => {
+        await user.click(screen.getByRole('radio', { name: 'Context 2' }));
+      });
       expect(screen.getByText('Context 2 content')).toBeInTheDocument();
 
       // Select the "other" context and check tab content
-      await user.click(
-        screen.getByRole('radio', { name: 'coding_rules.description_context.other' })
-      );
+      await act(async () => {
+        await user.click(
+          screen.getByRole('radio', { name: 'coding_rules.description_context.other' })
+        );
+      });
       expect(screen.getByText('coding_rules.context.others.title')).toBeInTheDocument();
       expect(screen.getByText('coding_rules.context.others.description.first')).toBeInTheDocument();
       expect(
@@ -160,9 +170,11 @@ describe('issues app', () => {
       ).toBeInTheDocument();
 
       // Select the main info tab and check its content
-      await user.click(
-        screen.getByRole('tab', { name: `coding_rules.description_section.title.more_info` })
-      );
+      await act(async () => {
+        await user.click(
+          screen.getByRole('tab', { name: `coding_rules.description_section.title.more_info` })
+        );
+      });
       expect(screen.getByRole('heading', { name: 'Link' })).toBeInTheDocument();
 
       // Check for extended description (eslint FP)
@@ -179,9 +191,11 @@ describe('issues app', () => {
       expect(screen.getByRole('link', { name: 'simpleRuleId' })).toBeInTheDocument();
 
       // Select the "why is this an issue tab" and check its content
-      await user.click(
-        screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` })
-      );
+      await act(async () => {
+        await user.click(
+          screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` })
+        );
+      });
       expect(screen.getByRole('heading', { name: 'Default' })).toBeInTheDocument();
 
       // Select the previous issue (with a simple rule) through keyboard shortcut
@@ -208,10 +222,14 @@ describe('issues app', () => {
       const user = userEvent.setup();
       renderIssueApp();
 
-      await user.click(await ui.issueItemAction5.find());
+      await act(async () => {
+        await user.click(await ui.issueItemAction5.find());
+      });
       expect(ui.projectIssueItem6.getAll()).toHaveLength(2); // there will be 2 buttons one in concise issue and other in code viewer
 
-      await user.click(ui.projectIssueItem6.getAll()[1]);
+      await act(async () => {
+        await user.click(ui.projectIssueItem6.getAll()[1]);
+      });
       expect(screen.getByRole('heading', { level: 1, name: 'Second issue' })).toBeInTheDocument();
     });
 
@@ -628,13 +646,17 @@ describe('issues item', () => {
     const listItem = within(await screen.findByRole('region', { name: 'Fix that' }));
 
     // Change issue type
-    await user.click(
-      listItem.getByLabelText('issue.type.type_x_click_to_change.issue.type.CODE_SMELL')
-    );
+    await act(async () => {
+      await user.click(
+        listItem.getByLabelText('issue.type.type_x_click_to_change.issue.type.CODE_SMELL')
+      );
+    });
     expect(listItem.getByText('issue.type.BUG')).toBeInTheDocument();
     expect(listItem.getByText('issue.type.VULNERABILITY')).toBeInTheDocument();
 
-    await user.click(listItem.getByText('issue.type.VULNERABILITY'));
+    await act(async () => {
+      await user.click(listItem.getByText('issue.type.VULNERABILITY'));
+    });
     expect(
       listItem.getByLabelText('issue.type.type_x_click_to_change.issue.type.VULNERABILITY')
     ).toBeInTheDocument();
@@ -642,12 +664,16 @@ describe('issues item', () => {
     // Change issue severity
     expect(listItem.getByText('severity.MAJOR')).toBeInTheDocument();
 
-    await user.click(
-      listItem.getByLabelText('issue.severity.severity_x_click_to_change.severity.MAJOR')
-    );
+    await act(async () => {
+      await user.click(
+        listItem.getByLabelText('issue.severity.severity_x_click_to_change.severity.MAJOR')
+      );
+    });
     expect(listItem.getByText('severity.MINOR')).toBeInTheDocument();
     expect(listItem.getByText('severity.INFO')).toBeInTheDocument();
-    await user.click(listItem.getByText('severity.MINOR'));
+    await act(async () => {
+      await user.click(listItem.getByText('severity.MINOR'));
+    });
     expect(
       listItem.getByLabelText('issue.severity.severity_x_click_to_change.severity.MINOR')
     ).toBeInTheDocument();
@@ -655,39 +681,48 @@ describe('issues item', () => {
     // Change issue status
     expect(listItem.getByText('issue.status.OPEN')).toBeInTheDocument();
 
-    await user.click(listItem.getByText('issue.status.OPEN'));
+    await act(async () => {
+      await user.click(listItem.getByText('issue.status.OPEN'));
+    });
     expect(listItem.getByText('issue.transition.confirm')).toBeInTheDocument();
     expect(listItem.getByText('issue.transition.resolve')).toBeInTheDocument();
 
-    await user.click(listItem.getByText('issue.transition.confirm'));
+    await act(async () => {
+      await user.click(listItem.getByText('issue.transition.confirm'));
+    });
     expect(
       listItem.getByLabelText('issue.transition.status_x_click_to_change.issue.status.CONFIRMED')
     ).toBeInTheDocument();
 
     // As won't fix
-    await user.click(listItem.getByText('issue.status.CONFIRMED'));
-    await user.click(listItem.getByText('issue.transition.wontfix'));
+    await act(async () => {
+      await user.click(listItem.getByText('issue.status.CONFIRMED'));
+      await user.click(listItem.getByText('issue.transition.wontfix'));
+    });
     // Comment should open and close
     expect(listItem.getByRole('button', { name: 'issue.comment.formlink' })).toBeInTheDocument();
-    await user.keyboard('test');
-    await user.click(listItem.getByRole('button', { name: 'issue.comment.formlink' }));
+    await act(async () => {
+      await user.keyboard('test');
+      await user.click(listItem.getByRole('button', { name: 'issue.comment.formlink' }));
+    });
     expect(
       listItem.queryByRole('button', { name: 'issue.comment.submit' })
     ).not.toBeInTheDocument();
 
     // Assign issue to a different user
 
-    await user.click(
-      listItem.getByRole('combobox', { name: 'issue.assign.unassigned_click_to_assign' })
-    );
-    await user.click(screen.getByLabelText('search.search_for_users'));
-
     await act(async () => {
+      await user.click(
+        listItem.getByRole('combobox', { name: 'issue.assign.unassigned_click_to_assign' })
+      );
+      await user.click(screen.getByLabelText('search.search_for_users'));
       await user.keyboard('luke');
     });
     expect(screen.getByText('Skywalker')).toBeInTheDocument();
 
-    await user.click(screen.getByText('Skywalker'));
+    await act(async () => {
+      await user.click(screen.getByText('Skywalker'));
+    });
     await listItem.findByRole('combobox', {
       name: 'issue.assign.assigned_to_x_click_to_change.luke',
     });
@@ -699,21 +734,29 @@ describe('issues item', () => {
 
     // Change tags
     expect(listItem.getByText('issue.no_tag')).toBeInTheDocument();
-    await user.click(listItem.getByText('issue.no_tag'));
+    await act(async () => {
+      await user.click(listItem.getByText('issue.no_tag'));
+    });
     expect(listItem.getByRole('searchbox', { name: 'search.search_for_tags' })).toBeInTheDocument();
     expect(listItem.getByText('android')).toBeInTheDocument();
     expect(listItem.getByText('accessibility')).toBeInTheDocument();
 
-    await user.click(listItem.getByText('accessibility'));
-    await user.click(listItem.getByText('android'));
+    await act(async () => {
+      await user.click(listItem.getByText('accessibility'));
+      await user.click(listItem.getByText('android'));
+    });
     expect(listItem.getByTitle('accessibility, android')).toBeInTheDocument();
 
     // Unselect
-    await user.click(screen.getByRole('checkbox', { name: 'accessibility' }));
+    await act(async () => {
+      await user.click(screen.getByRole('checkbox', { name: 'accessibility' }));
+    });
     expect(listItem.getByTitle('android')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('searchbox', { name: 'search.search_for_tags' }));
-    await user.keyboard('addNewTag');
+    await act(async () => {
+      await user.click(screen.getByRole('searchbox', { name: 'search.search_for_tags' }));
+      await user.keyboard('addNewTag');
+    });
     expect(
       screen.getByRole('checkbox', { name: 'issue.create_tag: addnewtag' })
     ).toBeInTheDocument();
@@ -754,35 +797,47 @@ describe('issues item', () => {
     renderIssueApp();
 
     // Select an issue with an advanced rule
-    await user.click(await ui.issueItemAction5.find());
+    await act(async () => {
+      await user.click(await ui.issueItemAction5.find());
 
-    // open severity popup on key press 'i'
+      // open severity popup on key press 'i'
 
-    await user.keyboard('i');
+      await user.keyboard('i');
+    });
     expect(screen.getByText('severity.MINOR')).toBeInTheDocument();
     expect(screen.getByText('severity.INFO')).toBeInTheDocument();
 
     // open status popup on key press 'f'
-    await user.keyboard('f');
+    await act(async () => {
+      await user.keyboard('f');
+    });
     expect(screen.getByText('issue.transition.confirm')).toBeInTheDocument();
     expect(screen.getByText('issue.transition.resolve')).toBeInTheDocument();
 
     // open comment popup on key press 'c'
-    await user.keyboard('c');
+    await act(async () => {
+      await user.keyboard('c');
+    });
     expect(screen.getByText('issue.comment.formlink')).toBeInTheDocument();
-    await user.keyboard('{Escape}');
+    await act(async () => {
+      await user.keyboard('{Escape}');
+    });
 
     // open tags popup on key press 't'
 
-    await user.keyboard('t');
+    await act(async () => {
+      await user.keyboard('t');
+    });
     expect(screen.getByRole('searchbox', { name: 'search.search_for_tags' })).toBeInTheDocument();
     expect(screen.getByText('android')).toBeInTheDocument();
     expect(screen.getByText('accessibility')).toBeInTheDocument();
     // closing tags popup
-    await user.click(screen.getByText('issue.no_tag'));
+    await act(async () => {
+      await user.click(screen.getByText('issue.no_tag'));
 
-    // open assign popup on key press 'a'
-    await user.keyboard('a');
+      // open assign popup on key press 'a'
+      await user.keyboard('a');
+    });
     expect(screen.getByRole('searchbox', { name: 'search.search_for_tags' })).toBeInTheDocument();
   });
 
@@ -810,21 +865,27 @@ describe('issues item', () => {
     const user = userEvent.setup();
     renderIssueApp();
 
-    await user.click(await ui.issueItemAction4.find());
+    await act(async () => {
+      await user.click(await ui.issueItemAction4.find());
+    });
     expect(screen.getByRole('link', { name: 'location 1' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'location 2' })).toBeInTheDocument();
 
     // Select the "why is this an issue" tab
-    await user.click(
-      screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' })
-    );
+    await act(async () => {
+      await user.click(
+        screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' })
+      );
+    });
     expect(
       screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
       })
     ).toHaveAttribute('aria-current', 'false');
 
-    await user.click(screen.getByRole('link', { name: 'location 1' }));
+    await act(async () => {
+      await user.click(screen.getByRole('link', { name: 'location 1' }));
+    });
     expect(
       screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
@@ -832,16 +893,20 @@ describe('issues item', () => {
     ).toHaveAttribute('aria-current', 'true');
 
     // Select the same selected hotspot location should also navigate back to code page
-    await user.click(
-      screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' })
-    );
+    await act(async () => {
+      await user.click(
+        screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' })
+      );
+    });
     expect(
       screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
       })
     ).toHaveAttribute('aria-current', 'false');
 
-    await user.click(screen.getByRole('link', { name: 'location 1' }));
+    await act(async () => {
+      await user.click(screen.getByRole('link', { name: 'location 1' }));
+    });
     expect(
       screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
@@ -855,7 +920,9 @@ describe('issues item', () => {
     renderIssueApp();
 
     // Select an issue with an advanced rule
-    await user.click(await ui.issueItemAction7.find());
+    await act(async () => {
+      await user.click(await ui.issueItemAction7.find());
+    });
 
     await expect(
       screen.getByText('issue.quick_fix_available_with_sonarlint_no_link')
@@ -892,44 +959,56 @@ describe('Activity', () => {
     const user = userEvent.setup();
     issuesHandler.setIsAdmin(true);
     renderIssueApp();
-    await user.click(await screen.findByRole('link', { name: 'Fix that' }));
+    await act(async () => {
+      await user.click(await screen.findByRole('link', { name: 'Fix that' }));
+    });
 
     expect(
       screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` })
     ).toBeInTheDocument();
 
-    await user.click(
-      screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` })
-    );
+    await act(async () => {
+      await user.click(
+        screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` })
+      );
+    });
 
     // Add comment to the issue
-    await user.click(
-      screen.getByRole('button', {
-        name: `issue.activity.add_comment`,
-      })
-    );
-    await user.click(screen.getByRole('textbox'));
-    await user.keyboard('activity comment');
-    await user.click(screen.getByText('hotspots.comment.submit'));
+    await act(async () => {
+      await user.click(
+        screen.getByRole('button', {
+          name: `issue.activity.add_comment`,
+        })
+      );
+      await user.click(screen.getByRole('textbox'));
+      await user.keyboard('activity comment');
+      await user.click(screen.getByText('hotspots.comment.submit'));
+    });
     expect(screen.getByText('activity comment')).toBeInTheDocument();
 
     // Cancel editing the comment
-    await user.click(screen.getByRole('button', { name: 'issue.comment.edit' }));
-    await user.click(screen.getByRole('textbox'));
-    await user.keyboard(' new');
-    await user.click(screen.getByRole('button', { name: 'cancel' }));
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: 'issue.comment.edit' }));
+      await user.click(screen.getByRole('textbox'));
+      await user.keyboard(' new');
+      await user.click(screen.getByRole('button', { name: 'cancel' }));
+    });
     expect(screen.queryByText('activity comment new')).not.toBeInTheDocument();
 
     // Edit the comment
-    await user.click(screen.getByRole('button', { name: 'issue.comment.edit' }));
-    await user.click(screen.getByRole('textbox'));
-    await user.keyboard(' new');
-    await user.click(screen.getByText('hotspots.comment.submit'));
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: 'issue.comment.edit' }));
+      await user.click(screen.getByRole('textbox'));
+      await user.keyboard(' new');
+      await user.click(screen.getByText('hotspots.comment.submit'));
+    });
     expect(screen.getByText('activity comment new')).toBeInTheDocument();
 
     // Delete the comment
-    await user.click(screen.getByRole('button', { name: 'issue.comment.delete' }));
-    await user.click(screen.getByRole('button', { name: 'delete' })); // Confirm button
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: 'issue.comment.delete' }));
+      await user.click(screen.getByRole('button', { name: 'delete' })); // Confirm button
+    });
     expect(screen.queryByText('activity comment new')).not.toBeInTheDocument();
   });
 
@@ -938,11 +1017,13 @@ describe('Activity', () => {
     issuesHandler.setIsAdmin(true);
     renderIssueApp();
 
-    await user.click(await screen.findByRole('link', { name: 'Fix that' }));
+    await act(async () => {
+      await user.click(await screen.findByRole('link', { name: 'Fix that' }));
 
-    await user.click(
-      screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` })
-    );
+      await user.click(
+        screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` })
+      );
+    });
 
     expect(screen.getByText('issue.activity.review_history.created')).toBeInTheDocument();
     expect(
