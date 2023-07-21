@@ -579,7 +579,7 @@ public class TreeActionIT {
         .setQualifier(getJsonField(componentAsJsonObject, "qualifier"))
         .setDescription(getJsonField(componentAsJsonObject, "description"))
         .setEnabled(true)
-        .setCreatedAt(now));
+        .setCreatedAt(now.getTime()));
     }
     db.commit();
     return projectData;

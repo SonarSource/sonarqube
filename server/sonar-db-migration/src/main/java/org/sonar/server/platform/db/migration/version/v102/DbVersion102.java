@@ -75,7 +75,13 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_022, "Populate 'purged' column in 'snapshots' table", PopulatePurgedColumnInSnapshots.class)
       .add(10_2_023, "Make 'purged' column not nullable in 'snapshots' table", MakePurgedColumnNotNullableInSnapshots.class)
       .add(10_2_024, "Drop 'purge_status' column in 'snapshots' table", DropPurgeStatusColumnInSnapshots.class)
+
       .add(10_2_025, "Rename 'build_date' in 'snapshots' table to 'analysis_date", RenameBuildDateInSnapshots.class)
+
+      .add(10_2_026, "Add column 'created_at_temp' in 'components' table", AddCreatedAtTempInComponents.class)
+      .add(10_2_027, "Populate column 'created_at_temp' in 'components' table", PopulateCreatedAtTempInComponents.class)
+      .add(10_2_028, "Drop column 'created_at' in 'components' table", DropCreatedAtInComponents.class)
+      .add(10_2_029, "Rename column 'created_at_temp' to 'created_at' in 'components' table", RenameCreatedAtTempInComponents.class)
     ;
   }
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.db.component;
 
-import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -41,7 +40,7 @@ public class ComponentQuery {
   private final Long anyBranchAnalyzedBefore;
   private final Long anyBranchAnalyzedAfter;
   private final Long allBranchesAnalyzedBefore;
-  private final Date createdAfter;
+  private final Long createdAfter;
   private final boolean onProvisionedOnly;
 
   private ComponentQuery(Builder builder) {
@@ -119,7 +118,7 @@ public class ComponentQuery {
   }
 
   @CheckForNull
-  public Date getCreatedAfter() {
+  public Long getCreatedAfter() {
     return createdAfter;
   }
 
@@ -147,7 +146,7 @@ public class ComponentQuery {
     private Long anyBranchAnalyzedBefore;
     private Long anyBranchAnalyzedAfter;
     private Long allBranchesAnalyzedBefore;
-    private Date createdAfter;
+    private Long createdAfter;
     private boolean onProvisionedOnly = false;
 
     public Builder setNameOrKeyQuery(@Nullable String nameOrKeyQuery) {
@@ -208,7 +207,7 @@ public class ComponentQuery {
       return this;
     }
 
-    public Builder setCreatedAfter(@Nullable Date l) {
+    public Builder setCreatedAfter(@Nullable Long l) {
       this.createdAfter = l;
       return this;
     }

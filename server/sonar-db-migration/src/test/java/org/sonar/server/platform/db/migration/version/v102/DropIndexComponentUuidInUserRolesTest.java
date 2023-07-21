@@ -33,7 +33,7 @@ public class DropIndexComponentUuidInUserRolesTest {
   @Rule
   public final CoreDbTester db = CoreDbTester.createForSchema(DropIndexComponentUuidInUserRolesTest.class, "schema.sql");
 
-  private final RenameComponentUuidInUserRoles underTest = new RenameComponentUuidInUserRoles(db.database());
+  private final DropIndexComponentUuidInUserRoles underTest = new DropIndexComponentUuidInUserRoles(db.database());
 
   @Test
   public void index_is_dropped() throws SQLException {

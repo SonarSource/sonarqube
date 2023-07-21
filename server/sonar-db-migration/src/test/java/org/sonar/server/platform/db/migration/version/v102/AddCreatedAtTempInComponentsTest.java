@@ -20,37 +20,33 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
+import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 
-public class DropIndexComponentUuidInGroupRolesTest {
+public class AddCreatedAtTempInComponentsTest {
 
-  private static final String TABLE_NAME = "group_roles";
-  private static final String COLUMN_NAME = "component_uuid";
-  private static final String INDEX_NAME = "group_roles_component_uuid";
+  private static final String TABLE_NAME = "components";
+  private static final String COLUMN_NAME = "created_at_temp";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(DropIndexComponentUuidInGroupRolesTest.class, "schema.sql");
+  public final CoreDbTester db = CoreDbTester.createForSchema(AddCreatedAtTempInComponentsTest.class, "schema.sql");
 
-  private final DropIndexComponentUuidInGroupRoles underTest = new DropIndexComponentUuidInGroupRoles(db.database());
+  private final AddCreatedAtTempInComponents underTest = new AddCreatedAtTempInComponents(db.database());
 
   @Test
-  public void index_is_dropped() throws SQLException {
-    db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
-
+  public void execute_whenColumnDoesNotExist_shouldCreateColumn() throws SQLException {
+    db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
     underTest.execute();
-
-    db.assertIndexDoesNotExist(TABLE_NAME, COLUMN_NAME);
+    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.BIGINT, null, null);
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
-    db.assertIndex(TABLE_NAME, INDEX_NAME, COLUMN_NAME);
-
+  public void execute_whenExecutedTwice_shouldNotFail() throws SQLException {
+    db.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
     underTest.execute();
     underTest.execute();
-
-    db.assertIndexDoesNotExist(TABLE_NAME, COLUMN_NAME);
+    db.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, Types.BIGINT, null, null);
   }
 }
