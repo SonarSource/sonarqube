@@ -61,14 +61,16 @@ public class RootFilter implements Filter {
     if (request instanceof HttpServletRequest httpRequest) {
       HttpServletResponse httpResponse = (HttpServletResponse) response;
       try {
+        LOGGER.info(format("Request received %s ", toUrl(httpRequest)));
         chain.doFilter(new ServletRequestWrapper(httpRequest), httpResponse);
+        LOGGER.info(format("Request received %s is processed", toUrl(httpRequest)));
       } catch (Throwable e) {
         if (httpResponse.isCommitted()) {
           // Request has been aborted by the client, nothing can been done as Tomcat has committed the response
-          LOGGER.debug(format("Processing of request %s failed", toUrl(httpRequest)), e);
+          LOGGER.info(format("Processing of request %s failed", toUrl(httpRequest)), e);
           return;
         }
-        LOGGER.error(format("Processing of request %s failed", toUrl(httpRequest)), e);
+        LOGGER.info(format("Processing of request %s failed", toUrl(httpRequest)), e);
         httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }
     } else {
