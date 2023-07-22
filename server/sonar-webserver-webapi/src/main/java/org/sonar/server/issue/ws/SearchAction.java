@@ -44,7 +44,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.issue.SearchRequest;
@@ -54,6 +56,8 @@ import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueScope;
 import org.sonar.server.security.SecurityStandards.SQCategory;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 
@@ -86,6 +90,7 @@ import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_I
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
 import static org.sonar.server.security.SecurityStandards.UNKNOWN_STANDARD;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
@@ -420,9 +425,26 @@ public class SearchAction implements IssuesWsAction {
   public final void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       SearchRequest searchRequest = toSearchWsRequest(dbSession, request);
+      checkPermissions(searchRequest);
+
       checkIfNeedIssueSync(dbSession, searchRequest);
       SearchWsResponse searchWsResponse = doHandle(searchRequest);
       writeProtobuf(searchWsResponse, request, response);
+    }
+  }
+
+  private void checkPermissions(SearchRequest searchRequest) {
+    if (userSession instanceof ThreadLocalUserSession) {
+      UserSession tokenUserSession = ((ThreadLocalUserSession) userSession).get();
+      if (tokenUserSession instanceof TokenUserSession) {
+        UserTokenDto userToken = ((TokenUserSession) tokenUserSession).getUserToken();
+        if (TokenType.PROJECT_ANALYSIS_TOKEN.name().equals(userToken.getType())) {
+          if (searchRequest.getComponents() == null || searchRequest.getComponents().size() != 1
+                  || !userToken.getProjectKey().equals(searchRequest.getComponents().get(0))) {
+            throw insufficientPrivilegesException();
+          }
+        }
+      }
     }
   }
 
