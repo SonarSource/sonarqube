@@ -56,6 +56,8 @@ export function MenuItemList(props: MenuItemListProps) {
     />
   );
 
+  const branches = [branchLikeTree.mainBranchTree, ...branchLikeTree.branchTree];
+
   return (
     <ul className="item-list sw-overflow-y-auto sw-overflow-x-hidden">
       {!hasResults && (
@@ -65,22 +67,20 @@ export function MenuItemList(props: MenuItemListProps) {
       )}
 
       {/* BRANCHES & PR */}
-      {[branchLikeTree.mainBranchTree, ...branchLikeTree.branchTree]
-        .filter(isDefined)
-        .map((tree) => (
-          <React.Fragment key={getBranchLikeKey(tree.branch)}>
-            {renderItem(tree.branch)}
-            {tree.pullRequests.length > 0 && (
-              <>
-                <ItemDivider />
-                <ItemHeader>{translate('branch_like_navigation.pull_requests')}</ItemHeader>
-                <ItemDivider />
-                {tree.pullRequests.map((pr) => renderItem(pr, true))}
-                {tree.pullRequests.length > 0 && <ItemDivider />}
-              </>
-            )}
-          </React.Fragment>
-        ))}
+      {branches.filter(isDefined).map((tree, treeIndex) => (
+        <React.Fragment key={getBranchLikeKey(tree.branch)}>
+          {renderItem(tree.branch)}
+          {tree.pullRequests.length > 0 && (
+            <>
+              <ItemDivider />
+              <ItemHeader>{translate('branch_like_navigation.pull_requests')}</ItemHeader>
+              <ItemDivider />
+              {tree.pullRequests.map((pr) => renderItem(pr, true))}
+              {tree.pullRequests.length > 0 && treeIndex !== branches.length - 1 && <ItemDivider />}
+            </>
+          )}
+        </React.Fragment>
+      ))}
 
       {/* PARENTLESS PR (for display during search) */}
       {branchLikeTree.parentlessPullRequests.length > 0 && (
