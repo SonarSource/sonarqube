@@ -19,6 +19,7 @@
  */
 import { waitFor } from '@testing-library/react';
 import React from 'react';
+import BranchesServiceMock from '../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../api/mocks/IssuesServiceMock';
 import { mockComponent } from '../../helpers/mocks/component';
@@ -32,9 +33,11 @@ import { projectIssuesRoutes } from './routes';
 
 export const issuesHandler = new IssuesServiceMock();
 export const componentsHandler = new ComponentsServiceMock();
+export const branchHandler = new BranchesServiceMock();
 
 export const ui = {
   loading: byLabelText('loading'),
+  issuePageHeadering: byRole('heading', { level: 1, name: 'issues.page' }),
   issueItemAction1: byRole('link', { name: 'Issue with no location message' }),
   issueItemAction2: byRole('link', { name: 'FlowIssue' }),
   issueItemAction3: byRole('link', { name: 'Issue on file' }),

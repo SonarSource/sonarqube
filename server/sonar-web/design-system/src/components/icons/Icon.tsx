@@ -57,7 +57,7 @@ export function CustomIcon(props: Props) {
   } = props;
   return (
     <svg
-      aria-hidden={ariaHidden ?? ariaLabel ? 'false' : 'true'}
+      aria-hidden={ariaHidden ?? (ariaLabel ? 'false' : 'true')}
       aria-label={ariaLabel}
       className={className}
       fill="none"
