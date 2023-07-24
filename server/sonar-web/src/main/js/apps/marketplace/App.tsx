@@ -159,8 +159,6 @@ export class App extends React.PureComponent<Props, State> {
       <div className="page page-limited" id="marketplace-page">
         <Suggestions suggestions="marketplace" />
         <Helmet title={translate('marketplace.page')} />
-        <Header currentEdition={currentEdition} />
-        <EditionBoxes currentEdition={currentEdition} />
         <header className="page-header">
           <h1 className="page-title">{translate('marketplace.page.plugins')}</h1>
           <div className="page-description">
