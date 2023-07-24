@@ -17,14 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { css } from '@emotion/react';
-import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { uniqueId } from 'lodash';
-import React from 'react';
-import tw from 'twin.macro';
-import { themeBorder, themeColor, themeContrast } from '../helpers';
-import { ThemedProps } from '../types';
+import * as React from 'react';
 import { BareButton } from './buttons';
 import { OpenCloseIndicator } from './icons/OpenCloseIndicator';
 
@@ -38,7 +33,7 @@ interface AccordionProps {
   open: boolean;
 }
 
-export function Accordion(props: AccordionProps) {
+export function BorderlessAccordion(props: AccordionProps) {
   const { ariaLabel, className, open, header, data, onClick } = props;
 
   const id = React.useMemo(() => uniqueId('accordion-'), []);
@@ -47,7 +42,7 @@ export function Accordion(props: AccordionProps) {
   }, [onClick, data]);
 
   return (
-    <Container
+    <div
       className={classNames('sw-cursor-pointer', className, {
         open,
       })}
@@ -57,7 +52,7 @@ export function Accordion(props: AccordionProps) {
         aria-controls={`${id}-panel`}
         aria-expanded={open}
         aria-label={ariaLabel}
-        className="sw-flex sw-items-center sw-justify-between sw-p-4 sw-box-border sw-w-full"
+        className="sw-flex sw-items-center sw-justify-between sw-px-2 sw-py-2 sw-box-border sw-w-full"
         id={`${id}-header`}
         onClick={handleClick}
       >
@@ -65,53 +60,8 @@ export function Accordion(props: AccordionProps) {
         <OpenCloseIndicator aria-hidden className="sw-ml-2" open={open} />
       </BareButton>
       <div aria-labelledby={`${id}-header`} id={`${id}-panel`} role="region">
-        {open && <div className="sw-p-4">{props.children}</div>}
+        {open && <div>{props.children}</div>}
       </div>
-    </Container>
+    </div>
   );
 }
-
-const accordionStyle = (props: ThemedProps) => css`
-  box-sizing: border-box;
-  text-decoration: none;
-  outline: none;
-  border: ${themeBorder('default', 'buttonSecondaryBorder')(props)};
-  color: ${themeContrast('buttonSecondary')(props)};
-  background-color: ${themeColor('buttonSecondary')(props)};
-  transition: background-color 0.2s ease, outline 0.2s ease;
-
-  & > button {
-    ${tw`sw-body-sm-highlight`}
-  }
-  ${tw`sw-rounded-2`}
-  ${tw`sw-overflow-hidden`}
-  ${tw`sw-cursor-pointer`}
-
-  & > button:hover, & > button:active {
-    color: ${themeContrast('buttonSecondary')(props)};
-    background-color: ${themeColor('buttonSecondaryHover')(props)};
-  }
-
-  & > button:focus,
-  & > button:active {
-    color: ${themeContrast('buttonSecondary')(props)};
-    outline: ${themeBorder('focus', 'var(--focus)')(props)};
-  }
-
-  & > button:disabled,
-  & > button:disabled:hover {
-    color: ${themeContrast('buttonDisabled')(props)};
-    background-color: ${themeColor('buttonDisabled')(props)};
-    border: ${themeBorder('default', 'buttonDisabledBorder')(props)};
-
-    ${tw`sw-cursor-not-allowed`}
-  }
-
-  & > svg {
-    ${tw`sw-mr-1`}
-  }
-`;
-
-const Container = styled.div`
-  ${accordionStyle}
-`;

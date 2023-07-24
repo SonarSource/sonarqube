@@ -23,6 +23,7 @@ export * from './Avatar';
 export { Badge } from './Badge';
 export * from './Banner';
 export { BarChart } from './BarChart';
+export * from './BorderlessAccordion';
 export { Breadcrumbs } from './Breadcrumbs';
 export * from './BubbleChart';
 export * from './Card';

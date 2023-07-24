@@ -17,32 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { cloneDeep } from 'lodash';
 import { OpenAPIV3 } from 'openapi-types';
-import { throwGlobalError } from '../helpers/error';
-import { getJSON } from '../helpers/request';
-import { WebApi } from '../types/types';
+import { fetchOpenAPI } from '../web-api';
+import { openApiTestData } from './data/web-api';
 
-interface RawDomain {
-  actions: WebApi.Action[];
-  deprecatedSince?: string;
-  description: string;
-  internal: boolean;
-  path: string;
-  since?: string;
-}
+jest.mock('../web-api');
 
-export function fetchWebApi(showInternal = true): Promise<RawDomain[]> {
-  return getJSON('/api/webservices/list', { include_internals: showInternal })
-    .then((r) => r.webServices)
-    .catch(throwGlobalError);
-}
+export default class WebApiServiceMock {
+  openApiDocument: OpenAPIV3.Document;
 
-export function fetchResponseExample(domain: string, action: string): Promise<WebApi.Example> {
-  return getJSON('/api/webservices/response_example', { controller: domain, action }).catch(
-    throwGlobalError
-  );
-}
+  constructor() {
+    this.openApiDocument = cloneDeep(openApiTestData);
 
-export function fetchOpenAPI(): Promise<OpenAPIV3.Document> {
-  return getJSON('/api/v2/api-docs').catch(throwGlobalError);
+    jest.mocked(fetchOpenAPI).mockImplementation(this.handleFetchOpenAPI);
+  }
+
+  handleFetchOpenAPI: typeof fetchOpenAPI = () => {
+    return Promise.resolve(this.openApiDocument);
+  };
+
+  reset = () => {
+    this.openApiDocument = cloneDeep(openApiTestData);
+  };
 }

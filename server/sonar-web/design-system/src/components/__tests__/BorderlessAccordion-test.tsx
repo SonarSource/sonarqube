@@ -21,7 +21,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { render } from '../../helpers/testUtils';
-import { Accordion } from '../Accordion';
+import { BorderlessAccordion } from '../BorderlessAccordion';
 
 it('should behave correctly', async () => {
   const user = userEvent.setup();
@@ -37,7 +37,7 @@ function renderAccordion(children: React.ReactNode) {
     const [open, setOpen] = React.useState(false);
 
     return (
-      <Accordion
+      <BorderlessAccordion
         header="test"
         onClick={() => {
           setOpen(!open);
@@ -45,7 +45,7 @@ function renderAccordion(children: React.ReactNode) {
         open={open}
       >
         <div>{children}</div>
-      </Accordion>
+      </BorderlessAccordion>
     );
   }
 

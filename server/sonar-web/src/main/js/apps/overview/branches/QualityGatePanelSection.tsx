@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Accordion, BasicSeparator, TextMuted } from 'design-system';
+import { BasicSeparator, BorderlessAccordion, TextMuted } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
@@ -134,7 +134,7 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
     <>
       {isApplication ? (
         <>
-          <Accordion
+          <BorderlessAccordion
             ariaLabel={toggleLabel}
             onClick={toggle}
             open={!collapsed}
@@ -155,7 +155,7 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
             <BasicSeparator />
 
             {renderFailedConditions()}
-          </Accordion>
+          </BorderlessAccordion>
 
           {(!isLastStatus || collapsed) && <BasicSeparator />}
         </>
