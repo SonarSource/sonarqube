@@ -34,10 +34,6 @@ export default function PrivacyBadgeContainer({
   qualifier,
   visibility,
 }: PrivacyBadgeContainerProps) {
-  if (visibility !== Visibility.Private) {
-    return null;
-  }
-
   return (
     <Tooltip overlay={translate('visibility', visibility, 'description', qualifier)}>
       <div className={classNames('badge', className)}>{translate('visibility', visibility)}</div>

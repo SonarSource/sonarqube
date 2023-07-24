@@ -134,7 +134,7 @@ it('should hide some fields for application', async () => {
   });
   expect(await ui.applicationPageTitle.find()).toBeInTheDocument();
   expect(screen.getByText('application.info.empty_description')).toBeInTheDocument();
-  expect(screen.queryByText(/visibility/)).not.toBeInTheDocument();
+  expect(screen.getByText('visibility.public')).toBeInTheDocument();
   expect(ui.tags.get()).toHaveTextContent('no_tags');
 });
 
@@ -146,7 +146,7 @@ it('should not show field that is not configured', async () => {
   expect(await ui.projectPageTitle.find()).toBeInTheDocument();
   expect(ui.qualityGateList.query()).not.toBeInTheDocument();
   expect(ui.qualityProfilesList.query()).not.toBeInTheDocument();
-  expect(screen.queryByText(/visibility/)).not.toBeInTheDocument();
+  expect(screen.getByText('visibility.public')).toBeInTheDocument();
   expect(ui.tags.get()).toHaveTextContent('no_tags');
   expect(screen.getByText('project.info.empty_description')).toBeInTheDocument();
 });
@@ -160,7 +160,7 @@ it('should hide visibility if public', async () => {
   expect(await ui.projectPageTitle.find()).toBeInTheDocument();
   expect(ui.qualityGateList.query()).not.toBeInTheDocument();
   expect(ui.qualityProfilesList.query()).not.toBeInTheDocument();
-  expect(screen.queryByText(/visibility/)).not.toBeInTheDocument();
+  expect(screen.getByText('visibility.public')).toBeInTheDocument();
   expect(ui.tags.get()).toHaveTextContent('no_tags');
   expect(screen.getByText('project.info.empty_description')).toBeInTheDocument();
 });

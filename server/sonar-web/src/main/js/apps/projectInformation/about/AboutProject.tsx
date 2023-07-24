@@ -78,11 +78,12 @@ export default function AboutProject(props: AboutProjectProps) {
         <MetaKey componentKey={component.key} qualifier={component.qualifier} />
       </ProjectInformationSection>
 
-      {component.visibility === Visibility.Private && (
-        <ProjectInformationSection>
-          <MetaVisibility qualifier={component.qualifier} visibility={component.visibility} />
-        </ProjectInformationSection>
-      )}
+      <ProjectInformationSection>
+        <MetaVisibility
+          qualifier={component.qualifier}
+          visibility={component.visibility ?? Visibility.Public}
+        />
+      </ProjectInformationSection>
 
       <ProjectInformationSection>
         <MetaDescription description={component.description} isApp={isApp} />

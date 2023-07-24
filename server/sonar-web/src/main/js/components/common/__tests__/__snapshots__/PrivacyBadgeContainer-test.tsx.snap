@@ -1,7 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`do not render 1`] = `""`;
-
 exports[`renders 1`] = `
 <Tooltip
   overlay="visibility.private.description.TRK"
@@ -10,6 +8,18 @@ exports[`renders 1`] = `
     className="badge"
   >
     visibility.private
+  </div>
+</Tooltip>
+`;
+
+exports[`should render public 1`] = `
+<Tooltip
+  overlay="visibility.public.description.TRK"
+>
+  <div
+    className="badge"
+  >
+    visibility.public
   </div>
 </Tooltip>
 `;

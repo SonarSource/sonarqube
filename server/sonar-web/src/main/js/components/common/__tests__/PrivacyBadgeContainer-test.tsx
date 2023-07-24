@@ -26,7 +26,7 @@ it('renders', () => {
   expect(getWrapper()).toMatchSnapshot();
 });
 
-it('do not render', () => {
+it('should render public', () => {
   expect(getWrapper({ visibility: Visibility.Public })).toMatchSnapshot();
 });
 

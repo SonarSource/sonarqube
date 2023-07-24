@@ -43,7 +43,7 @@ import Measure from '../../../../components/measure/Measure';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { formatMeasure } from '../../../../helpers/measures';
 import { getProjectUrl } from '../../../../helpers/urls';
-import { ComponentQualifier, Visibility } from '../../../../types/component';
+import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey, MetricType } from '../../../../types/metrics';
 import { Status } from '../../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../../types/users';
@@ -81,13 +81,12 @@ function renderFirstLine(
             />
           )}
 
-          <h3 className="it__project-card-name" title={name}>
+          <h1 className="it__project-card-name" title={name}>
             <StandoutLink to={getProjectUrl(key)}>{name}</StandoutLink>
-          </h3>
+          </h1>
 
           {qualifier === ComponentQualifier.Application && (
             <Tooltip
-              placement="top"
               overlay={
                 <span>
                   {translate('qualifier.APP')}
@@ -101,20 +100,16 @@ function renderFirstLine(
               }
             >
               <span>
-                <Badge className="sw-ml-2 sw-font-sans">{translate('qualifier.APP')}</Badge>
+                <Badge className="sw-ml-2">{translate('qualifier.APP')}</Badge>
               </span>
             </Tooltip>
           )}
 
-          {visibility === Visibility.Private && (
-            <Tooltip overlay={translate('visibility', visibility, 'description', qualifier)}>
-              <span>
-                <Badge className="sw-ml-2 sw-font-sans">
-                  {translate('visibility', visibility)}
-                </Badge>
-              </span>
-            </Tooltip>
-          )}
+          <Tooltip overlay={translate('visibility', visibility, 'description', qualifier)}>
+            <span>
+              <Badge className="sw-ml-2">{translate('visibility', visibility)}</Badge>
+            </span>
+          </Tooltip>
         </div>
         {analysisDate && (
           <Tooltip overlay={qualityGateLabel}>
@@ -156,7 +151,7 @@ function renderFirstLine(
                       value={measures.new_lines}
                     />
                   </span>
-                  <span>{translate('metric.new_lines.name')}</span>
+                  <span className="sw-body-sm">{translate('metric.new_lines.name')}</span>
                 </div>
               </>
             )
@@ -171,7 +166,7 @@ function renderFirstLine(
                       value={measures.ncloc}
                     />
                   </span>
-                  <span>{translate('metric.ncloc.name')}</span>
+                  <span className="sw-body-sm">{translate('metric.ncloc.name')}</span>
                 </div>
                 <SeparatorCircleIcon className="sw-mx-1" />
                 <span className="sw-body-sm" data-key={MetricKey.ncloc_language_distribution}>
