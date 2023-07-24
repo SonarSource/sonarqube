@@ -27,6 +27,12 @@ interface Props {
 }
 
 export default function OrganizationNavigationMeta({ organization }: Props) {
+
+  let orgType: any = "ORGANIZATION";
+  if(window.location.href.indexOf("policy-results")>0){
+    orgType = "POLICY_RESULTS";
+  }
+
   return (
       <div className="navbar-context-meta">
         {organization.url != null && (
@@ -42,7 +48,7 @@ export default function OrganizationNavigationMeta({ organization }: Props) {
           <strong>{translate('organization.key')}:</strong> {organization.kee}
         </div>
         <div className="navbar-context-meta-secondary">
-          <HomePageSelect currentPage={{ type: 'ORGANIZATION', organization: organization.kee }}/>
+          <HomePageSelect currentPage={{ type: orgType, organization: organization.kee }}/>
         </div>
       </div>
   );

@@ -105,7 +105,6 @@ class PolicyResults extends React.PureComponent<Props, State> {
     
 
     handleChange = ({target} : any) => {
-        console.log('option changed :: ', target.value)
         
         this.setState({selectedOption:target.value});
         this.fetchComponent(target.value);
@@ -360,12 +359,7 @@ class PolicyResults extends React.PureComponent<Props, State> {
       };
 
     render(){
-        const {currentUser, organization} = {...this.props}
         const {loading, component, branchLike, branchLikes, loadingProjects, projects, selectedOption} = {...this.state}
-        console.log("------ Current User -------");
-        console.log(currentUser);
-        console.log("------ Organization -------");
-        console.log(organization)
         const branchSupportEnabled = false;
         const projectBinding:any = {};
         const style = {
