@@ -21,8 +21,6 @@ package org.sonar.server.project.ws;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -55,7 +53,6 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBIL
 
 public class CreateAction implements ProjectsWsAction {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CreateAction.class);
   private final DbClient dbClient;
   private final UserSession userSession;
   private final ComponentUpdater componentUpdater;
@@ -119,12 +116,9 @@ public class CreateAction implements ProjectsWsAction {
   }
 
   private CreateWsResponse doHandle(CreateRequest request) {
-    long startTime = System.currentTimeMillis();
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = support.getOrganization(dbSession, request.getOrganization());
-      LOG.info("Time taken to get organization is:" + (startTime - System.currentTimeMillis()));
       userSession.checkPermission(OrganizationPermission.PROVISION_PROJECTS, organization);
-      LOG.info("Time taken check permission is:" + (startTime - System.currentTimeMillis()));
       String visibility = request.getVisibility();
       boolean changeToPrivate = visibility == null ? projectDefaultVisibility.get(dbSession).isPrivate() : "private".equals(visibility);
 
@@ -138,7 +132,6 @@ public class CreateAction implements ProjectsWsAction {
         userSession.isLoggedIn() ? userSession.getUuid() : null,
         userSession.isLoggedIn() ? userSession.getLogin() : null,
         request.getMainBranchKey());
-      LOG.info("Time taken to update component is:" + (startTime - System.currentTimeMillis()));
       return toCreateResponse(componentDto);
     }
   }
