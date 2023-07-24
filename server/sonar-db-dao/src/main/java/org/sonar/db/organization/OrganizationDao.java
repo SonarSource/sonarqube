@@ -96,6 +96,10 @@ public class OrganizationDao implements Dao {
     return getMapper(dbSession).selectByPermission(userUuid, permission);
   }
 
+  public List<OrganizationDto> selectOrgsForUserAndRole(DbSession dbSession, String userUuid, String permission) {
+    return getMapper(dbSession).selectOrgsForUserAndRole(userUuid, permission);
+  }
+
   public List<String> selectAllUuids(DbSession dbSession) {
     return getMapper(dbSession).selectAllUuids();
   }

@@ -53,7 +53,8 @@ public interface ProjectMapper {
 
   List<ProjectDto> selectProjects();
 
-  void updateVisibility(@Param("uuid") String uuid, @Param("isPrivate") boolean isPrivate, @Param("updatedAt") long updatedAt);
+  void updateVisibility(@Param("uuid") String uuid, @Param("isPrivate") boolean isPrivate,
+          @Param("updatedAt") long updatedAt);
 
   List<ProjectDto> selectAllApplications();
 
@@ -61,5 +62,8 @@ public interface ProjectMapper {
 
   List<String> selectAllProjectUuids();
 
-  Set<String> selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(@Param("languageFilters") Set<String> languageFilters);
+  Set<String> selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(
+          @Param("languageFilters") Set<String> languageFilters);
+
+  List<ProjectDto> selectProjectsByOrganizationUuids(@Param("orgUuids") List<String> orgUuids);
 }

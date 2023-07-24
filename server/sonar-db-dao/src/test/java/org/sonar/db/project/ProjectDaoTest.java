@@ -291,6 +291,28 @@ public class ProjectDaoTest {
     assertThat(projectUuids).containsExactlyInAnyOrder(project.uuid(), project2.uuid());
   }
 
+  @Test
+  public void select_projects_by_organizationUuids() {
+    //Arrange
+    List<String> orgUuids = new ArrayList<>();
+    orgUuids.add("abc123");
+    orgUuids.add("def567");
+
+    ProjectDto dto1 = createProject("o1", "p1").setOrganizationUuid("abc123");
+    ProjectDto dto2 = createProject("o1", "p2").setOrganizationUuid("abc123");
+    ProjectDto dto3 = createProject("o2", "p3").setOrganizationUuid("def567");
+
+    projectDao.insert(db.getSession(), dto1);
+    projectDao.insert(db.getSession(), dto2);
+
+    //Act
+
+    List<ProjectDto> projects = projectDao.selectProjectsByOrganizationUuids(db.getSession(), orgUuids);
+
+    //Assert
+    assertThat(projects.size()).isEqualTo(3);
+  }
+
   private void insertDefaultQualityProfile(String language) {
     QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setIsBuiltIn(true).setLanguage(language));
     db.qualityProfiles().setAsDefault(profile);
@@ -298,8 +320,8 @@ public class ProjectDaoTest {
 
   private static Set<String> extractComponentUuids(Collection<ComponentDto> components) {
     return components
-      .stream()
-      .map(ComponentDto::uuid)
+            .stream()
+            .map(ComponentDto::uuid)
       .collect(Collectors.toSet());
   }
 

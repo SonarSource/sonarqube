@@ -96,21 +96,33 @@
       p.kee=#{key,jdbcType=VARCHAR}
   </select>
 
-    <select id="selectApplicationByKey" parameterType="String" resultType="Project">
+  <select id="selectApplicationByKey" parameterType="String" resultType="Project">
     SELECT
-      <include refid="projectColumns"/>
+    <include refid="projectColumns"/>
     FROM projects p
     where
-      p.qualifier='APP' and
-      p.kee=#{key,jdbcType=VARCHAR}
+    p.qualifier='APP' and
+    p.kee=#{key,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectProjectsByOrganizationUuids" resultType="Project">
+    select
+    <include refid="projectColumns"/>
+    from projects p
+    where
+    p.qualifier='TRK' and
+    p.organization_uuid in
+    <foreach collection="orgUuids" open="(" close=")" item="orgUuid" separator=",">
+      #{orgUuid,jdbcType=VARCHAR}
+    </foreach>
   </select>
 
   <select id="selectProjectOrAppByKey" parameterType="String" resultType="Project">
     SELECT
-      <include refid="projectColumns"/>
+    <include refid="projectColumns"/>
     FROM projects p
     where
-      p.kee=#{key,jdbcType=VARCHAR}
+    p.kee=#{key,jdbcType=VARCHAR}
   </select>
 
   <select id="selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage" parameterType="map" resultType="string">

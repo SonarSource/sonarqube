@@ -138,13 +138,35 @@
       and ur.role = #{permission,jdbcType=VARCHAR}
     union
     select
-      <include refid="selectColumns"/>
+    <include refid="selectColumns"/>
     from organizations org
     inner join group_roles g on g.component_uuid is null
-      and g.role = #{permission,jdbcType=VARCHAR}
+    and g.role = #{permission,jdbcType=VARCHAR}
     inner join groups_users gu on
-      gu.group_uuid = g.group_uuid
-      and gu.user_uuid= #{userUuid,jdbcType=VARCHAR}
+    gu.group_uuid = g.group_uuid
+    and gu.user_uuid= #{userUuid,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectOrgsForUserAndRole" parameterType="map" resultType="Organization">
+    select
+    <include refid="selectColumns"/>
+    from organizations org
+    where org.uuid in
+    (
+    select distinct user_orgs.organization_uuid
+    from (
+    select organization_uuid
+    from user_roles
+    where role = #{permission,jdbcType=VARCHAR} and user_uuid = #{userUuid,jdbcType=VARCHAR}
+
+    UNION
+
+    select organization_uuid
+    from group_roles as gr
+    inner join groups_users as gu on gr.group_uuid = gu.group_uuid
+    where role = #{permission,jdbcType=VARCHAR} and user_uuid = #{userUuid,jdbcType=VARCHAR}
+    ) AS user_orgs
+    )
   </select>
 
   <select id="selectAllUuids" resultType="String">
