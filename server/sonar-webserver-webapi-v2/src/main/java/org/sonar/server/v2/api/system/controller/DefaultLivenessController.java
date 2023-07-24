@@ -17,24 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.controller;
+package org.sonar.server.v2.api.system.controller;
 
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.ws.LivenessChecker;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
 
-public class DefautLivenessController implements LivenessController {
+public class DefaultLivenessController implements LivenessController {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefautLivenessController.class);
   private final LivenessChecker livenessChecker;
   private final UserSession userSession;
   private final SystemPasscode systemPasscode;
 
-  public DefautLivenessController(LivenessChecker livenessChecker, SystemPasscode systemPasscode, @Nullable UserSession userSession) {
+  public DefaultLivenessController(LivenessChecker livenessChecker, SystemPasscode systemPasscode, @Nullable UserSession userSession) {
     this.livenessChecker = livenessChecker;
     this.userSession = userSession;
     this.systemPasscode = systemPasscode;
@@ -57,4 +54,5 @@ public class DefautLivenessController implements LivenessController {
     }
     return userSession.isSystemAdministrator();
   }
+
 }

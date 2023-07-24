@@ -20,9 +20,9 @@ dependencies {
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.springframework:spring-test'
     testImplementation 'org.skyscreamer:jsonassert:1.5.1'
+    testImplementation project(':sonar-testing-harness')
 
     testImplementation testFixtures(project(':server:sonar-server-common'))
-
-    testImplementation project(':sonar-testing-harness')
+    testImplementation testFixtures(project(':server:sonar-webserver-auth'))
 }
 

@@ -17,7 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.v2.controller;
+package org.sonar.server.v2.api;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+public class ControllerTester {
+  public static MockMvc getMockMvc(Object... controllers) {
+    return MockMvcBuilders
+      .standaloneSetup(controllers)
+      .setControllerAdvice(new RestResponseEntityExceptionHandler())
+      .build();
+  }
+}

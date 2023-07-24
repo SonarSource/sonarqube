@@ -42,9 +42,9 @@ public record RestPage(
 ) {
 
   @VisibleForTesting
-  static final String DEFAULT_PAGE_SIZE = "50";
+  public static final String DEFAULT_PAGE_SIZE = "50";
   @VisibleForTesting
-  static final String DEFAULT_PAGE_INDEX = "1";
+  public static final String DEFAULT_PAGE_INDEX = "1";
 
   public RestPage(@Nullable Integer pageSize, @Nullable Integer pageIndex) {
     this.pageSize = pageSize == null ? Integer.valueOf(DEFAULT_PAGE_SIZE) : pageSize;

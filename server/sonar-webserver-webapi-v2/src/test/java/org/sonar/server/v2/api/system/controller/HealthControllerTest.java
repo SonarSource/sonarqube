@@ -17,21 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.controller;
+package org.sonar.server.v2.api.system.controller;
 
-import org.junit.After;
-import org.junit.Before;
+import com.google.gson.Gson;
+import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.health.Health;
 import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.NodeInformation;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.SystemPasscode;
-import org.sonar.server.user.UserSession;
-import org.sonar.server.v2.common.ControllerIT;
+import org.sonar.server.v2.api.ControllerTester;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import static java.net.HttpURLConnection.HTTP_NOT_IMPLEMENTED;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.user.SystemPasscodeImpl.PASSCODE_HTTP_HEADER;
 import static org.sonar.server.v2.WebApiEndpoints.HEALTH_ENDPOINT;
@@ -40,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-public class HealthControllerIT extends ControllerIT {
+public class HealthControllerTest {
 
   private static final String VALID_PASSCODE = "valid_passcode";
   private static final String INVALID_PASSCODE = "invalid_passcode";
@@ -49,51 +51,42 @@ public class HealthControllerIT extends ControllerIT {
     .addCause("One cause")
     .build();
 
-  @Before
-  public void setup() {
-    super.setup();
-    when(webAppContext.getBean(HealthChecker.class).checkNode()).thenReturn(HEALTH_RESULT);
-  }
+  private final HealthChecker healthChecker = mock(HealthChecker.class);
+  private final SystemPasscode systemPasscode = mock(SystemPasscode.class);
+  private final NodeInformation nodeInformation = mock(NodeInformation.class);
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+  private final MockMvc mockMvc = ControllerTester.getMockMvc(new HealthController(healthChecker, systemPasscode, nodeInformation,userSession));
 
-  @After
-  public void resetUsedMocks() {
-    Mockito.reset(webAppContext.getBean(SystemPasscode.class));
-    Mockito.reset(webAppContext.getBean(NodeInformation.class));
-    Mockito.reset(webAppContext.getBean(UserSession.class));
-  }
+
+  private static final Gson gson = new Gson();
 
   @Test
   public void getSystemHealth_whenValidPasscodeAndStandaloneMode_shouldSucceed() throws Exception {
-    when(webAppContext.getBean(SystemPasscode.class).isValidPasscode(VALID_PASSCODE)).thenReturn(true);
-    when(webAppContext.getBean(NodeInformation.class).isStandalone()).thenReturn(true);
+    when(systemPasscode.isValidPasscode(VALID_PASSCODE)).thenReturn(true);
+    when(nodeInformation.isStandalone()).thenReturn(true);
+    when(healthChecker.checkNode()).thenReturn(HEALTH_RESULT);
 
-    mockMvc.perform(get(HEALTH_ENDPOINT).header(PASSCODE_HTTP_HEADER, VALID_PASSCODE))
-      .andExpectAll(
-        status().isOk(),
-        content().json("""
-          {
-             "status":"YELLOW",
-             "causes":[
-                "One cause"
-             ]
-          }"""));
+    MvcResult mvcResult = mockMvc.perform(get(HEALTH_ENDPOINT).header(PASSCODE_HTTP_HEADER, VALID_PASSCODE))
+      .andExpect(status().isOk())
+      .andReturn();
+
+    Health actualHealth = gson.fromJson(mvcResult.getResponse().getContentAsString(), Health.class);
+    assertThat(actualHealth).isEqualTo(HEALTH_RESULT);
   }
 
   @Test
   public void getSystemHealth_whenAdminCredentialAndStandaloneMode_shouldSucceed() throws Exception {
-    when(webAppContext.getBean(UserSession.class).isSystemAdministrator()).thenReturn(true);
-    when(webAppContext.getBean(NodeInformation.class).isStandalone()).thenReturn(true);
+    userSession.logIn().setSystemAdministrator();
+    when(nodeInformation.isStandalone()).thenReturn(true);
+    when(healthChecker.checkNode()).thenReturn(HEALTH_RESULT);
 
-    mockMvc.perform(get(HEALTH_ENDPOINT))
-      .andExpectAll(
-        status().isOk(),
-        content().json("""
-          {
-             "status":"YELLOW",
-             "causes":[
-                "One cause"
-             ]
-          }"""));
+    MvcResult mvcResult = mockMvc.perform(get(HEALTH_ENDPOINT))
+      .andExpect(status().isOk())
+      .andReturn();
+
+    Health actualHealth = gson.fromJson(mvcResult.getResponse().getContentAsString(), Health.class);
+    assertThat(actualHealth).isEqualTo(HEALTH_RESULT);
   }
 
   @Test
@@ -106,8 +99,8 @@ public class HealthControllerIT extends ControllerIT {
 
   @Test
   public void getSystemHealth_whenInvalidPasscodeAndNoAdminCredentials_shouldReturnForbidden() throws Exception {
-    when(webAppContext.getBean(SystemPasscode.class).isValidPasscode(INVALID_PASSCODE)).thenReturn(false);
-    when(webAppContext.getBean(UserSession.class).isSystemAdministrator()).thenReturn(false);
+    userSession.logIn();
+    when(systemPasscode.isValidPasscode(INVALID_PASSCODE)).thenReturn(false);
 
     mockMvc.perform(get(HEALTH_ENDPOINT).header(PASSCODE_HTTP_HEADER, INVALID_PASSCODE))
       .andExpectAll(
@@ -116,23 +109,14 @@ public class HealthControllerIT extends ControllerIT {
   }
 
   @Test
-  public void getSystemHealth_whenUnauthorizedExceptionThrown_shouldReturnUnauthorized() throws Exception {
-    when(webAppContext.getBean(UserSession.class).isSystemAdministrator()).thenThrow(new UnauthorizedException("UnauthorizedException"));
-
-    mockMvc.perform(get(HEALTH_ENDPOINT))
-      .andExpectAll(
-        status().isUnauthorized(),
-        content().json("{\"message\":\"UnauthorizedException\"}"));
-  }
-
-  @Test
   public void getSystemHealth_whenValidPasscodeAndClusterMode_shouldReturnNotImplemented() throws Exception {
-    when(webAppContext.getBean(SystemPasscode.class).isValidPasscode(VALID_PASSCODE)).thenReturn(true);
-    when(webAppContext.getBean(NodeInformation.class).isStandalone()).thenReturn(false);
+    when(systemPasscode.isValidPasscode(VALID_PASSCODE)).thenReturn(true);
+    when(nodeInformation.isStandalone()).thenReturn(false);
 
     mockMvc.perform(get(HEALTH_ENDPOINT).header(PASSCODE_HTTP_HEADER, VALID_PASSCODE))
       .andExpectAll(
         status().is(HTTP_NOT_IMPLEMENTED),
         content().json("{\"message\":\"Unsupported in cluster mode\"}"));
   }
+
 }

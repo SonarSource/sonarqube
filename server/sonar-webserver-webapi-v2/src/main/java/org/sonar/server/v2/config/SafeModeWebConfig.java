@@ -24,9 +24,9 @@ import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.ws.LivenessChecker;
 import org.sonar.server.platform.ws.SafeModeLivenessCheckerImpl;
 import org.sonar.server.user.SystemPasscode;
-import org.sonar.server.v2.controller.DefautLivenessController;
-import org.sonar.server.v2.controller.HealthController;
-import org.sonar.server.v2.controller.LivenessController;
+import org.sonar.server.v2.api.system.controller.DefaultLivenessController;
+import org.sonar.server.v2.api.system.controller.HealthController;
+import org.sonar.server.v2.api.system.controller.LivenessController;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -44,7 +44,7 @@ public class SafeModeWebConfig {
 
   @Bean
   public LivenessController livenessController(LivenessChecker livenessChecker, SystemPasscode systemPasscode) {
-    return new DefautLivenessController(livenessChecker, systemPasscode, null);
+    return new DefaultLivenessController(livenessChecker, systemPasscode, null);
   }
 
   @Bean
