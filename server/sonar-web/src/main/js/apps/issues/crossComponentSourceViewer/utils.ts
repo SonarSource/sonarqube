@@ -135,9 +135,8 @@ export function createSnippets(params: {
     []
   );
 
-  // Sort snippets by line number in the case of secondary locations
-  // Preserve location order for flows!
-  return hasSecondaryLocations ? ranges.sort((a, b) => a.start - b.start) : ranges;
+  // Sort snippets by line number
+  return ranges.sort((a, b) => a.start - b.start);
 }
 
 export function linesForSnippets(snippets: Snippet[], componentLines: LineMap) {
