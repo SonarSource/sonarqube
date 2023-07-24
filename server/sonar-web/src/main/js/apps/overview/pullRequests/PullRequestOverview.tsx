@@ -175,9 +175,9 @@ export default function PullRequestOverview(props: Props) {
             <div className="sw-grid sw-grid-cols-2 sw-gap-4 sw-mt-4">
               {[
                 IssueType.Bug,
+                IssueType.CodeSmell,
                 IssueType.Vulnerability,
                 IssueType.SecurityHotspot,
-                IssueType.CodeSmell,
               ].map((type: IssueType) => (
                 <Card key={type} className="sw-p-8">
                   <MeasuresPanelIssueMeasure
