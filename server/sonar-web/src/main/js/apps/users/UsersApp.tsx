@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { subDays, subSeconds } from 'date-fns';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { getIdentityProviders, searchUsers } from '../../api/users';
+import { useUsersQueries } from '../../api/queries/users';
+import { getIdentityProviders } from '../../api/users';
 import GitHubSynchronisationWarning from '../../app/components/GitHubSynchronisationWarning';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import ListFooter from '../../components/controls/ListFooter';
@@ -32,8 +33,7 @@ import { Provider, useManageProvider } from '../../components/hooks/useManagePro
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { now, toISO8601WithOffsetString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
-import { IdentityProvider, Paging } from '../../types/types';
-import { User } from '../../types/users';
+import { IdentityProvider } from '../../types/types';
 import Header from './Header';
 import UsersList from './UsersList';
 import { USERS_ACTIVITY_OPTIONS, USER_INACTIVITY_DAYS_THRESHOLD } from './constants';
@@ -41,16 +41,10 @@ import { UserActivity } from './types';
 
 export default function UsersApp() {
   const [identityProviders, setIdentityProviders] = useState<IdentityProvider[]>([]);
-
-  const [loading, setLoading] = useState(true);
-  const [paging, setPaging] = useState<Paging>();
-  const [users, setUsers] = useState<User[]>([]);
-
+  const [numberOfPages, setNumberOfPages] = useState<number>(1);
   const [search, setSearch] = useState('');
   const [usersActivity, setUsersActivity] = useState<UserActivity>(UserActivity.AnyActivity);
   const [managed, setManaged] = useState<boolean | undefined>(undefined);
-
-  const manageProvider = useManageProvider();
 
   const usersActivityParams = useMemo(() => {
     const nowDate = now();
@@ -76,39 +70,16 @@ export default function UsersApp() {
     }
   }, [usersActivity]);
 
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { paging, users } = await searchUsers({
-        q: search,
-        managed,
-        ...usersActivityParams,
-      });
-      setPaging(paging);
-      setUsers(users);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, managed, usersActivityParams]);
+  const { users, total, isLoading } = useUsersQueries(
+    {
+      q: search,
+      managed,
+      ...usersActivityParams,
+    },
+    numberOfPages
+  );
 
-  const fetchMoreUsers = useCallback(async () => {
-    if (!paging) {
-      return;
-    }
-    setLoading(true);
-    try {
-      const { paging: nextPage, users: nextUsers } = await searchUsers({
-        q: search,
-        managed,
-        ...usersActivityParams,
-        p: paging.pageIndex + 1,
-      });
-      setPaging(nextPage);
-      setUsers([...users, ...nextUsers]);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, managed, usersActivityParams, paging, users]);
+  const manageProvider = useManageProvider();
 
   useEffect(() => {
     (async () => {
@@ -117,27 +88,29 @@ export default function UsersApp() {
     })();
   }, []);
 
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
-
   return (
     <main className="page page-limited" id="users-page">
       <Suggestions suggestions="users" />
       <Helmet defer={false} title={translate('users.page')} />
-      <Header onUpdateUsers={fetchUsers} manageProvider={manageProvider} />
+      <Header manageProvider={manageProvider} />
       {manageProvider === Provider.Github && <GitHubSynchronisationWarning short />}
       <div className="display-flex-justify-start big-spacer-bottom big-spacer-top">
         <ManagedFilter
           manageProvider={manageProvider}
-          loading={loading}
+          loading={isLoading}
           managed={managed}
-          setManaged={setManaged}
+          setManaged={(m) => {
+            setManaged(m);
+            setNumberOfPages(1);
+          }}
         />
         <SearchBox
           id="users-search"
           minLength={2}
-          onChange={(search: string) => setSearch(search)}
+          onChange={(search: string) => {
+            setSearch(search);
+            setNumberOfPages(1);
+          }}
           placeholder={translate('search.search_by_login_or_name')}
           value={search}
         />
@@ -145,9 +118,10 @@ export default function UsersApp() {
           <Select
             id="users-activity-filter"
             className="input-large"
-            isDisabled={loading}
+            isDisabled={isLoading}
             onChange={(userActivity: LabelValueSelectOption<UserActivity>) => {
               setUsersActivity(userActivity.value);
+              setNumberOfPages(1);
             }}
             options={USERS_ACTIVITY_OPTIONS}
             isSearchable={false}
@@ -166,23 +140,20 @@ export default function UsersApp() {
           />
         </div>
       </div>
-      <DeferredSpinner loading={loading}>
+      <DeferredSpinner loading={isLoading}>
         <UsersList
           identityProviders={identityProviders}
-          onUpdateUsers={fetchUsers}
-          updateTokensCount={fetchUsers}
           users={users}
           manageProvider={manageProvider}
         />
       </DeferredSpinner>
-      {paging !== undefined && (
-        <ListFooter
-          count={users.length}
-          loadMore={fetchMoreUsers}
-          ready={!loading}
-          total={paging.total}
-        />
-      )}
+
+      <ListFooter
+        count={users.length}
+        loadMore={() => setNumberOfPages((n) => n + 1)}
+        ready={!isLoading}
+        total={total}
+      />
     </main>
   );
 }

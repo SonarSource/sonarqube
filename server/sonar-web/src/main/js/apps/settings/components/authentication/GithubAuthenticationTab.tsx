@@ -37,7 +37,7 @@ import AuthenticationFormField from './AuthenticationFormField';
 import ConfigurationForm from './ConfigurationForm';
 import GitHubConfigurationValidity from './GitHubConfigurationValidity';
 import useGithubConfiguration, { GITHUB_JIT_FIELDS } from './hook/useGithubConfiguration';
-import { useCheckGitHubConfigQuery, useIdentityProvierQuery } from './queries/identity-provider';
+import { useCheckGitHubConfigQuery, useIdentityProviderQuery } from './queries/identity-provider';
 
 interface GithubAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
@@ -51,7 +51,7 @@ const GITHUB_EXCLUDED_FIELD = [
 
 export default function GithubAuthenticationTab(props: GithubAuthenticationProps) {
   const { definitions } = props;
-  const { data } = useIdentityProvierQuery();
+  const { data } = useIdentityProviderQuery();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showConfirmProvisioningModal, setShowConfirmProvisioningModal] = useState(false);
 

@@ -27,19 +27,11 @@ import UserListItem from './components/UserListItem';
 
 interface Props {
   identityProviders: IdentityProvider[];
-  onUpdateUsers: () => void;
-  updateTokensCount: (login: string, tokensCount: number) => void;
   users: User[];
   manageProvider: string | undefined;
 }
 
-export default function UsersList({
-  identityProviders,
-  onUpdateUsers,
-  updateTokensCount,
-  users,
-  manageProvider,
-}: Props) {
+export default function UsersList({ identityProviders, users, manageProvider }: Props) {
   const userContext = React.useContext(CurrentUserContext);
   const currentUser = userContext?.currentUser;
 
@@ -73,8 +65,6 @@ export default function UsersList({
               )}
               isCurrentUser={isLoggedIn(currentUser) && currentUser.login === user.login}
               key={user.login}
-              onUpdateUsers={onUpdateUsers}
-              updateTokensCount={updateTokensCount}
               user={user}
               manageProvider={manageProvider}
             />

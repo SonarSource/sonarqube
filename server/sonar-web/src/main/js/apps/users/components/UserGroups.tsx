@@ -26,71 +26,54 @@ import GroupsForm from './GroupsForm';
 
 interface Props {
   groups: string[];
-  onUpdateUsers: () => void;
   user: User;
   manageProvider: string | undefined;
 }
 
-interface State {
-  openForm: boolean;
-  showMore: boolean;
-}
-
 const GROUPS_LIMIT = 3;
 
-export default class UserGroups extends React.PureComponent<Props, State> {
-  state: State = { openForm: false, showMore: false };
+export default function UserGroups(props: Props) {
+  const { groups, user, manageProvider } = props;
 
-  handleOpenForm = () => this.setState({ openForm: true });
-  handleCloseForm = () => this.setState({ openForm: false });
+  const [openForm, setOpenForm] = React.useState(false);
+  const [showMore, setShowMore] = React.useState(false);
 
-  toggleShowMore = () => {
-    this.setState((state) => ({ showMore: !state.showMore }));
-  };
-
-  render() {
-    const { groups, user, manageProvider } = this.props;
-    const { showMore, openForm } = this.state;
-    const limit = groups.length > GROUPS_LIMIT ? GROUPS_LIMIT - 1 : GROUPS_LIMIT;
-    return (
-      <ul>
-        {groups.slice(0, limit).map((group) => (
+  const limit = groups.length > GROUPS_LIMIT ? GROUPS_LIMIT - 1 : GROUPS_LIMIT;
+  return (
+    <ul>
+      {groups.slice(0, limit).map((group) => (
+        <li className="little-spacer-bottom" key={group}>
+          {group}
+        </li>
+      ))}
+      {groups.length > GROUPS_LIMIT &&
+        showMore &&
+        groups.slice(limit).map((group) => (
           <li className="little-spacer-bottom" key={group}>
             {group}
           </li>
         ))}
-        {groups.length > GROUPS_LIMIT &&
-          showMore &&
-          groups.slice(limit).map((group) => (
-            <li className="little-spacer-bottom" key={group}>
-              {group}
-            </li>
-          ))}
-        <li className="little-spacer-bottom">
-          {groups.length > GROUPS_LIMIT && !showMore && (
-            <ButtonLink className="js-user-more-groups spacer-right" onClick={this.toggleShowMore}>
-              {translateWithParameters('more_x', groups.length - limit)}
-            </ButtonLink>
-          )}
-          {manageProvider === undefined && (
-            <ButtonIcon
-              aria-label={translateWithParameters('users.update_users_groups', user.login)}
-              className="js-user-groups button-small"
-              onClick={this.handleOpenForm}
-              tooltip={translate('users.update_groups')}
-            >
-              <BulletListIcon />
-            </ButtonIcon>
-          )}
-        </li>
-        {openForm && (
-          <GroupsForm
-            onClose={this.handleCloseForm}
-            onUpdateUsers={this.props.onUpdateUsers}
-            user={user}
-          />
+      <li className="little-spacer-bottom">
+        {groups.length > GROUPS_LIMIT && !showMore && (
+          <ButtonLink
+            className="js-user-more-groups spacer-right"
+            onClick={() => setShowMore(!showMore)}
+          >
+            {translateWithParameters('more_x', groups.length - limit)}
+          </ButtonLink>
         )}
-      </ul>
-    );
-  }
+        {manageProvider === undefined && (
+          <ButtonIcon
+            aria-label={translateWithParameters('users.update_users_groups', user.login)}
+            className="js-user-groups button-small"
+            onClick={() => setOpenForm(true)}
+            tooltip={translate('users.update_groups')}
+          >
+            <BulletListIcon />
+          </ButtonIcon>
+        )}
+      </li>
+      {openForm && <GroupsForm onClose={() => setOpenForm(false)} user={user} />}
+    </ul>
+  );
 }

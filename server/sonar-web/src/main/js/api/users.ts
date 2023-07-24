@@ -53,13 +53,17 @@ export interface UserGroup {
   selected: boolean;
 }
 
-export function getUserGroups(data: {
+export interface UserGroupsParams {
   login: string;
   p?: number;
   ps?: number;
   q?: string;
   selected?: string;
-}): Promise<{ paging: Paging; groups: UserGroup[] }> {
+}
+
+export function getUserGroups(
+  data: UserGroupsParams
+): Promise<{ paging: Paging; groups: UserGroup[] }> {
   return getJSON('/api/users/groups', data);
 }
 
@@ -67,7 +71,7 @@ export function getIdentityProviders(): Promise<{ identityProviders: IdentityPro
   return getJSON('/api/users/identity_providers').catch(throwGlobalError);
 }
 
-export function searchUsers(data: {
+export interface SearchUsersParams {
   p?: number;
   ps?: number;
   q?: string;
@@ -76,38 +80,46 @@ export function searchUsers(data: {
   lastConnectedBefore?: string;
   slLastConnectedAfter?: string;
   slLastConnectedBefore?: string;
-}): Promise<{ paging: Paging; users: User[] }> {
+}
+
+export function searchUsers(data: SearchUsersParams): Promise<{ paging: Paging; users: User[] }> {
   data.q = data.q || undefined;
   return getJSON('/api/users/search', data).catch(throwGlobalError);
 }
 
-export function createUser(data: {
+export interface CreateUserParams {
   email?: string;
   local?: boolean;
   login: string;
   name: string;
   password?: string;
   scmAccount: string[];
-}): Promise<void | Response> {
+}
+
+export function createUser(data: CreateUserParams): Promise<void | Response> {
   return post('/api/users/create', data);
 }
 
-export function updateUser(data: {
+export interface UpdateUserParams {
   email?: string;
   login: string;
   name?: string;
   scmAccount: string[];
-}): Promise<{ user: User }> {
+}
+
+export function updateUser(data: UpdateUserParams): Promise<{ user: User }> {
   return postJSON('/api/users/update', {
     ...data,
     scmAccount: data.scmAccount.length > 0 ? data.scmAccount : '',
   });
 }
 
-export function deactivateUser(data: {
+export interface DeactivateUserParams {
   login: string;
   anonymize?: boolean;
-}): Promise<{ user: User }> {
+}
+
+export function deactivateUser(data: DeactivateUserParams): Promise<{ user: User }> {
   return postJSON('/api/users/deactivate', data).catch(throwGlobalError);
 }
 

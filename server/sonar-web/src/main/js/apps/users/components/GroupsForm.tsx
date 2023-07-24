@@ -19,114 +19,80 @@
  */
 import { find, without } from 'lodash';
 import * as React from 'react';
-import { getUserGroups, UserGroup } from '../../../api/users';
+import { useInvalidateUsersList } from '../../../api/queries/users';
 import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
-import { ResetButtonLink } from '../../../components/controls/buttons';
+import { UserGroup, getUserGroups } from '../../../api/users';
 import Modal from '../../../components/controls/Modal';
 import SelectList, {
   SelectListFilter,
   SelectListSearchParams,
 } from '../../../components/controls/SelectList';
+import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { User } from '../../../types/users';
 
 interface Props {
   onClose: () => void;
-  onUpdateUsers: () => void;
   user: User;
 }
 
-interface State {
-  needToReload: boolean;
-  lastSearchParams?: SelectListSearchParams;
-  groups: UserGroup[];
-  groupsTotalCount?: number;
-  selectedGroups: string[];
-}
+export default function GroupsForm(props: Props) {
+  const { user } = props;
+  const [needToReload, setNeedToReload] = React.useState<boolean>(false);
+  const [lastSearchParams, setLastSearchParams] = React.useState<
+    SelectListSearchParams | undefined
+  >(undefined);
+  const [groups, setGroups] = React.useState<UserGroup[]>([]);
+  const [groupsTotalCount, setGroupsTotalCount] = React.useState<number | undefined>(undefined);
+  const [selectedGroups, setSelectedGroups] = React.useState<string[]>([]);
 
-export default class GroupsForm extends React.PureComponent<Props, State> {
-  mounted = false;
+  const invalidateUserList = useInvalidateUsersList();
 
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      needToReload: false,
-      groups: [],
-      selectedGroups: [],
-    };
-  }
-
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchUsers = (searchParams: SelectListSearchParams) =>
+  const fetchUsers = (searchParams: SelectListSearchParams) =>
     getUserGroups({
-      login: this.props.user.login,
+      login: user.login,
       p: searchParams.page,
       ps: searchParams.pageSize,
       q: searchParams.query !== '' ? searchParams.query : undefined,
       selected: searchParams.filter,
     }).then((data) => {
-      if (this.mounted) {
-        this.setState((prevState) => {
-          const more = searchParams.page != null && searchParams.page > 1;
+      const more = searchParams.page != null && searchParams.page > 1;
+      const allGroups = more ? [...groups, ...data.groups] : data.groups;
+      const newSeletedGroups = data.groups.filter((gp) => gp.selected).map((gp) => gp.name);
+      const allSelectedGroups = more ? [...selectedGroups, ...newSeletedGroups] : newSeletedGroups;
 
-          const groups = more ? [...prevState.groups, ...data.groups] : data.groups;
-          const newSeletedGroups = data.groups.filter((gp) => gp.selected).map((gp) => gp.name);
-          const selectedGroups = more
-            ? [...prevState.selectedGroups, ...newSeletedGroups]
-            : newSeletedGroups;
-
-          return {
-            lastSearchParams: searchParams,
-            needToReload: false,
-            groups,
-            groupsTotalCount: data.paging.total,
-            selectedGroups,
-          };
-        });
-      }
+      setLastSearchParams(searchParams);
+      setNeedToReload(false);
+      setGroups(allGroups);
+      setGroupsTotalCount(data.paging.total);
+      setSelectedGroups(allSelectedGroups);
     });
 
-  handleSelect = (name: string) =>
+  const handleSelect = (name: string) =>
     addUserToGroup({
       name,
-      login: this.props.user.login,
+      login: user.login,
     }).then(() => {
-      if (this.mounted) {
-        this.setState((state: State) => ({
-          needToReload: true,
-          selectedGroups: [...state.selectedGroups, name],
-        }));
-      }
+      setNeedToReload(true);
+      setSelectedGroups([...selectedGroups, name]);
     });
 
-  handleUnselect = (name: string) =>
+  const handleUnselect = (name: string) =>
     removeUserFromGroup({
       name,
-      login: this.props.user.login,
+      login: user.login,
     }).then(() => {
-      if (this.mounted) {
-        this.setState((state: State) => ({
-          needToReload: true,
-          selectedGroups: without(state.selectedGroups, name),
-        }));
-      }
+      setNeedToReload(true);
+      setSelectedGroups(without(selectedGroups, name));
     });
 
-  handleClose = () => {
-    this.props.onUpdateUsers();
-    this.props.onClose();
+  const handleClose = () => {
+    invalidateUserList();
+    props.onClose();
   };
 
-  renderElement = (name: string): React.ReactNode => {
-    const group = find(this.state.groups, { name });
+  const renderElement = (name: string): React.ReactNode => {
+    const group = find(groups, { name });
     return (
       <div className="select-list-list-item">
         {group === undefined ? (
@@ -142,37 +108,33 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
     );
   };
 
-  render() {
-    const header = translate('users.update_groups');
+  const header = translate('users.update_groups');
 
-    return (
-      <Modal contentLabel={header} onRequestClose={this.handleClose}>
-        <div className="modal-head">
-          <h2>{header}</h2>
-        </div>
+  return (
+    <Modal contentLabel={header} onRequestClose={handleClose}>
+      <div className="modal-head">
+        <h2>{header}</h2>
+      </div>
 
-        <div className="modal-body modal-container">
-          <SelectList
-            elements={this.state.groups.map((group) => group.name)}
-            elementsTotalCount={this.state.groupsTotalCount}
-            needToReload={
-              this.state.needToReload &&
-              this.state.lastSearchParams &&
-              this.state.lastSearchParams.filter !== SelectListFilter.All
-            }
-            onSearch={this.fetchUsers}
-            onSelect={this.handleSelect}
-            onUnselect={this.handleUnselect}
-            renderElement={this.renderElement}
-            selectedElements={this.state.selectedGroups}
-            withPaging
-          />
-        </div>
+      <div className="modal-body modal-container">
+        <SelectList
+          elements={groups.map((group) => group.name)}
+          elementsTotalCount={groupsTotalCount}
+          needToReload={
+            needToReload && lastSearchParams && lastSearchParams.filter !== SelectListFilter.All
+          }
+          onSearch={fetchUsers}
+          onSelect={handleSelect}
+          onUnselect={handleUnselect}
+          renderElement={renderElement}
+          selectedElements={selectedGroups}
+          withPaging
+        />
+      </div>
 
-        <footer className="modal-foot">
-          <ResetButtonLink onClick={this.handleClose}>{translate('done')}</ResetButtonLink>
-        </footer>
-      </Modal>
-    );
-  }
+      <footer className="modal-foot">
+        <ResetButtonLink onClick={handleClose}>{translate('done')}</ResetButtonLink>
+      </footer>
+    </Modal>
+  );
 }

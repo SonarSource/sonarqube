@@ -34,8 +34,6 @@ import UserScmAccounts from './UserScmAccounts';
 export interface UserListItemProps {
   identityProvider?: IdentityProvider;
   isCurrentUser: boolean;
-  onUpdateUsers: () => void;
-  updateTokensCount: (login: string, tokensCount: number) => void;
   user: User;
   manageProvider: string | undefined;
 }
@@ -43,14 +41,7 @@ export interface UserListItemProps {
 export default function UserListItem(props: UserListItemProps) {
   const [openTokenForm, setOpenTokenForm] = React.useState(false);
 
-  const {
-    identityProvider,
-    onUpdateUsers,
-    user,
-    manageProvider,
-    isCurrentUser,
-    updateTokensCount,
-  } = props;
+  const { identityProvider, user, manageProvider, isCurrentUser } = props;
 
   return (
     <tr>
@@ -79,12 +70,7 @@ export default function UserListItem(props: UserListItemProps) {
         <DateFromNow date={user.sonarLintLastConnectionDate} hourPrecision />
       </td>
       <td className="thin nowrap text-middle">
-        <UserGroups
-          groups={user.groups ?? []}
-          manageProvider={manageProvider}
-          onUpdateUsers={onUpdateUsers}
-          user={user}
-        />
+        <UserGroups groups={user.groups ?? []} manageProvider={manageProvider} user={user} />
       </td>
       <td className="thin nowrap text-middle">
         {user.tokensCount}
@@ -100,22 +86,11 @@ export default function UserListItem(props: UserListItemProps) {
 
       {(manageProvider === undefined || !user.managed) && (
         <td className="thin nowrap text-right text-middle">
-          <UserActions
-            isCurrentUser={isCurrentUser}
-            onUpdateUsers={onUpdateUsers}
-            user={user}
-            manageProvider={manageProvider}
-          />
+          <UserActions isCurrentUser={isCurrentUser} user={user} manageProvider={manageProvider} />
         </td>
       )}
 
-      {openTokenForm && (
-        <TokensFormModal
-          onClose={() => setOpenTokenForm(false)}
-          updateTokensCount={updateTokensCount}
-          user={user}
-        />
-      )}
+      {openTokenForm && <TokensFormModal onClose={() => setOpenTokenForm(false)} user={user} />}
     </tr>
   );
 }

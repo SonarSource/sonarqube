@@ -35,7 +35,7 @@ import { useSyncStatusQuery } from '../../../../../queries/github-sync';
 import { Feature } from '../../../../../types/features';
 import { SysInfoCluster } from '../../../../../types/types';
 
-export function useIdentityProvierQuery() {
+export function useIdentityProviderQuery() {
   return useQuery(['identity_provider'], async () => {
     const info = (await getSystemInfo()) as SysInfoCluster;
     return { provider: info.System['External Users and Groups Provisioning'] };

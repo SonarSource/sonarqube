@@ -26,7 +26,6 @@ import { translate } from '../../helpers/l10n';
 import UserForm from './components/UserForm';
 
 interface Props {
-  onUpdateUsers: () => void;
   manageProvider?: string;
 }
 
@@ -66,9 +65,7 @@ export default function Header(props: Props) {
           />
         </Alert>
       )}
-      {openUserForm && (
-        <UserForm onClose={() => setOpenUserForm(false)} onUpdateUsers={props.onUpdateUsers} />
-      )}
+      {openUserForm && <UserForm onClose={() => setOpenUserForm(false)} />}
     </div>
   );
 }

@@ -40,7 +40,7 @@ import useSamlConfiguration, {
   SAML_GROUP_NAME,
   SAML_SCIM_DEPRECATED,
 } from './hook/useSamlConfiguration';
-import { useIdentityProvierQuery, useToggleScimMutation } from './queries/identity-provider';
+import { useIdentityProviderQuery, useToggleScimMutation } from './queries/identity-provider';
 
 interface SamlAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
@@ -76,7 +76,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
   } = useSamlConfiguration(definitions);
   const toggleScim = useToggleScimMutation();
 
-  const { data } = useIdentityProvierQuery();
+  const { data } = useIdentityProviderQuery();
   const { mutate: saveSetting } = useSaveValueMutation();
 
   const hasDifferentProvider = data?.provider !== undefined && data.provider !== Provider.Scim;
