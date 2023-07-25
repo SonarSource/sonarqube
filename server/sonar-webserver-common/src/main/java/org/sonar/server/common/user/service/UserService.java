@@ -32,21 +32,33 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserQuery;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.avatar.AvatarResolver;
+import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.common.user.UserDeactivator;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.management.ManagedInstanceService;
 
 import static java.util.Comparator.comparing;
+import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
 public class UserService {
 
   private final DbClient dbClient;
   private final AvatarResolver avatarResolver;
   private final ManagedInstanceService managedInstanceService;
+  private final ManagedInstanceChecker managedInstanceChecker;
+  private final UserDeactivator userDeactivator;
 
-  public UserService(DbClient dbClient, AvatarResolver avatarResolver, ManagedInstanceService managedInstanceService) {
+  public UserService(
+    DbClient dbClient,
+    AvatarResolver avatarResolver,
+    ManagedInstanceService managedInstanceService,
+    ManagedInstanceChecker managedInstanceChecker,
+    UserDeactivator userDeactivator) {
     this.dbClient = dbClient;
     this.avatarResolver = avatarResolver;
     this.managedInstanceService = managedInstanceService;
+    this.managedInstanceChecker = managedInstanceChecker;
+    this.userDeactivator = userDeactivator;
   }
 
   public SearchResults<UserSearchResult> findUsers(UsersSearchRequest request) {
@@ -89,12 +101,11 @@ public class UserService {
     Map<String, Boolean> userUuidToIsManaged = managedInstanceService.getUserUuidToManaged(dbSession, getUserUuids(userDtos));
     return userDtos.stream()
       .map(userDto -> toUserSearchResult(
-          groupsByLogin.get(userDto.getLogin()),
-          tokenCountsByLogin.getOrDefault(userDto.getUuid(), 0),
-          userUuidToIsManaged.getOrDefault(userDto.getUuid(), false),
-          userDto
-        )
-      ).toList();
+        groupsByLogin.get(userDto.getLogin()),
+        tokenCountsByLogin.getOrDefault(userDto.getUuid(), 0),
+        userUuidToIsManaged.getOrDefault(userDto.getUuid(), false),
+        userDto))
+      .toList();
   }
 
   private UserSearchResult toUserSearchResult(Collection<String> groups, int tokenCount, boolean managed, UserDto userDto) {
@@ -103,8 +114,7 @@ public class UserService {
       managed,
       findAvatar(userDto),
       groups,
-      tokenCount
-    );
+      tokenCount);
   }
 
   private List<UserDto> findUsersAndSortByLogin(DbSession dbSession, UserQuery userQuery, int page, int pageSize) {
@@ -122,4 +132,18 @@ public class UserService {
     return users.stream().map(UserDto::getUuid).collect(Collectors.toSet());
   }
 
+  public UserDto deactivate(String login, Boolean anonymize) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      UserDto userDto = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' not found", login);
+      managedInstanceChecker.throwIfUserIsManaged(dbSession, userDto.getUuid());
+      UserDto deactivatedUser;
+      if (Boolean.TRUE.equals(anonymize)) {
+        deactivatedUser = userDeactivator.deactivateUserWithAnonymization(dbSession, login);
+      } else {
+        deactivatedUser = userDeactivator.deactivateUser(dbSession, login);
+      }
+      dbSession.commit();
+      return deactivatedUser;
+    }
+  }
 }

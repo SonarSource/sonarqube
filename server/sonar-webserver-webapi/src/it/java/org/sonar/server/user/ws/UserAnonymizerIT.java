@@ -27,6 +27,7 @@ import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.user.UserAnonymizer;
 import org.sonar.server.user.ExternalIdentity;
 
 import static org.assertj.core.api.Assertions.assertThat;

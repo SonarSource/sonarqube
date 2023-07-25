@@ -26,7 +26,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.management.ManagedInstanceChecker;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;

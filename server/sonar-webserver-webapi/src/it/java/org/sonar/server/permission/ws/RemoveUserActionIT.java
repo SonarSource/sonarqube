@@ -33,7 +33,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.management.ManagedInstanceChecker;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.ws.TestRequest;

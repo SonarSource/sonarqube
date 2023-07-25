@@ -31,7 +31,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.management.ManagedInstanceChecker;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UserSession;

@@ -30,6 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserQuery;
+import org.sonar.server.common.user.UserAnonymizer;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;

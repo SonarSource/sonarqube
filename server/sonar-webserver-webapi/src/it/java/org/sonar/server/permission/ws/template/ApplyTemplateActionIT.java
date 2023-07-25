@@ -38,7 +38,7 @@ import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.management.ManagedInstanceChecker;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.DefaultTemplatesResolver;
 import org.sonar.server.permission.DefaultTemplatesResolverImpl;

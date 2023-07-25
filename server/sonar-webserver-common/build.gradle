@@ -9,6 +9,7 @@ dependencies {
     api 'com.google.guava:guava'
 
     api project(':server:sonar-db-dao')
+    api project(':server:sonar-webserver-auth')
     api project(':server:sonar-webserver-ws')
 
     compileOnlyApi 'com.google.code.findbugs:jsr305'

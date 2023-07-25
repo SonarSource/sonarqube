@@ -20,7 +20,7 @@
 package org.sonar.server.usergroups.ws;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.management.ManagedInstanceChecker;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 
 public class UserGroupsModule extends Module {
 

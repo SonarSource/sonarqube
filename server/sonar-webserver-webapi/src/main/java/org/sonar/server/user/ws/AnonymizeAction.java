@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.user.UserAnonymizer;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.exceptions.NotFoundException.checkFound;

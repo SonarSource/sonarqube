@@ -44,11 +44,16 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.SessionTokenDto;
 import org.sonar.db.user.UserDismissedMessageDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.avatar.AvatarResolver;
+import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.common.user.UserAnonymizer;
+import org.sonar.server.common.user.UserDeactivator;
+import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.management.ManagedInstanceChecker;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.ws.TestRequest;
@@ -80,7 +85,8 @@ public class DeactivateActionIT {
   private final UserDeactivator userDeactivator = new UserDeactivator(dbClient, userAnonymizer);
   private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
 
-  private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userSession, new UserJsonWriter(userSession), userDeactivator, managedInstanceChecker));
+  private final UserService userService = new UserService(dbClient, mock(AvatarResolver.class), mock(ManagedInstanceService.class), managedInstanceChecker, userDeactivator);
+  private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userSession, new UserJsonWriter(userSession), userService));
 
   @Test
   public void deactivate_user_and_delete_their_related_data() {
@@ -342,7 +348,7 @@ public class DeactivateActionIT {
       deactivate("someone");
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("User 'someone' doesn't exist");
+      .hasMessage("User 'someone' not found");
   }
 
   @Test

@@ -30,7 +30,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.management.ManagedInstanceChecker;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;

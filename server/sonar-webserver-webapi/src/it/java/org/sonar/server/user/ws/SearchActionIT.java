@@ -37,6 +37,8 @@ import org.sonar.db.scim.ScimUserDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
+import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.common.user.UserDeactivator;
 import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerException;
@@ -74,7 +76,12 @@ public class SearchActionIT {
 
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
 
-  private final UserService userService = new UserService(db.getDbClient(), new AvatarResolverImpl(), managedInstanceService);
+  private final UserService userService = new UserService(
+    db.getDbClient(),
+    new AvatarResolverImpl(),
+    managedInstanceService,
+    mock(ManagedInstanceChecker.class),
+    mock(UserDeactivator.class));
 
   private final SearchWsReponseGenerator searchWsReponseGenerator = new SearchWsReponseGenerator(userSession);
 
@@ -168,8 +175,7 @@ public class SearchActionIT {
       .extracting(User::getLogin, User::getManaged)
       .containsExactlyInAnyOrder(
         tuple(managedUser.getLogin(), true),
-        tuple(nonManagedUser.getLogin(), false)
-      );
+        tuple(nonManagedUser.getLogin(), false));
   }
 
   @Test
@@ -200,8 +206,7 @@ public class SearchActionIT {
     assertThat(response.getUsersList())
       .extracting(User::getLogin, User::getManaged)
       .containsExactlyInAnyOrder(
-        tuple(managedUser.getLogin(), true)
-      );
+        tuple(managedUser.getLogin(), true));
   }
 
   @Test
@@ -220,8 +225,7 @@ public class SearchActionIT {
     assertThat(response.getUsersList())
       .extracting(User::getLogin, User::getManaged)
       .containsExactlyInAnyOrder(
-        tuple(nonManagedUser.getLogin(), false)
-      );
+        tuple(nonManagedUser.getLogin(), false));
   }
 
   private void mockInstanceExternallyManagedAndFilterForManagedUsers() {
@@ -558,7 +562,7 @@ public class SearchActionIT {
     userSession.logIn();
 
     Stream.of(SearchAction.LAST_CONNECTION_DATE_FROM, SearchAction.LAST_CONNECTION_DATE_TO,
-        SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_FROM, SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_TO)
+      SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_FROM, SearchAction.SONAR_LINT_LAST_CONNECTION_DATE_TO)
       .map(param -> ws.newRequest().setParam(param, formatDateTime(OffsetDateTime.now())))
       .forEach(SearchActionIT::assertForbiddenException);
   }

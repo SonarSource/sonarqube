@@ -27,7 +27,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.management.ManagedInstanceChecker;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.project.VisibilityService;
 import org.sonar.server.user.UserSession;

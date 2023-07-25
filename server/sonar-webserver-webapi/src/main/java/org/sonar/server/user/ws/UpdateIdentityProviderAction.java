@@ -32,7 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.management.ManagedInstanceChecker;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;

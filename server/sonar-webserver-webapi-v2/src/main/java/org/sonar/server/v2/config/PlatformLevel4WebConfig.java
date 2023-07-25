@@ -68,7 +68,10 @@ public class PlatformLevel4WebConfig {
   }
 
   @Bean
-  public UserController userController(UserSession userSession, UsersSearchRestResponseGenerator usersSearchResponseGenerator, UserService userService) {
+  public UserController userController(
+    UserSession userSession,
+    UsersSearchRestResponseGenerator usersSearchResponseGenerator,
+    UserService userService) {
     return new DefaultUserController(userSession, userService, usersSearchResponseGenerator);
   }
 

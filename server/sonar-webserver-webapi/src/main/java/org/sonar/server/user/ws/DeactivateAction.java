@@ -29,7 +29,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.management.ManagedInstanceChecker;
+import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singletonList;
@@ -44,16 +44,13 @@ public class DeactivateAction implements UsersWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final UserJsonWriter userWriter;
-  private final UserDeactivator userDeactivator;
-  private final ManagedInstanceChecker managedInstanceChecker;
+  private final UserService userService;
 
-  public DeactivateAction(DbClient dbClient, UserSession userSession, UserJsonWriter userWriter,
-    UserDeactivator userDeactivator, ManagedInstanceChecker managedInstanceChecker) {
+  public DeactivateAction(DbClient dbClient, UserSession userSession, UserJsonWriter userWriter, UserService userService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.userWriter = userWriter;
-    this.userDeactivator = userDeactivator;
-    this.managedInstanceChecker = managedInstanceChecker;
+    this.userService = userService;
   }
 
   @Override
@@ -83,17 +80,9 @@ public class DeactivateAction implements UsersWsAction {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     String login = request.mandatoryParam(PARAM_LOGIN);
     checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto userDto = dbClient.userDao().selectByLogin(dbSession, login);
-      if (userDto != null) {
-        managedInstanceChecker.throwIfUserIsManaged(dbSession, userDto.getUuid());
-      }
-      boolean shouldAnonymize = request.mandatoryParamAsBoolean(PARAM_ANONYMIZE);
-      userDto = shouldAnonymize
-        ? userDeactivator.deactivateUserWithAnonymization(dbSession, login)
-        : userDeactivator.deactivateUser(dbSession, login);
-      writeResponse(response, userDto.getLogin());
-    }
+    boolean shouldAnonymize = request.mandatoryParamAsBoolean(PARAM_ANONYMIZE);
+    UserDto deactivatedUser = userService.deactivate(login, shouldAnonymize);
+    writeResponse(response, deactivatedUser.getLogin());
   }
 
   private void writeResponse(Response response, String login) {
@@ -112,7 +101,5 @@ public class DeactivateAction implements UsersWsAction {
       }
     }
   }
-
-
 
 }

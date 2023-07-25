@@ -36,7 +36,7 @@ import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.management.ManagedInstanceChecker;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;

@@ -26,7 +26,6 @@ import org.sonar.server.health.DbConnectionNodeCheck;
 import org.sonar.server.health.EsStatusNodeCheck;
 import org.sonar.server.health.HealthChecker;
 import org.sonar.server.health.WebServerStatusNodeCheck;
-import org.sonar.server.management.ManagedInstanceChecker;
 import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.platform.ws.LivenessChecker;
 import org.sonar.server.user.SystemPasscode;
@@ -96,12 +95,8 @@ public class MockConfigForControllers {
   }
 
   @Bean
-  ManagedInstanceChecker managedInstanceChecker() {
-    return mock(ManagedInstanceChecker.class);
-  }
-
-  @Bean
   UserService userService() {
     return mock(UserService.class);
   }
+
 }

@@ -34,13 +34,17 @@ import org.sonar.server.v2.api.user.request.UsersSearchRestRequest;
 import org.sonar.server.v2.api.user.response.UsersSearchRestResponse;
 
 import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class DefaultUserController implements UserController {
   private final UsersSearchRestResponseGenerator usersSearchResponseGenerator;
   private final UserService userService;
   private final UserSession userSession;
 
-  public DefaultUserController(UserSession userSession, UserService userService, UsersSearchRestResponseGenerator usersSearchResponseGenerator) {
+  public DefaultUserController(
+    UserSession userSession,
+    UserService userService,
+    UsersSearchRestResponseGenerator usersSearchResponseGenerator) {
     this.userSession = userSession;
     this.usersSearchResponseGenerator = usersSearchResponseGenerator;
     this.userService = userService;
@@ -87,4 +91,10 @@ public class DefaultUserController implements UserController {
       .build();
   }
 
+  @Override
+  public void deactivate(String login, Boolean anonymize) {
+    userSession.checkLoggedIn().checkIsSystemAdministrator();
+    checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
+    userService.deactivate(login, anonymize);
+  }
 }

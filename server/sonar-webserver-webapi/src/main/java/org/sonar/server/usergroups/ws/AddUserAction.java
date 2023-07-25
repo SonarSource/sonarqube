@@ -29,7 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.management.ManagedInstanceChecker;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;

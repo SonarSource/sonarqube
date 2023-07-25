@@ -20,6 +20,8 @@
 package org.sonar.server.user.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.common.user.UserAnonymizer;
+import org.sonar.server.common.user.UserDeactivator;
 import org.sonar.server.common.user.service.UserService;
 
 public class UsersWsModule extends Module {

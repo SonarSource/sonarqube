@@ -20,6 +20,8 @@
 package org.sonar.server.v2.api.user.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import javax.validation.Valid;
 import org.sonar.server.v2.api.model.RestPage;
 import org.sonar.server.v2.api.user.request.UsersSearchRestRequest;
@@ -27,8 +29,11 @@ import org.sonar.server.v2.api.user.response.UsersSearchRestResponse;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -53,4 +58,11 @@ public interface UserController {
       Field 'sonarqubeLastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.
     """)
   UsersSearchRestResponse search(@ParameterObject UsersSearchRestRequest usersSearchRestRequest, @Valid @ParameterObject RestPage restPage);
+
+  @DeleteMapping(path = "/{login}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Deactivate a user", description = "Deactivate a user. Requires Administer System permission.")
+  void deactivate(
+    @PathVariable("login") @Parameter(description = "The login of the user to delete.", required = true, in = ParameterIn.PATH) String login,
+    @RequestParam(value = "anonymize", required = false, defaultValue = "false") @Parameter(description = "Anonymize user in addition to deactivating it.") Boolean anonymize);
 }

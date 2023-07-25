@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.management;
+package com.sonar.server.common.management;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +28,10 @@ import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.management.ManagedInstanceService;
+import org.sonar.server.management.ManagedProjectService;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

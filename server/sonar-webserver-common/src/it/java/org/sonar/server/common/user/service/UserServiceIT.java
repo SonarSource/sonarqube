@@ -35,6 +35,10 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
+import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.common.user.UserDeactivator;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.management.ManagedInstanceService;
 
 import static java.util.Arrays.asList;
@@ -42,10 +46,15 @@ import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UserServiceIT {
@@ -56,7 +65,11 @@ public class UserServiceIT {
 
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
 
-  private final UserService userService = new UserService(db.getDbClient(), new AvatarResolverImpl(), managedInstanceService);
+  private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
+
+  private final UserDeactivator userDeactivator = mock(UserDeactivator.class);
+
+  private final UserService userService = new UserService(db.getDbClient(), new AvatarResolverImpl(), managedInstanceService, managedInstanceChecker, userDeactivator);
 
   @Test
   public void search_for_all_active_users() {
@@ -133,8 +146,7 @@ public class UserServiceIT {
       .extracting(r -> r.userDto().getLogin(), UserSearchResult::managed)
       .containsExactlyInAnyOrder(
         tuple(managedUser.getLogin(), true),
-        tuple(nonManagedUser.getLogin(), false)
-      );
+        tuple(nonManagedUser.getLogin(), false));
 
   }
 
@@ -151,8 +163,7 @@ public class UserServiceIT {
     assertThat(users.searchResults())
       .extracting(r -> r.userDto().getLogin(), UserSearchResult::managed)
       .containsExactlyInAnyOrder(
-        tuple(managedUser.getLogin(), true)
-      );
+        tuple(managedUser.getLogin(), true));
 
   }
 
@@ -169,8 +180,7 @@ public class UserServiceIT {
     assertThat(users.searchResults())
       .extracting(r -> r.userDto().getLogin(), UserSearchResult::managed)
       .containsExactlyInAnyOrder(
-        tuple(nonManagedUser.getLogin(), false)
-      );
+        tuple(nonManagedUser.getLogin(), false));
   }
 
   private void mockInstanceExternallyManagedAndFilterForManagedUsers() {
@@ -243,8 +253,7 @@ public class UserServiceIT {
       .extracting(
         r -> r.userDto().getLogin(),
         userSearchResult -> userSearchResult.userDto().getExternalLogin(),
-        userSearchResult -> userSearchResult.userDto().getExternalIdentityProvider()
-      )
+        userSearchResult -> userSearchResult.userDto().getExternalIdentityProvider())
       .containsExactlyInAnyOrder(tuple(user.getLogin(), user.getExternalLogin(), user.getExternalIdentityProvider()));
   }
 
@@ -371,7 +380,45 @@ public class UserServiceIT {
 
     assertUserWithFilter(b -> b.setSonarLintLastConnectionDateFrom(DateUtils.formatDateTime(lastConnection.toEpochMilli())), user.getLogin(), false);
     assertUserWithFilter(b -> b.setSonarLintLastConnectionDateTo(DateUtils.formatDateTime(lastConnection.toEpochMilli())), user.getLogin(), true);
+  }
 
+  @Test
+  public void deactivate_whenUserIsNotFound_shouldThrowNotFoundException() {
+    assertThatThrownBy(() -> userService.deactivate("userToDelete", false))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User 'userToDelete' not found");
+  }
+
+  @Test
+  public void deactivate_whenInstanceIsManagedAndUserIsManaged_shouldThrowBadRequestException() {
+    UserDto user = db.users().insertUser();
+    BadRequestException badRequestException = BadRequestException.create("Not allowed");
+    doThrow(badRequestException).when(managedInstanceChecker).throwIfUserIsManaged(any(), eq(user.getUuid()));
+    assertThatThrownBy(() -> userService.deactivate(user.getLogin(), false))
+      .isEqualTo(badRequestException);
+
+  }
+
+  @Test
+  public void deactivate_whenAnonymizeIsFalse_shouldDeactivateUser() {
+    UserDto user = db.users().insertUser();
+
+    userService.deactivate(user.getLogin(), false);
+    verify(managedInstanceChecker).throwIfUserIsManaged(any(), eq(user.getUuid()));
+
+    verify(userDeactivator).deactivateUser(any(), eq(user.getLogin()));
+    verify(userDeactivator, never()).deactivateUserWithAnonymization(any(), eq(user.getLogin()));
+  }
+
+  @Test
+  public void deactivate_whenAnonymizeIsTrue_shouldDeactivateUserWithAnonymization() {
+    UserDto user = db.users().insertUser();
+
+    userService.deactivate(user.getLogin(), true);
+    verify(managedInstanceChecker).throwIfUserIsManaged(any(), eq(user.getUuid()));
+
+    verify(userDeactivator).deactivateUserWithAnonymization(any(), eq(user.getLogin()));
+    verify(userDeactivator, never()).deactivateUser(any(), eq(user.getLogin()));
   }
 
   private void assertUserWithFilter(Function<UsersSearchRequest.Builder, UsersSearchRequest.Builder> query, String userLogin, boolean isExpectedToBeThere) {
