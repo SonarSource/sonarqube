@@ -324,14 +324,17 @@ export function useRefreshBranches() {
 }
 
 export function withBranchLikes<P extends { component?: Component }>(
-  WrappedComponent: React.ComponentType<P & { branchLikes?: BranchLike[]; branchLike?: BranchLike }>
+  WrappedComponent: React.ComponentType<
+    P & { branchLikes?: BranchLike[]; branchLike?: BranchLike; isFetchingBranch?: boolean }
+  >
 ): React.ComponentType<Omit<P, 'branchLike' | 'branchLikes'>> {
   return function WithBranchLike(p: P) {
-    const { data } = useBranchesQuery(p.component);
+    const { data, isFetching } = useBranchesQuery(p.component);
     return (
       <WrappedComponent
         branchLikes={data?.branchLikes ?? []}
         branchLike={data?.branchLike}
+        isFetchingBranch={isFetching}
         {...p}
       />
     );

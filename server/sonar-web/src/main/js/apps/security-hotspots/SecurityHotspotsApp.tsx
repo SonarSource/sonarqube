@@ -55,6 +55,7 @@ interface Props {
   branchLike?: BranchLike;
   currentUser: CurrentUser;
   component: Component;
+  isFetchingBranch?: boolean;
   location: Location;
   router: Router;
 }
@@ -111,7 +112,9 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
 
-    this.fetchInitialData();
+    if (!this.props.isFetchingBranch) {
+      this.fetchInitialData();
+    }
 
     this.registerKeyboardEvents();
   }

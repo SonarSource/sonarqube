@@ -112,6 +112,7 @@ interface Props extends WithIndexationContextProps {
   branchLike?: BranchLike;
   component?: Component;
   currentUser: CurrentUser;
+  isFetchingBranch?: boolean;
   location: Location;
   router: Router;
 }
@@ -217,7 +218,10 @@ export class App extends React.PureComponent<Props, State> {
     addWhitePageClass();
     addSideBarClass();
     this.attachShortcuts();
-    this.fetchFirstIssues(true).catch(() => undefined);
+
+    if (!this.props.isFetchingBranch) {
+      this.fetchFirstIssues(true).catch(() => undefined);
+    }
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {

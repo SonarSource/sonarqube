@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { act, screen } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { Route } from 'react-router-dom';
@@ -172,7 +172,10 @@ describe('rendering', () => {
       `security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&files=src%2Findex.js&cwe=foo&inNewCodePeriod=true`
     );
 
-    expect(ui.filterDropdown.query()).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(ui.filterDropdown.query()).not.toBeInTheDocument();
+    });
+
     expect(ui.filterToReview.query()).not.toBeInTheDocument();
 
     // Drop selection
