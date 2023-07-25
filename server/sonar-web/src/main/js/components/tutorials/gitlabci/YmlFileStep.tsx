@@ -158,7 +158,7 @@ export function YmlFileStep(props: YmlFileStepProps) {
                       <InlineSnippet snippet={filenameForBuildTool[buildTool]} />
 
                       <ClipboardIconButton
-                        className="sw-ml-2"
+                        className="sw-ml-2 sw-align-sub"
                         copyValue={filenameForBuildTool[buildTool]}
                       />
                     </>
@@ -171,7 +171,7 @@ export function YmlFileStep(props: YmlFileStepProps) {
                           <InlineSnippet snippet={GradleBuildDSL.Kotlin} />
 
                           <ClipboardIconButton
-                            className="sw-ml-2"
+                            className="sw-ml-2 sw-align-sub"
                             copyValue={GradleBuildDSL.Kotlin}
                           />
                         </>
@@ -215,7 +215,7 @@ export function YmlFileStep(props: YmlFileStepProps) {
                       />
 
                       <ClipboardIconButton
-                        className="sw-ml-2"
+                        className="sw-ml-2 sw-align-sub"
                         copyValue={translate('onboarding.tutorial.with.gitlab_ci.yaml.filename')}
                       />
                     </>

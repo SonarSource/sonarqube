@@ -50,7 +50,7 @@ export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProp
     <>
       <Title>{translate('onboarding.tutorial.with.azure_pipelines.title')}</Title>
 
-      <TutorialStepList>
+      <TutorialStepList className="sw-mb-10">
         <TutorialStep
           title={translate(
             `onboarding.tutorial.with.azure_pipelines.${Steps.ExtensionInstallation}.title`

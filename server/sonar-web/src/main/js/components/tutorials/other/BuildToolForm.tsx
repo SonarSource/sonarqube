@@ -44,7 +44,12 @@ export class BuildToolForm extends React.PureComponent<Props, State> {
   }
 
   handleBuildToolChange = (buildTool: BuildTools) => {
-    this.setState({ config: { buildTool } }, () => {
+    const selectOsByDefault = (buildTool === BuildTools.CFamily ||
+      buildTool === BuildTools.Other) && {
+      os: OSs.Linux,
+    };
+
+    this.setState({ config: { buildTool, ...selectOsByDefault } }, () => {
       this.props.onDone(this.state.config);
     });
   };

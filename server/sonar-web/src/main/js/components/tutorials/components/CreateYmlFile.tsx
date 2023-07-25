@@ -39,7 +39,7 @@ export default function CreateYmlFile(props: CreateYmlFileProps) {
           file: (
             <>
               <InlineSnippet snippet={yamlFileName} />
-              <ClipboardIconButton copyValue={yamlFileName} className="sw-ml-2" />
+              <ClipboardIconButton copyValue={yamlFileName} className="sw-ml-2 sw-align-sub" />
             </>
           ),
         }}

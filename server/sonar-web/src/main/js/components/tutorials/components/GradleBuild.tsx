@@ -41,13 +41,19 @@ export default function GradleBuild({ component }: Props) {
           groovy: (
             <>
               <InlineSnippet snippet={GradleBuildDSL.Groovy} />
-              <ClipboardIconButton copyValue={GradleBuildDSL.Groovy} className="sw-ml-2" />
+              <ClipboardIconButton
+                copyValue={GradleBuildDSL.Groovy}
+                className="sw-ml-2 sw-align-sub"
+              />
             </>
           ),
           kotlin: (
             <>
               <InlineSnippet snippet={GradleBuildDSL.Kotlin} />
-              <ClipboardIconButton copyValue={GradleBuildDSL.Kotlin} className="sw-ml-2" />
+              <ClipboardIconButton
+                copyValue={GradleBuildDSL.Kotlin}
+                className="sw-ml-2 sw-align-sub"
+              />
             </>
           ),
           sq: <InlineSnippet snippet="org.sonarqube" />,

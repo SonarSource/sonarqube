@@ -81,7 +81,7 @@ export default function SecretStep(props: SecretStepProps) {
             highlightKeys={['name']}
           />
           <InlineSnippet snippet="SONAR_TOKEN" className="sw-ml-1" />
-          <ClipboardIconButton copyValue="SONAR_TOKEN" className="sw-ml-2" />
+          <ClipboardIconButton copyValue="SONAR_TOKEN" className="sw-ml-2 sw-align-sub" />
         </NumberedListItem>
         <NumberedListItem>
           <TokenStepGenerator component={component} currentUser={currentUser} />
@@ -107,14 +107,14 @@ export default function SecretStep(props: SecretStepProps) {
             highlightKeys={['name']}
           />
           <InlineSnippet snippet="SONAR_HOST_URL" className="sw-ml-1" />
-          <ClipboardIconButton copyValue="SONAR_HOST_URL" className="sw-ml-2" />
+          <ClipboardIconButton copyValue="SONAR_HOST_URL" className="sw-ml-2 sw-align-sub" />
         </NumberedListItem>
         <NumberedListItem>
           <FormattedMessage
             defaultMessage={translate('onboarding.tutorial.env_variables')}
             id="onboarding.tutorial.env_variables"
             values={{
-              extra: <ClipboardIconButton copyValue={baseUrl} className="sw-ml-1" />,
+              extra: <ClipboardIconButton copyValue={baseUrl} className="sw-ml-1 sw-align-sub" />,
               field: (
                 <span className="sw-body-sm-highlight">
                   {translate('onboarding.tutorial.env_variables.field')}

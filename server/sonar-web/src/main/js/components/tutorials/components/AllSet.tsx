@@ -62,15 +62,15 @@ export function AllSet(props: AllSetProps) {
           {translate('onboarding.tutorial.ci_outro.refresh_text')}
         </p>
         <ul className="sw-mb-6">
-          <li className="sw-mb-4 sw-flex sw-items-center">
-            <CheckIcon className="sw-mr-2" />
+          <li className="sw-mb-4 sw-flex">
+            <CheckIcon className="sw-mr-2 sw-pt-1/2" />
             {branchSupportEnabled
               ? translate('onboarding.tutorial.ci_outro.commit.why', alm)
               : translate('onboarding.tutorial.ci_outro.commit.why.no_branches')}
           </li>
           {willRefreshAutomatically && (
-            <li className="sw-mb-4 sw-flex sw-items-center">
-              <CheckIcon className="sw-mr-2" />
+            <li className="sw-mb-4 sw-flex">
+              <CheckIcon className="sw-mr-2 sw-pt-1/2" />
               {translate('onboarding.tutorial.ci_outro.refresh.why')}
             </li>
           )}
