@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -30,9 +31,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Configuration;
 import org.sonar.scanner.bootstrap.ScannerPluginInstaller.InstalledPlugin;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
@@ -44,13 +45,18 @@ public class PluginFiles {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PluginFiles.class);
   private static final String MD5_HEADER = "Sonar-MD5";
+  @VisibleForTesting
+  static final String PLUGINS_DOWNLOAD_TIMEOUT_PROPERTY = "sonar.plugins.download.timeout";
+  private static final int PLUGINS_DOWNLOAD_TIMEOUT_DEFAULT = 300;
 
   private final DefaultScannerWsClient wsClient;
+  private final Configuration configuration;
   private final File cacheDir;
   private final File tempDir;
 
   public PluginFiles(DefaultScannerWsClient wsClient, Configuration configuration) {
     this.wsClient = wsClient;
+    this.configuration = configuration;
     File home = locateHomeDir(configuration);
     this.cacheDir = mkdir(new File(home, "cache"), "user cache");
     this.tempDir = mkdir(new File(home, "_tmp"), "temp dir");
@@ -85,7 +91,7 @@ public class PluginFiles {
   private Optional<File> download(InstalledPlugin plugin) {
     GetRequest request = new GetRequest("api/plugins/download")
       .setParam("plugin", plugin.key)
-      .setTimeOutInMs(5 * 60_000);
+      .setTimeOutInMs(configuration.getInt(PLUGINS_DOWNLOAD_TIMEOUT_PROPERTY).orElse(PLUGINS_DOWNLOAD_TIMEOUT_DEFAULT) * 1000);
 
     File downloadedFile = newTempFile();
     LOGGER.debug("Download plugin '{}' to '{}'", plugin.key, downloadedFile);

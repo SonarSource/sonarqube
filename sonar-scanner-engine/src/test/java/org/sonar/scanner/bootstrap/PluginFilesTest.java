@@ -22,8 +22,10 @@ package org.sonar.scanner.bootstrap;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketTimeoutException;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
@@ -47,6 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import static org.mockito.Mockito.mock;
+import static org.sonar.scanner.bootstrap.PluginFiles.PLUGINS_DOWNLOAD_TIMEOUT_PROPERTY;
 
 public class PluginFilesTest {
 
@@ -70,6 +73,7 @@ public class PluginFilesTest {
     userHome = temp.newFolder();
     MapSettings settings = new MapSettings();
     settings.setProperty("sonar.userHome", userHome.getAbsolutePath());
+    settings.setProperty(PLUGINS_DOWNLOAD_TIMEOUT_PROPERTY, 1);
 
     underTest = new PluginFiles(wsClient, settings.asConfig());
   }
@@ -139,6 +143,19 @@ public class PluginFilesTest {
     InstalledPlugin plugin = newInstalledPlugin("foo", "abc");
 
     expectISE("foo", "returned code 500", () -> underTest.get(plugin));
+  }
+
+  @Test
+  public void getPlugin_whenTimeOutReached_thenDownloadFails() {
+    MockResponse response = new MockResponse().setBody("test").setBodyDelay(2, TimeUnit.SECONDS);
+    response.setHeader("Sonar-MD5", "md5");
+    server.enqueue(response);
+    InstalledPlugin plugin = newInstalledPlugin("foo", "abc");
+
+    assertThatThrownBy(() -> underTest.get(plugin))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageStartingWith("Fail to download plugin [" + plugin.key + "]")
+      .cause().isInstanceOf(SocketTimeoutException.class);
   }
 
   @Test
