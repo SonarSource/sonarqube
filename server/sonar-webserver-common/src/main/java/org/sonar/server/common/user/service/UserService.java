@@ -20,7 +20,9 @@
 package org.sonar.server.common.user.service;
 
 import com.google.common.collect.Multimap;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,9 +38,15 @@ import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.user.UserDeactivator;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.management.ManagedInstanceService;
+import org.sonar.server.user.ExternalIdentity;
+import org.sonar.server.user.NewUser;
+import org.sonar.server.user.UserUpdater;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Comparator.comparing;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
+import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 public class UserService {
 
@@ -47,18 +55,21 @@ public class UserService {
   private final ManagedInstanceService managedInstanceService;
   private final ManagedInstanceChecker managedInstanceChecker;
   private final UserDeactivator userDeactivator;
+  private final UserUpdater userUpdater;
 
   public UserService(
     DbClient dbClient,
     AvatarResolver avatarResolver,
     ManagedInstanceService managedInstanceService,
     ManagedInstanceChecker managedInstanceChecker,
-    UserDeactivator userDeactivator) {
+    UserDeactivator userDeactivator,
+    UserUpdater userUpdater) {
     this.dbClient = dbClient;
     this.avatarResolver = avatarResolver;
     this.managedInstanceService = managedInstanceService;
     this.managedInstanceChecker = managedInstanceChecker;
     this.userDeactivator = userDeactivator;
+    this.userUpdater = userUpdater;
   }
 
   public SearchResults<UserSearchResult> findUsers(UsersSearchRequest request) {
@@ -116,7 +127,7 @@ public class UserService {
   }
 
   private Optional<String> findAvatar(UserDto userDto) {
-    return Optional.ofNullable(userDto.getEmail()).map(email -> avatarResolver.create(userDto));
+    return Optional.ofNullable(emptyToNull(userDto.getEmail())).map(email -> avatarResolver.create(userDto));
   }
 
   private static Set<String> getUserUuids(List<UserDto> users) {
@@ -156,4 +167,51 @@ public class UserService {
       groups,
       tokenCount);
   }
+
+  public UserSearchResult createUser(UserCreateRequest userCreateRequest) {
+    managedInstanceChecker.throwIfInstanceIsManaged();
+    List<String> scmAccounts = userCreateRequest.getScmAccounts().orElse(new ArrayList<>());
+    validateScmAccounts(scmAccounts);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      String login = userCreateRequest.getLogin();
+      NewUser.Builder newUserBuilder = NewUser.builder()
+        .setLogin(login)
+        .setName(userCreateRequest.getName())
+        .setEmail(userCreateRequest.getEmail().orElse(null))
+        .setScmAccounts(scmAccounts)
+        .setPassword(userCreateRequest.getPassword().orElse(null));
+      if (Boolean.FALSE.equals(userCreateRequest.isLocal())) {
+        newUserBuilder.setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, login, login));
+      }
+      return registerUser(dbSession, login, newUserBuilder);
+    }
+  }
+
+  private UserSearchResult registerUser(DbSession dbSession, String login, NewUser.Builder newUserBuilder) {
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
+    if (user == null) {
+      user = userUpdater.createAndCommit(dbSession, newUserBuilder.build(), u -> {});
+    } else {
+      checkArgument(!user.isActive(), "An active user with login '%s' already exists", login);
+      user = userUpdater.reactivateAndCommit(dbSession, user, newUserBuilder.build(), u -> {});
+    }
+    return fetchUser(user.getLogin());
+  }
+
+  public static void validateScmAccounts(List<String> scmAccounts) {
+    scmAccounts.forEach(UserService::validateScmAccountFormat);
+    validateNoDuplicates(scmAccounts);
+  }
+
+  private static void validateScmAccountFormat(String scmAccount) {
+    checkArgument(scmAccount.equals(scmAccount.strip()), "SCM account cannot start or end with whitespace: '%s'", scmAccount);
+  }
+
+  private static void validateNoDuplicates(List<String> scmAccounts) {
+    Set<String> duplicateCheck = new HashSet<>();
+    for (String account : scmAccounts) {
+      checkArgument(duplicateCheck.add(account), "Duplicate SCM account: '%s'", account);
+    }
+  }
+
 }

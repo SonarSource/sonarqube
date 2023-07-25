@@ -39,7 +39,9 @@ import org.sonar.server.v2.api.ControllerTester;
 import org.sonar.server.v2.api.response.PageRestResponse;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
 import org.sonar.server.v2.api.user.model.RestUser;
+import org.sonar.server.v2.api.user.request.UserCreateRestRequest;
 import org.sonar.server.v2.api.user.response.UsersSearchRestResponse;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -56,6 +58,7 @@ import static org.sonar.server.v2.api.model.RestPage.DEFAULT_PAGE_INDEX;
 import static org.sonar.server.v2.api.model.RestPage.DEFAULT_PAGE_SIZE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -243,7 +246,7 @@ public class DefaultUserControllerTest {
   public void deactivate_whenAnonymizeParameterIsNotBoolean_shouldReturnBadRequest() throws Exception {
     userSession.logIn().setSystemAdministrator();
 
-    mockMvc.perform(delete(USER_ENDPOINT + "/userToDelete?anonymize=maybe"))
+    mockMvc.perform(delete(USER_ENDPOINT + "/userToDelete").param("anonymize", "maybe"))
       .andExpect(
         status().isBadRequest());
   }
@@ -300,6 +303,78 @@ public class DefaultUserControllerTest {
       .andReturn();
     RestUser responseUser = gson.fromJson(mvcResult.getResponse().getContentAsString(), RestUser.class);
     assertThat(responseUser).isEqualTo(restUser);
-
   }
+
+  @Test
+  public void create_whenNotAnAdmin_shouldReturnForbidden() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
+
+    mockMvc.perform(
+      post(USER_ENDPOINT)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .content(gson.toJson(new UserCreateRestRequest(null, null, "login", "name", null, null))))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+  }
+
+  @Test
+  public void create_whenNoLogin_shouldReturnBadRequest() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+
+    mockMvc.perform(
+        post(USER_ENDPOINT)
+          .contentType(MediaType.APPLICATION_JSON_VALUE)
+          .content(gson.toJson(new UserCreateRestRequest(null, null, null, "name", null, null))))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"Value {} for field login was rejected. Error: must not be null\"}"));
+  }
+
+  @Test
+  public void create_whenNoName_shouldReturnBadRequest() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+
+    mockMvc.perform(
+        post(USER_ENDPOINT)
+          .contentType(MediaType.APPLICATION_JSON_VALUE)
+          .content(gson.toJson(new UserCreateRestRequest(null, null, "login", null, null, null))))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"Value {} for field name was rejected. Error: must not be null\"}"));
+  }
+
+  @Test
+  public void create_whenUserServiceThrow_shouldReturnServerError() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+    when(userService.createUser(any())).thenThrow(new IllegalArgumentException("IllegalArgumentException"));
+
+    mockMvc.perform(
+        post(USER_ENDPOINT)
+          .contentType(MediaType.APPLICATION_JSON_VALUE)
+          .content(gson.toJson(new UserCreateRestRequest("e@mail.com", true, "login", "name", "password", List.of("scm")))))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"IllegalArgumentException\"}"));
+  }
+
+  @Test
+  public void create_whenUserServiceReturnUser_shouldReturnIt() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+    UserSearchResult userSearchResult = generateUserSearchResult("1", true, true, false, 1, 2);
+    UserDto userDto = userSearchResult.userDto();
+    when(userService.createUser(any())).thenReturn(userSearchResult);
+    when(responseGenerator.toRestUser(userSearchResult)).thenReturn(toRestUser(userSearchResult));
+
+    MvcResult mvcResult = mockMvc.perform(
+        post(USER_ENDPOINT)
+          .contentType(MediaType.APPLICATION_JSON_VALUE)
+          .content(gson.toJson(new UserCreateRestRequest(
+            userDto.getEmail(), userDto.isLocal(), userDto.getLogin(), userDto.getName(), "password", userDto.getSortedScmAccounts()))))
+      .andExpect(status().isOk())
+      .andReturn();
+    RestUser responseUser = gson.fromJson(mvcResult.getResponse().getContentAsString(), RestUser.class);
+    assertThat(responseUser).isEqualTo(toRestUser(userSearchResult));
+  }
+
 }

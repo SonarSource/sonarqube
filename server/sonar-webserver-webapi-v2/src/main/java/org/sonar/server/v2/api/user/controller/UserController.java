@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import javax.validation.Valid;
 import org.sonar.server.v2.api.model.RestPage;
 import org.sonar.server.v2.api.user.model.RestUser;
+import org.sonar.server.v2.api.user.request.UserCreateRestRequest;
 import org.sonar.server.v2.api.user.request.UsersSearchRestRequest;
 import org.sonar.server.v2.api.user.response.UsersSearchRestResponse;
 import org.springdoc.api.annotations.ParameterObject;
@@ -33,6 +34,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -82,4 +85,14 @@ public interface UserController {
       Field 'sonarqubeLastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.
     """)
   RestUser fetchUser(@PathVariable("login") @Parameter(description = "The login of the user to fetch.", required = true, in = ParameterIn.PATH) String login);
+
+  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "User creation", description = """
+      Create a user.
+      If a deactivated user account exists with the given login, it will be reactivated.
+      Requires Administer System permission
+    """)
+  RestUser create(@Valid @RequestBody(required = true) UserCreateRestRequest userCreateRestRequest);
+
 }

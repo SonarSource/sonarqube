@@ -22,18 +22,23 @@ package org.sonar.server.common.user.service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.scim.ScimUserDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.common.management.ManagedInstanceChecker;
@@ -41,7 +46,11 @@ import org.sonar.server.common.user.UserDeactivator;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.management.ManagedInstanceService;
+import org.sonar.server.user.NewUserNotifier;
+import org.sonar.server.user.UserUpdater;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
@@ -57,20 +66,29 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserServiceIT {
 
   private static final UsersSearchRequest SEARCH_REQUEST = getBuilderWithDefaultsPageSize().build();
+  private GroupDto defaultGroup;
+
   @Rule
   public DbTester db = DbTester.create();
-
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
-
   private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
-
   private final UserDeactivator userDeactivator = mock(UserDeactivator.class);
+  private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
+  private final UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new DefaultGroupFinder(db.getDbClient()),
+    settings.asConfig(), new NoOpAuditPersister(), localAuthentication);
 
-  private final UserService userService = new UserService(db.getDbClient(), new AvatarResolverImpl(), managedInstanceService, managedInstanceChecker, userDeactivator);
+  private final UserService userService = new UserService(db.getDbClient(), new AvatarResolverImpl(), managedInstanceService, managedInstanceChecker, userDeactivator, userUpdater);
+
+  @Before
+  public void setUp() {
+    defaultGroup = db.users().insertDefaultGroup();
+  }
 
   @Test
   public void search_for_all_active_users() {
@@ -482,4 +500,157 @@ public class UserServiceIT {
   private static UsersSearchRequest.Builder getBuilderWithDefaultsPageSize() {
     return UsersSearchRequest.builder().setPage(1).setPageSize(50);
   }
+
+  @Test
+  public void createUser_shouldCreateLocalUser() {
+    UserCreateRequest userCreateRequest = UserCreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setEmail("john@email.com")
+      .setScmAccounts(singletonList("jn"))
+      .setPassword("1234")
+      .setLocal(true)
+      .build();
+
+    UserSearchResult user = userService.createUser(userCreateRequest);
+
+    assertThat(user.userDto())
+      .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getSortedScmAccounts, UserDto::isLocal)
+      .containsOnly("john", "John", "john@email.com", singletonList("jn"), true);
+
+    Optional<UserDto> dbUser = db.users().selectUserByLogin("john");
+    assertThat(dbUser).isPresent();
+
+    assertThat(db.users().selectGroupUuidsOfUser(dbUser.get())).containsOnly(defaultGroup.getUuid());
+  }
+
+  @Test
+  public void createUser_shouldCreateNonLocalUser() {
+    UserCreateRequest userCreateRequest = UserCreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setLocal(false)
+      .build();
+
+    userService.createUser(userCreateRequest);
+
+    assertThat(db.users().selectUserByLogin("john").get())
+      .extracting(UserDto::isLocal, UserDto::getExternalIdentityProvider, UserDto::getExternalLogin)
+      .containsOnly(false, "sonarqube", "john");
+  }
+
+  @Test
+  public void createUser_shouldHandleCommasInScmAccounts() {
+    UserCreateRequest userCreateRequest = UserCreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setEmail("john@email.com")
+      .setScmAccounts(singletonList("j,n"))
+      .setPassword("1234")
+      .setLocal(true)
+      .build();
+
+    UserSearchResult user = userService.createUser(userCreateRequest);
+
+    assertThat(user.userDto().getSortedScmAccounts()).containsOnly("j,n");
+  }
+
+  @Test
+  public void createUser_whenWhitespaceInScmAccounts_shouldFail() {
+    UserCreateRequest userCreateRequest = UserCreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setEmail("john@email.com")
+      .setScmAccounts(List.of("admin", "  admin  "))
+      .setPassword("1234")
+      .setLocal(true)
+      .build();
+
+    assertThatThrownBy(() -> userService.createUser(userCreateRequest))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("SCM account cannot start or end with whitespace: '  admin  '");
+  }
+
+  @Test
+  public void createUser_whenDuplicatesInScmAccounts_shouldFail() {
+      UserCreateRequest userCreateRequest = UserCreateRequest.builder()
+        .setLogin("john")
+        .setName("John")
+        .setEmail("john@email.com")
+        .setScmAccounts(List.of("admin", "admin"))
+        .setPassword("1234")
+        .setLocal(true)
+        .build();
+
+    assertThatThrownBy(() -> userService.createUser(userCreateRequest))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Duplicate SCM account: 'admin'");
+  }
+
+  @Test
+  public void createUser_whenEmptyEmail_shouldCreateUser() {
+    UserCreateRequest userCreateRequest = UserCreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setPassword("1234")
+      .setEmail("")
+      .setLocal(true)
+      .build();
+
+    userService.createUser(userCreateRequest);
+
+    assertThat(db.users().selectUserByLogin("john").get())
+      .extracting(UserDto::getExternalLogin)
+      .isEqualTo("john");
+  }
+
+  @Test
+  public void createUser_whenDeactivatedUserExists_shouldReactivate() {
+    db.users().insertUser(newUserDto("john", "John", "john@email.com").setActive(false));
+
+    UserCreateRequest userCreateRequest = UserCreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setEmail("john@email.com")
+      .setScmAccounts(singletonList("jn"))
+      .setPassword("1234")
+      .setLocal(true)
+      .build();
+
+    userService.createUser(userCreateRequest);
+
+    assertThat(db.users().selectUserByLogin("john").get().isActive()).isTrue();
+  }
+
+  @Test
+  public void createUser_whenActiveUserExists_shouldThrow() {
+    UserDto user = db.users().insertUser();
+
+    UserCreateRequest userCreateRequest = UserCreateRequest.builder()
+      .setLogin(user.getLogin())
+      .setName("John")
+      .setPassword("1234")
+      .setLocal(true)
+      .build();
+
+    assertThatThrownBy(() -> userService.createUser(userCreateRequest))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("An active user with login '%s' already exists", user.getLogin()));
+  }
+
+  @Test
+  public void createUser_whenInstanceManaged_shouldThrow() {
+    BadRequestException badRequestException = BadRequestException.create("message");
+    doThrow(badRequestException).when(managedInstanceChecker).throwIfInstanceIsManaged();
+
+    UserCreateRequest userCreateRequest = UserCreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setLocal(false)
+      .build();
+
+    assertThatThrownBy(() -> userService.createUser(userCreateRequest))
+      .isEqualTo(badRequestException);
+  }
+
 }

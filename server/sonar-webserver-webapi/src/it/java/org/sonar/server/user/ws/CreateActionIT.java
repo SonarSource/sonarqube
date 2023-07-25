@@ -33,10 +33,14 @@ import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
+import org.sonar.server.common.avatar.AvatarResolverImpl;
+import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.common.user.UserDeactivator;
+import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -72,8 +76,10 @@ public class CreateActionIT {
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
 
   private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
-  private final WsActionTester tester = new WsActionTester(new CreateAction(db.getDbClient(), new UserUpdater(mock(NewUserNotifier.class),
-    db.getDbClient(), new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), new NoOpAuditPersister(), localAuthentication), userSessionRule, managedInstanceChecker));
+  private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
+  private final UserService userService = new UserService(db.getDbClient(), new AvatarResolverImpl(), managedInstanceService, managedInstanceChecker, mock(UserDeactivator.class),
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), new NoOpAuditPersister(), localAuthentication));
+  private final WsActionTester tester = new WsActionTester(new CreateAction(userSessionRule, managedInstanceChecker, userService));
 
   @Before
   public void setUp() {

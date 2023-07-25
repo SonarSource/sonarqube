@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.v2.api.model.RestError;
@@ -37,10 +38,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class RestResponseEntityExceptionHandler {
 
-  @ExceptionHandler(IllegalStateException.class)
+  @ExceptionHandler({IllegalStateException.class})
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   protected ResponseEntity<RestError> handleIllegalStateException(IllegalStateException illegalStateException) {
     return new ResponseEntity<>(new RestError(illegalStateException.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler({IllegalArgumentException.class})
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  protected ResponseEntity<RestError> handleIllegalArgumentException(IllegalArgumentException illegalArgumentException) {
+    return new ResponseEntity<>(new RestError(illegalArgumentException.getMessage()), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(BindException.class)
@@ -64,4 +71,11 @@ public class RestResponseEntityExceptionHandler {
     return new ResponseEntity<>(new RestError(serverException.getMessage()),
       Optional.ofNullable(HttpStatus.resolve(serverException.httpCode())).orElse(HttpStatus.INTERNAL_SERVER_ERROR));
   }
+
+  @ExceptionHandler({NotFoundException.class})
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  protected ResponseEntity<RestError> handleNotFoundException(NotFoundException notFoundException) {
+    return new ResponseEntity<>(new RestError(notFoundException.getMessage()), HttpStatus.NOT_FOUND);
+  }
+
 }

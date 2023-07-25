@@ -44,6 +44,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.UserUpdater;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.Paging;
@@ -81,7 +82,8 @@ public class SearchActionIT {
     new AvatarResolverImpl(),
     managedInstanceService,
     mock(ManagedInstanceChecker.class),
-    mock(UserDeactivator.class));
+    mock(UserDeactivator.class),
+    mock(UserUpdater.class));
 
   private final SearchWsReponseGenerator searchWsReponseGenerator = new SearchWsReponseGenerator(userSession);
 

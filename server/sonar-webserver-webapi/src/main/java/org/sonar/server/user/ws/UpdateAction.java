@@ -33,8 +33,9 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.common.user.service.UserService;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
@@ -160,11 +161,13 @@ public class UpdateAction implements UsersWsAction {
   }
 
   private static UpdateRequest toWsRequest(Request request) {
+    List<String> scmAccounts = parseScmAccounts(request);
+    UserService.validateScmAccounts(scmAccounts);
     return UpdateRequest.builder()
       .setLogin(request.mandatoryParam(PARAM_LOGIN))
       .setName(request.param(PARAM_NAME))
       .setEmail(request.param(PARAM_EMAIL))
-      .setScmAccounts(parseScmAccounts(request))
+      .setScmAccounts(scmAccounts)
       .build();
   }
 

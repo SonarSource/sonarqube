@@ -34,6 +34,7 @@ public record RestPage(
     description = "Number of results per page",
     schema = @Schema(defaultValue = DEFAULT_PAGE_SIZE, implementation = Integer.class))
   Integer pageSize,
+
   @Positive
   @Parameter(
     description = "1-based page number",

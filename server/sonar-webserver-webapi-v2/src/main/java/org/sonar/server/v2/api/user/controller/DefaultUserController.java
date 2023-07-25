@@ -23,6 +23,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.Paging;
 import org.sonar.server.common.SearchResults;
+import org.sonar.server.common.user.service.UserCreateRequest;
 import org.sonar.server.common.user.service.UserSearchResult;
 import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.common.user.service.UsersSearchRequest;
@@ -31,6 +32,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.model.RestPage;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
 import org.sonar.server.v2.api.user.model.RestUser;
+import org.sonar.server.v2.api.user.request.UserCreateRestRequest;
 import org.sonar.server.v2.api.user.request.UsersSearchRestRequest;
 import org.sonar.server.v2.api.user.response.UsersSearchRestResponse;
 
@@ -103,4 +105,23 @@ public class DefaultUserController implements UserController {
   public RestUser fetchUser(String login) {
     return usersSearchResponseGenerator.toRestUser(userService.fetchUser(login));
   }
+
+  @Override
+  public RestUser create(UserCreateRestRequest userCreateRestRequest) {
+    userSession.checkLoggedIn().checkIsSystemAdministrator();
+    UserCreateRequest userCreateRequest = toUserCreateRequest(userCreateRestRequest);
+    return usersSearchResponseGenerator.toRestUser(userService.createUser(userCreateRequest));
+  }
+
+  private static UserCreateRequest toUserCreateRequest(UserCreateRestRequest userCreateRestRequest) {
+    return UserCreateRequest.builder()
+      .setEmail(userCreateRestRequest.email())
+      .setLocal(userCreateRestRequest.local())
+      .setLogin(userCreateRestRequest.login())
+      .setName(userCreateRestRequest.name())
+      .setPassword(userCreateRestRequest.password())
+      .setScmAccounts(userCreateRestRequest.scmAccounts())
+      .build();
+  }
+
 }
