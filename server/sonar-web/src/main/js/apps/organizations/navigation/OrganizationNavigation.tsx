@@ -48,17 +48,17 @@ export class OrganizationNavigation extends React.PureComponent<Props, State> {
     this.fetchNotificiations();
   }
 
-  componentDidUpdate(prevProps:any, prevState:any) {
+  componentDidUpdate() {
     this.fetchNotificiations();  
   }
 
-  async fetchNotificiations(){
-    const {organization} = {...this.props}
-    await getRawNotificationsForOrganization(organization.kee).then((data:any)=>{
+  async fetchNotificiations() {
+    const { organization } = { ...this.props }
+    await getRawNotificationsForOrganization(organization.kee).then((data:any) => {
       const notfication = data?.organization?.notifications?.[0];
-      if(notfication?.type==="error"){
+      if(notfication?.type === "error") {
         this.setState({ error: notfication.message });
-      }else{
+      } else {
         this.setState({ error: '' });  
       }
     }).catch(throwGlobalError)
