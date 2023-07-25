@@ -43,18 +43,27 @@ export class OrganizationNavigation extends React.PureComponent<Props, State> {
     error: ''
   };
 
-  async componentDidMount() {
+ componentDidMount() {
     this.mounted = true;
-    const {organization} = {...this.props}
-    await getRawNotificationsForOrganization(organization.kee).then((data:any)=>{
+    this.fetchNotificiations();
+  }
+
+  componentDidUpdate() {
+    this.fetchNotificiations();  
+  }
+
+  async fetchNotificiations() {
+    const { organization } = { ...this.props }
+    await getRawNotificationsForOrganization(organization.kee).then((data:any) => {
       const notfication = data?.organization?.notifications?.[0];
-      if(notfication?.type==="error"){
+      if(notfication?.type === "error") {
         this.setState({ error: notfication.message });
+      } else {
+        this.setState({ error: '' });  
       }
     }).catch(throwGlobalError)
- 
- 
- }
+  }
+
 
   componentWillUnmount() {
     this.mounted = false;
@@ -85,11 +94,13 @@ export class OrganizationNavigation extends React.PureComponent<Props, State> {
       {
         error?.length>0 ? (
         <div className='org-alert'>
-          <div className='icon'>
-            x
-          </div>
-          <div className='msg'>
-            {error}
+          <div className='org-alert-inner'>
+            <div className='icon'>
+              x
+            </div>
+            <div className='msg'>
+              {error}
+            </div>
           </div>
         </div>
         ) : (<></>)

@@ -54,7 +54,11 @@
   background-color: #f2dede;
   color: #862422;
   height: 30px;
-  padding: 0 110px;
+}
+.org-alert-inner{
+    max-width: 1290px;
+    margin-left: auto;
+    margin-right: auto;
 }
 .org-alert .icon{
   float: left;
