@@ -56,12 +56,13 @@ public class AnticipatedTransitionRepositoryImpl implements AnticipatedTransitio
   private Collection<AnticipatedTransition> getAnticipatedTransitions(List<AnticipatedTransitionDto> anticipatedTransitionDtos) {
     return anticipatedTransitionDtos
       .stream()
-      .map(this::getAnticipatedTransition)
+      .map(AnticipatedTransitionRepositoryImpl::getAnticipatedTransition)
       .toList();
   }
 
-  private AnticipatedTransition getAnticipatedTransition(AnticipatedTransitionDto transitionDto) {
+  private static AnticipatedTransition getAnticipatedTransition(AnticipatedTransitionDto transitionDto) {
     return new AnticipatedTransition(
+      transitionDto.getUuid(),
       transitionDto.getProjectUuid(),
       transitionDto.getUserUuid(),
       RuleKey.parse(transitionDto.getRuleKey()),
@@ -73,5 +74,4 @@ public class AnticipatedTransitionRepositoryImpl implements AnticipatedTransitio
       transitionDto.getComment()
     );
   }
-
 }

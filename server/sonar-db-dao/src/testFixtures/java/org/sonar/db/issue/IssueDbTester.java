@@ -255,5 +255,4 @@ public class IssueDbTester {
     db.getDbClient().issueDao().insertAsNewCodeOnReferenceBranch(db.getSession(), IssueTesting.newCodeReferenceIssue(issue));
     db.commit();
   }
-
 }

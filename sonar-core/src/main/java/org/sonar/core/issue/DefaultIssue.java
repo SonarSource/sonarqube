@@ -131,7 +131,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   private String ruleDescriptionContextKey = null;
 
-  private boolean anticipatedTransitions = false;
+  private String anticipatedTransitionUuid = null;
 
   @Override
   public String key() {
@@ -691,12 +691,12 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
-  public boolean hasAnticipatedTransitions() {
-    return anticipatedTransitions;
+  public Optional<String> getAnticipatedTransitionUuid() {
+    return Optional.ofNullable(anticipatedTransitionUuid);
   }
 
-  public DefaultIssue setAnticipatedTransitions(boolean anticipatedTransitions) {
-    this.anticipatedTransitions = anticipatedTransitions;
+  public DefaultIssue setAnticipatedTransitionUuid(@Nullable String anticipatedTransitionUuid) {
+    this.anticipatedTransitionUuid = anticipatedTransitionUuid;
     return this;
   }
 

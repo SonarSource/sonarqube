@@ -49,5 +49,4 @@
     from anticipated_transitions at
     where at.project_uuid=#{projectUuid,jdbcType=VARCHAR} and at.file_path=#{filePath,jdbcType=VARCHAR}
   </select>
-
 </mapper>

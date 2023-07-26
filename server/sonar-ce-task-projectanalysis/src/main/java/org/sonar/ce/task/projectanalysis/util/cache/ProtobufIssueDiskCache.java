@@ -136,6 +136,9 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setSelectedAt(next.hasSelectedAt() ? next.getSelectedAt() : null);
     defaultIssue.setQuickFixAvailable(next.getQuickFixAvailable());
     defaultIssue.setIsNoLongerNewCodeReferenceIssue(next.getIsNoLongerNewCodeReferenceIssue());
+    if (next.hasAnticipatedTransitionUuid()) {
+      defaultIssue.setAnticipatedTransitionUuid(next.getAnticipatedTransitionUuid());
+    }
 
     for (IssueCache.FieldDiffs protoFieldDiffs : next.getChangesList()) {
       defaultIssue.addChange(toDefaultIssueChanges(protoFieldDiffs));
@@ -189,6 +192,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     ofNullable(defaultIssue.selectedAt()).ifPresent(builder::setSelectedAt);
     builder.setQuickFixAvailable(defaultIssue.isQuickFixAvailable());
     builder.setIsNoLongerNewCodeReferenceIssue(defaultIssue.isNoLongerNewCodeReferenceIssue());
+    defaultIssue.getAnticipatedTransitionUuid().ifPresent(builder::setAnticipatedTransitionUuid);
 
     for (FieldDiffs fieldDiffs : defaultIssue.changes()) {
       builder.addChanges(toProtoIssueChanges(fieldDiffs));

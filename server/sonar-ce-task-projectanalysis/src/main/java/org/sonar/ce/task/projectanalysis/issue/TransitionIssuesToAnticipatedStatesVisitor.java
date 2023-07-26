@@ -67,7 +67,7 @@ public class TransitionIssuesToAnticipatedStatesVisitor extends IssueVisitor {
 
   private void performAnticipatedTransition(DefaultIssue issue, AnticipatedTransition anticipatedTransition) {
     issue.setBeingClosed(true);
-    issue.setAnticipatedTransitions(true);
+    issue.setAnticipatedTransitionUuid(anticipatedTransition.getUuid());
     issueLifecycle.doManualTransition(issue, anticipatedTransition.getTransition(), anticipatedTransition.getUserUuid());
     String transitionComment = anticipatedTransition.getComment();
     String comment = Strings.isNotBlank(transitionComment) ? transitionComment : "Automatically transitioned from SonarLint";

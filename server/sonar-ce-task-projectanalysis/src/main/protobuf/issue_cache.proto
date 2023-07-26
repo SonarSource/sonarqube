@@ -83,6 +83,7 @@ message Issue {
   optional sonarqube.db.issues.MessageFormattings messageFormattings = 45;
   optional string codeVariants = 46;
   optional string assigneeLogin = 47;
+  optional string anticipatedTransitionUuid = 48;
 }
 
 message Comment {

@@ -49,6 +49,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.AnticipatedTransitionDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
@@ -628,4 +629,52 @@ public class PersistIssuesStepIT extends BaseStepTest {
       entry("inserts", "0"), entry("updates", "1"), entry("merged", "0"));
   }
 
+  @Test
+  public void when_anticipatedTransitionIsPresent_ItShouldBeDeleted() {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
+    RuleDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    db.rules().insert(rule);
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    session.commit();
+    String issueKey = "ISSUE-4";
+
+    DefaultIssue newIssue = new DefaultIssue()
+      .setKey(issueKey)
+      .setType(RuleType.CODE_SMELL)
+      .setRuleKey(rule.getKey())
+      .setComponentUuid(file.uuid())
+      .setComponentKey(file.getKey())
+      .setProjectUuid(project.uuid())
+      .setProjectKey(project.getKey())
+      .setSeverity(BLOCKER)
+      .setStatus(STATUS_OPEN)
+      .setCreationDate(new Date(NOW))
+      .setNew(true)
+      .setIsOnChangedLine(true)
+      .setType(RuleType.BUG);
+
+    AnticipatedTransitionDto atDto = db.anticipatedTransitions().createForIssue(newIssue, "test_uuid", file.name());
+    newIssue.setAnticipatedTransitionUuid(atDto.getUuid());
+
+    var defaultIssueCacheAppender = protoIssueCache.newAppender();
+    defaultIssueCacheAppender.append(newIssue).close();
+
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
+
+    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, issueKey);
+    assertThat(result.getKey()).isEqualTo(issueKey);
+    assertThat(result.getRuleKey()).isEqualTo(rule.getKey());
+    assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
+    assertThat(result.getProjectUuid()).isEqualTo(project.uuid());
+    assertThat(result.getSeverity()).isEqualTo(BLOCKER);
+    assertThat(result.getStatus()).isEqualTo(STATUS_OPEN);
+    assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+    assertThat(context.getStatistics().getAll()).contains(
+      entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));
+    assertThat(result.isNewCodeReferenceIssue()).isTrue();
+
+    assertThat(db.anticipatedTransitions().selectByProjectUuid(project.uuid())).isEmpty();
+  }
 }

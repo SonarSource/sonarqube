@@ -55,6 +55,7 @@ public class AnticipatedTransitionParser {
   private static List<AnticipatedTransition> mapBodyToAnticipatedTransitions(List<GsonAnticipatedTransition> anticipatedTransitions, String userUuid, String projectKey) {
     return anticipatedTransitions.stream()
       .map(anticipatedTransition -> new AnticipatedTransition(
+        null,
         projectKey,
         userUuid,
         RuleKey.parse(anticipatedTransition.ruleKey()),

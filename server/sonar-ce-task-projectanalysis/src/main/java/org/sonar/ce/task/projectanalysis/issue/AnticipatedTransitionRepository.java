@@ -25,5 +25,4 @@ import org.sonar.core.issue.AnticipatedTransition;
 
 public interface AnticipatedTransitionRepository {
   Collection<AnticipatedTransition> getAnticipatedTransitionByComponent(Component component);
-
 }

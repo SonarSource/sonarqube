@@ -101,6 +101,7 @@ public class AnticipatedTransitionParserTest {
   private List<AnticipatedTransition> transitionsExpectedFromTestFile() {
     return List.of(
       new AnticipatedTransition(
+        null,
         PROJECT_KEY,
         USER_UUID,
         RuleKey.parse("squid:S0001"),
@@ -111,6 +112,7 @@ public class AnticipatedTransitionParserTest {
         "wontfix",
         "comment1"),
       new AnticipatedTransition(
+        null,
         PROJECT_KEY,
         USER_UUID,
         RuleKey.parse("squid:S0002"),

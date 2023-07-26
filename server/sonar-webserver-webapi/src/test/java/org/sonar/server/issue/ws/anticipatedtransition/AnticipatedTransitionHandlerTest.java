@@ -97,6 +97,7 @@ public class AnticipatedTransitionHandlerTest {
 
   private AnticipatedTransition populateAnticipatedTransition() {
     return new AnticipatedTransition(
+      null,
       PROJECT_KEY,
       USER_UUID,
       RuleKey.of("repo", "squid:S0001"),

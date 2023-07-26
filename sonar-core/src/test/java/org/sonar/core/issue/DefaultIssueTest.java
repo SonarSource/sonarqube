@@ -286,13 +286,13 @@ public class DefaultIssueTest {
   @Test
   public void issueByDefault_shouldNotHaveAppliedAnticipatedTransitions() {
     DefaultIssue defaultIssue = new DefaultIssue();
-    assertThat(defaultIssue.hasAnticipatedTransitions()).isFalse();
+    assertThat(defaultIssue.getAnticipatedTransitionUuid()).isNotPresent();
   }
 
   @Test
   public void anticipatedTransitions_WhenSetTrue_shouldReturnTrue() {
     DefaultIssue defaultIssue = new DefaultIssue();
-    defaultIssue.setAnticipatedTransitions(true);
-    assertThat(defaultIssue.hasAnticipatedTransitions()).isTrue();
+    defaultIssue.setAnticipatedTransitionUuid("uuid");
+    assertThat(defaultIssue.getAnticipatedTransitionUuid()).isPresent();
   }
 }

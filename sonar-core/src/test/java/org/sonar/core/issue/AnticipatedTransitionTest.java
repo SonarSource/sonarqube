@@ -53,10 +53,12 @@ public class AnticipatedTransitionTest {
     Assertions.assertThat(anticipatedTransition.getMessage()).isEqualTo(anticipatedTransition2.getMessage());
     Assertions.assertThat(anticipatedTransition.getLineHash()).isEqualTo(anticipatedTransition2.getLineHash());
     Assertions.assertThat(anticipatedTransition.getRuleKey()).isEqualTo(anticipatedTransition2.getRuleKey());
+    Assertions.assertThat(anticipatedTransition.getUuid()).isEqualTo(anticipatedTransition2.getUuid());
   }
 
   private AnticipatedTransition getAnticipatedTransition() {
     return new AnticipatedTransition(
+      null,
       "projectKey",
       "userUuid",
       RuleKey.parse("rule:key"),

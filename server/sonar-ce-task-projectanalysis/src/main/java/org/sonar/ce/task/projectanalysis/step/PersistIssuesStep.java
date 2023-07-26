@@ -36,6 +36,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.BatchSession;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.issue.AnticipatedTransitionMapper;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
@@ -85,12 +86,13 @@ public class PersistIssuesStep implements ComputationStep {
 
       IssueMapper mapper = dbSession.getMapper(IssueMapper.class);
       IssueChangeMapper changeMapper = dbSession.getMapper(IssueChangeMapper.class);
+      AnticipatedTransitionMapper anticipatedTransitionMapper = dbSession.getMapper(AnticipatedTransitionMapper.class);
       while (issues.hasNext()) {
         DefaultIssue issue = issues.next();
         if (issue.isNew() || issue.isCopied()) {
           addedIssues.add(issue);
           if (addedIssues.size() >= ISSUE_BATCHING_SIZE) {
-            persistNewIssues(statistics, addedIssues, mapper, changeMapper);
+            persistNewIssues(statistics, addedIssues, mapper, changeMapper, anticipatedTransitionMapper);
             addedIssues.clear();
           }
         } else if (issue.isChanged()) {
@@ -113,7 +115,7 @@ public class PersistIssuesStep implements ComputationStep {
           }
         }
       }
-      persistNewIssues(statistics, addedIssues, mapper, changeMapper);
+      persistNewIssues(statistics, addedIssues, mapper, changeMapper, anticipatedTransitionMapper);
       persistUpdatedIssues(statistics, updatedIssues, mapper, changeMapper);
       persistNoLongerNewIssues(statistics, noLongerNewIssues, mapper);
       persistNewCodeIssuesToMigrate(statistics, newCodeIssuesToMigrate, mapper);
@@ -123,23 +125,22 @@ public class PersistIssuesStep implements ComputationStep {
     }
   }
 
-  private void persistNewIssues(IssueStatistics statistics, List<DefaultIssue> addedIssues, IssueMapper mapper, IssueChangeMapper changeMapper) {
-    if (addedIssues.isEmpty()) {
-      return;
-    }
+  private void persistNewIssues(IssueStatistics statistics, List<DefaultIssue> addedIssues,
+    IssueMapper mapper, IssueChangeMapper changeMapper, AnticipatedTransitionMapper anticipatedTransitionMapper) {
 
-    long now = system2.now();
-    addedIssues.forEach(i -> {
-      String ruleUuid = ruleRepository.getByKey(i.ruleKey()).getUuid();
-      IssueDto dto = IssueDto.toDtoForComputationInsert(i, ruleUuid, now);
+    final long now = system2.now();
+
+    addedIssues.forEach(addedIssue -> {
+      String ruleUuid = ruleRepository.getByKey(addedIssue.ruleKey()).getUuid();
+      IssueDto dto = IssueDto.toDtoForComputationInsert(addedIssue, ruleUuid, now);
       mapper.insert(dto);
-      if (isOnBranchUsingReferenceBranch() && i.isOnChangedLine()) {
+      if (isOnBranchUsingReferenceBranch() && addedIssue.isOnChangedLine()) {
         mapper.insertAsNewCodeOnReferenceBranch(NewCodeReferenceIssueDto.fromIssueDto(dto, now, uuidFactory));
       }
       statistics.inserts++;
+      issueStorage.insertChanges(changeMapper, addedIssue, uuidFactory);
+      addedIssue.getAnticipatedTransitionUuid().ifPresent(anticipatedTransitionMapper::delete);
     });
-
-    addedIssues.forEach(i -> issueStorage.insertChanges(changeMapper, i, uuidFactory));
   }
 
   private void persistUpdatedIssues(IssueStatistics statistics, List<DefaultIssue> updatedIssues, IssueMapper mapper, IssueChangeMapper changeMapper) {

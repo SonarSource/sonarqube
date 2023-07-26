@@ -30,6 +30,7 @@ import org.sonar.core.issue.tracking.Trackable;
 
 public class AnticipatedTransition implements Trackable {
 
+  private final String uuid;
   private final String projectKey;
   private final String transition;
   private final String userUuid;
@@ -41,6 +42,7 @@ public class AnticipatedTransition implements Trackable {
   private final RuleKey ruleKey;
 
   public AnticipatedTransition(
+    @Nullable String uuid,
     String projectKey,
     String userUuid,
     @Nullable RuleKey ruleKey,
@@ -50,6 +52,7 @@ public class AnticipatedTransition implements Trackable {
     @Nullable String lineHash,
     String transition,
     @Nullable String comment) {
+    this.uuid = uuid;
     this.projectKey = projectKey;
     this.transition = transition;
     this.userUuid = userUuid;
@@ -138,5 +141,9 @@ public class AnticipatedTransition implements Trackable {
   @Override
   public int hashCode() {
     return HashCodeBuilder.reflectionHashCode(this);
+  }
+
+  public String getUuid() {
+    return uuid;
   }
 }
