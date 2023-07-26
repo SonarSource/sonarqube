@@ -126,15 +126,13 @@ export default function MeasuresPanelPercentMeasure(props: Props) {
         )}
 
         {isPullRequest(branchLike) && (
-          <>
-            <GreySeparator className="sw-mt-4" />
-            <div className="sw-body-md sw-flex sw-items-center sw-mt-4">
-              <AfterMergeEstimate measures={measures} type={type} />
-              <LightLabel className="sw-ml-2">
-                {translate('component_measures.facet_category.overall_category.estimated')}
-              </LightLabel>
-            </div>
-          </>
+          <div className="sw-body-sm sw-flex sw-items-center sw-mt-4">
+            <AfterMergeEstimate measures={measures} type={type} />
+
+            <LightLabel className="sw-ml-2">
+              {translate('component_measures.facet_category.overall_category.estimated')}
+            </LightLabel>
+          </div>
         )}
       </>
     </MeasuresPanelCard>

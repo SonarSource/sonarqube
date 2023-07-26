@@ -42,7 +42,7 @@ export function AfterMergeEstimate({ className, measures, type }: AfterMergeEsti
 
   return (
     <div className={classNames(className, 'sw-flex sw-items-center')}>
-      <LightPrimary className="sw-heading-lg">
+      <LightPrimary className="sw-body-sm-highlight">
         {formatMeasure(measure.value, MetricType.Percent)}
       </LightPrimary>
     </div>
