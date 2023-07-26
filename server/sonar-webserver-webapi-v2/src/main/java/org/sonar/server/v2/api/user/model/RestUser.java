@@ -19,6 +19,7 @@
  */
 package org.sonar.server.v2.api.user.model;
 
+import java.util.List;
 import javax.annotation.Nullable;
 
 public record RestUser(
@@ -46,6 +47,8 @@ public record RestUser(
   @Nullable
   Integer groupsCount,
   @Nullable
-  Integer tokensCount
+  Integer tokensCount,
+  @Nullable
+  List<String> scmAccounts
 ) {
 }

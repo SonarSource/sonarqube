@@ -30,6 +30,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.model.RestPage;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
+import org.sonar.server.v2.api.user.model.RestUser;
 import org.sonar.server.v2.api.user.request.UsersSearchRestRequest;
 import org.sonar.server.v2.api.user.response.UsersSearchRestResponse;
 
@@ -96,5 +97,10 @@ public class DefaultUserController implements UserController {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
     userService.deactivate(login, anonymize);
+  }
+
+  @Override
+  public RestUser fetchUser(String login) {
+    return usersSearchResponseGenerator.toRestUser(userService.fetchUser(login));
   }
 }

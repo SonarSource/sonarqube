@@ -50,11 +50,11 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
 
   private List<RestUser> toUsersForResponse(List<UserSearchResult> userSearchResults) {
     return userSearchResults.stream()
-      .map(this::toUser)
+      .map(this::toRestUser)
       .toList();
   }
 
-  private RestUser toUser(UserSearchResult userSearchResult) {
+  public RestUser toRestUser(UserSearchResult userSearchResult) {
     UserDto userDto = userSearchResult.userDto();
 
     String login = userDto.getLogin();
@@ -70,6 +70,7 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
     String slLastConnectionDate = null;
     Integer groupSize = null;
     Integer tokensCount = null;
+    List<String> scmAccounts = null;
 
     if (userSession.isLoggedIn()) {
       avatar = userSearchResult.avatar().orElse(null);
@@ -85,6 +86,7 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
       slLastConnectionDate = toDateTime(userDto.getLastSonarlintConnectionDate());
       groupSize = userSearchResult.groups().size();
       tokensCount = userSearchResult.tokensCount();
+      scmAccounts = userSearchResult.userDto().getSortedScmAccounts();
     }
 
     return new RestUser(
@@ -101,8 +103,8 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
       sqLastConnectionDate,
       slLastConnectionDate,
       groupSize,
-      tokensCount
-    );
+      tokensCount,
+      scmAccounts);
   }
 
   private static String toDateTime(@Nullable Long dateTimeMs) {

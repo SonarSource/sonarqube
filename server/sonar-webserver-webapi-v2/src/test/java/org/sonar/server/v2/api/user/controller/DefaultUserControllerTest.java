@@ -36,6 +36,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.v2.api.ControllerTester;
+import org.sonar.server.v2.api.response.PageRestResponse;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
 import org.sonar.server.v2.api.user.model.RestUser;
 import org.sonar.server.v2.api.user.response.UsersSearchRestResponse;
@@ -44,6 +45,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -62,7 +64,8 @@ public class DefaultUserControllerTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   private final UserService userService = mock(UserService.class);
-  private final MockMvc mockMvc = ControllerTester.getMockMvc(new DefaultUserController(userSession, userService, new UsersSearchRestResponseGenerator(userSession)));
+  private final UsersSearchRestResponseGenerator responseGenerator = mock(UsersSearchRestResponseGenerator.class);
+  private final MockMvc mockMvc = ControllerTester.getMockMvc(new DefaultUserController(userSession, userService, responseGenerator));
 
   private static final Gson gson = new Gson();
 
@@ -71,8 +74,7 @@ public class DefaultUserControllerTest {
     when(userService.findUsers(any())).thenReturn(new SearchResults<>(List.of(), 0));
 
     mockMvc.perform(get(USER_ENDPOINT))
-      .andExpect(status().isOk())
-      .andReturn();
+      .andExpect(status().isOk());
 
     ArgumentCaptor<UsersSearchRequest> requestCaptor = ArgumentCaptor.forClass(UsersSearchRequest.class);
     verify(userService).findUsers(requestCaptor.capture());
@@ -96,8 +98,7 @@ public class DefaultUserControllerTest {
         .param("sonarLintLastConnectionDateTo", "2020-01-01T00:00:00+0100")
         .param("pageSize", "100")
         .param("pageIndex", "2"))
-      .andExpect(status().isOk())
-      .andReturn();
+      .andExpect(status().isOk());
 
     ArgumentCaptor<UsersSearchRequest> requestCaptor = ArgumentCaptor.forClass(UsersSearchRequest.class);
     verify(userService).findUsers(requestCaptor.capture());
@@ -109,25 +110,25 @@ public class DefaultUserControllerTest {
   @Test
   public void search_whenAdminParametersUsedButNotAdmin_shouldFail() throws Exception {
     mockMvc.perform(get(USER_ENDPOINT)
-        .param("sonarQubeLastConnectionDateFrom", "2020-01-01T00:00:00+0100"))
+      .param("sonarQubeLastConnectionDateFrom", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
         content().string("{\"message\":\"parameter sonarQubeLastConnectionDateFrom requires Administer System permission.\"}"));
 
     mockMvc.perform(get(USER_ENDPOINT)
-        .param("sonarQubeLastConnectionDateTo", "2020-01-01T00:00:00+0100"))
+      .param("sonarQubeLastConnectionDateTo", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
         content().string("{\"message\":\"parameter sonarQubeLastConnectionDateTo requires Administer System permission.\"}"));
 
     mockMvc.perform(get(USER_ENDPOINT)
-        .param("sonarLintLastConnectionDateFrom", "2020-01-01T00:00:00+0100"))
+      .param("sonarLintLastConnectionDateFrom", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
         content().string("{\"message\":\"parameter sonarLintLastConnectionDateFrom requires Administer System permission.\"}"));
 
     mockMvc.perform(get(USER_ENDPOINT)
-        .param("sonarLintLastConnectionDateTo", "2020-01-01T00:00:00+0100"))
+      .param("sonarLintLastConnectionDateTo", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
         content().string("{\"message\":\"parameter sonarLintLastConnectionDateTo requires Administer System permission.\"}"));
@@ -140,7 +141,10 @@ public class DefaultUserControllerTest {
     UserSearchResult user3 = generateUserSearchResult("user3", true, false, true, 1, 1);
     UserSearchResult user4 = generateUserSearchResult("user4", false, true, false, 0, 0);
     List<UserSearchResult> users = List.of(user1, user2, user3, user4);
-    when(userService.findUsers(any())).thenReturn(new SearchResults<>(users, users.size()));
+    SearchResults<UserSearchResult> searchResult = new SearchResults<>(users, users.size());
+    when(userService.findUsers(any())).thenReturn(searchResult);
+    List<RestUser> restUsers = List.of(toRestUser(user1), toRestUser(user2), toRestUser(user3), toRestUser(user4));
+    when(responseGenerator.toUsersForResponse(eq(searchResult.searchResults()), any())).thenReturn(new UsersSearchRestResponse(restUsers, new PageRestResponse(1, 50, 4)));
     userSession.logIn().setSystemAdministrator();
 
     MvcResult mvcResult = mockMvc.perform(get(USER_ENDPOINT))
@@ -149,7 +153,7 @@ public class DefaultUserControllerTest {
 
     UsersSearchRestResponse actualUsersSearchRestResponse = gson.fromJson(mvcResult.getResponse().getContentAsString(), UsersSearchRestResponse.class);
     assertThat(actualUsersSearchRestResponse.users())
-      .containsExactlyInAnyOrder(toRestUser(user1), toRestUser(user2), toRestUser(user3), toRestUser(user4));
+      .containsExactlyElementsOf(restUsers);
     assertThat(actualUsersSearchRestResponse.pageRestResponse().total()).isEqualTo(users.size());
 
   }
@@ -189,8 +193,8 @@ public class DefaultUserControllerTest {
       formatDateTime(userSearchResult.userDto().getLastConnectionDate()),
       formatDateTime(userSearchResult.userDto().getLastSonarlintConnectionDate()),
       userSearchResult.groups().size(),
-      userSearchResult.tokensCount()
-    );
+      userSearchResult.tokensCount(),
+      userSearchResult.userDto().getSortedScmAccounts());
   }
 
   @Test
@@ -272,5 +276,30 @@ public class DefaultUserControllerTest {
       .andExpect(status().isNoContent());
 
     verify(userService).deactivate("userToDelete", true);
+  }
+
+  @Test
+  public void fetchUser_whenUserServiceThrowsNotFoundException_returnsNotFound() throws Exception {
+    when(userService.fetchUser("userLogin")).thenThrow(new NotFoundException("Not found"));
+    mockMvc.perform(get(USER_ENDPOINT + "/userLogin"))
+      .andExpectAll(
+        status().isNotFound(),
+        content().json("{\"message\":\"Not found\"}")
+      );
+
+  }
+
+  @Test
+  public void fetchUser_whenUserExists_shouldReturnUser() throws Exception {
+    UserSearchResult user = generateUserSearchResult("user1", true, true, false, 2, 3);
+    RestUser restUser = toRestUser(user);
+    when(userService.fetchUser("userLogin")).thenReturn(user);
+    when(responseGenerator.toRestUser(user)).thenReturn(restUser);
+    MvcResult mvcResult = mockMvc.perform(get(USER_ENDPOINT + "/userLogin"))
+      .andExpect(status().isOk())
+      .andReturn();
+    RestUser responseUser = gson.fromJson(mvcResult.getResponse().getContentAsString(), RestUser.class);
+    assertThat(responseUser).isEqualTo(restUser);
+
   }
 }

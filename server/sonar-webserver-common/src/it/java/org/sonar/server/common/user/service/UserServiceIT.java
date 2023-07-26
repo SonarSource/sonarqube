@@ -21,6 +21,7 @@ package org.sonar.server.common.user.service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -419,6 +420,35 @@ public class UserServiceIT {
 
     verify(userDeactivator).deactivateUserWithAnonymization(any(), eq(user.getLogin()));
     verify(userDeactivator, never()).deactivateUser(any(), eq(user.getLogin()));
+  }
+
+  @Test
+  public void fetchUser_whenUserDoesntExist_shouldThrowNotFoundException() {
+    assertThatThrownBy(() -> userService.fetchUser("login"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User 'login' not found");
+  }
+
+  @Test
+  public void fetchUser_whenUserExists_shouldReturnUser() {
+    UserDto user = db.users().insertUser();
+    GroupDto group1 = db.users().insertGroup("group1");
+    GroupDto group2 = db.users().insertGroup("group2");
+    db.users().insertMember(group1, user);
+    db.users().insertMember(group2, user);
+
+    db.users().insertToken(user);
+    db.users().insertToken(user);
+
+    when(managedInstanceService.isUserManaged(any(), eq(user.getUuid()))).thenReturn(false);
+
+    UserSearchResult result = userService.fetchUser(user.getLogin());
+    UserDto resultUser = result.userDto();
+    Collection<String> resultGroups = result.groups();
+
+    assertThat(resultUser).usingRecursiveComparison().isEqualTo(user);
+    assertThat(resultGroups).containsExactlyInAnyOrder(group1.getName(), group2.getName());
+    assertThat(result.managed()).isFalse();
   }
 
   private void assertUserWithFilter(Function<UsersSearchRequest.Builder, UsersSearchRequest.Builder> query, String userLogin, boolean isExpectedToBeThere) {

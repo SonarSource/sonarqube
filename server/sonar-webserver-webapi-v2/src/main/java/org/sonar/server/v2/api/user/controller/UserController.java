@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import javax.validation.Valid;
 import org.sonar.server.v2.api.model.RestPage;
+import org.sonar.server.v2.api.user.model.RestUser;
 import org.sonar.server.v2.api.user.request.UsersSearchRestRequest;
 import org.sonar.server.v2.api.user.response.UsersSearchRestResponse;
 import org.springdoc.api.annotations.ParameterObject;
@@ -65,4 +66,20 @@ public interface UserController {
   void deactivate(
     @PathVariable("login") @Parameter(description = "The login of the user to delete.", required = true, in = ParameterIn.PATH) String login,
     @RequestParam(value = "anonymize", required = false, defaultValue = "false") @Parameter(description = "Anonymize user in addition to deactivating it.") Boolean anonymize);
+
+  @GetMapping(path = "/{login}")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Fetch a single user", description = """
+    Fetch a single user.
+    The following fields are only returned when user has Administer System permission or for logged-in in user :
+        'email'
+        'externalIdentity'
+        'externalProvider'
+        'groups'
+        'lastConnectionDate'
+        'sonarLintLastConnectionDate'
+        'tokensCount'
+      Field 'sonarqubeLastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.
+    """)
+  RestUser fetchUser(@PathVariable("login") @Parameter(description = "The login of the user to fetch.", required = true, in = ParameterIn.PATH) String login);
 }

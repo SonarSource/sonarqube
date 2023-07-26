@@ -108,15 +108,6 @@ public class UserService {
       .toList();
   }
 
-  private UserSearchResult toUserSearchResult(Collection<String> groups, int tokenCount, boolean managed, UserDto userDto) {
-    return new UserSearchResult(
-      userDto,
-      managed,
-      findAvatar(userDto),
-      groups,
-      tokenCount);
-  }
-
   private List<UserDto> findUsersAndSortByLogin(DbSession dbSession, UserQuery userQuery, int page, int pageSize) {
     return dbClient.userDao().selectUsers(dbSession, userQuery, page, pageSize)
       .stream()
@@ -145,5 +136,24 @@ public class UserService {
       dbSession.commit();
       return deactivatedUser;
     }
+  }
+
+  public UserSearchResult fetchUser(String login) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      UserDto userDto = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' not found", login);
+      Collection<String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, Set.of(login)).get(login);
+      int tokenCount = dbClient.userTokenDao().selectByUser(dbSession, userDto).size();
+      boolean isManaged = managedInstanceService.isUserManaged(dbSession, userDto.getUuid());
+      return toUserSearchResult(groups, tokenCount, isManaged, userDto);
+    }
+  }
+
+  private UserSearchResult toUserSearchResult(Collection<String> groups, int tokenCount, boolean managed, UserDto userDto) {
+    return new UserSearchResult(
+      userDto,
+      managed,
+      findAvatar(userDto),
+      groups,
+      tokenCount);
   }
 }

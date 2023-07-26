@@ -94,7 +94,8 @@ public class UsersSearchRestResponseGeneratorTest {
       toDateTime(userDto.getLastConnectionDate()),
       toDateTime(userDto.getLastSonarlintConnectionDate()),
       userSearchResult.groups().size(),
-      userSearchResult.tokensCount()
+      userSearchResult.tokensCount(),
+      userSearchResult.userDto().getSortedScmAccounts()
     );
   }
 
@@ -131,6 +132,7 @@ public class UsersSearchRestResponseGeneratorTest {
       null,
       null,
       null,
+      null,
       null
     );
   }
@@ -156,6 +158,7 @@ public class UsersSearchRestResponseGeneratorTest {
       userDto.getLogin(),
       userDto.getLogin(),
       userDto.getName(),
+      null,
       null,
       null,
       null,
