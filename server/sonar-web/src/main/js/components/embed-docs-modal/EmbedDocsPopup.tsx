@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ItemDivider, ItemHeader, ItemLink } from 'design-system';
+import { ItemDivider, ItemHeader, ItemLink, OpenNewTabIcon } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { getBaseUrl } from '../../helpers/system';
@@ -92,9 +92,10 @@ export function EmbedDocsPopup() {
       </DocItemLink>
       <ItemLink to="/web_api">{translate('api_documentation.page')}</ItemLink>
       <ItemDivider />
-      <DocItemLink to="https://community.sonarsource.com/">
+      <ItemLink to="https://community.sonarsource.com/">
+        <OpenNewTabIcon />
         {translate('docs.get_help')}
-      </DocItemLink>
+      </ItemLink>
       <ItemDivider />
       <ItemHeader id="stay_connected">{translate('docs.stay_connected')}</ItemHeader>
       <IconLink
