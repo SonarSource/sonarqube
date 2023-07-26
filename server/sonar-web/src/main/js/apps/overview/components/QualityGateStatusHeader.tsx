@@ -45,7 +45,11 @@ export default function QualityGateStatusHeader(props: Props) {
       <div className="sw-flex sw-flex-1 sw-justify-end">
         {failedConditionCount > 0 && (
           <TextError
-            text={translateWithParameters('overview.X_conditions_failed', failedConditionCount)}
+            text={
+              failedConditionCount === 1
+                ? translate('overview.1_condition_failed')
+                : translateWithParameters('overview.X_conditions_failed', failedConditionCount)
+            }
           />
         )}
       </div>

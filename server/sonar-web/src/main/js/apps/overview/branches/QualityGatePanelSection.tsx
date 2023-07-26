@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { Accordion, BasicSeparator, TextMuted } from 'design-system';
 import * as React from 'react';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
 import { isApplication } from '../../../types/component';
@@ -90,6 +91,22 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
     ? translateWithParameters('overview.quality_gate.show_project_conditions_x', qgStatus.name)
     : translateWithParameters('overview.quality_gate.hide_project_conditions_x', qgStatus.name);
 
+  const newCodeText =
+    newCodeFailedConditions.length === 1
+      ? translate('quality_gates.conditions.new_code_1')
+      : translateWithParameters(
+          'quality_gates.conditions.new_code_x',
+          newCodeFailedConditions.length.toString()
+        );
+
+  const overallText =
+    overallFailedConditions.length === 1
+      ? translate('quality_gates.conditions.overall_code_1')
+      : translateWithParameters(
+          'quality_gates.conditions.overall_code_x',
+          overallFailedConditions.length.toString()
+        );
+
   const renderFailedConditions = () => {
     return (
       <>
@@ -97,15 +114,12 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
           <>
             {showSectionTitles && (
               <>
-                <p className="sw-px-2 sw-py-3">
-                  {translateWithParameters(
-                    'quality_gates.conditions.new_code_x',
-                    newCodeFailedConditions.length.toString()
-                  )}
-                </p>
+                <p className="sw-px-2 sw-py-3">{newCodeText}</p>
+
                 <BasicSeparator />
               </>
             )}
+
             <QualityGateConditions
               component={qgStatus}
               branchLike={qgStatus.branchLike}
@@ -118,15 +132,12 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
           <>
             {showSectionTitles && (
               <>
-                <p className="sw-px-2 sw-py-3">
-                  {translateWithParameters(
-                    'quality_gates.conditions.overall_code_x',
-                    overallFailedConditions.length.toString()
-                  )}
-                </p>
+                <p className="sw-px-2 sw-py-3">{overallText}</p>
+
                 <BasicSeparator />
               </>
             )}
+
             <QualityGateConditions
               component={qgStatus}
               branchLike={qgStatus.branchLike}
@@ -149,26 +160,19 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
             header={
               <div className="sw-flex sw-flex-col sw-text-sm">
                 <span className="sw-body-sm-highlight">{qgStatus.name}</span>
+
                 {collapsed && newCodeFailedConditions.length > 0 && (
-                  <TextMuted
-                    text={translateWithParameters(
-                      'quality_gates.conditions.new_code_x',
-                      newCodeFailedConditions.length
-                    )}
-                  />
+                  <TextMuted text={newCodeText} />
                 )}
+
                 {collapsed && overallFailedConditions.length > 0 && (
-                  <TextMuted
-                    text={translateWithParameters(
-                      'quality_gates.conditions.overall_code_x',
-                      overallFailedConditions.length
-                    )}
-                  />
+                  <TextMuted text={overallText} />
                 )}
               </div>
             }
           >
             <BasicSeparator />
+
             {renderFailedConditions()}
           </Accordion>
           <BasicSeparator />

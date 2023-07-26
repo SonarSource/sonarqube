@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   Card,
   CoverageIndicator,
@@ -135,7 +136,9 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
             <ToggleButton onChange={(key) => selectTab(key)} options={tabs} value={tab} />
             {failingConditions > 0 && (
               <LightLabel className="sw-body-sm-highlight sw-ml-8">
-                {translateWithParameters('overview.X_conditions_failed', failingConditions)}
+                {failingConditions === 1
+                  ? translate('overview.1_condition_failed')
+                  : translateWithParameters('overview.X_conditions_failed', failingConditions)}
               </LightLabel>
             )}
           </div>
