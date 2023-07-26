@@ -57,8 +57,7 @@ const DEFAULT_USERS = [
     sonarQubeLastConnectionDate: '2023-06-27T17:08:59+0200',
     sonarLintLastConnectionDate: '2023-05-27T17:08:59+0200',
     email: 'alice.merveille@wonderland.com',
-    // groups: ['group1', 'group2', 'group3', 'group4'],
-    groupsCount: 4,
+    groupsCount: 2,
   }),
   mockRestUser({
     managed: false,
@@ -339,6 +338,7 @@ export default class UsersServiceMock {
 
   handleAddUserToGroup: typeof addUserToGroup = ({ name }) => {
     this.groups = this.groups.map((g) => (g.name === name ? { ...g, selected: true } : g));
+    this.users.find((u) => u.login === 'alice.merveille')!.groupsCount++;
     return this.reply({});
   };
 
@@ -354,6 +354,7 @@ export default class UsersServiceMock {
       }
       return g;
     });
+    this.users.find((u) => u.login === 'alice.merveille')!.groupsCount--;
     return isDefault
       ? Promise.reject({
           errors: [{ msg: 'Cannot remove Default group' }],

@@ -256,21 +256,6 @@ describe('in non managed mode', () => {
     expect(ui.dialogCreateUser.query()).not.toBeInTheDocument();
   });
 
-  it("should be able to see user's group", async () => {
-    const user = userEvent.setup();
-    renderUsersApp();
-
-    await act(async () =>
-      expect(await within(await ui.aliceRow.find()).findByText('group1')).toBeInTheDocument()
-    );
-    expect(within(ui.aliceRow.get()).queryByText('group4')).not.toBeInTheDocument();
-    expect(within(ui.aliceRow.get()).getByText('more_x.2')).toBeInTheDocument();
-    await user.click(within(ui.aliceRow.get()).getByText('more_x.2'));
-    expect(within(ui.aliceRow.get()).queryByText('more_x.2')).not.toBeInTheDocument();
-    expect(await within(ui.aliceRow.get()).findByText('group4')).toBeInTheDocument();
-    expect(ui.bobUpdateGroupButton.get()).toBeInTheDocument();
-  });
-
   it('should render all users', async () => {
     renderUsersApp();
 
@@ -297,34 +282,44 @@ describe('in non managed mode', () => {
   it('should be able to edit the groups of a user', async () => {
     const user = userEvent.setup();
     renderUsersApp();
+    expect(await within(await ui.aliceRow.find()).findByText('2')).toBeInTheDocument();
 
     await act(async () => user.click(await ui.aliceUpdateGroupButton.find()));
     expect(await ui.dialogGroups.find()).toBeInTheDocument();
 
     expect(ui.getGroups()).toHaveLength(2);
 
-    await user.click(await ui.allFilter.find());
+    await act(async () => user.click(await ui.allFilter.find()));
     expect(ui.getGroups()).toHaveLength(3);
 
-    await user.click(ui.unselectedFilter.get());
+    await act(() => user.click(ui.unselectedFilter.get()));
     expect(ui.reloadButton.query()).not.toBeInTheDocument();
-    await user.click(ui.getGroups()[0]);
+    await act(() => user.click(ui.getGroups()[0]));
     expect(await ui.reloadButton.find()).toBeInTheDocument();
+
+    await act(() => user.click(ui.selectedFilter.get()));
+    expect(ui.getGroups()).toHaveLength(3);
+
+    await act(() => user.click(ui.doneButton.get()));
+    expect(ui.dialogGroups.query()).not.toBeInTheDocument();
+    expect(await within(await ui.aliceRow.find()).findByText('3')).toBeInTheDocument();
+
+    await act(async () => user.click(await ui.aliceUpdateGroupButton.find()));
 
     await user.click(ui.selectedFilter.get());
-    expect(ui.getGroups()).toHaveLength(3);
-    expect(ui.reloadButton.query()).not.toBeInTheDocument();
-    await user.click(ui.getGroups()[1]);
+
+    await act(() => user.click(ui.getGroups()[1]));
     expect(await ui.reloadButton.find()).toBeInTheDocument();
-    await user.click(ui.reloadButton.get());
+    await act(() => user.click(ui.reloadButton.get()));
     expect(ui.getGroups()).toHaveLength(2);
 
-    await user.type(within(ui.dialogGroups.get()).getByRole('searchbox'), '3');
+    await act(() => user.type(within(ui.dialogGroups.get()).getByRole('searchbox'), '3'));
 
     expect(ui.getGroups()).toHaveLength(1);
 
     await act(() => user.click(ui.doneButton.get()));
     expect(ui.dialogGroups.query()).not.toBeInTheDocument();
+    expect(await within(await ui.aliceRow.find()).findByText('2')).toBeInTheDocument();
   });
 
   it('should update user', async () => {

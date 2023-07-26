@@ -23,8 +23,9 @@ import { ButtonIcon } from '../../../components/controls/buttons';
 import BulletListIcon from '../../../components/icons/BulletListIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import LegacyAvatar from '../../../components/ui/LegacyAvatar';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { IdentityProvider } from '../../../types/types';
+import GroupsForm from './GroupsForm';
 import TokensFormModal from './TokensFormModal';
 import UserActions from './UserActions';
 import UserListItemIdentity from './UserListItemIdentity';
@@ -43,6 +44,7 @@ export default function UserListItem(props: UserListItemProps) {
     name,
     login,
     managed,
+    groupsCount,
     tokensCount,
     avatar,
     sonarQubeLastConnectionDate,
@@ -51,6 +53,7 @@ export default function UserListItem(props: UserListItemProps) {
   } = user;
 
   const [openTokenForm, setOpenTokenForm] = React.useState(false);
+  const [openGroupForm, setOpenGroupForm] = React.useState(false);
 
   return (
     <tr>
@@ -74,8 +77,17 @@ export default function UserListItem(props: UserListItemProps) {
         <DateFromNow date={sonarLintLastConnectionDate ?? ''} hourPrecision />
       </td>
       <td className="thin nowrap text-middle">
-        {user.groupsCount}
-        {/* <UserGroups groups={user.groupsCount} manageProvider={manageProvider} user={user} /> */}
+        {groupsCount}
+        {manageProvider === undefined && (
+          <ButtonIcon
+            aria-label={translateWithParameters('users.update_users_groups', user.login)}
+            className="js-user-groups spacer-left button-small"
+            onClick={() => setOpenGroupForm(true)}
+            tooltip={translate('users.update_groups')}
+          >
+            <BulletListIcon />
+          </ButtonIcon>
+        )}
       </td>
       <td className="thin nowrap text-middle">
         {tokensCount}
@@ -96,6 +108,7 @@ export default function UserListItem(props: UserListItemProps) {
       )}
 
       {openTokenForm && <TokensFormModal onClose={() => setOpenTokenForm(false)} user={user} />}
+      {openGroupForm && <GroupsForm onClose={() => setOpenGroupForm(false)} user={user} />}
     </tr>
   );
 }
