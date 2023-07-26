@@ -103,6 +103,17 @@ public final class PurgeProperties {
         .category(CoreProperties.CATEGORY_HOUSEKEEPING)
         .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
         .index(6)
+        .build(),
+
+      PropertyDefinition.builder(PurgeConstants.DAYS_BEFORE_DELETING_ANTICIPATED_TRANSITIONS)
+        .defaultValue("30")
+        .name("Delete anticipated transitions after")
+        .description("Anticipated transitions that have not been applied for more than this number of days will be deleted.")
+        .type(PropertyType.INTEGER)
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_HOUSEKEEPING)
+        .subCategory(CoreProperties.SUBCATEGORY_GENERAL)
+        .index(7)
         .build());
   }
 }

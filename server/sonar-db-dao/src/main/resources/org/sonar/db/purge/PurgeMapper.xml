@@ -616,12 +616,17 @@
 
   <delete id="deleteReportSchedulesByPortfolioUuids">
     delete from report_schedules where portfolio_uuid in <foreach item="portfolioUuid" index="index" collection="portfolioUuids" open="("
-                                                               separator="," close=")">#{portfolioUuid, jdbcType=VARCHAR}</foreach>
+                                                                  separator="," close=")">#{portfolioUuid, jdbcType=VARCHAR}</foreach>
   </delete>
 
-    <delete id="deleteReportSubscriptionsByPortfolioUuids">
-    delete from report_subscriptions where portfolio_uuid in <foreach item="portfolioUuid" index="index" collection="portfolioUuids" open="("
-                                                               separator="," close=")">#{portfolioUuid, jdbcType=VARCHAR}</foreach>
+  <delete id="deleteReportSubscriptionsByPortfolioUuids">
+    delete from report_subscriptions where portfolio_uuid in <foreach item="portfolioUuid" index="index" collection="portfolioUuids"
+                                                                      open="("
+                                                                      separator="," close=")">#{portfolioUuid, jdbcType=VARCHAR}</foreach>
+  </delete>
+
+  <delete id="deleteAnticipatedTransitionsByProjectUuidAndCreationDate">
+    delete from anticipated_transitions where project_uuid = #{projectUuid,jdbcType=VARCHAR} and created_at &lt; #{createdAtBefore,jdbcType=BIGINT}
   </delete>
 </mapper>
 

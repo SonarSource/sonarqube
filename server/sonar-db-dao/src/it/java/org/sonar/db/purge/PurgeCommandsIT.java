@@ -22,6 +22,8 @@ package org.sonar.db.purge;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,6 +49,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.db.entity.EntityDto;
+import org.sonar.db.issue.AnticipatedTransitionDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
@@ -777,6 +780,28 @@ public class PurgeCommandsIT {
     purgeCommands.deleteReportSubscriptions(mainBranch.getUuid());
     assertThat(dbTester.getDbClient().reportSubscriptionDao().selectAll(dbTester.getSession())).hasSize(1)
       .extracting(r -> r.getUuid()).containsExactly("uuid2");
+  }
+
+  @Test
+  public void deleteAnticipatedTransitions_shouldDeleteAnticipatedTransitionsOlderThanDate() {
+    ComponentDto projectDto = ComponentTesting.newPrivateProjectDto();
+    //dates at the boundary of the deletion threshold set to 30 days
+    Instant okCreationDate = Instant.now().minus(29, ChronoUnit.DAYS);
+    Instant oldCreationDate = Instant.now().minus(31, ChronoUnit.DAYS);
+
+    dbTester.getDbClient().anticipatedTransitionDao().insert(dbTester.getSession(), getAnticipatedTransitionsDto(projectDto.uuid() + "okTransition", projectDto.uuid(), okCreationDate));
+    dbTester.getDbClient().anticipatedTransitionDao().insert(dbTester.getSession(), getAnticipatedTransitionsDto(projectDto.uuid() + "oldTransition", projectDto.uuid(), oldCreationDate));
+
+    underTest.deleteAnticipatedTransitions(projectDto.uuid(), Instant.now().minus(30, ChronoUnit.DAYS).toEpochMilli());
+
+    List<AnticipatedTransitionDto> anticipatedTransitionDtos = dbTester.getDbClient().anticipatedTransitionDao().selectByProjectUuid(dbTester.getSession(), projectDto.uuid());
+
+    assertThat(anticipatedTransitionDtos).hasSize(1);
+    assertThat(anticipatedTransitionDtos.get(0).getUuid()).isEqualTo(projectDto.uuid() + "okTransition");
+  }
+
+  private AnticipatedTransitionDto getAnticipatedTransitionsDto(String uuid, String projectUuid, Instant creationDate) {
+    return new AnticipatedTransitionDto(uuid, projectUuid, "userUuid", "transition", null, null, null, null, "rule:key", "filePath", creationDate.toEpochMilli());
   }
 
   private void addPermissions(EntityDto projectDto) {

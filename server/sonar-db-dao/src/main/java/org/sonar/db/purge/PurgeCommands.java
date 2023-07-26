@@ -489,7 +489,6 @@ class PurgeCommands {
     profiler.stop();
   }
 
-
   public void deleteReportSubscriptions(String rootUuid) {
     profiler.start("deleteReportSubscriptions (report_subscriptions)");
     purgeMapper.deleteReportSubscriptionsByBranchUuid(rootUuid);
@@ -497,5 +496,10 @@ class PurgeCommands {
     profiler.stop();
   }
 
-
+  public void deleteAnticipatedTransitions(String projectUuid, long createdAt) {
+    profiler.start("deleteAnticipatedTransitions (anticipated_transitions)");
+    purgeMapper.deleteAnticipatedTransitionsByProjectUuidAndCreationDate(projectUuid, createdAt);
+    session.commit();
+    profiler.stop();
+  }
 }

@@ -71,9 +71,11 @@ public class PurgeDao implements Dao {
     deleteOrphanIssues(mapper, rootUuid);
     purgeOldCeActivities(session, rootUuid, commands);
     purgeOldCeScannerContexts(session, rootUuid, commands);
+    deleteOldAnticipatedTransitions(commands, conf, conf.projectUuid());
 
     deleteOldDisabledComponents(commands, mapper, rootUuid);
     purgeStaleBranches(commands, conf, mapper, rootUuid);
+
   }
 
   private static void purgeStaleBranches(PurgeCommands commands, PurgeConfiguration conf, PurgeMapper mapper, String rootUuid) {
@@ -111,6 +113,11 @@ public class PurgeDao implements Dao {
     LOG.debug("<- Delete orphan issues");
     List<String> issueKeys = mapper.selectBranchOrphanIssues(rootUuid);
     deleteIssues(mapper, issueKeys);
+  }
+
+  private static void deleteOldAnticipatedTransitions(PurgeCommands commands, PurgeConfiguration purgeConfiguration, String projectUuid) {
+    LOG.debug("<- Delete Old Anticipated Transitions");
+    commands.deleteAnticipatedTransitions(projectUuid, purgeConfiguration.maxLiveDateOfAnticipatedTransitions().toEpochMilli());
   }
 
   private static void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper, PurgeListener listener) {

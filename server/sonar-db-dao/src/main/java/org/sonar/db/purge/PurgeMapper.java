@@ -184,4 +184,6 @@ public interface PurgeMapper {
   void deleteReportSchedulesByPortfolioUuids(@Param("portfolioUuids") List<String> portfolioUuids);
 
   void deleteReportSubscriptionsByPortfolioUuids(@Param("portfolioUuids") List<String> portfolioUuids);
+
+  void deleteAnticipatedTransitionsByProjectUuidAndCreationDate(@Param("projectUuid") String projectUuid, @Param("createdAtBefore") Long createdAtBefore);
 }

@@ -75,6 +75,7 @@ import org.sonar.db.dialect.Dialect;
 import org.sonar.db.event.EventComponentChangeDto;
 import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventTesting;
+import org.sonar.db.issue.AnticipatedTransitionDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.measure.LiveMeasureDto;
@@ -1834,6 +1835,31 @@ public class PurgeDaoIT {
     assertThat(scannerContextExists("RECENT")).isTrue();
   }
 
+  @Test
+  public void purge_old_anticipated_transitions() {
+    ProjectData project = db.components().insertPrivateProject();
+
+    //dates at the boundary of the deletion threshold set to 30 days
+    Date okCreationDate = DateUtils.addDays(new Date(), -29);
+    Date oldCreationDate = DateUtils.addDays(new Date(), -31);
+
+    dbClient.anticipatedTransitionDao().insert(dbSession, getAnticipatedTransitionsDto("okTransition", project.projectUuid(), okCreationDate));
+    dbClient.anticipatedTransitionDao().insert(dbSession, getAnticipatedTransitionsDto("oldTransition", project.projectUuid(), oldCreationDate));
+
+    underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, project.getMainBranchComponent().uuid(), project.projectUuid()), PurgeListener.EMPTY,
+      new PurgeProfiler());
+    dbSession.commit();
+
+    List<AnticipatedTransitionDto> anticipatedTransitionDtos = dbClient.anticipatedTransitionDao().selectByProjectUuid(dbSession, project.projectUuid());
+
+    assertThat(anticipatedTransitionDtos).hasSize(1);
+    assertThat(anticipatedTransitionDtos.get(0).getUuid()).isEqualTo("okTransition");
+  }
+
+  private AnticipatedTransitionDto getAnticipatedTransitionsDto(String uuid, String projectUuid, Date creationDate) {
+    return new AnticipatedTransitionDto(uuid, projectUuid, "userUuid", "transition", null, null, null, null, "rule:key", "filepath", creationDate.getTime());
+  }
+
   private Optional<CeActivityDto> selectActivity(String taskUuid) {
     return db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), taskUuid);
   }
@@ -2011,7 +2037,7 @@ public class PurgeDaoIT {
   }
 
   private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String rootUuid, String projectUuid, Set<String> disabledComponentUuids) {
-    return new PurgeConfiguration(rootUuid, projectUuid, 30, Optional.of(30), system2, disabledComponentUuids);
+    return new PurgeConfiguration(rootUuid, projectUuid, 30, Optional.of(30), system2, disabledComponentUuids, 30);
   }
 
   private Stream<String> uuidsOfAnalysesOfRoot(ComponentDto rootComponent) {
