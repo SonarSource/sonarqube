@@ -19,7 +19,13 @@
  */
 import { RuleDescriptionSection } from '../apps/coding-rules/rule';
 import { ComponentQualifier, Visibility } from './component';
-import { MessageFormatting } from './issues';
+import {
+  CleanCodeAttribute,
+  CleanCodeAttributeCategory,
+  MessageFormatting,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from './issues';
 import { NewCodeDefinitionType } from './new-code-definition';
 import { UserActive, UserBase } from './users';
 
@@ -247,6 +253,12 @@ export interface Issue {
   assigneeName?: string;
   author?: string;
   branch?: string;
+  cleanCodeAttributeCategory: CleanCodeAttributeCategory;
+  cleanCodeAttribute: CleanCodeAttribute;
+  impacts: Array<{
+    softwareQuality: SoftwareQuality;
+    severity: SoftwareImpactSeverity;
+  }>;
   codeVariants?: string[];
   comments?: IssueComment[];
   component: string;

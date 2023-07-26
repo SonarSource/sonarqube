@@ -52,6 +52,10 @@ type FacetName =
   | 'types';
 
 export function searchIssues(query: RequestData): Promise<RawIssuesResponse> {
+  // TODO: Remove this before final merge. Needed because backend sends an error
+  if (query.facets) {
+    query.facets = query.facets.replace(/cleanCodeAttributes/, '').replace(/impacts/, '');
+  }
   return getJSON('/api/issues/search', query).catch(throwGlobalError);
 }
 

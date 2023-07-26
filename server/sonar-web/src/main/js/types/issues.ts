@@ -30,12 +30,50 @@ export enum IssueType {
 }
 
 // Keep this enum in the correct order (most severe to least severe).
+export enum SoftwareImpactSeverity {
+  High = 'HIGH',
+  Medium = 'MEDIUM',
+  Low = 'LOW',
+}
+
 export enum IssueSeverity {
   Blocker = 'BLOCKER',
   Critical = 'CRITICAL',
   Major = 'MAJOR',
   Minor = 'MINOR',
   Info = 'INFO',
+}
+
+export enum CleanCodeAttributeCategory {
+  Consistent = 'CONSISTENT',
+  Intentional = 'INTENTIONAL',
+  Adaptable = 'ADAPTABLE',
+  Responsible = 'RESPONSIBLE',
+  Unclassified = 'UNCLASSIFIED',
+}
+
+export enum CleanCodeAttribute {
+  Clear = 'CLEAR',
+  Complete = 'COMPLETE',
+  Conventional = 'CONVENTIONAL',
+  Distinct = 'DISTINCT',
+  Efficient = 'EFFICIENT',
+  Focused = 'FOCUSED',
+  Formatted = 'FORMATTED',
+  Identifiable = 'IDENTIFIABLE',
+  Lawful = 'LAWFUL',
+  Logical = 'LOGICAL',
+  Modular = 'MODULAR',
+  Respectful = 'RESPECTFUL',
+  Tested = 'TESTED',
+  Trustworthy = 'TRUSTWORTHY',
+  Unclassified = 'UNCLASSIFIED',
+}
+
+export enum SoftwareQuality {
+  Security = 'SECURITY',
+  Reliability = 'RELIABILITY',
+  Maintainability = 'MAINTAINABILITY',
 }
 
 export enum IssueScope {
@@ -109,6 +147,12 @@ export interface RawIssue {
   tags?: string[];
   assignee?: string;
   author?: string;
+  cleanCodeAttributeCategory: CleanCodeAttributeCategory;
+  cleanCodeAttribute: CleanCodeAttribute;
+  impacts: Array<{
+    softwareQuality: SoftwareQuality;
+    severity: SoftwareImpactSeverity;
+  }>;
   codeVariants?: string[];
   comments?: Comment[];
   creationDate: string;

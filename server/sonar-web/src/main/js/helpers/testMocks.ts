@@ -26,7 +26,17 @@ import { Location, Router } from '../components/hoc/withRouter';
 import { AppState } from '../types/appstate';
 import { RuleRepository } from '../types/coding-rules';
 import { EditionKey } from '../types/editions';
-import { IssueScope, IssueSeverity, IssueStatus, IssueType, RawIssue } from '../types/issues';
+import {
+  CleanCodeAttribute,
+  CleanCodeAttributeCategory,
+  IssueScope,
+  IssueSeverity,
+  IssueStatus,
+  IssueType,
+  RawIssue,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../types/issues';
 import { Language } from '../types/languages';
 import { Notification } from '../types/notifications';
 import { DumpStatus, DumpTask } from '../types/project-dump';
@@ -302,6 +312,11 @@ export function mockRawIssue(withLocations = false, overrides: Partial<RawIssue>
     type: IssueType.CodeSmell,
     transitions: [],
     scope: IssueScope.Main,
+    cleanCodeAttributeCategory: CleanCodeAttributeCategory.Responsible,
+    cleanCodeAttribute: CleanCodeAttribute.Respectful,
+    impacts: [
+      { softwareQuality: SoftwareQuality.Maintainability, severity: SoftwareImpactSeverity.Medium },
+    ],
     ...overrides,
   };
 
@@ -350,6 +365,11 @@ export function mockIssue(withLocations = false, overrides: Partial<Issue> = {})
     textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
     transitions: [],
     type: 'BUG',
+    cleanCodeAttributeCategory: CleanCodeAttributeCategory.Responsible,
+    cleanCodeAttribute: CleanCodeAttribute.Respectful,
+    impacts: [
+      { softwareQuality: SoftwareQuality.Maintainability, severity: SoftwareImpactSeverity.Medium },
+    ],
   };
 
   const loc = mockFlowLocation;
