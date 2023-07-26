@@ -18,25 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { RestUser } from '../../../api/users';
 import ActionsDropdown, {
   ActionsDropdownDivider,
   ActionsDropdownItem,
 } from '../../../components/controls/ActionsDropdown';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { isUserActive } from '../../../types/users';
+import { RestUserDetailed, isUserActive } from '../../../types/users';
 import DeactivateForm from './DeactivateForm';
 import PasswordForm from './PasswordForm';
 import UserForm from './UserForm';
 
 interface Props {
-  isCurrentUser: boolean;
-  user: RestUser<'admin'>;
+  user: RestUserDetailed;
   manageProvider: string | undefined;
 }
 
 export default function UserActions(props: Props) {
-  const { isCurrentUser, user, manageProvider } = props;
+  const { user, manageProvider } = props;
 
   const [openForm, setOpenForm] = React.useState<string | undefined>(undefined);
 
@@ -90,11 +88,7 @@ export default function UserActions(props: Props) {
         <DeactivateForm onClose={() => setOpenForm(undefined)} user={user} />
       )}
       {openForm === 'password' && (
-        <PasswordForm
-          isCurrentUser={isCurrentUser}
-          onClose={() => setOpenForm(undefined)}
-          user={user}
-        />
+        <PasswordForm onClose={() => setOpenForm(undefined)} user={user} />
       )}
       {openForm === 'update' && <UserForm onClose={() => setOpenForm(undefined)} user={user} />}
     </>

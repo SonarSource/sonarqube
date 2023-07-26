@@ -272,6 +272,17 @@ export function post(url: string, data?: RequestData, bypassRedirect?: boolean):
   });
 }
 
+/**
+ * Shortcut to do a DELETE request
+ */
+export function deleteJSON(url: string, data?: RequestData): Promise<any> {
+  return request(url)
+    .setMethod('DELETE')
+    .setData(data)
+    .submit()
+    .then((response) => checkStatus(response));
+}
+
 function tryRequestAgain<T>(
   repeatAPICall: () => Promise<T>,
   tries: { max: number; slowThreshold: number },

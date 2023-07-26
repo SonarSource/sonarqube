@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { RestUser } from '../../../api/users';
 import { ButtonIcon } from '../../../components/controls/buttons';
 import BulletListIcon from '../../../components/icons/BulletListIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import LegacyAvatar from '../../../components/ui/LegacyAvatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { IdentityProvider } from '../../../types/types';
+import { RestUserDetailed } from '../../../types/users';
 import GroupsForm from './GroupsForm';
 import TokensFormModal from './TokensFormModal';
 import UserActions from './UserActions';
@@ -33,13 +33,12 @@ import UserScmAccounts from './UserScmAccounts';
 
 export interface UserListItemProps {
   identityProvider?: IdentityProvider;
-  isCurrentUser: boolean;
-  user: RestUser<'admin'>;
+  user: RestUserDetailed;
   manageProvider: string | undefined;
 }
 
 export default function UserListItem(props: UserListItemProps) {
-  const { identityProvider, user, manageProvider, isCurrentUser } = props;
+  const { identityProvider, user, manageProvider } = props;
   const {
     name,
     login,
@@ -103,7 +102,7 @@ export default function UserListItem(props: UserListItemProps) {
 
       {(manageProvider === undefined || !managed) && (
         <td className="thin nowrap text-right text-middle">
-          <UserActions isCurrentUser={isCurrentUser} user={user} manageProvider={manageProvider} />
+          <UserActions user={user} manageProvider={manageProvider} />
         </td>
       )}
 

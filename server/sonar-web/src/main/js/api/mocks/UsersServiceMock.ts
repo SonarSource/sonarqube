@@ -21,17 +21,15 @@
 import { isAfter, isBefore } from 'date-fns';
 import { cloneDeep, isEmpty, isUndefined, omitBy } from 'lodash';
 import { mockClusterSysInfo, mockIdentityProvider, mockRestUser } from '../../helpers/testMocks';
-import { IdentityProvider, Paging, SysInfoCluster } from '../../types/types';
-import { ChangePasswordResults, User } from '../../types/users';
+import { IdentityProvider, SysInfoCluster } from '../../types/types';
+import { ChangePasswordResults, RestUserDetailed, User } from '../../types/users';
 import { getSystemInfo } from '../system';
 import { addUserToGroup, removeUserFromGroup } from '../user_groups';
 import {
-  GetUsersParams,
-  RestUser,
   UserGroup,
   changePassword,
   createUser,
-  deactivateUser,
+  deleteUser,
   getIdentityProviders,
   getUserGroups,
   getUsers,
@@ -133,7 +131,7 @@ export default class UsersServiceMock {
     jest.mocked(addUserToGroup).mockImplementation(this.handleAddUserToGroup);
     jest.mocked(removeUserFromGroup).mockImplementation(this.handleRemoveUserFromGroup);
     jest.mocked(changePassword).mockImplementation(this.handleChangePassword);
-    jest.mocked(deactivateUser).mockImplementation(this.handleDeactivateUser);
+    jest.mocked(deleteUser).mockImplementation(this.handleDeactivateUser);
   }
 
   setIsManaged(managed: boolean) {
@@ -208,9 +206,7 @@ export default class UsersServiceMock {
     });
   };
 
-  handleGetUsers = (
-    data: GetUsersParams
-  ): Promise<{ pageRestResponse: Paging; users: RestUser<'admin'>[] }> => {
+  handleGetUsers: typeof getUsers<RestUserDetailed> = (data) => {
     let pageRestResponse = {
       pageIndex: 1,
       pageSize: 0,
@@ -240,7 +236,7 @@ export default class UsersServiceMock {
       sonarQubeLastConnectionDateTo: data.sonarQubeLastConnectionDateTo,
       sonarLintLastConnectionDateFrom: data.sonarLintLastConnectionDateFrom,
       sonarLintLastConnectionDateTo: data.sonarLintLastConnectionDateTo,
-    }) as RestUser<'admin'>[];
+    });
 
     return this.reply({
       pageRestResponse: {
@@ -373,7 +369,7 @@ export default class UsersServiceMock {
     return this.reply({});
   };
 
-  handleDeactivateUser: typeof deactivateUser = (data) => {
+  handleDeactivateUser: typeof deleteUser = (data) => {
     const index = this.users.findIndex((u) => u.login === data.login);
     const user = this.users.splice(index, 1)[0];
     user.active = false;

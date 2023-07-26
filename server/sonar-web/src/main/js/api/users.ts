@@ -18,9 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { throwGlobalError } from '../helpers/error';
-import { getJSON, HttpStatus, parseJSON, post, postJSON } from '../helpers/request';
+import { deleteJSON, getJSON, HttpStatus, parseJSON, post, postJSON } from '../helpers/request';
 import { IdentityProvider, Paging } from '../types/types';
-import { ChangePasswordResults, CurrentUser, HomePage, NoticeType, User } from '../types/users';
+import {
+  ChangePasswordResults,
+  CurrentUser,
+  HomePage,
+  NoticeType,
+  RestUserBase,
+  RestUserDetailed,
+  User,
+} from '../types/users';
 
 export function getCurrentUser(): Promise<CurrentUser> {
   return getJSON('/api/users/current', undefined, true);
@@ -53,17 +61,13 @@ export interface UserGroup {
   selected: boolean;
 }
 
-export interface UserGroupsParams {
+export function getUserGroups(data: {
   login: string;
   p?: number;
   ps?: number;
   q?: string;
   selected?: string;
-}
-
-export function getUserGroups(
-  data: UserGroupsParams
-): Promise<{ paging: Paging; groups: UserGroup[] }> {
+}): Promise<{ paging: Paging; groups: UserGroup[] }> {
   return getJSON('/api/users/groups', data);
 }
 
@@ -71,7 +75,7 @@ export function getIdentityProviders(): Promise<{ identityProviders: IdentityPro
   return getJSON('/api/users/identity_providers').catch(throwGlobalError);
 }
 
-export interface SearchUsersParams {
+export function searchUsers(data: {
   p?: number;
   ps?: number;
   q?: string;
@@ -80,14 +84,12 @@ export interface SearchUsersParams {
   lastConnectedBefore?: string;
   slLastConnectedAfter?: string;
   slLastConnectedBefore?: string;
-}
-
-export function searchUsers(data: SearchUsersParams): Promise<{ paging: Paging; users: User[] }> {
+}): Promise<{ paging: Paging; users: User[] }> {
   data.q = data.q || undefined;
   return getJSON('/api/users/search', data).catch(throwGlobalError);
 }
 
-export interface GetUsersParams {
+export function getUsers<T extends RestUserBase>(data: {
   q: string;
   active?: boolean;
   managed?: boolean;
@@ -97,81 +99,41 @@ export interface GetUsersParams {
   sonarLintLastConnectionDateTo?: string;
   pageSize?: number;
   pageIndex?: number;
-}
-
-export type Permission = 'admin' | 'anonymous' | 'user';
-
-export type RestUser<T extends Permission> = T extends 'admin'
-  ? {
-      id: string;
-      login: string;
-      name: string;
-      email: string;
-      active: boolean;
-      local: boolean;
-      externalProvider: string;
-      avatar: string;
-      managed: boolean;
-      externalLogin: string;
-      sonarQubeLastConnectionDate: string | null;
-      sonarLintLastConnectionDate: string | null;
-      scmAccounts: string[];
-      groupsCount: number;
-      tokensCount: number;
-    }
-  : T extends 'anonymous'
-  ? { id: string; login: string; name: string }
-  : {
-      id: string;
-      login: string;
-      name: string;
-      email: string;
-      active: boolean;
-      local: boolean;
-      externalProvider: string;
-      avatar: string;
-    };
-
-export function getUsers<T extends Permission>(
-  data: GetUsersParams
-): Promise<{ pageRestResponse: Paging; users: RestUser<T>[] }> {
+}): Promise<{ pageRestResponse: Paging; users: T[] }> {
   return getJSON('/api/v2/users', data).catch(throwGlobalError);
 }
 
-export interface CreateUserParams {
+export function createUser(data: {
   email?: string;
   local?: boolean;
   login: string;
   name: string;
   password?: string;
   scmAccount: string[];
-}
-
-export function createUser(data: CreateUserParams): Promise<void | Response> {
+}): Promise<void | Response> {
   return post('/api/users/create', data);
 }
 
-export interface UpdateUserParams {
+export function updateUser(data: {
   email?: string;
   login: string;
   name?: string;
   scmAccount: string[];
-}
-
-export function updateUser(data: UpdateUserParams): Promise<{ user: User }> {
+}): Promise<{ user: User }> {
   return postJSON('/api/users/update', {
     ...data,
     scmAccount: data.scmAccount.length > 0 ? data.scmAccount : '',
   });
 }
 
-export interface DeactivateUserParams {
+export function deleteUser({
+  login,
+  anonymize,
+}: {
   login: string;
   anonymize?: boolean;
-}
-
-export function deactivateUser(data: DeactivateUserParams): Promise<{ user: RestUser<'admin'> }> {
-  return postJSON('/api/users/deactivate', data).catch(throwGlobalError);
+}): Promise<{ user: RestUserDetailed }> {
+  return deleteJSON(`/api/v2/users/${login}`, { anonymize }).catch(throwGlobalError);
 }
 
 export function setHomePage(homepage: HomePage): Promise<void | Response> {

@@ -19,7 +19,6 @@
  */
 import { To } from 'react-router-dom';
 import { CompareResponse } from '../api/quality-profiles';
-import { RestUser } from '../api/users';
 import { RuleDescriptionSections } from '../apps/coding-rules/rule';
 import { Exporter, Profile, ProfileChangelogEvent } from '../apps/quality-profiles/types';
 import { LogsLevels } from '../apps/system/utils';
@@ -57,7 +56,7 @@ import {
   UserGroupMember,
   UserSelected,
 } from '../types/types';
-import { CurrentUser, LoggedInUser, User } from '../types/users';
+import { CurrentUser, LoggedInUser, RestUserDetailed, User } from '../types/users';
 
 export function mockAlmApplication(overrides: Partial<AlmApplication> = {}): AlmApplication {
   return {
@@ -681,7 +680,7 @@ export function mockUser(overrides: Partial<User> = {}): User {
   };
 }
 
-export function mockRestUser(overrides: Partial<RestUser<'admin'>> = {}): RestUser<'admin'> {
+export function mockRestUser(overrides: Partial<RestUserDetailed> = {}): RestUserDetailed {
   return {
     id: Math.random().toString(),
     login: 'buzz.aldrin',

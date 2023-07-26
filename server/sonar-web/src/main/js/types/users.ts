@@ -91,6 +91,30 @@ export interface UserBase {
   name?: string;
 }
 
+export interface RestUserBase {
+  id: string;
+  login: string;
+  name: string;
+}
+
+export interface RestUser extends RestUserBase {
+  email: string;
+  active: boolean;
+  local: boolean;
+  externalProvider: string;
+  avatar: string;
+}
+
+export interface RestUserDetailed extends RestUser {
+  managed: boolean;
+  externalLogin: string;
+  sonarQubeLastConnectionDate: string | null;
+  sonarLintLastConnectionDate: string | null;
+  scmAccounts: string[];
+  groupsCount: number;
+  tokensCount: number;
+}
+
 export const enum ChangePasswordResults {
   OldPasswordIncorrect = 'old_password_incorrect',
   NewPasswordSameAsOld = 'new_password_same_as_old',

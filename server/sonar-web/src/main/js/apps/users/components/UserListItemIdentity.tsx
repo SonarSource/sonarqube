@@ -20,15 +20,15 @@
 
 import { getTextColor } from 'design-system';
 import * as React from 'react';
-import { RestUser } from '../../../api/users';
 import { colors } from '../../../app/theme';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { IdentityProvider } from '../../../types/types';
+import { RestUserDetailed } from '../../../types/users';
 
 export interface Props {
   identityProvider?: IdentityProvider;
-  user: RestUser<'admin'>;
+  user: RestUserDetailed;
   manageProvider?: string;
 }
 

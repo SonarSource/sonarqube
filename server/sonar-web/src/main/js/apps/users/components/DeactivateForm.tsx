@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { useDeactivateUserMutation } from '../../../api/queries/users';
 import DocLink from '../../../components/common/DocLink';
 import Checkbox from '../../../components/controls/Checkbox';
 import Modal from '../../../components/controls/Modal';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useDeactivateUserMutation } from '../../../queries/users';
 import { UserActive } from '../../../types/users';
 
 export interface Props {

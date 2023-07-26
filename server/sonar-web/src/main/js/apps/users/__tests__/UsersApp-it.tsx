@@ -592,7 +592,6 @@ it('should render external identity Providers', async () => {
   renderUsersApp();
 
   await act(async () => expect(await ui.charlieRow.find()).toHaveTextContent(/ExternalTest/));
-  // logRoles(document.body);
   expect(await ui.denisRow.find()).toHaveTextContent(/test2: UnknownExternalProvider/);
 });
 

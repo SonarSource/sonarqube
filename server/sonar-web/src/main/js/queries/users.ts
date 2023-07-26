@@ -25,29 +25,27 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { range } from 'lodash';
-import {
-  CreateUserParams,
-  DeactivateUserParams,
-  GetUsersParams,
-  Permission,
-  RestUser,
-  UpdateUserParams,
-  createUser,
-  deactivateUser,
-  getUsers,
-  updateUser,
-} from '../users';
+import { createUser, deleteUser, getUsers, updateUser } from '../api/users';
+import { RestUserBase } from '../types/users';
 
-export function useUsersQueries<P extends Permission>(
-  getParams: Omit<GetUsersParams, 'pageSize' | 'pageIndex'>,
+const STALE_TIME = 4 * 60 * 1000;
+
+export function useUsersQueries<U extends RestUserBase>(
+  getParams: Omit<Parameters<typeof getUsers>[0], 'pageSize' | 'pageIndex'>,
   numberOfPages: number
 ) {
-  type QueryKey = ['user', 'list', number, Omit<GetUsersParams, 'pageSize' | 'pageIndex'>];
+  type QueryKey = [
+    'user',
+    'list',
+    number,
+    Omit<Parameters<typeof getUsers>[0], 'pageSize' | 'pageIndex'>
+  ];
   const results = useQueries({
     queries: range(1, numberOfPages + 1).map((page: number) => ({
       queryKey: ['user', 'list', page, getParams],
       queryFn: ({ queryKey: [_u, _l, page, getParams] }: QueryFunctionContext<QueryKey>) =>
-        getUsers<P>({ ...getParams, pageIndex: page }),
+        getUsers<U>({ ...getParams, pageIndex: page }),
+      staleTime: STALE_TIME,
     })),
   });
 
@@ -57,7 +55,7 @@ export function useUsersQueries<P extends Permission>(
       total: data?.pageRestResponse.total,
       isLoading: acc.isLoading || isLoading,
     }),
-    { users: [] as RestUser<P>[], total: 0, isLoading: false }
+    { users: [] as U[], total: 0, isLoading: false }
   );
 }
 
@@ -71,7 +69,7 @@ export function useCreateUserMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: CreateUserParams) => {
+    mutationFn: async (data: Parameters<typeof createUser>[0]) => {
       await createUser(data);
     },
     onSuccess() {
@@ -84,7 +82,7 @@ export function useUpdateUserMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: UpdateUserParams) => {
+    mutationFn: async (data: Parameters<typeof updateUser>[0]) => {
       await updateUser(data);
     },
     onSuccess() {
@@ -97,8 +95,8 @@ export function useDeactivateUserMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: DeactivateUserParams) => {
-      await deactivateUser(data);
+    mutationFn: async (data: Parameters<typeof deleteUser>[0]) => {
+      await deleteUser(data);
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['user', 'list'] });

@@ -20,7 +20,6 @@
 import { subDays, subSeconds } from 'date-fns';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useUsersQueries } from '../../api/queries/users';
 import { getIdentityProviders } from '../../api/users';
 import GitHubSynchronisationWarning from '../../app/components/GitHubSynchronisationWarning';
 import HelpTooltip from '../../components/controls/HelpTooltip';
@@ -33,7 +32,9 @@ import { Provider, useManageProvider } from '../../components/hooks/useManagePro
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { now, toISO8601WithOffsetString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
+import { useUsersQueries } from '../../queries/users';
 import { IdentityProvider } from '../../types/types';
+import { RestUserDetailed } from '../../types/users';
 import Header from './Header';
 import UsersList from './UsersList';
 import { USERS_ACTIVITY_OPTIONS, USER_INACTIVITY_DAYS_THRESHOLD } from './constants';
@@ -70,7 +71,7 @@ export default function UsersApp() {
     }
   }, [usersActivity]);
 
-  const { users, total, isLoading } = useUsersQueries<'admin'>(
+  const { users, total, isLoading } = useUsersQueries<RestUserDetailed>(
     {
       q: search,
       managed,

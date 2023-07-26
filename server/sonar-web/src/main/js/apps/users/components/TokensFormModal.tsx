@@ -19,15 +19,15 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { useInvalidateUsersList } from '../../../api/queries/users';
-import { RestUser } from '../../../api/users';
 import Modal from '../../../components/controls/Modal';
 import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
+import { useInvalidateUsersList } from '../../../queries/users';
+import { RestUserDetailed } from '../../../types/users';
 import TokensForm from './TokensForm';
 
 interface Props {
-  user: RestUser<'admin'>;
+  user: RestUserDetailed;
   onClose: () => void;
 }
 

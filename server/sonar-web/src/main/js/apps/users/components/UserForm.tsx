@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { useCreateUserMutation, useUpdateUserMutation } from '../../../api/queries/users';
-import { RestUser } from '../../../api/users';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { Button, ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { Alert } from '../../../components/ui/Alert';
@@ -28,12 +26,17 @@ import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsEx
 import { throwGlobalError } from '../../../helpers/error';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
+import { useCreateUserMutation, useUpdateUserMutation } from '../../../queries/users';
+import { RestUserDetailed } from '../../../types/users';
 import UserScmAccountInput from './UserScmAccountInput';
 
 export interface Props {
   onClose: () => void;
-  user?: RestUser<'admin'>;
+  user?: RestUserDetailed;
 }
+
+const BAD_REQUEST = 400;
+const INTERNAL_SERVER_ERROR = 500;
 
 export default function UserForm(props: Props) {
   const { user } = props;
@@ -41,15 +44,15 @@ export default function UserForm(props: Props) {
   const { mutate: createUser } = useCreateUserMutation();
   const { mutate: updateUser } = useUpdateUserMutation();
 
-  const [email, setEmail] = React.useState<string>(user?.email || '');
-  const [login, setLogin] = React.useState<string>(user?.login || '');
-  const [name, setName] = React.useState<string>(user?.name || '');
+  const [email, setEmail] = React.useState<string>(user?.email ?? '');
+  const [login, setLogin] = React.useState<string>(user?.login ?? '');
+  const [name, setName] = React.useState<string>(user?.name ?? '');
   const [password, setPassword] = React.useState<string>('');
-  const [scmAccounts, setScmAccounts] = React.useState<string[]>(user?.scmAccounts || []);
+  const [scmAccounts, setScmAccounts] = React.useState<string[]>(user?.scmAccounts ?? []);
   const [error, setError] = React.useState<string | undefined>(undefined);
 
   const handleError = (response: Response) => {
-    if (![400, 500].includes(response.status)) {
+    if (![BAD_REQUEST, INTERNAL_SERVER_ERROR].includes(response.status)) {
       throwGlobalError(response);
     } else {
       parseError(response).then((errorMsg) => setError(errorMsg), throwGlobalError);
@@ -74,9 +77,9 @@ export default function UserForm(props: Props) {
 
     updateUser(
       {
-        email: user!.local ? email : undefined,
+        email: user?.local ? email : undefined,
         login,
-        name: user!.local ? name : undefined,
+        name: user?.local ? name : undefined,
         scmAccount: scmAccounts,
       },
       { onSuccess: props.onClose, onError: handleError }
