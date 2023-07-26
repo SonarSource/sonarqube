@@ -23,17 +23,16 @@ import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
-import { isApplication } from '../../../types/component';
 import {
   QualityGateStatus,
   QualityGateStatusConditionEnhanced,
 } from '../../../types/quality-gates';
-import { CaycStatus, Component } from '../../../types/types';
 import QualityGateConditions from '../components/QualityGateConditions';
 
 export interface QualityGatePanelSectionProps {
   branchLike?: BranchLike;
-  component: Pick<Component, 'key' | 'qualifier' | 'qualityGate'>;
+  isApplication?: boolean;
+  isLastStatus?: boolean;
   qgStatus: QualityGateStatus;
 }
 
@@ -55,37 +54,19 @@ function splitConditions(
 }
 
 export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
-  const { component, qgStatus } = props;
+  const { isApplication, isLastStatus, qgStatus } = props;
   const [collapsed, setCollapsed] = React.useState(false);
 
   const toggle = React.useCallback(() => {
     setCollapsed(!collapsed);
   }, [collapsed]);
 
-  /*
-   * Show if project has failed conditions or that
-   * it is a single non-cayc project
-   * In the context of an App, only show projects with failed conditions
-   */
-  if (
-    !(
-      qgStatus.failedConditions.length > 0 ||
-      (qgStatus.caycStatus !== CaycStatus.Compliant && !isApplication(component.qualifier))
-    )
-  ) {
-    return null;
-  }
-
   const [newCodeFailedConditions, overallFailedConditions] = splitConditions(
     qgStatus.failedConditions
   );
 
-  const collapsible = isApplication(component.qualifier);
-
   const showSectionTitles =
-    isApplication(component.qualifier) ||
-    qgStatus.caycStatus !== CaycStatus.Compliant ||
-    (overallFailedConditions.length > 0 && newCodeFailedConditions.length > 0);
+    isApplication || (overallFailedConditions.length > 0 && newCodeFailedConditions.length > 0);
 
   const toggleLabel = collapsed
     ? translateWithParameters('overview.quality_gate.show_project_conditions_x', qgStatus.name)
@@ -151,7 +132,7 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
 
   return (
     <>
-      {collapsible ? (
+      {isApplication ? (
         <>
           <Accordion
             ariaLabel={toggleLabel}
@@ -175,7 +156,8 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
 
             {renderFailedConditions()}
           </Accordion>
-          <BasicSeparator />
+
+          {(!isLastStatus || collapsed) && <BasicSeparator />}
         </>
       ) : (
         renderFailedConditions()

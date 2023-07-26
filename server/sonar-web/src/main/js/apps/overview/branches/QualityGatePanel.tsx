@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { BasicSeparator, Card, DeferredSpinner } from 'design-system';
 import { flatMap } from 'lodash';
 import * as React from 'react';
@@ -49,18 +50,22 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
   const overallLevel = qgStatuses.map((s) => s.status).includes('ERROR') ? 'ERROR' : 'OK';
   const success = overallLevel === 'OK';
 
+  const failedQgStatuses = qgStatuses.filter((qgStatus) => qgStatus.failedConditions.length > 0);
+
   const overallFailedConditionsCount = qgStatuses.reduce(
     (acc, qgStatus) => acc + qgStatus.failedConditions.length,
     0
   );
 
-  const nonCaycProjectsInApp = isApplication(component.qualifier)
+  const isApp = isApplication(component.qualifier);
+
+  const nonCaycProjectsInApp = isApp
     ? qgStatuses
         .filter(({ caycStatus }) => caycStatus === CaycStatus.NonCompliant)
         .sort(({ name: a }, { name: b }) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
     : [];
 
-  const overCompliantCaycProjectsInApp = isApplication(component.qualifier)
+  const overCompliantCaycProjectsInApp = isApp
     ? qgStatuses
         .filter(({ caycStatus }) => caycStatus === CaycStatus.OverCompliant)
         .sort(({ name: a }, { name: b }) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
@@ -91,12 +96,12 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
 
               {!success && <BasicSeparator />}
 
-              {(overallFailedConditionsCount > 0 ||
-                qgStatuses.some(({ caycStatus }) => caycStatus !== CaycStatus.Compliant)) && (
+              {overallFailedConditionsCount > 0 && (
                 <div data-test="overview__quality-gate-conditions">
-                  {qgStatuses.map((qgStatus) => (
+                  {failedQgStatuses.map((qgStatus, qgStatusIdx) => (
                     <QualityGatePanelSection
-                      component={component}
+                      isApplication={isApp}
+                      isLastStatus={qgStatusIdx === failedQgStatuses.length - 1}
                       key={qgStatus.key}
                       qgStatus={qgStatus}
                     />
@@ -124,7 +129,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
 
       {qgStatuses.length === 1 &&
         qgStatuses[0].caycStatus === CaycStatus.NonCompliant &&
-        !isApplication(component.qualifier) && (
+        !isApp && (
           <Card className="sw-mt-4 sw-body-sm">
             <CleanAsYouCodeWarning component={component} />
           </Card>
@@ -132,7 +137,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
 
       {qgStatuses.length === 1 &&
         qgStatuses[0].caycStatus === CaycStatus.OverCompliant &&
-        !isApplication(component.qualifier) && (
+        !isApp && (
           <Card className="sw-mt-4 sw-body-sm">
             <CleanAsYouCodeWarningOverCompliant component={component} />
           </Card>
