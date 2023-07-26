@@ -31,6 +31,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.template.DefaultTemplates;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.usergroups.DefaultGroupFinder;
@@ -58,10 +59,11 @@ public class RegisterPermissionTemplates implements Startable {
     Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register permission templates");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<String> defaultProjectTemplate = dbClient.internalPropertiesDao().selectByKey(dbSession, DEFAULT_PROJECT_TEMPLATE);
-      if (!defaultProjectTemplate.isPresent()) {
-        PermissionTemplateDto defaultTemplate = getOrInsertDefaultTemplate(dbSession);
-        dbClient.internalPropertiesDao().save(dbSession, DEFAULT_PROJECT_TEMPLATE, defaultTemplate.getUuid());
+      String defaultOrganizationUuid = dbClient.organizationDao().getDefaultOrganization(dbSession).getUuid();
+      Optional<DefaultTemplates> defaultTemplates = dbClient.organizationDao().getDefaultTemplates(dbSession, defaultOrganizationUuid);
+      if (!defaultTemplates.isPresent()) {
+        PermissionTemplateDto defaultTemplate = getOrInsertDefaultTemplate(dbSession, defaultOrganizationUuid);
+        dbClient.organizationDao().setDefaultTemplates(dbSession, defaultOrganizationUuid, new DefaultTemplates().setProjectUuid(defaultTemplate.getUuid()));
         dbSession.commit();
       }
     }
@@ -74,10 +76,11 @@ public class RegisterPermissionTemplates implements Startable {
     // nothing to do
   }
 
-  private PermissionTemplateDto getOrInsertDefaultTemplate(DbSession dbSession) {
+  private PermissionTemplateDto getOrInsertDefaultTemplate(DbSession dbSession, String defaultOrganizationUuid) {
     PermissionTemplateDto template = new PermissionTemplateDto()
       .setName("Default template")
       .setUuid(uuidFactory.create())
+      .setOrganizationUuid(defaultOrganizationUuid)
       .setDescription("This permission template will be used as default when no other permission configuration is available")
       .setCreatedAt(new Date(system2.now()))
       .setUpdatedAt(new Date(system2.now()));

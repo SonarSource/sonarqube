@@ -57,13 +57,17 @@ public class PopulateInitialSchema extends DataChange {
 
   @Override
   public void execute(Context context) throws SQLException {
+    String organizationUuid = uuidFactory.create();
     String adminUserUuid = insertAdminUser(context);
-    Groups groups = insertGroups(context);
+    Groups groups = insertGroups(context, organizationUuid);
     String defaultQGUuid = insertQualityGate(context);
-    insertInternalProperty(context);
+    insertOrganization(context, organizationUuid, groups, defaultQGUuid);
+    insertOrgQualityGate(context, organizationUuid, defaultQGUuid);
+    insertInternalProperty(context, organizationUuid);
     insertProperties(context, defaultQGUuid);
-    insertGroupRoles(context, groups);
+    insertGroupRoles(context, organizationUuid, groups);
     insertGroupUsers(context, adminUserUuid, groups);
+    insertOrganizationMember(context, adminUserUuid, organizationUuid);
   }
 
   private String insertAdminUser(Context context) throws SQLException {
@@ -79,7 +83,7 @@ public class PopulateInitialSchema extends DataChange {
       .setString(2, ADMIN_USER)
       .setBoolean(3, true)
       .setString(4, ADMIN_CRYPTED_PASSWORD)
-      .setBoolean(5, false)
+      .setBoolean(5, true)
       .setBoolean(6, true)
       .setBoolean(7, true)
       .setLong(8, now)
@@ -93,12 +97,18 @@ public class PopulateInitialSchema extends DataChange {
     return requireNonNull(res);
   }
 
-  private void insertInternalProperty(Context context) throws SQLException {
+  private void insertInternalProperty(Context context, String organizationUuid) throws SQLException {
     String tableName = "internal_properties";
     truncateTable(context, tableName);
 
     long now = system2.now();
     Upsert upsert = context.prepareUpsert(createInsertStatement(tableName, "kee", "is_empty", "text_value", "created_at"));
+    upsert
+      .setString(1, "organization.default")
+      .setBoolean(2, false)
+      .setString(3, organizationUuid)
+      .setLong(4, now)
+      .addBatch();
     upsert
       .setString(1, "installation.date")
       .setBoolean(2, false)
@@ -152,26 +162,28 @@ public class PopulateInitialSchema extends DataChange {
       .commit();
   }
 
-  private Groups insertGroups(Context context) throws SQLException {
+  private Groups insertGroups(Context context, String organizationUuid) throws SQLException {
     truncateTable(context, "groups");
 
     Date now = new Date(system2.now());
     Upsert upsert = context.prepareUpsert(createInsertStatement(
       "groups",
-      "uuid", "name", "description", "created_at", "updated_at"));
+      "uuid", "organization_uuid", "name", "description", "created_at", "updated_at"));
     upsert
       .setString(1, uuidFactory.create())
-      .setString(2, ADMINS_GROUP)
-      .setString(3, "System administrators")
-      .setDate(4, now)
+      .setString(2, organizationUuid)
+      .setString(3, ADMINS_GROUP)
+      .setString(4, "System administrators")
       .setDate(5, now)
+      .setDate(6, now)
       .addBatch();
     upsert
       .setString(1, uuidFactory.create())
-      .setString(2, USERS_GROUP)
-      .setString(3, "Every authenticated user automatically belongs to this group")
-      .setDate(4, now)
+      .setString(2, organizationUuid)
+      .setString(3, USERS_GROUP)
+      .setString(4, "Every authenticated user automatically belongs to this group")
       .setDate(5, now)
+      .setDate(6, now)
       .addBatch();
     upsert
       .execute()
@@ -206,22 +218,24 @@ public class PopulateInitialSchema extends DataChange {
   private record Groups(String adminGroupUuid, String userGroupUuid) {
   }
 
-  private void insertGroupRoles(Context context, Groups groups) throws SQLException {
+  private void insertGroupRoles(Context context, String organizationUuid, Groups groups) throws SQLException {
     truncateTable(context, "group_roles");
 
-    Upsert upsert = context.prepareUpsert(createInsertStatement("group_roles", "uuid","group_uuid", "role"));
+    Upsert upsert = context.prepareUpsert(createInsertStatement("group_roles", "uuid", "organization_uuid", "group_uuid", "role"));
     for (String adminRole : ADMIN_ROLES) {
       upsert
         .setString(1, uuidFactory.create())
-        .setString(2, groups.adminGroupUuid())
-        .setString(3, adminRole)
+        .setString(2, organizationUuid)
+        .setString(3, groups.adminGroupUuid())
+        .setString(4, adminRole)
         .addBatch();
     }
     for (String anyoneRole : Arrays.asList("scan", "provisioning")) {
       upsert
         .setString(1, uuidFactory.create())
-        .setString(2, groups.userGroupUuid())
-        .setString(3, anyoneRole)
+        .setString(2, organizationUuid)
+        .setString(3, groups.userGroupUuid())
+        .setString(4, anyoneRole)
         .addBatch();
     }
     upsert
@@ -244,6 +258,46 @@ public class PopulateInitialSchema extends DataChange {
     upsert
       .execute()
       .commit();
+  }
+
+  private void insertOrganization(Context context, String organizationUuid, Groups groups, String defaultQGUuid) throws SQLException {
+    truncateTable(context, "organizations");
+
+    long now = system2.now();
+    context.prepareUpsert("insert into organizations " +
+                    "(uuid, kee, name, guarded, new_project_private, default_group_uuid, default_quality_gate_uuid, subscription, created_at, updated_at)" +
+                    " values " +
+                    "(?, 'default-organization', 'Default Organization', ?, ?, ?, ?, 'SONARQUBE', ?, ?)")
+            .setString(1, organizationUuid)
+            .setBoolean(2, true)
+            .setBoolean(3, false)
+            .setString(4, groups.userGroupUuid())
+            .setString(5, defaultQGUuid)
+            .setLong(6, now)
+            .setLong(7, now)
+            .execute()
+            .commit();
+  }
+
+  private void insertOrgQualityGate(Context context, String organizationUuid, String defaultQGUuid) throws SQLException {
+    truncateTable(context, "org_quality_gates");
+
+    context.prepareUpsert(createInsertStatement("org_quality_gates", "uuid", "organization_uuid", "quality_gate_uuid"))
+            .setString(1, uuidFactory.create())
+            .setString(2, organizationUuid)
+            .setString(3, defaultQGUuid)
+            .execute()
+            .commit();
+  }
+
+  private static void insertOrganizationMember(Context context, String adminUserUuid, String organizationUuid) throws SQLException {
+    truncateTable(context, "organization_members");
+
+    context.prepareUpsert(createInsertStatement("organization_members", "organization_uuid", "user_uuid"))
+            .setString(1, organizationUuid)
+            .setString(2, adminUserUuid)
+            .execute()
+            .commit();
   }
 
   private static void truncateTable(Context context, String table) throws SQLException {
