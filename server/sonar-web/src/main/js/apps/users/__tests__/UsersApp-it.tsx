@@ -78,7 +78,9 @@ const ui = {
   }),
   aliceRowWithLocalBadge: byRole('row', {
     name: (accessibleName) =>
-      accessibleName.startsWith('AM Alice Merveille alice.merveille local '),
+      accessibleName.startsWith(
+        'AM Alice Merveille alice.merveille alice.merveille@wonderland.com local '
+      ),
   }),
   bobRow: byRole('row', {
     name: (accessibleName) => accessibleName.startsWith('BM Bob Marley bob.marley '),
@@ -336,8 +338,9 @@ describe('in non managed mode', () => {
     expect(await ui.dialogUpdateUser.find()).toBeInTheDocument();
 
     expect(ui.userNameInput.get()).toHaveValue('Alice Merveille');
-    expect(ui.emailInput.get()).toHaveValue('');
+    expect(ui.emailInput.get()).toHaveValue('alice.merveille@wonderland.com');
     await user.type(ui.userNameInput.get(), '1');
+    await user.clear(ui.emailInput.get());
     await user.type(ui.emailInput.get(), 'test@test.com');
     await act(() => user.click(ui.updateButton.get()));
     expect(ui.dialogUpdateUser.query()).not.toBeInTheDocument();
@@ -594,6 +597,7 @@ it('should render external identity Providers', async () => {
   renderUsersApp();
 
   await act(async () => expect(await ui.charlieRow.find()).toHaveTextContent(/ExternalTest/));
+  // logRoles(document.body);
   expect(await ui.denisRow.find()).toHaveTextContent(/test2: UnknownExternalProvider/);
 });
 

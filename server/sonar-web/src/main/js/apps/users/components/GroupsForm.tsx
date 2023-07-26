@@ -21,7 +21,7 @@ import { find, without } from 'lodash';
 import * as React from 'react';
 import { useInvalidateUsersList } from '../../../api/queries/users';
 import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
-import { UserGroup, getUserGroups } from '../../../api/users';
+import { RestUser, UserGroup, getUserGroups } from '../../../api/users';
 import Modal from '../../../components/controls/Modal';
 import SelectList, {
   SelectListFilter,
@@ -29,11 +29,10 @@ import SelectList, {
 } from '../../../components/controls/SelectList';
 import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
-import { User } from '../../../types/users';
 
 interface Props {
   onClose: () => void;
-  user: User;
+  user: RestUser<'admin'>;
 }
 
 export default function GroupsForm(props: Props) {

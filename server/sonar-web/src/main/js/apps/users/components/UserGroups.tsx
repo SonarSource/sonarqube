@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { RestUser } from '../../../api/users';
 import { ButtonIcon, ButtonLink } from '../../../components/controls/buttons';
 import BulletListIcon from '../../../components/icons/BulletListIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { User } from '../../../types/users';
 import GroupsForm from './GroupsForm';
 
 interface Props {
   groups: string[];
-  user: User;
+  user: RestUser<'admin'>;
   manageProvider: string | undefined;
 }
 

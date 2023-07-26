@@ -87,6 +87,57 @@ export function searchUsers(data: SearchUsersParams): Promise<{ paging: Paging; 
   return getJSON('/api/users/search', data).catch(throwGlobalError);
 }
 
+export interface GetUsersParams {
+  q: string;
+  active?: boolean;
+  managed?: boolean;
+  sonarQubeLastConnectionDateFrom?: string;
+  sonarQubeLastConnectionDateTo?: string;
+  sonarLintLastConnectionDateFrom?: string;
+  sonarLintLastConnectionDateTo?: string;
+  pageSize?: number;
+  pageIndex?: number;
+}
+
+export type Permission = 'admin' | 'anonymous' | 'user';
+
+export type RestUser<T extends Permission> = T extends 'admin'
+  ? {
+      id: string;
+      login: string;
+      name: string;
+      email: string;
+      active: boolean;
+      local: boolean;
+      externalProvider: string;
+      avatar: string;
+      managed: boolean;
+      externalLogin: string;
+      sonarQubeLastConnectionDate: string | null;
+      sonarLintLastConnectionDate: string | null;
+      scmAccounts: string[];
+      groupsCount: number;
+      tokensCount: number;
+    }
+  : T extends 'anonymous'
+  ? { id: string; login: string; name: string }
+  : {
+      id: string;
+      login: string;
+      name: string;
+      email: string;
+      active: boolean;
+      local: boolean;
+      externalProvider: string;
+      avatar: string;
+    };
+
+export function getUsers<T extends Permission>(
+  data: GetUsersParams
+): Promise<{ pageRestResponse: Paging; users: RestUser<T>[] }> {
+  return getJSON('/api/v2/users', data).catch(throwGlobalError);
+}
+
 export interface CreateUserParams {
   email?: string;
   local?: boolean;
@@ -119,7 +170,7 @@ export interface DeactivateUserParams {
   anonymize?: boolean;
 }
 
-export function deactivateUser(data: DeactivateUserParams): Promise<{ user: User }> {
+export function deactivateUser(data: DeactivateUserParams): Promise<{ user: RestUser<'admin'> }> {
   return postJSON('/api/users/deactivate', data).catch(throwGlobalError);
 }
 

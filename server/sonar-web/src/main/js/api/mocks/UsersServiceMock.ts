@@ -20,19 +20,21 @@
 
 import { isAfter, isBefore } from 'date-fns';
 import { cloneDeep, isEmpty, isUndefined, omitBy } from 'lodash';
-import { mockClusterSysInfo, mockIdentityProvider, mockUser } from '../../helpers/testMocks';
+import { mockClusterSysInfo, mockIdentityProvider, mockRestUser } from '../../helpers/testMocks';
 import { IdentityProvider, Paging, SysInfoCluster } from '../../types/types';
 import { ChangePasswordResults, User } from '../../types/users';
 import { getSystemInfo } from '../system';
 import { addUserToGroup, removeUserFromGroup } from '../user_groups';
 import {
+  GetUsersParams,
+  RestUser,
   UserGroup,
   changePassword,
   createUser,
   deactivateUser,
   getIdentityProviders,
   getUserGroups,
-  searchUsers,
+  getUsers,
   updateUser,
 } from '../users';
 
@@ -41,48 +43,50 @@ jest.mock('../user_groups');
 jest.mock('../system');
 
 const DEFAULT_USERS = [
-  mockUser({
+  mockRestUser({
     managed: true,
     login: 'bob.marley',
     name: 'Bob Marley',
-    lastConnectionDate: '2023-06-27T17:08:59+0200',
+    sonarQubeLastConnectionDate: '2023-06-27T17:08:59+0200',
     sonarLintLastConnectionDate: '2023-06-27T17:08:59+0200',
   }),
-  mockUser({
+  mockRestUser({
     managed: false,
     login: 'alice.merveille',
     name: 'Alice Merveille',
-    lastConnectionDate: '2023-06-27T17:08:59+0200',
+    sonarQubeLastConnectionDate: '2023-06-27T17:08:59+0200',
     sonarLintLastConnectionDate: '2023-05-27T17:08:59+0200',
-    groups: ['group1', 'group2', 'group3', 'group4'],
+    email: 'alice.merveille@wonderland.com',
+    // groups: ['group1', 'group2', 'group3', 'group4'],
+    groupsCount: 4,
   }),
-  mockUser({
+  mockRestUser({
     managed: false,
     local: false,
     login: 'charlie.cox',
     name: 'Charlie Cox',
-    lastConnectionDate: '2023-06-25T17:08:59+0200',
+    sonarQubeLastConnectionDate: '2023-06-25T17:08:59+0200',
     sonarLintLastConnectionDate: '2023-06-20T12:10:59+0200',
     externalProvider: 'test',
-    externalIdentity: 'ExternalTest',
+    externalLogin: 'ExternalTest',
   }),
-  mockUser({
+  mockRestUser({
     managed: true,
     local: false,
     externalProvider: 'test2',
-    externalIdentity: 'UnknownExternalProvider',
+    externalLogin: 'UnknownExternalProvider',
     login: 'denis.villeneuve',
     name: 'Denis Villeneuve',
-    lastConnectionDate: '2023-06-20T15:08:59+0200',
+    sonarQubeLastConnectionDate: '2023-06-20T15:08:59+0200',
     sonarLintLastConnectionDate: '2023-05-25T10:08:59+0200',
   }),
-  mockUser({
+  mockRestUser({
     managed: true,
     login: 'eva.green',
     name: 'Eva Green',
-    lastConnectionDate: '2023-05-27T17:08:59+0200',
+    sonarQubeLastConnectionDate: '2023-05-27T17:08:59+0200',
   }),
-  mockUser({
+  mockRestUser({
     managed: false,
     login: 'franck.grillo',
     name: 'Franck Grillo',
@@ -123,7 +127,7 @@ export default class UsersServiceMock {
   constructor() {
     jest.mocked(getSystemInfo).mockImplementation(this.handleGetSystemInfo);
     jest.mocked(getIdentityProviders).mockImplementation(this.handleGetIdentityProviders);
-    jest.mocked(searchUsers).mockImplementation((p) => this.handleSearchUsers(p));
+    jest.mocked(getUsers).mockImplementation((p) => this.handleGetUsers(p));
     jest.mocked(createUser).mockImplementation(this.handleCreateUser);
     jest.mocked(updateUser).mockImplementation(this.handleUpdateUser);
     jest.mocked(getUserGroups).mockImplementation(this.handleGetUserGroups);
@@ -137,21 +141,21 @@ export default class UsersServiceMock {
     this.isManaged = managed;
   }
 
-  getFilteredUsers = (filterParams: {
-    managed: boolean;
+  getFilteredRestUsers = (filterParams: {
     q: string;
-    lastConnectedAfter?: string;
-    lastConnectedBefore?: string;
-    slLastConnectedAfter?: string;
-    slLastConnectedBefore?: string;
+    managed?: boolean;
+    sonarQubeLastConnectionDateFrom?: string;
+    sonarQubeLastConnectionDateTo?: string;
+    sonarLintLastConnectionDateFrom?: string;
+    sonarLintLastConnectionDateTo?: string;
   }) => {
     const {
       managed,
       q,
-      lastConnectedAfter,
-      lastConnectedBefore,
-      slLastConnectedAfter,
-      slLastConnectedBefore,
+      sonarQubeLastConnectionDateFrom,
+      sonarQubeLastConnectionDateTo,
+      sonarLintLastConnectionDateFrom,
+      sonarLintLastConnectionDateTo,
     } = filterParams;
 
     return this.users.filter((user) => {
@@ -164,33 +168,39 @@ export default class UsersServiceMock {
       }
 
       if (
-        lastConnectedAfter &&
-        (user.lastConnectionDate === undefined ||
-          isBefore(new Date(user.lastConnectionDate), new Date(lastConnectedAfter)))
+        sonarQubeLastConnectionDateFrom &&
+        (user.sonarQubeLastConnectionDate === null ||
+          isBefore(
+            new Date(user.sonarQubeLastConnectionDate),
+            new Date(sonarQubeLastConnectionDateFrom)
+          ))
       ) {
         return false;
       }
 
       if (
-        lastConnectedBefore &&
-        user.lastConnectionDate !== undefined &&
-        isAfter(new Date(user.lastConnectionDate), new Date(lastConnectedBefore))
+        sonarQubeLastConnectionDateTo &&
+        user.sonarQubeLastConnectionDate &&
+        isAfter(new Date(user.sonarQubeLastConnectionDate), new Date(sonarQubeLastConnectionDateTo))
       ) {
         return false;
       }
 
       if (
-        slLastConnectedAfter &&
-        (user.sonarLintLastConnectionDate === undefined ||
-          isBefore(new Date(user.sonarLintLastConnectionDate), new Date(slLastConnectedAfter)))
+        sonarLintLastConnectionDateFrom &&
+        (user.sonarLintLastConnectionDate === null ||
+          isBefore(
+            new Date(user.sonarLintLastConnectionDate),
+            new Date(sonarLintLastConnectionDateFrom)
+          ))
       ) {
         return false;
       }
 
       if (
-        slLastConnectedBefore &&
-        user.sonarLintLastConnectionDate !== undefined &&
-        isAfter(new Date(user.sonarLintLastConnectionDate), new Date(slLastConnectedBefore))
+        sonarLintLastConnectionDateTo &&
+        user.sonarLintLastConnectionDate &&
+        isAfter(new Date(user.sonarLintLastConnectionDate), new Date(sonarLintLastConnectionDateTo))
       ) {
         return false;
       }
@@ -199,32 +209,42 @@ export default class UsersServiceMock {
     });
   };
 
-  handleSearchUsers = (data: any): Promise<{ paging: Paging; users: User[] }> => {
-    let paging = {
+  handleGetUsers = (
+    data: GetUsersParams
+  ): Promise<{ pageRestResponse: Paging; users: RestUser<'admin'>[] }> => {
+    let pageRestResponse = {
       pageIndex: 1,
       pageSize: 0,
       total: 10,
     };
 
-    if (data.p !== undefined && data.p !== paging.pageIndex) {
-      paging = { pageIndex: 2, pageSize: 2, total: 10 };
+    if (data.pageIndex !== undefined && data.pageIndex !== pageRestResponse.pageIndex) {
+      pageRestResponse = { pageIndex: 2, pageSize: 2, total: 10 };
       const users = [
-        mockUser({
+        mockRestUser({
           name: `Local User ${this.users.length + 4}`,
           login: `local-user-${this.users.length + 4}`,
         }),
-        mockUser({
+        mockRestUser({
           name: `Local User ${this.users.length + 5}`,
           login: `local-user-${this.users.length + 5}`,
         }),
       ];
 
-      return this.reply({ paging, users });
+      return this.reply({ pageRestResponse, users });
     }
 
-    const users = this.getFilteredUsers(data);
+    const users = this.getFilteredRestUsers({
+      managed: data.managed,
+      q: data.q,
+      sonarQubeLastConnectionDateFrom: data.sonarQubeLastConnectionDateFrom,
+      sonarQubeLastConnectionDateTo: data.sonarQubeLastConnectionDateTo,
+      sonarLintLastConnectionDateFrom: data.sonarLintLastConnectionDateFrom,
+      sonarLintLastConnectionDateTo: data.sonarLintLastConnectionDateTo,
+    }) as RestUser<'admin'>[];
+
     return this.reply({
-      paging: {
+      pageRestResponse: {
         pageIndex: 1,
         pageSize: users.length,
         total: 10,
@@ -248,7 +268,7 @@ export default class UsersServiceMock {
         json: () => Promise.resolve({ errors: [{ msg: 'Error: Empty SCM' }] }),
       });
     }
-    const newUser = mockUser({
+    const newUser = mockRestUser({
       email,
       local,
       login,
@@ -266,7 +286,7 @@ export default class UsersServiceMock {
     scmAccount: string[];
   }) => {
     const { email, login, name, scmAccount } = data;
-    const user = this.users.find((u) => u.login === login);
+    const user = this.users.find((u) => u.login === login) as User;
     if (!user) {
       return Promise.reject('No such user');
     }

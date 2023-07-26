@@ -18,16 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { RestUser } from '../../api/users';
 import { CurrentUserContext } from '../../app/components/current-user/CurrentUserContext';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import { translate } from '../../helpers/l10n';
 import { IdentityProvider } from '../../types/types';
-import { isLoggedIn, User } from '../../types/users';
+import { isLoggedIn } from '../../types/users';
 import UserListItem from './components/UserListItem';
 
 interface Props {
   identityProviders: IdentityProvider[];
-  users: User[];
+  users: RestUser<'admin'>[];
   manageProvider: string | undefined;
 }
 

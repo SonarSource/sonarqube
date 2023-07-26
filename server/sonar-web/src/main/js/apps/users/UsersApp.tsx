@@ -54,23 +54,23 @@ export default function UsersApp() {
     switch (usersActivity) {
       case UserActivity.ActiveSonarLintUser:
         return {
-          slLastConnectedAfter: toISO8601WithOffsetString(nowDateMinus30Days),
+          sonarLintLastConnectionDateFrom: toISO8601WithOffsetString(nowDateMinus30Days),
         };
       case UserActivity.ActiveSonarQubeUser:
         return {
-          lastConnectedAfter: toISO8601WithOffsetString(nowDateMinus30Days),
-          slLastConnectedBefore: toISO8601WithOffsetString(nowDateMinus30DaysAnd1Second),
+          sonarQubeLastConnectionDateFrom: toISO8601WithOffsetString(nowDateMinus30Days),
+          sonarLintLastConnectionDateTo: toISO8601WithOffsetString(nowDateMinus30DaysAnd1Second),
         };
       case UserActivity.InactiveUser:
         return {
-          lastConnectedBefore: toISO8601WithOffsetString(nowDateMinus30DaysAnd1Second),
+          sonarQubeLastConnectionDateTo: toISO8601WithOffsetString(nowDateMinus30DaysAnd1Second),
         };
       default:
         return {};
     }
   }, [usersActivity]);
 
-  const { users, total, isLoading } = useUsersQueries(
+  const { users, total, isLoading } = useUsersQueries<'admin'>(
     {
       q: search,
       managed,

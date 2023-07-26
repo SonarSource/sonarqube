@@ -20,14 +20,14 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useInvalidateUsersList } from '../../../api/queries/users';
+import { RestUser } from '../../../api/users';
 import Modal from '../../../components/controls/Modal';
 import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
-import { User } from '../../../types/users';
 import TokensForm from './TokensForm';
 
 interface Props {
-  user: User;
+  user: RestUser<'admin'>;
   onClose: () => void;
 }
 

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { useCreateUserMutation, useUpdateUserMutation } from '../../../api/queries/users';
+import { RestUser } from '../../../api/users';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { Button, ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { Alert } from '../../../components/ui/Alert';
@@ -27,12 +28,11 @@ import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsEx
 import { throwGlobalError } from '../../../helpers/error';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
-import { User } from '../../../types/users';
 import UserScmAccountInput from './UserScmAccountInput';
 
 export interface Props {
   onClose: () => void;
-  user?: User;
+  user?: RestUser<'admin'>;
 }
 
 export default function UserForm(props: Props) {
@@ -50,9 +50,10 @@ export default function UserForm(props: Props) {
 
   const handleError = (response: Response) => {
     if (![400, 500].includes(response.status)) {
-      return throwGlobalError(response);
+      throwGlobalError(response);
+    } else {
+      parseError(response).then((errorMsg) => setError(errorMsg), throwGlobalError);
     }
-    return parseError(response).then((errorMsg) => setError(errorMsg), throwGlobalError);
   };
 
   const handleCreateUser = () => {

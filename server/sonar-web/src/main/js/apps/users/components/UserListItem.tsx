@@ -18,41 +18,45 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { RestUser } from '../../../api/users';
 import { ButtonIcon } from '../../../components/controls/buttons';
 import BulletListIcon from '../../../components/icons/BulletListIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import LegacyAvatar from '../../../components/ui/LegacyAvatar';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { IdentityProvider } from '../../../types/types';
-import { User } from '../../../types/users';
 import TokensFormModal from './TokensFormModal';
 import UserActions from './UserActions';
-import UserGroups from './UserGroups';
 import UserListItemIdentity from './UserListItemIdentity';
 import UserScmAccounts from './UserScmAccounts';
 
 export interface UserListItemProps {
   identityProvider?: IdentityProvider;
   isCurrentUser: boolean;
-  user: User;
+  user: RestUser<'admin'>;
   manageProvider: string | undefined;
 }
 
 export default function UserListItem(props: UserListItemProps) {
-  const [openTokenForm, setOpenTokenForm] = React.useState(false);
-
   const { identityProvider, user, manageProvider, isCurrentUser } = props;
+  const {
+    name,
+    login,
+    managed,
+    tokensCount,
+    avatar,
+    sonarQubeLastConnectionDate,
+    sonarLintLastConnectionDate,
+    scmAccounts,
+  } = user;
+
+  const [openTokenForm, setOpenTokenForm] = React.useState(false);
 
   return (
     <tr>
       <td className="thin text-middle">
         <div className="sw-flex sw-items-center">
-          <LegacyAvatar
-            className="sw-shrink-0 sw-mr-4"
-            hash={user.avatar}
-            name={user.name}
-            size={36}
-          />
+          <LegacyAvatar className="sw-shrink-0 sw-mr-4" hash={avatar} name={name} size={36} />
           <UserListItemIdentity
             identityProvider={identityProvider}
             user={user}
@@ -61,30 +65,31 @@ export default function UserListItem(props: UserListItemProps) {
         </div>
       </td>
       <td className="thin text-middle">
-        <UserScmAccounts scmAccounts={user.scmAccounts || []} />
+        <UserScmAccounts scmAccounts={scmAccounts || []} />
       </td>
       <td className="thin nowrap text-middle">
-        <DateFromNow date={user.lastConnectionDate} hourPrecision />
+        <DateFromNow date={sonarQubeLastConnectionDate ?? ''} hourPrecision />
       </td>
       <td className="thin nowrap text-middle">
-        <DateFromNow date={user.sonarLintLastConnectionDate} hourPrecision />
+        <DateFromNow date={sonarLintLastConnectionDate ?? ''} hourPrecision />
       </td>
       <td className="thin nowrap text-middle">
-        <UserGroups groups={user.groups ?? []} manageProvider={manageProvider} user={user} />
+        {user.groupsCount}
+        {/* <UserGroups groups={user.groupsCount} manageProvider={manageProvider} user={user} /> */}
       </td>
       <td className="thin nowrap text-middle">
-        {user.tokensCount}
+        {tokensCount}
         <ButtonIcon
           className="js-user-tokens spacer-left button-small"
           onClick={() => setOpenTokenForm(true)}
           tooltip={translateWithParameters('users.update_tokens')}
-          aria-label={translateWithParameters('users.update_tokens_for_x', user.name ?? user.login)}
+          aria-label={translateWithParameters('users.update_tokens_for_x', name ?? login)}
         >
           <BulletListIcon />
         </ButtonIcon>
       </td>
 
-      {(manageProvider === undefined || !user.managed) && (
+      {(manageProvider === undefined || !managed) && (
         <td className="thin nowrap text-right text-middle">
           <UserActions isCurrentUser={isCurrentUser} user={user} manageProvider={manageProvider} />
         </td>

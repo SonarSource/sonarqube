@@ -19,6 +19,7 @@
  */
 import { To } from 'react-router-dom';
 import { CompareResponse } from '../api/quality-profiles';
+import { RestUser } from '../api/users';
 import { RuleDescriptionSections } from '../apps/coding-rules/rule';
 import { Exporter, Profile, ProfileChangelogEvent } from '../apps/quality-profiles/types';
 import { LogsLevels } from '../apps/system/utils';
@@ -676,6 +677,27 @@ export function mockUser(overrides: Partial<User> = {}): User {
     login: 'john.doe',
     name: 'John Doe',
     managed: false,
+    ...overrides,
+  };
+}
+
+export function mockRestUser(overrides: Partial<RestUser<'admin'>> = {}): RestUser<'admin'> {
+  return {
+    id: Math.random().toString(),
+    login: 'buzz.aldrin',
+    name: 'Buzz Aldrin',
+    email: 'buzz.aldrin@nasa.com',
+    active: true,
+    local: true,
+    managed: false,
+    externalProvider: '',
+    externalLogin: '',
+    sonarQubeLastConnectionDate: null,
+    sonarLintLastConnectionDate: null,
+    scmAccounts: [],
+    tokensCount: 0,
+    groupsCount: 0,
+    avatar: 'buzzonthemoon',
     ...overrides,
   };
 }

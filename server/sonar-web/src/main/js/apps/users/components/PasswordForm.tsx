@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { changePassword } from '../../../api/users';
+import { RestUser, changePassword } from '../../../api/users';
 import Modal from '../../../components/controls/Modal';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { Alert } from '../../../components/ui/Alert';
@@ -26,12 +26,12 @@ import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
-import { ChangePasswordResults, User } from '../../../types/users';
+import { ChangePasswordResults } from '../../../types/users';
 
 interface Props {
   isCurrentUser: boolean;
   onClose: () => void;
-  user: User;
+  user: RestUser<'admin'>;
 }
 
 interface State {

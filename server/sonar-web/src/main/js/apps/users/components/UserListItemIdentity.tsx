@@ -20,15 +20,15 @@
 
 import { getTextColor } from 'design-system';
 import * as React from 'react';
+import { RestUser } from '../../../api/users';
 import { colors } from '../../../app/theme';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
 import { IdentityProvider } from '../../../types/types';
-import { User } from '../../../types/users';
 
 export interface Props {
   identityProvider?: IdentityProvider;
-  user: User;
+  user: RestUser<'admin'>;
   manageProvider?: string;
 }
 
@@ -55,7 +55,7 @@ export function ExternalProvider({ identityProvider, user }: Omit<Props, 'manage
     return (
       <div className="js-user-identity-provider little-spacer-top">
         <span>
-          {user.externalProvider}: {user.externalIdentity}
+          {user.externalProvider}: {user.externalLogin}
         </span>
       </div>
     );
@@ -77,7 +77,7 @@ export function ExternalProvider({ identityProvider, user }: Omit<Props, 'manage
           src={getBaseUrl() + identityProvider.iconPath}
           width="14"
         />
-        {user.externalIdentity}
+        {user.externalLogin}
       </div>
     </div>
   );

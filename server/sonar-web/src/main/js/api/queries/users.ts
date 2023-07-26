@@ -25,38 +25,39 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { range } from 'lodash';
-import { User } from '../../types/users';
 import {
   CreateUserParams,
   DeactivateUserParams,
-  SearchUsersParams,
+  GetUsersParams,
+  Permission,
+  RestUser,
   UpdateUserParams,
   createUser,
   deactivateUser,
-  searchUsers,
+  getUsers,
   updateUser,
 } from '../users';
 
-export function useUsersQueries(
-  searchParam: Omit<SearchUsersParams, 'p' | 'ps'>,
+export function useUsersQueries<P extends Permission>(
+  getParams: Omit<GetUsersParams, 'pageSize' | 'pageIndex'>,
   numberOfPages: number
 ) {
-  type QueryKey = ['user', 'list', number, Omit<SearchUsersParams, 'p' | 'ps'>];
+  type QueryKey = ['user', 'list', number, Omit<GetUsersParams, 'pageSize' | 'pageIndex'>];
   const results = useQueries({
     queries: range(1, numberOfPages + 1).map((page: number) => ({
-      queryKey: ['user', 'list', page, searchParam],
-      queryFn: ({ queryKey: [_u, _l, page, searchParam] }: QueryFunctionContext<QueryKey>) =>
-        searchUsers({ ...searchParam, p: page }),
+      queryKey: ['user', 'list', page, getParams],
+      queryFn: ({ queryKey: [_u, _l, page, getParams] }: QueryFunctionContext<QueryKey>) =>
+        getUsers<P>({ ...getParams, pageIndex: page }),
     })),
   });
 
   return results.reduce(
     (acc, { data, isLoading }) => ({
       users: acc.users.concat(data?.users ?? []),
-      total: data?.paging.total,
+      total: data?.pageRestResponse.total,
       isLoading: acc.isLoading || isLoading,
     }),
-    { users: [] as User[], total: 0, isLoading: false }
+    { users: [] as RestUser<P>[], total: 0, isLoading: false }
   );
 }
 
