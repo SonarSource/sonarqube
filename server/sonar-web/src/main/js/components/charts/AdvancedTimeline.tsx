@@ -18,19 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { bisector, extent, max } from 'd3-array';
 import {
   NumberValue,
   ScaleLinear,
-  scaleLinear,
   ScalePoint,
-  scalePoint,
   ScaleTime,
+  scaleLinear,
+  scalePoint,
   scaleTime,
 } from 'd3-scale';
 import { area, curveBasis, line as d3Line } from 'd3-shape';
-import { themeColor, ThemeProp, withTheme } from 'design-system';
+import { CSSColor, ThemeProp, themeColor, withTheme } from 'design-system';
 import { flatten, isEqual, sortBy, throttle, uniq } from 'lodash';
 import * as React from 'react';
 import { isDefined } from '../../helpers/types';
@@ -518,11 +519,7 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
     return (
       <g>
         {series.map((serie, idx) => (
-          <path
-            className={classNames('line-chart-area', `line-chart-area-${idx}`)}
-            d={areaGenerator(serie.data) ?? undefined}
-            key={serie.name}
-          />
+          <StyledArea d={areaGenerator(serie.data) ?? undefined} index={idx} key={serie.name} />
         ))}
       </g>
     );
@@ -660,5 +657,12 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
     );
   }
 }
+
+const AREA_OPACITY = 0.15;
+
+const StyledArea = styled.path<{ index: number }>`
+  clip-path: url(#chart-clip);
+  fill: ${({ index }) => themeColor(`graphLineColor.${index}` as CSSColor, AREA_OPACITY)};
+`;
 
 export const AdvancedTimeline = withTheme<PropsWithoutTheme>(AdvancedTimelineClass);

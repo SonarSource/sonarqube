@@ -31,10 +31,6 @@
   pointer-events: all;
 }
 
-.chart-zoomed .line-chart-area {
-  clip-path: url(#chart-clip);
-}
-
 .chart-zoomed .line-chart-path {
   clip-path: url(#chart-clip);
 }

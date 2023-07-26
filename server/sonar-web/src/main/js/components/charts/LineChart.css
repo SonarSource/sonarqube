@@ -35,19 +35,6 @@
   stroke-dasharray: 7;
 }
 
-.line-chart-area {
-  fill: rgba(75, 159, 213, 0.3);
-  stroke-width: 0;
-}
-
-.line-chart-area.line-chart-area-1 {
-  fill: rgba(35, 106, 151, 0.3);
-}
-
-.line-chart-area.line-chart-area-2 {
-  fill: rgba(36, 198, 224, 0.3);
-}
-
 .line-chart-point {
   fill: #fff;
   stroke: var(--blue);
