@@ -1,4 +1,6 @@
 {
-  "total": 0,
+  "paging": {
+    "total": 0
+  },
   "issues": []
 }

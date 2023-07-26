@@ -194,6 +194,7 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.2", "Response fields 'total', 's', 'ps' dropped"),
         new Change("10.2", format("Parameter '%s' renamed to '%s'", PARAM_COMPONENT_KEYS, PARAM_COMPONENTS)),
         new Change("10.1", "Add the 'codeVariants' parameter, facet and response field"),
         new Change("10.0", "Parameter 'sansTop25' is deprecated"),

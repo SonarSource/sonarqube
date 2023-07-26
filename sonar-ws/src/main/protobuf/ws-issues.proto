@@ -29,9 +29,9 @@ option optimize_for = SPEED;
 // Response of GET api/issues/search
 message SearchWsResponse {
   reserved 5;
-  optional int64 total = 1 [deprecated=true];
-  optional int64 p = 2 [deprecated=true];
-  optional int32 ps = 3 [deprecated=true];
+  reserved 1;
+  reserved 2;
+  reserved 3;
   optional sonarqube.ws.commons.Paging paging = 4;
 
   // Total amount of effort, only when the facet "total" is enabled

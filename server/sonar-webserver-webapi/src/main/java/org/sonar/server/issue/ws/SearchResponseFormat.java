@@ -101,7 +101,7 @@ public class SearchResponseFormat {
   SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging, Facets facets) {
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
 
-    formatPaging(paging, response);
+    response.setPaging(formatPaging(paging));
     ofNullable(data.getEffortTotal()).ifPresent(response::setEffortTotal);
     response.addAllIssues(createIssues(fields, data));
     response.addAllComponents(formatComponents(data));
@@ -140,13 +140,6 @@ public class SearchResponseFormat {
     response.addAllRules(formatRules(data).getRulesList());
     response.addAllUsers(formatUsers(data).getUsersList());
     return response.build();
-  }
-
-  private static void formatPaging(Paging paging, SearchWsResponse.Builder response) {
-    response.setP(paging.pageIndex());
-    response.setPs(paging.pageSize());
-    response.setTotal(paging.total());
-    response.setPaging(formatPaging(paging));
   }
 
   private static Common.Paging.Builder formatPaging(Paging paging) {

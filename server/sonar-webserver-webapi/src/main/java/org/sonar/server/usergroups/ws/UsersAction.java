@@ -76,6 +76,7 @@ public class UsersAction implements UserGroupsWsAction {
       .addSearchQuery("freddy", "names", "logins")
       .addPagingParams(25)
       .setChangelog(
+        new Change("10.2", "Response fields 'total', 's', 'ps' dropped"),
         new Change("10.0", "Field 'managed' added to the payload."),
         new Change("10.0", "Parameter 'id' is removed. Use 'name' instead."),
         new Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead."),
@@ -111,11 +112,6 @@ public class UsersAction implements UserGroupsWsAction {
         json.beginObject();
         writeMembers(json, users, userUuidToIsManaged);
         writePaging(json, paging);
-        json.name("paging").beginObject()
-          .prop("pageIndex", page)
-          .prop("pageSize", pageSize)
-          .prop("total", total)
-          .endObject();
         json.endObject();
       }
     }
@@ -138,14 +134,12 @@ public class UsersAction implements UserGroupsWsAction {
     json.endArray();
   }
 
-  /**
-   * @deprecated since 9.8 - replaced by 'paging' object structure.
-   */
-  @Deprecated(since = "9.8")
   private static void writePaging(JsonWriter json, Paging paging) {
-    json.prop(Param.PAGE, paging.pageIndex())
-      .prop(Param.PAGE_SIZE, paging.pageSize())
-      .prop("total", paging.total());
+    json.name("paging").beginObject()
+      .prop("pageIndex", paging.pageIndex())
+      .prop("pageSize", paging.pageSize())
+      .prop("total", paging.total())
+      .endObject();
   }
 
   private static String getMembership(String selected) {

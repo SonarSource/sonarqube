@@ -165,7 +165,8 @@ public class SearchAction implements RulesWsAction {
         new Change("10.0", "The value 'debtRemFn' for the 'f' parameter has been deprecated, use 'remFn' instead"),
         new Change("10.0", "The value 'defaultDebtRemFn' for the 'f' parameter has been deprecated, use 'defaultRemFn' instead"),
         new Change("10.0", "The value 'sansTop25' for the parameter 'facets' has been deprecated"),
-        new Change("10.0", "Parameter 'sansTop25' is deprecated")
+        new Change("10.0", "Parameter 'sansTop25' is deprecated"),
+        new Change("10.2", "Response fields 'total', 's', 'ps' dropped")
       );
 
     action.createParam(FACETS)
@@ -203,7 +204,7 @@ public class SearchAction implements RulesWsAction {
 
   private SearchResponse buildResponse(DbSession dbSession, SearchRequest request, SearchOptions context, SearchResult result, RuleQuery query) {
     SearchResponse.Builder responseBuilder = SearchResponse.newBuilder();
-    writeStatistics(responseBuilder, result, context);
+    writePaging(responseBuilder, result, context);
     doContextResponse(dbSession, request, result, responseBuilder, query);
     if (!context.getFacets().isEmpty()) {
       writeFacets(responseBuilder, request, context, result);
@@ -211,10 +212,7 @@ public class SearchAction implements RulesWsAction {
     return responseBuilder.build();
   }
 
-  private static void writeStatistics(SearchResponse.Builder response, SearchResult searchResult, SearchOptions context) {
-    response.setTotal(searchResult.total);
-    response.setP(context.getPage());
-    response.setPs(context.getLimit());
+  private static void writePaging(SearchResponse.Builder response, SearchResult searchResult, SearchOptions context) {
     response.setPaging(formatPaging(searchResult.total, context.getPage(), context.getLimit()));
   }
 

@@ -1,7 +1,4 @@
 {
-  "total": 3,
-  "p": 1,
-  "ps": 100,
   "paging": {
     "pageIndex": 1,
     "pageSize": 100,

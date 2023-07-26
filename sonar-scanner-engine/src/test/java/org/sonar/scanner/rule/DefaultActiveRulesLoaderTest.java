@@ -33,6 +33,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Active;
 import org.sonarqube.ws.Rules.ActiveList;
@@ -137,8 +138,7 @@ public class DefaultActiveRulesLoaderTest {
       });
 
     rules.setActives(actives);
-    rules.setPs(numberOfRules);
-    rules.setTotal(total);
+    rules.setPaging(Common.Paging.newBuilder().setPageSize(numberOfRules).setTotal(total));
     return new ByteArrayInputStream(rules.build().toByteArray());
   }
 
@@ -156,8 +156,7 @@ public class DefaultActiveRulesLoaderTest {
       });
 
     rules.setActives(actives);
-    rules.setPs(3);
-    rules.setTotal(3);
+    rules.setPaging(Common.Paging.newBuilder().setPageSize(3).setTotal(3));
     return new ByteArrayInputStream(rules.build().toByteArray());
   }
 }
