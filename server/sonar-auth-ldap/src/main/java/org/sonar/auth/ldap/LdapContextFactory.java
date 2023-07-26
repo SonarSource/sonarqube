@@ -73,6 +73,9 @@ public class LdapContextFactory {
   private final String password;
   private final String realm;
   private final String referral;
+  private final String saslQop;
+  private final String saslStrength;
+  private final String saslMaxbuf;
 
   public LdapContextFactory(org.sonar.api.config.Configuration config, String settingsPrefix, String ldapUrl) {
     this.authentication = StringUtils.defaultString(config.get(settingsPrefix + ".authentication").orElse(null), DEFAULT_AUTHENTICATION);
@@ -83,6 +86,9 @@ public class LdapContextFactory {
     this.username = config.get(settingsPrefix + ".bindDn").orElse(null);
     this.password = config.get(settingsPrefix + ".bindPassword").orElse(null);
     this.referral = getReferralsMode(config, settingsPrefix + ".followReferrals");
+    this.saslQop = config.get(settingsPrefix + ".saslQop").orElse(null);
+    this.saslStrength = config.get(settingsPrefix + ".saslStrength").orElse(null);
+    this.saslMaxbuf = config.get(settingsPrefix + ".saslMaxbuf").orElse(null);
   }
 
   /**
@@ -179,6 +185,16 @@ public class LdapContextFactory {
     if (principal != null) {
       env.put(Context.SECURITY_PRINCIPAL, principal);
     }
+    if (saslQop != null) {
+      env.put("javax.security.sasl.qop", saslQop);
+    }
+    if (saslStrength != null) {
+      env.put("javax.security.sasl.strength", saslStrength);
+    }
+    if (saslMaxbuf != null) {
+      env.put("javax.security.sasl.maxbuf", saslMaxbuf);
+    }
+
     // Note: debug is intentionally was placed here - in order to not expose password in log
     LOG.debug("Initializing LDAP context {}", env);
     if (credentials != null) {

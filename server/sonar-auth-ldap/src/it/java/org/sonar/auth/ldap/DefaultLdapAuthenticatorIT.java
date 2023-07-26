@@ -21,6 +21,7 @@ package org.sonar.auth.ldap;
 
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.auth.ldap.server.LdapServer;
 
@@ -115,8 +116,12 @@ public class DefaultLdapAuthenticatorIT {
 
   @Test
   public void testSasl() {
-    LdapSettingsManager settingsManager = new LdapSettingsManager(
-      LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_CRAM_MD5).asConfig());
+    MapSettings mapSettings = LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_DIGEST_MD5);
+    //set sasl QoP properties as per https://docs.oracle.com/javase/jndi/tutorial/ldap/security/digest.html
+    mapSettings.setProperty("ldap.saslQop", "auth")
+      .setProperty("ldap.saslStrength", "high")
+      .setProperty("ldap.saslMaxbuf", "16384");
+    LdapSettingsManager settingsManager = new LdapSettingsManager(mapSettings.asConfig());
     DefaultLdapAuthenticator authenticator = new DefaultLdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
     LdapAuthenticationResult user1Success = authenticator.doAuthenticate(createContext("godin", "secret1"));
