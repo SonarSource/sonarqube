@@ -317,6 +317,9 @@ export const lightTheme = {
     destructiveIconFocus: danger.default,
 
     // icons
+    iconSoftwareImpactSeverityHigh: COLORS.red[700],
+    iconSoftwareImpactSeverityMedium: COLORS.yellow[800],
+    iconSoftwareImpactSeverityLow: COLORS.blue[700],
     iconSeverityMajor: danger.light,
     iconSeverityMinor: COLORS.yellowGreen[400],
     iconSeverityInfo: COLORS.blue[400],
