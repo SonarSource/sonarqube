@@ -192,6 +192,7 @@ export default class HotspotList extends React.Component<Props, State> {
           loadMore={!loadingMore ? this.props.onLoadMore : undefined}
           loading={loadingMore}
           total={hotspotsTotal}
+          useMIUIButtons
         />
       </StyledContainer>
     );
