@@ -51,8 +51,8 @@ export default class OrganizationAvatarInput extends React.PureComponent<Props, 
   }
 
 
-  componentDidMount() {
-    this.fetchWhiteListDomains();
+  async componentDidMount() {
+    await this.fetchWhiteListDomains();
     setTimeout(()=>{
       if (this.props.initialValue) {
         const value = this.props.initialValue;

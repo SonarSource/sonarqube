@@ -41,8 +41,8 @@ export default class OrganizationUrlInput extends React.PureComponent<Props, Sta
   state: State = {error: undefined, editing: false, touched: false, value: ''};
   whiteListDomains: string[] = [];
 
-  componentDidMount() {
-    this.fetchWhiteListDomains();
+  async componentDidMount() {
+    await this.fetchWhiteListDomains();
 
     setTimeout(()=>{
       if (this.props.initialValue) {
