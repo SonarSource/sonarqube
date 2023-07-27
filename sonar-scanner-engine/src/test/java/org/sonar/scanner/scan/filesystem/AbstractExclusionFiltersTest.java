@@ -37,6 +37,7 @@ import org.sonar.api.testfixtures.log.LogTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.sonar.api.CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY;
 import static org.sonar.api.CoreProperties.PROJECT_TESTS_EXCLUSIONS_PROPERTY;
 import static org.sonar.api.CoreProperties.PROJECT_TESTS_INCLUSIONS_PROPERTY;
 import static org.sonar.api.CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY;
@@ -96,6 +97,17 @@ public class AbstractExclusionFiltersTest {
     assertThat(logTester.logs(Level.WARN)).hasSize(1)
       .contains(expectedWarn);
     verify(analysisWarnings).addUnique(expectedWarn);
+  }
+
+  @Test
+  public void AbstractExclusionFilters_whenUsedGlobalTestPropertyAndProjectTestLegacyProperty_shouldNotLogAliasWarning() {
+    settings.setProperty(PROJECT_TEST_EXCLUSIONS_PROPERTY, "**/*Dao.java");
+    settings.setProperty(GLOBAL_TEST_EXCLUSIONS_PROPERTY, "**/*Dao.java");
+    settings.setProperty(PROJECT_TEST_INCLUSIONS_PROPERTY, "**/*Dao.java");
+    new AbstractExclusionFilters(analysisWarnings, settings.asConfig()::getStringArray) {
+    };
+
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
   }
 
   @Test
