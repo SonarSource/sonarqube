@@ -25,6 +25,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.process.cluster.health.SharedHealthState;
+import org.sonar.server.common.health.ClusterHealthCheck;
+import org.sonar.server.common.health.HealthReducer;
+import org.sonar.server.common.health.NodeHealthCheck;
 import org.sonar.server.platform.NodeInformation;
 import org.springframework.beans.factory.annotation.Autowired;
 

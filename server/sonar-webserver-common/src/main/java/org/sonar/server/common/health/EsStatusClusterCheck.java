@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.health;
+package org.sonar.server.common.health;
 
 import java.util.Set;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.health.Health;
 
 public class EsStatusClusterCheck extends EsStatusCheck implements ClusterHealthCheck {
   private static final String MINIMUM_NODE_MESSAGE = "There should be at least three search nodes";

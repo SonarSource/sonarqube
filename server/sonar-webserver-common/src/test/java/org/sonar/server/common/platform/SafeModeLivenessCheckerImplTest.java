@@ -17,35 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.health;
+package org.sonar.server.common.platform;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import org.sonar.server.app.ProcessCommandWrapper;
+import org.sonar.server.common.health.DbConnectionNodeCheck;
+import org.sonar.server.common.platform.SafeModeLivenessCheckerImpl;
+import org.sonar.server.health.Health;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CeStatusNodeCheckTest {
-  private ProcessCommandWrapper processCommandWrapper = mock(ProcessCommandWrapper.class);
-  private CeStatusNodeCheck underTest = new CeStatusNodeCheck(processCommandWrapper);
+public class SafeModeLivenessCheckerImplTest {
+
+  public static final Health RED = Health.builder().setStatus(Health.Status.RED).build();
+  private final DbConnectionNodeCheck dbConnectionNodeCheck = mock(DbConnectionNodeCheck.class);
+  private final SafeModeLivenessCheckerImpl underTest = new SafeModeLivenessCheckerImpl(dbConnectionNodeCheck);
 
   @Test
-  public void check_returns_GREEN_status_without_cause_if_ce_is_operational() {
-    when(processCommandWrapper.isCeOperational()).thenReturn(true);
+  public void fail_when_db_connection_check_fail() {
+    when(dbConnectionNodeCheck.check()).thenReturn(RED);
 
-    Health health = underTest.check();
-
-    assertThat(health).isEqualTo(Health.GREEN);
+    Assertions.assertThat(underTest.liveness()).isFalse();
   }
 
   @Test
-  public void check_returns_RED_status_with_cause_if_ce_is_not_operational() {
-    when(processCommandWrapper.isCeOperational()).thenReturn(false);
+  public void succeed_when_db_connection_check_success() {
+    when(dbConnectionNodeCheck.check()).thenReturn(Health.GREEN);
 
-    Health health = underTest.check();
-
-    assertThat(health.getStatus()).isEqualTo(Health.Status.RED);
-    assertThat(health.getCauses()).containsOnly("Compute Engine is not operational");
+    Assertions.assertThat(underTest.liveness()).isTrue();
   }
+
 }

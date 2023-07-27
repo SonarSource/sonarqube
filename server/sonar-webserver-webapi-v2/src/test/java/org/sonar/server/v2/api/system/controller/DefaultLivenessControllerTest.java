@@ -21,7 +21,7 @@ package org.sonar.server.v2.api.system.controller;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.platform.ws.LivenessChecker;
+import org.sonar.server.common.platform.LivenessChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.v2.api.ControllerTester;

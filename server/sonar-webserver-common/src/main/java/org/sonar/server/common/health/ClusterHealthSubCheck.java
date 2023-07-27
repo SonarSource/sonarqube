@@ -17,8 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.health;
+package org.sonar.server.common.health;
 
-public interface NodeHealthCheck {
-  Health check();
+import java.util.Set;
+import java.util.stream.Stream;
+import org.sonar.process.cluster.health.NodeHealth;
+
+interface ClusterHealthSubCheck extends ClusterHealthCheck {
+
+  default Stream<NodeHealth> withStatus(Set<NodeHealth> searchNodes, NodeHealth.Status... statuses) {
+    return searchNodes.stream()
+        .filter(t -> {
+          for (NodeHealth.Status status : statuses) {
+            if (status == t.getStatus()) {
+              return true;
+            }
+          }
+          return false;
+        });
+  }
 }

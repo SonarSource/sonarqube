@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.health;
+package org.sonar.server.common.health;
 
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
@@ -25,6 +25,7 @@ import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.health.Health;
 
 abstract class EsStatusCheck {
   private static final Logger LOG = LoggerFactory.getLogger(EsStatusCheck.class);

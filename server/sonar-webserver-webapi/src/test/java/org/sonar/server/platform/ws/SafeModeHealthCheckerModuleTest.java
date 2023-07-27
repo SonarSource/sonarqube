@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Test;
 import org.sonar.core.platform.ListContainer;
-import org.sonar.server.health.DbConnectionNodeCheck;
-import org.sonar.server.health.EsStatusNodeCheck;
+import org.sonar.server.common.health.DbConnectionNodeCheck;
+import org.sonar.server.common.health.EsStatusNodeCheck;
 import org.sonar.server.health.HealthCheckerImpl;
-import org.sonar.server.health.NodeHealthCheck;
-import org.sonar.server.health.WebServerSafemodeNodeCheck;
+import org.sonar.server.common.health.NodeHealthCheck;
+import org.sonar.server.common.health.WebServerSafemodeNodeCheck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

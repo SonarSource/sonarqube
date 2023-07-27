@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.health;
+package org.sonar.server.common.health;
 
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.sonar.server.common.health.EsStatusNodeCheck;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.health.Health;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

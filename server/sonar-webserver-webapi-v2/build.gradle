@@ -14,9 +14,8 @@ dependencies {
 
     api project(':server:sonar-db-dao')
     api project(':server:sonar-webserver-common')
-    // We are not supposed to have a v1 dependency. The ideal would be to have another common module between webapi and webapi-v2 but that needs a lot of refactoring.
-    api project(':server:sonar-webserver-webapi')
 
+    testImplementation 'javax.servlet:javax.servlet-api'
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.springframework:spring-test'
     testImplementation 'org.skyscreamer:jsonassert:1.5.1'

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.health;
+package org.sonar.server.common.health;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.junit.Test;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
+import org.sonar.server.health.Health;
 
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.of;
@@ -34,7 +35,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.sonar.process.cluster.health.NodeHealth.Status.GREEN;
 import static org.sonar.process.cluster.health.NodeHealth.Status.RED;
 import static org.sonar.process.cluster.health.NodeHealth.Status.YELLOW;
-import static org.sonar.server.health.HealthAssert.assertThat;
+import static org.sonar.server.common.health.HealthAssert.assertThat;
 
 public class AppNodeClusterCheckTest {
   private final Random random = new Random();
@@ -175,8 +176,8 @@ public class AppNodeClusterCheckTest {
       randomNumberOfAppNodeHealthOfAnyStatus(GREEN),
       // 2 GREEN
       nodeHealths(GREEN, GREEN))
-        .flatMap(s -> s)
-        .collect(toSet());
+      .flatMap(s -> s)
+      .collect(toSet());
 
     Health check = underTest.check(nodeHealths);
 
@@ -195,8 +196,8 @@ public class AppNodeClusterCheckTest {
       randomNumberOfAppNodeHealthOfAnyStatus(GREEN, YELLOW),
       // 2 GREEN
       nodeHealths(GREEN, GREEN))
-        .flatMap(s -> s)
-        .collect(toSet());
+      .flatMap(s -> s)
+      .collect(toSet());
     Health check = underTest.check(nodeHealths);
 
     assertThat(check)
@@ -214,8 +215,8 @@ public class AppNodeClusterCheckTest {
       randomNumberOfAppNodeHealthOfAnyStatus(GREEN, RED),
       // 2 GREEN
       nodeHealths(GREEN, GREEN))
-        .flatMap(s -> s)
-        .collect(toSet());
+      .flatMap(s -> s)
+      .collect(toSet());
     Health check = underTest.check(nodeHealths);
 
     assertThat(check)
@@ -235,8 +236,8 @@ public class AppNodeClusterCheckTest {
       randomNumberOfAppNodeHealthOfAnyStatus(RED, YELLOW, GREEN),
       // 2 GREEN
       nodeHealths(GREEN, GREEN))
-        .flatMap(s -> s)
-        .collect(toSet());
+      .flatMap(s -> s)
+      .collect(toSet());
 
     Health check = underTest.check(nodeHealths);
 
@@ -262,7 +263,7 @@ public class AppNodeClusterCheckTest {
       IntStream.range(0, random.nextInt(3))
         .mapToObj(i -> appNodeHealth(NodeDetails.Type.SEARCH, NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)])),
       Arrays.stream(appNodeStatuses).map(this::appNodeHealth))
-        .flatMap(s -> s);
+      .flatMap(s -> s);
   }
 
   private NodeHealth appNodeHealth(NodeHealth.Status status) {

@@ -19,10 +19,10 @@
  */
 package org.sonar.server.v2.config;
 
-import org.sonar.server.health.DbConnectionNodeCheck;
+import org.sonar.server.common.health.DbConnectionNodeCheck;
+import org.sonar.server.common.platform.LivenessChecker;
+import org.sonar.server.common.platform.SafeModeLivenessCheckerImpl;
 import org.sonar.server.health.HealthChecker;
-import org.sonar.server.platform.ws.LivenessChecker;
-import org.sonar.server.platform.ws.SafeModeLivenessCheckerImpl;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.v2.api.system.controller.DefaultLivenessController;
 import org.sonar.server.v2.api.system.controller.HealthController;

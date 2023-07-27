@@ -17,28 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.health;
+package org.sonar.server.common.health;
 
-import org.sonar.server.app.ProcessCommandWrapper;
+import org.sonar.server.health.Health;
 
-public class CeStatusNodeCheck implements NodeHealthCheck {
-  private static final Health RED_HEALTH = Health.builder()
-    .setStatus(Health.Status.RED)
-    .addCause("Compute Engine is not operational")
-    .build();
-
-  private final ProcessCommandWrapper processCommandWrapper;
-
-  public CeStatusNodeCheck(ProcessCommandWrapper processCommandWrapper) {
-    this.processCommandWrapper = processCommandWrapper;
-  }
-
-  @Override
-  public Health check() {
-    if (processCommandWrapper.isCeOperational()) {
-      return Health.GREEN;
-    }
-
-    return RED_HEALTH;
-  }
+public interface NodeHealthCheck {
+  Health check();
 }

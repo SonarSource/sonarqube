@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.health;
+package org.sonar.server.common.health;
 
 import java.util.Arrays;
 import java.util.Random;
 import org.junit.Test;
 import org.sonar.server.app.RestartFlagHolder;
+import org.sonar.server.common.health.WebServerStatusNodeCheck;
+import org.sonar.server.health.Health;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 

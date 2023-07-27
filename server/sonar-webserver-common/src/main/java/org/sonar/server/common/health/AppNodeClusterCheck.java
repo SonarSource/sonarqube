@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.health;
+package org.sonar.server.common.health;
 
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
+import org.sonar.server.health.Health;
 
 import static org.sonar.process.cluster.health.NodeHealth.Status.GREEN;
 import static org.sonar.process.cluster.health.NodeHealth.Status.RED;

@@ -20,6 +20,7 @@
 package org.sonar.server.platform.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.common.platform.SafeModeLivenessCheckerImpl;
 import org.sonar.server.monitoring.MonitoringWs;
 import org.sonar.server.user.BearerPasscode;
 

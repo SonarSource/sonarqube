@@ -17,20 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
+package org.sonar.server.common.health;
 
-import org.sonar.server.health.DbConnectionNodeCheck;
+import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.health.Health;
 
-public class SafeModeLivenessCheckerImpl implements LivenessChecker {
+public class CeStatusNodeCheck implements NodeHealthCheck {
+  private static final Health RED_HEALTH = Health.builder()
+    .setStatus(Health.Status.RED)
+    .addCause("Compute Engine is not operational")
+    .build();
 
-  private final DbConnectionNodeCheck dbConnectionNodeCheck;
+  private final ProcessCommandWrapper processCommandWrapper;
 
-  public SafeModeLivenessCheckerImpl(DbConnectionNodeCheck dbConnectionNodeCheck) {
-    this.dbConnectionNodeCheck = dbConnectionNodeCheck;
+  public CeStatusNodeCheck(ProcessCommandWrapper processCommandWrapper) {
+    this.processCommandWrapper = processCommandWrapper;
   }
 
-  public boolean liveness() {
-    return Health.Status.GREEN.equals(dbConnectionNodeCheck.check().getStatus());
+  @Override
+  public Health check() {
+    if (processCommandWrapper.isCeOperational()) {
+      return Health.GREEN;
+    }
+
+    return RED_HEALTH;
   }
 }

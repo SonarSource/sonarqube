@@ -20,8 +20,8 @@
 package org.sonar.server.v2.api.system.controller;
 
 import javax.annotation.Nullable;
+import org.sonar.server.common.platform.LivenessChecker;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.platform.ws.LivenessChecker;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
 

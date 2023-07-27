@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.health;
+package org.sonar.server.common.health;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
 import org.sonar.process.cluster.health.NodeHealth;
+import org.sonar.server.health.Health;
 
 final class HealthAssert extends AbstractAssert<HealthAssert, Health> {
   private Set<NodeHealth> nodeHealths;

@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.ws;
+package org.sonar.server.common.platform;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import org.sonar.server.health.CeStatusNodeCheck;
-import org.sonar.server.health.DbConnectionNodeCheck;
-import org.sonar.server.health.EsStatusNodeCheck;
+import org.sonar.server.common.health.CeStatusNodeCheck;
+import org.sonar.server.common.health.DbConnectionNodeCheck;
+import org.sonar.server.common.health.EsStatusNodeCheck;
+import org.sonar.server.common.health.WebServerStatusNodeCheck;
 import org.sonar.server.health.Health;
-import org.sonar.server.health.WebServerStatusNodeCheck;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

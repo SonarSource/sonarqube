@@ -17,30 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.health;
+package org.sonar.server.common.health;
 
+import org.junit.Test;
+import org.sonar.server.common.health.WebServerSafemodeNodeCheck;
+import org.sonar.server.health.Health;
 
-public class HealthReducer {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private HealthReducer() {
-    // no public constructor
-  }
+public class WebServerSafemodeNodeCheckTest {
+  private WebServerSafemodeNodeCheck underTest = new WebServerSafemodeNodeCheck();
 
-  public static Health merge(Health left, Health right) {
-    Health.Builder builder = Health.builder()
-      .setStatus(worseOf(left.getStatus(), right.getStatus()));
-    left.getCauses().forEach(builder::addCause);
-    right.getCauses().forEach(builder::addCause);
-    return builder.build();
-  }
+  @Test
+  public void always_returns_RED_status_with_cause() {
+    Health health = underTest.check();
 
-  private static Health.Status worseOf(Health.Status left, Health.Status right) {
-    if (left == right) {
-      return left;
-    }
-    if (left.ordinal() > right.ordinal()) {
-      return left;
-    }
-    return right;
+    assertThat(health.getStatus()).isEqualTo(Health.Status.RED);
+    assertThat(health.getCauses()).containsOnly("SonarQube webserver is not up");
+
   }
 }

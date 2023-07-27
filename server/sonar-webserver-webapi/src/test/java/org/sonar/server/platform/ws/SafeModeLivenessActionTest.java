@@ -21,6 +21,7 @@ package org.sonar.server.platform.ws;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.common.platform.LivenessChecker;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.ws.TestRequest;

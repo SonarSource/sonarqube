@@ -32,6 +32,8 @@ import org.junit.Test;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.process.cluster.health.SharedHealthState;
+import org.sonar.server.common.health.ClusterHealthCheck;
+import org.sonar.server.common.health.NodeHealthCheck;
 import org.sonar.server.platform.NodeInformation;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;

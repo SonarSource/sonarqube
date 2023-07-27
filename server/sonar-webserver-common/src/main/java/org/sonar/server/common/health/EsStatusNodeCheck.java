@@ -17,11 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.health;
+package org.sonar.server.common.health;
 
-import java.util.Set;
-import org.sonar.process.cluster.health.NodeHealth;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.sonar.server.es.EsClient;
+import org.sonar.server.health.Health;
 
-public interface ClusterHealthCheck {
-  Health check(Set<NodeHealth> nodeHealths);
+/**
+ * Checks the ElasticSearch cluster status.
+ */
+public class EsStatusNodeCheck extends EsStatusCheck implements NodeHealthCheck {
+
+  public EsStatusNodeCheck(EsClient esClient) {
+    super(esClient);
+  }
+
+  @Override
+  public Health check() {
+    ClusterHealthResponse healthResponse = getEsClusterHealth();
+    return healthResponse != null ? extractStatusHealth(healthResponse) : RED_HEALTH_UNAVAILABLE;
+  }
 }

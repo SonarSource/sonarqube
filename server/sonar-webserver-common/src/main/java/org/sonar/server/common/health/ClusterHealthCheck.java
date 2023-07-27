@@ -17,21 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.health;
+package org.sonar.server.common.health;
 
-import org.junit.Test;
+import java.util.Set;
+import org.sonar.process.cluster.health.NodeHealth;
+import org.sonar.server.health.Health;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class WebServerSafemodeNodeCheckTest {
-  private WebServerSafemodeNodeCheck underTest = new WebServerSafemodeNodeCheck();
-
-  @Test
-  public void always_returns_RED_status_with_cause() {
-    Health health = underTest.check();
-
-    assertThat(health.getStatus()).isEqualTo(Health.Status.RED);
-    assertThat(health.getCauses()).containsOnly("SonarQube webserver is not up");
-
-  }
+public interface ClusterHealthCheck {
+  Health check(Set<NodeHealth> nodeHealths);
 }

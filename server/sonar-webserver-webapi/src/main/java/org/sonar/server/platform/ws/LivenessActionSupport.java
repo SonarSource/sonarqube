@@ -21,6 +21,7 @@ package org.sonar.server.platform.ws;
 
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.common.platform.LivenessChecker;
 
 public class LivenessActionSupport {
 
