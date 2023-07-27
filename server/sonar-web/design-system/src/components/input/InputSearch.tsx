@@ -87,11 +87,16 @@ export function InputSearch({
     'sw-pr-10': value.length > 0,
   });
 
+  /*
+   * ParentValue is useful as an initial value for a page load
+   * And when the parent component wants to empty the search (facet search)
+   * After that the input value is controlled by this component
+   */
   useEffect(() => {
-    if (parentValue !== undefined) {
+    if (parentValue === '' || (parentValue !== undefined && value === '')) {
       setValue(parentValue);
     }
-  }, [parentValue]);
+  }, [parentValue]); // eslint-disable-line
 
   useEffect(() => {
     if (autoFocus && input.current) {
@@ -121,9 +126,7 @@ export function InputSearch({
 
   const handleClearClick = () => {
     onChange('');
-    if (parentValue === undefined || parentValue === '') {
-      setValue('');
-    }
+    setValue('');
     input.current?.focus();
   };
   const ref = (node: HTMLInputElement | null) => {
