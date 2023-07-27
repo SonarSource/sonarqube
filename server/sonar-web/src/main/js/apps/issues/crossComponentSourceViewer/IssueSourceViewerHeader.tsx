@@ -103,8 +103,9 @@ function IssueSourceViewerHeader(props: Props & ThemeProp) {
         )}
 
         {!isProjectRoot && (
-          <>
+          <span className="sw-whitespace-nowrap">
             {displayProjectName && <ChevronRightIcon className="sw-mr-2" />}
+
             <LightLabel>
               {collapsedDirFromPath(path)}
               {fileFromPath(path)}
@@ -133,7 +134,7 @@ function IssueSourceViewerHeader(props: Props & ThemeProp) {
                 );
               }}
             </ClipboardBase>
-          </>
+          </span>
         )}
       </div>
 

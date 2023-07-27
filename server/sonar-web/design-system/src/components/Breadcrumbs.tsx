@@ -162,7 +162,7 @@ export function Breadcrumbs(props: Props) {
         </Dropdown>
       )}
       <ul className="sw-truncate sw-leading-6 sw-flex">{[...breadcrumbsToShow].reverse()}</ul>
-      {actions && <div className="sw-ml-2">{actions}</div>}
+      {actions && <div className="sw-mx-2">{actions}</div>}
     </BreadcrumbWrapper>
   );
 }
