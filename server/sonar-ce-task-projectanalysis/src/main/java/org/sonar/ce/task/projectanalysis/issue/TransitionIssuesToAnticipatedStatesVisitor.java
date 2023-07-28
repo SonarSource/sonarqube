@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.issue;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.apache.logging.log4j.util.Strings;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.AnticipatedTransition;
 import org.sonar.core.issue.DefaultIssue;
@@ -38,7 +39,7 @@ public class TransitionIssuesToAnticipatedStatesVisitor extends IssueVisitor {
   private Collection<AnticipatedTransition> anticipatedTransitions;
   private final AnticipatedTransitionTracker<DefaultIssue, AnticipatedTransition> tracker = new AnticipatedTransitionTracker<>();
   private final IssueLifecycle issueLifecycle;
-  
+
   private final AnticipatedTransitionRepository anticipatedTransitionRepository;
 
   public TransitionIssuesToAnticipatedStatesVisitor(AnticipatedTransitionRepository anticipatedTransitionRepository, IssueLifecycle issueLifecycle) {
@@ -68,7 +69,9 @@ public class TransitionIssuesToAnticipatedStatesVisitor extends IssueVisitor {
     issue.setBeingClosed(true);
     issue.setAnticipatedTransitions(true);
     issueLifecycle.doManualTransition(issue, anticipatedTransition.getTransition(), anticipatedTransition.getUserUuid());
-    issueLifecycle.addComment(issue, anticipatedTransition.getComment(), anticipatedTransition.getUserUuid());
+    String transitionComment = anticipatedTransition.getComment();
+    String comment = Strings.isNotBlank(transitionComment) ? transitionComment : "Automatically transitioned from SonarLint";
+    issueLifecycle.addComment(issue, comment, anticipatedTransition.getUserUuid());
   }
 
 }
