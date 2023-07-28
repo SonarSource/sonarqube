@@ -348,4 +348,18 @@ public class IssuesService extends BaseService {
         .setParam("changedSince", request.getChangedSince())
     ).contentStream();
   }
+
+  /**
+   * This is part of the internal API.
+   * This is a POST request.
+   *
+   * @see <a href="https://next.sonarqube.com/sonarqube/api/issues/anticipated_transitions">Further information about this action online (including a response example)</a>
+   * @since 10.2
+   */
+  public int anticipatedTransitions(String projectKey, String body) {
+    return call(
+      new PostRequest(path("anticipated_transitions?projectKey=" + projectKey))
+        .setBody(body)).code();
+  }
+
 }
