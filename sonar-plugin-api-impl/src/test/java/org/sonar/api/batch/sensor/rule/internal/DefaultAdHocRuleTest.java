@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
-import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rules.RuleType;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -146,13 +145,5 @@ public class DefaultAdHocRuleTest {
     assertThatThrownBy(() -> rule.save())
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Type is mandatory");
-  }
-
-  @Test
-  public void characteristic_shouldBeNoOp() {
-    SensorStorage storage = mock(SensorStorage.class);
-    DefaultAdHocRule rule = new DefaultAdHocRule(storage);
-    rule.characteristic(CodeCharacteristic.CLEAR);
-    assertThat(rule.characteristic()).isNull();
   }
 }

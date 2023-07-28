@@ -19,6 +19,8 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import java.util.Collections;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
@@ -26,8 +28,9 @@ import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
-import org.sonar.api.code.CodeCharacteristic;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 
 import static java.lang.String.format;
@@ -60,6 +63,11 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   @Override
   public DefaultExternalIssue severity(Severity severity) {
     this.severity = severity;
+    return this;
+  }
+
+  @Override
+  public NewExternalIssue addImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
     return this;
   }
 
@@ -99,9 +107,14 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
     return type;
   }
 
+  @Override
+  public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts() {
+    return Collections.emptyMap();
+  }
+
   @CheckForNull
   @Override
-  public CodeCharacteristic characteristic() {
+  public CleanCodeAttribute cleanCodeAttribute() {
     return null;
   }
 
@@ -139,8 +152,7 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   }
 
   @Override
-  public NewExternalIssue characteristic(CodeCharacteristic characteristic) {
-    // no op
+  public NewExternalIssue cleanCodeAttribute(CleanCodeAttribute attribute) {
     return this;
   }
 

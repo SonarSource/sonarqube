@@ -40,8 +40,8 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -148,10 +148,9 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return type;
   }
 
-  @CheckForNull
   @Override
-  public CodeCharacteristic characteristic() {
-    return null;
+  public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts() {
+    return Collections.emptyMap();
   }
 
   public DefaultIssue setType(RuleType type) {

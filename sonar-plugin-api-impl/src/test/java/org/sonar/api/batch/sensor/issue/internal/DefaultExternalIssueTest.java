@@ -30,7 +30,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.code.CodeCharacteristic;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 
@@ -162,13 +161,5 @@ public class DefaultExternalIssueTest {
     assertThatThrownBy(() -> issue.save())
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Severity is mandatory");
-  }
-
-  @Test
-  public void characteristic_shouldBeNoOp() {
-    SensorStorage storage = mock(SensorStorage.class);
-    DefaultExternalIssue issue = new DefaultExternalIssue(project, storage);
-    issue.characteristic(CodeCharacteristic.ROBUST);
-    assertThat(issue.characteristic()).isNull();
   }
 }

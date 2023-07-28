@@ -227,12 +227,6 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void characteristic_shouldReturnNull() {
-    DefaultIssue defaultIssue = new DefaultIssue();
-    assertThat(defaultIssue.characteristic()).isNull();
-  }
-
-  @Test
   public void setLine_whenLineIsNegative_shouldThrowException() {
     int anyNegativeValue = Integer.MIN_VALUE;
     assertThatThrownBy(() -> issue.setLine(anyNegativeValue))

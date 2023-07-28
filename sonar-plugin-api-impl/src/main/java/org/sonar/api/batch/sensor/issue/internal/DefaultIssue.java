@@ -20,7 +20,9 @@
 package org.sonar.api.batch.sensor.issue.internal;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
@@ -31,6 +33,7 @@ import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.fix.NewQuickFix;
 import org.sonar.api.batch.sensor.issue.fix.QuickFix;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 
 import static java.lang.String.format;
@@ -74,6 +77,11 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   public DefaultIssue overrideSeverity(@Nullable Severity severity) {
     this.overriddenSeverity = severity;
     return this;
+  }
+
+  @Override
+  public DefaultIssue overrideImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
+    return null;
   }
 
   @Override
@@ -132,6 +140,11 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
   @Override
   public Severity overriddenSeverity() {
     return this.overriddenSeverity;
+  }
+
+  @Override
+  public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> overridenImpacts() {
+    return Collections.emptyMap();
   }
 
   @Override

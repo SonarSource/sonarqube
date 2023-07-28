@@ -19,6 +19,8 @@
  */
 package org.sonar.api.batch.sensor.rule.internal;
 
+import java.util.Collections;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Severity;
@@ -26,7 +28,8 @@ import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.rule.AdHocRule;
 import org.sonar.api.batch.sensor.rule.NewAdHocRule;
-import org.sonar.api.code.CodeCharacteristic;
+import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -51,6 +54,11 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
   @Override
   public DefaultAdHocRule severity(Severity severity) {
     this.severity = severity;
+    return this;
+  }
+
+  @Override
+  public DefaultAdHocRule addDefaultImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
     return this;
   }
 
@@ -95,9 +103,14 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
     return type;
   }
 
+  @Override
+  public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> defaultImpacts() {
+    return Collections.emptyMap();
+  }
+
   @CheckForNull
   @Override
-  public CodeCharacteristic characteristic() {
+  public CleanCodeAttribute cleanCodeAttribute() {
     return null;
   }
 
@@ -132,8 +145,7 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
   }
 
   @Override
-  public NewAdHocRule characteristic(CodeCharacteristic characteristic) {
-    // no op
+  public DefaultAdHocRule cleanCodeAttribute(CleanCodeAttribute attribute) {
     return this;
   }
 
