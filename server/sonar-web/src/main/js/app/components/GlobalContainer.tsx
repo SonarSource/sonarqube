@@ -76,10 +76,12 @@ export default function GlobalContainer() {
                     <IndexationContextProvider>
                       <LanguagesContextProvider>
                         <MetricsContextProvider>
-                          <SystemAnnouncement />
-                          <IndexationNotification />
-                          <UpdateNotification dismissable />
-                          <GlobalNav location={location} />
+                          <div className="sw-sticky sw-top-0 sw-z-global-navbar">
+                            <SystemAnnouncement />
+                            <IndexationNotification />
+                            <UpdateNotification dismissable />
+                            <GlobalNav location={location} />
+                          </div>
                           <Outlet />
                         </MetricsContextProvider>
                       </LanguagesContextProvider>

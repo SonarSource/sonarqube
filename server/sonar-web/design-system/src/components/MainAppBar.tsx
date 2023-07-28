@@ -31,13 +31,11 @@ import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { BaseLink } from './Link';
 
 const MainAppBarDiv = styled.div`
-  ${tw`sw-sticky sw-top-0`}
   ${tw`sw-flex`};
   ${tw`sw-items-center`};
   ${tw`sw-px-6`};
   ${tw`sw-w-full`};
   ${tw`sw-box-border`};
-  ${tw`sw-z-global-navbar`};
 
   background: ${themeColor('mainBar')};
   border-bottom: ${themeBorder('default')};

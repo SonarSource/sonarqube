@@ -163,12 +163,15 @@ export const lightTheme = {
 
     warningBorder: COLORS.yellow[400],
     warningBackground: COLORS.yellow[50],
+    warningText: COLORS.yellow[900],
 
     successBorder: COLORS.green[400],
     successBackground: COLORS.green[50],
+    successText: COLORS.green[900],
 
     infoBorder: COLORS.blue[400],
     infoBackground: COLORS.blue[50],
+    infoText: COLORS.blue[900],
 
     // banner message
     bannerMessage: danger.lightest,

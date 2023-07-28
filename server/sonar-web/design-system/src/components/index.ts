@@ -21,6 +21,7 @@
 export * from './Accordion';
 export * from './Avatar';
 export { Badge } from './Badge';
+export * from './Banner';
 export { BarChart } from './BarChart';
 export { Breadcrumbs } from './Breadcrumbs';
 export * from './BubbleChart';
