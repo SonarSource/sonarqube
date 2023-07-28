@@ -31,6 +31,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -49,12 +50,14 @@ public class RuleRepositoryImpl implements RuleRepository {
 
   private final AdHocRuleCreator creator;
   private final DbClient dbClient;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
   private Map<RuleKey, NewAdHocRule> adHocRulesPersist = new HashMap<>();
 
-  public RuleRepositoryImpl(AdHocRuleCreator creator, DbClient dbClient) {
+  public RuleRepositoryImpl(AdHocRuleCreator creator, DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder) {
     this.creator = creator;
     this.dbClient = dbClient;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   public void addOrUpdateAddHocRuleIfNeeded(RuleKey ruleKey, Supplier<NewAdHocRule> ruleSupplier) {
@@ -132,9 +135,10 @@ public class RuleRepositoryImpl implements RuleRepository {
   private void loadRulesFromDb(DbSession dbSession) {
     this.rulesByKey = new HashMap<>();
     this.rulesByUuid = new HashMap<>();
+    String organizationUuid = analysisMetadataHolder.getOrganization().getUuid();
     Multimap<String, DeprecatedRuleKeyDto> deprecatedRuleKeysByRuleUuid = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession).stream()
       .collect(MoreCollectors.index(DeprecatedRuleKeyDto::getRuleUuid));
-    for (RuleDto ruleDto : dbClient.ruleDao().selectAll(dbSession)) {
+    for (RuleDto ruleDto : dbClient.ruleDao().selectAll(dbSession, organizationUuid)) {
       Rule rule = new RuleImpl(ruleDto);
       rulesByKey.put(ruleDto.getKey(), rule);
       rulesByUuid.put(ruleDto.getUuid(), rule);

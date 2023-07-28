@@ -28,6 +28,7 @@ public class DbVersion99 implements DbVersion {
     registry
       .add(6800, "Add node_name column to ce_activity table", AddNodeNameColumnToCeActivityTable.class)
       .add(6801, "Delete all analysis cache", DeleteAnalysisCache.class)
-      .add(6802, "Change user_uuid field size to 255 for audit table", UpdateUserUuidColumnSizeInAuditTable.class);
+      .add(6802, "Change user_uuid field size to 255 for audit table", UpdateUserUuidColumnSizeInAuditTable.class)
+      .add(6803, "Re-create table RULES_METADATA", CreateRulesMetadataTable.class);
   }
 }

@@ -752,12 +752,12 @@ public class RuleIndexTest {
 
     index();
 
-    assertThat(underTest.listTags(null, 10)).containsOnly("tag1", "tag2", "sys1", "sys2");
+    assertThat(underTest.listTags(null, null, 10)).containsOnly("tag1", "tag2", "sys1", "sys2");
   }
 
   @Test
   public void fail_to_list_tags_when_size_greater_than_500() {
-    assertThatThrownBy(() -> underTest.listTags(null, 501))
+    assertThatThrownBy(() -> underTest.listTags(null, null, 501))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Page size must be lower than or equals to 500");
   }

@@ -61,10 +61,6 @@ public class RuleDocTest {
     assertThat(ruleDoc.status()).isEqualTo(ruleForIndexingDto.getStatus());
     assertThat(ruleDoc.type().name()).isEqualTo(ruleForIndexingDto.getTypeAsRuleType().name());
     assertThat(ruleDoc.createdAt()).isEqualTo(ruleForIndexingDto.getCreatedAt());
-    assertThat(ruleDoc.getTags())
-      .containsAll(ruleForIndexingDto.getSystemTags())
-      .containsAll(ruleForIndexingDto.getTags())
-      .hasSize(ruleForIndexingDto.getSystemTags().size() + ruleForIndexingDto.getTags().size());
     assertThat(ruleDoc.updatedAt()).isEqualTo(ruleForIndexingDto.getUpdatedAt());
     assertThat(ruleDoc.templateKey().repository()).isEqualTo(ruleForIndexingDto.getTemplateRepository());
     assertThat(ruleDoc.templateKey().rule()).isEqualTo(ruleForIndexingDto.getTemplateRuleKey());

@@ -195,7 +195,7 @@ public class RuleDaoTest {
     RuleDto rule2 = db.rules().insertRule();
     RuleDto rule3 = db.rules().insertRule();
 
-    assertThat(underTest.selectAll(db.getSession()))
+    assertThat(underTest.selectAll(db.getSession(), "org"))
       .extracting(RuleDto::getUuid)
       .containsOnly(rule1.getUuid(), rule2.getUuid(), rule3.getUuid());
   }
@@ -246,7 +246,7 @@ public class RuleDaoTest {
     RuleDto rule2 = db.rules().insert();
     RuleDto removedRule = db.rules().insert(r -> r.setStatus(REMOVED));
 
-    List<RuleDto> ruleDtos = underTest.selectAll(db.getSession());
+    List<RuleDto> ruleDtos = underTest.selectAll(db.getSession(), "org");
 
     assertThat(ruleDtos).extracting(RuleDto::getUuid).containsOnly(rule1.getUuid(), rule2.getUuid(), removedRule.getUuid());
   }
@@ -1017,7 +1017,7 @@ public class RuleDaoTest {
     RuleDto r1 = db.rules().insert(ruleDto -> ruleDto.setTagsField("t1,t2"));
     db.rules().insert(ruleDto -> ruleDto.setTagsField("t1,t3"));
 
-    underTest.scrollIndexingRuleExtensionsByIds(db.getSession(), singletonList(r1.getUuid()), accumulator);
+    underTest.scrollIndexingRuleExtensionsByIds(db.getSession(), List.of(), accumulator);
 
     assertThat(accumulator.list)
       .extracting(RuleExtensionForIndexingDto::getRuleUuid, RuleExtensionForIndexingDto::getRuleKey, RuleExtensionForIndexingDto::getTags)

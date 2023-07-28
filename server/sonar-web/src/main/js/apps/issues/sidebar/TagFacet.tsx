@@ -26,7 +26,7 @@ import TagsIcon from '../../../components/icons/TagsIcon';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { Facet } from '../../../types/issues';
-import { Component, Dict } from '../../../types/types';
+import { Component, Dict, Organization } from '../../../types/types';
 import { Query } from '../utils';
 import { withOrganizationContext } from "../../organizations/OrganizationContext";
 import withComponentContext  from '../../../app/components/componentContext/withComponentContext';

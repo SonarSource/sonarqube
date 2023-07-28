@@ -26,17 +26,14 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
@@ -91,7 +88,6 @@ public class RuleDto {
 
   private String language = null;
   private String templateUuid = null;
-  private String organizationUuid = null;
   private String defRemediationFunction = null;
   private String defRemediationGapMultiplier = null;
   private String defRemediationBaseEffort = null;
@@ -104,38 +100,23 @@ public class RuleDto {
   private RuleKey key = null;
 
   private String pluginKey = null;
-  private String noteData = null;
-  private String noteUserUuid = null;
-  private Long noteCreatedAt = null;
-  private Long noteUpdatedAt = null;
-  private String remediationFunction = null;
-  private String remediationGapMultiplier = null;
-  private String remediationBaseEffort = null;
-  private String tags = null;
 
-  /**
-   * Name of on ad hoc rule.
-   */
-  private String adHocName = null;
-
-  /**
-   * Optional description of on ad hoc rule.
-   */
-  private String adHocDescription = null;
-
-  /**
-   * Severity of on ad hoc rule.
-   * When {@link RuleDto#isAdHoc()} is true, this field should always be set
-   */
-  private String adHocSeverity = null;
-
-  /**
-   * Type of on ad hoc rule.
-   * When {@link RuleDto#isAdHoc()} is true, this field should always be set
-   */
-  private Integer adHocType = null;
   private long createdAt = 0;
   private long updatedAt = 0;
+
+  private final RuleMetadataDto metadata;
+
+  public RuleDto() {
+    this(new RuleMetadataDto());
+  }
+
+  public RuleDto(RuleMetadataDto metadata) {
+    this.metadata = metadata;
+  }
+
+  public RuleMetadataDto getMetadata() {
+    return metadata;
+  }
 
   public RuleKey getKey() {
     if (key == null) {
@@ -157,6 +138,7 @@ public class RuleDto {
 
   public RuleDto setUuid(String uuid) {
     this.uuid = uuid;
+    metadata.setRuleUuid(uuid);
     return this;
   }
 
@@ -402,6 +384,7 @@ public class RuleDto {
 
   public RuleDto setCreatedAt(long createdAt) {
     this.createdAt = createdAt;
+    metadata.setCreatedAt(createdAt);
     return this;
   }
 
@@ -411,6 +394,7 @@ public class RuleDto {
 
   public RuleDto setUpdatedAt(long updatedAt) {
     this.updatedAt = updatedAt;
+    metadata.setUpdatedAt(updatedAt);
     return this;
   }
 
@@ -473,139 +457,136 @@ public class RuleDto {
 
   @CheckForNull
   public String getNoteData() {
-    return noteData;
+    return metadata.getNoteData();
   }
 
   public RuleDto setNoteData(@Nullable String s) {
-    this.noteData = s;
+    metadata.setNoteData(s);
     return this;
   }
 
   @CheckForNull
   public String getNoteUserUuid() {
-    return noteUserUuid;
+    return metadata.getNoteUserUuid();
   }
 
   public RuleDto setNoteUserUuid(@Nullable String noteUserUuid) {
-    this.noteUserUuid = noteUserUuid;
+    metadata.setNoteUserUuid(noteUserUuid);
     return this;
   }
 
   @CheckForNull
   public Long getNoteCreatedAt() {
-    return noteCreatedAt;
+    return metadata.getNoteCreatedAt();
   }
 
   public RuleDto setNoteCreatedAt(@Nullable Long noteCreatedAt) {
-    this.noteCreatedAt = noteCreatedAt;
+    metadata.setNoteCreatedAt(noteCreatedAt);
     return this;
   }
 
   @CheckForNull
   public Long getNoteUpdatedAt() {
-    return noteUpdatedAt;
+    return metadata.getNoteUpdatedAt();
   }
 
   public RuleDto setNoteUpdatedAt(@Nullable Long noteUpdatedAt) {
-    this.noteUpdatedAt = noteUpdatedAt;
+    metadata.setNoteUpdatedAt(noteUpdatedAt);
     return this;
   }
 
   @CheckForNull
   public String getRemediationFunction() {
-    return remediationFunction;
+    return metadata.getRemediationFunction();
   }
 
   public RuleDto setRemediationFunction(@Nullable String remediationFunction) {
-    this.remediationFunction = remediationFunction;
+    metadata.setRemediationFunction(remediationFunction);
     return this;
   }
 
   @CheckForNull
   public String getRemediationGapMultiplier() {
-    return remediationGapMultiplier;
+    return metadata.getRemediationGapMultiplier();
   }
 
   public RuleDto setRemediationGapMultiplier(@Nullable String remediationGapMultiplier) {
-    this.remediationGapMultiplier = remediationGapMultiplier;
+    metadata.setRemediationGapMultiplier(remediationGapMultiplier);
     return this;
   }
 
   @CheckForNull
   public String getRemediationBaseEffort() {
-    return remediationBaseEffort;
+    return metadata.getRemediationBaseEffort();
   }
 
   public RuleDto setRemediationBaseEffort(@Nullable String remediationBaseEffort) {
-    this.remediationBaseEffort = remediationBaseEffort;
+    metadata.setRemediationBaseEffort(remediationBaseEffort);
     return this;
   }
 
   public Set<String> getTags() {
-    return tags == null ? new HashSet<>() : new TreeSet<>(asList(StringUtils.split(tags, ',')));
+    return metadata.getTags();
   }
 
   String getTagsAsString() {
-    return tags;
+    return metadata.getTagsAsString();
+  }
+
+  /**
+   * Used in MyBatis mapping.
+   */
+  public void setTagsField(String s) {
+    metadata.setTagsField(s);
   }
 
   public RuleDto setTags(Set<String> tags) {
-    String raw = tags.isEmpty() ? null : String.join(",", tags);
-    checkArgument(raw == null || raw.length() <= 4000, "Rule tags are too long: %s", raw);
-    this.tags = raw;
+    this.metadata.setTags(tags);
     return this;
-  }
-
-  private String getTagsField() {
-    return tags;
-  }
-
-  void setTagsField(String s) {
-    tags = s;
   }
 
   @CheckForNull
   public String getAdHocName() {
-    return adHocName;
+    return metadata.getAdHocName();
   }
 
   public RuleDto setAdHocName(@Nullable String adHocName) {
-    this.adHocName = adHocName;
+    metadata.setAdHocName(adHocName);
     return this;
   }
 
   @CheckForNull
   public String getAdHocDescription() {
-    return adHocDescription;
+    return metadata.getAdHocDescription();
   }
 
   public RuleDto setAdHocDescription(@Nullable String adHocDescription) {
-    this.adHocDescription = adHocDescription;
+    metadata.setAdHocDescription(adHocDescription);
     return this;
   }
 
   @CheckForNull
   public String getAdHocSeverity() {
-    return adHocSeverity;
+    return metadata.getAdHocSeverity();
   }
 
   public RuleDto setAdHocSeverity(@Nullable String adHocSeverity) {
-    this.adHocSeverity = adHocSeverity;
+    metadata.setAdHocSeverity(adHocSeverity);
     return this;
   }
 
   @CheckForNull
   public Integer getAdHocType() {
-    return adHocType;
+    return metadata.getAdHocType();
   }
 
-  public RuleDto setAdHocType(@Nullable Integer adHocType) {
-    this.adHocType = adHocType;
+  public RuleDto setAdHocType(@Nullable Integer type) {
+    metadata.setAdHocType(type);
     return this;
   }
 
   public RuleDto setAdHocType(@Nullable RuleType adHocType) {
-    setAdHocType(adHocType != null ? adHocType.getDbConstant() : null);
+    metadata.setAdHocType(adHocType);
     return this;
   }
 
@@ -615,11 +596,11 @@ public class RuleDto {
 
   @CheckForNull
   public String getOrganizationUuid() {
-    return organizationUuid;
+    return metadata.getOrganizationUuid();
   }
 
   public RuleDto setOrganizationUuid(String organizationUuid) {
-    this.organizationUuid = organizationUuid;
+    metadata.setOrganizationUuid(organizationUuid);
     return this;
   }
 

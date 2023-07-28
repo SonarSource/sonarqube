@@ -42,8 +42,9 @@ public class ExportAdHocRulesStep implements ComputationStep {
 
   private static final String QUERY = "select" +
     " r.uuid, r.plugin_key, r.plugin_rule_key, r.plugin_name, r.name, r.status, r.rule_type, r.scope, r.ad_hoc_name," +
-    " r.ad_hoc_description,r.ad_hoc_severity, r.ad_hoc_type" +
+    " rm.ad_hoc_description,rm.ad_hoc_severity, rm.ad_hoc_type" +
     " from rules r" +
+    " left join rules_metadata rm on rm.rule_uuid = r.uuid" +
     " inner join issues i on r.uuid = i.rule_uuid and r.status <> ? and r.is_ad_hoc = ?" +
     " left join components p on p.uuid = i.project_uuid" +
     " left join project_branches pb on pb.uuid = p.uuid" +

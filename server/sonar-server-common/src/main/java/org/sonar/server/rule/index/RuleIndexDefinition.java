@@ -67,16 +67,21 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String FIELD_RULE_OWASP_TOP_10_2021 = "owaspTop10-2021";
   public static final String FIELD_RULE_SANS_TOP_25 = "sansTop25";
   public static final String FIELD_RULE_SONARSOURCE_SECURITY = "sonarsourceSecurity";
-  public static final String FIELD_RULE_TAGS = "tags";
 
   public static final Set<String> SORT_FIELDS = ImmutableSet.of(
     FIELD_RULE_NAME,
     FIELD_RULE_UPDATED_AT,
     FIELD_RULE_CREATED_AT,
     FIELD_RULE_KEY);
+
+  // Rule extension fields
   public static final IndexRelationType TYPE_RULE_EXTENSION = IndexType.relation(TYPE_RULE, "ruleExtension");
+  /**
+   * The uuid of a {@link RuleExtensionScope}
+   */
   public static final String FIELD_RULE_EXTENSION_SCOPE = "ruleExt_scope";
   public static final String FIELD_RULE_EXTENSION_TAGS = "ruleExt_tags";
+
   // Active rule fields
   public static final IndexRelationType TYPE_ACTIVE_RULE = IndexType.relation(TYPE_RULE, "activeRule");
   public static final String FIELD_ACTIVE_RULE_UUID = "activeRule_uuid";
@@ -136,7 +141,6 @@ public class RuleIndexDefinition implements IndexDefinition {
     ruleMapping.keywordFieldBuilder(FIELD_RULE_SEVERITY).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_STATUS).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_LANGUAGE).disableNorms().build();
-    ruleMapping.keywordFieldBuilder(FIELD_RULE_TAGS).build();
 
     ruleMapping.createBooleanField(FIELD_RULE_IS_TEMPLATE);
     ruleMapping.createBooleanField(FIELD_RULE_IS_EXTERNAL);
@@ -160,5 +164,11 @@ public class RuleIndexDefinition implements IndexDefinition {
       .keywordFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_UUID).disableNorms().build()
       .keywordFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build()
       .keywordFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build();
+
+
+    // Rule extension
+    index.createTypeMapping(TYPE_RULE_EXTENSION)
+            .keywordFieldBuilder(FIELD_RULE_EXTENSION_SCOPE).disableNorms().build()
+            .keywordFieldBuilder(FIELD_RULE_EXTENSION_TAGS).build();
   }
 }

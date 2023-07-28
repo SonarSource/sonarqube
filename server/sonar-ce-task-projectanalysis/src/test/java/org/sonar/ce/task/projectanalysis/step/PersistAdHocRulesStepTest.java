@@ -104,7 +104,7 @@ public class PersistAdHocRulesStepTest extends BaseStepTest {
     underTest.execute(new TestComputationStepContext());
 
     RuleDao ruleDao = dbClient.ruleDao();
-    assertThat(ruleDao.selectAll(dbClient.openSession(false))).hasSize(1);
+    assertThat(ruleDao.selectAll(dbClient.openSession(false), "org")).hasSize(1);
     assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isZero();
   }
 

@@ -23,12 +23,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
+import org.sonar.db.es.RuleExtensionId;
 
 public interface RuleMapper {
 
-  List<RuleDto> selectAll();
+  List<RuleDto> selectAll(@Param("organizationUuid") String organizationUuid);
+
+  List<RuleDto> selectAllRules();
 
   List<RuleDto> selectEnabled();
 
@@ -36,13 +40,19 @@ public interface RuleMapper {
 
   List<RuleDto> selectByUuids(@Param("uuids") List<String> uuids);
 
+  List<RuleDto> selectByUuidsAndOrganization(@Param("organizationUuid") String organizationUuid, @Param("uuids") List<String> uuids);
+
   RuleDto selectByKey(@Param("ruleKey") RuleKey ruleKey);
+
+  RuleDto selectByKeyAndOrganization(@Param("organizationUuid") String organizationUuid, @Param("ruleKey") RuleKey ruleKey);
 
   RuleDto selectByOrganizationAndKey(@Param("organizationUuid") String organizationUuid, @Param("ruleKey") RuleKey ruleKey);
 
   List<RuleDto> selectByKeys(@Param("ruleKeys") List<RuleKey> keys);
 
-  List<RuleExtensionForIndexingDto> selectIndexingRuleExtensionsByIds(@Param("ruleExtensionIds") List<String> ruleExtensionIds);
+  List<RuleExtensionForIndexingDto> selectIndexingRuleExtensionsByIds(@Param("ruleExtensionIds") List<RuleExtensionId> ruleExtensionIds);
+
+  void selectIndexingRuleExtensions(ResultHandler<RuleExtensionForIndexingDto> handler);
 
   List<RuleDto> selectByQuery(@Param("query") RuleQuery ruleQuery);
 
@@ -79,4 +89,12 @@ public interface RuleMapper {
   void deleteDeprecatedRuleKeys(@Param("uuids") List<String> uuids);
 
   void insertDeprecatedRuleKey(DeprecatedRuleKeyDto deprecatedRuleKeyDto);
+
+  int countMetadata(RuleMetadataDto ruleMetadataDto);
+
+  void insertMetadata(RuleMetadataDto ruleMetadataDto);
+
+  void deleteMetadata(RuleMetadataDto ruleMetadataDto);
+
+  void updateMetadata(RuleMetadataDto ruleMetadataDto);
 }

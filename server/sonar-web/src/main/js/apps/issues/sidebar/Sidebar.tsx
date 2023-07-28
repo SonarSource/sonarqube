@@ -138,6 +138,10 @@ export class Sidebar extends React.PureComponent<Props> {
     const displayProjectsFacet = !component || isView(component.qualifier);
     const displayAuthorFacet = !component || component.qualifier !== 'DEV';
 
+    const organizationKey =
+        (component && component.organization) ||
+        (this.props.organization && this.props.organization.kee);
+
     return (
       <>
         {displayPeriodFilter && (
@@ -248,6 +252,7 @@ export class Sidebar extends React.PureComponent<Props> {
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.rules}
+          organization={organizationKey}
           query={query}
           referencedRules={this.props.referencedRules}
           rules={query.rules}
@@ -261,6 +266,7 @@ export class Sidebar extends React.PureComponent<Props> {
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
           open={!!openFacets.tags}
+          organization={organizationKey}
           query={query}
           stats={facets.tags}
           tags={query.tags}

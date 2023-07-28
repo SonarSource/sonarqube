@@ -26,6 +26,7 @@ export interface Props {
   setTags: (tags: string[]) => void;
   sysTags: string[];
   tags: string[];
+  organization: string | undefined;
 }
 
 interface State {
@@ -50,6 +51,7 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
     return getRuleTags({
       q: query,
       ps: Math.min(this.props.tags.length + LIST_SIZE, 100),
+      organization: this.props.organization,
     }).then(
       (tags) => {
         if (this.mounted) {

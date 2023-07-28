@@ -94,6 +94,7 @@ public final class SqTables {
     "saml_message_ids",
     "rules",
     "rule_desc_sections",
+    "rules_metadata",
     "rules_parameters",
     "rules_profiles",
     "rule_repositories",

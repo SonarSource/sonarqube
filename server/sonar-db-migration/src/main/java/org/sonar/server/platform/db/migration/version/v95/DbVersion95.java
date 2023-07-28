@@ -37,13 +37,13 @@ public class DbVersion95 implements DbVersion {
       .add(6406, "Insert description from RULES into RULE_DESC_SECTIONS", InsertRuleDescriptionIntoRuleDescSections.class)
       .add(6407, "Create index for RULE_DESC_SECTIONS", CreateIndexForRuleDescSections.class)
       .add(6408, "Drop column DESCRIPTIONS from RULES table", DropRuleDescriptionColumn.class)
-      .add(6409, "Drop column CREATED_AT from RULES_METADATA table", DropRuleMetadataCreatedAtColumn.class)
-      .add(6410, "Drop column UPDATED_AT from RULES_METADATA table", DropRuleMetadataUpdatedAtColumn.class)
+//      .add(6409, "Drop column CREATED_AT from RULES_METADATA table", DropRuleMetadataCreatedAtColumn.class)
+//      .add(6410, "Drop column UPDATED_AT from RULES_METADATA table", DropRuleMetadataUpdatedAtColumn.class)
       .add(6411, "Overwrite plugin file hash to force reloading rules", ForceReloadingOfAllPlugins.class)
 
-      .add(6412, "Add rules_metadata columns to rules table", AddRulesMetadataColumnsToRulesTable.class)
-      .add(6413, "Populate rules metadata in rules table", PopulateRulesMetadataInRuleTable.class)
-      .add(6414, "Drop rules_metadata table", DropRuleMetadataTable.class)
+//      .add(6412, "Add rules_metadata columns to rules table", AddRulesMetadataColumnsToRulesTable.class)
+//      .add(6413, "Populate rules metadata in rules table", PopulateRulesMetadataInRuleTable.class)
+//      .add(6414, "Drop rules_metadata table", DropRuleMetadataTable.class)
 
       .add(6415, "Migrate hotspot rule descriptions", MigrateHotspotRuleDescriptions.class)
 

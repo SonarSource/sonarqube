@@ -102,6 +102,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
                 setTags={this.props.onTagsChange}
                 sysTags={sysTags}
                 tags={tags}
+                organization={this.props.organization}
               />
             }
             overlayPlacement={PopupPlacement.BottomLeft}

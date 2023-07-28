@@ -27,9 +27,13 @@ import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { BasicProps } from './Facet';
 
-export default class TagFacet extends React.PureComponent<BasicProps> {
+interface Props extends BasicProps {
+  organization: string | undefined;
+}
+
+export default class TagFacet extends React.PureComponent<Props> {
   handleSearch = (query: string) => {
-    return getRuleTags({ ps: 50, q: query }).then((tags) => ({
+    return getRuleTags({ organization: this.props.organization, ps: 50, q: query }).then((tags) => ({
       paging: { pageIndex: 1, pageSize: tags.length, total: tags.length },
       results: tags,
     }));

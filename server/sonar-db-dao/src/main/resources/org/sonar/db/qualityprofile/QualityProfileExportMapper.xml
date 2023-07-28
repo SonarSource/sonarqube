@@ -25,8 +25,8 @@
     r.name,
     r.description_format as "descriptionFormat",
     r.rule_type as "type",
-    r.note_data as "extendedDescription",
-    r.tags,
+    rm.note_data as "extendedDescription",
+    rm.tags,
     rt.plugin_rule_key as "template",
     rds.content as "description"
   </sql>
@@ -60,6 +60,7 @@
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
     inner join rules r on r.uuid = a.rule_uuid and r.status != 'REMOVED'
     left join rules rt on rt.uuid = r.template_uuid
+    left join rules_metadata rm on rm.rule_uuid = r.uuid
     <include refid="leftOuterJoinRulesDefaultDescriptionSection"/>
     where oqp.uuid = #{id, jdbcType=VARCHAR}
   </select>

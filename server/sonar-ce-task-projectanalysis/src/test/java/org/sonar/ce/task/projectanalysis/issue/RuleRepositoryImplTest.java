@@ -29,6 +29,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -43,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -57,10 +59,15 @@ public class RuleRepositoryImplTest {
   private static final RuleKey DEPRECATED_KEY_OF_NON_EXITING_RULE = RuleKey.of("some_rep", "some_key");
   private static final RuleKey AC_RULE_KEY = RuleKey.of("a", "c");
   private static final String AC_RULE_UUID = "uuid-684";
-
+  private static final String ORGANIZATION_UUID = "org-1";
+  private static final String QUALITY_GATE_UUID = "QUALITY_GATE_UUID";
 
   @org.junit.Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
+  @org.junit.Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
+          .setOrganizationUuid(ORGANIZATION_UUID, QUALITY_GATE_UUID);
 
   private DbClient dbClient = mock(DbClient.class);
   private DbSession dbSession = mock(DbSession.class);
@@ -68,13 +75,13 @@ public class RuleRepositoryImplTest {
 
   private RuleIndexer ruleIndexer = mock(RuleIndexer.class);
   private AdHocRuleCreator adHocRuleCreator = new AdHocRuleCreator(db.getDbClient(), System2.INSTANCE, ruleIndexer, new SequenceUuidFactory());
-  private RuleRepositoryImpl underTest = new RuleRepositoryImpl(adHocRuleCreator, dbClient);
+  private RuleRepositoryImpl underTest = new RuleRepositoryImpl(adHocRuleCreator, dbClient, analysisMetadataHolder);
 
   @Before
   public void setUp() {
     when(dbClient.openSession(anyBoolean())).thenReturn(dbSession);
     when(dbClient.ruleDao()).thenReturn(ruleDao);
-    when(ruleDao.selectAll(any(DbSession.class))).thenReturn(ImmutableList.of(AB_RULE));
+    when(ruleDao.selectAll(any(DbSession.class), eq(ORGANIZATION_UUID))).thenReturn(ImmutableList.of(AB_RULE));
     DeprecatedRuleKeyDto abDeprecatedRuleKey1 = deprecatedRuleKeyOf(AB_RULE, AB_RULE_DEPRECATED_KEY_1);
     DeprecatedRuleKeyDto abDeprecatedRuleKey2 = deprecatedRuleKeyOf(AB_RULE, AB_RULE_DEPRECATED_KEY_2);
     DeprecatedRuleKeyDto deprecatedRuleOfNonExistingRule = deprecatedRuleKeyOf("unknown-rule-uuid", DEPRECATED_KEY_OF_NON_EXITING_RULE);
@@ -101,7 +108,7 @@ public class RuleRepositoryImplTest {
   public void first_call_to_getByKey_triggers_call_to_db_and_any_subsequent_get_or_find_call_does_not() {
     underTest.getByKey(AB_RULE.getKey());
 
-    verify(ruleDao, times(1)).selectAll(any(DbSession.class));
+    verify(ruleDao, times(1)).selectAll(any(DbSession.class), eq(ORGANIZATION_UUID));
 
     verifyNoMethodCallTriggersCallToDB();
   }
@@ -110,7 +117,7 @@ public class RuleRepositoryImplTest {
   public void first_call_to_findByKey_triggers_call_to_db_and_any_subsequent_get_or_find_call_does_not() {
     underTest.findByKey(AB_RULE.getKey());
 
-    verify(ruleDao, times(1)).selectAll(any(DbSession.class));
+    verify(ruleDao, times(1)).selectAll(any(DbSession.class), eq(ORGANIZATION_UUID));
 
     verifyNoMethodCallTriggersCallToDB();
   }
@@ -119,7 +126,7 @@ public class RuleRepositoryImplTest {
   public void first_call_to_getById_triggers_call_to_db_and_any_subsequent_get_or_find_call_does_not() {
     underTest.getByUuid(AB_RULE.getUuid());
 
-    verify(ruleDao, times(1)).selectAll(any(DbSession.class));
+    verify(ruleDao, times(1)).selectAll(any(DbSession.class), eq(ORGANIZATION_UUID));
 
     verifyNoMethodCallTriggersCallToDB();
   }
@@ -128,7 +135,7 @@ public class RuleRepositoryImplTest {
   public void first_call_to_findById_triggers_call_to_db_and_any_subsequent_get_or_find_call_does_not() {
     underTest.findByUuid(AB_RULE.getUuid());
 
-    verify(ruleDao, times(1)).selectAll(any(DbSession.class));
+    verify(ruleDao, times(1)).selectAll(any(DbSession.class), eq(ORGANIZATION_UUID));
 
     verifyNoMethodCallTriggersCallToDB();
   }
@@ -263,7 +270,7 @@ public class RuleRepositoryImplTest {
 
   @Test
   public void persist_new_externally_defined_Rules() {
-    underTest = new RuleRepositoryImpl(adHocRuleCreator, db.getDbClient());
+    underTest = new RuleRepositoryImpl(adHocRuleCreator, db.getDbClient(), analysisMetadataHolder);
 
     RuleKey ruleKey = RuleKey.of("external_eslint", "no-cond-assign");
     underTest.addOrUpdateAddHocRuleIfNeeded(ruleKey, () -> new NewAdHocRule(ScannerReport.ExternalIssue.newBuilder().setEngineId("eslint").setRuleId("no-cond-assign").build()));

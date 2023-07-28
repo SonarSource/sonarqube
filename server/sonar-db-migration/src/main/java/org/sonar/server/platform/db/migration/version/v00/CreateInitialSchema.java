@@ -1291,7 +1291,7 @@ public class CreateInitialSchema extends DdlChange {
     addIndex(context, "rules", "rules_organization_uuid", false, organizationUuidCol, pluginNameCol);
   }
 
-  private void createRulesMetadata(Context context) {
+  public void createRulesMetadata(Context context) {
     String tableName = "rules_metadata";
     context.execute(newTableBuilder(tableName)
       .addPkColumn(newVarcharColumnDefBuilder(RULE_UUID_COL_NAME).setLimit(UUID_SIZE).setIsNullable(false).build())

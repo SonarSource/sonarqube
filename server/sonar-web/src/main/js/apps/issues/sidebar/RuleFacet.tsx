@@ -42,7 +42,7 @@ interface Props {
 
 export default class RuleFacet extends React.PureComponent<Props> {
   handleSearch = (query: string, page = 1) => {
-    const { languages } = this.props;
+    const { languages, organization } = this.props;
     return searchRules({
       f: 'name,langName',
       languages: languages.length ? languages.join() : undefined,

@@ -95,7 +95,7 @@ public class RuleUpdater {
    */
   private RuleDto getRuleDto(RuleUpdate change) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, change.getRuleKey());
+      RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, change.getOrganization(), change.getRuleKey());
       if (RuleStatus.REMOVED == rule.getStatus()) {
         throw new IllegalArgumentException("Rule with REMOVED status cannot be updated: " + change.getRuleKey());
       }

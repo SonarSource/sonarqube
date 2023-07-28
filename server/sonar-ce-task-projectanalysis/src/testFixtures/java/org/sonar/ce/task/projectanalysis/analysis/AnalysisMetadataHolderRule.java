@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.sonar.ce.task.util.InitializedProperty;
 import org.sonar.db.component.BranchType;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.project.Project;
 import org.sonar.server.qualityprofile.QualityProfile;
 
@@ -55,6 +56,12 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   public AnalysisMetadataHolderRule setOrganization(Organization organization) {
     requireNonNull(organization, "organization can't be null");
     this.organization.setProperty(organization);
+    return this;
+  }
+
+  public AnalysisMetadataHolderRule setOrganizationUuid(String uuid, String defaultQualityGateUuid) {
+    requireNonNull(uuid, "organization uuid can't be null");
+    this.organization.setProperty(Organization.from(new OrganizationDto().setUuid(uuid).setKey("key_" + uuid).setName("name_" + uuid).setDefaultQualityGateUuid(defaultQualityGateUuid)));
     return this;
   }
 

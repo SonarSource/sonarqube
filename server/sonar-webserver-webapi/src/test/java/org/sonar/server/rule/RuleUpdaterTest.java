@@ -199,7 +199,7 @@ public class RuleUpdaterTest {
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
     // verify that tags are indexed in index
-    List<String> tags = ruleIndex.listTags(null, 10);
+    List<String> tags = ruleIndex.listTags(null, null, 10);
     assertThat(tags).containsExactly("bug", "java8", "javadoc");
   }
 
@@ -214,7 +214,7 @@ public class RuleUpdaterTest {
 
     RuleUpdate update = createForPluginRule(RULE_KEY)
       .setTags(null);
-    underTest.update(dbSession, update, userSessionRule);
+    underTest.update(dbSession, update, null, userSessionRule);
 
     dbSession.clearCache();
     RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, RULE_KEY);
@@ -222,7 +222,7 @@ public class RuleUpdaterTest {
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
     // verify that tags are indexed in index
-    List<String> tags = ruleIndex.listTags(null, 10);
+    List<String> tags = ruleIndex.listTags(null, null, 10);
     assertThat(tags).containsExactly("java8", "javadoc");
   }
 
@@ -237,7 +237,7 @@ public class RuleUpdaterTest {
     DefaultDebtRemediationFunction fn = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "1min");
     RuleUpdate update = createForPluginRule(RULE_KEY)
       .setDebtRemediationFunction(fn);
-    underTest.update(dbSession, update, userSessionRule);
+    underTest.update(dbSession, update, null, userSessionRule);
     dbSession.clearCache();
 
     // verify debt is overridden

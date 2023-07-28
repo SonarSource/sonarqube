@@ -594,6 +594,7 @@ export class App extends React.PureComponent<Props, State> {
                       onFacetToggle={this.handleFacetToggle}
                       onFilterChange={this.handleFilterChange}
                       openFacets={this.state.openFacets}
+                      organization={this.props.organization.kee}
                       query={query}
                       referencedProfiles={this.state.referencedProfiles}
                       referencedRepositories={this.state.referencedRepositories}

@@ -19,6 +19,7 @@
  */
 package org.sonar.db.rule;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
@@ -36,6 +36,8 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.es.RuleExtensionId;
+import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.emptyList;
@@ -68,6 +70,13 @@ public class RuleDao implements Dao {
       .orElseThrow(() -> new RowNotFoundException(String.format("Rule with key '%s' does not exist", key)));
   }
 
+  public RuleDto selectOrFailByKey(DbSession session, OrganizationDto organization, RuleKey key) {
+    RuleDto rule =  Optional.ofNullable(mapper(session).selectByKeyAndOrganization(organization.getUuid(), key))
+      .orElseThrow(() -> new RowNotFoundException(String.format("Rule with key '%s' does not exist", key)));
+    ensureOrganizationIsSet(organization.getUuid(), rule);
+    return rule;
+  }
+
   public Optional<RuleDto> selectByUuid(String uuid, DbSession session) {
     return Optional.ofNullable(mapper(session).selectByUuid(uuid));
   }
@@ -77,6 +86,15 @@ public class RuleDao implements Dao {
       return emptyList();
     }
     return executeLargeInputs(uuids, chunk -> mapper(session).selectByUuids(chunk));
+  }
+
+  public List<RuleDto> selectByUuids(DbSession session, String organizationUuid, Collection<String> uuids) {
+    if (uuids.isEmpty()) {
+      return emptyList();
+    }
+    return ensureOrganizationIsSet(
+            organizationUuid,
+            executeLargeInputs(uuids, chunk -> mapper(session).selectByUuidsAndOrganization(organizationUuid, chunk)));
   }
 
   public List<RuleDto> selectByKeys(DbSession session, Collection<RuleKey> keys) {
@@ -90,8 +108,12 @@ public class RuleDao implements Dao {
     return mapper(session).selectEnabled();
   }
 
+  public List<RuleDto> selectAll(DbSession session, String organizationUuid) {
+    return ensureOrganizationIsSet(organizationUuid, mapper(session).selectAll(organizationUuid));
+  }
+
   public List<RuleDto> selectAll(DbSession session) {
-    return mapper(session).selectAll();
+    return mapper(session).selectAllRules();
   }
 
   public List<RuleDto> selectByTypeAndLanguages(DbSession session, List<Integer> types, List<String> languages) {
@@ -110,12 +132,14 @@ public class RuleDao implements Dao {
     checkNotNull(ruleDto.getUuid(), "RuleDto has no 'uuid'.");
     RuleMapper mapper = mapper(session);
     mapper.insertRule(ruleDto);
+    insertOrUpdateRuleMetadata(session, ruleDto.getMetadata());
     updateRuleDescriptionSectionDtos(ruleDto, mapper);
   }
 
   public void update(DbSession session, RuleDto ruleDto) {
     RuleMapper mapper = mapper(session);
     mapper.updateRule(ruleDto);
+    insertOrUpdateRuleMetadata(session, ruleDto.getMetadata());
     updateRuleDescriptionSectionDtos(ruleDto, mapper);
   }
 
@@ -129,13 +153,20 @@ public class RuleDao implements Dao {
       .forEach(section -> mapper.insertRuleDescriptionSection(ruleDto.getUuid(), section));
   }
 
-  public void scrollIndexingRuleExtensionsByIds(DbSession dbSession, Collection<String> ruleExtensionIds, Consumer<RuleExtensionForIndexingDto> consumer) {
+  public void scrollIndexingRuleExtensionsByIds(DbSession dbSession, Collection<RuleExtensionId> ruleExtensionIds, Consumer<RuleExtensionForIndexingDto> consumer) {
     RuleMapper mapper = mapper(dbSession);
 
     executeLargeInputsWithoutOutput(ruleExtensionIds,
       pageOfRuleExtensionIds -> mapper
         .selectIndexingRuleExtensionsByIds(pageOfRuleExtensionIds)
         .forEach(consumer));
+  }
+
+  public void scrollIndexingRuleExtensions(DbSession dbSession, Consumer<RuleExtensionForIndexingDto> consumer) {
+    mapper(dbSession).selectIndexingRuleExtensions(context -> {
+      RuleExtensionForIndexingDto dto = context.getResultObject();
+      consumer.accept(dto);
+    });
   }
 
   public void selectIndexingRulesByKeys(DbSession dbSession, Collection<String> ruleUuids, Consumer<RuleForIndexingDto> consumer) {
@@ -150,7 +181,7 @@ public class RuleDao implements Dao {
 
   public void selectIndexingRules(DbSession dbSession, Consumer<RuleForIndexingDto> consumer) {
     RuleMapper mapper = mapper(dbSession);
-    executeLargeInputsWithoutOutput(mapper.selectAll(),
+    executeLargeInputsWithoutOutput(mapper.selectAllRules(),
       ruleDtos -> processRuleDtos(ruleDtos, consumer, mapper));
   }
 
@@ -253,5 +284,16 @@ public class RuleDao implements Dao {
   private static List<RuleDto> ensureOrganizationIsSet(String organizationUuid, List<RuleDto> res) {
     res.forEach(dto -> ensureOrganizationIsSet(organizationUuid, dto));
     return res;
+  }
+
+  @VisibleForTesting
+  void insertOrUpdateRuleMetadata(DbSession session, RuleMetadataDto ruleMetadataDto) {
+    if (ruleMetadataDto.isUndefined()) {
+      mapper(session).deleteMetadata(ruleMetadataDto);
+    } else if (mapper(session).countMetadata(ruleMetadataDto) > 0) {
+      mapper(session).updateMetadata(ruleMetadataDto);
+    } else {
+      mapper(session).insertMetadata(ruleMetadataDto);
+    }
   }
 }
