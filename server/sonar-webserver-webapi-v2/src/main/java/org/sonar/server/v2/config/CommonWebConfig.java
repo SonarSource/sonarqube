@@ -50,11 +50,13 @@ public class CommonWebConfig {
   @Bean
   public OpenAPI customOpenAPI() {
     return new OpenAPI()
-      .info(
-        new Info()
-          .title("SonarQube Web API")
-          .version("1.0.0 beta")
-          .description("Documentation of SonarQube Web API")
+      .info(new Info()
+          .title("SonarQube Web API v2")
+          .version("1.0.0 alpha")
+          .description("""
+            The SonarQube API v2 is a REST API which enables you to interact with SonarQube programmatically. Endpoint listed here should work as expected.
+            However, you should not consider the API stable for now as it is still under development. New releases of SonarQube can bring changes to existing endpoint definitions.
+            """)
       );
   }
 
