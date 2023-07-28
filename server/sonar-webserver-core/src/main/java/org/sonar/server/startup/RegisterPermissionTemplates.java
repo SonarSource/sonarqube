@@ -111,6 +111,13 @@ public class RegisterPermissionTemplates implements Startable {
     insertGroupPermission(dbSession, template, UserRole.CODEVIEWER, defaultGroup);
     insertGroupPermission(dbSession, template, UserRole.ISSUE_ADMIN, defaultGroup);
     insertGroupPermission(dbSession, template, UserRole.SECURITYHOTSPOT_ADMIN, defaultGroup);
+
+    dbClient.groupDao().selectByName(dbSession, template.getOrganizationUuid(), "Members").ifPresent(membersGroup -> {
+      insertGroupPermission(dbSession, template, UserRole.USER, membersGroup);
+      insertGroupPermission(dbSession, template, UserRole.CODEVIEWER, membersGroup);
+      insertGroupPermission(dbSession, template, UserRole.ISSUE_ADMIN, membersGroup);
+      insertGroupPermission(dbSession, template, UserRole.SECURITYHOTSPOT_ADMIN, membersGroup);
+    });
   }
 
   private void insertGroupPermission(DbSession dbSession, PermissionTemplateDto template, String permission, GroupDto group) {

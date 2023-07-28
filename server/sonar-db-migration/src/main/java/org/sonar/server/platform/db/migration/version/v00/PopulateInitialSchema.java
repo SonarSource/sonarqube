@@ -40,9 +40,11 @@ public class PopulateInitialSchema extends DataChange {
 
   private static final String ADMINS_GROUP = "sonar-administrators";
   private static final String USERS_GROUP = "sonar-users";
+  private static final String MEMBERS_GROUP = "Members";
   private static final String ADMIN_USER = "admin";
   private static final String ADMIN_CRYPTED_PASSWORD = "$2a$12$uCkkXmhW5ThVK8mpBvnXOOJRLd64LJeHTeCkSuB3lfaR2N0AYBaSi";
   private static final List<String> ADMIN_ROLES = Arrays.asList("admin", "profileadmin", "gateadmin", "provisioning", "applicationcreator", "portfoliocreator");
+  private static final String ORGANIZATION_ENABLED = "organization.enabled";
 
   private final System2 system2;
   private final UuidFactory uuidFactory;
@@ -68,6 +70,18 @@ public class PopulateInitialSchema extends DataChange {
     insertGroupRoles(context, organizationUuid, groups);
     insertGroupUsers(context, adminUserUuid, groups);
     insertOrganizationMember(context, adminUserUuid, organizationUuid);
+    insertOrganizationsEnabled(context);
+  }
+
+  private void insertOrganizationsEnabled(Context context) throws SQLException {
+    context.prepareUpsert("INSERT INTO internal_properties " +
+                    "(kee, is_empty, text_value, created_at)" +
+                    " values (?, false, ?, ?)")
+            .setString(1, ORGANIZATION_ENABLED)
+            .setString(2, String.valueOf(true))
+            .setLong(3, system2.now())
+            .execute()
+            .commit();
   }
 
   private String insertAdminUser(Context context) throws SQLException {
@@ -186,10 +200,18 @@ public class PopulateInitialSchema extends DataChange {
       .setDate(6, now)
       .addBatch();
     upsert
+      .setString(1, uuidFactory.create())
+      .setString(2, organizationUuid)
+      .setString(3, MEMBERS_GROUP)
+      .setString(4, "All members of the organization")
+      .setDate(5, now)
+      .setDate(6, now)
+      .addBatch();
+    upsert
       .execute()
       .commit();
 
-    return new Groups(getGroupUuid(context, ADMINS_GROUP), getGroupUuid(context, USERS_GROUP));
+    return new Groups(getGroupUuid(context, ADMINS_GROUP), getGroupUuid(context, USERS_GROUP), getGroupUuid(context, MEMBERS_GROUP));
   }
 
   private static String getGroupUuid(Context context, String groupName) throws SQLException {
@@ -215,7 +237,7 @@ public class PopulateInitialSchema extends DataChange {
     return uuid;
   }
 
-  private record Groups(String adminGroupUuid, String userGroupUuid) {
+  private record Groups(String adminGroupUuid, String userGroupUuid, String membersGroupUuid) {
   }
 
   private void insertGroupRoles(Context context, String organizationUuid, Groups groups) throws SQLException {
@@ -256,6 +278,10 @@ public class PopulateInitialSchema extends DataChange {
       .setString(2, groups.adminGroupUuid())
       .addBatch();
     upsert
+      .setString(1, adminUserUuid)
+      .setString(2, groups.membersGroupUuid())
+      .addBatch();
+    upsert
       .execute()
       .commit();
   }
@@ -265,16 +291,15 @@ public class PopulateInitialSchema extends DataChange {
 
     long now = system2.now();
     context.prepareUpsert("insert into organizations " +
-                    "(uuid, kee, name, guarded, new_project_private, default_group_uuid, default_quality_gate_uuid, subscription, created_at, updated_at)" +
+                    "(uuid, kee, name, new_project_private, default_group_uuid, default_quality_gate_uuid, subscription, created_at, updated_at)" +
                     " values " +
-                    "(?, 'default-organization', 'Default Organization', ?, ?, ?, ?, 'SONARQUBE', ?, ?)")
+                    "(?, 'default-organization', 'Default Organization', ?, ?, ?, 'SONARQUBE', ?, ?)")
             .setString(1, organizationUuid)
-            .setBoolean(2, true)
-            .setBoolean(3, false)
-            .setString(4, groups.userGroupUuid())
-            .setString(5, defaultQGUuid)
+            .setBoolean(2, false)
+            .setString(3, groups.userGroupUuid())
+            .setString(4, defaultQGUuid)
+            .setLong(5, now)
             .setLong(6, now)
-            .setLong(7, now)
             .execute()
             .commit();
   }

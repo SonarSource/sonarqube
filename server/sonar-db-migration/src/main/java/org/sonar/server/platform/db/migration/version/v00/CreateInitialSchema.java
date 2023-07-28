@@ -654,16 +654,17 @@ public class CreateInitialSchema extends DdlChange {
   private void createGroups(Context context) {
     String tableName = "groups";
     VarcharColumnDef nameCol = newVarcharColumnDefBuilder("name").setLimit(500).setIsNullable(false).build();
+    VarcharColumnDef organizationUuidCol = newVarcharColumnDefBuilder(ORGANIZATION_UUID_COL_NAME).setIsNullable(false).setLimit(UUID_SIZE).build();
     context.execute(
       newTableBuilder(tableName)
         .addPkColumn(UUID_COL)
-        .addColumn(newVarcharColumnDefBuilder(ORGANIZATION_UUID_COL_NAME).setIsNullable(false).setLimit(UUID_SIZE).build())
+        .addColumn(organizationUuidCol)
         .addColumn(nameCol)
         .addColumn(newVarcharColumnDefBuilder(DESCRIPTION_COL_NAME).setLimit(200).setIsNullable(true).build())
         .addColumn(DEPRECATED_TECHNICAL_CREATED_AT_COL)
         .addColumn(DEPRECATED_TECHNICAL_UPDATED_AT_COL)
         .build());
-    addIndex(context, tableName, "uniq_groups_name", true, nameCol);
+    addIndex(context, tableName, "uniq_groups_name", true, organizationUuidCol, nameCol);
   }
 
   private void createGroupsUsers(Context context) {
@@ -932,7 +933,6 @@ public class CreateInitialSchema extends DdlChange {
                     .addColumn(newVarcharColumnDefBuilder(DESCRIPTION_COL_NAME).setLimit(256).setIsNullable(true).build())
                     .addColumn(newVarcharColumnDefBuilder("url").setLimit(256).setIsNullable(true).build())
                     .addColumn(newVarcharColumnDefBuilder("avatar_url").setLimit(256).setIsNullable(true).build())
-                    .addColumn(newBooleanColumnDefBuilder().setColumnName("guarded").setIsNullable(false).build())
                     .addColumn(newVarcharColumnDefBuilder().setColumnName("default_group_uuid").setLimit(UUID_SIZE).setIsNullable(true).build())
                     .addColumn(newVarcharColumnDefBuilder("default_quality_gate_uuid").setLimit(UUID_SIZE).setIsNullable(false).build())
                     .addColumn(newVarcharColumnDefBuilder("default_perm_template_project").setLimit(UUID_SIZE).setIsNullable(true).build())
