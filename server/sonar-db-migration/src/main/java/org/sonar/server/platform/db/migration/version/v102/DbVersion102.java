@@ -81,10 +81,13 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_027, "Populate column 'created_at_temp' in 'components' table", PopulateCreatedAtTempInComponents.class)
       .add(10_2_028, "Drop column 'created_at' in 'components' table", DropCreatedAtInComponents.class)
       .add(10_2_029, "Rename column 'created_at_temp' to 'created_at' in 'components' table", RenameCreatedAtTempInComponents.class)
-
       .add(10_2_030, "Create table 'anticipated_transitions'", CreateAnticipatedTransitionsTable.class)
 
       .add(10_2_031, "Increase size of 'ce_queue.is_last_key' from 55 to 80 characters", IncreaseIsLastKeyInCeActivity.class)
-      .add(10_2_032, "Increase size of 'ce_queue.main_is_last_key' from 55 to 80 characters", IncreaseMainIsLastKeyInCeActivity.class);
+      .add(10_2_032, "Increase size of 'ce_queue.main_is_last_key' from 55 to 80 characters", IncreaseMainIsLastKeyInCeActivity.class)
+      .add(10_2_033, "Add column 'clean_code_attribute' in 'rules' table", AddCleanCodeAttributeInRules.class)
+      .add(10_2_034, "Populate 'clean_code_attribute' column in 'rules' table", PopulateCleanCodeAttributeColumnInRules.class)
+      //TODO SONAR-20073
+      //.add(10_2_035, "Make 'clean_code_attribute' column not nullable in 'rules' table", MakeCleanCodeAttributeColumnNotNullableInRules.class);
   }
 }
