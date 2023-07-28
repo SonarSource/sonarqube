@@ -26,9 +26,9 @@ import { themeColor } from '../helpers/theme';
 export const NewCodeLegendIcon = styled.span`
   ${tw`sw-align-middle`}
   ${tw`sw-box-border`}
-  ${tw`sw-h-3`}
+  ${tw`sw-h-4`}
   ${tw`sw-inline-block`}
-  ${tw`sw-w-3`}
+  ${tw`sw-w-4`}
   background-color: ${themeColor('newCodeLegend')};
   border: 1px solid ${themeColor('newCodeLegendBorder')};
 `;
@@ -36,7 +36,7 @@ export const NewCodeLegendIcon = styled.span`
 const NewCodeLegendText = styled.span`
   ${tw`sw-align-middle`}
   ${tw`sw-body-sm`}
-  ${tw`sw-ml-1`}
+  ${tw`sw-ml-2`}
   color: ${themeColor('graphCursorLineColor')};
 `;
 

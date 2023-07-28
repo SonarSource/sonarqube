@@ -29,6 +29,6 @@ it('should render NewCodeLegend', () => {
   expect(screen.getByText('the text')).toHaveStyle({
     'font-size': tailwindBaseConfig.theme.fontSize.sm[0],
     'line-height': tailwindBaseConfig.theme.fontSize.sm[1],
-    'margin-left': tailwindBaseConfig.theme.spacing[1],
+    'margin-left': tailwindBaseConfig.theme.spacing[2],
   });
 });

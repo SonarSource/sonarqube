@@ -455,11 +455,11 @@ export const lightTheme = {
 
     // graph - chart
     graphPointCircleColor: COLORS.white,
-    'graphLineColor.0': COLORS.blue[700],
-    'graphLineColor.1': COLORS.blue[500],
+    'graphLineColor.0': COLORS.blue[500],
+    'graphLineColor.1': COLORS.blue[700],
     'graphLineColor.2': COLORS.blue[300],
-    'graphLineColor.3': COLORS.blue[700],
-    'graphLineColor.4': COLORS.blue[500],
+    'graphLineColor.3': COLORS.blue[500],
+    'graphLineColor.4': COLORS.blue[700],
     'graphLineColor.5': COLORS.blue[300],
     graphGridColor: COLORS.grey[50],
     graphCursorLineColor: COLORS.blueGrey[400],

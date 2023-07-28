@@ -40,8 +40,14 @@ export default function EventInner({ event, readonly }: EventInnerProps) {
   } else if (isDefinitionChangeEvent(event)) {
     return <DefinitionChangeEventInner branchLike={branchLike} event={event} readonly={readonly} />;
   }
+
+  const tooltipContent =
+    event.category && event.category === 'QUALITY_GATE' && event.description
+      ? `${translate('event.failed_conditions')} ${event.description}`
+      : event.description;
+
   return (
-    <Tooltip overlay={event.description}>
+    <Tooltip overlay={tooltipContent}>
       <div className="sw-min-w-0 sw-flex-1 sw-py-1/2">
         <div className="sw-flex sw-items-start">
           <span>

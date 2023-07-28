@@ -21,7 +21,14 @@
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { CloseIcon, DestructiveIcon, FlagWarningIcon, Theme, themeColor } from 'design-system';
+import {
+  CloseIcon,
+  FlagWarningIcon,
+  InteractiveIcon,
+  Theme,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
 import { ChartLegendIcon } from '../../components/icons/ChartLegendIcon';
 import { translateWithParameters } from '../../helpers/l10n';
@@ -48,17 +55,20 @@ export function GraphsLegendItem({
   const isActionable = removeMetric !== undefined;
 
   return (
-    <StyledLegendItem className={classNames('sw-px-2 sw-py-1 sw-rounded-pill', className)}>
+    <StyledLegendItem
+      className={classNames('sw-px-2 sw-py-1 sw-rounded-2', className)}
+      isActionable={isActionable}
+    >
       {showWarning ? (
-        <FlagWarningIcon className="sw-mx-2" />
+        <FlagWarningIcon className="sw-mr-2" />
       ) : (
-        <ChartLegendIcon className="sw-mx-2" index={index} />
+        <ChartLegendIcon className="sw-mr-2" index={index} />
       )}
       <span className="sw-body-sm" style={{ color: themeColor('graphCursorLineColor')({ theme }) }}>
         {name}
       </span>
       {isActionable && (
-        <DestructiveIcon
+        <InteractiveIcon
           Icon={CloseIcon}
           aria-label={translateWithParameters('project_activity.graphs.custom.remove_metric', name)}
           className="sw-ml-2"
@@ -70,8 +80,13 @@ export function GraphsLegendItem({
   );
 }
 
-const StyledLegendItem = styled.div`
+interface GraphPillsProps {
+  isActionable: boolean;
+}
+
+const StyledLegendItem = styled.div<GraphPillsProps>`
   display: flex;
   align-items: center;
-  border: 1px solid ${themeColor('graphLegendBorder')};
+  border: ${(props) =>
+    props.isActionable ? themeBorder('default', 'buttonSecondaryBorder') : 'none'};
 `;

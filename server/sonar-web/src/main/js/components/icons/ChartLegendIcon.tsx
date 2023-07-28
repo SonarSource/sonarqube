@@ -22,7 +22,6 @@ import { useTheme } from '@emotion/react';
 import classNames from 'classnames';
 import { Theme, themeColor } from 'design-system';
 import * as React from 'react';
-import Icon from './Icon';
 
 interface Props {
   className?: string;
@@ -33,14 +32,27 @@ export function ChartLegendIcon({ index, className }: Props) {
   const theme = useTheme() as Theme;
 
   return (
-    <Icon className={className} aria-hidden width={20}>
+    <svg
+      className={className}
+      clipRule="evenodd"
+      fillRule="evenodd"
+      height={16}
+      strokeLinejoin="round"
+      strokeMiterlimit={1.41421}
+      viewBox="0 0 16 16"
+      width={16}
+      xmlSpace="preserve"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+    >
       <path
         className={classNames('line-chart-path line-chart-path-legend', `line-chart-path-${index}`)}
-        d="M0 8 L 20 8"
-        stroke={themeColor(`graphLineColor.${index}` as Parameters<typeof themeColor>[0])({
-          theme,
-        })}
+        d="M14.325 7.143v1.714q0 0.357-0.25 0.607t-0.607 0.25h-10.857q-0.357 0-0.607-0.25t-0.25-0.607v-1.714q0-0.357 0.25-0.607t0.607-0.25h10.857q0.357 0 0.607 0.25t0.25 0.607z"
+        style={{
+          fill: themeColor(`graphLineColor.${index}` as Parameters<typeof themeColor>[0])({
+            theme,
+          }),
+        }}
       />
-    </Icon>
+    </svg>
   );
 }

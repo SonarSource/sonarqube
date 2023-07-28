@@ -87,7 +87,7 @@
   left: 50%;
   border-width: 5px 5px 0;
   transform: translateX(-5px);
-  border-top-color: #475760;
+  border-top-color: #2a2f40;
 }
 
 .tooltip.right .tooltip-arrow {
@@ -95,7 +95,7 @@
   left: 0;
   transform: translateY(-5px);
   border-width: 5px 5px 5px 0;
-  border-right-color: #475760;
+  border-right-color: #2a2f40;
 }
 
 .tooltip.left .tooltip-arrow {
@@ -103,7 +103,7 @@
   right: 0;
   transform: translateY(-5px);
   border-width: 5px 0 5px 5px;
-  border-left-color: #475760;
+  border-left-color: #2a2f40;
 }
 
 .tooltip.bottom .tooltip-arrow {

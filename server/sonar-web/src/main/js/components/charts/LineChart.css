@@ -20,19 +20,7 @@
 
 .line-chart-path {
   fill: none;
-  stroke-width: 3px;
-}
-
-.line-chart-path.line-chart-path-1 {
-  stroke-dasharray: 3;
-}
-
-.line-chart-path.line-chart-path-2 {
-  stroke-dasharray: 10;
-}
-
-.line-chart-path.line-chart-path-legend.line-chart-path-2 {
-  stroke-dasharray: 7;
+  stroke-width: 2px;
 }
 
 .line-chart-point {
