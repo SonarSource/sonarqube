@@ -32,20 +32,37 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.audit.NoOpAuditPersister;
+import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateUserDto;
+import org.sonar.db.project.ProjectDto;
+import org.sonar.db.property.PropertyDto;
+import org.sonar.db.property.PropertyQuery;
+import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.scim.ScimUserDao;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.SessionTokenDto;
+import org.sonar.db.user.UserDismissedMessageDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.common.user.UserAnonymizer;
 import org.sonar.server.common.user.UserDeactivator;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.management.ManagedInstanceService;
+import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.usergroups.DefaultGroupFinder;
@@ -63,9 +80,8 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserServiceIT {
@@ -75,9 +91,14 @@ public class UserServiceIT {
 
   @Rule
   public DbTester db = DbTester.create();
+  private final DbSession dbSession = db.getSession();
+
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
   private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
-  private final UserDeactivator userDeactivator = mock(UserDeactivator.class);
+
+  private final UserAnonymizer userAnonymizer = new UserAnonymizer(db.getDbClient(), () -> "anonymized");
+
+  private final UserDeactivator userDeactivator = new UserDeactivator(db.getDbClient(), userAnonymizer);
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new DefaultGroupFinder(db.getDbClient()),
@@ -402,42 +423,261 @@ public class UserServiceIT {
   }
 
   @Test
-  public void deactivate_whenUserIsNotFound_shouldThrowNotFoundException() {
-    assertThatThrownBy(() -> userService.deactivate("userToDelete", false))
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage("User 'userToDelete' not found");
-  }
-
-  @Test
-  public void deactivate_whenInstanceIsManagedAndUserIsManaged_shouldThrowBadRequestException() {
-    UserDto user = db.users().insertUser();
-    BadRequestException badRequestException = BadRequestException.create("Not allowed");
-    doThrow(badRequestException).when(managedInstanceChecker).throwIfUserIsManaged(any(), eq(user.getUuid()));
-    assertThatThrownBy(() -> userService.deactivate(user.getLogin(), false))
-      .isEqualTo(badRequestException);
-
-  }
-
-  @Test
-  public void deactivate_whenAnonymizeIsFalse_shouldDeactivateUser() {
-    UserDto user = db.users().insertUser();
+  public void deactivate_user_and_delete_their_related_data() {
+    createAdminUser();
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin("ada.lovelace")
+      .setEmail("ada.lovelace@noteg.com")
+      .setName("Ada Lovelace")
+      .setScmAccounts(singletonList("al")));
 
     userService.deactivate(user.getLogin(), false);
-    verify(managedInstanceChecker).throwIfUserIsManaged(any(), eq(user.getUuid()));
 
-    verify(userDeactivator).deactivateUser(any(), eq(user.getLogin()));
-    verify(userDeactivator, never()).deactivateUserWithAnonymization(any(), eq(user.getLogin()));
+    verifyThatUserIsDeactivated(user.getLogin());
   }
 
   @Test
-  public void deactivate_whenAnonymizeIsTrue_shouldDeactivateUserWithAnonymization() {
-    UserDto user = db.users().insertUser();
+  public void anonymize_user_if_anonymize_is_true() {
+    createAdminUser();
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin("ada.lovelace")
+      .setEmail("ada.lovelace@noteg.com")
+      .setName("Ada Lovelace")
+      .setScmAccounts(singletonList("al")));
 
     userService.deactivate(user.getLogin(), true);
-    verify(managedInstanceChecker).throwIfUserIsManaged(any(), eq(user.getUuid()));
 
-    verify(userDeactivator).deactivateUserWithAnonymization(any(), eq(user.getLogin()));
-    verify(userDeactivator, never()).deactivateUser(any(), eq(user.getLogin()));
+    verifyThatUserIsDeactivated("anonymized");
+    verifyThatUserIsAnomymized("anonymized");
+  }
+
+  @Test
+  public void deactivate_user_deletes_their_group_membership() {
+    createAdminUser();
+    UserDto user = db.users().insertUser();
+    GroupDto group1 = db.users().insertGroup();
+    db.users().insertGroup();
+    db.users().insertMember(group1, user);
+
+    userService.deactivate(user.getLogin(), false);
+
+    assertThat(db.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbSession, user.getUuid())).isEmpty();
+  }
+
+  @Test
+  public void deactivate_user_deletes_their_tokens() {
+    createAdminUser();
+    UserDto user = db.users().insertUser();
+    db.users().insertToken(user);
+    db.users().insertToken(user);
+    db.commit();
+
+    userService.deactivate(user.getLogin(), false);
+
+    assertThat(db.getDbClient().userTokenDao().selectByUser(dbSession, user)).isEmpty();
+  }
+
+  @Test
+  public void deactivate_user_deletes_their_properties() {
+    createAdminUser();
+    UserDto user = db.users().insertUser();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    db.properties().insertProperty(newUserPropertyDto(user), null, null, null, user.getLogin());
+    db.properties().insertProperty(newUserPropertyDto(user), null, null, null, user.getLogin());
+    db.properties().insertProperty(newUserPropertyDto(user).setEntityUuid(project.uuid()), project.getKey(),
+      project.name(), project.qualifier(), user.getLogin());
+
+    userService.deactivate(user.getLogin(), false);
+
+    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserUuid(user.getUuid()).build(), dbSession)).isEmpty();
+    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserUuid(user.getUuid()).setEntityUuid(project.uuid()).build(), dbSession)).isEmpty();
+  }
+
+  @Test
+  public void deactivate_user_deletes_their_permissions() {
+    createAdminUser();
+    UserDto user = db.users().insertUser();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.ADMINISTER_QUALITY_PROFILES);
+    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project);
+    db.users().insertProjectPermissionOnUser(user, UserRole.CODEVIEWER, project);
+
+    userService.deactivate(user.getLogin(), false);
+
+    assertThat(db.getDbClient().userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getUuid())).isEmpty();
+    assertThat(db.getDbClient().userPermissionDao().selectEntityPermissionsOfUser(dbSession, user.getUuid(), project.uuid())).isEmpty();
+  }
+
+  @Test
+  public void deactivate_user_deletes_their_permission_templates() {
+    createAdminUser();
+    UserDto user = db.users().insertUser();
+    PermissionTemplateDto template = db.permissionTemplates().insertTemplate();
+    PermissionTemplateDto anotherTemplate = db.permissionTemplates().insertTemplate();
+    db.permissionTemplates().addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.USER, template.getName(), user.getLogin());
+    db.permissionTemplates().addUserToTemplate(anotherTemplate.getUuid(), user.getUuid(), UserRole.CODEVIEWER, anotherTemplate.getName(), user.getLogin());
+
+    userService.deactivate(user.getLogin(), false);
+
+    assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getUuid())).extracting(PermissionTemplateUserDto::getUserUuid)
+      .isEmpty();
+    assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, anotherTemplate.getUuid())).extracting(PermissionTemplateUserDto::getUserUuid)
+      .isEmpty();
+  }
+
+  @Test
+  public void deactivate_user_deletes_their_qprofiles_permissions() {
+    createAdminUser();
+    UserDto user = db.users().insertUser();
+    QProfileDto profile = db.qualityProfiles().insert();
+    db.qualityProfiles().addUserPermission(profile, user);
+
+    userService.deactivate(user.getLogin(), false);
+
+    assertThat(db.getDbClient().qProfileEditUsersDao().exists(dbSession, profile, user)).isFalse();
+  }
+
+  @Test
+  public void deactivate_user_deletes_their_default_assignee_settings() {
+    createAdminUser();
+    UserDto user = db.users().insertUser();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto anotherProject = db.components().insertPrivateProject().getMainBranchComponent();
+    db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin())
+      .setEntityUuid(project.uuid()), project.getKey(), project.name(), project.qualifier(), user.getLogin());
+    db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin())
+      .setEntityUuid(anotherProject.uuid()), anotherProject.getKey(), anotherProject.name(), anotherProject.qualifier(), user.getLogin());
+    db.properties().insertProperty(new PropertyDto().setKey("other").setValue(user.getLogin())
+      .setEntityUuid(anotherProject.uuid()), anotherProject.getKey(), anotherProject.name(), anotherProject.qualifier(), user.getLogin());
+
+    userService.deactivate(user.getLogin(), false);
+
+    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setKey("sonar.issues.defaultAssigneeLogin").build(), db.getSession())).isEmpty();
+    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().build(), db.getSession())).extracting(PropertyDto::getKey).containsOnly("other");
+  }
+
+  @Test
+  public void deactivate_user_deletes_their_qgate_permissions() {
+    createAdminUser();
+    UserDto user = db.users().insertUser();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    db.qualityGates().addUserPermission(qualityGate, user);
+    assertThat(db.countRowsOfTable("qgate_user_permissions")).isOne();
+
+    userService.deactivate(user.getLogin(), false);
+
+    assertThat(db.countRowsOfTable("qgate_user_permissions")).isZero();
+  }
+
+  @Test
+  public void deactivate_user_deletes_their_alm_pat() {
+    createAdminUser();
+    AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
+    UserDto user = db.users().insertUser();
+    db.almPats().insert(p -> p.setUserUuid(user.getUuid()), p -> p.setAlmSettingUuid(almSettingDto.getUuid()));
+    UserDto anotherUser = db.users().insertUser();
+    db.almPats().insert(p -> p.setUserUuid(anotherUser.getUuid()), p -> p.setAlmSettingUuid(almSettingDto.getUuid()));
+
+    userService.deactivate(user.getLogin(), false);
+
+    assertThat(db.getDbClient().almPatDao().selectByUserAndAlmSetting(dbSession, user.getUuid(), almSettingDto)).isEmpty();
+    assertThat(db.getDbClient().almPatDao().selectByUserAndAlmSetting(dbSession, anotherUser.getUuid(), almSettingDto)).isNotNull();
+  }
+
+  @Test
+  public void deactivate_user_deletes_their_session_tokens() {
+    createAdminUser();
+    UserDto user = db.users().insertUser();
+    SessionTokenDto sessionToken1 = db.users().insertSessionToken(user);
+    SessionTokenDto sessionToken2 = db.users().insertSessionToken(user);
+    UserDto anotherUser = db.users().insertUser();
+    SessionTokenDto sessionToken3 = db.users().insertSessionToken(anotherUser);
+
+    userService.deactivate(user.getLogin(), false);
+
+    assertThat(db.getDbClient().sessionTokensDao().selectByUuid(dbSession, sessionToken1.getUuid())).isNotPresent();
+    assertThat(db.getDbClient().sessionTokensDao().selectByUuid(dbSession, sessionToken2.getUuid())).isNotPresent();
+    assertThat(db.getDbClient().sessionTokensDao().selectByUuid(dbSession, sessionToken3.getUuid())).isPresent();
+  }
+
+  @Test
+  public void deactivate_user_deletes_their_dismissed_messages() {
+    createAdminUser();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+    UserDto user = db.users().insertUser();
+
+    db.users().insertUserDismissedMessage(user, project1, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    db.users().insertUserDismissedMessage(user, project2, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    UserDto anotherUser = db.users().insertUser();
+    UserDismissedMessageDto msg3 = db.users().insertUserDismissedMessage(anotherUser, project1, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    UserDismissedMessageDto msg4 = db.users().insertUserDismissedMessage(anotherUser, project2, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+
+    userService.deactivate(user.getLogin(), false);
+
+    assertThat(db.getDbClient().userDismissedMessagesDao().selectByUser(dbSession, user)).isEmpty();
+    assertThat(db.getDbClient().userDismissedMessagesDao().selectByUser(dbSession, anotherUser))
+      .extracting(UserDismissedMessageDto::getUuid)
+      .containsExactlyInAnyOrder(msg3.getUuid(), msg4.getUuid());
+  }
+
+  @Test
+  public void fail_if_user_does_not_exist() {
+
+    assertThatThrownBy(() -> {
+      userService.deactivate("someone", false);
+    })
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User 'someone' not found");
+  }
+
+  @Test
+  public void fail_to_deactivate_last_administrator() {
+    UserDto admin = db.users().insertUser();
+    db.users().insertGlobalPermissionOnUser(admin, GlobalPermission.ADMINISTER);
+
+    assertThatThrownBy(() -> {
+      userService.deactivate(admin.getLogin(), false);
+    })
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("User is last administrator, and cannot be deactivated");
+  }
+
+  @Test
+  public void administrators_can_be_deactivated_if_there_are_still_other_administrators() {
+    UserDto admin = createAdminUser();
+
+    UserDto anotherAdmin = createAdminUser();
+
+    userService.deactivate(admin.getLogin(), false);
+
+    verifyThatUserIsDeactivated(admin.getLogin());
+    verifyThatUserExists(anotherAdmin.getLogin());
+  }
+
+  @Test
+  public void anonymizeUser_whenSamlAndScimUser_shouldDeleteScimMapping() {
+    createAdminUser();
+    UserDto user = db.users().insertUser();
+    db.getDbClient().scimUserDao().enableScimForUser(dbSession, user.getUuid());
+    db.commit();
+
+    userService.deactivate(user.getLogin(), true);
+
+    assertThat(db.getDbClient().scimUserDao().findByUserUuid(dbSession, user.getUuid())).isEmpty();
+  }
+
+  @Test
+  public void handle_whenUserManagedAndInstanceManaged_shouldThrow() {
+    createAdminUser();
+    UserDto user = db.users().insertUser();
+    doThrow(new IllegalStateException("User managed")).when(managedInstanceChecker).throwIfUserIsManaged(any(), eq(user.getUuid()));
+
+    String login = user.getLogin();
+    assertThatThrownBy(() -> userService.deactivate(login, false))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("User managed");
   }
 
   @Test
@@ -573,14 +813,14 @@ public class UserServiceIT {
 
   @Test
   public void createUser_whenDuplicatesInScmAccounts_shouldFail() {
-      UserCreateRequest userCreateRequest = UserCreateRequest.builder()
-        .setLogin("john")
-        .setName("John")
-        .setEmail("john@email.com")
-        .setScmAccounts(List.of("admin", "admin"))
-        .setPassword("1234")
-        .setLocal(true)
-        .build();
+    UserCreateRequest userCreateRequest = UserCreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setEmail("john@email.com")
+      .setScmAccounts(List.of("admin", "admin"))
+      .setPassword("1234")
+      .setLocal(true)
+      .build();
 
     assertThatThrownBy(() -> userService.createUser(userCreateRequest))
       .isInstanceOf(IllegalArgumentException.class)
@@ -651,6 +891,34 @@ public class UserServiceIT {
 
     assertThatThrownBy(() -> userService.createUser(userCreateRequest))
       .isEqualTo(badRequestException);
+  }
+
+  private void verifyThatUserIsDeactivated(String login) {
+    Optional<UserDto> user = db.users().selectUserByLogin(login);
+    assertThat(user).isPresent();
+    assertThat(user.get().isActive()).isFalse();
+    assertThat(user.get().getEmail()).isNull();
+    assertThat(user.get().getSortedScmAccounts()).isEmpty();
+  }
+
+  private void verifyThatUserIsAnomymized(String login) {
+    Optional<UserDto> user = db.users().selectUserByLogin(login);
+    assertThat(user).isPresent();
+    assertThat(user.get().getName()).isEqualTo(login);
+    assertThat(user.get().getExternalLogin()).isEqualTo(login);
+    assertThat(user.get().getExternalId()).isEqualTo(login);
+    assertThat(user.get().getExternalIdentityProvider()).isEqualTo(ExternalIdentity.SQ_AUTHORITY);
+  }
+
+  private UserDto createAdminUser() {
+    UserDto admin = db.users().insertUser();
+    db.users().insertGlobalPermissionOnUser(admin, GlobalPermission.ADMINISTER);
+    db.commit();
+    return admin;
+  }
+
+  private void verifyThatUserExists(String login) {
+    assertThat(db.users().selectUserByLogin(login)).isPresent();
   }
 
 }
