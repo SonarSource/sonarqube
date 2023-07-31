@@ -27,7 +27,7 @@ import { themeColor } from '../helpers';
 import { Badge } from './Badge';
 import { DestructiveIcon } from './InteractiveIcon';
 import { Spinner } from './Spinner';
-import Tooltip from './Tooltip';
+import { Tooltip } from './Tooltip';
 import { BareButton } from './buttons';
 import { OpenCloseIndicator } from './icons';
 import { CloseIcon } from './icons/CloseIcon';

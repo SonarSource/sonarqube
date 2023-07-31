@@ -27,7 +27,7 @@ import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { InputSizeKeys, ThemedProps } from '../types/theme';
 import { BaseLink, LinkProps } from './Link';
 import NavLink from './NavLink';
-import Tooltip from './Tooltip';
+import { Tooltip } from './Tooltip';
 import { ClipboardBase } from './clipboard';
 import { Checkbox } from './input/Checkbox';
 import { RadioButton } from './input/RadioButton';

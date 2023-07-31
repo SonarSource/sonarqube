@@ -24,6 +24,7 @@ import {
 } from '../../../types/issues';
 import { SecurityStandard } from '../../../types/security';
 import {
+  parseQuery,
   serializeQuery,
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
@@ -100,12 +101,64 @@ describe('serialize/deserialize', () => {
       rules: 'a,b',
       s: 'rules',
       scopes: 'a,b',
-      severities: 'a,b',
       inNewCodePeriod: 'true',
       sonarsourceSecurity: 'a,b',
       statuses: 'a,b',
       tags: 'a,b',
       types: 'a,b',
+    });
+  });
+
+  it('should deserialize correctly', () => {
+    expect(
+      parseQuery({
+        assigned: 'true',
+        assignees: 'first,second',
+        author: ['author'],
+        cleanCodeAttributeCategory: 'CONSISTENT',
+        impactSeverity: 'LOW',
+        severities: 'CRITICAL,MAJOR',
+        impactSoftwareQuality: 'MAINTAINABILITY',
+      })
+    ).toStrictEqual({
+      assigned: true,
+      assignees: ['first', 'second'],
+      author: ['author'],
+      cleanCodeAttributeCategory: [CleanCodeAttributeCategory.Consistent],
+      codeVariants: [],
+      createdAfter: undefined,
+      createdAt: '',
+      createdBefore: undefined,
+      createdInLast: '',
+      cwe: [],
+      directories: [],
+      files: [],
+      impactSeverity: [
+        SoftwareImpactSeverity.Low,
+        SoftwareImpactSeverity.High,
+        SoftwareImpactSeverity.Medium,
+      ],
+      impactSoftwareQuality: [SoftwareQuality.Maintainability],
+      inNewCodePeriod: false,
+      issues: [],
+      languages: [],
+      'owaspAsvs-4.0': [],
+      owaspAsvsLevel: '',
+      owaspTop10: [],
+      'owaspTop10-2021': [],
+      'pciDss-3.2': [],
+      'pciDss-4.0': [],
+      projects: [],
+      resolutions: [],
+      resolved: true,
+      rules: [],
+      scopes: [],
+      severities: [],
+      sonarsourceSecurity: [],
+      sort: '',
+      statuses: [],
+      tags: [],
+      types: [],
     });
   });
 });

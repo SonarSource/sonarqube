@@ -24,7 +24,7 @@ import { scaleBand, ScaleBand, scaleLinear, ScaleLinear } from 'd3-scale';
 import React from 'react';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers';
-import Tooltip, { TooltipWrapper } from './Tooltip';
+import { Tooltip, TooltipWrapper } from './Tooltip';
 
 interface Props {
   bars: number[];

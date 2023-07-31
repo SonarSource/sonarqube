@@ -23,7 +23,7 @@ import React from 'react';
 import tw from 'twin.macro';
 import { themeColor } from '../helpers';
 import { BasePlacement, PopupPlacement } from '../helpers/positioning';
-import Tooltip from './Tooltip';
+import { Tooltip } from './Tooltip';
 
 const SIZE_SCALE = scaleLinear().domain([3, 15]).range([11, 18]).clamp(true);
 const TEXT_VISIBLE_AT_WIDTH = 40;

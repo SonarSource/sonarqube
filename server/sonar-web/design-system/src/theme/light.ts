@@ -276,6 +276,12 @@ export const lightTheme = {
     badgeDeleted: COLORS.red[100],
     badgeCounter: COLORS.blueGrey[100],
 
+    // pills
+    pillDanger: COLORS.red[100],
+    pillWarning: COLORS.yellowGreen[500],
+    pillInfo: COLORS.indigo[100],
+    pillNeutral: COLORS.blueGrey[50],
+
     // input select
     selectOptionSelected: secondary.light,
 
@@ -323,6 +329,8 @@ export const lightTheme = {
     iconSeverityMajor: danger.light,
     iconSeverityMinor: COLORS.yellowGreen[400],
     iconSeverityInfo: COLORS.blue[400],
+    iconSeverityDisabled: COLORS.blueGrey[300],
+    iconTypeDisabled: COLORS.blueGrey[300],
     iconDirectory: COLORS.orange[300],
     iconFile: COLORS.blueGrey[300],
     iconProject: COLORS.blueGrey[300],
@@ -637,6 +645,12 @@ export const lightTheme = {
     badgeDeleted: COLORS.red[900],
     badgeCounter: secondary.darker,
 
+    // pills
+    pillDanger: COLORS.red[800],
+    pillWarning: COLORS.yellowGreen[900],
+    pillInfo: COLORS.indigo[900],
+    pillNeutral: COLORS.blueGrey[500],
+
     // breadcrumbs
     breadcrumb: secondary.dark,
 
@@ -732,6 +746,8 @@ export const lightTheme = {
 
     // issue box
     issueTypeIcon: COLORS.red[900],
+    iconSeverityDisabled: COLORS.white,
+    iconTypeDisabled: COLORS.white,
 
     // selection card
     selectionCardDisabled: secondary.dark,

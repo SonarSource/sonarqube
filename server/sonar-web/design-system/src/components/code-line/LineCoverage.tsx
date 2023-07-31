@@ -23,7 +23,7 @@ import React, { memo } from 'react';
 import tw from 'twin.macro';
 import { PopupPlacement } from '../../helpers/positioning';
 import { themeColor } from '../../helpers/theme';
-import Tooltip from '../Tooltip';
+import { Tooltip } from '../Tooltip';
 import { LineMeta } from './LineStyles';
 
 interface Props {

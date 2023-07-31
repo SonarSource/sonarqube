@@ -22,6 +22,7 @@ import * as React from 'react';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueActions } from '../../../types/issues';
 import { Issue } from '../../../types/types';
+import { CleanCodeAttributePill } from '../../shared/CleanCodeAttributePill';
 import IssueMessage from './IssueMessage';
 import IssueTags from './IssueTags';
 
@@ -39,13 +40,19 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
   const canSetTags = issue.actions.includes(IssueActions.SetTags);
 
   return (
-    <div className="sw-flex sw-items-center">
-      <div className="sw-w-full">
-        <IssueMessage
-          issue={issue}
-          branchLike={props.branchLike}
-          displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
+    <div className="sw-flex sw-items-end">
+      <div className="sw-w-full sw-flex sw-flex-col">
+        <CleanCodeAttributePill
+          className="sw-mb-1"
+          cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory}
         />
+        <div className="sw-w-fit">
+          <IssueMessage
+            issue={issue}
+            branchLike={props.branchLike}
+            displayWhyIsThisAnIssue={displayWhyIsThisAnIssue}
+          />
+        </div>
       </div>
       <div className="js-issue-tags sw-body-sm sw-grow-0 sw-whitespace-nowrap">
         <IssueTags

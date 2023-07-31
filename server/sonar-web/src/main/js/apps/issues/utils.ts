@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isArray } from 'lodash';
+import { compact, isArray, uniq } from 'lodash';
 import { getUsers } from '../../api/users';
 import { formatMeasure } from '../../helpers/measures';
 import {
@@ -106,7 +106,7 @@ export function parseQuery(query: RawQuery): Query {
     cwe: parseAsArray(query.cwe, parseAsString),
     directories: parseAsArray(query.directories, parseAsString),
     files: parseAsArray(query.files, parseAsString),
-    impactSeverity: parseAsArray<SoftwareImpactSeverity>(query.impactSeverity, parseAsString),
+    impactSeverity: parseImpactSeverityQuery(query.impactSeverity, query.severities),
     impactSoftwareQuality: parseAsArray<SoftwareQuality>(
       query.impactSoftwareQuality,
       parseAsString
@@ -125,7 +125,7 @@ export function parseQuery(query: RawQuery): Query {
     resolved: parseAsBoolean(query.resolved),
     rules: parseAsArray(query.rules, parseAsString),
     scopes: parseAsArray(query.scopes, parseAsString),
-    severities: parseAsArray(query.severities, parseAsString),
+    severities: [],
     sonarsourceSecurity: parseAsArray(query.sonarsourceSecurity, parseAsString),
     sort: parseAsSort(query.s),
     statuses: parseAsArray(query.statuses, parseAsString),
@@ -133,6 +133,29 @@ export function parseQuery(query: RawQuery): Query {
     types: parseAsArray(query.types, parseAsString),
     codeVariants: parseAsArray(query.codeVariants, parseAsString),
   };
+}
+
+function parseImpactSeverityQuery(
+  newSeverities: string,
+  oldSeverities?: string
+): SoftwareImpactSeverity[] {
+  const OLD_TO_NEW_MAPPER = {
+    BLOCKER: SoftwareImpactSeverity.High,
+    CRITICAL: SoftwareImpactSeverity.High,
+    MAJOR: SoftwareImpactSeverity.Medium,
+    MINOR: SoftwareImpactSeverity.Low,
+    INFO: SoftwareImpactSeverity.Low,
+  };
+
+  // Merging new and old severities includes mapping for old to new
+  return compact(
+    uniq([
+      ...parseAsArray<SoftwareImpactSeverity>(newSeverities, parseAsString),
+      ...parseAsArray(oldSeverities, parseAsString).map(
+        (oldSeverity: string) => OLD_TO_NEW_MAPPER[oldSeverity as keyof typeof OLD_TO_NEW_MAPPER]
+      ),
+    ])
+  );
 }
 
 export function getOpen(query: RawQuery): string | undefined {
@@ -173,7 +196,7 @@ export function serializeQuery(query: Query): RawQuery {
     rules: serializeStringArray(query.rules),
     s: serializeString(query.sort),
     scopes: serializeStringArray(query.scopes),
-    severities: serializeStringArray(query.severities),
+    severities: undefined,
     impactSeverity: serializeStringArray(query.impactSeverity),
     impactSoftwareQuality: serializeStringArray(query.impactSoftwareQuality),
     inNewCodePeriod: query.inNewCodePeriod ? 'true' : undefined,

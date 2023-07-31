@@ -34,6 +34,7 @@ import { RuleStatus } from '../../../types/rules';
 import { Issue, RawQuery } from '../../../types/types';
 import Tooltip from '../../controls/Tooltip';
 import DateFromNow from '../../intl/DateFromNow';
+import SoftwareImpactPill from '../../shared/SoftwareImpactPill';
 import { WorkspaceContext } from '../../workspace/context';
 import { updateIssue } from '../actions';
 import IssueAssign from './IssueAssign';
@@ -130,13 +131,12 @@ export default function IssueActionsBar(props: Props) {
 
   return (
     <div
-      className={classNames(className, 'sw-flex sw-flex-wrap sw-items-center sw-justify-between')}
+      className={classNames(
+        className,
+        'sw-flex sw-gap-2 sw-flex-wrap sw-items-center sw-justify-between'
+      )}
     >
       <ul className="it__issue-header-actions sw-flex sw-items-center sw-gap-3 sw-body-sm">
-        <li>
-          <IssueType canSetType={canSetType} issue={issue} setIssueProperty={setIssueProperty} />
-        </li>
-
         <li>
           <IssueTransition
             isOpen={currentPopup === 'transition'}
@@ -145,6 +145,21 @@ export default function IssueActionsBar(props: Props) {
             issue={issue}
             onChange={handleTransition}
           />
+        </li>
+
+        <li className="sw-flex sw-gap-3">
+          {issue.impacts.map(({ severity, softwareQuality }, index) => (
+            <SoftwareImpactPill
+              key={index}
+              cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory}
+              severity={severity}
+              quality={softwareQuality}
+            />
+          ))}
+        </li>
+
+        <li>
+          <IssueType canSetType={canSetType} issue={issue} setIssueProperty={setIssueProperty} />
         </li>
 
         <li>

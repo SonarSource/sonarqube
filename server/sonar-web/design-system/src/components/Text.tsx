@@ -104,6 +104,11 @@ const StyledTextError = styled(StyledText)`
   color: ${themeColor('danger')};
 `;
 
+export const DisabledText = styled.span`
+  ${tw`sw-font-regular`};
+  color: ${themeColor('pageContentLight')};
+`;
+
 export const LightLabel = styled.span`
   color: ${themeColor('pageContentLight')};
 `;

@@ -20,7 +20,7 @@
 import { screen } from '@testing-library/react';
 import { render } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
-import Tooltip, { TooltipInner } from '../Tooltip';
+import { Tooltip, TooltipInner } from '../Tooltip';
 
 jest.mock('react-dom', () => {
   const reactDom = jest.requireActual('react-dom') as object;

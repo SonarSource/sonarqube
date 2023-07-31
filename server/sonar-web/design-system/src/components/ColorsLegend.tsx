@@ -22,7 +22,7 @@ import styled from '@emotion/styled';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../helpers';
 import { BubbleColorVal } from '../types/charts';
-import Tooltip from './Tooltip';
+import { Tooltip } from './Tooltip';
 import { Checkbox } from './input/Checkbox';
 
 export interface ColorFilterOption {

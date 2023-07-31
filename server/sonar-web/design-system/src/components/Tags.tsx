@@ -95,7 +95,7 @@ export function Tags({
         >
           {({ a11yAttrs, onToggleClick, open }) => (
             <WrapperButton
-              className="sw-flex sw-items-center sw-gap-1 sw-p-1 sw-h-auto sw-rounded-0"
+              className="sw-flex sw-items-center sw-gap-1 sw-p-0 sw-h-auto sw-rounded-0"
               onClick={onToggleClick}
               {...a11yAttrs}
             >

@@ -67,7 +67,7 @@ function isMeasured(state: State): state is OwnState & Measurements {
   return state.height !== undefined;
 }
 
-export default function Tooltip(props: TooltipProps) {
+export function Tooltip(props: TooltipProps) {
   // overlay is a ReactNode, so it can be a boolean, `undefined` or `null`
   // this allows to easily render a tooltip conditionally
   // more generaly we avoid rendering empty tooltips

@@ -32,7 +32,7 @@ import {
 import { useResizeObserver } from '../hooks/useResizeObserver';
 import { Dropdown } from './Dropdown';
 import { InteractiveIcon } from './InteractiveIcon';
-import Tooltip from './Tooltip';
+import { Tooltip } from './Tooltip';
 import { ChevronDownIcon, ChevronRightIcon } from './icons';
 
 const WIDTH_OF_BREADCRUMB_DROPDOWN = 32;

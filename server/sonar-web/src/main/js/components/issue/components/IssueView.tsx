@@ -99,7 +99,7 @@ export default class IssueView extends React.PureComponent<Props> {
       >
         <div className="sw-flex sw-w-full sw-px-2 sw-gap-4">
           {hasCheckbox && (
-            <span className="sw-mt-1/2 sw-self-start">
+            <span className="sw-mt-6 sw-self-start">
               <Checkbox
                 checked={checked ?? false}
                 onCheck={this.handleCheck}

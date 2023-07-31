@@ -59,7 +59,7 @@ describe('rendering', () => {
     expect(ui.effort('2 days').get()).toBeInTheDocument();
     expect(ui.issueMessageLink.get()).toHaveAttribute(
       'href',
-      '/issues?scopes=MAIN&severities=MINOR&types=VULNERABILITY&open=AVsae-CQS-9G3txfbFN2'
+      '/issues?scopes=MAIN&impactSeverities=MINOR&types=VULNERABILITY&open=AVsae-CQS-9G3txfbFN2'
     );
 
     await ui.clickIssueMessage();
@@ -441,7 +441,7 @@ function renderIssue(
   }
 
   return renderAppRoutes(
-    'issues?scopes=MAIN&severities=MINOR&types=VULNERABILITY',
+    'issues?scopes=MAIN&impactSeverity=LOW&types=VULNERABILITY',
     () => (
       <Route
         path="issues"
