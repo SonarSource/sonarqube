@@ -42,7 +42,7 @@ import { MetricKey } from '../../types/metrics';
 import { SearchRulesQuery } from '../../types/rules';
 import { Standards } from '../../types/security';
 import { Dict, Rule, RuleActivation, RuleDetails, SnippetsByComponent } from '../../types/types';
-import { LoggedInUser, NoticeType, User } from '../../types/users';
+import { LoggedInUser, NoticeType, RestUser } from '../../types/users';
 import {
   addIssueComment,
   bulkChangeIssues,
@@ -61,7 +61,7 @@ import {
   setIssueType,
 } from '../issues';
 import { getRuleDetails, searchRules } from '../rules';
-import { dismissNotice, getCurrentUser, searchUsers } from '../users';
+import { dismissNotice, getCurrentUser, getUsers } from '../users';
 import { IssueData, mockIssuesList } from './data/issues';
 import { mockRuleList } from './data/rules';
 
@@ -123,7 +123,7 @@ export default class IssuesServiceMock {
     jest.mocked(searchIssues).mockImplementation(this.handleSearchIssues);
     jest.mocked(searchIssueTags).mockImplementation(this.handleSearchIssueTags);
     jest.mocked(searchRules).mockImplementation(this.handleSearchRules);
-    jest.mocked(searchUsers).mockImplementation(this.handleSearchUsers);
+    jest.mocked(getUsers).mockImplementation(this.handleGetUsers);
     jest.mocked(setIssueAssignee).mockImplementation(this.handleSetIssueAssignee);
     jest.mocked(setIssueSeverity).mockImplementation(this.handleSetIssueSeverity);
     jest.mocked(setIssueTags).mockImplementation(this.handleSetIssueTags);
@@ -625,8 +625,11 @@ export default class IssuesServiceMock {
     );
   };
 
-  handleSearchUsers = () => {
-    return this.reply({ paging: mockPaging(), users: [mockLoggedInUser() as unknown as User] });
+  handleGetUsers = () => {
+    return this.reply({
+      pageRestResponse: mockPaging(),
+      users: [mockLoggedInUser() as unknown as RestUser],
+    });
   };
 
   handleSearchIssueAuthors = () => {

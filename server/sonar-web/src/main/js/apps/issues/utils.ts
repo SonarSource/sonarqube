@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { isArray } from 'lodash';
-import { searchUsers } from '../../api/users';
+import { getUsers } from '../../api/users';
 import { formatMeasure } from '../../helpers/measures';
 import {
   cleanQuery,
@@ -37,7 +37,7 @@ import { Facet, RawFacet } from '../../types/issues';
 import { MetricType } from '../../types/metrics';
 import { SecurityStandard } from '../../types/security';
 import { Dict, Issue, Paging, RawQuery } from '../../types/types';
-import { UserBase } from '../../types/users';
+import { RestUser } from '../../types/users';
 
 const OWASP_ASVS_4_0 = 'owaspAsvs-4.0';
 
@@ -192,9 +192,9 @@ export function formatFacetStat(stat: number | undefined) {
 export const searchAssignees = (
   query: string,
   page = 1
-): Promise<{ paging: Paging; results: UserBase[] }> => {
-  return searchUsers({ p: page, q: query }).then(({ paging, users }) => ({
-    paging,
+): Promise<{ paging: Paging; results: RestUser[] }> => {
+  return getUsers<RestUser>({ pageIndex: page, q: query }).then(({ pageRestResponse, users }) => ({
+    paging: pageRestResponse,
     results: users,
   }));
 };

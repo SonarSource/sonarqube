@@ -20,11 +20,11 @@
 import { LabelValueSelectOption, PopupZLevel, SearchSelectDropdown } from 'design-system';
 import * as React from 'react';
 import { Options, SingleValue } from 'react-select';
-import { searchUsers } from '../../../api/users';
+import { getUsers } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
-import { isLoggedIn, isUserActive } from '../../../types/users';
+import { RestUser, isLoggedIn, isUserActive } from '../../../types/users';
 import Avatar from '../../ui/Avatar';
 
 interface Props {
@@ -85,7 +85,7 @@ export default function IssueAssignee(props: Props) {
     query: string,
     cb: (options: Options<LabelValueSelectOption<string>>) => void
   ) => {
-    searchUsers({ q: query })
+    getUsers<RestUser>({ q: query })
       .then((result) => {
         const options: Array<LabelValueSelectOption<string>> = result.users
           .filter(isUserActive)

@@ -26,7 +26,7 @@ import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import CodingRulesServiceMock from '../../../api/mocks/CodingRulesServiceMock';
 import SecurityHotspotServiceMock from '../../../api/mocks/SecurityHotspotServiceMock';
 import { getSecurityHotspots, setSecurityHotspotStatus } from '../../../api/security-hotspots';
-import { searchUsers } from '../../../api/users';
+import { getUsers } from '../../../api/users';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { openHotspot, probeSonarLintServers } from '../../../helpers/sonarlint';
 import { get, save } from '../../../helpers/storage';
@@ -224,7 +224,7 @@ describe('CRUD', () => {
       await user.keyboard('User');
     });
 
-    expect(searchUsers).toHaveBeenLastCalledWith({ q: 'User' });
+    expect(getUsers).toHaveBeenLastCalledWith({ q: 'User' });
     await user.keyboard('{Enter}');
     expect(ui.successGlobalMessage.get()).toHaveTextContent(`hotspots.assign.success.User John`);
   });

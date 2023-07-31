@@ -75,20 +75,6 @@ export function getIdentityProviders(): Promise<{ identityProviders: IdentityPro
   return getJSON('/api/users/identity_providers').catch(throwGlobalError);
 }
 
-export function searchUsers(data: {
-  p?: number;
-  ps?: number;
-  q?: string;
-  managed?: boolean;
-  lastConnectedAfter?: string;
-  lastConnectedBefore?: string;
-  slLastConnectedAfter?: string;
-  slLastConnectedBefore?: string;
-}): Promise<{ paging: Paging; users: User[] }> {
-  data.q = data.q || undefined;
-  return getJSON('/api/users/search', data).catch(throwGlobalError);
-}
-
 export function getUsers<T extends RestUserBase>(data: {
   q: string;
   active?: boolean;

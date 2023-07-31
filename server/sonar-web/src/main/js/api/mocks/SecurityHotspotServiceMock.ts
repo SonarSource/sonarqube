@@ -27,7 +27,7 @@ import {
 } from '../../helpers/mocks/security-hotspots';
 import { mockSourceLine } from '../../helpers/mocks/sources';
 import { getStandards } from '../../helpers/security-standard';
-import { mockPaging, mockUser } from '../../helpers/testMocks';
+import { mockPaging, mockRestUser } from '../../helpers/testMocks';
 import {
   Hotspot,
   HotspotAssignRequest,
@@ -35,6 +35,7 @@ import {
   HotspotResolution,
   HotspotStatus,
 } from '../../types/security-hotspots';
+import { RestUser } from '../../types/users';
 import { getSources } from '../components';
 import { getMeasures } from '../measures';
 import {
@@ -47,7 +48,7 @@ import {
   getSecurityHotspots,
   setSecurityHotspotStatus,
 } from '../security-hotspots';
-import { searchUsers } from '../users';
+import { getUsers } from '../users';
 
 const NUMBER_OF_LINES = 20;
 
@@ -66,7 +67,7 @@ export default class SecurityHotspotServiceMock {
     jest.mocked(getSecurityHotspotList).mockImplementation(this.handleGetSecurityHotspotList);
     jest.mocked(assignSecurityHotspot).mockImplementation(this.handleAssignSecurityHotspot);
     jest.mocked(setSecurityHotspotStatus).mockImplementation(this.handleSetSecurityHotspotStatus);
-    jest.mocked(searchUsers).mockImplementation(this.handleSearchUsers);
+    jest.mocked(getUsers).mockImplementation((p) => this.handleGetUsers(p));
     jest.mocked(getSources).mockResolvedValue(
       times(NUMBER_OF_LINES, (n) =>
         mockSourceLine({
@@ -119,14 +120,14 @@ export default class SecurityHotspotServiceMock {
     return Promise.resolve();
   };
 
-  handleSearchUsers = () => {
+  handleGetUsers: typeof getUsers<RestUser> = () => {
     return this.reply({
       users: [
-        mockUser({ name: 'User John', login: 'user.john' }),
-        mockUser({ name: 'User Doe', login: 'user.doe' }),
-        mockUser({ name: 'User Foo', login: 'user.foo' }),
+        mockRestUser({ name: 'User John', login: 'user.john' }),
+        mockRestUser({ name: 'User Doe', login: 'user.doe' }),
+        mockRestUser({ name: 'User Foo', login: 'user.foo' }),
       ],
-      paging: mockPaging(),
+      pageRestResponse: mockPaging(),
     });
   };
 

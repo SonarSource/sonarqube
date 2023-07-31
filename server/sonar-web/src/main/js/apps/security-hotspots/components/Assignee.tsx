@@ -22,13 +22,13 @@ import { noop } from 'lodash';
 import * as React from 'react';
 import { Options, SingleValue } from 'react-select';
 import { assignSecurityHotspot } from '../../../api/security-hotspots';
-import { searchUsers } from '../../../api/users';
+import { getUsers } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import Avatar from '../../../components/ui/Avatar';
 import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Hotspot, HotspotResolution, HotspotStatus } from '../../../types/security-hotspots';
-import { isLoggedIn, isUserActive } from '../../../types/users';
+import { RestUser, isLoggedIn, isUserActive } from '../../../types/users';
 
 interface Props {
   hotspot: Hotspot;
@@ -78,7 +78,7 @@ export default function Assignee(props: Props) {
     query: string,
     cb: (options: Options<LabelValueSelectOption<string>>) => void
   ) => {
-    searchUsers({ q: query })
+    getUsers<RestUser>({ q: query })
       .then((result) => {
         const options: Array<LabelValueSelectOption<string>> = result.users
           .filter(isUserActive)
