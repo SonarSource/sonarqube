@@ -93,7 +93,6 @@ public class AnticipatedTransitionTrackerTest {
 
   private AnticipatedTransition getAnticipatedTransition(Integer line, String message, String hash, String ruleKey) {
     return new AnticipatedTransition("projectKey",
-      null,
       "userUuid",
       RuleKey.parse(ruleKey),
       message,

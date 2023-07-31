@@ -102,7 +102,6 @@ public class AnticipatedTransitionParserTest {
     return List.of(
       new AnticipatedTransition(
         PROJECT_KEY,
-        "branch",
         USER_UUID,
         RuleKey.parse("squid:S0001"),
         "issueMessage1",
@@ -113,7 +112,6 @@ public class AnticipatedTransitionParserTest {
         "comment1"),
       new AnticipatedTransition(
         PROJECT_KEY,
-        "branch",
         USER_UUID,
         RuleKey.parse("squid:S0002"),
         "issueMessage2",

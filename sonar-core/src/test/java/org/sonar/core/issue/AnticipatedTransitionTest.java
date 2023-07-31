@@ -45,7 +45,6 @@ public class AnticipatedTransitionTest {
 
   private void assertFieldsAreTheSame(AnticipatedTransition anticipatedTransition, AnticipatedTransition anticipatedTransition2) {
     Assertions.assertThat(anticipatedTransition.getProjectKey()).isEqualTo(anticipatedTransition2.getProjectKey());
-    Assertions.assertThat(anticipatedTransition.getBranch()).isEqualTo(anticipatedTransition2.getBranch());
     Assertions.assertThat(anticipatedTransition.getUserUuid()).isEqualTo(anticipatedTransition2.getUserUuid());
     Assertions.assertThat(anticipatedTransition.getTransition()).isEqualTo(anticipatedTransition2.getTransition());
     Assertions.assertThat(anticipatedTransition.getComment()).isEqualTo(anticipatedTransition2.getComment());
@@ -59,7 +58,6 @@ public class AnticipatedTransitionTest {
   private AnticipatedTransition getAnticipatedTransition() {
     return new AnticipatedTransition(
       "projectKey",
-      "branch",
       "userUuid",
       RuleKey.parse("rule:key"),
       "message",

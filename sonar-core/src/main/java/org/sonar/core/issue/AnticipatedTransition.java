@@ -31,7 +31,6 @@ import org.sonar.core.issue.tracking.Trackable;
 public class AnticipatedTransition implements Trackable {
 
   private final String projectKey;
-  private final String branch;
   private final String transition;
   private final String userUuid;
   private final String comment;
@@ -43,7 +42,6 @@ public class AnticipatedTransition implements Trackable {
 
   public AnticipatedTransition(
     String projectKey,
-    @Nullable String branch,
     String userUuid,
     @Nullable RuleKey ruleKey,
     @Nullable String message,
@@ -53,7 +51,6 @@ public class AnticipatedTransition implements Trackable {
     String transition,
     @Nullable String comment) {
     this.projectKey = projectKey;
-    this.branch = branch;
     this.transition = transition;
     this.userUuid = userUuid;
     this.comment = comment;
@@ -66,10 +63,6 @@ public class AnticipatedTransition implements Trackable {
 
   public String getProjectKey() {
     return projectKey;
-  }
-
-  public String getBranch() {
-    return branch;
   }
 
   public String getTransition() {
@@ -132,7 +125,6 @@ public class AnticipatedTransition implements Trackable {
     }
     AnticipatedTransition that = (AnticipatedTransition) o;
     return Objects.equals(projectKey, that.projectKey)
-      && Objects.equals(branch, that.branch)
       && Objects.equals(transition, that.transition)
       && Objects.equals(userUuid, that.userUuid)
       && Objects.equals(comment, that.comment)

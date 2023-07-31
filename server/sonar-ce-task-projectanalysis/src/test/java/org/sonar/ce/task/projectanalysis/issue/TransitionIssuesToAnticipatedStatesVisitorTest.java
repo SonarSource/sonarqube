@@ -115,11 +115,11 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
   }
 
   private Collection<AnticipatedTransition> getAnticipatedTransitions(String projecKey, String fileName) {
-    return Stream.of(new AnticipatedTransition(projecKey, null, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1, "abcdefghi", "wontfix", "doing the transition in an anticipated way")).collect(Collectors.toList());
+    return Stream.of(new AnticipatedTransition(projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1, "abcdefghi", "wontfix", "doing the transition in an anticipated way")).collect(Collectors.toList());
   }
 
   private Collection<AnticipatedTransition> getAnticipatedTransitionsWithEmptyComment(String projecKey, String fileName) {
-    return Stream.of(new AnticipatedTransition(projecKey, null, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1, "abcdefghi", "wontfix", null)).collect(Collectors.toList());
+    return Stream.of(new AnticipatedTransition(projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1, "abcdefghi", "wontfix", null)).collect(Collectors.toList());
   }
 
   private Component getComponent(Component.Type type) {

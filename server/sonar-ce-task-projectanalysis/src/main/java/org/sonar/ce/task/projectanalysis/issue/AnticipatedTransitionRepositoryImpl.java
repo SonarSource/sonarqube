@@ -63,7 +63,6 @@ public class AnticipatedTransitionRepositoryImpl implements AnticipatedTransitio
   private AnticipatedTransition getAnticipatedTransition(AnticipatedTransitionDto transitionDto) {
     return new AnticipatedTransition(
       transitionDto.getProjectUuid(),
-      "branch",
       transitionDto.getUserUuid(),
       RuleKey.parse(transitionDto.getRuleKey()),
       transitionDto.getMessage(),

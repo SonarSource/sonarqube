@@ -56,7 +56,6 @@ public class AnticipatedTransitionParser {
     return anticipatedTransitions.stream()
       .map(anticipatedTransition -> new AnticipatedTransition(
         projectKey,
-        "branch",
         userUuid,
         RuleKey.parse(anticipatedTransition.ruleKey()),
         anticipatedTransition.message(),
