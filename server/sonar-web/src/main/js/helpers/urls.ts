@@ -28,6 +28,7 @@ import { SecurityStandard } from '../types/security';
 import { Dict, RawQuery } from '../types/types';
 import { HomePage } from '../types/users';
 import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branch-like';
+import { WHITELIST_VALUE_AMAZON } from './constants';
 import { serializeOptionalBoolean } from './query';
 import { getBaseUrl } from './system';
 
@@ -479,4 +480,8 @@ export function convertToTo(link: string | Location) {
 
 function linkIsLocation(link: string | Location): link is Location {
   return (link as Location).query !== undefined;
+}
+
+export function allowSpecificDomains(whiteListValue:string){
+  return whiteListValue === WHITELIST_VALUE_AMAZON;
 }

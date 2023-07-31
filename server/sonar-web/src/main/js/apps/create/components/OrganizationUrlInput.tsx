@@ -24,9 +24,13 @@ import { translate } from "../../../helpers/l10n";
 import ValidationInput from "../../../components/controls/ValidationInput";
 import { getWhiteListDomains } from '../../../../js/api/organizations';
 import { throwGlobalError } from '../../../../js/helpers/error';
+import withAppStateContext from '../../../../js/app/components/app-state/withAppStateContext';
+import { AppState } from '../../../../js/types/appstate';
+import { allowSpecificDomains } from '../../../../js/helpers/urls';
 
 interface Props {
   initialValue?: string;
+  appState: AppState;
   onChange: (value: string | undefined) => void;
 }
 
@@ -37,7 +41,7 @@ interface State {
   value: string;
 }
 
-export default class OrganizationUrlInput extends React.PureComponent<Props, State> {
+class OrganizationUrlInput extends React.PureComponent<Props, State> {
   state: State = {error: undefined, editing: false, touched: false, value: ''};
   whiteListDomains: string[] = [];
 
@@ -103,11 +107,12 @@ export default class OrganizationUrlInput extends React.PureComponent<Props, Sta
   
 
   validateUrl=(url: string)=> {
+    const { whiteLabel } = this.props.appState
     if (url.length > 0 && !isWebUri(url) ){
       return translate('onboarding.create_organization.url.error');
     }
-
-    if(url.length > 0 && !this.isValidDomain(url)){
+    
+    if(allowSpecificDomains(whiteLabel) && url.length > 0 && !this.isValidDomain(url)){
       return translate('onboarding.create_organization.url.domain.error');
     }
     return undefined;
@@ -139,3 +144,5 @@ export default class OrganizationUrlInput extends React.PureComponent<Props, Sta
     );
   }
 }
+
+export default withAppStateContext(OrganizationUrlInput);
