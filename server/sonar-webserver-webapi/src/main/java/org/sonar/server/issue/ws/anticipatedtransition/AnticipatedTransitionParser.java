@@ -22,18 +22,33 @@ package org.sonar.server.issue.ws.anticipatedtransition;
 import com.google.gson.Gson;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.AnticipatedTransition;
 
 public class AnticipatedTransitionParser {
   private static final Gson GSON = new Gson();
+  private static final String WONTFIX = "wontfix";
+  private static final String FALSEPOSITIVE = "falsepositive";
+  private static final Set<String> ALLOWED_TRANSITIONS = Set.of(WONTFIX, FALSEPOSITIVE);
+  private static final String TRANSITION_NOT_SUPPORTED_ERROR_MESSAGE = "Transition '%s' not supported. Only 'wontfix' and 'falsepositive' are supported.";
 
   public List<AnticipatedTransition> parse(String requestBody, String userUuid, String projectKey) {
+    List<GsonAnticipatedTransition> anticipatedTransitions;
     try {
-      List<GsonAnticipatedTransition> anticipatedTransitions = Arrays.asList(GSON.fromJson(requestBody, GsonAnticipatedTransition[].class));
-      return mapBodyToAnticipatedTransitions(anticipatedTransitions, userUuid, projectKey);
+      anticipatedTransitions = Arrays.asList(GSON.fromJson(requestBody, GsonAnticipatedTransition[].class));
     } catch (Exception e) {
       throw new IllegalStateException("Unable to parse anticipated transitions from request body.", e);
+    }
+    validateAnticipatedTransitions(anticipatedTransitions);
+    return mapBodyToAnticipatedTransitions(anticipatedTransitions, userUuid, projectKey);
+  }
+
+  private static void validateAnticipatedTransitions(List<GsonAnticipatedTransition> anticipatedTransitions) {
+    for (GsonAnticipatedTransition anticipatedTransition : anticipatedTransitions) {
+      if (!ALLOWED_TRANSITIONS.contains(anticipatedTransition.transition())) {
+        throw new IllegalArgumentException(String.format(TRANSITION_NOT_SUPPORTED_ERROR_MESSAGE, anticipatedTransition.transition()));
+      }
     }
   }
 

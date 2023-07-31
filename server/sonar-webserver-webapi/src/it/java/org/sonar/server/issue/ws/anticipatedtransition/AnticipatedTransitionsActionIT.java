@@ -71,18 +71,18 @@ public class AnticipatedTransitionsActionIT {
     assertThat(definition.key()).isEqualTo("anticipated_transitions");
     assertThat(definition.description()).isEqualTo("""
       Receive a list of anticipated transitions that can be applied to not yet discovered issues on a specific project.<br>
-      Requires the following permission: 'Administer' on the specified project.<br><br>
+      Requires the following permission: 'Administer Issues' on the specified project.<br>
+      Only <code>falsepositive</code> and <code>wontfix</code> transitions are supported.<br>
       Upon successful execution, the HTTP status code returned is 202 (Accepted).<br><br>
       Request example:
-      <pre><code>
-      [
+      <pre><code>[
         {
           "ruleKey": "squid:S0001",
           "issueMessage": "issueMessage1",
           "filePath": "filePath1",
           "line": 1,
           "lineHash": "lineHash1",
-          "transition": "transition1",
+          "transition": "falsepositive",
           "comment": "comment1"
         },
         {
@@ -91,10 +91,10 @@ public class AnticipatedTransitionsActionIT {
           "filePath": "filePath2",
           "line": 2,
           "lineHash": "lineHash2",
-          "transition": "transition2",
+          "transition": "wontfix",
           "comment": "comment2"
         }
-      ]""");
+      ]</code></pre>""");
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.isInternal()).isTrue();
     assertThat(definition.params()).extracting(WebService.Param::key, WebService.Param::isRequired, WebService.Param::description, WebService.Param::since).containsExactlyInAnyOrder(
@@ -166,7 +166,7 @@ public class AnticipatedTransitionsActionIT {
           "filePath": "filePath3",
           "line": 3,
           "lineHash": "lineHash3",
-          "transition": "transition3",
+          "transition": "wontfix",
           "comment": "comment3"
         }
       ]""";

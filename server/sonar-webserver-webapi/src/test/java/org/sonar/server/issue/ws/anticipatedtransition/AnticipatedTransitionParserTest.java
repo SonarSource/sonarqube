@@ -74,6 +74,29 @@ public class AnticipatedTransitionParserTest {
       .hasMessage("Unable to parse anticipated transitions from request body.");
   }
 
+  @Test
+  public void givenRequestBodyWithInvalidTransition_whenParse_thenExceptionIsThrown() throws IOException {
+    // given
+    String requestBodyWithInvalidTransition = """
+      [
+        {
+          "ruleKey": "squid:S0001",
+          "issueMessage": "issueMessage1",
+          "filePath": "filePath1",
+          "line": 1,
+          "lineHash": "lineHash1",
+          "transition": "invalid-transition",
+          "comment": "comment1"
+        },
+      ]
+      """;
+
+    // when
+    Assertions.assertThatThrownBy(() -> underTest.parse(requestBodyWithInvalidTransition, USER_UUID, PROJECT_KEY))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Transition 'invalid-transition' not supported. Only 'wontfix' and 'falsepositive' are supported.");
+  }
+
   // Handwritten Anticipated Transitions that are expected from the request-with-transitions.json file
   private List<AnticipatedTransition> transitionsExpectedFromTestFile() {
     return List.of(
@@ -86,7 +109,7 @@ public class AnticipatedTransitionParserTest {
         "filePath1",
         1,
         "lineHash1",
-        "transition1",
+        "wontfix",
         "comment1"),
       new AnticipatedTransition(
         PROJECT_KEY,
@@ -97,7 +120,7 @@ public class AnticipatedTransitionParserTest {
         "filePath2",
         2,
         "lineHash2",
-        "transition2",
+        "falsepositive",
         "comment2"));
   }
 

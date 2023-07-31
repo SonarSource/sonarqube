@@ -5,7 +5,7 @@
     "filePath": "filePath1",
     "line": 1,
     "lineHash": "lineHash1",
-    "transition": "transition1",
+    "transition": "wontfix",
     "comment": "comment1"
   },
   {
@@ -14,7 +14,7 @@
     "filePath": "filePath2",
     "line": 2,
     "lineHash": "lineHash2",
-    "transition": "transition2",
+    "transition": "falsepositive",
     "comment": "comment2"
   }
 ]

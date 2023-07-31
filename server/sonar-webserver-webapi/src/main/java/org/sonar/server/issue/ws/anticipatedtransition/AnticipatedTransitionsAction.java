@@ -45,18 +45,18 @@ public class AnticipatedTransitionsAction implements IssuesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(IssuesWsParameters.ACTION_ANTICIPATED_TRANSITIONS).setDescription("""
       Receive a list of anticipated transitions that can be applied to not yet discovered issues on a specific project.<br>
-      Requires the following permission: 'Administer' on the specified project.<br><br>
+      Requires the following permission: 'Administer Issues' on the specified project.<br>
+      Only <code>falsepositive</code> and <code>wontfix</code> transitions are supported.<br>
       Upon successful execution, the HTTP status code returned is 202 (Accepted).<br><br>
       Request example:
-      <pre><code>
-      [
+      <pre><code>[
         {
           "ruleKey": "squid:S0001",
           "issueMessage": "issueMessage1",
           "filePath": "filePath1",
           "line": 1,
           "lineHash": "lineHash1",
-          "transition": "transition1",
+          "transition": "falsepositive",
           "comment": "comment1"
         },
         {
@@ -65,10 +65,10 @@ public class AnticipatedTransitionsAction implements IssuesWsAction {
           "filePath": "filePath2",
           "line": 2,
           "lineHash": "lineHash2",
-          "transition": "transition2",
+          "transition": "wontfix",
           "comment": "comment2"
         }
-      ]""")
+      ]</code></pre>""")
       .setSince("10.2")
       .setHandler(this)
       .setInternal(true)
