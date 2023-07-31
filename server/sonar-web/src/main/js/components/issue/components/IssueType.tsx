@@ -18,60 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DiscreetSelect } from 'design-system';
+import { DisabledText, Tooltip } from 'design-system';
 import * as React from 'react';
-import { setIssueType } from '../../../api/issues';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { IssueResponse } from '../../../types/issues';
-import { Issue, RawQuery } from '../../../types/types';
+import { useDocUrl } from '../../../helpers/docs';
+import { translate } from '../../../helpers/l10n';
+import { Issue } from '../../../types/types';
 import IssueTypeIcon from '../../icon-mappers/IssueTypeIcon';
+import { DeprecatedFieldTooltip } from './DeprecatedFieldTooltip';
 
 interface Props {
-  canSetType: boolean;
   issue: Pick<Issue, 'type'>;
-  setIssueProperty: (
-    property: keyof Issue,
-    popup: string,
-    apiCall: (query: RawQuery) => Promise<IssueResponse>,
-    value: string
-  ) => void;
 }
 
-export default class IssueType extends React.PureComponent<Props> {
-  setType = ({ value }: { value: string }) => {
-    this.props.setIssueProperty('type', 'set-type', setIssueType, value);
-  };
+export default function IssueType({ issue }: Props) {
+  const docUrl = useDocUrl('/');
 
-  render() {
-    const { issue } = this.props;
-    const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
-
-    const typesOptions = TYPES.map((type) => ({
-      label: translate('issue.type', type),
-      value: type,
-      Icon: <IssueTypeIcon type={type} />,
-    }));
-
-    if (this.props.canSetType) {
-      return (
-        <DiscreetSelect
-          aria-label={translateWithParameters(
-            'issue.type.type_x_click_to_change',
-            translate('issue.type', issue.type)
-          )}
-          className="it__issue-type"
-          options={typesOptions}
-          setValue={this.setType}
-          value={issue.type}
-        />
-      );
-    }
-
-    return (
-      <span className="sw-flex sw-items-center sw-gap-1">
-        <IssueTypeIcon type={issue.type} />
+  return (
+    <Tooltip overlay={<DeprecatedFieldTooltip field="type" docUrl={docUrl} />}>
+      <DisabledText className="sw-flex sw-items-center sw-gap-1 sw-cursor-not-allowed">
+        <IssueTypeIcon fill="iconTypeDisabled" type={issue.type} aria-hidden />
         {translate('issue.type', issue.type)}
-      </span>
-    );
-  }
+      </DisabledText>
+    </Tooltip>
+  );
 }

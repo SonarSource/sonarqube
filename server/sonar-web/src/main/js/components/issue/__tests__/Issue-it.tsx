@@ -104,32 +104,6 @@ describe('rendering', () => {
 });
 
 describe('updating', () => {
-  it('should allow updating the type', async () => {
-    const { ui } = getPageObject();
-    const issue = mockRawIssue(false, {
-      type: IssueType.Bug,
-      actions: [IssueActions.SetType],
-    });
-    issuesHandler.setIssueList([{ issue, snippets: {} }]);
-    renderIssue({ issue: mockIssue(false, { ...pick(issue, 'actions', 'key', 'type') }) });
-
-    await ui.updateType(IssueType.Bug, IssueType.CodeSmell);
-    expect(ui.updateTypeBtn(IssueType.CodeSmell).get()).toBeInTheDocument();
-  });
-
-  it('should allow updating the severity', async () => {
-    const { ui } = getPageObject();
-    const issue = mockRawIssue(false, {
-      severity: IssueSeverity.Blocker,
-      actions: [IssueActions.SetSeverity],
-    });
-    issuesHandler.setIssueList([{ issue, snippets: {} }]);
-    renderIssue({ issue: mockIssue(false, { ...pick(issue, 'actions', 'key', 'severity') }) });
-
-    await ui.updateSeverity(IssueSeverity.Blocker, IssueSeverity.Minor);
-    expect(ui.updateSeverityBtn(IssueSeverity.Minor).get()).toBeInTheDocument();
-  });
-
   it('should allow updating the status', async () => {
     const { ui } = getPageObject();
     const issue = mockRawIssue(false, {
@@ -197,10 +171,6 @@ it('should correctly handle keyboard shortcuts', async () => {
 
   await ui.pressAssignShortcut();
   expect(ui.setAssigneeBtn(/Organa/).get()).toBeInTheDocument();
-  await ui.pressDismissShortcut();
-
-  await ui.pressSeverityShortcut();
-  expect(ui.setSeverityBtn(IssueSeverity.Minor).get()).toBeInTheDocument();
   await ui.pressDismissShortcut();
 
   await ui.pressCommentShortcut();

@@ -21,7 +21,6 @@
 import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import selectEvent from 'react-select-event';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { byRole } from '../../../helpers/testSelector';
@@ -259,11 +258,8 @@ describe('issues app', () => {
       expect(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' })).toHaveFocus();
       await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
 
-      expect(
-        within(screen.getByRole('region', { name: 'Fix that' })).getByLabelText(
-          'issue.type.type_x_click_to_change.issue.type.CODE_SMELL'
-        )
-      ).toBeInTheDocument();
+      // Check that we bulk change the selected issue
+      const issueBoxFixThat = within(screen.getByRole('region', { name: 'Fix that' }));
 
       await user.click(
         screen.getByRole('checkbox', { name: 'issues.action_select.label.Fix that' })
@@ -274,16 +270,14 @@ describe('issues app', () => {
       await user.keyboard('New Comment');
       expect(screen.getByRole('button', { name: 'apply' })).toBeDisabled();
 
-      await selectEvent.select(screen.getByRole('combobox', { name: 'issue.set_type' }), [
-        'issue.type.BUG',
-      ]);
+      await user.click(screen.getByRole('radio', { name: 'issue.transition.falsepositive' }));
       await user.click(screen.getByRole('button', { name: 'apply' }));
 
       expect(
-        await within(screen.getByRole('region', { name: 'Fix that' })).findByLabelText(
-          'issue.type.type_x_click_to_change.issue.type.BUG'
+        issueBoxFixThat.queryByLabelText(
+          'issue.transition.status_x_click_to_change.issue.status.falsepositive'
         )
-      ).toBeInTheDocument();
+      ).not.toBeInTheDocument();
     });
   });
 });
@@ -379,39 +373,6 @@ describe('issues item', () => {
     // Get a specific issue list item
     const listItem = within(await screen.findByRole('region', { name: 'Fix that' }));
 
-    // Change issue type
-    await act(async () => {
-      await user.click(
-        listItem.getByLabelText('issue.type.type_x_click_to_change.issue.type.CODE_SMELL')
-      );
-    });
-    expect(listItem.getByText('issue.type.BUG')).toBeInTheDocument();
-    expect(listItem.getByText('issue.type.VULNERABILITY')).toBeInTheDocument();
-
-    await act(async () => {
-      await user.click(listItem.getByText('issue.type.VULNERABILITY'));
-    });
-    expect(
-      listItem.getByLabelText('issue.type.type_x_click_to_change.issue.type.VULNERABILITY')
-    ).toBeInTheDocument();
-
-    // Change issue severity
-    expect(listItem.getByText('severity.MAJOR')).toBeInTheDocument();
-
-    await act(async () => {
-      await user.click(
-        listItem.getByLabelText('issue.severity.severity_x_click_to_change.severity.MAJOR')
-      );
-    });
-    expect(listItem.getByText('severity.MINOR')).toBeInTheDocument();
-    expect(listItem.getByText('severity.INFO')).toBeInTheDocument();
-    await act(async () => {
-      await user.click(listItem.getByText('severity.MINOR'));
-    });
-    expect(
-      listItem.getByLabelText('issue.severity.severity_x_click_to_change.severity.MINOR')
-    ).toBeInTheDocument();
-
     // Change issue status
     expect(listItem.getByText('issue.status.OPEN')).toBeInTheDocument();
 
@@ -444,7 +405,6 @@ describe('issues item', () => {
     ).not.toBeInTheDocument();
 
     // Assign issue to a different user
-
     await act(async () => {
       await user.click(
         listItem.getByRole('combobox', { name: 'issue.assign.unassigned_click_to_assign' })
@@ -550,21 +510,13 @@ describe('issues item', () => {
     await act(async () => {
       await user.click(await ui.issueItemAction5.find());
 
-      // open severity popup on key press 'i'
-
-      await user.keyboard('i');
-    });
-    expect(screen.getByText('severity.MINOR')).toBeInTheDocument();
-    expect(screen.getByText('severity.INFO')).toBeInTheDocument();
-
-    // open status popup on key press 'f'
-    await act(async () => {
+      // Open status popup on key press 'f'
       await user.keyboard('f');
     });
     expect(screen.getByText('issue.transition.confirm')).toBeInTheDocument();
     expect(screen.getByText('issue.transition.resolve')).toBeInTheDocument();
 
-    // open comment popup on key press 'c'
+    // Open comment popup on key press 'c'
     await act(async () => {
       await user.keyboard('c');
     });
@@ -573,19 +525,19 @@ describe('issues item', () => {
       await user.keyboard('{Escape}');
     });
 
-    // open tags popup on key press 't'
-
+    // Open tags popup on key press 't'
     await act(async () => {
       await user.keyboard('t');
     });
     expect(screen.getByRole('searchbox', { name: 'search.search_for_tags' })).toBeInTheDocument();
     expect(screen.getByText('android')).toBeInTheDocument();
     expect(screen.getByText('accessibility')).toBeInTheDocument();
-    // closing tags popup
+
+    // Close tags popup
     await act(async () => {
       await user.click(screen.getByText('issue.no_tag'));
 
-      // open assign popup on key press 'a'
+      // Open assign popup on key press 'a'
       await user.keyboard('a');
     });
     expect(screen.getByRole('searchbox', { name: 'search.search_for_tags' })).toBeInTheDocument();
@@ -692,14 +644,6 @@ describe('redirects', () => {
 
     expect(screen.getByText('/security_hotspots?assignedToMe=false')).toBeInTheDocument();
   });
-
-  // it('should filter out hotspots', () => {
-  //   renderProjectIssuesApp(
-  //     `project/issues?types=${IssueType.SecurityHotspot},${IssueType.CodeSmell}`
-  //   );
-
-  //   expect(ui.clearIssueTypeFacet.get()).toBeInTheDocument();
-  // });
 });
 
 describe('Activity', () => {

@@ -27,7 +27,6 @@ import IssuesServiceMock from '../../../api/mocks/IssuesServiceMock';
 import { HttpStatus } from '../../../helpers/request';
 import { mockIssue } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { byText } from '../../../helpers/testSelector';
 import SourceViewer, { Props } from '../SourceViewer';
 import loadIssues from '../helpers/loadIssues';
 
@@ -50,11 +49,6 @@ jest.mock('../helpers/lines', () => {
     LINES_TO_LOAD: 20,
   };
 });
-
-const ui = {
-  codeSmellTypeButton: byText('issue.type.CODE_SMELL'),
-  minorSeverityButton: byText(/severity.MINOR/),
-};
 
 const componentsHandler = new ComponentsServiceMock();
 const issuesHandler = new IssuesServiceMock();
@@ -140,7 +134,7 @@ it('should show issue on empty file', async () => {
 it('should be able to interact with issue action', async () => {
   jest.mocked(loadIssues).mockResolvedValueOnce([
     mockIssue(false, {
-      actions: ['set_type', 'set_tags', 'comment', 'set_severity', 'assign'],
+      actions: ['set_tags', 'comment', 'assign'],
       key: 'issue1',
       message,
       line: 1,
@@ -151,35 +145,15 @@ it('should be able to interact with issue action', async () => {
   const user = userEvent.setup();
   renderSourceViewer();
 
-  //Open Issue type
-  await user.click(
-    await screen.findByLabelText('issue.type.type_x_click_to_change.issue.type.BUG')
-  );
-
-  expect(ui.codeSmellTypeButton.get()).toBeInTheDocument();
-
-  // Open severity
-  await user.click(
-    await screen.findByLabelText('issue.severity.severity_x_click_to_change.severity.MAJOR')
-  );
-
-  expect(ui.minorSeverityButton.get()).toBeInTheDocument();
-
-  // Close
-  await user.keyboard('{Escape}');
-  expect(ui.minorSeverityButton.query()).not.toBeInTheDocument();
-
-  // Change the severity
-  await user.click(
-    await screen.findByLabelText('issue.severity.severity_x_click_to_change.severity.MAJOR')
-  );
-
-  expect(ui.minorSeverityButton.get()).toBeInTheDocument();
-  await user.click(ui.minorSeverityButton.get());
-
-  expect(
-    screen.getByLabelText('issue.severity.severity_x_click_to_change.severity.MINOR')
-  ).toBeInTheDocument();
+  // Assign issue to a different user
+  await act(async () => {
+    await user.click(
+      await screen.findByRole('combobox', { name: 'issue.assign.unassigned_click_to_assign' })
+    );
+    await user.click(screen.getByLabelText('search.search_for_users'));
+    await user.keyboard('luke');
+  });
+  expect(screen.getByText('Skywalker')).toBeInTheDocument();
 });
 
 it('should load line when looking around unloaded line', async () => {

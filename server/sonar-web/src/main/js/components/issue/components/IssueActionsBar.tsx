@@ -24,19 +24,13 @@ import { Badge, CommentIcon, SeparatorCircleIcon, themeColor } from 'design-syst
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
-import {
-  IssueActions,
-  IssueResolution,
-  IssueResponse,
-  IssueType as IssueTypeEnum,
-} from '../../../types/issues';
+import { IssueActions, IssueResolution, IssueType as IssueTypeEnum } from '../../../types/issues';
 import { RuleStatus } from '../../../types/rules';
-import { Issue, RawQuery } from '../../../types/types';
+import { Issue } from '../../../types/types';
 import Tooltip from '../../controls/Tooltip';
 import DateFromNow from '../../intl/DateFromNow';
 import SoftwareImpactPill from '../../shared/SoftwareImpactPill';
 import { WorkspaceContext } from '../../workspace/context';
-import { updateIssue } from '../actions';
 import IssueAssign from './IssueAssign';
 import IssueBadges from './IssueBadges';
 import IssueCommentAction from './IssueCommentAction';
@@ -77,20 +71,6 @@ export default function IssueActionsBar(props: Props) {
     commentPlaceholder: '',
   });
 
-  const setIssueProperty = (
-    property: keyof Issue,
-    popup: string,
-    apiCall: (query: RawQuery) => Promise<IssueResponse>,
-    value: string
-  ) => {
-    if (issue[property] !== value) {
-      const newIssue = { ...issue, [property]: value };
-      updateIssue(onChange, apiCall({ issue: issue.key, [property]: value }), issue, newIssue);
-    }
-
-    togglePopup(popup, false);
-  };
-
   const toggleComment = (open: boolean, placeholder = '', autoTriggered = false) => {
     setCommentState({
       commentPlaceholder: placeholder,
@@ -119,8 +99,6 @@ export default function IssueActionsBar(props: Props) {
 
   const canAssign = issue.actions.includes(IssueActions.Assign);
   const canComment = issue.actions.includes(IssueActions.Comment);
-  const canSetSeverity = issue.actions.includes(IssueActions.SetSeverity);
-  const canSetType = issue.actions.includes(IssueActions.SetType);
   const hasTransitions = issue.transitions.length > 0;
   const hasComments = !!issue.comments?.length;
 
@@ -147,6 +125,16 @@ export default function IssueActionsBar(props: Props) {
           />
         </li>
 
+        <li>
+          <IssueAssign
+            isOpen={currentPopup === 'assign'}
+            togglePopup={togglePopup}
+            canAssign={canAssign}
+            issue={issue}
+            onAssign={onAssign}
+          />
+        </li>
+
         <li className="sw-flex sw-gap-3">
           {issue.impacts.map(({ severity, softwareQuality }, index) => (
             <SoftwareImpactPill
@@ -159,27 +147,11 @@ export default function IssueActionsBar(props: Props) {
         </li>
 
         <li>
-          <IssueType canSetType={canSetType} issue={issue} setIssueProperty={setIssueProperty} />
+          <IssueType issue={issue} />
         </li>
 
         <li>
-          <IssueSeverity
-            isOpen={currentPopup === 'set-severity'}
-            togglePopup={togglePopup}
-            canSetSeverity={canSetSeverity}
-            issue={issue}
-            setIssueProperty={setIssueProperty}
-          />
-        </li>
-
-        <li>
-          <IssueAssign
-            isOpen={currentPopup === 'assign'}
-            togglePopup={togglePopup}
-            canAssign={canAssign}
-            issue={issue}
-            onAssign={onAssign}
-          />
+          <IssueSeverity issue={issue} />
         </li>
       </ul>
       {canComment && (

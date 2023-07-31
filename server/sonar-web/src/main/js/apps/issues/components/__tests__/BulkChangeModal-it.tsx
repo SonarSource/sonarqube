@@ -21,14 +21,11 @@
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import selectEvent from 'react-select-event';
 import { bulkChangeIssues } from '../../../../api/issues';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
-import { SEVERITIES } from '../../../../helpers/constants';
 import { mockIssue, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentPropsType } from '../../../../helpers/testUtils';
-import { IssueType } from '../../../../types/issues';
 import { Issue } from '../../../../types/types';
 import { CurrentUser } from '../../../../types/users';
 import BulkChangeModal, { MAX_PAGE_SIZE } from '../BulkChangeModal';
@@ -64,15 +61,6 @@ it('should display warning when too many issues are passed', async () => {
   expect(await screen.findByText('issue_bulk_change.max_issues_reached')).toBeInTheDocument();
 });
 
-it.each([
-  ['type', 'set_type'],
-  ['severity', 'set_severity'],
-])('should render select for %s', async (_field, action) => {
-  renderBulkChangeModal([mockIssue(false, { actions: [action] })]);
-
-  expect(await screen.findByText('issue.' + action)).toBeInTheDocument();
-});
-
 it('should render tags correctly', async () => {
   renderBulkChangeModal([mockIssue(false, { actions: ['set_tags'] })]);
 
@@ -91,7 +79,7 @@ it('should render transitions correctly', async () => {
 
 it('should disable the submit button unless some change is configured', async () => {
   const user = userEvent.setup();
-  renderBulkChangeModal([mockIssue(false, { actions: ['set_severity', 'comment'] })]);
+  renderBulkChangeModal([mockIssue(false, { actions: ['set_tags', 'comment'] })]);
 
   // Apply button should be disabled
   expect(await screen.findByRole('button', { name: 'apply' })).toBeDisabled();
@@ -100,10 +88,12 @@ it('should disable the submit button unless some change is configured', async ()
   await user.type(screen.getByRole('textbox', { name: /issue.comment.formlink/ }), 'some comment');
   expect(screen.getByRole('button', { name: 'apply' })).toBeDisabled();
 
-  // Select a severity
-  await selectEvent.select(screen.getByRole('combobox', { name: 'issue.set_severity' }), [
-    `severity.${SEVERITIES[0]}`,
-  ]);
+  // Add a tag
+  await act(async () => {
+    await user.click(screen.getByRole('combobox', { name: 'issue.add_tags' }));
+    await user.click(screen.getByText('tag1'));
+    await user.click(screen.getByText('tag2'));
+  });
 
   // Apply button should be enabled now
   expect(screen.getByRole('button', { name: 'apply' })).toBeEnabled();
@@ -155,21 +145,6 @@ it('should properly submit', async () => {
     await user.click(screen.getByText('tag2'));
   });
 
-  // Select a type
-  await selectEvent.select(screen.getByRole('combobox', { name: 'issue.set_type' }), [
-    `issue.type.CODE_SMELL`,
-  ]);
-
-  // Select a severity
-  await selectEvent.select(screen.getByRole('combobox', { name: 'issue.set_severity' }), [
-    `severity.${SEVERITIES[0]}`,
-  ]);
-
-  // Severity
-  await selectEvent.select(screen.getByRole('combobox', { name: 'issue.set_severity' }), [
-    `severity.${SEVERITIES[0]}`,
-  ]);
-
   // Comment
   await user.type(screen.getByRole('textbox', { name: /issue.comment.formlink/ }), 'some comment');
 
@@ -188,8 +163,6 @@ it('should properly submit', async () => {
     comment: 'some comment',
     do_transition: 'Transition2',
     sendNotifications: true,
-    set_severity: 'BLOCKER',
-    set_type: IssueType.CodeSmell,
   });
 });
 

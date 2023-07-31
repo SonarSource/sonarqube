@@ -172,11 +172,12 @@ export default class IssuesServiceMock {
   }
 
   handleBulkChangeIssues = (issueKeys: string[], query: RequestData) => {
-    //For now we only check for issue type change.
+    // For now we only check for issue type and status change.
     this.list
       .filter((i) => issueKeys.includes(i.issue.key))
       .forEach((data) => {
-        data.issue.type = query.set_type;
+        data.issue.type = query.set_type ?? data.issue.type;
+        data.issue.status = query.do_transition ?? data.issue.status;
       });
     return this.reply(undefined);
   };

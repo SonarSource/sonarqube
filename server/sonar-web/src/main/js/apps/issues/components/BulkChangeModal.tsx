@@ -25,7 +25,6 @@ import {
   FormField,
   HelperHintIcon,
   Highlight,
-  InputSelect,
   LabelValueSelectOption,
   LightLabel,
   Modal,
@@ -38,14 +37,10 @@ import { FormattedMessage } from 'react-intl';
 import { SingleValue } from 'react-select';
 import { bulkChangeIssues, searchIssueTags } from '../../../api/issues';
 import FormattingTips from '../../../components/common/FormattingTips';
-import IssueSeverityIcon from '../../../components/icon-mappers/IssueSeverityIcon';
-import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
-import { SEVERITIES } from '../../../helpers/constants';
 import { throwGlobalError } from '../../../helpers/error';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { withBranchStatusRefresh } from '../../../queries/branch';
-import { IssueSeverity } from '../../../types/issues';
-import { Dict, Issue, IssueType, Paging } from '../../../types/types';
+import { Dict, Issue, Paging } from '../../../types/types';
 import AssigneeSelect from './AssigneeSelect';
 import TagsSelect from './TagsSelect';
 
@@ -162,15 +157,6 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     this.setState({ comment: event.currentTarget.value });
   };
 
-  handleSelectFieldChange =
-    (field: 'severity' | 'type') => (data: LabelValueSelectOption<string> | null) => {
-      if (data) {
-        this.setState<keyof FormFields>({ [field]: data.value });
-      } else {
-        this.setState<keyof FormFields>({ [field]: undefined });
-      }
-    };
-
   handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -278,65 +264,6 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     );
 
     return this.renderField(field, 'issue.assign.formlink', affected, input);
-  };
-
-  renderTypeField = () => {
-    const affected = this.state.issues.filter(hasAction('set_type')).length;
-    const field = InputField.type;
-
-    if (affected === 0) {
-      return null;
-    }
-
-    const types: IssueType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
-    const options: LabelValueSelectOption<IssueType>[] = types.map((type) => ({
-      label: translate('issue.type', type),
-      value: type,
-      Icon: <IssueTypeIcon type={type} />,
-    }));
-
-    const input = (
-      <InputSelect
-        className="sw-w-abs-300"
-        inputId={`issues-bulk-change-${field}`}
-        isClearable
-        isSearchable={false}
-        onChange={this.handleSelectFieldChange('type')}
-        options={options}
-        size="full"
-      />
-    );
-
-    return this.renderField(field, 'issue.set_type', affected, input);
-  };
-
-  renderSeverityField = () => {
-    const affected = this.state.issues.filter(hasAction('set_severity')).length;
-    const field = InputField.severity;
-
-    if (affected === 0) {
-      return null;
-    }
-
-    const options: LabelValueSelectOption<IssueSeverity>[] = SEVERITIES.map((severity) => ({
-      label: translate('severity', severity),
-      value: severity,
-      Icon: <IssueSeverityIcon severity={severity} />,
-    }));
-
-    const input = (
-      <InputSelect
-        className="sw-w-abs-300"
-        inputId={`issues-bulk-change-${field}`}
-        isClearable
-        isSearchable={false}
-        onChange={this.handleSelectFieldChange('severity')}
-        options={options}
-        size="full"
-      />
-    );
-
-    return this.renderField(field, 'issue.set_severity', affected, input);
   };
 
   renderTagsField = (
@@ -464,8 +391,6 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
           )}
 
           {this.renderAssigneeField()}
-          {this.renderTypeField()}
-          {this.renderSeverityField()}
           {!needIssueSync && this.renderTagsField(InputField.addTags, 'issue.add_tags', true)}
 
           {!needIssueSync &&
