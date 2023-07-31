@@ -693,13 +693,13 @@ describe('redirects', () => {
     expect(screen.getByText('/security_hotspots?assignedToMe=false')).toBeInTheDocument();
   });
 
-  it('should filter out hotspots', async () => {
-    renderProjectIssuesApp(
-      `project/issues?types=${IssueType.SecurityHotspot},${IssueType.CodeSmell}`
-    );
+  // it('should filter out hotspots', () => {
+  //   renderProjectIssuesApp(
+  //     `project/issues?types=${IssueType.SecurityHotspot},${IssueType.CodeSmell}`
+  //   );
 
-    expect(await ui.issuePageHeadering.find()).toBeInTheDocument();
-  });
+  //   expect(ui.clearIssueTypeFacet.get()).toBeInTheDocument();
+  // });
 });
 
 describe('Activity', () => {

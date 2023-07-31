@@ -26,6 +26,11 @@ import { mockComponent } from '../../helpers/mocks/component';
 import { mockCurrentUser } from '../../helpers/testMocks';
 import { renderApp, renderAppWithComponentContext } from '../../helpers/testReactTestingUtils';
 import { byLabelText, byPlaceholderText, byRole, byTestId } from '../../helpers/testSelector';
+import {
+  CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../../types/issues';
 import { Component } from '../../types/types';
 import { CurrentUser } from '../../types/users';
 import IssuesApp from './components/IssuesApp';
@@ -71,7 +76,16 @@ export const ui = {
   statusFacet: byRole('button', { name: 'issues.facet.statuses' }),
   tagFacet: byRole('button', { name: 'issues.facet.tags' }),
   typeFacet: byRole('button', { name: 'issues.facet.types' }),
+  cleanCodeAttributeCategoryFacet: byRole('button', {
+    name: 'issues.facet.cleanCodeAttributeCategory',
+  }),
+  softwareQualityFacet: byRole('button', {
+    name: 'issues.facet.impactSoftwareQuality',
+  }),
+  severityFacet: byRole('button', { name: 'issues.facet.impactSeverity' }),
 
+  clearCodeCategoryFacet: byTestId('clear-issues.facet.cleanCodeAttributeCategory'),
+  clearSoftwareQualityFacet: byTestId('clear-issues.facet.impactSoftwareQuality'),
   clearAssigneeFacet: byTestId('clear-issues.facet.assignees'),
   clearAuthorFacet: byTestId('clear-issues.facet.authors'),
   clearCodeVariantsFacet: byTestId('clear-issues.facet.codeVariants'),
@@ -81,15 +95,24 @@ export const ui = {
   clearResolutionFacet: byTestId('clear-issues.facet.resolutions'),
   clearRuleFacet: byTestId('clear-issues.facet.rules'),
   clearScopeFacet: byTestId('clear-issues.facet.scopes'),
-  clearSeverityFacet: byTestId('clear-issues.facet.severities'),
+  clearSeverityFacet: byTestId('clear-issues.facet.impactSeverity'),
   clearStatusFacet: byTestId('clear-issues.facet.statuses'),
   clearTagFacet: byTestId('clear-issues.facet.tags'),
 
+  responsibleCategoryFilter: byRole('checkbox', {
+    name: `issue.clean_code_attribute_category.${CleanCodeAttributeCategory.Responsible}`,
+  }),
+  consistentCategoryFilter: byRole('checkbox', {
+    name: `issue.clean_code_attribute_category.${CleanCodeAttributeCategory.Consistent}`,
+  }),
+  softwareQualityMaintainabilityFilter: byRole('checkbox', {
+    name: `issue.software_quality.${SoftwareQuality.Maintainability}`,
+  }),
   codeSmellIssueTypeFilter: byRole('checkbox', { name: 'issue.type.CODE_SMELL' }),
   confirmedStatusFilter: byRole('checkbox', { name: 'issue.status.CONFIRMED' }),
   fixedResolutionFilter: byRole('checkbox', { name: 'issue.resolution.FIXED' }),
   mainScopeFilter: byRole('checkbox', { name: 'issue.scope.MAIN' }),
-  majorSeverityFilter: byRole('checkbox', { name: 'severity.MAJOR' }),
+  mediumSeverityFilter: byRole('checkbox', { name: `severity.${SoftwareImpactSeverity.Medium}` }),
   openStatusFilter: byRole('checkbox', { name: 'issue.status.OPEN' }),
   vulnerabilityIssueTypeFilter: byRole('checkbox', { name: 'issue.type.VULNERABILITY' }),
 

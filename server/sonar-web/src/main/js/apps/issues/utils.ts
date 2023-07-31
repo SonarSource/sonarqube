@@ -33,7 +33,13 @@ import {
 } from '../../helpers/query';
 import { get, save } from '../../helpers/storage';
 import { isDefined } from '../../helpers/types';
-import { Facet, RawFacet } from '../../types/issues';
+import {
+  CleanCodeAttributeCategory,
+  Facet,
+  RawFacet,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../../types/issues';
 import { MetricType } from '../../types/metrics';
 import { SecurityStandard } from '../../types/security';
 import { Dict, Issue, Paging, RawQuery } from '../../types/types';
@@ -45,6 +51,7 @@ export interface Query {
   assigned: boolean;
   assignees: string[];
   author: string[];
+  cleanCodeAttributeCategory: CleanCodeAttributeCategory[];
   codeVariants: string[];
   createdAfter: Date | undefined;
   createdAt: string;
@@ -53,6 +60,8 @@ export interface Query {
   cwe: string[];
   directories: string[];
   files: string[];
+  impactSeverity: SoftwareImpactSeverity[];
+  impactSoftwareQuality: SoftwareQuality[];
   issues: string[];
   languages: string[];
   owaspTop10: string[];
@@ -86,6 +95,10 @@ export function parseQuery(query: RawQuery): Query {
     assigned: parseAsBoolean(query.assigned),
     assignees: parseAsArray(query.assignees, parseAsString),
     author: isArray(query.author) ? query.author : [query.author].filter(isDefined),
+    cleanCodeAttributeCategory: parseAsArray<CleanCodeAttributeCategory>(
+      query.cleanCodeAttributeCategory,
+      parseAsString
+    ),
     createdAfter: parseAsDate(query.createdAfter),
     createdAt: parseAsString(query.createdAt),
     createdBefore: parseAsDate(query.createdBefore),
@@ -93,6 +106,11 @@ export function parseQuery(query: RawQuery): Query {
     cwe: parseAsArray(query.cwe, parseAsString),
     directories: parseAsArray(query.directories, parseAsString),
     files: parseAsArray(query.files, parseAsString),
+    impactSeverity: parseAsArray<SoftwareImpactSeverity>(query.impactSeverity, parseAsString),
+    impactSoftwareQuality: parseAsArray<SoftwareQuality>(
+      query.impactSoftwareQuality,
+      parseAsString
+    ),
     inNewCodePeriod: parseAsBoolean(query.inNewCodePeriod, false),
     issues: parseAsArray(query.issues, parseAsString),
     languages: parseAsArray(query.languages, parseAsString),
@@ -133,6 +151,7 @@ export function serializeQuery(query: Query): RawQuery {
     assigned: query.assigned ? undefined : 'false',
     assignees: serializeStringArray(query.assignees),
     author: query.author,
+    cleanCodeAttributeCategory: serializeStringArray(query.cleanCodeAttributeCategory),
     createdAfter: serializeDateShort(query.createdAfter),
     createdAt: serializeString(query.createdAt),
     createdBefore: serializeDateShort(query.createdBefore),
@@ -155,6 +174,8 @@ export function serializeQuery(query: Query): RawQuery {
     s: serializeString(query.sort),
     scopes: serializeStringArray(query.scopes),
     severities: serializeStringArray(query.severities),
+    impactSeverity: serializeStringArray(query.impactSeverity),
+    impactSoftwareQuality: serializeStringArray(query.impactSoftwareQuality),
     inNewCodePeriod: query.inNewCodePeriod ? 'true' : undefined,
     sonarsourceSecurity: serializeStringArray(query.sonarsourceSecurity),
     statuses: serializeStringArray(query.statuses),

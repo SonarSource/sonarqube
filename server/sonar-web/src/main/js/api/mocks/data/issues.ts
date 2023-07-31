@@ -22,6 +22,7 @@ import { keyBy, times } from 'lodash';
 import { mockSnippetsByComponent } from '../../../helpers/mocks/sources';
 import { mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
 import {
+  CleanCodeAttributeCategory,
   IssueActions,
   IssueResolution,
   IssueScope,
@@ -29,6 +30,8 @@ import {
   IssueStatus,
   IssueType,
   RawIssue,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
 } from '../../../types/issues';
 import { Dict, FlowType, SnippetsByComponent } from '../../../types/types';
 import {
@@ -60,6 +63,7 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
         component: `${baseComponentKey}:${ISSUE_TO_FILES[ISSUE_101][0]}`,
         creationDate: '2023-01-05T09:36:01+0100',
         message: 'Issue with no location message',
+        cleanCodeAttributeCategory: CleanCodeAttributeCategory.Consistent,
         type: IssueType.Vulnerability,
         rule: ISSUE_TO_RULE[ISSUE_101],
         textRange: {
@@ -218,7 +222,6 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
         component: `${baseComponentKey}:${ISSUE_TO_FILES[ISSUE_0][0]}`,
         message: 'Issue on file',
         assignee: mockLoggedInUser().login,
-        type: IssueType.CodeSmell,
         rule: ISSUE_TO_RULE[ISSUE_0],
         textRange: undefined,
         line: undefined,
@@ -232,6 +235,7 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
         component: `${baseComponentKey}:${ISSUE_TO_FILES[ISSUE_1][0]}`,
         message: 'Fix this',
         type: IssueType.Vulnerability,
+        scope: IssueScope.Test,
         rule: ISSUE_TO_RULE[ISSUE_1],
         textRange: {
           startLine: 10,
@@ -300,6 +304,9 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
           startOffset: 0,
           endOffset: 1,
         },
+        impacts: [
+          { softwareQuality: SoftwareQuality.Security, severity: SoftwareImpactSeverity.High },
+        ],
         ruleDescriptionContextKey: 'spring',
         resolution: IssueResolution.Unresolved,
         status: IssueStatus.Open,
@@ -380,6 +387,12 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
         key: ISSUE_1101,
         component: `${baseComponentKey}:${ISSUE_TO_FILES[ISSUE_1101][0]}`,
         message: 'Issue on page 2',
+        impacts: [
+          {
+            softwareQuality: SoftwareQuality.Maintainability,
+            severity: SoftwareImpactSeverity.High,
+          },
+        ],
         rule: ISSUE_TO_RULE[ISSUE_1101],
         textRange: undefined,
         line: undefined,

@@ -19,43 +19,24 @@
  */
 
 import * as React from 'react';
-import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
-import { translate } from '../../../helpers/l10n';
-import { SoftwareImpactSeverity } from '../../../types/issues';
+import { CleanCodeAttributeCategory } from '../../../types/issues';
 import { CommonProps, SimpleListStyleFacet } from './SimpleListStyleFacet';
 
 interface Props extends CommonProps {
-  severities: SoftwareImpactSeverity[];
+  categories: Array<CleanCodeAttributeCategory>;
 }
 
-const SEVERITIES = Object.values(SoftwareImpactSeverity);
+const CATEGORIES = Object.values(CleanCodeAttributeCategory);
 
-export function SeverityFacet(props: Props) {
-  const { severities = [], ...rest } = props;
+export function AttributeCategoryFacet(props: Props) {
+  const { categories = [], ...rest } = props;
 
   return (
     <SimpleListStyleFacet
-      property="impactSeverity"
-      itemNamePrefix="severity"
-      listItems={SEVERITIES}
-      selectedItems={severities}
-      help={
-        <DocumentationTooltip
-          placement="right"
-          content={
-            <>
-              <p>{translate('issues.facet.impactSeverity.help.line1')}</p>
-              <p className="sw-mt-2">{translate('issues.facet.impactSeverity.help.line2')}</p>
-            </>
-          }
-          links={[
-            {
-              href: '/user-guide/clean-code',
-              label: translate('learn_more'),
-            },
-          ]}
-        />
-      }
+      property="cleanCodeAttributeCategory"
+      itemNamePrefix="issue.clean_code_attribute_category"
+      listItems={CATEGORIES}
+      selectedItems={categories}
       {...rest}
     />
   );

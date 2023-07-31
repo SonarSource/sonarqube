@@ -67,28 +67,31 @@ describe('issues app filtering', () => {
     renderIssueApp();
     await waitOnDataLoaded();
 
-    // Select only code smells (should make the first issue disappear)
-    await user.click(ui.codeSmellIssueTypeFilter.get());
+    // Select CC responsible category (should make the first issue disappear)
+    await user.click(ui.responsibleCategoryFilter.get());
+    expect(ui.issueItem1.query()).not.toBeInTheDocument();
 
-    // Select code smells + major severity
-    await user.click(ui.majorSeverityFilter.get());
+    // Select responsible + Maintainability quality
+    await user.click(ui.softwareQualityMaintainabilityFilter.get());
+    expect(ui.issueItem5.query()).not.toBeInTheDocument();
+
+    // Select MEDIUM severity
+    await user.click(ui.severityFacet.get());
+    await user.click(ui.mediumSeverityFilter.get());
+    expect(ui.issueItem8.query()).not.toBeInTheDocument();
 
     // Expand scope and set code smells + major severity + main scope
     await user.click(ui.scopeFacet.get());
     await user.click(ui.mainScopeFilter.get());
+    expect(ui.issueItem4.query()).not.toBeInTheDocument();
 
     // Resolution
     await user.click(ui.resolutionFacet.get());
     await user.click(ui.fixedResolutionFilter.get());
-
-    // Stop to check that filters were applied as expected
-    expect(ui.issueItem1.query()).not.toBeInTheDocument();
     expect(ui.issueItem2.query()).not.toBeInTheDocument();
-    expect(ui.issueItem3.query()).not.toBeInTheDocument();
-    expect(ui.issueItem4.query()).not.toBeInTheDocument();
-    expect(ui.issueItem5.query()).not.toBeInTheDocument();
+
+    // Check that filters were applied as expected
     expect(ui.issueItem6.get()).toBeInTheDocument();
-    expect(ui.issueItem7.query()).not.toBeInTheDocument();
 
     // Status
     await user.click(ui.statusFacet.get());
@@ -131,6 +134,11 @@ describe('issues app filtering', () => {
     await user.type(ui.authorFacetSearch.get(), 'email');
     await user.click(screen.getByRole('checkbox', { name: 'email4@sonarsource.com' }));
     await user.click(screen.getByRole('checkbox', { name: 'email3@sonarsource.com' })); // Change author
+
+    // Deprecated type
+    await user.click(ui.typeFacet.get());
+    await user.click(ui.codeSmellIssueTypeFilter.get());
+
     expect(ui.issueItem1.query()).not.toBeInTheDocument();
     expect(ui.issueItem2.query()).not.toBeInTheDocument();
     expect(ui.issueItem3.query()).not.toBeInTheDocument();
@@ -140,6 +148,8 @@ describe('issues app filtering', () => {
     expect(ui.issueItem7.get()).toBeInTheDocument();
 
     // Clear filters one by one
+    await user.click(ui.clearCodeCategoryFacet.get());
+    await user.click(ui.clearSoftwareQualityFacet.get());
     await user.click(ui.clearIssueTypeFacet.get());
     await user.click(ui.clearSeverityFacet.get());
     await user.click(ui.clearScopeFacet.get());
@@ -269,21 +279,6 @@ describe('issues app filtering', () => {
         name: /Simple rule/,
       })
     ).toBeInTheDocument();
-
-    await user.click(ui.vulnerabilityIssueTypeFilter.get());
-    // after changing the issue type filter, search field is reset, so we type again
-    await user.type(ui.ruleFacetSearch.get(), 'rule');
-
-    expect(
-      within(ui.ruleFacetList.get()).getByRole('checkbox', {
-        name: /Advanced rule/,
-      })
-    ).toBeInTheDocument();
-    expect(
-      within(ui.ruleFacetList.get()).queryByRole('checkbox', {
-        name: /Simple rule/,
-      })
-    ).not.toBeInTheDocument();
   });
 
   it('should update collapsed facets with filter change', async () => {
@@ -298,11 +293,12 @@ describe('issues app filtering', () => {
     ).toHaveTextContent('java25short_number_suffix.k');
     expect(
       within(ui.languageFacetList.get()).getByRole('checkbox', { name: 'ts' })
-    ).toHaveTextContent('ts3.2short_number_suffix.k');
+    ).toHaveTextContent('ts3.4short_number_suffix.k');
 
     await user.click(ui.languageFacet.get());
     expect(ui.languageFacetList.query()).not.toBeInTheDocument();
-    await user.click(ui.vulnerabilityIssueTypeFilter.get());
+
+    await user.click(ui.responsibleCategoryFilter.get());
     await user.click(ui.languageFacet.get());
     expect(await ui.languageFacetList.find()).toBeInTheDocument();
     expect(

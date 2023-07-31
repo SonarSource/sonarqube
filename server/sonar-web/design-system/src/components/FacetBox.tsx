@@ -42,6 +42,7 @@ export interface FacetBoxProps {
   'data-property'?: string;
   disabled?: boolean;
   hasEmbeddedFacets?: boolean;
+  help?: React.ReactNode;
   id?: string;
   inner?: boolean;
   loading?: boolean;
@@ -62,6 +63,7 @@ export function FacetBox(props: FacetBoxProps) {
     'data-property': dataProperty,
     disabled = false,
     hasEmbeddedFacets = false,
+    help,
     id: idProp,
     inner = false,
     loading = false,
@@ -101,6 +103,8 @@ export function FacetBox(props: FacetBoxProps) {
           {expandable && <OpenCloseIndicator aria-hidden open={open} />}
 
           <HeaderTitle disabled={disabled}>{name}</HeaderTitle>
+
+          {help && <span className="sw-ml-1">{help}</span>}
         </ChevronAndTitle>
 
         {<Spinner loading={loading} />}
@@ -111,7 +115,7 @@ export function FacetBox(props: FacetBoxProps) {
               {counter}
             </Badge>
 
-            {clearable && (
+            {Boolean(clearable) && (
               <Tooltip overlay={clearIconLabel}>
                 <ClearIcon
                   Icon={CloseIcon}

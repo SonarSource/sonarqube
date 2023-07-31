@@ -19,43 +19,24 @@
  */
 
 import * as React from 'react';
-import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
-import { translate } from '../../../helpers/l10n';
-import { SoftwareImpactSeverity } from '../../../types/issues';
+import { SoftwareQuality } from '../../../types/issues';
 import { CommonProps, SimpleListStyleFacet } from './SimpleListStyleFacet';
 
 interface Props extends CommonProps {
-  severities: SoftwareImpactSeverity[];
+  qualities: Array<SoftwareQuality>;
 }
 
-const SEVERITIES = Object.values(SoftwareImpactSeverity);
+const QUALITIES = Object.values(SoftwareQuality);
 
-export function SeverityFacet(props: Props) {
-  const { severities = [], ...rest } = props;
+export function SoftwareQualityFacet(props: Props) {
+  const { qualities = [], ...rest } = props;
 
   return (
     <SimpleListStyleFacet
-      property="impactSeverity"
-      itemNamePrefix="severity"
-      listItems={SEVERITIES}
-      selectedItems={severities}
-      help={
-        <DocumentationTooltip
-          placement="right"
-          content={
-            <>
-              <p>{translate('issues.facet.impactSeverity.help.line1')}</p>
-              <p className="sw-mt-2">{translate('issues.facet.impactSeverity.help.line2')}</p>
-            </>
-          }
-          links={[
-            {
-              href: '/user-guide/clean-code',
-              label: translate('learn_more'),
-            },
-          ]}
-        />
-      }
+      property="impactSoftwareQuality"
+      itemNamePrefix="issue.software_quality"
+      listItems={QUALITIES}
+      selectedItems={qualities}
       {...rest}
     />
   );

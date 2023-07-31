@@ -20,7 +20,13 @@
 import { cloneDeep, uniqueId } from 'lodash';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 
-import { RESOLUTIONS, SEVERITIES, SOURCE_SCOPES, STATUSES } from '../../helpers/constants';
+import {
+  ISSUE_TYPES,
+  RESOLUTIONS,
+  SEVERITIES,
+  SOURCE_SCOPES,
+  STATUSES,
+} from '../../helpers/constants';
 import { mockIssueAuthors, mockIssueChangelog } from '../../helpers/mocks/issues';
 import { RequestData } from '../../helpers/request';
 import { getStandards } from '../../helpers/security-standard';
@@ -28,6 +34,7 @@ import { mockLoggedInUser, mockPaging, mockRuleDetails } from '../../helpers/tes
 import { SearchRulesResponse } from '../../types/coding-rules';
 import {
   ASSIGNEE_ME,
+  CleanCodeAttributeCategory,
   IssueResolution,
   IssueStatus,
   IssueTransition,
@@ -37,8 +44,9 @@ import {
   RawIssue,
   RawIssuesResponse,
   ReferencedComponent,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
 } from '../../types/issues';
-import { MetricKey } from '../../types/metrics';
 import { SearchRulesQuery } from '../../types/rules';
 import { Standards } from '../../types/security';
 import { Dict, Rule, RuleActivation, RuleDetails, SnippetsByComponent } from '../../types/types';
@@ -260,37 +268,14 @@ export default class IssuesServiceMock {
 
   mockFacetDetailResponse = (query: RequestData): RawFacet[] => {
     const facets = (query.facets ?? '').split(',');
-    const types: Exclude<IssueType, IssueType.SecurityHotspot>[] = (
-      query.types ?? 'BUG,CODE_SMELL,VULNERABILITY'
+    const cleanCodeCategories: CleanCodeAttributeCategory[] = (
+      query.cleanCodeAttributeCategory ?? Object.values(CleanCodeAttributeCategory).join(',')
     ).split(',');
     return facets.map((name: string): RawFacet => {
       if (name === 'owaspTop10-2021') {
         return this.owasp2021FacetList();
       }
-      if (name === 'tags') {
-        return {
-          property: name,
-          values: [
-            {
-              val: 'unused',
-              count: 12842,
-            },
-            {
-              val: 'confusing',
-              count: 124,
-            },
-          ],
-        };
-      }
-      if (name === 'scopes') {
-        return {
-          property: name,
-          values: SOURCE_SCOPES.map(({ scope }) => ({
-            val: scope,
-            count: 1, // if 0, the facet can't be clicked in tests
-          })),
-        };
-      }
+
       if (name === 'codeVariants') {
         return {
           property: 'codeVariants',
@@ -312,68 +297,53 @@ export default class IssuesServiceMock {
           }, [] as RawFacet['values']),
         };
       }
-      if (name === MetricKey.projects) {
-        return {
-          property: name,
-          values: [
-            { val: 'org.project1', count: 14685 },
-            { val: 'org.project2', count: 3890 },
-          ],
-        };
-      }
-      if (name === 'assignees') {
-        return {
-          property: name,
-          values: [
-            { val: 'email1@sonarsource.com', count: 675 },
-            { val: 'email2@sonarsource.com', count: 531 },
-          ],
-        };
-      }
-      if (name === 'author') {
-        return {
-          property: name,
-          values: [
-            { val: 'email3@sonarsource.com', count: 421 },
-            { val: 'email4@sonarsource.com', count: 123 },
-          ],
-        };
-      }
-      if (name === 'rules') {
-        return {
-          property: name,
-          values: [
-            { val: 'simpleRuleId', count: 8816 },
-            { val: 'advancedRuleId', count: 2060 },
-            { val: 'other', count: 1324 },
-          ],
-        };
-      }
+
       if (name === 'languages') {
         const counters = {
-          [IssueType.Bug]: { java: 4100, ts: 500 },
-          [IssueType.CodeSmell]: { java: 21000, ts: 2000 },
-          [IssueType.Vulnerability]: { java: 111, ts: 674 },
+          [CleanCodeAttributeCategory.Intentional]: { java: 4100, ts: 500 },
+          [CleanCodeAttributeCategory.Consistent]: { java: 100, ts: 200 },
+          [CleanCodeAttributeCategory.Adaptable]: { java: 21000, ts: 2000 },
+          [CleanCodeAttributeCategory.Responsible]: { java: 111, ts: 674 },
         };
         return {
           property: name,
           values: [
             {
               val: 'java',
-              count: types.reduce<number>((acc, type) => acc + counters[type].java, 0),
+              count: cleanCodeCategories.reduce<number>(
+                (acc, category) => acc + counters[category].java,
+                0
+              ),
             },
             {
               val: 'ts',
-              count: types.reduce<number>((acc, type) => acc + counters[type].ts, 0),
+              count: cleanCodeCategories.reduce<number>(
+                (acc, category) => acc + counters[category].ts,
+                0
+              ),
             },
           ],
         };
       }
+
       return {
         property: name,
         values: (
-          { resolutions: RESOLUTIONS, severities: SEVERITIES, statuses: STATUSES, types }[name] ??
-          []
+          {
+            resolutions: RESOLUTIONS,
+            severities: SEVERITIES,
+            statuses: STATUSES,
+            types: ISSUE_TYPES,
+            scopes: SOURCE_SCOPES.map(({ scope }) => scope),
+            projects: ['org.project1', 'org.project2'],
+            impactSoftwareQuality: Object.values(SoftwareQuality),
+            impactSeverity: Object.values(SoftwareImpactSeverity),
+            cleanCodeAttributeCategory: cleanCodeCategories,
+            tags: ['unused', 'confusing'],
+            rules: ['simpleRuleId', 'advancedRuleId', 'other'],
+            assignees: ['email1@sonarsource.com', 'email2@sonarsource.com'],
+            author: ['email3@sonarsource.com', 'email4@sonarsource.com'],
+          }[name] ?? []
         ).map((val) => ({
           val,
           count: 1, // if 0, the facet can't be clicked in tests
@@ -413,6 +383,33 @@ export default class IssuesServiceMock {
 
     // Filter list (only supports assignee, type and severity)
     const filteredList = this.list
+      .filter((item) => {
+        if (!query.cleanCodeAttributeCategory) {
+          return true;
+        }
+
+        return query.cleanCodeAttributeCategory
+          .split(',')
+          .includes(item.issue.cleanCodeAttributeCategory);
+      })
+      .filter((item) => {
+        if (!query.impactSoftwareQuality) {
+          return true;
+        }
+
+        return item.issue.impacts.some(({ softwareQuality }) =>
+          query.impactSoftwareQuality.split(',').includes(softwareQuality)
+        );
+      })
+      .filter((item) => {
+        if (!query.impactSeverity) {
+          return true;
+        }
+
+        return item.issue.impacts.some(({ severity }) =>
+          query.impactSeverity.split(',').includes(severity)
+        );
+      })
       .filter((item) => {
         if (!query.assignees) {
           return true;

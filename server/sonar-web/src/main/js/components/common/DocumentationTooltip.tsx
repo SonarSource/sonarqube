@@ -21,12 +21,14 @@ import { first, last } from 'lodash';
 import * as React from 'react';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import { KeyboardKeys } from '../../helpers/keycodes';
+import { Placement } from '../controls/Tooltip';
 import DocLink from './DocLink';
 import Link from './Link';
 
 export interface DocumentationTooltipProps {
   children?: React.ReactNode;
   className?: string;
+  placement?: Placement;
   content?: React.ReactNode;
   links?: Array<{ href: string; label: string; inPlace?: boolean; doc?: boolean }>;
   title?: string;
@@ -36,7 +38,7 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
   const nextSelectableNode = React.useRef<HTMLElement | undefined | null>();
   const linksRef = React.useRef<Array<HTMLAnchorElement | null>>([]);
   const helpRef = React.useRef<HTMLElement>(null);
-  const { className, children, content, links, title } = props;
+  const { className, children, content, links, title, placement } = props;
 
   function handleShowTooltip() {
     document.addEventListener('keydown', handleTabPress);
@@ -73,6 +75,7 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
       className={className}
       onShow={handleShowTooltip}
       onHide={handleHideTooltip}
+      placement={placement}
       isInteractive
       innerRef={helpRef}
       overlay={

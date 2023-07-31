@@ -76,8 +76,8 @@ export function parseAsDate(value?: string): Date | undefined {
   return undefined;
 }
 
-export function parseAsString(value: string | undefined): string {
-  return value || '';
+export function parseAsString<T extends string>(value: string | undefined): T {
+  return (value ?? '') as T;
 }
 
 export function parseAsOptionalString(value: string | undefined): string | undefined {

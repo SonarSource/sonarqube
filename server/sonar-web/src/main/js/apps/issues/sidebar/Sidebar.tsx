@@ -44,6 +44,7 @@ import { Component, Dict } from '../../../types/types';
 import { UserBase } from '../../../types/users';
 import { Query } from '../utils';
 import { AssigneeFacet } from './AssigneeFacet';
+import { AttributeCategoryFacet } from './AttributeCategoryFacet';
 import { AuthorFacet } from './AuthorFacet';
 import { CreationDateFacet } from './CreationDateFacet';
 import { DirectoryFacet } from './DirectoryFacet';
@@ -55,6 +56,7 @@ import { ResolutionFacet } from './ResolutionFacet';
 import { RuleFacet } from './RuleFacet';
 import { ScopeFacet } from './ScopeFacet';
 import { SeverityFacet } from './SeverityFacet';
+import { SoftwareQualityFacet } from './SoftwareQualityFacet';
 import { StandardFacet } from './StandardFacet';
 import { StatusFacet } from './StatusFacet';
 import { TagFacet } from './TagFacet';
@@ -180,6 +182,44 @@ export class SidebarClass extends React.PureComponent<Props> {
           />
         )}
 
+        <AttributeCategoryFacet
+          fetching={this.props.loadingFacets.cleanCodeAttributeCategory === true}
+          needIssueSync={needIssueSync}
+          onChange={this.props.onFilterChange}
+          onToggle={this.props.onFacetToggle}
+          open={!!openFacets.cleanCodeAttributeCategory}
+          stats={facets.cleanCodeAttributeCategory}
+          categories={query.cleanCodeAttributeCategory}
+        />
+        <BasicSeparator className="sw-my-4" />
+
+        <SoftwareQualityFacet
+          fetching={this.props.loadingFacets.impactSoftwareQuality === true}
+          needIssueSync={needIssueSync}
+          onChange={this.props.onFilterChange}
+          onToggle={this.props.onFacetToggle}
+          open={!!openFacets.impactSoftwareQuality}
+          stats={facets.impactSoftwareQuality}
+          qualities={query.impactSoftwareQuality}
+        />
+
+        <BasicSeparator className="sw-my-4" />
+
+        {!needIssueSync && (
+          <>
+            <SeverityFacet
+              fetching={this.props.loadingFacets.impactSeverity === true}
+              onChange={this.props.onFilterChange}
+              onToggle={this.props.onFacetToggle}
+              open={!!openFacets.impactSeverity}
+              severities={query.impactSeverity}
+              stats={facets.impactSeverity}
+            />
+
+            <BasicSeparator className="sw-my-4" />
+          </>
+        )}
+
         <TypeFacet
           fetching={this.props.loadingFacets.types === true}
           needIssueSync={needIssueSync}
@@ -192,17 +232,6 @@ export class SidebarClass extends React.PureComponent<Props> {
 
         {!needIssueSync && (
           <>
-            <BasicSeparator className="sw-my-4" />
-
-            <SeverityFacet
-              fetching={this.props.loadingFacets.severities === true}
-              onChange={this.props.onFilterChange}
-              onToggle={this.props.onFacetToggle}
-              open={!!openFacets.severities}
-              severities={query.severities}
-              stats={facets.severities}
-            />
-
             <BasicSeparator className="sw-my-4" />
 
             <ScopeFacet

@@ -17,6 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../../../types/issues';
 import { SecurityStandard } from '../../../types/security';
 import {
   serializeQuery,
@@ -36,6 +41,9 @@ describe('serialize/deserialize', () => {
         assigned: true,
         assignees: ['a', 'b'],
         author: ['a', 'b'],
+        cleanCodeAttributeCategory: [CleanCodeAttributeCategory.Responsible],
+        impactSeverity: [SoftwareImpactSeverity.High],
+        impactSoftwareQuality: [SoftwareQuality.Security],
         codeVariants: ['variant1', 'variant2'],
         createdAfter: new Date(1000000),
         createdAt: 'a',
@@ -68,6 +76,9 @@ describe('serialize/deserialize', () => {
     ).toStrictEqual({
       assignees: 'a,b',
       author: ['a', 'b'],
+      cleanCodeAttributeCategory: CleanCodeAttributeCategory.Responsible,
+      impactSeverity: SoftwareImpactSeverity.High,
+      impactSoftwareQuality: SoftwareQuality.Security,
       codeVariants: 'variant1,variant2',
       createdAt: 'a',
       createdBefore: '1970-01-01',

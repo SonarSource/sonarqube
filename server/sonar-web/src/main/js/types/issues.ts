@@ -49,7 +49,6 @@ export enum CleanCodeAttributeCategory {
   Intentional = 'INTENTIONAL',
   Adaptable = 'ADAPTABLE',
   Responsible = 'RESPONSIBLE',
-  Unclassified = 'UNCLASSIFIED',
 }
 
 export enum CleanCodeAttribute {
@@ -67,7 +66,6 @@ export enum CleanCodeAttribute {
   Respectful = 'RESPECTFUL',
   Tested = 'TESTED',
   Trustworthy = 'TRUSTWORTHY',
-  Unclassified = 'UNCLASSIFIED',
 }
 
 export enum SoftwareQuality {
