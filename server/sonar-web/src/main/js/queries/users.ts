@@ -25,7 +25,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { range } from 'lodash';
-import { createUser, deleteUser, getUsers, updateUser } from '../api/users';
+import { deleteUser, getUsers, postUser, updateUser } from '../api/users';
 import { RestUserBase } from '../types/users';
 
 const STALE_TIME = 4 * 60 * 1000;
@@ -65,12 +65,12 @@ export function useInvalidateUsersList() {
   return () => queryClient.invalidateQueries({ queryKey: ['user', 'list'] });
 }
 
-export function useCreateUserMutation() {
+export function usePostUserMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: Parameters<typeof createUser>[0]) => {
-      await createUser(data);
+    mutationFn: async (data: Parameters<typeof postUser>[0]) => {
+      await postUser(data);
     },
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['user', 'list'] });

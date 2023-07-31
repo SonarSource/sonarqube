@@ -24,7 +24,7 @@ import { CurrentUserContext } from '../../../app/components/current-user/Current
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
-import { RestUser, isLoggedIn, isUserActive } from '../../../types/users';
+import { RestUser, UserActive, isLoggedIn, isUserActive } from '../../../types/users';
 import { searchAssignees } from '../utils';
 
 // exported for test
@@ -40,7 +40,7 @@ export interface AssigneeSelectProps {
   inputId: string;
 }
 
-function userToOption(user: RestUser) {
+function userToOption(user: RestUser | UserActive) {
   const userInfo = user.name || user.login;
   return {
     value: user.login,
@@ -58,7 +58,7 @@ export default function AssigneeSelect(props: AssigneeSelectProps) {
     isLoggedIn(currentUser) && issues.some((issue) => currentUser.login !== issue.assignee);
 
   const defaultOptions = allowCurrentUserSelection
-    ? [UNASSIGNED, userToOption(currentUser as unknown as RestUser)]
+    ? [UNASSIGNED, userToOption(currentUser)]
     : [UNASSIGNED];
 
   const controlLabel = assignee ? (

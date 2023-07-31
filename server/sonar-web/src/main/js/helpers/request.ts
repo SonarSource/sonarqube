@@ -178,12 +178,22 @@ export function parseText(response: Response): Promise<string> {
 }
 
 /**
- * Parse response of failed request
+ * Parse error response of failed request
  */
 export function parseError(response: Response): Promise<string> {
   const DEFAULT_MESSAGE = translate('default_error_message');
   return parseJSON(response)
     .then(({ errors }) => errors.map((error: any) => error.msg).join('. '))
+    .catch(() => DEFAULT_MESSAGE);
+}
+
+/**
+ * Parse message response of failed request
+ */
+export function parseMessage(response: Response): Promise<string> {
+  const DEFAULT_MESSAGE = translate('default_error_message');
+  return parseJSON(response)
+    .then(({ message }) => message)
     .catch(() => DEFAULT_MESSAGE);
 }
 
@@ -275,7 +285,7 @@ export function post(url: string, data?: RequestData, bypassRedirect?: boolean):
 /**
  * Shortcut to do a DELETE request
  */
-export function deleteJSON(url: string, data?: RequestData): Promise<any> {
+export function deleteJSON(url: string, data?: RequestData): Promise<Response> {
   return request(url)
     .setMethod('DELETE')
     .setData(data)

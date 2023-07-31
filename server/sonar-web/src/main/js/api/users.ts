@@ -18,7 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { throwGlobalError } from '../helpers/error';
-import { deleteJSON, getJSON, HttpStatus, parseJSON, post, postJSON } from '../helpers/request';
+import {
+  deleteJSON,
+  getJSON,
+  HttpStatus,
+  parseJSON,
+  post,
+  postJSON,
+  postJSONBody,
+} from '../helpers/request';
 import { IdentityProvider, Paging } from '../types/types';
 import {
   ChangePasswordResults,
@@ -26,7 +34,6 @@ import {
   HomePage,
   NoticeType,
   RestUserBase,
-  RestUserDetailed,
   User,
 } from '../types/users';
 
@@ -89,15 +96,14 @@ export function getUsers<T extends RestUserBase>(data: {
   return getJSON('/api/v2/users', data).catch(throwGlobalError);
 }
 
-export function createUser(data: {
+export function postUser(data: {
   email?: string;
-  local?: boolean;
   login: string;
   name: string;
   password?: string;
-  scmAccount: string[];
+  scmAccounts: string[];
 }): Promise<void | Response> {
-  return post('/api/users/create', data);
+  return postJSONBody('/api/v2/users', data);
 }
 
 export function updateUser(data: {
@@ -118,7 +124,7 @@ export function deleteUser({
 }: {
   login: string;
   anonymize?: boolean;
-}): Promise<{ user: RestUserDetailed }> {
+}): Promise<void | Response> {
   return deleteJSON(`/api/v2/users/${login}`, { anonymize }).catch(throwGlobalError);
 }
 

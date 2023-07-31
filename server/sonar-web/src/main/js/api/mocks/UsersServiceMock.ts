@@ -28,11 +28,11 @@ import { addUserToGroup, removeUserFromGroup } from '../user_groups';
 import {
   UserGroup,
   changePassword,
-  createUser,
   deleteUser,
   getIdentityProviders,
   getUserGroups,
   getUsers,
+  postUser,
   updateUser,
 } from '../users';
 
@@ -125,7 +125,7 @@ export default class UsersServiceMock {
     jest.mocked(getSystemInfo).mockImplementation(this.handleGetSystemInfo);
     jest.mocked(getIdentityProviders).mockImplementation(this.handleGetIdentityProviders);
     jest.mocked(getUsers).mockImplementation((p) => this.handleGetUsers(p));
-    jest.mocked(createUser).mockImplementation(this.handleCreateUser);
+    jest.mocked(postUser).mockImplementation(this.handlePostUser);
     jest.mocked(updateUser).mockImplementation(this.handleUpdateUser);
     jest.mocked(getUserGroups).mockImplementation(this.handleGetUserGroups);
     jest.mocked(addUserToGroup).mockImplementation(this.handleAddUserToGroup);
@@ -248,19 +248,19 @@ export default class UsersServiceMock {
     });
   };
 
-  handleCreateUser = (data: {
+  handlePostUser = (data: {
     email?: string;
     local?: boolean;
     login: string;
     name: string;
     password?: string;
-    scmAccount: string[];
+    scmAccounts: string[];
   }) => {
-    const { email, local, login, name, scmAccount } = data;
-    if (scmAccount.some((a) => isEmpty(a.trim()))) {
+    const { email, local, login, name, scmAccounts } = data;
+    if (scmAccounts.some((a) => isEmpty(a.trim()))) {
       return Promise.reject({
         status: 400,
-        json: () => Promise.resolve({ errors: [{ msg: 'Error: Empty SCM' }] }),
+        json: () => Promise.resolve({ message: 'Error: Empty SCM' }),
       });
     }
     const newUser = mockRestUser({
@@ -268,7 +268,7 @@ export default class UsersServiceMock {
       local,
       login,
       name,
-      scmAccounts: scmAccount,
+      scmAccounts,
     });
     this.users.push(newUser);
     return this.reply(undefined);
@@ -373,7 +373,7 @@ export default class UsersServiceMock {
     const index = this.users.findIndex((u) => u.login === data.login);
     const user = this.users.splice(index, 1)[0];
     user.active = false;
-    return this.reply({ user });
+    return this.reply(undefined);
   };
 
   reset = () => {

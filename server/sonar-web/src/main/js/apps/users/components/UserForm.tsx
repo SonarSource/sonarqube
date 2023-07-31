@@ -25,8 +25,8 @@ import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { throwGlobalError } from '../../../helpers/error';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { parseError } from '../../../helpers/request';
-import { useCreateUserMutation, useUpdateUserMutation } from '../../../queries/users';
+import { parseMessage } from '../../../helpers/request';
+import { usePostUserMutation, useUpdateUserMutation } from '../../../queries/users';
 import { RestUserDetailed } from '../../../types/users';
 import UserScmAccountInput from './UserScmAccountInput';
 
@@ -41,7 +41,7 @@ const INTERNAL_SERVER_ERROR = 500;
 export default function UserForm(props: Props) {
   const { user } = props;
 
-  const { mutate: createUser } = useCreateUserMutation();
+  const { mutate: createUser } = usePostUserMutation();
   const { mutate: updateUser } = useUpdateUserMutation();
 
   const [email, setEmail] = React.useState<string>(user?.email ?? '');
@@ -55,7 +55,7 @@ export default function UserForm(props: Props) {
     if (![BAD_REQUEST, INTERNAL_SERVER_ERROR].includes(response.status)) {
       throwGlobalError(response);
     } else {
-      parseError(response).then((errorMsg) => setError(errorMsg), throwGlobalError);
+      parseMessage(response).then((errorMsg) => setError(errorMsg), throwGlobalError);
     }
   };
 
@@ -66,7 +66,7 @@ export default function UserForm(props: Props) {
         login,
         name,
         password,
-        scmAccount: scmAccounts,
+        scmAccounts,
       },
       { onSuccess: props.onClose, onError: handleError }
     );
