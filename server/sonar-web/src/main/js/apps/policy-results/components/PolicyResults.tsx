@@ -388,31 +388,27 @@ class PolicyResults extends React.PureComponent<Props, State> {
                     </div>
                 </div>
         {!loadingProjects && projects?.length >0 ? (<>
-          {!loading && component?.analysisDate ?  (
-            <div style={style}> 
-          <BranchOverview
-            branch={branchLike}
-            branchesEnabled={branchSupportEnabled}
-            component={component}
-            projectBinding={projectBinding}
-            grc={true}
-          />
-          </div>
-        ): (<div className='spacer-top'><DeferredSpinner className="spacer-right" loading={true} /></div>)}    
-        </>) : (<>
-        
+              {!loading ? (<>
+                {component?.analysisDate ? (
+                  <div style={style}> 
+                    <BranchOverview
+                      branch={branchLike}
+                      branchesEnabled={branchSupportEnabled}
+                      component={component}
+                      projectBinding={projectBinding}
+                      grc={true}
+                    />
+                  </div>):( <div className='spacer-top'> No Data Found</div>)
+                }
+              </>):(<>
+                <div className='spacer-top'><DeferredSpinner className="spacer-right" loading={true} /></div>
+              </>)}
+          </>) : 
+          (<></>)}
         </>)}
-
-        
-      </>)}
-
-                            
-        
         </div>
     </>
     }
 }
   
   export default withCurrentUserContext(withOrganizationContext(withBranchStatusActions(withAvailableFeatures(PolicyResults))));
-
-  
