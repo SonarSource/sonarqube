@@ -75,3 +75,6 @@ export const IMPORT_COMPATIBLE_ALMS = [
 ];
 
 export const GRADLE_SCANNER_VERSION = '3.5.0.2730';
+
+export const WHITELIST_VALUE_AMAZON = "AMAZON";
+export const WHITELIST_VALUE_CODESCAN = "CODESCAN";

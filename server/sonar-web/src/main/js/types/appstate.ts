@@ -36,4 +36,5 @@ export interface AppState {
   standalone?: boolean;
   version: string;
   webAnalyticsJsPath?: string;
+  whiteLabel: string;
 }
