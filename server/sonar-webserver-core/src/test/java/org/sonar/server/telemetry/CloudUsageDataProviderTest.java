@@ -19,6 +19,7 @@
  */
 package org.sonar.server.telemetry;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -55,7 +56,9 @@ public class CloudUsageDataProviderTest {
   private final Paths2 paths2 = Mockito.mock(Paths2.class);
   private final OkHttpClient httpClient = Mockito.mock(OkHttpClient.class);
   private final ContainerSupport containerSupport = mock(ContainerSupport.class);
-  private final CloudUsageDataProvider underTest = new CloudUsageDataProvider(containerSupport, system2, paths2, httpClient);
+  private final ProcessBuilder processBuilder = mock(ProcessBuilder.class);
+  private final CloudUsageDataProvider underTest = new CloudUsageDataProvider(containerSupport, system2, paths2, () -> processBuilder,
+    httpClient);
 
   @Before
   public void setUp() throws Exception {
@@ -147,8 +150,23 @@ public class CloudUsageDataProviderTest {
   }
 
   @Test
-  public void kubernetesProvider_shouldReturnValue() {
-    assertThat(underTest.getCloudUsage().kubernetesProvider()).isNotBlank();
+  public void kubernetesProvider_shouldReturnValue() throws IOException {
+    Process processMock = mock(Process.class);
+    when(processMock.getInputStream()).thenReturn(new ByteArrayInputStream("some-provider".getBytes()));
+    when(processBuilder.command(any(String[].class))).thenReturn(processBuilder);
+    when(processBuilder.start()).thenReturn(processMock);
+
+    assertThat(underTest.getCloudUsage().kubernetesProvider()).isEqualTo("some-provider");
+  }
+
+  @Test
+  public void kubernetesProvider_whenValueContainsNullChars_shouldReturnValueWithoutNullChars() throws IOException {
+    Process processMock = mock(Process.class);
+    when(processMock.getInputStream()).thenReturn(new ByteArrayInputStream("so\u0000me-prov\u0000ider".getBytes()));
+    when(processBuilder.command(any(String[].class))).thenReturn(processBuilder);
+    when(processBuilder.start()).thenReturn(processMock);
+
+    assertThat(underTest.getCloudUsage().kubernetesProvider()).isEqualTo("some-provider");
   }
 
   @Test

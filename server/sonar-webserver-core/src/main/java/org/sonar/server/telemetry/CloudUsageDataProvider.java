@@ -32,7 +32,9 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.Collection;
 import java.util.Scanner;
+import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -65,27 +67,29 @@ public class CloudUsageDataProvider {
   static final String SONAR_HELM_CHART_VERSION = "SONAR_HELM_CHART_VERSION";
   static final String DOCKER_RUNNING = "DOCKER_RUNNING";
   private static final String[] KUBERNETES_PROVIDER_COMMAND = {"bash", "-c", "uname -r"};
+  private static final int KUBERNETES_PROVIDER_MAX_SIZE = 100;
   private final ContainerSupport containerSupport;
   private final System2 system2;
   private final Paths2 paths2;
+  private final Supplier<ProcessBuilder> processBuilderSupplier;
   private OkHttpClient httpClient;
   private TelemetryData.CloudUsage cloudUsageData;
 
   @Inject
   public CloudUsageDataProvider(ContainerSupport containerSupport, System2 system2, Paths2 paths2) {
-    this.containerSupport = containerSupport;
-    this.system2 = system2;
-    this.paths2 = paths2;
+    this(containerSupport, system2, paths2, ProcessBuilder::new, null);
     if (isOnKubernetes()) {
       initHttpClient();
     }
   }
 
   @VisibleForTesting
-  CloudUsageDataProvider(ContainerSupport containerSupport, System2 system2, Paths2 paths2, OkHttpClient httpClient) {
+  CloudUsageDataProvider(ContainerSupport containerSupport, System2 system2, Paths2 paths2, Supplier<ProcessBuilder> processBuilderSupplier,
+                         @Nullable OkHttpClient httpClient) {
     this.containerSupport = containerSupport;
     this.system2 = system2;
     this.paths2 = paths2;
+    this.processBuilderSupplier = processBuilderSupplier;
     this.httpClient = httpClient;
   }
 
@@ -208,12 +212,14 @@ public class CloudUsageDataProvider {
   }
 
   @CheckForNull
-  private static String getKubernetesProvider() {
+  private String getKubernetesProvider() {
     try {
-      Process process = new ProcessBuilder().command(KUBERNETES_PROVIDER_COMMAND).start();
+      Process process = processBuilderSupplier.get().command(KUBERNETES_PROVIDER_COMMAND).start();
       try (Scanner scanner = new Scanner(process.getInputStream(), UTF_8)) {
         scanner.useDelimiter("\n");
-        return scanner.next();
+        // Null characters can be present in the output on Windows
+        String output = scanner.next().replace("\u0000", "");
+        return StringUtils.abbreviate(output, KUBERNETES_PROVIDER_MAX_SIZE);
       } finally {
         process.destroy();
       }
