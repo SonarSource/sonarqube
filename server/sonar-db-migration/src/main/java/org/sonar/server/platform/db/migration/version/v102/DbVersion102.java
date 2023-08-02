@@ -89,5 +89,10 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_034, "Populate 'clean_code_attribute' column in 'rules' table", PopulateCleanCodeAttributeColumnInRules.class)
       //TODO SONAR-20073
       //.add(10_2_035, "Make 'clean_code_attribute' column not nullable in 'rules' table", MakeCleanCodeAttributeColumnNotNullableInRules.class);
+    
+      .add(10_2_036, "Create 'rules_default_impacts' table", CreateRulesDefaultImpactsTable.class)
+      .add(10_2_037, "Create unique constraint index on 'rules_default_impacts' table", CreateUniqueConstraintOnRulesDefaultImpacts.class)
+      .add(10_2_038, "Create 'issues_impacts' table", CreateIssueImpactsTable.class)
+      .add(10_2_039, "Create unique constraint index on 'issues_impacts' table", CreateUniqueConstraintOnIssuesImpacts.class);
   }
 }

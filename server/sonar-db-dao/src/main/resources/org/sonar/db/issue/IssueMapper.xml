@@ -144,10 +144,24 @@
     #{createdAt,jdbcType=BIGINT})
   </insert>
 
-  <insert id="deleteAsNewCodeOnReferenceBranch" parameterType="String" useGeneratedKeys="false">
+  <insert id="insertIssueImpact" parameterType="map" useGeneratedKeys="false">
+    INSERT INTO issues_impacts (uuid, issue_key, software_quality, severity)
+    VALUES (
+    #{dto.uuid,jdbcType=VARCHAR},
+    #{issueKey,jdbcType=VARCHAR},
+    #{dto.softwareQuality,jdbcType=VARCHAR},
+    #{dto.severity,jdbcType=VARCHAR})
+  </insert>
+
+  <delete id="deleteAsNewCodeOnReferenceBranch" parameterType="String" >
     DELETE FROM new_code_reference_issues
     where issue_key = #{issueKey, jdbcType=VARCHAR}
-  </insert>
+  </delete>
+
+  <delete id="deleteIssueImpacts" parameterType="String" >
+    DELETE FROM issues_impacts
+    where issue_key = #{issueUuid, jdbcType=VARCHAR}
+  </delete>
 
   <!--
     IMPORTANT - invariant columns can't be updated. See IssueDto#toDtoForUpdate()
@@ -220,6 +234,8 @@
     inner join components root on root.uuid=i.project_uuid
     left join users u on i.assignee = u.uuid
     left join new_code_reference_issues n on i.kee = n.issue_key
+    left outer join issues_impacts ii on i.kee = ii.issue_key
+    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
     where i.kee=#{kee,jdbcType=VARCHAR}
   </select>
 
@@ -232,6 +248,8 @@
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
     left join new_code_reference_issues n on i.kee = n.issue_key
+    left outer join issues_impacts ii on i.kee = ii.issue_key
+    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
     where
     i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
     i.status &lt;&gt; 'CLOSED'
@@ -254,6 +272,10 @@
       and ic.change_data like '%status=%|CLOSED%'
     left join new_code_reference_issues n on
       i.kee = n.issue_key
+    left outer join issues_impacts ii on
+      i.kee = ii.issue_key
+    left outer join rules_default_impacts rdi on
+      r.uuid = rdi.rule_uuid
     where
       i.component_uuid = #{componentUuid,jdbcType=VARCHAR}
       and i.status = 'CLOSED'
@@ -277,6 +299,8 @@
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
     left join new_code_reference_issues n on i.kee = n.issue_key
+    left outer join issues_impacts ii on i.kee = ii.issue_key
+    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
     where i.kee in
     <foreach collection="list" open="(" close=")" item="key" separator=",">
       #{key,jdbcType=VARCHAR}
@@ -291,6 +315,8 @@
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
     left join new_code_reference_issues n on i.kee = n.issue_key
+    left outer join issues_impacts ii on i.kee = ii.issue_key
+    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
     where
       i.kee in
         <foreach collection="keys" open="(" close=")" item="key" separator=",">
@@ -600,6 +626,8 @@
     inner join components root on root.uuid=i.project_uuid
     left join users u on i.assignee = u.uuid
     left join new_code_reference_issues n on i.kee = n.issue_key
+    left outer join issues_impacts ii on i.kee = ii.issue_key
+    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
     where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
     order by i.issue_creation_date ASC
     limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
@@ -623,6 +651,8 @@
     inner join components root on root.uuid=i.project_uuid
     left join users u on i.assignee = u.uuid
     left join new_code_reference_issues n on i.kee = n.issue_key
+    left outer join issues_impacts ii on i.kee = ii.issue_key
+    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
   </select>
 
    <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue" databaseId="oracle">
@@ -647,6 +677,8 @@
     inner join components root on root.uuid=i.project_uuid
     left join users u on i.assignee = u.uuid
     left join new_code_reference_issues n on i.kee = n.issue_key
+    left outer join issues_impacts ii on i.kee = ii.issue_key
+    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
   </select>
 
   <sql id="selectByBranchColumns">
