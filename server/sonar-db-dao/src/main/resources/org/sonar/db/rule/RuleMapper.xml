@@ -39,7 +39,8 @@
     r.ad_hoc_description as "adHocDescription",
     r.ad_hoc_severity as "adHocSeverity",
     r.ad_hoc_type as "adHocType",
-    r.education_principles as "educationPrinciplesField"
+    r.education_principles as "educationPrinciplesField",
+    r.clean_code_attribute as "cleanCodeAttribute"
   </sql>
 
   <sql id="leftOuterJoinRulesDescriptionSections">
@@ -274,6 +275,7 @@
       ad_hoc_severity,
       ad_hoc_type,
       education_principles,
+      clean_code_attribute,
       created_at,
       updated_at
     )
@@ -313,6 +315,7 @@
       #{adHocSeverity,jdbcType=VARCHAR},
       #{adHocType,jdbcType=TINYINT},
       #{educationPrinciplesField,jdbcType=VARCHAR},
+      #{cleanCodeAttribute,jdbcType=VARCHAR},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}
     )
@@ -354,6 +357,7 @@
       ad_hoc_severity=#{adHocSeverity,jdbcType=VARCHAR},
       ad_hoc_type=#{adHocType,jdbcType=TINYINT},
       education_principles=#{educationPrinciplesField,jdbcType=VARCHAR},
+      clean_code_attribute=#{cleanCodeAttribute,jdbcType=VARCHAR},
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
       uuid=#{uuid,jdbcType=VARCHAR}

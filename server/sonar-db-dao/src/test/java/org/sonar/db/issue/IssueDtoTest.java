@@ -30,6 +30,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
@@ -117,13 +118,14 @@ public class IssueDtoTest {
   public void set_rule() {
     IssueDto dto = new IssueDto()
       .setKee("100")
-      .setRule(new RuleDto().setUuid("uuid-1").setRuleKey("AvoidCycle").setRepositoryKey("java").setIsExternal(true))
+      .setRule(new RuleDto().setUuid("uuid-1").setRuleKey("AvoidCycle").setRepositoryKey("java").setIsExternal(true).setCleanCodeAttribute(CleanCodeAttribute.CLEAR))
       .setLanguage("xoo");
 
     assertThat(dto.getRuleUuid()).isEqualTo("uuid-1");
     assertThat(dto.getRuleRepo()).isEqualTo("java");
     assertThat(dto.getRule()).isEqualTo("AvoidCycle");
     assertThat(dto.getRuleKey()).hasToString("java:AvoidCycle");
+    assertThat(dto.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
     assertThat(dto.getLanguage()).isEqualTo("xoo");
     assertThat(dto.isExternal()).isTrue();
   }

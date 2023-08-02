@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -98,6 +99,7 @@ public class RuleDto {
   private String systemTagsField = null;
   private String securityStandardsField = null;
   private int type = 0;
+  private CleanCodeAttribute cleanCodeAttribute = null;
   private Scope scope = null;
 
   private RuleKey key = null;
@@ -241,7 +243,7 @@ public class RuleDto {
     return deserializeStringSet(educationPrinciplesField);
   }
 
-  public RuleDto setEducationPrinciples(Set<String> educationPrinciples){
+  public RuleDto setEducationPrinciples(Set<String> educationPrinciples) {
     this.educationPrinciplesField = serializeStringSet(educationPrinciples);
     return this;
   }
@@ -392,6 +394,15 @@ public class RuleDto {
 
   public RuleDto setType(RuleType type) {
     this.type = type.getDbConstant();
+    return this;
+  }
+
+  public CleanCodeAttribute getCleanCodeAttribute() {
+    return cleanCodeAttribute;
+  }
+
+  public RuleDto setCleanCodeAttribute(CleanCodeAttribute cleanCodeAttribute) {
+    this.cleanCodeAttribute = cleanCodeAttribute;
     return this;
   }
 

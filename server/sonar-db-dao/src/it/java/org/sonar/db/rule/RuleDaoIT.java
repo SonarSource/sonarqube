@@ -37,6 +37,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -238,6 +239,7 @@ public class RuleDaoIT {
     assertThat(actual.getRuleDescriptionSectionDtos()).usingRecursiveFieldByFieldElementComparator()
       .containsExactlyInAnyOrderElementsOf(expected.getRuleDescriptionSectionDtos());
     assertThat(actual.getEducationPrinciples()).isEqualTo(expected.getEducationPrinciples());
+    assertThat(actual.getCleanCodeAttribute()).isEqualTo(expected.getCleanCodeAttribute());
   }
 
   @Test
@@ -456,6 +458,7 @@ public class RuleDaoIT {
       .setSystemTags(newHashSet("systag1", "systag2"))
       .setSecurityStandards(newHashSet("owaspTop10:a1", "cwe:123"))
       .setType(RuleType.BUG)
+      .setCleanCodeAttribute(CleanCodeAttribute.CLEAR)
       .setScope(Scope.ALL)
       .setCreatedAt(1_500_000_000_000L)
       .setUpdatedAt(2_000_000_000_000L);
@@ -488,6 +491,7 @@ public class RuleDaoIT {
     assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
     assertThat(ruleDto.getRuleDescriptionSectionDtos()).usingRecursiveFieldByFieldElementComparator()
       .containsOnly(sectionDto);
+    assertThat(ruleDto.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
   }
 
   @Test
@@ -517,6 +521,7 @@ public class RuleDaoIT {
       .setSecurityStandards(newHashSet("owaspTop10:a1", "cwe:123"))
       .setScope(Scope.ALL)
       .setType(RuleType.BUG)
+      .setCleanCodeAttribute(CleanCodeAttribute.TRUSTWORTHY)
       .setUpdatedAt(2_000_000_000_000L);
 
     underTest.update(db.getSession(), ruleToUpdate);

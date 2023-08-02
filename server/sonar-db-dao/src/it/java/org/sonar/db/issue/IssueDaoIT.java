@@ -142,7 +142,7 @@ public class IssueDaoIT {
     IssueDto issue = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
 
     assertThat(issue).usingRecursiveComparison()
-      .ignoringFields("filePath", "issueCreationDate", "issueUpdateDate", "issueCloseDate")
+      .ignoringFields("filePath", "issueCreationDate", "issueUpdateDate", "issueCloseDate", "cleanCodeAttribute")
       .isEqualTo(expected);
     assertThat(issue.parseMessageFormattings()).isEqualTo(MESSAGE_FORMATTING);
     assertThat(issue.getIssueCreationDate()).isNotNull();
@@ -150,6 +150,7 @@ public class IssueDaoIT {
     assertThat(issue.getIssueCloseDate()).isNotNull();
     assertThat(issue.getRuleRepo()).isEqualTo(RULE.getRepositoryKey());
     assertThat(issue.getRule()).isEqualTo(RULE.getRuleKey());
+    assertThat(issue.getCleanCodeAttribute()).isEqualTo(RULE.getCleanCodeAttribute());
     assertThat(issue.parseLocations()).isNull();
   }
 
@@ -776,6 +777,7 @@ public class IssueDaoIT {
     dto.setCodeVariants(Set.of("variant1", "variant2"));
     return dto;
   }
+
   private void prepareTables() {
     underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY1)
       .setMessage("the message")

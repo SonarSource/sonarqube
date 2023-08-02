@@ -34,6 +34,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
@@ -53,6 +54,7 @@ public final class IssueDto implements Serializable {
   private static final Splitter STRING_LIST_SPLITTER = Splitter.on(STRING_LIST_SEPARATOR).trimResults().omitEmptyStrings();
 
   private int type;
+  private CleanCodeAttribute cleanCodeAttribute;
   private String kee;
   private String componentUuid;
   private String projectUuid;
@@ -492,6 +494,7 @@ public final class IssueDto implements Serializable {
     this.ruleRepo = rule.getRepositoryKey();
     this.language = rule.getLanguage();
     this.isExternal = rule.isExternal();
+    this.cleanCodeAttribute = rule.getCleanCodeAttribute();
     return this;
   }
 
@@ -741,6 +744,15 @@ public final class IssueDto implements Serializable {
 
   public IssueDto setType(RuleType type) {
     this.type = type.getDbConstant();
+    return this;
+  }
+
+  public CleanCodeAttribute getCleanCodeAttribute() {
+    return cleanCodeAttribute;
+  }
+
+  public IssueDto setCleanCodeAttribute(CleanCodeAttribute cleanCodeAttribute) {
+    this.cleanCodeAttribute = cleanCodeAttribute;
     return this;
   }
 
