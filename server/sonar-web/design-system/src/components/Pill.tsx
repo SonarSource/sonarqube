@@ -33,21 +33,15 @@ const variantThemeColors: Record<PillVariant, ThemeColors> = {
 };
 
 interface PillProps {
+  ['aria-label']?: string;
   children: ReactNode;
   className?: string;
-  title?: string;
   variant: PillVariant;
 }
 
-export function Pill({ className, children, title, variant }: PillProps) {
-  const commonProps = {
-    'aria-label': title ?? children?.toString(),
-    className,
-    role: 'status',
-    title,
-  };
+export function Pill({ children, variant, ...rest }: PillProps) {
   return (
-    <StyledPill color={variantThemeColors[variant]} {...commonProps}>
+    <StyledPill color={variantThemeColors[variant]} {...rest}>
       {children}
     </StyledPill>
   );

@@ -34,10 +34,11 @@ export interface Props {
 export function CleanCodeAttributePill(props: Props) {
   const { className, cleanCodeAttributeCategory } = props;
 
-  const docUrl = useDocUrl('/');
+  const docUrl = useDocUrl('/user-guide/clean-code');
 
   return (
     <Tooltip
+      mouseLeaveDelay={0.25}
       overlay={
         <>
           <p className="sw-mb-4">
@@ -61,11 +62,9 @@ export function CleanCodeAttributePill(props: Props) {
         </>
       }
     >
-      <span className="sw-w-fit">
-        <Pill variant="neutral" className={classNames('sw-mr-2', className)}>
-          {translate('issue.clean_code_attribute_category', cleanCodeAttributeCategory, 'issue')}
-        </Pill>
-      </span>
+      <Pill variant="neutral" className={classNames('sw-mr-2', className)}>
+        {translate('issue.clean_code_attribute_category', cleanCodeAttributeCategory, 'issue')}
+      </Pill>
     </Tooltip>
   );
 }

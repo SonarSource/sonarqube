@@ -31,10 +31,13 @@ interface Props {
 }
 
 export default function IssueType({ issue }: Props) {
-  const docUrl = useDocUrl('/');
+  const docUrl = useDocUrl('/user-guide/clean-code');
 
   return (
-    <Tooltip overlay={<DeprecatedFieldTooltip field="type" docUrl={docUrl} />}>
+    <Tooltip
+      mouseLeaveDelay={0.25}
+      overlay={<DeprecatedFieldTooltip field="type" docUrl={docUrl} />}
+    >
       <DisabledText className="sw-flex sw-items-center sw-gap-1 sw-cursor-not-allowed">
         <IssueTypeIcon fill="iconTypeDisabled" type={issue.type} aria-hidden />
         {translate('issue.type', issue.type)}

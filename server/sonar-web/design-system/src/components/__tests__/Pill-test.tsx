@@ -23,15 +23,5 @@ import { Pill } from '../Pill';
 
 it('should render correctly', () => {
   render(<Pill variant="neutral">23</Pill>);
-  expect(screen.getByRole('status')).toBeInTheDocument();
-  expect(screen.getByRole('status')).toHaveAttribute('aria-label', '23');
-});
-
-it('should accept overriding label', () => {
-  render(
-    <Pill title="23 foo in bucket" variant="danger">
-      23
-    </Pill>
-  );
-  expect(screen.getByRole('status')).toHaveAttribute('aria-label', '23 foo in bucket');
+  expect(screen.getByText('23')).toBeInTheDocument();
 });

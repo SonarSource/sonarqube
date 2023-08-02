@@ -136,10 +136,9 @@ export default function IssueActionsBar(props: Props) {
         </li>
 
         <li className="sw-flex sw-gap-3">
-          {issue.impacts.map(({ severity, softwareQuality }, index) => (
+          {issue.impacts.map(({ severity, softwareQuality }) => (
             <SoftwareImpactPill
-              key={index}
-              cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory}
+              key={softwareQuality}
               severity={severity}
               quality={softwareQuality}
             />

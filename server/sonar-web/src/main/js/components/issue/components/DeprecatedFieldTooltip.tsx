@@ -27,14 +27,20 @@ export interface DeprecatedTooltipProps {
   field: 'type' | 'severity';
 }
 
+const FILTERS_LIST = {
+  type: ['issue.clean_code_attributes', 'issue.software_qualities'],
+  severity: ['issue.software_qualities', 'issue.severity.new'],
+};
+
 export function DeprecatedFieldTooltip({ field, docUrl }: DeprecatedTooltipProps) {
   return (
     <>
       <p className="sw-mb-4">{translate('issue', field, 'deprecation.title')}</p>
       <p>{translate('issue', field, 'deprecation.filter_by')}</p>
       <ul className="sw-list-disc sw-ml-6">
-        <li>{translate('issue.clean_code_attributes')}</li>
-        <li>{translate('issue.software_qualities')}</li>
+        {FILTERS_LIST[field].map((key) => (
+          <li key={key}>{translate(key)}</li>
+        ))}
       </ul>
       <hr className="sw-w-full sw-mx-0 sw-my-4" />
       <FormattedMessage

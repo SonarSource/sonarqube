@@ -99,7 +99,7 @@ export default class IssueView extends React.PureComponent<Props> {
       >
         <div className="sw-flex sw-w-full sw-px-2 sw-gap-4">
           {hasCheckbox && (
-            <span className="sw-mt-6 sw-self-start">
+            <span className="sw-mt-7 sw-self-start">
               <Checkbox
                 checked={checked ?? false}
                 onCheck={this.handleCheck}
@@ -109,7 +109,7 @@ export default class IssueView extends React.PureComponent<Props> {
             </span>
           )}
 
-          <div className="sw-flex sw-flex-col sw-grow sw-gap-2">
+          <div className="sw-flex sw-flex-col sw-grow sw-gap-4">
             <IssueTitleBar
               currentPopup={currentPopup}
               branchLike={branchLike}

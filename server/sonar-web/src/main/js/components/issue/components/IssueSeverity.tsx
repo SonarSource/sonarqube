@@ -32,10 +32,13 @@ interface Props {
 }
 
 export default function IssueSeverity({ issue }: Props) {
-  const docUrl = useDocUrl('/');
+  const docUrl = useDocUrl('/user-guide/clean-code');
 
   return (
-    <Tooltip overlay={<DeprecatedFieldTooltip field="type" docUrl={docUrl} />}>
+    <Tooltip
+      mouseLeaveDelay={0.25}
+      overlay={<DeprecatedFieldTooltip field="severity" docUrl={docUrl} />}
+    >
       <DisabledText className="sw-flex sw-items-center sw-gap-1 sw-cursor-not-allowed">
         <IssueSeverityIcon
           fill="iconSeverityDisabled"

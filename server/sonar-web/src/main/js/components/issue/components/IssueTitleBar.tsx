@@ -43,7 +43,7 @@ export default function IssueTitleBar(props: IssueTitleBarProps) {
     <div className="sw-flex sw-items-end">
       <div className="sw-w-full sw-flex sw-flex-col">
         <CleanCodeAttributePill
-          className="sw-mb-1"
+          className="sw-mb-2"
           cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory}
         />
         <div className="sw-w-fit">

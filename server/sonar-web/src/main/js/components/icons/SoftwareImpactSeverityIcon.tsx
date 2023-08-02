@@ -23,6 +23,7 @@ import {
   SoftwareImpactSeverityMediumIcon,
 } from 'design-system';
 import * as React from 'react';
+import { translate } from '../../helpers/l10n';
 import { SoftwareImpactSeverity } from '../../types/issues';
 import { Dict } from '../../types/types';
 import { IconProps } from './Icon';
@@ -43,5 +44,5 @@ export default function SoftwareImpactSeverityIcon({ severity, ...iconProps }: P
   }
 
   const DesiredIcon = severityIcons[severity];
-  return <DesiredIcon {...iconProps} />;
+  return <DesiredIcon {...iconProps} aria-label={translate('severity', severity)} />;
 }
