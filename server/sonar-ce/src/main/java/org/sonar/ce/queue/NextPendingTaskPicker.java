@@ -122,7 +122,7 @@ public class NextPendingTaskPicker {
   private static boolean canRunBranch(PrOrBranchTask task, List<PrOrBranchTask> inProgress) {
     String entityUuid = task.getEntityUuid();
     List<PrOrBranchTask> sameComponentTasks = inProgress.stream()
-      .filter(t -> t.getEntityUuid().equals(entityUuid))
+      .filter(t -> Objects.equals(t.getEntityUuid(), entityUuid))
       .toList();
     //we can peek branch analysis task only if all the other in progress tasks for this component uuid are pull requests
     return sameComponentTasks.stream().map(PrOrBranchTask::getBranchType).allMatch(s -> Objects.equals(s, PULL_REQUEST));
@@ -135,7 +135,8 @@ public class NextPendingTaskPicker {
   private static boolean canRunPr(PrOrBranchTask task, List<PrOrBranchTask> inProgress) {
     // return true unless the same PR is already in progress
     return inProgress.stream()
-      .noneMatch(pr -> pr.getEntityUuid().equals(task.getEntityUuid()) && Objects.equals(pr.getBranchType(), PULL_REQUEST) &&
-        Objects.equals(pr.getComponentUuid(), (task.getComponentUuid())));
+      .noneMatch(pr -> Objects.equals(pr.getEntityUuid(), task.getEntityUuid())
+        && Objects.equals(pr.getBranchType(), PULL_REQUEST)
+        && Objects.equals(pr.getComponentUuid(), task.getComponentUuid()));
   }
 }
