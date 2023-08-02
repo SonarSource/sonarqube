@@ -92,6 +92,8 @@ public interface PurgeMapper {
 
   void deleteNewCodeReferenceIssuesByProjectUuid(@Param("projectUuid") String projectUuid);
 
+  void deleteIssuesImpactsByProjectUuid(@Param("projectUuid") String projectUuid);
+
   List<String> selectOldClosedIssueKeys(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Long toDate);
 
   List<String> selectStaleBranchesAndPullRequests(@Param("projectUuid") String projectUuid, @Param("toDate") Long toDate);
@@ -106,6 +108,8 @@ public interface PurgeMapper {
   void deleteIssueChangesFromIssueKeys(@Param("issueKeys") List<String> issueKeys);
 
   void deleteNewCodeReferenceIssuesFromKeys(@Param("issueKeys") List<String> keys);
+
+  void deleteIssuesImpactsFromKeys(@Param("issueKeys") List<String> keys);
 
   void deleteFileSourcesByProjectUuid(String rootProjectUuid);
 

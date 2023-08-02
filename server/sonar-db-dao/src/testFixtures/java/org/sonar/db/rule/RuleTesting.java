@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -31,6 +32,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDto.Scope;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -62,10 +64,10 @@ public class RuleTesting {
     // only static helpers
   }
 
-
   public static RuleDto newRule() {
     return newRule(RuleKey.of(randomAlphanumeric(30), randomAlphanumeric(30)));
   }
+
   public static RuleDto newRule(RuleDescriptionSectionDto... ruleDescriptionSectionDtos) {
     return newRule(randomRuleKey(), ruleDescriptionSectionDtos);
   }
@@ -94,6 +96,9 @@ public class RuleTesting {
       .setDescriptionFormat(RuleDto.Format.HTML)
       .setType(CODE_SMELL)
       .setCleanCodeAttribute(CleanCodeAttribute.CLEAR)
+      .addDefaultImpact(new ImpactDto().setUuid(uuidFactory.create())
+        .setSoftwareQuality(SoftwareQuality.MAINTAINABILITY)
+        .setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
       .setStatus(RuleStatus.READY)
       .setConfigKey("configKey_" + ruleKey.rule())
       .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
@@ -104,7 +109,7 @@ public class RuleTesting {
       .setLanguage("lang_" + randomAlphanumeric(3))
       .setGapDescription("gapDescription_" + randomAlphanumeric(5))
       .setDefRemediationBaseEffort(nextInt(10) + "h")
-      //voluntarily offset the remediation to be able to detect issues
+      // voluntarily offset the remediation to be able to detect issues
       .setDefRemediationGapMultiplier((nextInt(10) + 10) + "h")
       .setDefRemediationFunction("LINEAR_OFFSET")
       .setRemediationBaseEffort(nextInt(10) + "h")
@@ -150,7 +155,6 @@ public class RuleTesting {
   public static RuleDto newXooX2() {
     return newRule(XOO_X2).setLanguage("xoo");
   }
-
 
   public static RuleDto newTemplateRule(RuleKey ruleKey) {
     return newRule(ruleKey)

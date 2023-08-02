@@ -41,6 +41,8 @@
     i.issue_type as type,
     i.quick_fix_available as quickFixAvailable,
     i.code_variants as codeVariantsString,
+    <include refid="issueImpactsColumns"/>
+    <include refid="ruleDefaultImpactsColumns"/>
     <include refid="isNewCodeReferenceIssue"/>
   </sql>
 
@@ -108,6 +110,34 @@
       </choose>
     </if>
   </sql>
+
+  <sql id="issueImpactsColumns">
+    ii.uuid as "ii_uuid",
+    ii.software_quality as "ii_softwareQuality",
+    ii.severity as "ii_severity",
+  </sql>
+  <sql id="ruleDefaultImpactsColumns">
+    rdi.uuid as "rdi_uuid",
+    rdi.software_quality as "rdi_softwareQuality",
+    rdi.severity as "rdi_severity",
+  </sql>
+
+  <resultMap id="issueResultMap" type="Issue" autoMapping="true">
+    <id property="kee" column="kee"/>
+
+    <collection property="impacts" column="ii_uuid" notNullColumn="ii_uuid"
+                javaType="java.util.Set" ofType="Impact">
+      <id property="uuid" column="ii_uuid"/>
+      <result property="softwareQuality" column="ii_softwareQuality"/>
+      <result property="severity" column="ii_severity"/>
+    </collection>
+    <collection property="ruleDefaultImpacts" column="rdi_uuid" notNullColumn="rdi_uuid"
+                    javaType="java.util.Set" ofType="Impact">
+      <id property="uuid" column="rdi_uuid"/>
+      <result property="softwareQuality" column="rdi_softwareQuality"/>
+      <result property="severity" column="rdi_severity"/>
+    </collection>
+  </resultMap>
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="false">
     INSERT INTO issues (kee, rule_uuid, severity, manual_severity,
@@ -225,7 +255,7 @@
     where kee = #{kee} and updated_at &lt;= #{selectedAt}
   </update>
 
-  <select id="selectByKey" parameterType="String" resultType="Issue">
+  <select id="selectByKey" parameterType="String" resultMap="issueResultMap">
     select
     <include refid="issueColumns"/>,
     u.login as assigneeLogin
@@ -240,8 +270,7 @@
     where i.kee=#{kee,jdbcType=VARCHAR}
   </select>
 
-  <select id="scrollNonClosedByComponentUuid" parameterType="String" resultType="Issue" fetchSize="${_scrollFetchSize}"
-          resultSetType="FORWARD_ONLY">
+  <select id="scrollNonClosedByComponentUuid" parameterType="String" resultMap="issueResultMap" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY" resultOrdered="true">
     select
     <include refid="issueColumns"/>
     from issues i
@@ -254,9 +283,11 @@
     where
     i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
     i.status &lt;&gt; 'CLOSED'
+    order by
+      i.kee
   </select>
 
-  <select id="scrollClosedByComponentUuid" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollClosedByComponentUuid" resultMap="issueResultMap" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY" resultOrdered="true">
     select
       <include refid="issueColumns"/>,
       ic.change_data as closedChangeData
@@ -292,7 +323,7 @@
     where i.project_uuid=#{projectUuid,jdbcType=VARCHAR} and i.status &lt;&gt; 'CLOSED'
   </select>
 
-  <select id="selectByKeys" parameterType="map" resultType="Issue">
+  <select id="selectByKeys" parameterType="map" resultMap="issueResultMap">
     select
     <include refid="issueColumns"/>
     from issues i
@@ -308,7 +339,7 @@
     </foreach>
   </select>
 
-  <select id="selectByKeysIfNotUpdatedAt" parameterType="map" resultType="Issue">
+  <select id="selectByKeysIfNotUpdatedAt" parameterType="map" resultMap="issueResultMap">
     select
       <include refid="issueColumns"/>
     from issues i
@@ -617,7 +648,7 @@
 	    order by i.rn asc
   </select>
 
-  <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue">
+  <select id="selectByComponentUuidPaginated" parameterType="map" resultMap="issueResultMap">
     select
     <include refid="issueColumns"/>,
     u.login as assigneeLogin
@@ -634,7 +665,7 @@
     limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
   </select>
 
-  <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue" databaseId="mssql">
+  <select id="selectByComponentUuidPaginated" parameterType="map" resultMap="issueResultMap" databaseId="mssql">
   	select
     <include refid="issueColumns"/>,
     u.login as assigneeLogin
@@ -656,7 +687,7 @@
     left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
   </select>
 
-   <select id="selectByComponentUuidPaginated" parameterType="map" resultType="Issue" databaseId="oracle">
+   <select id="selectByComponentUuidPaginated" parameterType="map" resultMap="issueResultMap" databaseId="oracle">
     select
     <include refid="issueColumns"/>,
     u.login as assigneeLogin

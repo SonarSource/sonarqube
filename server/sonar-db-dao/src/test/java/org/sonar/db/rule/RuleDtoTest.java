@@ -25,19 +25,24 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.issue.ImpactDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.rule.RuleDto.ERROR_MESSAGE_SECTION_ALREADY_EXISTS;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class RuleDtoTest {
 
-
   public static final String SECTION_KEY = "section key";
+
   @Test
   public void fail_if_key_is_too_long() {
     assertThatThrownBy(() -> new RuleDto().setRuleKey(repeat("x", 250)))
@@ -164,6 +169,54 @@ public class RuleDtoTest {
 
   }
 
+  @Test
+  public void addDefaultImpact_whenSoftwareQualityAlreadyDefined_shouldThrowISE() {
+    RuleDto dto = new RuleDto();
+    dto.addDefaultImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+
+    ImpactDto duplicatedImpact = newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+
+    assertThatThrownBy(() -> dto.addDefaultImpact(duplicatedImpact))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Impact already defined on rule for Software Quality [MAINTAINABILITY]");
+  }
+
+  @Test
+  public void replaceAllDefaultImpacts_whenSoftwareQualityAlreadyDuplicated_shouldThrowISE() {
+    RuleDto dto = new RuleDto();
+    dto.addDefaultImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
+    dto.addDefaultImpact(newImpactDto(SoftwareQuality.SECURITY, Severity.HIGH));
+    dto.addDefaultImpact(newImpactDto(SoftwareQuality.RELIABILITY, Severity.LOW));
+
+    Set<ImpactDto> duplicatedImpacts = Set.of(
+      newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH),
+      newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+    assertThatThrownBy(() -> dto.replaceAllDefaultImpacts(duplicatedImpacts))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Impacts must have unique Software Quality values");
+  }
+
+  @Test
+  public void replaceAllImpacts_shouldReplaceExistingImpacts() {
+    RuleDto dto = new RuleDto();
+    dto.addDefaultImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
+    dto.addDefaultImpact(newImpactDto(SoftwareQuality.SECURITY, Severity.HIGH));
+    dto.addDefaultImpact(newImpactDto(SoftwareQuality.RELIABILITY, Severity.LOW));
+
+    Set<ImpactDto> duplicatedImpacts = Set.of(
+      newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH),
+      newImpactDto(SoftwareQuality.SECURITY, Severity.LOW));
+
+    dto.replaceAllDefaultImpacts(duplicatedImpacts);
+
+    assertThat(dto.getDefaultImpacts())
+      .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactlyInAnyOrder(
+        tuple(SoftwareQuality.MAINTAINABILITY, Severity.HIGH),
+        tuple(SoftwareQuality.SECURITY, Severity.LOW));
+
+  }
+
   @NotNull
   private static RuleDescriptionSectionDto createSection(String section_key, String contextKey, String contextDisplayName) {
     return RuleDescriptionSectionDto.builder()
@@ -177,5 +230,12 @@ public class RuleDtoTest {
     return RuleDescriptionSectionDto.builder()
       .key(section_key)
       .build();
+  }
+
+  public static ImpactDto newImpactDto(SoftwareQuality softwareQuality, Severity severity) {
+    return new ImpactDto()
+      .setUuid(UuidFactoryFast.getInstance().create())
+      .setSoftwareQuality(softwareQuality)
+      .setSeverity(severity);
   }
 }

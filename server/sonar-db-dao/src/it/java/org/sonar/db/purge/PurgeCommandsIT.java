@@ -37,6 +37,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
@@ -50,6 +52,7 @@ import org.sonar.db.dialect.Dialect;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.issue.AnticipatedTransitionDto;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
@@ -565,7 +568,7 @@ public class PurgeCommandsIT {
     underTest.deleteIssues(projectOrView.uuid());
 
     assertThat(dbTester.countSql("select count(uuid) from new_code_reference_issues where issue_key in (" +
-      String.join(", ", issueKeys) + ")")).isZero();
+                                 String.join(", ", issueKeys) + ")")).isZero();
   }
 
   @Test
@@ -957,14 +960,14 @@ public class PurgeCommandsIT {
 
   @DataProvider
   public static Object[] projects() {
-    return new Object[]{
+    return new Object[] {
       ComponentTesting.newPrivateProjectDto(), ComponentTesting.newPublicProjectDto(),
     };
   }
 
   @DataProvider
   public static Object[] views() {
-    return new Object[]{
+    return new Object[] {
       ComponentTesting.newPortfolio(), ComponentTesting.newApplication()
     };
   }

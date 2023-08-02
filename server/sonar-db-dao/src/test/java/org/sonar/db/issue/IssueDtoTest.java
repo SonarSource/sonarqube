@@ -29,15 +29,20 @@ import java.util.Set;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class IssueDtoTest {
 
@@ -151,6 +156,83 @@ public class IssueDtoTest {
 
     dto.setTagsString("");
     assertThat(dto.getTags()).isEmpty();
+  }
+
+  @Test
+  public void getEffectiveImpacts_whenNoIssueImpactsOverridden_shouldReturnRuleImpacts() {
+    IssueDto dto = new IssueDto();
+    dto.getRuleDefaultImpacts().add(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
+    dto.getRuleDefaultImpacts().add(newImpactDto(SoftwareQuality.SECURITY, Severity.MEDIUM));
+    dto.getRuleDefaultImpacts().add(newImpactDto(SoftwareQuality.RELIABILITY, Severity.LOW));
+
+    assertThat(dto.getEffectiveImpacts())
+      .containsEntry(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
+      .containsEntry(SoftwareQuality.SECURITY, Severity.MEDIUM)
+      .containsEntry(SoftwareQuality.RELIABILITY, Severity.LOW);
+  }
+
+  @Test
+  public void getEffectiveImpacts_whenIssueImpactsOverridden_shouldReturnRuleImpactsOverriddenByIssueImpacts() {
+    IssueDto dto = new IssueDto();
+    dto.getRuleDefaultImpacts().add(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
+    dto.getRuleDefaultImpacts().add(newImpactDto(SoftwareQuality.SECURITY, Severity.MEDIUM));
+    dto.getRuleDefaultImpacts().add(newImpactDto(SoftwareQuality.RELIABILITY, Severity.LOW));
+
+    dto.addImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+    dto.addImpact(newImpactDto(SoftwareQuality.RELIABILITY, Severity.HIGH));
+
+    assertThat(dto.getEffectiveImpacts())
+      .containsEntry(SoftwareQuality.MAINTAINABILITY, Severity.LOW)
+      .containsEntry(SoftwareQuality.SECURITY, Severity.MEDIUM)
+      .containsEntry(SoftwareQuality.RELIABILITY, Severity.HIGH);
+  }
+
+  @Test
+  public void addImpact_whenSoftwareQualityAlreadyDefined_shouldThrowISE() {
+    IssueDto dto = new IssueDto();
+    dto.addImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+
+    ImpactDto duplicatedImpact = newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+
+    assertThatThrownBy(() -> dto.addImpact(duplicatedImpact))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Impact already defined on issue for Software Quality [MAINTAINABILITY]");
+  }
+
+  @Test
+  public void replaceAllImpacts_whenSoftwareQualityAlreadyDuplicated_shouldThrowISE() {
+    IssueDto dto = new IssueDto();
+    dto.addImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
+    dto.addImpact(newImpactDto(SoftwareQuality.SECURITY, Severity.HIGH));
+    dto.addImpact(newImpactDto(SoftwareQuality.RELIABILITY, Severity.LOW));
+
+    Set<ImpactDto> duplicatedImpacts = Set.of(
+      newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH),
+      newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+    assertThatThrownBy(() -> dto.replaceAllImpacts(duplicatedImpacts))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Impacts must have unique Software Quality values");
+  }
+
+  @Test
+  public void replaceAllImpacts_shouldReplaceExistingImpacts() {
+    IssueDto dto = new IssueDto();
+    dto.addImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
+    dto.addImpact(newImpactDto(SoftwareQuality.SECURITY, Severity.HIGH));
+    dto.addImpact(newImpactDto(SoftwareQuality.RELIABILITY, Severity.LOW));
+
+    Set<ImpactDto> duplicatedImpacts = Set.of(
+      newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH),
+      newImpactDto(SoftwareQuality.SECURITY, Severity.LOW));
+
+    dto.replaceAllImpacts(duplicatedImpacts);
+
+    assertThat(dto.getImpacts())
+      .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactlyInAnyOrder(
+        tuple(SoftwareQuality.MAINTAINABILITY, Severity.HIGH),
+        tuple(SoftwareQuality.SECURITY, Severity.LOW));
+
   }
 
   @Test
@@ -279,4 +361,12 @@ public class IssueDtoTest {
       .setCodeVariants(List.of("variant1", "variant2"));
     return defaultIssue;
   }
+
+  public static ImpactDto newImpactDto(SoftwareQuality softwareQuality, Severity severity) {
+    return new ImpactDto()
+      .setUuid(UuidFactoryFast.getInstance().create())
+      .setSoftwareQuality(softwareQuality)
+      .setSeverity(severity);
+  }
+
 }

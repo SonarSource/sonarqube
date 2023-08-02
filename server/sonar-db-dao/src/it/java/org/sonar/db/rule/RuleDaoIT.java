@@ -29,11 +29,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -44,8 +46,10 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDto.Scope;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -56,6 +60,9 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
 
 public class RuleDaoIT {
@@ -68,12 +75,18 @@ public class RuleDaoIT {
 
   @Test
   public void selectByKey() {
-    RuleDto ruleDto = db.rules().insert();
+    RuleDto ruleDto = db.rules().insert(r -> r.addDefaultImpact(newRuleDefaultImpact(SECURITY, org.sonar.api.issue.impact.Severity.LOW)));
 
     assertThat(underTest.selectByKey(db.getSession(), RuleKey.of("foo", "bar")))
       .isEmpty();
     RuleDto actualRule = underTest.selectByKey(db.getSession(), ruleDto.getKey()).get();
     assertEquals(actualRule, ruleDto);
+
+    assertThat(actualRule.getDefaultImpacts())
+      .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactlyInAnyOrder(
+        tuple(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH),
+        tuple(SECURITY, org.sonar.api.issue.impact.Severity.LOW));
   }
 
   @Test
@@ -82,7 +95,6 @@ public class RuleDaoIT {
 
     assertThat(underTest.selectByKey(db.getSession(), ruleDto.getKey())).isNotEmpty();
   }
-
 
   @Test
   public void selectByUuid() {
@@ -153,14 +165,9 @@ public class RuleDaoIT {
 
   @Test
   public void selectOrFailByKey_fails_if_rule_not_found() {
-    assertThatThrownBy(() -> underTest.selectOrFailByKey(db.getSession(), RuleKey.of("NOT", "FOUND")))
-      .isInstanceOf(RowNotFoundException.class)
-      .hasMessage("Rule with key 'NOT:FOUND' does not exist");
-  }
-
-  @Test
-  public void selectOrFailDefinitionByKey_fails_if_rule_not_found() {
-    assertThatThrownBy(() -> underTest.selectOrFailByKey(db.getSession(), RuleKey.of("NOT", "FOUND")))
+    DbSession session = db.getSession();
+    RuleKey ruleKey = RuleKey.of("NOT", "FOUND");
+    assertThatThrownBy(() -> underTest.selectOrFailByKey(session, ruleKey))
       .isInstanceOf(RowNotFoundException.class)
       .hasMessage("Rule with key 'NOT:FOUND' does not exist");
   }
@@ -192,13 +199,40 @@ public class RuleDaoIT {
 
   @Test
   public void selectAll() {
-    RuleDto rule1 = db.rules().insertRule();
-    RuleDto rule2 = db.rules().insertRule();
+    RuleDto rule1 = db.rules().insertRule(r -> r.addDefaultImpact(newRuleDefaultImpact(SECURITY, org.sonar.api.issue.impact.Severity.LOW)));
+    RuleDto rule2 = db.rules().insertRule(r -> r.addDefaultImpact(newRuleDefaultImpact(RELIABILITY, org.sonar.api.issue.impact.Severity.MEDIUM)));
     RuleDto rule3 = db.rules().insertRule();
 
-    assertThat(underTest.selectAll(db.getSession()))
+    List<RuleDto> ruleDtos = underTest.selectAll(db.getSession());
+    assertThat(ruleDtos)
       .extracting(RuleDto::getUuid)
-      .containsOnly(rule1.getUuid(), rule2.getUuid(), rule3.getUuid());
+      .containsExactlyInAnyOrder(rule1.getUuid(), rule2.getUuid(), rule3.getUuid());
+
+    assertThat(ruleDtos)
+      .filteredOn(ruleDto -> ruleDto.getUuid().equals(rule1.getUuid()))
+      .extracting(RuleDto::getDefaultImpacts)
+      .flatMap(Function.identity())
+      .extracting(ImpactDto::getSeverity, ImpactDto::getSoftwareQuality)
+      .containsExactlyInAnyOrder(
+        tuple(org.sonar.api.issue.impact.Severity.HIGH, MAINTAINABILITY),
+        tuple(org.sonar.api.issue.impact.Severity.LOW, SECURITY));
+
+    assertThat(ruleDtos)
+      .filteredOn(ruleDto -> ruleDto.getUuid().equals(rule2.getUuid()))
+      .extracting(RuleDto::getDefaultImpacts)
+      .flatMap(Function.identity())
+      .extracting(ImpactDto::getSeverity, ImpactDto::getSoftwareQuality)
+      .containsExactlyInAnyOrder(
+        tuple(org.sonar.api.issue.impact.Severity.HIGH, MAINTAINABILITY),
+        tuple(org.sonar.api.issue.impact.Severity.MEDIUM, RELIABILITY));
+
+    assertThat(ruleDtos)
+      .filteredOn(ruleDto -> ruleDto.getUuid().equals(rule3.getUuid()))
+      .extracting(RuleDto::getDefaultImpacts)
+      .flatMap(Function.identity())
+      .extracting(ImpactDto::getSeverity, ImpactDto::getSoftwareQuality)
+      .containsExactlyInAnyOrder(
+        tuple(org.sonar.api.issue.impact.Severity.HIGH, MAINTAINABILITY));
   }
 
   private void assertEquals(RuleDto actual, RuleDto expected) {
@@ -313,8 +347,7 @@ public class RuleDaoIT {
       .extracting(RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
       .containsExactlyInAnyOrder(
         tuple(rule1.getUuid(), "java", RuleType.VULNERABILITY.getDbConstant()),
-        tuple(rule3.getUuid(), "java", RuleType.BUG.getDbConstant())
-      );
+        tuple(rule3.getUuid(), "java", RuleType.BUG.getDbConstant()));
 
     assertThat(underTest.selectByLanguage(db.getSession(), "js")).hasSize(1);
 
@@ -436,6 +469,7 @@ public class RuleDaoIT {
   @Test
   public void insert() {
     RuleDescriptionSectionDto sectionDto = createDefaultRuleDescriptionSection();
+    ImpactDto ruleDefaultImpactDto = newRuleDefaultImpact(SECURITY, org.sonar.api.issue.impact.Severity.HIGH);
     RuleDto newRule = new RuleDto()
       .setUuid("rule-uuid")
       .setRuleKey("NewRuleKey")
@@ -443,6 +477,7 @@ public class RuleDaoIT {
       .setName("new name")
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
       .addRuleDescriptionSectionDto(sectionDto)
+      .addDefaultImpact(ruleDefaultImpactDto)
       .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
@@ -492,6 +527,8 @@ public class RuleDaoIT {
     assertThat(ruleDto.getRuleDescriptionSectionDtos()).usingRecursiveFieldByFieldElementComparator()
       .containsOnly(sectionDto);
     assertThat(ruleDto.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
+    assertThat(ruleDto.getDefaultImpacts()).usingRecursiveFieldByFieldElementComparator()
+      .containsOnly(ruleDefaultImpactDto);
   }
 
   @Test
@@ -1146,6 +1183,13 @@ public class RuleDaoIT {
         .setOldRuleKey(ruleKey));
     })
       .isInstanceOf(PersistenceException.class);
+  }
+
+  private static ImpactDto newRuleDefaultImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
+    return new ImpactDto()
+      .setUuid(UuidFactoryFast.getInstance().create())
+      .setSoftwareQuality(softwareQuality)
+      .setSeverity(severity);
   }
 
   private static RuleDescriptionSectionDto createDefaultRuleDescriptionSection() {

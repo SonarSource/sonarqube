@@ -102,12 +102,14 @@ public class RuleDao implements Dao {
     RuleMapper mapper = mapper(session);
     mapper.insertRule(ruleDto);
     updateRuleDescriptionSectionDtos(ruleDto, mapper);
+    updateRuleDefaultImpacts(ruleDto, mapper);
   }
 
   public void update(DbSession session, RuleDto ruleDto) {
     RuleMapper mapper = mapper(session);
     mapper.updateRule(ruleDto);
     updateRuleDescriptionSectionDtos(ruleDto, mapper);
+    updateRuleDefaultImpacts(ruleDto, mapper);
   }
 
   private static void updateRuleDescriptionSectionDtos(RuleDto ruleDto, RuleMapper mapper) {
@@ -118,6 +120,16 @@ public class RuleDao implements Dao {
   private static void insertRuleDescriptionSectionDtos(RuleDto ruleDto, RuleMapper mapper) {
     ruleDto.getRuleDescriptionSectionDtos()
       .forEach(section -> mapper.insertRuleDescriptionSection(ruleDto.getUuid(), section));
+  }
+
+  private static void updateRuleDefaultImpacts(RuleDto ruleDto, RuleMapper mapper) {
+    mapper.deleteRuleDefaultImpacts(ruleDto.getUuid());
+    insertRuleDefaultImpacts(ruleDto, mapper);
+  }
+
+  private static void insertRuleDefaultImpacts(RuleDto ruleDto, RuleMapper mapper) {
+    ruleDto.getDefaultImpacts()
+      .forEach(section -> mapper.insertRuleDefaultImpact(ruleDto.getUuid(), section));
   }
 
   public void scrollIndexingRuleExtensionsByIds(DbSession dbSession, Collection<String> ruleExtensionIds, Consumer<RuleExtensionForIndexingDto> consumer) {

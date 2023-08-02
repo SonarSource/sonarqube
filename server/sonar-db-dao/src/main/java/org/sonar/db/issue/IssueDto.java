@@ -26,13 +26,20 @@ import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
@@ -43,6 +50,7 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.longToDate;
 
@@ -102,6 +110,9 @@ public final class IssueDto implements Serializable {
   private String codeVariants;
   // populate only when retrieving closed issue for issue tracking
   private String closedChangeData;
+
+  private Set<ImpactDto> impacts = new HashSet<>();
+  private Set<ImpactDto> ruleDefaultImpacts = new HashSet<>();
 
   public IssueDto() {
     // nothing to do
@@ -293,7 +304,7 @@ public final class IssueDto implements Serializable {
       try {
         return DbIssues.MessageFormattings.parseFrom(messageFormattings);
       } catch (InvalidProtocolBufferException e) {
-        throw new IllegalStateException(String.format("Fail to read ISSUES.MESSAGE_FORMATTINGS [KEE=%s]", kee), e);
+        throw new IllegalStateException(format("Fail to read ISSUES.MESSAGE_FORMATTINGS [KEE=%s]", kee), e);
       }
     }
     return null;
@@ -695,7 +706,7 @@ public final class IssueDto implements Serializable {
       try {
         return DbIssues.Locations.parseFrom(locations);
       } catch (InvalidProtocolBufferException e) {
-        throw new IllegalStateException(String.format("Fail to read ISSUES.LOCATIONS [KEE=%s]", kee), e);
+        throw new IllegalStateException(format("Fail to read ISSUES.LOCATIONS [KEE=%s]", kee), e);
       }
     }
     return null;
@@ -767,6 +778,51 @@ public final class IssueDto implements Serializable {
   public IssueDto setRuleDescriptionContextKey(@Nullable String ruleDescriptionContextKey) {
     this.ruleDescriptionContextKey = ruleDescriptionContextKey;
     return this;
+  }
+
+  /**
+   * Return impacts defined on this issue.
+   *
+   * @return Collection of impacts
+   */
+  public Set<ImpactDto> getImpacts() {
+    return impacts;
+  }
+
+  public IssueDto addImpact(ImpactDto impact) {
+    impacts.stream().filter(impactDto -> impactDto.getSoftwareQuality() == impact.getSoftwareQuality()).findFirst()
+      .ifPresent(impactDto -> {
+        throw new IllegalStateException(format("Impact already defined on issue for Software Quality [%s]", impact.getSoftwareQuality()));
+      });
+
+    impacts.add(impact);
+    return this;
+  }
+
+  public IssueDto replaceAllImpacts(Collection<ImpactDto> newImpacts) {
+    Set<SoftwareQuality> newSoftwareQuality = newImpacts.stream().map(ImpactDto::getSoftwareQuality).collect(Collectors.toSet());
+    if (newSoftwareQuality.size() != newImpacts.size()) {
+      throw new IllegalStateException("Impacts must have unique Software Quality values");
+    }
+    impacts.clear();
+    impacts.addAll(newImpacts);
+    return this;
+  }
+
+  Set<ImpactDto> getRuleDefaultImpacts() {
+    return ruleDefaultImpacts;
+  }
+
+  /**
+   * Returns effective impacts defined on this issue along with default ones.
+   *
+   * @return Unmodifiable Map of impacts
+   */
+  public Map<SoftwareQuality, Severity> getEffectiveImpacts() {
+    EnumMap<SoftwareQuality, Severity> effectiveImpacts = new EnumMap<>(SoftwareQuality.class);
+    ruleDefaultImpacts.forEach(impact -> effectiveImpacts.put(impact.getSoftwareQuality(), impact.getSeverity()));
+    impacts.forEach(impact -> effectiveImpacts.put(impact.getSoftwareQuality(), impact.getSeverity()));
+    return Collections.unmodifiableMap(effectiveImpacts);
   }
 
   @Override

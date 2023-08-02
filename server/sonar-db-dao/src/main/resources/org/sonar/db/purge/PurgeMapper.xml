@@ -291,6 +291,18 @@
       )
   </delete>
 
+  <delete id="deleteIssuesImpactsByProjectUuid" parameterType="map">
+    delete from issues_impacts
+    where
+      issue_key in (
+        select
+          kee
+        from issues
+        where
+          project_uuid = #{projectUuid,jdbcType=VARCHAR}
+      )
+  </delete>
+
   <delete id="deleteFileSourcesByProjectUuid">
     delete from file_sources where project_uuid=#{rootProjectUuid,jdbcType=VARCHAR}
   </delete>
@@ -419,6 +431,14 @@
 
   <delete id="deleteNewCodeReferenceIssuesFromKeys" parameterType="map">
     DELETE FROM new_code_reference_issues
+    WHERE issue_key IN
+    <foreach collection="issueKeys" open="(" close=")" item="issueKey" separator=",">
+      #{issueKey,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
+  <delete id="deleteIssuesImpactsFromKeys" parameterType="map">
+    DELETE FROM issues_impacts
     WHERE issue_key IN
     <foreach collection="issueKeys" open="(" close=")" item="issueKey" separator=",">
       #{issueKey,jdbcType=VARCHAR}

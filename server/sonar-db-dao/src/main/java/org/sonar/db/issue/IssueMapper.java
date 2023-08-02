@@ -62,6 +62,8 @@ public interface IssueMapper {
 
   void insertAsNewCodeOnReferenceBranch(NewCodeReferenceIssueDto issue);
 
+  void insertIssueImpact(@Param("issueKey") String issueKey, @Param("dto") ImpactDto issue);
+
   void deleteAsNewCodeOnReferenceBranch(String issueKey);
 
   int updateIfBeforeSelectedDate(IssueDto issue);
@@ -74,8 +76,9 @@ public interface IssueMapper {
 
   List<IssueDto> selectByBranch(@Param("keys") Set<String> keys, @Nullable @Param("changedSince") Long changedSince);
 
-
   List<String> selectRecentlyClosedIssues(@Param("queryParams") IssueQueryParams issueQueryParams);
 
   List<String> selectIssueKeysByQuery(@Param("query") IssueListQuery issueListQuery, @Param("pagination") Pagination pagination);
+
+  void deleteIssueImpacts(String issueKey);
 }

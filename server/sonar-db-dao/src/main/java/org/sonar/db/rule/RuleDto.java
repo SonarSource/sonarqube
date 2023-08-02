@@ -27,16 +27,20 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
+import org.sonar.db.issue.ImpactDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
@@ -68,6 +72,9 @@ public class RuleDto {
    */
   private RuleDto.Format descriptionFormat = null;
   private RuleStatus status = null;
+
+  private Set<ImpactDto> defaultImpacts = new HashSet<>();
+
   private String name = null;
   private String configKey = null;
 
@@ -267,6 +274,29 @@ public class RuleDto {
     return this;
   }
 
+  public Set<ImpactDto> getDefaultImpacts() {
+    return defaultImpacts;
+  }
+
+  public RuleDto addDefaultImpact(ImpactDto defaultImpactDto) {
+    defaultImpacts.stream().filter(impactDto -> impactDto.getSoftwareQuality() == defaultImpactDto.getSoftwareQuality()).findFirst()
+      .ifPresent(impactDto -> {
+        throw new IllegalStateException(format("Impact already defined on rule for Software Quality [%s]", defaultImpactDto.getSoftwareQuality()));
+      });
+    defaultImpacts.add(defaultImpactDto);
+    return this;
+  }
+
+  public RuleDto replaceAllDefaultImpacts(Collection<ImpactDto> newImpacts) {
+    Set<SoftwareQuality> newSoftwareQuality = newImpacts.stream().map(ImpactDto::getSoftwareQuality).collect(Collectors.toSet());
+    if (newSoftwareQuality.size() != newImpacts.size()) {
+      throw new IllegalStateException("Impacts must have unique Software Quality values");
+    }
+    defaultImpacts.clear();
+    defaultImpacts.addAll(newImpacts);
+    return this;
+  }
+
   public String getName() {
     return name;
   }
@@ -423,7 +453,6 @@ public class RuleDto {
     this.updatedAt = updatedAt;
     return this;
   }
-
 
   @CheckForNull
   public String getDefRemediationFunction() {

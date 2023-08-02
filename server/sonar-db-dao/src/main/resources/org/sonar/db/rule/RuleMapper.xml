@@ -48,14 +48,25 @@
       rds.rule_uuid = r.uuid
   </sql>
 
+  <sql id="leftOuterJoinRulesDefaultImpacts">
+    left outer join rules_default_impacts rdi on
+      rdi.rule_uuid = r.uuid
+  </sql>
+
   <sql id="selectJoinedTablesColumns">
+    <!-- rule default impacts -->
+    rdi.uuid as "rdi_uuid",
+    rdi.rule_uuid as "rdi_ruleUuid",
+    rdi.software_quality as "rdi_softwareQuality",
+    rdi.severity as "rdi_severity",
+    <!-- rule description sections -->
     rds.content as "rds_content",
     rds.uuid as "rds_uuid",
     rds.kee as "rds_kee",
     rds.context_key as "rds_contextKey",
     rds.context_display_name as "rds_contextDisplayName",
+    <!-- rule -->
     r.uuid as "r_uuid",
-
     <include refid="ruleColumns"/>
   </sql>
 
@@ -65,6 +76,8 @@
     from
       rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
+    order by r.uuid
   </select>
 
   <resultMap id="ruleResultMap" type="org.sonar.db.rule.RuleDto" autoMapping="true">
@@ -81,9 +94,12 @@
         </constructor>
       </association>
     </collection>
+    <collection property="defaultImpacts" column="rdi_uuid" notNullColumn="rdi_uuid" javaType="java.util.Set" ofType="Impact">
+     <id property="uuid" column="rdi_uuid"/>
+     <result property="softwareQuality" column="rdi_softwareQuality"/>
+     <result property="severity" column="rdi_severity"/>
+    </collection>
   </resultMap>
-
-
 
   <select id="selectEnabled" resultMap="ruleResultMap">
     select
@@ -91,8 +107,10 @@
     from
       rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
     where
       r.status != 'REMOVED'
+    order by r.uuid
   </select>
 
   <select id="selectByUuid" parameterType="map" resultMap="ruleResultMap">
@@ -101,8 +119,10 @@
     from
       rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
     where
       r.uuid=#{uuid,jdbcType=VARCHAR}
+    order by r.uuid
   </select>
 
   <select id="selectByUuids" parameterType="map" resultMap="ruleResultMap">
@@ -111,10 +131,12 @@
     from
       rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
     where
       <foreach collection="uuids" index="index" item="uuid" open="" separator=" or " close="">
         r.uuid=#{uuid,jdbcType=VARCHAR}
       </foreach>
+    order by r.uuid
   </select>
 
   <select id="selectByKey" parameterType="map" resultMap="ruleResultMap">
@@ -123,9 +145,11 @@
     from
       rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
     where
       r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
       and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
+    order by r.uuid
   </select>
 
   <select id="selectIndexingRuleExtensionsByIds" parameterType="map" resultType="org.sonar.db.rule.RuleExtensionForIndexingDto">
@@ -165,10 +189,12 @@
     from
       rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
     where
       <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
         (r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR} and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR})
       </foreach>
+    order by r.uuid
   </select>
 
   <select id="selectByQuery" parameterType="map" resultMap="ruleResultMap">
@@ -177,6 +203,7 @@
     from
       rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
     where
       r.status != 'REMOVED'
       <if test="query.repositoryKey!=null">
@@ -189,6 +216,7 @@
         and r.plugin_config_key = #{query.configKey,jdbcType=VARCHAR}
       </if>
     order by
+      r.uuid,
       r.updated_at desc
   </select>
 
@@ -198,12 +226,14 @@
     from
     rules r
     <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDefaultImpacts"/>
     where
       r.status != 'REMOVED' and r.is_external=${_false} and r.is_template=${_false}
       and r.rule_type in
     <foreach collection="types" item="type" separator="," open="(" close=")">#{type, jdbcType=INTEGER}</foreach>
       and r.language in
     <foreach collection="languages" item="language" separator="," open="(" close=")">#{language, jdbcType=VARCHAR}</foreach>
+    order by r.uuid
   </select>
 
   <select id="selectByLanguage" parameterType="String" resultType="org.sonar.db.rule.RuleDto" fetchSize="${_scrollFetchSize}"
@@ -321,6 +351,15 @@
     )
   </insert>
 
+  <insert id="insertRuleDefaultImpact" parameterType="Map" useGeneratedKeys="false">
+    INSERT INTO rules_default_impacts (uuid, rule_uuid, software_quality, severity)
+    VALUES (
+    #{dto.uuid,jdbcType=VARCHAR},
+    #{ruleUuid,jdbcType=VARCHAR},
+    #{dto.softwareQuality,jdbcType=VARCHAR},
+    #{dto.severity,jdbcType=VARCHAR})
+  </insert>
+
   <update id="updateRule" parameterType="org.sonar.db.rule.RuleDto">
     update rules set
       plugin_key=#{pluginKey,jdbcType=VARCHAR},
@@ -366,6 +405,13 @@
   <delete id="deleteRuleDescriptionSection" parameterType="String">
     delete from
       rule_desc_sections
+    where
+      rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteRuleDefaultImpacts" parameterType="String">
+    delete from
+      rules_default_impacts
     where
       rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
   </delete>

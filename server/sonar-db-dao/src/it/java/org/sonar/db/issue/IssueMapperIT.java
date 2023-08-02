@@ -38,6 +38,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -424,13 +426,10 @@ public class IssueMapperIT {
     underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues)
-      .hasSize(4)
+      .hasSize(1)
       .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
-      .containsExactly(
-        tuple(issue.getKey(), changes[2].getChangeData()),
-        tuple(issue.getKey(), changes[3].getChangeData()),
-        tuple(issue.getKey(), changes[0].getChangeData()),
-        tuple(issue.getKey(), changes[1].getChangeData()));
+      // we are interested only in the latest closed issue change data
+      .containsExactly(tuple(issue.getKey(), changes[2].getChangeData()));
   }
 
   @Test
@@ -450,12 +449,11 @@ public class IssueMapperIT {
     underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
 
     assertThat(resultHandler.issues)
-      .hasSize(3)
+      .hasSize(1)
       .extracting(IssueDto::getKey, t -> t.getClosedChangeData().get())
       .containsExactly(
-        tuple(issue.getKey(), changes[2].getChangeData()),
-        tuple(issue.getKey(), changes[3].getChangeData()),
-        tuple(issue.getKey(), changes[1].getChangeData()));
+        // we are interested only in the latest closed issue change data
+        tuple(issue.getKey(), changes[2].getChangeData()));
   }
 
   private IssueChangeDto insertToClosedDiff(IssueDto issueDto) {
@@ -484,7 +482,7 @@ public class IssueMapperIT {
   }
 
   @SafeVarargs
-  private final IssueDto insertNewClosedIssue(ComponentDto component, RuleType ruleType, Consumer<IssueDto>... consumers) {
+  private IssueDto insertNewClosedIssue(ComponentDto component, RuleType ruleType, Consumer<IssueDto>... consumers) {
     RuleDto rule = dbTester.rules().insert(t -> t.setType(ruleType));
     return insertNewClosedIssue(component, rule, system2.now(), consumers);
   }
@@ -495,7 +493,7 @@ public class IssueMapperIT {
   }
 
   @SafeVarargs
-  private final IssueDto insertNewClosedIssue(ComponentDto component, RuleDto rule, long issueCloseTime, Consumer<IssueDto>... consumers) {
+  private IssueDto insertNewClosedIssue(ComponentDto component, RuleDto rule, long issueCloseTime, Consumer<IssueDto>... consumers) {
     IssueDto res = new IssueDto()
       .setKee(UuidFactoryFast.getInstance().create())
       .setRuleUuid(rule.getUuid())
@@ -503,9 +501,17 @@ public class IssueMapperIT {
       .setComponentUuid(component.uuid())
       .setProjectUuid(component.branchUuid())
       .setStatus(Issue.STATUS_CLOSED)
-      .setIssueCloseTime(issueCloseTime);
+      .setIssueCloseTime(issueCloseTime)
+      .addImpact(new ImpactDto()
+        .setUuid(UuidFactoryFast.getInstance().create())
+        .setSeverity(Severity.HIGH)
+        .setSoftwareQuality(SoftwareQuality.MAINTAINABILITY))
+      .addImpact(new ImpactDto()
+        .setUuid(UuidFactoryFast.getInstance().create())
+        .setSeverity(Severity.LOW)
+        .setSoftwareQuality(SoftwareQuality.SECURITY));
     Arrays.asList(consumers).forEach(c -> c.accept(res));
-    underTest.insert(res);
+    dbTester.getDbClient().issueDao().insert(dbSession, res);
     dbSession.commit();
     return res;
   }

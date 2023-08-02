@@ -140,6 +140,11 @@ public class PurgeDao implements Dao {
     });
 
     executeLargeInputs(issueKeys, input -> {
+      mapper.deleteIssuesImpactsFromKeys(input);
+      return emptyList();
+    });
+
+    executeLargeInputs(issueKeys, input -> {
       mapper.deleteIssuesFromKeys(input);
       return emptyList();
     });

@@ -198,6 +198,11 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
 
+    profiler.start("deleteIssues (issues_impacts)");
+    purgeMapper.deleteIssuesImpactsByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+
     profiler.start("deleteIssues (issues)");
     purgeMapper.deleteIssuesByProjectUuid(rootUuid);
     session.commit();

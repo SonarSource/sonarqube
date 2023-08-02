@@ -1226,6 +1226,7 @@ public class PurgeDaoIT {
 
     assertThat(db.countRowsOfTable("issue_changes")).isZero();
     assertThat(db.countRowsOfTable("new_code_reference_issues")).isZero();
+    assertThat(db.countRowsOfTable("issues_impacts")).isZero();
     assertThat(db.select("select kee as \"KEE\" from issues")).extracting(i -> i.get("KEE")).containsOnly(issue1.getKey());
   }
 

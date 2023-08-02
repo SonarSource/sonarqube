@@ -93,13 +93,23 @@ public class IssueDao implements Dao {
 
   public void insert(DbSession session, IssueDto dto) {
     mapper(session).insert(dto);
+    updateIssueImpacts(dto, mapper(session));
+  }
+
+  private static void updateIssueImpacts(IssueDto issueDto, IssueMapper mapper) {
+    mapper.deleteIssueImpacts(issueDto.getKey());
+    insertInsertIssueImpacts(issueDto, mapper);
+  }
+
+  private static void insertInsertIssueImpacts(IssueDto issueDto, IssueMapper mapper) {
+    issueDto.getImpacts()
+      .forEach(impact -> mapper.insertIssueImpact(issueDto.getKey(), impact));
   }
 
   public void insert(DbSession session, IssueDto dto, IssueDto... others) {
-    IssueMapper mapper = mapper(session);
-    mapper.insert(dto);
+    insert(session, dto);
     for (IssueDto other : others) {
-      mapper.insert(other);
+      insert(session, other);
     }
   }
 

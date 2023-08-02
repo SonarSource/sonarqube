@@ -31,9 +31,12 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
@@ -101,6 +104,8 @@ public class IssueDaoIT {
 
   @Before
   public void setup() {
+    int i = db.countSql(db.getSession(), "select count(1) from rules_default_impacts");
+
     db.rules().insert(RULE.setIsExternal(true));
     projectDto = db.components().insertPrivateProject(t -> t.setUuid(PROJECT_UUID).setKey(PROJECT_KEY)).getMainBranchComponent();
     db.components().insertComponent(newFileDto(projectDto).setUuid(FILE_UUID).setKey(FILE_KEY));
@@ -142,7 +147,7 @@ public class IssueDaoIT {
     IssueDto issue = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
 
     assertThat(issue).usingRecursiveComparison()
-      .ignoringFields("filePath", "issueCreationDate", "issueUpdateDate", "issueCloseDate", "cleanCodeAttribute")
+      .ignoringFields("filePath", "issueCreationDate", "issueUpdateDate", "issueCloseDate", "cleanCodeAttribute", "impacts", "ruleDefaultImpacts")
       .isEqualTo(expected);
     assertThat(issue.parseMessageFormattings()).isEqualTo(MESSAGE_FORMATTING);
     assertThat(issue.getIssueCreationDate()).isNotNull();
@@ -152,6 +157,18 @@ public class IssueDaoIT {
     assertThat(issue.getRule()).isEqualTo(RULE.getRuleKey());
     assertThat(issue.getCleanCodeAttribute()).isEqualTo(RULE.getCleanCodeAttribute());
     assertThat(issue.parseLocations()).isNull();
+    assertThat(issue.getImpacts())
+      .extracting(ImpactDto::getSeverity, ImpactDto::getSoftwareQuality)
+      .containsExactlyInAnyOrder(
+        tuple(Severity.MEDIUM, SoftwareQuality.RELIABILITY),
+        tuple(Severity.LOW, SoftwareQuality.SECURITY));
+
+    assertThat(issue.getEffectiveImpacts())
+      // impacts from rule
+      .containsEntry(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
+      // impacts from issue
+      .containsEntry(SoftwareQuality.RELIABILITY, Severity.MEDIUM)
+      .containsEntry(SoftwareQuality.SECURITY, Severity.LOW);
   }
 
   @Test
@@ -169,8 +186,15 @@ public class IssueDaoIT {
     prepareTables();
 
     List<IssueDto> issues = underTest.selectByKeys(db.getSession(), asList("I1", "I2", "I3"));
-    // results are not ordered, so do not use "containsExactly"
-    assertThat(issues).extracting("key").containsOnly("I1", "I2");
+
+    assertThat(issues).extracting(IssueDto::getKey).containsExactlyInAnyOrder("I1", "I2");
+    assertThat(issues).filteredOn(issueDto -> issueDto.getKey().equals("I1"))
+      .extracting(IssueDto::getImpacts)
+      .flatMap(issueImpactDtos -> issueImpactDtos)
+      .extracting(ImpactDto::getSeverity, ImpactDto::getSoftwareQuality)
+      .containsExactlyInAnyOrder(
+        tuple(Severity.MEDIUM, SoftwareQuality.RELIABILITY),
+        tuple(Severity.LOW, SoftwareQuality.SECURITY));
   }
 
   @Test
@@ -538,6 +562,32 @@ public class IssueDaoIT {
   }
 
   @Test
+  public void insert_shouldInsertBatchIssuesWithImpacts() {
+    ImpactDto impact1 = new ImpactDto()
+      .setUuid(UuidFactoryFast.getInstance().create())
+      .setSoftwareQuality(SoftwareQuality.MAINTAINABILITY)
+      .setSeverity(Severity.HIGH);
+    ImpactDto impact2 = new ImpactDto()
+      .setUuid(UuidFactoryFast.getInstance().create())
+      .setSoftwareQuality(SoftwareQuality.SECURITY)
+      .setSeverity(Severity.LOW);
+    IssueDto issue1 = createIssueWithKey(ISSUE_KEY1)
+      .addImpact(impact1)
+      .addImpact(impact2);
+    IssueDto issue2 = createIssueWithKey(ISSUE_KEY2);
+    underTest.insert(db.getSession(), issue1, issue2);
+
+    List<IssueDto> issueDtos = underTest.selectByKeys(db.getSession(), Set.of(ISSUE_KEY1, ISSUE_KEY2));
+    assertThat(issueDtos)
+      .extracting(IssueDto::getKey)
+      .containsExactlyInAnyOrder(ISSUE_KEY1, ISSUE_KEY2);
+    assertThat(issueDtos).filteredOn(issueDto -> issueDto.getKey().equals(ISSUE_KEY1))
+      .flatExtracting(IssueDto::getImpacts)
+      .containsExactlyInAnyOrder(impact1, impact2)
+      .doesNotContainNull();
+  }
+
+  @Test
   public void update_whenUpdatingRuleDescriptionContextKeyToNull_returnsEmptyContextKey() {
     IssueDto issue = createIssueWithKey(ISSUE_KEY1).setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
     underTest.insert(db.getSession(), issue);
@@ -783,13 +833,22 @@ public class IssueDaoIT {
       .setMessage("the message")
       .setRuleUuid(RULE.getUuid())
       .setComponentUuid(FILE_UUID)
-      .setProjectUuid(PROJECT_UUID));
+      .setProjectUuid(PROJECT_UUID)
+      .addImpact(newIssueImpact(SoftwareQuality.RELIABILITY, Severity.MEDIUM))
+      .addImpact(newIssueImpact(SoftwareQuality.SECURITY, Severity.LOW)));
     underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY2)
       .setRuleUuid(RULE.getUuid())
       .setComponentUuid(FILE_UUID)
       .setStatus("CLOSED")
       .setProjectUuid(PROJECT_UUID));
     db.getSession().commit();
+  }
+
+  private static ImpactDto newIssueImpact(SoftwareQuality softwareQuality, Severity severity) {
+    return new ImpactDto()
+      .setUuid(UuidFactoryFast.getInstance().create())
+      .setSoftwareQuality(softwareQuality)
+      .setSeverity(severity);
   }
 
   private static RuleType randomRuleTypeExceptHotspot() {
