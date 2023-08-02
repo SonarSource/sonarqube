@@ -19,8 +19,10 @@
  */
 package org.sonar.scanner.issue;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -37,6 +39,7 @@ import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.batch.sensor.issue.MessageFormatting;
 import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueFlow;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueLocation;
@@ -116,6 +119,7 @@ public class IssuePublisher {
     builder.setRuleKey(issue.ruleKey().rule());
     builder.setMsg(primaryMessage);
     builder.addAllMsgFormatting(toProtobufMessageFormattings(issue.primaryLocation().messageFormattings()));
+    builder.addAllOverridenImpacts(toProtobufImpacts(issue.overridenImpacts()));
     locationBuilder.setMsg(primaryMessage);
     locationBuilder.addAllMsgFormatting(toProtobufMessageFormattings(issue.primaryLocation().messageFormattings()));
 
@@ -136,6 +140,12 @@ public class IssuePublisher {
       builder.addAllCodeVariants(codeVariants);
     }
     return builder.build();
+  }
+
+  private static List<ScannerReport.Impact> toProtobufImpacts(Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> softwareQualitySeverityMap) {
+    List<ScannerReport.Impact> impacts = new ArrayList<>();
+    softwareQualitySeverityMap.forEach((q, s) -> impacts.add(ScannerReport.Impact.newBuilder().setSoftwareQuality(q.name()).setSeverity(s.name()).build()));
+    return impacts;
   }
 
   private static List<ScannerReport.MessageFormatting> toProtobufMessageFormattings(List<MessageFormatting> messageFormattings) {

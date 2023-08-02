@@ -21,6 +21,8 @@ package org.sonar.api.batch.sensor.issue.internal;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,6 +44,7 @@ import static org.sonar.api.utils.Preconditions.checkArgument;
 import static org.sonar.api.utils.Preconditions.checkState;
 
 public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements Issue, NewIssue {
+  private final Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> overridenImpacts = new EnumMap<>(SoftwareQuality.class);
   private RuleKey ruleKey;
   private Double gap;
   private Severity overriddenSeverity;
@@ -81,7 +84,8 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
 
   @Override
   public DefaultIssue overrideImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
-    return null;
+    overridenImpacts.put(softwareQuality, severity);
+    return this;
   }
 
   @Override
@@ -144,7 +148,7 @@ public class DefaultIssue extends AbstractDefaultIssue<DefaultIssue> implements 
 
   @Override
   public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> overridenImpacts() {
-    return Collections.emptyMap();
+    return overridenImpacts;
   }
 
   @Override

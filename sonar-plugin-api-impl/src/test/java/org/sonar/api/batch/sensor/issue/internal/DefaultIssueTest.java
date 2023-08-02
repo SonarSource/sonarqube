@@ -41,6 +41,7 @@ import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.batch.sensor.issue.MessageFormatting;
 import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
 import org.sonar.api.batch.sensor.issue.fix.NewQuickFix;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -232,6 +233,13 @@ public class DefaultIssueTest {
     DefaultIssue issue = new DefaultIssue(project, storage).setQuickFixAvailable(true);
 
     assertThat(issue.isQuickFixAvailable()).isTrue();
+  }
+
+  @Test
+  public void issue_can_override_impacts() {
+    DefaultIssue issue = new DefaultIssue(project, storage).overrideImpact(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW);
+
+    assertThat(issue.overridenImpacts()).containsEntry(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW);
   }
 
   @Test

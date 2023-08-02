@@ -42,6 +42,7 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 import org.sonar.api.batch.sensor.issue.internal.DefaultMessageFormatting;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -59,10 +60,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.batch.sensor.issue.MessageFormatting.Type.CODE;
+import static org.sonar.api.issue.impact.SoftwareQuality.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssuePublisherTest {
-  static final RuleKey JAVA_RULE_KEY = RuleKey.of("java", "AvoidCycle");
+  private static final RuleKey JAVA_RULE_KEY = RuleKey.of("java", "AvoidCycle");
   private static final RuleKey NOSONAR_RULE_KEY = RuleKey.of("java", "NoSonarCheck");
 
   private DefaultInputProject project;
@@ -128,7 +130,9 @@ public class IssuePublisherTest {
       .overrideSeverity(org.sonar.api.batch.rule.Severity.CRITICAL)
       .setQuickFixAvailable(true)
       .setRuleDescriptionContextKey(ruleDescriptionContextKey)
-      .setCodeVariants(List.of("variant1", "variant2"));
+      .setCodeVariants(List.of("variant1", "variant2"))
+      .overrideImpact(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH)
+      .overrideImpact(RELIABILITY, org.sonar.api.issue.impact.Severity.LOW);
 
     when(filters.accept(any(InputComponent.class), any(ScannerReport.Issue.class))).thenReturn(true);
 
@@ -141,6 +145,10 @@ public class IssuePublisherTest {
     assertThat(argument.getValue().getQuickFixAvailable()).isTrue();
     assertThat(argument.getValue().getRuleDescriptionContextKey()).isEqualTo(ruleDescriptionContextKey);
     assertThat(argument.getValue().getCodeVariantsList()).containsExactly("variant1", "variant2");
+
+    ScannerReport.Impact impact1 = ScannerReport.Impact.newBuilder().setSoftwareQuality(MAINTAINABILITY.name()).setSeverity("HIGH").build();
+    ScannerReport.Impact impact2 = ScannerReport.Impact.newBuilder().setSoftwareQuality(RELIABILITY.name()).setSeverity("LOW").build();
+    assertThat(argument.getValue().getOverridenImpactsList()).containsExactly(impact1, impact2);
   }
 
   @Test
