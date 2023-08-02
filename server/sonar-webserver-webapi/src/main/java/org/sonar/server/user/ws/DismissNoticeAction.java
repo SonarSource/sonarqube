@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -34,6 +35,7 @@ public class DismissNoticeAction implements UsersWsAction {
 
   public static final String EDUCATION_PRINCIPLES = "educationPrinciples";
   public static final String SONARLINT_AD = "sonarlintAd";
+  public static final String ISSUE_CLEAN_CODE_GUIDE = "issueCleanCodeGuide";
   public static final String USER_DISMISS_CONSTANT = "user.dismissedNotices.";
 
   private final UserSession userSession;
@@ -48,6 +50,7 @@ public class DismissNoticeAction implements UsersWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("dismiss_notice")
       .setDescription("Dismiss a notice for the current user. Silently ignore if the notice is already dismissed.")
+      .setChangelog(new Change("10.2", "Support for new notice '%s' was added.".formatted(ISSUE_CLEAN_CODE_GUIDE)))
       .setSince("9.6")
       .setInternal(true)
       .setHandler(this)
@@ -56,7 +59,7 @@ public class DismissNoticeAction implements UsersWsAction {
     action.createParam("notice")
       .setDescription("notice key to dismiss")
       .setExampleValue(EDUCATION_PRINCIPLES)
-      .setPossibleValues(EDUCATION_PRINCIPLES, SONARLINT_AD);
+      .setPossibleValues(EDUCATION_PRINCIPLES, SONARLINT_AD, ISSUE_CLEAN_CODE_GUIDE);
   }
 
   @Override

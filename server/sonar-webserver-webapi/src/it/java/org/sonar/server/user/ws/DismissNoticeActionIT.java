@@ -71,6 +71,20 @@ public class DismissNoticeActionIT {
     assertThat(propertyDto).isPresent();
   }
 
+  @Test
+  public void execute_whenNoticeIsIssueCleanCodeGuide_shouldDismissCorrespondingNotice() {
+    userSessionRule.logIn();
+
+    TestResponse testResponse = tester.newRequest()
+      .setParam("notice", "issueCleanCodeGuide")
+      .execute();
+
+    assertThat(testResponse.getStatus()).isEqualTo(204);
+
+    Optional<PropertyDto> propertyDto = db.properties().findFirstUserProperty(userSessionRule.getUuid(), "user.dismissedNotices.issueCleanCodeGuide");
+    assertThat(propertyDto).isPresent();
+  }
+
 
   @Test
   public void authentication_is_required() {
@@ -102,7 +116,7 @@ public class DismissNoticeActionIT {
 
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Value of parameter 'notice' (not_supported_value) must be one of: [educationPrinciples, sonarlintAd]");
+      .hasMessage("Value of parameter 'notice' (not_supported_value) must be one of: [educationPrinciples, sonarlintAd, issueCleanCodeGuide]");
   }
 
 

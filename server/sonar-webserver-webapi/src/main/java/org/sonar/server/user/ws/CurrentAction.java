@@ -50,6 +50,7 @@ import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.user.ws.DismissNoticeAction.EDUCATION_PRINCIPLES;
+import static org.sonar.server.user.ws.DismissNoticeAction.ISSUE_CLEAN_CODE_GUIDE;
 import static org.sonar.server.user.ws.DismissNoticeAction.SONARLINT_AD;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.APPLICATION;
@@ -125,7 +126,8 @@ public class CurrentAction implements UsersWsAction {
       .setHomepage(buildHomepage(dbSession, user))
       .setUsingSonarLintConnectedMode(user.getLastSonarlintConnectionDate() != null)
       .putDismissedNotices(EDUCATION_PRINCIPLES, isNoticeDismissed(user, EDUCATION_PRINCIPLES))
-      .putDismissedNotices(SONARLINT_AD, isNoticeDismissed(user, SONARLINT_AD));
+      .putDismissedNotices(SONARLINT_AD, isNoticeDismissed(user, SONARLINT_AD))
+      .putDismissedNotices(ISSUE_CLEAN_CODE_GUIDE, isNoticeDismissed(user, ISSUE_CLEAN_CODE_GUIDE));
     ofNullable(emptyToNull(user.getEmail())).ifPresent(builder::setEmail);
     ofNullable(emptyToNull(user.getEmail())).ifPresent(u -> builder.setAvatar(avatarResolver.create(user)));
     ofNullable(user.getExternalLogin()).ifPresent(builder::setExternalIdentity);
