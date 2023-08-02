@@ -27,7 +27,6 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { ComponentQualifier, isApplication } from '../../../types/component';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { CaycStatus, Component } from '../../../types/types';
-import SonarLintPromotion from '../components/SonarLintPromotion';
 import ApplicationNonCaycProjectWarning from './ApplicationNonCaycProjectWarning';
 import QualityGatePanelSection from './QualityGatePanelSection';
 
@@ -160,9 +159,6 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
           </>
         )}
       </div>
-      <SonarLintPromotion
-        qgConditions={flatMap(qgStatuses, (qgStatus) => qgStatus.failedConditions)}
-      />
     </div>
   );
 }
