@@ -71,7 +71,6 @@ public class UsersActionIT {
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isFalse();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
-      tuple("10.2", "Response fields 'total', 's', 'ps' dropped"),
       tuple("10.0", "Field 'managed' added to the payload."),
       tuple("10.0", "Parameter 'id' is removed. Use 'name' instead."),
       tuple("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead."),
@@ -116,6 +115,8 @@ public class UsersActionIT {
 
     assertJson(result).isSimilarTo("""
       {
+        "p": 1,
+        "total": 0,
         "paging": {
           "pageIndex": 1,
           "pageSize": 25,
@@ -254,6 +255,9 @@ public class UsersActionIT {
       .execute()
       .getInput()).isSimilarTo("""
       {
+        "p": 1,
+        "ps": 1,
+        "total": 2,
         "paging": {
           "pageIndex": 1,
           "pageSize": 1,
@@ -271,6 +275,9 @@ public class UsersActionIT {
       .execute()
       .getInput()).isSimilarTo("""
       {
+        "p": 2,
+        "ps": 1,
+        "total": 2,
         "paging": {
           "pageIndex": 2,
           "pageSize": 1,

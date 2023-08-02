@@ -41,9 +41,10 @@ message ListResponse {
 
 // WS api/rules/search
 message SearchResponse {
-  reserved 1;
-  reserved 2;
-  reserved 3;
+  optional int64 total = 1 [deprecated=true];
+  optional int32 p = 2 [deprecated=true];
+  optional int64 ps = 3 [deprecated=true];
+
   repeated Rule rules = 4;
   optional Actives actives = 5;
   optional QProfiles qProfiles = 6;

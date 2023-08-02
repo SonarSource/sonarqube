@@ -80,6 +80,9 @@ public class ChangelogActionIT {
       .getInput();
 
     assertJson(response).isSimilarTo("{\n" +
+      "  \"total\": 1,\n" +
+      "  \"p\": 1,\n" +
+      "  \"ps\": 50,\n" +
       "  \"paging\": {\n" +
       "     \"pageIndex\": 1,\n" +
       "     \"pageSize\": 50,\n" +
@@ -176,7 +179,7 @@ public class ChangelogActionIT {
       .execute()
       .getInput();
 
-    assertJson(response).isSimilarTo("{\"paging\":{\"pageIndex\":1,\"pageSize\":50,\"total\":0},\"events\":[]}");
+    assertJson(response).isSimilarTo("{\"total\":0,\"p\":1,\"ps\":50,\"paging\":{\"pageIndex\":1,\"pageSize\":50,\"total\":0},\"events\":[]}");
   }
 
   @Test
@@ -344,14 +347,13 @@ public class ChangelogActionIT {
       .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
       .setData(ImmutableMap.of("severity", "MAJOR", "param_format", "^[A-Z][a-zA-Z0-9]*$", "ruleUuid", rule3.getUuid())));
 
-    String result = ws.newRequest()
+    ws.newRequest()
       .setMethod("GET")
       .setParam(PARAM_LANGUAGE, profile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam("ps", "10")
       .execute()
-      .getInput();
-    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
+      .assertJson(this.getClass(), "changelog_example.json");
   }
 
   @Test

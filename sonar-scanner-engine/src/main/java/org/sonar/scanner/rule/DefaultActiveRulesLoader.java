@@ -63,9 +63,9 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
       SearchResponse response = loadFromStream(wsClient.call(getRequest).contentStream());
       List<LoadedActiveRule> pageRules = readPage(response);
       ruleList.addAll(pageRules);
-      loaded += response.getPaging().getPageSize();
+      loaded += response.getPs();
 
-      if (response.getPaging().getTotal() <= loaded) {
+      if (response.getTotal() <= loaded) {
         break;
       }
       page++;
