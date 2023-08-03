@@ -51,6 +51,7 @@ class ComponentDtoToWsComponent {
       .setQualifier(project.getQualifier());
 
     ofNullable(emptyToNull(project.getDescription())).ifPresent(wsComponent::setDescription);
+    ofNullable(emptyToNull(project.getInitialPermSync())).ifPresent(wsComponent::setInitialPermSync);
     ofNullable(lastAnalysis).ifPresent(
       analysis -> {
         wsComponent.setAnalysisDate(formatDateTime(analysis.getCreatedAt()));

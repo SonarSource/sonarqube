@@ -11,7 +11,8 @@
       p.tags as tagsString,
       p.private as isPrivate,
       p.created_at as createdAt,
-      p.updated_at as updatedAt
+      p.updated_at as updatedAt,
+      p.initial_perm_sync as initialPermSync
     </sql>
 
   <select id="selectAllProjectUuids" resultType="String">
@@ -163,7 +164,8 @@
       private,
       tags,
       created_at,
-      updated_at
+      updated_at,
+      initial_perm_sync
     )
     VALUES (
     #{kee,jdbcType=VARCHAR},
@@ -174,7 +176,8 @@
     #{isPrivate,jdbcType=BOOLEAN},
     #{tagsString, jdbcType=VARCHAR},
     #{createdAt,jdbcType=BIGINT},
-    #{updatedAt,jdbcType=BIGINT}
+    #{updatedAt,jdbcType=BIGINT},
+    #{initialPermSync,jdbcType=VARCHAR}
     )
   </insert>
 
