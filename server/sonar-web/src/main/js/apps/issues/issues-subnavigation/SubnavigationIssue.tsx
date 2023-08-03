@@ -23,7 +23,6 @@ import { noop } from 'lodash';
 import * as React from 'react';
 import { Issue } from '../../../types/types';
 import IssueItemLocationsQuantity from './IssueItemLocationsQuantity';
-import IssueItemType from './IssueItemType';
 import IssueLocationsNavigator from './IssueLocationsNavigator';
 
 const HALF_DIVIDER = 2;
@@ -64,7 +63,6 @@ export default function SubnavigationIssue(props: ConciseIssueProps) {
             {issue.message}
           </StyledIssueTitle>
           <IssueInfo className="sw-flex sw-justify-between sw-gap-2">
-            <IssueItemType issue={issue} />
             <IssueItemLocationsQuantity issue={issue} />
           </IssueInfo>
           {selected && (
