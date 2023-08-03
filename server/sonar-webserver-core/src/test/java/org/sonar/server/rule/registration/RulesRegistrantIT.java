@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule;
+package org.sonar.server.rule.registration;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -73,6 +73,10 @@ import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.RuleDefinitionsLoader;
+import org.sonar.server.rule.RuleDescriptionSectionsGenerator;
+import org.sonar.server.rule.RuleDescriptionSectionsGeneratorResolver;
+import org.sonar.server.rule.WebServerRuleFinder;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -112,7 +116,7 @@ import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescr
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
 
 @RunWith(DataProviderRunner.class)
-public class RegisterRulesTest {
+public class RulesRegistrantIT {
 
   private static final String FAKE_PLUGIN_KEY = "unittest";
   private static final Date DATE1 = DateUtils.parseDateTime("2014-01-01T19:10:03+0100");
@@ -148,17 +152,19 @@ public class RegisterRulesTest {
   private final RuleDescriptionSectionsGenerator ruleDescriptionSectionsGenerator = mock(RuleDescriptionSectionsGenerator.class);
   private final RuleDescriptionSectionsGeneratorResolver resolver = mock(RuleDescriptionSectionsGeneratorResolver.class);
 
+  private final RulesKeyVerifier rulesKeyVerifier = new RulesKeyVerifier();
+  private final StartupRuleUpdater startupRuleUpdater = new StartupRuleUpdater(dbClient, system, uuidFactory, resolver);
+
   @Before
   public void before() {
     ruleIndexer = new RuleIndexer(es.client(), dbClient);
     ruleIndex = new RuleIndex(es.client(), system);
     activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
-    when(resolver.getRuleDescriptionSectionsGenerator(any())).thenReturn(ruleDescriptionSectionsGenerator);
-    when(ruleDescriptionSectionsGenerator.generateSections(any())).thenAnswer(answer -> {
+    when(resolver.generateFor(any())).thenAnswer(answer -> {
       RulesDefinition.Rule rule = answer.getArgument(0, RulesDefinition.Rule.class);
       String description = rule.htmlDescription() == null ? rule.markdownDescription() : rule.htmlDescription();
 
-      Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = rule.ruleDescriptionSections().stream() //
+      Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos = rule.ruleDescriptionSections().stream()
         .map(s -> builder()
           .uuid(UuidFactoryFast.getInstance().create())
           .key(s.getKey())
@@ -207,8 +213,8 @@ public class RegisterRulesTest {
   private void verifyHotspot(RuleDto hotspotRule) {
     assertThat(hotspotRule.getName()).isEqualTo("Hotspot");
     assertThat(hotspotRule.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Minimal hotspot");
-    assertThat(hotspotRule.getCreatedAt()).isEqualTo(RegisterRulesTest.DATE1.getTime());
-    assertThat(hotspotRule.getUpdatedAt()).isEqualTo(RegisterRulesTest.DATE1.getTime());
+    assertThat(hotspotRule.getCreatedAt()).isEqualTo(RulesRegistrantIT.DATE1.getTime());
+    assertThat(hotspotRule.getUpdatedAt()).isEqualTo(RulesRegistrantIT.DATE1.getTime());
     assertThat(hotspotRule.getType()).isEqualTo(RuleType.SECURITY_HOTSPOT.getDbConstant());
     assertThat(hotspotRule.getSecurityStandards()).containsExactly("cwe:1", "cwe:123", "cwe:863", "owaspTop10-2021:a1", "owaspTop10-2021:a3");
   }
@@ -1142,8 +1148,8 @@ public class RegisterRulesTest {
     when(languages.get(any())).thenReturn(mock(Language.class));
     reset(webServerRuleFinder);
 
-    RegisterRules task = new RegisterRules(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer, languages, system, webServerRuleFinder, uuidFactory, metadataIndex,
-      resolver);
+    RulesRegistrant task = new RulesRegistrant(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer, languages, system, webServerRuleFinder, uuidFactory, metadataIndex,
+      resolver, rulesKeyVerifier, startupRuleUpdater);
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
     db.getSession().commit();

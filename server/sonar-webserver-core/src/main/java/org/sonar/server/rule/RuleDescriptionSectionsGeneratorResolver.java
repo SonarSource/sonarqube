@@ -21,6 +21,7 @@ package org.sonar.server.rule;
 
 import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.db.rule.RuleDescriptionSectionDto;
 
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.utils.Preconditions.checkState;
@@ -32,13 +33,17 @@ public class RuleDescriptionSectionsGeneratorResolver {
     this.ruleDescriptionSectionsGenerators = ruleDescriptionSectionsGenerators;
   }
 
-  RuleDescriptionSectionsGenerator getRuleDescriptionSectionsGenerator(RulesDefinition.Rule ruleDef) {
+  public RuleDescriptionSectionsGenerator getRuleDescriptionSectionsGenerator(RulesDefinition.Rule ruleDef) {
     Set<RuleDescriptionSectionsGenerator> generatorsFound = ruleDescriptionSectionsGenerators.stream()
       .filter(generator -> generator.isGeneratorForRule(ruleDef))
       .collect(toSet());
     checkState(generatorsFound.size() < 2, "More than one rule description section generator found for rule with key %s", ruleDef.key());
     checkState(!generatorsFound.isEmpty(), "No rule description section generator found for rule with key %s", ruleDef.key());
     return generatorsFound.iterator().next();
+  }
+
+  public Set<RuleDescriptionSectionDto> generateFor(RulesDefinition.Rule ruleDef) {
+    return getRuleDescriptionSectionsGenerator(ruleDef).generateSections(ruleDef);
   }
 
 }
