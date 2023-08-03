@@ -18,21 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import styled from '@emotion/styled';
-import classNames from 'classnames';
-import { Badge, CommentIcon, SeparatorCircleIcon, themeColor } from 'design-system';
 import * as React from 'react';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { isDefined } from '../../../helpers/types';
+import { translate } from '../../../helpers/l10n';
 import { IssueActions, IssueResolution, IssueType as IssueTypeEnum } from '../../../types/issues';
-import { RuleStatus } from '../../../types/rules';
 import { Issue } from '../../../types/types';
-import Tooltip from '../../controls/Tooltip';
-import DateFromNow from '../../intl/DateFromNow';
 import SoftwareImpactPill from '../../shared/SoftwareImpactPill';
-import { WorkspaceContext } from '../../workspace/context';
 import IssueAssign from './IssueAssign';
-import IssueBadges from './IssueBadges';
+import { SonarLintBadge } from './IssueBadges';
 import IssueCommentAction from './IssueCommentAction';
 import IssueSeverity from './IssueSeverity';
 import IssueTransition from './IssueTransition';
@@ -44,9 +36,8 @@ interface Props {
   onAssign: (login: string) => void;
   onChange: (issue: Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
-  className?: string;
-  showComments?: boolean;
-  showLine?: boolean;
+  showIssueImpact?: boolean;
+  showSonarLintBadge?: boolean;
 }
 
 interface State {
@@ -61,9 +52,8 @@ export default function IssueActionsBar(props: Props) {
     onAssign,
     onChange,
     togglePopup,
-    className,
-    showComments,
-    showLine,
+    showIssueImpact,
+    showSonarLintBadge,
   } = props;
 
   const [commentState, setCommentState] = React.useState<State>({
@@ -91,29 +81,12 @@ export default function IssueActionsBar(props: Props) {
     }
   };
 
-  const { externalRulesRepoNames } = React.useContext(WorkspaceContext);
-
-  const ruleEngine =
-    (issue.externalRuleEngine && externalRulesRepoNames[issue.externalRuleEngine]) ||
-    issue.externalRuleEngine;
-
   const canAssign = issue.actions.includes(IssueActions.Assign);
   const canComment = issue.actions.includes(IssueActions.Comment);
   const hasTransitions = issue.transitions.length > 0;
-  const hasComments = !!issue.comments?.length;
-
-  const issueMetaListItemClassNames = classNames(
-    className,
-    'sw-body-sm sw-overflow-hidden sw-whitespace-nowrap sw-max-w-abs-150'
-  );
 
   return (
-    <div
-      className={classNames(
-        className,
-        'sw-flex sw-gap-2 sw-flex-wrap sw-items-center sw-justify-between'
-      )}
-    >
+    <div className="sw-flex sw-gap-3">
       <ul className="it__issue-header-actions sw-flex sw-items-center sw-gap-3 sw-body-sm">
         <li>
           <IssueTransition
@@ -135,16 +108,25 @@ export default function IssueActionsBar(props: Props) {
           />
         </li>
 
-        <li className="sw-flex sw-gap-3">
-          {issue.impacts.map(({ severity, softwareQuality }) => (
-            <SoftwareImpactPill
-              key={softwareQuality}
-              severity={severity}
-              quality={softwareQuality}
-            />
-          ))}
-        </li>
+        {showIssueImpact && (
+          <li className="sw-flex sw-gap-3" data-guiding-id="issue-2">
+            {issue.impacts.map(({ severity, softwareQuality }) => (
+              <SoftwareImpactPill
+                key={softwareQuality}
+                severity={severity}
+                quality={softwareQuality}
+              />
+            ))}
+          </li>
+        )}
 
+        {showSonarLintBadge && issue.quickFixAvailable && (
+          <li>
+            <SonarLintBadge quickFixAvailable={issue.quickFixAvailable} />
+          </li>
+        )}
+      </ul>
+      <ul className="sw-flex sw-items-center sw-gap-3 sw-body-sm" data-guiding-id="issue-4">
         <li>
           <IssueType issue={issue} />
         </li>
@@ -163,83 +145,6 @@ export default function IssueActionsBar(props: Props) {
           toggleComment={toggleComment}
         />
       )}
-
-      <ul className="sw-flex sw-items-center sw-gap-2 sw-body-sm">
-        <li className={issueMetaListItemClassNames}>
-          <IssueBadges
-            quickFixAvailable={issue.quickFixAvailable}
-            ruleStatus={issue.ruleStatus as RuleStatus | undefined}
-          />
-        </li>
-
-        {ruleEngine && (
-          <li className={issueMetaListItemClassNames}>
-            <Tooltip
-              overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}
-            >
-              <span>
-                <Badge>{ruleEngine}</Badge>
-              </span>
-            </Tooltip>
-          </li>
-        )}
-
-        {!!issue.codeVariants?.length && (
-          <>
-            <IssueMetaListItem>
-              <Tooltip overlay={issue.codeVariants.join(', ')}>
-                <span>
-                  {issue.codeVariants.length > 1
-                    ? translateWithParameters('issue.x_code_variants', issue.codeVariants.length)
-                    : translate('issue.1_code_variant')}
-                </span>
-              </Tooltip>
-            </IssueMetaListItem>
-            <SeparatorCircleIcon aria-hidden as="li" />
-          </>
-        )}
-
-        {showComments && hasComments && (
-          <>
-            <IssueMetaListItem className={issueMetaListItemClassNames}>
-              <CommentIcon aria-label={translate('issue.comment.formlink')} />
-              {issue.comments?.length}
-            </IssueMetaListItem>
-
-            <SeparatorCircleIcon aria-hidden as="li" />
-          </>
-        )}
-
-        {showLine && isDefined(issue.textRange) && (
-          <>
-            <Tooltip overlay={translate('line_number')}>
-              <IssueMetaListItem className={issueMetaListItemClassNames}>
-                {translateWithParameters('issue.ncloc_x.short', issue.textRange.endLine)}
-              </IssueMetaListItem>
-            </Tooltip>
-
-            <SeparatorCircleIcon aria-hidden as="li" />
-          </>
-        )}
-
-        {issue.effort && (
-          <>
-            <IssueMetaListItem className={issueMetaListItemClassNames}>
-              {translateWithParameters('issue.x_effort', issue.effort)}
-            </IssueMetaListItem>
-
-            <SeparatorCircleIcon aria-hidden as="li" />
-          </>
-        )}
-
-        <IssueMetaListItem className={issueMetaListItemClassNames}>
-          <DateFromNow date={issue.creationDate} />
-        </IssueMetaListItem>
-      </ul>
     </div>
   );
 }
-
-const IssueMetaListItem = styled.li`
-  color: ${themeColor('pageContentLight')};
-`;

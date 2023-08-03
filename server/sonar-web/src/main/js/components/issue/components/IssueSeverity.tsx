@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DisabledText, Tooltip } from 'design-system';
+import { DisabledText } from 'design-system';
 import * as React from 'react';
-import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import { IssueSeverity as IssueSeverityType } from '../../../types/issues';
 import { Issue } from '../../../types/types';
+import DocumentationTooltip from '../../common/DocumentationTooltip';
 import IssueSeverityIcon from '../../icon-mappers/IssueSeverityIcon';
 import { DeprecatedFieldTooltip } from './DeprecatedFieldTooltip';
 
@@ -32,12 +32,15 @@ interface Props {
 }
 
 export default function IssueSeverity({ issue }: Props) {
-  const docUrl = useDocUrl('/user-guide/clean-code');
-
   return (
-    <Tooltip
-      mouseLeaveDelay={0.25}
-      overlay={<DeprecatedFieldTooltip field="severity" docUrl={docUrl} />}
+    <DocumentationTooltip
+      content={<DeprecatedFieldTooltip field="severity" />}
+      links={[
+        {
+          href: '/user-guide/issues',
+          label: translate('learn_more'),
+        },
+      ]}
     >
       <DisabledText className="sw-flex sw-items-center sw-gap-1 sw-cursor-not-allowed">
         <IssueSeverityIcon
@@ -47,6 +50,6 @@ export default function IssueSeverity({ issue }: Props) {
         />
         {translate('severity', issue.severity)}
       </DisabledText>
-    </Tooltip>
+    </DocumentationTooltip>
   );
 }

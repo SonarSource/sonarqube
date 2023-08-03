@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
+  Badge,
+  BasicSeparator,
   ClipboardIconButton,
   IssueMessageHighlighting,
   Link,
@@ -29,7 +31,10 @@ import * as React from 'react';
 import { setIssueAssignee } from '../../../api/issues';
 import { updateIssue } from '../../../components/issue/actions';
 import IssueActionsBar from '../../../components/issue/components/IssueActionsBar';
-import IssueTags from '../../../components/issue/components/IssueTags';
+import { RuleBadge } from '../../../components/issue/components/IssueBadges';
+import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
+import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
+import { WorkspaceContext } from '../../../components/workspace/context';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
@@ -38,7 +43,9 @@ import { getKeyboardShortcutEnabled } from '../../../helpers/preferences';
 import { getComponentIssuesUrl, getPathUrlAsString, getRuleUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueActions, IssueType } from '../../../types/issues';
+import { RuleStatus } from '../../../types/rules';
 import { Issue, RuleDetails } from '../../../types/types';
+import IssueHeaderMeta from './IssueHeaderMeta';
 
 interface Props {
   issue: Issue;
@@ -103,9 +110,6 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
     } else if (event.key === KeyboardKeys.KeyM && this.props.issue.actions.includes('assign')) {
       event.preventDefault();
       return this.handleAssignement('_me');
-    } else if (event.key === KeyboardKeys.KeyI) {
-      event.preventDefault();
-      return this.handleIssuePopupToggle('set-severity');
     } else if (event.key === KeyboardKeys.KeyC) {
       event.preventDefault();
       return this.handleIssuePopupToggle('comment');
@@ -116,12 +120,44 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
     return true;
   };
 
-  render() {
+  renderRuleDescription = () => {
     const {
       issue,
       ruleDetails: { key, name, isExternal },
-      branchLike,
     } = this.props;
+
+    return (
+      <Note>
+        <span className="sw-pr-1">{name}</span>
+        {isExternal ? (
+          <span>({key})</span>
+        ) : (
+          <Link to={getRuleUrl(key)} target="_blank">
+            {key}
+          </Link>
+        )}
+        <WorkspaceContext.Consumer>
+          {({ externalRulesRepoNames }) => {
+            const ruleEngine =
+              (issue.externalRuleEngine && externalRulesRepoNames[issue.externalRuleEngine]) ||
+              issue.externalRuleEngine;
+            if (ruleEngine) {
+              return <Badge className="sw-ml-1">{ruleEngine}</Badge>;
+            }
+
+            return null;
+          }}
+        </WorkspaceContext.Consumer>
+        {(issue.ruleStatus === RuleStatus.Deprecated ||
+          issue.ruleStatus === RuleStatus.Removed) && (
+          <RuleBadge ruleStatus={issue.ruleStatus} className="sw-ml-1" />
+        )}
+      </Note>
+    );
+  };
+
+  render() {
+    const { issue, branchLike } = this.props;
     const { issuePopupName } = this.state;
     const issueUrl = getComponentIssuesUrl(issue.project, {
       ...getBranchLikeQuery(branchLike),
@@ -132,46 +168,55 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
     const canSetTags = issue.actions.includes(IssueActions.SetTags);
 
     return (
-      <header className="sw-flex sw-flex-col sw-gap-3 sw-my-6">
-        <div className="sw-flex sw-items-center">
-          <PageContentFontWrapper className="sw-body-md-highlight" as="h1">
-            <IssueMessageHighlighting
-              message={issue.message}
-              messageFormattings={issue.messageFormattings}
-            />
-          </PageContentFontWrapper>
-          <ClipboardIconButton
-            Icon={LinkIcon}
-            aria-label={translate('permalink')}
-            className="sw-ml-1 sw-align-bottom"
-            copyValue={getPathUrlAsString(issueUrl, false)}
-            discreet
+      <header className="sw-flex sw-mb-6">
+        <div className="sw-mr-8 sw-flex-1">
+          <CleanCodeAttributePill
+            cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory}
+            cleanCodeAttribute={issue.cleanCodeAttribute}
           />
-        </div>
-        <div className="sw-flex sw-items-center sw-justify-between">
-          <Note>
-            <span className="sw-pr-1">{name}</span>
-            {isExternal ? (
-              <span>({key})</span>
-            ) : (
-              <Link to={getRuleUrl(key)} target="_blank">
-                {key}
-              </Link>
-            )}
-          </Note>
-          <IssueTags
-            canSetTags={canSetTags}
+          <div className="sw-flex sw-items-center sw-my-2">
+            <PageContentFontWrapper className="sw-body-md-highlight" as="h1">
+              <IssueMessageHighlighting
+                message={issue.message}
+                messageFormattings={issue.messageFormattings}
+              />
+              <ClipboardIconButton
+                Icon={LinkIcon}
+                aria-label={translate('permalink')}
+                className="sw-ml-1 sw-align-bottom"
+                copyValue={getPathUrlAsString(issueUrl, false)}
+                discreet
+              />
+            </PageContentFontWrapper>
+          </div>
+          <div className="sw-flex sw-items-center sw-justify-between sw-mb-4">
+            {this.renderRuleDescription()}
+          </div>
+          <div className="sw-flex sw-items-center">
+            <Note>{translate('issue.software_qualities.label')}</Note>
+            <ul className="sw-ml-1 sw-flex sw-gap-2">
+              {issue.impacts.map(({ severity, softwareQuality }) => (
+                <li key={softwareQuality}>
+                  <SoftwareImpactPill severity={severity} quality={softwareQuality} />
+                </li>
+              ))}
+            </ul>
+          </div>
+          <BasicSeparator className="sw-my-3" />
+          <IssueActionsBar
+            currentPopup={issuePopupName}
             issue={issue}
+            onAssign={this.handleAssignement}
             onChange={this.props.onIssueChange}
-            open={issuePopupName === 'edit-tags' && canSetTags}
             togglePopup={this.handleIssuePopupToggle}
+            showSonarLintBadge
           />
         </div>
-        <IssueActionsBar
-          currentPopup={issuePopupName}
+        <IssueHeaderMeta
           issue={issue}
-          onAssign={this.handleAssignement}
-          onChange={this.props.onIssueChange}
+          canSetTags={canSetTags}
+          onIssueChange={this.props.onIssueChange}
+          tagsPopupOpen={issuePopupName === 'edit-tags' && canSetTags}
           togglePopup={this.handleIssuePopupToggle}
         />
       </header>

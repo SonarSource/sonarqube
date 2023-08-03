@@ -35,6 +35,7 @@ interface Props extends ComponentContextShape {
   onChange: (issue: Issue) => void;
   open?: boolean;
   togglePopup: (popup: string, show?: boolean) => void;
+  tagsToDisplay?: number;
 }
 
 export class IssueTags extends React.PureComponent<Props> {
@@ -59,7 +60,7 @@ export class IssueTags extends React.PureComponent<Props> {
   };
 
   render() {
-    const { component, issue, open } = this.props;
+    const { component, issue, open, tagsToDisplay = 2 } = this.props;
     const { tags = [] } = issue;
 
     return (
@@ -74,7 +75,7 @@ export class IssueTags extends React.PureComponent<Props> {
         overlay={<IssueTagsPopup selectedTags={tags} setTags={this.setTags} />}
         popupPlacement={PopupPlacement.Bottom}
         tags={tags}
-        tagsToDisplay={2}
+        tagsToDisplay={tagsToDisplay}
         tooltip={Tooltip}
       />
     );

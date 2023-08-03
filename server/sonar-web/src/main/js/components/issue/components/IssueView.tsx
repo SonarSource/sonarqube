@@ -28,6 +28,7 @@ import { BranchLike } from '../../../types/branch-like';
 import { Issue } from '../../../types/types';
 import { updateIssue } from '../actions';
 import IssueActionsBar from './IssueActionsBar';
+import IssueMetaBar from './IssueMetaBar';
 import IssueTitleBar from './IssueTitleBar';
 
 interface Props {
@@ -119,14 +120,17 @@ export default class IssueView extends React.PureComponent<Props> {
               togglePopup={this.props.togglePopup}
             />
 
-            <IssueActionsBar
-              currentPopup={currentPopup}
-              issue={issue}
-              onAssign={this.props.onAssign}
-              onChange={this.props.onChange}
-              togglePopup={this.props.togglePopup}
-              showComments
-            />
+            <div className="sw-flex sw-gap-2 sw-flex-wrap sw-items-center sw-justify-between">
+              <IssueActionsBar
+                currentPopup={currentPopup}
+                issue={issue}
+                onAssign={this.props.onAssign}
+                onChange={this.props.onChange}
+                togglePopup={this.props.togglePopup}
+                showIssueImpact
+              />
+              <IssueMetaBar issue={issue} />
+            </div>
           </div>
         </div>
       </IssueItem>

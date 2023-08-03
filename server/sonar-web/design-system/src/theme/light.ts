@@ -278,8 +278,8 @@ export const lightTheme = {
 
     // pills
     pillDanger: COLORS.red[100],
-    pillWarning: COLORS.yellowGreen[500],
-    pillInfo: COLORS.indigo[100],
+    pillWarning: COLORS.yellow[100],
+    pillInfo: COLORS.blue[100],
     pillNeutral: COLORS.blueGrey[50],
 
     // input select
@@ -647,8 +647,8 @@ export const lightTheme = {
 
     // pills
     pillDanger: COLORS.red[800],
-    pillWarning: COLORS.yellowGreen[900],
-    pillInfo: COLORS.indigo[900],
+    pillWarning: COLORS.yellow[800],
+    pillInfo: COLORS.blue[800],
     pillNeutral: COLORS.blueGrey[500],
 
     // breadcrumbs

@@ -17,22 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Link } from 'design-system';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 
 export interface DeprecatedTooltipProps {
-  docUrl: string;
   field: 'type' | 'severity';
 }
 
 const FILTERS_LIST = {
-  type: ['issue.clean_code_attributes', 'issue.software_qualities'],
-  severity: ['issue.software_qualities', 'issue.severity.new'],
+  type: ['issue.clean_code_attribute', 'issue.software_quality'],
+  severity: ['issue.software_quality', 'issue.severity.new'],
 };
 
-export function DeprecatedFieldTooltip({ field, docUrl }: DeprecatedTooltipProps) {
+export function DeprecatedFieldTooltip({ field }: DeprecatedTooltipProps) {
   return (
     <>
       <p className="sw-mb-4">{translate('issue', field, 'deprecation.title')}</p>
@@ -42,18 +39,6 @@ export function DeprecatedFieldTooltip({ field, docUrl }: DeprecatedTooltipProps
           <li key={key}>{translate(key)}</li>
         ))}
       </ul>
-      <hr className="sw-w-full sw-mx-0 sw-my-4" />
-      <FormattedMessage
-        defaultMessage={translate('learn_more_x')}
-        id="learn_more_x"
-        values={{
-          link: (
-            <Link isExternal to={docUrl}>
-              {translate('issue', field, 'deprecation.documentation')}
-            </Link>
-          ),
-        }}
-      />
     </>
   );
 }

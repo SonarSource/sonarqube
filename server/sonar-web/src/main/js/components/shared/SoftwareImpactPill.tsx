@@ -18,13 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { Link, Pill } from 'design-system';
+import { Pill } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { useDocUrl } from '../../helpers/docs';
 import { translate } from '../../helpers/l10n';
 import { SoftwareImpactSeverity, SoftwareQuality } from '../../types/issues';
-import Tooltip from '../controls/Tooltip';
+import DocumentationTooltip from '../common/DocumentationTooltip';
 import SoftwareImpactSeverityIcon from '../icons/SoftwareImpactSeverityIcon';
 
 export interface Props {
@@ -36,8 +35,6 @@ export interface Props {
 export default function SoftwareImpactPill(props: Props) {
   const { className, severity, quality } = props;
 
-  const docUrl = useDocUrl('/user-guide/clean-code');
-
   const variant = {
     [SoftwareImpactSeverity.High]: 'danger',
     [SoftwareImpactSeverity.Medium]: 'warning',
@@ -45,42 +42,28 @@ export default function SoftwareImpactPill(props: Props) {
   }[severity] as 'danger' | 'warning' | 'info';
 
   return (
-    <div>
-      <Tooltip
-        mouseLeaveDelay={0.25}
-        overlay={
-          <>
-            <FormattedMessage
-              id="issue.impact.severity.tooltip"
-              defaultMessage={translate('issue.impact.severity.tooltip')}
-              values={{
-                severity: translate('severity', severity).toLowerCase(),
-                quality: translate('issue.software_quality', quality).toLowerCase(),
-              }}
-            />
-            <hr className="sw-w-full sw-mx-0 sw-my-4" />
-            <FormattedMessage
-              defaultMessage={translate('learn_more_x')}
-              id="learn_more_x"
-              values={{
-                link: (
-                  <Link isExternal to={docUrl}>
-                    {translate('issue.type.deprecation.documentation')}
-                  </Link>
-                ),
-              }}
-            />
-          </>
-        }
-      >
-        <Pill
-          className={classNames('sw-flex sw-gap-1 sw-items-center', className)}
-          variant={variant}
-        >
-          {translate('issue.software_quality', quality)}
-          <SoftwareImpactSeverityIcon severity={severity} />
-        </Pill>
-      </Tooltip>
-    </div>
+    <DocumentationTooltip
+      content={
+        <FormattedMessage
+          id="issue.impact.severity.tooltip"
+          defaultMessage={translate('issue.impact.severity.tooltip')}
+          values={{
+            severity: translate('severity', severity).toLowerCase(),
+            quality: translate('issue.software_quality', quality).toLowerCase(),
+          }}
+        />
+      }
+      links={[
+        {
+          href: '/user-guide/clean-code',
+          label: translate('learn_more'),
+        },
+      ]}
+    >
+      <Pill className={classNames('sw-flex sw-gap-1 sw-items-center', className)} variant={variant}>
+        {translate('issue.software_quality', quality)}
+        <SoftwareImpactSeverityIcon severity={severity} />
+      </Pill>
+    </DocumentationTooltip>
   );
 }

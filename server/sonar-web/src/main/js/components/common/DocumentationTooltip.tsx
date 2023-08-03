@@ -86,7 +86,7 @@ export default function DocumentationTooltip(props: DocumentationTooltipProps) {
             </div>
           )}
 
-          {content && <p>{content}</p>}
+          {content && <div>{content}</div>}
 
           {links && (
             <>

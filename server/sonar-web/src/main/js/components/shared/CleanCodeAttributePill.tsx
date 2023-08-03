@@ -18,53 +18,48 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { Link, Pill } from 'design-system';
+import { Pill } from 'design-system';
 import React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { useDocUrl } from '../../helpers/docs';
 import { translate } from '../../helpers/l10n';
-import { CleanCodeAttributeCategory } from '../../types/issues';
-import Tooltip from '../controls/Tooltip';
+import { CleanCodeAttribute, CleanCodeAttributeCategory } from '../../types/issues';
+import DocumentationTooltip from '../common/DocumentationTooltip';
 
 export interface Props {
   className?: string;
   cleanCodeAttributeCategory: CleanCodeAttributeCategory;
+  cleanCodeAttribute?: CleanCodeAttribute;
 }
 
 export function CleanCodeAttributePill(props: Props) {
-  const { className, cleanCodeAttributeCategory } = props;
+  const { className, cleanCodeAttributeCategory, cleanCodeAttribute } = props;
 
-  const docUrl = useDocUrl('/user-guide/clean-code');
+  const translationKey = cleanCodeAttribute
+    ? `issue.clean_code_attribute.${cleanCodeAttribute}`
+    : `issue.clean_code_attribute_category.${cleanCodeAttributeCategory}`;
 
   return (
-    <Tooltip
-      mouseLeaveDelay={0.25}
-      overlay={
+    <DocumentationTooltip
+      content={
         <>
-          <p className="sw-mb-4">
-            {translate('issue.clean_code_attribute_category', cleanCodeAttributeCategory, 'title')}
-          </p>
-          <p>
-            {translate('issue.clean_code_attribute_category', cleanCodeAttributeCategory, 'advice')}
-          </p>
-          <hr className="sw-w-full sw-mx-0 sw-my-4" />
-          <FormattedMessage
-            defaultMessage={translate('learn_more_x')}
-            id="learn_more_x"
-            values={{
-              link: (
-                <Link isExternal to={docUrl}>
-                  {translate('issue.type.deprecation.documentation')}
-                </Link>
-              ),
-            }}
-          />
+          <p className="sw-mb-4">{translate(translationKey, 'title')}</p>
+          <p>{translate(translationKey, 'advice')}</p>
         </>
       }
+      links={[
+        {
+          href: '/user-guide/clean-code',
+          label: translate('learn_more'),
+        },
+      ]}
     >
       <Pill variant="neutral" className={classNames('sw-mr-2', className)}>
-        {translate('issue.clean_code_attribute_category', cleanCodeAttributeCategory, 'issue')}
+        <span className={classNames({ 'sw-font-semibold': !!cleanCodeAttribute })}>
+          {translate('issue.clean_code_attribute_category', cleanCodeAttributeCategory, 'issue')}
+        </span>
+        {cleanCodeAttribute && (
+          <span> | {translate('issue.clean_code_attribute', cleanCodeAttribute)}</span>
+        )}
       </Pill>
-    </Tooltip>
+    </DocumentationTooltip>
   );
 }

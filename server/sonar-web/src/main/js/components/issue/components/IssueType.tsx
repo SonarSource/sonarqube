@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DisabledText, Tooltip } from 'design-system';
+import { DisabledText } from 'design-system';
 import * as React from 'react';
-import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
+import DocumentationTooltip from '../../common/DocumentationTooltip';
 import IssueTypeIcon from '../../icon-mappers/IssueTypeIcon';
 import { DeprecatedFieldTooltip } from './DeprecatedFieldTooltip';
 
@@ -31,17 +31,20 @@ interface Props {
 }
 
 export default function IssueType({ issue }: Props) {
-  const docUrl = useDocUrl('/user-guide/clean-code');
-
   return (
-    <Tooltip
-      mouseLeaveDelay={0.25}
-      overlay={<DeprecatedFieldTooltip field="type" docUrl={docUrl} />}
+    <DocumentationTooltip
+      content={<DeprecatedFieldTooltip field="type" />}
+      links={[
+        {
+          href: '/user-guide/issues',
+          label: translate('learn_more'),
+        },
+      ]}
     >
       <DisabledText className="sw-flex sw-items-center sw-gap-1 sw-cursor-not-allowed">
         <IssueTypeIcon fill="iconTypeDisabled" type={issue.type} aria-hidden />
         {translate('issue.type', issue.type)}
       </DisabledText>
-    </Tooltip>
+    </DocumentationTooltip>
   );
 }
