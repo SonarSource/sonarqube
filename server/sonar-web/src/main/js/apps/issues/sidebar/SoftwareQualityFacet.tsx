@@ -32,12 +32,14 @@ export function SoftwareQualityFacet(props: Props) {
   const { qualities = [], ...rest } = props;
 
   return (
-    <SimpleListStyleFacet
-      property="impactSoftwareQuality"
-      itemNamePrefix="issue.software_quality"
-      listItems={QUALITIES}
-      selectedItems={qualities}
-      {...rest}
-    />
+    <div data-guiding-id="issuelist-2">
+      <SimpleListStyleFacet
+        property="impactSoftwareQuality"
+        itemNamePrefix="issue.software_quality"
+        listItems={QUALITIES}
+        selectedItems={qualities}
+        {...rest}
+      />
+    </div>
   );
 }

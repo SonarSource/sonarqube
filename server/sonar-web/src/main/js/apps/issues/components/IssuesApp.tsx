@@ -100,6 +100,7 @@ import {
   shouldOpenStandardsFacet,
 } from '../utils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
+import IssueListGuide from './IssueListGuide';
 import IssueReviewHistoryAndComments from './IssueReviewHistoryAndComments';
 import IssuesList from './IssuesList';
 import IssuesSourceViewer from './IssuesSourceViewer';
@@ -1303,6 +1304,8 @@ export class App extends React.PureComponent<Props, State> {
 
   render() {
     const { openIssue } = this.state;
+    const { component, location } = this.props;
+    const open = getOpen(location.query);
 
     return (
       <PageWrapperStyle id="issues-page">
@@ -1310,6 +1313,7 @@ export class App extends React.PureComponent<Props, State> {
           <PageContentFontWrapper className="sw-body-sm">
             <div className="sw-w-full sw-flex" id="issues-page">
               <Suggestions suggestions="issues" />
+              <IssueListGuide run={!open && !component?.needIssueSync} />
 
               {openIssue ? (
                 <Helmet

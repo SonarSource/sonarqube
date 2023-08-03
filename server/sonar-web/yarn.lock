@@ -3074,6 +3074,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@gilbarbara/deep-equal@npm:^0.1.1":
+  version: 0.1.2
+  resolution: "@gilbarbara/deep-equal@npm:0.1.2"
+  checksum: 78d4e76d36cbee639c008a63be52c1ac803212ff2560e55f68d2b8b2a6ac5e746c1976854cf101483ca18a9911aed2349da147b7756be43e75efb95e3f24468b
+  languageName: node
+  linkType: hard
+
 "@humanwhocodes/config-array@npm:^0.11.10":
   version: 0.11.10
   resolution: "@humanwhocodes/config-array@npm:0.11.10"
@@ -4995,6 +5002,7 @@ __metadata:
     react-helmet-async: 1.3.0
     react-highlight-words: 0.20.0
     react-intl: 6.4.4
+    react-joyride: 2.5.5
     react-modal: 3.16.1
     react-router-dom: 6.11.2
     react-select: 5.7.3
@@ -6499,6 +6507,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"deepmerge@npm:^4.3.1":
+  version: 4.3.1
+  resolution: "deepmerge@npm:4.3.1"
+  checksum: 2024c6a980a1b7128084170c4cf56b0fd58a63f2da1660dcfe977415f27b17dbe5888668b59d0b063753f3220719d5e400b7f113609489c90160bb9a5518d052
+  languageName: node
+  linkType: hard
+
 "define-properties@npm:^1.1.2, define-properties@npm:^1.1.3":
   version: 1.1.3
   resolution: "define-properties@npm:1.1.3"
@@ -6608,6 +6623,7 @@ __metadata:
     react-helmet-async: 1.3.0
     react-highlight-words: 0.20.0
     react-intl: 6.4.4
+    react-joyride: 2.5.5
     react-modal: 3.16.1
     react-router-dom: 6.11.2
     react-select: 5.7.3
@@ -7707,7 +7723,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"exenv@npm:^1.2.0":
+"exenv@npm:^1.2.0, exenv@npm:^1.2.2":
   version: 1.2.2
   resolution: "exenv@npm:1.2.2"
   checksum: a894f3b60ab8419e0b6eec99c690a009c8276b4c90655ccaf7d28faba2de3a6b93b3d92210f9dc5efd36058d44f04098f6bbccef99859151104bfd49939904dc
@@ -8872,6 +8888,20 @@ __metadata:
   version: 1.0.1
   resolution: "is-lambda@npm:1.0.1"
   checksum: 93a32f01940220532e5948538699ad610d5924ac86093fcee83022252b363eb0cc99ba53ab084a04e4fb62bf7b5731f55496257a4c38adf87af9c4d352c71c35
+  languageName: node
+  linkType: hard
+
+"is-lite@npm:^0.8.2":
+  version: 0.8.2
+  resolution: "is-lite@npm:0.8.2"
+  checksum: 0ee62cb238c2a044f58d1cd139fb0b48026c407ec8625ee6572b417f164e17ec937f0a0785f466e320749a796c316a3b78dcb4b520f7ddd4b9de38ad5a23d70f
+  languageName: node
+  linkType: hard
+
+"is-lite@npm:^0.9.2":
+  version: 0.9.2
+  resolution: "is-lite@npm:0.9.2"
+  checksum: 8c4d2c58cf99a8289715925c0c3175dadf63e5ad293ad395ce650430ce90afe533a84ad0ffdeed0ce277dabdae63acdd3dac5d9b629bd61c3c0c620e2376f26e
   languageName: node
   linkType: hard
 
@@ -11050,6 +11080,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"popper.js@npm:^1.16.0":
+  version: 1.16.1
+  resolution: "popper.js@npm:1.16.1"
+  checksum: c56ae5001ec50a77ee297a8061a0221d99d25c7348d2e6bcd3e45a0d0f32a1fd81bca29d46cb0d4bdf13efb77685bd6a0ce93f9eb3c608311a461f945fffedbe
+  languageName: node
+  linkType: hard
+
 "postcss-calc@npm:9.0.1":
   version: 9.0.1
   resolution: "postcss-calc@npm:9.0.1"
@@ -11388,6 +11425,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-floater@npm:^0.7.6":
+  version: 0.7.6
+  resolution: "react-floater@npm:0.7.6"
+  dependencies:
+    deepmerge: ^4.2.2
+    exenv: ^1.2.2
+    is-lite: ^0.8.2
+    popper.js: ^1.16.0
+    prop-types: ^15.8.1
+    react-proptype-conditional-require: ^1.0.4
+    tree-changes: ^0.9.1
+  peerDependencies:
+    react: 15 - 18
+    react-dom: 15 - 18
+  checksum: 8268e14fbdf9393b39300f3c90ea2de382782f1d959176579e30841095a73f9240ec05fce3ec89e8b4e58cbc46c9b043b2ad0b338f5c5d3b91168b16a4282ac1
+  languageName: node
+  linkType: hard
+
 "react-helmet-async@npm:1.3.0":
   version: 1.3.0
   resolution: "react-helmet-async@npm:1.3.0"
@@ -11476,6 +11531,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-joyride@npm:2.5.5":
+  version: 2.5.5
+  resolution: "react-joyride@npm:2.5.5"
+  dependencies:
+    deepmerge: ^4.3.1
+    exenv: ^1.2.2
+    is-lite: ^0.9.2
+    prop-types: ^15.8.1
+    react-floater: ^0.7.6
+    react-is: ^16.13.1
+    scroll: ^3.0.1
+    scrollparent: ^2.1.0
+    tree-changes: ^0.9.2
+  peerDependencies:
+    react: 15 - 18
+    react-dom: 15 - 18
+  checksum: ca4a18631e12638e10f7ebb063880f66a984a4edc0fe81f87649ac1ec32c3790a03c6cbe10f189c029d64af52eef4173042c676024987accb0aeaa4e1216bb04
+  languageName: node
+  linkType: hard
+
 "react-lifecycles-compat@npm:^3.0.0, react-lifecycles-compat@npm:^3.0.4":
   version: 3.0.4
   resolution: "react-lifecycles-compat@npm:3.0.4"
@@ -11495,6 +11570,13 @@ __metadata:
     react: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
     react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
   checksum: 978936e9320fad839c039b9ee4de55d40888156cb40e093615d6fbc2ff07139d5db06f14782cb7767f780bd5fb57956778669426c535ebc0068a7a03882c7e75
+  languageName: node
+  linkType: hard
+
+"react-proptype-conditional-require@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "react-proptype-conditional-require@npm:1.0.4"
+  checksum: 78f82d15b2c77c14fd8fbcbbed279850df3a856984aacd519ee6c2162e034b114b8ac47c00157b84ef7c98c0711d933a0177d9d54555629cf381f54341bb0e8f
   languageName: node
   linkType: hard
 
@@ -12048,6 +12130,20 @@ __metadata:
     loose-envify: ^1.1.0
     object-assign: ^4.1.1
   checksum: c4b35cf967c8f0d3e65753252d0f260271f81a81e427241295c5a7b783abf4ea9e905f22f815ab66676f5313be0a25f47be582254db8f9241b259213e999b8fc
+  languageName: node
+  linkType: hard
+
+"scroll@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "scroll@npm:3.0.1"
+  checksum: e6b045347adace30035073882e6ef2af7e1c81dd611faf3a578ca8cd0d1a3a9da54932dd97ed6fd99c9573351c758fa50e6d8ed4afb5bd3a33794b6c48d25922
+  languageName: node
+  linkType: hard
+
+"scrollparent@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "scrollparent@npm:2.1.0"
+  checksum: 646cfdaf981f94b52f1020cc26b18ff1a751c2fa4e40777f6dfac314500d365b4db3fec39fd06be7b683f0a1dbd29df8ce1629db50381e9072433465b2f446fa
   languageName: node
   linkType: hard
 
@@ -12795,6 +12891,16 @@ __metadata:
   dependencies:
     punycode: ^2.3.0
   checksum: aeeb821ac2cd792e63ec84888b4fd6598ac6ed75d861579e21a5cf9d4ee78b2c6b94e7d45036f2ca2088bc85b9b46560ad23c4482979421063b24137349dbd96
+  languageName: node
+  linkType: hard
+
+"tree-changes@npm:^0.9.1, tree-changes@npm:^0.9.2":
+  version: 0.9.3
+  resolution: "tree-changes@npm:0.9.3"
+  dependencies:
+    "@gilbarbara/deep-equal": ^0.1.1
+    is-lite: ^0.8.2
+  checksum: 86d890b18e83f2a20e7257982aec62efa186abbb08de4cead1c8062c50793f5b3c5fd09f98d9f4b8784b921e830687c0ea9bdb42ef4abb2eb9d6782d8c56a673
   languageName: node
   linkType: hard
 

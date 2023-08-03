@@ -18,28 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as React from 'react';
-import { CleanCodeAttributeCategory } from '../../../types/issues';
-import { CommonProps, SimpleListStyleFacet } from './SimpleListStyleFacet';
+export default class LocalStorageMock {
+  store: Record<string, string>;
 
-interface Props extends CommonProps {
-  categories: Array<CleanCodeAttributeCategory>;
-}
+  constructor() {
+    this.store = {};
+  }
 
-const CATEGORIES = Object.values(CleanCodeAttributeCategory);
+  clear() {
+    this.store = {};
+  }
 
-export function AttributeCategoryFacet(props: Props) {
-  const { categories = [], ...rest } = props;
+  getItem(key: string) {
+    return this.store[key] || null;
+  }
 
-  return (
-    <div data-guiding-id="issuelist-1">
-      <SimpleListStyleFacet
-        property="cleanCodeAttributeCategory"
-        itemNamePrefix="issue.clean_code_attribute_category"
-        listItems={CATEGORIES}
-        selectedItems={categories}
-        {...rest}
-      />
-    </div>
-  );
+  setItem(key: string, value: string) {
+    this.store[key] = String(value);
+  }
+
+  removeItem(key: string) {
+    delete this.store[key];
+  }
+
+  get length() {
+    return Object.keys(this.store).length;
+  }
+
+  key(index: number) {
+    return Object.keys(this.store)[index] || null;
+  }
 }

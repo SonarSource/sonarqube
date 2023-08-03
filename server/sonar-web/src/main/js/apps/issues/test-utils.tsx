@@ -127,6 +127,8 @@ export const ui = {
   ruleFacetList: byRole('list', { name: 'issues.facet.rules' }),
   ruleFacetSearch: byPlaceholderText('search.search_for_rules'),
   tagFacetSearch: byPlaceholderText('search.search_for_tags'),
+
+  guidePopup: byRole('alertdialog'),
 };
 
 export async function waitOnDataLoaded() {

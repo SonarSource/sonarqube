@@ -200,7 +200,7 @@ export class Popup extends React.PureComponent<PopupProps, State> {
   }
 }
 
-const PopupWrapper = styled.div<{ zLevel: PopupZLevel }>`
+export const PopupWrapper = styled.div<{ zLevel: PopupZLevel }>`
   position: ${({ zLevel }) => (zLevel === PopupZLevel.Global ? 'fixed' : 'absolute')};
   background-color: ${themeColor('popup')};
   color: ${themeContrast('popup')};

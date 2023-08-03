@@ -43,6 +43,7 @@ export * from './FavoriteButton';
 export { FlagMessage } from './FlagMessage';
 export * from './FlowStep';
 export * from './GenericAvatar';
+export * from './Guide';
 export * from './HighlightedSection';
 export { Histogram } from './Histogram';
 export { HotspotRating } from './HotspotRating';

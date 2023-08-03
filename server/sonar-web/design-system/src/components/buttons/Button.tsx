@@ -39,7 +39,7 @@ export interface ButtonProps extends AllowedButtonAttributes {
   icon?: React.ReactNode;
   innerRef?: React.Ref<HTMLButtonElement>;
   isExternal?: LinkProps['isExternal'];
-  onClick?: (event?: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => unknown;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => unknown;
 
   preventDefault?: boolean;
   reloadDocument?: LinkProps['reloadDocument'];
