@@ -54,6 +54,8 @@ import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.measure.ProjectMainBranchLiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.property.PropertyDto;
+import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.management.ManagedInstanceService;
@@ -91,6 +93,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   @VisibleForTesting
   static final String SCIM_PROPERTY_ENABLED = "sonar.scim.enabled";
   private static final String UNDETECTED = "undetected";
+  public static final String EXTERNAL_SECURITY_REPORT_EXPORTED_AT = "project.externalSecurityReportExportedAt";
 
   private static final Map<String, String> LANGUAGES_BY_SECURITY_JSON_PROPERTY_MAP = Map.of(
     "sonar.security.config.javasecurity", "java",
@@ -274,6 +277,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     Map<String, Map<String, Number>> metricsByProject =
       getProjectMetricsByMetricKeys(dbSession, TECHNICAL_DEBT_KEY, DEVELOPMENT_COST_KEY, SECURITY_HOTSPOTS_KEY, VULNERABILITIES_KEY,
         BUGS_KEY);
+    Map<String, Long> securityReportExportedAtByProjectUuid = getSecurityReportExportedAtDateByProjectUuid(dbSession);
 
     List<TelemetryData.ProjectStatistics> projectStatistics = new ArrayList<>();
     for (String projectUuid : projectUuids) {
@@ -294,10 +298,18 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
         .setSecurityHotspots(metrics.getOrDefault("security_hotspots", null))
         .setTechnicalDebt(metrics.getOrDefault("sqale_index", null))
         .setNcdId(ncdByProject.getOrDefault(projectUuid, instanceNcd).hashCode())
+        .setExternalSecurityReportExportedAt(securityReportExportedAtByProjectUuid.get(projectUuid))
         .build();
       projectStatistics.add(stats);
     }
     data.setProjectStatistics(projectStatistics);
+  }
+
+  private Map<String, Long> getSecurityReportExportedAtDateByProjectUuid(DbSession dbSession) {
+    PropertyQuery propertyQuery = PropertyQuery.builder().setKey(EXTERNAL_SECURITY_REPORT_EXPORTED_AT).build();
+    List<PropertyDto> properties = dbClient.propertiesDao().selectByQuery(propertyQuery, dbSession);
+    return properties.stream()
+      .collect(toMap(PropertyDto::getEntityUuid, propertyDto -> Long.parseLong(propertyDto.getValue())));
   }
 
   private static String resolveDevopsPlatform(Map<String, ProjectAlmKeyAndProject> almAndUrlByProject, String projectUuid) {

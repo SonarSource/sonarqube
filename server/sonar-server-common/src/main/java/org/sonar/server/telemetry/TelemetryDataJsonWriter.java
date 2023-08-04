@@ -204,6 +204,7 @@ public class TelemetryDataJsonWriter {
         project.getSecurityHotspots().ifPresent(securityHotspots -> json.prop("securityHotspots", securityHotspots));
         project.getTechnicalDebt().ifPresent(technicalDebt -> json.prop("technicalDebt", technicalDebt));
         project.getDevelopmentCost().ifPresent(developmentCost -> json.prop("developmentCost", developmentCost));
+        project.getExternalSecurityReportExportedAt().ifPresent(exportedAt -> json.prop("externalSecurityReportExportedAt", exportedAt));
         json.endObject();
       });
       json.endArray();

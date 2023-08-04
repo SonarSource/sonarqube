@@ -443,7 +443,8 @@ public class TelemetryDataJsonWriterTest {
             "securityHotspots": 4,
             "technicalDebt": 60,
             "developmentCost": 30,
-            "ncdId": 12345
+            "ncdId": 12345,
+            "externalSecurityReportExportedAt": 1500000
           },
           {
             "projectUuid": "uuid-1",
@@ -458,7 +459,8 @@ public class TelemetryDataJsonWriterTest {
             "securityHotspots": 8,
             "technicalDebt": 120,
             "developmentCost": 60,
-            "ncdId": 12345
+            "ncdId": 12345,
+            "externalSecurityReportExportedAt": 1500001
           },
           {
             "projectUuid": "uuid-2",
@@ -473,7 +475,8 @@ public class TelemetryDataJsonWriterTest {
             "securityHotspots": 12,
             "technicalDebt": 180,
             "developmentCost": 90,
-            "ncdId": 12345
+            "ncdId": 12345,
+            "externalSecurityReportExportedAt": 1500002
           }
         ]
       }
@@ -647,7 +650,8 @@ public class TelemetryDataJsonWriterTest {
       .setVulnerabilities((i + 1L) * 3)
       .setSecurityHotspots((i + 1L) * 4)
       .setDevelopmentCost((i + 1L) * 30d)
-      .setTechnicalDebt((i + 1L) * 60d);
+      .setTechnicalDebt((i + 1L) * 60d)
+      .setExternalSecurityReportExportedAt(1_500_000L + i);
   }
 
   private List<TelemetryData.QualityGate> attachQualityGates() {

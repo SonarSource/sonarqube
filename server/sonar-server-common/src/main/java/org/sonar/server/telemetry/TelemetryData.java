@@ -369,8 +369,8 @@ public class TelemetryData {
     private final Long securityHotspots;
     private final Long technicalDebt;
     private final Long developmentCost;
-
     private final int ncdId;
+    private final Long externalSecurityReportExportedAt;
 
     ProjectStatistics(Builder builder) {
       this.projectUuid = builder.projectUuid;
@@ -386,6 +386,7 @@ public class TelemetryData {
       this.technicalDebt = builder.technicalDebt;
       this.developmentCost = builder.developmentCost;
       this.ncdId = builder.ncdId;
+      this.externalSecurityReportExportedAt = builder.externalSecurityReportExportedAt;
     }
 
     public int getNcdId() {
@@ -440,6 +441,10 @@ public class TelemetryData {
       return Optional.ofNullable(developmentCost);
     }
 
+    public Optional<Long> getExternalSecurityReportExportedAt() {
+      return Optional.ofNullable(externalSecurityReportExportedAt);
+    }
+
     static class Builder {
       private String projectUuid;
       private Long branchCount;
@@ -454,6 +459,7 @@ public class TelemetryData {
       private Long technicalDebt;
       private Long developmentCost;
       private int ncdId;
+      private Long externalSecurityReportExportedAt;
 
       public Builder setProjectUuid(String projectUuid) {
         this.projectUuid = projectUuid;
@@ -517,6 +523,11 @@ public class TelemetryData {
 
       public Builder setDevelopmentCost(@Nullable Number developmentCost) {
         this.developmentCost = developmentCost != null ? developmentCost.longValue() : null;
+        return this;
+      }
+
+      public Builder setExternalSecurityReportExportedAt(@Nullable Number externalSecurityReportExportedAt) {
+        this.externalSecurityReportExportedAt = externalSecurityReportExportedAt != null ? externalSecurityReportExportedAt.longValue() : null;
         return this;
       }
 

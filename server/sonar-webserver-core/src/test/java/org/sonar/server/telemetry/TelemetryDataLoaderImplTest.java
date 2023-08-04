@@ -51,6 +51,7 @@ import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
@@ -95,6 +96,7 @@ import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
+import static org.sonar.server.telemetry.TelemetryDataLoaderImpl.EXTERNAL_SECURITY_REPORT_EXPORTED_AT;
 
 @RunWith(DataProviderRunner.class)
 public class TelemetryDataLoaderImplTest {
@@ -544,6 +546,19 @@ public class TelemetryDataLoaderImplTest {
     assertThat(data.getProjectStatistics())
       .extracting(ProjectStatistics::getDevopsPlatform, ProjectStatistics::getScm, ProjectStatistics::getCi)
       .containsExactlyInAnyOrder(tuple("undetected", "undetected", "undetected"));
+  }
+
+  @Test
+  public void givenExistingExternalSecurityReport_whenTelemetryIsGenerated_payloadShouldContainLastUsageDate() {
+    server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
+    ProjectData projectData = db.components().insertPublicProject();
+    db.getDbClient().propertiesDao().saveProperty(new PropertyDto().setKey(EXTERNAL_SECURITY_REPORT_EXPORTED_AT).setEntityUuid(projectData.projectUuid()).setValue("1"));
+
+    TelemetryData data = communityUnderTest.load();
+
+    assertThat(data.getProjectStatistics()).isNotEmpty();
+    assertThat(data.getProjectStatistics().get(0).getExternalSecurityReportExportedAt()).isPresent()
+      .get().isEqualTo(1L);
   }
 
   @Test
