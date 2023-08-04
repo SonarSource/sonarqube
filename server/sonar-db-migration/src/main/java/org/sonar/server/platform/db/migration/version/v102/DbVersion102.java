@@ -25,7 +25,6 @@ import org.sonar.server.platform.db.migration.version.DbVersion;
 // ignoring bad number formatting, as it's indented that we align the migration numbers to SQ versions
 @SuppressWarnings("java:S3937")
 public class DbVersion102 implements DbVersion {
-
   /**
    * We use the start of the 10.X cycle as an opportunity to align migration numbers with the SQ version number.
    * Please follow this pattern:
@@ -83,6 +82,9 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_028, "Drop column 'created_at' in 'components' table", DropCreatedAtInComponents.class)
       .add(10_2_029, "Rename column 'created_at_temp' to 'created_at' in 'components' table", RenameCreatedAtTempInComponents.class)
 
-      .add(10_2_030, "Create table 'anticipated_transitions'", CreateAnticipatedTransitionsTable.class);
+      .add(10_2_030, "Create table 'anticipated_transitions'", CreateAnticipatedTransitionsTable.class)
+
+      .add(10_2_031, "Increase size of 'ce_queue.is_last_key' from 55 to 80 characters", IncreaseIsLastKeyInCeActivity.class)
+      .add(10_2_032, "Increase size of 'ce_queue.main_is_last_key' from 55 to 80 characters", IncreaseMainIsLastKeyInCeActivity.class);
   }
 }
