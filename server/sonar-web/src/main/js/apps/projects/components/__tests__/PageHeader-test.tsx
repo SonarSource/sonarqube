@@ -54,7 +54,7 @@ const ui = {
   selectOptionBitbucket: byText('my_account.add_project.bitbucket'),
   selectOptionBitbucketCloud: byText('my_account.add_project.bitbucketcloud'),
   selectOptionManual: byText('my_account.add_project.manual'),
-  selectOptionMore: byText('more'),
+  selectOptionMore: byText('my_account.add_project.more'),
   selectOptionNewCode: byText('projects.view.new_code'),
   selectOptionAnalysisDate: byText('projects.sorting.analysis_date'),
   mandatoryFieldWarning: byText('fields_marked_with_x_required'),

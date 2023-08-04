@@ -119,9 +119,13 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
             {[...boundAlms, 'manual'].map((alm) => (
               <ProjectCreationMenuItem alm={alm} key={alm} />
             ))}
-            <ItemDivider />
             {boundAlms.length < IMPORT_COMPATIBLE_ALMS.length && (
-              <ItemLink to={{ pathname: '/projects/create' }}>{translate('more')}</ItemLink>
+              <>
+                <ItemDivider />
+                <ItemLink to={{ pathname: '/projects/create' }}>
+                  {translate('my_account.add_project.more')}
+                </ItemLink>
+              </>
             )}
           </>
         }
