@@ -19,6 +19,7 @@
  */
 package org.sonar.server.project.ws;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -60,11 +61,15 @@ public class ProjectFinder {
 
     applyQueryAndPermissionFilter(searchQuery, allProjects, projectsUserHasAccessTo);
     List<ProjectDto> projectsWithOrgLevelPermissions = searchProjectsWithOrgLevelPermissions(dbSession);
-    List<ProjectDto> uniqueProjects = projectsWithOrgLevelPermissions
-            .stream()
-            .filter(p -> !allProjects.contains(p))
-            .collect(Collectors.toList());
-    allProjects.addAll(uniqueProjects);
+    if (!projectsWithOrgLevelPermissions.isEmpty()) {
+      List<ProjectDto> uniqueProjects = projectsWithOrgLevelPermissions
+              .stream()
+              .filter(p -> !allProjects.contains(p))
+              .collect(Collectors.toList());
+      if (!uniqueProjects.isEmpty()) {
+        allProjects.addAll(uniqueProjects);
+      }
+    }
     List<Project> resultProjects = allProjects.stream()
             .sorted(comparing(ProjectDto::getName, nullsFirst(String.CASE_INSENSITIVE_ORDER)))
             .map(p -> new Project(p.getKey(), p.getName())).collect(Collectors.toList());
@@ -74,6 +79,9 @@ public class ProjectFinder {
   private List<ProjectDto> searchProjectsWithOrgLevelPermissions(DbSession dbSession) {
     List<OrganizationDto> orgs = dbClient.organizationDao().selectOrgsForUserAndRole(dbSession, userSession.getUuid(),
             OrganizationPermission.SCAN.toString());
+    if (orgs.isEmpty()) {
+      return List.of();
+    }
     List<String> orgUuids = orgs.stream().map(o -> o.getUuid())
             .collect(Collectors.toList());
     List<ProjectDto> projects = dbClient.projectDao().selectProjectsByOrganizationUuids(dbSession, orgUuids);
