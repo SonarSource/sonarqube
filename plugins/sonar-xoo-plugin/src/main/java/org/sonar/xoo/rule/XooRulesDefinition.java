@@ -21,7 +21,10 @@ package org.sonar.xoo.rule;
 
 import javax.annotation.Nullable;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleScope;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleDescriptionSection;
 import org.sonar.api.server.rule.RuleParamType;
@@ -96,6 +99,7 @@ public class XooRulesDefinition implements RulesDefinition {
     new RulesDefinitionAnnotationLoader().load(repo, Check.ALL);
 
     NewRule hasTag = repo.createRule(HasTagSensor.RULE_KEY).setName("Has Tag")
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM)
       .setActivatedByDefault(true)
       .addDescriptionSection(howToFixSectionWithContext("single_context"));
     addDescriptionSectionsWithoutContexts(hasTag, "Search for a given tag in Xoo files");
@@ -116,6 +120,8 @@ public class XooRulesDefinition implements RulesDefinition {
     ruleWithParameters.createParam("float").setType(RuleParamType.FLOAT);
 
     NewRule oneIssuePerLine = repo.createRule(OneIssuePerLineSensor.RULE_KEY).setName("One Issue Per Line")
+      .setCleanCodeAttribute(CleanCodeAttribute.COMPLETE)
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM)
       .setTags("line");
     addDescriptionSectionsWithoutContexts(oneIssuePerLine, "Generate an issue on each line of a file. It requires the metric \"lines\".");
     addHowToFixSectionsWithContexts(oneIssuePerLine);
@@ -125,6 +131,8 @@ public class XooRulesDefinition implements RulesDefinition {
       .addEducationPrincipleKeys("defense_in_depth", "never_trust_user_input");
 
     NewRule oneQuickFixPerLine = repo.createRule(OneQuickFixPerLineSensor.RULE_KEY).setName("One Quick Fix Per Line")
+      .setCleanCodeAttribute(CleanCodeAttribute.DISTINCT)
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM)
       .setTags("line");
     addAllDescriptionSections(oneQuickFixPerLine,
       "Generate an issue with quick fix available on each line of a file. It requires the metric \"lines\".");
@@ -147,6 +155,8 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule oneBugIssuePerTestLine = repo.createRule(OneBugIssuePerTestLineSensor.RULE_KEY).setName("One Bug Issue Per Test Line")
       .setScope(RuleScope.TEST)
+      .setCleanCodeAttribute(CleanCodeAttribute.RESPECTFUL)
+      .addDefaultImpact(SoftwareQuality.RELIABILITY, Severity.MEDIUM)
       .setType(RuleType.BUG);
     addAllDescriptionSections(oneBugIssuePerTestLine, "Generate a bug issue on each line of a test file. It requires the metric \"lines\".");
 
@@ -155,34 +165,45 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule oneCodeSmellIssuePerTestLine = repo.createRule(OneCodeSmellIssuePerTestLineSensor.RULE_KEY).setName("One Code Smell Issue Per Test Line")
       .setScope(RuleScope.TEST)
+      .setCleanCodeAttribute(CleanCodeAttribute.TESTED)
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM)
       .setType(RuleType.CODE_SMELL);
     addAllDescriptionSections(oneCodeSmellIssuePerTestLine, "Generate a code smell issue on each line of a test file. It requires the metric \"lines\".");
 
     oneCodeSmellIssuePerTestLine
       .setDebtRemediationFunction(oneCodeSmellIssuePerTestLine.debtRemediationFunctions().linear("3min"));
 
-    NewRule oneIssuePerDirectory = repo.createRule(OneIssuePerDirectorySensor.RULE_KEY).setName("One Issue Per Directory");
+    NewRule oneIssuePerDirectory = repo.createRule(OneIssuePerDirectorySensor.RULE_KEY)
+      .setName("One Issue Per Directory")
+      .setCleanCodeAttribute(CleanCodeAttribute.CLEAR)
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM);
     oneIssuePerDirectory.setDebtRemediationFunction(oneIssuePerDirectory.debtRemediationFunctions().linear(TEN_MIN));
     addAllDescriptionSections(oneIssuePerDirectory, "Generate an issue on each non-empty directory");
 
-    NewRule oneDayDebtPerFile = repo.createRule(OneDayDebtPerFileSensor.RULE_KEY).setName("One Day Debt Per File");
+    NewRule oneDayDebtPerFile = repo.createRule(OneDayDebtPerFileSensor.RULE_KEY).setName("One Day Debt Per File")
+      .setCleanCodeAttribute(CleanCodeAttribute.LAWFUL)
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM);
     oneDayDebtPerFile.setDebtRemediationFunction(oneDayDebtPerFile.debtRemediationFunctions().linear("1d"));
     addAllDescriptionSections(oneDayDebtPerFile, "Generate an issue on each file with a debt of one day");
 
     NewRule oneIssuePerModule = repo.createRule(OneIssuePerModuleSensor.RULE_KEY).setName("One Issue Per Module");
     oneIssuePerModule
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM)
       .setDebtRemediationFunction(oneIssuePerModule.debtRemediationFunctions().linearWithOffset("25min", "1h"))
       .setGapDescription("A certified architect will need roughly half an hour to start working on removal of modules, " +
         "then it's about one hour per module.");
     addAllDescriptionSections(oneIssuePerModule, "Generate an issue on each module");
 
-    NewRule oneBlockerIssuePerFile = repo.createRule(OneBlockerIssuePerFileSensor.RULE_KEY).setName("One Blocker Issue Per File");
+    NewRule oneBlockerIssuePerFile = repo.createRule(OneBlockerIssuePerFileSensor.RULE_KEY).setName("One Blocker Issue Per File")
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM);
     addAllDescriptionSections(oneBlockerIssuePerFile, "Generate a blocker issue on each file, whatever the severity declared in the Quality profile");
 
-    NewRule issueWithCustomMessage = repo.createRule(CustomMessageSensor.RULE_KEY).setName("Issue With Custom Message");
+    NewRule issueWithCustomMessage = repo.createRule(CustomMessageSensor.RULE_KEY).setName("Issue With Custom Message")
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM);
     addAllDescriptionSections(issueWithCustomMessage, "Generate an issue on each file with a custom message");
 
-    NewRule oneIssuePerFileWithRandomAccess = repo.createRule(RandomAccessSensor.RULE_KEY).setName("One Issue Per File with Random Access");
+    NewRule oneIssuePerFileWithRandomAccess = repo.createRule(RandomAccessSensor.RULE_KEY).setName("One Issue Per File with Random Access")
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM);
     addAllDescriptionSections(oneIssuePerFileWithRandomAccess, "This issue is generated on each file");
 
     NewRule issueWithRangeAndMultipleLocations = repo.createRule(MultilineIssuesSensor.RULE_KEY).setName("Creates issues with ranges/multiple locations");
@@ -198,18 +219,23 @@ public class XooRulesDefinition implements RulesDefinition {
     addAllDescriptionSections(issueOnEachFileWithExtUnknown, "This issue is generated on each file with extenstion 'unknown'");
 
     NewRule oneBugIssuePerLine = repo.createRule(OneBugIssuePerLineSensor.RULE_KEY).setName("One Bug Issue Per Line")
+      .addDefaultImpact(SoftwareQuality.RELIABILITY, Severity.MEDIUM)
       .setType(RuleType.BUG);
     oneBugIssuePerLine
       .setDebtRemediationFunction(oneBugIssuePerLine.debtRemediationFunctions().linear("5min"));
     addAllDescriptionSections(oneBugIssuePerLine, "Generate a bug issue on each line of a file. It requires the metric \"lines\".");
 
     NewRule oneCodeSmellIssuePerLine = repo.createRule(OneCodeSmellIssuePerLineSensor.RULE_KEY).setName("One Code Smell Issue Per Line")
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM)
+      .addDefaultImpact(SoftwareQuality.RELIABILITY, Severity.LOW)
       .setType(RuleType.CODE_SMELL);
     oneCodeSmellIssuePerLine
       .setDebtRemediationFunction(oneCodeSmellIssuePerLine.debtRemediationFunctions().linear("9min"));
     addAllDescriptionSections(oneCodeSmellIssuePerLine, "Generate a code smell issue on each line of a file. It requires the metric \"lines\".");
 
     NewRule oneVulnerabilityIssuePerModule = repo.createRule(OneVulnerabilityIssuePerModuleSensor.RULE_KEY).setName("One Vulnerability Issue Per Module")
+      .addDefaultImpact(SoftwareQuality.SECURITY, Severity.MEDIUM)
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
       .setType(RuleType.VULNERABILITY);
     addAllDescriptionSections(oneVulnerabilityIssuePerModule, "Generate an issue on each module");
 
