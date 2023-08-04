@@ -212,7 +212,7 @@ export default class App extends React.PureComponent<Props, State> {
                     values={{
                       link: (
                         <Link
-                          to="https://www.sonarlint.org/?referrer=sonarqube-maintenance"
+                          to="https://www.codescan.io/products/editor-plugins/"
                           target="_blank"
                         >
                           {translate('maintenance.sonarqube_is_under_maintenance_link.1')}
