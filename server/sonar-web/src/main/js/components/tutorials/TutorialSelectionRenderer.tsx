@@ -19,7 +19,7 @@
  */
 import {
   Breadcrumbs,
-  Card,
+  GreyCard,
   HoverLink,
   LightLabel,
   LightPrimary,
@@ -62,7 +62,7 @@ export interface TutorialSelectionRendererProps {
 
 function renderAlm(mode: TutorialModes, project: string, icon?: React.ReactNode) {
   return (
-    <Card className="sw-col-span-4 sw-p-4">
+    <GreyCard className="sw-col-span-4 sw-p-4">
       <StandoutLink icon={icon} to={getProjectTutorialLocation(project, mode)}>
         {translate('onboarding.tutorial.choose_method', mode)}
       </StandoutLink>
@@ -77,7 +77,7 @@ function renderAlm(mode: TutorialModes, project: string, icon?: React.ReactNode)
           {translate('onboarding.mode.help.otherci')}
         </LightLabel>
       )}
-    </Card>
+    </GreyCard>
   );
 }
 

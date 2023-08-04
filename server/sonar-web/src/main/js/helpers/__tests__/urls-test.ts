@@ -34,6 +34,7 @@ import {
   getComponentIssuesUrl,
   getComponentOverviewUrl,
   getComponentSecurityHotspotsUrl,
+  getCreateProjectModeLocation,
   getDeprecatedActiveRulesUrl,
   getGlobalSettingsUrl,
   getIssuesUrl,
@@ -528,5 +529,13 @@ describe('convertToTo', () => {
 
   it('should forward strings', () => {
     expect(convertToTo('/whatever')).toBe('/whatever');
+  });
+});
+
+describe('#get import devops config URL', () => {
+  it('should work as expected', () => {
+    expect(getCreateProjectModeLocation(AlmKeys.GitHub)).toEqual({
+      search: '?mode=github',
+    });
   });
 });

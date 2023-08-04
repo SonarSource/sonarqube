@@ -50,7 +50,7 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND = [
   '/web_api_v2',
 ];
 
-const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = ['/tutorials'];
+const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = ['/tutorials', '/projects/create'];
 
 export default function GlobalContainer() {
   // it is important to pass `location` down to `GlobalNav` to trigger render on url change

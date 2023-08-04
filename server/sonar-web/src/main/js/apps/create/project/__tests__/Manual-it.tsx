@@ -80,8 +80,6 @@ const ui = {
 };
 
 async function fillFormAndNext(displayName: string, user: UserEvent) {
-  await user.click(ui.manualCreateProjectOption.get());
-
   expect(ui.manualProjectHeader.get()).toBeInTheDocument();
 
   await user.click(ui.displayNameField.get());
@@ -94,7 +92,13 @@ async function fillFormAndNext(displayName: string, user: UserEvent) {
 let almSettingsHandler: AlmSettingsServiceMock;
 let newCodePeriodHandler: NewCodePeriodsServiceMock;
 
+const original = window.location;
+
 beforeAll(() => {
+  Object.defineProperty(window, 'location', {
+    configurable: true,
+    value: { replace: jest.fn() },
+  });
   almSettingsHandler = new AlmSettingsServiceMock();
   newCodePeriodHandler = new NewCodePeriodsServiceMock();
 });
@@ -103,6 +107,10 @@ beforeEach(() => {
   jest.clearAllMocks();
   almSettingsHandler.reset();
   newCodePeriodHandler.reset();
+});
+
+afterAll(() => {
+  Object.defineProperty(window, 'location', { configurable: true, value: original });
 });
 
 it('should fill form and move to NCD selection and back', async () => {
@@ -246,5 +254,7 @@ it('the project onboarding page should be displayed when the project is created'
 });
 
 function renderCreateProject(props: Partial<CreateProjectPageProps> = {}) {
-  renderApp('project/create', <CreateProjectPage {...props} />);
+  renderApp('project/create', <CreateProjectPage {...props} />, {
+    navigateTo: 'project/create?mode=manual',
+  });
 }

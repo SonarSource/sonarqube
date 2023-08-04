@@ -18,13 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable react/no-unused-prop-types */
-
-import classNames from 'classnames';
+import {
+  ButtonSecondary,
+  DeferredSpinner,
+  GreyCard,
+  HelperHintIcon,
+  LightPrimary,
+  StandoutLink,
+  TextMuted,
+  Title,
+} from 'design-system';
 import * as React from 'react';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import ChevronsIcon from '../../../components/icons/ChevronsIcon';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
+import { getCreateProjectModeLocation } from '../../../helpers/urls';
 import { AlmKeys } from '../../../types/alm-settings';
 import { AppState } from '../../../types/appstate';
 import { CreateProjectModes } from './types';
@@ -35,26 +44,13 @@ export interface CreateProjectModeSelectionProps {
   };
   appState: AppState;
   loadingBindings: boolean;
-  onSelectMode: (mode: CreateProjectModes) => void;
   onConfigMode: (mode: AlmKeys) => void;
-}
-
-const DEFAULT_ICON_SIZE = 50;
-
-function getErrorMessage(hasConfig: boolean, canAdmin: boolean | undefined) {
-  if (!hasConfig) {
-    return canAdmin
-      ? translate('onboarding.create_project.alm_not_configured.admin')
-      : translate('onboarding.create_project.alm_not_configured');
-  }
-  return undefined;
 }
 
 function renderAlmOption(
   props: CreateProjectModeSelectionProps,
   alm: AlmKeys,
-  mode: CreateProjectModes,
-  last = false
+  mode: CreateProjectModes
 ) {
   const {
     almCounts,
@@ -64,58 +60,52 @@ function renderAlmOption(
   const count = almCounts[alm];
   const hasConfig = count > 0;
   const disabled = loadingBindings || (!hasConfig && !canAdmin);
-
-  const onClick = () => {
-    if (!hasConfig && !canAdmin) {
-      return null;
-    }
-
-    if (!hasConfig && canAdmin) {
-      const configMode = alm === AlmKeys.BitbucketCloud ? AlmKeys.BitbucketServer : alm;
-      return props.onConfigMode(configMode);
-    }
-
-    return props.onSelectMode(mode);
-  };
-
-  const errorMessage = getErrorMessage(hasConfig, canAdmin);
+  const configMode = alm === AlmKeys.BitbucketCloud ? AlmKeys.BitbucketServer : alm;
 
   const svgFileName = alm === AlmKeys.BitbucketCloud ? AlmKeys.BitbucketServer : alm;
+  const svgFileNameGrey = `${svgFileName}_grey`;
+
+  const icon = (
+    <img
+      alt="" // Should be ignored by screen readers
+      className="sw-h-4 sw-w-4"
+      src={`${getBaseUrl()}/images/alm/${
+        !disabled && hasConfig ? svgFileName : svgFileNameGrey
+      }.svg`}
+    />
+  );
 
   return (
-    <div className="display-flex-column">
-      <button
-        className={classNames(
-          'button button-huge display-flex-column create-project-mode-type-alm',
-          { disabled, 'big-spacer-right': !last }
+    <GreyCard className="sw-col-span-4 sw-p-4 sw-flex sw-justify-between sw-items-center">
+      <div className="sw-items-center sw-flex sw-py-2">
+        {!disabled && hasConfig ? (
+          <StandoutLink icon={icon} to={getCreateProjectModeLocation(mode)}>
+            {translate('onboarding.create_project.import_select_method', alm)}
+          </StandoutLink>
+        ) : (
+          <>
+            {icon}
+            <TextMuted
+              className="sw-ml-3 sw-text-sm sw-font-semibold"
+              text={translate('onboarding.create_project.import_select_method', alm)}
+            />
+          </>
         )}
-        disabled={disabled}
-        onClick={onClick}
-        type="button"
-      >
-        <img
-          alt="" // Should be ignored by screen readers
-          height={DEFAULT_ICON_SIZE}
-          src={`${getBaseUrl()}/images/alm/${svgFileName}.svg`}
-        />
-        <div className="medium big-spacer-top abs-height-50 display-flex-center">
-          {translate('onboarding.create_project.select_method', alm)}
-        </div>
+      </div>
 
-        {loadingBindings && (
-          <span>
-            {translate('onboarding.create_project.check_alm_supported')}
-            <i className="little-spacer-left spinner" />
-          </span>
-        )}
-
-        {!loadingBindings && errorMessage && (
-          <p className="text-muted small spacer-top" style={{ lineHeight: 1.5 }}>
-            {errorMessage}
-          </p>
-        )}
-      </button>
-    </div>
+      <DeferredSpinner loading={loadingBindings}>
+        {!hasConfig &&
+          (canAdmin ? (
+            <ButtonSecondary onClick={() => props.onConfigMode(configMode)}>
+              {translate('setup')}
+            </ButtonSecondary>
+          ) : (
+            <HelpTooltip overlay={translate('onboarding.create_project.alm_not_configured')}>
+              <HelperHintIcon aria-label="help-tooltip" />
+            </HelpTooltip>
+          ))}
+      </DeferredSpinner>
+    </GreyCard>
   );
 }
 
@@ -127,39 +117,41 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
   const almTotalCount = Object.values(almCounts).reduce((prev, cur) => prev + cur);
 
   return (
-    <>
-      <h1 className="huge-spacer-top huge-spacer-bottom">
-        {translate('onboarding.create_project.select_method')}
-      </h1>
-
-      <p>{translate('onboarding.create_project.select_method.devops_platform')}</p>
-      {almTotalCount === 0 && canAdmin && (
-        <p className="spacer-top">
-          {translate('onboarding.create_project.select_method.no_alm_yet.admin')}
-        </p>
-      )}
-      <div className="big-spacer-top huge-spacer-bottom display-flex-center">
-        {renderAlmOption(props, AlmKeys.Azure, CreateProjectModes.AzureDevOps)}
-        {renderAlmOption(props, AlmKeys.BitbucketServer, CreateProjectModes.BitbucketServer)}
-        {renderAlmOption(props, AlmKeys.BitbucketCloud, CreateProjectModes.BitbucketCloud)}
-        {renderAlmOption(props, AlmKeys.GitHub, CreateProjectModes.GitHub)}
-        {renderAlmOption(props, AlmKeys.GitLab, CreateProjectModes.GitLab, true)}
-      </div>
-
-      <p className="big-spacer-bottom">
-        {translate('onboarding.create_project.select_method.manually')}
-      </p>
-      <button
-        className="button button-huge display-flex-column create-project-mode-type-manual"
-        onClick={() => props.onSelectMode(CreateProjectModes.Manual)}
-        type="button"
-      >
-        <ChevronsIcon size={DEFAULT_ICON_SIZE} />
-        <div className="medium big-spacer-top">
-          {translate('onboarding.create_project.select_method.manual')}
+    <div className="sw-body-sm">
+      <div className="sw-flex sw-flex-col">
+        <Title className="sw-mb-10">{translate('onboarding.create_project.select_method')}</Title>
+        <LightPrimary>
+          {translate('onboarding.create_project.select_method.devops_platform')}
+        </LightPrimary>
+        <LightPrimary>
+          {translate('onboarding.create_project.select_method.devops_platform_second')}
+        </LightPrimary>
+        {almTotalCount === 0 && canAdmin && (
+          <LightPrimary className="sw-mt-3">
+            {translate('onboarding.create_project.select_method.no_alm_yet.admin')}
+          </LightPrimary>
+        )}
+        <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12 sw-mt-6">
+          {renderAlmOption(props, AlmKeys.Azure, CreateProjectModes.AzureDevOps)}
+          {renderAlmOption(props, AlmKeys.BitbucketServer, CreateProjectModes.BitbucketServer)}
+          {renderAlmOption(props, AlmKeys.BitbucketCloud, CreateProjectModes.BitbucketCloud)}
+          {renderAlmOption(props, AlmKeys.GitHub, CreateProjectModes.GitHub)}
+          {renderAlmOption(props, AlmKeys.GitLab, CreateProjectModes.GitLab)}
         </div>
-      </button>
-    </>
+        <LightPrimary className="sw-mb-6 sw-mt-10">
+          {translate('onboarding.create_project.select_method.manually')}
+        </LightPrimary>
+        <div className="sw-grid sw-gap-6 sw-grid-cols-12">
+          <GreyCard className="sw-col-span-4 sw-p-4 sw-py-6 sw-flex sw-justify-between sw-items-center">
+            <div>
+              <StandoutLink to={getCreateProjectModeLocation(CreateProjectModes.Manual)}>
+                {translate('onboarding.create_project.import_select_method.manual')}
+              </StandoutLink>
+            </div>
+          </GreyCard>
+        </div>
+      </div>
+    </div>
   );
 }
 

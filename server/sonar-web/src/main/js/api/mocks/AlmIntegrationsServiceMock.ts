@@ -60,8 +60,8 @@ import {
   setupAzureProjectCreation,
   setupBitbucketCloudProjectCreation,
   setupBitbucketServerProjectCreation,
-  setupGitlabProjectCreation,
   setupGithubProjectCreation,
+  setupGitlabProjectCreation,
 } from '../alm-integrations';
 
 export default class AlmIntegrationsServiceMock {

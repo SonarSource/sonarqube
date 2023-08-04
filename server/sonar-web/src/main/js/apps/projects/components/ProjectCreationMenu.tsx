@@ -123,7 +123,9 @@ export class ProjectCreationMenu extends React.PureComponent<Props, State> {
               <>
                 <ItemDivider />
                 <ItemLink to={{ pathname: '/projects/create' }}>
-                  {translate('my_account.add_project.more')}
+                  {boundAlms.length === 0
+                    ? translate('my_account.add_project.more')
+                    : translate('my_account.add_project.more_others')}
                 </ItemLink>
               </>
             )}

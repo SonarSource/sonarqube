@@ -27,7 +27,7 @@ import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock
 import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
-import CreateProjectPage, { CreateProjectPageProps } from '../CreateProjectPage';
+import CreateProjectPage from '../CreateProjectPage';
 
 jest.mock('../../../../api/alm-integrations');
 jest.mock('../../../../api/alm-settings');
@@ -45,7 +45,13 @@ const ui = {
   instanceSelector: byLabelText(/alm.configuration.selector.label/),
 };
 
+const original = window.location;
+
 beforeAll(() => {
+  Object.defineProperty(window, 'location', {
+    configurable: true,
+    value: { replace: jest.fn() },
+  });
   almIntegrationHandler = new AlmIntegrationsServiceMock();
   almSettingsHandler = new AlmSettingsServiceMock();
   newCodePeriodHandler = new NewCodePeriodsServiceMock();
@@ -58,13 +64,15 @@ beforeEach(() => {
   newCodePeriodHandler.reset();
 });
 
+afterAll(() => {
+  Object.defineProperty(window, 'location', { configurable: true, value: original });
+});
+
 it('should ask for PAT when it is not set yet and show the import project feature afterwards', async () => {
   const user = userEvent.setup();
   renderCreateProject();
-  expect(ui.gitlabCreateProjectButton.get()).toBeInTheDocument();
 
-  await user.click(ui.gitlabCreateProjectButton.get());
-  expect(screen.getByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
+  expect(await screen.findByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
   expect(ui.instanceSelector.get()).toBeInTheDocument();
 
   expect(screen.getByText('onboarding.create_project.enter_pat')).toBeInTheDocument();
@@ -86,8 +94,9 @@ it('should show import project feature when PAT is already set', async () => {
   const user = userEvent.setup();
   let projectItem;
   renderCreateProject();
+
+  expect(await screen.findByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
   await act(async () => {
-    await user.click(ui.gitlabCreateProjectButton.get());
     await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
   });
 
@@ -129,8 +138,9 @@ it('should show search filter when PAT is already set', async () => {
   const user = userEvent.setup();
   renderCreateProject();
 
+  expect(await screen.findByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
+
   await act(async () => {
-    await user.click(ui.gitlabCreateProjectButton.get());
     await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
   });
 
@@ -152,8 +162,9 @@ it('should have load more', async () => {
   const user = userEvent.setup();
   almIntegrationHandler.createRandomGitlabProjectsWithLoadMore(10, 20);
   renderCreateProject();
+
+  expect(await screen.findByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
   await act(async () => {
-    await user.click(ui.gitlabCreateProjectButton.get());
     await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
   });
   const loadMore = screen.getByRole('button', { name: 'show_more' });
@@ -175,17 +186,19 @@ it('should have load more', async () => {
 });
 
 it('should show no result message when there are no projects', async () => {
-  const user = userEvent.setup();
   almIntegrationHandler.setGitlabProjects([]);
   renderCreateProject();
+
+  expect(await screen.findByText('onboarding.create_project.gitlab.title')).toBeInTheDocument();
   await act(async () => {
-    await user.click(ui.gitlabCreateProjectButton.get());
     await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
   });
 
   expect(screen.getByText('onboarding.create_project.gitlab.no_projects')).toBeInTheDocument();
 });
 
-function renderCreateProject(props: Partial<CreateProjectPageProps> = {}) {
-  renderApp('project/create', <CreateProjectPage {...props} />);
+function renderCreateProject() {
+  renderApp('project/create', <CreateProjectPage />, {
+    navigateTo: 'project/create?mode=gitlab',
+  });
 }

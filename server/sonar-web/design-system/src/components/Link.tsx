@@ -132,13 +132,13 @@ const StyledBaseLink = styled(BaseLink)`
   ${({ icon }) =>
     icon &&
     css`
-      margin-left: calc(${twTheme('width.icon')} + ${twTheme('spacing.1')});
+      margin-left: calc(${twTheme('width.icon')} + ${twTheme('spacing.3')});
 
       & > svg,
       & > img {
-        ${tw`sw-mr-1`}
+        ${tw`sw-mr-3`}
 
-        margin-left: calc(-1 * (${twTheme('width.icon')} + ${twTheme('spacing.1')}));
+        margin-left: calc(-1 * (${twTheme('width.icon')} + ${twTheme('spacing.3')}));
       }
     `};
 `;

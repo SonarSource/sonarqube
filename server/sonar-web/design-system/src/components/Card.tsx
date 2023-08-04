@@ -32,10 +32,20 @@ export function Card(props: CardProps) {
   return <CardStyled {...rest}>{children}</CardStyled>;
 }
 
+export function GreyCard(props: CardProps) {
+  const { children, ...rest } = props;
+
+  return <GreyCardStyled {...rest}>{children}</GreyCardStyled>;
+}
+
 const CardStyled = styled.div`
   background-color: ${themeColor('backgroundSecondary')};
   border: ${themeBorder('default', 'projectCardBorder')};
 
   ${tw`sw-p-6`};
   ${tw`sw-rounded-1`};
+`;
+
+const GreyCardStyled = styled(CardStyled)`
+  border: ${themeBorder('default', 'almCardBorder')};
 `;

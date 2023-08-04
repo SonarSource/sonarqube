@@ -20,7 +20,7 @@
 
 import { screen } from '@testing-library/react';
 import { render } from '../../helpers/testUtils';
-import { Card } from '../Card';
+import { Card, GreyCard } from '../Card';
 
 it('renders card correctly', () => {
   render(<Card>Hello</Card>);
@@ -36,6 +36,17 @@ it('renders card correctly with classNames', () => {
     <Card className="sw-bg-black sw-border-8" role="tabpanel">
       Hello
     </Card>
+  );
+  const cardContent = screen.getByText('Hello');
+  expect(cardContent).toHaveClass('sw-bg-black sw-border-8');
+  expect(cardContent).toHaveAttribute('role', 'tabpanel');
+});
+
+it('renders grey card correctly with classNames', () => {
+  render(
+    <GreyCard className="sw-bg-black sw-border-8" role="tabpanel">
+      Hello
+    </GreyCard>
   );
   const cardContent = screen.getByText('Hello');
   expect(cardContent).toHaveClass('sw-bg-black sw-border-8');

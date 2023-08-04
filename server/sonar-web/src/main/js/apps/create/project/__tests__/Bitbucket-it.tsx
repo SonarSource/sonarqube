@@ -28,7 +28,7 @@ import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock
 import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
-import CreateProjectPage, { CreateProjectPageProps } from '../CreateProjectPage';
+import CreateProjectPage from '../CreateProjectPage';
 
 jest.mock('../../../../api/alm-integrations');
 jest.mock('../../../../api/alm-settings');
@@ -44,8 +44,13 @@ const ui = {
   }),
   instanceSelector: byLabelText(/alm.configuration.selector.label/),
 };
+const original = window.location;
 
 beforeAll(() => {
+  Object.defineProperty(window, 'location', {
+    configurable: true,
+    value: { replace: jest.fn() },
+  });
   almIntegrationHandler = new AlmIntegrationsServiceMock();
   almSettingsHandler = new AlmSettingsServiceMock();
   newCodePeriodHandler = new NewCodePeriodsServiceMock();
@@ -58,14 +63,16 @@ beforeEach(() => {
   newCodePeriodHandler.reset();
 });
 
+afterAll(() => {
+  Object.defineProperty(window, 'location', { configurable: true, value: original });
+});
+
 it('should ask for PAT when it is not set yet and show the import project feature afterwards', async () => {
   const user = userEvent.setup();
   renderCreateProject();
-  expect(ui.bitbucketServerCreateProjectButton.get()).toBeInTheDocument();
 
-  await user.click(ui.bitbucketServerCreateProjectButton.get());
   expect(screen.getByText('onboarding.create_project.from_bbs')).toBeInTheDocument();
-  expect(ui.instanceSelector.get()).toBeInTheDocument();
+  expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
   expect(
     screen.getByText('onboarding.create_project.pat_form.title.bitbucket')
@@ -91,8 +98,11 @@ it('should ask for PAT when it is not set yet and show the import project featur
 it('should show import project feature when PAT is already set', async () => {
   const user = userEvent.setup();
   renderCreateProject();
+
+  expect(screen.getByText('onboarding.create_project.from_bbs')).toBeInTheDocument();
+  expect(await ui.instanceSelector.find()).toBeInTheDocument();
+
   await act(async () => {
-    await user.click(ui.bitbucketServerCreateProjectButton.get());
     await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketserver-2/]);
   });
 
@@ -144,8 +154,10 @@ it('should show search filter when PAT is already set', async () => {
   const user = userEvent.setup();
   renderCreateProject();
 
+  expect(screen.getByText('onboarding.create_project.from_bbs')).toBeInTheDocument();
+  expect(await ui.instanceSelector.find()).toBeInTheDocument();
+
   await act(async () => {
-    await user.click(ui.bitbucketServerCreateProjectButton.get());
     await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketserver-2/]);
   });
 
@@ -162,17 +174,20 @@ it('should show search filter when PAT is already set', async () => {
 });
 
 it('should show no result message when there are no projects', async () => {
-  const user = userEvent.setup();
   almIntegrationHandler.setBitbucketServerProjects([]);
   renderCreateProject();
+  expect(screen.getByText('onboarding.create_project.from_bbs')).toBeInTheDocument();
+  expect(await ui.instanceSelector.find()).toBeInTheDocument();
+
   await act(async () => {
-    await user.click(ui.bitbucketServerCreateProjectButton.get());
     await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketserver-2/]);
   });
 
   expect(screen.getByText('onboarding.create_project.no_bbs_projects')).toBeInTheDocument();
 });
 
-function renderCreateProject(props: Partial<CreateProjectPageProps> = {}) {
-  renderApp('project/create', <CreateProjectPage {...props} />);
+function renderCreateProject() {
+  renderApp('project/create', <CreateProjectPage />, {
+    navigateTo: 'project/create?mode=bitbucket',
+  });
 }

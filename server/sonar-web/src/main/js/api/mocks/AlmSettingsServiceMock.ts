@@ -193,6 +193,12 @@ export default class AlmSettingsServiceMock {
     return this.reply(undefined);
   };
 
+  removeFromAlmSettings = (almKey: string) => {
+    this.#almSettings = cloneDeep(defaultAlmSettings).filter(
+      (almSetting) => almSetting.alm !== almKey
+    );
+  };
+
   handleCreateGithubConfiguration = (data: GithubBindingDefinition) => {
     this.#almDefinitions[AlmKeys.GitHub].push(data);
 

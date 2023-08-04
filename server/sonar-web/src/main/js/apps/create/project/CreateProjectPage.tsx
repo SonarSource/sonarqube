@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { LargeCenteredLayout } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
@@ -284,7 +285,6 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
           <CreateProjectModeSelection
             almCounts={almCounts}
             loadingBindings={loading}
-            onSelectMode={this.handleModeSelect}
             onConfigMode={this.handleModeConfig}
           />
         );
@@ -349,10 +349,11 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     const mode: CreateProjectModes | undefined = location.query?.mode;
 
     return (
-      <>
+      <LargeCenteredLayout className="sw-pt-8">
         <Helmet title={translate('onboarding.create_project.select_method')} titleTemplate="%s" />
         <A11ySkipTarget anchor="create_project_main" />
-        <div className="page page-limited huge-spacer-bottom position-relative" id="create-project">
+
+        <div id="create-project">
           <div className={classNames({ 'sw-hidden': isProjectSetupDone })}>
             {this.renderProjectCreation(mode)}
           </div>
@@ -369,7 +370,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
             />
           )}
         </div>
-      </>
+      </LargeCenteredLayout>
     );
   }
 }

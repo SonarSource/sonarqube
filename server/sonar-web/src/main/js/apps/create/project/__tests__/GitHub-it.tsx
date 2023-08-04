@@ -67,13 +67,9 @@ afterAll(() => {
 });
 
 it('should redirect to github authorization page when not already authorized', async () => {
-  const user = userEvent.setup();
-  renderCreateProject();
+  renderCreateProject('project/create?mode=github');
 
-  expect(ui.githubCreateProjectButton.get()).toBeInTheDocument();
-
-  await user.click(ui.githubCreateProjectButton.get());
-  expect(screen.getByText('onboarding.create_project.github.title')).toBeInTheDocument();
+  expect(await screen.findByText('onboarding.create_project.github.title')).toBeInTheDocument();
   expect(screen.getByText('alm.configuration.selector.placeholder')).toBeInTheDocument();
   expect(ui.instanceSelector.get()).toBeInTheDocument();
 
@@ -86,13 +82,9 @@ it('should redirect to github authorization page when not already authorized', a
 });
 
 it('should not redirect to github when url is malformated', async () => {
-  const user = userEvent.setup();
-  renderCreateProject();
+  renderCreateProject('project/create?mode=github');
 
-  expect(ui.githubCreateProjectButton.get()).toBeInTheDocument();
-
-  await user.click(ui.githubCreateProjectButton.get());
-  expect(screen.getByText('onboarding.create_project.github.title')).toBeInTheDocument();
+  expect(await screen.findByText('onboarding.create_project.github.title')).toBeInTheDocument();
   expect(screen.getByText('alm.configuration.selector.placeholder')).toBeInTheDocument();
   expect(ui.instanceSelector.get()).toBeInTheDocument();
 

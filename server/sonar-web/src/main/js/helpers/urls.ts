@@ -331,6 +331,15 @@ export function getProjectTutorialLocation(
   };
 }
 
+/**
+ * Generate URL for the project creation page
+ */
+export function getCreateProjectModeLocation(mode?: string): Partial<Path> {
+  return {
+    search: queryToSearch({ mode }),
+  };
+}
+
 export function getQualityGatesUrl(): To {
   return {
     pathname: '/quality_gates',
