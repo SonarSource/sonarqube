@@ -22,10 +22,11 @@ import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
-import { mockLoggedInUser } from '../../../helpers/testMocks';
+import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { byRole } from '../../../helpers/testSelector';
 import { ComponentQualifier } from '../../../types/component';
 import { IssueType } from '../../../types/issues';
+import { NoticeType } from '../../../types/users';
 import {
   branchHandler,
   componentsHandler,
@@ -728,5 +729,84 @@ describe('Activity', () => {
         'issue.changelog.changed_to.issue.changelog.field.status.REOPENED (issue.changelog.was.CONFIRMED)'
       )
     ).toBeInTheDocument();
+  });
+});
+
+describe('guide', () => {
+  it('should display guide', async () => {
+    const user = userEvent.setup();
+    renderIssueApp(mockCurrentUser({ isLoggedIn: true }));
+
+    expect(await ui.guidePopup.find()).toBeInTheDocument();
+
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.3.title');
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.3.content');
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.step_x_of_y.3.5');
+
+    await user.click(ui.guidePopup.byRole('button', { name: 'next' }).get());
+
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.4.title');
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.4.content');
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.step_x_of_y.4.5');
+
+    await user.click(ui.guidePopup.byRole('button', { name: 'next' }).get());
+
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.5.title');
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.5.content');
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.step_x_of_y.5.5');
+
+    expect(ui.guidePopup.byRole('button', { name: 'Next' }).query()).not.toBeInTheDocument();
+
+    await user.click(ui.guidePopup.byRole('button', { name: 'close' }).get());
+
+    expect(ui.guidePopup.query()).not.toBeInTheDocument();
+  });
+
+  it('should not show Guide for those who dismissed it', async () => {
+    renderIssueApp(
+      mockCurrentUser({ isLoggedIn: true, dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true } })
+    );
+
+    expect((await ui.issueItems.findAll()).length).toBeGreaterThan(0);
+    expect(ui.guidePopup.query()).not.toBeInTheDocument();
+  });
+
+  it('should skip guide', async () => {
+    const user = userEvent.setup();
+    renderIssueApp(mockCurrentUser({ isLoggedIn: true }));
+
+    expect(await ui.guidePopup.find()).toBeInTheDocument();
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.3.title');
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.step_x_of_y.3.5');
+
+    await user.click(ui.guidePopup.byRole('button', { name: 'skip' }).get());
+
+    expect(ui.guidePopup.query()).not.toBeInTheDocument();
+  });
+
+  it('should not show guide if issues need sync', async () => {
+    renderProjectIssuesApp(
+      undefined,
+      { needIssueSync: true },
+      mockCurrentUser({ isLoggedIn: true })
+    );
+
+    expect((await ui.issueItems.findAll()).length).toBeGreaterThan(0);
+    expect(ui.guidePopup.query()).not.toBeInTheDocument();
+  });
+
+  it('should not show guide if user is not logged in', async () => {
+    renderIssueApp(mockCurrentUser({ isLoggedIn: false }));
+
+    expect((await ui.issueItems.findAll()).length).toBeGreaterThan(0);
+    expect(ui.guidePopup.query()).not.toBeInTheDocument();
+  });
+
+  it('should not show guide if there are no issues', () => {
+    issuesHandler.setIssueList([]);
+    renderIssueApp(mockCurrentUser({ isLoggedIn: true }));
+
+    expect(ui.loading.query()).not.toBeInTheDocument();
+    expect(ui.guidePopup.query()).not.toBeInTheDocument();
   });
 });

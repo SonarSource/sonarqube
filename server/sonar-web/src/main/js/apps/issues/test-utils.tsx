@@ -141,11 +141,15 @@ export function renderIssueApp(currentUser?: CurrentUser) {
   renderApp('issues', <IssuesApp />, { currentUser: mockCurrentUser(currentUser) });
 }
 
-export function renderProjectIssuesApp(navigateTo?: string, overrides?: Partial<Component>) {
+export function renderProjectIssuesApp(
+  navigateTo?: string,
+  overrides?: Partial<Component>,
+  currentUser?: CurrentUser
+) {
   renderAppWithComponentContext(
     'project/issues',
     projectIssuesRoutes,
-    { navigateTo },
+    { navigateTo, currentUser: mockCurrentUser(currentUser) },
     { component: mockComponent(overrides) }
   );
 }

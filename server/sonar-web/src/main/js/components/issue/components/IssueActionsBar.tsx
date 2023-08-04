@@ -135,6 +135,7 @@ export default function IssueActionsBar(props: Props) {
           <IssueSeverity issue={issue} />
         </li>
       </ul>
+
       {canComment && (
         <IssueCommentAction
           commentAutoTriggered={commentState.commentAutoTriggered}

@@ -495,7 +495,7 @@ export default class IssuesServiceMock {
   };
 
   handleDismissNotification = (noticeType: NoticeType) => {
-    if (noticeType === NoticeType.EDUCATION_PRINCIPLES) {
+    if ([NoticeType.EDUCATION_PRINCIPLES, NoticeType.ISSUE_GUIDE].includes(noticeType)) {
       return this.reply(true);
     }
 

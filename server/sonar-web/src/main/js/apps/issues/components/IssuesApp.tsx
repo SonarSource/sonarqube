@@ -1303,7 +1303,7 @@ export class App extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { openIssue } = this.state;
+    const { openIssue, issues } = this.state;
     const { component, location } = this.props;
     const open = getOpen(location.query);
 
@@ -1313,7 +1313,7 @@ export class App extends React.PureComponent<Props, State> {
           <PageContentFontWrapper className="sw-body-sm">
             <div className="sw-w-full sw-flex" id="issues-page">
               <Suggestions suggestions="issues" />
-              <IssueListGuide run={!open && !component?.needIssueSync} />
+              <IssueListGuide run={!open && !component?.needIssueSync && issues.length > 0} />
 
               {openIssue ? (
                 <Helmet

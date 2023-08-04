@@ -17,28 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
-import { Suspense } from 'react';
+import {
+  ButtonPrimary,
+  ButtonSecondary,
+  CloseIcon,
+  PopupWrapper,
+  PopupZLevel,
+  WrapperButton,
+} from 'design-system';
+import React from 'react';
 import ReactJoyride, { Props as JoyrideProps, TooltipRenderProps } from 'react-joyride';
-import tw from 'twin.macro';
-import { PopupZLevel } from '../helpers';
-import { Spinner } from './DeferredSpinner';
-import { ButtonPrimary, ButtonSecondary, WrapperButton } from './buttons';
-import { CloseIcon } from './icons';
-import { PopupWrapper } from './popups';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 
 type Props = JoyrideProps;
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
 (window as any).global = (window as any).global ?? {};
-
-const Popup = styled(PopupWrapper)`
-  position: relative;
-  width: 300px;
-  border: none;
-  ${tw`sw-body-sm`}
-  ${tw`sw-p-3`}
-`;
 
 function TooltipComponent({
   continuous,
@@ -53,7 +47,11 @@ function TooltipComponent({
   tooltipProps,
 }: TooltipRenderProps) {
   return (
-    <Popup zLevel={PopupZLevel.Absolute} {...tooltipProps}>
+    <PopupWrapper
+      zLevel={PopupZLevel.Absolute}
+      className="sw-p-3 sw-body-sm sw-w-[300px] sw-relative sw-border-0"
+      {...tooltipProps}
+    >
       <div className="sw-flex sw-justify-between">
         <b className="sw-mb-2">{step.title}</b>
         <WrapperButton
@@ -65,9 +63,7 @@ function TooltipComponent({
       </div>
       <div>{step.content}</div>
       <div className="sw-flex sw-justify-between sw-items-center sw-mt-3">
-        <b>
-          {index + 1} of {size}
-        </b>
+        <b>{translateWithParameters('guiding.step_x_of_y', index + 1, size)}</b>
         <div>
           {index > 0 && (
             <ButtonSecondary className="sw-mr-2" {...backProps}>
@@ -82,19 +78,23 @@ function TooltipComponent({
           )}
         </div>
       </div>
-    </Popup>
+    </PopupWrapper>
   );
 }
 
 export function Guide(props: Props) {
   return (
-    <Suspense fallback={<Spinner />}>
-      <ReactJoyride
-        scrollDuration={0}
-        scrollOffset={250}
-        tooltipComponent={TooltipComponent}
-        {...props}
-      />
-    </Suspense>
+    <ReactJoyride
+      scrollDuration={0}
+      scrollOffset={250}
+      tooltipComponent={TooltipComponent}
+      locale={{
+        skip: translate('skip'),
+        back: translate('back'),
+        close: translate('close'),
+        next: translate('next'),
+      }}
+      {...props}
+    />
   );
 }

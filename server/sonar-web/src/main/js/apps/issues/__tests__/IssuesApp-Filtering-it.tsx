@@ -339,26 +339,28 @@ describe('issues app filtering', () => {
 });
 
 describe('issues app when reindexing', () => {
-  it('should display only some facets while reindexing is in progress', async () => {
+  it('should display only some facets while reindexing is in progress', () => {
     issuesHandler.setIsAdmin(true);
     renderProjectIssuesApp(undefined, { needIssueSync: true });
 
     // Enabled facets
     expect(ui.inNewCodeFilter.get()).toBeInTheDocument();
     expect(ui.typeFacet.get()).toBeInTheDocument();
+    expect(ui.cleanCodeAttributeCategoryFacet.get()).toBeInTheDocument();
+    expect(ui.softwareQualityFacet.get()).toBeInTheDocument();
 
     // Disabled facets
-    expect(await ui.assigneeFacet.query()).not.toBeInTheDocument();
-    expect(await ui.authorFacet.query()).not.toBeInTheDocument();
-    expect(await ui.codeVariantsFacet.query()).not.toBeInTheDocument();
-    expect(await ui.creationDateFacet.query()).not.toBeInTheDocument();
-    expect(await ui.languageFacet.query()).not.toBeInTheDocument();
-    expect(await ui.projectFacet.query()).not.toBeInTheDocument();
-    expect(await ui.resolutionFacet.query()).not.toBeInTheDocument();
-    expect(await ui.ruleFacet.query()).not.toBeInTheDocument();
-    expect(await ui.scopeFacet.query()).not.toBeInTheDocument();
-    expect(await ui.statusFacet.query()).not.toBeInTheDocument();
-    expect(await ui.tagFacet.query()).not.toBeInTheDocument();
+    expect(ui.assigneeFacet.query()).not.toBeInTheDocument();
+    expect(ui.authorFacet.query()).not.toBeInTheDocument();
+    expect(ui.codeVariantsFacet.query()).not.toBeInTheDocument();
+    expect(ui.creationDateFacet.query()).not.toBeInTheDocument();
+    expect(ui.languageFacet.query()).not.toBeInTheDocument();
+    expect(ui.projectFacet.query()).not.toBeInTheDocument();
+    expect(ui.resolutionFacet.query()).not.toBeInTheDocument();
+    expect(ui.ruleFacet.query()).not.toBeInTheDocument();
+    expect(ui.scopeFacet.query()).not.toBeInTheDocument();
+    expect(ui.statusFacet.query()).not.toBeInTheDocument();
+    expect(ui.tagFacet.query()).not.toBeInTheDocument();
 
     // Indexation message
     expect(screen.getByText(/indexation\.filters_unavailable/)).toBeInTheDocument();

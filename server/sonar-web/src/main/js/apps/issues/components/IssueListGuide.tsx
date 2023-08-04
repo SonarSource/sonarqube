@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Guide } from 'design-system';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { dismissNotice } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import DocLink from '../../../components/common/DocLink';
+import { Guide } from '../../../components/common/Guide';
 import { translate } from '../../../helpers/l10n';
 import { NoticeType } from '../../../types/users';
 
@@ -31,26 +31,21 @@ interface Props {
 }
 
 export default function IssueListGuide({ run }: Props) {
-  const { currentUser } = React.useContext(CurrentUserContext);
-  const hasLocalStorageValue = localStorage.getItem(NoticeType.ISSUE_GUIDE) === 'true';
+  const { currentUser, updateDismissedNotices } = React.useContext(CurrentUserContext);
 
-  useEffect(() => {
-    if (!currentUser.dismissedNotices.IssueListGuiding && hasLocalStorageValue) {
-      dismissNotice(NoticeType.ISSUE_GUIDE);
-    }
-  }, [currentUser, hasLocalStorageValue]);
-
-  if (hasLocalStorageValue || currentUser.dismissedNotices.IssueListGuiding) {
+  if (!currentUser.isLoggedIn || currentUser.dismissedNotices[NoticeType.ISSUE_GUIDE]) {
     return null;
   }
 
   const onToggle = (props: { action: string }) => {
     if (props.action === 'reset') {
-      if (currentUser.isLoggedIn) {
-        dismissNotice(NoticeType.ISSUE_GUIDE);
-      } else {
-        localStorage.setItem(NoticeType.ISSUE_GUIDE, 'true');
-      }
+      dismissNotice(NoticeType.ISSUE_GUIDE)
+        .then(() => {
+          updateDismissedNotices(NoticeType.ISSUE_GUIDE, true);
+        })
+        .catch(() => {
+          /* noop */
+        });
     }
   };
 
@@ -68,36 +63,34 @@ export default function IssueListGuide({ run }: Props) {
     </>
   );
 
+  const commonStepProps = {
+    disableScrolling: true,
+    disableBeacon: true,
+    floaterProps: {
+      disableAnimation: true,
+    },
+  };
+
   const steps = [
     {
       target: '[data-guiding-id="issuelist-1"]',
       content: constructContent('guiding.issue_list.1.content.1', 'guiding.issue_list.1.content.2'),
       title: translate('guiding.issue_list.1.title'),
       placement: 'right' as const,
-      disableBeacon: true,
-      floaterProps: {
-        disableAnimation: true,
-      },
+      ...commonStepProps,
     },
     {
       target: '[data-guiding-id="issuelist-2"]',
       content: constructContent('guiding.issue_list.2.content.1', 'guiding.issue_list.2.content.2'),
       title: translate('guiding.issue_list.2.title'),
       placement: 'right' as const,
-      disableBeacon: true,
-      floaterProps: {
-        disableAnimation: true,
-      },
+      ...commonStepProps,
     },
     {
       target: '[data-guiding-id="issuelist-3"]',
-      content: constructContent('guiding.issue_list.2.content.1', 'guiding.issue_list.2.content.2'),
+      content: constructContent('guiding.issue_list.3.content.1', 'guiding.issue_list.3.content.2'),
       title: translate('guiding.issue_list.3.title'),
-      placement: 'right' as const,
-      disableBeacon: true,
-      floaterProps: {
-        disableAnimation: true,
-      },
+      ...commonStepProps,
     },
     {
       target: '[data-guiding-id="issuelist-4"]',
@@ -111,11 +104,7 @@ export default function IssueListGuide({ run }: Props) {
         </ul>
       ),
       title: translate('guiding.issue_list.4.title'),
-      disableScrolling: true,
-      disableBeacon: true,
-      floaterProps: {
-        disableAnimation: true,
-      },
+      ...commonStepProps,
     },
     {
       target: 'body',
@@ -134,10 +123,7 @@ export default function IssueListGuide({ run }: Props) {
       ),
       title: translate('guiding.issue_list.5.title'),
       placement: 'center' as const,
-      disableBeacon: true,
-      floaterProps: {
-        disableAnimation: true,
-      },
+      ...commonStepProps,
     },
   ];
 
