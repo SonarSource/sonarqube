@@ -83,7 +83,7 @@ export const LineSCMStyled = styled(BareButton)`
   ${tw`sw-cursor-pointer`}
   ${tw`sw-w-full sw-h-full`}
 
-&:hover {
+  &:hover {
     color: ${themeColor('codeLineMetaHover')};
   }
 `;

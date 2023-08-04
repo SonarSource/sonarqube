@@ -62,7 +62,7 @@ export default function SoftwareImpactPill(props: Props) {
     >
       <Pill className={classNames('sw-flex sw-gap-1 sw-items-center', className)} variant={variant}>
         {translate('issue.software_quality', quality)}
-        <SoftwareImpactSeverityIcon severity={severity} />
+        <SoftwareImpactSeverityIcon severity={severity} data-guiding-id="issue-3" />
       </Pill>
     </DocumentationTooltip>
   );

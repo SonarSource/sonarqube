@@ -100,7 +100,7 @@ import {
   shouldOpenStandardsFacet,
 } from '../utils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
-import IssueListGuide from './IssueListGuide';
+import IssueGuide from './IssueGuide';
 import IssueReviewHistoryAndComments from './IssueReviewHistoryAndComments';
 import IssuesList from './IssuesList';
 import IssuesSourceViewer from './IssuesSourceViewer';
@@ -1313,7 +1313,7 @@ export class App extends React.PureComponent<Props, State> {
           <PageContentFontWrapper className="sw-body-sm">
             <div className="sw-w-full sw-flex" id="issues-page">
               <Suggestions suggestions="issues" />
-              <IssueListGuide run={!open && !component?.needIssueSync && issues.length > 0} />
+              <IssueGuide run={!open && !component?.needIssueSync && issues.length > 0} />
 
               {openIssue ? (
                 <Helmet

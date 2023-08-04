@@ -27,6 +27,7 @@ import { dismissNotice } from '../../api/users';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
+import IssueGuide from '../../apps/issues/components/IssueGuide';
 import IssueHeader from '../../apps/issues/components/IssueHeader';
 import StyledHeader from '../../apps/issues/components/StyledHeader';
 import { fillBranchLike } from '../../helpers/branch-like';
@@ -353,6 +354,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
             }}
             className="sw-overflow-y-auto"
           >
+            <IssueGuide run bottom />
             <StyledHeader headerHeight={this.headerNode?.clientHeight ?? 0} className="sw-z-normal">
               <div className="sw-p-6 sw-pb-4" ref={(node) => (this.headerNode = node)}>
                 <IssueHeader

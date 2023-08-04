@@ -17,13 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './BareButtons';
-export * from './Button';
-export * from './ButtonLink';
-export * from './ButtonPrimary';
-export * from './ButtonSecondary';
-export * from './DangerButtonPrimary';
-export * from './DangerButtonSecondary';
-export * from './DownloadButton';
-export * from './ThirdPartyButton';
-export * from './WrapperButton';
+
+import styled from '@emotion/styled';
+import tw from 'twin.macro';
+import { themeBorder, themeColor } from '../../helpers';
+import { BareButton } from './BareButtons';
+
+export const ButtonLink = styled(BareButton)`
+  color: ${themeColor('linkDefault')};
+  border-bottom: ${themeBorder('default', 'linkDefault')};
+
+  ${tw`sw-font-semibold`}
+  ${tw`sw-no-underline`}
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: ${themeColor('linkActive')};
+    border-bottom: ${themeBorder('default', 'linkDefault')};
+  }
+`;

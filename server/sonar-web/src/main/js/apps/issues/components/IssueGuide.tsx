@@ -28,9 +28,10 @@ import { NoticeType } from '../../../types/users';
 
 interface Props {
   run?: boolean;
+  bottom?: boolean;
 }
 
-export default function IssueListGuide({ run }: Props) {
+export default function IssueGuide({ run, bottom }: Props) {
   const { currentUser, updateDismissedNotices } = React.useContext(CurrentUserContext);
 
   if (!currentUser.isLoggedIn || currentUser.dismissedNotices[NoticeType.ISSUE_GUIDE]) {
@@ -73,27 +74,27 @@ export default function IssueListGuide({ run }: Props) {
 
   const steps = [
     {
-      target: '[data-guiding-id="issuelist-1"]',
+      target: '[data-guiding-id="issue-1"]',
       content: constructContent('guiding.issue_list.1.content.1', 'guiding.issue_list.1.content.2'),
       title: translate('guiding.issue_list.1.title'),
-      placement: 'right' as const,
+      placement: bottom ? ('bottom' as const) : ('right' as const),
       ...commonStepProps,
     },
     {
-      target: '[data-guiding-id="issuelist-2"]',
+      target: '[data-guiding-id="issue-2"]',
       content: constructContent('guiding.issue_list.2.content.1', 'guiding.issue_list.2.content.2'),
       title: translate('guiding.issue_list.2.title'),
-      placement: 'right' as const,
+      placement: bottom ? ('bottom' as const) : ('right' as const),
       ...commonStepProps,
     },
     {
-      target: '[data-guiding-id="issuelist-3"]',
+      target: '[data-guiding-id="issue-3"]',
       content: constructContent('guiding.issue_list.3.content.1', 'guiding.issue_list.3.content.2'),
       title: translate('guiding.issue_list.3.title'),
       ...commonStepProps,
     },
     {
-      target: '[data-guiding-id="issuelist-4"]',
+      target: '[data-guiding-id="issue-4"]',
       content: constructContent(
         'guiding.issue_list.4.content.1',
         'guiding.issue_list.4.content.2',

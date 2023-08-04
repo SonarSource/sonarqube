@@ -17,13 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './BareButtons';
-export * from './Button';
-export * from './ButtonLink';
-export * from './ButtonPrimary';
-export * from './ButtonSecondary';
-export * from './DangerButtonPrimary';
-export * from './DangerButtonSecondary';
-export * from './DownloadButton';
-export * from './ThirdPartyButton';
-export * from './WrapperButton';
+
+import { render, screen } from '@testing-library/react';
+import { ButtonLink } from '../ButtonLink';
+
+it('renders ButtonLink correctly', () => {
+  render(<ButtonLink>Hello</ButtonLink>);
+  const content = screen.getByRole('button', { name: 'Hello' });
+  expect(content).toHaveStyle({
+    all: 'unset',
+    color: 'rgb(93,108,208)',
+    'border-bottom': '1px solid rgb(93,108,208)',
+  });
+});

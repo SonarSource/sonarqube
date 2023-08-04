@@ -170,10 +170,13 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
     return (
       <header className="sw-flex sw-mb-6">
         <div className="sw-mr-8 sw-flex-1">
-          <CleanCodeAttributePill
-            cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory}
-            cleanCodeAttribute={issue.cleanCodeAttribute}
-          />
+          <div data-guiding-id="issue-1" className="sw-w-fit">
+            <CleanCodeAttributePill
+              cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory}
+              cleanCodeAttribute={issue.cleanCodeAttribute}
+            />
+          </div>
+
           <div className="sw-flex sw-items-center sw-my-2">
             <PageContentFontWrapper className="sw-body-md-highlight" as="h1">
               <IssueMessageHighlighting
@@ -194,7 +197,7 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
           </div>
           <div className="sw-flex sw-items-center">
             <Note>{translate('issue.software_qualities.label')}</Note>
-            <ul className="sw-ml-1 sw-flex sw-gap-2">
+            <ul className="sw-ml-1 sw-flex sw-gap-2" data-guiding-id="issue-2">
               {issue.impacts.map(({ severity, softwareQuality }) => (
                 <li key={softwareQuality}>
                   <SoftwareImpactPill severity={severity} quality={softwareQuality} />

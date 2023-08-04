@@ -809,4 +809,38 @@ describe('guide', () => {
     expect(ui.loading.query()).not.toBeInTheDocument();
     expect(ui.guidePopup.query()).not.toBeInTheDocument();
   });
+
+  it('should show guide on issue page', async () => {
+    const user = userEvent.setup();
+    renderProjectIssuesApp(
+      'project/issues?issues=issue11&open=issue11&id=myproject',
+      undefined,
+      mockCurrentUser({ isLoggedIn: true })
+    );
+
+    expect(await ui.guidePopup.find()).toBeInTheDocument();
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.step_x_of_y.1.5');
+
+    await user.click(ui.guidePopup.byRole('button', { name: 'next' }).get());
+
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.step_x_of_y.2.5');
+
+    await user.click(ui.guidePopup.byRole('button', { name: 'next' }).get());
+
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.step_x_of_y.3.5');
+
+    await user.click(ui.guidePopup.byRole('button', { name: 'next' }).get());
+
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.step_x_of_y.4.5');
+
+    await user.click(ui.guidePopup.byRole('button', { name: 'next' }).get());
+
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.step_x_of_y.5.5');
+
+    expect(ui.guidePopup.byRole('button', { name: 'Next' }).query()).not.toBeInTheDocument();
+
+    await user.click(ui.guidePopup.byRole('button', { name: 'close' }).get());
+
+    expect(ui.guidePopup.query()).not.toBeInTheDocument();
+  });
 });

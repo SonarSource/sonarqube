@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
+  ButtonLink,
   ButtonPrimary,
-  ButtonSecondary,
   CloseIcon,
   PopupWrapper,
   PopupZLevel,
@@ -66,9 +66,9 @@ function TooltipComponent({
         <b>{translateWithParameters('guiding.step_x_of_y', index + 1, size)}</b>
         <div>
           {index > 0 && (
-            <ButtonSecondary className="sw-mr-2" {...backProps}>
+            <ButtonLink className="sw-mr-4" {...backProps}>
               {backProps.title}
-            </ButtonSecondary>
+            </ButtonLink>
           )}
           {continuous && !isLastStep && (
             <ButtonPrimary {...primaryProps}>{primaryProps.title}</ButtonPrimary>
@@ -90,7 +90,7 @@ export function Guide(props: Props) {
       tooltipComponent={TooltipComponent}
       locale={{
         skip: translate('skip'),
-        back: translate('back'),
+        back: translate('go_back'),
         close: translate('close'),
         next: translate('next'),
       }}
