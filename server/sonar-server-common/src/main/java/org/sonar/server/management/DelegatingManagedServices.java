@@ -124,6 +124,12 @@ public class DelegatingManagedServices implements ManagedInstanceService, Manage
       .orElse(false);
   }
 
+  @Override
+  public void queuePermissionSyncTask(String submitterUuid, String componentUuid, String projectUuid) {
+    findManagedProjectService()
+      .ifPresent(managedProjectService -> managedProjectService.queuePermissionSyncTask(submitterUuid, componentUuid, projectUuid));
+  }
+
   private Optional<ManagedProjectService> findManagedProjectService() {
     return findManagedInstanceService()
       .filter(ManagedProjectService.class::isInstance)

@@ -30,9 +30,14 @@ import org.sonar.db.DbSession;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
@@ -46,9 +51,7 @@ public class DelegatingManagedServicesTest {
 
   @Test
   public void getProviderName_whenNotManaged_shouldThrow() {
-    DelegatingManagedServices managedInstanceService = NO_MANAGED_SERVICES;
-
-    assertThatThrownBy(managedInstanceService::getProviderName)
+    assertThatThrownBy(NO_MANAGED_SERVICES::getProviderName)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("This instance is not managed.");
   }
@@ -62,8 +65,7 @@ public class DelegatingManagedServicesTest {
 
   @Test
   public void isInstanceExternallyManaged_whenNoManagedInstanceService_returnsFalse() {
-    DelegatingManagedServices managedInstanceService = NO_MANAGED_SERVICES;
-    assertThat(managedInstanceService.isInstanceExternallyManaged()).isFalse();
+    assertThat(NO_MANAGED_SERVICES.isInstanceExternallyManaged()).isFalse();
   }
 
   @Test
@@ -85,9 +87,8 @@ public class DelegatingManagedServicesTest {
   @Test
   public void getUserUuidToManaged_whenNoDelegates_setAllUsersAsNonManaged() {
     Set<String> userUuids = Set.of("a", "b");
-    DelegatingManagedServices managedInstanceService = NO_MANAGED_SERVICES;
 
-    Map<String, Boolean> userUuidToManaged = managedInstanceService.getUserUuidToManaged(dbSession, userUuids);
+    Map<String, Boolean> userUuidToManaged = NO_MANAGED_SERVICES.getUserUuidToManaged(dbSession, userUuids);
 
     assertThat(userUuidToManaged).containsExactlyInAnyOrderEntriesOf(Map.of("a", false, "b", false));
   }
@@ -257,9 +258,24 @@ public class DelegatingManagedServicesTest {
 
   @Test
   public void isProjectManaged_whenManagedNoInstanceServices_returnsFalse() {
-    DelegatingManagedServices managedInstanceService = NO_MANAGED_SERVICES;
+    assertThat(NO_MANAGED_SERVICES.isProjectManaged(dbSession, "whatever")).isFalse();
+  }
 
-    assertThat(managedInstanceService.isProjectManaged(dbSession, "whatever")).isFalse();
+  @Test
+  public void queuePermissionSyncTask_whenManagedNoInstanceServices_doesNotFail() {
+    assertThatNoException().isThrownBy(() -> NO_MANAGED_SERVICES.queuePermissionSyncTask("userUuid", "componentUuid", "projectUuid"));
+  }
+
+  @Test
+  public void queuePermissionSyncTask_whenManagedInstanceServices_shouldDelegatesToRightService() {
+    NeverManagedInstanceService neverManagedInstanceService = spy(new NeverManagedInstanceService());
+    AlwaysManagedInstanceService alwaysManagedInstanceService = spy(new AlwaysManagedInstanceService());
+    Set<ManagedInstanceService> delegates = Set.of(neverManagedInstanceService, alwaysManagedInstanceService);
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(delegates);
+
+    managedInstanceService.queuePermissionSyncTask("userUuid", "componentUuid", "projectUuid");
+    verify(neverManagedInstanceService, never()).queuePermissionSyncTask(anyString(), anyString(), anyString());
+    verify(alwaysManagedInstanceService).queuePermissionSyncTask("userUuid", "componentUuid", "projectUuid");
   }
 
   private static class NeverManagedInstanceService implements ManagedInstanceService, ManagedProjectService {
@@ -313,6 +329,11 @@ public class DelegatingManagedServicesTest {
     public boolean isProjectManaged(DbSession dbSession, String projectUuid) {
       return false;
     }
+
+    @Override
+    public void queuePermissionSyncTask(String submitterUuid, String componentUuid, String projectUuid) {
+
+    }
   }
 
   private static class AlwaysManagedInstanceService implements ManagedInstanceService, ManagedProjectService {
@@ -365,6 +386,11 @@ public class DelegatingManagedServicesTest {
     @Override
     public boolean isProjectManaged(DbSession dbSession, String projectUuid) {
       return true;
+    }
+
+    @Override
+    public void queuePermissionSyncTask(String submitterUuid, String componentUuid, String projectUuid) {
+
     }
   }
 

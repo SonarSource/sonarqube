@@ -54,6 +54,7 @@ import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
+import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionService;
@@ -123,7 +124,8 @@ public class ImportGithubProjectActionIT {
   private final GitHubSettings gitHubSettings = mock(GitHubSettings.class);
   private NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
 
-  private final WsActionTester ws = new WsActionTester(new ImportGithubProjectAction(db.getDbClient(), userSession,
+  private final ManagedProjectService managedProjectService = mock(ManagedProjectService.class);
+  private final WsActionTester ws = new WsActionTester(new ImportGithubProjectAction(db.getDbClient(), managedProjectService, userSession,
     projectDefaultVisibility, appClient, componentUpdater, importHelper, projectKeyGenerator, newCodeDefinitionResolver,
     defaultBranchNameResolver, gitHubSettings));
 
@@ -161,6 +163,7 @@ public class ImportGithubProjectActionIT {
     assertThat(mainBranch).isPresent();
     assertThat(mainBranch.get().getKey()).isEqualTo("default-branch");
 
+    verify(managedProjectService).queuePermissionSyncTask(userSession.getUuid(), mainBranch.get().getUuid() , projectDto.get().getUuid());
   }
 
   @Test

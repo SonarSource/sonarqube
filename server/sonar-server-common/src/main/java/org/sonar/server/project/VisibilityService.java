@@ -19,6 +19,7 @@
  */
 package org.sonar.server.project;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Optional;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
@@ -38,6 +39,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.Preconditions.checkState;
 import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
+import static org.sonar.db.ce.CeTaskTypes.GITHUB_PROJECT_PERMISSIONS_PROVISIONING;
 
 @ServerSide
 @ComputeEngineSide
@@ -66,14 +68,19 @@ public class VisibilityService {
       }
     }
   }
-  private void checkNoPendingTasks(DbSession dbSession, EntityDto entityDto) {
-    //This check likely can be removed when we remove the column 'private' from components table
-    checkState(noPendingTask(dbSession, entityDto.getKey()), "Component visibility can't be changed as long as it has background task(s) pending or in progress");
+
+  @VisibleForTesting
+  void checkNoPendingTasks(DbSession dbSession, EntityDto entityDto) {
+    //This check likely can be removed when we remove the column 'private' from components table in SONAR-20126.
+    checkState(countPendingTask(dbSession, entityDto.getKey()) == 0, "Component visibility can't be changed as long as it has background task(s) pending or in progress");
   }
 
-  private boolean noPendingTask(DbSession dbSession, String entityKey) {
+  private long countPendingTask(DbSession dbSession, String entityKey) {
     EntityDto entityDto = dbClient.entityDao().selectByKey(dbSession, entityKey).orElseThrow(() -> new IllegalStateException("Can't find entity " + entityKey));
-    return dbClient.ceQueueDao().selectByEntityUuid(dbSession, entityDto.getUuid()).isEmpty();
+    return dbClient.ceQueueDao().selectByEntityUuid(dbSession, entityDto.getUuid())
+      .stream()
+      .filter(task -> !task.getTaskType().equals(GITHUB_PROJECT_PERMISSIONS_PROVISIONING))
+      .count();
   }
 
   private void setPrivateForRootComponentUuid(DbSession dbSession, EntityDto entity, boolean newIsPrivate) {

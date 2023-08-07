@@ -29,4 +29,5 @@ public interface ManagedProjectService {
 
   boolean isProjectManaged(DbSession dbSession, String projectUuid);
 
+  void queuePermissionSyncTask(String submitterUuid, String componentUuid, String projectUuid);
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.almintegration.ws.github;
 
+import java.util.Objects;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.sonar.alm.client.github.GithubApplicationClient;
@@ -44,6 +45,7 @@ import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -68,6 +70,8 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
   public static final String PARAM_REPOSITORY_KEY = "repositoryKey";
 
   private final DbClient dbClient;
+
+  private final ManagedProjectService managedProjectService;
   private final UserSession userSession;
   private final ProjectDefaultVisibility projectDefaultVisibility;
   private final GithubApplicationClient githubApplicationClient;
@@ -82,11 +86,12 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
   private final GitHubSettings gitHubSettings;
 
   @Inject
-  public ImportGithubProjectAction(DbClient dbClient, UserSession userSession, ProjectDefaultVisibility projectDefaultVisibility,
+  public ImportGithubProjectAction(DbClient dbClient, ManagedProjectService managedProjectService, UserSession userSession, ProjectDefaultVisibility projectDefaultVisibility,
     GithubApplicationClientImpl githubApplicationClient, ComponentUpdater componentUpdater, ImportHelper importHelper,
     ProjectKeyGenerator projectKeyGenerator, NewCodeDefinitionResolver newCodeDefinitionResolver,
     DefaultBranchNameResolver defaultBranchNameResolver, GitHubSettings gitHubSettings) {
     this.dbClient = dbClient;
+    this.managedProjectService = managedProjectService;
     this.userSession = userSession;
     this.projectDefaultVisibility = projectDefaultVisibility;
     this.githubApplicationClient = githubApplicationClient;
@@ -171,6 +176,9 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       }
 
       componentUpdater.commitAndIndex(dbSession, componentCreationData);
+
+      String userUuid = Objects.requireNonNull(userSession.getUuid());
+      managedProjectService.queuePermissionSyncTask(userUuid, mainBranchDto.getUuid(), projectDto.getUuid());
 
       return toCreateResponse(projectDto);
     }
