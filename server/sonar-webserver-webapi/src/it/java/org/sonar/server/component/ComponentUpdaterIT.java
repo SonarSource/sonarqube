@@ -19,7 +19,9 @@
  */
 package org.sonar.server.component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,20 +30,32 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Indexers;
+import org.sonar.server.es.IndexersImpl;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
+import org.sonar.server.permission.GroupPermissionChanger;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.UserPermissionChange;
+import org.sonar.server.permission.UserPermissionChanger;
+import org.sonar.server.permission.index.FooIndexDefinition;
+import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.project.DefaultBranchNameResolver;
 
 import static java.util.stream.IntStream.rangeClosed;
@@ -63,6 +77,8 @@ public class ComponentUpdaterIT {
 
   private static final String DEFAULT_PROJECT_KEY = "project-key";
   private static final String DEFAULT_PROJECT_NAME = "project-name";
+  private static final String DEFAULT_USER_UUID = "user-uuid";
+  public static final String DEFAULT_USER_LOGIN = "user-login";
 
   private final System2 system2 = System2.INSTANCE;
 
@@ -74,13 +90,18 @@ public class ComponentUpdaterIT {
   private final TestIndexers projectIndexers = new TestIndexers();
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private final DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
-
   private final Configuration config = mock(Configuration.class);
+  public EsTester es = EsTester.createCustom(new FooIndexDefinition());
+  private final PermissionUpdater<UserPermissionChange> userPermissionUpdater = new PermissionUpdater(
+    new IndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
+    Set.of(new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory()),
+      new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory())));
+  private final PermissionService permissionService = new PermissionServiceImpl(new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT));
 
   private final ComponentUpdater underTest = new ComponentUpdater(db.getDbClient(), i18n, system2,
     permissionTemplateService,
     new FavoriteUpdater(db.getDbClient()),
-    projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver);
+    projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, userPermissionUpdater, permissionService);
 
   @Before
   public void before() {
@@ -203,14 +224,13 @@ public class ComponentUpdaterIT {
 
   @Test
   public void apply_default_permission_template() {
-    String userUuid = "42";
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
       .build();
-    ProjectDto dto = underTest.create(db.getSession(), project, userUuid, "user-login").projectDto();
+    ProjectDto dto = underTest.create(db.getSession(), project, DEFAULT_USER_UUID, DEFAULT_USER_LOGIN).projectDto();
 
-    verify(permissionTemplateService).applyDefaultToNewComponent(db.getSession(), dto, userUuid);
+    verify(permissionTemplateService).applyDefaultToNewComponent(db.getSession(), dto, DEFAULT_USER_UUID);
   }
 
   @Test
@@ -392,13 +412,31 @@ public class ComponentUpdaterIT {
 
   @Test
   public void createWithoutCommit_whenProjectIsManaged_doesntApplyPermissionTemplate() {
-    String userUuid = "42";
+    UserDto userDto = db.users().insertUser();
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
       .build();
-    underTest.createWithoutCommit(db.getSession(), project, userUuid, "user-login", null, true);
+    underTest.createWithoutCommit(db.getSession(), project, userDto.getUuid(), userDto.getLogin(), null, true);
 
     verify(permissionTemplateService, never()).applyDefaultToNewComponent(any(), any(), any());
   }
+
+  @Test
+  public void createWithoutCommit_whenProjectIsManagedAndPrivate_applyPublicPermissionsToCreator() {
+    UserDto userDto = db.users().insertUser();
+    NewComponent newComponent = NewComponent.newComponentBuilder()
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setPrivate(true)
+      .build();
+
+    DbSession session = db.getSession();
+    ComponentCreationData componentCreationData = underTest.createWithoutCommit(session, newComponent, userDto.getUuid(), userDto.getLogin(), null, true);
+
+    List<String> permissions = db.getDbClient().userPermissionDao().selectEntityPermissionsOfUser(session, userDto.getUuid(), componentCreationData.projectDto().getUuid());
+    assertThat(permissions)
+      .containsExactlyInAnyOrder(UserRole.USER, UserRole.CODEVIEWER);
+  }
+
 }

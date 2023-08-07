@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -39,13 +38,19 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.portfolio.PortfolioDto.SelectionMode;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Indexers;
 import org.sonar.server.favorite.FavoriteUpdater;
+import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.project.DefaultBranchNameResolver;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singletonList;
+import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 import static org.sonar.core.component.ComponentKeys.ALLOWED_CHARACTERS_MESSAGE;
 import static org.sonar.core.component.ComponentKeys.isValidProjectKey;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
@@ -64,11 +69,13 @@ public class ComponentUpdater {
   private final Indexers indexers;
   private final UuidFactory uuidFactory;
   private final DefaultBranchNameResolver defaultBranchNameResolver;
+  private final PermissionUpdater<UserPermissionChange> userPermissionUpdater;
+  private final PermissionService permissionService;
 
-  @Autowired
   public ComponentUpdater(DbClient dbClient, I18n i18n, System2 system2,
     PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
-    Indexers indexers, UuidFactory uuidFactory, DefaultBranchNameResolver defaultBranchNameResolver) {
+    Indexers indexers, UuidFactory uuidFactory, DefaultBranchNameResolver defaultBranchNameResolver, PermissionUpdater<UserPermissionChange> userPermissionUpdater,
+    PermissionService permissionService) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.system2 = system2;
@@ -77,6 +84,8 @@ public class ComponentUpdater {
     this.indexers = indexers;
     this.uuidFactory = uuidFactory;
     this.defaultBranchNameResolver = defaultBranchNameResolver;
+    this.userPermissionUpdater = userPermissionUpdater;
+    this.permissionService = permissionService;
   }
 
   /**
@@ -135,7 +144,9 @@ public class ComponentUpdater {
       dbClient.projectDao().insert(dbSession, projectDto);
       addToFavourites(dbSession, projectDto, userUuid, userLogin);
       mainBranch = createMainBranch(dbSession, componentDto.uuid(), projectDto.getUuid(), mainBranchName);
-      if (!isManaged) {
+      if (isManaged) {
+        applyPublicPermissionsForCreator(dbSession, projectDto, userUuid);
+      } else {
         permissionTemplateService.applyDefaultToNewComponent(dbSession, projectDto, userUuid);
       }
     } else if (isPortfolio(componentDto)) {
@@ -147,6 +158,21 @@ public class ComponentUpdater {
     }
 
     return new ComponentCreationData(componentDto, portfolioDto, mainBranch, projectDto);
+  }
+
+  private void applyPublicPermissionsForCreator(DbSession dbSession, ProjectDto projectDto, @Nullable String userUuid) {
+    if (userUuid != null) {
+      UserDto userDto = dbClient.userDao().selectByUuid(dbSession, userUuid);
+      checkState(userDto != null, "User with uuid '%s' doesn't exist", userUuid);
+      userPermissionUpdater.apply(dbSession,
+        PUBLIC_PERMISSIONS.stream()
+        .map(permission -> toUserPermissionChange(permission, projectDto, userDto))
+        .collect(Collectors.toSet()));
+    }
+  }
+
+  private UserPermissionChange toUserPermissionChange(String permission, ProjectDto projectDto, UserDto userDto) {
+    return new UserPermissionChange(PermissionChange.Operation.ADD, permission, projectDto, userDto, permissionService);
   }
 
   private void addToFavourites(DbSession dbSession, ProjectDto projectDto, @Nullable String userUuid, @Nullable String userLogin) {

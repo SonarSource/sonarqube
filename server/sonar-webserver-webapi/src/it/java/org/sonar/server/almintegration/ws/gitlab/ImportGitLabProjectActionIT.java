@@ -44,7 +44,9 @@ import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
@@ -84,7 +86,7 @@ public class ImportGitLabProjectActionIT {
 
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), System2.INSTANCE,
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestIndexers(), new SequenceUuidFactory(),
-    defaultBranchNameResolver);
+    defaultBranchNameResolver, mock(PermissionUpdater.class), mock(PermissionService.class));
 
   private final GitlabHttpClient gitlabHttpClient = mock(GitlabHttpClient.class);
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);

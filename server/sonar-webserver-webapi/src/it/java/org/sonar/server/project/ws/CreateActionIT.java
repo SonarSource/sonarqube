@@ -45,7 +45,9 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
@@ -107,7 +109,7 @@ public class CreateActionIT {
     new CreateAction(
       db.getDbClient(), userSession,
       new ComponentUpdater(db.getDbClient(), i18n, system2, permissionTemplateService, new FavoriteUpdater(db.getDbClient()),
-        projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver),
+        projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, mock(PermissionUpdater.class), mock(PermissionService.class)),
       projectDefaultVisibility, defaultBranchNameResolver, newCodeDefinitionResolver));
 
   @Before

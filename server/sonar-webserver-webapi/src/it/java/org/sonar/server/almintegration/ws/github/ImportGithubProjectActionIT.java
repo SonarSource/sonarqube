@@ -20,12 +20,14 @@
 package org.sonar.server.almintegration.ws.github;
 
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.auth.github.GitHubSettings;
@@ -37,6 +39,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.permission.GlobalPermission;
@@ -45,12 +48,22 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.es.IndexersImpl;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.permission.GroupPermissionChanger;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.UserPermissionChange;
+import org.sonar.server.permission.UserPermissionChanger;
+import org.sonar.server.permission.index.FooIndexDefinition;
+import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
@@ -92,9 +105,15 @@ public class ImportGithubProjectActionIT {
   @Rule
   public DbTester db = DbTester.create(system2);
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
+  public EsTester es = EsTester.createCustom(new FooIndexDefinition());
+  private final PermissionUpdater<UserPermissionChange> userPermissionUpdater = new PermissionUpdater(
+    new IndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
+    Set.of(new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory()),
+      new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory())));
+  private final PermissionService permissionService = new PermissionServiceImpl(new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT));
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), System2.INSTANCE,
     permissionTemplateService, new FavoriteUpdater(db.getDbClient()), new TestIndexers(), new SequenceUuidFactory(),
-    defaultBranchNameResolver);
+    defaultBranchNameResolver, userPermissionUpdater, permissionService);
 
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);

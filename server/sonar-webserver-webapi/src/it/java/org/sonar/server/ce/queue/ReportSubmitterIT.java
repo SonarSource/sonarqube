@@ -38,8 +38,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.entity.EntityDto;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -48,7 +48,9 @@ import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
@@ -93,7 +95,7 @@ public class ReportSubmitterIT {
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
 
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), mock(System2.class), permissionTemplateService,
-    new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver);
+    new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, mock(PermissionUpdater.class), mock(PermissionService.class));
   private final BranchSupport ossEditionBranchSupport = new BranchSupport(null);
 
   private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), ossEditionBranchSupport,

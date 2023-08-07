@@ -51,7 +51,9 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
@@ -93,7 +95,7 @@ public class ImportAzureProjectActionIT {
 
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), i18n, System2.INSTANCE,
     mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()), new TestIndexers(), new SequenceUuidFactory(),
-    defaultBranchNameResolver);
+    defaultBranchNameResolver, mock(PermissionUpdater.class), mock(PermissionService.class));
 
   private final Encryption encryption = mock(Encryption.class);
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
