@@ -33,7 +33,9 @@ public class QualityProfileExportDao implements Dao {
   public List<ExportRuleDto> selectRulesByProfile(DbSession dbSession, QProfileDto profile) {
     List<ExportRuleDto> exportRules = mapper(dbSession).selectByProfileUuid(profile.getKee());
 
-    Map<String, ExportRuleDto> exportRulesByUuid = exportRules.stream().collect(Collectors.toMap(ExportRuleDto::getActiveRuleUuid, x -> x));
+    /* Custom merge function, choose existing value*/
+    Map<String, ExportRuleDto> exportRulesByUuid = exportRules.stream().collect(Collectors.toMap(ExportRuleDto::getActiveRuleUuid,x -> x,
+            (existingValue, newValue) -> existingValue));
     Map<String, List<ExportRuleParamDto>> rulesParams = selectParamsByActiveRuleUuids(dbSession, exportRulesByUuid.keySet());
 
     rulesParams.forEach((uuid, rules) -> exportRulesByUuid.get(uuid).setParams(rules));
