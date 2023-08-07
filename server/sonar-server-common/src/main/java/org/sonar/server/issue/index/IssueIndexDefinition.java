@@ -104,6 +104,12 @@ public class IssueIndexDefinition implements IndexDefinition {
    * Whether issue is new code for a branch using the reference branch new code definition.
    */
   public static final String FIELD_ISSUE_NEW_CODE_REFERENCE = "isNewCodeReference";
+  public static final String FIELD_ISSUE_CLEAN_CODE_ATTRIBUTE_CATEGORY = "cleanCodeAttributeCategory";
+  public static final String FIELD_ISSUE_IMPACTS = "impacts";
+  public static final String SUB_FIELD_SOFTWARE_QUALITY = "softwareQuality";
+  public static final String SUB_FIELD_SEVERITY = "severity";
+  public static final String FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY = FIELD_ISSUE_IMPACTS + "." + SUB_FIELD_SOFTWARE_QUALITY;
+  public static final String FIELD_ISSUE_IMPACT_SEVERITY = FIELD_ISSUE_IMPACTS + "." + SUB_FIELD_SEVERITY;
 
   private final Configuration config;
   private final boolean enableSource;
@@ -157,6 +163,11 @@ public class IssueIndexDefinition implements IndexDefinition {
     mapping.keywordFieldBuilder(FIELD_ISSUE_RULE_UUID).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_SEVERITY).disableNorms().build();
     mapping.createByteField(FIELD_ISSUE_SEVERITY_VALUE);
+    mapping.keywordFieldBuilder(FIELD_ISSUE_CLEAN_CODE_ATTRIBUTE_CATEGORY).disableNorms().build();
+    mapping.nestedFieldBuilder(FIELD_ISSUE_IMPACTS)
+      .addKeywordField(SUB_FIELD_SOFTWARE_QUALITY)
+      .addKeywordField(SUB_FIELD_SEVERITY)
+      .build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_STATUS).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_TAGS).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_TYPE).disableNorms().build();

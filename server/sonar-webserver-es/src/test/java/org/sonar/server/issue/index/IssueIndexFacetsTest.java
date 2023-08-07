@@ -23,8 +23,10 @@ import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import org.elasticsearch.action.search.SearchResponse;
 import org.junit.Test;
+import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition.OwaspAsvsVersion;
 import org.sonar.db.component.ComponentDto;
@@ -47,11 +49,17 @@ import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.INFO;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
+import static org.sonar.api.rules.CleanCodeAttributeCategory.ADAPTABLE;
+import static org.sonar.api.rules.CleanCodeAttributeCategory.CONSISTENT;
+import static org.sonar.api.rules.CleanCodeAttributeCategory.INTENTIONAL;
+import static org.sonar.api.rules.CleanCodeAttributeCategory.RESPONSIBLE;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2017;
 import static org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version.Y2021;
 import static org.sonar.api.server.rule.RulesDefinition.PciDssVersion.V3_2;
@@ -137,7 +145,8 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   @Test
   public void facet_on_directories_return_100_entries_plus_selected_values() {
     ComponentDto project = newPrivateProjectDto();
-    indexIssues(rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, newDirectory(project, "dir" + i)), project.uuid()).setDirectoryPath("a" + i)).toArray(IssueDoc[]::new));
+    indexIssues(
+      rangeClosed(1, 110).mapToObj(i -> newDoc(newFileDto(project, newDirectory(project, "dir" + i)), project.uuid()).setDirectoryPath("a" + i)).toArray(IssueDoc[]::new));
     IssueDoc issue1 = newDoc(newFileDto(project, newDirectory(project, "path1")), project.uuid()).setDirectoryPath("directory1");
     IssueDoc issue2 = newDoc(newFileDto(project, newDirectory(project, "path2")), project.uuid()).setDirectoryPath("directory2");
     indexIssues(issue1, issue2);
@@ -539,8 +548,8 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-        .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
-        .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
+      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
       options);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -555,8 +564,8 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-        .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
-        .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
+      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
       options);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -573,8 +582,8 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-        .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
-        .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
+      .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       options);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -591,8 +600,8 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-        .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
-        .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
+      .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
+      .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
       options);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -624,7 +633,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
     SearchOptions searchOptions = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-        .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
+      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       searchOptions);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -659,6 +668,155 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
       entry("variant1", 1L),
       entry("variant2", 2L),
       entry("variant3", 1L));
+  }
+
+  @Test
+  public void search_shouldReturnSoftwareQualityFacet() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH,
+        RELIABILITY, org.sonar.api.issue.impact.Severity.MEDIUM)),
+      newDoc("I2", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW)),
+      newDoc("I3", project.uuid(), file).setImpacts(Map.of(
+        RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)),
+      newDoc("I4", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW)));
+
+    assertThatFacetHasOnly(IssueQuery.builder(), "softwareQualities",
+      entry("MAINTAINABILITY", 3L),
+      entry("RELIABILITY", 2L),
+      entry("SECURITY", 0L));
+  }
+
+  @Test
+  public void search_whenFilteredOnSeverity_shouldReturnSoftwareQualityFacet() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH,
+        RELIABILITY, org.sonar.api.issue.impact.Severity.MEDIUM))
+        .setTags(singletonList("my-tag")),
+      newDoc("I2", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW)),
+      newDoc("I3", project.uuid(), file).setImpacts(Map.of(
+        RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)),
+      newDoc("I4", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW)));
+
+    assertThatFacetHasOnly(IssueQuery.builder().impactSoftwareQualities(Set.of(MAINTAINABILITY.name())).impactSeverities(Set.of(org.sonar.api.issue.impact.Severity.LOW.name())),
+      "softwareQualities",
+      entry("MAINTAINABILITY", 2L),
+      entry("RELIABILITY", 0L),
+      entry("SECURITY", 0L));
+
+    assertThatFacetHasOnly(IssueQuery.builder().impactSeverities(Set.of(Severity.MEDIUM.name())), "softwareQualities",
+      entry("MAINTAINABILITY", 0L),
+      entry("RELIABILITY", 1L),
+      entry("SECURITY", 0L));
+
+    assertThatFacetHasOnly(IssueQuery.builder().impactSeverities(Set.of(org.sonar.api.issue.impact.Severity.HIGH.name())), "softwareQualities",
+      entry("MAINTAINABILITY", 1L),
+      entry("RELIABILITY", 1L),
+      entry("SECURITY", 0L));
+
+    assertThatFacetHasOnly(IssueQuery.builder()
+      .tags(singletonList("my-tag"))
+      .impactSeverities(Set.of(org.sonar.api.issue.impact.Severity.HIGH.name())), "softwareQualities",
+      entry("MAINTAINABILITY", 1L),
+      entry("RELIABILITY", 0L),
+      entry("SECURITY", 0L));
+  }
+
+  @Test
+  public void search_shouldReturnSoftwareQualitySeverityFacet() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH,
+        RELIABILITY, org.sonar.api.issue.impact.Severity.MEDIUM)),
+      newDoc("I2", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW)),
+      newDoc("I3", project.uuid(), file).setImpacts(Map.of(
+        RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)),
+      newDoc("I4", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW)));
+
+    assertThatFacetHasOnly(IssueQuery.builder(), "softwareQualitiesSeverities",
+      entry("HIGH", 2L),
+      entry("MEDIUM", 1L),
+      entry("LOW", 2L));
+  }
+
+  @Test
+  public void search_whenFilteredOnSoftwareQuality_shouldReturnSoftwareQualitySeverityFacet() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH,
+        RELIABILITY, org.sonar.api.issue.impact.Severity.MEDIUM)),
+      newDoc("I2", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW)),
+      newDoc("I3", project.uuid(), file).setImpacts(Map.of(
+        RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)),
+      newDoc("I4", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW)));
+
+    assertThatFacetHasOnly(IssueQuery.builder().impactSoftwareQualities(Set.of(MAINTAINABILITY.name())), "softwareQualitiesSeverities",
+      entry("HIGH", 1L),
+      entry("MEDIUM", 0L),
+      entry("LOW", 2L));
+  }
+
+  @Test
+  public void search_shouldReturnCleanCodeAttributeCategoryFacet() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setCleanCodeAttributeCategory(ADAPTABLE.name()),
+      newDoc("I2", project.uuid(), file).setCleanCodeAttributeCategory(ADAPTABLE.name()),
+      newDoc("I3", project.uuid(), file).setCleanCodeAttributeCategory(CONSISTENT.name()),
+      newDoc("I4", project.uuid(), file).setCleanCodeAttributeCategory(INTENTIONAL.name()),
+      newDoc("I5", project.uuid(), file).setCleanCodeAttributeCategory(INTENTIONAL.name()),
+      newDoc("I6", project.uuid(), file).setCleanCodeAttributeCategory(INTENTIONAL.name()),
+      newDoc("I7", project.uuid(), file).setCleanCodeAttributeCategory(INTENTIONAL.name()),
+      newDoc("I8", project.uuid(), file).setCleanCodeAttributeCategory(RESPONSIBLE.name()));
+
+    assertThatFacetHasOnly(IssueQuery.builder(), "cleanCodeAttributeCategories",
+      entry("INTENTIONAL", 4L),
+      entry("ADAPTABLE", 2L),
+      entry("CONSISTENT", 1L),
+      entry("RESPONSIBLE", 1L));
+  }
+
+  @Test
+  public void search_whenFilteredByTags_shouldReturnCleanCodeAttributeCategoryFacet() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setCleanCodeAttributeCategory(ADAPTABLE.name()).setTags(singletonList("tag-1")),
+      newDoc("I2", project.uuid(), file).setCleanCodeAttributeCategory(ADAPTABLE.name()).setTags(singletonList("tag-1")),
+      newDoc("I3", project.uuid(), file).setCleanCodeAttributeCategory(CONSISTENT.name()),
+      newDoc("I4", project.uuid(), file).setCleanCodeAttributeCategory(INTENTIONAL.name()).setTags(singletonList("tag-1")),
+      newDoc("I5", project.uuid(), file).setCleanCodeAttributeCategory(INTENTIONAL.name()),
+      newDoc("I6", project.uuid(), file).setCleanCodeAttributeCategory(INTENTIONAL.name()),
+      newDoc("I7", project.uuid(), file).setCleanCodeAttributeCategory(INTENTIONAL.name()),
+      newDoc("I8", project.uuid(), file).setCleanCodeAttributeCategory(RESPONSIBLE.name()).setTags(singletonList("tag-3")));
+
+    assertThatFacetHasOnly(IssueQuery.builder().tags(singletonList("tag-1")), "cleanCodeAttributeCategories",
+      entry("INTENTIONAL", 1L),
+      entry("ADAPTABLE", 2L));
   }
 
   private SearchOptions fixtureForCreatedAtFacet() {

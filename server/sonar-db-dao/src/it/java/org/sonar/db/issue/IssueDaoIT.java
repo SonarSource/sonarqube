@@ -22,12 +22,14 @@ package org.sonar.db.issue;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.ibatis.cursor.Cursor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -196,6 +198,40 @@ public class IssueDaoIT {
       .containsExactlyInAnyOrder(
         tuple(Severity.MEDIUM, SoftwareQuality.RELIABILITY),
         tuple(Severity.LOW, SoftwareQuality.SECURITY));
+  }
+
+  @Test
+  public void scrollIndexationIssues_shouldReturnDto() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setLanguage("java")
+      .addDefaultImpact(new ImpactDto()
+        .setUuid(UuidFactoryFast.getInstance().create())
+        .setSoftwareQuality(SoftwareQuality.RELIABILITY)
+        .setSeverity(Severity.MEDIUM)));
+
+    ComponentDto branchA = db.components().insertProjectBranch(project, b -> b.setKey("branchA"));
+    ComponentDto fileA = db.components().insertComponent(newFileDto(branchA));
+
+    IntStream.range(0, 100).forEach(i -> insertBranchIssue(branchA, fileA, rule, "A" + i, STATUS_OPEN, 1_340_000_000_000L));
+
+    Cursor<IndexedIssueDto> issues = underTest.scrollIssuesForIndexation(db.getSession(), null, null);
+
+    Iterator<IndexedIssueDto> iterator = issues.iterator();
+    int issueCount = 0;
+    while (iterator.hasNext()) {
+      IndexedIssueDto next = iterator.next();
+      assertThat(next.getRuleDefaultImpacts()).hasSize(2)
+        .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+        .containsExactlyInAnyOrder(
+          tuple(SoftwareQuality.RELIABILITY, Severity.MEDIUM),
+          tuple(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
+      assertThat(next.getImpacts())
+        .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+        .containsExactlyInAnyOrder(
+          tuple(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
+      issueCount++;
+    }
+    assertThat(issueCount).isEqualTo(100);
   }
 
   @Test

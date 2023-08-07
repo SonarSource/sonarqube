@@ -317,6 +317,75 @@
       i.kee, ic.issue_change_creation_date desc
   </select>
 
+  <resultMap id="indexedIssueResultMap" type="org.sonar.db.issue.IndexedIssueDto" autoMapping="true">
+    <id property="issueKey" column="issueKey"/>
+
+    <collection property="impacts" column="ii_uuid" notNullColumn="ii_uuid"
+                javaType="java.util.Set" ofType="Impact">
+      <id property="uuid" column="ii_uuid"/>
+      <result property="softwareQuality" column="ii_softwareQuality"/>
+      <result property="severity" column="ii_severity"/>
+    </collection>
+    <collection property="ruleDefaultImpacts" column="rdi_uuid" notNullColumn="rdi_uuid"
+                javaType="java.util.Set" ofType="Impact">
+      <id property="uuid" column="rdi_uuid"/>
+      <result property="softwareQuality" column="rdi_softwareQuality"/>
+      <result property="severity" column="rdi_severity"/>
+    </collection>
+  </resultMap>
+
+   <select id="scrollIssuesForIndexation" parameterType="map" resultMap="indexedIssueResultMap" fetchSize="${_scrollFetchSize}"
+           resultSetType="FORWARD_ONLY" resultOrdered="true">
+    select
+      i.kee as issueKey,
+      i.assignee,
+      i.line,
+      i.resolution,
+      i.severity,
+      i.status,
+      i.effort,
+      i.author_login as authorLogin,
+      i.issue_close_date as issueCloseDate,
+      i.issue_creation_date as issueCreationDate,
+      i.issue_update_date as issueUpdateDate,
+      r.uuid as ruleUuid,
+      r.language as language,
+      r.clean_code_attribute as cleanCodeAttribute,
+      c.uuid as componentUuid,
+      c.path,
+      c.scope,
+      c.branch_uuid as branchUuid,
+      pb.is_main as isMain,
+      pb.project_uuid as projectUuid,
+      i.tags,
+      i.issue_type as issueType,
+      r.security_standards as securityStandards,
+      c.qualifier,
+      i.code_variants as codeVariants,
+      <include refid="issueImpactsColumns"/>
+      <include refid="ruleDefaultImpactsColumns"/>
+      <include refid="isNewCodeReferenceIssue"/>
+    from issues i
+    inner join rules r on r.uuid = i.rule_uuid
+    inner join components c on c.uuid = i.component_uuid
+    inner join project_branches pb on c.branch_uuid = pb.uuid
+    left join new_code_reference_issues n on n.issue_key = i.kee
+    left outer join issues_impacts ii on i.kee = ii.issue_key
+    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    <where>
+      <if test="branchUuid != null">
+            and c.branch_uuid = #{branchUuid,jdbcType=VARCHAR} and i.project_uuid = #{branchUuid,jdbcType=VARCHAR}
+      </if>
+      <if test="issueKeys != null">
+           and i.kee in
+        <foreach collection="issueKeys" open="(" close=")" item="key" separator=",">
+            #{key,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+    </where>
+    order by i.kee
+  </select>
+
   <select id="selectComponentUuidsOfOpenIssuesForProjectUuid" parameterType="string" resultType="string">
     select distinct(i.component_uuid)
     from issues i

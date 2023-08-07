@@ -19,9 +19,9 @@
  */
 package org.sonar.server.issue.index;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.assertj.core.api.Fail;
 import org.junit.Test;
@@ -39,7 +39,14 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.api.rules.CleanCodeAttributeCategory.ADAPTABLE;
+import static org.sonar.api.rules.CleanCodeAttributeCategory.CONSISTENT;
+import static org.sonar.api.rules.CleanCodeAttributeCategory.INTENTIONAL;
+import static org.sonar.api.rules.CleanCodeAttributeCategory.RESPONSIBLE;
 import static org.sonar.api.utils.DateUtils.addDays;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
@@ -347,25 +354,25 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
     // Search for issues of project 1 having less than 15 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-        .createdAfterByProjectUuids(ImmutableMap.of(project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -15), true))),
+      .createdAfterByProjectUuids(Map.of(project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -15), true))),
       project1Issue1.key());
 
     // Search for issues of project 1 having less than 14 days and project 2 having less then 25 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-        .createdAfterByProjectUuids(ImmutableMap.of(
-          project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -14), true),
-          project2.uuid(), new IssueQuery.PeriodStart(addDays(now, -25), true))),
+      .createdAfterByProjectUuids(Map.of(
+        project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -14), true),
+        project2.uuid(), new IssueQuery.PeriodStart(addDays(now, -25), true))),
       project1Issue1.key(), project2Issue1.key());
 
     // Search for issues of project 1 having less than 30 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-        .createdAfterByProjectUuids(ImmutableMap.of(
-          project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -30), true))),
+      .createdAfterByProjectUuids(Map.of(
+        project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -30), true))),
       project1Issue1.key(), project1Issue2.key());
 
     // Search for issues of project 1 and project 2 having less than 5 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-      .createdAfterByProjectUuids(ImmutableMap.of(
+      .createdAfterByProjectUuids(Map.of(
         project1.uuid(), new IssueQuery.PeriodStart(addDays(now, -5), true),
         project2.uuid(), new IssueQuery.PeriodStart(addDays(now, -5), true))));
   }
@@ -396,29 +403,29 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
     // Search for issues of project 1 branch 1 having less than 15 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-        .mainBranch(false)
-        .createdAfterByProjectUuids(ImmutableMap.of(project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -15), true))),
+      .mainBranch(false)
+      .createdAfterByProjectUuids(Map.of(project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -15), true))),
       project1Branch1Issue1.key());
 
     // Search for issues of project 1 branch 1 having less than 14 days and project 2 branch 1 having less then 25 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-        .mainBranch(false)
-        .createdAfterByProjectUuids(ImmutableMap.of(
-          project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -14), true),
-          project2Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -25), true))),
+      .mainBranch(false)
+      .createdAfterByProjectUuids(Map.of(
+        project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -14), true),
+        project2Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -25), true))),
       project1Branch1Issue1.key(), project2Branch1Issue1.key());
 
     // Search for issues of project 1 branch 1 having less than 30 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
-        .mainBranch(false)
-        .createdAfterByProjectUuids(ImmutableMap.of(
-          project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -30), true))),
+      .mainBranch(false)
+      .createdAfterByProjectUuids(Map.of(
+        project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -30), true))),
       project1Branch1Issue1.key(), project1Branch1Issue2.key());
 
     // Search for issues of project 1 branch 1 and project 2 branch 2 having less than 5 days
     assertThatSearchReturnsOnly(IssueQuery.builder()
       .mainBranch(false)
-      .createdAfterByProjectUuids(ImmutableMap.of(
+      .createdAfterByProjectUuids(Map.of(
         project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -5), true),
         project2Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -5), true))));
   }
@@ -435,7 +442,7 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
     // Search for issues of project 1 and project 2 that are new code on a branch using reference for new code
     assertThatSearchReturnsOnly(IssueQuery.builder()
-        .newCodeOnReferenceByProjectUuids(Set.of(project1.uuid(), project2.uuid())),
+      .newCodeOnReferenceByProjectUuids(Set.of(project1.uuid(), project2.uuid())),
       project1Issue1.key(), project2Issue2.key());
   }
 
@@ -463,8 +470,8 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
 
     // Search for issues of project 1 branch 1 and project 2 branch 1 that are new code on a branch using reference for new code
     assertThatSearchReturnsOnly(IssueQuery.builder()
-        .mainBranch(false)
-        .newCodeOnReferenceByProjectUuids(Set.of(project1Branch1.uuid(), project2Branch1.uuid())),
+      .mainBranch(false)
+      .newCodeOnReferenceByProjectUuids(Set.of(project1Branch1.uuid(), project2Branch1.uuid())),
       project1Branch1Issue2.key(), project2Branch1Issue2.key());
   }
 
@@ -850,6 +857,70 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
       newDoc("I4", project.uuid(), file));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().codeVariants(singletonList("variant2")), "I1", "I2");
+  }
+
+  @Test
+  public void search_whenFilteringBySoftwareQualities_shouldReturnRelevantIssues() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH,
+        SECURITY, org.sonar.api.issue.impact.Severity.LOW,
+        RELIABILITY, org.sonar.api.issue.impact.Severity.MEDIUM)),
+
+      newDoc("I2", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW,
+        SECURITY, org.sonar.api.issue.impact.Severity.LOW)),
+      newDoc("I3", project.uuid(), file).setImpacts(Map.of(
+        RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)),
+      newDoc("I4", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW)));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().impactSoftwareQualities(Set.of(MAINTAINABILITY.name())),
+      "I1", "I2", "I4");
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().impactSoftwareQualities(Set.of(MAINTAINABILITY.name(), RELIABILITY.name())),
+      "I1", "I2", "I3", "I4");
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().impactSeverities(Set.of(org.sonar.api.issue.impact.Severity.HIGH.name())),
+      "I1", "I3");
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().impactSeverities(Set.of(org.sonar.api.issue.impact.Severity.LOW.name(), org.sonar.api.issue.impact.Severity.MEDIUM.name())),
+      "I1", "I2", "I4");
+
+    assertThatSearchReturnsOnly(IssueQuery.builder()
+      .impactSoftwareQualities(Set.of(MAINTAINABILITY.name()))
+      .impactSeverities(Set.of(org.sonar.api.issue.impact.Severity.HIGH.name())),
+      "I1");
+
+  }
+
+  @Test
+  public void search_whenFilteringByCleanCodeAttributeCategory_shouldReturnRelevantIssues() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setCleanCodeAttributeCategory(ADAPTABLE.name()),
+      newDoc("I2", project.uuid(), file).setCleanCodeAttributeCategory(ADAPTABLE.name()),
+      newDoc("I3", project.uuid(), file).setCleanCodeAttributeCategory(CONSISTENT.name()),
+      newDoc("I4", project.uuid(), file).setCleanCodeAttributeCategory(INTENTIONAL.name()),
+      newDoc("I5", project.uuid(), file).setCleanCodeAttributeCategory(INTENTIONAL.name()),
+      newDoc("I6", project.uuid(), file).setCleanCodeAttributeCategory(INTENTIONAL.name()),
+      newDoc("I7", project.uuid(), file).setCleanCodeAttributeCategory(INTENTIONAL.name()),
+      newDoc("I8", project.uuid(), file).setCleanCodeAttributeCategory(RESPONSIBLE.name()));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().cleanCodeAttributesCategories(Set.of(ADAPTABLE.name())),
+      "I1", "I2");
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().cleanCodeAttributesCategories(Set.of(CONSISTENT.name(), INTENTIONAL.name())),
+      "I3", "I4", "I5", "I6", "I7");
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().cleanCodeAttributesCategories(
+      Set.of(CONSISTENT.name(), INTENTIONAL.name(), RESPONSIBLE.name(), ADAPTABLE.name())),
+      "I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8");
   }
 
   private void indexView(String viewUuid, List<String> projectBranchUuids) {

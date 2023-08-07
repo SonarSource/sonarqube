@@ -23,6 +23,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.cursor.Cursor;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
@@ -89,6 +92,11 @@ public class IssueDao implements Dao {
 
   public Collection<IssueGroupDto> selectIssueGroupsByComponent(DbSession dbSession, ComponentDto component, long leakPeriodBeginningDate) {
     return mapper(dbSession).selectIssueGroupsByComponent(component, leakPeriodBeginningDate);
+  }
+
+  public Cursor<IndexedIssueDto> scrollIssuesForIndexation(DbSession dbSession, @Nullable @Param("branchUuid") String branchUuid,
+    @Nullable @Param("issueKeys") Collection<String> issueKeys) {
+    return mapper(dbSession).scrollIssuesForIndexation(branchUuid, issueKeys);
   }
 
   public void insert(DbSession session, IssueDto dto) {

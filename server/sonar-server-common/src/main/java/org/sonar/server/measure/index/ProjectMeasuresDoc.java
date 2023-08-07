@@ -19,7 +19,6 @@
  */
 package org.sonar.server.measure.index;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;

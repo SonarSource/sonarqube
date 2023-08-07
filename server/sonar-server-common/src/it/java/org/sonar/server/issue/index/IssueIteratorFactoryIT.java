@@ -94,6 +94,7 @@ public class IssueIteratorFactoryIT {
     assertThat(issue.effort().toMinutes()).isPositive();
     assertThat(issue.type().getDbConstant()).isEqualTo(2);
     assertThat(issue.getCodeVariants()).containsOnly("variant1", "variant2");
+    assertThat(issue.cleanCodeAttributeCategory()).isEqualTo("INTENTIONAL");
   }
 
   @Test

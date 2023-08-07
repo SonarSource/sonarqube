@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import org.assertj.core.api.Assertions;
@@ -31,6 +32,8 @@ import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.db.DbSession;
@@ -68,6 +71,8 @@ import static org.sonar.server.es.Indexers.BranchEvent.DELETION;
 import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_KEY_UPDATE;
 import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_TAGS_UPDATE;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
+import static org.sonar.server.issue.index.IssueIndexDefinition.SUB_FIELD_SOFTWARE_QUALITY;
+import static org.sonar.server.issue.index.IssueIndexDefinition.SUB_FIELD_SEVERITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
@@ -144,6 +149,10 @@ public class IssueIndexerIT {
     assertThat(doc.getSansTop25()).isEmpty();
     assertThat(doc.getSonarSourceSecurityCategory()).isEqualTo(SQCategory.OTHERS);
     assertThat(doc.getVulnerabilityProbability()).isEqualTo(VulnerabilityProbability.LOW);
+    assertThat(doc.impacts())
+      .containsExactlyInAnyOrder(Map.of(
+        SUB_FIELD_SOFTWARE_QUALITY, SoftwareQuality.MAINTAINABILITY.name(),
+        SUB_FIELD_SEVERITY, Severity.HIGH.name()));
   }
 
   @Test

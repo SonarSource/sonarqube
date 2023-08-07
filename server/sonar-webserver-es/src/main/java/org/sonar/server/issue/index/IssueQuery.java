@@ -59,6 +59,8 @@ public class IssueQuery {
 
   private final Collection<String> issueKeys;
   private final Collection<String> severities;
+  private final Collection<String> impactSeverities;
+  private final Collection<String> impactSoftwareQualities;
   private final Collection<String> statuses;
   private final Collection<String> resolutions;
   private final Collection<String> components;
@@ -99,10 +101,13 @@ public class IssueQuery {
   private final Boolean newCodeOnReference;
   private final Collection<String> newCodeOnReferenceByProjectUuids;
   private final Collection<String> codeVariants;
+  private Collection<String> cleanCodeAttributesCategories;
 
   private IssueQuery(Builder builder) {
     this.issueKeys = defaultCollection(builder.issueKeys);
     this.severities = defaultCollection(builder.severities);
+    this.impactSeverities = defaultCollection(builder.impactSeverities);
+    this.impactSoftwareQualities = defaultCollection(builder.impactSoftwareQualities);
     this.statuses = defaultCollection(builder.statuses);
     this.resolutions = defaultCollection(builder.resolutions);
     this.components = defaultCollection(builder.components);
@@ -143,6 +148,7 @@ public class IssueQuery {
     this.newCodeOnReference = builder.newCodeOnReference;
     this.newCodeOnReferenceByProjectUuids = defaultCollection(builder.newCodeOnReferenceByProjectUuids);
     this.codeVariants = defaultCollection(builder.codeVariants);
+    this.cleanCodeAttributesCategories = defaultCollection(builder.cleanCodeAttributesCategories);
   }
 
   public Collection<String> issueKeys() {
@@ -151,6 +157,14 @@ public class IssueQuery {
 
   public Collection<String> severities() {
     return severities;
+  }
+
+  public Collection<String> impactSeverities() {
+    return impactSeverities;
+  }
+
+  public Collection<String> impactSoftwareQualities() {
+    return impactSoftwareQualities;
   }
 
   public Collection<String> statuses() {
@@ -338,9 +352,15 @@ public class IssueQuery {
     return codeVariants;
   }
 
+  public Collection<String> cleanCodeAttributesCategories() {
+    return cleanCodeAttributesCategories;
+  }
+
   public static class Builder {
     private Collection<String> issueKeys;
     private Collection<String> severities;
+    private Collection<String> impactSeverities;
+    private Collection<String> impactSoftwareQualities;
     private Collection<String> statuses;
     private Collection<String> resolutions;
     private Collection<String> components;
@@ -381,6 +401,7 @@ public class IssueQuery {
     private Boolean newCodeOnReference = null;
     private Collection<String> newCodeOnReferenceByProjectUuids;
     private Collection<String> codeVariants;
+    private Collection<String> cleanCodeAttributesCategories;
 
     private Builder() {
 
@@ -418,6 +439,16 @@ public class IssueQuery {
 
     public Builder directories(@Nullable Collection<String> l) {
       this.directories = l;
+      return this;
+    }
+
+    public Builder impactSeverities(@Nullable Collection<String> l) {
+      this.impactSeverities = l;
+      return this;
+    }
+
+    public Builder impactSoftwareQualities(@Nullable Collection<String> l) {
+      this.impactSoftwareQualities = l;
       return this;
     }
 
@@ -624,6 +655,11 @@ public class IssueQuery {
 
     public Builder codeVariants(@Nullable Collection<String> codeVariants) {
       this.codeVariants = codeVariants;
+      return this;
+    }
+
+    public Builder cleanCodeAttributesCategories(@Nullable Collection<String> cleanCodeAttributesCategories) {
+      this.cleanCodeAttributesCategories = cleanCodeAttributesCategories;
       return this;
     }
   }
