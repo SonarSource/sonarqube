@@ -189,7 +189,7 @@ public class RulesRegistrant implements Startable {
   private RuleDto findOrCreateRuleDto(RulesRegistrationContext context, DbSession session, RulesDefinition.Rule ruleDef) {
     return context.getDbRuleFor(ruleDef)
       .orElseGet(() -> {
-        RuleDto newRule = RuleDto.from(ruleDef, ruleDescriptionSectionsGeneratorResolver.generateFor(ruleDef), uuidFactory, system2.now());
+        RuleDto newRule = RuleDto.from(ruleDef, ruleDescriptionSectionsGeneratorResolver.generateFor(ruleDef), uuidFactory.create(), system2.now());
         dbClient.ruleDao().insert(session, newRule);
         context.created(newRule);
         return newRule;

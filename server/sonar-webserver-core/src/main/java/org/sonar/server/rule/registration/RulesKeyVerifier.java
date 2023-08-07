@@ -53,12 +53,12 @@ public class RulesKeyVerifier {
     // Find duplicates in declared deprecated rule keys
     Set<RuleKey> duplicates = findDuplicates(definedDeprecatedRuleKeys);
     checkState(duplicates.isEmpty(), "The following deprecated rule keys are declared at least twice [%s]",
-      lazyToString(() -> duplicates.stream().map(RuleKey::toString).collect(Collectors.joining(","))));
+      duplicates.stream().map(RuleKey::toString).collect(Collectors.joining(",")));
 
     // Find rule keys that are both deprecated and used
     Set<RuleKey> intersection = intersection(new HashSet<>(definedRuleKeys), new HashSet<>(definedDeprecatedRuleKeys)).immutableCopy();
     checkState(intersection.isEmpty(), "The following rule keys are declared both as deprecated and used key [%s]",
-      lazyToString(() -> intersection.stream().map(RuleKey::toString).collect(Collectors.joining(","))));
+      intersection.stream().map(RuleKey::toString).collect(Collectors.joining(",")));
 
     // Find incorrect usage of deprecated keys
     Map<RuleKey, SingleDeprecatedRuleKey> dbDeprecatedRuleKeysByOldRuleKey = rulesRegistrationContext.getDbDeprecatedKeysByOldRuleKey();
@@ -69,7 +69,7 @@ public class RulesKeyVerifier {
       .collect(Collectors.toSet());
 
     checkState(incorrectRuleKeyMessage.isEmpty(), "An incorrect state of deprecated rule keys has been detected.\n %s",
-      lazyToString(() -> String.join("\n", incorrectRuleKeyMessage)));
+      String.join("\n", incorrectRuleKeyMessage));
   }
 
   private static Stream<String> filterInvalidDeprecatedRuleKeys(Map<RuleKey, SingleDeprecatedRuleKey> dbDeprecatedRuleKeysByOldRuleKey, RulesDefinition.Rule rule) {
@@ -95,15 +95,6 @@ public class RulesKeyVerifier {
           singleDeprecatedRuleKey.getNewRuleKeyAsRuleKey().toString(),
           RuleKey.of(rule.repository().key(), rule.key()).toString());
       });
-  }
-
-  private static Object lazyToString(Supplier<String> toString) {
-    return new Object() {
-      @Override
-      public String toString() {
-        return toString.get();
-      }
-    };
   }
 
   private static <T> Set<T> findDuplicates(Collection<T> list) {

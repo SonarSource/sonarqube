@@ -39,9 +39,6 @@ import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.utils.System2;
-import org.sonar.core.util.UuidFactory;
-import org.sonar.db.DbSession;
 import org.sonar.db.issue.ImpactDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -658,10 +655,10 @@ public class RuleDto {
     return strings == null || strings.isEmpty() ? null : String.join(",", strings);
   }
 
-  public static RuleDto from(RulesDefinition.Rule ruleDef, Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos, UuidFactory uuidFactory,
+  public static RuleDto from(RulesDefinition.Rule ruleDef, Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos, String uuid,
     long now) {
     RuleDto ruleDto = new RuleDto()
-      .setUuid(uuidFactory.create())
+      .setUuid(uuid)
       .setRuleKey(RuleKey.of(ruleDef.repository().key(), ruleDef.key()))
       .setPluginKey(ruleDef.pluginKey())
       .setIsTemplate(ruleDef.template())
@@ -679,6 +676,7 @@ public class RuleDto {
       .setIsAdHoc(false)
       .setCreatedAt(now)
       .setUpdatedAt(now)
+      .setCleanCodeAttribute(ruleDef.cleanCodeAttribute() != null ? ruleDef.cleanCodeAttribute() : CleanCodeAttribute.defaultCleanCodeAttribute())
       .setEducationPrinciples(ruleDef.educationPrincipleKeys());
 
     if (isNotEmpty(ruleDef.htmlDescription())) {

@@ -42,6 +42,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleScope;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.Context;
@@ -188,6 +189,7 @@ public class RulesRegistrantIT {
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
     verifyRule(rule1);
     assertThat(rule1.isExternal()).isFalse();
+    assertThat(rule1.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL);
     assertThat(rule1.getDefRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
     assertThat(rule1.getDefRemediationGapMultiplier()).isEqualTo("5d");
     assertThat(rule1.getDefRemediationBaseEffort()).isEqualTo("10h");
@@ -203,6 +205,7 @@ public class RulesRegistrantIT {
 
     // verify index
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY2);
+    assertThat(rule2.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.EFFICIENT);
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid(), hotspotRule.getUuid());
     verifyIndicesMarkedAsInitialized();
 
@@ -1230,7 +1233,8 @@ public class RulesRegistrantIT {
 
       repo.createRule(RULE_KEY2.rule())
         .setName("Two")
-        .setHtmlDescription("Minimal rule");
+        .setHtmlDescription("Minimal rule")
+        .setCleanCodeAttribute(CleanCodeAttribute.EFFICIENT);
       repo.done();
     }
   }

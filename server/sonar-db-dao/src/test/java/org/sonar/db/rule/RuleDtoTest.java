@@ -24,10 +24,15 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.api.rule.RuleScope;
+import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.issue.ImpactDto;
 
@@ -36,12 +41,14 @@ import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.rule.RuleDto.ERROR_MESSAGE_SECTION_ALREADY_EXISTS;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class RuleDtoTest {
 
-  public static final String SECTION_KEY = "section key";
+  private static final String SECTION_KEY = "section key";
 
   @Test
   public void fail_if_key_is_too_long() {
@@ -166,7 +173,24 @@ public class RuleDtoTest {
     assertThatThrownBy(() -> dto.addRuleDescriptionSectionDto(section2))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(String.format(ERROR_MESSAGE_SECTION_ALREADY_EXISTS, SECTION_KEY, contextKey));
+  }
 
+  @Test
+  public void from_whenRuleDefinitionDoesntHaveCleanCodeAttribute_shouldAlwaysSetCleanCodeAttribute() {
+    RulesDefinition.Rule ruleDef = getDefaultRule();
+
+    RuleDto newRuleDto = RuleDto.from(ruleDef, Set.of(), "uuid", Long.MAX_VALUE);
+
+    assertThat(newRuleDto.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL);
+  }
+
+  @Test
+  public void from_whenRuleDefinitionDoesHaveCleanCodeAttribute_shouldReturnThisAttribute() {
+    RulesDefinition.Rule ruleDef = getDefaultRule(CleanCodeAttribute.TESTED);
+
+    RuleDto newRuleDto = RuleDto.from(ruleDef, Set.of(), "uuid", Long.MAX_VALUE);
+
+    assertThat(newRuleDto.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.TESTED);
   }
 
   @Test
@@ -237,5 +261,21 @@ public class RuleDtoTest {
       .setUuid(UuidFactoryFast.getInstance().create())
       .setSoftwareQuality(softwareQuality)
       .setSeverity(severity);
+  }
+  private static RulesDefinition.Rule getDefaultRule(@Nullable CleanCodeAttribute attribute) {
+    RulesDefinition.Rule ruleDef = mock(RulesDefinition.Rule.class);
+    RulesDefinition.Repository repository = mock(RulesDefinition.Repository.class);
+    when(ruleDef.repository()).thenReturn(repository);
+
+    when(ruleDef.key()).thenReturn("key");
+    when(repository.key()).thenReturn("repoKey");
+    when(ruleDef.type()).thenReturn(RuleType.CODE_SMELL);
+    when(ruleDef.scope()).thenReturn(RuleScope.TEST);
+    when(ruleDef.cleanCodeAttribute()).thenReturn(attribute);
+    return ruleDef;
+  }
+
+  private static RulesDefinition.Rule getDefaultRule() {
+    return getDefaultRule(null);
   }
 }

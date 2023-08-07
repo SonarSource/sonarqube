@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -151,8 +152,30 @@ public class StartupRuleUpdater {
       dto.setType(type);
       changed = true;
     }
+    changed |= mergeCleanCodeAttribute(def, dto);
+    changed |= mergeImpacts(def, dto);
     if (dto.isAdHoc()) {
       dto.setIsAdHoc(false);
+      changed = true;
+    }
+    return changed;
+  }
+
+  private static boolean mergeImpacts(RulesDefinition.Rule def, RuleDto dto) {
+    boolean changed = false;
+    // TODO when DTOs for impacts are ready
+    return changed;
+  }
+
+  private static boolean mergeCleanCodeAttribute(RulesDefinition.Rule def, RuleDto dto) {
+    boolean changed = false;
+    if (!Objects.equals(dto.getCleanCodeAttribute(), def.cleanCodeAttribute()) && (def.cleanCodeAttribute() != null)) {
+      dto.setCleanCodeAttribute(def.cleanCodeAttribute());
+      changed = true;
+    }
+    // apply non-nullable default
+    if (dto.getCleanCodeAttribute() == null) {
+      dto.setCleanCodeAttribute(CleanCodeAttribute.defaultCleanCodeAttribute());
       changed = true;
     }
     return changed;
@@ -176,9 +199,9 @@ public class StartupRuleUpdater {
       changed = true;
     } else if (dto.getSystemTags().size() != ruleDef.tags().size() ||
       !dto.getSystemTags().containsAll(ruleDef.tags())) {
-      dto.setSystemTags(ruleDef.tags());
-      changed = true;
-    }
+        dto.setSystemTags(ruleDef.tags());
+        changed = true;
+      }
     return changed;
   }
 
@@ -190,9 +213,9 @@ public class StartupRuleUpdater {
       changed = true;
     } else if (dto.getSecurityStandards().size() != ruleDef.securityStandards().size() ||
       !dto.getSecurityStandards().containsAll(ruleDef.securityStandards())) {
-      dto.setSecurityStandards(ruleDef.securityStandards());
-      changed = true;
-    }
+        dto.setSecurityStandards(ruleDef.securityStandards());
+        changed = true;
+      }
     return changed;
   }
 
@@ -237,7 +260,6 @@ public class StartupRuleUpdater {
     return changed;
   }
 
-
   private static boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto) {
     // Debt definitions are set to null if the sub-characteristic and the remediation function are null
     DebtRemediationFunction debtRemediationFunction = def.debtRemediationFunction();
@@ -251,7 +273,6 @@ public class StartupRuleUpdater {
     }
     return mergeDebtDefinitions(dto, null, null, null, null);
   }
-
 
   private boolean mergeDescription(RulesDefinition.Rule rule, RuleDto ruleDto) {
     Set<RuleDescriptionSectionDto> newRuleDescriptionSectionDtos = sectionsGeneratorResolver.generateFor(rule);
@@ -268,7 +289,6 @@ public class StartupRuleUpdater {
     }
     return false;
   }
-
 
   void mergeParams(RulesRegistrationContext context, RulesDefinition.Rule ruleDef, RuleDto rule, DbSession session) {
     List<RuleParamDto> paramDtos = context.getRuleParametersFor(rule.getUuid());
