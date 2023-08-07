@@ -85,8 +85,6 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_030, "Create table 'anticipated_transitions'", CreateAnticipatedTransitionsTable.class)
 
       .add(10_2_031, "Increase size of 'ce_queue.is_last_key' from 55 to 80 characters", IncreaseIsLastKeyInCeActivity.class)
-      .add(10_2_032, "Increase size of 'ce_queue.main_is_last_key' from 55 to 80 characters", IncreaseMainIsLastKeyInCeActivity.class)
-
-      .add(10_2_033, "Add 'initial_perm_sync' column in 'projects' table", AddInitialPermSyncColumnInProjects.class);
+      .add(10_2_032, "Increase size of 'ce_queue.main_is_last_key' from 55 to 80 characters", IncreaseMainIsLastKeyInCeActivity.class);
   }
 }
