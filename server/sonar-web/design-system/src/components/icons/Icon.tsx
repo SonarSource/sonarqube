@@ -34,6 +34,7 @@ interface Props {
 }
 
 export interface IconProps extends Omit<Props, 'children'> {
+  ['data-guiding-id']?: string;
   fill?: ThemeColors | CSSColor;
   height?: number;
   transform?: string;

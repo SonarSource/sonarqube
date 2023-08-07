@@ -38,7 +38,7 @@ import {
 
 jest.mock('../sidebar/Sidebar', () => {
   const fakeSidebar = () => {
-    return <div>Sidebar</div>;
+    return <div data-guiding-id="issue-5" />;
   };
   return {
     __esModule: true,
@@ -46,6 +46,18 @@ jest.mock('../sidebar/Sidebar', () => {
     Sidebar: fakeSidebar,
   };
 });
+
+jest.mock('../../../components/common/ScreenPositionHelper', () => ({
+  __esModule: true,
+  default: class ScreenPositionHelper extends React.Component<{
+    children: (args: { top: number }) => React.ReactNode;
+  }> {
+    render() {
+      // eslint-disable-next-line testing-library/no-node-access
+      return this.props.children({ top: 10 });
+    }
+  },
+}));
 
 beforeEach(() => {
   issuesHandler.reset();
@@ -79,7 +91,9 @@ describe('issues app', () => {
       renderIssueApp();
 
       // Navigate to 2nd issue
-      await user.keyboard('{ArrowDown}');
+      await act(async () => {
+        await user.keyboard('{ArrowDown}');
+      });
 
       // Select it
       await act(async () => {
@@ -235,7 +249,10 @@ describe('issues app', () => {
       expect(await ui.issueItems.findAll()).toHaveLength(7);
       expect(ui.issueItem8.query()).not.toBeInTheDocument();
 
-      await user.click(screen.getByRole('button', { name: 'show_more' }));
+      await act(async () => {
+        await user.click(screen.getByRole('button', { name: 'show_more' }));
+      });
+
       expect(ui.issueItems.getAll()).toHaveLength(10);
       expect(ui.issueItem8.get()).toBeInTheDocument();
     });
@@ -250,7 +267,11 @@ describe('issues app', () => {
 
       // Check that the bulk button has correct behavior
       expect(screen.getByRole('button', { name: 'bulk_change' })).toBeDisabled();
-      await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
+
+      await act(async () => {
+        await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
+      });
+
       expect(
         screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' })
       ).toBeInTheDocument();
@@ -477,7 +498,9 @@ describe('issues item', () => {
     const user = userEvent.setup();
     renderIssueApp();
 
-    await user.click(await ui.issueItem4.find());
+    await act(async () => {
+      await user.click(await ui.issueItem4.find());
+    });
 
     expect(
       screen.queryByRole('button', {
@@ -551,7 +574,9 @@ describe('issues item', () => {
     renderIssueApp();
 
     // Select an issue with an advanced rule
-    await user.click(await ui.issueItem5.find());
+    await act(async () => {
+      await user.click(await ui.issueItem5.find());
+    });
 
     // open status popup on key press 'f'
     await user.keyboard('f');
@@ -647,7 +672,7 @@ describe('redirects', () => {
   });
 });
 
-describe('Activity', () => {
+describe('activity', () => {
   it('should be able to add or update comment', async () => {
     const user = userEvent.setup();
     issuesHandler.setIsAdmin(true);
@@ -739,6 +764,19 @@ describe('guide', () => {
 
     expect(await ui.guidePopup.find()).toBeInTheDocument();
 
+    expect(await ui.guidePopup.find()).toBeInTheDocument();
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.1.title');
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.1.content');
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.step_x_of_y.1.5');
+
+    await user.click(ui.guidePopup.byRole('button', { name: 'next' }).get());
+
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.2.title');
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.2.content');
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.step_x_of_y.2.5');
+
+    await user.click(ui.guidePopup.byRole('button', { name: 'next' }).get());
+
     expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.3.title');
     expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.3.content');
     expect(ui.guidePopup.get()).toHaveTextContent('guiding.step_x_of_y.3.5');
@@ -762,7 +800,7 @@ describe('guide', () => {
     expect(ui.guidePopup.query()).not.toBeInTheDocument();
   });
 
-  it('should not show Guide for those who dismissed it', async () => {
+  it('should not show guide for those who dismissed it', async () => {
     renderIssueApp(
       mockCurrentUser({ isLoggedIn: true, dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true } })
     );
@@ -776,8 +814,8 @@ describe('guide', () => {
     renderIssueApp(mockCurrentUser({ isLoggedIn: true }));
 
     expect(await ui.guidePopup.find()).toBeInTheDocument();
-    expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.3.title');
-    expect(ui.guidePopup.get()).toHaveTextContent('guiding.step_x_of_y.3.5');
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.1.title');
+    expect(ui.guidePopup.get()).toHaveTextContent('guiding.step_x_of_y.1.5');
 
     await user.click(ui.guidePopup.byRole('button', { name: 'skip' }).get());
 

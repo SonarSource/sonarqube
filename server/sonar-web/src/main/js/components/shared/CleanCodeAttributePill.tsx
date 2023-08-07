@@ -52,7 +52,7 @@ export function CleanCodeAttributePill(props: Props) {
         },
       ]}
     >
-      <Pill variant="neutral" className={classNames('sw-mr-2', className)}>
+      <Pill variant="neutral" data-guiding-id="issue-1" className={className}>
         <span className={classNames({ 'sw-font-semibold': !!cleanCodeAttribute })}>
           {translate('issue.clean_code_attribute_category', cleanCodeAttributeCategory, 'issue')}
         </span>

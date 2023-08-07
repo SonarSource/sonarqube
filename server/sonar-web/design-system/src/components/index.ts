@@ -70,6 +70,7 @@ export * from './SizeIndicator';
 export * from './SonarCodeColorizer';
 export * from './SonarQubeLogo';
 export { Spinner } from './Spinner';
+export * from './SpotlightTour';
 export * from './Table';
 export * from './Tags';
 export * from './TagsSelector';

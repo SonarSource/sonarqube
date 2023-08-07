@@ -17,24 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { SpotlightTour, SpotlightTourStep } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { dismissNotice } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
 import DocLink from '../../../components/common/DocLink';
-import { Guide } from '../../../components/common/Guide';
-import { translate } from '../../../helpers/l10n';
+import { SCREEN_POSITION_COMPUTE_DELAY } from '../../../components/common/ScreenPositionHelper';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { NoticeType } from '../../../types/users';
 
 interface Props {
   run?: boolean;
-  bottom?: boolean;
 }
 
-export default function IssueGuide({ run, bottom }: Props) {
-  const { currentUser, updateDismissedNotices } = React.useContext(CurrentUserContext);
+const PLACEMENT_RIGHT = 'right';
 
-  if (!currentUser.isLoggedIn || currentUser.dismissedNotices[NoticeType.ISSUE_GUIDE]) {
+const EXTRA_DELAY = 50;
+
+export default function IssueGuide({ run }: Props) {
+  const { currentUser, updateDismissedNotices } = React.useContext(CurrentUserContext);
+  const canRun = currentUser.isLoggedIn && !currentUser.dismissedNotices[NoticeType.ISSUE_GUIDE];
+
+  // IssueGuide can be called within context of a ScreenPositionHelper. When this happens,
+  // React Floater (a lib used by React Joyride, which in turn is what powers SpotlightTour)
+  // gets confused and cannot correctly position the first step. The only way around this is
+  // to delay the rendering of the SpotlightTour until *after* ScreenPositionHelper has
+  // recomputed its positioning. That's what this state + effect is about: if `run` is false,
+  // it means we are not in a state to start running. This could either be because we really don't
+  // want to start the tour at all, in which case `run` will remain false. OR, it means we are
+  // waiting on something else (like ScreenPositionHelper), in which case `run` will turn true
+  // later. We wait on the delay of ScreenPositionHelper + 50ms, and try again. If `run` is still
+  // false, we don't start the tour. If `run` is now true, we start the tour.
+  const [start, setStart] = React.useState(run);
+  React.useEffect(() => {
+    // Only trigger the timeout if start is false.
+    if (!start && canRun) {
+      setTimeout(() => {
+        setStart(run);
+      }, SCREEN_POSITION_COMPUTE_DELAY + EXTRA_DELAY);
+    }
+  }, [canRun, run, start, setStart]);
+
+  if (!start || !canRun) {
     return null;
   }
 
@@ -64,34 +89,22 @@ export default function IssueGuide({ run, bottom }: Props) {
     </>
   );
 
-  const commonStepProps = {
-    disableScrolling: true,
-    disableBeacon: true,
-    floaterProps: {
-      disableAnimation: true,
-    },
-  };
-
-  const steps = [
+  const steps: SpotlightTourStep[] = [
     {
       target: '[data-guiding-id="issue-1"]',
       content: constructContent('guiding.issue_list.1.content.1', 'guiding.issue_list.1.content.2'),
       title: translate('guiding.issue_list.1.title'),
-      placement: bottom ? ('bottom' as const) : ('right' as const),
-      ...commonStepProps,
+      placement: PLACEMENT_RIGHT,
     },
     {
       target: '[data-guiding-id="issue-2"]',
       content: constructContent('guiding.issue_list.2.content.1', 'guiding.issue_list.2.content.2'),
       title: translate('guiding.issue_list.2.title'),
-      placement: bottom ? ('bottom' as const) : ('right' as const),
-      ...commonStepProps,
     },
     {
       target: '[data-guiding-id="issue-3"]',
       content: constructContent('guiding.issue_list.3.content.1', 'guiding.issue_list.3.content.2'),
       title: translate('guiding.issue_list.3.title'),
-      ...commonStepProps,
     },
     {
       target: '[data-guiding-id="issue-4"]',
@@ -105,10 +118,9 @@ export default function IssueGuide({ run, bottom }: Props) {
         </ul>
       ),
       title: translate('guiding.issue_list.4.title'),
-      ...commonStepProps,
     },
     {
-      target: 'body',
+      target: '[data-guiding-id="issue-5"]',
       content: (
         <FormattedMessage
           id="guiding.issue_list.5.content"
@@ -123,10 +135,20 @@ export default function IssueGuide({ run, bottom }: Props) {
         />
       ),
       title: translate('guiding.issue_list.5.title'),
-      placement: 'center' as const,
-      ...commonStepProps,
     },
   ];
 
-  return <Guide callback={onToggle} steps={steps} run={run} continuous />;
+  return (
+    <SpotlightTour
+      callback={onToggle}
+      steps={steps}
+      run={run}
+      continuous
+      skipLabel={translate('skip')}
+      backLabel={translate('go_back')}
+      closeLabel={translate('close')}
+      nextLabel={translate('next')}
+      stepXofYLabel={(x: number, y: number) => translateWithParameters('guiding.step_x_of_y', x, y)}
+    />
+  );
 }

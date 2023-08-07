@@ -44,6 +44,9 @@ export default function EmbedDocsPopupHelper() {
             <InteractiveIcon
               Icon={MenuHelpIcon}
               aria-expanded={open}
+              iconProps={{
+                'data-guiding-id': 'issue-5',
+              }}
               aria-controls="help-menu-dropdown"
               aria-haspopup
               aria-label={translate('help')}

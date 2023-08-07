@@ -27,8 +27,8 @@ import { OPACITY_20_PERCENT } from '../helpers/constants';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { isDefined } from '../helpers/types';
 import { ThemedProps } from '../types/theme';
-import { IconProps } from './icons/Icon';
 import { BaseLink, LinkProps } from './Link';
+import { IconProps } from './icons/Icon';
 
 export type InteractiveIconSize = 'small' | 'medium';
 
@@ -39,6 +39,7 @@ export interface InteractiveIconProps {
   className?: string;
   currentColor?: boolean;
   disabled?: boolean;
+  iconProps?: IconProps;
   id?: string;
   innerRef?: React.Ref<HTMLButtonElement>;
   onClick?: VoidFunction;
@@ -69,6 +70,7 @@ export class InteractiveIconBase extends React.PureComponent<InteractiveIconProp
       onClick,
       size = 'medium',
       to,
+      iconProps = {},
       ...htmlProps
     } = this.props;
 
@@ -82,14 +84,8 @@ export class InteractiveIconBase extends React.PureComponent<InteractiveIconProp
 
     if (to) {
       return (
-        <IconLink
-          {...props}
-          onClick={onClick}
-          showExternalIcon={false}
-          stopPropagation
-          to={to}
-        >
-          <Icon className={classNames({ 'sw-mr-1': isDefined(children) })} />
+        <IconLink {...props} onClick={onClick} showExternalIcon={false} stopPropagation to={to}>
+          <Icon className={classNames({ 'sw-mr-1': isDefined(children) })} {...iconProps} />
           {children}
         </IconLink>
       );
@@ -97,7 +93,7 @@ export class InteractiveIconBase extends React.PureComponent<InteractiveIconProp
 
     return (
       <IconButton {...props} onClick={this.handleClick} ref={innerRef}>
-        <Icon className={classNames({ 'sw-mr-1': isDefined(children) })} />
+        <Icon className={classNames({ 'sw-mr-1': isDefined(children) })} {...iconProps} />
         {children}
       </IconButton>
     );

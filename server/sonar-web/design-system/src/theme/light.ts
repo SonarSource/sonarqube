@@ -106,6 +106,10 @@ export const lightTheme = {
     popup: COLORS.white,
     popupBorder: secondary.default,
 
+    // spotlight
+    spotlightPulseBackground: primary.default,
+    spotlightBackgroundColor: COLORS.blueGrey[50],
+
     // modal
     modalContents: COLORS.white,
     modalOverlay: [...COLORS.blueGrey[900], OPACITY_75_PERCENT],

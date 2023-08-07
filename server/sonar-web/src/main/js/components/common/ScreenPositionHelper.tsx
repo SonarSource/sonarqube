@@ -25,13 +25,15 @@ interface Props {
   children: (position: { top: number; left: number }) => React.ReactElement<any>;
 }
 
+export const SCREEN_POSITION_COMPUTE_DELAY = 250;
+
 export default class ScreenPositionHelper extends React.PureComponent<Props> {
   container?: HTMLDivElement;
   debouncedOnResize: () => void;
 
   constructor(props: Props) {
     super(props);
-    this.debouncedOnResize = debounce(() => this.forceUpdate(), 250);
+    this.debouncedOnResize = debounce(() => this.forceUpdate(), SCREEN_POSITION_COMPUTE_DELAY);
   }
 
   componentDidMount() {

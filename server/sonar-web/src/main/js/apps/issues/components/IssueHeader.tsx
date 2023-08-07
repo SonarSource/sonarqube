@@ -170,12 +170,10 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
     return (
       <header className="sw-flex sw-mb-6">
         <div className="sw-mr-8 sw-flex-1">
-          <div data-guiding-id="issue-1" className="sw-w-fit">
-            <CleanCodeAttributePill
-              cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory}
-              cleanCodeAttribute={issue.cleanCodeAttribute}
-            />
-          </div>
+          <CleanCodeAttributePill
+            cleanCodeAttributeCategory={issue.cleanCodeAttributeCategory}
+            cleanCodeAttribute={issue.cleanCodeAttribute}
+          />
 
           <div className="sw-flex sw-items-center sw-my-2">
             <PageContentFontWrapper className="sw-body-md-highlight" as="h1">

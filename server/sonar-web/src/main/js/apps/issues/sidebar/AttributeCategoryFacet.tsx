@@ -32,14 +32,12 @@ export function AttributeCategoryFacet(props: Props) {
   const { categories = [], ...rest } = props;
 
   return (
-    <div data-guiding-id="issue-1">
-      <SimpleListStyleFacet
-        property="cleanCodeAttributeCategory"
-        itemNamePrefix="issue.clean_code_attribute_category"
-        listItems={CATEGORIES}
-        selectedItems={categories}
-        {...rest}
-      />
-    </div>
+    <SimpleListStyleFacet
+      property="cleanCodeAttributeCategory"
+      itemNamePrefix="issue.clean_code_attribute_category"
+      listItems={CATEGORIES}
+      selectedItems={categories}
+      {...rest}
+    />
   );
 }

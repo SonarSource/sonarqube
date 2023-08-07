@@ -23,6 +23,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { renderOwaspTop102021Category } from '../../../helpers/security-standard';
 import { mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
+import { NoticeType } from '../../../types/users';
 import IssuesList from '../components/IssuesList';
 import {
   branchHandler,
@@ -200,7 +201,7 @@ describe('issues app filtering', () => {
 
   it('should allow to set creation date', async () => {
     const user = userEvent.setup();
-    const currentUser = mockLoggedInUser();
+    const currentUser = mockLoggedInUser({ dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true } });
     issuesHandler.setCurrentUser(currentUser);
 
     renderIssueApp(currentUser);
@@ -237,7 +238,7 @@ describe('issues app filtering', () => {
 
   it('should allow to only show my issues', async () => {
     const user = userEvent.setup();
-    const currentUser = mockLoggedInUser();
+    const currentUser = mockLoggedInUser({ dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true } });
     issuesHandler.setCurrentUser(currentUser);
     renderIssueApp(currentUser);
     await waitOnDataLoaded();

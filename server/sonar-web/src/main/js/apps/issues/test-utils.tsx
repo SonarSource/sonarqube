@@ -19,6 +19,7 @@
  */
 import { waitFor } from '@testing-library/react';
 import React from 'react';
+import { Outlet, Route } from 'react-router-dom';
 import BranchesServiceMock from '../../api/mocks/BranchesServiceMock';
 import ComponentsServiceMock from '../../api/mocks/ComponentsServiceMock';
 import IssuesServiceMock from '../../api/mocks/IssuesServiceMock';
@@ -32,7 +33,7 @@ import {
   SoftwareQuality,
 } from '../../types/issues';
 import { Component } from '../../types/types';
-import { CurrentUser } from '../../types/users';
+import { NoticeType } from '../../types/users';
 import IssuesApp from './components/IssuesApp';
 import { projectIssuesRoutes } from './routes';
 
@@ -137,19 +138,31 @@ export async function waitOnDataLoaded() {
   });
 }
 
-export function renderIssueApp(currentUser?: CurrentUser) {
-  renderApp('issues', <IssuesApp />, { currentUser: mockCurrentUser(currentUser) });
+export function renderIssueApp(
+  currentUser = mockCurrentUser({ dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true } })
+) {
+  renderApp('project/issues', <IssuesApp />, { currentUser });
 }
 
 export function renderProjectIssuesApp(
   navigateTo?: string,
   overrides?: Partial<Component>,
-  currentUser?: CurrentUser
+  currentUser = mockCurrentUser({ dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true } })
 ) {
   renderAppWithComponentContext(
     'project/issues',
-    projectIssuesRoutes,
-    { navigateTo, currentUser: mockCurrentUser(currentUser) },
+    () => (
+      <Route
+        element={
+          <div data-guiding-id="issue-5">
+            <Outlet />
+          </div>
+        }
+      >
+        {projectIssuesRoutes()}
+      </Route>
+    ),
+    { navigateTo, currentUser },
     { component: mockComponent(overrides) }
   );
 }
