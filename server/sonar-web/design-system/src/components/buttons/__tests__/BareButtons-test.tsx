@@ -24,7 +24,7 @@ import { CodeViewerExpander } from '../BareButtons';
 
 it('renders CodeViewerExpander correctly when direction is UP', () => {
   render(<CodeViewerExpander direction="UP">Hello</CodeViewerExpander>);
-  const content = screen.getByText('Hello');
+  const content = screen.getByRole('button', { name: 'Hello' });
   expect(content).toHaveStyle({
     'border-top': 'none',
     'border-bottom': '1px solid rgb(221,221,221)',
@@ -33,7 +33,7 @@ it('renders CodeViewerExpander correctly when direction is UP', () => {
 
 it('renders CodeViewerExpander correctly when direction is DOWN', () => {
   render(<CodeViewerExpander direction="DOWN">Hello</CodeViewerExpander>);
-  const content = screen.getByText('Hello');
+  const content = screen.getByRole('button', { name: 'Hello' });
   expect(content).toHaveStyle({
     'border-bottom': 'none',
     'border-top': '1px solid rgb(221,221,221)',
