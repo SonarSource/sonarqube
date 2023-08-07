@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagErrorIcon, InputField, Note, SelectionCard } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import {
@@ -24,9 +25,6 @@ import {
   NUMBER_OF_DAYS_MIN_VALUE,
 } from '../../helpers/new-code-definition';
 import { NewCodeDefinitionType } from '../../types/new-code-definition';
-import RadioCard from '../controls/RadioCard';
-import ValidationInput, { ValidationInputErrorPlacement } from '../controls/ValidationInput';
-import MandatoryFieldsExplanation from '../ui/MandatoryFieldsExplanation';
 
 export interface Props {
   className?: string;
@@ -43,8 +41,7 @@ export default function NewCodeDefinitionDaysOption(props: Props) {
   const { className, days, disabled, isChanged, isValid, onChangeDays, onSelect, selected } = props;
 
   return (
-    <RadioCard
-      noRadio
+    <SelectionCard
       className={className}
       disabled={disabled}
       onClick={() => onSelect(NewCodeDefinitionType.NumberOfDays)}
@@ -53,36 +50,36 @@ export default function NewCodeDefinitionDaysOption(props: Props) {
     >
       <>
         <div>
-          <p className="sw-mb-3">{translate('new_code_definition.number_days.description')}</p>
-          <p className="sw-mb-4">{translate('new_code_definition.number_days.usecase')}</p>
+          <p className="sw-mb-2">{translate('new_code_definition.number_days.description')}</p>
+          <p>{translate('new_code_definition.number_days.usecase')}</p>
         </div>
         {selected && (
-          <>
-            <MandatoryFieldsExplanation />
-
-            <ValidationInput
-              labelHtmlFor="baseline_number_of_days"
-              isInvalid={!isValid}
-              isValid={isChanged && isValid}
-              errorPlacement={ValidationInputErrorPlacement.Bottom}
-              error={translateWithParameters(
+          <div className="sw-mt-4">
+            <label>
+              {translate('new_code_definition.number_days.specify_days')}
+              <div className="sw-my-2 sw-flex sw-items-center">
+                <InputField
+                  id="baseline_number_of_days"
+                  type="number"
+                  required
+                  isInvalid={!isValid}
+                  isValid={isChanged && isValid}
+                  onChange={(e) => onChangeDays(e.currentTarget.value)}
+                  value={days}
+                />
+                {!isValid && <FlagErrorIcon className="sw-ml-2" />}
+              </div>
+            </label>
+            <Note>
+              {translateWithParameters(
                 'new_code_definition.number_days.invalid',
                 NUMBER_OF_DAYS_MIN_VALUE,
                 NUMBER_OF_DAYS_MAX_VALUE
               )}
-              label={translate('new_code_definition.number_days.specify_days')}
-              required
-            >
-              <input
-                id="baseline_number_of_days"
-                onChange={(e) => onChangeDays(e.currentTarget.value)}
-                type="text"
-                value={days}
-              />
-            </ValidationInput>
-          </>
+            </Note>
+          </div>
         )}
       </>
-    </RadioCard>
+    </SelectionCard>
   );
 }

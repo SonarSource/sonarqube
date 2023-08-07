@@ -144,7 +144,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
           isBranchSupportEnabled={branchesEnabled}
           level="project"
         />
-        <div className="display-flex-row big-spacer-bottom" role="radiogroup">
+        <div className="display-flex-column big-spacer-bottom sw-gap-4" role="radiogroup">
           <NewCodeDefinitionPreviousVersionOption
             disabled={!overrideGeneralSetting}
             onSelect={props.onSelectSetting}

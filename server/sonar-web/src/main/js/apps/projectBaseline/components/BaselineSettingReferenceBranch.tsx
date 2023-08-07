@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { SelectionCard } from 'design-system';
 import * as React from 'react';
 import { components, OptionProps } from 'react-select';
-import RadioCard from '../../../components/controls/RadioCard';
 import Select from '../../../components/controls/Select';
 import Tooltip from '../../../components/controls/Tooltip';
 import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
@@ -94,8 +94,7 @@ export default function BaselineSettingReferenceBranch(props: BaselineSettingRef
   };
 
   return (
-    <RadioCard
-      noRadio
+    <SelectionCard
       className={className}
       disabled={disabled}
       onClick={() => props.onSelect(NewCodeDefinitionType.ReferenceBranch)}
@@ -132,6 +131,6 @@ export default function BaselineSettingReferenceBranch(props: BaselineSettingRef
           </>
         )}
       </>
-    </RadioCard>
+    </SelectionCard>
   );
 }

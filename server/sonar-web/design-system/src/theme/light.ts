@@ -505,6 +505,7 @@ export const lightTheme = {
     // selection card
     selectionCardHeader: secondary.darker,
     selectionCardDisabled: secondary.light,
+    selectionCardDisabledText: secondary.dark,
     selectionCardBorder: COLORS.blueGrey[100],
     selectionCardBorderHover: COLORS.indigo[200],
     selectionCardBorderSelected: primary.light,

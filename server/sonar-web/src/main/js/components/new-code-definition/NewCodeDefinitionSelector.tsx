@@ -17,7 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RadioButton } from 'design-system/lib';
+import styled from '@emotion/styled';
+import {
+  FlagMessage,
+  PageContentFontWrapper,
+  RadioButton,
+  SelectionCard,
+  themeColor,
+} from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
 import { getNewCodePeriod } from '../../api/newCodePeriod';
@@ -31,9 +38,7 @@ import {
   NewCodeDefinitionType,
   NewCodeDefinitiondWithCompliance,
 } from '../../types/new-code-definition';
-import RadioCard from '../controls/RadioCard';
 import Tooltip from '../controls/Tooltip';
-import { Alert } from '../ui/Alert';
 import GlobalNewCodeDefinitionDescription from './GlobalNewCodeDefinitionDescription';
 import NewCodeDefinitionDaysOption from './NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from './NewCodeDefinitionPreviousVersionOption';
@@ -99,15 +104,16 @@ export default function NewCodeDefinitionSelector(props: Props) {
   }, [selectedNcdType, days, isCompliant, onNcdChanged]);
 
   return (
-    <>
+    <PageContentFontWrapper>
       <p className="sw-mt-10">
-        <strong>{translate('new_code_definition.question')}</strong>
+        <strong className="sw-body-md-highlight">
+          {translate('new_code_definition.question')}
+        </strong>
       </p>
-      <div className="big-spacer-top spacer-bottom" role="radiogroup">
+      <div className="sw-mt-7 sw-ml-1" role="radiogroup">
         <RadioButton
           aria-label={translate('new_code_definition.global_setting')}
           checked={selectedNcdType === NewCodeDefinitionType.Inherited}
-          className="big-spacer-bottom"
           disabled={!isGlobalNcdCompliant}
           onCheck={() => handleNcdChanged(NewCodeDefinitionType.Inherited)}
           value="general"
@@ -119,11 +125,16 @@ export default function NewCodeDefinitionSelector(props: Props) {
                 : translate('new_code_definition.compliance.warning.title.global')
             }
           >
-            <span>{translate('new_code_definition.global_setting')}</span>
+            <span className="sw-font-semibold">
+              {translate('new_code_definition.global_setting')}
+            </span>
           </Tooltip>
         </RadioButton>
 
-        <div className="sw-ml-4">
+        <StyledGlobalSettingWrapper
+          className="sw-mt-4 sw-ml-6"
+          selected={selectedNcdType === NewCodeDefinitionType.Inherited}
+        >
           {globalNcd && (
             <GlobalNewCodeDefinitionDescription
               globalNcd={globalNcd}
@@ -131,12 +142,12 @@ export default function NewCodeDefinitionSelector(props: Props) {
               canAdmin={canAdmin}
             />
           )}
-        </div>
+        </StyledGlobalSettingWrapper>
 
         <RadioButton
           aria-label={translate('new_code_definition.specific_setting')}
           checked={Boolean(selectedNcdType && selectedNcdType !== NewCodeDefinitionType.Inherited)}
-          className="huge-spacer-top"
+          className="sw-mt-12 sw-font-semibold"
           onCheck={() => handleNcdChanged(NewCodeDefinitionType.PreviousVersion)}
           value="specific"
         >
@@ -144,51 +155,52 @@ export default function NewCodeDefinitionSelector(props: Props) {
         </RadioButton>
       </div>
 
-      <div className="big-spacer-left big-spacer-right project-baseline-setting">
-        <div className="display-flex-row big-spacer-bottom" role="radiogroup">
-          <NewCodeDefinitionPreviousVersionOption
-            disabled={Boolean(
-              !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited
-            )}
-            onSelect={handleNcdChanged}
-            selected={selectedNcdType === NewCodeDefinitionType.PreviousVersion}
-          />
+      <div className="sw-flex sw-flex-col sw-my-4 sw-mr-4 sw-gap-4" role="radiogroup">
+        <NewCodeDefinitionPreviousVersionOption
+          disabled={Boolean(
+            !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited
+          )}
+          onSelect={handleNcdChanged}
+          selected={selectedNcdType === NewCodeDefinitionType.PreviousVersion}
+        />
 
-          <NewCodeDefinitionDaysOption
-            days={days}
-            disabled={Boolean(
-              !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited
-            )}
-            isChanged={isChanged}
-            isValid={isCompliant}
-            onChangeDays={setDays}
-            onSelect={handleNcdChanged}
-            selected={selectedNcdType === NewCodeDefinitionType.NumberOfDays}
-          />
+        <NewCodeDefinitionDaysOption
+          days={days}
+          disabled={Boolean(
+            !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited
+          )}
+          isChanged={isChanged}
+          isValid={isCompliant}
+          onChangeDays={setDays}
+          onSelect={handleNcdChanged}
+          selected={selectedNcdType === NewCodeDefinitionType.NumberOfDays}
+        />
 
-          <RadioCard
-            noRadio
-            disabled={Boolean(
-              !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited
+        <SelectionCard
+          disabled={Boolean(
+            !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited
+          )}
+          onClick={() => handleNcdChanged(NewCodeDefinitionType.ReferenceBranch)}
+          selected={selectedNcdType === NewCodeDefinitionType.ReferenceBranch}
+          title={translate('new_code_definition.reference_branch')}
+        >
+          <div>
+            <p className="sw-mb-2">
+              {translate('new_code_definition.reference_branch.description')}
+            </p>
+            <p>{translate('new_code_definition.reference_branch.usecase')}</p>
+            {selectedNcdType === NewCodeDefinitionType.ReferenceBranch && (
+              <FlagMessage className="sw-mt-4" variant="info">
+                {translate('new_code_definition.reference_branch.notice')}
+              </FlagMessage>
             )}
-            onClick={() => handleNcdChanged(NewCodeDefinitionType.ReferenceBranch)}
-            selected={selectedNcdType === NewCodeDefinitionType.ReferenceBranch}
-            title={translate('new_code_definition.reference_branch')}
-          >
-            <div>
-              <p className="sw-mb-3">
-                {translate('new_code_definition.reference_branch.description')}
-              </p>
-              <p className="sw-mb-4">{translate('new_code_definition.reference_branch.usecase')}</p>
-              {selectedNcdType === NewCodeDefinitionType.ReferenceBranch && (
-                <Alert variant="info">
-                  {translate('new_code_definition.reference_branch.notice')}
-                </Alert>
-              )}
-            </div>
-          </RadioCard>
-        </div>
+          </div>
+        </SelectionCard>
       </div>
-    </>
+    </PageContentFontWrapper>
   );
 }
+
+const StyledGlobalSettingWrapper = styled.div<{ selected: boolean }>`
+  color: ${({ selected }) => (selected ? 'inherit' : themeColor('selectionCardDisabledText'))};
+`;

@@ -55,7 +55,6 @@ const ui = {
   }),
   projectNextButton: byRole('button', { name: 'next' }),
   newCodeDefinitionHeader: byText('onboarding.create_project.new_code_definition.title'),
-  newCodeDefinitionBackButton: byRole('button', { name: 'back' }),
   inheritGlobalNcdRadio: byRole('radio', { name: 'new_code_definition.global_setting' }),
   projectCreateButton: byRole('button', {
     name: 'onboarding.create_project.new_code_definition.create_project',
@@ -70,7 +69,7 @@ const ui = {
   ncdOptionDaysRadio: byRole('radio', {
     name: /new_code_definition.number_days/,
   }),
-  ncdOptionDaysInput: byRole('textbox', {
+  ncdOptionDaysInput: byRole('spinbutton', {
     name: /new_code_definition.number_days.specify_days/,
   }),
   ncdOptionDaysInputError: byText('new_code_definition.number_days.invalid.1.90'),
@@ -113,20 +112,12 @@ afterAll(() => {
   Object.defineProperty(window, 'location', { configurable: true, value: original });
 });
 
-it('should fill form and move to NCD selection and back', async () => {
+it('should fill form and move to NCD selection', async () => {
   const user = userEvent.setup();
   renderCreateProject();
   await fillFormAndNext('test', user);
 
   expect(ui.newCodeDefinitionHeader.get()).toBeInTheDocument();
-
-  expect(ui.newCodeDefinitionBackButton.get()).toBeInTheDocument();
-  await user.click(ui.newCodeDefinitionBackButton.get());
-
-  expect(ui.manualProjectHeader.get()).toBeInTheDocument();
-
-  // TODO this must work at some point
-  // expect(ui.displayNameField.get()).toHaveValue('test');
 });
 
 it('should select the global NCD when it is compliant', async () => {
@@ -204,7 +195,7 @@ it.each([ui.ncdOptionRefBranchRadio, ui.ncdOptionPreviousVersionRadio])(
   }
 );
 
-it('number of days should show error message if value is not a number', async () => {
+it('number of days ignores non-numeric inputs', async () => {
   jest
     .mocked(getNewCodePeriod)
     .mockResolvedValue({ type: NewCodeDefinitionType.NumberOfDays, value: '60' });
@@ -222,21 +213,14 @@ it('number of days should show error message if value is not a number', async ()
   await user.click(ui.ncdOptionDaysRadio.get());
 
   expect(ui.ncdOptionDaysInput.get()).toBeInTheDocument();
-  expect(ui.ncdOptionDaysInput.get()).toHaveValue('60');
+  expect(ui.ncdOptionDaysInput.get()).toHaveValue(60);
   expect(ui.projectCreateButton.get()).toBeEnabled();
 
   await user.click(ui.ncdOptionDaysInput.get());
   await user.keyboard('abc');
 
-  expect(ui.ncdOptionDaysInputError.get()).toBeInTheDocument();
-  expect(ui.projectCreateButton.get()).toBeDisabled();
-
-  await user.clear(ui.ncdOptionDaysInput.get());
-  await user.click(ui.ncdOptionDaysInput.get());
-  await user.keyboard('30');
-
-  expect(ui.ncdOptionDaysInputError.query()).not.toBeInTheDocument();
-  expect(ui.projectCreateButton.get()).toBeEnabled();
+  // it ignores the input and preserves its value
+  expect(ui.ncdOptionDaysInput.get()).toHaveValue(60);
 });
 
 it('the project onboarding page should be displayed when the project is created', async () => {

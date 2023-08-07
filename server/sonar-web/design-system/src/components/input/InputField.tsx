@@ -134,6 +134,12 @@ const StyledInput = styled.input`
     ${baseStyle}
     ${tw`sw-h-control`}
   }
+
+  input[type='number']& {
+    ${getInputVariant}
+    ${baseStyle}
+    ${tw`sw-h-control`}
+  }
 `;
 
 const StyledTextArea = styled.textarea`

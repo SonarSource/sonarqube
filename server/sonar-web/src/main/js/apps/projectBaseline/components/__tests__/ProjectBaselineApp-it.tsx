@@ -312,7 +312,7 @@ function getPageObjects() {
       name: /new_code_definition.previous_version.description/,
     }),
     numberDaysRadio: byRole('radio', { name: /new_code_definition.number_days.description/ }),
-    numberDaysInput: byRole('textbox'),
+    numberDaysInput: byRole('spinbutton'),
     referenceBranchRadio: byRole('radio', { name: /baseline.reference_branch.description/ }),
     chooseBranchSelect: byRole('combobox', { name: 'baseline.reference_branch.choose' }),
     specificAnalysisRadio: byRole('radio', { name: /baseline.specific_analysis.description/ }),

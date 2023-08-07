@@ -179,7 +179,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
               isBranchSupportEnabled
               level="branch"
             />
-            <div className="display-flex-row huge-spacer-bottom" role="radiogroup">
+            <div className="display-flex-column huge-spacer-bottom sw-gap-4" role="radiogroup">
               <NewCodeDefinitionPreviousVersionOption
                 isDefault={false}
                 onSelect={this.handleSelectSetting}

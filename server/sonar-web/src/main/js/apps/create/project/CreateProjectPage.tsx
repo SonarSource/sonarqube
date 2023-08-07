@@ -21,25 +21,17 @@ import classNames from 'classnames';
 import { LargeCenteredLayout } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { FormattedMessage } from 'react-intl';
 import { getAlmSettings } from '../../../api/alm-settings';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
-import DocLink from '../../../components/common/DocLink';
-import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import NewCodeDefinitionSelector from '../../../components/new-code-definition/NewCodeDefinitionSelector';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
-import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
-import { getProjectUrl } from '../../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { AppState } from '../../../types/appstate';
 import { Feature } from '../../../types/features';
-import { NewCodeDefinitiondWithCompliance } from '../../../types/new-code-definition';
 import AlmBindingDefinitionForm from '../../settings/components/almIntegration/AlmBindingDefinitionForm';
 import AzureProjectCreate from './Azure/AzureProjectCreate';
 import BitbucketCloudProjectCreate from './BitbucketCloud/BitbucketCloudProjectCreate';
@@ -47,7 +39,7 @@ import BitbucketProjectCreate from './BitbucketServer/BitbucketProjectCreate';
 import CreateProjectModeSelection from './CreateProjectModeSelection';
 import GitHubProjectCreate from './Github/GitHubProjectCreate';
 import GitlabProjectCreate from './Gitlab/GitlabProjectCreate';
-import CreateProjectPageHeader from './components/CreateProjectPageHeader';
+import NewCodeDefinitionSelection from './components/NewCodeDefinitionSelection';
 import ManualProjectCreate from './manual/ManualProjectCreate';
 import './style.css';
 import { CreateProjectApiCallback, CreateProjectModes } from './types';
@@ -65,10 +57,7 @@ interface State {
   githubSettings: AlmSettingsInstance[];
   gitlabSettings: AlmSettingsInstance[];
   loading: boolean;
-  isProjectSetupDone: boolean;
   creatingAlmDefinition?: AlmKeys;
-  selectedNcd: NewCodeDefinitiondWithCompliance | null;
-  submitting: boolean;
 }
 
 const PROJECT_MODE_FOR_ALM_KEY = {
@@ -90,18 +79,29 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     githubSettings: [],
     gitlabSettings: [],
     loading: true,
-    isProjectSetupDone: false,
-    selectedNcd: null,
-    submitting: false,
   };
 
   componentDidMount() {
     this.mounted = true;
+
+    this.cleanQueryParameters();
     this.fetchAlmBindings();
   }
 
   componentWillUnmount() {
     this.mounted = false;
+  }
+
+  cleanQueryParameters() {
+    const { location, router } = this.props;
+
+    if (location.query?.setncd === 'true' && this.createProjectFnRef === null) {
+      // Timeout is required to force the refresh of the URL
+      setTimeout(() => {
+        location.query.setncd = undefined;
+        router.replace(location);
+      }, 0);
+    }
   }
 
   fetchAlmBindings = () => {
@@ -138,22 +138,12 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     this.setState({ creatingAlmDefinition: alm });
   };
 
-  handleProjectCreation = async () => {
-    const { selectedNcd } = this.state;
-    if (this.createProjectFnRef && selectedNcd) {
-      this.setState({ submitting: true });
-
-      const { project } = await this.createProjectFnRef(selectedNcd.type, selectedNcd.value);
-      this.props.router.push(getProjectUrl(project.key));
-
-      addGlobalSuccessMessage(translate('onboarding.create_project.success'));
-      this.setState({ submitting: false });
-    }
-  };
-
   handleProjectSetupDone = (createProject: CreateProjectApiCallback) => {
+    const { location, router } = this.props;
     this.createProjectFnRef = createProject;
-    this.setState({ isProjectSetupDone: true });
+
+    location.query.setncd = 'true';
+    router.push(location);
   };
 
   handleOnCancelCreation = () => {
@@ -176,16 +166,6 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
 
       this.handleModeSelect(PROJECT_MODE_FOR_ALM_KEY[createdAlmDefinition]);
     }
-  };
-
-  handleNcdChanged = (ncd: NewCodeDefinitiondWithCompliance) => {
-    this.setState({
-      selectedNcd: ncd,
-    });
-  };
-
-  handleGoBack = () => {
-    this.setState({ isProjectSetupDone: false });
   };
 
   renderProjectCreation(mode?: CreateProjectModes) {
@@ -292,61 +272,11 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     }
   }
 
-  renderNcdSelection() {
-    const { appState } = this.props;
-    const { selectedNcd, submitting } = this.state;
-
-    return (
-      <div id="project-ncd-selection">
-        <CreateProjectPageHeader
-          title={translate('onboarding.create_project.new_code_definition.title')}
-        />
-
-        <h1 className="sw-mb-4">{translate('onboarding.create_project.new_code_definition')}</h1>
-        <p className="sw-mb-2">
-          {translate('onboarding.create_project.new_code_definition.description')}
-        </p>
-        <p className="sw-mb-2">
-          {translate('onboarding.create_project.new_code_definition.description1')}
-        </p>
-
-        <p className="sw-mb-2">
-          <FormattedMessage
-            defaultMessage={translate('onboarding.create_project.new_code_definition.description2')}
-            id="onboarding.create_project.new_code_definition.description2"
-            values={{
-              link: (
-                <DocLink to="/project-administration/defining-new-code/">
-                  {translate('onboarding.create_project.new_code_definition.description2.link')}
-                </DocLink>
-              ),
-            }}
-          />
-        </p>
-
-        <NewCodeDefinitionSelector
-          canAdmin={appState.canAdmin}
-          onNcdChanged={this.handleNcdChanged}
-        />
-
-        <div className="sw-flex sw-flex-row sw-gap-4 sw-mt-4">
-          <ButtonLink onClick={this.handleGoBack}>{translate('back')}</ButtonLink>
-          <SubmitButton
-            onClick={this.handleProjectCreation}
-            disabled={!selectedNcd?.isCompliant || submitting}
-          >
-            {translate('onboarding.create_project.new_code_definition.create_project')}
-            <DeferredSpinner className="spacer-left" loading={submitting} />
-          </SubmitButton>
-        </div>
-      </div>
-    );
-  }
-
   render() {
-    const { location } = this.props;
-    const { creatingAlmDefinition, isProjectSetupDone } = this.state;
+    const { appState, location, router } = this.props;
+    const { creatingAlmDefinition } = this.state;
     const mode: CreateProjectModes | undefined = location.query?.mode;
+    const isProjectSetupDone = location.query?.setncd === 'true';
 
     return (
       <LargeCenteredLayout className="sw-pt-8">
@@ -358,7 +288,11 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
             {this.renderProjectCreation(mode)}
           </div>
           <div className={classNames({ 'sw-hidden': !isProjectSetupDone })}>
-            {this.renderNcdSelection()}
+            <NewCodeDefinitionSelection
+              canAdmin={Boolean(appState.canAdmin)}
+              router={router}
+              createProjectFnRef={this.createProjectFnRef}
+            />
           </div>
 
           {creatingAlmDefinition && (

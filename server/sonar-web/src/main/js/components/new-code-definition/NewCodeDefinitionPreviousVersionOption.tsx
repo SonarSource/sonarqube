@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { SelectionCard } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { NewCodeDefinitionType } from '../../types/new-code-definition';
-import RadioCard from '../controls/RadioCard';
 
 interface Props {
   disabled?: boolean;
@@ -36,8 +36,7 @@ export default function NewCodeDefinitionPreviousVersionOption({
   selected,
 }: Props) {
   return (
-    <RadioCard
-      noRadio
+    <SelectionCard
       disabled={disabled}
       onClick={() => onSelect(NewCodeDefinitionType.PreviousVersion)}
       selected={selected}
@@ -47,9 +46,9 @@ export default function NewCodeDefinitionPreviousVersionOption({
       }
     >
       <div>
-        <p>{translate('new_code_definition.previous_version.description')}</p>
-        <p className="sw-mt-3">{translate('new_code_definition.previous_version.usecase')}</p>
+        <p className="sw-mb-2">{translate('new_code_definition.previous_version.description')}</p>
+        <p>{translate('new_code_definition.previous_version.usecase')}</p>
       </div>
-    </RadioCard>
+    </SelectionCard>
   );
 }

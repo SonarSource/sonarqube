@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { NewCodeDefinition, NewCodeDefinitionType } from '../../types/new-code-definition';
-import Link from '../common/Link';
-import { Alert } from '../ui/Alert';
 
 interface Props {
   globalNcd: NewCodeDefinition;
@@ -54,7 +53,7 @@ export default function GlobalNewCodeDefinitionDescription({
   return (
     <>
       <div className="sw-flex sw-flex-col sw-gap-2 sw-max-w-[800px]">
-        <span className="sw-font-bold flex-0">{setting}</span>
+        <strong className="sw-font-bold">{setting}</strong>
         {isGlobalNcdCompliant && (
           <>
             <span>{description}</span>
@@ -63,32 +62,34 @@ export default function GlobalNewCodeDefinitionDescription({
         )}
       </div>
       {!isGlobalNcdCompliant && (
-        <Alert variant="warning" className="sw-mt-4 sw-max-w-[800px]">
-          <p className="sw-mb-2 sw-font-bold">
-            {translate('new_code_definition.compliance.warning.title.global')}
-          </p>
-          <p className="sw-mb-2">
-            {canAdmin ? (
-              <FormattedMessage
-                id="new_code_definition.compliance.warning.explanation.admin"
-                defaultMessage={translate(
-                  'new_code_definition.compliance.warning.explanation.admin'
-                )}
-                values={{
-                  link: (
-                    <Link to="/admin/settings?category=new_code_period">
-                      {translate(
-                        'new_code_definition.compliance.warning.explanation.action.admin.link'
-                      )}
-                    </Link>
-                  ),
-                }}
-              />
-            ) : (
-              translate('new_code_definition.compliance.warning.explanation')
-            )}
-          </p>
-        </Alert>
+        <FlagMessage variant="warning" className="sw-mt-4 sw-max-w-[800px]">
+          <span>
+            <p className="sw-mb-2 sw-font-bold">
+              {translate('new_code_definition.compliance.warning.title.global')}
+            </p>
+            <p className="sw-mb-2">
+              {canAdmin ? (
+                <FormattedMessage
+                  id="new_code_definition.compliance.warning.explanation.admin"
+                  defaultMessage={translate(
+                    'new_code_definition.compliance.warning.explanation.admin'
+                  )}
+                  values={{
+                    link: (
+                      <Link to="/admin/settings?category=new_code_period">
+                        {translate(
+                          'new_code_definition.compliance.warning.explanation.action.admin.link'
+                        )}
+                      </Link>
+                    ),
+                  }}
+                />
+              ) : (
+                translate('new_code_definition.compliance.warning.explanation')
+              )}
+            </p>
+          </span>
+        </FlagMessage>
       )}
     </>
   );

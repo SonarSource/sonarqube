@@ -70,9 +70,10 @@ export function SelectionCard(props: SelectionCardProps) {
         },
         className
       )}
-      onClick={isActionable && !disabled ? onClick : undefined}
+      onClick={isActionable && !disabled && !selected ? onClick : undefined}
       role={isActionable ? 'radio' : 'presentation'}
       tabIndex={disabled ? -1 : 0}
+      type="button"
     >
       <StyledContent>
         {isActionable && (
@@ -110,6 +111,7 @@ const StyledButton = styled.button`
 
   background-color: ${themeColor('backgroundSecondary')};
   border: ${themeBorder('default', 'selectionCardBorder')};
+  color: inherit;
 
   &:focus {
     outline: none;
@@ -139,6 +141,7 @@ const StyledButton = styled.button`
     ${tw`sw-cursor-not-allowed`}
 
     background-color: ${themeColor('selectionCardDisabled')};
+    color: ${themeColor('selectionCardDisabledText')};
     border: ${themeBorder('default', 'selectionCardBorderDisabled')};
   }
 `;
@@ -170,6 +173,7 @@ const StyledLabel = styled.label`
   ${tw`sw-body-sm-highlight`}
 
   color: ${themeColor('selectionCardHeader')};
+  cursor: inherit;
 
   .disabled & {
     color: ${themeContrast('selectionCardDisabled')};

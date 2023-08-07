@@ -42,7 +42,7 @@ const ui = {
   prevVersionRadio: byRole('radio', { name: /new_code_definition.previous_version/ }),
   daysNumberRadio: byRole('radio', { name: /new_code_definition.number_days/ }),
   daysNumberErrorMessage: byText('new_code_definition.number_days.invalid', { exact: false }),
-  daysInput: byRole('textbox'),
+  daysInput: byRole('spinbutton') /* spinbutton is the default role for a number input */,
   saveButton: byRole('button', { name: 'save' }),
   cancelButton: byRole('button', { name: 'cancel' }),
 };
@@ -59,14 +59,16 @@ it('renders and behaves as expected', async () => {
   await user.click(ui.daysNumberRadio.get());
   expect(ui.daysNumberRadio.get()).toBeChecked();
 
-  // Save should be disabled for zero or NaN
-  expect(ui.daysInput.get()).toHaveValue('30');
+  // Save should be disabled for zero
+  expect(ui.daysInput.get()).toHaveValue(30);
   await user.clear(ui.daysInput.get());
   await user.type(ui.daysInput.get(), '0');
   expect(await ui.saveButton.find()).toBeDisabled();
+
+  // Save should not appear at all for NaN
   await user.clear(ui.daysInput.get());
   await user.type(ui.daysInput.get(), 'asdas');
-  expect(ui.saveButton.get()).toBeDisabled();
+  expect(ui.saveButton.query()).toBeDisabled();
 
   // Save enabled for valid days number
   await user.clear(ui.daysInput.get());
@@ -98,7 +100,7 @@ it('renders and behaves properly when the current value is not compliant', async
 
   expect(await ui.newCodeTitle.find()).toBeInTheDocument();
   expect(ui.daysNumberRadio.get()).toBeChecked();
-  expect(ui.daysInput.get()).toHaveValue('91');
+  expect(ui.daysInput.get()).toHaveValue(91);
 
   // Should warn about non compliant value
   expect(screen.getByText('baseline.number_days.compliance_warning.title')).toBeInTheDocument();
