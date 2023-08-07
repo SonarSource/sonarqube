@@ -29,8 +29,7 @@
         "language",
         "plugin"
       ],
-      "visibility": "private",
-      "initialPermSync": "FINISHED"
+      "visibility": "private"
     }
   ]
 }

@@ -33,7 +33,6 @@ public class ProjectDto extends EntityDto {
   private String tags;
   private long createdAt;
   private long updatedAt;
-  private String initialPermSync;
 
   public long getCreatedAt() {
     return createdAt;
@@ -112,15 +111,6 @@ public class ProjectDto extends EntityDto {
 
   public ProjectDto setQualifier(String qualifier) {
     this.qualifier = qualifier;
-    return this;
-  }
-
-  public String getInitialPermSync() {
-    return initialPermSync;
-  }
-
-  public ProjectDto setInitialPermSync(@Nullable String initialPermSync) {
-    this.initialPermSync = initialPermSync;
     return this;
   }
 }

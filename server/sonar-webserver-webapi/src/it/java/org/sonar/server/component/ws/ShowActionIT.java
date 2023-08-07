@@ -478,8 +478,7 @@ public class ShowActionIT {
         .setName("Java Markdown")
         .setDescription("Java Markdown Project")
         .setQualifier(Qualifiers.PROJECT),
-      p -> p.setTagsString("language, plugin")
-        .setInitialPermSync("FINISHED"));
+      p -> p.setTagsString("language, plugin"));
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     userSession.addProjectPermission(USER, projectData.getProjectDto())
       .registerBranches(projectData.getMainBranchDto());
