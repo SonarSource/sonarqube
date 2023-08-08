@@ -24,7 +24,7 @@ import { InitialEntry } from 'history';
 import { identity, kebabCase } from 'lodash';
 import React, { PropsWithChildren, ReactNode } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
-import { IntlProvider } from 'react-intl';
+import { IntlProvider, ReactIntlErrorCode } from 'react-intl';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 export function render(
@@ -60,12 +60,14 @@ export function renderWithRouter(
   function RouterWrapper({ children }: React.PropsWithChildren<object>) {
     return (
       <HelmetProvider>
-        <MemoryRouter>
-          <Routes>
-            <Route element={children} path="/" />
-            {additionalRoutes}
-          </Routes>
-        </MemoryRouter>
+        <IntlWrapper>
+          <MemoryRouter>
+            <Routes>
+              <Route element={children} path="/" />
+              {additionalRoutes}
+            </Routes>
+          </MemoryRouter>
+        </IntlWrapper>
       </HelmetProvider>
     );
   }
@@ -77,9 +79,7 @@ function getContextWrapper() {
   return function ContextWrapper({ children }: React.PropsWithChildren<object>) {
     return (
       <HelmetProvider>
-        <IntlProvider defaultLocale="en" locale="en">
-          {children}
-        </IntlProvider>
+        <IntlWrapper>{children}</IntlWrapper>
       </HelmetProvider>
     );
   };
@@ -113,3 +113,28 @@ export const debounceTimer = jest
 
     return debounced;
   });
+
+export function IntlWrapper({
+  children,
+  messages = {},
+}: {
+  children: ReactNode;
+  messages?: Record<string, string>;
+}) {
+  return (
+    <IntlProvider
+      defaultLocale="en"
+      locale="en"
+      messages={messages}
+      onError={(e) => {
+        // ignore missing translations, there are none!
+        if (e.code !== ReactIntlErrorCode.MISSING_TRANSLATION) {
+          // eslint-disable-next-line no-console
+          console.error(e);
+        }
+      }}
+    >
+      {children}
+    </IntlProvider>
+  );
+}

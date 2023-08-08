@@ -19,7 +19,7 @@
  */
 
 import React from 'react';
-import { translate } from '../helpers/l10n';
+import { useIntl } from 'react-intl';
 import { PopupPlacement, PopupZLevel } from '../helpers/positioning';
 import { InputSizeKeys } from '../types/theme';
 import { DropdownMenu } from './DropdownMenu';
@@ -147,11 +147,14 @@ interface ActionsDropdownProps extends Omit<Props, 'children' | 'overlay'> {
 
 export function ActionsDropdown(props: ActionsDropdownProps) {
   const { children, buttonSize, ariaLabel, ...dropdownProps } = props;
+
+  const intl = useIntl();
+
   return (
     <Dropdown overlay={children} {...dropdownProps}>
       <InteractiveIcon
         Icon={MenuIcon}
-        aria-label={ariaLabel ?? translate('menu')}
+        aria-label={ariaLabel ?? intl.formatMessage({ id: 'menu' })}
         size={buttonSize}
         stopPropagation={false}
       />

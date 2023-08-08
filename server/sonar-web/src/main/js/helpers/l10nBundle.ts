@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { IntlShape, createIntl, createIntlCache } from 'react-intl';
 import { fetchL10nBundle } from '../api/l10n';
 import { L10nBundle, L10nBundleRequestParams } from '../types/l10nBundle';
 import { Dict } from '../types/types';
@@ -27,6 +28,12 @@ const DEFAULT_MESSAGES: Dict<string> = {
   // eslint-disable-next-line camelcase
   default_error_message: 'The request cannot be processed. Try again later.',
 };
+
+let intl: IntlShape;
+
+export function getIntl() {
+  return intl;
+}
 
 export function getMessages() {
   return getL10nBundleFromCache().messages ?? DEFAULT_MESSAGES;
@@ -77,7 +84,17 @@ export async function loadL10nBundle() {
 
   persistL10nBundleInCache(bundle);
 
-  return bundle;
+  const cache = createIntlCache();
+
+  intl = createIntl(
+    {
+      locale: effectiveLocale,
+      messages,
+    },
+    cache
+  );
+
+  return intl;
 }
 
 function getPreferredLanguage() {

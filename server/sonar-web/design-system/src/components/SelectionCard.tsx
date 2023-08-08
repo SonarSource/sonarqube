@@ -19,8 +19,8 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
+import { useIntl } from 'react-intl';
 import tw from 'twin.macro';
-import { translate } from '../helpers/l10n';
 import { themeBorder, themeColor, themeContrast, themeShadow } from '../helpers/theme';
 import { LightLabel } from './Text';
 import { RecommendedIcon } from './icons/RecommendedIcon';
@@ -53,6 +53,9 @@ export function SelectionCard(props: SelectionCardProps) {
     vertical = false,
   } = props;
   const isActionable = Boolean(onClick);
+
+  const intl = useIntl();
+
   return (
     <StyledButton
       aria-checked={selected}
@@ -92,7 +95,7 @@ export function SelectionCard(props: SelectionCardProps) {
         <StyledRecommended>
           <StyledRecommendedIcon className="sw-mr-1" />
           <span className="sw-align-middle">
-            <strong>{translate('recommended')}</strong> {recommendedReason}
+            <strong>{intl.formatMessage({ id: 'recommended' })}</strong> {recommendedReason}
           </span>
         </StyledRecommended>
       )}

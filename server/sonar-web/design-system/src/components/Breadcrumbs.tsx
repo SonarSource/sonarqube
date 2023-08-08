@@ -20,6 +20,7 @@
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import React from 'react';
+import { useIntl } from 'react-intl';
 import tw from 'twin.macro';
 import {
   LAYOUT_VIEWPORT_MAX_WIDTH_LARGE,
@@ -28,7 +29,6 @@ import {
   themeColor,
   themeContrast,
 } from '../helpers';
-import { translate } from '../helpers/l10n';
 import { useResizeObserver } from '../hooks/useResizeObserver';
 import { Dropdown } from './Dropdown';
 import { InteractiveIcon } from './InteractiveIcon';
@@ -60,6 +60,8 @@ export function Breadcrumbs(props: Props) {
     maxWidth = LAYOUT_VIEWPORT_MAX_WIDTH_LARGE,
   } = props;
   const [lengthOfChildren, setLengthOfChildren] = React.useState<number[]>([]);
+
+  const intl = useIntl();
 
   const breadcrumbRef = React.useCallback((node: HTMLLIElement, index: number) => {
     setLengthOfChildren((value) => {
@@ -138,7 +140,7 @@ export function Breadcrumbs(props: Props) {
 
   return (
     <BreadcrumbWrapper
-      aria-label={ariaLabel ?? translate('breadcrumbs')}
+      aria-label={ariaLabel ?? intl.formatMessage({ id: 'breadcrumbs' })}
       className={classNames('js-breadcrumbs', className)}
       ref={innerRef}
     >
@@ -155,7 +157,7 @@ export function Breadcrumbs(props: Props) {
         >
           <InteractiveIcon
             Icon={ChevronDownIcon}
-            aria-label={expandButtonLabel ?? translate('expand_breadcrumb')}
+            aria-label={expandButtonLabel ?? intl.formatMessage({ id: 'expand_breadcrumb' })}
             className="sw-m-1 sw-mr-2"
             size="small"
           />

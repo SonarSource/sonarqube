@@ -31,8 +31,6 @@ interface DateRange {
 
 interface Props {
   alignEndDateCalandarRight?: boolean;
-  ariaNextMonthLabel: string;
-  ariaPreviousMonthLabel: string;
   className?: string;
   clearButtonLabel: string;
   fromLabel: string;
@@ -75,8 +73,6 @@ export class DateRangePicker extends React.PureComponent<Props> {
   render() {
     const {
       alignEndDateCalandarRight,
-      ariaNextMonthLabel,
-      ariaPreviousMonthLabel,
       clearButtonLabel,
       fromLabel,
       minDate,
@@ -90,8 +86,6 @@ export class DateRangePicker extends React.PureComponent<Props> {
     return (
       <div className={classNames('sw-flex sw-items-center', this.props.className)}>
         <DatePicker
-          ariaNextMonthLabel={ariaNextMonthLabel}
-          ariaPreviousMonthLabel={ariaPreviousMonthLabel}
           clearButtonLabel={clearButtonLabel}
           currentMonth={this.to}
           data-test="from"
@@ -109,8 +103,6 @@ export class DateRangePicker extends React.PureComponent<Props> {
         <LightLabel className="sw-mx-2">{separatorText ?? '–'}</LightLabel>
         <DatePicker
           alignRight={alignEndDateCalandarRight}
-          ariaNextMonthLabel={ariaNextMonthLabel}
-          ariaPreviousMonthLabel={ariaPreviousMonthLabel}
           clearButtonLabel={clearButtonLabel}
           currentMonth={this.from}
           data-test="to"

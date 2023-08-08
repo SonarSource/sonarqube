@@ -20,25 +20,9 @@
 
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import {
-  format,
-  getYear,
-  isSameMonth,
-  isSameYear,
-  setMonth,
-  setYear,
-  startOfMonth,
-} from 'date-fns';
-import { range } from 'lodash';
+import { format } from 'date-fns';
 import * as React from 'react';
-import {
-  ActiveModifiers,
-  CaptionProps,
-  Matcher,
-  DayPicker as OriginalDayPicker,
-  useNavigation as useCalendarNavigation,
-  useDayPicker,
-} from 'react-day-picker';
+import { ActiveModifiers, Matcher, DayPicker as OriginalDayPicker } from 'react-day-picker';
 import tw from 'twin.macro';
 import { PopupPlacement, PopupZLevel, themeBorder, themeColor, themeContrast } from '../../helpers';
 import { InputSizeKeys } from '../../types/theme';
@@ -46,20 +30,17 @@ import EscKeydownHandler from '../EscKeydownHandler';
 import { FocusOutHandler } from '../FocusOutHandler';
 import { InteractiveIcon } from '../InteractiveIcon';
 import { OutsideClickHandler } from '../OutsideClickHandler';
-import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '../icons';
+import { CalendarIcon } from '../icons';
 import { CloseIcon } from '../icons/CloseIcon';
 import { Popup } from '../popups';
+import { CustomCalendarNavigation } from './DatePickerCustomCalendarNavigation';
 import { InputField } from './InputField';
-import { InputSelect } from './InputSelect';
 
 // When no minDate is given, year dropdown will show year options up to PAST_MAX_YEARS in the past
 const YEARS_TO_DISPLAY = 10;
-const MONTHS_IN_A_YEAR = 12;
 
 interface Props {
   alignRight?: boolean;
-  ariaNextMonthLabel: string;
-  ariaPreviousMonthLabel: string;
   className?: string;
   clearButtonLabel: string;
   currentMonth?: Date;
@@ -128,8 +109,6 @@ export class DatePicker extends React.PureComponent<Props, State> {
   render() {
     const {
       alignRight,
-      ariaNextMonthLabel,
-      ariaPreviousMonthLabel,
       clearButtonLabel,
       highlightFrom,
       highlightTo,
@@ -181,10 +160,7 @@ export class DatePicker extends React.PureComponent<Props, State> {
                       captionLayout="dropdown-buttons"
                       className="sw-body-sm"
                       components={{
-                        Caption: getCustomCalendarNavigation({
-                          ariaNextMonthLabel,
-                          ariaPreviousMonthLabel,
-                        }),
+                        Caption: CustomCalendarNavigation,
                       }}
                       disabled={{ after: maxDate, before: minDate }}
                       formatters={{
@@ -320,97 +296,3 @@ const DayPicker = styled(OriginalDayPicker)`
     color: ${themeContrast('datePickerSelected')};
   }
 `;
-
-function getCustomCalendarNavigation({
-  ariaNextMonthLabel,
-  ariaPreviousMonthLabel,
-}: {
-  ariaNextMonthLabel: string;
-  ariaPreviousMonthLabel: string;
-}) {
-  return function CalendarNavigation(props: CaptionProps) {
-    const { displayMonth } = props;
-    const { fromYear, toYear } = useDayPicker();
-    const { goToMonth, nextMonth, previousMonth } = useCalendarNavigation();
-
-    const baseDate = startOfMonth(displayMonth); // reference date
-
-    const months = range(MONTHS_IN_A_YEAR).map((month) => {
-      const monthValue = setMonth(baseDate, month);
-
-      return {
-        label: format(monthValue, 'MMM'),
-        value: monthValue,
-      };
-    });
-
-    const startYear = fromYear ?? getYear(Date.now()) - YEARS_TO_DISPLAY;
-
-    const years = range(startYear, toYear ? toYear + 1 : undefined).map((year) => {
-      const yearValue = setYear(baseDate, year);
-
-      return {
-        label: String(year),
-        value: yearValue,
-      };
-    });
-
-    return (
-      <nav className="sw-flex sw-items-center sw-justify-between sw-py-1">
-        <InteractiveIcon
-          Icon={ChevronLeftIcon}
-          aria-label={ariaPreviousMonthLabel}
-          className="sw-mr-2"
-          onClick={() => {
-            if (previousMonth) {
-              goToMonth(previousMonth);
-            }
-          }}
-          size="small"
-        />
-
-        <span data-testid="month-select">
-          <InputSelect
-            isClearable={false}
-            onChange={(value) => {
-              if (value) {
-                goToMonth(value.value);
-              }
-            }}
-            options={months}
-            size="full"
-            value={months.find((m) => isSameMonth(m.value, displayMonth))}
-          />
-        </span>
-
-        <span data-testid="year-select">
-          <InputSelect
-            className="sw-ml-1"
-            data-testid="year-select"
-            isClearable={false}
-            onChange={(value) => {
-              if (value) {
-                goToMonth(value.value);
-              }
-            }}
-            options={years}
-            size="full"
-            value={years.find((y) => isSameYear(y.value, displayMonth))}
-          />
-        </span>
-
-        <InteractiveIcon
-          Icon={ChevronRightIcon}
-          aria-label={ariaNextMonthLabel}
-          className="sw-ml-2"
-          onClick={() => {
-            if (nextMonth) {
-              goToMonth(nextMonth);
-            }
-          }}
-          size="small"
-        />
-      </nav>
-    );
-  };
-}

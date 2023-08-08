@@ -19,7 +19,7 @@
  */
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { render } from '../../../helpers/testUtils';
+import { renderWithContext } from '../../../helpers/testUtils';
 import { FCProps } from '../../../types/misc';
 import { LabelValueSelectOption } from '../InputSelect';
 import { SearchSelectDropdown } from '../SearchSelectDropdown';
@@ -85,7 +85,7 @@ it('behaves correctly in disabled state', async () => {
 });
 
 function renderSearchSelectDropdown(props: Partial<FCProps<typeof SearchSelectDropdown>> = {}) {
-  return render(
+  return renderWithContext(
     <SearchSelectDropdown
       aria-label="label"
       controlLabel="not assigned"

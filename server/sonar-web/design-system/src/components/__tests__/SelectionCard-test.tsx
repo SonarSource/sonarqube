@@ -19,7 +19,7 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { render } from '../../helpers/testUtils';
+import { renderWithContext } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
 import { SelectionCard } from '../SelectionCard';
 
@@ -67,7 +67,7 @@ it('should not be actionnable when no click handler', () => {
 });
 
 function renderSelectionCard(props: Partial<FCProps<typeof SelectionCard>> = {}) {
-  return render(
+  return renderWithContext(
     <SelectionCard
       recommended
       recommendedReason="Recommended for you"

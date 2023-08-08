@@ -19,7 +19,7 @@
  */
 
 import { screen } from '@testing-library/react';
-import { render } from '../../../helpers/testUtils';
+import { renderWithContext } from '../../../helpers/testUtils';
 import { Modal, PropsWithChildren, PropsWithSections } from '../Modal';
 
 it('should render default modal with predefined content', async () => {
@@ -61,7 +61,7 @@ it('should request close when pressing esc on loose content', async () => {
 });
 
 function setupPredefinedContent(props: Partial<PropsWithSections> = {}) {
-  return render(
+  return renderWithContext(
     <Modal
       body="Body"
       headerTitle="Hello"
@@ -73,7 +73,7 @@ function setupPredefinedContent(props: Partial<PropsWithSections> = {}) {
 }
 
 function setupLooseContent(props: Partial<PropsWithChildren> = {}, children = <div />) {
-  return render(
+  return renderWithContext(
     <Modal onClose={jest.fn()} {...props}>
       {children}
     </Modal>
@@ -81,7 +81,7 @@ function setupLooseContent(props: Partial<PropsWithChildren> = {}, children = <d
 }
 
 function setupLooseContentWithMultipleChildren(props: Partial<PropsWithChildren> = {}) {
-  return render(
+  return renderWithContext(
     <Modal onClose={jest.fn()} {...props}>
       <div>Hello there!</div>
       <div>How are you?</div>

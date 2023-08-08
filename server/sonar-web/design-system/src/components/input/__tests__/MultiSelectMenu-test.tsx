@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { renderWithContext } from '../../../helpers/testUtils';
 import { MultiSelectMenu } from '../MultiSelectMenu';
 
 const elements = ['foo', 'bar', 'baz'];
@@ -94,7 +95,7 @@ it('should show no results', () => {
 });
 
 function renderMultiselect(props: Partial<MultiSelectMenu['props']> = {}) {
-  return render(
+  return renderWithContext(
     <MultiSelectMenu
       clearIconAriaLabel="clear"
       createElementLabel="create thing"

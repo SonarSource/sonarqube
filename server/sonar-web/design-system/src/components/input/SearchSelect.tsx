@@ -20,12 +20,12 @@
 import classNames from 'classnames';
 import { omit } from 'lodash';
 import React, { RefObject } from 'react';
+import { useIntl } from 'react-intl';
 import { GroupBase, InputProps, components } from 'react-select';
 import AsyncSelect, { AsyncProps } from 'react-select/async';
 import Select from 'react-select/dist/declarations/src/Select';
 import { INPUT_SIZES } from '../../helpers';
 import { Key } from '../../helpers/keyboard';
-import { translate } from '../../helpers/l10n';
 import { InputSearch } from './InputSearch';
 import { LabelValueSelectOption, SelectProps, selectStyle } from './InputSelect';
 
@@ -92,6 +92,8 @@ export function SearchSelectInput<
     selectProps: { clearIconLabel, placeholder, isLoading, inputValue, minLength, tooShortText },
   } = props;
 
+  const intl = useIntl();
+
   const onChange = (v: string, prevValue = '') => {
     props.selectProps.onInputChange(v, { action: 'input-change', prevInputValue: prevValue });
   };
@@ -107,7 +109,7 @@ export function SearchSelectInput<
 
   return (
     <InputSearch
-      clearIconAriaLabel={clearIconLabel ?? translate('clear')}
+      clearIconAriaLabel={clearIconLabel ?? intl.formatMessage({ id: 'clear' })}
       loading={isLoading && inputValue.length >= (minLength ?? 0)}
       minLength={minLength}
       onChange={onChange}

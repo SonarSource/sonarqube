@@ -23,7 +23,7 @@ import { lightTheme } from 'design-system';
 import * as React from 'react';
 import { render } from 'react-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { IntlProvider } from 'react-intl';
+import { IntlShape, RawIntlProvider } from 'react-intl';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import accountRoutes from '../../apps/account/routes';
 import auditLogsRoutes from '../../apps/audit-logs/routes';
@@ -177,7 +177,7 @@ function renderRedirects() {
 const queryClient = new QueryClient();
 
 export default function startReactApp(
-  lang: string,
+  l10nBundle: IntlShape,
   currentUser?: CurrentUser,
   appState?: AppState,
   availableFeatures?: Feature[]
@@ -191,7 +191,7 @@ export default function startReactApp(
       <AppStateContextProvider appState={appState ?? DEFAULT_APP_STATE}>
         <AvailableFeaturesContext.Provider value={availableFeatures ?? DEFAULT_AVAILABLE_FEATURES}>
           <CurrentUserContextProvider currentUser={currentUser}>
-            <IntlProvider defaultLocale={lang} locale={lang}>
+            <RawIntlProvider value={l10nBundle}>
               <ThemeProvider theme={lightTheme}>
                 <QueryClientProvider client={queryClient}>
                   <GlobalMessagesContainer />
@@ -266,7 +266,7 @@ export default function startReactApp(
                   </BrowserRouter>
                 </QueryClientProvider>
               </ThemeProvider>
-            </IntlProvider>
+            </RawIntlProvider>
           </CurrentUserContextProvider>
         </AvailableFeaturesContext.Provider>
       </AppStateContextProvider>

@@ -19,9 +19,9 @@
  */
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
-import React from 'react';
+import React, { DetailedHTMLProps, HTMLAttributes } from 'react';
+import { useIntl } from 'react-intl';
 import tw from 'twin.macro';
-import { translate } from '../helpers/l10n';
 import { themeColor } from '../helpers/theme';
 
 interface Props {
@@ -83,7 +83,8 @@ export class DeferredSpinner extends React.PureComponent<Props, State> {
       if (customSpinner) {
         return customSpinner;
       }
-      return <Spinner aria-label={ariaLabel} className={className} role="status" />;
+      // Overwrite aria-label only if defined
+      return <Spinner {...(ariaLabel ? { 'aria-label': ariaLabel } : {})} className={className} />;
     }
     if (children) {
       return children;
@@ -105,7 +106,8 @@ const spinAnimation = keyframes`
   }
 `;
 
-export const Spinner = styled.div`
+/* Exported to allow styles to be overridden */
+export const StyledSpinner = styled.div`
   border: 2px solid transparent;
   background: linear-gradient(0deg, ${themeColor('primary')} 50%, transparent 50% 100%) border-box,
     linear-gradient(90deg, ${themeColor('primary')} 25%, transparent 75% 100%) border-box;
@@ -120,7 +122,13 @@ export const Spinner = styled.div`
   ${tw`sw-rounded-pill`}
 `;
 
-Spinner.defaultProps = { 'aria-label': translate('loading'), role: 'status' };
+function Spinner(props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
+  const intl = useIntl();
+
+  return (
+    <StyledSpinner aria-label={intl.formatMessage({ id: 'loading' })} role="status" {...props} />
+  );
+}
 
 const Placeholder = styled.div`
   position: relative;

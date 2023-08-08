@@ -19,6 +19,7 @@
  */
 import styled from '@emotion/styled';
 import { ReactNode } from 'react';
+import { useIntl } from 'react-intl';
 import tw from 'twin.macro';
 import {
   LAYOUT_BANNER_HEIGHT,
@@ -26,7 +27,6 @@ import {
   themeColor,
   themeContrast,
 } from '../helpers';
-import { translate } from '../helpers/l10n';
 import { ThemeColors } from '../types';
 import { InteractiveIconBase } from './InteractiveIcon';
 import { CloseIcon, FlagErrorIcon, FlagInfoIcon, FlagSuccessIcon, FlagWarningIcon } from './icons';
@@ -69,6 +69,8 @@ function getVariantInfo(variant: Variant) {
 export function Banner({ children, onDismiss, variant }: Props) {
   const variantInfo = getVariantInfo(variant);
 
+  const intl = useIntl();
+
   return (
     <div role="alert" style={{ height: LAYOUT_BANNER_HEIGHT }}>
       <BannerWrapper
@@ -81,7 +83,7 @@ export function Banner({ children, onDismiss, variant }: Props) {
           {onDismiss && (
             <BannerCloseIcon
               Icon={CloseIcon}
-              aria-label={translate('dismiss')}
+              aria-label={intl.formatMessage({ id: 'dismiss' })}
               onClick={onDismiss}
               size="small"
             />

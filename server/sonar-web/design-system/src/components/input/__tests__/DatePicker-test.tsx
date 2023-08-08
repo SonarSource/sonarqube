@@ -21,7 +21,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getMonth, getYear, parseISO } from 'date-fns';
-import { render } from '../../../helpers/testUtils';
+import { renderWithContext } from '../../../helpers/testUtils';
 import { DatePicker } from '../DatePicker';
 
 it('behaves correctly', async () => {
@@ -40,7 +40,7 @@ it('behaves correctly', async () => {
   const nav = screen.getByRole('navigation');
   expect(nav).toBeInTheDocument();
 
-  await user.click(within(nav).getByRole('button', { name: 'previous' }));
+  await user.click(within(nav).getByRole('button', { name: 'previous_' }));
   await user.click(screen.getByText('7'));
 
   expect(onChange).toHaveBeenCalled();
@@ -54,9 +54,7 @@ it('behaves correctly', async () => {
    * Then check that onChange was correctly called with a date in the following month
    */
   await user.click(screen.getByRole('textbox'));
-  const nextButton = screen.getByRole('button', { name: 'next' });
-  await user.click(nextButton);
-  await user.click(nextButton);
+  await user.click(screen.getByRole('button', { name: 'next_' }));
   await user.click(screen.getByText('12'));
 
   expect(onChange).toHaveBeenCalled();
@@ -131,10 +129,8 @@ it.each([
 function renderDatePicker(overrides: Partial<DatePicker['props']> = {}) {
   const defaultFormatter = (date?: Date) => (date ? date.toISOString() : '');
 
-  render(
+  renderWithContext(
     <DatePicker
-      ariaNextMonthLabel="next"
-      ariaPreviousMonthLabel="previous"
       clearButtonLabel="clear"
       onChange={jest.fn()}
       placeholder="placeholder"

@@ -20,7 +20,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { formatISO, parseISO } from 'date-fns';
-import { render } from '../../../helpers/testUtils';
+import { IntlWrapper, render } from '../../../helpers/testUtils';
 import { DateRangePicker } from '../DateRangePicker';
 
 beforeEach(() => {
@@ -79,15 +79,15 @@ function renderDateRangePicker(overrides: Partial<DateRangePicker['props']> = {}
     date ? formatISO(date, { representation: 'date' }) : '';
 
   render(
-    <DateRangePicker
-      ariaNextMonthLabel="next"
-      ariaPreviousMonthLabel="previous"
-      clearButtonLabel="clear"
-      fromLabel="from"
-      onChange={jest.fn()}
-      toLabel="to"
-      valueFormatter={defaultFormatter}
-      {...overrides}
-    />
+    <IntlWrapper messages={{ next_: 'next', previous_: 'previous' }}>
+      <DateRangePicker
+        clearButtonLabel="clear"
+        fromLabel="from"
+        onChange={jest.fn()}
+        toLabel="to"
+        valueFormatter={defaultFormatter}
+        {...overrides}
+      />
+    </IntlWrapper>
   );
 }

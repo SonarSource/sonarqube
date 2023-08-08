@@ -28,7 +28,7 @@ import { Key } from '../../helpers/keyboard';
 import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
 import { isDefined } from '../../helpers/types';
 import { InputSizeKeys } from '../../types/theme';
-import { DeferredSpinner, Spinner } from '../DeferredSpinner';
+import { DeferredSpinner, StyledSpinner } from '../DeferredSpinner';
 import { InteractiveIcon } from '../InteractiveIcon';
 import { CloseIcon } from '../icons/CloseIcon';
 import { SearchIcon } from '../icons/SearchIcon';
@@ -193,7 +193,7 @@ export const InputSearchWrapper = styled.div`
   ${tw`sw-align-middle`}
   ${tw`sw-h-control`}
 
-  ${Spinner} {
+  ${StyledSpinner} {
     top: calc((2.25rem - ${theme('spacing.4')}) / 2);
     ${tw`sw-left-3`};
     ${tw`sw-absolute`};

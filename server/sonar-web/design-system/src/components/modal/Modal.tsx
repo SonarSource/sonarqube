@@ -21,11 +21,11 @@
 import { Global, css, useTheme } from '@emotion/react';
 import classNames from 'classnames';
 import { ReactNode } from 'react';
+import { useIntl } from 'react-intl';
 import ReactModal from 'react-modal';
 import tw from 'twin.macro';
 import { themeColor } from '../../helpers';
 import { REACT_DOM_CONTAINER } from '../../helpers/constants';
-import { translate } from '../../helpers/l10n';
 import { Theme } from '../../types/theme';
 import { ButtonSecondary } from '../buttons';
 import { ModalBody } from './ModalBody';
@@ -84,7 +84,7 @@ export function Modal({
   ...props
 }: Props) {
   const theme = useTheme();
-
+  const intl = useIntl();
   return (
     <>
       <Global styles={globalStyles({ theme })} />
@@ -118,7 +118,7 @@ export function Modal({
                   onClick={onClose}
                   type="reset"
                 >
-                  {props.secondaryButtonLabel ?? translate('close')}
+                  {props.secondaryButtonLabel ?? intl.formatMessage({ id: 'close' })}
                 </ButtonSecondary>
               }
             />

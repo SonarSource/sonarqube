@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
-import { render } from '../../helpers/testUtils';
+import { renderWithContext } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
 import { Banner } from '../Banner';
 import { Note } from '../Text';
@@ -42,7 +42,7 @@ it('should render with close button', async () => {
 });
 
 function setupWithProps(props: Partial<FCProps<typeof Banner>> = {}) {
-  return render(
+  return renderWithContext(
     <Banner {...props} variant="warning">
       <Note className="sw-body-sm">{props.children ?? 'Test Message'}</Note>
     </Banner>

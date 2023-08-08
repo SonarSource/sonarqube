@@ -48,7 +48,7 @@ async function initApplication() {
   });
 
   const startReactApp = await import('./utils/startReactApp').then((i) => i.default);
-  startReactApp(l10nBundle.locale, currentUser, appState, availableFeatures);
+  startReactApp(l10nBundle, currentUser, appState, availableFeatures);
 }
 
 function isMainApp() {

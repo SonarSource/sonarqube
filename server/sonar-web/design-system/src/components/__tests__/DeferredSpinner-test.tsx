@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { render, screen } from '@testing-library/react';
+import { IntlWrapper } from '../../helpers/testUtils';
 import { DeferredSpinner } from '../DeferredSpinner';
 
 beforeEach(() => {
@@ -65,5 +66,9 @@ function renderDeferredSpinner(props: Partial<DeferredSpinner['props']> = {}) {
 }
 
 function prepareDeferredSpinner(props: Partial<DeferredSpinner['props']> = {}) {
-  return <DeferredSpinner {...props} />;
+  return (
+    <IntlWrapper>
+      <DeferredSpinner {...props} />
+    </IntlWrapper>
+  );
 }
