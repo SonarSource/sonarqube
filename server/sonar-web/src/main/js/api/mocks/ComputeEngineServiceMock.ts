@@ -30,6 +30,7 @@ import {
   getActivity,
   getStatus,
   getTask,
+  getTasksForComponent,
   getTypes,
   getWorkers,
   setWorkerCount,
@@ -65,14 +66,15 @@ export default class ComputeEngineServiceMock {
   workers = { ...DEFAULT_WORKERS };
 
   constructor() {
-    (cancelAllTasks as jest.Mock).mockImplementation(this.handleCancelAllTasks);
-    (cancelTask as jest.Mock).mockImplementation(this.handleCancelTask);
+    jest.mocked(cancelAllTasks).mockImplementation(this.handleCancelAllTasks);
+    jest.mocked(cancelTask).mockImplementation(this.handleCancelTask);
     jest.mocked(getActivity).mockImplementation(this.handleGetActivity);
-    (getStatus as jest.Mock).mockImplementation(this.handleGetStatus);
-    (getTypes as jest.Mock).mockImplementation(this.handleGetTypes);
+    jest.mocked(getStatus).mockImplementation(this.handleGetStatus);
+    jest.mocked(getTypes).mockImplementation(this.handleGetTypes);
     jest.mocked(getTask).mockImplementation(this.handleGetTask);
-    (getWorkers as jest.Mock).mockImplementation(this.handleGetWorkers);
-    (setWorkerCount as jest.Mock).mockImplementation(this.handleSetWorkerCount);
+    jest.mocked(getWorkers).mockImplementation(this.handleGetWorkers);
+    jest.mocked(setWorkerCount).mockImplementation(this.handleSetWorkerCount);
+    jest.mocked(getTasksForComponent).mockImplementation(this.handleGetTaskForComponent);
 
     this.tasks = cloneDeep(DEFAULT_TASKS);
   }
@@ -195,6 +197,18 @@ export default class ComputeEngineServiceMock {
   handleSetWorkerCount = (count: number) => {
     this.workers.value = count;
     return Promise.resolve();
+  };
+
+  handleGetTaskForComponent = (componentKey: string) => {
+    const tasks = this.tasks.filter((t) => t.componentKey === componentKey);
+    return Promise.resolve({
+      queue: tasks.filter(
+        (t) => t.status === TaskStatuses.InProgress || t.status === TaskStatuses.Pending
+      ),
+      current: tasks.find(
+        (t) => t.status === TaskStatuses.Success || t.status === TaskStatuses.Failed
+      ),
+    });
   };
 
   /*

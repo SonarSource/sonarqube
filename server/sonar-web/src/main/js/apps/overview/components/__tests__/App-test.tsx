@@ -20,18 +20,23 @@
 import { screen } from '@testing-library/react';
 import * as React from 'react';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
+import ComputeEngineServiceMock from '../../../../api/mocks/ComputeEngineServiceMock';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
+import { mockTask } from '../../../../helpers/mocks/tasks';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../types/component';
+import { TaskStatuses, TaskTypes } from '../../../../types/tasks';
 import { App } from '../App';
 
-const handler = new BranchesServiceMock();
+const handlerBranches = new BranchesServiceMock();
+const handlerCe = new ComputeEngineServiceMock();
 
 beforeEach(() => {
-  handler.reset();
+  handlerBranches.reset();
+  handlerCe.reset();
 });
 
 it('should render Empty Overview for Application with no analysis', async () => {
@@ -70,6 +75,45 @@ it('should not render for portfolios and subportfolios', () => {
     component: mockComponent({ qualifier: ComponentQualifier.Portfolio }),
   });
   expect(rtl.container).toBeEmptyDOMElement();
+});
+
+describe('Permission provisioning', () => {
+  beforeEach(() => {
+    jest.useFakeTimers({ advanceTimers: true });
+  });
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
+  it('should render warning when permission is sync', async () => {
+    handlerCe.addTask(
+      mockTask({
+        componentKey: 'my-project',
+        type: TaskTypes.GithubProjectPermissionsProvisioning,
+        status: TaskStatuses.InProgress,
+      })
+    );
+
+    renderApp();
+    await jest.runOnlyPendingTimersAsync();
+
+    expect(
+      await screen.findByText('provisioning.permission_synch_in_progress')
+    ).toBeInTheDocument();
+
+    handlerCe.clearTasks();
+    handlerCe.addTask(
+      mockTask({
+        componentKey: 'my-project',
+        type: TaskTypes.GithubProjectPermissionsProvisioning,
+        status: TaskStatuses.Success,
+      })
+    );
+
+    await jest.runOnlyPendingTimersAsync();
+
+    expect(screen.queryByText('provisioning.permission_synch_in_progress')).not.toBeInTheDocument();
+  });
 });
 
 function renderApp(props = {}, userProps = {}) {

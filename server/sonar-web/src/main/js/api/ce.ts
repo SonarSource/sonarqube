@@ -66,7 +66,9 @@ export function cancelAllTasks(): Promise<any> {
   return post('/api/ce/cancel_all');
 }
 
-export function getTasksForComponent(component: string): Promise<{ queue: Task[]; current: Task }> {
+export function getTasksForComponent(
+  component: string
+): Promise<{ queue: Task[]; current?: Task }> {
   return getJSON('/api/ce/component', { component }).catch(throwGlobalError);
 }
 

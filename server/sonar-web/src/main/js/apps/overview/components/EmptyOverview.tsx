@@ -17,15 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage, LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
+import { FlagMessage, LargeCenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
 import * as React from 'react';
 import { Navigate } from 'react-router-dom';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { getBranchLikeDisplayName, isBranch, isMainBranch } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectTutorialLocation } from '../../../helpers/urls';
+import { useTaskForComponentQuery } from '../../../queries/component';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
+import { TaskTypes } from '../../../types/tasks';
 import { Component } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 
@@ -34,20 +36,26 @@ export interface EmptyOverviewProps {
   branchLikes: BranchLike[];
   component: Component;
   currentUser: CurrentUser;
-  hasAnalyses?: boolean;
 }
 
 export function EmptyOverview(props: EmptyOverviewProps) {
-  const { branchLike, branchLikes, component, currentUser, hasAnalyses } = props;
+  const { branchLike, branchLikes, component, currentUser } = props;
+  const { data, isLoading } = useTaskForComponentQuery(component);
+  const hasQueuedAnalyses =
+    data && data.queue.filter((task) => task.type === TaskTypes.Report).length > 0;
+  const hasPermissionSyncInProgess =
+    data &&
+    data.queue.filter((task) => task.type === TaskTypes.GithubProjectPermissionsProvisioning)
+      .length > 0;
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   if (component.qualifier === ComponentQualifier.Application) {
     return (
       <LargeCenteredLayout className="sw-pt-8">
-        <FlagMessage
-          className="sw-w-full"
-          variant="warning"
-          aria-label={translate('provisioning.no_analysis.application')}
-        >
+        <FlagMessage className="sw-w-full" variant="warning">
           {translate('provisioning.no_analysis.application')}
         </FlagMessage>
       </LargeCenteredLayout>
@@ -61,7 +69,20 @@ export function EmptyOverview(props: EmptyOverviewProps) {
     branchLikes.length > 2 ||
     (branchLikes.length === 2 && branchLikes.some((branch) => isBranch(branch)));
 
-  const showTutorial = isMainBranch(branchLike) && !hasBranches && !hasAnalyses;
+  if (hasPermissionSyncInProgess) {
+    return (
+      <LargeCenteredLayout className="sw-pt-8">
+        <PageContentFontWrapper>
+          <FlagMessage variant="warning">
+            {translate('provisioning.permission_synch_in_progress')}
+            <Spinner className="sw-ml-8 sw-hidden" aria-hidden />
+          </FlagMessage>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
+    );
+  }
+
+  const showTutorial = isMainBranch(branchLike) && !hasBranches && !hasQueuedAnalyses;
 
   if (showTutorial && isLoggedIn(currentUser)) {
     return <Navigate replace to={getProjectTutorialLocation(component.key)} />;
@@ -87,13 +108,13 @@ export function EmptyOverview(props: EmptyOverviewProps) {
         {isLoggedIn(currentUser) ? (
           <>
             {hasBranches && (
-              <FlagMessage className="sw-w-full" variant="warning" aria-label={warning}>
+              <FlagMessage className="sw-w-full" variant="warning">
                 {warning}
               </FlagMessage>
             )}
           </>
         ) : (
-          <FlagMessage className="sw-w-full" variant="warning" aria-label={warning}>
+          <FlagMessage className="sw-w-full" variant="warning">
             {warning}
           </FlagMessage>
         )}

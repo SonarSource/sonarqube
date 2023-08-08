@@ -31,7 +31,7 @@ export * from './CodeSnippet';
 export * from './CodeSyntaxHighlighter';
 export * from './ColorsLegend';
 export * from './CoverageIndicator';
-export { DeferredSpinner } from './DeferredSpinner';
+export { DeferredSpinner, Spinner } from './DeferredSpinner';
 export { ActionsDropdown, Dropdown } from './Dropdown';
 export * from './DropdownMenu';
 export { DropdownToggler } from './DropdownToggler';

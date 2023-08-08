@@ -223,7 +223,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     qualifier: component.breadcrumbs[component.breadcrumbs.length - 1].qualifier,
   });
 
-  getCurrentTask = (current: Task) => {
+  getCurrentTask = (current?: Task) => {
     if (!current || !this.isReportRelatedTask(current)) {
       return undefined;
     }

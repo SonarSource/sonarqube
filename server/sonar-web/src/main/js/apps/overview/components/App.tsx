@@ -37,13 +37,11 @@ import EmptyOverview from './EmptyOverview';
 
 interface AppProps extends WithAvailableFeaturesProps {
   component: Component;
-  isInProgress?: boolean;
-  isPending?: boolean;
   projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function App(props: AppProps) {
-  const { component, projectBinding, isPending, isInProgress } = props;
+  const { component, projectBinding } = props;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
   const { data } = useBranchesQuery(component);
 
@@ -70,7 +68,6 @@ export function App(props: AppProps) {
               branchLike={branchLike}
               branchLikes={branchLikes}
               component={component}
-              hasAnalyses={isPending ?? isInProgress}
             />
           )}
 
