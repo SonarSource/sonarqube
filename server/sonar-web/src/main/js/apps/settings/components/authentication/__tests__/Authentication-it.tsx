@@ -551,6 +551,31 @@ describe('Github tab', () => {
       );
     });
 
+    it('should display that config is valid but some organizatios were not found', async () => {
+      handler.setConfigurationValidity({
+        installations: [
+          { organization: 'org1', autoProvisioning: { status: GitHubProvisioningStatus.Success } },
+        ],
+      });
+
+      renderAuthentication([Feature.GithubProvisioning]);
+      await github.enableConfiguration(user);
+
+      await waitFor(() => expect(github.configurationValiditySuccess.get()).toBeInTheDocument());
+      expect(github.configurationValiditySuccess.get()).toHaveTextContent('1');
+
+      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      expect(github.getConfigDetailsTitle()).toHaveTextContent(
+        'settings.authentication.github.configuration.validation.details.valid_label'
+      );
+      expect(github.getOrgs()[0]).toHaveTextContent(
+        'settings.authentication.github.configuration.validation.details.valid_labelorg1'
+      );
+      expect(github.getOrgs()[1]).toHaveTextContent(
+        'settings.authentication.github.configuration.validation.details.org_not_found.organization1'
+      );
+    });
+
     it('should display that config is invalid', async () => {
       const errorMessage = 'Test error';
       handler.setConfigurationValidity({
@@ -633,11 +658,14 @@ describe('Github tab', () => {
       await waitFor(() => expect(github.configurationValiditySuccess.query()).toBeInTheDocument());
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
-      github.getOrgs().forEach((org) => {
-        expect(org).toHaveTextContent(
-          'settings.authentication.github.configuration.validation.details.valid_label'
-        );
-      });
+
+      expect(github.getOrgs()[0]).toHaveTextContent(
+        'settings.authentication.github.configuration.validation.details.valid_labelorg1'
+      );
+      expect(github.getOrgs()[1]).toHaveTextContent(
+        'settings.authentication.github.configuration.validation.details.valid_labelorg2'
+      );
+
       await act(() =>
         user.click(within(github.configDetailsDialog.get()).getByRole('button', { name: 'close' }))
       );

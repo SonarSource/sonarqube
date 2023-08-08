@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { TextMuted } from 'design-system';
 import React, { useEffect, useState } from 'react';
-import theme from '../../../../app/theme';
+import theme, { colors } from '../../../../app/theme';
 import Modal from '../../../../components/controls/Modal';
 import { Button } from '../../../../components/controls/buttons';
 import CheckIcon from '../../../../components/icons/CheckIcon';
 import ClearIcon from '../../../../components/icons/ClearIcon';
+import HelpIcon from '../../../../components/icons/HelpIcon';
 import { Alert, AlertVariant } from '../../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { GitHubProvisioningStatus } from '../../../../types/provisioning';
@@ -42,9 +44,13 @@ function ValidityIcon({ valid }: { valid: boolean }) {
 
 interface Props {
   isAutoProvisioning: boolean;
+  selectedOrganizations: string[];
 }
 
-function GitHubConfigurationValidity({ isAutoProvisioning }: Props) {
+export default function GitHubConfigurationValidity({
+  isAutoProvisioning,
+  selectedOrganizations,
+}: Props) {
   const [openDetails, setOpenDetails] = useState(false);
   const [messages, setMessages] = useState<string[]>([]);
   const [alertVariant, setAlertVariant] = useState<AlertVariant>('loading');
@@ -55,6 +61,10 @@ function GitHubConfigurationValidity({ isAutoProvisioning }: Props) {
 
   const isValidApp =
     data?.application[applicationField].status === GitHubProvisioningStatus.Success;
+
+  const failedOrgs = selectedOrganizations.filter((o) => {
+    return !data?.installations.find((i) => i.organization === o);
+  });
 
   useEffect(() => {
     if (isFetching) {
@@ -154,6 +164,15 @@ function GitHubConfigurationValidity({ isAutoProvisioning }: Props) {
                     )}
                 </li>
               ))}
+              {failedOrgs.map((fo) => (
+                <li key={fo}>
+                  <HelpIcon fillInner={colors.gray60} fill={colors.white} role="img" />
+                  <TextMuted
+                    className="sw-ml-2"
+                    text={translateWithParameters(`${intlPrefix}.details.org_not_found`, fo)}
+                  />
+                </li>
+              ))}
             </ul>
           </div>
           <footer className="modal-foot">
@@ -164,5 +183,3 @@ function GitHubConfigurationValidity({ isAutoProvisioning }: Props) {
     </>
   );
 }
-
-export default GitHubConfigurationValidity;

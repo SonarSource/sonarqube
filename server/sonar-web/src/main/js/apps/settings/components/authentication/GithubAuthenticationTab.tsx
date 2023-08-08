@@ -106,6 +106,9 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
       </div>
       {enabled && (
         <GitHubConfigurationValidity
+          selectedOrganizations={
+            (values['sonar.auth.github.organizations']?.value as string[]) ?? []
+          }
           isAutoProvisioning={!!(newGithubProvisioningStatus ?? githubProvisioningStatus)}
         />
       )}
