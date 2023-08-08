@@ -108,6 +108,12 @@ export const LightLabel = styled.span`
   color: ${themeColor('pageContentLight')};
 `;
 
+export const DarkLabel = styled.label`
+  color: ${themeColor('pageContentDark')};
+
+  ${tw`sw-body-sm-highlight`}
+`;
+
 export const LightPrimary = styled.span`
   color: ${themeContrast('primaryLight')};
 `;

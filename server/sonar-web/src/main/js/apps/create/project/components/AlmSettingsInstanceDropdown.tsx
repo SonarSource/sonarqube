@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { DarkLabel } from 'design-system';
 import * as React from 'react';
 import AlmSettingsInstanceSelector from '../../../../components/devops-platform/AlmSettingsInstanceSelector';
 import { hasMessage, translate, translateWithParameters } from '../../../../helpers/l10n';
@@ -42,15 +44,15 @@ export default function AlmSettingsInstanceDropdown(props: AlmSettingsInstanceDr
     : `alm.${almKey}`;
 
   return (
-    <div className="display-flex-column huge-spacer-bottom">
-      <label htmlFor="alm-config-selector" className="spacer-bottom">
+    <div className="sw-flex sw-flex-col">
+      <DarkLabel htmlFor="alm-config-selector" className="sw-mb-2">
         {translateWithParameters('alm.configuration.selector.label', translate(almKeyTranslation))}
-      </label>
+      </DarkLabel>
       <AlmSettingsInstanceSelector
         instances={almInstances}
         onChange={props.onChangeConfig}
         initialValue={selectedAlmInstance ? selectedAlmInstance.key : undefined}
-        classNames="abs-width-400"
+        className="sw-w-abs-400 sw-mb-9"
         inputId="alm-config-selector"
       />
     </div>

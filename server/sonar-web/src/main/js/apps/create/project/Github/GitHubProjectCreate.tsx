@@ -31,8 +31,8 @@ import { getHostUrl } from '../../../../helpers/urls';
 import { GithubOrganization, GithubRepository } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Paging } from '../../../../types/types';
-import GitHubProjectCreateRenderer from './GitHubProjectCreateRenderer';
 import { CreateProjectApiCallback } from '../types';
+import GitHubProjectCreateRenderer from './GitHubProjectCreateRenderer';
 
 interface Props {
   canAdmin: boolean;
@@ -52,7 +52,6 @@ interface State {
   repositories: GithubRepository[];
   searchQuery: string;
   selectedOrganization?: GithubOrganization;
-  selectedRepository?: GithubRepository;
   selectedAlmInstance?: AlmSettingsInstance;
 }
 
@@ -231,7 +230,6 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
   triggerSearch = (query: string) => {
     const { selectedOrganization } = this.state;
     if (selectedOrganization) {
-      this.setState({ selectedRepository: undefined });
       this.fetchRepositories({ organizationKey: selectedOrganization.key, query });
     }
   };
@@ -239,16 +237,9 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
   handleSelectOrganization = (key: string) => {
     this.setState(({ organizations }) => ({
       searchQuery: '',
-      selectedRepository: undefined,
       selectedOrganization: organizations.find((o) => o.key === key),
     }));
     this.fetchRepositories({ organizationKey: key });
-  };
-
-  handleSelectRepository = (key: string) => {
-    this.setState(({ repositories }) => ({
-      selectedRepository: repositories?.find((r) => r.key === key),
-    }));
   };
 
   handleSearch = (searchQuery: string) => {
@@ -268,15 +259,15 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
     }
   };
 
-  handleImportRepository = () => {
-    const { selectedOrganization, selectedRepository, selectedAlmInstance } = this.state;
+  handleImportRepository = (repoKey: string) => {
+    const { selectedOrganization, selectedAlmInstance } = this.state;
 
-    if (selectedAlmInstance && selectedOrganization && selectedRepository) {
+    if (selectedAlmInstance && selectedOrganization && repoKey !== '') {
       this.props.onProjectSetupDone(
         setupGithubProjectCreation({
           almSetting: selectedAlmInstance.key,
           organization: selectedOrganization.key,
-          repositoryKey: selectedRepository.key,
+          repositoryKey: repoKey,
         })
       );
     }
@@ -304,7 +295,6 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
       repositories,
       searchQuery,
       selectedOrganization,
-      selectedRepository,
       selectedAlmInstance,
     } = this.state;
 
@@ -319,13 +309,11 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
         onLoadMore={this.handleLoadMore}
         onSearch={this.handleSearch}
         onSelectOrganization={this.handleSelectOrganization}
-        onSelectRepository={this.handleSelectRepository}
         organizations={organizations}
         repositoryPaging={repositoryPaging}
         searchQuery={searchQuery}
         repositories={repositories}
         selectedOrganization={selectedOrganization}
-        selectedRepository={selectedRepository}
         almInstances={almInstances}
         selectedAlmInstance={selectedAlmInstance}
         onSelectedAlmInstanceChange={this.onSelectedAlmInstanceChange}

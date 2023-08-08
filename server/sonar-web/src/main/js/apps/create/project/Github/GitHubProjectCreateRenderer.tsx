@@ -19,28 +19,27 @@
  */
 /* eslint-disable react/no-unused-prop-types */
 
+import {
+  DarkLabel,
+  DeferredSpinner,
+  FlagMessage,
+  InputSearch,
+  InputSelect,
+  LightPrimary,
+  Link,
+  Title,
+} from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { colors } from '../../../../app/theme';
-import Link from '../../../../components/common/Link';
 import ListFooter from '../../../../components/controls/ListFooter';
-import Radio from '../../../../components/controls/Radio';
-import SearchBox from '../../../../components/controls/SearchBox';
-import Select, { LabelValueSelectOption } from '../../../../components/controls/Select';
-import { Button } from '../../../../components/controls/buttons';
-import CheckIcon from '../../../../components/icons/CheckIcon';
-import QualifierIcon from '../../../../components/icons/QualifierIcon';
-import { Alert } from '../../../../components/ui/Alert';
-import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
+import { LabelValueSelectOption } from '../../../../components/controls/Select';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
-import { getProjectUrl } from '../../../../helpers/urls';
 import { GithubOrganization, GithubRepository } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
-import { ComponentQualifier } from '../../../../types/component';
 import { Paging } from '../../../../types/types';
+import AlmRepoItem from '../components/AlmRepoItem';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
-import CreateProjectPageHeader from '../components/CreateProjectPageHeader';
 
 export interface GitHubProjectCreateRendererProps {
   canAdmin: boolean;
@@ -48,17 +47,15 @@ export interface GitHubProjectCreateRendererProps {
   loadingBindings: boolean;
   loadingOrganizations: boolean;
   loadingRepositories: boolean;
-  onImportRepository: () => void;
+  onImportRepository: (key: string) => void;
   onLoadMore: () => void;
   onSearch: (q: string) => void;
   onSelectOrganization: (key: string) => void;
-  onSelectRepository: (key: string) => void;
   organizations: GithubOrganization[];
   repositories?: GithubRepository[];
   repositoryPaging: Paging;
   searchQuery: string;
   selectedOrganization?: GithubOrganization;
-  selectedRepository?: GithubRepository;
   almInstances: AlmSettingsInstance[];
   selectedAlmInstance?: AlmSettingsInstance;
   onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
@@ -69,89 +66,40 @@ function orgToOption({ key, name }: GithubOrganization) {
 }
 
 function renderRepositoryList(props: GitHubProjectCreateRendererProps) {
-  const {
-    loadingRepositories,
-    repositories,
-    repositoryPaging,
-    searchQuery,
-    selectedOrganization,
-    selectedRepository,
-  } = props;
-
-  const isChecked = (repository: GithubRepository) =>
-    !!repository.sqProjectKey ||
-    (!!selectedRepository && selectedRepository.key === repository.key);
-
-  const isDisabled = (repository: GithubRepository) =>
-    !!repository.sqProjectKey || loadingRepositories;
+  const { loadingRepositories, repositories, repositoryPaging, searchQuery, selectedOrganization } =
+    props;
 
   return (
     selectedOrganization &&
     repositories && (
-      <div className="boxed-group padded display-flex-wrap">
-        <div className="width-100">
-          <SearchBox
-            className="big-spacer-bottom"
+      <div>
+        <div className="sw-flex sw-items-center sw-mb-6">
+          <InputSearch
+            size="large"
             onChange={props.onSearch}
             placeholder={translate('onboarding.create_project.search_repositories')}
             value={searchQuery}
+            clearIconAriaLabel={translate('clear')}
           />
+          <DeferredSpinner loading={loadingRepositories} className="sw-ml-2" />
         </div>
 
         {repositories.length === 0 ? (
-          <div className="padded">
-            <DeferredSpinner loading={loadingRepositories}>
-              {translate('no_results')}
-            </DeferredSpinner>
+          <div className="sw-py-6 sw-px-2">
+            <LightPrimary className="sw-body-sm">{translate('no_results')}</LightPrimary>
           </div>
         ) : (
           repositories.map((r) => (
-            <Radio
-              className="spacer-top spacer-bottom padded create-project-github-repository"
+            <AlmRepoItem
               key={r.key}
-              checked={isChecked(r)}
-              disabled={isDisabled(r)}
-              value={r.key}
-              onCheck={props.onSelectRepository}
-            >
-              <div className="big overflow-hidden max-width-100" title={r.name}>
-                <div className="text-ellipsis">
-                  {r.sqProjectKey ? (
-                    <div className="display-flex-center max-width-100">
-                      <Link
-                        className="display-flex-center max-width-60"
-                        to={getProjectUrl(r.sqProjectKey)}
-                      >
-                        <QualifierIcon
-                          className="spacer-right"
-                          qualifier={ComponentQualifier.Project}
-                        />
-                        <span className="text-ellipsis">{r.name}</span>
-                      </Link>
-                      <em className="display-flex-center small big-spacer-left flex-0">
-                        <span className="text-muted-2">
-                          {translate('onboarding.create_project.repository_imported')}
-                        </span>
-                        <CheckIcon className="little-spacer-left" size={12} fill={colors.green} />
-                      </em>
-                    </div>
-                  ) : (
-                    r.name
-                  )}
-                </div>
-                {r.url && (
-                  <a
-                    className="notice small display-flex-center little-spacer-top"
-                    onClick={(e) => e.stopPropagation()}
-                    target="_blank"
-                    href={r.url}
-                    rel="noopener noreferrer"
-                  >
-                    {translate('onboarding.create_project.see_on_github')}
-                  </a>
-                )}
-              </div>
-            </Radio>
+              almKey={r.key}
+              almUrl={r.url}
+              almUrlText={translate('onboarding.create_project.see_on_github')}
+              almIconSrc={`${getBaseUrl()}/images/tutorials/github-actions.svg`}
+              sqProjectKey={r.sqProjectKey}
+              onImport={props.onImportRepository}
+              primaryTextNode={<span title={r.name}>{r.name}</span>}
+            />
           ))
         )}
 
@@ -161,6 +109,7 @@ function renderRepositoryList(props: GitHubProjectCreateRendererProps) {
             total={repositoryPaging.total}
             loadMore={props.onLoadMore}
             loading={loadingRepositories}
+            useMIUIButtons
           />
         </div>
       </div>
@@ -176,7 +125,6 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
     loadingOrganizations,
     organizations,
     selectedOrganization,
-    selectedRepository,
     almInstances,
     selectedAlmInstance,
   } = props;
@@ -186,33 +134,13 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
   }
 
   return (
-    <div>
-      <CreateProjectPageHeader
-        additionalActions={
-          selectedOrganization && (
-            <div className="display-flex-center pull-right">
-              <Button
-                className="button-large button-primary"
-                disabled={!selectedRepository}
-                onClick={props.onImportRepository}
-              >
-                {translate('onboarding.create_project.import_selected_repo')}
-              </Button>
-            </div>
-          )
-        }
-        title={
-          <span className="text-middle display-flex-center">
-            <img
-              alt="" // Should be ignored by screen readers
-              className="spacer-right"
-              height={24}
-              src={`${getBaseUrl()}/images/alm/github.svg`}
-            />
-            {translate('onboarding.create_project.github.title')}
-          </span>
-        }
-      />
+    <>
+      <header className="sw-mb-10">
+        <Title className="sw-mb-4">{translate('onboarding.create_project.github.title')}</Title>
+        <LightPrimary className="sw-body-sm">
+          {translate('onboarding.create_project.github.subtitle')}
+        </LightPrimary>
+      </header>
 
       <AlmSettingsInstanceDropdown
         almKey={AlmKeys.GitHub}
@@ -222,76 +150,73 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
       />
 
       {error && selectedAlmInstance && (
-        <div className="display-flex-justify-center">
-          <div className="boxed-group padded width-50 huge-spacer-top">
-            <h2 className="big-spacer-bottom">
-              {translate('onboarding.create_project.github.warning.title')}
-            </h2>
-            <Alert variant="warning">
-              {canAdmin ? (
-                <FormattedMessage
-                  id="onboarding.create_project.github.warning.message_admin"
-                  defaultMessage={translate(
-                    'onboarding.create_project.github.warning.message_admin'
-                  )}
-                  values={{
-                    link: (
-                      <Link to="/admin/settings?category=almintegration">
-                        {translate('onboarding.create_project.github.warning.message_admin.link')}
-                      </Link>
-                    ),
-                  }}
-                />
-              ) : (
-                translate('onboarding.create_project.github.warning.message')
-              )}
-            </Alert>
-          </div>
-        </div>
+        <FlagMessage variant="warning" className="sw-my-2">
+          <span>
+            {canAdmin ? (
+              <FormattedMessage
+                id="onboarding.create_project.github.warning.message_admin"
+                defaultMessage={translate('onboarding.create_project.github.warning.message_admin')}
+                values={{
+                  link: (
+                    <Link to="/admin/settings?category=almintegration">
+                      {translate('onboarding.create_project.github.warning.message_admin.link')}
+                    </Link>
+                  ),
+                }}
+              />
+            ) : (
+              translate('onboarding.create_project.github.warning.message')
+            )}
+          </span>
+        </FlagMessage>
       )}
 
-      {!error && (
-        <DeferredSpinner loading={loadingOrganizations}>
-          <div className="form-field">
-            <label htmlFor="github-choose-organization">
+      <DeferredSpinner loading={loadingOrganizations && !error}>
+        {!error && (
+          <div className="sw-flex sw-flex-col">
+            <DarkLabel htmlFor="github-choose-organization" className="sw-mb-2">
               {translate('onboarding.create_project.github.choose_organization')}
-            </label>
+            </DarkLabel>
             {organizations.length > 0 ? (
-              <Select
+              <InputSelect
+                className="sw-w-abs-300 sw-mb-9"
+                size="full"
+                isSearchable
                 inputId="github-choose-organization"
-                className="input-super-large"
                 options={organizations.map(orgToOption)}
                 onChange={({ value }: LabelValueSelectOption) => props.onSelectOrganization(value)}
                 value={selectedOrganization ? orgToOption(selectedOrganization) : null}
               />
             ) : (
               !loadingOrganizations && (
-                <Alert className="spacer-top" variant="error">
-                  {canAdmin ? (
-                    <FormattedMessage
-                      id="onboarding.create_project.github.no_orgs_admin"
-                      defaultMessage={translate('onboarding.create_project.github.no_orgs_admin')}
-                      values={{
-                        link: (
-                          <Link to="/admin/settings?category=almintegration">
-                            {translate(
-                              'onboarding.create_project.github.warning.message_admin.link'
-                            )}
-                          </Link>
-                        ),
-                      }}
-                    />
-                  ) : (
-                    translate('onboarding.create_project.github.no_orgs')
-                  )}
-                </Alert>
+                <FlagMessage variant="error" className="sw-mb-2">
+                  <span>
+                    {canAdmin ? (
+                      <FormattedMessage
+                        id="onboarding.create_project.github.no_orgs_admin"
+                        defaultMessage={translate('onboarding.create_project.github.no_orgs_admin')}
+                        values={{
+                          link: (
+                            <Link to="/admin/settings?category=almintegration">
+                              {translate(
+                                'onboarding.create_project.github.warning.message_admin.link'
+                              )}
+                            </Link>
+                          ),
+                        }}
+                      />
+                    ) : (
+                      translate('onboarding.create_project.github.no_orgs')
+                    )}
+                  </span>
+                </FlagMessage>
               )
             )}
           </div>
-        </DeferredSpinner>
-      )}
+        )}
+      </DeferredSpinner>
 
       {renderRepositoryList(props)}
-    </div>
+    </>
   );
 }

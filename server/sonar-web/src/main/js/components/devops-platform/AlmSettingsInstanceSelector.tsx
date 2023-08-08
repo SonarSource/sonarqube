@@ -17,18 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { InputSelect, LabelValueSelectOption } from 'design-system';
 import * as React from 'react';
-import { components, OptionProps, SingleValueProps } from 'react-select';
+import { OptionProps, SingleValueProps, components } from 'react-select';
 import { translate } from '../../helpers/l10n';
 import { AlmSettingsInstance } from '../../types/alm-settings';
-import Select from '../controls/Select';
 
-function optionRenderer(props: OptionProps<AlmSettingsInstance, false>) {
-  return <components.Option {...props}>{customOptions(props.data)}</components.Option>;
+function optionRenderer(props: OptionProps<LabelValueSelectOption<AlmSettingsInstance>, false>) {
+  return <components.Option {...props}>{customOptions(props.data.value)}</components.Option>;
 }
 
-function singleValueRenderer(props: SingleValueProps<AlmSettingsInstance, false>) {
-  return <components.SingleValue {...props}>{customOptions(props.data)}</components.SingleValue>;
+function singleValueRenderer(
+  props: SingleValueProps<LabelValueSelectOption<AlmSettingsInstance>, false>
+) {
+  return (
+    <components.SingleValue {...props}>{customOptions(props.data.value)}</components.SingleValue>
+  );
 }
 
 function customOptions(instance: AlmSettingsInstance) {
@@ -42,36 +47,39 @@ function customOptions(instance: AlmSettingsInstance) {
   );
 }
 
+function orgToOption(alm: AlmSettingsInstance) {
+  return { value: alm, label: alm.key };
+}
+
 interface Props {
   instances: AlmSettingsInstance[];
   initialValue?: string;
   onChange: (instance: AlmSettingsInstance) => void;
-  classNames: string;
+  className: string;
   inputId: string;
 }
 
 export default function AlmSettingsInstanceSelector(props: Props) {
-  const { instances, initialValue, classNames, inputId } = props;
+  const { instances, initialValue, className, inputId } = props;
 
   return (
-    <Select
+    <InputSelect
       inputId={inputId}
-      className={classNames}
+      className={className}
       isClearable={false}
       isSearchable={false}
-      options={instances}
-      onChange={(inst) => {
-        if (inst) {
-          props.onChange(inst);
-        }
+      options={instances.map(orgToOption)}
+      onChange={(data: LabelValueSelectOption<AlmSettingsInstance>) => {
+        props.onChange(data.value);
       }}
       components={{
         Option: optionRenderer,
         SingleValue: singleValueRenderer,
       }}
       placeholder={translate('alm.configuration.selector.placeholder')}
-      getOptionValue={(opt) => opt.key}
-      value={instances.find((inst) => inst.key === initialValue) ?? null}
+      getOptionValue={(opt: LabelValueSelectOption<AlmSettingsInstance>) => opt.value.key}
+      value={instances.map(orgToOption).find((opt) => opt.value.key === initialValue) ?? null}
+      size="full"
     />
   );
 }

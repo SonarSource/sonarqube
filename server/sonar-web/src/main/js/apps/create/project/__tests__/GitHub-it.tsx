@@ -106,8 +106,8 @@ it('should show import project feature when the authentication is successfull', 
   expect(screen.getByText('Github repo 1')).toBeInTheDocument();
   expect(screen.getByText('Github repo 2')).toBeInTheDocument();
 
-  repoItem = screen.getByRole('radio', {
-    name: 'Github repo 1',
+  repoItem = screen.getByRole('row', {
+    name: 'Github repo 1 onboarding.create_project.see_on_github onboarding.create_project.repository_imported',
   });
 
   expect(
@@ -120,16 +120,11 @@ it('should show import project feature when the authentication is successfull', 
     '/dashboard?id=key123'
   );
 
-  repoItem = screen.getByRole('radio', {
-    name: 'Github repo 2',
+  repoItem = screen.getByRole('row', {
+    name: 'Github repo 2 onboarding.create_project.see_on_github onboarding.create_project.import',
   });
 
-  const importButton = screen.getByText('onboarding.create_project.import_selected_repo');
-
-  expect(repoItem).toBeInTheDocument();
-  expect(importButton).toBeDisabled();
-  await user.click(repoItem);
-  expect(importButton).toBeEnabled();
+  const importButton = screen.getByText('onboarding.create_project.import');
   await user.click(importButton);
 
   expect(
@@ -154,9 +149,7 @@ it('should show search filter when the authentication is successful', async () =
 
   await selectEvent.select(ui.organizationSelector.get(), [/org-1/]);
 
-  const inputSearch = screen.getByRole('searchbox', {
-    name: 'onboarding.create_project.search_repositories',
-  });
+  const inputSearch = screen.getByRole('searchbox');
   await user.click(inputSearch);
   await user.keyboard('search');
 

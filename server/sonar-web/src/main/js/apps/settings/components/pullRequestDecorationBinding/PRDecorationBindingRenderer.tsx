@@ -31,8 +31,8 @@ import { translate } from '../../../../helpers/l10n';
 import { getGlobalSettingsUrl } from '../../../../helpers/urls';
 import {
   AlmSettingsInstance,
-  ProjectAlmBindingConfigurationErrors,
   ProjectAlmBindingConfigurationErrorScope,
+  ProjectAlmBindingConfigurationErrors,
   ProjectAlmBindingResponse,
 } from '../../../../types/alm-settings';
 import { ALM_INTEGRATION_CATEGORY } from '../../constants';
@@ -135,7 +135,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
               instances={instances}
               onChange={(instance: AlmSettingsInstance) => props.onFieldChange('key', instance.key)}
               initialValue={formData.key}
-              classNames="abs-width-400 big-spacer-top it__configuration-name-select"
+              className="sw-w-abs-400 sw-mt-4 it__configuration-name-select"
               inputId="name"
             />
           </div>

@@ -58,9 +58,10 @@ export default function AlmRepoItem({
   return (
     <StyledCard
       key={almKey}
+      role="row"
       className={classNames('sw-flex sw-mb-2 sw-px-4', {
-        'sw-py-4': sqProjectKey,
-        'sw-py-2': !sqProjectKey,
+        'sw-py-4': sqProjectKey !== undefined,
+        'sw-py-2': sqProjectKey === undefined,
       })}
     >
       <div className="sw-w-[70%] sw-flex sw-mr-1">
@@ -87,7 +88,7 @@ export default function AlmRepoItem({
         </div>
       </div>
       <div className="sw-flex sw-justify-between sw-items-center sw-flex-1">
-        {almUrl && (
+        {almUrl !== undefined && (
           <div className="sw-flex sw-items-center">
             <Link
               className="sw-body-sm-highlight"
