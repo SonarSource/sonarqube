@@ -102,6 +102,35 @@ public class AlmIntegrationsService extends BaseService {
   }
 
   /**
+   * This is a POST request.
+   *
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/import_github_project">Further information about this action online (including a response example)</a>
+   */
+  public Projects.CreateWsResponse importGithubProject(ImportGithubProjectRequest request) {
+    return call(
+      new PostRequest(path("import_github_project"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setParam("organization", request.getOrganization())
+        .setParam("repositoryKey", request.getRepositoryKey())
+        .setMediaType(MediaTypes.JSON),
+      Projects.CreateWsResponse.parser());
+  }
+
+  /**
+   * This is a GET request.
+   *
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/list_github_organizations">Further information about this action online (including a response example)</a>
+   */
+  public void listGithubOrganizations(ListGithubOrganizationsRequest request) {
+    call(
+      new GetRequest(path("list_github_organizations"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setParam("token", request.getToken())
+        .setMediaType(MediaTypes.JSON),
+      Projects.CreateWsResponse.parser());
+  }
+
+  /**
    * This is part of the internal API.
    * This is a POST request.
    *
