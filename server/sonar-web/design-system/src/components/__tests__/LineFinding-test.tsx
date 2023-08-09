@@ -30,16 +30,11 @@ it('should render correctly', async () => {
   expect(container).toMatchSnapshot();
 });
 
-it('should render correctly when issueType is provided', () => {
-  const { container } = setupWithProps({ issueType: 'bugs' });
-  expect(container).toMatchSnapshot();
-});
-
 it('should be clickable when onIssueSelect is provided', async () => {
   const mockClick = jest.fn();
   const user = userEvent.setup();
 
-  setupWithProps({ issueType: 'bugs', onIssueSelect: mockClick });
+  setupWithProps({ onIssueSelect: mockClick });
   await user.click(screen.getByRole('button'));
   expect(mockClick).toHaveBeenCalled();
 });

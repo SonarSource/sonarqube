@@ -18,10 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { useTheme } from '@emotion/react';
-import styled from '@emotion/styled';
-import tw from 'twin.macro';
-import { themeColor, themeContrast } from '../../helpers/theme';
 import { IssueType } from '../../types';
 import { BugIcon } from './BugIcon';
 import { CodeSmellIcon } from './CodeSmellIcon';
@@ -67,20 +63,3 @@ export function IssueTypeIcon({ type, ...iconProps }: Props) {
       return null;
   }
 }
-
-export function IssueTypeCircleIcon({ className, type, ...iconProps }: Props) {
-  const theme = useTheme();
-  return (
-    <CircleIconContainer className={className}>
-      <IssueTypeIcon fill={themeContrast('issueTypeIcon')({ theme })} type={type} {...iconProps} />
-    </CircleIconContainer>
-  );
-}
-
-const CircleIconContainer = styled.div`
-  ${tw`sw-w-6 sw-h-6`}
-  ${tw`sw-inline-flex sw-items-center sw-justify-center sw-shrink-0`};
-
-  background: ${themeColor('issueTypeIcon')};
-  border-radius: 100%;
-`;

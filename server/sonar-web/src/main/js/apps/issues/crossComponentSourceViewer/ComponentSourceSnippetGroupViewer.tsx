@@ -240,7 +240,6 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
               <IssueSourceViewerScrollContext.Consumer key={issueToDisplay.key}>
                 {(ctx) => (
                   <LineFinding
-                    issueType={issueToDisplay.type}
                     issueKey={issueToDisplay.key}
                     message={
                       <IssueMessageHighlighting
@@ -315,7 +314,6 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
               <IssueSourceViewerScrollContext.Consumer>
                 {(ctx) => (
                   <LineFinding
-                    issueType={issue.type}
                     issueKey={issue.key}
                     message={
                       <IssueMessageHighlighting

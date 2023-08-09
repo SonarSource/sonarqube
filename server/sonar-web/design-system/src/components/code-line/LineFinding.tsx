@@ -22,19 +22,17 @@ import { forwardRef, Ref } from 'react';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast, themeShadow } from '../../helpers/theme';
 import { BareButton } from '../buttons';
-import { IssueTypeCircleIcon } from '../icons/IssueTypeIcon';
 
 interface Props {
   className?: string;
   issueKey: string;
-  issueType?: string;
   message: React.ReactNode;
   onIssueSelect?: (issueKey: string) => void;
   selected?: boolean;
 }
 
 function LineFindingFunc(
-  { issueType, message, issueKey, selected = true, className, onIssueSelect }: Props,
+  { message, issueKey, selected = true, className, onIssueSelect }: Props,
   ref: Ref<HTMLButtonElement>
 ) {
   return (
@@ -49,7 +47,6 @@ function LineFindingFunc(
       ref={ref}
       selected={selected}
     >
-      {issueType && <IssueTypeCircleIcon className="sw-ml-1/2" type={issueType} />}
       {message}
     </LineFindingStyled>
   );
