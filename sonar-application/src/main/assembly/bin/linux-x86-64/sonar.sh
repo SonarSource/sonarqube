@@ -86,7 +86,7 @@ XMX="-Xmx32m"
 COMMAND_LINE="$JAVA_CMD $XMS $XMX $HAZELCAST_ADDITIONAL -jar $LIB_DIR/sonar-application-@sqversion@.jar"
 
 # Location of the pid file.
-PIDFILE="./$APP_NAME.pid"
+PIDFILE="${PIDFILE-./$APP_NAME.pid}"
 
 # Resolve the location of the 'ps' command
 PSEXE="/usr/bin/ps"
