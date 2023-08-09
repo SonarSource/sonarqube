@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
-import java.util.Collections;
+import java.util.EnumMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -44,6 +44,8 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   private RuleType type;
   private String engineId;
   private String ruleId;
+  private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = new EnumMap<>(SoftwareQuality.class);
+  private CleanCodeAttribute cleanCodeAttribute;
 
   public DefaultExternalIssue(DefaultInputProject project) {
     this(project, null);
@@ -67,7 +69,8 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   }
 
   @Override
-  public NewExternalIssue addImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
+  public DefaultExternalIssue addImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
+    this.impacts.put(softwareQuality, severity);
     return this;
   }
 
@@ -97,8 +100,6 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
     requireNonNull(this.ruleId, "Rule id is mandatory on external issue");
     checkState(primaryLocation != null, "Primary location is mandatory on every external issue");
     checkState(primaryLocation.message() != null, "External issues must have a message");
-    checkState(severity != null, "Severity is mandatory on every external issue");
-    checkState(type != null, "Type is mandatory on every external issue");
     storage.store(this);
   }
 
@@ -109,13 +110,13 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
 
   @Override
   public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts() {
-    return Collections.emptyMap();
+    return impacts;
   }
 
   @CheckForNull
   @Override
   public CleanCodeAttribute cleanCodeAttribute() {
-    return null;
+    return cleanCodeAttribute;
   }
 
   @Override
@@ -152,7 +153,8 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
   }
 
   @Override
-  public NewExternalIssue cleanCodeAttribute(CleanCodeAttribute attribute) {
+  public DefaultExternalIssue cleanCodeAttribute(CleanCodeAttribute attribute) {
+    this.cleanCodeAttribute = attribute;
     return this;
   }
 

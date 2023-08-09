@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.rule.internal.ImpactMapper;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -46,6 +47,7 @@ import org.sonar.core.issue.tracking.LineHashSequence;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
@@ -213,11 +215,17 @@ public class TrackerRawInputFactory {
 
     private DefaultIssue toExternalIssue(LineHashSequence lineHashSeq, ScannerReport.ExternalIssue reportExternalIssue, Map<RuleKey, ScannerReport.AdHocRule> adHocRuleMap) {
       DefaultIssue issue = new DefaultIssue();
-      RuleType type = toRuleType(reportExternalIssue.getType());
-      init(issue, type == RuleType.SECURITY_HOTSPOT ? STATUS_TO_REVIEW : STATUS_OPEN);
-
       RuleKey ruleKey = RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportExternalIssue.getEngineId(), reportExternalIssue.getRuleId());
       issue.setRuleKey(ruleKey);
+      ruleRepository.addOrUpdateAddHocRuleIfNeeded(ruleKey, () -> toAdHocRule(reportExternalIssue, adHocRuleMap.get(issue.ruleKey())));
+
+      Rule existingRule = ruleRepository.getByKey(ruleKey);
+      issue.setSeverity(determineDeprecatedSeverity(reportExternalIssue, existingRule));
+      issue.setType(determineDeprecatedType(reportExternalIssue, existingRule));
+      issue.replaceImpacts(convertImpacts(issue.ruleKey(), reportExternalIssue.getImpactsList()));
+
+      init(issue, issue.type() == RuleType.SECURITY_HOTSPOT ? STATUS_TO_REVIEW : STATUS_OPEN);
+
       if (reportExternalIssue.hasTextRange()) {
         int startLine = reportExternalIssue.getTextRange().getStartLine();
         issue.setLine(startLine);
@@ -230,9 +238,6 @@ public class TrackerRawInputFactory {
         if (!reportExternalIssue.getMsgFormattingList().isEmpty()) {
           issue.setMessageFormattings(convertMessageFormattings(reportExternalIssue.getMsgFormattingList()));
         }
-      }
-      if (reportExternalIssue.getSeverity() != Severity.UNSET_SEVERITY) {
-        issue.setSeverity(reportExternalIssue.getSeverity().name());
       }
       issue.setEffort(Duration.create(reportExternalIssue.getEffort() != 0 ? reportExternalIssue.getEffort() : DEFAULT_EXTERNAL_ISSUE_EFFORT));
       DbIssues.Locations.Builder dbLocationsBuilder = DbIssues.Locations.newBuilder();
@@ -247,9 +252,7 @@ public class TrackerRawInputFactory {
       }
       issue.setIsFromExternalRuleEngine(true);
       issue.setLocations(dbLocationsBuilder.build());
-      issue.setType(type);
 
-      ruleRepository.addOrUpdateAddHocRuleIfNeeded(ruleKey, () -> toAdHocRule(reportExternalIssue, adHocRuleMap.get(issue.ruleKey())));
       return issue;
     }
 
@@ -330,6 +333,33 @@ public class TrackerRawInputFactory {
       targetRange.setEndOffset(sourceRange.getEndOffset());
       return targetRange;
     }
+
+    private RuleType determineDeprecatedType(ScannerReport.ExternalIssue reportExternalIssue, Rule rule) {
+      if (reportExternalIssue.getType() != ScannerReport.IssueType.UNSET) {
+        return toRuleType(reportExternalIssue.getType());
+      } else if (rule.getType() != null) {
+        return rule.getType();
+      } else if (!rule.getDefaultImpacts().isEmpty()) {
+        SoftwareQuality impactSoftwareQuality = ImpactMapper.getBestImpactForBackmapping(rule.getDefaultImpacts()).getKey();
+        return ImpactMapper.convertToRuleType(impactSoftwareQuality);
+      } else {
+        throw new IllegalArgumentException("Cannot determine the type for issue of rule %s".formatted(reportExternalIssue.getRuleId()));
+      }
+    }
+
+    private static String determineDeprecatedSeverity(ScannerReport.ExternalIssue reportExternalIssue, Rule rule) {
+      if (reportExternalIssue.getSeverity() != Constants.Severity.UNSET_SEVERITY) {
+        return reportExternalIssue.getSeverity().name();
+      } else if (rule.getSeverity() != null) {
+        return rule.getSeverity();
+      } else if (!rule.getDefaultImpacts().isEmpty()) {
+        org.sonar.api.issue.impact.Severity impactSeverity = ImpactMapper.getBestImpactForBackmapping(rule.getDefaultImpacts()).getValue();
+        return ImpactMapper.convertToDeprecatedSeverity(impactSeverity);
+      } else {
+        throw new IllegalArgumentException("Cannot determine the severity for issue of rule %s".formatted(reportExternalIssue.getRuleId()));
+      }
+    }
+
   }
 
   private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> convertImpacts(RuleKey ruleKey, List<ScannerReport.Impact> overridenImpactsList) {

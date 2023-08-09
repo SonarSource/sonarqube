@@ -42,9 +42,9 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 import org.sonar.api.batch.sensor.issue.internal.DefaultMessageFormatting;
-import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.FlowType;
@@ -60,7 +60,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.batch.sensor.issue.MessageFormatting.Type.CODE;
-import static org.sonar.api.issue.impact.SoftwareQuality.*;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssuePublisherTest {
@@ -208,6 +209,25 @@ public class IssuePublisherTest {
     ArgumentCaptor<ScannerReport.ExternalIssue> argument = ArgumentCaptor.forClass(ScannerReport.ExternalIssue.class);
     verify(reportPublisher.getWriter()).appendComponentExternalIssue(eq(file.scannerId()), argument.capture());
     assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.scanner.protocol.Constants.Severity.CRITICAL);
+  }
+
+  @Test
+  public void initAndAddExternalIssue_whenImpactAndCleanCodeAttributeProvided_shouldPopulateReportFields() {
+    initModuleIssues();
+
+    DefaultExternalIssue issue = new DefaultExternalIssue(project)
+      .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
+      .cleanCodeAttribute(CleanCodeAttribute.CLEAR)
+      .forRule(JAVA_RULE_KEY)
+      .addImpact(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW);
+
+    moduleIssues.initAndAddExternalIssue(issue);
+
+    ArgumentCaptor<ScannerReport.ExternalIssue> argument = ArgumentCaptor.forClass(ScannerReport.ExternalIssue.class);
+    verify(reportPublisher.getWriter()).appendComponentExternalIssue(eq(file.scannerId()), argument.capture());
+    assertThat(argument.getValue().getImpactsList()).extracting(i -> i.getSoftwareQuality(), i -> i.getSeverity())
+      .containsExactly(tuple(MAINTAINABILITY.name(), org.sonar.api.issue.impact.Severity.LOW.name()));
+    assertThat(argument.getValue().getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR.name());
   }
 
   @Test

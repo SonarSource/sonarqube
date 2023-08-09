@@ -31,6 +31,7 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -231,8 +232,13 @@ public class RuleRepositoryImpl implements RuleRepository {
 
     @Override
     public Map<SoftwareQuality, Severity> getDefaultImpacts() {
-      //TODO external issues
-      return Collections.emptyMap();
+      return addHocRule.getDefaultImpacts();
+    }
+
+    @CheckForNull
+    @Override
+    public CleanCodeAttribute cleanCodeAttribute() {
+      return addHocRule.getCleanCodeAttribute();
     }
   }
 }

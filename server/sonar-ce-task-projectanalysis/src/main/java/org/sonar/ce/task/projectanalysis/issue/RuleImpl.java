@@ -31,9 +31,11 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 
@@ -57,6 +59,7 @@ public class RuleImpl implements Rule {
   private final String severity;
   private final Set<String> securityStandards;
   private final Map<SoftwareQuality, Severity> defaultImpacts;
+  private final CleanCodeAttribute cleanCodeAttribute;
 
   public RuleImpl(RuleDto dto) {
     this.uuid = dto.getUuid();
@@ -73,8 +76,9 @@ public class RuleImpl implements Rule {
     this.defaultRuleDescription = getNonNullDefaultRuleDescription(dto);
     this.severity = Optional.ofNullable(dto.getSeverityString()).orElse(dto.getAdHocSeverity());
     this.securityStandards = dto.getSecurityStandards();
-    this.defaultImpacts = dto.getDefaultImpacts().stream()
-      .collect(Collectors.toMap(i -> i.getSoftwareQuality(), i -> i.getSeverity()));
+    this.defaultImpacts = dto.getDefaultImpacts()
+      .stream().collect(Collectors.toMap(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity));
+    this.cleanCodeAttribute = dto.getCleanCodeAttribute();
   }
 
   private static String getNonNullDefaultRuleDescription(RuleDto dto) {
@@ -147,6 +151,12 @@ public class RuleImpl implements Rule {
   @Override
   public Map<SoftwareQuality, Severity> getDefaultImpacts() {
     return defaultImpacts;
+  }
+
+  @CheckForNull
+  @Override
+  public CleanCodeAttribute cleanCodeAttribute() {
+    return cleanCodeAttribute;
   }
 
   @Override

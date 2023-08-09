@@ -208,13 +208,15 @@ message ExternalIssue {
   string engine_id = 1;
   string rule_id = 2;
   string msg = 3;
-  Severity severity = 4;
+  optional Severity severity = 4;
   int64 effort = 5;
   TextRange text_range = 6;
   repeated Flow flow = 7;
-  IssueType type = 8;
+  optional IssueType type = 8;
   repeated MessageFormatting msgFormatting = 9;
-  repeated Impact overridenImpacts = 10;
+  repeated Impact impacts = 10;
+  optional string cleanCodeAttribute = 11;
+
 }
 
 message AdHocRule {
@@ -222,8 +224,10 @@ message AdHocRule {
     string rule_id = 2;
     string name = 3;
     string description = 4;
-    Severity severity = 5;
-    IssueType type = 6;
+  optional Severity severity = 5;
+  optional IssueType type = 6;
+  optional string cleanCodeAttribute = 7;
+  repeated Impact defaultImpacts = 8;
 }
 
 enum IssueType {

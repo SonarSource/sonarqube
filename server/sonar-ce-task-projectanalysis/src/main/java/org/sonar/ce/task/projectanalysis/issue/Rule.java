@@ -26,6 +26,7 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
@@ -69,4 +70,7 @@ public interface Rule {
   Set<String> getSecurityStandards();
 
   Map<SoftwareQuality, Severity> getDefaultImpacts();
+
+  @CheckForNull
+  CleanCodeAttribute cleanCodeAttribute();
 }

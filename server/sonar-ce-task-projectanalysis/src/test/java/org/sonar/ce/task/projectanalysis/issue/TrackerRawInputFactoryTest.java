@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -335,6 +337,9 @@ public class TrackerRawInputFactoryTest {
   @Test
   @UseDataProvider("ruleTypeAndStatusByIssueType")
   public void load_external_issues_from_report(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
+    registerRule(RuleKey.of("external_eslint", "S001"), "rule", r -> {
+      r.addDefaultImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW);
+    });
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
@@ -345,6 +350,8 @@ public class TrackerRawInputFactoryTest {
       .setEffort(20L)
       .setType(issueType)
       .addFlow(ScannerReport.Flow.newBuilder().setType(FlowType.DATA).addLocation(ScannerReport.IssueLocation.newBuilder().build()).build())
+      .addImpacts(ScannerReport.Impact.newBuilder().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY.name())
+        .setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM.name()).build())
       .build();
     reportReader.putExternalIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
     Input<DefaultIssue> input = underTest.create(FILE);
@@ -378,6 +385,8 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.checksum()).isEqualTo(input.getLineHashSequence().getHashForLine(2));
     assertThat(issue.tags()).isEmpty();
     assertInitializedExternalIssue(issue, expectedStatus);
+
+    assertThat(issue.impacts()).containsExactlyEntriesOf(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM));
   }
 
   @DataProvider
@@ -393,6 +402,8 @@ public class TrackerRawInputFactoryTest {
   @Test
   @UseDataProvider("ruleTypeAndStatusByIssueType")
   public void load_external_issues_from_report_with_default_effort(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
+    registerRule(RuleKey.of("external_eslint", "S001"), "rule", r -> {
+    });
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
@@ -420,6 +431,59 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.checksum()).isEqualTo(input.getLineHashSequence().getHashForLine(2));
     assertThat(issue.tags()).isEmpty();
     assertInitializedExternalIssue(issue, expectedStatus);
+  }
+
+  @Test
+  public void create_whenSeverityAndTypeNotProvided_shouldTakeFromTheRule() {
+    registerRule(RuleKey.of("external_eslint", "S001"), "rule", r -> {
+      r.setType(RuleType.BUG);
+      r.setSeverity(Severity.MAJOR);
+    });
+    ScannerReport.ExternalIssue reportIssue = createIssue(null, null);
+    reportReader.putExternalIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    Collection<DefaultIssue> issues = input.getIssues();
+    assertThat(issues).hasSize(1);
+    DefaultIssue issue = Iterators.getOnlyElement(issues.iterator());
+
+    assertThat(issue.type()).isEqualTo(RuleType.BUG);
+    assertThat(issue.severity()).isEqualTo(Severity.MAJOR);
+  }
+
+  @Test
+  public void create_whenSeverityAndTypeNotProvidedByIssueAndRule_shouldTakeFromTheRuleImpact() {
+    registerRule(RuleKey.of("external_eslint", "S001"), "rule", r -> {
+      r.addDefaultImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM);
+    });
+    ScannerReport.ExternalIssue reportIssue = createIssue(null, null);
+    reportReader.putExternalIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    Collection<DefaultIssue> issues = input.getIssues();
+    assertThat(issues).hasSize(1);
+    DefaultIssue issue = Iterators.getOnlyElement(issues.iterator());
+
+    assertThat(issue.type()).isEqualTo(RuleType.CODE_SMELL);
+    assertThat(issue.severity()).isEqualTo(Severity.MAJOR);
+  }
+
+  @NotNull
+  private ScannerReport.ExternalIssue createIssue(@Nullable RuleType ruleType, @Nullable String severity) {
+    ScannerReport.ExternalIssue.Builder builder = ScannerReport.ExternalIssue.newBuilder()
+      .setTextRange(newTextRange(2))
+      .setMsg("the message")
+      .setEngineId("eslint")
+      .setRuleId("S001");
+    if (ruleType != null) {
+      builder.setType(IssueType.valueOf(ruleType.name()));
+    }
+
+    if (severity != null) {
+      builder.setSeverity(Constants.Severity.valueOf(severity));
+    }
+
+    return builder.build();
   }
 
   @Test

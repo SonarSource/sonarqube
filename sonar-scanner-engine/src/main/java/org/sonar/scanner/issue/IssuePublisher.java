@@ -40,6 +40,8 @@ import org.sonar.api.batch.sensor.issue.MessageFormatting;
 import org.sonar.api.batch.sensor.issue.NewIssue.FlowType;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueFlow;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.api.rules.RuleType;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueLocation;
@@ -87,9 +89,9 @@ public class IssuePublisher {
   private static boolean noSonar(DefaultInputComponent inputComponent, Issue issue) {
     TextRange textRange = issue.primaryLocation().textRange();
     return inputComponent.isFile()
-      && textRange != null
-      && ((DefaultInputFile) inputComponent).hasNoSonarAt(textRange.start().line())
-      && !StringUtils.containsIgnoreCase(issue.ruleKey().rule(), "nosonar");
+           && textRange != null
+           && ((DefaultInputFile) inputComponent).hasNoSonarAt(textRange.start().line())
+           && !StringUtils.containsIgnoreCase(issue.ruleKey().rule(), "nosonar");
   }
 
   public void initAndAddExternalIssue(ExternalIssue issue) {
@@ -161,15 +163,11 @@ public class IssuePublisher {
   private static ScannerReport.ExternalIssue createReportExternalIssue(ExternalIssue issue, int componentRef) {
     // primary location of an external issue must have a message
     String primaryMessage = issue.primaryLocation().message();
-    Severity severity = Severity.valueOf(issue.severity().name());
-    IssueType issueType = IssueType.valueOf(issue.type().name());
-
     ScannerReport.ExternalIssue.Builder builder = ScannerReport.ExternalIssue.newBuilder();
     ScannerReport.IssueLocation.Builder locationBuilder = IssueLocation.newBuilder();
     ScannerReport.TextRange.Builder textRangeBuilder = ScannerReport.TextRange.newBuilder();
+
     // non-null fields
-    builder.setSeverity(severity);
-    builder.setType(issueType);
     builder.setEngineId(issue.engineId());
     builder.setRuleId(issue.ruleId());
     builder.setMsg(primaryMessage);
@@ -178,6 +176,20 @@ public class IssuePublisher {
     locationBuilder.addAllMsgFormatting(toProtobufMessageFormattings(issue.primaryLocation().messageFormattings()));
     locationBuilder.setComponentRef(componentRef);
     TextRange primaryTextRange = issue.primaryLocation().textRange();
+
+    //nullable fields
+    CleanCodeAttribute cleanCodeAttribute = issue.cleanCodeAttribute();
+    if (cleanCodeAttribute != null) {
+      builder.setCleanCodeAttribute(cleanCodeAttribute.name());
+    }
+    org.sonar.api.batch.rule.Severity severity = issue.severity();
+    if (severity != null) {
+      builder.setSeverity(Severity.valueOf(severity.name()));
+    }
+    RuleType issueType = issue.type();
+    if (issueType != null) {
+      builder.setType(IssueType.valueOf(issueType.name()));
+    }
     if (primaryTextRange != null) {
       builder.setTextRange(toProtobufTextRange(textRangeBuilder, primaryTextRange));
     }
@@ -186,6 +198,7 @@ public class IssuePublisher {
       builder.setEffort(effort);
     }
     applyFlows(builder::addFlow, locationBuilder, textRangeBuilder, issue.flows());
+    builder.addAllImpacts(toProtobufImpacts(issue.impacts()));
     return builder.build();
   }
 

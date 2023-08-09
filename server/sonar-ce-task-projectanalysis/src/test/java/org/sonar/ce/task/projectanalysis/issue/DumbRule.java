@@ -29,6 +29,7 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
@@ -48,6 +49,8 @@ public class DumbRule implements Rule {
   private boolean isAdHoc;
   private final Set<String> securityStandards = new HashSet<>();
   private final Map<SoftwareQuality, Severity> defaultImpacts = new EnumMap<>(SoftwareQuality.class);
+  private CleanCodeAttribute cleanCodeAttribute;
+  private String severity;
 
   public DumbRule(RuleKey key) {
     this.key = key;
@@ -108,7 +111,7 @@ public class DumbRule implements Rule {
 
   @Override
   public String getSeverity() {
-    return null;
+    return severity;
   }
 
   @Override
@@ -119,6 +122,12 @@ public class DumbRule implements Rule {
   @Override
   public Map<SoftwareQuality, Severity> getDefaultImpacts() {
     return defaultImpacts;
+  }
+
+  @CheckForNull
+  @Override
+  public CleanCodeAttribute cleanCodeAttribute() {
+    return cleanCodeAttribute;
   }
 
   @Override
@@ -166,6 +175,11 @@ public class DumbRule implements Rule {
     return this;
   }
 
+  public DumbRule setSeverity(String severity) {
+    this.severity = severity;
+    return this;
+  }
+
   public DumbRule setPluginKey(String pluginKey) {
     this.pluginKey = pluginKey;
     return this;
@@ -183,6 +197,11 @@ public class DumbRule implements Rule {
 
   public DumbRule addDefaultImpact(SoftwareQuality softwareQuality, Severity severity) {
     defaultImpacts.put(softwareQuality, severity);
+    return this;
+  }
+
+  public DumbRule setCleanCodeAttribute(CleanCodeAttribute cleanCodeAttribute) {
+    this.cleanCodeAttribute = cleanCodeAttribute;
     return this;
   }
 
