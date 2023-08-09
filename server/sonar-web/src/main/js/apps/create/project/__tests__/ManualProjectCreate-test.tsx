@@ -61,83 +61,72 @@ it('should validate form input', async () => {
   // All input valid
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required',
+      name: /onboarding.create_project.display_name/,
     })
   );
   await user.keyboard('test');
   expect(
-    screen.getByRole('textbox', { name: 'onboarding.create_project.project_key field_required' })
+    screen.getByRole('textbox', { name: /onboarding.create_project.project_key/ })
   ).toHaveValue('test');
   expect(ui.nextButton.get()).toBeEnabled();
 
   // Sanitize the key
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required',
+      name: /onboarding.create_project.display_name/,
     })
   );
   await user.keyboard('{Control>}a{/Control}This is not a key%^$');
   expect(
-    screen.getByRole('textbox', { name: 'onboarding.create_project.project_key field_required' })
+    screen.getByRole('textbox', { name: /onboarding.create_project.project_key/ })
   ).toHaveValue('This-is-not-a-key-');
 
   // Clear name
   await user.clear(
     screen.getByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required',
+      name: /onboarding.create_project.display_name/,
     })
   );
   expect(
-    screen.getByRole('textbox', { name: 'onboarding.create_project.project_key field_required' })
+    screen.getByRole('textbox', { name: /onboarding.create_project.project_key/ })
   ).toHaveValue('');
-  expect(
-    screen.getByText('onboarding.create_project.display_name.error.empty')
-  ).toBeInTheDocument();
+
   expect(ui.nextButton.get()).toBeDisabled();
 
   // Only key
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.project_key field_required',
+      name: /onboarding.create_project.project_key/,
     })
   );
   await user.keyboard('awsome-key');
   expect(
-    screen.getByRole('textbox', { name: 'onboarding.create_project.display_name field_required' })
+    screen.getByRole('textbox', { name: /onboarding.create_project.display_name/ })
   ).toHaveValue('');
-  expect(screen.getByText('valid_input')).toBeInTheDocument();
-  expect(
-    screen.getByText('onboarding.create_project.display_name.error.empty')
-  ).toBeInTheDocument();
+  expect(ui.nextButton.get()).toBeDisabled();
 
   // Invalid key
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.project_key field_required',
+      name: /onboarding.create_project.project_key/,
     })
   );
   await user.keyboard('{Control>}a{/Control}123');
-  expect(
-    await screen.findByText('onboarding.create_project.project_key.error.only_digits')
-  ).toBeInTheDocument();
+  expect(ui.nextButton.get()).toBeDisabled();
+
   await user.keyboard('{Control>}a{/Control}@');
-  expect(
-    await screen.findByText('onboarding.create_project.project_key.error.invalid_char')
-  ).toBeInTheDocument();
+  expect(ui.nextButton.get()).toBeDisabled();
+
   await user.keyboard('{Control>}a{/Control}exists');
-  expect(
-    await screen.findByText('onboarding.create_project.project_key.taken')
-  ).toBeInTheDocument();
+  expect(ui.nextButton.get()).toBeDisabled();
 
   // Invalid main branch name
   await user.clear(
     screen.getByRole('textbox', {
-      name: 'onboarding.create_project.main_branch_name field_required',
+      name: /onboarding.create_project.main_branch_name/,
     })
   );
-  expect(
-    await screen.findByText('onboarding.create_project.main_branch_name.error.empty')
-  ).toBeInTheDocument();
+  expect(ui.nextButton.get()).toBeDisabled();
 });
 
 it('should submit form input', async () => {
@@ -148,7 +137,7 @@ it('should submit form input', async () => {
   // All input valid
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required',
+      name: /onboarding.create_project.display_name/,
     })
   );
   await user.keyboard('test');
@@ -164,12 +153,12 @@ it('should handle component exists failure', async () => {
   // All input valid
   await user.click(
     await screen.findByRole('textbox', {
-      name: 'onboarding.create_project.display_name field_required',
+      name: /onboarding.create_project.display_name/,
     })
   );
   await user.keyboard('test');
   expect(
-    screen.getByRole('textbox', { name: 'onboarding.create_project.display_name field_required' })
+    screen.getByRole('textbox', { name: /onboarding.create_project.display_name/ })
   ).toHaveValue('test');
 });
 

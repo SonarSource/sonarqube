@@ -131,14 +131,14 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
             {translate('onboarding.create_project.select_method.no_alm_yet.admin')}
           </LightPrimary>
         )}
-        <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12 sw-mt-6">
+        <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12 sw-mt-4">
           {renderAlmOption(props, AlmKeys.Azure, CreateProjectModes.AzureDevOps)}
           {renderAlmOption(props, AlmKeys.BitbucketServer, CreateProjectModes.BitbucketServer)}
           {renderAlmOption(props, AlmKeys.BitbucketCloud, CreateProjectModes.BitbucketCloud)}
           {renderAlmOption(props, AlmKeys.GitHub, CreateProjectModes.GitHub)}
           {renderAlmOption(props, AlmKeys.GitLab, CreateProjectModes.GitLab)}
         </div>
-        <LightPrimary className="sw-mb-6 sw-mt-10">
+        <LightPrimary className="sw-mb-4 sw-mt-10">
           {translate('onboarding.create_project.select_method.manually')}
         </LightPrimary>
         <div className="sw-grid sw-gap-6 sw-grid-cols-12">

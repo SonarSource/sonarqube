@@ -18,23 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import {
+  ButtonPrimary,
+  FlagErrorIcon,
+  FlagMessage,
+  FlagSuccessIcon,
+  FormField,
+  InputField,
+  Link,
+  Note,
+  Title,
+} from 'design-system';
 import { debounce, isEmpty } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { doesComponentExists } from '../../../../api/components';
 import { setupManualProjectCreation } from '../../../../api/project-management';
 import { getValue } from '../../../../api/settings';
-import DocLink from '../../../../components/common/DocLink';
-import ProjectKeyInput from '../../../../components/common/ProjectKeyInput';
-import ValidationInput from '../../../../components/controls/ValidationInput';
-import { SubmitButton } from '../../../../components/controls/buttons';
-import { Alert } from '../../../../components/ui/Alert';
-import MandatoryFieldsExplanation from '../../../../components/ui/MandatoryFieldsExplanation';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { PROJECT_KEY_INVALID_CHARACTERS, validateProjectKey } from '../../../../helpers/projects';
 import { ProjectKeyValidationResult } from '../../../../types/component';
 import { GlobalSettingKeys } from '../../../../types/settings';
-import CreateProjectPageHeader from '../components/CreateProjectPageHeader';
 import { PROJECT_NAME_MAX_LEN } from '../constants';
 import { CreateProjectApiCallback } from '../types';
 
@@ -45,14 +50,14 @@ interface Props {
 
 interface State {
   projectName: string;
-  projectNameError?: string;
+  projectNameError?: boolean;
   projectNameTouched: boolean;
   projectKey: string;
-  projectKeyError?: string;
+  projectKeyError?: boolean;
   projectKeyTouched: boolean;
   validatingProjectKey: boolean;
   mainBranchName: string;
-  mainBranchNameError?: string;
+  mainBranchNameError?: boolean;
   mainBranchNameTouched: boolean;
 }
 
@@ -101,9 +106,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       .then((alreadyExist) => {
         if (this.mounted && key === this.state.projectKey) {
           this.setState({
-            projectKeyError: alreadyExist
-              ? translate('onboarding.create_project.project_key.taken')
-              : undefined,
+            projectKeyError: alreadyExist ? true : undefined,
             validatingProjectKey: false,
           });
         }
@@ -182,21 +185,19 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
 
   validateKey = (projectKey: string) => {
     const result = validateProjectKey(projectKey);
-    return result === ProjectKeyValidationResult.Valid
-      ? undefined
-      : translate('onboarding.create_project.project_key.error', result);
+    return result === ProjectKeyValidationResult.Valid ? undefined : true;
   };
 
   validateName = (projectName: string) => {
     if (isEmpty(projectName)) {
-      return translate('onboarding.create_project.display_name.error.empty');
+      return true;
     }
     return undefined;
   };
 
   validateMainBranchName = (mainBranchName: string) => {
     if (isEmpty(mainBranchName)) {
-      return translate('onboarding.create_project.main_branch_name.error.empty');
+      return true;
     }
     return undefined;
   };
@@ -219,93 +220,133 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     const touched = Boolean(projectKeyTouched || projectNameTouched);
     const projectNameIsInvalid = projectNameTouched && projectNameError !== undefined;
     const projectNameIsValid = projectNameTouched && projectNameError === undefined;
+    const projectKeyIsInvalid = touched && projectKeyError !== undefined;
+    const projectKeyIsValid = touched && !validatingProjectKey && projectKeyError === undefined;
     const mainBranchNameIsValid = mainBranchNameTouched && mainBranchNameError === undefined;
     const mainBranchNameIsInvalid = mainBranchNameTouched && mainBranchNameError !== undefined;
 
     return (
-      <>
-        <CreateProjectPageHeader title={translate('onboarding.create_project.setup_manually')} />
-
-        <form id="create-project-manual" onSubmit={this.handleFormSubmit}>
-          <MandatoryFieldsExplanation className="big-spacer-bottom" />
-
-          <ValidationInput
-            className="form-field"
-            description={translate('onboarding.create_project.display_name.description')}
-            error={projectNameError}
-            labelHtmlFor="project-name"
-            isInvalid={projectNameIsInvalid}
-            isValid={projectNameIsValid}
+      <div className="sw-max-w-[50%]">
+        <Title className="sw-mt-8">{translate('onboarding.create_project.setup_manually')}</Title>
+        {branchesEnabled && (
+          <FlagMessage className="sw-my-4" variant="info">
+            {translate('onboarding.create_project.pr_decoration.information')}
+          </FlagMessage>
+        )}
+        <form
+          id="create-project-manual"
+          className="sw-flex-col sw-body-sm"
+          onSubmit={this.handleFormSubmit}
+        >
+          <FormField
+            htmlFor="project-name"
             label={translate('onboarding.create_project.display_name')}
             required
           >
-            <input
-              className={classNames('input-super-large', {
-                'is-invalid': projectNameIsInvalid,
-                'is-valid': projectNameIsValid,
-              })}
-              id="project-name"
-              maxLength={PROJECT_NAME_MAX_LEN}
-              minLength={1}
-              onChange={(e) => this.handleProjectNameChange(e.currentTarget.value, true)}
-              type="text"
-              value={projectName}
-              autoFocus
-            />
-          </ValidationInput>
-          <ProjectKeyInput
-            error={projectKeyError}
-            label={translate('onboarding.create_project.project_key')}
-            onProjectKeyChange={(e) => this.handleProjectKeyChange(e.currentTarget.value, true)}
-            projectKey={projectKey}
-            touched={touched}
-            validating={validatingProjectKey}
-          />
-
-          <ValidationInput
-            className="form-field"
-            description={
-              <FormattedMessage
-                id="onboarding.create_project.main_branch_name.description"
-                defaultMessage={translate('onboarding.create_project.main_branch_name.description')}
-                values={{
-                  learn_more: (
-                    <DocLink to="/analyzing-source-code/branches/branch-analysis">
-                      {translate('learn_more')}
-                    </DocLink>
-                  ),
-                }}
+            <div>
+              <InputField
+                className={classNames({
+                  'js__is-invalid': projectNameIsInvalid,
+                })}
+                size="large"
+                id="project-name"
+                maxLength={PROJECT_NAME_MAX_LEN}
+                minLength={1}
+                onChange={(e) => this.handleProjectNameChange(e.currentTarget.value, true)}
+                type="text"
+                value={projectName}
+                autoFocus
+                isInvalid={projectNameIsInvalid}
+                isValid={projectNameIsValid}
+                required
               />
-            }
-            error={mainBranchNameError}
-            labelHtmlFor="main-branch-name"
-            isInvalid={mainBranchNameIsInvalid}
-            isValid={mainBranchNameIsValid}
+              {projectNameIsInvalid && <FlagErrorIcon className="sw-ml-2" />}
+              {projectNameIsValid && <FlagSuccessIcon className="sw-ml-2" />}
+            </div>
+            <Note className="sw-mt-2">
+              {translate('onboarding.create_project.display_name.description')}
+            </Note>
+          </FormField>
+
+          <FormField
+            htmlFor="project-key"
+            label={translate('onboarding.create_project.project_key')}
+            required
+          >
+            <div>
+              <InputField
+                className={classNames({
+                  'js__is-invalid': projectKeyIsInvalid,
+                })}
+                size="large"
+                id="project-key"
+                minLength={1}
+                onChange={(e) => this.handleProjectKeyChange(e.currentTarget.value, true)}
+                type="text"
+                value={projectKey}
+                isInvalid={projectKeyIsInvalid}
+                isValid={projectKeyIsValid}
+                required
+              />
+              {projectKeyIsInvalid && <FlagErrorIcon className="sw-ml-2" />}
+              {projectKeyIsValid && <FlagSuccessIcon className="sw-ml-2" />}
+            </div>
+            <Note className="sw-mt-2">
+              {translate('onboarding.create_project.project_key.description')}
+            </Note>
+          </FormField>
+
+          <FormField
+            htmlFor="main-branch-name"
             label={translate('onboarding.create_project.main_branch_name')}
             required
           >
-            <input
-              id="main-branch-name"
-              className={classNames('input-super-large', {
-                'is-invalid': mainBranchNameIsInvalid,
-                'is-valid': mainBranchNameIsValid,
-              })}
-              minLength={1}
-              onChange={(e) => this.handleBranchNameChange(e.currentTarget.value, true)}
-              type="text"
-              value={mainBranchName}
-            />
-          </ValidationInput>
+            <div>
+              <InputField
+                className={classNames({
+                  'js__is-invalid': mainBranchNameIsInvalid,
+                })}
+                size="large"
+                id="main-branch-name"
+                minLength={1}
+                onChange={(e) => this.handleBranchNameChange(e.currentTarget.value, true)}
+                type="text"
+                value={mainBranchName}
+                isInvalid={mainBranchNameIsInvalid}
+                isValid={mainBranchNameIsValid}
+                required
+              />
+              {mainBranchNameIsInvalid && <FlagErrorIcon className="sw-ml-2" />}
+              {mainBranchNameIsValid && <FlagSuccessIcon className="sw-ml-2" />}
+            </div>
+            <Note className="sw-mt-2">
+              <FormattedMessageWithDocLink />
+            </Note>
+          </FormField>
 
-          <SubmitButton disabled={!this.canSubmit(this.state)}>{translate('next')}</SubmitButton>
+          <ButtonPrimary type="submit" className="sw-mt-4" disabled={!this.canSubmit(this.state)}>
+            {translate('next')}
+          </ButtonPrimary>
         </form>
-
-        {branchesEnabled && (
-          <Alert variant="info" display="inline" className="big-spacer-top">
-            {translate('onboarding.create_project.pr_decoration.information')}
-          </Alert>
-        )}
-      </>
+      </div>
     );
   }
+}
+
+function FormattedMessageWithDocLink() {
+  const docUrl = useDocUrl();
+
+  return (
+    <FormattedMessage
+      id="onboarding.create_project.main_branch_name.description"
+      defaultMessage={translate('onboarding.create_project.main_branch_name.description')}
+      values={{
+        learn_more: (
+          <Link to={docUrl('/analyzing-source-code/branches/branch-analysis')}>
+            {translate('learn_more')}
+          </Link>
+        ),
+      }}
+    />
+  );
 }
