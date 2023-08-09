@@ -474,7 +474,11 @@ export default class CodingRulesServiceMock {
     rule: string;
     severity?: string;
   }) => {
-    const nextActivation = mockRuleActivation({ qProfile: data.key, severity: data.severity });
+    const nextActivation = mockRuleActivation({
+      qProfile: data.key,
+      severity: data.severity,
+      params: Object.entries(data.params ?? {}).map(([key, value]) => ({ key, value })),
+    });
 
     if (!this.rulesActivations[data.rule]) {
       this.rulesActivations[data.rule] = [nextActivation];

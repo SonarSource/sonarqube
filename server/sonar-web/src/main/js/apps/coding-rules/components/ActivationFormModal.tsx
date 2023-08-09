@@ -20,15 +20,15 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { activateRule, Profile } from '../../../api/quality-profiles';
+import DocLink from '../../../components/common/DocLink';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
-import Select, { LabelValueSelectOption } from '../../../components/controls/Select';
+import Select from '../../../components/controls/Select';
 import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { Dict, Rule, RuleActivation, RuleDetails } from '../../../types/types';
 import { sortProfiles } from '../../quality-profiles/utils';
-import { SeveritySelect } from './SeveritySelect';
 
 interface Props {
   activation?: RuleActivation;
@@ -47,7 +47,6 @@ interface ProfileWithDeph extends Profile {
 interface State {
   params: Dict<string>;
   profile?: ProfileWithDeph;
-  severity: string;
   submitting: boolean;
 }
 
@@ -60,7 +59,6 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     this.state = {
       params: this.getParams(props),
       profile: profilesWithDepth.length > 0 ? profilesWithDepth[0] : undefined,
-      severity: props.activation ? props.activation.severity : props.rule.severity,
       submitting: false,
     };
   }
@@ -106,13 +104,14 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
   };
 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    const { activation, rule } = this.props;
     event.preventDefault();
     this.setState({ submitting: true });
     const data = {
       key: this.state.profile?.key || '',
       params: this.state.params,
       rule: this.props.rule.key,
-      severity: this.state.severity,
+      severity: activation ? activation.severity : rule.severity,
     };
     activateRule(data)
       .then(() => this.props.onDone(data.severity))
@@ -140,13 +139,9 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     this.setState({ profile });
   };
 
-  handleSeverityChange = ({ value }: LabelValueSelectOption) => {
-    this.setState({ severity: value });
-  };
-
   render() {
     const { activation, rule } = this.props;
-    const { profile, severity, submitting } = this.state;
+    const { profile, submitting } = this.state;
     const { params = [] } = rule;
     const profilesWithDepth = this.getQualityProfilesWithDepth();
     const isCustomRule = !!(rule as RuleDetails).templateKey;
@@ -165,6 +160,13 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
               <Alert variant="info">{translate('coding_rules.active_in_all_profiles')}</Alert>
             )}
 
+            <Alert variant="info">
+              {translate('coding_rules.severity_cannot_be_modified')}
+              <DocLink className="spacer-left" to="/user-guide/clean-code/">
+                {translate('learn_more')}
+              </DocLink>
+            </Alert>
+
             <div className="modal-field">
               <label id="coding-rules-quality-profile-select-label">
                 {translate('coding_rules.quality_profile')}
@@ -178,15 +180,6 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
                 getOptionLabel={(p: ProfileWithDeph) => '   '.repeat(p.depth) + p.name}
                 options={profilesWithDepth}
                 value={profile}
-              />
-            </div>
-            <div className="modal-field">
-              <label id="coding-rules-severity-select-label">{translate('severity')}</label>
-              <SeveritySelect
-                isDisabled={submitting}
-                ariaLabelledby="coding-rules-severity-select-label"
-                onChange={this.handleSeverityChange}
-                severity={severity}
               />
             </div>
             {isCustomRule ? (

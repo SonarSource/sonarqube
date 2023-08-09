@@ -502,17 +502,16 @@ describe('Rule app details', () => {
     // Activate rule in quality profile
     await user.click(ui.activateButton.get());
     await selectEvent.select(ui.qualityProfileSelect.get(), 'QP FooBar');
-    await selectEvent.select(ui.severitySelect.get(), 'severity.MINOR');
-    await user.type(ui.paramInput('1').get(), 'OK');
+    await user.type(ui.paramInput('1').get(), 'paramInput');
 
     await act(() => user.click(ui.activateButton.get(ui.activateQPDialog.get())));
     expect(ui.qpLink('QP FooBar').get()).toBeInTheDocument();
 
     // Change rule details in quality profile
     await user.click(ui.changeButton('QP FooBar').get());
-    await selectEvent.select(ui.severitySelect.get(), 'severity.BLOCKER');
+    await user.type(ui.paramInput('1').get(), 'New');
     await act(() => user.click(ui.saveButton.get(ui.changeQPDialog.get())));
-    expect(screen.getByText('severity.BLOCKER')).toBeInTheDocument();
+    expect(screen.getByText('paramInputNew')).toBeInTheDocument();
 
     // activate last java rule
     await user.click(ui.activateButton.get());
