@@ -55,7 +55,7 @@ interface State {
   selectedAlmInstance?: AlmSettingsInstance;
 }
 
-const REPOSITORY_PAGE_SIZE = 30;
+const REPOSITORY_PAGE_SIZE = 20;
 
 export default class GitHubProjectCreate extends React.Component<Props, State> {
   mounted = false;

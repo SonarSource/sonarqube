@@ -157,7 +157,7 @@ it('should show search filter when the authentication is successful', async () =
     almSetting: 'conf-github-2',
     organization: 'org-1',
     page: 1,
-    pageSize: 30,
+    pageSize: 20,
     query: 'search',
   });
 });
@@ -185,7 +185,7 @@ it('should have load more', async () => {
     almSetting: 'conf-github-2',
     organization: 'org-1',
     page: 2,
-    pageSize: 30,
+    pageSize: 20,
     query: '',
   });
   expect(loadMore).not.toBeInTheDocument();

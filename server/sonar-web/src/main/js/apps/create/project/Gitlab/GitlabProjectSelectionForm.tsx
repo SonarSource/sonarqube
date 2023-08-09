@@ -17,21 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, InputSearch, LightPrimary, Link } from 'design-system/lib';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../../components/common/Link';
 import ListFooter from '../../../../components/controls/ListFooter';
-import SearchBox from '../../../../components/controls/SearchBox';
 import Tooltip from '../../../../components/controls/Tooltip';
-import { Button } from '../../../../components/controls/buttons';
-import CheckIcon from '../../../../components/icons/CheckIcon';
-import QualifierIcon from '../../../../components/icons/QualifierIcon';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
-import { getProjectUrl, queryToSearch } from '../../../../helpers/urls';
+import { getBaseUrl } from '../../../../helpers/system';
+import { queryToSearch } from '../../../../helpers/urls';
 import { GitlabProject } from '../../../../types/alm-integration';
-import { ComponentQualifier } from '../../../../types/component';
 import { Paging } from '../../../../types/types';
+import AlmRepoItem from '../components/AlmRepoItem';
 import { CreateProjectModes } from '../types';
 
 export interface GitlabProjectSelectionFormProps {
@@ -50,104 +46,78 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
 
   if (projects.length === 0 && searchQuery.length === 0 && !searching) {
     return (
-      <Alert className="spacer-top" variant="warning">
-        <FormattedMessage
-          defaultMessage={translate('onboarding.create_project.gitlab.no_projects')}
-          id="onboarding.create_project.gitlab.no_projects"
-          values={{
-            link: (
-              <Link
-                to={{
-                  pathname: '/projects/create',
-                  search: queryToSearch({ mode: CreateProjectModes.GitLab, resetPat: 1 }),
-                }}
-              >
-                {translate('onboarding.create_project.update_your_token')}
-              </Link>
-            ),
-          }}
-        />
-      </Alert>
+      <FlagMessage className="sw-mt-2" variant="warning">
+        <span>
+          <FormattedMessage
+            defaultMessage={translate('onboarding.create_project.gitlab.no_projects')}
+            id="onboarding.create_project.gitlab.no_projects"
+            values={{
+              link: (
+                <Link
+                  to={{
+                    pathname: '/projects/create',
+                    search: queryToSearch({ mode: CreateProjectModes.GitLab, resetPat: 1 }),
+                  }}
+                >
+                  {translate('onboarding.create_project.update_your_token')}
+                </Link>
+              ),
+            }}
+          />
+        </span>
+      </FlagMessage>
     );
   }
 
   return (
-    <div className="boxed-group big-padded create-project-import">
-      <SearchBox
-        className="spacer"
-        loading={searching}
-        minLength={3}
+    <>
+      <InputSearch
+        size="large"
+        className="sw-mb-6"
         onChange={props.onSearch}
-        placeholder={translate('onboarding.create_project.search_prompt')}
+        placeholder={translate('onboarding.create_project.search_repositories')}
+        value={searchQuery}
+        clearIconAriaLabel={translate('clear')}
       />
 
-      <hr />
-
       {projects.length === 0 ? (
-        <div className="padded">{translate('no_results')}</div>
+        <div className="sw-py-6 sw-px-2">
+          <LightPrimary className="sw-body-sm">{translate('no_results')}</LightPrimary>
+        </div>
       ) : (
-        <table className="data zebra zebra-hover">
-          <tbody>
-            {projects.map((project) => (
-              <tr key={project.id}>
-                <td>
-                  <Tooltip overlay={project.slug}>
-                    <strong className="project-name display-inline-block text-ellipsis">
-                      {project.sqProjectKey ? (
-                        <Link to={getProjectUrl(project.sqProjectKey)}>
-                          <QualifierIcon
-                            className="spacer-right"
-                            qualifier={ComponentQualifier.Project}
-                          />
-                          {project.sqProjectName}
-                        </Link>
-                      ) : (
-                        project.name
-                      )}
-                    </strong>
-                  </Tooltip>
-                  <br />
-                  <Tooltip overlay={project.pathSlug}>
-                    <span className="text-muted project-path display-inline-block text-ellipsis">
-                      {project.pathName}
-                    </span>
-                  </Tooltip>
-                </td>
-                <td>
-                  <Link
-                    className="display-inline-flex-center big-spacer-right"
-                    to={project.url}
-                    target="_blank"
-                  >
-                    {translate('onboarding.create_project.gitlab.link')}
-                  </Link>
-                </td>
-                {project.sqProjectKey ? (
-                  <td>
-                    <span className="display-flex-center display-flex-justify-end already-set-up">
-                      <CheckIcon className="little-spacer-right" size={12} />
-                      {translate('onboarding.create_project.repository_imported')}
-                    </span>
-                  </td>
-                ) : (
-                  <td className="text-right">
-                    <Button onClick={() => props.onImport(project.id)}>
-                      {translate('onboarding.create_project.set_up')}
-                    </Button>
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="sw-flex sw-flex-col sw-gap-3">
+          {projects.map((project) => (
+            <AlmRepoItem
+              key={project.id}
+              almKey={project.id}
+              almUrl={project.url}
+              almUrlText={translate('onboarding.create_project.gitlab.link')}
+              almIconSrc={`${getBaseUrl()}/images/alm/gitlab.svg`}
+              sqProjectKey={project.sqProjectKey}
+              onImport={props.onImport}
+              primaryTextNode={
+                <Tooltip overlay={project.slug}>
+                  <span>{project.name}</span>
+                </Tooltip>
+              }
+              secondaryTextNode={
+                <Tooltip overlay={project.pathSlug}>
+                  <span>{project.pathName}</span>
+                </Tooltip>
+              }
+            />
+          ))}
+        </div>
       )}
       <ListFooter
+        className="sw-mb-10"
         count={projects.length}
         loadMore={props.onLoadMore}
         loading={loadingMore}
         pageSize={projectsPaging.pageSize}
         total={projectsPaging.total}
+        useMIUIButtons
       />
-    </div>
+    </>
   );
 }

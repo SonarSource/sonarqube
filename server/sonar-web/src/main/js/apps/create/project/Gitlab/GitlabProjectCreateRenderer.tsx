@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { DeferredSpinner, LightPrimary, Title } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/system';
 import { GitlabProject } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Paging } from '../../../../types/types';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
-import CreateProjectPageHeader from '../components/CreateProjectPageHeader';
 import PersonalAccessTokenForm from '../components/PersonalAccessTokenForm';
 import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
 import GitlabProjectSelectionForm from './GitlabProjectSelectionForm';
@@ -65,19 +65,12 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
 
   return (
     <>
-      <CreateProjectPageHeader
-        title={
-          <span className="text-middle">
-            <img
-              alt="" // Should be ignored by screen readers
-              className="spacer-right"
-              height="24"
-              src={`${getBaseUrl()}/images/alm/gitlab.svg`}
-            />
-            {translate('onboarding.create_project.gitlab.title')}
-          </span>
-        }
-      />
+      <header className="sw-mb-10">
+        <Title className="sw-mb-4">{translate('onboarding.create_project.gitlab.title')}</Title>
+        <LightPrimary className="sw-body-sm">
+          {translate('onboarding.create_project.gitlab.subtitle')}
+        </LightPrimary>
+      </header>
 
       <AlmSettingsInstanceDropdown
         almKey={AlmKeys.GitLab}
@@ -86,7 +79,7 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
         onChangeConfig={props.onSelectedAlmInstanceChange}
       />
 
-      {loading && <i className="spinner" />}
+      <DeferredSpinner loading={loading} />
 
       {!loading && !selectedAlmInstance && (
         <WrongBindingCountAlert alm={AlmKeys.GitLab} canAdmin={!!canAdmin} />

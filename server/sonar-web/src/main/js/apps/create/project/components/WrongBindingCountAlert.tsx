@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../../components/common/Link';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { getGlobalSettingsUrl } from '../../../../helpers/urls';
 import { AlmKeys } from '../../../../types/alm-settings';
@@ -35,29 +35,31 @@ export default function WrongBindingCountAlert(props: WrongBindingCountAlertProp
   const { alm, canAdmin } = props;
 
   return (
-    <Alert variant="error">
-      {canAdmin ? (
-        <FormattedMessage
-          defaultMessage={translate('onboarding.create_project.wrong_binding_count.admin')}
-          id="onboarding.create_project.wrong_binding_count.admin"
-          values={{
-            alm: translate('onboarding.alm', alm),
-            url: (
-              <Link to={getGlobalSettingsUrl(ALM_INTEGRATION_CATEGORY)}>
-                {translate('settings.page')}
-              </Link>
-            ),
-          }}
-        />
-      ) : (
-        <FormattedMessage
-          defaultMessage={translate('onboarding.create_project.wrong_binding_count')}
-          id="onboarding.create_project.wrong_binding_count"
-          values={{
-            alm: translate('onboarding.alm', alm),
-          }}
-        />
-      )}
-    </Alert>
+    <FlagMessage variant="error" className="sw-mb-2">
+      <span>
+        {canAdmin ? (
+          <FormattedMessage
+            defaultMessage={translate('onboarding.create_project.wrong_binding_count.admin')}
+            id="onboarding.create_project.wrong_binding_count.admin"
+            values={{
+              alm: translate('onboarding.alm', alm),
+              url: (
+                <Link to={getGlobalSettingsUrl(ALM_INTEGRATION_CATEGORY)}>
+                  {translate('settings.page')}
+                </Link>
+              ),
+            }}
+          />
+        ) : (
+          <FormattedMessage
+            defaultMessage={translate('onboarding.create_project.wrong_binding_count')}
+            id="onboarding.create_project.wrong_binding_count"
+            values={{
+              alm: translate('onboarding.alm', alm),
+            }}
+          />
+        )}
+      </span>
+    </FlagMessage>
   );
 }

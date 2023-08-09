@@ -105,15 +105,14 @@ function renderRepositoryList(props: GitHubProjectCreateRendererProps) {
           </div>
         )}
 
-        <div className="display-flex-justify-center width-100">
-          <ListFooter
-            count={repositories.length}
-            total={repositoryPaging.total}
-            loadMore={props.onLoadMore}
-            loading={loadingRepositories}
-            useMIUIButtons
-          />
-        </div>
+        <ListFooter
+          className="sw-mb-10"
+          count={repositories.length}
+          total={repositoryPaging.total}
+          loadMore={props.onLoadMore}
+          loading={loadingRepositories}
+          useMIUIButtons
+        />
       </div>
     )
   );

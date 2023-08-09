@@ -86,7 +86,7 @@ it('should ask for PAT when it is not set yet and show the import project featur
 
   expect(screen.getByText('Gitlab project 1')).toBeInTheDocument();
   expect(screen.getByText('Gitlab project 2')).toBeInTheDocument();
-  expect(screen.getAllByText('onboarding.create_project.set_up')).toHaveLength(2);
+  expect(screen.getAllByText('onboarding.create_project.import')).toHaveLength(2);
   expect(screen.getByText('onboarding.create_project.repository_imported')).toBeInTheDocument();
 });
 
@@ -114,11 +114,11 @@ it('should show import project feature when PAT is already set', async () => {
   );
 
   projectItem = screen.getByRole('row', { name: /Gitlab project 2/ });
-  const setupButton = within(projectItem).getByRole('button', {
-    name: 'onboarding.create_project.set_up',
+  const importButton = within(projectItem).getByRole('button', {
+    name: 'onboarding.create_project.import',
   });
 
-  await user.click(setupButton);
+  await user.click(importButton);
 
   expect(
     screen.getByRole('heading', { name: 'onboarding.create_project.new_code_definition.title' })
@@ -144,16 +144,14 @@ it('should show search filter when PAT is already set', async () => {
     await selectEvent.select(ui.instanceSelector.get(), [/conf-final-2/]);
   });
 
-  const inputSearch = screen.getByRole('searchbox', {
-    name: 'onboarding.create_project.search_prompt',
-  });
+  const inputSearch = screen.getByRole('searchbox');
   await user.click(inputSearch);
   await user.keyboard('sea');
 
   expect(getGitlabProjects).toHaveBeenLastCalledWith({
     almSetting: 'conf-final-2',
     page: 1,
-    pageSize: 30,
+    pageSize: 20,
     query: 'sea',
   });
 });
@@ -179,7 +177,7 @@ it('should have load more', async () => {
   expect(getGitlabProjects).toHaveBeenLastCalledWith({
     almSetting: 'conf-final-2',
     page: 2,
-    pageSize: 30,
+    pageSize: 20,
     query: '',
   });
   expect(loadMore).not.toBeInTheDocument();

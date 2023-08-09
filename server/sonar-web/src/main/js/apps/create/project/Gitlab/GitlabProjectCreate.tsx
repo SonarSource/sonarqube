@@ -47,7 +47,7 @@ interface State {
   showPersonalAccessTokenForm: boolean;
 }
 
-const GITLAB_PROJECTS_PAGESIZE = 30;
+const GITLAB_PROJECTS_PAGESIZE = 20;
 
 export default class GitlabProjectCreate extends React.PureComponent<Props, State> {
   mounted = false;
