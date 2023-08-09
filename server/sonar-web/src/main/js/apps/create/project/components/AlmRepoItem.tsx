@@ -39,8 +39,8 @@ interface AlmRepoItemProps {
   secondaryTextNode?: React.ReactNode;
   sqProjectKey?: string;
   almKey: string;
-  almUrl: string;
-  almUrlText: string;
+  almUrl?: string;
+  almUrlText?: string;
   onImport: (key: string) => void;
   almIconSrc: string;
 }
@@ -59,12 +59,12 @@ export default function AlmRepoItem({
     <StyledCard
       key={almKey}
       role="row"
-      className={classNames('sw-flex sw-mb-2 sw-px-4', {
+      className={classNames('sw-flex sw-px-4', {
         'sw-py-4': sqProjectKey !== undefined,
         'sw-py-2': sqProjectKey === undefined,
       })}
     >
-      <div className="sw-w-[70%] sw-flex sw-mr-1">
+      <div className="sw-w-[70%] sw-min-w-0 sw-flex sw-mr-1">
         <div className="sw-max-w-[50%] sw-flex sw-items-center">
           <img
             alt="" // Should be ignored by screen readers
@@ -83,24 +83,24 @@ export default function AlmRepoItem({
             </LightPrimary>
           )}
         </div>
-        <div className="sw-ml-2 sw-flex sw-items-center sw-truncate">
+        <div className="sw-max-w-[50%] sw-min-w-0 sw-ml-2 sw-flex sw-items-center sw-truncate">
           <LightLabel className="sw-body-sm">{secondaryTextNode}</LightLabel>
         </div>
       </div>
-      <div className="sw-flex sw-justify-between sw-items-center sw-flex-1">
-        {almUrl !== undefined && (
-          <div className="sw-flex sw-items-center">
-            <Link
-              className="sw-body-sm-highlight"
-              onClick={(e) => e.stopPropagation()}
-              target="_blank"
-              to={almUrl}
-              rel="noopener noreferrer"
-            >
-              {almUrlText}
-            </Link>
-          </div>
-        )}
+      {almUrl !== undefined && (
+        <div className="sw-flex sw-items-center sw-flex-shrink-0 sw-ml-2">
+          <Link
+            className="sw-body-sm-highlight"
+            onClick={(e) => e.stopPropagation()}
+            target="_blank"
+            to={almUrl}
+            rel="noopener noreferrer"
+          >
+            {almUrlText ?? almUrl}
+          </Link>
+        </div>
+      )}
+      <div className="sw-ml-2 sw-flex sw-justify-end sw-flex-grow sw-flex-shrink-0 sw-w-abs-150">
         {sqProjectKey ? (
           <div className="sw-flex sw-items-center">
             <CheckIcon />

@@ -52,7 +52,6 @@ interface State {
   searching?: boolean;
   searchResults?: AzureRepository[];
   searchQuery?: string;
-  selectedRepository?: AzureRepository;
   selectedAlmInstance?: AlmSettingsInstance;
   submittingToken?: boolean;
   tokenValidationFailed: boolean;
@@ -211,8 +210,8 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     }
   };
 
-  handleImportRepository = () => {
-    const { selectedRepository, selectedAlmInstance } = this.state;
+  handleImportRepository = (selectedRepository: AzureRepository) => {
+    const { selectedAlmInstance } = this.state;
 
     if (selectedAlmInstance && selectedRepository) {
       this.props.onProjectSetupDone(
@@ -223,10 +222,6 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
         })
       );
     }
-  };
-
-  handleSelectRepository = (selectedRepository: AzureRepository) => {
-    this.setState({ selectedRepository });
   };
 
   checkPersonalAccessToken = () => {
@@ -295,7 +290,6 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
       searching,
       searchResults,
       searchQuery,
-      selectedRepository,
       selectedAlmInstance,
       submittingToken,
       tokenValidationFailed,
@@ -311,13 +305,11 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
         onOpenProject={this.handleOpenProject}
         onPersonalAccessTokenCreate={this.handlePersonalAccessTokenCreate}
         onSearch={this.handleSearchRepositories}
-        onSelectRepository={this.handleSelectRepository}
         projects={projects}
         repositories={repositories}
         searching={searching}
         searchResults={searchResults}
         searchQuery={searchQuery}
-        selectedRepository={selectedRepository}
         almInstances={almInstances}
         selectedAlmInstance={selectedAlmInstance}
         showPersonalAccessTokenForm={!patIsValid || Boolean(location.query.resetPat)}

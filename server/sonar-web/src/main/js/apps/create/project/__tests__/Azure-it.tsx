@@ -101,14 +101,22 @@ it('should show import project feature when PAT is already set', async () => {
     await selectEvent.select(ui.instanceSelector.get(), [/conf-azure-2/]);
   });
 
+  expect(screen.getByText('Azure project')).toBeInTheDocument();
   expect(screen.getByText('Azure project 2')).toBeInTheDocument();
-  const importButton = screen.getByText('onboarding.create_project.import_selected_repo');
-  const radioButton = screen.getByRole('radio', { name: 'Azure repo 2' });
 
-  expect(radioButton).toBeInTheDocument();
-  expect(importButton).toBeDisabled();
-  await user.click(radioButton);
-  expect(importButton).toBeEnabled();
+  expect(
+    screen.getByRole('row', {
+      name: 'Azure repo 1 onboarding.create_project.repository_imported',
+    })
+  ).toBeInTheDocument();
+
+  expect(
+    screen.getByRole('row', {
+      name: 'Azure repo 2 onboarding.create_project.import',
+    })
+  ).toBeInTheDocument();
+
+  const importButton = screen.getByText('onboarding.create_project.import');
   await user.click(importButton);
 
   expect(

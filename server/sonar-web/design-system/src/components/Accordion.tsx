@@ -48,7 +48,7 @@ export function Accordion(props: AccordionProps) {
 
   return (
     <Container
-      className={classNames('sw-cursor-pointer', className, {
+      className={classNames(className, {
         open,
       })}
       role="listitem"
@@ -85,7 +85,6 @@ const accordionStyle = (props: ThemedProps) => css`
   }
   ${tw`sw-rounded-2`}
   ${tw`sw-overflow-hidden`}
-  ${tw`sw-cursor-pointer`}
 
   & > button:hover, & > button:active {
     color: ${themeContrast('buttonSecondary')(props)};

@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, Link } from 'design-system';
 import { uniqBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../../components/common/Link';
 import ListFooter from '../../../../components/controls/ListFooter';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { queryToSearch } from '../../../../helpers/urls';
 import { AzureProject, AzureRepository } from '../../../../types/alm-integration';
@@ -33,39 +32,31 @@ import AzureProjectAccordion from './AzureProjectAccordion';
 export interface AzureProjectsListProps {
   loadingRepositories: Dict<boolean>;
   onOpenProject: (key: string) => void;
-  onSelectRepository: (repository: AzureRepository) => void;
+  onImportRepository: (repository: AzureRepository) => void;
   projects?: AzureProject[];
   repositories: Dict<AzureRepository[]>;
   searchResults?: AzureRepository[];
   searchQuery?: string;
-  selectedRepository?: AzureRepository;
 }
 
 const PAGE_SIZE = 10;
 
 export default function AzureProjectsList(props: AzureProjectsListProps) {
-  const {
-    loadingRepositories,
-    projects = [],
-    repositories,
-    searchResults,
-    searchQuery,
-    selectedRepository,
-  } = props;
+  const { loadingRepositories, projects = [], repositories, searchResults, searchQuery } = props;
 
   const [page, setPage] = React.useState(1);
 
   if (searchResults && searchResults.length === 0) {
     return (
-      <Alert className="spacer-top" variant="warning">
+      <FlagMessage className="sw-mt-2" variant="warning">
         {translate('onboarding.create_project.azure.no_results')}
-      </Alert>
+      </FlagMessage>
     );
   }
 
   if (projects.length === 0) {
     return (
-      <Alert className="spacer-top" variant="warning">
+      <FlagMessage className="sw-mt-2" variant="warning">
         <FormattedMessage
           defaultMessage={translate('onboarding.create_project.azure.no_projects')}
           id="onboarding.create_project.azure.no_projects"
@@ -82,7 +73,7 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
             ),
           }}
         />
-      </Alert>
+      </FlagMessage>
     );
   }
 
@@ -114,28 +105,31 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
 
   return (
     <div>
-      {displayedProjects.map((p, i) => (
-        <AzureProjectAccordion
-          key={`${p.name}${keySuffix}`}
-          loading={Boolean(loadingRepositories[p.name])}
-          onOpen={props.onOpenProject}
-          onSelectRepository={props.onSelectRepository}
-          project={p}
-          repositories={
-            searchResults
-              ? searchResults.filter((s) => s.projectName === p.name)
-              : repositories[p.name]
-          }
-          selectedRepository={selectedRepository}
-          searchQuery={searchQuery}
-          startsOpen={searchResults !== undefined || i === 0}
-        />
-      ))}
+      <div className="sw-flex sw-flex-col sw-gap-6">
+        {displayedProjects.map((p, i) => (
+          <AzureProjectAccordion
+            key={`${p.name}${keySuffix}`}
+            loading={Boolean(loadingRepositories[p.name])}
+            onOpen={props.onOpenProject}
+            onImportRepository={props.onImportRepository}
+            project={p}
+            repositories={
+              searchResults
+                ? searchResults.filter((s) => s.projectName === p.name)
+                : repositories[p.name]
+            }
+            searchQuery={searchQuery}
+            startsOpen={searchResults !== undefined || i === 0}
+          />
+        ))}
+      </div>
 
       <ListFooter
+        className="sw-mb-12"
         count={displayedProjects.length}
         loadMore={() => setPage((p) => p + 1)}
         total={filteredProjects.length}
+        useMIUIButtons
       />
     </div>
   );

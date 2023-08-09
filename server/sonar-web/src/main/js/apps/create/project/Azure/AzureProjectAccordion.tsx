@@ -17,61 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { Accordion, DeferredSpinner, FlagMessage, Link, SearchHighlighter } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { colors } from '../../../../app/theme';
-import Link from '../../../../components/common/Link';
-import BoxedGroupAccordion from '../../../../components/controls/BoxedGroupAccordion';
 import ListFooter from '../../../../components/controls/ListFooter';
-import Radio from '../../../../components/controls/Radio';
-import CheckIcon from '../../../../components/icons/CheckIcon';
-import { Alert } from '../../../../components/ui/Alert';
-import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate } from '../../../../helpers/l10n';
-import { getProjectUrl, queryToSearch } from '../../../../helpers/urls';
+import { getBaseUrl } from '../../../../helpers/system';
+import { queryToSearch } from '../../../../helpers/urls';
 import { AzureProject, AzureRepository } from '../../../../types/alm-integration';
+import AlmRepoItem from '../components/AlmRepoItem';
 import { CreateProjectModes } from '../types';
 
 export interface AzureProjectAccordionProps {
   loading: boolean;
   onOpen: (key: string) => void;
-  onSelectRepository: (repository: AzureRepository) => void;
+  onImportRepository: (repository: AzureRepository) => void;
   project: AzureProject;
   repositories?: AzureRepository[];
   searchQuery?: string;
-  selectedRepository?: AzureRepository;
   startsOpen: boolean;
 }
 
-const PAGE_SIZE = 30;
-
-function highlight(text: string, term?: string, underline = false) {
-  if (!term || !text.toLowerCase().includes(term.toLowerCase())) {
-    return text;
-  }
-
-  // Capture only the first occurence by using a capturing group to get
-  // everything after the first occurence
-  const [pre, found, post] = text.split(new RegExp(`(${term})(.*)`, 'i'));
-  return (
-    <>
-      {pre}
-      <strong className={classNames({ underline })}>{found}</strong>
-      {post}
-    </>
-  );
-}
+const PAGE_SIZE = 20;
 
 export default function AzureProjectAccordion(props: AzureProjectAccordionProps) {
-  const {
-    loading,
-    startsOpen,
-    project,
-    repositories = [],
-    searchQuery,
-    selectedRepository,
-  } = props;
+  const { loading, startsOpen, project, repositories = [], searchQuery } = props;
 
   const [open, setOpen] = React.useState(startsOpen);
   const handleClick = () => {
@@ -84,23 +54,22 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
   const [page, setPage] = React.useState(1);
   const limitedRepositories = repositories.slice(0, page * PAGE_SIZE);
 
-  const isSelected = (repo: AzureRepository) =>
-    selectedRepository?.projectName === project.name && selectedRepository.name === repo.name;
-
   return (
-    <BoxedGroupAccordion
-      className={classNames('big-spacer-bottom', {
-        open,
-      })}
+    <Accordion
       onClick={handleClick}
       open={open}
-      title={<h3 title={project.description}>{highlight(project.name, searchQuery, true)}</h3>}
+      header={
+        <span title={project.description}>
+          <SearchHighlighter term={searchQuery}>{project.name}</SearchHighlighter>
+        </span>
+      }
     >
+      {/* eslint-disable-next-line local-rules/no-conditional-rendering-of-deferredspinner*/}
       {open && (
         <DeferredSpinner loading={loading}>
           {/* The extra loading guard is to prevent the flash of the Alert */}
           {!loading && repositories.length === 0 ? (
-            <Alert variant="warning">
+            <FlagMessage variant="warning">
               <FormattedMessage
                 defaultMessage={translate('onboarding.create_project.azure.no_repositories')}
                 id="onboarding.create_project.azure.no_repositories"
@@ -120,50 +89,35 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
                   ),
                 }}
               />
-            </Alert>
+            </FlagMessage>
           ) : (
             <>
-              <div className="display-flex-wrap">
-                {limitedRepositories.map((repo) => (
-                  <div
-                    className="create-project-azdo-repo display-flex-start spacer-bottom padded-right"
-                    key={repo.name}
-                  >
-                    {repo.sqProjectKey ? (
-                      <>
-                        <CheckIcon className="spacer-right" fill={colors.green} size={14} />
-                        <div className="overflow-hidden">
-                          <div className="little-spacer-bottom text-ellipsis">
-                            <Link to={getProjectUrl(repo.sqProjectKey)} title={repo.sqProjectName}>
-                              {highlight(repo.sqProjectName || repo.name, searchQuery)}
-                            </Link>
-                          </div>
-                          <em>{translate('onboarding.create_project.repository_imported')}</em>
-                        </div>
-                      </>
-                    ) : (
-                      <Radio
-                        checked={isSelected(repo)}
-                        className="overflow-hidden"
-                        alignLabel
-                        onCheck={() => props.onSelectRepository(repo)}
-                        value={repo.name}
-                      >
-                        <span title={repo.name}>{highlight(repo.name, searchQuery)}</span>
-                      </Radio>
-                    )}
-                  </div>
+              <div className="sw-flex sw-flex-col sw-gap-3">
+                {limitedRepositories.map((r) => (
+                  <AlmRepoItem
+                    key={r.name}
+                    almKey={r.name}
+                    almIconSrc={`${getBaseUrl()}/images/alm/azure.svg`}
+                    sqProjectKey={r.sqProjectKey}
+                    onImport={() => props.onImportRepository(r)}
+                    primaryTextNode={
+                      <span title={r.name}>
+                        <SearchHighlighter term={searchQuery}>{r.name}</SearchHighlighter>
+                      </span>
+                    }
+                  />
                 ))}
               </div>
               <ListFooter
                 count={limitedRepositories.length}
                 total={repositories.length}
                 loadMore={() => setPage((p) => p + 1)}
+                useMIUIButtons
               />
             </>
           )}
         </DeferredSpinner>
       )}
-    </BoxedGroupAccordion>
+    </Accordion>
   );
 }

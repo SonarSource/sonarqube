@@ -17,22 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  DeferredSpinner,
+  FlagMessage,
+  InputSearch,
+  LightPrimary,
+  Link,
+  PageContentFontWrapper,
+  Title,
+} from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../../components/common/Link';
-import SearchBox from '../../../../components/controls/SearchBox';
-import { Button } from '../../../../components/controls/buttons';
-import { Alert } from '../../../../components/ui/Alert';
-import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/system';
 import { getGlobalSettingsUrl } from '../../../../helpers/urls';
 import { AzureProject, AzureRepository } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Dict } from '../../../../types/types';
 import { ALM_INTEGRATION_CATEGORY } from '../../../settings/constants';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
-import CreateProjectPageHeader from '../components/CreateProjectPageHeader';
 import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
 import AzurePersonalAccessTokenForm from './AzurePersonalAccessTokenForm';
 import AzureProjectsList from './AzureProjectsList';
@@ -41,17 +43,15 @@ export interface AzureProjectCreateRendererProps {
   canAdmin?: boolean;
   loading: boolean;
   loadingRepositories: Dict<boolean>;
-  onImportRepository: () => void;
+  onImportRepository: (resository: AzureRepository) => void;
   onOpenProject: (key: string) => void;
   onPersonalAccessTokenCreate: (token: string) => void;
   onSearch: (query: string) => void;
-  onSelectRepository: (repository: AzureRepository) => void;
   projects?: AzureProject[];
   repositories: Dict<AzureRepository[]>;
   searching?: boolean;
   searchResults?: AzureRepository[];
   searchQuery?: string;
-  selectedRepository?: AzureRepository;
   almInstances?: AlmSettingsInstance[];
   selectedAlmInstance?: AlmSettingsInstance;
   showPersonalAccessTokenForm?: boolean;
@@ -71,7 +71,6 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
     searching,
     searchResults,
     searchQuery,
-    selectedRepository,
     almInstances,
     showPersonalAccessTokenForm,
     submittingToken,
@@ -81,38 +80,16 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
   } = props;
 
   const showCountError = !loading && (!almInstances || almInstances?.length === 0);
-  const settingIsValid = selectedAlmInstance && selectedAlmInstance.url;
   const showUrlError = !loading && selectedAlmInstance && !selectedAlmInstance.url;
 
   return (
-    <>
-      <CreateProjectPageHeader
-        additionalActions={
-          !showPersonalAccessTokenForm &&
-          settingIsValid && (
-            <div className="display-flex-center pull-right">
-              <Button
-                className="button-large button-primary"
-                disabled={!selectedRepository}
-                onClick={props.onImportRepository}
-              >
-                {translate('onboarding.create_project.import_selected_repo')}
-              </Button>
-            </div>
-          )
-        }
-        title={
-          <span className="text-middle">
-            <img
-              alt="" // Should be ignored by screen readers
-              className="spacer-right"
-              height="24"
-              src={`${getBaseUrl()}/images/alm/azure.svg`}
-            />
-            {translate('onboarding.create_project.azure.title')}
-          </span>
-        }
-      />
+    <PageContentFontWrapper>
+      <header className="sw-mb-10">
+        <Title className="sw-mb-4">{translate('onboarding.create_project.azure.title')}</Title>
+        <LightPrimary className="sw-body-sm">
+          {translate('onboarding.create_project.azure.subtitle')}
+        </LightPrimary>
+      </header>
 
       <AlmSettingsInstanceDropdown
         almKey={AlmKeys.Azure}
@@ -121,10 +98,10 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
         onChangeConfig={props.onSelectedAlmInstanceChange}
       />
 
-      {loading && <i className="spinner" />}
+      <DeferredSpinner loading={loading} />
 
       {showUrlError && (
-        <Alert variant="error">
+        <FlagMessage variant="error">
           {canAdmin ? (
             <FormattedMessage
               defaultMessage={translate('onboarding.create_project.azure.no_url.admin')}
@@ -141,7 +118,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
           ) : (
             translate('onboarding.create_project.azure.no_url')
           )}
-        </Alert>
+        </FlagMessage>
       )}
 
       {showCountError && <WrongBindingCountAlert alm={AlmKeys.Azure} canAdmin={!!canAdmin} />}
@@ -161,26 +138,27 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
           </div>
         ) : (
           <>
-            <div className="huge-spacer-bottom">
-              <SearchBox
+            <div className="sw-mb-10 sw-w-abs-400">
+              <InputSearch
+                clearIconAriaLabel={translate('clear')}
                 onChange={props.onSearch}
                 placeholder={translate('onboarding.create_project.search_projects_repositories')}
+                size="full"
               />
             </div>
             <DeferredSpinner loading={Boolean(searching)}>
               <AzureProjectsList
                 loadingRepositories={loadingRepositories}
                 onOpenProject={props.onOpenProject}
-                onSelectRepository={props.onSelectRepository}
+                onImportRepository={props.onImportRepository}
                 projects={projects}
                 repositories={repositories}
                 searchResults={searchResults}
                 searchQuery={searchQuery}
-                selectedRepository={selectedRepository}
               />
             </DeferredSpinner>
           </>
         ))}
-    </>
+    </PageContentFontWrapper>
   );
 }

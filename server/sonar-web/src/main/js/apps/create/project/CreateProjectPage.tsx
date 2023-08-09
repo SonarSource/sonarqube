@@ -41,7 +41,6 @@ import GitHubProjectCreate from './Github/GitHubProjectCreate';
 import GitlabProjectCreate from './Gitlab/GitlabProjectCreate';
 import NewCodeDefinitionSelection from './components/NewCodeDefinitionSelection';
 import ManualProjectCreate from './manual/ManualProjectCreate';
-import './style.css';
 import { CreateProjectApiCallback, CreateProjectModes } from './types';
 
 export interface CreateProjectPageProps extends WithAvailableFeaturesProps {

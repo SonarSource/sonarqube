@@ -89,18 +89,20 @@ function renderRepositoryList(props: GitHubProjectCreateRendererProps) {
             <LightPrimary className="sw-body-sm">{translate('no_results')}</LightPrimary>
           </div>
         ) : (
-          repositories.map((r) => (
-            <AlmRepoItem
-              key={r.key}
-              almKey={r.key}
-              almUrl={r.url}
-              almUrlText={translate('onboarding.create_project.see_on_github')}
-              almIconSrc={`${getBaseUrl()}/images/tutorials/github-actions.svg`}
-              sqProjectKey={r.sqProjectKey}
-              onImport={props.onImportRepository}
-              primaryTextNode={<span title={r.name}>{r.name}</span>}
-            />
-          ))
+          <div className="sw-flex sw-flex-col sw-gap-3">
+            {repositories.map((r) => (
+              <AlmRepoItem
+                key={r.key}
+                almKey={r.key}
+                almUrl={r.url}
+                almUrlText={translate('onboarding.create_project.see_on_github')}
+                almIconSrc={`${getBaseUrl()}/images/tutorials/github-actions.svg`}
+                sqProjectKey={r.sqProjectKey}
+                onImport={props.onImportRepository}
+                primaryTextNode={<span title={r.name}>{r.name}</span>}
+              />
+            ))}
+          </div>
         )}
 
         <div className="display-flex-justify-center width-100">
