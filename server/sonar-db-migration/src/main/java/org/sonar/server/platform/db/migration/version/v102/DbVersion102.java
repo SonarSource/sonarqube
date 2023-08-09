@@ -93,6 +93,7 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_036, "Create 'rules_default_impacts' table", CreateRulesDefaultImpactsTable.class)
       .add(10_2_037, "Create unique constraint index on 'rules_default_impacts' table", CreateUniqueConstraintOnRulesDefaultImpacts.class)
       .add(10_2_038, "Create 'issues_impacts' table", CreateIssueImpactsTable.class)
-      .add(10_2_039, "Create unique constraint index on 'issues_impacts' table", CreateUniqueConstraintOnIssuesImpacts.class);
+      .add(10_2_039, "Create unique constraint index on 'issues_impacts' table", CreateUniqueConstraintOnIssuesImpacts.class)
+      .add(10_2_040, "Populate default impacts for existing rules", PopulateDefaultImpactsInRules.class);
   }
 }
