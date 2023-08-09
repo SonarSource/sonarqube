@@ -20,7 +20,9 @@
 package org.sonar.alm.client.github;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,6 +34,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.github.GithubApplicationHttpClient.GetResponse;
 import org.sonar.alm.client.github.GithubBinding.GsonGithubRepository;
 import org.sonar.alm.client.github.GithubBinding.GsonInstallations;
@@ -44,8 +48,6 @@ import org.sonar.alm.client.github.security.GithubAppSecurity;
 import org.sonar.alm.client.github.security.UserAccessToken;
 import org.sonar.alm.client.gitlab.GsonApp;
 import org.sonar.api.internal.apachecommons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.server.exceptions.ServerException;
 import org.sonarqube.ws.client.HttpException;
@@ -64,15 +66,17 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   protected static final String WRITE_PERMISSION_NAME = "write";
   protected static final String READ_PERMISSION_NAME = "read";
   protected static final String FAILED_TO_REQUEST_BEGIN_MSG = "Failed to request ";
-
+  private static final Type ORGANIZATION_LIST_TYPE = TypeToken.getParameterized(List.class, GithubBinding.GsonInstallation.class).getType();
   protected final GithubApplicationHttpClient appHttpClient;
   protected final GithubAppSecurity appSecurity;
   private final GitHubSettings gitHubSettings;
-
-  public GithubApplicationClientImpl(GithubApplicationHttpClient appHttpClient, GithubAppSecurity appSecurity, GitHubSettings gitHubSettings) {
+  private final GithubPaginatedHttpClient githubPaginatedHttpClient;
+  public GithubApplicationClientImpl(GithubApplicationHttpClient appHttpClient, GithubAppSecurity appSecurity, GitHubSettings gitHubSettings,
+    GithubPaginatedHttpClient githubPaginatedHttpClient) {
     this.appHttpClient = appHttpClient;
     this.appSecurity = appSecurity;
     this.gitHubSettings = gitHubSettings;
+    this.githubPaginatedHttpClient = githubPaginatedHttpClient;
   }
 
   private static void checkPageArgs(int page, int pageSize) {
@@ -170,14 +174,14 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
 
   @Override
   public List<GithubAppInstallation> getWhitelistedGithubAppInstallations(GithubAppConfiguration githubAppConfiguration) {
-    GithubBinding.GsonInstallation[] gsonAppInstallations = fetchAppInstallationsFromGithub(githubAppConfiguration);
+    List<GithubBinding.GsonInstallation> gsonAppInstallations = fetchAppInstallationsFromGithub(githubAppConfiguration);
     Set<String> allowedOrganizations = gitHubSettings.getOrganizations();
     return convertToGithubAppInstallationAndFilterWhitelisted(gsonAppInstallations, allowedOrganizations);
   }
 
-  private static List<GithubAppInstallation> convertToGithubAppInstallationAndFilterWhitelisted(GithubBinding.GsonInstallation[] gsonAppInstallations,
+  private static List<GithubAppInstallation> convertToGithubAppInstallationAndFilterWhitelisted(List<GithubBinding.GsonInstallation> gsonAppInstallations,
     Set<String> allowedOrganizations) {
-    return Arrays.stream(gsonAppInstallations)
+    return gsonAppInstallations.stream()
       .filter(appInstallation -> appInstallation.getAccount().getType().equalsIgnoreCase("Organization"))
       .map(GithubApplicationClientImpl::toGithubAppInstallation)
       .filter(appInstallation -> isOrganizationWhiteListed(allowedOrganizations, appInstallation.organizationName()))
@@ -196,13 +200,16 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
     return allowedOrganizations.isEmpty() || allowedOrganizations.contains(organizationName);
   }
 
-  private GithubBinding.GsonInstallation[] fetchAppInstallationsFromGithub(GithubAppConfiguration githubAppConfiguration) {
+  private List<GithubBinding.GsonInstallation> fetchAppInstallationsFromGithub(GithubAppConfiguration githubAppConfiguration) {
     AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
     String endpoint = "/app/installations";
-    return get(githubAppConfiguration.getApiEndpoint(), appToken, endpoint,
-      GithubBinding.GsonInstallation[].class).orElseThrow(
-      () -> new IllegalStateException("An error occurred when retrieving your GitHup App installations. "
-        + "It might be related to your GitHub App configuration or a connectivity problem."));
+    try {
+      return githubPaginatedHttpClient.get(githubAppConfiguration.getApiEndpoint(), appToken, endpoint, resp -> GSON.fromJson(resp, ORGANIZATION_LIST_TYPE));
+    } catch (IOException e) {
+      LOG.warn(FAILED_TO_REQUEST_BEGIN_MSG + endpoint, e);
+      throw new IllegalStateException("An error occurred when retrieving your GitHup App installations. "
+        + "It might be related to your GitHub App configuration or a connectivity problem.");
+    }
   }
 
   protected <T> Optional<T> get(String baseUrl, AccessToken token, String endPoint, Class<T> gsonClass) {

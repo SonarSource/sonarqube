@@ -30,6 +30,8 @@ import org.sonar.alm.client.bitbucketserver.BitbucketServerSettingsValidator;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.alm.client.github.GithubApplicationHttpClientImpl;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
+import org.sonar.alm.client.github.GithubPaginatedHttpClientImpl;
+import org.sonar.alm.client.github.RatioBasedRateLimitChecker;
 import org.sonar.alm.client.github.config.GithubProvisioningConfigValidator;
 import org.sonar.alm.client.github.security.GithubAppSecurityImpl;
 import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
@@ -537,8 +539,10 @@ public class PlatformLevel4 extends PlatformLevel {
       CredentialsEncoderHelper.class,
       ImportHelper.class,
       ProjectKeyGenerator.class,
+      RatioBasedRateLimitChecker.class,
       GithubAppSecurityImpl.class,
       GithubApplicationClientImpl.class,
+      GithubPaginatedHttpClientImpl.class,
       GithubApplicationHttpClientImpl.class,
       GithubProvisioningConfigValidator.class,
       GithubProvisioningWs.class,

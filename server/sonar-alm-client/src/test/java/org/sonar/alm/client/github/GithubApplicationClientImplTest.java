@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -52,6 +53,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -95,10 +97,12 @@ public class GithubApplicationClientImplTest {
   @ClassRule
   public static LogTester logTester = new LogTester().setLevel(LoggerLevel.WARN);
 
-  private GithubApplicationHttpClientImpl httpClient = mock(GithubApplicationHttpClientImpl.class);
-  private GithubAppSecurity appSecurity = mock(GithubAppSecurity.class);
-  private GithubAppConfiguration githubAppConfiguration = mock(GithubAppConfiguration.class);
-  private GitHubSettings gitHubSettings = mock(GitHubSettings.class);
+  private GithubApplicationHttpClientImpl httpClient = mock();
+  private GithubAppSecurity appSecurity = mock();
+  private GithubAppConfiguration githubAppConfiguration = mock();
+  private GitHubSettings gitHubSettings = mock();
+
+  private GithubPaginatedHttpClient githubPaginatedHttpClient = mock();
   private GithubApplicationClient underTest;
 
   private String appUrl = "Any URL";
@@ -106,7 +110,7 @@ public class GithubApplicationClientImplTest {
   @Before
   public void setup() {
     when(githubAppConfiguration.getApiEndpoint()).thenReturn(appUrl);
-    underTest = new GithubApplicationClientImpl(httpClient, appSecurity, gitHubSettings);
+    underTest = new GithubApplicationClientImpl(httpClient, appSecurity, gitHubSettings, githubPaginatedHttpClient);
     logTester.clear();
   }
 
@@ -512,11 +516,15 @@ public class GithubApplicationClientImplTest {
     assertThat(allOrgInstallations).isEmpty();
   }
 
+  @SuppressWarnings("unchecked")
   private List<GithubAppInstallation> getGithubAppInstallationsFromGithubResponse(String content) throws IOException {
     AppToken appToken = new AppToken(APP_JWT_TOKEN);
     when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);
-    when(httpClient.get(appUrl, appToken, "/app/installations"))
-      .thenReturn(new OkGetResponse(content));
+    when(githubPaginatedHttpClient.get(eq(appUrl), eq(appToken), eq("/app/installations"), any()))
+      .thenAnswer(invocation -> {
+        Function<String, List<GithubBinding.GsonInstallation>> deserializingFunction = invocation.getArgument(3, Function.class);
+        return deserializingFunction.apply(content);
+      });
     return underTest.getWhitelistedGithubAppInstallations(githubAppConfiguration);
   }
 
@@ -524,8 +532,7 @@ public class GithubApplicationClientImplTest {
   public void getWhitelistedGithubAppInstallations_whenGithubReturnsError_shouldThrow() throws IOException {
     AppToken appToken = new AppToken(APP_JWT_TOKEN);
     when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);
-    when(httpClient.get(appUrl, appToken, "/app/installations"))
-      .thenReturn(new ErrorGetResponse());
+    when(githubPaginatedHttpClient.get(any(),any(),any(),any())).thenThrow(new IOException("io exception"));
 
     assertThatThrownBy(() -> underTest.getWhitelistedGithubAppInstallations(githubAppConfiguration))
       .isInstanceOf(IllegalStateException.class)
