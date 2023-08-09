@@ -24,10 +24,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
@@ -527,6 +530,17 @@ public class IssueFieldsSetterTest {
     assertThat(diff.oldValue()).isEqualTo("linux");
     assertThat(diff.newValue()).isEqualTo("linux windows");
     assertThat(issue.mustSendNotifications()).isTrue();
+  }
+
+  @Test
+  public void setImpacts_whenImpactAdded_shouldBeUpdated() {
+    Map<SoftwareQuality, Severity> currentImpacts = Map.of(SoftwareQuality.RELIABILITY, Severity.LOW);
+    Map<SoftwareQuality, Severity> newImpacts = Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+
+    issue.replaceImpacts(newImpacts);
+    boolean updated = underTest.setImpacts(issue, currentImpacts, context);
+    assertThat(updated).isTrue();
+    assertThat(issue.impacts()).isEqualTo(newImpacts);
   }
 
   @Test

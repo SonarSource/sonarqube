@@ -98,10 +98,10 @@ public class IssueDao implements Dao {
 
   private static void updateIssueImpacts(IssueDto issueDto, IssueMapper mapper) {
     mapper.deleteIssueImpacts(issueDto.getKey());
-    insertInsertIssueImpacts(issueDto, mapper);
+    insertIssueImpact(issueDto, mapper);
   }
 
-  private static void insertInsertIssueImpacts(IssueDto issueDto, IssueMapper mapper) {
+  private static void insertIssueImpact(IssueDto issueDto, IssueMapper mapper) {
     issueDto.getImpacts()
       .forEach(impact -> mapper.insertIssueImpact(issueDto.getKey(), impact));
   }
@@ -115,6 +115,18 @@ public class IssueDao implements Dao {
 
   public void update(DbSession session, IssueDto dto) {
     mapper(session).update(dto);
+    updateIssueImpacts(dto, mapper(session));
+  }
+
+  public void updateIfBeforeSelectedDate(DbSession session, IssueDto dto) {
+    int updatedRows = mapper(session).updateIfBeforeSelectedDate(dto);
+    if (updatedRows != 0) {
+      updateIssueImpacts(dto, mapper(session));
+    }
+  }
+
+  public List<IssueDto> selectByKeysIfNotUpdatedAt(DbSession session, List<String> keys, long updatedAt) {
+    return mapper(session).selectByKeysIfNotUpdatedAt(keys, updatedAt);
   }
 
   public void insertAsNewCodeOnReferenceBranch(DbSession session, NewCodeReferenceIssueDto dto) {

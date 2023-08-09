@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -133,6 +134,8 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   private String anticipatedTransitionUuid = null;
 
+  private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = new EnumMap<>(SoftwareQuality.class);
+
   @Override
   public String key() {
     return key;
@@ -150,7 +153,18 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   @Override
   public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts() {
-    return Collections.emptyMap();
+    return impacts;
+  }
+
+  public DefaultIssue replaceImpacts(Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts) {
+    this.impacts.clear();
+    this.impacts.putAll(impacts);
+    return this;
+  }
+
+  public DefaultIssue addImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
+    impacts.put(softwareQuality, severity);
+    return this;
   }
 
   public DefaultIssue setType(RuleType type) {

@@ -27,6 +27,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -225,6 +227,12 @@ public class RuleRepositoryImpl implements RuleRepository {
     @Override
     public Set<String> getSecurityStandards() {
       return Collections.emptySet();
+    }
+
+    @Override
+    public Map<SoftwareQuality, Severity> getDefaultImpacts() {
+      //TODO external issues
+      return Collections.emptyMap();
     }
   }
 }

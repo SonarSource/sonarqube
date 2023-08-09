@@ -23,8 +23,9 @@ import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.DbSession;
+import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.issue.IssueMapper;
 
 /**
  * Support concurrent modifications on issues made by analysis and users at the same time
@@ -34,10 +35,10 @@ public class UpdateConflictResolver {
 
   private static final Logger LOG = LoggerFactory.getLogger(UpdateConflictResolver.class);
 
-  public void resolve(DefaultIssue issue, IssueDto dbIssue, IssueMapper mapper) {
+  public void resolve(DefaultIssue issue, IssueDto dbIssue, IssueDao issueDao, DbSession dbSession) {
     LOG.debug("Resolve conflict on issue {}", issue.key());
     mergeFields(dbIssue, issue);
-    mapper.update(IssueDto.toDtoForUpdate(issue, System.currentTimeMillis()));
+    issueDao.update(dbSession, IssueDto.toDtoForUpdate(issue, System.currentTimeMillis()));
   }
 
   @VisibleForTesting

@@ -20,7 +20,10 @@
 package org.sonar.ce.task.projectanalysis.util.cache;
 
 import java.util.Date;
+import java.util.Map;
 import org.junit.Test;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
@@ -53,6 +56,18 @@ public class ProtobufIssueDiskCacheTest {
   }
 
   @Test
+  public void toDefaultIssue_whenImpactIsSet_shouldSetItInDefaultIssue() {
+    IssueCache.Issue issue = prepareIssueWithCompulsoryFields()
+      .addImpacts(toImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH))
+      .addImpacts(toImpact(SoftwareQuality.RELIABILITY, Severity.LOW))
+      .build();
+
+    DefaultIssue defaultIssue = ProtobufIssueDiskCache.toDefaultIssue(issue);
+
+    assertThat(defaultIssue.impacts()).containsExactlyInAnyOrderEntriesOf(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, SoftwareQuality.RELIABILITY, Severity.LOW));
+  }
+
+  @Test
   public void toProto_whenRuleDescriptionContextKeySet_shouldCopyToIssueProto() {
     DefaultIssue defaultIssue = createDefaultIssueWithMandatoryFields();
     defaultIssue.setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
@@ -71,6 +86,24 @@ public class ProtobufIssueDiskCacheTest {
     IssueCache.Issue issue = ProtobufIssueDiskCache.toProto(IssueCache.Issue.newBuilder(), defaultIssue);
 
     assertThat(issue.hasRuleDescriptionContextKey()).isFalse();
+  }
+
+  @Test
+  public void toProto_whenRuleDescriptionContextKeyIsSet_shouldCopyToIssueProto() {
+    DefaultIssue defaultIssue = createDefaultIssueWithMandatoryFields();
+    defaultIssue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+    defaultIssue.addImpact(SoftwareQuality.RELIABILITY, Severity.LOW);
+
+    IssueCache.Issue issue = ProtobufIssueDiskCache.toProto(IssueCache.Issue.newBuilder(), defaultIssue);
+
+    assertThat(issue.getImpactsList()).containsExactly(
+      toImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH),
+      toImpact(SoftwareQuality.RELIABILITY, Severity.LOW)
+    );
+  }
+
+  private IssueCache.Impact toImpact(SoftwareQuality softwareQuality, Severity severity) {
+    return IssueCache.Impact.newBuilder().setSoftwareQuality(softwareQuality.name()).setSeverity(severity.name()).build();
   }
 
   private static DefaultIssue createDefaultIssueWithMandatoryFields() {

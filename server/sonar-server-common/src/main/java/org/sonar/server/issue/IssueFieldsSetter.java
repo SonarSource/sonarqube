@@ -23,12 +23,17 @@ import com.google.common.base.Joiner;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
@@ -319,8 +324,8 @@ public class IssueFieldsSetter {
 
     for (int i = 0; i < l1c.getMessageFormattingCount(); i++) {
       if (l1c.getMessageFormatting(i).getStart() != l2.getMessageFormatting(i).getStart()
-        || l1c.getMessageFormatting(i).getEnd() != l2.getMessageFormatting(i).getEnd()
-        || l1c.getMessageFormatting(i).getType() != l2.getMessageFormatting(i).getType()) {
+          || l1c.getMessageFormatting(i).getEnd() != l2.getMessageFormatting(i).getEnd()
+          || l1c.getMessageFormatting(i).getType() != l2.getMessageFormatting(i).getType()) {
         return false;
       }
     }
@@ -333,7 +338,7 @@ public class IssueFieldsSetter {
     issue.setMessage(previousMessage);
     issue.setMessageFormattings(previousMessageFormattings);
     boolean changed = setMessage(issue, currentMessage, context);
-    return setMessageFormattings(issue, currentMessageFormattings, context)  || changed;
+    return setMessageFormattings(issue, currentMessageFormattings, context) || changed;
   }
 
   public void addComment(DefaultIssue issue, String text, IssueChangeContext context) {
@@ -421,6 +426,17 @@ public class IssueFieldsSetter {
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
       issue.setSendNotifications(true);
+      return true;
+    }
+    return false;
+  }
+
+  public boolean setImpacts(DefaultIssue issue, Map<SoftwareQuality, Severity> previousImpacts, IssueChangeContext context) {
+    Map<SoftwareQuality, Severity> currentImpacts = new EnumMap<>(issue.impacts());
+    if (!previousImpacts.equals(currentImpacts)) {
+      issue.replaceImpacts(currentImpacts);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
       return true;
     }
     return false;

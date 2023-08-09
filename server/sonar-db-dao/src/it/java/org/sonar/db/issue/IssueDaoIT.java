@@ -37,6 +37,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
@@ -784,6 +785,33 @@ public class IssueDaoIT {
 
     List<String> expectedKeys = List.of("createdAfter-0", "createdAfter-1", "createdAfter-2");
     assertThat(results.stream().toList()).containsExactlyInAnyOrderElementsOf(expectedKeys);
+  }
+
+  @Test
+  public void updateIfBeforeSelectedDate_whenCalledWithBeforeSelectDate_shouldUpdateImpacts() {
+    prepareTables();
+    IssueDto issueDto = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)
+      .setSelectedAt(1_440_000_000_000L)
+      .replaceAllImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.LOW)));
+
+    underTest.updateIfBeforeSelectedDate(db.getSession(), issueDto);
+
+    assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).getImpacts()).extracting(i -> i.getSoftwareQuality(), i -> i.getSeverity())
+      .containsExactly(tuple(SoftwareQuality.RELIABILITY, Severity.LOW));
+
+  }
+
+  @Test
+  public void updateIfBeforeSelectedDate_whenCalledWithAfterSelectDate_shouldNotUpdateImpacts() {
+    prepareTables();
+    IssueDto issueDto = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)
+      .setSelectedAt(1_400_000_000_000L)
+      .replaceAllImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.LOW)));
+
+    underTest.updateIfBeforeSelectedDate(db.getSession(), issueDto);
+
+    assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).getImpacts()).extracting(i -> i.getSoftwareQuality(), i -> i.getSeverity())
+      .containsExactlyInAnyOrder(tuple(SoftwareQuality.RELIABILITY, Severity.MEDIUM), tuple(SoftwareQuality.SECURITY, Severity.LOW));
   }
 
   private static IssueDto createIssueWithKey(String issueKey) {

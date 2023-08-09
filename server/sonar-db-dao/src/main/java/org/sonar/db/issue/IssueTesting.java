@@ -25,6 +25,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.util.UuidFactoryFast;
@@ -68,6 +69,8 @@ public class IssueTesting {
       .setStatus(Issue.STATUS_OPEN)
       .setResolution(null)
       .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
+      //TODO map to correct impact
+      .addImpact(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
       .setEffort((long) RandomUtils.nextInt(10))
       .setAssigneeUuid("assignee-uuid_" + randomAlphabetic(26))
       .setAuthorLogin("author_" + randomAlphabetic(5))

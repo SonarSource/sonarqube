@@ -192,7 +192,7 @@ public class IssueMapperIT {
       .setCodeVariants(Set.of("variant2", "variant3"));
 
     // selected after last update -> ok
-    dto.setSelectedAt(1500000000000L);
+    dto.setSelectedAt(1_500_000_000_000L);
 
     int count = underTest.updateIfBeforeSelectedDate(dto);
     assertThat(count).isOne();
@@ -227,7 +227,7 @@ public class IssueMapperIT {
       .setCodeVariants(Set.of("variant2", "variant3"));
 
     // selected before last update -> ko
-    dto.setSelectedAt(1400000000000L);
+    dto.setSelectedAt(1_400_000_000_000L);
 
     int count = underTest.updateIfBeforeSelectedDate(dto);
     assertThat(count).isZero();

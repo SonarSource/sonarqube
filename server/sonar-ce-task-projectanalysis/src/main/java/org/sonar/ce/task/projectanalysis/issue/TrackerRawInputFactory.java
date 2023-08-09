@@ -25,12 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
-import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -192,6 +194,8 @@ public class TrackerRawInputFactory {
       issue.setQuickFixAvailable(reportIssue.getQuickFixAvailable());
       issue.setRuleDescriptionContextKey(reportIssue.hasRuleDescriptionContextKey() ? reportIssue.getRuleDescriptionContextKey() : null);
       issue.setCodeVariants(reportIssue.getCodeVariantsList());
+
+      issue.replaceImpacts(convertImpacts(issue.ruleKey(), reportIssue.getOverridenImpactsList()));
       return issue;
     }
 
@@ -326,6 +330,16 @@ public class TrackerRawInputFactory {
       targetRange.setEndOffset(sourceRange.getEndOffset());
       return targetRange;
     }
+  }
+
+  private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> convertImpacts(RuleKey ruleKey, List<ScannerReport.Impact> overridenImpactsList) {
+    if (overridenImpactsList.isEmpty()) {
+      return Collections.emptyMap();
+    }
+    Rule rule = ruleRepository.getByKey(ruleKey);
+    return overridenImpactsList.stream()
+      .filter(i -> rule.getDefaultImpacts().containsKey(SoftwareQuality.valueOf(i.getSoftwareQuality())))
+      .collect(Collectors.toMap(i -> SoftwareQuality.valueOf(i.getSoftwareQuality()), i -> org.sonar.api.issue.impact.Severity.valueOf(i.getSeverity())));
   }
 
   private static DbIssues.MessageFormattings convertMessageFormattings(List<ScannerReport.MessageFormatting> msgFormattings) {

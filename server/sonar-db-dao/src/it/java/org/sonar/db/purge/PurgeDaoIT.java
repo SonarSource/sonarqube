@@ -1216,7 +1216,7 @@ public class PurgeDaoIT {
     ComponentDto dir = db.components().insertComponent(newDirectory(mainBranch, "path"));
     ComponentDto file = db.components().insertComponent(newFileDto(mainBranch, dir));
 
-    IssueDto issue1 = db.issues().insert(rule, mainBranch, file);
+    IssueDto issue1 = db.issues().insert(rule, mainBranch, file, issue -> issue.replaceAllImpacts(Collections.emptyList()));
     IssueDto orphanIssue = db.issues().insert(rule, mainBranch, file, issue -> issue.setComponentUuid("nonExisting"));
     IssueChangeDto orphanIssueChange = db.issues().insertChange(orphanIssue);
     db.issues().insertNewCodeReferenceIssue(orphanIssue);

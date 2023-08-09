@@ -20,11 +20,15 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.base.MoreObjects;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -52,6 +56,7 @@ public class RuleImpl implements Rule {
   private final String defaultRuleDescription;
   private final String severity;
   private final Set<String> securityStandards;
+  private final Map<SoftwareQuality, Severity> defaultImpacts;
 
   public RuleImpl(RuleDto dto) {
     this.uuid = dto.getUuid();
@@ -68,6 +73,8 @@ public class RuleImpl implements Rule {
     this.defaultRuleDescription = getNonNullDefaultRuleDescription(dto);
     this.severity = Optional.ofNullable(dto.getSeverityString()).orElse(dto.getAdHocSeverity());
     this.securityStandards = dto.getSecurityStandards();
+    this.defaultImpacts = dto.getDefaultImpacts().stream()
+      .collect(Collectors.toMap(i -> i.getSoftwareQuality(), i -> i.getSeverity()));
   }
 
   private static String getNonNullDefaultRuleDescription(RuleDto dto) {
@@ -135,6 +142,11 @@ public class RuleImpl implements Rule {
   @Override
   public Set<String> getSecurityStandards() {
     return securityStandards;
+  }
+
+  @Override
+  public Map<SoftwareQuality, Severity> getDefaultImpacts() {
+    return defaultImpacts;
   }
 
   @Override

@@ -28,6 +28,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
@@ -51,8 +53,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.AnticipatedTransitionDto;
 import org.sonar.db.issue.IssueChangeDto;
+import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.issue.IssueMapper;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
@@ -61,6 +63,7 @@ import org.sonar.server.issue.IssueStorage;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -314,7 +317,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     underTest.execute(context);
 
     ArgumentCaptor<IssueDto> issueDtoCaptor = ArgumentCaptor.forClass(IssueDto.class);
-    verify(conflictResolver).resolve(eq(defaultIssue), issueDtoCaptor.capture(), any(IssueMapper.class));
+    verify(conflictResolver).resolve(eq(defaultIssue), issueDtoCaptor.capture(), any(IssueDao.class), any(DbSession.class));
     assertThat(issueDtoCaptor.getValue().getKey()).isEqualTo(issue.getKey());
     assertThat(context.getStatistics().getAll()).contains(
       entry("inserts", "0"), entry("updates", "1"), entry("merged", "1"));
@@ -343,6 +346,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
       .setCreationDate(new Date(NOW))
       .setNew(true)
       .setIsOnChangedLine(true)
+      .addImpact(SoftwareQuality.SECURITY, Severity.MEDIUM)
       .setType(RuleType.BUG)).close();
 
     TestComputationStepContext context = new TestComputationStepContext();
@@ -356,6 +360,8 @@ public class PersistIssuesStepIT extends BaseStepTest {
     assertThat(result.getSeverity()).isEqualTo(BLOCKER);
     assertThat(result.getStatus()).isEqualTo(STATUS_OPEN);
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+    assertThat(result.getImpacts()).extracting(i -> i.getSoftwareQuality(), i -> i.getSeverity())
+      .containsExactly(tuple(SoftwareQuality.SECURITY, Severity.MEDIUM));
     assertThat(context.getStatistics().getAll()).contains(
       entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));
     assertThat(result.isNewCodeReferenceIssue()).isTrue();

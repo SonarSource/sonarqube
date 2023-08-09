@@ -83,7 +83,8 @@ public class IssueDtoTest {
       .setIssueCreationDate(createdAt)
       .setIssueUpdateDate(updatedAt)
       .setIssueCloseDate(closedAt)
-      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
+      .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH));
 
     DefaultIssue expected = new DefaultIssue()
       .setKey("100")
@@ -112,7 +113,8 @@ public class IssueDtoTest {
       .setIsNewCodeReferenceIssue(false)
       .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
       .setCodeVariants(Set.of())
-      .setTags(Set.of());
+      .setTags(Set.of())
+      .addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
 
     DefaultIssue issue = dto.toDefaultIssue();
 
@@ -297,6 +299,8 @@ public class IssueDtoTest {
     assertThat(issueDto.isQuickFixAvailable()).isTrue();
     assertThat(issueDto.isNewCodeReferenceIssue()).isTrue();
     assertThat(issueDto.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
+    assertThat(issueDto.getImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactlyInAnyOrder(tuple(SoftwareQuality.MAINTAINABILITY, Severity.HIGH), tuple(SoftwareQuality.RELIABILITY, Severity.LOW));
   }
 
   @Test
@@ -327,6 +331,8 @@ public class IssueDtoTest {
     assertThat(issueDto.isQuickFixAvailable()).isTrue();
     assertThat(issueDto.isNewCodeReferenceIssue()).isTrue();
     assertThat(issueDto.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
+    assertThat(issueDto.getImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactlyInAnyOrder(tuple(SoftwareQuality.MAINTAINABILITY, Severity.HIGH), tuple(SoftwareQuality.RELIABILITY, Severity.LOW));
   }
 
   private DefaultIssue createExampleDefaultIssue(Date dateNow) {
@@ -358,7 +364,9 @@ public class IssueDtoTest {
       .setQuickFixAvailable(true)
       .setIsNewCodeReferenceIssue(true)
       .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
-      .setCodeVariants(List.of("variant1", "variant2"));
+      .setCodeVariants(List.of("variant1", "variant2"))
+      .addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
+      .addImpact(SoftwareQuality.RELIABILITY, Severity.LOW);
     return defaultIssue;
   }
 

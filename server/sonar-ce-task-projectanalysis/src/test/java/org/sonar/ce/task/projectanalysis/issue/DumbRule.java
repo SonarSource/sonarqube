@@ -19,10 +19,14 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -42,7 +46,8 @@ public class DumbRule implements Rule {
   private String pluginKey;
   private boolean isExternal;
   private boolean isAdHoc;
-  private Set<String> securityStandards = new HashSet<>();
+  private final Set<String> securityStandards = new HashSet<>();
+  private final Map<SoftwareQuality, Severity> defaultImpacts = new EnumMap<>(SoftwareQuality.class);
 
   public DumbRule(RuleKey key) {
     this.key = key;
@@ -112,6 +117,11 @@ public class DumbRule implements Rule {
   }
 
   @Override
+  public Map<SoftwareQuality, Severity> getDefaultImpacts() {
+    return defaultImpacts;
+  }
+
+  @Override
   public boolean isExternal() {
     return isExternal;
   }
@@ -168,6 +178,11 @@ public class DumbRule implements Rule {
 
   public DumbRule setIsAdHoc(boolean isAdHoc) {
     this.isAdHoc = isAdHoc;
+    return this;
+  }
+
+  public DumbRule addDefaultImpact(SoftwareQuality softwareQuality, Severity severity) {
+    defaultImpacts.put(softwareQuality, severity);
     return this;
   }
 

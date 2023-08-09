@@ -38,6 +38,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
@@ -45,6 +46,7 @@ import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
@@ -154,10 +156,19 @@ public final class IssueDto implements Serializable {
       .setQuickFixAvailable(issue.isQuickFixAvailable())
       .setIsNewCodeReferenceIssue(issue.isNewCodeReferenceIssue())
       .setCodeVariants(issue.codeVariants())
-
+      .replaceAllImpacts(mapToImpactDto(issue.impacts()))
       // technical dates
       .setCreatedAt(now)
       .setUpdatedAt(now);
+  }
+
+  @NotNull
+  private static Set<ImpactDto> mapToImpactDto(Map<SoftwareQuality, Severity> impacts) {
+    return impacts.entrySet().stream().map(e -> new ImpactDto()
+        .setUuid(Uuids.createFast())
+        .setSoftwareQuality(e.getKey())
+        .setSeverity(e.getValue()))
+      .collect(Collectors.toSet());
   }
 
   /**
@@ -202,7 +213,7 @@ public final class IssueDto implements Serializable {
       .setQuickFixAvailable(issue.isQuickFixAvailable())
       .setIsNewCodeReferenceIssue(issue.isNewCodeReferenceIssue())
       .setCodeVariants(issue.codeVariants())
-
+      .replaceAllImpacts(mapToImpactDto(issue.impacts()))
       // technical date
       .setUpdatedAt(now);
   }
@@ -865,6 +876,7 @@ public final class IssueDto implements Serializable {
     issue.setQuickFixAvailable(quickFixAvailable);
     issue.setIsNewCodeReferenceIssue(isNewCodeReferenceIssue);
     issue.setCodeVariants(getCodeVariants());
+    impacts.forEach(i -> issue.addImpact(i.getSoftwareQuality(), i.getSeverity()));
     return issue;
   }
 }

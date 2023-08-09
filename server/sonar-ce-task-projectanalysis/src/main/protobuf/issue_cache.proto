@@ -84,6 +84,7 @@ message Issue {
   optional string codeVariants = 46;
   optional string assigneeLogin = 47;
   optional string anticipatedTransitionUuid = 48;
+  repeated Impact impacts = 49;
 }
 
 message Comment {
@@ -106,4 +107,9 @@ message FieldDiffs {
 message Diff {
   optional string oldValue = 1;
   optional string newValue = 2;
+}
+
+message Impact {
+  required string software_quality = 1;
+  required string severity = 2;
 }

@@ -23,6 +23,8 @@ import java.util.Date;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -386,6 +388,7 @@ public class IssueLifecycleTest {
       .setRuleKey(XOO_X1)
       .setRuleDescriptionContextKey("spring")
       .setCodeVariants(Set.of("foo", "bar"))
+      .addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
       .setCreationDate(parseDate("2015-10-01"))
       .setUpdateDate(parseDate("2015-10-02"))
       .setCloseDate(parseDate("2015-10-03"));
@@ -425,6 +428,7 @@ public class IssueLifecycleTest {
       .setGap(15d)
       .setRuleDescriptionContextKey("hibernate")
       .setCodeVariants(Set.of("donut"))
+      .addImpact(SoftwareQuality.RELIABILITY, Severity.LOW)
       .setEffort(Duration.create(15L))
       .setManualSeverity(false)
       .setLocations(issueLocations)
@@ -455,7 +459,8 @@ public class IssueLifecycleTest {
       .containsOnly(entry("foo", new FieldDiffs.Diff<>("bar", "donut")));
     assertThat(raw.changes().get(1).diffs())
       .containsOnly(entry("file", new FieldDiffs.Diff<>("A", "B")));
-
+    assertThat(raw.impacts())
+      .containsEntry(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
     verify(updater).setPastSeverity(raw, BLOCKER, issueChangeContext);
     verify(updater).setPastLine(raw, 10);
     verify(updater).setRuleDescriptionContextKey(raw, "hibernate");

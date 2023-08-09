@@ -20,8 +20,11 @@
 package org.sonar.core.issue;
 
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.utils.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -288,5 +291,23 @@ public class DefaultIssueTest {
     DefaultIssue defaultIssue = new DefaultIssue();
     defaultIssue.setAnticipatedTransitionUuid("uuid");
     assertThat(defaultIssue.getAnticipatedTransitionUuid()).isPresent();
+
+  }
+
+  public void getImpacts_whenAddingNewImpacts_shouldReturnListOfImpacts() {
+    issue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+    issue.addImpact(SoftwareQuality.RELIABILITY, Severity.LOW);
+
+    assertThat(issue.impacts()).containsExactlyEntriesOf(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH, SoftwareQuality.RELIABILITY, Severity.LOW));
+  }
+
+  @Test
+  public void replaceImpacts_shouldreplaceExistingImpacts() {
+    issue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+    issue.addImpact(SoftwareQuality.RELIABILITY, Severity.LOW);
+
+    issue.replaceImpacts(Map.of(SoftwareQuality.SECURITY, Severity.LOW));
+
+    assertThat(issue.impacts()).containsExactlyEntriesOf(Map.of(SoftwareQuality.SECURITY, Severity.LOW));
   }
 }

@@ -203,6 +203,7 @@ public class IssueLifecycle {
     updater.setPastGap(raw, base.gap(), changeContext);
     updater.setPastEffort(raw, base.effort(), changeContext);
     updater.setCodeVariants(raw, requireNonNull(base.codeVariants()), changeContext);
+    updater.setImpacts(raw, base.impacts(), changeContext);
   }
 
   public void doAutomaticTransition(DefaultIssue issue) {

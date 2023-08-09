@@ -582,7 +582,7 @@ public class PurgeCommandsIT {
     IntStream.range(0, count).forEach(i -> {
       IssueDto issue = dbTester.issues().insertIssue(t -> t.setRule(rule).setProject(projectOrView).setComponent(projectOrView)
         .addImpact(new ImpactDto().setUuid(UuidFactoryFast.getInstance().create())
-          .setSoftwareQuality(SoftwareQuality.MAINTAINABILITY)
+          .setSoftwareQuality(SoftwareQuality.SECURITY)
           .setSeverity(Severity.HIGH)));
       issueKeys.add("'" + issue.getKey() + "'");
     });

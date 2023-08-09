@@ -19,8 +19,11 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -64,4 +67,6 @@ public interface Rule {
   String getSeverity();
 
   Set<String> getSecurityStandards();
+
+  Map<SoftwareQuality, Severity> getDefaultImpacts();
 }

@@ -32,6 +32,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
@@ -140,10 +142,12 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
       defaultIssue.setAnticipatedTransitionUuid(next.getAnticipatedTransitionUuid());
     }
 
+    for (IssueCache.Impact impact : next.getImpactsList()) {
+      defaultIssue.addImpact(SoftwareQuality.valueOf(impact.getSoftwareQuality()), Severity.valueOf(impact.getSeverity()));
+    }
     for (IssueCache.FieldDiffs protoFieldDiffs : next.getChangesList()) {
       defaultIssue.addChange(toDefaultIssueChanges(protoFieldDiffs));
     }
-
     return defaultIssue;
   }
 
@@ -194,6 +198,13 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     builder.setIsNoLongerNewCodeReferenceIssue(defaultIssue.isNoLongerNewCodeReferenceIssue());
     defaultIssue.getAnticipatedTransitionUuid().ifPresent(builder::setAnticipatedTransitionUuid);
 
+
+    for (Map.Entry<SoftwareQuality, Severity> impact : defaultIssue.impacts().entrySet()) {
+      builder.addImpacts(IssueCache.Impact.newBuilder()
+        .setSoftwareQuality(impact.getKey().name())
+        .setSeverity(impact.getValue().name())
+        .build());
+    }
     for (FieldDiffs fieldDiffs : defaultIssue.changes()) {
       builder.addChanges(toProtoIssueChanges(fieldDiffs));
     }

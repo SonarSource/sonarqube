@@ -26,10 +26,12 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.DbSession;
+import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.issue.IssueMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
@@ -49,7 +51,8 @@ public class UpdateConflictResolverTest {
       .setStatus(STATUS_OPEN);
 
     // Issue as seen and changed by end-user
-    IssueMapper mapper = mock(IssueMapper.class);
+    IssueDao issueDao = mock(IssueDao.class);
+    DbSession dbSession = mock(DbSession.class);
     IssueDto issueDto = new IssueDto()
       .setKee("ABCDE")
       .setType(CODE_SMELL)
@@ -63,10 +66,10 @@ public class UpdateConflictResolverTest {
       // field changed by user
       .setAssigneeUuid("arthur-uuid");
 
-    new UpdateConflictResolver().resolve(issue, issueDto, mapper);
+    new UpdateConflictResolver().resolve(issue, issueDto, issueDao, dbSession);
 
     ArgumentCaptor<IssueDto> argument = ArgumentCaptor.forClass(IssueDto.class);
-    verify(mapper).update(argument.capture());
+    verify(issueDao).update(any(), argument.capture());
     IssueDto updatedIssue = argument.getValue();
     assertThat(updatedIssue.getKee()).isEqualTo("ABCDE");
     assertThat(updatedIssue.getAssigneeUuid()).isEqualTo("arthur-uuid");

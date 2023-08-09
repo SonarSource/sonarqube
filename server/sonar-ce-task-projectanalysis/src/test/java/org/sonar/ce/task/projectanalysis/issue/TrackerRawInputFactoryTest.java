@@ -25,11 +25,14 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -123,11 +126,15 @@ public class TrackerRawInputFactoryTest {
   public void load_issues_from_report() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
-
+    registerRule(ruleKey, "name", r -> r.addDefaultImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
       .addMsgFormatting(ScannerReport.MessageFormatting.newBuilder().setStart(0).setEnd(3).setType(CODE).build())
+      .addOverridenImpacts(ScannerReport.Impact.newBuilder()
+        .setSoftwareQuality(SoftwareQuality.MAINTAINABILITY.name())
+        .setSeverity(org.sonar.api.issue.impact.Severity.HIGH.name())
+        .build())
       .setRuleRepository(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
       .setSeverity(Constants.Severity.BLOCKER)
@@ -162,6 +169,7 @@ public class TrackerRawInputFactoryTest {
     assertInitializedIssue(issue);
     assertThat(issue.effort()).isNull();
     assertThat(issue.getRuleDescriptionContextKey()).isEmpty();
+    assertThat(issue.impacts()).containsExactlyEntriesOf(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
   }
 
   @Test
@@ -232,10 +240,34 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
+  public void create_whenImpactIsNotDefinedAtRuleLevel_shouldDiscardImpacts() {
+    RuleKey ruleKey = RuleKey.of("java", "S001");
+    markRuleAsActive(ruleKey);
+    registerRule(ruleKey, "name", r -> r.addDefaultImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
+      .setTextRange(newTextRange(2))
+      .setMsg("the message")
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
+      .addOverridenImpacts(ScannerReport.Impact.newBuilder()
+        .setSoftwareQuality(SoftwareQuality.SECURITY.name())
+        .setSeverity(org.sonar.api.issue.impact.Severity.LOW.name()).build())
+      .build();
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    Collection<DefaultIssue> issues = input.getIssues();
+    assertThat(issues)
+      .hasSize(1);
+    assertThat(issues.iterator().next().impacts()).isEmpty();
+  }
+
+  @Test
   public void set_rule_name_as_message_when_issue_message_from_report_is_empty() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
-    registerRule(ruleKey, "Rule 1");
+    registerRule(ruleKey, "Rule 1", r -> {
+    });
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setRuleRepository(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
@@ -350,7 +382,7 @@ public class TrackerRawInputFactoryTest {
 
   @DataProvider
   public static Object[][] ruleTypeAndStatusByIssueType() {
-    return new Object[][] {
+    return new Object[][]{
       {IssueType.CODE_SMELL, RuleType.CODE_SMELL, STATUS_OPEN},
       {IssueType.BUG, RuleType.BUG, STATUS_OPEN},
       {IssueType.VULNERABILITY, RuleType.VULNERABILITY, STATUS_OPEN},
@@ -474,9 +506,10 @@ public class TrackerRawInputFactoryTest {
     activeRulesHolder.put(new ActiveRule(ruleKey, Severity.CRITICAL, emptyMap(), 1_000L, null, "qp1"));
   }
 
-  private void registerRule(RuleKey ruleKey, String name) {
+  private void registerRule(RuleKey ruleKey, String name, Consumer<DumbRule> dumbRulePopulator) {
     DumbRule dumbRule = new DumbRule(ruleKey);
     dumbRule.setName(name);
+    dumbRulePopulator.accept(dumbRule);
     ruleRepository.add(dumbRule);
   }
 }
