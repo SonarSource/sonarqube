@@ -24,9 +24,9 @@ import React, { useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
 import { translate } from '../../helpers/l10n';
+import { useOpenAPI } from '../../queries/web-api';
 import ApiInformation from './components/ApiInformation';
 import ApiSidebar from './components/ApiSidebar';
-import { useOpenAPI } from './queries';
 import { URL_DIVIDER, dereferenceSchema } from './utils';
 
 export default function WebApiApp() {

@@ -20,15 +20,11 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useContext } from 'react';
-import { getProjectBadgesToken, renewProjectBadgesToken } from '../../../api/project-badges';
-import { fetchWebApi } from '../../../api/web-api';
-import { MetricsContext } from '../../../app/components/metrics/MetricsContext';
-import { getLocalizedMetricName } from '../../../helpers/l10n';
-import { MetricKey } from '../../../types/metrics';
-
-export function useFetchWebApiQuery() {
-  return useQuery(['web-api'], () => fetchWebApi(false));
-}
+import { getProjectBadgesToken, renewProjectBadgesToken } from '../api/project-badges';
+import { MetricsContext } from '../app/components/metrics/MetricsContext';
+import { getLocalizedMetricName } from '../helpers/l10n';
+import { MetricKey } from '../types/metrics';
+import { useWebApiQuery } from './web-api';
 
 export function useRenewBagdeTokenMutation() {
   const queryClient = useQueryClient();
@@ -44,7 +40,7 @@ export function useRenewBagdeTokenMutation() {
 
 export function useBadgeMetricsQuery() {
   const metrics = useContext(MetricsContext);
-  const { data: webservices = [], ...rest } = useFetchWebApiQuery();
+  const { data: webservices = [], ...rest } = useWebApiQuery();
   const domain = webservices.find((d) => d.path === 'api/project_badges');
   const ws = domain?.actions.find((w) => w.key === 'measure');
   const param = ws?.params?.find((p) => p.key === 'metric');

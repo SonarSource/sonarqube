@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getValues, resetSettingValue, setSettingValue } from '../../../api/settings';
-import { ExtendedSettingDefinition } from '../../../types/settings';
+import { getValues, resetSettingValue, setSettingValue } from '../api/settings';
+import { ExtendedSettingDefinition } from '../types/settings';
 
 type SettingValue = string | boolean | string[];
 

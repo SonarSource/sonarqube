@@ -23,8 +23,8 @@ import Radio from '../../components/controls/Radio';
 import { Button, ResetButtonLink } from '../../components/controls/buttons';
 import { Alert } from '../../components/ui/Alert';
 import { translate } from '../../helpers/l10n';
+import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider';
 import { Visibility } from '../../types/component';
-import { useGithubStatusQuery } from '../settings/components/authentication/queries/identity-provider';
 
 export interface Props {
   defaultVisibility: Visibility;
@@ -34,7 +34,7 @@ export interface Props {
 
 export default function ChangeDefaultVisibilityForm(props: Props) {
   const [visibility, setVisibility] = useState(props.defaultVisibility);
-  const { data: githubProbivisioningEnabled } = useGithubStatusQuery();
+  const { data: githubProbivisioningEnabled } = useGithubProvisioningEnabledQuery();
 
   const handleConfirmClick = () => {
     props.onConfirm(visibility);

@@ -19,9 +19,9 @@
  */
 import React from 'react';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
+import { useScimStatusQuery } from '../../../../../queries/identity-provider';
 import { Feature } from '../../../../../types/features';
 import { ExtendedSettingDefinition } from '../../../../../types/settings';
-import { useScimStatusQuery } from '../queries/identity-provider';
 import useConfiguration from './useConfiguration';
 
 export const SAML_ENABLED_FIELD = 'sonar.auth.saml.enabled';

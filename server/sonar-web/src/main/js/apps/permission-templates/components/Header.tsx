@@ -25,7 +25,7 @@ import { Alert } from '../../../components/ui/Alert';
 import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import { throwGlobalError } from '../../../helpers/error';
 import { translate } from '../../../helpers/l10n';
-import { useGithubStatusQuery } from '../../settings/components/authentication/queries/identity-provider';
+import { useGithubProvisioningEnabledQuery } from '../../../queries/identity-provider';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import Form from './Form';
 
@@ -38,7 +38,7 @@ interface Props {
 function Header(props: Props) {
   const { ready, router } = props;
   const [createModal, setCreateModal] = useState(false);
-  const { data: gitHubProvisioningStatus } = useGithubStatusQuery();
+  const { data: gitHubProvisioningStatus } = useGithubProvisioningEnabledQuery();
 
   const handleCreateModalSubmit = async (data: {
     description: string;

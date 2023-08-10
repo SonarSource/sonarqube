@@ -20,9 +20,9 @@
 import { UseMutationResult } from '@tanstack/react-query';
 import { every, isEmpty, keyBy, update } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
+import { useGetValuesQuery, useResetSettingsMutation } from '../../../../../queries/settings';
 import { ExtendedSettingDefinition } from '../../../../../types/settings';
 import { Dict } from '../../../../../types/types';
-import { useGetValuesQuery, useResetSettingsMutation } from '../../../queries/settings';
 
 export type SettingValue =
   | {

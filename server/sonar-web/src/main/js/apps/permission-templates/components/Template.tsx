@@ -30,8 +30,8 @@ import {
   PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
 } from '../../../helpers/permissions';
 import UseQuery from '../../../helpers/UseQuery';
+import { useGithubProvisioningEnabledQuery } from '../../../queries/identity-provider';
 import { Paging, PermissionGroup, PermissionTemplate, PermissionUser } from '../../../types/types';
-import { useGithubStatusQuery } from '../../settings/components/authentication/queries/identity-provider';
 import TemplateDetails from './TemplateDetails';
 import TemplateHeader from './TemplateHeader';
 
@@ -332,7 +332,7 @@ export default class Template extends React.PureComponent<Props, State> {
         />
         <main>
           <TemplateDetails template={template} />
-          <UseQuery query={useGithubStatusQuery}>
+          <UseQuery query={useGithubProvisioningEnabledQuery}>
             {({ data: githubProvisioningStatus }) =>
               githubProvisioningStatus ? (
                 <Alert variant="warning" className="sw-w-fit">

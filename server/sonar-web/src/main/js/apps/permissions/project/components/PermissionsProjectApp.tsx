@@ -31,11 +31,11 @@ import {
   PERMISSIONS_ORDER_BY_QUALIFIER,
   convertToPermissionDefinitions,
 } from '../../../../helpers/permissions';
+import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { ComponentContextShape, Visibility } from '../../../../types/component';
 import { Permissions } from '../../../../types/permissions';
 import { Component, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
-import { useGithubStatusQuery } from '../../../settings/components/authentication/queries/identity-provider';
 import '../../styles.css';
 import PageHeader from './PageHeader';
 import PublicProjectDisclaimer from './PublicProjectDisclaimer';
@@ -355,7 +355,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
           loading={loading}
         />
         <div>
-          <UseQuery query={useGithubStatusQuery}>
+          <UseQuery query={useGithubProvisioningEnabledQuery}>
             {({ data: githubProvisioningStatus, isFetching }) => (
               <VisibilitySelector
                 canTurnToPrivate={canTurnToPrivate}

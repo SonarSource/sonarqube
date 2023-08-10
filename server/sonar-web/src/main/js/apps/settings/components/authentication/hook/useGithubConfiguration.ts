@@ -20,13 +20,13 @@
 import { some } from 'lodash';
 import { useContext, useState } from 'react';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
+import {
+  useGithubProvisioningEnabledQuery,
+  useToggleGithubProvisioningMutation,
+} from '../../../../../queries/identity-provider';
+import { useSaveValueMutation, useSaveValuesMutation } from '../../../../../queries/settings';
 import { Feature } from '../../../../../types/features';
 import { ExtendedSettingDefinition } from '../../../../../types/settings';
-import { useSaveValueMutation, useSaveValuesMutation } from '../../../queries/settings';
-import {
-  useGithubStatusQuery,
-  useToggleGithubProvisioningMutation,
-} from '../queries/identity-provider';
 import useConfiguration from './useConfiguration';
 
 export const GITHUB_ENABLED_FIELD = 'sonar.auth.github.enabled';
@@ -59,7 +59,7 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
   const hasGithubProvisioning = useContext(AvailableFeaturesContext).includes(
     Feature.GithubProvisioning
   );
-  const { data: githubProvisioningStatus } = useGithubStatusQuery();
+  const { data: githubProvisioningStatus } = useGithubProvisioningEnabledQuery();
   const toggleGithubProvisioning = useToggleGithubProvisioningMutation();
   const [newGithubProvisioningStatus, setNewGithubProvisioningStatus] = useState<boolean>();
   const hasGithubProvisioningTypeChange =

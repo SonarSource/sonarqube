@@ -24,9 +24,9 @@ import ActionsDropdown, { ActionsDropdownItem } from '../../components/controls/
 import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
+import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider';
 import { LoggedInUser } from '../../types/users';
 import ApplyTemplate from '../permissions/project/components/ApplyTemplate';
-import { useGithubStatusQuery } from '../settings/components/authentication/queries/identity-provider';
 import RestoreAccessModal from './RestoreAccessModal';
 
 export interface Props {
@@ -39,7 +39,7 @@ export default function ProjectRowActions({ currentUser, project }: Props) {
   const [hasAccess, setHasAccess] = useState<boolean | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [restoreAccessModal, setRestoreAccessModal] = useState(false);
-  const { data: githubProvisioningEnabled } = useGithubStatusQuery();
+  const { data: githubProvisioningEnabled } = useGithubProvisioningEnabledQuery();
 
   const fetchPermissions = () => {
     setLoading(true);

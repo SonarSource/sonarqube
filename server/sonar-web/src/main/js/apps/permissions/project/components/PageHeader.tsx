@@ -24,9 +24,9 @@ import { Alert } from '../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
+import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider';
 import { isApplication, isPortfolioLike, isProject } from '../../../../types/component';
 import { Component } from '../../../../types/types';
-import { useGithubStatusQuery } from '../../../settings/components/authentication/queries/identity-provider';
 import ApplyTemplate from './ApplyTemplate';
 
 interface Props {
@@ -38,7 +38,7 @@ interface Props {
 
 export default function PageHeader(props: Props) {
   const [applyTemplateModal, setApplyTemplateModal] = React.useState(false);
-  const { data: githubProvisioningStatus } = useGithubStatusQuery();
+  const { data: githubProvisioningStatus } = useGithubProvisioningEnabledQuery();
 
   const { component, isGitHubProject, loading } = props;
   const { configuration } = component;

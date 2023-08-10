@@ -24,6 +24,7 @@ import BoxedTabs from '../../../../components/controls/BoxedTabs';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
+import { useGetValuesQuery } from '../../../../queries/settings';
 import {
   AlmKeys,
   AlmSettingsBindingDefinitions,
@@ -31,7 +32,6 @@ import {
 } from '../../../../types/alm-settings';
 import { SettingsKey } from '../../../../types/settings';
 import { Dict } from '../../../../types/types';
-import { useGetValuesQuery } from '../../queries/settings';
 import { AlmTabs } from './AlmIntegration';
 import AlmTab from './AlmTab';
 import DeleteModal from './DeleteModal';

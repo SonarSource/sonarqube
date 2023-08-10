@@ -26,8 +26,8 @@ import { ResetButtonLink, SubmitButton } from '../../../../components/controls/b
 import { Alert } from '../../../../components/ui/Alert';
 import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate } from '../../../../helpers/l10n';
+import { useSaveValuesMutation } from '../../../../queries/settings';
 import { Dict } from '../../../../types/types';
-import { useSaveValuesMutation } from '../../queries/settings';
 import { AuthenticationTabs, DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
 import { SettingValue } from './hook/useConfiguration';

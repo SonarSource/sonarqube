@@ -29,7 +29,11 @@ import DeleteIcon from '../../../../components/icons/DeleteIcon';
 import EditIcon from '../../../../components/icons/EditIcon';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import { useSyncNow } from '../../../../queries/github-sync';
+import {
+  useCheckGitHubConfigQuery,
+  useIdentityProviderQuery,
+  useSyncWithGitHubNow,
+} from '../../../../queries/identity-provider';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
@@ -37,7 +41,6 @@ import AuthenticationFormField from './AuthenticationFormField';
 import ConfigurationForm from './ConfigurationForm';
 import GitHubConfigurationValidity from './GitHubConfigurationValidity';
 import useGithubConfiguration, { GITHUB_JIT_FIELDS } from './hook/useGithubConfiguration';
-import { useCheckGitHubConfigQuery, useIdentityProviderQuery } from './queries/identity-provider';
 
 interface GithubAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
@@ -79,7 +82,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
   } = useGithubConfiguration(definitions);
 
   const hasDifferentProvider = data?.provider !== undefined && data.provider !== Provider.Github;
-  const { canSyncNow, synchronizeNow } = useSyncNow();
+  const { canSyncNow, synchronizeNow } = useSyncWithGitHubNow();
   const { refetch } = useCheckGitHubConfigQuery(enabled);
 
   const handleCreateConfiguration = () => {

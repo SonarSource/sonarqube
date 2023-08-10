@@ -24,7 +24,7 @@ import Link from '../../components/common/Link';
 import CheckIcon from '../../components/icons/CheckIcon';
 import { Alert } from '../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { useSyncStatusQuery } from '../../queries/github-sync';
+import { useGitHubSyncStatusQuery } from '../../queries/identity-provider';
 import { GithubStatusEnabled } from '../../types/provisioning';
 import { TaskStatuses } from '../../types/tasks';
 import './SystemAnnouncement.css';
@@ -108,7 +108,7 @@ function LastSyncAlert({ info, short }: LastSyncProps) {
 }
 
 function GitHubSynchronisationWarning({ short }: GitHubSynchronisationWarningProps) {
-  const { data } = useSyncStatusQuery();
+  const { data } = useGitHubSyncStatusQuery();
 
   if (!data) {
     return null;

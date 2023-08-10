@@ -26,14 +26,15 @@ import {
   checkConfigurationValidity,
   deactivateGithubProvisioning,
   deactivateScim,
+  fetchGithubProvisioningStatus,
   fetchIsScimEnabled,
-} from '../../../../../api/provisioning';
-import { getSystemInfo } from '../../../../../api/system';
-import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
-import { mapReactQueryResult } from '../../../../../helpers/react-query';
-import { useSyncStatusQuery } from '../../../../../queries/github-sync';
-import { Feature } from '../../../../../types/features';
-import { SysInfoCluster } from '../../../../../types/types';
+  syncNowGithubProvisioning,
+} from '../api/provisioning';
+import { getSystemInfo } from '../api/system';
+import { AvailableFeaturesContext } from '../app/components/available-features/AvailableFeaturesContext';
+import { mapReactQueryResult } from '../helpers/react-query';
+import { Feature } from '../types/features';
+import { SysInfoCluster } from '../types/types';
 
 export function useIdentityProviderQuery() {
   return useQuery(['identity_provider'], async () => {
@@ -53,12 +54,6 @@ export function useScimStatusQuery() {
   });
 }
 
-export function useGithubStatusQuery() {
-  const res = useSyncStatusQuery({ noRefetch: true });
-
-  return mapReactQueryResult(res, (data) => data.enabled);
-}
-
 export function useToggleScimMutation() {
   const client = useQueryClient();
   return useMutation({
@@ -76,7 +71,6 @@ export function useToggleGithubProvisioningMutation() {
       activate ? activateGithubProvisioning() : deactivateGithubProvisioning(),
     onSuccess: () => {
       client.invalidateQueries({ queryKey: ['identity_provider'] });
-      client.invalidateQueries({ queryKey: ['github_sync'] });
     },
   });
 }
@@ -86,3 +80,38 @@ export const useCheckGitHubConfigQuery = (githubEnabled: boolean) => {
     enabled: githubEnabled,
   });
 };
+
+interface GithubSyncStatusOptions {
+  noRefetch?: boolean;
+}
+
+export function useGitHubSyncStatusQuery(options: GithubSyncStatusOptions = {}) {
+  const hasGithubProvisioning = useContext(AvailableFeaturesContext).includes(
+    Feature.GithubProvisioning
+  );
+  return useQuery(['identity_provider', 'github_sync', 'status'], fetchGithubProvisioningStatus, {
+    enabled: hasGithubProvisioning,
+    refetchInterval: options.noRefetch ? undefined : 10_000,
+  });
+}
+
+export function useGithubProvisioningEnabledQuery() {
+  const res = useGitHubSyncStatusQuery({ noRefetch: true });
+
+  return mapReactQueryResult(res, (data) => data.enabled);
+}
+
+export function useSyncWithGitHubNow() {
+  const queryClient = useQueryClient();
+  const { data } = useGitHubSyncStatusQuery();
+  const mutation = useMutation(syncNowGithubProvisioning, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['identity_provider', 'github_sync']);
+    },
+  });
+
+  return {
+    synchronizeNow: mutation.mutate,
+    canSyncNow: data?.enabled && !data.nextSync && !mutation.isLoading,
+  };
+}

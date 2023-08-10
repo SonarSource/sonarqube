@@ -19,10 +19,10 @@
  */
 import { partition } from 'lodash';
 import * as React from 'react';
-import { useGithubStatusQuery } from '../../apps/settings/components/authentication/queries/identity-provider';
 import UseQuery from '../../helpers/UseQuery';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
+import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider';
 import { Dict, PermissionDefinitions, PermissionGroup, PermissionUser } from '../../types/types';
 import GroupHolder from './GroupHolder';
 import PermissionHeader from './PermissionHeader';
@@ -105,7 +105,7 @@ export default class HoldersList extends React.PureComponent<Props, State> {
   renderItem(item: PermissionUser | PermissionGroup, permissions: PermissionDefinitions) {
     const { isGitHubProject, selectedPermission, isComponentPrivate } = this.props;
     return (
-      <UseQuery key={this.getKey(item)} query={useGithubStatusQuery}>
+      <UseQuery key={this.getKey(item)} query={useGithubProvisioningEnabledQuery}>
         {({ data: githubProvisioningStatus }) => (
           <>
             {this.isPermissionUser(item) ? (

@@ -30,8 +30,12 @@ import DeleteIcon from '../../../../components/icons/DeleteIcon';
 import EditIcon from '../../../../components/icons/EditIcon';
 import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
+import {
+  useIdentityProviderQuery,
+  useToggleScimMutation,
+} from '../../../../queries/identity-provider';
+import { useSaveValueMutation } from '../../../../queries/settings';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
-import { useSaveValueMutation } from '../../queries/settings';
 import { getPropertyName } from '../../utils';
 import DefinitionDescription from '../DefinitionDescription';
 import ConfigurationForm from './ConfigurationForm';
@@ -40,7 +44,6 @@ import useSamlConfiguration, {
   SAML_GROUP_NAME,
   SAML_SCIM_DEPRECATED,
 } from './hook/useSamlConfiguration';
-import { useIdentityProviderQuery, useToggleScimMutation } from './queries/identity-provider';
 
 interface SamlAuthenticationProps {
   definitions: ExtendedSettingDefinition[];

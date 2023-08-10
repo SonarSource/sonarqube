@@ -34,14 +34,14 @@ import * as React from 'react';
 import { useState } from 'react';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { BranchLike } from '../../../types/branch-like';
-import { MetricKey } from '../../../types/metrics';
-import { Component } from '../../../types/types';
 import {
   useBadgeMetricsQuery,
   useBadgeTokenQuery,
   useRenewBagdeTokenMutation,
-} from '../query/badges';
+} from '../../../queries/badges';
+import { BranchLike } from '../../../types/branch-like';
+import { MetricKey } from '../../../types/metrics';
+import { Component } from '../../../types/types';
 import { BadgeFormats, BadgeOptions, BadgeType, getBadgeSnippet, getBadgeUrl } from './utils';
 
 export interface ProjectBadgesProps {

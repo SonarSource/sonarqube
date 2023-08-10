@@ -27,9 +27,9 @@ import QualifierIcon from '../../components/icons/QualifierIcon';
 import DateFormatter from '../../components/intl/DateFormatter';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getComponentOverviewUrl } from '../../helpers/urls';
+import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider';
 import { ComponentQualifier } from '../../types/component';
 import { LoggedInUser } from '../../types/users';
-import { useGithubStatusQuery } from '../settings/components/authentication/queries/identity-provider';
 import './ProjectRow.css';
 import ProjectRowActions from './ProjectRowActions';
 
@@ -42,7 +42,7 @@ interface Props {
 
 export default function ProjectRow(props: Props) {
   const { currentUser, project, selected } = props;
-  const { data: githubProvisioningEnabled } = useGithubStatusQuery();
+  const { data: githubProvisioningEnabled } = useGithubProvisioningEnabledQuery();
 
   const handleProjectCheck = (checked: boolean) => {
     props.onProjectCheck(project, checked);
