@@ -172,6 +172,9 @@ const ui = {
     configurationValidityError: byRole('status', {
       name: /github.configuration.validation.invalid/,
     }),
+    configurationValidityWarning: byRole('status', {
+      name: /github.configuration.validation.valid.short/,
+    }),
     checkConfigButton: byRole('button', {
       name: 'settings.authentication.github.configuration.validation.test',
     }),
@@ -529,8 +532,16 @@ describe('Github tab', () => {
     it('should display that config is valid for both provisioning with multiple orgs', async () => {
       handler.setConfigurationValidity({
         installations: [
-          { organization: 'org1', autoProvisioning: { status: GitHubProvisioningStatus.Success } },
-          { organization: 'org2', autoProvisioning: { status: GitHubProvisioningStatus.Success } },
+          {
+            organization: 'org1',
+            autoProvisioning: { status: GitHubProvisioningStatus.Success },
+            jit: { status: GitHubProvisioningStatus.Success },
+          },
+          {
+            organization: 'org2',
+            autoProvisioning: { status: GitHubProvisioningStatus.Success },
+            jit: { status: GitHubProvisioningStatus.Success },
+          },
         ],
       });
       renderAuthentication([Feature.GithubProvisioning]);
@@ -551,10 +562,55 @@ describe('Github tab', () => {
       );
     });
 
-    it('should display that config is valid but some organizatios were not found', async () => {
+    it('should display that config is invalid for autoprovisioning if some apps are suspended but valid for jit', async () => {
+      const errorMessage = 'Installation suspended';
       handler.setConfigurationValidity({
         installations: [
-          { organization: 'org1', autoProvisioning: { status: GitHubProvisioningStatus.Success } },
+          {
+            organization: 'org1',
+            autoProvisioning: {
+              status: GitHubProvisioningStatus.Failed,
+              errorMessage,
+            },
+            jit: {
+              status: GitHubProvisioningStatus.Failed,
+              errorMessage,
+            },
+          },
+        ],
+      });
+
+      renderAuthentication([Feature.GithubProvisioning]);
+      await github.enableConfiguration(user);
+
+      await waitFor(() => expect(github.configurationValidityWarning.get()).toBeInTheDocument());
+      expect(github.configurationValidityWarning.get()).toHaveTextContent(errorMessage);
+
+      await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
+      expect(github.getConfigDetailsTitle()).toHaveTextContent(
+        'settings.authentication.github.configuration.validation.details.valid_label'
+      );
+      expect(github.getOrgs()[0]).toHaveTextContent(
+        'settings.authentication.github.configuration.validation.details.invalid_labelorg1 - Installation suspended'
+      );
+
+      await act(() =>
+        user.click(within(github.configDetailsDialog.get()).getByRole('button', { name: 'close' }))
+      );
+
+      await user.click(github.githubProvisioningButton.get());
+      await waitFor(() => expect(github.configurationValidityError.get()).toBeInTheDocument());
+      expect(github.configurationValidityError.get()).toHaveTextContent(errorMessage);
+    });
+
+    it('should display that config is valid but some organizations were not found', async () => {
+      handler.setConfigurationValidity({
+        installations: [
+          {
+            organization: 'org1',
+            autoProvisioning: { status: GitHubProvisioningStatus.Success },
+            jit: { status: GitHubProvisioningStatus.Success },
+          },
         ],
       });
 
@@ -645,9 +701,14 @@ describe('Github tab', () => {
       const errorMessage = 'Test error';
       handler.setConfigurationValidity({
         installations: [
-          { organization: 'org1', autoProvisioning: { status: GitHubProvisioningStatus.Success } },
+          {
+            organization: 'org1',
+            autoProvisioning: { status: GitHubProvisioningStatus.Success },
+            jit: { status: GitHubProvisioningStatus.Success },
+          },
           {
             organization: 'org2',
+            jit: { status: GitHubProvisioningStatus.Failed, errorMessage },
             autoProvisioning: { status: GitHubProvisioningStatus.Failed, errorMessage },
           },
         ],
@@ -663,7 +724,7 @@ describe('Github tab', () => {
         'settings.authentication.github.configuration.validation.details.valid_labelorg1'
       );
       expect(github.getOrgs()[1]).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_labelorg2'
+        'settings.authentication.github.configuration.validation.details.invalid_labelorg2 - Test error'
       );
 
       await act(() =>

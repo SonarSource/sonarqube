@@ -74,38 +74,43 @@ export default function GitHubConfigurationValidity({
     }
 
     const invalidOrgs =
-      isValidApp && isAutoProvisioning && data
+      isValidApp && data
         ? data.installations.filter(
-            (org) => org.autoProvisioning.status === GitHubProvisioningStatus.Failed
+            (org) => org[applicationField].status === GitHubProvisioningStatus.Failed
           )
         : [];
+
+    const invalidOrgsMessages = invalidOrgs.map((org) =>
+      translateWithParameters(
+        `${intlPrefix}.invalid_org`,
+        org.organization,
+        org[applicationField].errorMessage ?? ''
+      )
+    );
 
     if (isValidApp && invalidOrgs.length === 0) {
       setMessages([
         translateWithParameters(
           `${intlPrefix}.valid${data.installations.length === 1 ? '_one' : ''}`,
-          isAutoProvisioning
-            ? translate('settings.authentication.github.form.provisioning_with_github_short')
-            : translate('settings.authentication.form.provisioning_at_login_short'),
+          translate(
+            `settings.authentication.github.form.provisioning_with_github_short.${applicationField}`
+          ),
           data.installations.length === 1
             ? data.installations[0].organization
             : data.installations.length
         ),
       ]);
       setAlertVariant('success');
+    } else if (isValidApp && !isAutoProvisioning) {
+      setMessages([translate(`${intlPrefix}.valid.short`), ...invalidOrgsMessages]);
+      setAlertVariant('warning');
     } else {
       setMessages([
         translateWithParameters(
           `${intlPrefix}.invalid`,
           data?.application[applicationField].errorMessage ?? ''
         ),
-        ...invalidOrgs.map((org) =>
-          translateWithParameters(
-            `${intlPrefix}.invalid_org`,
-            org.organization,
-            org.autoProvisioning.errorMessage ?? ''
-          )
-        ),
+        ...invalidOrgsMessages,
       ]);
       setAlertVariant('error');
     }
@@ -152,16 +157,12 @@ export default function GitHubConfigurationValidity({
               {data?.installations.map((inst) => (
                 <li key={inst.organization}>
                   <ValidityIcon
-                    valid={
-                      !isAutoProvisioning ||
-                      inst.autoProvisioning.status === GitHubProvisioningStatus.Success
-                    }
+                    valid={inst[applicationField].status === GitHubProvisioningStatus.Success}
                   />
                   <span className="sw-ml-2">{inst.organization}</span>
-                  {isAutoProvisioning &&
-                    inst.autoProvisioning.status === GitHubProvisioningStatus.Failed && (
-                      <span> - {inst.autoProvisioning.errorMessage}</span>
-                    )}
+                  {inst[applicationField].status === GitHubProvisioningStatus.Failed && (
+                    <span> - {inst[applicationField].errorMessage}</span>
+                  )}
                 </li>
               ))}
               {failedOrgs.map((fo) => (

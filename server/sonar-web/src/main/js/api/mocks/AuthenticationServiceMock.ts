@@ -48,6 +48,9 @@ const defaultConfigurationStatus: GitHubConfigurationStatus = {
       autoProvisioning: {
         status: GitHubProvisioningStatus.Success,
       },
+      jit: {
+        status: GitHubProvisioningStatus.Success,
+      },
     },
   ],
 };

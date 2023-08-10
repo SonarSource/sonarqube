@@ -70,6 +70,7 @@ export interface GitHubConfigurationStatus {
   };
   installations: {
     organization: string;
+    jit: GitHubProvisioning;
     autoProvisioning: GitHubProvisioning;
   }[];
 }
