@@ -33,6 +33,12 @@ public class ImpactDto implements Serializable {
     // nothing to do
   }
 
+  public ImpactDto(String uuid, SoftwareQuality softwareQuality, Severity severity) {
+    this.uuid = uuid;
+    this.softwareQuality = softwareQuality;
+    this.severity = severity;
+  }
+
   public String getUuid() {
     return uuid;
   }

@@ -101,7 +101,7 @@ public class IssueQuery {
   private final Boolean newCodeOnReference;
   private final Collection<String> newCodeOnReferenceByProjectUuids;
   private final Collection<String> codeVariants;
-  private Collection<String> cleanCodeAttributesCategories;
+  private final Collection<String> cleanCodeAttributesCategories;
 
   private IssueQuery(Builder builder) {
     this.issueKeys = defaultCollection(builder.issueKeys);

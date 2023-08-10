@@ -60,6 +60,7 @@ public class DeleteCommentAction implements IssuesWsAction {
         "Requires authentication and the following permission: 'Browse' on the project of the specified issue.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
         new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),
         new Change("8.8", "The response field components.uuid is removed"),
         new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."),

@@ -54,10 +54,8 @@ public class IssuesWsParameters {
   public static final String PARAM_TYPE = "type";
   public static final String PARAM_ISSUES = "issues";
   public static final String PARAM_SEVERITIES = "severities";
-  public static final String PARAM_SOFTWARE_QUALITIES = "softwareQualities";
-
-  //TODO: To be discussed for the naming
-  public static final String PARAM_SOFTWARE_QUALITIES_SEVERTIIES = "softwareQualitiesSeverities";
+  public static final String PARAM_IMPACT_SOFTWARE_QUALITIES = "impactSoftwareQualities";
+  public static final String PARAM_IMPACT_SEVERITIES = "impactSeverities";
   public static final String PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES = "cleanCodeAttributeCategories";
   public static final String PARAM_STATUSES = "statuses";
   public static final String PARAM_RESOLUTIONS = "resolutions";

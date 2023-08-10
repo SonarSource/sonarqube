@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue;
 
+import java.util.List;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
@@ -54,7 +55,10 @@ public class SearchRequestTest {
       .setOwaspAsvsLevel(2)
       .setPciDss32(asList("1", "4"))
       .setPciDss40(asList("3", "5"))
-      .setCodeVariants(asList("variant1", "variant2"));
+      .setCodeVariants(asList("variant1", "variant2"))
+      .setCleanCodeAttributesCategories(singletonList("ADAPTABLE"))
+      .setImpactSeverities(List.of("HIGH", "LOW"))
+      .setImpactSoftwareQualities(List.of("RELIABILITY", "SECURITY"));
 
     assertThat(underTest.getIssues()).containsOnlyOnce("anIssueKey");
     assertThat(underTest.getSeverities()).containsExactly("MAJOR", "MINOR");
@@ -81,6 +85,9 @@ public class SearchRequestTest {
     assertThat(underTest.getPciDss32()).containsExactly("1", "4");
     assertThat(underTest.getPciDss40()).containsExactly("3", "5");
     assertThat(underTest.getCodeVariants()).containsExactly("variant1", "variant2");
+    assertThat(underTest.getCleanCodeAttributesCategories()).containsExactly("ADAPTABLE");
+    assertThat(underTest.getImpactSeverities()).containsExactly("HIGH", "LOW");
+    assertThat(underTest.getImpactSoftwareQualities()).containsExactly("RELIABILITY", "SECURITY");
   }
 
   @Test

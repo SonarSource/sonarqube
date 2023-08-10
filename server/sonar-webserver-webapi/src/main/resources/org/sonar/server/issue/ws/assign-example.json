@@ -3,6 +3,14 @@
     "key": "AVibidgv1LF0E-ru2DVv",
     "rule": "squid:S2301",
     "severity": "MAJOR",
+    "cleanCodeAttribute": "CLEAR",
+    "cleanCodeAttributeCategory": "INTENTIONAL",
+    "impacts": [
+      {
+        "softwareQuality": "SECURITY",
+        "severity": "HIGH"
+      }
+    ],
     "component": "org.sonarsource.sonarlint.intellij:sonarlint-intellij:src/main/java/org/sonarlint/intellij/core/ServerIssueUpdater.java",
     "project": "org.sonarsource.sonarlint.intellij:sonarlint-intellij",
     "line": 78,

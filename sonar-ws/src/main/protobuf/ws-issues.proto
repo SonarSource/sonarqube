@@ -163,6 +163,9 @@ message Issue {
   repeated sonarqube.ws.commons.MessageFormatting messageFormattings = 38;
 
   repeated string codeVariants = 39;
+  optional sonarqube.ws.commons.CleanCodeAttribute cleanCodeAttribute = 40;
+  optional sonarqube.ws.commons.CleanCodeAttributeCategory cleanCodeAttributeCategory = 41;
+  repeated sonarqube.ws.commons.Impact impacts = 42;
 }
 
 message Transitions {
@@ -289,6 +292,9 @@ message TaintVulnerabilityLite {
   repeated Flow flows = 9;
   optional bool assignedToSubscribedUser = 10;
   optional string ruleDescriptionContextKey = 11;
+  optional sonarqube.ws.commons.CleanCodeAttribute cleanCodeAttribute = 12;
+  optional sonarqube.ws.commons.CleanCodeAttributeCategory cleanCodeAttributeCategory = 13;
+  repeated sonarqube.ws.commons.Impact impacts = 14;
 }
 
 message Flow {

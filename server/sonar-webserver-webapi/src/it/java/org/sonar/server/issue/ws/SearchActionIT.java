@@ -26,6 +26,7 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -35,6 +36,7 @@ import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -51,6 +53,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.permission.GroupPermissionDto;
@@ -123,6 +126,8 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CODE_VARIAN
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_HIDE_COMMENTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SEVERITIES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SOFTWARE_QUALITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE_PERIOD;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
@@ -227,7 +232,8 @@ public class SearchActionIT {
         .getIssuesList()
         .get(0)
         .getActions()
-        .getActionsList()).isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY, ACTION_ASSIGN));
+        .getActionsList())
+      .isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY, ACTION_ASSIGN));
 
     response = ws.newRequest()
       .setParam(PARAM_ADDITIONAL_FIELDS, "actions")
@@ -239,7 +245,8 @@ public class SearchActionIT {
         .getIssuesList()
         .get(0)
         .getActions()
-        .getActionsList()).isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY));
+        .getActionsList())
+      .isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY));
   }
 
   @Test
@@ -580,6 +587,152 @@ public class SearchActionIT {
       .setParam(FACETS, PARAM_CODE_VARIANTS)
       .execute()
       .assertJson(this.getClass(), "search_by_variants_with_facets.json");
+  }
+
+  @Test
+  public void search_whenImpactSoftwareQualitiesFacetRequested_shouldReturnFacet() {
+    RuleDto rule = newIssueRule();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
+    IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i
+      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH))
+      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)));
+    IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i
+      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)));
+    IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i
+      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM))
+      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW)));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(FACETS, PARAM_IMPACT_SOFTWARE_QUALITIES)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issue1.getKey(), issue2.getKey(), issue3.getKey());
+
+    Optional<Common.Facet> first = response.getFacets().getFacetsList()
+      .stream().filter(facet -> facet.getProperty().equals(PARAM_IMPACT_SOFTWARE_QUALITIES))
+      .findFirst();
+    assertThat(first.get().getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactlyInAnyOrder(
+        tuple("MAINTAINABILITY", 3L),
+        tuple("RELIABILITY", 3L),
+        tuple("SECURITY", 2L));
+  }
+
+  @Test
+  public void search_whenFilteredByImpactSeverities_shouldReturnImpactSoftwareQualitiesFacet() {
+    RuleDto rule = newIssueRule();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
+    IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i
+      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH))
+      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)));
+    IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i
+      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)));
+    IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i
+      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM))
+      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW)));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(PARAM_IMPACT_SEVERITIES, org.sonar.api.issue.impact.Severity.LOW.name())
+      .setParam(FACETS, PARAM_IMPACT_SOFTWARE_QUALITIES)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issue3.getKey())
+      .doesNotContain(issue1.getKey(), issue2.getKey());
+
+    Optional<Common.Facet> first = response.getFacets().getFacetsList()
+      .stream().filter(facet -> facet.getProperty().equals(PARAM_IMPACT_SOFTWARE_QUALITIES))
+      .findFirst();
+    assertThat(first.get().getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactlyInAnyOrder(
+        tuple("MAINTAINABILITY", 0L),
+        tuple("RELIABILITY", 1L),
+        tuple("SECURITY", 0L));
+  }
+
+  @Test
+  public void search_whenImpactSeveritiesFacetRequested_shouldReturnFacet() {
+    RuleDto rule = newIssueRule();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
+    IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
+      new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH),
+      new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
+    IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
+      new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
+    IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
+      new ImpactDto(uuidFactory.create(), SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW),
+      new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM),
+      new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW))));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(FACETS, PARAM_IMPACT_SEVERITIES)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issue1.getKey(), issue2.getKey(), issue3.getKey());
+
+    Optional<Common.Facet> first = response.getFacets().getFacetsList()
+      .stream().filter(facet -> facet.getProperty().equals(PARAM_IMPACT_SEVERITIES))
+      .findFirst();
+    assertThat(first.get().getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactlyInAnyOrder(
+        tuple("HIGH", 2L),
+        tuple("MEDIUM", 1L),
+        tuple("LOW", 1L));
+  }
+
+  @Test
+  public void search_whenFilteredByImpactSoftwareQualities_shouldReturnFacet() {
+    RuleDto rule = newIssueRule();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
+    IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
+      new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH),
+      new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
+    IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
+      new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
+    IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
+      new ImpactDto(uuidFactory.create(), SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW),
+      new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM),
+      new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW))));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(PARAM_IMPACT_SOFTWARE_QUALITIES, SoftwareQuality.SECURITY.name())
+      .setParam(FACETS, PARAM_IMPACT_SEVERITIES)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issue1.getKey(), issue3.getKey())
+      .doesNotContain(issue2.getKey());
+
+    Optional<Common.Facet> first = response.getFacets().getFacetsList()
+      .stream().filter(facet -> facet.getProperty().equals(PARAM_IMPACT_SEVERITIES))
+      .findFirst();
+    assertThat(first.get().getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactlyInAnyOrder(
+        tuple("HIGH", 1L),
+        tuple("MEDIUM", 1L),
+        tuple("LOW", 0L));
   }
 
   @Test
@@ -1790,8 +1943,8 @@ public class SearchActionIT {
       "additionalFields", "asc", "assigned", "assignees", "author", "components", "branch", "pullRequest", "createdAfter", "createdAt",
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4.0", "owaspAsvs-4.0",
-      "owaspAsvsLevel", "owaspTop10",
-      "owaspTop10-2021", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod", "codeVariants");
+      "owaspAsvsLevel", "owaspTop10", "owaspTop10-2021", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod", "codeVariants",
+      "cleanCodeAttributeCategories", "impactSeverities", "impactSoftwareQualities");
 
     WebService.Param branch = def.param(PARAM_BRANCH);
     assertThat(branch.isInternal()).isFalse();

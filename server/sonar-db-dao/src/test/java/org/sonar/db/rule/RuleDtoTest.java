@@ -24,15 +24,11 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.api.rule.RuleScope;
-import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.issue.ImpactDto;
 
@@ -41,8 +37,6 @@ import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.db.rule.RuleDto.ERROR_MESSAGE_SECTION_ALREADY_EXISTS;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
@@ -248,10 +242,6 @@ public class RuleDtoTest {
   }
 
   public static ImpactDto newImpactDto(SoftwareQuality softwareQuality, Severity severity) {
-    return new ImpactDto()
-      .setUuid(UuidFactoryFast.getInstance().create())
-      .setSoftwareQuality(softwareQuality)
-      .setSeverity(severity);
+    return new ImpactDto(UuidFactoryFast.getInstance().create(), softwareQuality, severity);
   }
-
 }

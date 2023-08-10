@@ -13,6 +13,14 @@
       "status": "RESOLVED",
       "resolution": "WONTFIX",
       "severity": "MAJOR",
+      "cleanCodeAttribute": "CLEAR",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "SECURITY",
+          "severity": "HIGH"
+        }
+      ],
       "message": "Remove this unused private \"getKee\" method.",
       "messageFormattings": [
         {

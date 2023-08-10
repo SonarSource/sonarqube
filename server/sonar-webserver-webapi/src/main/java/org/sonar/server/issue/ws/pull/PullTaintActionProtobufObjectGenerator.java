@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -95,6 +96,20 @@ public class PullTaintActionProtobufObjectGenerator implements ProtobufObjectGen
       taintBuilder.setSeverity(Common.Severity.valueOf(issueDto.getSeverity()));
     }
     taintBuilder.setType(Common.RuleType.forNumber(issueDto.getType()));
+    CleanCodeAttribute cleanCodeAttribute = issueDto.getCleanCodeAttribute();
+    String cleanCodeAttributeString = cleanCodeAttribute != null ? cleanCodeAttribute.name() : null;
+    String cleanCodeAttributeCategoryString = cleanCodeAttribute != null ? cleanCodeAttribute.getAttributeCategory().name() : null;
+    if (cleanCodeAttributeString != null) {
+      taintBuilder.setCleanCodeAttribute(Common.CleanCodeAttribute.valueOf(cleanCodeAttributeString));
+      taintBuilder.setCleanCodeAttributeCategory(Common.CleanCodeAttributeCategory.valueOf(cleanCodeAttributeCategoryString));
+    }
+    taintBuilder.addAllImpacts(issueDto.getEffectiveImpacts().entrySet()
+      .stream().map(entry -> Common.Impact.newBuilder()
+        .setSoftwareQuality(Common.SoftwareQuality.valueOf(entry.getKey().name()))
+        .setSeverity(Common.ImpactSeverity.valueOf(entry.getValue().name()))
+        .build())
+      .toList());
+
     taintBuilder.setClosed(false);
     taintBuilder.setMainLocation(locationBuilder.build());
     issueDto.getOptionalRuleDescriptionContextKey().ifPresent(taintBuilder::setRuleDescriptionContextKey);

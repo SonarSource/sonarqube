@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
@@ -172,6 +173,21 @@ public class SearchResponseFormat {
   private void addMandatoryFieldsToIssueBuilder(Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data) {
     issueBuilder.setKey(dto.getKey());
     issueBuilder.setType(Common.RuleType.forNumber(dto.getType()));
+
+    CleanCodeAttribute cleanCodeAttribute = dto.getCleanCodeAttribute();
+    String cleanCodeAttributeString = cleanCodeAttribute != null ? cleanCodeAttribute.name() : null;
+    String cleanCodeAttributeCategoryString = cleanCodeAttribute != null ? cleanCodeAttribute.getAttributeCategory().name() : null;
+    if (cleanCodeAttributeString != null) {
+      issueBuilder.setCleanCodeAttribute(Common.CleanCodeAttribute.valueOf(cleanCodeAttributeString));
+      issueBuilder.setCleanCodeAttributeCategory(Common.CleanCodeAttributeCategory.valueOf(cleanCodeAttributeCategoryString));
+    }
+    issueBuilder.addAllImpacts(dto.getEffectiveImpacts().entrySet()
+      .stream()
+      .map(entry -> Common.Impact.newBuilder()
+        .setSoftwareQuality(Common.SoftwareQuality.valueOf(entry.getKey().name()))
+        .setSeverity(Common.ImpactSeverity.valueOf(entry.getValue().name()))
+        .build())
+      .toList());
 
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
     issueBuilder.setComponent(component.getKey());

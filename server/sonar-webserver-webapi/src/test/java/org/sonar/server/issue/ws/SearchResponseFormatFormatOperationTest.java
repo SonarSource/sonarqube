@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.db.DbTester;
@@ -51,6 +52,7 @@ import static java.lang.System.currentTimeMillis;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -122,6 +124,8 @@ public class SearchResponseFormatFormatOperationTest {
 
   private void assertIssueEqualsIssueDto(Issue issue, IssueDto issueDto) {
     assertThat(issue.getKey()).isEqualTo(issueDto.getKey());
+    assertThat(issue.getCleanCodeAttribute()).isEqualTo(Common.CleanCodeAttribute.valueOf(issueDto.getCleanCodeAttribute().name()));
+    assertThat(issue.getCleanCodeAttributeCategory()).isEqualTo(Common.CleanCodeAttributeCategory.valueOf(issueDto.getCleanCodeAttribute().getAttributeCategory().name()));
     assertThat(issue.getType().getNumber()).isEqualTo(issueDto.getType());
     assertThat(issue.getComponent()).isEqualTo(issueDto.getComponentKey());
     assertThat(issue.getRule()).isEqualTo(issueDto.getRuleKey().toString());
@@ -140,6 +144,13 @@ public class SearchResponseFormatFormatOperationTest {
     assertThat(issue.getQuickFixAvailable()).isEqualTo(issueDto.isQuickFixAvailable());
     assertThat(issue.getRuleDescriptionContextKey()).isEqualTo(issueDto.getOptionalRuleDescriptionContextKey().orElse(null));
     assertThat(new ArrayList<>(issue.getCodeVariantsList())).containsExactlyInAnyOrderElementsOf(issueDto.getCodeVariants());
+    assertThat(issue.getImpactsList())
+      .extracting(Common.Impact::getSoftwareQuality, Common.Impact::getSeverity)
+      .containsExactlyInAnyOrderElementsOf(issueDto.getEffectiveImpacts()
+        .entrySet()
+        .stream()
+        .map(entry -> tuple(Common.SoftwareQuality.valueOf(entry.getKey().name()), Common.ImpactSeverity.valueOf(entry.getValue().name())))
+        .collect(toList()));
   }
 
   @Test
@@ -295,6 +306,7 @@ public class SearchResponseFormatFormatOperationTest {
     componentDto = component;
     issueDto = newIssue(ruleDto, component.branchUuid(), component.getKey(), component)
       .setType(CODE_SMELL)
+      .setCleanCodeAttribute(CleanCodeAttribute.CLEAR)
       .setRuleDescriptionContextKey("context_key_" + randomAlphanumeric(5))
       .setAssigneeUuid(userDto.getUuid())
       .setResolution("resolution_" + randomAlphanumeric(5))

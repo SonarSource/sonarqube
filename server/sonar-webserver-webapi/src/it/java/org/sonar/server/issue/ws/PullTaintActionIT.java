@@ -56,9 +56,11 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.USER;
@@ -253,6 +255,18 @@ public class PullTaintActionIT {
     assertThat(taintLite.getRuleKey()).isEqualTo("javasecurity:S1000");
     assertThat(taintLite.getType()).isEqualTo(Common.RuleType.forNumber(issueDto.getType()));
     assertThat(taintLite.getAssignedToSubscribedUser()).isTrue();
+    assertThat(taintLite.getCleanCodeAttribute())
+      .isEqualTo(Common.CleanCodeAttribute.valueOf(issueDto.getCleanCodeAttribute().name()));
+    assertThat(taintLite.getCleanCodeAttributeCategory())
+      .isEqualTo(Common.CleanCodeAttributeCategory.valueOf(issueDto.getCleanCodeAttribute().getAttributeCategory().name()));
+
+    assertThat(taintLite.getImpactsList())
+      .extracting(Common.Impact::getSoftwareQuality, Common.Impact::getSeverity)
+      .containsExactlyInAnyOrderElementsOf(issueDto.getEffectiveImpacts()
+        .entrySet()
+        .stream()
+        .map(entry -> tuple(Common.SoftwareQuality.valueOf(entry.getKey().name()), Common.ImpactSeverity.valueOf(entry.getValue().name())))
+        .collect(toList()));
 
     Issues.Location location = taintLite.getMainLocation();
     assertThat(location.getMessage()).isEqualTo(issueDto.getMessage());

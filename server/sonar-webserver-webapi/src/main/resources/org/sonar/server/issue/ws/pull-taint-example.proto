@@ -1,20 +1,23 @@
-# The response contains a single protocol buffer message: TaintVulnerabilityPullQueryTimestamp followed by 0..n number of TaintLite protocol buffer messages.
+# The response contains a single protocol buffer message: TaintVulnerabilityPullQueryTimestamp followed by 0..n number of TaintVulnerabilityLite protocol buffer messages.
 message TaintVulnerabilityPullQueryTimestamp {
   required int64 queryTimestamp = 1;
 }
 
-message TaintLite {
+message TaintVulnerabilityLite {
   required string key = 1;
   optional int64 creationDate = 2;
   optional bool resolved = 3;
   optional string ruleKey = 4;
-  optional string severity = 5;
-  optional string type = 6;
+  optional sonarqube.ws.commons.Severity severity = 5;
+  optional sonarqube.ws.commons.RuleType type = 6;
   optional Location mainLocation = 7;
   optional bool closed = 8;
-  optional Flow flows = 9;
+  repeated Flow flows = 9;
   optional bool assignedToSubscribedUser = 10;
   optional string ruleDescriptionContextKey = 11;
+  optional sonarqube.ws.commons.CleanCodeAttribute cleanCodeAttribute = 12;
+  optional sonarqube.ws.commons.CleanCodeAttributeCategory cleanCodeAttributeCategory = 13;
+  repeated sonarqube.ws.commons.Impact impacts = 14;
 }
 
 message Location {

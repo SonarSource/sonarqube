@@ -57,6 +57,9 @@ public class SearchRequest {
   private List<String> rules;
   private String sort;
   private List<String> severities;
+  private List<String> impactSeverities;
+  private List<String> impactSoftwareQualities;
+  private List<String> cleanCodeAttributesCategories;
   private List<String> statuses;
   private List<String> tags;
   private Set<String> types;
@@ -510,6 +513,33 @@ public class SearchRequest {
 
   public SearchRequest setCodeVariants(@Nullable List<String> codeVariants) {
     this.codeVariants = codeVariants;
+    return this;
+  }
+
+  public List<String> getImpactSeverities() {
+    return impactSeverities;
+  }
+
+  public SearchRequest setImpactSeverities(@Nullable List<String> impactSeverities) {
+    this.impactSeverities = impactSeverities;
+    return this;
+  }
+
+  public List<String> getImpactSoftwareQualities() {
+    return impactSoftwareQualities;
+  }
+
+  public SearchRequest setImpactSoftwareQualities(@Nullable List<String> impactSoftwareQualities) {
+    this.impactSoftwareQualities = impactSoftwareQualities;
+    return this;
+  }
+
+  public List<String> getCleanCodeAttributesCategories() {
+    return cleanCodeAttributesCategories;
+  }
+
+  public SearchRequest setCleanCodeAttributesCategories(@Nullable List<String> cleanCodeAttributesCategories) {
+    this.cleanCodeAttributesCategories = cleanCodeAttributesCategories;
     return this;
   }
 }

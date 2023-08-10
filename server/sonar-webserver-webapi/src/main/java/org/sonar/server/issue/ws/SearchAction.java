@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,9 @@ import javax.annotation.Nullable;
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.CleanCodeAttributeCategory;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -94,6 +97,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHOR;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CODE_VARIANTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
@@ -122,6 +126,8 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SCOPES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITIES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SOFTWARE_QUALITIES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SEVERITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SONARSOURCE_SECURITY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
@@ -157,10 +163,15 @@ public class SearchAction implements IssuesWsAction {
     PARAM_CWE,
     PARAM_CREATED_AT,
     PARAM_SONARSOURCE_SECURITY,
-    PARAM_CODE_VARIANTS
+    PARAM_CODE_VARIANTS,
+    PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES,
+    PARAM_IMPACT_SOFTWARE_QUALITIES,
+    PARAM_IMPACT_SEVERITIES
   );
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
+  private static final String NEW_FACET_ADDED_MESSAGE = "Facet '%s' has been added";
+  private static final String NEW_PARAM_ADDED_MESSAGE = "Param '%s' has been added";
   private static final Set<String> FACETS_REQUIRING_PROJECT = newHashSet(PARAM_FILES, PARAM_DIRECTORIES);
 
   private final UserSession userSession;
@@ -194,6 +205,13 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
+        new Change("10.2", format(NEW_PARAM_ADDED_MESSAGE, PARAM_IMPACT_SOFTWARE_QUALITIES)),
+        new Change("10.2", format(NEW_PARAM_ADDED_MESSAGE, PARAM_IMPACT_SEVERITIES)),
+        new Change("10.2", format(NEW_PARAM_ADDED_MESSAGE, PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES)),
+        new Change("10.2", format(NEW_FACET_ADDED_MESSAGE, PARAM_IMPACT_SOFTWARE_QUALITIES)),
+        new Change("10.2", format(NEW_FACET_ADDED_MESSAGE, PARAM_IMPACT_SEVERITIES)),
+        new Change("10.2", format(NEW_FACET_ADDED_MESSAGE, PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES)),
         new Change("10.2", format("Parameter '%s' renamed to '%s'", PARAM_COMPONENT_KEYS, PARAM_COMPONENTS)),
         new Change("10.1", "Add the 'codeVariants' parameter, facet and response field"),
         new Change("10.0", "Parameter 'sansTop25' is deprecated"),
@@ -256,6 +274,21 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("Comma-separated list of severities")
       .setExampleValue(Severity.BLOCKER + "," + Severity.CRITICAL)
       .setPossibleValues(Severity.ALL);
+    action.createParam(PARAM_IMPACT_SOFTWARE_QUALITIES)
+      .setSince("10.2")
+      .setDescription("Comma-separated list of Software Qualities")
+      .setExampleValue(SoftwareQuality.MAINTAINABILITY + "," + SoftwareQuality.RELIABILITY)
+      .setPossibleValues(SoftwareQuality.values());
+    action.createParam(PARAM_IMPACT_SEVERITIES)
+      .setSince("10.2")
+      .setDescription("Comma-separated list of Software Quality Severities")
+      .setExampleValue(org.sonar.api.issue.impact.Severity.HIGH + "," + org.sonar.api.issue.impact.Severity.MEDIUM)
+      .setPossibleValues(org.sonar.api.issue.impact.Severity.values());
+    action.createParam(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES)
+      .setSince("10.2")
+      .setDescription("Comma-separated list of Clean Code Attribute Categories")
+      .setExampleValue(CleanCodeAttributeCategory.ADAPTABLE + "," + CleanCodeAttributeCategory.INTENTIONAL)
+      .setPossibleValues(CleanCodeAttributeCategory.values());
     action.createParam(PARAM_STATUSES)
       .setDescription("Comma-separated list of statuses")
       .setExampleValue(STATUS_OPEN + "," + STATUS_REOPENED)
@@ -482,6 +515,10 @@ public class SearchAction implements IssuesWsAction {
   private void completeFacets(Facets facets, SearchRequest request, IssueQuery query) {
     addMandatoryValuesToFacet(facets, PARAM_SEVERITIES, Severity.ALL);
     addMandatoryValuesToFacet(facets, PARAM_STATUSES, ISSUE_STATUSES);
+    addMandatoryValuesToFacet(facets, PARAM_IMPACT_SOFTWARE_QUALITIES, enumToStringCollection(SoftwareQuality.values()));
+    addMandatoryValuesToFacet(facets, PARAM_IMPACT_SEVERITIES, enumToStringCollection(org.sonar.api.issue.impact.Severity.values()));
+    addMandatoryValuesToFacet(facets, PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES, enumToStringCollection(CleanCodeAttributeCategory.values()));
+
     addMandatoryValuesToFacet(facets, PARAM_RESOLUTIONS, concat(singletonList(""), RESOLUTIONS));
     addMandatoryValuesToFacet(facets, FACET_PROJECTS, query.projectUuids());
     addMandatoryValuesToFacet(facets, PARAM_FILES, query.files());
@@ -510,6 +547,10 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_CWE, request.getCwe());
     addMandatoryValuesToFacet(facets, PARAM_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
     addMandatoryValuesToFacet(facets, PARAM_CODE_VARIANTS, request.getCodeVariants());
+  }
+
+  private static Collection<String> enumToStringCollection(Enum<?>... enumValues) {
+    return Arrays.stream(enumValues).map(Enum::name).toList();
   }
 
   private static void setTypesFacet(Facets facets) {
@@ -575,6 +616,9 @@ public class SearchAction implements IssuesWsAction {
       .setRules(request.paramAsStrings(PARAM_RULES))
       .setSort(request.param(Param.SORT))
       .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
+      .setImpactSeverities(request.paramAsStrings(PARAM_IMPACT_SEVERITIES))
+      .setImpactSoftwareQualities(request.paramAsStrings(PARAM_IMPACT_SOFTWARE_QUALITIES))
+      .setCleanCodeAttributesCategories(request.paramAsStrings(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES))
       .setStatuses(request.paramAsStrings(PARAM_STATUSES))
       .setTags(request.paramAsStrings(PARAM_TAGS))
       .setTypes(allRuleTypesExceptHotspotsIfEmpty(request.paramAsStrings(PARAM_TYPES)))

@@ -111,6 +111,7 @@ import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.elasticsearch.search.aggregations.AggregationBuilders.filters;
+import static org.elasticsearch.search.aggregations.AggregationBuilders.reverseNested;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
@@ -128,6 +129,8 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.CREATED_AT;
 import static org.sonar.server.issue.index.IssueIndex.Facet.CWE;
 import static org.sonar.server.issue.index.IssueIndex.Facet.DIRECTORIES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.FILES;
+import static org.sonar.server.issue.index.IssueIndex.Facet.IMPACT_SEVERITY;
+import static org.sonar.server.issue.index.IssueIndex.Facet.IMPACT_SOFTWARE_QUALITY;
 import static org.sonar.server.issue.index.IssueIndex.Facet.LANGUAGES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_ASVS_40;
 import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_TOP_10;
@@ -140,8 +143,6 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.RULES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.SANS_TOP_25;
 import static org.sonar.server.issue.index.IssueIndex.Facet.SCOPES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.SEVERITIES;
-import static org.sonar.server.issue.index.IssueIndex.Facet.IMPACT_SOFTWARE_QUALITY;
-import static org.sonar.server.issue.index.IssueIndex.Facet.IMPACT_SEVERITY;
 import static org.sonar.server.issue.index.IssueIndex.Facet.SONARSOURCE_SECURITY;
 import static org.sonar.server.issue.index.IssueIndex.Facet.STATUSES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.TAGS;
@@ -159,6 +160,9 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_FILE
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_FUNC_CLOSED_AT;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_FUNC_UPDATED_AT;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_IMPACTS;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_IMPACT_SEVERITY;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_IS_MAIN_BRANCH;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_KEY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_LANGUAGE;
@@ -176,9 +180,6 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SANS
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SCOPE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SEVERITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_IMPACTS;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_IMPACT_SEVERITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SQ_SECURITY_CATEGORY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_STATUS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TAGS;
@@ -199,6 +200,8 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CWE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SEVERITIES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SOFTWARE_QUALITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_ASVS_40;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
@@ -210,8 +213,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SCOPES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITIES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SOFTWARE_QUALITIES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SOFTWARE_QUALITIES_SEVERTIIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SONARSOURCE_SECURITY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
@@ -255,8 +256,8 @@ public class IssueIndex {
 
   public enum Facet {
     SEVERITIES(PARAM_SEVERITIES, FIELD_ISSUE_SEVERITY, STICKY, Severity.ALL.size()),
-    IMPACT_SOFTWARE_QUALITY(PARAM_SOFTWARE_QUALITIES, FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY, STICKY, SoftwareQuality.values().length),
-    IMPACT_SEVERITY(PARAM_SOFTWARE_QUALITIES_SEVERTIIES, FIELD_ISSUE_IMPACT_SEVERITY, STICKY,
+    IMPACT_SOFTWARE_QUALITY(PARAM_IMPACT_SOFTWARE_QUALITIES, FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY, STICKY, SoftwareQuality.values().length),
+    IMPACT_SEVERITY(PARAM_IMPACT_SEVERITIES, FIELD_ISSUE_IMPACT_SEVERITY, STICKY,
       org.sonar.api.issue.impact.Severity.values().length),
     CLEAN_CODE_ATTRIBUTE_CATEGORY(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES, FIELD_ISSUE_CLEAN_CODE_ATTRIBUTE_CATEGORY, STICKY, CleanCodeAttributeCategory.values().length),
     STATUSES(PARAM_STATUSES, FIELD_ISSUE_STATUS, STICKY, Issue.STATUSES.size()),
@@ -900,7 +901,7 @@ public class IssueIndex {
   }
 
   private static void addImpactSoftwareQualityFacetIfNeeded(SearchOptions options, IssueQuery query, TopAggregationHelper aggregationHelper, SearchSourceBuilder esRequest) {
-    if (!options.getFacets().contains(PARAM_SOFTWARE_QUALITIES)) {
+    if (!options.getFacets().contains(PARAM_IMPACT_SOFTWARE_QUALITIES)) {
       return;
     }
 
@@ -924,7 +925,7 @@ public class IssueIndex {
   }
 
   private static void addImpactSeverityFacetIfNeeded(SearchOptions options, IssueQuery query, TopAggregationHelper aggregationHelper, SearchSourceBuilder esRequest) {
-    if (!options.getFacets().contains(PARAM_SOFTWARE_QUALITIES_SEVERTIIES)) {
+    if (!options.getFacets().contains(PARAM_IMPACT_SEVERITIES)) {
       return;
     }
 
@@ -942,8 +943,9 @@ public class IssueIndex {
       IMPACT_SEVERITY.getName(), IMPACT_SEVERITY.getTopAggregationDef(),
       NO_EXTRA_FILTER,
       t -> t.subAggregation(AggregationBuilders.nested("nested_" + IMPACT_SEVERITY.getName(), FIELD_ISSUE_IMPACTS)
-        .subAggregation(filters(IMPACT_SEVERITY.getName(),
-          keyedFilters))));
+        .subAggregation(filters(IMPACT_SEVERITY.getName(), keyedFilters)
+          // we want to count the number of issues for each severity, so we need to reverse the nested aggregation
+          .subAggregation(reverseNested("reverse_nested_" + IMPACT_SOFTWARE_QUALITY.getName())))));
     esRequest.aggregation(aggregation);
   }
 
