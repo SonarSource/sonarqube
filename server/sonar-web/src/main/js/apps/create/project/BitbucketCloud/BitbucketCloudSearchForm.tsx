@@ -17,22 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, InputSearch, LightPrimary, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../../components/common/Link';
-import SearchBox from '../../../../components/controls/SearchBox';
-import Tooltip from '../../../../components/controls/Tooltip';
-import { Button } from '../../../../components/controls/buttons';
-import CheckIcon from '../../../../components/icons/CheckIcon';
-import QualifierIcon from '../../../../components/icons/QualifierIcon';
-import { Alert } from '../../../../components/ui/Alert';
-import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import { formatMeasure } from '../../../../helpers/measures';
-import { getProjectUrl, queryToSearch } from '../../../../helpers/urls';
+import ListFooter from '../../../../components/controls/ListFooter';
+import { translate } from '../../../../helpers/l10n';
+import { getBaseUrl } from '../../../../helpers/system';
+import { queryToSearch } from '../../../../helpers/urls';
 import { BitbucketCloudRepository } from '../../../../types/alm-integration';
-import { ComponentQualifier } from '../../../../types/component';
-import { MetricType } from '../../../../types/metrics';
+import AlmRepoItem from '../components/AlmRepoItem';
+import { BITBUCKET_CLOUD_PROJECTS_PAGESIZE } from '../constants';
 import { CreateProjectModes } from '../types';
 
 export interface BitbucketCloudSearchFormProps {
@@ -55,7 +49,7 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
 
   if (repositories.length === 0 && searchQuery.length === 0 && !searching) {
     return (
-      <Alert className="spacer-top" variant="warning">
+      <FlagMessage className="sw-mt-2" variant="warning">
         <FormattedMessage
           defaultMessage={translate('onboarding.create_project.bitbucketcloud.no_projects')}
           id="onboarding.create_project.bitbucketcloud.no_projects"
@@ -72,106 +66,56 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
             ),
           }}
         />
-      </Alert>
+      </FlagMessage>
     );
   }
 
   return (
-    <div className="boxed-group big-padded create-project-import">
-      <SearchBox
-        className="spacer"
-        loading={searching}
-        minLength={3}
-        onChange={props.onSearch}
-        placeholder={translate('onboarding.create_project.search_prompt')}
-      />
-
-      <hr />
+    <div>
+      <div className="sw-flex sw-items-center sw-mb-6 sw-w-abs-400">
+        <InputSearch
+          clearIconAriaLabel={translate('clear')}
+          loading={searching}
+          minLength={3}
+          onChange={props.onSearch}
+          placeholder={translate('onboarding.create_project.search_prompt')}
+          size="full"
+          value={searchQuery}
+        />
+      </div>
 
       {repositories.length === 0 ? (
-        <div className="padded">{translate('no_results')}</div>
+        <div className="sw-py-6 sw-px-2">
+          <LightPrimary className="sw-body-sm">{translate('no_results')}</LightPrimary>
+        </div>
       ) : (
-        <table className="data zebra zebra-hover">
-          <tbody>
-            {repositories.map((repository) => (
-              <tr key={repository.uuid}>
-                <td>
-                  <Tooltip overlay={repository.slug}>
-                    <strong className="project-name display-inline-block text-ellipsis">
-                      {repository.sqProjectKey ? (
-                        <Link to={getProjectUrl(repository.sqProjectKey)}>
-                          <QualifierIcon
-                            className="spacer-right"
-                            qualifier={ComponentQualifier.Project}
-                          />
-                          {repository.name}
-                        </Link>
-                      ) : (
-                        repository.name
-                      )}
-                    </strong>
-                  </Tooltip>
-                  <br />
-                  <Tooltip overlay={repository.projectKey}>
-                    <span className="text-muted project-path display-inline-block text-ellipsis">
-                      {repository.projectKey}
-                    </span>
-                  </Tooltip>
-                </td>
-                <td>
-                  <Link
-                    className="display-inline-flex-center big-spacer-right"
-                    to={getRepositoryUrl(repository.workspace, repository.slug)}
-                    target="_blank"
-                  >
-                    {translate('onboarding.create_project.bitbucketcloud.link')}
-                  </Link>
-                </td>
-                {repository.sqProjectKey ? (
-                  <td>
-                    <span className="display-flex-center display-flex-justify-end already-set-up">
-                      <CheckIcon className="little-spacer-right" size={12} />
-                      {translate('onboarding.create_project.repository_imported')}
-                    </span>
-                  </td>
-                ) : (
-                  <td className="text-right">
-                    <Button
-                      onClick={() => {
-                        props.onImport(repository.slug);
-                      }}
-                    >
-                      {translate('onboarding.create_project.set_up')}
-                    </Button>
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="sw-flex sw-flex-col sw-gap-3">
+          {repositories.map((r) => (
+            <AlmRepoItem
+              key={r.uuid}
+              almKey={r.slug}
+              almUrl={getRepositoryUrl(r.workspace, r.slug)}
+              almUrlText={translate('onboarding.create_project.bitbucketcloud.link')}
+              almIconSrc={`${getBaseUrl()}/images/alm/bitbucket.svg`}
+              sqProjectKey={r.sqProjectKey}
+              onImport={props.onImport}
+              primaryTextNode={<span title={r.name}>{r.name}</span>}
+              secondaryTextNode={<span title={r.projectKey}>{r.projectKey}</span>}
+            />
+          ))}
+        </div>
       )}
-      <footer className="spacer-top note text-center">
-        {isLastPage &&
-          translateWithParameters(
-            'x_of_y_shown',
-            formatMeasure(repositories.length, MetricType.Integer, null),
-            formatMeasure(repositories.length, MetricType.Integer, null)
-          )}
-        {!isLastPage && (
-          <Button
-            className="spacer-left"
-            disabled={loadingMore}
-            data-test="show-more"
-            onClick={props.onLoadMore}
-          >
-            {translate('show_more')}
-          </Button>
-        )}
-        <DeferredSpinner
-          className="text-bottom spacer-left position-absolute"
-          loading={loadingMore}
-        />
-      </footer>
+
+      <ListFooter
+        className="sw-mb-10"
+        count={repositories.length}
+        // we don't know the total, so only provide when we've reached the last page
+        total={isLastPage ? repositories.length : undefined}
+        pageSize={BITBUCKET_CLOUD_PROJECTS_PAGESIZE}
+        loadMore={props.onLoadMore}
+        loading={loadingMore}
+        useMIUIButtons
+      />
     </div>
   );
 }

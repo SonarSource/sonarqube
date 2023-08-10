@@ -17,13 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DeferredSpinner, LightPrimary, Title } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/system';
 import { BitbucketCloudRepository } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
-import CreateProjectPageHeader from '../components/CreateProjectPageHeader';
 import PersonalAccessTokenForm from '../components/PersonalAccessTokenForm';
 import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
 import BitbucketCloudSearchForm from './BitbucketCloudSearchForm';
@@ -66,19 +65,14 @@ export default function BitbucketCloudProjectCreateRenderer(
 
   return (
     <>
-      <CreateProjectPageHeader
-        title={
-          <span className="text-middle">
-            <img
-              alt="" // Should be ignored by screen readers
-              className="spacer-right"
-              height="24"
-              src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
-            />
-            {translate('onboarding.create_project.bitbucketcloud.title')}
-          </span>
-        }
-      />
+      <header className="sw-mb-10">
+        <Title className="sw-mb-4">
+          {translate('onboarding.create_project.bitbucketcloud.title')}
+        </Title>
+        <LightPrimary className="sw-body-sm">
+          {translate('onboarding.create_project.bitbucketcloud.subtitle')}
+        </LightPrimary>
+      </header>
 
       <AlmSettingsInstanceDropdown
         almKey={AlmKeys.BitbucketCloud}
@@ -87,7 +81,7 @@ export default function BitbucketCloudProjectCreateRenderer(
         onChangeConfig={props.onSelectedAlmInstanceChange}
       />
 
-      {loading && <i className="spinner" />}
+      <DeferredSpinner loading={loading} />
 
       {!loading && !selectedAlmInstance && (
         <WrongBindingCountAlert alm={AlmKeys.BitbucketCloud} canAdmin={!!canAdmin} />

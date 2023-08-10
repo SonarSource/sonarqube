@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, screen, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
@@ -29,6 +29,7 @@ import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServi
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import CreateProjectPage from '../CreateProjectPage';
+import { BITBUCKET_CLOUD_PROJECTS_PAGESIZE } from '../constants';
 
 jest.mock('../../../../api/alm-integrations');
 jest.mock('../../../../api/alm-settings');
@@ -148,7 +149,7 @@ it('should show import project feature when PAT is already set', async () => {
 
   projectItem = screen.getByRole('row', { name: /BitbucketCloud Repo 2/ });
   const setupButton = within(projectItem).getByRole('button', {
-    name: 'onboarding.create_project.set_up',
+    name: 'onboarding.create_project.import',
   });
 
   await user.click(setupButton);
@@ -181,7 +182,7 @@ it('should show search filter when PAT is already set', async () => {
   expect(searchForBitbucketCloudRepositories).toHaveBeenLastCalledWith(
     'conf-bitbucketcloud-2',
     '',
-    30,
+    BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
     1
   );
 
@@ -194,7 +195,7 @@ it('should show search filter when PAT is already set', async () => {
   expect(searchForBitbucketCloudRepositories).toHaveBeenLastCalledWith(
     'conf-bitbucketcloud-2',
     'search',
-    30,
+    BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
     1
   );
 });
@@ -217,7 +218,10 @@ it('should show no result message when there are no projects', async () => {
 
 it('should have load more', async () => {
   const user = userEvent.setup();
-  almIntegrationHandler.createRandomBitbucketCloudProjectsWithLoadMore(2, 4);
+  almIntegrationHandler.createRandomBitbucketCloudProjectsWithLoadMore(
+    BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
+    BITBUCKET_CLOUD_PROJECTS_PAGESIZE + 1
+  );
   renderCreateProject();
 
   expect(screen.getByText('onboarding.create_project.bitbucketcloud.title')).toBeInTheDocument();
@@ -227,23 +231,28 @@ it('should have load more', async () => {
     await selectEvent.select(ui.instanceSelector.get(), [/conf-bitbucketcloud-2/]);
   });
 
-  const loadMore = screen.getByRole('button', { name: 'show_more' });
-  expect(loadMore).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'show_more' })).toBeInTheDocument();
 
   /*
    * Next api call response will simulate reaching the last page so we can test the
    * loadmore button disapperance.
    */
-  almIntegrationHandler.createRandomBitbucketCloudProjectsWithLoadMore(4, 4);
-  await user.click(loadMore);
+  almIntegrationHandler.createRandomBitbucketCloudProjectsWithLoadMore(
+    BITBUCKET_CLOUD_PROJECTS_PAGESIZE + 1,
+    BITBUCKET_CLOUD_PROJECTS_PAGESIZE + 1
+  );
+  await user.click(screen.getByRole('button', { name: 'show_more' }));
 
   expect(searchForBitbucketCloudRepositories).toHaveBeenLastCalledWith(
     'conf-bitbucketcloud-2',
     '',
-    30,
+    BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
     2
   );
-  expect(loadMore).not.toBeInTheDocument();
+
+  await waitFor(() => {
+    expect(screen.queryByRole('button', { name: 'show_more' })).not.toBeInTheDocument();
+  });
 });
 
 function renderCreateProject() {

@@ -145,7 +145,7 @@ export function InputSearch({
       <StyledInputWrapper className="sw-flex sw-items-center">
         {children ?? (
           <input
-            aria-label={searchInputAriaLabel}
+            aria-label={searchInputAriaLabel ?? placeholder}
             autoComplete="off"
             className={inputClassName}
             maxLength={maxLength}

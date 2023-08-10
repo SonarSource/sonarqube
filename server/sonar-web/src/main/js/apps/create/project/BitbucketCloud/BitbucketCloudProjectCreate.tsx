@@ -26,6 +26,7 @@ import { Location, Router } from '../../../../components/hoc/withRouter';
 import { BitbucketCloudRepository } from '../../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Paging } from '../../../../types/types';
+import { BITBUCKET_CLOUD_PROJECTS_PAGESIZE } from '../constants';
 import { CreateProjectApiCallback } from '../types';
 import BitbucketCloudProjectCreateRenderer from './BitbucketCloudProjectCreateRender';
 
@@ -51,7 +52,6 @@ interface State {
   showPersonalAccessTokenForm: boolean;
 }
 
-export const BITBUCKET_CLOUD_PROJECTS_PAGESIZE = 30;
 export default class BitbucketCloudProjectCreate extends React.PureComponent<Props, State> {
   mounted = false;
 

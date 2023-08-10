@@ -20,3 +20,5 @@
 export const PROJECT_NAME_MAX_LEN = 255;
 
 export const DEFAULT_BBS_PAGE_SIZE = 25;
+
+export const BITBUCKET_CLOUD_PROJECTS_PAGESIZE = 20;

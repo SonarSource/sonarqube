@@ -76,12 +76,12 @@ function renderRepositoryList(props: GitHubProjectCreateRendererProps) {
         <div className="sw-flex sw-items-center sw-mb-6">
           <InputSearch
             size="large"
+            loading={loadingRepositories}
             onChange={props.onSearch}
             placeholder={translate('onboarding.create_project.search_repositories')}
             value={searchQuery}
             clearIconAriaLabel={translate('clear')}
           />
-          <DeferredSpinner loading={loadingRepositories} className="sw-ml-2" />
         </div>
 
         {repositories.length === 0 ? (
