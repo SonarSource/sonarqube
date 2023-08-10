@@ -19,8 +19,6 @@
  */
 import { uniq, without } from 'lodash';
 import * as React from 'react';
-import { ButtonLink } from '../../../../components/controls/buttons';
-import { translate } from '../../../../helpers/l10n';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,
@@ -29,20 +27,17 @@ import {
 import BitbucketProjectAccordion from './BitbucketProjectAccordion';
 
 export interface BitbucketRepositoriesProps {
-  onSelectRepository: (repo: BitbucketRepository) => void;
+  onImportRepository: (repo: BitbucketRepository) => void;
   projects: BitbucketProject[];
   projectRepositories: BitbucketProjectRepositories;
-  selectedRepository?: BitbucketRepository;
 }
 
 export default function BitbucketRepositories(props: BitbucketRepositoriesProps) {
-  const { projects, projectRepositories, selectedRepository } = props;
+  const { projects, projectRepositories } = props;
 
   const [openProjectKeys, setOpenProjectKeys] = React.useState(
     projects.length > 0 ? [projects[0].key] : []
   );
-
-  const allAreExpanded = projects.length <= openProjectKeys.length;
 
   const handleClick = (isOpen: boolean, projectKey: string) => {
     setOpenProjectKeys(
@@ -52,15 +47,6 @@ export default function BitbucketRepositories(props: BitbucketRepositoriesProps)
 
   return (
     <>
-      <div className="overflow-hidden spacer-bottom">
-        <ButtonLink
-          className="pull-right"
-          onClick={() => setOpenProjectKeys(allAreExpanded ? [] : projects.map((p) => p.key))}
-        >
-          {allAreExpanded ? translate('collapse_all') : translate('expand_all')}
-        </ButtonLink>
-      </div>
-
       {projects.map((project) => {
         const isOpen = openProjectKeys.includes(project.key);
         const { allShown, repositories = [] } = projectRepositories[project.key] || {};
@@ -69,12 +55,11 @@ export default function BitbucketRepositories(props: BitbucketRepositoriesProps)
           <BitbucketProjectAccordion
             key={project.key}
             onClick={() => handleClick(isOpen, project.key)}
-            onSelectRepository={props.onSelectRepository}
             open={isOpen}
             project={project}
             repositories={repositories}
-            selectedRepository={selectedRepository}
             showingAllRepositories={allShown}
+            onImportRepository={props.onImportRepository}
           />
         );
       })}

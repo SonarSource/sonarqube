@@ -17,44 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { Accordion, FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { colors } from '../../../../app/theme';
-import Link from '../../../../components/common/Link';
-import BoxedGroupAccordion from '../../../../components/controls/BoxedGroupAccordion';
-import Radio from '../../../../components/controls/Radio';
-import CheckIcon from '../../../../components/icons/CheckIcon';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import { getProjectUrl, queryToSearch } from '../../../../helpers/urls';
+import { getBaseUrl } from '../../../../helpers/system';
+import { queryToSearch } from '../../../../helpers/urls';
 import { BitbucketProject, BitbucketRepository } from '../../../../types/alm-integration';
+import AlmRepoItem from '../components/AlmRepoItem';
 import { CreateProjectModes } from '../types';
 
 export interface BitbucketProjectAccordionProps {
   onClick?: () => void;
-  onSelectRepository: (repo: BitbucketRepository) => void;
+  onImportRepository: (repository: BitbucketRepository) => void;
   open: boolean;
   project?: BitbucketProject;
   repositories: BitbucketRepository[];
-  selectedRepository?: BitbucketRepository;
   showingAllRepositories: boolean;
 }
 
 export default function BitbucketProjectAccordion(props: BitbucketProjectAccordionProps) {
-  const { open, project, repositories, selectedRepository, showingAllRepositories } = props;
+  const { open, project, repositories, showingAllRepositories } = props;
 
   const repositoryCount = repositories.length;
 
   const title = project?.name ?? translate('search_results');
 
   return (
-    <BoxedGroupAccordion
-      className={classNames('big-spacer-bottom', {
-        open,
-        'not-clickable': !props.onClick,
-        'no-hover': !props.onClick,
-      })}
+    <Accordion
+      className="sw-mb-6"
       onClick={
         props.onClick
           ? props.onClick
@@ -63,13 +54,13 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
             }
       }
       open={open}
-      title={<h3>{title}</h3>}
+      header={title}
     >
       {open && (
         <>
-          <div className="display-flex-wrap">
+          <div className="sw-mb-4">
             {repositoryCount === 0 && (
-              <Alert variant="warning">
+              <FlagMessage variant="warning">
                 <FormattedMessage
                   defaultMessage={translate('onboarding.create_project.no_bbs_repos')}
                   id="onboarding.create_project.no_bbs_repos"
@@ -89,49 +80,33 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
                     ),
                   }}
                 />
-              </Alert>
+              </FlagMessage>
             )}
 
-            {repositories.map((repo) =>
-              repo.sqProjectKey ? (
-                <div
-                  className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo"
-                  key={repo.id}
-                >
-                  <CheckIcon className="spacer-right" fill={colors.green} size={14} />
-                  <div className="overflow-hidden">
-                    <div className="little-spacer-bottom">
-                      <strong title={repo.name}>
-                        <Link to={getProjectUrl(repo.sqProjectKey)}>{repo.name}</Link>
-                      </strong>
-                    </div>
-                    <em>{translate('onboarding.create_project.repository_imported')}</em>
-                  </div>
-                </div>
-              ) : (
-                <Radio
-                  checked={selectedRepository?.id === repo.id}
-                  className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden"
-                  key={repo.id}
-                  onCheck={() => props.onSelectRepository(repo)}
-                  value={String(repo.id)}
-                >
-                  <strong title={repo.name}>{repo.name}</strong>
-                </Radio>
-              )
-            )}
+            <div className="sw-flex sw-flex-col sw-gap-3">
+              {repositories.map((r) => (
+                <AlmRepoItem
+                  key={r.name}
+                  almKey={r.name}
+                  almIconSrc={`${getBaseUrl()}/images/alm/bitbucket.svg`}
+                  sqProjectKey={r.sqProjectKey}
+                  onImport={() => props.onImportRepository(r)}
+                  primaryTextNode={<span>{r.name}</span>}
+                />
+              ))}
+            </div>
           </div>
 
           {!showingAllRepositories && repositoryCount > 0 && (
-            <Alert variant="warning">
+            <FlagMessage variant="warning">
               {translateWithParameters(
                 'onboarding.create_project.only_showing_X_first_repos',
                 repositoryCount
               )}
-            </Alert>
+            </FlagMessage>
           )}
         </>
       )}
-    </BoxedGroupAccordion>
+    </Accordion>
   );
 }

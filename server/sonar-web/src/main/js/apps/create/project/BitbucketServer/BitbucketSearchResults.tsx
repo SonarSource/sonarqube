@@ -17,29 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DeferredSpinner, FlagMessage } from 'design-system';
 import * as React from 'react';
-import { Alert } from '../../../../components/ui/Alert';
-import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import { translate } from '../../../../helpers/l10n';
 import { BitbucketProject, BitbucketRepository } from '../../../../types/alm-integration';
 import BitbucketProjectAccordion from './BitbucketProjectAccordion';
 
 export interface BitbucketSearchResultsProps {
-  onSelectRepository: (repo: BitbucketRepository) => void;
+  onImportRepository: (repo: BitbucketRepository) => void;
   projects: BitbucketProject[];
   searching: boolean;
   searchResults?: BitbucketRepository[];
-  selectedRepository?: BitbucketRepository;
 }
 
 export default function BitbucketSearchResults(props: BitbucketSearchResultsProps) {
-  const { projects, searching, searchResults = [], selectedRepository } = props;
+  const { projects, searching, searchResults = [] } = props;
 
   if (searchResults.length === 0 && !searching) {
     return (
-      <Alert className="big-spacer-top" variant="warning">
+      <FlagMessage variant="warning">
         {translate('onboarding.create_project.no_bbs_repos.filter')}
-      </Alert>
+      </FlagMessage>
     );
   }
 
@@ -52,34 +50,30 @@ export default function BitbucketSearchResults(props: BitbucketSearchResultsProp
   );
 
   return (
-    <div className="big-spacer-top">
-      <DeferredSpinner loading={searching}>
-        {filteredSearchResults.length > 0 && (
+    <DeferredSpinner loading={searching}>
+      {filteredSearchResults.length > 0 && (
+        <BitbucketProjectAccordion
+          onImportRepository={props.onImportRepository}
+          open
+          repositories={filteredSearchResults}
+          showingAllRepositories
+        />
+      )}
+
+      {filteredProjects.map((project) => {
+        const repositories = searchResults.filter((r) => r.projectKey === project.key);
+
+        return (
           <BitbucketProjectAccordion
-            onSelectRepository={props.onSelectRepository}
+            onImportRepository={props.onImportRepository}
+            key={project.key}
             open
-            repositories={filteredSearchResults}
-            selectedRepository={selectedRepository}
+            project={project}
+            repositories={repositories}
             showingAllRepositories
           />
-        )}
-
-        {filteredProjects.map((project) => {
-          const repositories = searchResults.filter((r) => r.projectKey === project.key);
-
-          return (
-            <BitbucketProjectAccordion
-              key={project.key}
-              onSelectRepository={props.onSelectRepository}
-              open
-              project={project}
-              repositories={repositories}
-              selectedRepository={selectedRepository}
-              showingAllRepositories
-            />
-          );
-        })}
-      </DeferredSpinner>
-    </div>
+        );
+      })}
+    </DeferredSpinner>
   );
 }

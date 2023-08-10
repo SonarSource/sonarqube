@@ -108,10 +108,6 @@ it('should show import project feature when PAT is already set', async () => {
 
   expect(screen.getByText('Bitbucket Project 1')).toBeInTheDocument();
 
-  await user.click(screen.getByRole('button', { name: 'expand_all' }));
-
-  expect(screen.getByRole('button', { name: 'collapse_all' })).toBeInTheDocument();
-
   const projectItem = screen.getByRole('region', { name: /Bitbucket Project 1/ });
 
   expect(
@@ -125,15 +121,20 @@ it('should show import project feature when PAT is already set', async () => {
   );
 
   await user.click(projectItem);
-  const radioButton = within(projectItem).getByRole('radio', {
-    name: 'Bitbucket Repo 2',
-  });
-  const importButton = screen.getByText('onboarding.create_project.import_selected_repo');
 
-  expect(radioButton).toBeInTheDocument();
-  expect(importButton).toBeDisabled();
-  await user.click(radioButton);
-  expect(importButton).toBeEnabled();
+  expect(
+    screen.getByRole('row', {
+      name: 'Bitbucket Repo 1 onboarding.create_project.repository_imported',
+    })
+  ).toBeInTheDocument();
+
+  expect(
+    screen.getByRole('row', {
+      name: 'Bitbucket Repo 2 onboarding.create_project.import',
+    })
+  ).toBeInTheDocument();
+
+  const importButton = screen.getByText('onboarding.create_project.import');
   await user.click(importButton);
 
   expect(

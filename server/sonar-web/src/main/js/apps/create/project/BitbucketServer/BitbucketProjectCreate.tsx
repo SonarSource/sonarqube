@@ -51,7 +51,6 @@ interface State {
   projectRepositories?: BitbucketProjectRepositories;
   searching: boolean;
   searchResults?: BitbucketRepository[];
-  selectedRepository?: BitbucketRepository;
   showPersonalAccessTokenForm: boolean;
 }
 
@@ -181,10 +180,10 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
     await this.fetchInitialData();
   };
 
-  handleImportRepository = () => {
-    const { selectedAlmInstance, selectedRepository } = this.state;
+  handleImportRepository = (selectedRepository: BitbucketRepository) => {
+    const { selectedAlmInstance } = this.state;
 
-    if (selectedAlmInstance && selectedRepository) {
+    if (selectedAlmInstance) {
       this.props.onProjectSetupDone(
         setupBitbucketServerProjectCreation({
           almSetting: selectedAlmInstance.key,
@@ -203,11 +202,11 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
     }
 
     if (!query) {
-      this.setState({ searching: false, searchResults: undefined, selectedRepository: undefined });
+      this.setState({ searching: false, searchResults: undefined });
       return;
     }
 
-    this.setState({ searching: true, selectedRepository: undefined });
+    this.setState({ searching: true });
     searchForBitbucketServerRepositories(selectedAlmInstance.key, query)
       .then(({ repositories }) => {
         if (this.mounted) {
@@ -219,10 +218,6 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
           this.setState({ searching: false });
         }
       });
-  };
-
-  handleSelectRepository = (selectedRepository: BitbucketRepository) => {
-    this.setState({ selectedRepository });
   };
 
   onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {
@@ -243,7 +238,6 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
       projects,
       searching,
       searchResults,
-      selectedRepository,
       showPersonalAccessTokenForm,
     } = this.state;
 
@@ -256,14 +250,12 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
         onImportRepository={this.handleImportRepository}
         onPersonalAccessTokenCreated={this.handlePersonalAccessTokenCreated}
         onSearch={this.handleSearch}
-        onSelectRepository={this.handleSelectRepository}
         onSelectedAlmInstanceChange={this.onSelectedAlmInstanceChange}
         projectRepositories={projectRepositories}
         projects={projects}
         resetPat={Boolean(location.query.resetPat)}
         searchResults={searchResults}
         searching={searching}
-        selectedRepository={selectedRepository}
         showPersonalAccessTokenForm={
           showPersonalAccessTokenForm || Boolean(location.query.resetPat)
         }

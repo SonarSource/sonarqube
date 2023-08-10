@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DeferredSpinner, LightPrimary, PageContentFontWrapper, Title } from 'design-system';
 import * as React from 'react';
-import { Button } from '../../../../components/controls/buttons';
 import { translate } from '../../../../helpers/l10n';
-import { getBaseUrl } from '../../../../helpers/system';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,
@@ -28,7 +27,6 @@ import {
 } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
-import CreateProjectPageHeader from '../components/CreateProjectPageHeader';
 import PersonalAccessTokenForm from '../components/PersonalAccessTokenForm';
 import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
 import BitbucketImportRepositoryForm from './BitbucketImportRepositoryForm';
@@ -38,9 +36,8 @@ export interface BitbucketProjectCreateRendererProps {
   almInstances: AlmSettingsInstance[];
   canAdmin?: boolean;
   loading: boolean;
-  onImportRepository: () => void;
+  onImportRepository: (repository: BitbucketRepository) => void;
   onSearch: (query: string) => void;
-  onSelectRepository: (repo: BitbucketRepository) => void;
   onPersonalAccessTokenCreated: () => void;
   onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
   projects?: BitbucketProject[];
@@ -48,7 +45,6 @@ export interface BitbucketProjectCreateRendererProps {
   resetPat: boolean;
   searching: boolean;
   searchResults?: BitbucketRepository[];
-  selectedRepository?: BitbucketRepository;
   showPersonalAccessTokenForm?: boolean;
 }
 
@@ -60,7 +56,7 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
     loading,
     projects,
     projectRepositories,
-    selectedRepository,
+
     searching,
     searchResults,
     showPersonalAccessTokenForm,
@@ -68,33 +64,15 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
   } = props;
 
   return (
-    <>
-      <CreateProjectPageHeader
-        additionalActions={
-          !showPersonalAccessTokenForm && (
-            <div className="display-flex-center pull-right">
-              <Button
-                className="button-large button-primary"
-                disabled={!selectedRepository}
-                onClick={props.onImportRepository}
-              >
-                {translate('onboarding.create_project.import_selected_repo')}
-              </Button>
-            </div>
-          )
-        }
-        title={
-          <span className="text-middle">
-            <img
-              alt="" // Should be ignored by screen readers
-              className="spacer-right"
-              height="24"
-              src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
-            />
-            {translate('onboarding.create_project.from_bbs')}
-          </span>
-        }
-      />
+    <PageContentFontWrapper>
+      <header className="sw-mb-10">
+        <Title className="sw-mb-4">
+          {translate('onboarding.create_project.import_selected_repo')}
+        </Title>
+        <LightPrimary className="sw-body-sm">
+          {translate('onboarding.create_project.from_bbs')}
+        </LightPrimary>
+      </header>
 
       <AlmSettingsInstanceDropdown
         almKey={AlmKeys.BitbucketServer}
@@ -103,31 +81,29 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
         onChangeConfig={props.onSelectedAlmInstanceChange}
       />
 
-      {loading && <i className="spinner" />}
+      <DeferredSpinner loading={loading}>
+        {!selectedAlmInstance && (
+          <WrongBindingCountAlert alm={AlmKeys.BitbucketServer} canAdmin={!!canAdmin} />
+        )}
 
-      {!loading && !selectedAlmInstance && (
-        <WrongBindingCountAlert alm={AlmKeys.BitbucketServer} canAdmin={!!canAdmin} />
-      )}
-
-      {!loading &&
-        selectedAlmInstance &&
-        (showPersonalAccessTokenForm ? (
-          <PersonalAccessTokenForm
-            almSetting={selectedAlmInstance}
-            onPersonalAccessTokenCreated={props.onPersonalAccessTokenCreated}
-            resetPat={resetPat}
-          />
-        ) : (
-          <BitbucketImportRepositoryForm
-            onSearch={props.onSearch}
-            onSelectRepository={props.onSelectRepository}
-            projectRepositories={projectRepositories}
-            projects={projects}
-            searchResults={searchResults}
-            searching={searching}
-            selectedRepository={selectedRepository}
-          />
-        ))}
-    </>
+        {selectedAlmInstance &&
+          (showPersonalAccessTokenForm ? (
+            <PersonalAccessTokenForm
+              almSetting={selectedAlmInstance}
+              onPersonalAccessTokenCreated={props.onPersonalAccessTokenCreated}
+              resetPat={resetPat}
+            />
+          ) : (
+            <BitbucketImportRepositoryForm
+              onSearch={props.onSearch}
+              projectRepositories={projectRepositories}
+              projects={projects}
+              searchResults={searchResults}
+              searching={searching}
+              onImportRepository={props.onImportRepository}
+            />
+          ))}
+      </DeferredSpinner>
+    </PageContentFontWrapper>
   );
 }

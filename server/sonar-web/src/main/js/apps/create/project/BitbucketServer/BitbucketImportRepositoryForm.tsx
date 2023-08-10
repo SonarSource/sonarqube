@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, InputSearch, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../../components/common/Link';
-import SearchBox from '../../../../components/controls/SearchBox';
-import { Alert } from '../../../../components/ui/Alert';
 import { translate } from '../../../../helpers/l10n';
 import { queryToSearch } from '../../../../helpers/urls';
 import {
@@ -35,26 +33,19 @@ import BitbucketSearchResults from './BitbucketSearchResults';
 
 export interface BitbucketImportRepositoryFormProps {
   onSearch: (query: string) => void;
-  onSelectRepository: (repo: BitbucketRepository) => void;
+  onImportRepository: (repo: BitbucketRepository) => void;
   projects?: BitbucketProject[];
   projectRepositories?: BitbucketProjectRepositories;
   searching: boolean;
   searchResults?: BitbucketRepository[];
-  selectedRepository?: BitbucketRepository;
 }
 
 export default function BitbucketImportRepositoryForm(props: BitbucketImportRepositoryFormProps) {
-  const {
-    projects = [],
-    projectRepositories = {},
-    searchResults,
-    searching,
-    selectedRepository,
-  } = props;
+  const { projects = [], projectRepositories = {}, searchResults, searching } = props;
 
   if (projects.length === 0) {
     return (
-      <Alert className="spacer-top" variant="warning">
+      <FlagMessage variant="warning">
         <FormattedMessage
           defaultMessage={translate('onboarding.create_project.no_bbs_projects')}
           id="onboarding.create_project.no_bbs_projects"
@@ -71,31 +62,34 @@ export default function BitbucketImportRepositoryForm(props: BitbucketImportRepo
             ),
           }}
         />
-      </Alert>
+      </FlagMessage>
     );
   }
 
   return (
-    <div className="create-project-import-bbs">
-      <SearchBox
-        onChange={props.onSearch}
-        placeholder={translate('onboarding.create_project.search_repositories_by_name')}
-      />
+    <div>
+      <div className="sw-mb-10 sw-w-abs-400">
+        <InputSearch
+          searchInputAriaLabel={translate('onboarding.create_project.search_repositories_by_name')}
+          clearIconAriaLabel={translate('clear')}
+          onChange={props.onSearch}
+          placeholder={translate('onboarding.create_project.search_repositories_by_name')}
+          size="full"
+        />
+      </div>
 
       {searching || searchResults ? (
         <BitbucketSearchResults
-          onSelectRepository={props.onSelectRepository}
+          onImportRepository={props.onImportRepository}
           projects={projects}
           searchResults={searchResults}
           searching={searching}
-          selectedRepository={selectedRepository}
         />
       ) : (
         <BitbucketRepositories
-          onSelectRepository={props.onSelectRepository}
+          onImportRepository={props.onImportRepository}
           projectRepositories={projectRepositories}
           projects={projects}
-          selectedRepository={selectedRepository}
         />
       )}
     </div>
