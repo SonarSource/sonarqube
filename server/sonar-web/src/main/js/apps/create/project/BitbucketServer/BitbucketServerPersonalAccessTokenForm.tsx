@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import {
   ButtonPrimary,
   DeferredSpinner,
@@ -27,60 +28,54 @@ import {
   LightPrimary,
   Link,
 } from 'design-system';
-import * as React from 'react';
+import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 import { AlmSettingsInstance } from '../../../../types/alm-settings';
+import { usePersonalAccessToken } from '../usePersonalAccessToken';
 
-export interface AzurePersonalAccessTokenFormProps {
+interface Props {
   almSetting: AlmSettingsInstance;
-  onPersonalAccessTokenCreate: (token: string) => void;
-  submitting?: boolean;
-  validationFailed: boolean;
-  firstConnection?: boolean;
+  resetPat: boolean;
+  onPersonalAccessTokenCreated: () => void;
 }
 
-function getAzurePatUrl(url: string) {
-  return `${url.replace(/\/$/, '')}/_usersSettings/tokens`;
-}
-
-export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessTokenFormProps) {
+export default function BitbucketServerPersonalAccessTokenForm({
+  almSetting,
+  resetPat,
+  onPersonalAccessTokenCreated,
+}: Props) {
   const {
-    almSetting: { url },
-    submitting = false,
-    validationFailed,
+    password,
     firstConnection,
-  } = props;
+    validationFailed,
+    touched,
+    submitting,
+    validationErrorMessage,
+    checkingPat,
+    handlePasswordChange,
+    handleSubmit,
+  } = usePersonalAccessToken(almSetting, resetPat, onPersonalAccessTokenCreated);
 
-  const [touched, setTouched] = React.useState(false);
-  React.useEffect(() => {
-    setTouched(false);
-  }, [submitting]);
-
-  const [token, setToken] = React.useState('');
-
-  const isInvalid = (validationFailed && !touched) || (touched && !token);
-
-  let errorMessage;
-  if (!token) {
-    errorMessage = translate('onboarding.create_project.pat_form.pat_required');
-  } else if (isInvalid) {
-    errorMessage = translate('onboarding.create_project.pat_incorrect.azure');
+  if (checkingPat) {
+    return <DeferredSpinner className="sw-ml-2" loading />;
   }
 
+  const { url } = almSetting;
+  const isInvalid = validationFailed && !touched;
+  const canSubmit = Boolean(password);
+  const submitButtonDiabled = isInvalid || submitting || !canSubmit;
+
+  const errorMessage =
+    validationErrorMessage ?? translate('onboarding.create_project.pat_incorrect.bitbucket');
+
   return (
-    <form
-      className="sw-mt-3 sw-w-[50%]"
-      onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        props.onPersonalAccessTokenCreate(token);
-      }}
-    >
+    <form className="sw-mt-3 sw-w-[50%]" onSubmit={handleSubmit}>
       <LightPrimary as="h2" className="sw-heading-md">
         {translate('onboarding.create_project.pat_form.title')}
       </LightPrimary>
       <LightPrimary as="p" className="sw-mt-2 sw-mb-4 sw-body-sm">
-        {translate('onboarding.create_project.pat_form.help.azure')}
+        {translate('onboarding.create_project.pat_form.help.bitbucket')}
       </LightPrimary>
 
       {isInvalid && (
@@ -101,7 +96,7 @@ export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessT
       )}
 
       <FormField
-        htmlFor="personal_access_token"
+        htmlFor="personal_access_token_validation"
         className="sw-mt-6 sw-mb-3"
         label={translate('onboarding.create_project.enter_pat')}
         required
@@ -109,16 +104,12 @@ export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessT
         <div>
           <InputField
             autoFocus
-            id="personal_access_token"
-            minLength={1}
-            name="personal_access_token"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setToken(e.target.value);
-              setTouched(true);
-            }}
-            type="text"
-            value={token}
             size="large"
+            id="personal_access_token_validation"
+            minLength={1}
+            value={password}
+            onChange={handlePasswordChange}
+            type="text"
             isInvalid={isInvalid}
           />
           {isInvalid && <FlagErrorIcon className="sw-ml-2" />}
@@ -129,15 +120,19 @@ export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessT
         <FlagMessage variant="info">
           <p>
             <FormattedMessage
-              id="onboarding.create_project.pat_help.instructions.azure"
-              defaultMessage={translate('onboarding.create_project.pat_help.instructions.azure')}
+              id="onboarding.create_project.pat_help.instructions.bitbucket_server"
+              defaultMessage={translate(
+                'onboarding.create_project.pat_help.instructions.bitbucket_server'
+              )}
               values={{
                 link: url ? (
-                  <Link to={getAzurePatUrl(url)}>
-                    {translate('onboarding.create_project.pat_help.instructions.link.azure')}
+                  <Link to={`${url.replace(/\/$/, '')}/account`}>
+                    {translate(
+                      'onboarding.create_project.pat_help.instructions.bitbucket_server.link'
+                    )}
                   </Link>
                 ) : (
-                  translate('onboarding.create_project.pat_help.instructions.link.azure')
+                  translate('onboarding.create_project.pat_help.instructions.bitbucket_server.link')
                 ),
               }}
             />
@@ -145,12 +140,10 @@ export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessT
         </FlagMessage>
       </div>
 
-      <div className="sw-flex sw-items-center sw-mb-6">
-        <ButtonPrimary type="submit" disabled={isInvalid || submitting || !touched}>
-          {translate('save')}
-        </ButtonPrimary>
-        <DeferredSpinner className="sw-ml-2" loading={submitting} />
-      </div>
+      <ButtonPrimary type="submit" disabled={submitButtonDiabled} className="sw-mb-6">
+        {translate('save')}
+      </ButtonPrimary>
+      <DeferredSpinner className="sw-ml-2" loading={submitting} />
     </form>
   );
 }

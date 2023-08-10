@@ -27,9 +27,9 @@ import {
 } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
-import PersonalAccessTokenForm from '../components/PersonalAccessTokenForm';
 import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
 import BitbucketImportRepositoryForm from './BitbucketImportRepositoryForm';
+import BitbucketServerPersonalAccessTokenForm from './BitbucketServerPersonalAccessTokenForm';
 
 export interface BitbucketProjectCreateRendererProps {
   selectedAlmInstance?: AlmSettingsInstance;
@@ -88,7 +88,7 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
 
         {selectedAlmInstance &&
           (showPersonalAccessTokenForm ? (
-            <PersonalAccessTokenForm
+            <BitbucketServerPersonalAccessTokenForm
               almSetting={selectedAlmInstance}
               onPersonalAccessTokenCreated={props.onPersonalAccessTokenCreated}
               resetPat={resetPat}

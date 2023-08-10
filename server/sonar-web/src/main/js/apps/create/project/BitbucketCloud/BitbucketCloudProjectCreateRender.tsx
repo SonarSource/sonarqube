@@ -23,8 +23,8 @@ import { translate } from '../../../../helpers/l10n';
 import { BitbucketCloudRepository } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
-import PersonalAccessTokenForm from '../components/PersonalAccessTokenForm';
 import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
+import BitbucketCloudPersonalAccessTokenForm from './BitbucketCloudPersonalAccessTokenForm';
 import BitbucketCloudSearchForm from './BitbucketCloudSearchForm';
 
 export interface BitbucketCloudProjectCreateRendererProps {
@@ -90,7 +90,7 @@ export default function BitbucketCloudProjectCreateRenderer(
       {!loading &&
         selectedAlmInstance &&
         (showPersonalAccessTokenForm ? (
-          <PersonalAccessTokenForm
+          <BitbucketCloudPersonalAccessTokenForm
             almSetting={selectedAlmInstance}
             resetPat={resetPat}
             onPersonalAccessTokenCreated={props.onPersonalAccessTokenCreated}

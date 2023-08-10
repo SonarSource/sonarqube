@@ -83,8 +83,8 @@ export default function AlmRepoItem({
             </LightPrimary>
           )}
         </div>
-        <div className="sw-max-w-[50%] sw-min-w-0 sw-ml-2 sw-flex sw-items-center sw-truncate">
-          <LightLabel className="sw-body-sm">{secondaryTextNode}</LightLabel>
+        <div className="sw-max-w-[50%] sw-min-w-0 sw-ml-2 sw-flex sw-items-center">
+          <LightLabel className="sw-body-sm sw-truncate">{secondaryTextNode}</LightLabel>
         </div>
       </div>
       {almUrl !== undefined && (

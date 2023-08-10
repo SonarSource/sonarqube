@@ -79,26 +79,23 @@ it('should ask for PAT when it is not set yet and show the import project featur
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
   expect(
-    screen.getByText('onboarding.create_project.enter_pat.bitbucketcloud')
+    screen.getByText('onboarding.create_project.bitbucket_cloud.enter_password')
   ).toBeInTheDocument();
   expect(
-    screen.getByText(
-      'onboarding.create_project.pat_help.instructions_username.bitbucketcloud.title'
-    )
+    screen.getByText('onboarding.create_project.enter_password.instructions.bitbucket_cloud')
   ).toBeInTheDocument();
 
   expect(
-    screen.getByText('onboarding.create_project.pat.expired.info_message')
-  ).toBeInTheDocument();
-  expect(
-    screen.getByText('onboarding.create_project.pat.expired.info_message_contact')
+    screen.getByText(
+      'onboarding.create_project.pat.expired.info_message onboarding.create_project.pat.expired.info_message_contact'
+    )
   ).toBeInTheDocument();
 
   expect(screen.getByRole('button', { name: 'save' })).toBeDisabled();
 
   await user.click(
     screen.getByRole('textbox', {
-      name: /onboarding.create_project.enter_username/,
+      name: /onboarding.create_project.bitbucket_cloud.enter_username/,
     })
   );
 
@@ -106,7 +103,7 @@ it('should ask for PAT when it is not set yet and show the import project featur
 
   await user.click(
     screen.getByRole('textbox', {
-      name: /onboarding.create_project.enter_pat.bitbucketcloud/,
+      name: /onboarding.create_project.bitbucket_cloud.enter_password/,
     })
   );
 

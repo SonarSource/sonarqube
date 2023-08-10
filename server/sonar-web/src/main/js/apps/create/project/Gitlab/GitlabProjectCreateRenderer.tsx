@@ -25,8 +25,8 @@ import { GitlabProject } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Paging } from '../../../../types/types';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
-import PersonalAccessTokenForm from '../components/PersonalAccessTokenForm';
 import WrongBindingCountAlert from '../components/WrongBindingCountAlert';
+import GitlabPersonalAccessTokenForm from './GItlabPersonalAccessTokenForm';
 import GitlabProjectSelectionForm from './GitlabProjectSelectionForm';
 
 export interface GitlabProjectCreateRendererProps {
@@ -88,7 +88,7 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
       {!loading &&
         selectedAlmInstance &&
         (showPersonalAccessTokenForm ? (
-          <PersonalAccessTokenForm
+          <GitlabPersonalAccessTokenForm
             almSetting={selectedAlmInstance}
             resetPat={resetPat}
             onPersonalAccessTokenCreated={props.onPersonalAccessTokenCreated}

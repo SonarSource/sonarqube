@@ -76,7 +76,9 @@ it('should ask for PAT when it is not set yet and show the import project featur
   expect(ui.instanceSelector.get()).toBeInTheDocument();
 
   expect(screen.getByText('onboarding.create_project.enter_pat')).toBeInTheDocument();
-  expect(screen.getByText('onboarding.create_project.pat_help.title')).toBeInTheDocument();
+  expect(
+    screen.getByText('onboarding.create_project.pat_help.instructions.gitlab')
+  ).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'save' })).toBeInTheDocument();
   await act(async () => {
     await user.click(ui.personalAccessTokenInput.get());

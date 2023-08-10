@@ -74,9 +74,7 @@ it('should ask for PAT when it is not set yet and show the import project featur
   expect(screen.getByText('onboarding.create_project.from_bbs')).toBeInTheDocument();
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
-  expect(
-    screen.getByText('onboarding.create_project.pat_form.title.bitbucket')
-  ).toBeInTheDocument();
+  expect(screen.getByText('onboarding.create_project.pat_form.title')).toBeInTheDocument();
 
   expect(screen.getByRole('button', { name: 'save' })).toBeDisabled();
 

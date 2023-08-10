@@ -74,16 +74,12 @@ it('should ask for PAT when it is not set yet and show the import project featur
   expect(screen.getByText('alm.configuration.selector.label.alm.azure.long')).toBeInTheDocument();
 
   expect(screen.getByText('onboarding.create_project.enter_pat')).toBeInTheDocument();
-  expect(screen.getByText('onboarding.create_project.pat_form.title.azure')).toBeInTheDocument();
-  expect(
-    screen.getByRole('button', { name: 'onboarding.create_project.pat_form.list_repositories' })
-  ).toBeInTheDocument();
+  expect(screen.getByText('onboarding.create_project.pat_form.title')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'save' })).toBeInTheDocument();
 
   await user.click(ui.personalAccessTokenInput.get());
   await user.keyboard('secret');
-  await user.click(
-    screen.getByRole('button', { name: 'onboarding.create_project.pat_form.list_repositories' })
-  );
+  await user.click(screen.getByRole('button', { name: 'save' }));
 
   expect(screen.getByText('Azure project')).toBeInTheDocument();
   expect(screen.getByText('Azure project 2')).toBeInTheDocument();
