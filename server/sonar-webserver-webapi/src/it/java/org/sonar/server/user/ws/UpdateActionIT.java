@@ -32,11 +32,10 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -48,14 +47,15 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UpdateActionIT {
 
+  public static final String USER_LOGIN = "john";
+  public static final String USER_INITIAL_NAME = "John";
+  public static final String USER_INITIAL_EMAIL = "john@email.com";
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
   private final System2 system2 = new System2();
 
@@ -67,10 +67,10 @@ public class UpdateActionIT {
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
-  private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
+  private final ManagedInstanceService managedInstanceService = mock();
   private final WsActionTester ws = new WsActionTester(new UpdateAction(
     new UserUpdater(mock(NewUserNotifier.class), dbClient, new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), null, localAuthentication),
-    userSession, new UserJsonWriter(userSession), dbClient, managedInstanceChecker));
+    userSession, new UserJsonWriter(userSession), dbClient, managedInstanceService));
 
   @Before
   public void setUp() {
@@ -82,7 +82,7 @@ public class UpdateActionIT {
     createUser();
 
     ws.newRequest()
-      .setParam("login", "john")
+      .setParam("login", USER_LOGIN)
       .setParam("name", "Jon Snow")
       .setParam("email", "jon.snow@thegreatw.all")
       .execute()
@@ -95,12 +95,12 @@ public class UpdateActionIT {
 
     assertThatThrownBy(() -> {
       ws.newRequest()
-        .setParam("login", "john")
+        .setParam("login", USER_LOGIN)
         .setParam("name", "Jean Neige")
         .execute();
     })
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Name cannot be updated for a non-local user");
+      .hasMessage("It is not allowed to update name for this user");
   }
 
   @Test
@@ -109,12 +109,12 @@ public class UpdateActionIT {
 
     assertThatThrownBy(() -> {
       ws.newRequest()
-        .setParam("login", "john")
+        .setParam("login", USER_LOGIN)
         .setParam("email", "jean.neige@thegreatw.all")
         .execute();
     })
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Email cannot be updated for a non-local user");
+      .hasMessage("It is not allowed to update email for this user");
   }
 
   @Test
@@ -122,7 +122,7 @@ public class UpdateActionIT {
     createUser();
 
     ws.newRequest()
-      .setParam("login", "john")
+      .setParam("login", USER_LOGIN)
       .setParam("name", "Jon Snow")
       .execute()
       .assertJson(getClass(), "update_name.json");
@@ -133,7 +133,7 @@ public class UpdateActionIT {
     createUser();
 
     ws.newRequest()
-      .setParam("login", "john")
+      .setParam("login", USER_LOGIN)
       .setParam("email", "jon.snow@thegreatw.all")
       .execute()
       .assertJson(getClass(), "update_email.json");
@@ -144,12 +144,12 @@ public class UpdateActionIT {
     createUser();
 
     ws.newRequest()
-      .setParam("login", "john")
+      .setParam("login", USER_LOGIN)
       .setParam("email", "")
       .execute()
       .assertJson(getClass(), "blank_email_is_updated_to_null.json");
 
-    UserDto userDto = dbClient.userDao().selectByLogin(dbSession, "john");
+    UserDto userDto = dbClient.userDao().selectByLogin(dbSession, USER_LOGIN);
     assertThat(userDto.getEmail()).isNull();
   }
 
@@ -158,11 +158,11 @@ public class UpdateActionIT {
     createUser();
 
     ws.newRequest()
-      .setParam("login", "john")
+      .setParam("login", USER_LOGIN)
       .setMultiParam("scmAccount", singletonList(""))
       .execute();
 
-    UserDto userDto = dbClient.userDao().selectByLogin(dbSession, "john");
+    UserDto userDto = dbClient.userDao().selectByLogin(dbSession, USER_LOGIN);
     assertThat(userDto.getSortedScmAccounts()).isEmpty();
   }
 
@@ -171,12 +171,12 @@ public class UpdateActionIT {
     createUser();
 
     ws.newRequest()
-      .setParam("login", "john")
+      .setParam("login", USER_LOGIN)
       .setMultiParam("scmAccount", singletonList("jon.snow"))
       .execute()
       .assertJson(getClass(), "update_scm_accounts.json");
 
-    UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, USER_LOGIN);
     assertThat(user.getSortedScmAccounts()).containsOnly("jon.snow");
   }
 
@@ -185,11 +185,11 @@ public class UpdateActionIT {
     createUser();
 
     ws.newRequest()
-      .setParam("login", "john")
+      .setParam("login", USER_LOGIN)
       .setMultiParam("scmAccount", List.of("jon", "snow"))
       .execute();
 
-    UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, USER_LOGIN);
     assertThat(user.getSortedScmAccounts()).containsExactly("jon", "snow");
   }
 
@@ -199,7 +199,7 @@ public class UpdateActionIT {
 
     assertThatThrownBy(() -> {
       ws.newRequest()
-        .setParam("login", "john")
+        .setParam("login", USER_LOGIN)
         .setMultiParam("scmAccount", Arrays.asList("jon.snow", "jon.snow", "jon.jon", "jon.snow"))
         .execute();
     }).isInstanceOf(IllegalArgumentException.class)
@@ -214,7 +214,7 @@ public class UpdateActionIT {
 
     assertThatThrownBy(() -> {
       ws.newRequest()
-        .setParam("login", "john")
+        .setParam("login", USER_LOGIN)
         .setMultiParam("scmAccount", Arrays.asList("jon.snow", "jon.snow", "jon.jon", "   jon.snow  "))
         .execute();
     }).isInstanceOf(IllegalArgumentException.class)
@@ -228,11 +228,11 @@ public class UpdateActionIT {
     createUser();
 
     ws.newRequest()
-      .setParam("login", "john")
+      .setParam("login", USER_LOGIN)
       .setMultiParam("scmAccount", Arrays.asList("jon.3", "Jon.1", "JON.2"))
       .execute();
 
-    UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, USER_LOGIN);
     assertThat(user.getSortedScmAccounts()).containsExactly("jon.1", "jon.2", "jon.3");
   }
 
@@ -243,7 +243,7 @@ public class UpdateActionIT {
 
     assertThatThrownBy(() -> {
       ws.newRequest()
-        .setParam("login", "john")
+        .setParam("login", USER_LOGIN)
         .execute();
     })
       .isInstanceOf(ForbiddenException.class);
@@ -253,7 +253,7 @@ public class UpdateActionIT {
   public void fail_on_unknown_user() {
     assertThatThrownBy(() -> {
       ws.newRequest()
-        .setParam("login", "john")
+        .setParam("login", USER_LOGIN)
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
@@ -262,10 +262,10 @@ public class UpdateActionIT {
 
   @Test
   public void fail_on_disabled_user() {
-    db.users().insertUser(u -> u.setLogin("john").setActive(false));
+    db.users().insertUser(u -> u.setLogin(USER_LOGIN).setActive(false));
 
     TestRequest request = ws.newRequest()
-      .setParam("login", "john");
+      .setParam("login", USER_LOGIN);
     assertThatThrownBy(() -> {
       request.execute();
     })
@@ -278,7 +278,7 @@ public class UpdateActionIT {
     createUser();
 
     TestRequest request = ws.newRequest()
-      .setParam("login", "john")
+      .setParam("login", USER_LOGIN)
       .setParam("email", "invalid-email");
     assertThatThrownBy(() -> {
       request.execute();
@@ -288,26 +288,57 @@ public class UpdateActionIT {
   }
 
   @Test
-  public void handle_whenInstanceManaged_shouldThrowBadRequestException() {
-    BadRequestException badRequestException = BadRequestException.create("message");
-    doThrow(badRequestException).when(managedInstanceChecker).throwIfInstanceIsManaged();
+  public void handle_whenInstanceManagedAndNameUpdate_shouldThrow() {
+    createUser();
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
 
-    TestRequest updateRequest = ws.newRequest();
+    TestRequest updateRequest = ws.newRequest()
+      .setParam("login", USER_LOGIN)
+      .setParam("name", "Jon Snow");
 
     assertThatThrownBy(updateRequest::execute)
-      .isEqualTo(badRequestException);
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("It is not allowed to update name for this user");
   }
 
   @Test
-  public void handle_whenInstanceManagedAndNotSystemAdministrator_shouldThrowUnauthorizedException() {
+  public void handle_whenInstanceManagedAndEmailUpdate_shouldThrow() {
+    createUser();
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+
+    TestRequest updateRequest = ws.newRequest()
+      .setParam("login", USER_LOGIN)
+      .setParam("email", "john@new-email.com");
+
+    assertThatThrownBy(updateRequest::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("It is not allowed to update email for this user");
+  }
+
+  @Test
+  public void handle_whenInstanceManagedAndSCMAccountUpdate_shouldUpdate() {
+    createUser();
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+
+    ws.newRequest()
+      .setParam("login", USER_LOGIN)
+      .setMultiParam("scmAccount", List.of("jon", "snow"))
+      .execute();
+
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, USER_LOGIN);
+    assertThat(user.getSortedScmAccounts()).containsExactly("jon", "snow");
+  }
+
+  @Test
+  public void handle_whenInstanceManagedAndNotAnonymous_shouldThrow() {
     userSession.anonymous();
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
 
     TestRequest updateRequest = ws.newRequest();
 
     assertThatThrownBy(updateRequest::execute)
       .isInstanceOf(UnauthorizedException.class)
       .hasMessage("Authentication is required");
-    verify(managedInstanceChecker, never()).throwIfInstanceIsManaged();
   }
 
   @Test
@@ -324,9 +355,9 @@ public class UpdateActionIT {
 
   private void createUser(boolean local) {
     UserDto userDto = newUserDto()
-      .setEmail("john@email.com")
-      .setLogin("john")
-      .setName("John")
+      .setEmail(USER_INITIAL_EMAIL)
+      .setLogin(USER_LOGIN)
+      .setName(USER_INITIAL_NAME)
       .setScmAccounts(newArrayList("jn"))
       .setActive(true)
       .setLocal(local)

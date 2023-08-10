@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user.ws;
 
-import com.google.common.base.Preconditions;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,9 +32,9 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
@@ -64,15 +63,14 @@ public class UpdateAction implements UsersWsAction {
   private final UserSession userSession;
   private final UserJsonWriter userWriter;
   private final DbClient dbClient;
-  private final ManagedInstanceChecker managedInstanceChecker;
+  private final ManagedInstanceService managedInstanceService;
 
-  public UpdateAction(UserUpdater userUpdater, UserSession userSession, UserJsonWriter userWriter, DbClient dbClient,
-    ManagedInstanceChecker managedInstanceChecker) {
+  public UpdateAction(UserUpdater userUpdater, UserSession userSession, UserJsonWriter userWriter, DbClient dbClient, ManagedInstanceService managedInstanceService) {
     this.userUpdater = userUpdater;
     this.userSession = userSession;
     this.userWriter = userWriter;
     this.dbClient = dbClient;
-    this.managedInstanceChecker = managedInstanceChecker;
+    this.managedInstanceService = managedInstanceService;
   }
 
   @Override
@@ -111,33 +109,35 @@ public class UpdateAction implements UsersWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
-    managedInstanceChecker.throwIfInstanceIsManaged();
     UpdateRequest updateRequest = toWsRequest(request);
     checkArgument(isValidIfPresent(updateRequest.getEmail()), "Email '%s' is not valid", updateRequest.getEmail());
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto user = getUser(dbSession, updateRequest.getLogin());
-      doHandle(dbSession, updateRequest);
-      writeUser(dbSession, response, user.getUuid());
+      UserDto userDto = getUser(dbSession, updateRequest.getLogin());
+      checkConditionsForExternalAndManagedUser(updateRequest, userDto);
+      doHandle(dbSession, updateRequest, userDto);
+      writeUser(dbSession, response, userDto.getUuid());
     }
   }
 
-  private void doHandle(DbSession dbSession, UpdateRequest request) {
-    String login = request.getLogin();
-    UserDto user = getUser(dbSession, login);
+  private void checkConditionsForExternalAndManagedUser(UpdateRequest updateRequest, UserDto userDto) {
+    if (managedInstanceService.isInstanceExternallyManaged() || !userDto.isLocal()) {
+      checkArgument(updateRequest.getName() == null, "It is not allowed to update name for this user");
+      checkArgument(updateRequest.getEmail() == null, "It is not allowed to update email for this user");
+    }
+  }
+
+  private void doHandle(DbSession dbSession, UpdateRequest request, UserDto userDto) {
     UpdateUser updateUser = new UpdateUser();
     if (request.getName() != null) {
-      Preconditions.checkArgument(user.isLocal(), "Name cannot be updated for a non-local user");
       updateUser.setName(request.getName());
     }
     if (request.getEmail() != null) {
-      Preconditions.checkArgument(user.isLocal(), "Email cannot be updated for a non-local user");
       updateUser.setEmail(emptyToNull(request.getEmail()));
     }
     if (!request.getScmAccounts().isEmpty()) {
       updateUser.setScmAccounts(request.getScmAccounts());
     }
-    userUpdater.updateAndCommit(dbSession, user, updateUser, u -> {
-    });
+    userUpdater.updateAndCommit(dbSession, userDto, updateUser, u -> {});
   }
 
   private UserDto getUser(DbSession dbSession, String login) {
