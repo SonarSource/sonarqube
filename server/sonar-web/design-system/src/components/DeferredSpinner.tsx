@@ -122,7 +122,7 @@ export const StyledSpinner = styled.div`
   ${tw`sw-rounded-pill`}
 `;
 
-function Spinner(props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
+export function Spinner(props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
   const intl = useIntl();
 
   return (
