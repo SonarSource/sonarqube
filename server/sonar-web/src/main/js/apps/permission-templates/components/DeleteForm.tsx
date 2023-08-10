@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import SimpleModal from '../../../components/controls/SimpleModal';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { PermissionTemplate } from '../../../types/types';
 
@@ -49,7 +49,7 @@ export default function DeleteForm({ onClose, onSubmit, permissionTemplate: t }:
           </div>
 
           <div className="modal-foot">
-            <DeferredSpinner className="spacer-right" loading={submitting} />
+            <Spinner className="spacer-right" loading={submitting} />
             <SubmitButton className="button-red" disabled={submitting}>
               {translate('delete')}
             </SubmitButton>

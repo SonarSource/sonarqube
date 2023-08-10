@@ -23,7 +23,7 @@ import * as React from 'react';
 import { KeyboardKeys } from '../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import SearchIcon from '../icons/SearchIcon';
-import DeferredSpinner from '../ui/DeferredSpinner';
+import Spinner from '../ui/Spinner';
 import { ClearButton } from './buttons';
 import './SearchBox.css';
 
@@ -158,9 +158,9 @@ export default class SearchBox extends React.PureComponent<Props, State> {
           value={value}
         />
 
-        <DeferredSpinner loading={loading !== undefined ? loading : false}>
+        <Spinner loading={loading !== undefined ? loading : false}>
           <SearchIcon className="search-box-magnifier" />
-        </DeferredSpinner>
+        </Spinner>
 
         {value && (
           <ClearButton

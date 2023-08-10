@@ -20,7 +20,7 @@
 import * as React from 'react';
 import Link from '../../../components/common/Link';
 import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import './LoginForm.css';
 
@@ -121,7 +121,7 @@ export default class LoginForm extends React.PureComponent<Props, State> {
 
         <div>
           <div className="text-right overflow-hidden">
-            <DeferredSpinner className="spacer-right" loading={this.state.loading} />
+            <Spinner className="spacer-right" loading={this.state.loading} />
             <SubmitButton disabled={this.state.loading}>
               {translate('sessions.log_in')}
             </SubmitButton>

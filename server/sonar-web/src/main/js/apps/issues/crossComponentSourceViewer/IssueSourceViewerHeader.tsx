@@ -23,11 +23,11 @@ import classNames from 'classnames';
 import {
   ChevronRightIcon,
   CopyIcon,
-  DeferredSpinner,
   HoverLink,
   InteractiveIcon,
   LightLabel,
   Link,
+  Spinner,
   ThemeProp,
   UnfoldIcon,
   themeColor,
@@ -156,7 +156,7 @@ function IssueSourceViewerHeader(props: Props & ThemeProp) {
         </div>
       )}
 
-      <DeferredSpinner className="sw-mr-1" loading={loading} />
+      <Spinner className="sw-mr-1" loading={loading} />
 
       {expandable && !loading && (
         <div className="sw-ml-4">

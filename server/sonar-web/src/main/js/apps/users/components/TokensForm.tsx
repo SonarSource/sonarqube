@@ -24,7 +24,7 @@ import { generateToken, getTokens } from '../../../api/user-tokens';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import Select, { LabelValueSelectOption } from '../../../components/controls/Select';
 import { SubmitButton } from '../../../components/controls/buttons';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import {
   EXPIRATION_OPTIONS,
@@ -405,9 +405,9 @@ export class TokensForm extends React.PureComponent<Props, State> {
             </tr>
           </thead>
           <tbody>
-            <DeferredSpinner customSpinner={customSpinner} loading={loading && tokens.length <= 0}>
+            <Spinner customSpinner={customSpinner} loading={loading && tokens.length <= 0}>
               {this.renderItems()}
-            </DeferredSpinner>
+            </Spinner>
           </tbody>
         </table>
       </>

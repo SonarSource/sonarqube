@@ -22,9 +22,9 @@ import { sendTestEmail } from '../../../api/settings';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import { SubmitButton } from '../../../components/controls/buttons';
 import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
+import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../../../helpers/request';
 import { LoggedInUser } from '../../../types/users';
@@ -168,7 +168,7 @@ export class EmailForm extends React.PureComponent<Props, State> {
           <SubmitButton disabled={loading}>
             {translate('email_configuration.test.send')}
           </SubmitButton>
-          {loading && <DeferredSpinner className="spacer-left" />}
+          {loading && <Spinner className="spacer-left" />}
         </form>
       </div>
     );

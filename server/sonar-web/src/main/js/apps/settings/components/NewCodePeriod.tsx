@@ -26,7 +26,7 @@ import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
 import NewCodeDefinitionWarning from '../../../components/new-code-definition/NewCodeDefinitionWarning';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import {
   getNumberOfDaysDefaultValue,
@@ -198,7 +198,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
                   </div>
 
                   <div className="settings-definition-right">
-                    <DeferredSpinner loading={loading} timeout={500}>
+                    <Spinner loading={loading}>
                       <form onSubmit={this.onSubmit}>
                         <NewCodeDefinitionPreviousVersionOption
                           isDefault
@@ -225,7 +225,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
                             <p className="spacer-bottom">
                               {translate('baseline.next_analysis_notice')}
                             </p>
-                            <DeferredSpinner className="spacer-right" loading={saving} />
+                            <Spinner className="spacer-right" loading={saving} />
                             <SubmitButton disabled={saving || !isValid}>
                               {translate('save')}
                             </SubmitButton>
@@ -243,7 +243,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
                           </div>
                         )}
                       </form>
-                    </DeferredSpinner>
+                    </Spinner>
                   </div>
                 </div>
               </li>

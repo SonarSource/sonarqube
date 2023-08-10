@@ -93,7 +93,7 @@ exports[`Select should render dropdownIndicator correctly 1`] = `<Styled(span) /
 
 exports[`Select should render loadingIndicator correctly 1`] = `
 <i
-  className="deferred-spinner spacer-left spacer-right additional-class"
+  className="spinner spacer-left spacer-right additional-class"
 />
 `;
 

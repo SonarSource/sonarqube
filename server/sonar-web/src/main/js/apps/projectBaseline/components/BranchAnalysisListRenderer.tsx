@@ -25,7 +25,7 @@ import Select from '../../../components/controls/Select';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
 import TimeFormatter from '../../../components/intl/TimeFormatter';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { parseDate, toShortISO8601String } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { ParsedAnalysis } from '../../../types/project-activity';
@@ -138,7 +138,7 @@ function BranchAnalysisListRenderer(
       </div>
       <div className="branch-analysis-list-wrapper">
         <div className="bordered branch-analysis-list" onScroll={props.handleScroll}>
-          <DeferredSpinner className="big-spacer-top" loading={loading} />
+          <Spinner className="big-spacer-top" loading={loading} />
 
           {!loading && !hasFilteredData ? (
             <div className="big-spacer-top big-spacer-bottom strong">

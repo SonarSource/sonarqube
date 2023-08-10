@@ -21,11 +21,11 @@
 import {
   Card,
   CoverageIndicator,
-  DeferredSpinner,
   DuplicationsIndicator,
   FlagMessage,
   LightLabel,
   PageTitle,
+  Spinner,
   ToggleButton,
 } from 'design-system';
 import * as React from 'react';
@@ -128,7 +128,7 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
 
       {loading ? (
         <div>
-          <DeferredSpinner loading={loading} />
+          <Spinner loading={loading} />
         </div>
       ) : (
         <>

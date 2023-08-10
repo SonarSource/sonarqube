@@ -17,13 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  DangerButtonSecondary,
-  DeferredSpinner,
-  FlagMessage,
-  HtmlFormatter,
-  Modal,
-} from 'design-system';
+import { DangerButtonSecondary, FlagMessage, HtmlFormatter, Modal, Spinner } from 'design-system';
 import * as React from 'react';
 import { dismissAnalysisWarning, getTask } from '../../../api/ce';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
@@ -116,7 +110,7 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
     const header = translate('warnings');
 
     const body = (
-      <DeferredSpinner loading={loading}>
+      <Spinner loading={loading}>
         {warnings.map(({ dismissable, key, message }) => (
           <React.Fragment key={key}>
             <div className="sw-flex sw-items-center sw-mt-2">
@@ -143,13 +137,13 @@ export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
                     {translate('dismiss_permanently')}
                   </DangerButtonSecondary>
 
-                  <DeferredSpinner className="sw-ml-2" loading={dismissedWarning === key} />
+                  <Spinner className="sw-ml-2" loading={dismissedWarning === key} />
                 </div>
               )}
             </div>
           </React.Fragment>
         ))}
-      </DeferredSpinner>
+      </Spinner>
     );
 
     return (

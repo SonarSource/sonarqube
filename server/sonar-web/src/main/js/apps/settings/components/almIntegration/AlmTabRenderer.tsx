@@ -23,7 +23,7 @@ import Link from '../../../../components/common/Link';
 import { getTabId, getTabPanelId } from '../../../../components/controls/BoxedTabs';
 import { Button } from '../../../../components/controls/buttons';
 import { Alert } from '../../../../components/ui/Alert';
-import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
+import Spinner from '../../../../components/ui/Spinner';
 import { translate } from '../../../../helpers/l10n';
 import {
   AlmBindingDefinition,
@@ -85,7 +85,7 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
       aria-labelledby={getTabId(almTab)}
     >
       <div className="big-padded">
-        <DeferredSpinner loading={loadingAlmDefinitions}>
+        <Spinner loading={loadingAlmDefinitions}>
           {definitions.length === 0 && (
             <p className="spacer-top">{translate('settings.almintegration.empty', almTab)}</p>
           )}
@@ -122,7 +122,7 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
               afterSubmit={props.afterSubmit}
             />
           )}
-        </DeferredSpinner>
+        </Spinner>
       </div>
       {AUTHENTICATION_AVAILABLE_PLATFORMS.includes(almTab) && (
         <Alert variant="info" className="spacer">

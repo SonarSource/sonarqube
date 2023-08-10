@@ -23,7 +23,7 @@ import { deleteRule, getRuleDetails, updateRule } from '../../../api/rules';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { Button } from '../../../components/controls/buttons';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict, RuleActivation, RuleDetails as TypeRuleDetails } from '../../../types/types';
 import { Activation, Query } from '../query';
@@ -163,7 +163,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
 
     return (
       <div className="coding-rule-details">
-        <DeferredSpinner loading={this.state.loading}>
+        <Spinner loading={this.state.loading}>
           <RuleDetailsMeta
             canWrite={canWrite}
             onFilterChange={this.props.onFilterChange}
@@ -252,7 +252,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
           {!ruleDetails.isTemplate && ruleDetails.type !== 'SECURITY_HOTSPOT' && (
             <RuleDetailsIssues ruleDetails={ruleDetails} />
           )}
-        </DeferredSpinner>
+        </Spinner>
       </div>
     );
   }

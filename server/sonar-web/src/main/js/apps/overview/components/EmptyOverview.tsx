@@ -49,7 +49,7 @@ export function EmptyOverview(props: EmptyOverviewProps) {
       .length > 0;
 
   if (isLoading) {
-    return <Spinner />;
+    return <Spinner loading />;
   }
 
   if (component.qualifier === ComponentQualifier.Application) {
@@ -75,7 +75,7 @@ export function EmptyOverview(props: EmptyOverviewProps) {
         <PageContentFontWrapper>
           <FlagMessage variant="warning">
             {translate('provisioning.permission_synch_in_progress')}
-            <Spinner className="sw-ml-8 sw-hidden" aria-hidden />
+            <Spinner className="sw-ml-8 sw-hidden" aria-hidden loading />
           </FlagMessage>
         </PageContentFontWrapper>
       </LargeCenteredLayout>

@@ -258,11 +258,10 @@ describe('issues app', () => {
       expect(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' })).toHaveFocus();
       await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
 
-      // Check that we bulk change the selected issue
-      const issueBoxFixThat = within(screen.getByRole('region', { name: 'Fix that' }));
-
       expect(
-        issueBoxFixThat.getByLabelText('issue.type.type_x_click_to_change.issue.type.CODE_SMELL')
+        within(screen.getByRole('region', { name: 'Fix that' })).getByLabelText(
+          'issue.type.type_x_click_to_change.issue.type.CODE_SMELL'
+        )
       ).toBeInTheDocument();
 
       await user.click(
@@ -280,7 +279,9 @@ describe('issues app', () => {
       await user.click(screen.getByRole('button', { name: 'apply' }));
 
       expect(
-        issueBoxFixThat.getByLabelText('issue.type.type_x_click_to_change.issue.type.BUG')
+        await within(screen.getByRole('region', { name: 'Fix that' })).findByLabelText(
+          'issue.type.type_x_click_to_change.issue.type.BUG'
+        )
       ).toBeInTheDocument();
     });
   });

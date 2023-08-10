@@ -24,7 +24,7 @@ import withAvailableFeatures, {
 } from '../../../app/components/available-features/withAvailableFeatures';
 import Link from '../../../components/common/Link';
 import Tooltip from '../../../components/controls/Tooltip';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { getIssuesUrl } from '../../../helpers/urls';
@@ -149,7 +149,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
 
     return (
       <div className="js-rule-issues coding-rule-section">
-        <DeferredSpinner loading={loading}>
+        <Spinner loading={loading}>
           <h2 className="coding-rules-detail-title">
             {translate('coding_rules.issues')}
             {this.renderTotal()}
@@ -171,7 +171,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
               {translate('coding_rules.no_issue_detected_for_projects')}
             </div>
           )}
-        </DeferredSpinner>
+        </Spinner>
       </div>
     );
   }

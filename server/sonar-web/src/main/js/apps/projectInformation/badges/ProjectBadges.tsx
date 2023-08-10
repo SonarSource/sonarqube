@@ -21,11 +21,11 @@ import {
   BasicSeparator,
   ButtonSecondary,
   CodeSnippet,
-  DeferredSpinner,
   FlagMessage,
   FormField,
   IllustratedSelectionCard,
   InputSelect,
+  Spinner,
   SubTitle,
   ToggleButton,
 } from 'design-system';
@@ -94,7 +94,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
       <SubTitle>{translate('overview.badges.get_badge')}</SubTitle>
       <p className="big-spacer-bottom">{translate('overview.badges.description', qualifier)}</p>
 
-      <DeferredSpinner loading={isLoading || isEmpty(token)}>
+      <Spinner loading={isLoading || isEmpty(token)}>
         <div className="sw-flex sw-space-x-4 sw-mb-4">
           <IllustratedSelectionCard
             className="sw-w-abs-300 it__badge-button"
@@ -127,7 +127,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
             )}
           />
         </div>
-      </DeferredSpinner>
+      </Spinner>
 
       {BadgeType.measure === selectedType && (
         <FormField htmlFor="badge-param-customize" label={translate('overview.badges.metric')}>
@@ -162,7 +162,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
         </div>
       </FormField>
 
-      <DeferredSpinner className="spacer-top spacer-bottom" loading={isFetchingToken || isRenewing}>
+      <Spinner className="spacer-top spacer-bottom" loading={isFetchingToken || isRenewing}>
         {!isLoading && (
           <CodeSnippet
             language="plaintext"
@@ -171,7 +171,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
             wrap
           />
         )}
-      </DeferredSpinner>
+      </Spinner>
 
       <FlagMessage className="sw-w-full" variant="warning">
         <p>

@@ -33,7 +33,7 @@ import {
   issuesByComponentAndLine,
 } from '../../../components/SourceViewer/helpers/indexing';
 import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { throwGlobalError } from '../../../helpers/error';
@@ -192,7 +192,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
     if (loading) {
       return (
         <div>
-          <DeferredSpinner ariaLabel={translate('code_viewer.loading')} />
+          <Spinner ariaLabel={translate('code_viewer.loading')} />
         </div>
       );
     }

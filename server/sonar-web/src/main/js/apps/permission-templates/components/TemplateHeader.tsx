@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import Link from '../../../components/common/Link';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { PermissionTemplate } from '../../../types/types';
 import { PERMISSION_TEMPLATES_PATH } from '../utils';
@@ -42,7 +42,7 @@ export default function TemplateHeader(props: Props) {
 
       <h1 className="page-title">{template.name}</h1>
 
-      <DeferredSpinner loading={loading} />
+      <Spinner loading={loading} />
 
       <div className="pull-right">
         <ActionsCell

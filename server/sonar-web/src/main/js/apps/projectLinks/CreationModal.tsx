@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import SimpleModal from '../../components/controls/SimpleModal';
-import DeferredSpinner from '../../components/ui/DeferredSpinner';
+import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
+import Spinner from '../../components/ui/Spinner';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
@@ -104,7 +104,7 @@ export default class CreationModal extends React.PureComponent<Props, State> {
             </div>
 
             <footer className="modal-foot">
-              <DeferredSpinner className="spacer-right" loading={submitting} />
+              <Spinner className="spacer-right" loading={submitting} />
               <SubmitButton disabled={submitting} id="create-link-confirm">
                 {translate('create')}
               </SubmitButton>

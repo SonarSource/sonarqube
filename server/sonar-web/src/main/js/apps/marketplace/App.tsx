@@ -27,7 +27,7 @@ import DocLink from '../../components/common/DocLink';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { Alert } from '../../components/ui/Alert';
-import DeferredSpinner from '../../components/ui/DeferredSpinner';
+import Spinner from '../../components/ui/Spinner';
 import { translate } from '../../helpers/l10n';
 import { EditionKey } from '../../types/editions';
 import { PendingPluginResult, Plugin, RiskConsent } from '../../types/plugins';
@@ -196,7 +196,7 @@ class App extends React.PureComponent<Props, State> {
           updateCenterActive={this.props.updateCenterActive}
           updateQuery={this.updateQuery}
         />
-        <DeferredSpinner loading={loadingPlugins}>
+        <Spinner loading={loadingPlugins}>
           {filteredPlugins.length === 0 &&
             translate('marketplace.plugin_list.no_plugins', query.filter)}
           {filteredPlugins.length > 0 && (
@@ -210,7 +210,7 @@ class App extends React.PureComponent<Props, State> {
               <Footer total={filteredPlugins.length} />
             </>
           )}
-        </DeferredSpinner>
+        </Spinner>
       </main>
     );
   }

@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Button } from '../../../components/controls/buttons';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { Button } from '../../../components/controls/buttons';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { Group, isUser } from '../../../types/quality-gates';
 import { QualityGate } from '../../../types/types';
@@ -54,7 +54,7 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
       <h3 className="spacer-bottom">{translate('quality_gates.permissions')}</h3>
       <p className="spacer-bottom">{translate('quality_gates.permissions.help')}</p>
       <div>
-        <DeferredSpinner loading={loading}>
+        <Spinner loading={loading}>
           <ul>
             {users.map((user) => (
               <li key={user.login}>
@@ -67,7 +67,7 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
               </li>
             ))}
           </ul>
-        </DeferredSpinner>
+        </Spinner>
       </div>
 
       <Button className="big-spacer-top" onClick={props.onClickAddPermission}>

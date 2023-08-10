@@ -21,7 +21,7 @@ import classNames from 'classnames';
 import { uniqueId } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import DeferredSpinner from '../ui/DeferredSpinner';
+import Spinner from '../ui/Spinner';
 import Checkbox from './Checkbox';
 import { SelectListFilter } from './SelectList';
 import SelectListListElement from './SelectListListElement';
@@ -94,7 +94,7 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
           >
             <span className="big-spacer-left">
               {translate('bulk_change')}
-              <DeferredSpinner className="spacer-left" loading={this.state.loading} timeout={10} />
+              <Spinner className="spacer-left" loading={this.state.loading} />
             </span>
           </Checkbox>
         </li>

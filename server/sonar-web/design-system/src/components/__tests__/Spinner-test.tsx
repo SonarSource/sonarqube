@@ -18,53 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { render, screen } from '@testing-library/react';
-import * as React from 'react';
-import DeferredSpinner from '../DeferredSpinner';
-
-beforeEach(() => {
-  jest.useFakeTimers();
-});
-
-afterEach(() => {
-  jest.runOnlyPendingTimers();
-  jest.useRealTimers();
-});
-
-it('renders children before timeout', () => {
-  renderDeferredSpinner({ children: <a href="#">foo</a> });
-  expect(screen.getByRole('link')).toBeInTheDocument();
-  jest.runAllTimers();
-  expect(screen.queryByRole('link')).not.toBeInTheDocument();
-});
-
-it('renders spinner after timeout', () => {
-  renderDeferredSpinner();
-  expect(screen.queryByText('loading')).not.toBeInTheDocument();
-  jest.runAllTimers();
-  expect(screen.getByText('loading')).toBeInTheDocument();
-});
+import { IntlWrapper } from '../../helpers/testUtils';
+import { Spinner } from '../Spinner';
 
 it('allows setting a custom class name', () => {
-  renderDeferredSpinner({ className: 'foo' });
-  jest.runAllTimers();
-  expect(screen.getByTestId('deferred-spinner')).toHaveClass('foo');
+  renderSpinner({ className: 'foo' });
+  expect(screen.getByRole('status')).toHaveClass('foo');
 });
 
 it('can be controlled by the loading prop', () => {
-  const { rerender } = renderDeferredSpinner({ loading: true });
-  jest.runAllTimers();
+  const { rerender } = renderSpinner({ loading: true });
   expect(screen.getByText('loading')).toBeInTheDocument();
 
-  rerender(prepareDeferredSpinner({ loading: false }));
+  rerender(prepareSpinner({ loading: false }));
   expect(screen.queryByText('loading')).not.toBeInTheDocument();
 });
 
-function renderDeferredSpinner(props: Partial<DeferredSpinner['props']> = {}) {
+function renderSpinner(props: Partial<Parameters<typeof Spinner>[0]> = {}) {
   // We don't use our renderComponent() helper here, as we have some tests that
   // require changes in props.
-  return render(prepareDeferredSpinner(props));
+  return render(prepareSpinner(props));
 }
 
-function prepareDeferredSpinner(props: Partial<DeferredSpinner['props']> = {}) {
-  return <DeferredSpinner ariaLabel="loading" {...props} />;
+function prepareSpinner(props: Partial<Parameters<typeof Spinner>[0]> = {}) {
+  return (
+    <IntlWrapper>
+      <Spinner {...props} />
+    </IntlWrapper>
+  );
 }

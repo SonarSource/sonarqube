@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, DeferredSpinner, Link, Title } from 'design-system';
+import { ButtonPrimary, Link, Spinner, Title } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Router } from '../../../../components/hoc/withRouter';
@@ -84,7 +84,7 @@ export default function NewCodeDefinitionSelection(props: Props) {
           type="submit"
         >
           {translate('onboarding.create_project.new_code_definition.create_project')}
-          <DeferredSpinner className="sw-ml-2" loading={submitting} />
+          <Spinner className="sw-ml-2" loading={submitting} />
         </ButtonPrimary>
       </div>
     </div>

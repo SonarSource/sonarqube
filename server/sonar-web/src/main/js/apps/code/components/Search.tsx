@@ -23,7 +23,7 @@ import { isEmpty, omit } from 'lodash';
 import * as React from 'react';
 import { getTree } from '../../../api/components';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
@@ -176,7 +176,7 @@ class Search extends React.PureComponent<Props, State> {
           size="large"
           value={this.state.query}
         />
-        <DeferredSpinner className="sw-ml-2" loading={loading} />
+        <Spinner className="sw-ml-2" loading={loading} />
       </div>
     );
   }

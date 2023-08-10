@@ -17,32 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
-import { Spinner, SubnavigationHeading, themeBorder } from 'design-system';
+import classNames from 'classnames';
 import * as React from 'react';
-import { Paging } from '../../../types/types';
-import IssuesCounter from '../components/IssuesCounter';
+import { translate } from '../../helpers/l10n';
+import './Spinner.css';
 
 interface Props {
-  loading: boolean;
-  paging: Paging | undefined;
-  selectedIndex: number | undefined;
+  ariaLabel?: string;
+  children?: React.ReactNode;
+  className?: string;
+  customSpinner?: JSX.Element;
+  loading?: boolean;
 }
 
-export default function SubnavigationIssuesListHeader(props: Props) {
-  const { loading, paging, selectedIndex } = props;
+export default function Spinner(props: Props) {
+  const {
+    ariaLabel = translate('loading'),
+    children,
+    className,
+    customSpinner,
+    loading = true,
+  } = props;
+
+  if (customSpinner) {
+    return <>{loading ? customSpinner : children}</>;
+  }
 
   return (
-    <StyledHeader>
-      <Spinner loading={loading}>
-        {paging && <IssuesCounter current={selectedIndex} total={paging.total} />}
-      </Spinner>
-    </StyledHeader>
+    <>
+      <div className="sw-overflow-hidden">
+        <i
+          aria-live="polite"
+          data-testid="spinner"
+          className={classNames('spinner', className, {
+            'a11y-hidden': !loading,
+            'is-loading': loading,
+          })}
+        >
+          {loading && <span className="a11y-hidden">{ariaLabel}</span>}
+        </i>
+      </div>
+      {!loading && children}
+    </>
   );
 }
-
-const StyledHeader = styled(SubnavigationHeading)`
-  position: sticky;
-  top: 0;
-  border-bottom: ${themeBorder('default', 'filterbarBorder')};
-`;

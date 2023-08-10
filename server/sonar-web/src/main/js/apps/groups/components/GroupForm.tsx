@@ -20,11 +20,11 @@
 import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { createGroup, updateGroup } from '../../../api/user_groups';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import SimpleModal from '../../../components/controls/SimpleModal';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { omitNil } from '../../../helpers/request';
 import { Group } from '../../../types/types';
@@ -123,7 +123,7 @@ export default function GroupForm(props: Props) {
           </div>
 
           <footer className="modal-foot">
-            <DeferredSpinner className="spacer-right" loading={submitting} />
+            <Spinner className="spacer-right" loading={submitting} />
             <SubmitButton disabled={submitting}>
               {create ? translate('create') : translate('update_verb')}
             </SubmitButton>

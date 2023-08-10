@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
 import { getRuleDetails } from '../../../api/rules';
-import { Button } from '../../../components/controls/buttons';
 import Tooltip from '../../../components/controls/Tooltip';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import { Button } from '../../../components/controls/buttons';
+import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RuleDetails } from '../../../types/types';
 import ActivationFormModal from '../../coding-rules/components/ActivationFormModal';
@@ -78,7 +78,7 @@ export default class ComparisonResultActivation extends React.PureComponent<Prop
     const { profile } = this.props;
 
     return (
-      <DeferredSpinner loading={this.state.state === 'opening'}>
+      <Spinner loading={this.state.state === 'opening'}>
         <Tooltip
           placement="bottom"
           overlay={translateWithParameters(
@@ -107,7 +107,7 @@ export default class ComparisonResultActivation extends React.PureComponent<Prop
             rule={this.state.rule}
           />
         )}
-      </DeferredSpinner>
+      </Spinner>
     );
   }
 }

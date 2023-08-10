@@ -23,8 +23,8 @@ import { getRuleDetails, getRulesApp } from '../../api/rules';
 import RuleDetailsDescription from '../../apps/coding-rules/components/RuleDetailsDescription';
 import RuleDetailsMeta from '../../apps/coding-rules/components/RuleDetailsMeta';
 import '../../apps/coding-rules/styles.css';
-import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { Dict, RuleDetails } from '../../types/types';
+import Spinner from '../ui/Spinner';
 
 interface Props {
   onLoad: (details: { name: string }) => void;
@@ -81,7 +81,7 @@ export default class WorkspaceRuleDetails extends React.PureComponent<Props, Sta
 
   render() {
     return (
-      <DeferredSpinner loading={this.state.loading}>
+      <Spinner loading={this.state.loading}>
         {this.state.ruleDetails && (
           <>
             <RuleDetailsMeta
@@ -99,7 +99,7 @@ export default class WorkspaceRuleDetails extends React.PureComponent<Props, Sta
             />
           </>
         )}
-      </DeferredSpinner>
+      </Spinner>
     );
   }
 }

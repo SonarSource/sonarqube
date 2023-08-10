@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { DeferredSpinner, LargeCenteredLayout, PageContentFontWrapper, Title } from 'design-system';
+import { LargeCenteredLayout, PageContentFontWrapper, Spinner, Title } from 'design-system';
 import { omit } from 'lodash';
 import React, { useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -57,7 +57,7 @@ export default function WebApiApp() {
     <LargeCenteredLayout>
       <PageContentFontWrapper className="sw-body-sm">
         <Helmet defer={false} title={translate('api_documentation.page')} />
-        <DeferredSpinner loading={isLoading}>
+        <Spinner loading={isLoading}>
           {data && (
             <div className="sw-w-full sw-flex">
               <NavContainer aria-label={translate('api_documentation.page')} className="sw--mx-2">
@@ -76,7 +76,7 @@ export default function WebApiApp() {
                 className="sw-relative sw-ml-12 sw-flex-1 sw-overflow-y-auto sw-py-6"
                 style={{ height: 'calc(100vh - 160px)' }}
               >
-                <DeferredSpinner loading={isLoading}>
+                <Spinner loading={isLoading}>
                   {!activeData && (
                     <>
                       <Title>{translate('about')}</Title>
@@ -91,11 +91,11 @@ export default function WebApiApp() {
                       method={activeData.method}
                     />
                   )}
-                </DeferredSpinner>
+                </Spinner>
               </main>
             </div>
           )}
-        </DeferredSpinner>
+        </Spinner>
       </PageContentFontWrapper>
     </LargeCenteredLayout>
   );

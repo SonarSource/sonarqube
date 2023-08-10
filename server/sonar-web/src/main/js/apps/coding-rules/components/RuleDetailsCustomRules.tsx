@@ -24,7 +24,7 @@ import Link from '../../../components/common/Link';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import { Button } from '../../../components/controls/buttons';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 import { Rule, RuleDetails } from '../../../types/types';
@@ -164,13 +164,13 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
             </CustomRuleButton>
           )}
 
-          <DeferredSpinner className="spacer-left" loading={loading}>
+          <Spinner className="spacer-left" loading={loading}>
             {rules.length > 0 && (
               <table className="coding-rules-detail-list" id="coding-rules-detail-custom-rules">
                 <tbody>{sortBy(rules, (rule) => rule.name).map(this.renderRule)}</tbody>
               </table>
             )}
-          </DeferredSpinner>
+          </Spinner>
         </div>
       </div>
     );

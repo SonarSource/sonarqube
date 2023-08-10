@@ -21,7 +21,6 @@
 import {
   ButtonPrimary,
   Checkbox,
-  DeferredSpinner,
   FlagMessage,
   FormField,
   HelperHintIcon,
@@ -31,6 +30,7 @@ import {
   LightLabel,
   Modal,
   RadioButton,
+  Spinner,
 } from 'design-system';
 import { pickBy, sortBy } from 'lodash';
 import * as React from 'react';
@@ -449,7 +449,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     const limitReached = paging && paging.total > MAX_PAGE_SIZE;
 
     return (
-      <DeferredSpinner loading={loading}>
+      <Spinner loading={loading}>
         <form id="bulk-change-form" onSubmit={this.handleSubmit}>
           {limitReached && (
             <FlagMessage className="sw-mb-4" variant="warning">
@@ -479,7 +479,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
             <FlagMessage variant="warning">{translate('issue_bulk_change.no_match')}</FlagMessage>
           )}
         </form>
-      </DeferredSpinner>
+      </Spinner>
     );
   };
 

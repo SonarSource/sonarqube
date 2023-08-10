@@ -24,7 +24,7 @@ import DocLink from '../../../../components/common/DocLink';
 import Modal from '../../../../components/controls/Modal';
 import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
 import { Alert } from '../../../../components/ui/Alert';
-import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
+import Spinner from '../../../../components/ui/Spinner';
 import { translate } from '../../../../helpers/l10n';
 import { useSaveValuesMutation } from '../../../../queries/settings';
 import { Dict } from '../../../../types/types';
@@ -101,10 +101,7 @@ export default function ConfigurationForm(props: Props) {
           <h2>{headerLabel}</h2>
         </div>
         <div className="modal-body modal-container">
-          <DeferredSpinner
-            loading={loading}
-            ariaLabel={translate('settings.authentication.form.loading')}
-          >
+          <Spinner loading={loading} ariaLabel={translate('settings.authentication.form.loading')}>
             <Alert variant={hasLegacyConfiguration ? 'warning' : 'info'}>
               <FormattedMessage
                 id={`settings.authentication.${
@@ -145,13 +142,13 @@ export default function ConfigurationForm(props: Props) {
                 </div>
               );
             })}
-          </DeferredSpinner>
+          </Spinner>
         </div>
 
         <div className="modal-foot">
           <SubmitButton disabled={!canBeSave}>
             {translate('settings.almintegration.form.save')}
-            <DeferredSpinner className="spacer-left" loading={loading} />
+            <Spinner className="spacer-left" loading={loading} />
           </SubmitButton>
           <ResetButtonLink onClick={props.onClose}>{translate('cancel')}</ResetButtonLink>
         </div>

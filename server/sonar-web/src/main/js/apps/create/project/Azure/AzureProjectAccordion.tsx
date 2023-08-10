@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Accordion, DeferredSpinner, FlagMessage, Link, SearchHighlighter } from 'design-system';
+import { Accordion, Spinner, FlagMessage, Link, SearchHighlighter } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import ListFooter from '../../../../components/controls/ListFooter';
@@ -66,9 +66,8 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
     >
       {/* eslint-disable-next-line local-rules/no-conditional-rendering-of-deferredspinner*/}
       {open && (
-        <DeferredSpinner loading={loading}>
-          {/* The extra loading guard is to prevent the flash of the Alert */}
-          {!loading && repositories.length === 0 ? (
+        <Spinner loading={loading}>
+          {repositories.length === 0 ? (
             <FlagMessage variant="warning">
               <span>
                 <FormattedMessage
@@ -118,7 +117,7 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
               />
             </>
           )}
-        </DeferredSpinner>
+        </Spinner>
       )}
     </Accordion>
   );

@@ -20,9 +20,10 @@
 
 /* eslint-disable import/no-extraneous-dependencies */
 
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
+import { renderWithContext } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
 import { Tags } from '../Tags';
 import { TagsSelector } from '../TagsSelector';
@@ -75,7 +76,7 @@ it('should allow editing tags', async () => {
 });
 
 function renderTags(overrides: Partial<FCProps<typeof Tags>> = {}) {
-  render(<Wrapper {...overrides} />);
+  renderWithContext(<Wrapper {...overrides} />);
 }
 
 function Wrapper(overrides: Partial<FCProps<typeof Tags>> = {}) {

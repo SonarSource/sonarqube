@@ -21,7 +21,7 @@ import { clone } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { fetchQualityGate } from '../../../api/quality-gates';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { Condition, QualityGate } from '../../../types/types';
@@ -151,7 +151,7 @@ export default class Details extends React.PureComponent<Props, State> {
 
     return (
       <main className="layout-page-main">
-        <DeferredSpinner loading={loading} timeout={200}>
+        <Spinner loading={loading}>
           {qualityGate && (
             <>
               <Helmet defer={false} title={qualityGate.name} />
@@ -171,7 +171,7 @@ export default class Details extends React.PureComponent<Props, State> {
               />
             </>
           )}
-        </DeferredSpinner>
+        </Spinner>
       </main>
     );
   }

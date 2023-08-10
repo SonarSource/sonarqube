@@ -20,7 +20,7 @@
 
 import * as React from 'react';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { fillBranchLike } from '../../../helpers/branch-like';
 import { Standards } from '../../../types/security';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
@@ -70,7 +70,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
 
   return (
     <>
-      <DeferredSpinner className="sw-ml-4 sw-mt-4" loading={loading} />
+      <Spinner className="sw-ml-4 sw-mt-4" loading={loading} />
 
       {showStatusUpdateSuccessModal && (
         <StatusUpdateSuccessModal

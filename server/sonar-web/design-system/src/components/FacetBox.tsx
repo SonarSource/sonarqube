@@ -25,8 +25,8 @@ import * as React from 'react';
 import tw from 'twin.macro';
 import { themeColor } from '../helpers';
 import { Badge } from './Badge';
-import { DeferredSpinner } from './DeferredSpinner';
 import { DestructiveIcon } from './InteractiveIcon';
+import { Spinner } from './Spinner';
 import Tooltip from './Tooltip';
 import { BareButton } from './buttons';
 import { OpenCloseIndicator } from './icons';
@@ -103,7 +103,7 @@ export function FacetBox(props: FacetBoxProps) {
           <HeaderTitle disabled={disabled}>{name}</HeaderTitle>
         </ChevronAndTitle>
 
-        {<DeferredSpinner loading={loading} />}
+        {<Spinner loading={loading} />}
 
         {counter > 0 && (
           <BadgeAndIcons>

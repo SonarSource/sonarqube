@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import CodeSnippet from '../../../components/common/CodeSnippet';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { WebhookDelivery } from '../../../types/webhook';
@@ -48,9 +48,9 @@ export default function DeliveryItem({ className, delivery, loading, payload }: 
         )}
       </p>
       <p className="spacer-bottom">{translate('webhooks.delivery.payload')}</p>
-      <DeferredSpinner className="spacer-left spacer-top" loading={loading}>
+      <Spinner className="spacer-left spacer-top" loading={loading}>
         {payload && <CodeSnippet noCopy snippet={formatPayload(payload)} />}
-      </DeferredSpinner>
+      </Spinner>
     </div>
   );
 }

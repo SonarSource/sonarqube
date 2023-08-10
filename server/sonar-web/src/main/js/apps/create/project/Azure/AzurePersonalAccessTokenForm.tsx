@@ -19,7 +19,7 @@
  */
 import {
   ButtonPrimary,
-  DeferredSpinner,
+  Spinner,
   FlagErrorIcon,
   FlagMessage,
   FormField,
@@ -61,7 +61,7 @@ export default function AzurePersonalAccessTokenForm({
   } = usePersonalAccessToken(almSetting, resetPat, onPersonalAccessTokenCreate);
 
   if (checkingPat) {
-    return <DeferredSpinner className="sw-ml-2" loading />;
+    return <Spinner className="sw-ml-2" loading />;
   }
 
   const isInvalid = (validationFailed && !touched) || (touched && !password);
@@ -147,7 +147,7 @@ export default function AzurePersonalAccessTokenForm({
         <ButtonPrimary type="submit" disabled={isInvalid || submitting || !touched}>
           {translate('save')}
         </ButtonPrimary>
-        <DeferredSpinner className="sw-ml-2" loading={submitting} />
+        <Spinner className="sw-ml-2" loading={submitting} />
       </div>
     </form>
   );

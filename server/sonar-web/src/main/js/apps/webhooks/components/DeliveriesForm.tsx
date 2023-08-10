@@ -23,7 +23,7 @@ import { searchDeliveries } from '../../../api/webhooks';
 import ListFooter from '../../../components/controls/ListFooter';
 import Modal from '../../../components/controls/Modal';
 import { ResetButtonLink } from '../../../components/controls/buttons';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Paging } from '../../../types/types';
 import { WebhookDelivery, WebhookResponse } from '../../../types/webhook';
@@ -87,7 +87,7 @@ export default function DeliveriesForm({ onClose, webhook }: Props) {
           <DeliveryAccordion delivery={delivery} key={delivery.id} />
         ))}
         <div className="text-center">
-          <DeferredSpinner loading={loading} />
+          <Spinner loading={loading} />
         </div>
         {paging !== undefined && (
           <ListFooter

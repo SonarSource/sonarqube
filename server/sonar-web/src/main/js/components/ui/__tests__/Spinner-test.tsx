@@ -17,32 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
-import { Spinner, SubnavigationHeading, themeBorder } from 'design-system';
+import { render, screen } from '@testing-library/react';
 import * as React from 'react';
-import { Paging } from '../../../types/types';
-import IssuesCounter from '../components/IssuesCounter';
+import Spinner from '../Spinner';
 
-interface Props {
-  loading: boolean;
-  paging: Paging | undefined;
-  selectedIndex: number | undefined;
+it('can be controlled by the loading prop', () => {
+  const { rerender } = renderSpinner({ loading: true });
+  expect(screen.getByText('loading')).toBeInTheDocument();
+
+  rerender(prepareSpinner({ loading: false }));
+  expect(screen.queryByText('loading')).not.toBeInTheDocument();
+});
+
+function renderSpinner(props: Partial<Parameters<typeof Spinner>[0]> = {}) {
+  // We don't use our renderComponent() helper here, as we have some tests that
+  // require changes in props.
+  return render(prepareSpinner(props));
 }
 
-export default function SubnavigationIssuesListHeader(props: Props) {
-  const { loading, paging, selectedIndex } = props;
-
-  return (
-    <StyledHeader>
-      <Spinner loading={loading}>
-        {paging && <IssuesCounter current={selectedIndex} total={paging.total} />}
-      </Spinner>
-    </StyledHeader>
-  );
+function prepareSpinner(props: Partial<Parameters<typeof Spinner>[0]> = {}) {
+  return <Spinner ariaLabel="loading" {...props} />;
 }
-
-const StyledHeader = styled(SubnavigationHeading)`
-  position: sticky;
-  top: 0;
-  border-bottom: ${themeBorder('default', 'filterbarBorder')};
-`;

@@ -86,7 +86,7 @@ describe('ListFooter using MIUI buttons', () => {
   describe('rendering', () => {
     it('should render correctly when loading', async () => {
       renderListFooter({ loading: true });
-      expect(await screen.findByLabelText('loading')).toBeInTheDocument();
+      expect(await screen.findByText('loading')).toBeInTheDocument();
     });
 
     it('should not render if there are neither loadmore nor reload props', () => {

@@ -24,7 +24,7 @@ import { fetchQualityGates } from '../../../api/quality-gates';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import '../../../components/search-navigator.css';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
   addSideBarClass,
@@ -135,9 +135,9 @@ class App extends React.PureComponent<Props, State> {
                       canCreate={canCreate}
                       refreshQualityGates={this.fetchQualityGates}
                     />
-                    <DeferredSpinner loading={this.state.loading}>
+                    <Spinner loading={this.state.loading}>
                       <List qualityGates={qualityGates} currentQualityGate={name} />
-                    </DeferredSpinner>
+                    </Spinner>
                   </div>
                 </div>
               </nav>

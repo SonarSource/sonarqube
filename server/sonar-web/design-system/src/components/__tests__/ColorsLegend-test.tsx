@@ -19,7 +19,7 @@
  */
 import { screen } from '@testing-library/react';
 
-import { render } from '../../helpers/testUtils';
+import { renderWithContext } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
 import { ColorsLegend } from '../ColorsLegend';
 
@@ -53,5 +53,5 @@ it('should react when a rating is clicked', () => {
 });
 
 function renderColorLegend(props: Partial<FCProps<typeof ColorsLegend>> = {}) {
-  return render(<ColorsLegend colors={colors} onColorClick={jest.fn()} {...props} />);
+  return renderWithContext(<ColorsLegend colors={colors} onColorClick={jest.fn()} {...props} />);
 }

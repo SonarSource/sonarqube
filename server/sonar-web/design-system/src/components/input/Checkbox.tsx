@@ -19,10 +19,10 @@
  */
 
 import styled from '@emotion/styled';
+import { Spinner } from 'design-system/src/components/Spinner';
 import React from 'react';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
-import { DeferredSpinner } from '../DeferredSpinner';
 import { CheckIcon } from '../icons/CheckIcon';
 import { CustomIcon } from '../icons/Icon';
 
@@ -76,11 +76,12 @@ export function Checkbox({
         onFocus={onFocus}
         type="checkbox"
       />
-      <DeferredSpinner loading={loading}>
+      {!loading && (
         <StyledCheckbox aria-hidden data-clickable="true" title={title}>
           <CheckboxIcon checked={checked} thirdState={thirdState} />
         </StyledCheckbox>
-      </DeferredSpinner>
+      )}
+      <Spinner loading={loading} />
       {!right && children}
     </CheckboxContainer>
   );
@@ -99,7 +100,7 @@ function CheckboxIcon({ checked, thirdState }: CheckIconProps) {
       </CustomIcon>
     );
   } else if (checked) {
-    return <CheckIcon fill="currentColor" />;
+    return <CheckIcon fill="buttonSecondary" />;
   }
   return null;
 }

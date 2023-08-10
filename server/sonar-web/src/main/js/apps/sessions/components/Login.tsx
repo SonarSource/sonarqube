@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Location } from '../../../components/hoc/withRouter';
 import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeUserInput } from '../../../helpers/sanitize';
 import { getReturnUrl } from '../../../helpers/urls';
@@ -50,7 +50,7 @@ export default function Login(props: LoginProps) {
       </h1>
       <Helmet defer={false} title={translate('login.page')} />
       {loading ? (
-        <DeferredSpinner loading={loading} timeout={0} />
+        <Spinner loading={loading} />
       ) : (
         <>
           {displayError && (

@@ -20,10 +20,10 @@
 /* eslint-disable react/no-unused-prop-types */
 import {
   ButtonSecondary,
-  DeferredSpinner,
   GreyCard,
   HelperHintIcon,
   LightPrimary,
+  Spinner,
   StandoutLink,
   TextMuted,
   Title,
@@ -106,7 +106,7 @@ function renderAlmOption(
         )}
       </div>
 
-      <DeferredSpinner loading={loadingBindings}>
+      <Spinner loading={loadingBindings}>
         {!hasConfig &&
           (canAdmin ? (
             <ButtonSecondary onClick={() => props.onConfigMode(configMode)}>
@@ -117,7 +117,7 @@ function renderAlmOption(
               <HelperHintIcon aria-label="help-tooltip" />
             </HelpTooltip>
           ))}
-      </DeferredSpinner>
+      </Spinner>
     </GreyCard>
   );
 }

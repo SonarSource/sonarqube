@@ -20,7 +20,7 @@
 
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
-import { DeferredSpinner } from '../DeferredSpinner';
+import { Spinner } from '../Spinner';
 
 interface Props {
   loading?: boolean;
@@ -31,7 +31,7 @@ interface Props {
 export function ModalFooter({ loading = false, primaryButton, secondaryButton }: Props) {
   return (
     <StyledFooter>
-      <DeferredSpinner loading={loading} />
+      <Spinner loading={loading} />
       {primaryButton}
       {secondaryButton}
     </StyledFooter>

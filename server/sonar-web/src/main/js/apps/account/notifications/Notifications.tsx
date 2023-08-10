@@ -25,7 +25,7 @@ import {
   WithNotificationsProps,
 } from '../../../components/hoc/withNotifications';
 import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import GlobalNotifications from './GlobalNotifications';
 import Projects from './Projects';
@@ -47,7 +47,7 @@ export function Notifications(props: WithNotificationsProps) {
     <div className="account-body account-container">
       <Helmet defer={false} title={translate('my_account.notifications')} />
       <Alert variant="info">{translate('notification.dispatcher.information')}</Alert>
-      <DeferredSpinner loading={loading}>
+      <Spinner loading={loading}>
         {notifications && (
           <>
             <GlobalNotifications
@@ -66,7 +66,7 @@ export function Notifications(props: WithNotificationsProps) {
             />
           </>
         )}
-      </DeferredSpinner>
+      </Spinner>
     </div>
   );
 }

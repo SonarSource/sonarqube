@@ -28,7 +28,7 @@ import FacetItemsList from '../../../components/facet/FacetItemsList';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import ListStyleFacetFooter from '../../../components/facet/ListStyleFacetFooter';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import {
@@ -236,7 +236,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
     const values = this.props[valuesProp];
 
     if (!stats) {
-      return <DeferredSpinner className="sw-ml-4" />;
+      return <Spinner className="sw-ml-4" />;
     }
 
     const categories = sortBy(Object.keys(stats), (key) => -stats[key]);
@@ -321,7 +321,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
     const values = this.props.sonarsourceSecurity;
 
     if (!stats) {
-      return <DeferredSpinner className="sw-ml-4" />;
+      return <Spinner className="sw-ml-4" />;
     }
 
     const sortedItems = sortBy(

@@ -16,13 +16,13 @@ exports[`renders 1`] = `
     type="search"
     value="foo"
   />
-  <DeferredSpinner
+  <Spinner
     loading={false}
   >
     <SearchIcon
       className="search-box-magnifier"
     />
-  </DeferredSpinner>
+  </Spinner>
   <ClearButton
     aria-label="clear"
     className="button-tiny search-box-clear"

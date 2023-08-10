@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DeferredSpinner, LightPrimary, PageContentFontWrapper, Title } from 'design-system';
+import { LightPrimary, PageContentFontWrapper, Spinner, Title } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import {
@@ -81,7 +81,7 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
         onChangeConfig={props.onSelectedAlmInstanceChange}
       />
 
-      <DeferredSpinner loading={loading}>
+      <Spinner loading={loading}>
         {!loading && !selectedAlmInstance && (
           <WrongBindingCountAlert alm={AlmKeys.BitbucketServer} canAdmin={!!canAdmin} />
         )}
@@ -104,7 +104,7 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
               onImportRepository={props.onImportRepository}
             />
           ))}
-      </DeferredSpinner>
+      </Spinner>
     </PageContentFontWrapper>
   );
 }

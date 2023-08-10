@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { DeferredSpinner, ItemButton } from 'design-system';
+import { ItemButton, Spinner } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 
@@ -61,9 +61,7 @@ export default class GlobalSearchShowMore extends React.PureComponent<Props> {
           this.handleMouseEnter(qualifier);
         }}
       >
-        <DeferredSpinner loading={loadingMore === qualifier}>
-          {translate('show_more')}
-        </DeferredSpinner>
+        <Spinner loading={loadingMore === qualifier}>{translate('show_more')}</Spinner>
       </ItemButton>
     );
   }

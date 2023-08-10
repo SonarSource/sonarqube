@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DeferredSpinner, FlagMessage, Link } from 'design-system';
+import { FlagMessage, Link, Spinner } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { useBranchWarrningQuery } from '../../../../queries/branch';
@@ -48,7 +48,7 @@ export function AnalysisStatus(props: HeaderMetaProps) {
   if (isInProgress || isPending) {
     return (
       <div className="sw-flex sw-items-center">
-        <DeferredSpinner timeout={0} />
+        <Spinner />
         <span className="sw-ml-1">
           {isInProgress
             ? translate('project_navigation.analysis_status.in_progress')

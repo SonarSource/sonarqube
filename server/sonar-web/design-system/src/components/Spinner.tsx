@@ -19,81 +19,49 @@
  */
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
-import React, { DetailedHTMLProps, HTMLAttributes } from 'react';
+import classNames from 'classnames';
+import * as React from 'react';
 import { useIntl } from 'react-intl';
 import tw from 'twin.macro';
 import { themeColor } from '../helpers/theme';
 
 interface Props {
   ariaLabel?: string;
-  children?: React.ReactNode;
   className?: string;
   customSpinner?: JSX.Element;
   loading?: boolean;
   placeholder?: boolean;
-  timeout?: number;
 }
 
-interface State {
-  showSpinner: boolean;
-}
+export function Spinner(props: React.PropsWithChildren<Props>) {
+  const intl = useIntl();
+  const {
+    customSpinner,
+    className,
+    children,
+    placeholder,
+    ariaLabel = intl.formatMessage({ id: 'loading' }),
+    loading = true,
+  } = props;
 
-const DEFAULT_TIMEOUT = 100;
-
-export class DeferredSpinner extends React.PureComponent<Props, State> {
-  timer?: number;
-  static displayName = 'DeferredSpinner';
-  state: State = { showSpinner: false };
-
-  componentDidMount() {
-    if (this.props.loading == null || this.props.loading) {
-      this.startTimer();
-    }
+  if (customSpinner) {
+    return <>{loading ? customSpinner : children}</>;
   }
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.loading === false && this.props.loading === true) {
-      this.stopTimer();
-      this.startTimer();
-    }
-    if (prevProps.loading === true && this.props.loading === false) {
-      this.stopTimer();
-      this.setState({ showSpinner: false });
-    }
-  }
-
-  componentWillUnmount() {
-    this.stopTimer();
-  }
-
-  startTimer = () => {
-    this.timer = window.setTimeout(() => {
-      this.setState({ showSpinner: true });
-    }, this.props.timeout ?? DEFAULT_TIMEOUT);
-  };
-
-  stopTimer = () => {
-    window.clearTimeout(this.timer);
-  };
-
-  render() {
-    const { showSpinner } = this.state;
-    const { customSpinner, className, children, placeholder, ariaLabel } = this.props;
-    if (showSpinner) {
-      if (customSpinner) {
-        return customSpinner;
-      }
-      // Overwrite aria-label only if defined
-      return <Spinner {...(ariaLabel ? { 'aria-label': ariaLabel } : {})} className={className} />;
-    }
-    if (children) {
-      return children;
-    }
-    if (placeholder) {
-      return <Placeholder className={className} />;
-    }
-    return null;
-  }
+  return (
+    <>
+      <div className="sw-overflow-hidden">
+        <StyledSpinner
+          aria-live="polite"
+          className={classNames(className, { 'a11y-hidden': !loading })}
+          role="status"
+        >
+          {loading && <span className="a11y-hidden">{ariaLabel}</span>}
+        </StyledSpinner>
+      </div>
+      {!loading && (children ?? (placeholder && <Placeholder className={className} />) ?? null)}
+    </>
+  );
 }
 
 const spinAnimation = keyframes`
@@ -106,7 +74,6 @@ const spinAnimation = keyframes`
   }
 `;
 
-/* Exported to allow styles to be overridden */
 export const StyledSpinner = styled.div`
   border: 2px solid transparent;
   background: linear-gradient(0deg, ${themeColor('primary')} 50%, transparent 50% 100%) border-box,
@@ -121,14 +88,6 @@ export const StyledSpinner = styled.div`
   ${tw`sw-box-border`};
   ${tw`sw-rounded-pill`}
 `;
-
-export function Spinner(props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
-  const intl = useIntl();
-
-  return (
-    <StyledSpinner aria-label={intl.formatMessage({ id: 'loading' })} role="status" {...props} />
-  );
-}
 
 const Placeholder = styled.div`
   position: relative;

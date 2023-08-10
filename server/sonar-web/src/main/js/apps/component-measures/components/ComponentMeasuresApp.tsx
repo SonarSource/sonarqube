@@ -20,10 +20,10 @@
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
-  DeferredSpinner,
   LargeCenteredLayout,
   Note,
   PageContentFontWrapper,
+  Spinner,
   themeBorder,
   themeColor,
 } from 'design-system';
@@ -266,10 +266,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
         <Suggestions suggestions="component_measures" />
         <Helmet defer={false} title={translate('layout.measures')} />
         <PageContentFontWrapper>
-          <DeferredSpinner
-            className="my-10 sw-flex sw-content-center"
-            loading={this.state.loading}
-          />
+          <Spinner className="my-10 sw-flex sw-content-center" loading={this.state.loading} />
 
           {measures.length > 0 ? (
             <div className="sw-grid sw-grid-cols-12 sw-w-full">

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BasicSeparator, Card, DeferredSpinner, PageTitle } from 'design-system';
+import { BasicSeparator, Card, PageTitle, Spinner } from 'design-system';
 import * as React from 'react';
 import GraphsHeader from '../../../components/activity-graph/GraphsHeader';
 import GraphsHistory from '../../../components/activity-graph/GraphsHistory';
@@ -115,7 +115,7 @@ export function ActivityPanel(props: ActivityPanelProps) {
         </div>
       </Card>
       <Card className="sw-mt-4" data-test="overview__activity-analyses">
-        <DeferredSpinner loading={loading}>
+        <Spinner loading={loading}>
           {filteredAnalyses.length === 0 ? (
             <p>{translate('no_results')}</p>
           ) : (
@@ -126,7 +126,7 @@ export function ActivityPanel(props: ActivityPanelProps) {
               </div>
             ))
           )}
-        </DeferredSpinner>
+        </Spinner>
       </Card>
     </div>
   );

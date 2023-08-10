@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.deferred-spinner {
+.spinner {
   position: relative;
   vertical-align: middle;
   width: 16px;
@@ -27,8 +27,8 @@
   animation: spin 0.75s infinite linear;
 }
 
-.deferred-spinner:before,
-.deferred-spinner:after {
+.spinner:before,
+.spinner:after {
   left: -2px;
   top: -2px;
   display: none;
@@ -40,9 +40,9 @@
   border-radius: inherit;
 }
 
-.deferred-spinner,
-.deferred-spinner:before,
-.deferred-spinner:after {
+.spinner,
+.spinner:before,
+.spinner:after {
   display: inline-block;
   box-sizing: border-box;
   border-color: transparent;
@@ -50,15 +50,15 @@
   animation-duration: 1.2s;
 }
 
-.deferred-spinner:before {
+.spinner:before {
   transform: rotate(120deg);
 }
 
-.deferred-spinner:after {
+.spinner:after {
   transform: rotate(240deg);
 }
 
-.deferred-spinner-placeholder {
+.spinner-placeholder {
   position: relative;
   display: inline-block;
   vertical-align: middle;

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DeferredSpinner, LightLabel } from 'design-system';
+import { LightLabel, Spinner } from 'design-system';
 import { isEqual, uniqBy } from 'lodash';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
@@ -73,7 +73,7 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
       return (
         <div className="sw-flex sw-justify-center sw-flex-col sw-items-stretch sw-grow">
           <div className="sw-text-center">
-            <DeferredSpinner ariaLabel={translate('loading')} loading={loading} />
+            <Spinner ariaLabel={translate('loading')} loading={loading} />
           </div>
         </div>
       );

@@ -20,7 +20,7 @@
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { isEqual } from 'date-fns';
-import { Badge, DeferredSpinner, LightLabel, themeColor } from 'design-system';
+import { Badge, LightLabel, Spinner, themeColor } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
@@ -113,7 +113,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
         <div>
           {this.props.initializing ? (
             <div className="sw-p-4 sw-body-sm">
-              <DeferredSpinner />
+              <Spinner />
             </div>
           ) : (
             <div className="sw-p-4 sw-body-sm">
@@ -183,7 +183,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
         })}
         {this.props.analysesLoading && (
           <li className="sw-text-center">
-            <DeferredSpinner />
+            <Spinner />
           </li>
         )}
       </ul>

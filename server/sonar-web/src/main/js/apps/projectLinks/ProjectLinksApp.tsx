@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { createLink, deleteLink, getProjectLinks } from '../../api/projectLinks';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
-import DeferredSpinner from '../../components/ui/DeferredSpinner';
+import Spinner from '../../components/ui/Spinner';
 import { translate } from '../../helpers/l10n';
 import { Component, ProjectLink } from '../../types/types';
 import Header from './Header';
@@ -105,9 +105,9 @@ export class ProjectLinksApp extends React.PureComponent<Props, State> {
       <div className="page page-limited">
         <Helmet defer={false} title={translate('project_links.page')} />
         <Header onCreate={this.handleCreateLink} />
-        <DeferredSpinner loading={loading}>
+        <Spinner loading={loading}>
           {links && <Table links={links} onDelete={this.handleDeleteLink} />}
-        </DeferredSpinner>
+        </Spinner>
       </div>
     );
   }

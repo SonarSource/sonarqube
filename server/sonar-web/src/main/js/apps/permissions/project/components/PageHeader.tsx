@@ -21,7 +21,7 @@ import * as React from 'react';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
 import { Button } from '../../../../components/controls/buttons';
 import { Alert } from '../../../../components/ui/Alert';
-import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
+import Spinner from '../../../../components/ui/Spinner';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/system';
 import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider';
@@ -81,7 +81,7 @@ export default function PageHeader(props: Props) {
         )}
       </h1>
 
-      <DeferredSpinner className="spacer-left" loading={loading} />
+      <Spinner className="spacer-left" loading={loading} />
 
       {canApplyPermissionTemplate && (
         <div className="page-actions">

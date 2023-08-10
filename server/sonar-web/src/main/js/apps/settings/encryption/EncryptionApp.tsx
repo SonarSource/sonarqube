@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { checkSecretKey, generateSecretKey } from '../../../api/settings';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import EncryptionForm from './EncryptionForm';
 import GenerateSecretKeyForm from './GenerateSecretKeyForm';
@@ -74,7 +74,7 @@ export default class EncryptionApp extends React.PureComponent<{}, State> {
         <Helmet defer={false} title={translate('property.category.security.encryption')} />
         <header className="page-header">
           <h1 className="page-title">{translate('property.category.security.encryption')}</h1>
-          <DeferredSpinner loading={loading} />
+          <Spinner loading={loading} />
         </header>
 
         {!loading && !secretKeyAvailable && (

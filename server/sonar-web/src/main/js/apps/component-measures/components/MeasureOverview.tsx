@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DeferredSpinner } from 'design-system';
+import { Spinner } from 'design-system';
 import * as React from 'react';
 import { getComponentLeaves } from '../../../api/components';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
@@ -169,7 +169,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
         />
 
         <div className="sw-p-6">
-          <DeferredSpinner loading={loading} />
+          <Spinner loading={loading} />
           {!loading && this.renderContent(isFileComponent)}
         </div>
       </div>

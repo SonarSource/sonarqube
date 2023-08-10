@@ -21,7 +21,7 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Toggle from '../../../components/controls/Toggle';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { isMainBranch } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { useExcludeFromPurgeMutation } from '../../../queries/branch';
@@ -52,7 +52,7 @@ export default function BranchPurgeSetting(props: Props) {
     <>
       <Toggle disabled={disabled} onChange={handleOnChange} value={branch.excludedFromPurge} />
       <span className="spacer-left">
-        <DeferredSpinner loading={isLoading} />
+        <Spinner loading={isLoading} />
       </span>
       {isTheMainBranch && (
         <HelpTooltip

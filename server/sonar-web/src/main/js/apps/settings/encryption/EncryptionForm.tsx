@@ -23,7 +23,7 @@ import { encryptValue } from '../../../api/settings';
 import DocLink from '../../../components/common/DocLink';
 import { SubmitButton } from '../../../components/controls/buttons';
 import { ClipboardButton } from '../../../components/controls/clipboard';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -101,7 +101,7 @@ export default class EncryptionForm extends React.PureComponent<Props, State> {
             <SubmitButton disabled={encrypting || generating}>
               {translate('encryption.encrypt')}
             </SubmitButton>
-            <DeferredSpinner className="spacer-left" loading={encrypting} />
+            <Spinner className="spacer-left" loading={encrypting} />
           </div>
         </form>
 
@@ -143,7 +143,7 @@ export default class EncryptionForm extends React.PureComponent<Props, State> {
           <SubmitButton disabled={generating || encrypting}>
             {translate('encryption.generate_new_secret_key')}{' '}
           </SubmitButton>
-          <DeferredSpinner className="spacer-left" loading={generating} />
+          <Spinner className="spacer-left" loading={generating} />
         </form>
       </div>
     );

@@ -20,10 +20,10 @@
 import { FormikValues } from 'formik';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import DeferredSpinner from '../ui/DeferredSpinner';
-import { ResetButtonLink, SubmitButton } from './buttons';
+import Spinner from '../ui/Spinner';
 import Modal, { ModalProps } from './Modal';
 import ValidationForm, { ChildrenProps } from './ValidationForm';
+import { ResetButtonLink, SubmitButton } from './buttons';
 
 interface Props<V> extends ModalProps {
   children: (props: ChildrenProps<V>) => React.ReactNode;
@@ -65,7 +65,7 @@ export default class ValidationModal<V extends FormikValues> extends React.PureC
               <div className="modal-body">{this.props.children(props)}</div>
 
               <footer className="modal-foot">
-                <DeferredSpinner className="spacer-right" loading={props.isSubmitting} />
+                <Spinner className="spacer-right" loading={props.isSubmitting} />
                 <SubmitButton
                   className={this.props.isDestructive ? 'button-red' : undefined}
                   disabled={props.isSubmitting || !props.isValid || !props.dirty}

@@ -21,7 +21,7 @@ import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
@@ -155,7 +155,7 @@ export default function HotspotSnippetContainerRenderer(
       <SourceFileWrapper className="sw-box-border sw-w-full sw-rounded-1" ref={scrollableRef}>
         <HotspotSnippetHeader hotspot={hotspot} component={component} branchLike={branchLike} />
 
-        <DeferredSpinner className="big-spacer" loading={loading} />
+        <Spinner className="big-spacer" loading={loading} />
 
         {!loading && sourceLines.length > 0 && (
           <SnippetViewer

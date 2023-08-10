@@ -25,7 +25,7 @@ import {
   PopupPlacement,
 } from 'design-system';
 import * as React from 'react';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { openHotspot, probeSonarLintServers } from '../../../helpers/sonarlint';
@@ -122,7 +122,7 @@ export default class HotspotOpenInIdeButton extends React.PureComponent<Props, S
         >
           <ButtonSecondary onClick={this.handleOnClick}>
             {translate('hotspots.open_in_ide.open')}
-            <DeferredSpinner loading={loading} className="sw-ml-4" />
+            <Spinner loading={loading} className="sw-ml-4" />
           </ButtonSecondary>
         </DropdownToggler>
       </div>

@@ -559,7 +559,7 @@ describe('notifications page', () => {
     renderAccountApp(mockLoggedInUser(), notificationsPagePath);
 
     await user.click(
-      screen.getByRole('button', { name: 'my_profile.per_project_notifications.add' })
+      await screen.findByRole('button', { name: 'my_profile.per_project_notifications.add' })
     );
     expect(screen.getByLabelText('search.placeholder', { selector: 'input' })).toBeInTheDocument();
     await user.keyboard('sonarqube');

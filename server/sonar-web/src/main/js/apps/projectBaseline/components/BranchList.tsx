@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../api/newCodePeriod';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { DEFAULT_NEW_CODE_DEFINITION_TYPE } from '../../../helpers/new-code-definition';
@@ -141,7 +141,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
     }
 
     if (loading) {
-      return <DeferredSpinner />;
+      return <Spinner />;
     }
 
     return (

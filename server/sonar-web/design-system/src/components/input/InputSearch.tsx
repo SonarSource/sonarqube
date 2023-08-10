@@ -28,8 +28,8 @@ import { Key } from '../../helpers/keyboard';
 import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
 import { isDefined } from '../../helpers/types';
 import { InputSizeKeys } from '../../types/theme';
-import { DeferredSpinner, StyledSpinner } from '../DeferredSpinner';
 import { InteractiveIcon } from '../InteractiveIcon';
+import { Spinner, StyledSpinner } from '../Spinner';
 import { CloseIcon } from '../icons/CloseIcon';
 import { SearchIcon } from '../icons/SearchIcon';
 
@@ -160,9 +160,9 @@ export function InputSearch({
             value={value}
           />
         )}
-        <DeferredSpinner className="sw-z-normal" loading={loading ?? false}>
+        <Spinner className="sw-z-normal" loading={loading ?? false}>
           <StyledSearchIcon />
-        </DeferredSpinner>
+        </Spinner>
         {value && (
           <StyledInteractiveIcon
             Icon={CloseIcon}

@@ -21,7 +21,7 @@ module.exports = {
   meta: {
     messages: {
       noConditionalRenderingOfDeferredSpinner:
-        'For accessibility reasons, you should not conditionally render a <DeferredSpinner />. Always render it, and pass a loading prop instead.',
+        'For accessibility reasons, you should not conditionally render a <Spinner />. Always render it, and pass a loading prop instead.',
     },
   },
   create(context) {
@@ -54,6 +54,6 @@ function isDeferredSpinnerComponent(element) {
   return (
     element.type === 'JSXElement' &&
     element.openingElement &&
-    element.openingElement.name.name === 'DeferredSpinner'
+    element.openingElement.name.name === 'Spinner'
   );
 }

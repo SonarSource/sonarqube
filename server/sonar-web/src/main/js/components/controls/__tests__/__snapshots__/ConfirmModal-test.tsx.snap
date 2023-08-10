@@ -4,7 +4,7 @@ exports[`should confirm and close after confirm 1`] = `
 <footer
   className="modal-foot"
 >
-  <DeferredSpinner
+  <Spinner
     className="spacer-right"
     loading={true}
   />
@@ -59,7 +59,7 @@ exports[`should render correctly 2`] = `
       <footer
         className="modal-foot"
       >
-        <DeferredSpinner
+        <Spinner
           className="spacer-right"
           loading={false}
         />

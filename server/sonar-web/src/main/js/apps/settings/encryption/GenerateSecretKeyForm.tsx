@@ -22,7 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import DocLink from '../../../components/common/DocLink';
 import { SubmitButton } from '../../../components/controls/buttons';
 import { ClipboardButton } from '../../../components/controls/clipboard';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -125,7 +125,7 @@ export default class GenerateSecretKeyForm extends React.PureComponent<Props, St
             <SubmitButton disabled={submitting}>
               {translate('encryption.generate_secret_key')}
             </SubmitButton>
-            <DeferredSpinner className="spacer-left" loading={submitting} />
+            <Spinner className="spacer-left" loading={submitting} />
           </form>
         )}
       </div>

@@ -20,7 +20,6 @@
 import {
   ButtonSecondary,
   ClipboardIconButton,
-  DeferredSpinner,
   DestructiveIcon,
   FlagMessage,
   InputField,
@@ -28,6 +27,7 @@ import {
   LabelValueSelectOption,
   Link,
   Modal,
+  Spinner,
   TrashIcon,
 } from 'design-system';
 import * as React from 'react';
@@ -205,7 +205,7 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
         ) : (
           <>
             <div className="sw-flex sw-pt-4">
-              <DeferredSpinner loading={loading}>
+              <Spinner loading={loading}>
                 <div className="sw-flex-col sw-mr-2">
                   <label className="sw-block" htmlFor="token-name">
                     {translate('onboarding.token.name.label')}
@@ -243,7 +243,7 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
                     </ButtonSecondary>
                   </div>
                 </div>
-              </DeferredSpinner>
+              </Spinner>
             </div>
             {type === TokenType.Project && <ProjectTokenScopeInfo />}
           </>

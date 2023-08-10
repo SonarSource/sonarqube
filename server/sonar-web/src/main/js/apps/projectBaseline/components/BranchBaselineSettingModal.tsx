@@ -25,7 +25,7 @@ import { ResetButtonLink, SubmitButton } from '../../../components/controls/butt
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
 import NewCodeDefinitionWarning from '../../../components/new-code-definition/NewCodeDefinitionWarning';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { toISO8601WithOffsetString } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getNumberOfDaysDefaultValue } from '../../../helpers/new-code-definition';
@@ -218,7 +218,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
             )}
           </div>
           <footer className="modal-foot">
-            <DeferredSpinner className="spacer-right" loading={saving} />
+            <Spinner className="spacer-right" loading={saving} />
             <SubmitButton disabled={!isChanged || saving || !isValid}>
               {translate('save')}
             </SubmitButton>

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import Link from '../../../components/common/Link';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
@@ -34,7 +34,7 @@ function LifetimeInformationRenderer(props: LifetimeInformationRendererProps) {
   const { branchAndPullRequestLifeTimeInDays, canAdmin, loading } = props;
 
   return (
-    <DeferredSpinner loading={loading}>
+    <Spinner loading={loading}>
       {branchAndPullRequestLifeTimeInDays && (
         <p className="page-description">
           <FormattedMessage
@@ -53,7 +53,7 @@ function LifetimeInformationRenderer(props: LifetimeInformationRendererProps) {
           )}
         </p>
       )}
-    </DeferredSpinner>
+    </Spinner>
   );
 }
 

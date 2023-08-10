@@ -18,10 +18,9 @@ exports[`should render correctly 1`] = `
           className="big-spacer-left"
         >
           bulk_change
-          <DeferredSpinner
+          <Spinner
             className="spacer-left"
             loading={false}
-            timeout={10}
           />
         </span>
       </Checkbox>

@@ -28,7 +28,7 @@ import NewCodeDefinitionDaysOption from '../../../components/new-code-definition
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
 import NewCodeDefinitionWarning from '../../../components/new-code-definition/NewCodeDefinitionWarning';
 import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { isNewCodeDefinitionCompliant } from '../../../helpers/new-code-definition';
 import { Branch } from '../../../types/branch-like';
@@ -196,7 +196,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
         <Alert variant="info" className="spacer-bottom">
           {translate('baseline.next_analysis_notice')}
         </Alert>
-        <DeferredSpinner className="spacer-right" loading={saving} />
+        <Spinner className="spacer-right" loading={saving} />
         <SubmitButton disabled={saving || !isValid || !isChanged}>{translate('save')}</SubmitButton>
         <ResetButtonLink className="spacer-left" onClick={props.onCancel}>
           {translate('cancel')}

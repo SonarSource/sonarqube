@@ -20,7 +20,6 @@
 import {
   ButtonPrimary,
   ButtonSecondary,
-  DeferredSpinner,
   DestructiveIcon,
   FlagMessage,
   FlagSuccessIcon,
@@ -32,6 +31,7 @@ import {
   Link,
   Note,
   RadioButton,
+  Spinner,
   TrashIcon,
 } from 'design-system';
 import * as React from 'react';
@@ -266,7 +266,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                   <ButtonSecondary
                     type="submit"
                     disabled={!tokenName || loading}
-                    icon={<DeferredSpinner className="sw-mr-1" loading={loading} />}
+                    icon={<Spinner className="sw-mr-1" loading={loading} />}
                   >
                     {translate('onboarding.token.generate')}
                   </ButtonSecondary>
@@ -345,14 +345,14 @@ export default class TokenStep extends React.PureComponent<Props, State> {
               <strong className="sw-font-semibold">{token}</strong>
             </span>
 
-            <DeferredSpinner className="sw-ml-3 sw-my-2" loading={loading}>
+            <Spinner className="sw-ml-3 sw-my-2" loading={loading}>
               <DestructiveIcon
                 className="sw-ml-1"
                 Icon={TrashIcon}
                 aria-label={translate('onboarding.token.delete')}
                 onClick={this.handleTokenRevoke}
               />
-            </DeferredSpinner>
+            </Spinner>
           </form>
         ) : (
           <div>

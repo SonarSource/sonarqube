@@ -23,7 +23,7 @@ import {
   WithNotificationsProps,
   withNotifications,
 } from '../../../components/hoc/withNotifications';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { hasMessage, translate, translateWithParameters } from '../../../helpers/l10n';
 import { NotificationProjectType } from '../../../types/notifications';
 import { Component } from '../../../types/types';
@@ -79,7 +79,7 @@ export function ProjectNotifications(props: WithNotificationsProps & Props) {
         {translate('notification.dispatcher.information')}
       </FlagMessage>
 
-      <DeferredSpinner loading={loading}>
+      <Spinner loading={loading}>
         <h3 id="notifications-update-title" className="sw-mt-6">
           {translate('project_information.project_notifications.title')}
         </h3>
@@ -102,7 +102,7 @@ export function ProjectNotifications(props: WithNotificationsProps & Props) {
             </li>
           ))}
         </ul>
-      </DeferredSpinner>
+      </Spinner>
     </form>
   );
 }

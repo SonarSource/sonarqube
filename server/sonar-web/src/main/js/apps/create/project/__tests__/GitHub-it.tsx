@@ -76,9 +76,6 @@ it('should redirect to github authorization page when not already authorized', a
   await selectEvent.select(ui.instanceSelector.get(), [/conf-github-1/]);
 
   expect(window.location.replace).toHaveBeenCalled();
-  expect(
-    screen.getByText('onboarding.create_project.github.choose_organization')
-  ).toBeInTheDocument();
 });
 
 it('should not redirect to github when url is malformated', async () => {

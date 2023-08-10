@@ -92,7 +92,7 @@ exports[`should render correctly 2`] = `
     <footer
       className="modal-foot"
     >
-      <DeferredSpinner
+      <Spinner
         className="spacer-right"
         loading={false}
       />

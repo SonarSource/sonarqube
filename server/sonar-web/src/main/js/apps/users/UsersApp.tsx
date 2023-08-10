@@ -29,7 +29,7 @@ import SearchBox from '../../components/controls/SearchBox';
 import Select, { LabelValueSelectOption } from '../../components/controls/Select';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import { Provider, useManageProvider } from '../../components/hooks/useManageProvider';
-import DeferredSpinner from '../../components/ui/DeferredSpinner';
+import Spinner from '../../components/ui/Spinner';
 import { now, toISO8601WithOffsetString } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 import { useUsersQueries } from '../../queries/users';
@@ -141,13 +141,13 @@ export default function UsersApp() {
           />
         </div>
       </div>
-      <DeferredSpinner loading={isLoading}>
+      <Spinner loading={isLoading}>
         <UsersList
           identityProviders={identityProviders}
           users={users}
           manageProvider={manageProvider}
         />
-      </DeferredSpinner>
+      </Spinner>
 
       <ListFooter
         count={users.length}

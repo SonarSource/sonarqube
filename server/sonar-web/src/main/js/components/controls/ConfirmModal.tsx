@@ -19,11 +19,11 @@
  */
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import DeferredSpinner from '../ui/DeferredSpinner';
-import { ResetButtonLink, SubmitButton } from './buttons';
+import Spinner from '../ui/Spinner';
 import ClickEventBoundary from './ClickEventBoundary';
 import { ModalProps } from './Modal';
 import SimpleModal, { ChildrenProps } from './SimpleModal';
+import { ResetButtonLink, SubmitButton } from './buttons';
 
 export interface ConfirmModalProps<T> extends ModalProps {
   cancelButtonText?: string;
@@ -88,7 +88,7 @@ export default class ConfirmModal<T = string> extends React.PureComponent<Props<
           </header>
           <div className="modal-body">{children}</div>
           <footer className="modal-foot">
-            <DeferredSpinner className="spacer-right" loading={submitting} />
+            <Spinner className="spacer-right" loading={submitting} />
             <SubmitButton
               autoFocus
               className={isDestructive ? 'button-red' : undefined}

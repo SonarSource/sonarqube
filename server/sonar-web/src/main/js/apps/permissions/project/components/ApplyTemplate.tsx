@@ -19,13 +19,13 @@
  */
 import * as React from 'react';
 import { applyTemplateToProject, getPermissionTemplates } from '../../../../api/permissions';
-import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
 import Select from '../../../../components/controls/Select';
 import SimpleModal from '../../../../components/controls/SimpleModal';
+import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
 import { Alert } from '../../../../components/ui/Alert';
-import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../../components/ui/MandatoryFieldsExplanation';
+import Spinner from '../../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { PermissionTemplate } from '../../../../types/types';
 
@@ -147,7 +147,7 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
             </div>
 
             <footer className="modal-foot">
-              <DeferredSpinner className="spacer-right" loading={submitting} />
+              <Spinner className="spacer-right" loading={submitting} />
               {!this.state.done && (
                 <SubmitButton disabled={submitting || !this.state.permissionTemplate}>
                   {translate('apply')}

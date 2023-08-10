@@ -20,13 +20,13 @@
 
 import {
   ButtonPrimary,
-  DeferredSpinner,
   FlagErrorIcon,
   FlagMessage,
   FormField,
   InputField,
   LightPrimary,
   Link,
+  Spinner,
 } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -60,7 +60,7 @@ export default function BitbucketCloudPersonalAccessTokenForm({
   } = usePersonalAccessToken(almSetting, resetPat, onPersonalAccessTokenCreated);
 
   if (checkingPat) {
-    return <DeferredSpinner className="sw-ml-2" loading />;
+    return <Spinner className="sw-ml-2" loading />;
   }
 
   const isInvalid = validationFailed && !touched;
@@ -179,7 +179,7 @@ export default function BitbucketCloudPersonalAccessTokenForm({
       <ButtonPrimary type="submit" disabled={submitButtonDiabled} className="sw-mb-6">
         {translate('save')}
       </ButtonPrimary>
-      <DeferredSpinner className="sw-ml-2" loading={submitting} />
+      <Spinner className="sw-ml-2" loading={submitting} />
     </form>
   );
 }

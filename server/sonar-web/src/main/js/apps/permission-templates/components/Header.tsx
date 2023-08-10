@@ -22,7 +22,7 @@ import { createPermissionTemplate } from '../../../api/permissions';
 import { Button } from '../../../components/controls/buttons';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { Alert } from '../../../components/ui/Alert';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { throwGlobalError } from '../../../helpers/error';
 import { translate } from '../../../helpers/l10n';
 import { useGithubProvisioningEnabledQuery } from '../../../queries/identity-provider';
@@ -62,7 +62,7 @@ function Header(props: Props) {
       <header className="page-header" id="project-permissions-header">
         <h1 className="page-title">{translate('permission_templates.page')}</h1>
 
-        <DeferredSpinner loading={!ready} />
+        <Spinner loading={!ready} />
 
         <div className="page-actions">
           <Button onClick={() => setCreateModal(true)}>{translate('create')}</Button>

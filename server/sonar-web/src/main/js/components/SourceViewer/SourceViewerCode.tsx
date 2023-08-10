@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ButtonSecondary, DeferredSpinner, LightLabel, SonarCodeColorizer } from 'design-system';
+import { ButtonSecondary, LightLabel, SonarCodeColorizer, Spinner } from 'design-system';
 import * as React from 'react';
 import { decorateWithUnderlineFlags } from '../../helpers/code-viewer';
 import { translate } from '../../helpers/l10n';
@@ -287,7 +287,7 @@ export default class SourceViewerCode extends React.PureComponent<Props, State> 
             <div className="sw-flex sw-justify-center sw-p-6">
               {loadingSourcesBefore ? (
                 <div className="sw-flex sw-items-center">
-                  <DeferredSpinner loading />
+                  <Spinner loading />
                   <LightLabel className="sw-ml-2">
                     {translate('source_viewer.loading_more_code')}
                   </LightLabel>
@@ -326,7 +326,7 @@ export default class SourceViewerCode extends React.PureComponent<Props, State> 
             <div className="sw-flex sw-justify-center sw-p-6">
               {loadingSourcesAfter ? (
                 <div className="sw-flex sw-items-center">
-                  <DeferredSpinner loading />
+                  <Spinner loading />
                   <LightLabel className="sw-ml-2">
                     {translate('source_viewer.loading_more_code')}
                   </LightLabel>

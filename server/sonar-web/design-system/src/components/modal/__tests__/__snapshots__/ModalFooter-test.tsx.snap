@@ -1,6 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render with primary and secondary buttons 1`] = `
+@keyframes animation-0 {
+  from {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(-360deg);
+    -moz-transform: rotate(-360deg);
+    -ms-transform: rotate(-360deg);
+    transform: rotate(-360deg);
+  }
+}
+
 .emotion-0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -17,10 +33,36 @@ exports[`should render with primary and secondary buttons 1`] = `
   gap: 0.75rem;
 }
 
+.emotion-2 {
+  border: 2px solid transparent;
+  background: linear-gradient(0deg, rgb(93,108,208) 50%, transparent 50% 100%) border-box,linear-gradient(90deg, rgb(93,108,208) 25%, transparent 75% 100%) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  -webkit-mask-composite: exclude;
+  mask-composite: exclude;
+  -webkit-animation: animation-0 1s infinite linear;
+  animation: animation-0 1s infinite linear;
+  height: 1rem;
+  width: 1rem;
+  display: inline-block;
+  box-sizing: border-box;
+  border-radius: 625rem;
+}
+
 <div>
   <div
     class="emotion-0 emotion-1"
   >
+    <div
+      class="sw-overflow-hidden"
+    >
+      <div
+        aria-live="polite"
+        class="a11y-hidden emotion-2 emotion-3"
+        role="status"
+      />
+    </div>
     <button
       type="button"
     >
@@ -36,6 +78,22 @@ exports[`should render with primary and secondary buttons 1`] = `
 `;
 
 exports[`should render with secondary button 1`] = `
+@keyframes animation-0 {
+  from {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(-360deg);
+    -moz-transform: rotate(-360deg);
+    -ms-transform: rotate(-360deg);
+    transform: rotate(-360deg);
+  }
+}
+
 .emotion-0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -52,10 +110,36 @@ exports[`should render with secondary button 1`] = `
   gap: 0.75rem;
 }
 
+.emotion-2 {
+  border: 2px solid transparent;
+  background: linear-gradient(0deg, rgb(93,108,208) 50%, transparent 50% 100%) border-box,linear-gradient(90deg, rgb(93,108,208) 25%, transparent 75% 100%) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  -webkit-mask-composite: exclude;
+  mask-composite: exclude;
+  -webkit-animation: animation-0 1s infinite linear;
+  animation: animation-0 1s infinite linear;
+  height: 1rem;
+  width: 1rem;
+  display: inline-block;
+  box-sizing: border-box;
+  border-radius: 625rem;
+}
+
 <div>
   <div
     class="emotion-0 emotion-1"
   >
+    <div
+      class="sw-overflow-hidden"
+    >
+      <div
+        aria-live="polite"
+        class="a11y-hidden emotion-2 emotion-3"
+        role="status"
+      />
+    </div>
     <button
       type="button"
     >

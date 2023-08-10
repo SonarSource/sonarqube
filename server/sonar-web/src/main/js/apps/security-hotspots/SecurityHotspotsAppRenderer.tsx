@@ -21,12 +21,12 @@
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
-  DeferredSpinner,
   LAYOUT_FOOTER_HEIGHT,
   LAYOUT_GLOBAL_NAV_HEIGHT,
   LAYOUT_PROJECT_NAV_HEIGHT,
   LargeCenteredLayout,
   PageContentFontWrapper,
+  Spinner,
   themeBorder,
   themeColor,
 } from 'design-system';
@@ -159,13 +159,13 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                   }px`,
                 }}
               >
-                <DeferredSpinner className="sw-mt-3" loading={loading}>
-                  <HotspotFilterByStatus
-                    filters={filters}
-                    isStaticListOfHotspots={isStaticListOfHotspots}
-                    onChangeFilters={onChangeFilters}
-                    onShowAllHotspots={onShowAllHotspots}
-                  />
+                <HotspotFilterByStatus
+                  filters={filters}
+                  isStaticListOfHotspots={isStaticListOfHotspots}
+                  onChangeFilters={onChangeFilters}
+                  onShowAllHotspots={onShowAllHotspots}
+                />
+                <Spinner className="sw-mt-3" loading={loading}>
                   {hotspots.length > 0 && selectedHotspot && (
                     <>
                       {filterByCategory || filterByCWE || filterByFile ? (
@@ -200,7 +200,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                       )}
                     </>
                   )}
-                </DeferredSpinner>
+                </Spinner>
               </StyledSidebarContent>
             </StyledSidebar>
 

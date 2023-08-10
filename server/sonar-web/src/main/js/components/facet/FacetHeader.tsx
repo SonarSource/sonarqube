@@ -22,9 +22,9 @@ import * as React from 'react';
 import HelpTooltip from '../../components/controls/HelpTooltip';
 import { Button, ButtonLink } from '../../components/controls/buttons';
 import OpenCloseIcon from '../../components/icons/OpenCloseIcon';
-import DeferredSpinner from '../../components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import Tooltip from '../controls/Tooltip';
+import Spinner from '../ui/Spinner';
 
 interface Props {
   children?: React.ReactNode;
@@ -118,7 +118,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
 
         {fetching && (
           <span className="little-spacer-right">
-            <DeferredSpinner />
+            <Spinner />
           </span>
         )}
 

@@ -17,13 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  DangerButtonSecondary,
-  DeferredSpinner,
-  FlagMessage,
-  HtmlFormatter,
-  Modal,
-} from 'design-system';
+import { DangerButtonSecondary, FlagMessage, HtmlFormatter, Modal, Spinner } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { sanitizeStringRestricted } from '../../../../helpers/sanitize';
@@ -77,10 +71,7 @@ export function AnalysisWarningsModal(props: Props) {
                   {translate('dismiss_permanently')}
                 </DangerButtonSecondary>
 
-                <DeferredSpinner
-                  className="sw-ml-2"
-                  loading={isLoading && variables?.key === key}
-                />
+                <Spinner className="sw-ml-2" loading={isLoading && variables?.key === key} />
               </div>
             )}
           </div>

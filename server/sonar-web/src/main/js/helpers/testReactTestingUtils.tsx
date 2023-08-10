@@ -23,7 +23,7 @@ import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import { omit } from 'lodash';
 import * as React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
-import { IntlProvider } from 'react-intl';
+import { IntlProvider, ReactIntlErrorCode } from 'react-intl';
 import { MemoryRouter, Outlet, Route, Routes, parsePath } from 'react-router-dom';
 import AdminContext from '../app/components/AdminContext';
 import GlobalMessagesContainer from '../app/components/GlobalMessagesContainer';
@@ -100,7 +100,7 @@ export function renderComponent(
     const queryClient = new QueryClient();
 
     return (
-      <IntlProvider defaultLocale="en" locale="en">
+      <IntlWrapper>
         <QueryClientProvider client={queryClient}>
           <HelmetProvider>
             <AvailableFeaturesContext.Provider value={featureList}>
@@ -114,7 +114,7 @@ export function renderComponent(
             </AvailableFeaturesContext.Provider>
           </HelmetProvider>
         </QueryClientProvider>
-      </IntlProvider>
+      </IntlWrapper>
     );
   }
 
@@ -194,7 +194,7 @@ function renderRoutedApp(
 
   return render(
     <HelmetProvider context={{}}>
-      <IntlProvider defaultLocale="en" locale="en">
+      <IntlWrapper>
         <MetricsContext.Provider value={metrics}>
           <LanguagesContext.Provider value={languages}>
             <AvailableFeaturesContext.Provider value={featureList}>
@@ -216,7 +216,7 @@ function renderRoutedApp(
             </AvailableFeaturesContext.Provider>
           </LanguagesContext.Provider>
         </MetricsContext.Provider>
-      </IntlProvider>
+      </IntlWrapper>
     </HelmetProvider>
   );
 }
@@ -258,4 +258,29 @@ Example:
   return target
     ? within(target).getByText(text, { selector })
     : screen.getByText(text, { selector });
+}
+
+export function IntlWrapper({
+  children,
+  messages = {},
+}: {
+  children: React.ReactNode;
+  messages?: Record<string, string>;
+}) {
+  return (
+    <IntlProvider
+      defaultLocale="en"
+      locale="en"
+      messages={messages}
+      onError={(e) => {
+        // ignore missing translations, there are none!
+        if (e.code !== ReactIntlErrorCode.MISSING_TRANSLATION) {
+          // eslint-disable-next-line no-console
+          console.error(e);
+        }
+      }}
+    >
+      {children}
+    </IntlProvider>
+  );
 }

@@ -51,7 +51,7 @@ import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import IssueTabViewer from '../../../components/rules/IssueTabViewer';
 import '../../../components/search-navigator.css';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { fillBranchLike, getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { parseIssueFromResponse } from '../../../helpers/issues';
@@ -1227,7 +1227,7 @@ export class App extends React.PureComponent<Props, State> {
           >
             {this.renderHeader({ openIssue, paging, selectedIndex })}
 
-            <DeferredSpinner loading={loadingRule}>
+            <Spinner loading={loadingRule}>
               {/* eslint-disable-next-line local-rules/no-conditional-rendering-of-deferredspinner */}
               {openIssue && openRuleDetails ? (
                 <IssueTabViewer
@@ -1262,7 +1262,7 @@ export class App extends React.PureComponent<Props, State> {
                   className="sw-px-6 sw-pb-6"
                   style={{ marginTop: `-${PSEUDO_SHADOW_HEIGHT}px` }}
                 >
-                  <DeferredSpinner
+                  <Spinner
                     ariaLabel={translate('issues.loading_issues')}
                     className="sw-mt-4"
                     loading={loading}
@@ -1291,10 +1291,10 @@ export class App extends React.PureComponent<Props, State> {
                     )}
 
                     {this.renderList()}
-                  </DeferredSpinner>
+                  </Spinner>
                 </div>
               )}
-            </DeferredSpinner>
+            </Spinner>
           </div>
         )}
       </ScreenPositionHelper>

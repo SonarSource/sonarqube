@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DeferredSpinner, FlagMessage } from 'design-system';
+import { FlagMessage, Spinner } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { BitbucketProject, BitbucketRepository } from '../../../../types/alm-integration';
@@ -50,7 +50,7 @@ export default function BitbucketSearchResults(props: BitbucketSearchResultsProp
   );
 
   return (
-    <DeferredSpinner loading={searching}>
+    <Spinner loading={searching}>
       {filteredSearchResults.length > 0 && (
         <BitbucketProjectAccordion
           onImportRepository={props.onImportRepository}
@@ -74,6 +74,6 @@ export default function BitbucketSearchResults(props: BitbucketSearchResultsProp
           />
         );
       })}
-    </DeferredSpinner>
+    </Spinner>
   );
 }

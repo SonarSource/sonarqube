@@ -19,12 +19,12 @@
  */
 import {
   Card,
-  DeferredSpinner,
   FlagMessage,
   HelperHintIcon,
   KeyboardHint,
   LargeCenteredLayout,
   LightLabel,
+  Spinner,
 } from 'design-system';
 import { intersection } from 'lodash';
 import * as React from 'react';
@@ -182,7 +182,7 @@ export default function CodeAppRenderer(props: Props) {
 
       {(showComponentList || showSearch) && (
         <Card className="sw-mt-2">
-          <DeferredSpinner loading={loading}>
+          <Spinner loading={loading}>
             {showComponentList && (
               <Components
                 baseComponent={baseComponent}
@@ -212,7 +212,7 @@ export default function CodeAppRenderer(props: Props) {
                 selected={highlighted}
               />
             )}
-          </DeferredSpinner>
+          </Spinner>
         </Card>
       )}
 

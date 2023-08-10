@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { BasicSeparator, Card, DeferredSpinner } from 'design-system';
+import { BasicSeparator, Card, Spinner } from 'design-system';
 import { flatMap } from 'lodash';
 import * as React from 'react';
 import { ComponentQualifier, isApplication } from '../../../types/component';
@@ -82,7 +82,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
         <div>
           {loading ? (
             <div className="sw-p-6">
-              <DeferredSpinner loading={loading} />
+              <Spinner loading={loading} />
             </div>
           ) : (
             <>

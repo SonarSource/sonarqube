@@ -26,7 +26,7 @@ import { Button } from '../../../components/controls/buttons';
 import WarningIcon from '../../../components/icons/WarningIcon';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { UserToken } from '../../../types/token';
 
@@ -117,9 +117,9 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
               onClick={this.handleRevoke}
               aria-label={translateWithParameters('users.tokens.remove_label', token.name)}
             >
-              <DeferredSpinner className="little-spacer-right" loading={loading}>
+              <Spinner className="little-spacer-right" loading={loading}>
                 {translate('remove')}
-              </DeferredSpinner>
+              </Spinner>
             </Button>
           )}
           {!token.isExpired && deleteConfirmation === 'modal' && (
@@ -159,7 +159,7 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
               }
               onClick={this.handleClick}
             >
-              <DeferredSpinner className="little-spacer-right" loading={loading} />
+              <Spinner className="little-spacer-right" loading={loading} />
               {showConfirmation ? translate('users.tokens.sure') : translate('users.tokens.revoke')}
             </Button>
           )}

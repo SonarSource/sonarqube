@@ -19,12 +19,12 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { ButtonSecondary, DeferredSpinner, themeColor } from 'design-system';
+import { ButtonSecondary, Spinner, themeColor } from 'design-system';
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 import { MetricType } from '../../types/metrics';
-import LegacySpinner from '../ui/DeferredSpinner';
+import LegacySpinner from '../ui/Spinner';
 import { Button } from './buttons';
 
 export interface ListFooterProps {
@@ -123,7 +123,7 @@ export default function ListFooter(props: ListFooterProps) {
       {button}
       {/* eslint-disable local-rules/no-conditional-rendering-of-deferredspinner */}
       {useMIUIButtons ? (
-        <DeferredSpinner loading={loading} className="sw-ml-2" />
+        <Spinner loading={loading} className="sw-ml-2" />
       ) : (
         <LegacySpinner loading={loading} className="sw-ml-2" />
       )}

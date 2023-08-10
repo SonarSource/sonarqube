@@ -22,7 +22,7 @@
 
 import classNames from 'classnames';
 import * as React from 'react';
-import DeferredSpinner from '../ui/DeferredSpinner';
+import Spinner from '../ui/Spinner';
 import './Checkbox.css';
 
 interface Props {
@@ -77,16 +77,16 @@ export default class Checkbox extends React.PureComponent<Props> {
           title={title}
         >
           {right && children}
-          <DeferredSpinner loading={Boolean(loading)}>
+          <Spinner loading={Boolean(loading)}>
             <i className={className} />
-          </DeferredSpinner>
+          </Spinner>
           {!right && children}
         </a>
       );
     }
 
     if (loading) {
-      return <DeferredSpinner ariaLabel={label} />;
+      return <Spinner ariaLabel={label} />;
     }
 
     return (

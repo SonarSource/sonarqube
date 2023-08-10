@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen, waitFor } from '@testing-library/react';
-import { render } from '../../../helpers/testUtils';
+import { renderWithContext } from '../../../helpers/testUtils';
 import { FCProps } from '../../../types/misc';
 import { InputSearch } from '../InputSearch';
 
@@ -74,7 +74,7 @@ it('should clear input using escape', async () => {
 });
 
 function setupWithProps(props: Partial<FCProps<typeof InputSearch>> = {}) {
-  return render(
+  return renderWithContext(
     <InputSearch
       clearIconAriaLabel=""
       maxLength={150}

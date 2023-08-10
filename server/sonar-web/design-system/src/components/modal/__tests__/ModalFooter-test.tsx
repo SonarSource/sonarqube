@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { render } from '../../../helpers/testUtils';
+import { renderWithContext } from '../../../helpers/testUtils';
 import { FCProps } from '../../../types/misc';
 import { ModalFooter } from '../ModalFooter';
 
@@ -52,5 +52,5 @@ it('should render with primary and secondary buttons', () => {
 });
 
 function setupWithProps(props: Partial<FCProps<typeof ModalFooter>> = {}) {
-  return render(<ModalFooter secondaryButton={<div />} {...props} />);
+  return renderWithContext(<ModalFooter secondaryButton={<div />} {...props} />);
 }

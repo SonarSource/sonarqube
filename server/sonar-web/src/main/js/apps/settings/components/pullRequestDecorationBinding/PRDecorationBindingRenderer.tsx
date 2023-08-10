@@ -24,9 +24,9 @@ import { Button, SubmitButton } from '../../../../components/controls/buttons';
 import AlmSettingsInstanceSelector from '../../../../components/devops-platform/AlmSettingsInstanceSelector';
 import AlertSuccessIcon from '../../../../components/icons/AlertSuccessIcon';
 import { Alert } from '../../../../components/ui/Alert';
-import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../../components/ui/MandatoryFieldsExplanation';
+import Spinner from '../../../../components/ui/Spinner';
 import { translate } from '../../../../helpers/l10n';
 import { getGlobalSettingsUrl } from '../../../../helpers/urls';
 import {
@@ -72,7 +72,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
   } = props;
 
   if (loading) {
-    return <DeferredSpinner />;
+    return <Spinner />;
   }
 
   if (instances.length < 1) {
@@ -154,7 +154,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
           {isChanged && (
             <SubmitButton className="spacer-right button-success" disabled={updating || !isValid}>
               <span data-test="project-settings__alm-save">{translate('save')}</span>
-              <DeferredSpinner className="spacer-left" loading={updating} />
+              <Spinner className="spacer-left" loading={updating} />
             </SubmitButton>
           )}
           {!updating && successfullyUpdated && (
@@ -171,7 +171,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
               {!isChanged && (
                 <Button onClick={props.onCheckConfiguration} disabled={checkingConfiguration}>
                   {translate('settings.pr_decoration.binding.check_configuration')}
-                  <DeferredSpinner className="spacer-left" loading={checkingConfiguration} />
+                  <Spinner className="spacer-left" loading={checkingConfiguration} />
                 </Button>
               )}
             </>

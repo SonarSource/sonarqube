@@ -20,7 +20,7 @@
 
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { render } from '../../helpers/testUtils';
+import { renderWithContext } from '../../helpers/testUtils';
 import { FacetBox, FacetBoxProps } from '../FacetBox';
 
 it('should render an empty disabled facet box', async () => {
@@ -68,7 +68,7 @@ it('should render an inner expanded facet box with count', async () => {
 });
 
 function renderComponent({ children, ...props }: Partial<FacetBoxProps> = {}) {
-  return render(
+  return renderWithContext(
     <FacetBox name="Test FacetBox" {...props}>
       {children}
     </FacetBox>

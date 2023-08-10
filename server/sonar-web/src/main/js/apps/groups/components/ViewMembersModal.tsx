@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DeferredSpinner } from 'design-system/lib';
+import { Spinner } from 'design-system/lib';
 import * as React from 'react';
 import { getUsersInGroup } from '../../../api/user_groups';
 import ListFooter from '../../../components/controls/ListFooter';
@@ -85,7 +85,7 @@ export default function ViewMembersModal(props: Props) {
           value={query}
         />
         <div className="select-list-list-container spacer-top">
-          <DeferredSpinner loading={loading}>
+          <Spinner loading={loading}>
             <ul className="menu">
               {users.map((user) => (
                 <li key={user.login} className="display-flex-center">
@@ -104,7 +104,7 @@ export default function ViewMembersModal(props: Props) {
                 </li>
               ))}
             </ul>
-          </DeferredSpinner>
+          </Spinner>
         </div>
         {total !== undefined && (
           <ListFooter count={users.length} loadMore={() => setPage((p) => p + 1)} total={total} />

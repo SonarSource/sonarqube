@@ -21,7 +21,7 @@ import React, { useState } from 'react';
 import { getComponentNavigation } from '../../api/navigation';
 import { Project } from '../../api/project-management';
 import ActionsDropdown, { ActionsDropdownItem } from '../../components/controls/ActionsDropdown';
-import DeferredSpinner from '../../components/ui/DeferredSpinner';
+import Spinner from '../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
 import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider';
@@ -76,7 +76,7 @@ export default function ProjectRowActions({ currentUser, project }: Props) {
       >
         {loading ? (
           <ActionsDropdownItem>
-            <DeferredSpinner />
+            <Spinner />
           </ActionsDropdownItem>
         ) : (
           <>

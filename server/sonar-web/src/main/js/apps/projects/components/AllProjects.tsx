@@ -36,7 +36,7 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { translate } from '../../../helpers/l10n';
 import { addSideBarClass, removeSideBarClass } from '../../../helpers/pages';
@@ -280,7 +280,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
 
   renderMain = () => {
     if (this.state.loading && this.state.projects === undefined) {
-      return <DeferredSpinner />;
+      return <Spinner />;
     }
 
     return (

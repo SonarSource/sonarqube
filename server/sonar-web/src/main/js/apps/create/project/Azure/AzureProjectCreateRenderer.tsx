@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
-  DeferredSpinner,
   FlagMessage,
   InputSearch,
   LightPrimary,
   Link,
   PageContentFontWrapper,
+  Spinner,
   Title,
 } from 'design-system';
 import * as React from 'react';
@@ -94,7 +94,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
         onChangeConfig={props.onSelectedAlmInstanceChange}
       />
 
-      <DeferredSpinner loading={loading} />
+      <Spinner loading={loading} />
 
       {showUrlError && (
         <FlagMessage variant="error" className="sw-mb-2">
@@ -142,7 +142,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
                 size="full"
               />
             </div>
-            <DeferredSpinner loading={Boolean(searching)}>
+            <Spinner loading={Boolean(searching)}>
               <AzureProjectsList
                 loadingRepositories={loadingRepositories}
                 onOpenProject={props.onOpenProject}
@@ -152,7 +152,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
                 searchResults={searchResults}
                 searchQuery={searchQuery}
               />
-            </DeferredSpinner>
+            </Spinner>
           </>
         ))}
     </PageContentFontWrapper>

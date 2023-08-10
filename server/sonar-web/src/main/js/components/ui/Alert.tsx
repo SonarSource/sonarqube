@@ -27,7 +27,7 @@ import AlertErrorIcon from '../icons/AlertErrorIcon';
 import AlertSuccessIcon from '../icons/AlertSuccessIcon';
 import AlertWarnIcon from '../icons/AlertWarnIcon';
 import InfoIcon from '../icons/InfoIcon';
-import DeferredSpinner from './DeferredSpinner';
+import Spinner from './Spinner';
 
 type AlertDisplay = 'banner' | 'inline' | 'block';
 export type AlertVariant = 'error' | 'warning' | 'success' | 'info' | 'loading';
@@ -140,7 +140,7 @@ function getAlertVariantInfo(variant: AlertVariant) {
       backGroundColor: colors.alertBackgroundInfo,
     },
     loading: {
-      icon: <DeferredSpinner timeout={0} />,
+      icon: <Spinner />,
       color: colors.alertTextInfo,
       borderColor: colors.alertBorderInfo,
       backGroundColor: colors.alertBackgroundInfo,

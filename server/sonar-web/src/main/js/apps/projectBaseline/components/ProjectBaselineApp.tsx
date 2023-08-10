@@ -29,7 +29,7 @@ import withAvailableFeatures, {
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import {
@@ -280,7 +280,7 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
         <Helmet defer={false} title={translate('project_baseline.page')} />
         <div className="page page-limited">
           <AppHeader canAdmin={!!appState.canAdmin} />
-          <DeferredSpinner loading={loading} />
+          <Spinner loading={loading} />
 
           {!loading && (
             <div className="panel-white project-baseline">

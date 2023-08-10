@@ -3,8 +3,8 @@
 exports[`Checkbox with children should render loading state 1`] = `
 <i
   aria-live="polite"
-  class="deferred-spinner is-loading"
-  data-testid="deferred-spinner"
+  class="spinner is-loading"
+  data-testid="spinner"
 >
   <span
     class="a11y-hidden"
@@ -17,8 +17,8 @@ exports[`Checkbox with children should render loading state 1`] = `
 exports[`Checkbox with no children should render loading state 1`] = `
 <i
   aria-live="polite"
-  class="deferred-spinner is-loading"
-  data-testid="deferred-spinner"
+  class="spinner is-loading"
+  data-testid="spinner"
 >
   <span
     class="a11y-hidden"
@@ -44,8 +44,8 @@ exports[`should render the checkbox on the right 1`] = `
   >
     <i
       aria-live="polite"
-      class="deferred-spinner a11y-hidden"
-      data-testid="deferred-spinner"
+      class="spinner a11y-hidden"
+      data-testid="spinner"
     />
   </div>
   <i

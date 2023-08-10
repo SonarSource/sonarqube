@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DeferredSpinner, LightPrimary, Title } from 'design-system';
+import { LightPrimary, Spinner, Title } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { GitlabProject } from '../../../../types/alm-integration';
@@ -79,7 +79,7 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
         onChangeConfig={props.onSelectedAlmInstanceChange}
       />
 
-      <DeferredSpinner loading={loading} />
+      <Spinner loading={loading} />
 
       {!loading && !selectedAlmInstance && (
         <WrongBindingCountAlert alm={AlmKeys.GitLab} canAdmin={!!canAdmin} />

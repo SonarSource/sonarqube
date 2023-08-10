@@ -42,7 +42,7 @@ th.hide-overflow {
 .a11y-hidden {
   position: absolute !important;
   left: -10000px !important;
-  top: auto !important;
+  top: 0 !important;
   width: 1px !important;
   height: 1px !important;
   overflow: hidden !important;

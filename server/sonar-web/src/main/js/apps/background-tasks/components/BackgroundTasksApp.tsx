@@ -31,7 +31,7 @@ import withComponentContext from '../../../app/components/componentContext/withC
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import DeferredSpinner from '../../../components/ui/DeferredSpinner';
+import Spinner from '../../../components/ui/Spinner';
 import { toShortISO8601String } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { parseAsDate } from '../../../helpers/query';
@@ -218,7 +218,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
       return (
         <div className="page page-limited">
           <Helmet defer={false} title={translate('background_tasks.page')} />
-          <DeferredSpinner loading />
+          <Spinner />
         </div>
       );
     }

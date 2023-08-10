@@ -21,12 +21,12 @@
 
 import {
   DarkLabel,
-  DeferredSpinner,
   FlagMessage,
   InputSearch,
   InputSelect,
   LightPrimary,
   Link,
+  Spinner,
   Title,
 } from 'design-system';
 import * as React from 'react';
@@ -131,7 +131,7 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
   } = props;
 
   if (loadingBindings) {
-    return <DeferredSpinner />;
+    return <Spinner />;
   }
 
   return (
@@ -172,7 +172,7 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
         </FlagMessage>
       )}
 
-      <DeferredSpinner loading={loadingOrganizations && !error}>
+      <Spinner loading={loadingOrganizations && !error}>
         {!error && (
           <div className="sw-flex sw-flex-col">
             <DarkLabel htmlFor="github-choose-organization" className="sw-mb-2">
@@ -215,7 +215,7 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
             )}
           </div>
         )}
-      </DeferredSpinner>
+      </Spinner>
 
       {renderRepositoryList(props)}
     </>

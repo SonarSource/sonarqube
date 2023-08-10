@@ -21,12 +21,12 @@ import {
   BasicSeparator,
   Card,
   CoverageIndicator,
-  DeferredSpinner,
   DuplicationsIndicator,
   HelperHintIcon,
   LargeCenteredLayout,
   Link,
   PageTitle,
+  Spinner,
   TextMuted,
 } from 'design-system';
 import { uniq } from 'lodash';
@@ -95,7 +95,7 @@ export default function PullRequestOverview(props: Props) {
     return (
       <LargeCenteredLayout>
         <div className="sw-p-6">
-          <DeferredSpinner loading />
+          <Spinner loading />
         </div>
       </LargeCenteredLayout>
     );

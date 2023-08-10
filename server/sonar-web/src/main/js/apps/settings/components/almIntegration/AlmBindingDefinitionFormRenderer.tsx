@@ -21,7 +21,7 @@ import * as React from 'react';
 import Modal from '../../../../components/controls/Modal';
 import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
 import { Alert } from '../../../../components/ui/Alert';
-import DeferredSpinner from '../../../../components/ui/DeferredSpinner';
+import Spinner from '../../../../components/ui/Spinner';
 import { translate } from '../../../../helpers/l10n';
 import {
   AlmBindingDefinition,
@@ -134,7 +134,7 @@ export default class AlmBindingDefinitionFormRenderer extends React.PureComponen
           <div className="modal-foot">
             <SubmitButton disabled={!canSubmit || submitting}>
               {translate('settings.almintegration.form.save')}
-              <DeferredSpinner className="spacer-left" loading={submitting} />
+              <Spinner className="spacer-left" loading={submitting} />
             </SubmitButton>
             <ResetButtonLink onClick={this.props.onCancel}>{translate('cancel')}</ResetButtonLink>
           </div>

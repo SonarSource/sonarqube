@@ -37,7 +37,7 @@ ruleTester.run(
       {
         code: `function MyCompontent({ loading }) {
   return <>
-    <DeferredSpinner loading={loading} />
+    <Spinner loading={loading} />
   </>
 }`,
       },
@@ -46,7 +46,7 @@ ruleTester.run(
       {
         code: `function MyCompontent({ loading }) {
   return <>
-    {loading && <DeferredSpinner />}
+    {loading && <Spinner />}
   </>
 }`,
         errors: [{ messageId: 'noConditionalRenderingOfDeferredSpinner' }],
@@ -54,7 +54,7 @@ ruleTester.run(
       {
         code: `function MyComponent({ loading }) {
   return <>
-    {loading ? <DeferredSpinner /> : <div />}
+    {loading ? <Spinner /> : <div />}
   </>
 }`,
         errors: [{ messageId: 'noConditionalRenderingOfDeferredSpinner' }],
@@ -62,7 +62,7 @@ ruleTester.run(
       {
         code: `function MyCompontent({ loaded }) {
   return <>
-    {loaded ? <div /> : <DeferredSpinner />}
+    {loaded ? <div /> : <Spinner />}
   </>
 }`,
         errors: [{ messageId: 'noConditionalRenderingOfDeferredSpinner' }],

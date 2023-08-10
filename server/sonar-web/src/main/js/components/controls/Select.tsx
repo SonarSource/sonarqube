@@ -82,9 +82,7 @@ export function loadingIndicator<
   IsMulti extends boolean = boolean,
   Group extends GroupBase<Option> = GroupBase<Option>
 >({ innerProps }: LoadingIndicatorProps<Option, IsMulti, Group>) {
-  return (
-    <i className={classNames('deferred-spinner spacer-left spacer-right', innerProps.className)} />
-  );
+  return <i className={classNames('spinner spacer-left spacer-right', innerProps.className)} />;
 }
 
 export function multiValueRemove<
