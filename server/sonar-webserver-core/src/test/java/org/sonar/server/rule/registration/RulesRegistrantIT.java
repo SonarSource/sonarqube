@@ -37,6 +37,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -55,6 +57,7 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
@@ -102,6 +105,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
 import static org.sonar.api.rule.Severity.BLOCKER;
+import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.INFO;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
@@ -155,6 +159,7 @@ public class RulesRegistrantIT {
 
   private final RulesKeyVerifier rulesKeyVerifier = new RulesKeyVerifier();
   private final StartupRuleUpdater startupRuleUpdater = new StartupRuleUpdater(dbClient, system, uuidFactory, resolver);
+  private final NewRuleCreator newRuleCreator = new NewRuleCreator(dbClient, resolver, uuidFactory, system);
 
   @Before
   public void before() {
@@ -187,9 +192,10 @@ public class RulesRegistrantIT {
     // verify db
     assertThat(dbClient.ruleDao().selectAll(db.getSession())).hasSize(3);
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
-    verifyRule(rule1);
+    verifyRule(rule1, RuleType.CODE_SMELL, BLOCKER);
     assertThat(rule1.isExternal()).isFalse();
     assertThat(rule1.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL);
+    assertThat(rule1.getDefaultImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity).containsOnly(tuple(SoftwareQuality.RELIABILITY, Severity.HIGH));
     assertThat(rule1.getDefRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
     assertThat(rule1.getDefRemediationGapMultiplier()).isEqualTo("5d");
     assertThat(rule1.getDefRemediationBaseEffort()).isEqualTo("10h");
@@ -206,6 +212,7 @@ public class RulesRegistrantIT {
     // verify index
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY2);
     assertThat(rule2.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.EFFICIENT);
+    assertThat(rule2.getDefaultImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity).containsOnly(tuple(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid(), hotspotRule.getUuid());
     verifyIndicesMarkedAsInitialized();
 
@@ -229,7 +236,7 @@ public class RulesRegistrantIT {
     // verify db
     assertThat(dbClient.ruleDao().selectAll(db.getSession())).hasSize(2);
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), EXTERNAL_RULE_KEY1);
-    verifyRule(rule1);
+    verifyRule(rule1, RuleType.CODE_SMELL, BLOCKER);
     assertThat(rule1.isExternal()).isTrue();
     assertThat(rule1.getDefRemediationFunction()).isNull();
     assertThat(rule1.getDefRemediationGapMultiplier()).isNull();
@@ -239,10 +246,10 @@ public class RulesRegistrantIT {
     verifyHotspot(hotspotRule);
   }
 
-  private void verifyRule(RuleDto rule) {
+  private void verifyRule(RuleDto rule, RuleType type, String expectedSeverity) {
     assertThat(rule.getName()).isEqualTo("One");
     assertThat(rule.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Description of One");
-    assertThat(rule.getSeverityString()).isEqualTo(BLOCKER);
+    assertThat(rule.getSeverityString()).isEqualTo(expectedSeverity);
     assertThat(rule.getTags()).isEmpty();
     assertThat(rule.getSystemTags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(rule.getConfigKey()).isEqualTo("config1");
@@ -250,7 +257,7 @@ public class RulesRegistrantIT {
     assertThat(rule.getCreatedAt()).isEqualTo(DATE1.getTime());
     assertThat(rule.getScope()).isEqualTo(Scope.ALL);
     assertThat(rule.getUpdatedAt()).isEqualTo(DATE1.getTime());
-    assertThat(rule.getType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
+    assertThat(rule.getType()).isEqualTo(type.getDbConstant());
     assertThat(rule.getPluginKey()).isEqualTo(FAKE_PLUGIN_KEY);
     assertThat(rule.isAdHoc()).isFalse();
     assertThat(rule.getEducationPrinciples()).containsOnly("concept1", "concept2", "concept3");
@@ -975,6 +982,7 @@ public class RulesRegistrantIT {
       .setRuleKey("rule1")
       .setRepositoryKey("findbugs")
       .setName("Rule One")
+      .setType(RuleType.CODE_SMELL)
       .setScope(Scope.ALL)
       .addRuleDescriptionSectionDto(createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule one description"))
       .setDescriptionFormat(RuleDto.Format.HTML)
@@ -1151,8 +1159,8 @@ public class RulesRegistrantIT {
     when(languages.get(any())).thenReturn(mock(Language.class));
     reset(webServerRuleFinder);
 
-    RulesRegistrant task = new RulesRegistrant(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer, languages, system, webServerRuleFinder, uuidFactory, metadataIndex,
-      resolver, rulesKeyVerifier, startupRuleUpdater);
+    RulesRegistrant task = new RulesRegistrant(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer, languages, system, webServerRuleFinder, metadataIndex,
+      rulesKeyVerifier, startupRuleUpdater, newRuleCreator);
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
     db.getSession().commit();
@@ -1218,7 +1226,8 @@ public class RulesRegistrantIT {
         .setType(RuleType.CODE_SMELL)
         .setStatus(RuleStatus.BETA)
         .setGapDescription("java.S115.effortToFix")
-        .addEducationPrincipleKeys("concept1", "concept2", "concept3");
+        .addEducationPrincipleKeys("concept1", "concept2", "concept3")
+        .addDefaultImpact(SoftwareQuality.RELIABILITY, Severity.HIGH);
       rule1.setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("5d", "10h"));
 
       rule1.createParam("param1").setDescription("parameter one").setDefaultValue("default1");

@@ -176,24 +176,6 @@ public class RuleDtoTest {
   }
 
   @Test
-  public void from_whenRuleDefinitionDoesntHaveCleanCodeAttribute_shouldAlwaysSetCleanCodeAttribute() {
-    RulesDefinition.Rule ruleDef = getDefaultRule();
-
-    RuleDto newRuleDto = RuleDto.from(ruleDef, Set.of(), "uuid", Long.MAX_VALUE);
-
-    assertThat(newRuleDto.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL);
-  }
-
-  @Test
-  public void from_whenRuleDefinitionDoesHaveCleanCodeAttribute_shouldReturnThisAttribute() {
-    RulesDefinition.Rule ruleDef = getDefaultRule(CleanCodeAttribute.TESTED);
-
-    RuleDto newRuleDto = RuleDto.from(ruleDef, Set.of(), "uuid", Long.MAX_VALUE);
-
-    assertThat(newRuleDto.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.TESTED);
-  }
-
-  @Test
   public void addDefaultImpact_whenSoftwareQualityAlreadyDefined_shouldThrowISE() {
     RuleDto dto = new RuleDto();
     dto.addDefaultImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
@@ -238,7 +220,16 @@ public class RuleDtoTest {
       .containsExactlyInAnyOrder(
         tuple(SoftwareQuality.MAINTAINABILITY, Severity.HIGH),
         tuple(SoftwareQuality.SECURITY, Severity.LOW));
+  }
 
+  @Test
+  public void getEnumType_shouldReturnCorrectValue() {
+    RuleDto ruleDto = new RuleDto();
+    ruleDto.setType(RuleType.CODE_SMELL);
+
+    RuleType enumType = ruleDto.getEnumType();
+
+    assertThat(enumType).isEqualTo(RuleType.CODE_SMELL);
   }
 
   @NotNull
@@ -262,20 +253,5 @@ public class RuleDtoTest {
       .setSoftwareQuality(softwareQuality)
       .setSeverity(severity);
   }
-  private static RulesDefinition.Rule getDefaultRule(@Nullable CleanCodeAttribute attribute) {
-    RulesDefinition.Rule ruleDef = mock(RulesDefinition.Rule.class);
-    RulesDefinition.Repository repository = mock(RulesDefinition.Repository.class);
-    when(ruleDef.repository()).thenReturn(repository);
 
-    when(ruleDef.key()).thenReturn("key");
-    when(repository.key()).thenReturn("repoKey");
-    when(ruleDef.type()).thenReturn(RuleType.CODE_SMELL);
-    when(ruleDef.scope()).thenReturn(RuleScope.TEST);
-    when(ruleDef.cleanCodeAttribute()).thenReturn(attribute);
-    return ruleDef;
-  }
-
-  private static RulesDefinition.Rule getDefaultRule() {
-    return getDefaultRule(null);
-  }
 }

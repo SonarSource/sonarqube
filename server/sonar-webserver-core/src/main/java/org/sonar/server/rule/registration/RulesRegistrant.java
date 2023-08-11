@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 import org.sonar.api.Startable;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -39,7 +38,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
@@ -49,7 +47,6 @@ import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.RuleDefinitionsLoader;
-import org.sonar.server.rule.RuleDescriptionSectionsGeneratorResolver;
 import org.sonar.server.rule.WebServerRuleFinder;
 import org.sonar.server.rule.index.RuleIndexer;
 
@@ -73,17 +70,15 @@ public class RulesRegistrant implements Startable {
   private final Languages languages;
   private final System2 system2;
   private final WebServerRuleFinder webServerRuleFinder;
-  private final UuidFactory uuidFactory;
   private final MetadataIndex metadataIndex;
-  private final RuleDescriptionSectionsGeneratorResolver ruleDescriptionSectionsGeneratorResolver;
   private final RulesKeyVerifier rulesKeyVerifier;
   private final StartupRuleUpdater startupRuleUpdater;
+  private final NewRuleCreator newRuleCreator;
 
   public RulesRegistrant(RuleDefinitionsLoader defLoader, QProfileRules qProfileRules, DbClient dbClient, RuleIndexer ruleIndexer,
-    ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2,
-    WebServerRuleFinder webServerRuleFinder, UuidFactory uuidFactory, MetadataIndex metadataIndex,
-    RuleDescriptionSectionsGeneratorResolver ruleDescriptionSectionsGeneratorResolver,
-    RulesKeyVerifier rulesKeyVerifier, StartupRuleUpdater startupRuleUpdater) {
+    ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2, WebServerRuleFinder webServerRuleFinder,
+    MetadataIndex metadataIndex, RulesKeyVerifier rulesKeyVerifier, StartupRuleUpdater startupRuleUpdater,
+    NewRuleCreator newRuleCreator) {
     this.defLoader = defLoader;
     this.qProfileRules = qProfileRules;
     this.dbClient = dbClient;
@@ -92,11 +87,10 @@ public class RulesRegistrant implements Startable {
     this.languages = languages;
     this.system2 = system2;
     this.webServerRuleFinder = webServerRuleFinder;
-    this.uuidFactory = uuidFactory;
     this.metadataIndex = metadataIndex;
-    this.ruleDescriptionSectionsGeneratorResolver = ruleDescriptionSectionsGeneratorResolver;
     this.rulesKeyVerifier = rulesKeyVerifier;
     this.startupRuleUpdater = startupRuleUpdater;
+    this.newRuleCreator = newRuleCreator;
   }
 
   @Override
@@ -159,7 +153,7 @@ public class RulesRegistrant implements Startable {
 
     for (RulesDefinition.Rule ruleDef : ruleDefs) {
       RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
-      RuleDto ruleDto = findOrCreateRuleDto(context, session, ruleDef);
+      RuleDto ruleDto = context.getDbRuleFor(ruleDef).orElseGet(() -> newRuleCreator.createNewRule(context, ruleDef, session));
       dtos.put(ruleDef, ruleDto);
 
       // we must detect renaming __before__ we modify the DTO
@@ -168,7 +162,7 @@ public class RulesRegistrant implements Startable {
         ruleDto.setRuleKey(ruleKey);
       }
 
-      if (startupRuleUpdater.findChangesAndUpdateRule(ruleDef, ruleDto)) {
+      if (!context.isCreated(ruleDto) && startupRuleUpdater.findChangesAndUpdateRule(ruleDef, ruleDto)) {
         context.updated(ruleDto);
       }
 
@@ -183,17 +177,6 @@ public class RulesRegistrant implements Startable {
       startupRuleUpdater.mergeParams(context, e.getKey(), e.getValue(), session);
       startupRuleUpdater.updateDeprecatedKeys(context, e.getKey(), e.getValue(), session);
     }
-  }
-
-  @Nonnull
-  private RuleDto findOrCreateRuleDto(RulesRegistrationContext context, DbSession session, RulesDefinition.Rule ruleDef) {
-    return context.getDbRuleFor(ruleDef)
-      .orElseGet(() -> {
-        RuleDto newRule = RuleDto.from(ruleDef, ruleDescriptionSectionsGeneratorResolver.generateFor(ruleDef), uuidFactory.create(), system2.now());
-        dbClient.ruleDao().insert(session, newRule);
-        context.created(newRule);
-        return newRule;
-      });
   }
 
   private void processRemainingDbRules(RulesRegistrationContext recorder, DbSession dbSession) {
@@ -314,8 +297,8 @@ public class RulesRegistrant implements Startable {
 
   private static Set<String> getExistingAndRenamedRepositories(RulesRegistrationContext recorder, Collection<RulesDefinition.Repository> context) {
     return Stream.concat(
-        context.stream().map(RulesDefinition.ExtendedRepository::key),
-        recorder.getRenamed().map(Map.Entry::getValue).map(RuleKey::repository))
+      context.stream().map(RulesDefinition.ExtendedRepository::key),
+      recorder.getRenamed().map(Map.Entry::getValue).map(RuleKey::repository))
       .collect(Collectors.toSet());
   }
 

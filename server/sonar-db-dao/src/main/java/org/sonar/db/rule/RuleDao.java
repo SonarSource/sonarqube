@@ -129,7 +129,7 @@ public class RuleDao implements Dao {
 
   private static void insertRuleDefaultImpacts(RuleDto ruleDto, RuleMapper mapper) {
     ruleDto.getDefaultImpacts()
-      .forEach(section -> mapper.insertRuleDefaultImpact(ruleDto.getUuid(), section));
+      .forEach(impact -> mapper.insertRuleDefaultImpact(ruleDto.getUuid(), impact));
   }
 
   public void scrollIndexingRuleExtensionsByIds(DbSession dbSession, Collection<String> ruleExtensionIds, Consumer<RuleExtensionForIndexingDto> consumer) {

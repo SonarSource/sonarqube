@@ -37,8 +37,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.db.issue.ImpactDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -46,7 +44,6 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 
 public class RuleDto {
@@ -420,6 +417,10 @@ public class RuleDto {
     return type;
   }
 
+  public RuleType getEnumType() {
+    return RuleType.valueOf(type);
+  }
+
   public RuleDto setType(int type) {
     this.type = type;
     return this;
@@ -653,49 +654,6 @@ public class RuleDto {
 
   private static String serializeStringSet(@Nullable Set<String> strings) {
     return strings == null || strings.isEmpty() ? null : String.join(",", strings);
-  }
-
-  public static RuleDto from(RulesDefinition.Rule ruleDef, Set<RuleDescriptionSectionDto> ruleDescriptionSectionDtos, String uuid,
-    long now) {
-    RuleDto ruleDto = new RuleDto()
-      .setUuid(uuid)
-      .setRuleKey(RuleKey.of(ruleDef.repository().key(), ruleDef.key()))
-      .setPluginKey(ruleDef.pluginKey())
-      .setIsTemplate(ruleDef.template())
-      .setConfigKey(ruleDef.internalKey())
-      .setLanguage(ruleDef.repository().language())
-      .setName(ruleDef.name())
-      .setSeverity(ruleDef.severity())
-      .setStatus(ruleDef.status())
-      .setGapDescription(ruleDef.gapDescription())
-      .setSystemTags(ruleDef.tags())
-      .setSecurityStandards(ruleDef.securityStandards())
-      .setType(RuleType.valueOf(ruleDef.type().name()))
-      .setScope(Scope.valueOf(ruleDef.scope().name()))
-      .setIsExternal(ruleDef.repository().isExternal())
-      .setIsAdHoc(false)
-      .setCreatedAt(now)
-      .setUpdatedAt(now)
-      .setCleanCodeAttribute(ruleDef.cleanCodeAttribute() != null ? ruleDef.cleanCodeAttribute() : CleanCodeAttribute.defaultCleanCodeAttribute())
-      .setEducationPrinciples(ruleDef.educationPrincipleKeys());
-
-    if (isNotEmpty(ruleDef.htmlDescription())) {
-      ruleDto.setDescriptionFormat(Format.HTML);
-    } else if (isNotEmpty(ruleDef.markdownDescription())) {
-      ruleDto.setDescriptionFormat(Format.MARKDOWN);
-    }
-
-    ruleDescriptionSectionDtos.forEach(ruleDto::addRuleDescriptionSectionDto);
-
-    DebtRemediationFunction debtRemediationFunction = ruleDef.debtRemediationFunction();
-    if (debtRemediationFunction != null) {
-      ruleDto.setDefRemediationFunction(debtRemediationFunction.type().name());
-      ruleDto.setDefRemediationGapMultiplier(debtRemediationFunction.gapMultiplier());
-      ruleDto.setDefRemediationBaseEffort(debtRemediationFunction.baseEffort());
-      ruleDto.setGapDescription(ruleDef.gapDescription());
-    }
-
-    return ruleDto;
   }
 
   @Override

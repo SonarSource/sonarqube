@@ -25,8 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
@@ -39,6 +42,7 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
@@ -153,17 +157,11 @@ public class StartupRuleUpdater {
       changed = true;
     }
     changed |= mergeCleanCodeAttribute(def, dto);
-    changed |= mergeImpacts(def, dto);
+    changed |= mergeImpacts(def, dto, uuidFactory);
     if (dto.isAdHoc()) {
       dto.setIsAdHoc(false);
       changed = true;
     }
-    return changed;
-  }
-
-  private static boolean mergeImpacts(RulesDefinition.Rule def, RuleDto dto) {
-    boolean changed = false;
-    // TODO when DTOs for impacts are ready
     return changed;
   }
 
@@ -179,6 +177,29 @@ public class StartupRuleUpdater {
       changed = true;
     }
     return changed;
+  }
+
+  boolean mergeImpacts(RulesDefinition.Rule def, RuleDto dto, UuidFactory uuidFactory) {
+    if (dto.getEnumType() == RuleType.SECURITY_HOTSPOT) {
+      return false;
+    }
+
+    Map<SoftwareQuality, Severity> impactsFromPlugin = def.defaultImpacts();
+    Map<SoftwareQuality, Severity> impactsFromDb = dto.getDefaultImpacts().stream().collect(Collectors.toMap(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity));
+
+    if (impactsFromPlugin.isEmpty()) {
+      throw new IllegalStateException("There should be at least one impact defined for the rule " + def.key());
+    }
+
+    if (!Objects.equals(impactsFromDb, impactsFromPlugin)) {
+      dto.replaceAllDefaultImpacts(impactsFromPlugin.entrySet()
+        .stream()
+        .map(e -> new ImpactDto().setUuid(uuidFactory.create()).setSoftwareQuality(e.getKey()).setSeverity(e.getValue()))
+        .collect(Collectors.toSet()));
+      return true;
+    }
+
+    return false;
   }
 
   private static boolean mergeEducationPrinciples(RulesDefinition.Rule ruleDef, RuleDto dto) {
