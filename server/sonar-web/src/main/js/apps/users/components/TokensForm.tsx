@@ -19,6 +19,9 @@
  */
 import { isEmpty } from 'lodash';
 import * as React from 'react';
+import { isUserTokenVisible } from '../../../../js/helpers/urls';
+import withAppStateContext from '../../../../js/app/components/app-state/withAppStateContext';
+import { AppState } from '../../../../js/types/appstate';
 import { getScannableProjects } from '../../../api/components';
 import { generateToken, getTokens } from '../../../api/user-tokens';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
@@ -44,6 +47,7 @@ interface Props {
   updateTokensCount?: (login: string, tokensCount: number) => void;
   displayTokenTypeInput: boolean;
   currentUser: CurrentUser;
+  appState: AppState;
 }
 
 interface State {
@@ -130,18 +134,23 @@ export class TokensForm extends React.PureComponent<Props, State> {
 
   constructTokenTypeOptions = (projects: BasicSelectOption[]) => {
     const { currentUser } = this.props;
+    const { whiteLabel } = this.props.appState;
 
     const tokenTypeOptions = [];
     if (hasGlobalPermission(currentUser, Permissions.Admin)) {
       tokenTypeOptions.unshift({
-        label: translate('users.tokens', TokenType.User),
-        value: TokenType.User,
-      });
-      tokenTypeOptions.unshift({
         label: translate('users.tokens', TokenType.Global),
         value: TokenType.Global,
       });
+
+      if(isUserTokenVisible(whiteLabel)){
+        tokenTypeOptions.unshift({
+          label: translate('users.tokens', TokenType.User),
+          value: TokenType.User,
+        });
+      }
     }
+    
     if (!isEmpty(projects)) {
       tokenTypeOptions.unshift({
         label: translate('users.tokens', TokenType.Project),
@@ -417,4 +426,4 @@ export class TokensForm extends React.PureComponent<Props, State> {
   }
 }
 
-export default withCurrentUserContext(TokensForm);
+export default withAppStateContext(withCurrentUserContext(TokensForm));

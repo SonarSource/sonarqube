@@ -482,6 +482,14 @@ function linkIsLocation(link: string | Location): link is Location {
   return (link as Location).query !== undefined;
 }
 
-export function allowSpecificDomains(whiteListValue:string){
+function isDeploymentForAmazon(whiteListValue: string){
   return whiteListValue === WHITELIST_VALUE_AMAZON;
+}
+
+export function allowSpecificDomains(whiteListValue: string){
+  return isDeploymentForAmazon(whiteListValue);
+}
+
+export function isUserTokenVisible(whiteListValue: string){
+  return isDeploymentForAmazon(whiteListValue);
 }
