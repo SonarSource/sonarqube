@@ -82,11 +82,12 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
       />
 
       <DeferredSpinner loading={loading}>
-        {!selectedAlmInstance && (
+        {!loading && !selectedAlmInstance && (
           <WrongBindingCountAlert alm={AlmKeys.BitbucketServer} canAdmin={!!canAdmin} />
         )}
 
-        {selectedAlmInstance &&
+        {!loading &&
+          selectedAlmInstance &&
           (showPersonalAccessTokenForm ? (
             <BitbucketServerPersonalAccessTokenForm
               almSetting={selectedAlmInstance}
