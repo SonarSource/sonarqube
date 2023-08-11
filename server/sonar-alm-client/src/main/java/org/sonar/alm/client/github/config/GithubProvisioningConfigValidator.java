@@ -39,10 +39,10 @@ import static org.sonar.alm.client.github.config.ConfigCheckResult.InstallationS
 @ComputeEngineSide
 public class GithubProvisioningConfigValidator {
 
-  private static final String ORG_MEMBERS_PERMISSION = "Organization permissions -> Members (Read-only)";
-  private static final String ACCOUNT_EMAILS_PERMISSION = "Account permissions -> Email addresses (Read-only)";
-  private static final String REPO_ADMIN_PERMISSION = "Repository permissions -> Administration (Read-only)";
-  private static final String REPO_METADATA_PERMISSION = "Repository permissions -> Metadata (Read-only)";
+  private static final String ORG_MEMBERS_PERMISSION = "Organization permissions > Members (Read-only)";
+  private static final String ACCOUNT_EMAILS_PERMISSION = "Account permissions > Email addresses (Read-only)";
+  private static final String REPO_ADMIN_PERMISSION = "Repository permissions > Administration (Read-only)";
+  private static final String REPO_METADATA_PERMISSION = "Repository permissions > Metadata (Read-only)";
   private static final ConfigStatus INVALID_APP_CONFIG_STATUS = ConfigStatus.failed("The GitHub App configuration is not complete.");
   private static final ConfigStatus INVALID_APP_ID_STATUS = ConfigStatus.failed("GitHub App ID must be a number.");
   private static final ConfigStatus SUSPENDED_INSTALLATION_STATUS = ConfigStatus.failed("Installation suspended");

@@ -51,11 +51,11 @@ public class GithubProvisioningConfigValidatorTest {
   private static final String APP_FETCHING_FAILED = "Exception while fetching the App.";
   private static final String INVALID_APP_ID_STATUS = "GitHub App ID must be a number.";
   private static final String INCOMPLETE_APP_CONFIG_STATUS = "The GitHub App configuration is not complete.";
-  private static final String MISSING_EMAIL_PERMISSION = "Missing GitHub permissions: Account permissions -> Email addresses (Read-only)";
-  private static final String MISSING_ALL_AUTOPROVISIONNING_PERMISSIONS = "Missing GitHub permissions: Organization permissions -> Members (Read-only), "
-    + "Repository permissions -> Administration (Read-only), Repository permissions -> Metadata (Read-only)";
-  private static final String MISSING_ALL_PERMISSIONS = "Missing GitHub permissions: Account permissions -> Email addresses (Read-only), "
-    + "Organization permissions -> Members (Read-only), Repository permissions -> Administration (Read-only), Repository permissions -> Metadata (Read-only)";
+  private static final String MISSING_EMAIL_PERMISSION = "Missing GitHub permissions: Account permissions > Email addresses (Read-only)";
+  private static final String MISSING_ALL_AUTOPROVISIONNING_PERMISSIONS = "Missing GitHub permissions: Organization permissions > Members (Read-only), "
+    + "Repository permissions > Administration (Read-only), Repository permissions > Metadata (Read-only)";
+  private static final String MISSING_ALL_PERMISSIONS = "Missing GitHub permissions: Account permissions > Email addresses (Read-only), "
+    + "Organization permissions > Members (Read-only), Repository permissions > Administration (Read-only), Repository permissions > Metadata (Read-only)";
   private static final String NO_INSTALLATIONS_STATUS = "The GitHub App is not installed on any organizations or the organization is not white-listed.";
   private static final String SUSPENDED_INSTALLATION = "Installation suspended";
 
