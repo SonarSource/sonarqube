@@ -28,7 +28,7 @@ import { SecurityStandard } from '../types/security';
 import { Dict, RawQuery } from '../types/types';
 import { HomePage } from '../types/users';
 import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branch-like';
-import { WHITELIST_VALUE_AMAZON } from './constants';
+import { WHITELIST_VALUE_AMAZON, WHITELIST_VALUE_CODESCAN } from './constants';
 import { serializeOptionalBoolean } from './query';
 import { getBaseUrl } from './system';
 
@@ -482,6 +482,15 @@ function linkIsLocation(link: string | Location): link is Location {
   return (link as Location).query !== undefined;
 }
 
-export function allowSpecificDomains(whiteListValue:string){
+export function isDeploymentForAmazon(whiteListValue: string){
   return whiteListValue === WHITELIST_VALUE_AMAZON;
+}
+
+
+export function isDeploymentForCodeScan(whiteListValue: string){
+  return whiteListValue === WHITELIST_VALUE_CODESCAN;
+}
+
+export function allowSpecificDomains(whiteListValue: string){
+  return isDeploymentForAmazon(whiteListValue);
 }
