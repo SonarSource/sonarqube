@@ -106,12 +106,16 @@ export function postUser(data: {
   return postJSONBody('/api/v2/users', data);
 }
 
-export function updateUser(data: {
-  email?: string;
-  login: string;
-  name?: string;
-  scmAccount: string[];
-}): Promise<{ user: User }> {
+type UpdateUserArg =
+  | {
+      email?: string;
+      login: string;
+      name?: string;
+      scmAccount: string[];
+    }
+  | { login: string; scmAccount: string[] };
+
+export function updateUser(data: UpdateUserArg): Promise<{ user: User }> {
   return postJSON('/api/users/update', {
     ...data,
     scmAccount: data.scmAccount.length > 0 ? data.scmAccount : '',

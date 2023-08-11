@@ -33,13 +33,14 @@ import UserScmAccountInput from './UserScmAccountInput';
 export interface Props {
   onClose: () => void;
   user?: RestUserDetailed;
+  isInstanceManaged: boolean;
 }
 
 const BAD_REQUEST = 400;
 const INTERNAL_SERVER_ERROR = 500;
 
 export default function UserForm(props: Props) {
-  const { user } = props;
+  const { user, isInstanceManaged } = props;
 
   const { mutate: createUser } = usePostUserMutation();
   const { mutate: updateUser } = useUpdateUserMutation();
@@ -76,12 +77,14 @@ export default function UserForm(props: Props) {
     const { user } = props;
 
     updateUser(
-      {
-        email: user?.local ? email : undefined,
-        login,
-        name: user?.local ? name : undefined,
-        scmAccount: scmAccounts,
-      },
+      isInstanceManaged
+        ? { scmAccount: scmAccounts, login }
+        : {
+            email: user?.local ? email : undefined,
+            login,
+            name: user?.local ? name : undefined,
+            scmAccount: scmAccounts,
+          },
       { onSuccess: props.onClose, onError: handleError }
     );
   };
@@ -140,7 +143,7 @@ export default function UserForm(props: Props) {
                   minLength={3}
                   name="login"
                   onChange={(e) => setLogin(e.currentTarget.value)}
-                  required
+                  required={!isInstanceManaged}
                   type="text"
                   value={login}
                 />
@@ -150,17 +153,17 @@ export default function UserForm(props: Props) {
             <div className="modal-field">
               <label htmlFor="create-user-name">
                 {translate('name')}
-                <MandatoryFieldMarker />
+                {!isInstanceManaged && <MandatoryFieldMarker />}
               </label>
               <input
                 autoComplete="off"
                 autoFocus={!!user}
-                disabled={user && !user.local}
+                disabled={(user && !user.local) || isInstanceManaged}
                 id="create-user-name"
                 maxLength={200}
                 name="name"
                 onChange={(e) => setName(e.currentTarget.value)}
-                required
+                required={!isInstanceManaged}
                 type="text"
                 value={name}
               />
@@ -169,7 +172,7 @@ export default function UserForm(props: Props) {
               <label htmlFor="create-user-email">{translate('users.email')}</label>
               <input
                 autoComplete="off"
-                disabled={user && !user.local}
+                disabled={(user && !user.local) || isInstanceManaged}
                 id="create-user-email"
                 maxLength={100}
                 name="email"

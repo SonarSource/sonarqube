@@ -441,14 +441,36 @@ describe('in manage mode', () => {
     expect(ui.bobUpdateGroupButton.query()).not.toBeInTheDocument();
   });
 
-  it('should not be able to update / change password / deactivate a managed user', async () => {
+  it('should not be able to update scm account', async () => {
+    const user = userEvent.setup();
+
     renderUsersApp();
 
     await act(async () => expect(await ui.bobRow.find()).toBeInTheDocument());
-    expect(ui.bobUpdateButton.query()).not.toBeInTheDocument();
+    expect(ui.bobUpdateButton.get()).toBeInTheDocument();
+
+    await user.click(ui.bobUpdateButton.get());
+
+    expect(
+      ui.bobRow.byRole('button', { name: 'users.deactivate' }).query()
+    ).not.toBeInTheDocument();
+    expect(
+      ui.bobRow.byRole('button', { name: 'my_profile.password.title' }).query()
+    ).not.toBeInTheDocument();
+
+    await user.click(await ui.bobRow.byRole('button', { name: 'update_scm' }).get());
+
+    expect(ui.userNameInput.get()).toBeDisabled();
+    expect(ui.emailInput.get()).toBeDisabled();
+
+    await user.click(ui.scmAddButton.get());
+    await user.type(ui.dialogSCMInput().get(), 'SCM');
+    await act(() => user.click(ui.updateButton.get()));
+
+    expect(await ui.bobRow.byText(/SCM/).find()).toBeInTheDocument();
   });
 
-  it('should ONLY be able to deactivate a local user', async () => {
+  it('should be able to deactivate a local user', async () => {
     const user = userEvent.setup();
     renderUsersApp();
 

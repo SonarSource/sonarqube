@@ -286,7 +286,7 @@ export default class UsersServiceMock {
       return Promise.reject('No such user');
     }
     Object.assign(user, {
-      ...omitBy({ name, email, scmAccount }, isUndefined),
+      ...omitBy({ name, email, scmAccounts: scmAccount }, isUndefined),
     });
     return this.reply({ user });
   };

@@ -65,7 +65,9 @@ export default function Header(props: Props) {
           />
         </Alert>
       )}
-      {openUserForm && <UserForm onClose={() => setOpenUserForm(false)} />}
+      {openUserForm && (
+        <UserForm onClose={() => setOpenUserForm(false)} isInstanceManaged={false} />
+      )}
     </div>
   );
 }

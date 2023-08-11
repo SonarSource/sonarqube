@@ -38,43 +38,27 @@ export default function UserActions(props: Props) {
 
   const [openForm, setOpenForm] = React.useState<string | undefined>(undefined);
 
-  const isInstanceManaged = () => {
-    return manageProvider !== undefined;
-  };
+  const isInstanceManaged = manageProvider !== undefined;
 
-  const isUserLocal = () => {
-    return isInstanceManaged() && !user.managed;
-  };
-
-  const isUserManaged = () => {
-    return isInstanceManaged() && user.managed;
-  };
-
-  if (isUserManaged()) {
-    return null;
-  }
+  const isUserLocal = isInstanceManaged && !user.managed;
 
   return (
     <>
       <ActionsDropdown label={translateWithParameters('users.manage_user', user.login)}>
-        {!isInstanceManaged() && (
-          <>
-            <ActionsDropdownItem className="js-user-update" onClick={() => setOpenForm('update')}>
-              {translate('update_details')}
-            </ActionsDropdownItem>
-            {user.local && (
-              <ActionsDropdownItem
-                className="js-user-change-password"
-                onClick={() => setOpenForm('password')}
-              >
-                {translate('my_profile.password.title')}
-              </ActionsDropdownItem>
-            )}
-          </>
+        <ActionsDropdownItem className="js-user-update" onClick={() => setOpenForm('update')}>
+          {isInstanceManaged ? translate('update_scm') : translate('update_details')}
+        </ActionsDropdownItem>
+        {!isInstanceManaged && user.local && (
+          <ActionsDropdownItem
+            className="js-user-change-password"
+            onClick={() => setOpenForm('password')}
+          >
+            {translate('my_profile.password.title')}
+          </ActionsDropdownItem>
         )}
 
-        {isUserActive(user) && !isInstanceManaged() && <ActionsDropdownDivider />}
-        {isUserActive(user) && (!isInstanceManaged() || isUserLocal()) && (
+        {isUserActive(user) && !isInstanceManaged && <ActionsDropdownDivider />}
+        {isUserActive(user) && (!isInstanceManaged || isUserLocal) && (
           <ActionsDropdownItem
             className="js-user-deactivate"
             destructive
@@ -90,7 +74,13 @@ export default function UserActions(props: Props) {
       {openForm === 'password' && (
         <PasswordForm onClose={() => setOpenForm(undefined)} user={user} />
       )}
-      {openForm === 'update' && <UserForm onClose={() => setOpenForm(undefined)} user={user} />}
+      {openForm === 'update' && (
+        <UserForm
+          onClose={() => setOpenForm(undefined)}
+          user={user}
+          isInstanceManaged={isInstanceManaged}
+        />
+      )}
     </>
   );
 }

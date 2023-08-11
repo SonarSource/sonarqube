@@ -42,7 +42,6 @@ export default function UserListItem(props: UserListItemProps) {
   const {
     name,
     login,
-    managed,
     groupsCount,
     tokensCount,
     avatar,
@@ -100,11 +99,9 @@ export default function UserListItem(props: UserListItemProps) {
         </ButtonIcon>
       </td>
 
-      {(manageProvider === undefined || !managed) && (
-        <td className="thin nowrap text-right text-middle">
-          <UserActions user={user} manageProvider={manageProvider} />
-        </td>
-      )}
+      <td className="thin nowrap text-right text-middle">
+        <UserActions user={user} manageProvider={manageProvider} />
+      </td>
 
       {openTokenForm && <TokensFormModal onClose={() => setOpenTokenForm(false)} user={user} />}
       {openGroupForm && <GroupsForm onClose={() => setOpenGroupForm(false)} user={user} />}
