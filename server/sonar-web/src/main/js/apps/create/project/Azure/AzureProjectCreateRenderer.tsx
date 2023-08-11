@@ -45,7 +45,7 @@ export interface AzureProjectCreateRendererProps {
   loadingRepositories: Dict<boolean>;
   onImportRepository: (resository: AzureRepository) => void;
   onOpenProject: (key: string) => void;
-  onPersonalAccessTokenCreate: (token: string) => void;
+  onPersonalAccessTokenCreate: () => void;
   onSearch: (query: string) => void;
   projects?: AzureProject[];
   repositories: Dict<AzureRepository[]>;
@@ -55,10 +55,8 @@ export interface AzureProjectCreateRendererProps {
   almInstances?: AlmSettingsInstance[];
   selectedAlmInstance?: AlmSettingsInstance;
   showPersonalAccessTokenForm?: boolean;
-  submittingToken?: boolean;
-  tokenValidationFailed: boolean;
+  resetPat: boolean;
   onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
-  firstConnection?: boolean;
 }
 
 export default function AzureProjectCreateRenderer(props: AzureProjectCreateRendererProps) {
@@ -73,10 +71,8 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
     searchQuery,
     almInstances,
     showPersonalAccessTokenForm,
-    submittingToken,
-    tokenValidationFailed,
+    resetPat,
     selectedAlmInstance,
-    firstConnection,
   } = props;
 
   const showCountError = !loading && (!almInstances || almInstances?.length === 0);
@@ -131,9 +127,7 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
             <AzurePersonalAccessTokenForm
               almSetting={selectedAlmInstance}
               onPersonalAccessTokenCreate={props.onPersonalAccessTokenCreate}
-              submitting={submittingToken}
-              validationFailed={tokenValidationFailed}
-              firstConnection={firstConnection}
+              resetPat={resetPat}
             />
           </div>
         ) : (

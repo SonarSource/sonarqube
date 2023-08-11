@@ -31,51 +31,52 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../../helpers/l10n';
 import { AlmSettingsInstance } from '../../../../types/alm-settings';
+import { usePersonalAccessToken } from '../usePersonalAccessToken';
 
 export interface AzurePersonalAccessTokenFormProps {
   almSetting: AlmSettingsInstance;
-  onPersonalAccessTokenCreate: (token: string) => void;
-  submitting?: boolean;
-  validationFailed: boolean;
-  firstConnection?: boolean;
+  onPersonalAccessTokenCreate: () => void;
+  resetPat: boolean;
 }
 
 function getAzurePatUrl(url: string) {
   return `${url.replace(/\/$/, '')}/_usersSettings/tokens`;
 }
 
-export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessTokenFormProps) {
+export default function AzurePersonalAccessTokenForm({
+  almSetting,
+  resetPat,
+  onPersonalAccessTokenCreate,
+}: AzurePersonalAccessTokenFormProps) {
   const {
-    almSetting: { url },
-    submitting = false,
-    validationFailed,
+    password,
     firstConnection,
-  } = props;
+    validationFailed,
+    touched,
+    submitting,
+    validationErrorMessage,
+    checkingPat,
+    handlePasswordChange,
+    handleSubmit,
+  } = usePersonalAccessToken(almSetting, resetPat, onPersonalAccessTokenCreate);
 
-  const [touched, setTouched] = React.useState(false);
-  React.useEffect(() => {
-    setTouched(false);
-  }, [submitting]);
+  if (checkingPat) {
+    return <DeferredSpinner className="sw-ml-2" loading />;
+  }
 
-  const [token, setToken] = React.useState('');
-
-  const isInvalid = (validationFailed && !touched) || (touched && !token);
+  const isInvalid = (validationFailed && !touched) || (touched && !password);
+  const { url } = almSetting;
 
   let errorMessage;
-  if (!token) {
+  if (!password) {
     errorMessage = translate('onboarding.create_project.pat_form.pat_required');
   } else if (isInvalid) {
-    errorMessage = translate('onboarding.create_project.pat_incorrect.azure');
+    errorMessage =
+      validationErrorMessage ?? translate('onboarding.create_project.pat_incorrect.azure');
   }
 
   return (
-    <form
-      className="sw-mt-3 sw-w-[50%]"
-      onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        props.onPersonalAccessTokenCreate(token);
-      }}
-    >
+    <form className="sw-mt-3 sw-w-[50%]" onSubmit={handleSubmit}>
       <LightPrimary as="h2" className="sw-heading-md">
         {translate('onboarding.create_project.pat_form.title')}
       </LightPrimary>
@@ -112,12 +113,9 @@ export default function AzurePersonalAccessTokenForm(props: AzurePersonalAccessT
             id="personal_access_token"
             minLength={1}
             name="personal_access_token"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setToken(e.target.value);
-              setTouched(true);
-            }}
+            onChange={handlePasswordChange}
             type="text"
-            value={token}
+            value={password}
             size="large"
             isInvalid={isInvalid}
           />

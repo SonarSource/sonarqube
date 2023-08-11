@@ -19,11 +19,9 @@
  */
 import * as React from 'react';
 import {
-  checkPersonalAccessTokenIsValid,
   getAzureProjects,
   getAzureRepositories,
   searchAzureRepositories,
-  setAlmPersonalAccessToken,
   setupAzureProjectCreation,
 } from '../../../../api/alm-integrations';
 import { Location, Router } from '../../../../components/hoc/withRouter';
@@ -31,7 +29,6 @@ import { AzureProject, AzureRepository } from '../../../../types/alm-integration
 import { AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Dict } from '../../../../types/types';
 import { CreateProjectApiCallback } from '../types';
-import { tokenExistedBefore } from '../utils';
 import AzureCreateProjectRenderer from './AzureProjectCreateRenderer';
 
 interface Props {
@@ -46,16 +43,13 @@ interface Props {
 interface State {
   loading: boolean;
   loadingRepositories: Dict<boolean>;
-  patIsValid?: boolean;
   projects?: AzureProject[];
   repositories: Dict<AzureRepository[]>;
   searching?: boolean;
   searchResults?: AzureRepository[];
   searchQuery?: string;
   selectedAlmInstance?: AlmSettingsInstance;
-  submittingToken?: boolean;
-  tokenValidationFailed: boolean;
-  firstConnection?: boolean;
+  showPersonalAccessTokenForm: boolean;
 }
 
 export default class AzureProjectCreate extends React.PureComponent<Props, State> {
@@ -66,10 +60,9 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     this.state = {
       selectedAlmInstance: props.almInstances[0],
       loading: false,
+      showPersonalAccessTokenForm: true,
       loadingRepositories: {},
       repositories: {},
-      tokenValidationFailed: false,
-      firstConnection: false,
     };
   }
 
@@ -93,45 +86,48 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
   }
 
   fetchData = async () => {
-    this.setState({ loading: true });
+    const { showPersonalAccessTokenForm } = this.state;
 
-    const { patIsValid, error } = await this.checkPersonalAccessToken();
-
-    let projects: AzureProject[] | undefined;
-    if (patIsValid) {
-      projects = await this.fetchAzureProjects();
-    }
-
-    const { repositories } = this.state;
-
-    let firstProjectName: string;
-
-    if (projects && projects.length > 0) {
-      firstProjectName = projects[0].name;
-
-      this.setState(({ loadingRepositories }) => ({
-        loadingRepositories: { ...loadingRepositories, [firstProjectName]: true },
-      }));
-
-      const repos = await this.fetchAzureRepositories(firstProjectName);
-      repositories[firstProjectName] = repos;
-    }
-
-    if (this.mounted) {
-      this.setState(({ loadingRepositories }) => {
-        if (firstProjectName) {
-          loadingRepositories[firstProjectName] = false;
+    if (!showPersonalAccessTokenForm) {
+      this.setState({ loading: true });
+      let projects: AzureProject[] | undefined;
+      try {
+        projects = await this.fetchAzureProjects();
+      } catch (_) {
+        if (this.mounted) {
+          this.setState({ showPersonalAccessTokenForm: true, loading: false });
         }
+      }
 
-        return {
-          patIsValid,
-          loading: false,
-          loadingRepositories: { ...loadingRepositories },
-          projects,
-          repositories,
-          firstConnection: tokenExistedBefore(error),
-        };
-      });
+      const { repositories } = this.state;
+
+      let firstProjectName: string;
+
+      if (projects && projects.length > 0) {
+        firstProjectName = projects[0].name;
+
+        this.setState(({ loadingRepositories }) => ({
+          loadingRepositories: { ...loadingRepositories, [firstProjectName]: true },
+        }));
+
+        const repos = await this.fetchAzureRepositories(firstProjectName);
+        repositories[firstProjectName] = repos;
+      }
+
+      if (this.mounted) {
+        this.setState(({ loadingRepositories }) => {
+          if (firstProjectName !== '') {
+            loadingRepositories[firstProjectName] = false;
+          }
+
+          return {
+            loading: false,
+            loadingRepositories: { ...loadingRepositories },
+            projects,
+            repositories,
+          };
+        });
+      }
     }
   };
 
@@ -224,53 +220,20 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     }
   };
 
-  checkPersonalAccessToken = () => {
-    const { selectedAlmInstance } = this.state;
-
-    if (!selectedAlmInstance) {
-      return Promise.resolve({ patIsValid: false, error: '' });
-    }
-
-    return checkPersonalAccessTokenIsValid(selectedAlmInstance.key).then(({ status, error }) => {
-      return { patIsValid: status, error };
-    });
-  };
-
-  handlePersonalAccessTokenCreate = async (token: string) => {
-    const { selectedAlmInstance } = this.state;
-
-    if (!selectedAlmInstance || token.length < 1) {
-      return;
-    }
-
-    this.setState({ submittingToken: true, tokenValidationFailed: false });
-
-    try {
-      await setAlmPersonalAccessToken(selectedAlmInstance.key, token);
-      const { patIsValid } = await this.checkPersonalAccessToken();
-
-      if (this.mounted) {
-        this.setState({
-          submittingToken: false,
-          patIsValid,
-          tokenValidationFailed: !patIsValid,
-        });
-
-        if (patIsValid) {
-          this.cleanUrl();
-          this.fetchData();
-        }
-      }
-    } catch (e) {
-      if (this.mounted) {
-        this.setState({ submittingToken: false });
-      }
-    }
+  handlePersonalAccessTokenCreate = async () => {
+    this.setState({ showPersonalAccessTokenForm: false });
+    this.cleanUrl();
+    await this.fetchData();
   };
 
   onSelectedAlmInstanceChange = (instance: AlmSettingsInstance) => {
     this.setState(
-      { selectedAlmInstance: instance, searchResults: undefined, searchQuery: '' },
+      {
+        selectedAlmInstance: instance,
+        searchResults: undefined,
+        searchQuery: '',
+        showPersonalAccessTokenForm: true,
+      },
       () => {
         this.fetchData().catch(() => {
           /* noop */
@@ -284,16 +247,13 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     const {
       loading,
       loadingRepositories,
-      patIsValid,
+      showPersonalAccessTokenForm,
       projects,
       repositories,
       searching,
       searchResults,
       searchQuery,
       selectedAlmInstance,
-      submittingToken,
-      tokenValidationFailed,
-      firstConnection,
     } = this.state;
 
     return (
@@ -312,11 +272,11 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
         searchQuery={searchQuery}
         almInstances={almInstances}
         selectedAlmInstance={selectedAlmInstance}
-        showPersonalAccessTokenForm={!patIsValid || Boolean(location.query.resetPat)}
-        submittingToken={submittingToken}
-        tokenValidationFailed={tokenValidationFailed}
+        resetPat={Boolean(location.query.resetPat)}
+        showPersonalAccessTokenForm={
+          showPersonalAccessTokenForm || Boolean(location.query.resetPat)
+        }
         onSelectedAlmInstanceChange={this.onSelectedAlmInstanceChange}
-        firstConnection={firstConnection}
       />
     );
   }
