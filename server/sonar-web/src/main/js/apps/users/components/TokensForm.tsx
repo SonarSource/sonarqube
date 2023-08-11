@@ -19,7 +19,7 @@
  */
 import { isEmpty } from 'lodash';
 import * as React from 'react';
-import { isUserTokenVisible } from '../../../../js/helpers/urls';
+import { isDeploymentForAmazon, isDeploymentForCodeScan } from '../../../../js/helpers/urls';
 import withAppStateContext from '../../../../js/app/components/app-state/withAppStateContext';
 import { AppState } from '../../../../js/types/appstate';
 import { getScannableProjects } from '../../../api/components';
@@ -142,13 +142,17 @@ export class TokensForm extends React.PureComponent<Props, State> {
         label: translate('users.tokens', TokenType.Global),
         value: TokenType.Global,
       });
+    }
 
-      if(isUserTokenVisible(whiteLabel)){
-        tokenTypeOptions.unshift({
-          label: translate('users.tokens', TokenType.User),
-          value: TokenType.User,
-        });
-      }
+    // adding user token if it is amazon deployment and have admin permissions.
+    // or
+    // it is codescan saas deployment
+    if((isDeploymentForAmazon(whiteLabel) && hasGlobalPermission(currentUser, Permissions.Admin)) || 
+        (isDeploymentForCodeScan(whiteLabel))){
+      tokenTypeOptions.unshift({
+        label: translate('users.tokens', TokenType.User),
+        value: TokenType.User,
+      });
     }
     
     if (!isEmpty(projects)) {
