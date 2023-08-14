@@ -46,22 +46,27 @@ export default function BitbucketImportRepositoryForm(props: BitbucketImportRepo
   if (projects.length === 0) {
     return (
       <FlagMessage variant="warning">
-        <FormattedMessage
-          defaultMessage={translate('onboarding.create_project.no_bbs_projects')}
-          id="onboarding.create_project.no_bbs_projects"
-          values={{
-            link: (
-              <Link
-                to={{
-                  pathname: '/projects/create',
-                  search: queryToSearch({ mode: CreateProjectModes.BitbucketServer, resetPat: 1 }),
-                }}
-              >
-                {translate('onboarding.create_project.update_your_token')}
-              </Link>
-            ),
-          }}
-        />
+        <span>
+          <FormattedMessage
+            defaultMessage={translate('onboarding.create_project.no_bbs_projects')}
+            id="onboarding.create_project.no_bbs_projects"
+            values={{
+              link: (
+                <Link
+                  to={{
+                    pathname: '/projects/create',
+                    search: queryToSearch({
+                      mode: CreateProjectModes.BitbucketServer,
+                      resetPat: 1,
+                    }),
+                  }}
+                >
+                  {translate('onboarding.create_project.update_your_token')}
+                </Link>
+              ),
+            }}
+          />
+        </span>
       </FlagMessage>
     );
   }

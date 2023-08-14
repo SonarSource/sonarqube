@@ -57,22 +57,24 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
   if (projects.length === 0) {
     return (
       <FlagMessage className="sw-mt-2" variant="warning">
-        <FormattedMessage
-          defaultMessage={translate('onboarding.create_project.azure.no_projects')}
-          id="onboarding.create_project.azure.no_projects"
-          values={{
-            link: (
-              <Link
-                to={{
-                  pathname: '/projects/create',
-                  search: queryToSearch({ mode: CreateProjectModes.AzureDevOps, resetPat: 1 }),
-                }}
-              >
-                {translate('onboarding.create_project.update_your_token')}
-              </Link>
-            ),
-          }}
-        />
+        <span>
+          <FormattedMessage
+            defaultMessage={translate('onboarding.create_project.azure.no_projects')}
+            id="onboarding.create_project.azure.no_projects"
+            values={{
+              link: (
+                <Link
+                  to={{
+                    pathname: '/projects/create',
+                    search: queryToSearch({ mode: CreateProjectModes.AzureDevOps, resetPat: 1 }),
+                  }}
+                >
+                  {translate('onboarding.create_project.update_your_token')}
+                </Link>
+              ),
+            }}
+          />
+        </span>
       </FlagMessage>
     );
   }

@@ -59,9 +59,7 @@ export default function NewCodeDefinitionSelection(props: Props) {
 
   return (
     <div id="project-ncd-selection" className="sw-body-sm">
-      <Title className="sw-mt-8">
-        {translate('onboarding.create_project.new_code_definition.title')}
-      </Title>
+      <Title>{translate('onboarding.create_project.new_code_definition.title')}</Title>
 
       <p className="sw-mb-2">
         <FormattedMessage

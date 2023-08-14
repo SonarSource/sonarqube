@@ -50,22 +50,24 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
   if (repositories.length === 0 && searchQuery.length === 0 && !searching) {
     return (
       <FlagMessage className="sw-mt-2" variant="warning">
-        <FormattedMessage
-          defaultMessage={translate('onboarding.create_project.bitbucketcloud.no_projects')}
-          id="onboarding.create_project.bitbucketcloud.no_projects"
-          values={{
-            link: (
-              <Link
-                to={{
-                  pathname: '/projects/create',
-                  search: queryToSearch({ mode: CreateProjectModes.BitbucketCloud, resetPat: 1 }),
-                }}
-              >
-                {translate('onboarding.create_project.update_your_token')}
-              </Link>
-            ),
-          }}
-        />
+        <span>
+          <FormattedMessage
+            defaultMessage={translate('onboarding.create_project.bitbucketcloud.no_projects')}
+            id="onboarding.create_project.bitbucketcloud.no_projects"
+            values={{
+              link: (
+                <Link
+                  to={{
+                    pathname: '/projects/create',
+                    search: queryToSearch({ mode: CreateProjectModes.BitbucketCloud, resetPat: 1 }),
+                  }}
+                >
+                  {translate('onboarding.create_project.update_your_token')}
+                </Link>
+              ),
+            }}
+          />
+        </span>
       </FlagMessage>
     );
   }

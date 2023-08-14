@@ -70,25 +70,27 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
           {/* The extra loading guard is to prevent the flash of the Alert */}
           {!loading && repositories.length === 0 ? (
             <FlagMessage variant="warning">
-              <FormattedMessage
-                defaultMessage={translate('onboarding.create_project.azure.no_repositories')}
-                id="onboarding.create_project.azure.no_repositories"
-                values={{
-                  link: (
-                    <Link
-                      to={{
-                        pathname: '/projects/create',
-                        search: queryToSearch({
-                          mode: CreateProjectModes.AzureDevOps,
-                          resetPat: 1,
-                        }),
-                      }}
-                    >
-                      {translate('onboarding.create_project.update_your_token')}
-                    </Link>
-                  ),
-                }}
-              />
+              <span>
+                <FormattedMessage
+                  defaultMessage={translate('onboarding.create_project.azure.no_repositories')}
+                  id="onboarding.create_project.azure.no_repositories"
+                  values={{
+                    link: (
+                      <Link
+                        to={{
+                          pathname: '/projects/create',
+                          search: queryToSearch({
+                            mode: CreateProjectModes.AzureDevOps,
+                            resetPat: 1,
+                          }),
+                        }}
+                      >
+                        {translate('onboarding.create_project.update_your_token')}
+                      </Link>
+                    ),
+                  }}
+                />
+              </span>
             </FlagMessage>
           ) : (
             <>

@@ -97,23 +97,25 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
       <DeferredSpinner loading={loading} />
 
       {showUrlError && (
-        <FlagMessage variant="error">
-          {canAdmin ? (
-            <FormattedMessage
-              defaultMessage={translate('onboarding.create_project.azure.no_url.admin')}
-              id="onboarding.create_project.azure.no_url.admin"
-              values={{
-                alm: translate('onboarding.alm', AlmKeys.Azure),
-                url: (
-                  <Link to={getGlobalSettingsUrl(ALM_INTEGRATION_CATEGORY)}>
-                    {translate('settings.page')}
-                  </Link>
-                ),
-              }}
-            />
-          ) : (
-            translate('onboarding.create_project.azure.no_url')
-          )}
+        <FlagMessage variant="error" className="sw-mb-2">
+          <span>
+            {canAdmin ? (
+              <FormattedMessage
+                defaultMessage={translate('onboarding.create_project.azure.no_url.admin')}
+                id="onboarding.create_project.azure.no_url.admin"
+                values={{
+                  alm: translate('onboarding.alm', AlmKeys.Azure),
+                  url: (
+                    <Link to={getGlobalSettingsUrl(ALM_INTEGRATION_CATEGORY)}>
+                      {translate('settings.page')}
+                    </Link>
+                  ),
+                }}
+              />
+            ) : (
+              translate('onboarding.create_project.azure.no_url')
+            )}
+          </span>
         </FlagMessage>
       )}
 

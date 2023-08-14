@@ -61,25 +61,27 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
           <div className="sw-mb-4">
             {repositoryCount === 0 && (
               <FlagMessage variant="warning">
-                <FormattedMessage
-                  defaultMessage={translate('onboarding.create_project.no_bbs_repos')}
-                  id="onboarding.create_project.no_bbs_repos"
-                  values={{
-                    link: (
-                      <Link
-                        to={{
-                          pathname: '/projects/create',
-                          search: queryToSearch({
-                            mode: CreateProjectModes.BitbucketServer,
-                            resetPat: 1,
-                          }),
-                        }}
-                      >
-                        {translate('onboarding.create_project.update_your_token')}
-                      </Link>
-                    ),
-                  }}
-                />
+                <span>
+                  <FormattedMessage
+                    defaultMessage={translate('onboarding.create_project.no_bbs_repos')}
+                    id="onboarding.create_project.no_bbs_repos"
+                    values={{
+                      link: (
+                        <Link
+                          to={{
+                            pathname: '/projects/create',
+                            search: queryToSearch({
+                              mode: CreateProjectModes.BitbucketServer,
+                              resetPat: 1,
+                            }),
+                          }}
+                        >
+                          {translate('onboarding.create_project.update_your_token')}
+                        </Link>
+                      ),
+                    }}
+                  />
+                </span>
               </FlagMessage>
             )}
 

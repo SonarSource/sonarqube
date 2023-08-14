@@ -227,7 +227,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
 
     return (
       <div className="sw-max-w-[50%]">
-        <Title className="sw-mt-8">{translate('onboarding.create_project.setup_manually')}</Title>
+        <Title>{translate('onboarding.create_project.setup_manually')}</Title>
         {branchesEnabled && (
           <FlagMessage className="sw-my-4" variant="info">
             {translate('onboarding.create_project.pr_decoration.information')}
@@ -324,7 +324,11 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
             </Note>
           </FormField>
 
-          <ButtonPrimary type="submit" className="sw-mt-4" disabled={!this.canSubmit(this.state)}>
+          <ButtonPrimary
+            type="submit"
+            className="sw-mt-4 sw-mb-4"
+            disabled={!this.canSubmit(this.state)}
+          >
             {translate('next')}
           </ButtonPrimary>
         </form>
