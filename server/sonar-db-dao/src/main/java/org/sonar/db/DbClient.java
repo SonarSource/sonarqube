@@ -63,6 +63,7 @@ import org.sonar.db.project.ProjectDao;
 import org.sonar.db.property.InternalComponentPropertiesDao;
 import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
+import org.sonar.db.provisioning.GithubOrganizationGroupDao;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.pushevent.PushEventDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
@@ -185,6 +186,7 @@ public class DbClient {
 
   private final ReportScheduleDao reportScheduleDao;
   private final ReportSubscriptionDao reportSubscriptionDao;
+  private final GithubOrganizationGroupDao githubOrganizationGroupDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -241,6 +243,7 @@ public class DbClient {
     notificationQueueDao = getDao(map, NotificationQueueDao.class);
     metricDao = getDao(map, MetricDao.class);
     groupDao = getDao(map, GroupDao.class);
+    githubOrganizationGroupDao = getDao(map, GithubOrganizationGroupDao.class);
     externalGroupDao = getDao(map, ExternalGroupDao.class);
     ruleDao = getDao(map, RuleDao.class);
     ruleRepositoryDao = getDao(map, RuleRepositoryDao.class);
@@ -481,6 +484,10 @@ public class DbClient {
 
   public GroupDao groupDao() {
     return groupDao;
+  }
+
+  public GithubOrganizationGroupDao githubOrganizationGroupDao() {
+    return githubOrganizationGroupDao;
   }
 
   public ExternalGroupDao externalGroupDao() {

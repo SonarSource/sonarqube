@@ -50,6 +50,7 @@ public final class SqTables {
     "es_queue",
     "events",
     "event_component_changes",
+    "github_orgs_groups",
     "external_groups",
     "file_sources",
     "groups",

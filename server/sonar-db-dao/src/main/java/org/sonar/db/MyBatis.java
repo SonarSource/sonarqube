@@ -117,6 +117,8 @@ import org.sonar.db.property.InternalPropertiesMapper;
 import org.sonar.db.property.InternalPropertyDto;
 import org.sonar.db.property.PropertiesMapper;
 import org.sonar.db.property.ScrapPropertyDto;
+import org.sonar.db.provisioning.GithubOrganizationGroupDto;
+import org.sonar.db.provisioning.GithubOrganizationGroupMapper;
 import org.sonar.db.purge.PurgeMapper;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 import org.sonar.db.pushevent.PushEventDto;
@@ -204,6 +206,7 @@ public class MyBatis {
     confBuilder.loadAlias("Entity", EntityDto.class);
     confBuilder.loadAlias("Event", EventDto.class);
     confBuilder.loadAlias("ExternalGroup", ExternalGroupDto.class);
+    confBuilder.loadAlias("GithubOrganizationGroup", GithubOrganizationGroupDto.class);
     confBuilder.loadAlias("FilePathWithHash", FilePathWithHashDto.class);
     confBuilder.loadAlias("KeyWithUuid", KeyWithUuidDto.class);
     confBuilder.loadAlias("Group", GroupDto.class);
@@ -281,6 +284,7 @@ public class MyBatis {
       EsQueueMapper.class,
       EventMapper.class,
       EventComponentChangeMapper.class,
+      GithubOrganizationGroupMapper.class,
       ExternalGroupMapper.class,
       FileSourceMapper.class,
       GroupMapper.class,

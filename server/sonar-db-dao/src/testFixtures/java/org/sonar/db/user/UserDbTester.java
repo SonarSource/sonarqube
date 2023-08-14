@@ -40,6 +40,7 @@ import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.provisioning.GithubOrganizationGroupDto;
 import org.sonar.db.scim.ScimGroupDto;
 import org.sonar.db.scim.ScimUserDto;
 
@@ -162,6 +163,12 @@ public class UserDbTester {
 
   public void markGroupAsGithubManaged(String groupUuid) {
     db.getDbClient().externalGroupDao().insert(db.getSession(), new ExternalGroupDto(groupUuid, randomAlphanumeric(20), "github"));
+    db.commit();
+  }
+
+  public void markGroupAsGithubOrganizationGroup(String groupUuid, String organizationName) {
+    GithubOrganizationGroupDto githubOrganizationGroupDto = new GithubOrganizationGroupDto(groupUuid, organizationName);
+    db.getDbClient().githubOrganizationGroupDao().insert(db.getSession(), githubOrganizationGroupDto);
     db.commit();
   }
 
