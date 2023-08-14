@@ -75,7 +75,6 @@ public class GithubPaginatedHttpClientImplTest {
   @InjectMocks
   private GithubPaginatedHttpClientImpl underTest;
 
-
   @Test
   public void get_whenNoPagination_ReturnsCorrectResponse() throws IOException {
 
@@ -86,6 +85,18 @@ public class GithubPaginatedHttpClientImplTest {
 
     assertThat(results)
       .containsExactly("result1", "result2");
+  }
+
+  @Test
+  public void get_whenEndpointAlreadyContainsPathParameter_shouldAddANewParameter() throws IOException {
+    ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
+
+    GetResponse response = mockResponseWithoutPagination("[\"result1\", \"result2\"]");
+    when(appHttpClient.get(eq(APP_URL), eq(accessToken), urlCaptor.capture())).thenReturn(response);
+
+    underTest.get(APP_URL, accessToken, ENDPOINT + "?alreadyExistingArg=2", result -> gson.fromJson(result, STRING_LIST_TYPE));
+
+    assertThat(urlCaptor.getValue()).isEqualTo(ENDPOINT + "?alreadyExistingArg=2&per_page=100");
   }
 
   private static GetResponse mockResponseWithoutPagination(String content) {

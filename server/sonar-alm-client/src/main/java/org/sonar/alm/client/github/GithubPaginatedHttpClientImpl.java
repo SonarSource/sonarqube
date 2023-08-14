@@ -50,6 +50,9 @@ public class GithubPaginatedHttpClientImpl implements GithubPaginatedHttpClient 
   public <E> List<E> get(String appUrl, AccessToken token, String query, Function<String, List<E>> responseDeserializer) throws IOException {
     List<E> results = new ArrayList<>();
     String nextEndpoint = query + "?per_page=100";
+    if (query.contains("?")) {
+      nextEndpoint = query + "&per_page=100";
+    }
     GithubApplicationHttpClient.RateLimit rateLimit = null;
     while (nextEndpoint != null) {
       checkRateLimit(rateLimit);

@@ -32,6 +32,8 @@ public class GithubBinding {
     // nothing to do
   }
 
+  public record GsonOrganization(@SerializedName("login") String login, @SerializedName("default_repository_permission") String defaultRepositoryPermissions){}
+
   public static class GsonApp {
 
     @SerializedName("installations_count")
