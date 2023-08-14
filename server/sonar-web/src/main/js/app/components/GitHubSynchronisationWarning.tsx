@@ -22,6 +22,7 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import Link from '../../components/common/Link';
 import CheckIcon from '../../components/icons/CheckIcon';
+import WarningIcon from '../../components/icons/WarningIcon';
 import { Alert } from '../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { useGitHubSyncStatusQuery } from '../../queries/identity-provider';
@@ -42,7 +43,7 @@ function LastSyncAlert({ info, short }: LastSyncProps) {
   if (info === undefined) {
     return null;
   }
-  const { finishedAt, errorMessage, status, summary } = info;
+  const { finishedAt, errorMessage, status, summary, warningMessage } = info;
 
   const formattedDate = finishedAt ? formatDistance(new Date(finishedAt), new Date()) : '';
 
@@ -50,12 +51,33 @@ function LastSyncAlert({ info, short }: LastSyncProps) {
     return status === TaskStatuses.Success ? (
       <div>
         <span className="authentication-enabled spacer-left">
-          <CheckIcon className="spacer-right" />
+          {warningMessage ? (
+            <WarningIcon className="spacer-right" />
+          ) : (
+            <CheckIcon className="spacer-right" />
+          )}
         </span>
         <i>
-          {translateWithParameters(
-            'settings.authentication.github.synchronization_successful',
-            formattedDate
+          {warningMessage ? (
+            <FormattedMessage
+              id="settings.authentication.github.synchronization_successful.with_warning"
+              defaultMessage={translate(
+                'settings.authentication.github.synchronization_successful.with_warning'
+              )}
+              values={{
+                date: formattedDate,
+                details: (
+                  <Link to="../settings?category=authentication&tab=github">
+                    {translate('settings.authentication.github.synchronization_details_link')}
+                  </Link>
+                ),
+              }}
+            />
+          ) : (
+            translateWithParameters(
+              'settings.authentication.github.synchronization_successful',
+              formattedDate
+            )
           )}
         </i>
       </div>
@@ -67,7 +89,7 @@ function LastSyncAlert({ info, short }: LastSyncProps) {
           values={{
             details: (
               <Link to="../settings?category=authentication&tab=github">
-                {translate('settings.authentication.github.synchronization_failed_link')}
+                {translate('settings.authentication.github.synchronization_details_link')}
               </Link>
             ),
           }}
@@ -77,33 +99,38 @@ function LastSyncAlert({ info, short }: LastSyncProps) {
   }
 
   return (
-    <Alert
-      variant={status === TaskStatuses.Success ? 'success' : 'error'}
-      role="alert"
-      aria-live="assertive"
-    >
-      {status === TaskStatuses.Success ? (
-        <>
-          {translateWithParameters(
-            'settings.authentication.github.synchronization_successful',
-            formattedDate
-          )}
-          <br />
-          {summary ?? ''}
-        </>
-      ) : (
-        <React.Fragment key={`synch-alert-${finishedAt}`}>
-          <div>
+    <>
+      <Alert
+        variant={status === TaskStatuses.Success ? 'success' : 'error'}
+        role="alert"
+        aria-live="assertive"
+      >
+        {status === TaskStatuses.Success ? (
+          <>
             {translateWithParameters(
-              'settings.authentication.github.synchronization_failed',
+              'settings.authentication.github.synchronization_successful',
               formattedDate
             )}
-          </div>
-          <br />
-          {errorMessage ?? ''}
-        </React.Fragment>
-      )}
-    </Alert>
+            <br />
+            {summary ?? ''}
+          </>
+        ) : (
+          <React.Fragment key={`synch-alert-${finishedAt}`}>
+            <div>
+              {translateWithParameters(
+                'settings.authentication.github.synchronization_failed',
+                formattedDate
+              )}
+            </div>
+            <br />
+            {errorMessage ?? ''}
+          </React.Fragment>
+        )}
+      </Alert>
+      <Alert variant="warning" role="alert" aria-live="assertive">
+        {warningMessage}
+      </Alert>
+    </>
   );
 }
 

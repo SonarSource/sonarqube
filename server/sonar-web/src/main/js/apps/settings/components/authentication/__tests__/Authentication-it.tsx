@@ -172,6 +172,8 @@ const ui = {
     configurationValidityError: byRole('status', {
       name: /github.configuration.validation.invalid/,
     }),
+    syncWarning: byText(/Warning/),
+    syncSummary: byText(/Test summary/),
     configurationValidityWarning: byRole('status', {
       name: /github.configuration.validation.valid.short/,
     }),
@@ -473,7 +475,7 @@ describe('Github tab', () => {
       renderAuthentication([Feature.GithubProvisioning]);
       await github.enableProvisioning(user);
       expect(github.githubProvisioningSuccess.get()).toBeInTheDocument();
-      expect(github.githubProvisioningButton.get()).toHaveTextContent('Test summary');
+      expect(github.syncSummary.get()).toBeInTheDocument();
     });
 
     it('should display a success status even when another task is pending', async () => {
@@ -776,6 +778,18 @@ describe('Github tab', () => {
 
       expect(github.configurationValiditySuccess.get()).toBeInTheDocument();
       expect(github.configurationValidityError.query()).not.toBeInTheDocument();
+    });
+
+    it('should show warning', async () => {
+      handler.addProvisioningTask({
+        status: TaskStatuses.Success,
+        warnings: ['Warning'],
+      });
+      renderAuthentication([Feature.GithubProvisioning]);
+      await github.enableProvisioning(user);
+
+      expect(await github.syncWarning.find()).toBeInTheDocument();
+      expect(github.syncSummary.get()).toBeInTheDocument();
     });
   });
 });

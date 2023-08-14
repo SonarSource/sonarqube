@@ -32,6 +32,7 @@ export type GithubStatusEnabled = {
     executionTimeMs: number;
     finishedAt: number;
     startedAt: number;
+    warningMessage?: string;
   } & (
     | {
         status: TaskStatuses.Success;

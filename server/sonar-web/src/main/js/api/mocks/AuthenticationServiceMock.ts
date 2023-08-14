@@ -129,11 +129,11 @@ export default class AuthenticationServiceMock {
       return Promise.resolve({ enabled: false });
     }
 
-    const nextSync = this.tasks.find((t: any) =>
+    const nextSync = this.tasks.find((t: Task) =>
       [TaskStatuses.InProgress, TaskStatuses.Pending].includes(t.status)
     );
     const lastSync = this.tasks.find(
-      (t: any) => ![TaskStatuses.InProgress, TaskStatuses.Pending].includes(t.status)
+      (t: Task) => ![TaskStatuses.InProgress, TaskStatuses.Pending].includes(t.status)
     );
 
     return Promise.resolve({
@@ -147,6 +147,7 @@ export default class AuthenticationServiceMock {
             executionTimeMs: lastSync.executionTimeMs,
             summary: lastSync.status === TaskStatuses.Success ? 'Test summary' : undefined,
             errorMessage: lastSync.errorMessage,
+            warningMessage: lastSync.warnings?.join() ?? undefined,
           }
         : undefined,
     });

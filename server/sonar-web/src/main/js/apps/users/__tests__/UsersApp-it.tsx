@@ -128,6 +128,7 @@ const ui = {
   githubProvisioningPending: byText(/synchronization_pending/),
   githubProvisioningInProgress: byText(/synchronization_in_progress/),
   githubProvisioningSuccess: byText(/synchronization_successful/),
+  githubProvisioningWarning: byText(/synchronization_successful.with_warning/),
   githubProvisioningAlert: byText(/synchronization_failed_short/),
 };
 
@@ -606,6 +607,19 @@ describe('in manage mode', () => {
       expect(screen.queryByText('Error Message')).not.toBeInTheDocument();
       expect(ui.githubProvisioningSuccess.query()).not.toBeInTheDocument();
       expect(ui.githubProvisioningInProgress.query()).not.toBeInTheDocument();
+    });
+
+    it('should display an warning alert', async () => {
+      const warningMessage = 'Very long warning about something that user is not interested in';
+      authenticationHandler.addProvisioningTask({
+        status: TaskStatuses.Success,
+        warnings: [warningMessage],
+      });
+      renderUsersApp([Feature.GithubProvisioning]);
+      await act(async () => expect(await ui.githubProvisioningWarning.find()).toBeInTheDocument());
+      // We don't want to display the full warning message.
+      expect(screen.queryByText(warningMessage)).not.toBeInTheDocument();
+      expect(ui.githubProvisioningWarning.byRole('link').get()).toBeInTheDocument();
     });
   });
 });
