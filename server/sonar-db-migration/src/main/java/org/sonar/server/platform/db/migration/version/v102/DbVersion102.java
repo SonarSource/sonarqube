@@ -96,6 +96,8 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_038, "Create 'issues_impacts' table", CreateIssueImpactsTable.class)
       .add(10_2_039, "Create unique constraint index on 'issues_impacts' table", CreateUniqueConstraintOnIssuesImpacts.class)
       .add(10_2_040, "Populate default impacts for existing rules", PopulateDefaultImpactsInRules.class)
-      .add(10_2_041, "Fix sqale_index metric description in 'metrics' table", FixSqaleIndexMetricDescription.class);
+      .add(10_2_041, "Fix sqale_index metric description in 'metrics' table", FixSqaleIndexMetricDescription.class)
+
+      .add(10_2_042, "Create table 'github_orgs_groups'", CreateGithubOrganizationsGroupsTable.class);
   }
 }
