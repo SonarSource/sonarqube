@@ -21,10 +21,12 @@ package org.sonar.db.project;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.cursor.Cursor;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.rule.RuleDto;
 
 public interface ProjectExportMapper {
 
@@ -35,4 +37,7 @@ public interface ProjectExportMapper {
   List<ProjectLinkDto> selectLinksForExport(@Param("projectUuid") String projectUuid);
 
   List<NewCodePeriodDto> selectNewCodePeriodsForExport(@Param("projectUuid") String projectUuid);
+
+  Cursor<RuleDto> scrollAdhocRulesForExport(@Param("projectUuid") String projectUuid);
+
 }

@@ -179,7 +179,7 @@ public class RuleDao implements Dao {
   private static Map<String, RuleDto> findTemplateDtos(RuleMapper mapper, List<String> templateRuleUuids) {
     if (!templateRuleUuids.isEmpty()) {
       return mapper.selectByUuids(templateRuleUuids).stream().collect(toMap(RuleDto::getUuid, Function.identity()));
-    }else{
+    } else {
       return Collections.emptyMap();
     }
   }

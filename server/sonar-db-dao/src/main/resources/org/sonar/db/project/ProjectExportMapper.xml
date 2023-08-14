@@ -55,4 +55,42 @@
         (ncp.branch_uuid is null OR (pb.branch_type='BRANCH' AND pb.exclude_from_purge=${_true}))
     </select>
 
+    <select id="scrollAdhocRulesForExport"  parameterType="map" resultMap="org.sonar.db.rule.RuleMapper.ruleResultMap" fetchSize="${_scrollFetchSize}"
+            resultSetType="FORWARD_ONLY" resultOrdered="true">
+    select
+        r.uuid as "r_uuid",
+        r.plugin_key as "pluginKey",
+        r.plugin_config_key as "configKey",
+        r.plugin_rule_key as "ruleKey",
+        r.plugin_name as "repositoryKey",
+        r.name,
+        r.status,
+        r.rule_type as "type",
+        r.scope,
+        r.ad_hoc_name as "adHocName",
+        r.ad_hoc_description as "adHocDescription",
+        r.ad_hoc_severity as "adHocSeverity",
+        r.ad_hoc_type as "adHocType",
+        r.clean_code_attribute as "cleanCodeAttribute",
+        rdi.uuid as "rdi_uuid",
+        rdi.rule_uuid as "rdi_ruleUuid",
+        rdi.software_quality as "rdi_softwareQuality",
+        rdi.severity as "rdi_severity"
+    from
+      rules r
+      left outer join rules_default_impacts rdi on rdi.rule_uuid = r.uuid
+      where
+        r.status &lt;&gt; 'REMOVED' and r.is_ad_hoc = true
+        and exists(
+             select i.kee
+             from issues i
+                      left join components p on p.uuid = i.project_uuid
+                      left join project_branches pb on pb.uuid = p.uuid
+             where i.rule_uuid = r.uuid
+               and pb.project_uuid = #{projectUuid,jdbcType=VARCHAR}
+               and pb.branch_type = 'BRANCH'
+               and pb.exclude_from_purge = ${_true}
+               and i.status &lt;&gt; 'CLOSED')
+      order by r.uuid
+    </select>
 </mapper>

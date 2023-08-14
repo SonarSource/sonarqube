@@ -23,14 +23,19 @@ import com.google.common.collect.ImmutableList;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
@@ -38,11 +43,13 @@ import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.FakeDumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
 import org.sonar.ce.task.step.TestComputationStepContext;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
@@ -91,9 +98,9 @@ public class ExportAdHocRulesStepIT {
   @Test
   public void execute_only_exports_ad_hoc_rules_that_reference_project_issue() {
     String differentProject = "diff-proj-uuid";
-    RuleDto rule1 = insertAddHocRule( "rule-1");
-    RuleDto rule2 = insertAddHocRule( "rule-2");
-    insertAddHocRule( "rule-3");
+    RuleDto rule1 = insertAddHocRule("rule-1");
+    RuleDto rule2 = insertAddHocRule("rule-2");
+    insertAddHocRule("rule-3");
     insertIssue(rule1, differentProject, differentProject);
     insertIssue(rule2, mainBranch.uuid(), mainBranch.uuid());
 
@@ -156,6 +163,20 @@ public class ExportAdHocRulesStepIT {
   }
 
   @Test
+  public void execute_shouldReturnCorrectAdhocRules_whenMultipleIssuesForSameRule() {
+    RuleDto rule1 = insertAddHocRule("rule-1");
+    insertIssue(rule1, mainBranch.uuid(), mainBranch.uuid());
+    insertIssue(rule1, mainBranch.uuid(), mainBranch.uuid());
+    insertIssue(rule1, mainBranch.uuid(), mainBranch.uuid());
+
+    underTest.execute(new TestComputationStepContext());
+
+    List<ProjectDump.AdHocRule> exportedRules = dumpWriter.getWrittenMessagesOf(DumpElement.AD_HOC_RULES);
+    assertThat(exportedRules).hasSize(1);
+    assertProtobufAdHocRuleIsCorrectlyBuilt(exportedRules.iterator().next(), rule1);
+  }
+
+  @Test
   public void getDescription() {
     assertThat(underTest.getDescription()).isEqualTo("Export ad-hoc rules");
   }
@@ -199,6 +220,9 @@ public class ExportAdHocRulesStepIT {
     RuleDto ruleDto = new RuleDto()
       .setIsExternal(false)
       .setIsAdHoc(true)
+      .setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL)
+      .addDefaultImpact(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM))
+      .addDefaultImpact(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
       .setAdHocName("ad_hoc_rule" + RandomStringUtils.randomAlphabetic(10))
       .setAdHocType(RuleType.VULNERABILITY)
       .setAdHocSeverity(Severity.CRITICAL)
@@ -238,8 +262,21 @@ public class ExportAdHocRulesStepIT {
     assertThat(protobufAdHocRule.getStatus()).isEqualTo(source.getStatus().name());
     assertThat(protobufAdHocRule.getType()).isEqualTo(source.getType());
     assertThat(protobufAdHocRule.getScope()).isEqualTo(source.getScope().name());
+    assertThat(protobufAdHocRule.getCleanCodeAttribute()).isEqualTo(source.getCleanCodeAttribute().name());
+    assertThat(toImpactMap(protobufAdHocRule.getImpactsList())).isEqualTo(toImpactMap(source.getDefaultImpacts()));
     assertProtobufAdHocRuleIsCorrectlyBuilt(protobufAdHocRule.getMetadata(), source);
   }
+
+  private static Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> toImpactMap(Set<ImpactDto> defaultImpacts) {
+    return defaultImpacts
+      .stream().collect(Collectors.toMap(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity));
+  }
+
+  private static Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> toImpactMap(List<ProjectDump.Impact> impactsList) {
+    return impactsList.stream()
+      .collect(Collectors.toMap(i -> SoftwareQuality.valueOf(i.getSoftwareQuality()), i -> org.sonar.api.issue.impact.Severity.valueOf(i.getSeverity())));
+  }
+
 
   private static void assertProtobufAdHocRuleIsCorrectlyBuilt(ProjectDump.AdHocRule.RuleMetadata metadata, RuleDto expected) {
     assertThat(metadata.getAdHocName()).isEqualTo(expected.getAdHocName());

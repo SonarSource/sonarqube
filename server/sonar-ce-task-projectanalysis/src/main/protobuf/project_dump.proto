@@ -169,6 +169,13 @@ message AdHocRule {
   int32 type = 7;
   string scope = 8;
   RuleMetadata metadata = 9;
+  repeated Impact impacts = 11;
+  optional string cleanCodeAttribute = 12;
+}
+
+message Impact {
+  string software_quality = 1;
+  string severity = 2;
 }
 
 // stream of messages in settings.pb
