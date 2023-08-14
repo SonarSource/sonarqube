@@ -47,6 +47,19 @@ export interface CreateProjectModeSelectionProps {
   onConfigMode: (mode: AlmKeys) => void;
 }
 
+type almList = {
+  key: AlmKeys;
+  mode: CreateProjectModes;
+}[];
+
+const almList: almList = [
+  { key: AlmKeys.Azure, mode: CreateProjectModes.AzureDevOps },
+  { key: AlmKeys.BitbucketCloud, mode: CreateProjectModes.BitbucketCloud },
+  { key: AlmKeys.BitbucketServer, mode: CreateProjectModes.BitbucketServer },
+  { key: AlmKeys.GitHub, mode: CreateProjectModes.GitHub },
+  { key: AlmKeys.GitLab, mode: CreateProjectModes.GitLab },
+];
+
 function renderAlmOption(
   props: CreateProjectModeSelectionProps,
   alm: AlmKeys,
@@ -76,7 +89,7 @@ function renderAlmOption(
   );
 
   return (
-    <GreyCard className="sw-col-span-4 sw-p-4 sw-flex sw-justify-between sw-items-center">
+    <GreyCard key={alm} className="sw-col-span-4 sw-p-4 sw-flex sw-justify-between sw-items-center">
       <div className="sw-items-center sw-flex sw-py-2">
         {!disabled && hasConfig ? (
           <StandoutLink icon={icon} to={getCreateProjectModeLocation(mode)}>
@@ -109,12 +122,25 @@ function renderAlmOption(
   );
 }
 
+function separateAvailableOptions(almCounts: CreateProjectModeSelectionProps['almCounts']) {
+  const availableOptions: almList = [];
+  const unavailableOptions: almList = [];
+  almList.forEach(({ key, mode }) =>
+    (almCounts[key] > 0 ? availableOptions : unavailableOptions).push({ key, mode })
+  );
+  return {
+    availableOptions,
+    unavailableOptions,
+  };
+}
+
 export function CreateProjectModeSelection(props: CreateProjectModeSelectionProps) {
   const {
     appState: { canAdmin },
     almCounts,
   } = props;
   const almTotalCount = Object.values(almCounts).reduce((prev, cur) => prev + cur);
+  const filteredAlm = separateAvailableOptions(almCounts);
 
   return (
     <div className="sw-body-sm">
@@ -132,16 +158,13 @@ export function CreateProjectModeSelection(props: CreateProjectModeSelectionProp
           </LightPrimary>
         )}
         <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12 sw-mt-4">
-          {renderAlmOption(props, AlmKeys.Azure, CreateProjectModes.AzureDevOps)}
-          {renderAlmOption(props, AlmKeys.BitbucketServer, CreateProjectModes.BitbucketServer)}
-          {renderAlmOption(props, AlmKeys.BitbucketCloud, CreateProjectModes.BitbucketCloud)}
-          {renderAlmOption(props, AlmKeys.GitHub, CreateProjectModes.GitHub)}
-          {renderAlmOption(props, AlmKeys.GitLab, CreateProjectModes.GitLab)}
+          {filteredAlm.availableOptions.map(({ key, mode }) => renderAlmOption(props, key, mode))}
+          {filteredAlm.unavailableOptions.map(({ key, mode }) => renderAlmOption(props, key, mode))}
         </div>
         <LightPrimary className="sw-mb-4 sw-mt-10">
           {translate('onboarding.create_project.select_method.manually')}
         </LightPrimary>
-        <div className="sw-grid sw-gap-6 sw-grid-cols-12">
+        <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12">
           <GreyCard className="sw-col-span-4 sw-p-4 sw-py-6 sw-flex sw-justify-between sw-items-center">
             <div>
               <StandoutLink to={getCreateProjectModeLocation(CreateProjectModes.Manual)}>
