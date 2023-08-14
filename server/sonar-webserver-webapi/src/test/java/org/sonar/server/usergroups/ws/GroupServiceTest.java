@@ -39,6 +39,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.AuthorizationDao;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.template.PermissionTemplateDao;
+import org.sonar.db.provisioning.GithubOrganizationGroupDao;
 import org.sonar.db.qualitygate.QualityGateGroupPermissionsDao;
 import org.sonar.db.qualityprofile.QProfileEditGroupsDao;
 import org.sonar.db.scim.ScimGroupDao;
@@ -95,6 +96,7 @@ public class GroupServiceTest {
     when(dbClient.scimGroupDao()).thenReturn(mock(ScimGroupDao.class));
     when(dbClient.externalGroupDao()).thenReturn(mock(ExternalGroupDao.class));
     when(dbClient.groupDao()).thenReturn(mock(GroupDao.class));
+    when(dbClient.githubOrganizationGroupDao()).thenReturn(mock(GithubOrganizationGroupDao.class));
   }
 
   @Test
@@ -320,6 +322,7 @@ public class GroupServiceTest {
     verify(dbClient.qualityGateGroupPermissionsDao(), never()).deleteByGroup(dbSession, groupDto);
     verify(dbClient.scimGroupDao(), never()).deleteByGroupUuid(dbSession, groupDto.getUuid());
     verify(dbClient.groupDao(), never()).deleteByUuid(dbSession, groupDto.getUuid(), groupDto.getName());
+    verify(dbClient.githubOrganizationGroupDao(), never()).deleteByGroupUuid(dbSession, groupDto.getUuid());
   }
 
   private void verifyGroupDelete(DbSession dbSession, GroupDto groupDto) {
@@ -331,5 +334,6 @@ public class GroupServiceTest {
     verify(dbClient.scimGroupDao()).deleteByGroupUuid(dbSession, groupDto.getUuid());
     verify(dbClient.externalGroupDao()).deleteByGroupUuid(dbSession, groupDto.getUuid());
     verify(dbClient.groupDao()).deleteByUuid(dbSession, groupDto.getUuid(), groupDto.getName());
+    verify(dbClient.githubOrganizationGroupDao()).deleteByGroupUuid(dbSession, groupDto.getUuid());
   }
 }
