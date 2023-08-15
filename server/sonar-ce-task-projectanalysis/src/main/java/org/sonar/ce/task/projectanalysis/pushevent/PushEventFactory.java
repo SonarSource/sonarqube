@@ -21,10 +21,15 @@ package org.sonar.ce.task.projectanalysis.pushevent;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -139,7 +144,24 @@ public class PushEventFactory {
     event.setMainLocation(prepareMainLocation(component, issue));
     event.setFlows(flowGenerator.convertFlows(component.getName(), requireNonNull(issue.getLocations())));
     issue.getRuleDescriptionContextKey().ifPresent(event::setRuleDescriptionContextKey);
+
+    Rule rule = ruleRepository.getByKey(issue.getRuleKey());
+    event.setCleanCodeAttribute(rule.cleanCodeAttribute().name());
+    event.setCleanCodeAttributeCategory(rule.cleanCodeAttribute().getAttributeCategory().name());
+    event.setImpacts(computeEffectiveImpacts(rule.getDefaultImpacts(), issue.impacts()));
     return event;
+  }
+
+  private static List<TaintVulnerabilityRaised.Impact> computeEffectiveImpacts(Map<SoftwareQuality, Severity> defaultImpacts, Map<SoftwareQuality, Severity> impacts) {
+    Map<SoftwareQuality, Severity> impactMap = new EnumMap<>(defaultImpacts);
+    impacts.forEach((softwareQuality, severity) -> impactMap.computeIfPresent(softwareQuality, (existingSoftwareQuality, existingSeverity) -> severity));
+    return impactMap.entrySet().stream()
+      .map(e -> {
+        TaintVulnerabilityRaised.Impact impact = new TaintVulnerabilityRaised.Impact();
+        impact.setSoftwareQuality(e.getKey().name());
+        impact.setSeverity(e.getValue().name());
+        return impact;
+      }).toList();
   }
 
   private static Location prepareMainLocation(Component component, DefaultIssue issue) {

@@ -71,6 +71,5 @@ public interface Rule {
 
   Map<SoftwareQuality, Severity> getDefaultImpacts();
 
-  @CheckForNull
   CleanCodeAttribute cleanCodeAttribute();
 }

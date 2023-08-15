@@ -23,11 +23,15 @@ import com.google.gson.Gson;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Set;
+import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -39,6 +43,8 @@ import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
 import org.sonar.ce.task.projectanalysis.locations.flow.FlowGenerator;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.util.Uuids;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
@@ -47,6 +53,7 @@ import org.sonar.server.issue.TaintChecker;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -104,9 +111,34 @@ public class PushEventFactoryTest {
     assertThat(taintVulnerabilityRaised.getRuleKey()).isEqualTo(defaultIssue.ruleKey().toString());
     assertThat(taintVulnerabilityRaised.getType()).isEqualTo(defaultIssue.type().name());
     assertThat(taintVulnerabilityRaised.getBranch()).isEqualTo(BRANCH_NAME);
+    assertThat(taintVulnerabilityRaised.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL.name());
+    assertThat(taintVulnerabilityRaised.getCleanCodeAttributeCategory()).isEqualTo(CleanCodeAttribute.CONVENTIONAL.getAttributeCategory().name());
+    assertThat(taintVulnerabilityRaised.getImpacts()).extracting(TaintVulnerabilityRaised.Impact::getSoftwareQuality, TaintVulnerabilityRaised.Impact::getSeverity)
+      .containsExactlyInAnyOrder(Tuple.tuple(SoftwareQuality.MAINTAINABILITY.name(), Severity.MEDIUM.name()),
+        Tuple.tuple(SoftwareQuality.RELIABILITY.name(), Severity.HIGH.name()));
+
     String ruleDescriptionContextKey = taintVulnerabilityRaised.getRuleDescriptionContextKey().orElseGet(() -> fail("No rule description " +
-      "context key"));
+                                                                                                                    "context key"));
     assertThat(ruleDescriptionContextKey).isEqualTo(defaultIssue.getRuleDescriptionContextKey().orElse(null));
+  }
+
+  @Test
+  public void raiseEventOnIssue_whenNewTaintVulnerabilityWithImpactAtRuleAndIssueLevel_shouldMergeImpacts() {
+    DefaultIssue defaultIssue = createDefaultIssue()
+      .setNew(true)
+      .addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
+      .setRuleDescriptionContextKey(randomAlphabetic(6));
+
+    when(taintChecker.isTaintVulnerability(any())).thenReturn(true);
+
+    assertThat(underTest.raiseEventOnIssue("some-project-uuid", defaultIssue))
+      .isNotEmpty()
+      .hasValueSatisfying(pushEventDto -> {
+        TaintVulnerabilityRaised taintVulnerabilityRaised = gson.fromJson(new String(pushEventDto.getPayload(), StandardCharsets.UTF_8),
+          TaintVulnerabilityRaised.class);
+        assertThat(taintVulnerabilityRaised.getImpacts()).extracting(TaintVulnerabilityRaised.Impact::getSoftwareQuality, TaintVulnerabilityRaised.Impact::getSeverity)
+          .containsExactlyInAnyOrder(tuple(SoftwareQuality.MAINTAINABILITY.name(), Severity.HIGH.name()), tuple(SoftwareQuality.RELIABILITY.name(), Severity.HIGH.name()));
+      });
   }
 
   @Test
@@ -379,6 +411,9 @@ public class PushEventFactoryTest {
     RuleDto ruleDto = new RuleDto();
     ruleDto.setRuleKey(RuleKey.of("javasecurity", "S123"));
     ruleDto.setSecurityStandards(Set.of("owasp-a1"));
+    ruleDto.setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL);
+    ruleDto.addDefaultImpact(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.MEDIUM));
+    ruleDto.addDefaultImpact(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.HIGH));
     return new org.sonar.ce.task.projectanalysis.issue.RuleImpl(ruleDto);
   }
 }

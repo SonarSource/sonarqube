@@ -153,7 +153,6 @@ public class RuleImpl implements Rule {
     return defaultImpacts;
   }
 
-  @CheckForNull
   @Override
   public CleanCodeAttribute cleanCodeAttribute() {
     return cleanCodeAttribute;
