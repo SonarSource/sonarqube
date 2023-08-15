@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import java.util.Map;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -67,6 +68,8 @@ public class ActivateRuleAction implements QProfileWsAction {
         "  <li>'Administer Quality Profiles'</li>" +
         "  <li>Edit right on the specified quality profile</li>" +
         "</ul>")
+      .setChangelog(
+        new Change("10.2", format("Parameter '%s' is now deprecated.", PARAM_SEVERITY)))
       .setHandler(this)
       .setPost(true)
       .setSince("4.4");
@@ -83,6 +86,7 @@ public class ActivateRuleAction implements QProfileWsAction {
 
     activate.createParam(PARAM_SEVERITY)
       .setDescription(format("Severity. Ignored if parameter %s is true.", PARAM_RESET))
+      .setDeprecatedSince("10.2")
       .setPossibleValues(Severity.ALL);
 
     activate.createParam(PARAM_PARAMS)

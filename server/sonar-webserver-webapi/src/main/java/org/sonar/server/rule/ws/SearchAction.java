@@ -165,8 +165,8 @@ public class SearchAction implements RulesWsAction {
         new Change("10.0", "The value 'debtRemFn' for the 'f' parameter has been deprecated, use 'remFn' instead"),
         new Change("10.0", "The value 'defaultDebtRemFn' for the 'f' parameter has been deprecated, use 'defaultRemFn' instead"),
         new Change("10.0", "The value 'sansTop25' for the parameter 'facets' has been deprecated"),
-        new Change("10.0", "Parameter 'sansTop25' is deprecated")
-      );
+        new Change("10.0", "Parameter 'sansTop25' is deprecated"),
+        new Change("10.2", format("Parameters '%s', '%s', and '%s' are now deprecated.", PARAM_SEVERITIES, PARAM_TYPES, PARAM_ACTIVE_SEVERITIES)));
 
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")

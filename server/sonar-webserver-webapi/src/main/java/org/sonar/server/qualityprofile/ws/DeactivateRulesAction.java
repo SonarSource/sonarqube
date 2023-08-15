@@ -32,9 +32,13 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_04;
 import static org.sonar.server.qualityprofile.ws.BulkChangeWsResponse.writeResponse;
 import static org.sonar.server.rule.ws.RuleWsSupport.defineGenericRuleSearchParameters;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SEVERITIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_KEY;
 
@@ -65,7 +69,9 @@ public class DeactivateRulesAction implements QProfileWsAction {
         "</ul>")
       .setPost(true)
       .setSince("4.4")
-      .setChangelog(new Change("10.0", "Parameter 'sansTop25' is deprecated"))
+      .setChangelog(
+        new Change("10.2", format("Parameters '%s', '%s', and '%s' are now deprecated.", PARAM_SEVERITIES, PARAM_ACTIVE_SEVERITIES, PARAM_TYPES)),
+        new Change("10.0", "Parameter 'sansTop25' is deprecated"))
       .setHandler(this);
 
     defineGenericRuleSearchParameters(deactivate);

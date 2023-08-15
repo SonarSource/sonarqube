@@ -79,11 +79,13 @@ public class SetSeverityAction implements IssuesWsAction {
         "</ul>")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.2", "This endpoint is now deprecated."),
         new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),
         new Change("8.8", "The response field components.uuid is removed"),
         new Change("6.5", "the database ids of the components are removed from the response"),
         new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."))
       .setHandler(this)
+      .setDeprecatedSince("10.2")
       .setResponseExample(Resources.getResource(this.getClass(), "set_severity-example.json"))
       .setPost(true);
 

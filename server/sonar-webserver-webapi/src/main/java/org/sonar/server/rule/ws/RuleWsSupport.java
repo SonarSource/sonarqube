@@ -112,6 +112,7 @@ public class RuleWsSupport {
       .createParam(PARAM_SEVERITIES)
       .setDescription("Comma-separated list of default severities. Not the same than severity of rules in Quality profiles.")
       .setPossibleValues(Severity.ALL)
+      .setDeprecatedSince("10.2")
       .setExampleValue("CRITICAL,BLOCKER");
 
     action
@@ -169,6 +170,7 @@ public class RuleWsSupport {
       .setSince("5.5")
       .setDescription("Comma-separated list of types. Returned rules match any of the tags (OR operator)")
       .setPossibleValues(RuleType.values())
+      .setDeprecatedSince("10.2")
       .setExampleValue(RuleType.BUG);
 
     action
@@ -203,6 +205,7 @@ public class RuleWsSupport {
       .createParam(PARAM_ACTIVE_SEVERITIES)
       .setDescription("Comma-separated list of activation severities, i.e the severity of rules in Quality profiles.")
       .setPossibleValues(Severity.ALL)
+      .setDeprecatedSince("10.2")
       .setExampleValue("CRITICAL,BLOCKER");
 
     action
