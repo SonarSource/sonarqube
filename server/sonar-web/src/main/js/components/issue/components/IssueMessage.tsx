@@ -19,10 +19,11 @@
  */
 import { StandoutLink } from 'design-system';
 import * as React from 'react';
-import { parseQuery, serializeQuery } from '../../../apps/issues/utils';
+import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
+import { areMyIssuesSelected, parseQuery, serializeQuery } from '../../../apps/issues/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
-import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { getComponentIssuesUrl, getIssuesUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { Issue } from '../../../types/types';
 import { useLocation } from '../../hoc/withRouter';
@@ -38,6 +39,9 @@ export default function IssueMessage(props: IssueMessageProps) {
   const { issue, branchLike, displayWhyIsThisAnIssue } = props;
   const location = useLocation();
   const query = parseQuery(location.query);
+  const myIssuesSelected = areMyIssuesSelected(location.query);
+
+  const { component } = React.useContext(ComponentContext);
 
   const { message, messageFormattings } = issue;
 
@@ -49,22 +53,22 @@ export default function IssueMessage(props: IssueMessageProps) {
     why: '1',
   });
 
-  const issueUrl = getComponentIssuesUrl(issue.project, {
+  const urlQuery = {
     ...getBranchLikeQuery(branchLike),
     ...serializeQuery(query),
+    myIssues: myIssuesSelected ? 'true' : undefined,
     open: issue.key,
-  });
+  };
+
+  const issueUrl = component?.key
+    ? getComponentIssuesUrl(component?.key, urlQuery)
+    : getIssuesUrl(urlQuery);
+
   return (
     <>
-      {issueUrl?.pathname ? (
-        <StandoutLink className="it__issue-message" to={issueUrl}>
-          <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
-        </StandoutLink>
-      ) : (
-        <span className="spacer-right">
-          <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
-        </span>
-      )}
+      <StandoutLink className="it__issue-message" to={issueUrl}>
+        <IssueMessageHighlighting message={message} messageFormattings={messageFormattings} />
+      </StandoutLink>
 
       {displayWhyIsThisAnIssue && (
         <StandoutLink

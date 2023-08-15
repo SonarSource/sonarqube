@@ -59,7 +59,7 @@ describe('rendering', () => {
     expect(ui.effort('2 days').get()).toBeInTheDocument();
     expect(ui.issueMessageLink.get()).toHaveAttribute(
       'href',
-      '/project/issues?scopes=MAIN&severities=MINOR&types=VULNERABILITY&open=AVsae-CQS-9G3txfbFN2&id=myproject'
+      '/issues?scopes=MAIN&severities=MINOR&types=VULNERABILITY&open=AVsae-CQS-9G3txfbFN2'
     );
 
     await ui.clickIssueMessage();

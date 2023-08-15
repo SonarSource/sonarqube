@@ -113,7 +113,7 @@ export async function waitOnDataLoaded() {
 }
 
 export function renderIssueApp(currentUser?: CurrentUser) {
-  renderApp('project/issues', <IssuesApp />, { currentUser: mockCurrentUser(currentUser) });
+  renderApp('issues', <IssuesApp />, { currentUser: mockCurrentUser(currentUser) });
 }
 
 export function renderProjectIssuesApp(navigateTo?: string, overrides?: Partial<Component>) {
