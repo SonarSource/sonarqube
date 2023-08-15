@@ -62,7 +62,7 @@ export function Tags({
 
   const displayedTagsContent = (open = false) => (
     <Tooltip overlay={open ? undefined : tags.join(', ')}>
-      <span className="sw-inline-flex sw-items-center sw-gap-1" title={tags.join(', ')}>
+      <span className="sw-inline-flex sw-items-center sw-gap-1">
         {/* Display first 3 (tagsToDisplay) tags */}
         {displayedTags.map((tag) => (
           <TagLabel key={tag}>{tag}</TagLabel>

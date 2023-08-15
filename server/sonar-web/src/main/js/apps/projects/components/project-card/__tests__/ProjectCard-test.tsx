@@ -52,10 +52,10 @@ it('should not display the quality gate', () => {
   expect(screen.getByText('projects.not_analyzed.TRK')).toBeInTheDocument();
 });
 
-it('should display tags', () => {
+it('should display tags', async () => {
   const project = { ...PROJECT, tags: ['foo', 'bar'] };
   renderProjectCard(project);
-  expect(screen.getByTitle('foo, bar')).toBeInTheDocument();
+  await expect(screen.getByText('foo')).toHaveATooltipWithContent('foo, bar');
 });
 
 it('should display private badge', () => {

@@ -24,6 +24,7 @@ import React from 'react';
 import selectEvent from 'react-select-event';
 import { TabKeys } from '../../../components/rules/RuleTabViewer';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
+import { byRole } from '../../../helpers/testSelector';
 import { ComponentQualifier } from '../../../types/component';
 import { IssueType } from '../../../types/issues';
 import {
@@ -478,13 +479,29 @@ describe('issues item', () => {
       await user.click(listItem.getByText('accessibility'));
       await user.click(listItem.getByText('android'));
     });
-    expect(listItem.getByTitle('accessibility, android')).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+    await expect(
+      byRole('button', { name: 'accessibility android +' }).byText('accessibility').get()
+    ).toHaveATooltipWithContent('accessibility, android');
+
+    await act(async () => {
+      await user.click(listItem.getByRole('button', { name: 'accessibility android +' }));
+    });
 
     // Unselect
     await act(async () => {
       await user.click(screen.getByRole('checkbox', { name: 'accessibility' }));
     });
-    expect(listItem.getByTitle('android')).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+    await expect(
+      byRole('button', { name: 'android +' }).byText('android').get()
+    ).toHaveATooltipWithContent('android');
+
+    await act(async () => {
+      await user.click(listItem.getByRole('button', { name: 'android +' }));
+    });
 
     await act(async () => {
       await user.click(screen.getByRole('searchbox', { name: 'search.search_for_tags' }));

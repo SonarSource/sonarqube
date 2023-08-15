@@ -300,7 +300,7 @@ function getPageObject() {
     // Tags
     tagsSearchInput: byRole('searchbox'),
     updateTagsBtn: (currentTags?: string[]) =>
-      byRole('button', { name: `${currentTags ? currentTags.join(', ') : 'issue.no_tag'} +` }),
+      byRole('button', { name: `${currentTags ? currentTags.join(' ') : 'issue.no_tag'} +` }),
     toggleTagCheckbox: (name: string) => byRole('checkbox', { name }),
   };
 

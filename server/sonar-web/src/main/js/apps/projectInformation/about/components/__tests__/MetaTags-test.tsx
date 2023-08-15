@@ -61,7 +61,7 @@ it('should allow to edit tags for a project', async () => {
   expect(await screen.findByText('foo, bar')).toBeInTheDocument();
   expect(screen.getByRole('button')).toBeInTheDocument();
 
-  await act(() => user.click(screen.getByRole('button', { name: 'foo, bar +' })));
+  await act(() => user.click(screen.getByRole('button', { name: 'foo bar +' })));
 
   expect(await screen.findByRole('checkbox', { name: 'best' })).toBeInTheDocument();
 
