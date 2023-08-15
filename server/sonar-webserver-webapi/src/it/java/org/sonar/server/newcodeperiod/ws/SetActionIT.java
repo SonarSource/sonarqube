@@ -43,6 +43,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
+import org.sonar.db.newcodeperiod.NewCodePeriodDbTester;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
@@ -322,6 +324,32 @@ public class SetActionIT {
       .setParam("value", "5")
       .execute();
     assertTableContainsOnly(project.getUuid(), null, NewCodePeriodType.NUMBER_OF_DAYS, "5");
+  }
+
+  @Test
+  public void update_project_new_code_period() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    logInAsProjectAdministrator(project);
+    var currentTime = System.currentTimeMillis();
+
+    db.newCodePeriods().insert(new NewCodePeriodDto()
+      .setProjectUuid(project.getUuid())
+      .setType(NewCodePeriodType.NUMBER_OF_DAYS)
+      .setPreviousNonCompliantValue("100")
+      .setUpdatedAt(currentTime)
+      .setValue("90"));
+
+    ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("type", "number_of_days")
+      .setParam("value", "30")
+      .execute();
+
+    var ncd = db.getDbClient().newCodePeriodDao().selectByProject(dbSession, project.getUuid());
+    assertThat(ncd).isPresent();
+    assertThat(ncd.get()).extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getPreviousNonCompliantValue)
+      .containsExactly(NewCodePeriodType.NUMBER_OF_DAYS, "30", null);
+
   }
 
   @Test

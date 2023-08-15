@@ -128,8 +128,8 @@ public class ShowAction implements NewCodePeriodsWsAction {
 
   private void checkPermission(ProjectDto project) {
     if (userSession.hasEntityPermission(UserRole.SCAN, project) ||
-        userSession.hasEntityPermission(UserRole.ADMIN, project) ||
-        userSession.hasPermission(SCAN)) {
+      userSession.hasEntityPermission(UserRole.ADMIN, project) ||
+      userSession.hasPermission(SCAN)) {
       return;
     }
     throw insufficientPrivilegesException();
@@ -155,10 +155,14 @@ public class ShowAction implements NewCodePeriodsWsAction {
   private static ShowWSResponse.Builder build(NewCodePeriodDto dto, boolean inherited) {
     ShowWSResponse.Builder builder = ShowWSResponse.newBuilder()
       .setType(convertType(dto.getType()))
+      .setUpdatedAt(dto.getUpdatedAt())
       .setInherited(inherited);
 
     if (dto.getValue() != null) {
       builder.setValue(dto.getValue());
+    }
+    if (dto.getPreviousNonCompliantValue() != null) {
+      builder.setPreviousNonCompliantValue(dto.getPreviousNonCompliantValue());
     }
     return builder;
   }

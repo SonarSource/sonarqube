@@ -32,6 +32,8 @@ message ShowWSResponse {
     string value = 4;
     bool inherited = 5;
     string effectiveValue = 6;
+    string previousNonCompliantValue = 7;
+    int64 updatedAt = 8;
 }
 
 // WS api/new_code_periods/list

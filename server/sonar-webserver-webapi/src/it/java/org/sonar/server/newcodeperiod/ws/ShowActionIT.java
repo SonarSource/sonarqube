@@ -48,6 +48,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonarqube.ws.NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS;
+import static org.sonarqube.ws.NewCodePeriods.NewCodePeriodType.PREVIOUS_VERSION;
 
 public class ShowActionIT {
   @Rule
@@ -62,7 +64,7 @@ public class ShowActionIT {
   private WsActionTester ws;
 
   @Before
-  public void setup(){
+  public void setup() {
     when(documentationLinkGenerator.getDocumentationLink(any())).thenReturn("https://docs.sonarqube.org/latest/project-administration/defining-new-code/");
     ws = new WsActionTester(new ShowAction(dbClient, userSession, componentFinder, dao, documentationLinkGenerator));
   }
@@ -122,24 +124,28 @@ public class ShowActionIT {
     ShowWSResponse response = ws.newRequest()
       .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, "", "", NewCodePeriods.NewCodePeriodType.PREVIOUS_VERSION, "", false);
+    assertResponse(response, "", "", PREVIOUS_VERSION, "", false, null);
   }
 
   @Test
   public void show_project_setting() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
+    var currentTime = System.currentTimeMillis();
 
     tester.insert(new NewCodePeriodDto()
       .setProjectUuid(project.getUuid())
       .setType(NewCodePeriodType.NUMBER_OF_DAYS)
-      .setValue("4"));
+      .setPreviousNonCompliantValue("100")
+      .setUpdatedAt(currentTime)
+      .setValue("90"));
 
     ShowWSResponse response = ws.newRequest()
       .setParam("project", project.getKey())
       .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, project.getKey(), "", NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "4", false);
+    assertResponse(response, project.getKey(), "", NUMBER_OF_DAYS, "90", false, "100");
+    assertUpdatedAt(response, currentTime);
   }
 
   @Test
@@ -160,7 +166,7 @@ public class ShowActionIT {
       .setParam("branch", "branch")
       .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, project.getKey(), "branch", NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "1", false);
+    assertResponse(response, project.getKey(), "branch", NUMBER_OF_DAYS, "1", false, null);
   }
 
   @Test
@@ -173,7 +179,7 @@ public class ShowActionIT {
       .setParam("project", project.getKey())
       .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, project.getKey(), "", NewCodePeriods.NewCodePeriodType.PREVIOUS_VERSION, "", true);
+    assertResponse(response, project.getKey(), "", PREVIOUS_VERSION, "", true, null);
   }
 
   @Test
@@ -193,7 +199,7 @@ public class ShowActionIT {
       .setParam("branch", "branch")
       .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, project.getKey(), "branch", NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "1", true);
+    assertResponse(response, project.getKey(), "branch", NUMBER_OF_DAYS, "1", true, null);
   }
 
   @Test
@@ -208,7 +214,7 @@ public class ShowActionIT {
       .setParam("branch", "branch")
       .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, project.getKey(), "branch", NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "3", true);
+    assertResponse(response, project.getKey(), "branch", NUMBER_OF_DAYS, "3", true, null);
   }
 
   @Test
@@ -219,7 +225,7 @@ public class ShowActionIT {
       .setParam("project", "unknown")
       .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, "", "", NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "3", true);
+    assertResponse(response, "", "", NUMBER_OF_DAYS, "3", true, null);
   }
 
   @Test
@@ -234,15 +240,21 @@ public class ShowActionIT {
       .setParam("branch", "unknown")
       .executeProtobuf(ShowWSResponse.class);
 
-    assertResponse(response, project.getKey(), "", NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "3", true);
+    assertResponse(response, project.getKey(), "", NUMBER_OF_DAYS, "3", true, null);
   }
 
-  private void assertResponse(ShowWSResponse response, String projectKey, String branchKey, NewCodePeriods.NewCodePeriodType type, String value, boolean inherited) {
+  private void assertResponse(ShowWSResponse response, String projectKey, String branchKey, NewCodePeriods.NewCodePeriodType type, String value, boolean inherited,
+    String previousNonCompliantValue) {
     assertThat(response.getBranchKey()).isEqualTo(branchKey);
     assertThat(response.getProjectKey()).isEqualTo(projectKey);
     assertThat(response.getInherited()).isEqualTo(inherited);
     assertThat(response.getValue()).isEqualTo(value);
     assertThat(response.getType()).isEqualTo(type);
+    assertThat(response.getPreviousNonCompliantValue()).isEqualTo(previousNonCompliantValue == null ? "" : previousNonCompliantValue);
+  }
+
+  private static void assertUpdatedAt(ShowWSResponse response, long currentTime) {
+    assertThat(response.getUpdatedAt()).isEqualTo(currentTime);
   }
 
   private void logInAsProjectAdministrator(ProjectDto project) {
