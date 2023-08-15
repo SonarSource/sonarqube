@@ -270,7 +270,7 @@ export default class IssuesServiceMock {
   mockFacetDetailResponse = (query: RequestData): RawFacet[] => {
     const facets = (query.facets ?? '').split(',');
     const cleanCodeCategories: CleanCodeAttributeCategory[] = (
-      query.cleanCodeAttributeCategory ?? Object.values(CleanCodeAttributeCategory).join(',')
+      query.cleanCodeAttributeCategories ?? Object.values(CleanCodeAttributeCategory).join(',')
     ).split(',');
     return facets.map((name: string): RawFacet => {
       if (name === 'owaspTop10-2021') {
@@ -337,9 +337,9 @@ export default class IssuesServiceMock {
             types: ISSUE_TYPES,
             scopes: SOURCE_SCOPES.map(({ scope }) => scope),
             projects: ['org.project1', 'org.project2'],
-            impactSoftwareQuality: Object.values(SoftwareQuality),
-            impactSeverity: Object.values(SoftwareImpactSeverity),
-            cleanCodeAttributeCategory: cleanCodeCategories,
+            impactSoftwareQualities: Object.values(SoftwareQuality),
+            impactSeverities: Object.values(SoftwareImpactSeverity),
+            cleanCodeAttributeCategories: cleanCodeCategories,
             tags: ['unused', 'confusing'],
             rules: ['simpleRuleId', 'advancedRuleId', 'other'],
             assignees: ['email1@sonarsource.com', 'email2@sonarsource.com'],
@@ -385,30 +385,30 @@ export default class IssuesServiceMock {
     // Filter list (only supports assignee, type and severity)
     const filteredList = this.list
       .filter((item) => {
-        if (!query.cleanCodeAttributeCategory) {
+        if (!query.cleanCodeAttributeCategories) {
           return true;
         }
 
-        return query.cleanCodeAttributeCategory
+        return query.cleanCodeAttributeCategories
           .split(',')
           .includes(item.issue.cleanCodeAttributeCategory);
       })
       .filter((item) => {
-        if (!query.impactSoftwareQuality) {
+        if (!query.impactSoftwareQualities) {
           return true;
         }
 
         return item.issue.impacts.some(({ softwareQuality }) =>
-          query.impactSoftwareQuality.split(',').includes(softwareQuality)
+          query.impactSoftwareQualities.split(',').includes(softwareQuality)
         );
       })
       .filter((item) => {
-        if (!query.impactSeverity) {
+        if (!query.impactSeverities) {
           return true;
         }
 
         return item.issue.impacts.some(({ severity }) =>
-          query.impactSeverity.split(',').includes(severity)
+          query.impactSeverities.split(',').includes(severity)
         );
       })
       .filter((item) => {

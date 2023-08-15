@@ -51,7 +51,7 @@ export interface Query {
   assigned: boolean;
   assignees: string[];
   author: string[];
-  cleanCodeAttributeCategory: CleanCodeAttributeCategory[];
+  cleanCodeAttributeCategories: CleanCodeAttributeCategory[];
   codeVariants: string[];
   createdAfter: Date | undefined;
   createdAt: string;
@@ -60,8 +60,8 @@ export interface Query {
   cwe: string[];
   directories: string[];
   files: string[];
-  impactSeverity: SoftwareImpactSeverity[];
-  impactSoftwareQuality: SoftwareQuality[];
+  impactSeverities: SoftwareImpactSeverity[];
+  impactSoftwareQualities: SoftwareQuality[];
   issues: string[];
   languages: string[];
   owaspTop10: string[];
@@ -95,8 +95,8 @@ export function parseQuery(query: RawQuery): Query {
     assigned: parseAsBoolean(query.assigned),
     assignees: parseAsArray(query.assignees, parseAsString),
     author: isArray(query.author) ? query.author : [query.author].filter(isDefined),
-    cleanCodeAttributeCategory: parseAsArray<CleanCodeAttributeCategory>(
-      query.cleanCodeAttributeCategory,
+    cleanCodeAttributeCategories: parseAsArray<CleanCodeAttributeCategory>(
+      query.cleanCodeAttributeCategories,
       parseAsString
     ),
     createdAfter: parseAsDate(query.createdAfter),
@@ -106,9 +106,9 @@ export function parseQuery(query: RawQuery): Query {
     cwe: parseAsArray(query.cwe, parseAsString),
     directories: parseAsArray(query.directories, parseAsString),
     files: parseAsArray(query.files, parseAsString),
-    impactSeverity: parseImpactSeverityQuery(query.impactSeverity, query.severities),
-    impactSoftwareQuality: parseAsArray<SoftwareQuality>(
-      query.impactSoftwareQuality,
+    impactSeverities: parseImpactSeverityQuery(query.impactSeverities, query.severities),
+    impactSoftwareQualities: parseAsArray<SoftwareQuality>(
+      query.impactSoftwareQualities,
       parseAsString
     ),
     inNewCodePeriod: parseAsBoolean(query.inNewCodePeriod, false),
@@ -174,7 +174,7 @@ export function serializeQuery(query: Query): RawQuery {
     assigned: query.assigned ? undefined : 'false',
     assignees: serializeStringArray(query.assignees),
     author: query.author,
-    cleanCodeAttributeCategory: serializeStringArray(query.cleanCodeAttributeCategory),
+    cleanCodeAttributeCategories: serializeStringArray(query.cleanCodeAttributeCategories),
     createdAfter: serializeDateShort(query.createdAfter),
     createdAt: serializeString(query.createdAt),
     createdBefore: serializeDateShort(query.createdBefore),
@@ -197,8 +197,8 @@ export function serializeQuery(query: Query): RawQuery {
     s: serializeString(query.sort),
     scopes: serializeStringArray(query.scopes),
     severities: undefined,
-    impactSeverity: serializeStringArray(query.impactSeverity),
-    impactSoftwareQuality: serializeStringArray(query.impactSoftwareQuality),
+    impactSeverities: serializeStringArray(query.impactSeverities),
+    impactSoftwareQualities: serializeStringArray(query.impactSoftwareQualities),
     inNewCodePeriod: query.inNewCodePeriod ? 'true' : undefined,
     sonarsourceSecurity: serializeStringArray(query.sonarsourceSecurity),
     statuses: serializeStringArray(query.statuses),

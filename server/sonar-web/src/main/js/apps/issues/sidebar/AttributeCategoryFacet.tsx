@@ -33,7 +33,7 @@ export function AttributeCategoryFacet(props: Props) {
 
   return (
     <SimpleListStyleFacet
-      property="cleanCodeAttributeCategory"
+      property="cleanCodeAttributeCategories"
       itemNamePrefix="issue.clean_code_attribute_category"
       listItems={CATEGORIES}
       selectedItems={categories}

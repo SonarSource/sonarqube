@@ -19,14 +19,7 @@
  */
 import { BugIcon, CodeSmellIcon, SecurityHotspotIcon, VulnerabilityIcon } from 'design-system';
 import { flatten, sortBy } from 'lodash';
-import {
-  CleanCodeAttribute,
-  CleanCodeAttributeCategory,
-  IssueType,
-  RawIssue,
-  SoftwareImpactSeverity,
-  SoftwareQuality,
-} from '../types/issues';
+import { IssueType, RawIssue } from '../types/issues';
 import { MetricKey } from '../types/metrics';
 import { Dict, Flow, FlowLocation, FlowType, Issue, TextRange } from '../types/types';
 import { UserBase } from '../types/users';
@@ -167,15 +160,6 @@ export function parseIssueFromResponse(
     ...splitFlows(issue, components),
     ...prepareClosed(issue),
     ...ensureTextRange(issue),
-    cleanCodeAttributeCategory:
-      issue.cleanCodeAttributeCategory || CleanCodeAttributeCategory.Responsible,
-    cleanCodeAttribute: issue.cleanCodeAttribute || CleanCodeAttribute.Lawful,
-    impacts: issue.impacts || [
-      {
-        softwareQuality: SoftwareQuality.Maintainability,
-        severity: SoftwareImpactSeverity.High,
-      },
-    ],
   } as Issue;
 }
 

@@ -183,24 +183,24 @@ export class SidebarClass extends React.PureComponent<Props> {
         )}
 
         <AttributeCategoryFacet
-          fetching={this.props.loadingFacets.cleanCodeAttributeCategory === true}
+          fetching={this.props.loadingFacets.cleanCodeAttributeCategories === true}
           needIssueSync={needIssueSync}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
-          open={!!openFacets.cleanCodeAttributeCategory}
-          stats={facets.cleanCodeAttributeCategory}
-          categories={query.cleanCodeAttributeCategory}
+          open={!!openFacets.cleanCodeAttributeCategories}
+          stats={facets.cleanCodeAttributeCategories}
+          categories={query.cleanCodeAttributeCategories}
         />
         <BasicSeparator className="sw-my-4" />
 
         <SoftwareQualityFacet
-          fetching={this.props.loadingFacets.impactSoftwareQuality === true}
+          fetching={this.props.loadingFacets.impactSoftwareQualities === true}
           needIssueSync={needIssueSync}
           onChange={this.props.onFilterChange}
           onToggle={this.props.onFacetToggle}
-          open={!!openFacets.impactSoftwareQuality}
-          stats={facets.impactSoftwareQuality}
-          qualities={query.impactSoftwareQuality}
+          open={!!openFacets.impactSoftwareQualities}
+          stats={facets.impactSoftwareQualities}
+          qualities={query.impactSoftwareQualities}
         />
 
         <BasicSeparator className="sw-my-4" />
@@ -208,12 +208,12 @@ export class SidebarClass extends React.PureComponent<Props> {
         {!needIssueSync && (
           <>
             <SeverityFacet
-              fetching={this.props.loadingFacets.impactSeverity === true}
+              fetching={this.props.loadingFacets.impactSeverities === true}
               onChange={this.props.onFilterChange}
               onToggle={this.props.onFacetToggle}
-              open={!!openFacets.impactSeverity}
-              severities={query.impactSeverity}
-              stats={facets.impactSeverity}
+              open={!!openFacets.impactSeverities}
+              severities={query.impactSeverities}
+              stats={facets.impactSeverities}
             />
 
             <BasicSeparator className="sw-my-4" />

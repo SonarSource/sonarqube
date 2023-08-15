@@ -10,8 +10,6 @@ exports[`loadIssues should load issues with listIssues if re-indexing 1`] = `
     ],
     "assignee": "luke",
     "author": "luke@sonarsource.com",
-    "cleanCodeAttribute": "LAWFUL",
-    "cleanCodeAttributeCategory": "RESPONSIBLE",
     "comments": [],
     "component": "foo.java",
     "componentEnabled": true,
@@ -24,12 +22,6 @@ exports[`loadIssues should load issues with listIssues if re-indexing 1`] = `
     "flows": [],
     "flowsWithType": [],
     "hash": "78417dcee7ba927b7e7c9161e29e02b8",
-    "impacts": [
-      {
-        "severity": "HIGH",
-        "softwareQuality": "MAINTAINABILITY",
-      },
-    ],
     "key": "AWaqVGl3tut9VbnJvk6M",
     "line": 62,
     "message": "Make sure this file handling is safe here.",
@@ -75,8 +67,6 @@ exports[`loadIssues should load issues with searchIssues if not re-indexing 1`] 
     "assigneeLogin": "luke",
     "assigneeName": "Luke",
     "author": "luke@sonarsource.com",
-    "cleanCodeAttribute": "LAWFUL",
-    "cleanCodeAttributeCategory": "RESPONSIBLE",
     "comments": [],
     "component": "foo.java",
     "componentEnabled": true,
@@ -89,12 +79,6 @@ exports[`loadIssues should load issues with searchIssues if not re-indexing 1`] 
     "flows": [],
     "flowsWithType": [],
     "hash": "78417dcee7ba927b7e7c9161e29e02b8",
-    "impacts": [
-      {
-        "severity": "HIGH",
-        "softwareQuality": "MAINTAINABILITY",
-      },
-    ],
     "key": "AWaqVGl3tut9VbnJvk6M",
     "line": 62,
     "message": "Make sure this file handling is safe here.",

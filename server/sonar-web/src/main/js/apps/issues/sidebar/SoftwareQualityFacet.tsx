@@ -33,7 +33,7 @@ export function SoftwareQualityFacet(props: Props) {
 
   return (
     <SimpleListStyleFacet
-      property="impactSoftwareQuality"
+      property="impactSoftwareQualities"
       itemNamePrefix="issue.software_quality"
       listItems={QUALITIES}
       selectedItems={qualities}

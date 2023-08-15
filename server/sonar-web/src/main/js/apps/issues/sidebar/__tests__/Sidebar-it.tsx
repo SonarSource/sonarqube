@@ -32,9 +32,9 @@ it('should render correct facets for Application', () => {
   renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Application }) });
 
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
-    'issues.facet.cleanCodeAttributeCategory',
-    'issues.facet.impactSoftwareQuality',
-    'issues.facet.impactSeveritytooltip_is_interactiveissues.facet.impactSeverity.help.line1issues.facet.impactSeverity.help.line2opens_in_new_windowlearn_more',
+    'issues.facet.cleanCodeAttributeCategories',
+    'issues.facet.impactSoftwareQualities',
+    'issues.facet.impactSeveritiestooltip_is_interactiveissues.facet.impactSeverities.help.line1issues.facet.impactSeverities.help.line2opens_in_new_windowlearn_more',
     'issues.facet.types',
     'issues.facet.scopes',
     'issues.facet.resolutions',
@@ -55,9 +55,9 @@ it('should render correct facets for Portfolio', () => {
   renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Portfolio }) });
 
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
-    'issues.facet.cleanCodeAttributeCategory',
-    'issues.facet.impactSoftwareQuality',
-    'issues.facet.impactSeveritytooltip_is_interactiveissues.facet.impactSeverity.help.line1issues.facet.impactSeverity.help.line2opens_in_new_windowlearn_more',
+    'issues.facet.cleanCodeAttributeCategories',
+    'issues.facet.impactSoftwareQualities',
+    'issues.facet.impactSeveritiestooltip_is_interactiveissues.facet.impactSeverities.help.line1issues.facet.impactSeverities.help.line2opens_in_new_windowlearn_more',
     'issues.facet.types',
     'issues.facet.scopes',
     'issues.facet.resolutions',
@@ -78,9 +78,9 @@ it('should render correct facets for SubPortfolio', () => {
   renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.SubPortfolio }) });
 
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
-    'issues.facet.cleanCodeAttributeCategory',
-    'issues.facet.impactSoftwareQuality',
-    'issues.facet.impactSeveritytooltip_is_interactiveissues.facet.impactSeverity.help.line1issues.facet.impactSeverity.help.line2opens_in_new_windowlearn_more',
+    'issues.facet.cleanCodeAttributeCategories',
+    'issues.facet.impactSoftwareQualities',
+    'issues.facet.impactSeveritiestooltip_is_interactiveissues.facet.impactSeverities.help.line1issues.facet.impactSeverities.help.line2opens_in_new_windowlearn_more',
     'issues.facet.types',
     'issues.facet.scopes',
     'issues.facet.resolutions',

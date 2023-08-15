@@ -78,15 +78,15 @@ export const ui = {
   tagFacet: byRole('button', { name: 'issues.facet.tags' }),
   typeFacet: byRole('button', { name: 'issues.facet.types' }),
   cleanCodeAttributeCategoryFacet: byRole('button', {
-    name: 'issues.facet.cleanCodeAttributeCategory',
+    name: 'issues.facet.cleanCodeAttributeCategories',
   }),
   softwareQualityFacet: byRole('button', {
-    name: 'issues.facet.impactSoftwareQuality',
+    name: 'issues.facet.impactSoftwareQualities',
   }),
-  severityFacet: byRole('button', { name: 'issues.facet.impactSeverity' }),
+  severityFacet: byRole('button', { name: 'issues.facet.impactSeverities' }),
 
-  clearCodeCategoryFacet: byTestId('clear-issues.facet.cleanCodeAttributeCategory'),
-  clearSoftwareQualityFacet: byTestId('clear-issues.facet.impactSoftwareQuality'),
+  clearCodeCategoryFacet: byTestId('clear-issues.facet.cleanCodeAttributeCategories'),
+  clearSoftwareQualityFacet: byTestId('clear-issues.facet.impactSoftwareQualities'),
   clearAssigneeFacet: byTestId('clear-issues.facet.assignees'),
   clearAuthorFacet: byTestId('clear-issues.facet.authors'),
   clearCodeVariantsFacet: byTestId('clear-issues.facet.codeVariants'),
@@ -96,7 +96,7 @@ export const ui = {
   clearResolutionFacet: byTestId('clear-issues.facet.resolutions'),
   clearRuleFacet: byTestId('clear-issues.facet.rules'),
   clearScopeFacet: byTestId('clear-issues.facet.scopes'),
-  clearSeverityFacet: byTestId('clear-issues.facet.impactSeverity'),
+  clearSeverityFacet: byTestId('clear-issues.facet.impactSeverities'),
   clearStatusFacet: byTestId('clear-issues.facet.statuses'),
   clearTagFacet: byTestId('clear-issues.facet.tags'),
 

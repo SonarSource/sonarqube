@@ -27,7 +27,7 @@ import { SimpleListStyleFacet } from '../SimpleListStyleFacet';
 
 it('handles single & multiple selections', async () => {
   const user = userEvent.setup();
-  renderSidebar();
+  renderSimpleListStyleFacet();
 
   const firstCheckbox = byRole('checkbox', { name: 'prefix.first' }).get();
   const secondCheckbox = byRole('checkbox', { name: 'prefix.second' }).get();
@@ -52,7 +52,7 @@ it('handles single & multiple selections', async () => {
   expect(secondCheckbox).not.toBeChecked();
 });
 
-function renderSidebar(props: Partial<FCProps<typeof SimpleListStyleFacet>> = {}) {
+function renderSimpleListStyleFacet(props: Partial<FCProps<typeof SimpleListStyleFacet>> = {}) {
   function Wrapper(props: Partial<FCProps<typeof SimpleListStyleFacet>> = {}) {
     const [selectedItems, setItems] = React.useState<string[]>([]);
 
@@ -62,12 +62,12 @@ function renderSidebar(props: Partial<FCProps<typeof SimpleListStyleFacet>> = {}
         fetching={false}
         needIssueSync={false}
         onToggle={jest.fn()}
-        property="impactSeverity"
+        property="impactSeverities"
         itemNamePrefix="prefix"
         listItems={['first', 'second', 'third']}
         stats={{ first: 1, second: 2 }}
         {...props}
-        onChange={(query) => setItems(query.impactSeverity ?? [])}
+        onChange={(query) => setItems(query.impactSeverities ?? [])}
         selectedItems={selectedItems}
       />
     );

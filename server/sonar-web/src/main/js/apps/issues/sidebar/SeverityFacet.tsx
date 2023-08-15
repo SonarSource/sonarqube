@@ -35,7 +35,7 @@ export function SeverityFacet(props: Props) {
 
   return (
     <SimpleListStyleFacet
-      property="impactSeverity"
+      property="impactSeverities"
       itemNamePrefix="severity"
       listItems={SEVERITIES}
       selectedItems={severities}
@@ -44,8 +44,8 @@ export function SeverityFacet(props: Props) {
           placement="right"
           content={
             <>
-              <p>{translate('issues.facet.impactSeverity.help.line1')}</p>
-              <p className="sw-mt-2">{translate('issues.facet.impactSeverity.help.line2')}</p>
+              <p>{translate('issues.facet.impactSeverities.help.line1')}</p>
+              <p className="sw-mt-2">{translate('issues.facet.impactSeverities.help.line2')}</p>
             </>
           }
           links={[

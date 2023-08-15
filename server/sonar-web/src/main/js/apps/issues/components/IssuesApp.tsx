@@ -180,8 +180,8 @@ export class App extends React.PureComponent<Props, State> {
           query,
           SecurityStandard.OWASP_TOP10_2021
         ),
-        cleanCodeAttributeCategory: true,
-        impactSoftwareQuality: true,
+        cleanCodeAttributeCategories: true,
+        impactSoftwareQualities: true,
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
         standards: shouldOpenStandardsFacet({}, query),
       },
