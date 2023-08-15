@@ -20,7 +20,7 @@
 
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import hljs from 'highlight.js';
+import hljs, { HighlightResult } from 'highlight.js';
 import apex from 'highlightjs-apex';
 import abap from 'highlightjs-sap-abap';
 import tw from 'twin.macro';
@@ -64,7 +64,7 @@ export function CodeSyntaxHighlighter(props: Props) {
 
     const unescapedCode = htmlDecode(code);
 
-    let highlightedCode;
+    let highlightedCode: HighlightResult;
 
     try {
       highlightedCode = hljs.highlight(unescapedCode, {
@@ -80,7 +80,9 @@ export function CodeSyntaxHighlighter(props: Props) {
 
     highlightedHtmlAsString = highlightedHtmlAsString.replace(
       codeBlock,
-      `<${tag}${attributes}>${highlightedCode.value}</${tag}>`
+      // Use a function to avoid triggering special replacement patterns
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#specifying_a_string_as_the_replacement
+      () => `<${tag}${attributes}>${highlightedCode.value}</${tag}>`
     );
   });
 

@@ -51,3 +51,18 @@ it('renders correctly with code', () => {
   // eslint-disable-next-line testing-library/no-node-access
   expect(container.getElementsByClassName('hljs-string').length).toBe(1);
 });
+
+/*
+ * This test reproduces a breaking case for https://sonarsource.atlassian.net/browse/SONAR-20161
+ */
+it('handles html code snippets', () => {
+  const { container } = render(
+    <CodeSyntaxHighlighter
+      htmlAsString={
+        '\u003ch4\u003eNoncompliant code example\u003c/h4\u003e\n\u003cpre data-diff-id\u003d"1" data-diff-type\u003d"noncompliant"\u003e\npublic void Method(MyObject myObject)\n{\n    if (myObject is null)\n    {\n        new MyObject(); // Noncompliant\n    }\n\n    if (myObject.IsCorrupted)\n    {\n        new ArgumentException($"{nameof(myObject)} is corrupted"); // Noncompliant\n    }\n\n    // ...\n}\n\u003c/pre\u003e\n\u003ch4\u003eCompliant solution\u003c/h4\u003e\n\u003cpre data-diff-id\u003d"1" data-diff-type\u003d"compliant"\u003e\npublic void Method(MyObject myObject)\n{\n    if (myObject is null)\n    {\n        myObject \u003d new MyObject(); // Compliant\n    }\n\n    if (myObject.IsCorrupted)\n    {\n        throw new ArgumentException($"{nameof(myObject)} is corrupted"); // Compliant\n    }\n\n    // ...\n}\n\u003c/pre\u003e'
+      }
+    />
+  );
+
+  expect(container.querySelectorAll('pre')).toHaveLength(2);
+});
