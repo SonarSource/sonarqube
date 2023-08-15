@@ -334,7 +334,7 @@ export function withBranchLikes<P extends { component?: Component }>(
       <WrappedComponent
         branchLikes={data?.branchLikes ?? []}
         branchLike={data?.branchLike}
-        isFetchingBranch={isFetching}
+        isFetchingBranch={!isPortfolioLike(p.component?.qualifier) && isFetching}
         {...p}
       />
     );
