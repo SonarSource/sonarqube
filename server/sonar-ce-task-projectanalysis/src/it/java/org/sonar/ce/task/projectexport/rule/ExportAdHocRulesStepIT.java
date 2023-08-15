@@ -274,7 +274,8 @@ public class ExportAdHocRulesStepIT {
 
   private static Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> toImpactMap(List<ProjectDump.Impact> impactsList) {
     return impactsList.stream()
-      .collect(Collectors.toMap(i -> SoftwareQuality.valueOf(i.getSoftwareQuality()), i -> org.sonar.api.issue.impact.Severity.valueOf(i.getSeverity())));
+      .collect(Collectors.toMap(i -> SoftwareQuality.valueOf(i.getSoftwareQuality().name()),
+        i -> org.sonar.api.issue.impact.Severity.valueOf(i.getSeverity().name())));
   }
 
 

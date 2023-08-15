@@ -127,6 +127,13 @@ message Issue {
 
   repeated MessageFormatting messageFormattings = 25;
   string codeVariants = 26;
+
+  repeated Impact impacts = 27;
+}
+
+message Impact {
+  SoftwareQuality software_quality = 1;
+  Severity severity = 2;
 }
 
 // Stream of issues changelog stored in file issues_changelog.pb
@@ -171,11 +178,6 @@ message AdHocRule {
   RuleMetadata metadata = 9;
   repeated Impact impacts = 11;
   optional string cleanCodeAttribute = 12;
-}
-
-message Impact {
-  string software_quality = 1;
-  string severity = 2;
 }
 
 // stream of messages in settings.pb
@@ -239,4 +241,16 @@ message MessageFormatting {
 
 enum MessageFormattingType {
   CODE = 0;
+}
+
+enum SoftwareQuality {
+  MAINTAINABILITY = 0;
+  RELIABILITY = 1;
+  SECURITY = 2;
+}
+
+enum Severity {
+  LOW = 0;
+  MEDIUM = 1;
+  HIGH = 2;
 }

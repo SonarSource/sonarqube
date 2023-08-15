@@ -29,8 +29,9 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import org.sonar.api.rule.RuleKey;
+import javax.annotation.Nullable;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.ce.task.projectexport.component.ComponentRepository;
 import org.sonar.ce.task.projectexport.rule.Rule;
 import org.sonar.ce.task.projectexport.rule.RuleRepository;
@@ -60,15 +61,17 @@ public class ExportIssuesStep implements ComputationStep {
     " i.resolution, i.severity, i.manual_severity, i.gap, effort," +
     " i.assignee, i.author_login, i.tags, i.issue_creation_date," +
     " i.issue_update_date, i.issue_close_date, i.locations, i.project_uuid," +
-    " i.rule_description_context_key, i.message_formattings, i.code_variants " +
+    " i.rule_description_context_key, i.message_formattings, i.code_variants, " +
+    " ii.software_quality, ii.severity" +
     " from issues i" +
     " join rules r on r.uuid = i.rule_uuid and r.status <> ?" +
     " join components p on p.uuid = i.project_uuid" +
     " join project_branches pb on pb.uuid = p.uuid" +
+    " left outer join issues_impacts ii on i.kee = ii.issue_key" +
     " where pb.project_uuid = ? and pb.branch_type = 'BRANCH' and pb.exclude_from_purge=?" +
     " and i.status <> ?" +
     " order by" +
-    " i.rule_uuid asc, i.created_at asc";
+    " i.rule_uuid asc, i.kee, i.created_at asc";
 
   private final DbClient dbClient;
   private final ProjectHolder projectHolder;
@@ -99,11 +102,21 @@ public class ExportIssuesStep implements ComputationStep {
       PreparedStatement stmt = createStatement(dbSession);
       ResultSet rs = stmt.executeQuery()) {
       ProjectDump.Issue.Builder builder = ProjectDump.Issue.newBuilder();
+      ProjectDump.Issue previousIssue = null;
       while (rs.next()) {
-        ProjectDump.Issue issue = toIssue(builder, rs);
-        output.write(issue);
-        count++;
+        String issueUuid = rs.getString(1);
+        if ((!rs.isFirst() && !previousIssue.getUuid().equals(issueUuid))) {
+          output.write(previousIssue);
+          count++;
+        }
+        ProjectDump.Issue issue = mergeIssue(previousIssue, builder, rs);
+        if (rs.isLast()) {
+          output.write(issue);
+          count++;
+        }
+        previousIssue = issue;
       }
+
       LoggerFactory.getLogger(getClass()).debug("{} issues exported", count);
     } catch (Exception e) {
       throw new IllegalStateException(format("Issue export failed after processing %d issues successfully", count), e);
@@ -124,7 +137,7 @@ public class ExportIssuesStep implements ComputationStep {
     }
   }
 
-  private ProjectDump.Issue toIssue(ProjectDump.Issue.Builder builder, ResultSet rs) throws SQLException {
+  private ProjectDump.Issue mergeIssue(@Nullable ProjectDump.Issue previousIssue, ProjectDump.Issue.Builder builder, ResultSet rs) throws SQLException {
     builder.clear();
     String issueUuid = rs.getString(1);
     setRule(builder, rs);
@@ -152,7 +165,27 @@ public class ExportIssuesStep implements ComputationStep {
     Optional.ofNullable(rs.getString(24)).ifPresent(builder::setRuleDescriptionContextKey);
     setLocations(builder, rs, issueUuid);
     setMessageFormattings(builder, rs, issueUuid);
+
+    mergeImpacts(builder, rs, previousIssue, issueUuid);
+
     return builder.build();
+  }
+
+  private static void mergeImpacts(ProjectDump.Issue.Builder builder, ResultSet rs, @Nullable ProjectDump.Issue previousIssue, String issueUuid)
+    throws SQLException {
+    String softwareQualityFromDatabase = rs.getString(27);
+    if (softwareQualityFromDatabase == null) {
+      return;
+    }
+    ProjectDump.Impact impact = ProjectDump.Impact.newBuilder()
+      .setSoftwareQuality(ProjectDump.SoftwareQuality.valueOf(softwareQualityFromDatabase))
+      .setSeverity(ProjectDump.Severity.valueOf(rs.getString(28)))
+      .build();
+
+    builder.addImpacts(impact);
+    if (previousIssue != null && previousIssue.getUuid().equals(issueUuid)) {
+      builder.addAllImpacts(previousIssue.getImpactsList());
+    }
   }
 
   private void setRule(ProjectDump.Issue.Builder builder, ResultSet rs) throws SQLException {

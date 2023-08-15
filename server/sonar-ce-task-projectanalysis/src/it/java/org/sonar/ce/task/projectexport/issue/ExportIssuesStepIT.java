@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectexport.issue;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -37,6 +36,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.event.Level;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -56,6 +57,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbIssues;
@@ -67,6 +69,7 @@ import org.sonar.db.rule.RuleDto.Scope;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
@@ -205,7 +208,7 @@ public class ExportIssuesStepIT {
   }
 
   @Test
-  public void verify_field_by_field_mapping() throws InvalidProtocolBufferException {
+  public void verify_field_by_field_mapping() {
     String componentUuid = "component uuid";
     long componentRef = 5454;
     componentRepository.register(componentRef, componentUuid, false);
@@ -229,6 +232,7 @@ public class ExportIssuesStepIT {
       .setRuleDescriptionContextKey("test_rule_description_context_key")
       .setIssueCreationTime(963L)
       .setIssueUpdateTime(852L)
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH).setUuid("uuid"))
       .setIssueCloseTime(741L)
       .setCodeVariants(List.of("v1", "v2"));
 
@@ -265,9 +269,30 @@ public class ExportIssuesStepIT {
     assertThat(issue.getIssueUpdatedAt()).isEqualTo(issueDto.getIssueUpdateTime());
     assertThat(issue.getIssueClosedAt()).isEqualTo(issueDto.getIssueCloseTime());
     assertThat(issue.getLocations()).isNotEmpty();
+    assertThat(issue.getImpactsList()).extracting(ProjectDump.Impact::getSoftwareQuality, ProjectDump.Impact::getSeverity)
+      .containsOnly(tuple(ProjectDump.SoftwareQuality.MAINTAINABILITY, ProjectDump.Severity.HIGH));
     assertThat(issue.getMessageFormattingsList())
       .isEqualTo(ExportIssuesStep.dbToDumpMessageFormatting(messageFormattings.getMessageFormattingList()));
     assertThat(issue.getCodeVariants()).isEqualTo(issueDto.getCodeVariantsString());
+  }
+
+  @Test
+  public void verify_two_issues_are_exported_including_one_without_software_quality() {
+    IssueDto issueDto = createBaseIssueDto(readyRuleDto, SOME_PROJECT_UUID);
+    IssueDto issueDto2 = createBaseIssueDto(readyRuleDto, SOME_PROJECT_UUID);
+    issueDto2
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH).setUuid("uuid1"))
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.LOW).setUuid("uuid2"));
+
+    insertIssue(issueDto);
+    insertIssue(issueDto2);
+
+    underTest.execute(new TestComputationStepContext());
+    List<ProjectDump.Issue> issuesInReport = dumpWriter.getWrittenMessagesOf(DumpElement.ISSUES);
+
+    assertThat(issuesInReport).hasSize(2);
+    assertThat(issuesInReport).filteredOn(i -> i.getImpactsList().size() == 2).hasSize(1);
+    assertThat(issuesInReport).filteredOn(i -> i.getImpactsList().isEmpty()).hasSize(1);
   }
 
   @Test

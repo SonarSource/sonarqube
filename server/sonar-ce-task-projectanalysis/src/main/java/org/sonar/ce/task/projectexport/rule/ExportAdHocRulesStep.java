@@ -93,7 +93,8 @@ public class ExportAdHocRulesStep implements ComputationStep {
     return defaultImpacts
       .stream()
       .map(i -> ProjectDump.Impact.newBuilder()
-        .setSoftwareQuality(i.getSoftwareQuality().name()).setSeverity(i.getSeverity().name()).build())
+        .setSoftwareQuality(ProjectDump.SoftwareQuality.valueOf(i.getSoftwareQuality().name()))
+        .setSeverity(ProjectDump.Severity.valueOf(i.getSeverity().name())).build())
       .toList();
   }
 
