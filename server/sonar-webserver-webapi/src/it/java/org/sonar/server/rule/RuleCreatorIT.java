@@ -27,12 +27,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.assertj.core.api.Fail;
+import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
@@ -96,13 +100,13 @@ public class RuleCreatorIT {
     assertThat(rule.getTemplateUuid()).isEqualTo(templateRule.getUuid());
     assertThat(rule.getName()).isEqualTo("My custom");
     assertThat(rule.getDefaultRuleDescriptionSection().getContent()).isEqualTo("Some description");
+    assertThat(rule.getEnumType()).isEqualTo(RuleType.CODE_SMELL);
+    assertCleanCodeInformation(rule);
     assertThat(rule.getSeverityString()).isEqualTo("MAJOR");
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(rule.getLanguage()).isEqualTo("java");
     assertThat(rule.getConfigKey()).isEqualTo("S001");
-    assertThat(rule.getDefRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(rule.getDefRemediationGapMultiplier()).isEqualTo("1h");
-    assertThat(rule.getDefRemediationBaseEffort()).isEqualTo("5min");
+    assertDefRemediation(rule);
     assertThat(rule.getGapDescription()).isEqualTo("desc");
     assertThat(rule.getTags()).containsOnly("usertag1", "usertag2");
     assertThat(rule.getSystemTags()).containsOnly("tag1", "tag4");
@@ -122,6 +126,18 @@ public class RuleCreatorIT {
     assertThat(param.getDefaultValue()).isEqualTo("a.*");
 
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule.getUuid(), templateRule.getUuid());
+  }
+
+  private static void assertCleanCodeInformation(RuleDto rule) {
+    assertThat(rule.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL);
+    assertThat(rule.getDefaultImpacts()).extracting(i -> i.getSoftwareQuality(), i -> i.getSeverity())
+      .containsExactly(Tuple.tuple(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM));
+  }
+
+  private static void assertDefRemediation(RuleDto rule) {
+    assertThat(rule.getDefRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(rule.getDefRemediationGapMultiplier()).isEqualTo("1h");
+    assertThat(rule.getDefRemediationBaseEffort()).isEqualTo("5min");
   }
 
   @Test

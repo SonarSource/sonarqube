@@ -29,15 +29,20 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.api.server.rule.internal.ImpactMapper;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
@@ -183,6 +188,11 @@ public class RuleCreator {
 
   private String createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
     RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), requireNonNull(newRule.markdownDescription()));
+    int type = newRule.type() == null ? templateRuleDto.getType() : newRule.type().getDbConstant();
+    String severity = newRule.severity();
+    SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(RuleType.valueOf(type));
+    org.sonar.api.issue.impact.Severity impactSeverity = ImpactMapper.convertToImpactSeverity(severity);
+
     RuleDto ruleDto = new RuleDto()
       .setUuid(uuidFactory.create())
       .setRuleKey(ruleKey)
@@ -190,9 +200,11 @@ public class RuleCreator {
       .setTemplateUuid(templateRuleDto.getUuid())
       .setConfigKey(templateRuleDto.getConfigKey())
       .setName(newRule.name())
-      .setSeverity(newRule.severity())
+      .setSeverity(severity)
       .setStatus(newRule.status())
-      .setType(newRule.type() == null ? templateRuleDto.getType() : newRule.type().getDbConstant())
+      .setType(type)
+      .addDefaultImpact(new ImpactDto().setUuid(uuidFactory.create()).setSoftwareQuality(softwareQuality).setSeverity(impactSeverity))
+      .setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL)
       .setLanguage(templateRuleDto.getLanguage())
       .setDefRemediationFunction(templateRuleDto.getDefRemediationFunction())
       .setDefRemediationGapMultiplier(templateRuleDto.getDefRemediationGapMultiplier())

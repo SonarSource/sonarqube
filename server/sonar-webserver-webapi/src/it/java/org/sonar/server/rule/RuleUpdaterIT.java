@@ -29,15 +29,19 @@ import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -56,6 +60,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newRule;
@@ -336,6 +341,10 @@ public class RuleUpdaterIT {
 
     RuleDto customRule = newCustomRule(templateRule, "Old description")
       .setName("Old name")
+      .setType(RuleType.CODE_SMELL)
+      .replaceAllDefaultImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast())
+        .setSoftwareQuality(SoftwareQuality.MAINTAINABILITY)
+        .setSeverity(org.sonar.api.issue.impact.Severity.LOW)))
       .setSeverity(Severity.MINOR)
       .setStatus(RuleStatus.BETA);
     db.rules().insert(customRule);
@@ -358,6 +367,8 @@ public class RuleUpdaterIT {
     assertThat(customRuleReloaded).isNotNull();
     assertThat(customRuleReloaded.getName()).isEqualTo("New name");
     assertThat(customRuleReloaded.getDefaultRuleDescriptionSection().getContent()).isEqualTo("New description");
+    assertThat(customRuleReloaded.getDefaultImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactlyInAnyOrder(tuple(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM));
     assertThat(customRuleReloaded.getSeverityString()).isEqualTo("MAJOR");
     assertThat(customRuleReloaded.getStatus()).isEqualTo(RuleStatus.READY);
 
