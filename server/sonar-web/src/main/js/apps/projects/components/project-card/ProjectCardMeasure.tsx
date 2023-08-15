@@ -36,8 +36,8 @@ export default function ProjectCardMeasure(
       data-key={metricKey}
       className={classNames('it__project_card_measure sw-text-center', className)}
     >
-      <div className="sw-text-center">{children}</div>
-      <div className="sw-body-sm sw-mt-1/2 sw-whitespace-nowrap" title={label}>
+      <div className="sw-flex sw-justify-center">{children}</div>
+      <div className="sw-body-sm sw-mt-1 sw-whitespace-nowrap" title={label}>
         {label}
       </div>
     </div>
