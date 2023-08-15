@@ -86,4 +86,5 @@ public class ImpactDto implements Serializable {
   public int hashCode() {
     return Objects.hash(uuid, softwareQuality, severity);
   }
+
 }

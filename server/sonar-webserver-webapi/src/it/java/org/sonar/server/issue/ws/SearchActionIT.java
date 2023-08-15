@@ -26,6 +26,7 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -38,7 +39,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.api.rules.CleanCodeAttributeCategory;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
@@ -63,9 +67,9 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
@@ -122,6 +126,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ASSIGN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CODE_VARIANTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
@@ -630,25 +635,36 @@ public class SearchActionIT {
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
+      
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i
-      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH))
-      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)));
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH).setUuid(uuidFactory.create()))
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH).setUuid(uuidFactory.create())));
     IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i
-      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH)));
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH).setUuid(uuidFactory.create())));
     IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i
-      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.MEDIUM))
-      .addImpact(new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW)));
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM).setUuid(uuidFactory.create()))
+      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.LOW).setUuid(uuidFactory.create())));
     indexPermissionsAndIssues();
+    Map<Common.SoftwareQuality, Common.ImpactSeverity> expectedImpacts = Map.of(Common.SoftwareQuality.SECURITY, Common.ImpactSeverity.MEDIUM,
+      Common.SoftwareQuality.RELIABILITY, Common.ImpactSeverity.LOW,
+      Common.SoftwareQuality.MAINTAINABILITY, Common.ImpactSeverity.HIGH);
 
     SearchWsResponse response = ws.newRequest()
       .setParam(PARAM_IMPACT_SEVERITIES, org.sonar.api.issue.impact.Severity.LOW.name())
       .setParam(FACETS, PARAM_IMPACT_SOFTWARE_QUALITIES)
       .executeProtobuf(SearchWsResponse.class);
 
-    assertThat(response.getIssuesList())
+    List<Issue> issuesList = response.getIssuesList();
+    assertThat(issuesList)
       .extracting(Issue::getKey)
-      .containsExactlyInAnyOrder(issue3.getKey())
-      .doesNotContain(issue1.getKey(), issue2.getKey());
+      .containsExactlyInAnyOrder(issue3.getKey());
+
+    Issue issue = issuesList.get(0);
+    Map<Common.SoftwareQuality, Common.ImpactSeverity> impactsInResponse = issue.getImpactsList()
+      .stream()
+      .collect(Collectors.toMap(Common.Impact::getSoftwareQuality, Common.Impact::getSeverity));
+    assertThat(impactsInResponse).isEqualTo(expectedImpacts);
+    assertThat(issue.getCleanCodeAttribute()).isEqualTo(Common.CleanCodeAttribute.CLEAR);
 
     Optional<Common.Facet> first = response.getFacets().getFacetsList()
       .stream().filter(facet -> facet.getProperty().equals(PARAM_IMPACT_SOFTWARE_QUALITIES))
@@ -706,7 +722,7 @@ public class SearchActionIT {
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
       new ImpactDto(uuidFactory.create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH),
       new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
-    IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
+    db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
       new ImpactDto(uuidFactory.create(), SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.HIGH))));
     IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i.replaceAllImpacts(List.of(
       new ImpactDto(uuidFactory.create(), SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW),
@@ -721,8 +737,7 @@ public class SearchActionIT {
 
     assertThat(response.getIssuesList())
       .extracting(Issue::getKey)
-      .containsExactlyInAnyOrder(issue1.getKey(), issue3.getKey())
-      .doesNotContain(issue2.getKey());
+      .containsExactlyInAnyOrder(issue1.getKey(), issue3.getKey());
 
     Optional<Common.Facet> first = response.getFacets().getFacetsList()
       .stream().filter(facet -> facet.getProperty().equals(PARAM_IMPACT_SEVERITIES))
@@ -733,6 +748,46 @@ public class SearchActionIT {
         tuple("HIGH", 1L),
         tuple("MEDIUM", 1L),
         tuple("LOW", 0L));
+  }
+
+  @Test
+  public void search_whenFilteredByCleanCodeAttributeCategory_shouldReturnFacet() {
+    // INTENTIONAL
+    RuleDto rule1 = newIssueRule("clear-rule", ruleDto -> ruleDto.setCleanCodeAttribute(CleanCodeAttribute.CLEAR));
+    RuleDto rule2 = newIssueRule("complete-rule", ruleDto -> ruleDto.setCleanCodeAttribute(CleanCodeAttribute.COMPLETE));
+    // ADAPTABLE
+    RuleDto rule3 = newIssueRule("distinct-rule", ruleDto -> ruleDto.setCleanCodeAttribute(CleanCodeAttribute.DISTINCT));
+    // RESPONSIBLE
+    RuleDto rule4 = newIssueRule("lawful-rule", ruleDto -> ruleDto.setCleanCodeAttribute(CleanCodeAttribute.LAWFUL));
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
+    IssueDto issue1 = db.issues().insertIssue(rule1, project, file);
+    IssueDto issue2 = db.issues().insertIssue(rule2, project, file);
+    IssueDto issue3 = db.issues().insertIssue(rule3, project, file);
+    IssueDto issue4 = db.issues().insertIssue(rule4, project, file);
+    IssueDto issue5 = db.issues().insertIssue(rule1, project, file);
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES, CleanCodeAttributeCategory.INTENTIONAL.name())
+      .setParam(FACETS, PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES)
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issue1.getKey(), issue2.getKey(), issue5.getKey());
+
+    Optional<Common.Facet> first = response.getFacets().getFacetsList()
+      .stream().filter(facet -> facet.getProperty().equals(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES))
+      .findFirst();
+    assertThat(first.get().getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactlyInAnyOrder(
+        tuple("INTENTIONAL", 3L),
+        tuple("ADAPTABLE", 1L),
+        tuple("RESPONSIBLE", 1L),
+        tuple("CONSISTENT", 0L));
   }
 
   @Test
@@ -2012,6 +2067,17 @@ public class SearchActionIT {
       .setLanguage("xoo")
       .setName("Rule name")
       .setStatus(RuleStatus.READY);
+    db.rules().insert(rule);
+    return rule;
+  }
+
+  private RuleDto newIssueRule(String ruleKey, Consumer<RuleDto> consumer) {
+    RuleDto rule = newRule(RuleKey.of("xoo", ruleKey),
+      createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
+      .setLanguage("xoo")
+      .setName("Rule name")
+      .setStatus(RuleStatus.READY);
+    consumer.accept(rule);
     db.rules().insert(rule);
     return rule;
   }
