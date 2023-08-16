@@ -33,7 +33,9 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.common.user.service.UserSearchResult;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.response.PageRestResponse;
-import org.sonar.server.v2.api.user.model.RestUser;
+import org.sonar.server.v2.api.user.model.RestUserForAdmins;
+import org.sonar.server.v2.api.user.model.RestUserForAnonymousUsers;
+import org.sonar.server.v2.api.user.model.RestUserForLoggedInUsers;
 import org.sonar.server.v2.api.user.response.UsersSearchRestResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,15 +74,15 @@ public class UsersSearchRestResponseGeneratorTest {
 
     UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(userSearchResult1, userSearchResult2), paging);
 
-    RestUser expectUser1 = buildExpectedResponseForAdmin(userSearchResult1);
-    RestUser expectUser2 = buildExpectedResponseForAdmin(userSearchResult2);
+    RestUserForAdmins expectUser1 = buildExpectedResponseForAdmin(userSearchResult1);
+    RestUserForAdmins expectUser2 = buildExpectedResponseForAdmin(userSearchResult2);
     assertThat(usersForResponse.users()).containsExactly(expectUser1, expectUser2);
     assertPaginationInformationAreCorrect(paging, usersForResponse.page());
   }
 
-  private static RestUser buildExpectedResponseForAdmin(UserSearchResult userSearchResult) {
+  private static RestUserForAdmins buildExpectedResponseForAdmin(UserSearchResult userSearchResult) {
     UserDto userDto = userSearchResult.userDto();
-    return new RestUser(
+    return new RestUserForAdmins(
       userDto.getLogin(),
       userDto.getLogin(),
       userDto.getName(),
@@ -110,30 +112,23 @@ public class UsersSearchRestResponseGeneratorTest {
 
     UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(userSearchResult1, userSearchResult2), paging);
 
-    RestUser expectUser1 = buildExpectedResponseForUser(userSearchResult1);
-    RestUser expectUser2 = buildExpectedResponseForUser(userSearchResult2);
+    RestUserForLoggedInUsers expectUser1 = buildExpectedResponseForUser(userSearchResult1);
+    RestUserForLoggedInUsers expectUser2 = buildExpectedResponseForUser(userSearchResult2);
     assertThat(usersForResponse.users()).containsExactly(expectUser1, expectUser2);
     assertPaginationInformationAreCorrect(paging, usersForResponse.page());
   }
 
-  private static RestUser buildExpectedResponseForUser(UserSearchResult userSearchResult) {
+  private static RestUserForLoggedInUsers buildExpectedResponseForUser(UserSearchResult userSearchResult) {
     UserDto userDto = userSearchResult.userDto();
-    return new RestUser(
+    return new RestUserForLoggedInUsers(
       userDto.getLogin(),
       userDto.getLogin(),
       userDto.getName(),
       userDto.getEmail(),
       userDto.isActive(),
       userDto.isLocal(),
-      null,
-      null,
       userDto.getExternalIdentityProvider(),
-      userSearchResult.avatar().orElse(null),
-      null,
-      null,
-      null,
-      null,
-      null
+      userSearchResult.avatar().orElse(null)
     );
   }
 
@@ -146,30 +141,18 @@ public class UsersSearchRestResponseGeneratorTest {
 
     UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(userSearchResult1, userSearchResult2), paging);
 
-    RestUser expectUser1 = buildExpectedResponseForAnonymous(userSearchResult1);
-    RestUser expectUser2 = buildExpectedResponseForAnonymous(userSearchResult2);
+    RestUserForAnonymousUsers expectUser1 = buildExpectedResponseForAnonymous(userSearchResult1);
+    RestUserForAnonymousUsers expectUser2 = buildExpectedResponseForAnonymous(userSearchResult2);
     assertThat(usersForResponse.users()).containsExactly(expectUser1, expectUser2);
     assertPaginationInformationAreCorrect(paging, usersForResponse.page());
   }
 
-  private static RestUser buildExpectedResponseForAnonymous(UserSearchResult userSearchResult) {
+  private static RestUserForAnonymousUsers buildExpectedResponseForAnonymous(UserSearchResult userSearchResult) {
     UserDto userDto = userSearchResult.userDto();
-    return new RestUser(
+    return new RestUserForAnonymousUsers(
       userDto.getLogin(),
       userDto.getLogin(),
-      userDto.getName(),
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      userDto.getName()
     );
   }
 

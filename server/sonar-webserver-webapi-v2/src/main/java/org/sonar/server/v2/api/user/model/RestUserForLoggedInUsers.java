@@ -19,5 +19,22 @@
  */
 package org.sonar.server.v2.api.user.model;
 
-public interface RestUser {
+import javax.annotation.Nullable;
+
+public record RestUserForLoggedInUsers(
+  String id,
+  String login,
+  String name,
+  @Nullable
+  String email,
+  @Nullable
+  Boolean active,
+  @Nullable
+  Boolean local,
+  @Nullable
+  String externalProvider,
+  @Nullable
+  String avatar
+
+) implements RestUser {
 }

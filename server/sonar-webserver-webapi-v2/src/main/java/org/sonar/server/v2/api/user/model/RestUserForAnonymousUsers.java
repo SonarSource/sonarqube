@@ -19,5 +19,10 @@
  */
 package org.sonar.server.v2.api.user.model;
 
-public interface RestUser {
+public record RestUserForAnonymousUsers(
+  String id,
+  String login,
+  String name
+
+) implements RestUser {
 }

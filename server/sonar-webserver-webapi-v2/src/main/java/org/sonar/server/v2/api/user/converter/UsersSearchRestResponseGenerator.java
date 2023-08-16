@@ -31,6 +31,9 @@ import org.sonar.server.common.user.service.UserSearchResult;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.response.PageRestResponse;
 import org.sonar.server.v2.api.user.model.RestUser;
+import org.sonar.server.v2.api.user.model.RestUserForAdmins;
+import org.sonar.server.v2.api.user.model.RestUserForAnonymousUsers;
+import org.sonar.server.v2.api.user.model.RestUserForLoggedInUsers;
 import org.sonar.server.v2.api.user.response.UsersSearchRestResponse;
 
 public class UsersSearchRestResponseGenerator implements UsersSearchResponseGenerator<UsersSearchRestResponse> {
@@ -72,13 +75,14 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
     Integer tokensCount = null;
     List<String> scmAccounts = null;
 
-    if (userSession.isLoggedIn()) {
-      avatar = userSearchResult.avatar().orElse(null);
-      active = userDto.isActive();
-      local = userDto.isLocal();
-      email = userDto.getEmail();
-      externalIdentityProvider = userDto.getExternalIdentityProvider();
+    if (!userSession.isLoggedIn()) {
+      return new RestUserForAnonymousUsers(login, login, name);
     }
+    avatar = userSearchResult.avatar().orElse(null);
+    active = userDto.isActive();
+    local = userDto.isLocal();
+    email = userDto.getEmail();
+    externalIdentityProvider = userDto.getExternalIdentityProvider();
     if (userSession.isSystemAdministrator() || Objects.equals(userSession.getUuid(), userDto.getUuid())) {
       externalLogin = userDto.getExternalLogin();
       managed = userSearchResult.managed();
@@ -87,24 +91,24 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
       groupSize = userSearchResult.groups().size();
       tokensCount = userSearchResult.tokensCount();
       scmAccounts = userSearchResult.userDto().getSortedScmAccounts();
+      return new RestUserForAdmins(
+        login,
+        login,
+        name,
+        email,
+        active,
+        local,
+        managed,
+        externalLogin,
+        externalIdentityProvider,
+        avatar,
+        sqLastConnectionDate,
+        slLastConnectionDate,
+        groupSize,
+        tokensCount,
+        scmAccounts);
     }
-
-    return new RestUser(
-      login,
-      login,
-      name,
-      email,
-      active,
-      local,
-      managed,
-      externalLogin,
-      externalIdentityProvider,
-      avatar,
-      sqLastConnectionDate,
-      slLastConnectionDate,
-      groupSize,
-      tokensCount,
-      scmAccounts);
+    return new RestUserForLoggedInUsers(login, login, name, email, active, local, externalIdentityProvider, avatar);
   }
 
   private static String toDateTime(@Nullable Long dateTimeMs) {

@@ -19,5 +19,36 @@
  */
 package org.sonar.server.v2.api.user.model;
 
-public interface RestUser {
+import java.util.List;
+import javax.annotation.Nullable;
+
+public record RestUserForAdmins(
+  String id,
+  String login,
+  String name,
+  @Nullable
+  String email,
+  @Nullable
+  Boolean active,
+  @Nullable
+  Boolean local,
+  @Nullable
+  Boolean managed,
+  @Nullable
+  String externalLogin,
+  @Nullable
+  String externalProvider,
+  @Nullable
+  String avatar,
+  @Nullable
+  String sonarQubeLastConnectionDate,
+  @Nullable
+  String sonarLintLastConnectionDate,
+  @Nullable
+  Integer groupsCount,
+  @Nullable
+  Integer tokensCount,
+  @Nullable
+  List<String> scmAccounts
+) implements RestUser {
 }
