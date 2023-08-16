@@ -176,7 +176,7 @@ public class XooRulesDefinition implements RulesDefinition {
     NewRule oneIssuePerDirectory = repo.createRule(OneIssuePerDirectorySensor.RULE_KEY)
       .setName("One Issue Per Directory")
       .setCleanCodeAttribute(CleanCodeAttribute.CLEAR)
-      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM);
+      .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
     oneIssuePerDirectory.setDebtRemediationFunction(oneIssuePerDirectory.debtRemediationFunctions().linear(TEN_MIN));
     addAllDescriptionSections(oneIssuePerDirectory, "Generate an issue on each non-empty directory");
 
@@ -236,6 +236,7 @@ public class XooRulesDefinition implements RulesDefinition {
     NewRule oneVulnerabilityIssuePerModule = repo.createRule(OneVulnerabilityIssuePerModuleSensor.RULE_KEY).setName("One Vulnerability Issue Per Module")
       .addDefaultImpact(SoftwareQuality.SECURITY, Severity.MEDIUM)
       .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
+      .setCleanCodeAttribute(CleanCodeAttribute.TRUSTWORTHY)
       .setType(RuleType.VULNERABILITY);
     addAllDescriptionSections(oneVulnerabilityIssuePerModule, "Generate an issue on each module");
 
