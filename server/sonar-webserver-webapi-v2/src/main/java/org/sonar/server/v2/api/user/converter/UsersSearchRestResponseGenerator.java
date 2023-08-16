@@ -62,35 +62,23 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
 
     String login = userDto.getLogin();
     String name = userDto.getName();
-    String avatar = null;
-    Boolean active = null;
-    Boolean local = null;
-    String email = null;
-    String externalIdentityProvider = null;
-    String externalLogin = null;
-    Boolean managed = null;
-    String sqLastConnectionDate = null;
-    String slLastConnectionDate = null;
-    Integer groupSize = null;
-    Integer tokensCount = null;
-    List<String> scmAccounts = null;
-
     if (!userSession.isLoggedIn()) {
       return new RestUserForAnonymousUsers(login, login, name);
     }
-    avatar = userSearchResult.avatar().orElse(null);
-    active = userDto.isActive();
-    local = userDto.isLocal();
-    email = userDto.getEmail();
-    externalIdentityProvider = userDto.getExternalIdentityProvider();
+
+    String avatar = userSearchResult.avatar().orElse(null);
+    Boolean active = userDto.isActive();
+    Boolean local = userDto.isLocal();
+    String email = userDto.getEmail();
+    String externalIdentityProvider = userDto.getExternalIdentityProvider();
     if (userSession.isSystemAdministrator() || Objects.equals(userSession.getUuid(), userDto.getUuid())) {
-      externalLogin = userDto.getExternalLogin();
-      managed = userSearchResult.managed();
-      sqLastConnectionDate = toDateTime(userDto.getLastConnectionDate());
-      slLastConnectionDate = toDateTime(userDto.getLastSonarlintConnectionDate());
-      groupSize = userSearchResult.groups().size();
-      tokensCount = userSearchResult.tokensCount();
-      scmAccounts = userSearchResult.userDto().getSortedScmAccounts();
+      String externalLogin = userDto.getExternalLogin();
+      Boolean managed = userSearchResult.managed();
+      String sqLastConnectionDate = toDateTime(userDto.getLastConnectionDate());
+      String slLastConnectionDate = toDateTime(userDto.getLastSonarlintConnectionDate());
+      int groupSize = userSearchResult.groups().size();
+      int tokensCount = userSearchResult.tokensCount();
+      List<String> scmAccounts = userSearchResult.userDto().getSortedScmAccounts();
       return new RestUserForAdmins(
         login,
         login,

@@ -23,7 +23,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import javax.validation.Valid;
+import org.jetbrains.annotations.Nullable;
 import org.sonar.server.v2.api.model.RestPage;
+import org.sonar.server.v2.api.model.RestSortOrder;
 import org.sonar.server.v2.api.user.model.RestUser;
 import org.sonar.server.v2.api.user.request.UserCreateRestRequest;
 import org.sonar.server.v2.api.user.request.UsersSearchRestRequest;
@@ -50,7 +52,7 @@ public interface UserController {
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Users search", description = """
-      Get a list of users. By default, only active users are returned.
+      Get a list of users. By default, only active users are returned.<br>
       The following fields are only returned when user has Administer System permission or for logged-in in user :
         'email'
         'externalIdentity'
@@ -58,10 +60,13 @@ public interface UserController {
         'groups'
         'lastConnectionDate'
         'sonarLintLastConnectionDate'
-        'tokensCount'
+        'tokensCount'<br>
       Field 'sonarqubeLastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.
     """)
-  UsersSearchRestResponse search(@ParameterObject UsersSearchRestRequest usersSearchRestRequest, @Valid @ParameterObject RestPage restPage);
+  UsersSearchRestResponse search(
+    @Valid @ParameterObject UsersSearchRestRequest usersSearchRestRequest,
+    @Valid @ParameterObject RestPage restPage,
+    @RequestParam(name = "order", required = false) @Nullable RestSortOrder order);
 
   @DeleteMapping(path = "/{login}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -95,7 +100,7 @@ public interface UserController {
   @Operation(summary = "User creation", description = """
       Create a user.
       If a deactivated user account exists with the given login, it will be reactivated.
-      Requires Administer System permission
+      Requires Administer System permission.
     """)
   RestUser create(@Valid @RequestBody UserCreateRestRequest userCreateRestRequest);
 

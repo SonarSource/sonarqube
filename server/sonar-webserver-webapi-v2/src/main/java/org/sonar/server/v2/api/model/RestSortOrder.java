@@ -19,32 +19,19 @@
  */
 package org.sonar.server.v2.api.model;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Positive;
-import org.jetbrains.annotations.Nullable;
 
-public record RestPage(
-  @Min(1)
-  @Max(500)
-  @Schema(defaultValue = DEFAULT_PAGE_SIZE, description = "Number of results per page")
-  Integer pageSize,
+@Schema(defaultValue = "desc", description = "Sort order")
+public enum RestSortOrder {
 
-  @Positive
-  @Schema(defaultValue = DEFAULT_PAGE_INDEX, description = "1-based page index")
-  Integer pageIndex
-) {
+  ASC("asc"),
+  DESC("desc");
 
-  @VisibleForTesting
-  public static final String DEFAULT_PAGE_SIZE = "50";
-  @VisibleForTesting
-  public static final String DEFAULT_PAGE_INDEX = "1";
+  @JsonValue
+  private final String serializedOrder;
 
-  public RestPage(@Nullable Integer pageSize, @Nullable Integer pageIndex) {
-    this.pageSize = pageSize == null ? Integer.valueOf(DEFAULT_PAGE_SIZE) : pageSize;
-    this.pageIndex = pageIndex == null ? Integer.valueOf(DEFAULT_PAGE_INDEX) : pageIndex;
+  RestSortOrder(String serializedOrder) {
+    this.serializedOrder = serializedOrder;
   }
-
 }
