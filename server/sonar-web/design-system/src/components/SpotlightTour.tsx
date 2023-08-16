@@ -21,6 +21,7 @@
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
 import React from 'react';
+import { useIntl } from 'react-intl';
 import ReactJoyride, {
   Props as JoyrideProps,
   Step as JoyrideStep,
@@ -28,7 +29,6 @@ import ReactJoyride, {
 } from 'react-joyride';
 import tw from 'twin.macro';
 import { GLOBAL_POPUP_Z_INDEX, PopupZLevel, themeColor } from '../helpers';
-import { translate, translateWithParameters } from '../helpers/l10n';
 import { ButtonLink, ButtonPrimary, WrapperButton } from './buttons';
 import { CloseIcon } from './icons';
 import { PopupWrapper } from './popups';
@@ -78,6 +78,7 @@ function TooltipComponent({
     ref.current = node;
   }, []);
   const placement = step.placement ?? DEFAULT_PLACEMENT;
+  const intl = useIntl();
 
   React.useEffect(() => {
     // We don't compute for "center"; "center" will simply not show any arrow.
@@ -85,11 +86,12 @@ function TooltipComponent({
       let left = 0;
       let top = 0;
       let rotate = '0deg';
+
       const rect = (ref.current.parentNode as HTMLDivElement).getBoundingClientRect();
-      const targetRect =
-        typeof step.target === 'string'
-          ? (document.querySelector(step.target) as HTMLElement).getBoundingClientRect()
-          : step.target.getBoundingClientRect();
+      // In case target is null for some reason we use mocking object
+      const targetRect = (typeof step.target === 'string'
+        ? document.querySelector(step.target)?.getBoundingClientRect()
+        : step.target.getBoundingClientRect()) ?? { height: 0, y: 0, x: 0, width: 0 };
 
       if (placement === 'right') {
         left = -ARROW_LENGTH - PULSE_SIZE;
@@ -140,7 +142,7 @@ function TooltipComponent({
         <strong>
           {stepXofYLabel
             ? stepXofYLabel(index + 1, size)
-            : translateWithParameters('guiding.step_x_of_y', index + 1, size)}
+            : intl.formatMessage({ id: 'guiding.step_x_of_y' }, { '0': index + 1, '1': size })}
         </strong>
         <div>
           {index > 0 && (
@@ -164,6 +166,8 @@ export function SpotlightTour(props: SpotlightTourProps) {
   const { steps, skipLabel, backLabel, closeLabel, nextLabel, stepXofYLabel, ...otherProps } =
     props;
 
+  const intl = useIntl();
+
   return (
     <ReactJoyride
       disableOverlay
@@ -177,10 +181,10 @@ export function SpotlightTour(props: SpotlightTourProps) {
         offset: 0,
       }}
       locale={{
-        skip: skipLabel ?? translate('skip'),
-        back: backLabel ?? translate('go_back'),
-        close: closeLabel ?? translate('close'),
-        next: nextLabel ?? translate('next'),
+        skip: skipLabel ?? intl.formatMessage({ id: 'skip' }),
+        back: backLabel ?? intl.formatMessage({ id: 'go_back' }),
+        close: closeLabel ?? intl.formatMessage({ id: 'close' }),
+        next: nextLabel ?? intl.formatMessage({ id: 'next' }),
       }}
       scrollDuration={0}
       scrollOffset={250}

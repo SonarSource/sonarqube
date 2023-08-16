@@ -1313,7 +1313,6 @@ export class App extends React.PureComponent<Props, State> {
           <PageContentFontWrapper className="sw-body-sm">
             <div className="sw-w-full sw-flex" id="issues-page">
               <Suggestions suggestions="issues" />
-              <IssueGuide run={!open && !component?.needIssueSync && issues.length > 0} />
 
               {openIssue ? (
                 <Helmet
@@ -1325,7 +1324,10 @@ export class App extends React.PureComponent<Props, State> {
                   )}
                 />
               ) : (
-                <Helmet defer={false} title={translate('issues.page')} />
+                <>
+                  <Helmet defer={false} title={translate('issues.page')} />
+                  <IssueGuide run={!open && !component?.needIssueSync && issues.length > 0} />
+                </>
               )}
 
               <h1 className="a11y-hidden">{translate('issues.page')}</h1>

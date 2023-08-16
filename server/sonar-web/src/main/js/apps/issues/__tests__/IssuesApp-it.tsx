@@ -260,7 +260,9 @@ describe('issues app', () => {
     // Improve this to include all the bulk change fonctionality
     it('should be able to bulk change', async () => {
       const user = userEvent.setup();
-      const currentUser = mockLoggedInUser();
+      const currentUser = mockLoggedInUser({
+        dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true },
+      });
       issuesHandler.setIsAdmin(true);
       issuesHandler.setCurrentUser(currentUser);
       renderIssueApp(currentUser);

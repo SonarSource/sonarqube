@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { renderWithContext } from '../../helpers/testUtils';
 import { SpotlightTour, SpotlightTourProps } from '../SpotlightTour';
 
 it('should display the spotlight tour', async () => {
@@ -102,7 +103,7 @@ it('should allow the customization of button labels', async () => {
 });
 
 function renderSpotlightTour(props: Partial<SpotlightTourProps> = {}) {
-  return render(
+  return renderWithContext(
     <div>
       <div id="step1">This is step 1</div>
       <div id="step2">This is step 2</div>

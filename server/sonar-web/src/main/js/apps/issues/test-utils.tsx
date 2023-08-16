@@ -141,7 +141,7 @@ export async function waitOnDataLoaded() {
 export function renderIssueApp(
   currentUser = mockCurrentUser({ dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true } })
 ) {
-  renderApp('project/issues', <IssuesApp />, { currentUser });
+  renderApp('issues', <IssuesApp />, { currentUser });
 }
 
 export function renderProjectIssuesApp(
