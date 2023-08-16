@@ -43,7 +43,6 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.rule.ServerRuleFinder;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
 
 /**
@@ -101,7 +100,7 @@ public class WebIssueStorage extends IssueStorage {
    * @return the keys of the inserted issues
    */
   private Collection<IssueDto> insert(DbSession session, Iterable<DefaultIssue> issuesToInsert, long now) {
-    List<IssueDto> inserted = newArrayList();
+    List<IssueDto> inserted = new ArrayList<>();
     int count = 0;
     IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);
     for (DefaultIssue issue : issuesToInsert) {
@@ -121,8 +120,10 @@ public class WebIssueStorage extends IssueStorage {
   private IssueDto doInsert(DbSession session, long now, DefaultIssue issue) {
     ComponentDto component = component(session, issue);
     ComponentDto project = project(session, issue);
-    String ruleUuid = getRuleUuid(issue).orElseThrow(() -> new IllegalStateException("Rule not found: " + issue.ruleKey()));
-    IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleUuid, now);
+    RuleDto ruleDto = getRule(issue).orElseThrow(() -> new IllegalStateException("Rule not found: " + issue.ruleKey()));
+    IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleDto.getUuid(), now);
+    dto.setCleanCodeAttribute(ruleDto.getCleanCodeAttribute());
+    dto.setRuleDefaultImpacts(ruleDto.getDefaultImpacts());
 
     getDbClient().issueDao().insert(session, dto);
     return dto;
@@ -159,11 +160,14 @@ public class WebIssueStorage extends IssueStorage {
     IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
     getDbClient().issueDao().update(session, dto);
     // Rule id does not exist in DefaultIssue
-    getRuleUuid(issue).ifPresent(dto::setRuleUuid);
+    Optional<RuleDto> rule = getRule(issue);
+    rule.ifPresent(r -> dto.setRuleUuid(r.getUuid()));
+    rule.ifPresent(r -> dto.setCleanCodeAttribute(r.getCleanCodeAttribute()));
+    rule.ifPresent(r -> dto.setRuleDefaultImpacts(r.getDefaultImpacts()));
     return dto;
   }
 
-  protected Optional<String> getRuleUuid(Issue issue) {
-    return ruleFinder.findDtoByKey(issue.ruleKey()).map(RuleDto::getUuid);
+  protected Optional<RuleDto> getRule(Issue issue) {
+    return ruleFinder.findDtoByKey(issue.ruleKey());
   }
 }

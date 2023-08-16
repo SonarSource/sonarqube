@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
@@ -112,7 +115,12 @@ public class WebIssueStorageIT {
       .setUpdateDate(date)
       .setCloseDate(date);
 
-    underTest.save(db.getSession(), singletonList(issue));
+    Collection<IssueDto> createdIssues = underTest.save(db.getSession(), singletonList(issue));
+
+    assertThat(createdIssues).hasSize(1);
+
+    assertThat(createdIssues.iterator().next().getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
+    assertThat(createdIssues.iterator().next().getEffectiveImpacts()).isEqualTo(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
 
     assertThat(db.countRowsOfTable("issues")).isOne();
     assertThat(db.selectFirst("select * from issues"))
@@ -155,7 +163,11 @@ public class WebIssueStorageIT {
       .setUpdateDate(date)
       .setCloseDate(date);
 
-    underTest.save(db.getSession(), singletonList(issue));
+    Collection<IssueDto> updatedIssues = underTest.save(db.getSession(), singletonList(issue));
+    assertThat(updatedIssues).hasSize(1);
+
+    assertThat(updatedIssues.iterator().next().getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
+    assertThat(updatedIssues.iterator().next().getEffectiveImpacts()).isEqualTo(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
 
     assertThat(db.countRowsOfTable("issues")).isOne();
     assertThat(db.countRowsOfTable("issue_changes")).isZero();

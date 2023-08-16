@@ -47,7 +47,6 @@ public class AssignActionIT {
 
   private static final String ISSUE_CURRENT_ASSIGNEE_UUID = "current assignee uuid";
 
-
   @Rule
   public UserSessionRule userSession = standalone();
 
@@ -69,7 +68,7 @@ public class AssignActionIT {
   @Test
   public void assign_issue() {
     UserDto assignee = db.users().insertUser("john");
-    Map<String, Object> properties = new HashMap<>(ImmutableMap.of("assignee", "john"));
+    Map<String, Object> properties = new HashMap<>(Map.of("assignee", "john"));
 
     underTest.verify(properties, Collections.emptyList(), userSession);
     boolean executeResult = underTest.execute(properties, context);
@@ -80,7 +79,7 @@ public class AssignActionIT {
 
   @Test
   public void unassign_issue_if_assignee_is_empty() {
-    Map<String, Object> properties = new HashMap<>(ImmutableMap.of("assignee", ""));
+    Map<String, Object> properties = new HashMap<>(Map.of("assignee", ""));
 
     underTest.verify(properties, Collections.emptyList(), userSession);
     boolean executeResult = underTest.execute(properties, context);

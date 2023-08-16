@@ -64,7 +64,6 @@ public final class IssueDto implements Serializable {
   private static final Splitter STRING_LIST_SPLITTER = Splitter.on(STRING_LIST_SEPARATOR).trimResults().omitEmptyStrings();
 
   private int type;
-  private CleanCodeAttribute cleanCodeAttribute;
   private String kee;
   private String componentUuid;
   private String projectUuid;
@@ -114,7 +113,10 @@ public final class IssueDto implements Serializable {
   private String closedChangeData;
 
   private Set<ImpactDto> impacts = new HashSet<>();
+
+  //non-persisted fields
   private Set<ImpactDto> ruleDefaultImpacts = new HashSet<>();
+  private CleanCodeAttribute cleanCodeAttribute;
 
   public IssueDto() {
     // nothing to do
@@ -809,6 +811,13 @@ public final class IssueDto implements Serializable {
     impacts.add(impact);
     return this;
   }
+
+
+  public IssueDto setRuleDefaultImpacts(Set<ImpactDto> ruleDefaultImpacts) {
+    this.ruleDefaultImpacts = new HashSet<>(ruleDefaultImpacts);
+    return this;
+  }
+  
 
   public IssueDto replaceAllImpacts(Collection<ImpactDto> newImpacts) {
     Set<SoftwareQuality> newSoftwareQuality = newImpacts.stream().map(ImpactDto::getSoftwareQuality).collect(Collectors.toSet());

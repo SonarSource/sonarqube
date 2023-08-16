@@ -49,6 +49,7 @@ import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Issues;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -114,10 +115,10 @@ public class AssignActionIT {
   public void assign_to_me() {
     IssueDto issue = newIssueWithBrowsePermission();
 
-    ws.newRequest()
+    Issues.AssignResponse assignResponse = ws.newRequest()
       .setParam("issue", issue.getKey())
       .setParam("assignee", "_me")
-      .execute();
+      .executeProtobuf(Issues.AssignResponse.class);
 
     checkIssueAssignee(issue.getKey(), currentUser.getUuid());
     Optional<IssueDto> optionalIssueDto = dbClient.issueDao().selectByKey(session, issue.getKey());
