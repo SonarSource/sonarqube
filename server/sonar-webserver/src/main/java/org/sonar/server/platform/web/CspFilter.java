@@ -42,7 +42,10 @@ public class CspFilter implements Filter {
     cspHeaders.add("X-WebKit-CSP");
 
     List<String> cspPolicies = new ArrayList<>();
+
+    // Directives not specified default to this one.
     cspPolicies.add("default-src 'self'");
+
     cspPolicies.add("base-uri 'none'");
     cspPolicies.add("img-src * data: blob:");
     cspPolicies.add("object-src 'none'");
@@ -52,7 +55,10 @@ public class CspFilter implements Filter {
     cspPolicies.add(
             "script-src 'self' https://www.googletagmanager.com https://pendo-io-static.storage.googleapis.com "
                     + "https://app.pendo.io https://cdn.pendo.io https://data.pendo.io https://edge.fullstory.com "
-                    + "https://rs.fullstory.com 'unsafe-inline' 'unsafe-eval'");
+                    + "https://rs.fullstory.com https://ssl.google-analytics.com/ga.js "
+                    + "https://static.zdassets.com/ekr/snippet.js "
+                    + "https://connect.facebook.net/en_US/fbevents.js "
+                    + "https://snap.licdn.com/li.lms-analytics/insight.min.js 'unsafe-inline' 'unsafe-eval'");
 
     cspPolicies.add("style-src 'self' 'unsafe-inline'");
     cspPolicies.add("worker-src 'none'");

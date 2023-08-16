@@ -37,13 +37,18 @@ public class CspFilterTest {
 
   private static final String TEST_CONTEXT = "/sonarqube";
   private static final String EXPECTED = "default-src 'self'; " +
-    "base-uri 'none'; " +
-    "connect-src 'self' http: https:; " +
-    "img-src * data: blob:; " +
-    "object-src 'none'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-    "style-src 'self' 'unsafe-inline'; " +
-    "worker-src 'none'";
+          "base-uri 'none'; " +
+          "connect-src 'self' https://edge.fullstory.com https://rs.fullstory.com http: https:; " +
+          "img-src * data: blob:; " +
+          "object-src 'none'; " +
+          "script-src 'self' https://www.googletagmanager.com https://pendo-io-static.storage.googleapis.com "
+          + "https://app.pendo.io https://cdn.pendo.io https://data.pendo.io https://edge.fullstory.com "
+          + "https://rs.fullstory.com https://ssl.google-analytics.com/ga.js "
+          + "https://static.zdassets.com/ekr/snippet.js?key=98ba4b78-5aed-46c5-af86-5e07d588c632 "
+          + "https://connect.facebook.net/en_US/fbevents.js "
+          + "https://snap.licdn.com/li.lms-analytics/insight.min.js 'unsafe-inline' 'unsafe-eval'; " +
+          "style-src 'self' 'unsafe-inline'; " +
+          "worker-src 'none'";
   private final ServletContext servletContext = mock(ServletContext.class, RETURNS_MOCKS);
   private final HttpServletResponse response = mock(HttpServletResponse.class);
   private final FilterChain chain = mock(FilterChain.class);
