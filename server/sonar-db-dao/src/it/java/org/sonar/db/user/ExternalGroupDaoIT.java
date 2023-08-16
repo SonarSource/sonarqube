@@ -119,13 +119,17 @@ public class ExternalGroupDaoIT {
   @Test
   public void getManagedGroupsSqlFilter_whenFilterByManagedIsTrue_returnsCorrectQuery() {
     String filterManagedUser = underTest.getManagedGroupSqlFilter(true);
-    assertThat(filterManagedUser).isEqualTo(" exists (select group_uuid from external_groups eg where eg.group_uuid = uuid)");
+    assertThat(filterManagedUser).isEqualTo(
+      "(exists (select group_uuid from external_groups eg where eg.group_uuid = uuid) "
+        + "or exists (select group_uuid from github_orgs_groups gog eg where gog.group_uuid = uuid))");
   }
 
   @Test
   public void getManagedGroupsSqlFilter_whenFilterByManagedIsFalse_returnsCorrectQuery() {
     String filterNonManagedUser = underTest.getManagedGroupSqlFilter(false);
-    assertThat(filterNonManagedUser).isEqualTo("not exists (select group_uuid from external_groups eg where eg.group_uuid = uuid)");
+    assertThat(filterNonManagedUser).isEqualTo(
+      "(not exists (select group_uuid from external_groups eg where eg.group_uuid = uuid) "
+        + "and not exists (select group_uuid from github_orgs_groups gog eg where gog.group_uuid = uuid))");
   }
 
   private List<ExternalGroupDto> createAndInsertExternalGroupDtos(String provider, int numberOfGroups) {

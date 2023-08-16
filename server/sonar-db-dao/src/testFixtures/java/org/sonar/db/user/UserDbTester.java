@@ -166,10 +166,11 @@ public class UserDbTester {
     db.commit();
   }
 
-  public void markGroupAsGithubOrganizationGroup(String groupUuid, String organizationName) {
+  public GithubOrganizationGroupDto markGroupAsGithubOrganizationGroup(String groupUuid, String organizationName) {
     GithubOrganizationGroupDto githubOrganizationGroupDto = new GithubOrganizationGroupDto(groupUuid, organizationName);
     db.getDbClient().githubOrganizationGroupDao().insert(db.getSession(), githubOrganizationGroupDto);
     db.commit();
+    return githubOrganizationGroupDto;
   }
 
   public ExternalGroupDto insertExternalGroup(ExternalGroupDto dto) {
