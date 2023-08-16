@@ -73,7 +73,7 @@ export function FacetBox(props: FacetBoxProps) {
     open = false,
   } = props;
 
-  const clearable = !disabled && Boolean(onClear) && count;
+  const clearable = !disabled && Boolean(onClear) && count !== undefined && count > 0;
   const counter = count ?? 0;
   const expandable = !disabled && Boolean(onClick);
   const id = React.useMemo(() => idProp ?? uniqueId('filter-facet-'), [idProp]);
@@ -84,7 +84,6 @@ export function FacetBox(props: FacetBoxProps) {
       data-property={dataProperty}
       hasEmbeddedFacets={hasEmbeddedFacets}
       inner={inner}
-      role="listitem"
     >
       <Header>
         <ChevronAndTitle
@@ -131,7 +130,7 @@ export function FacetBox(props: FacetBoxProps) {
       </Header>
 
       {open && (
-        <div aria-labelledby={`${id}-header`} id={`${id}-panel`} role="list">
+        <div aria-labelledby={`${id}-header`} id={`${id}-panel`} role="group">
           {children}
         </div>
       )}

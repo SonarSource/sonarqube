@@ -124,8 +124,8 @@ export const ui = {
 
   authorFacetSearch: byPlaceholderText('search.search_for_authors'),
   inNewCodeFilter: byRole('checkbox', { name: 'issues.new_code' }),
-  languageFacetList: byRole('list', { name: 'issues.facet.languages' }),
-  ruleFacetList: byRole('list', { name: 'issues.facet.rules' }),
+  languageFacetList: byRole('group', { name: 'issues.facet.languages' }),
+  ruleFacetList: byRole('group', { name: 'issues.facet.rules' }),
   ruleFacetSearch: byPlaceholderText('search.search_for_rules'),
   tagFacetSearch: byPlaceholderText('search.search_for_tags'),
 

@@ -233,7 +233,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
     <SideBarStyle>
       <ScreenPositionHelper className="sw-z-filterbar">
         {({ top }) => (
-          <nav
+          <section
             aria-label={translate('filters')}
             className="sw-overflow-y-auto"
             style={{ height: `calc((100vh - ${top}px) - 60px)` }} // 60 for the footer
@@ -257,7 +257,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
                 view={this.getView()}
               />
             </div>
-          </nav>
+          </section>
         )}
       </ScreenPositionHelper>
     </SideBarStyle>

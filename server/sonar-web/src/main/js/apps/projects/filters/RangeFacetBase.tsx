@@ -111,7 +111,7 @@ export default class RangeFacetBase extends React.PureComponent<Props> {
         disableZero={false}
         aria-label={this.props.renderAccessibleLabel(option)}
         key={option}
-        className={classNames({ active }, optionClassName)}
+        className={classNames(optionClassName)}
         data-key={option}
         onClick={this.handleClick}
         name={this.props.renderOption(option, this.isSelected(option) || isUnderSelectedOption)}

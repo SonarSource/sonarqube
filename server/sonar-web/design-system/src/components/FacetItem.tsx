@@ -19,6 +19,7 @@
  */
 
 import styled from '@emotion/styled';
+import classNames from 'classnames';
 import * as React from 'react';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../helpers';
@@ -42,7 +43,7 @@ export type FacetItemProps = Omit<ButtonProps, 'name' | 'onClick'> & {
 const STATBAR_MAX_WIDTH = 60;
 
 export function BaseFacetItem({
-  active,
+  active = false,
   className,
   disabled: disabledProp = false,
   disableZero = true,
@@ -66,33 +67,34 @@ export function BaseFacetItem({
   };
 
   return (
-    <StyledButton
-      active={active}
-      aria-checked={active}
-      aria-label={typeof name === 'string' ? name : undefined}
-      className={className}
-      data-facet={value}
-      disabled={disabled}
-      icon={icon}
-      onClick={handleClick}
-      role="checkbox"
-      small={small}
-      title={tooltip}
-    >
-      <div className="container">
-        <span className="name">{name}</span>
-        <div>
-          <span className="stat">{stat}</span>
-          {isDefined(statBarPercent) && (
-            <FacetStatBar>
-              <FacetStatBarInner
-                style={{ '--statBarWidth': `${statBarPercent * STATBAR_MAX_WIDTH}px` }}
-              />
-            </FacetStatBar>
-          )}
+    <StyledItem active={active} className={classNames({ active }, className)} role="listitem">
+      <StyledButton
+        active={active}
+        aria-checked={active}
+        aria-label={typeof name === 'string' ? name : undefined}
+        data-facet={value}
+        disabled={disabled}
+        icon={icon}
+        onClick={handleClick}
+        role="checkbox"
+        small={small}
+        title={tooltip}
+      >
+        <div className="container">
+          <span className="name">{name}</span>
+          <div>
+            <span className="stat">{stat}</span>
+            {isDefined(statBarPercent) && (
+              <FacetStatBar>
+                <FacetStatBarInner
+                  style={{ '--statBarWidth': `${statBarPercent * STATBAR_MAX_WIDTH}px` }}
+                />
+              </FacetStatBar>
+            )}
+          </div>
         </div>
-      </div>
-    </StyledButton>
+      </StyledButton>
+    </StyledItem>
   );
 }
 
@@ -113,20 +115,7 @@ const StyledButton = styled(ButtonSecondary)<{ active?: boolean; small?: boolean
   --background: ${({ active }) => (active ? themeColor('facetItemSelected') : 'transparent')};
   --backgroundHover: ${({ active }) => (active ? themeColor('facetItemSelected') : 'transparent')};
 
-  --border: ${({ active }) =>
-    active
-      ? themeBorder('default', 'facetItemSelectedBorder')
-      : themeBorder('default', 'transparent')};
-
-  &:hover {
-    --border: ${themeBorder('default', 'facetItemSelectedBorder')};
-  }
-
-  &:hover,
-  &:active,
-  &:focus {
-    border-color: ${themeColor('facetItemSelectedBorder')};
-  }
+  --border: none;
 
   & div.container {
     ${tw`sw-container`};
@@ -164,6 +153,25 @@ const StyledButton = styled(ButtonSecondary)<{ active?: boolean; small?: boolean
   }
 `;
 
+/*&:hover {
+    --border: ${themeBorder('default', 'facetItemSelectedBorder')};
+  }*/
+
+const StyledItem = styled.span<{ active: boolean }>`
+  border: ${({ active }) =>
+    active
+      ? themeBorder('default', 'facetItemSelectedBorder')
+      : themeBorder('default', 'transparent')};
+
+  border-radius: 0.25rem;
+
+  &:hover,
+  &:active,
+  &:focus {
+    border-color: ${themeColor('facetItemSelectedBorder')};
+  }
+`;
+
 const FacetStatBar = styled.div`
   ${tw`sw-inline-block`}
   ${tw`sw-ml-2`}
@@ -185,22 +193,23 @@ export const HighlightedFacetItems = styled.div`
   width: 100%;
 
   ${FacetItem} {
-    padding-top: 1px;
-    padding-bottom: 1px;
-
     &:is(:hover, .active) {
       border-color: ${themeColor('facetItemSelectedBorder')};
+      padding-bottom: 1px;
       border-bottom-width: 0;
       border-bottom-right-radius: 0rem;
       border-bottom-left-radius: 0rem;
 
       &:last-of-type {
+        padding-bottom: 0;
         border-bottom-width: 1px;
         border-radius: 0.25rem;
       }
 
       & ~ ${FacetItem} {
         border-color: ${themeColor('facetItemSelectedBorder')};
+        padding-bottom: 1px;
+        padding-top: 1px;
         border-top-width: 0;
         border-bottom-width: 0;
         border-radius: 0;
