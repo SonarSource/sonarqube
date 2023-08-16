@@ -52,15 +52,15 @@ public interface UserController {
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Users search", description = """
-      Get a list of users. By default, only active users are returned.<br>
+      Get a list of users. By default, only active users are returned.
       The following fields are only returned when user has Administer System permission or for logged-in in user :
-        'email'
-        'externalIdentity'
-        'externalProvider'
-        'groups'
-        'lastConnectionDate'
-        'sonarLintLastConnectionDate'
-        'tokensCount'<br>
+        'email',
+        'externalIdentity',
+        'externalProvider',
+        'groups',
+        'lastConnectionDate',
+        'sonarLintLastConnectionDate',
+        'tokensCount'.
       Field 'sonarqubeLastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.
     """)
   UsersSearchRestResponse search(

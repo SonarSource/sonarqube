@@ -237,8 +237,8 @@ export const searchAssignees = (
   query: string,
   page = 1
 ): Promise<{ paging: Paging; results: RestUser[] }> => {
-  return getUsers<RestUser>({ pageIndex: page, q: query }).then(({ pageRestResponse, users }) => ({
-    paging: pageRestResponse,
+  return getUsers<RestUser>({ pageIndex: page, q: query }).then(({ page, users }) => ({
+    paging: page,
     results: users,
   }));
 };

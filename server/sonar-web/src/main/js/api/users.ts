@@ -92,7 +92,7 @@ export function getUsers<T extends RestUserBase>(data: {
   sonarLintLastConnectionDateTo?: string;
   pageSize?: number;
   pageIndex?: number;
-}): Promise<{ pageRestResponse: Paging; users: T[] }> {
+}): Promise<{ page: Paging; users: T[] }> {
   return getJSON('/api/v2/users', data).catch(throwGlobalError);
 }
 

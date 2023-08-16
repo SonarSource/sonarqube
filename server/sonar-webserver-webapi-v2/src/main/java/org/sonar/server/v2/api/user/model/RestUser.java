@@ -19,5 +19,8 @@
  */
 package org.sonar.server.v2.api.user.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(implementation = RestUserForAdmins.class)
 public interface RestUser {
 }

@@ -207,14 +207,14 @@ export default class UsersServiceMock {
   };
 
   handleGetUsers: typeof getUsers<RestUserDetailed> = (data) => {
-    let pageRestResponse = {
+    let page = {
       pageIndex: 1,
       pageSize: 0,
       total: 10,
     };
 
-    if (data.pageIndex !== undefined && data.pageIndex !== pageRestResponse.pageIndex) {
-      pageRestResponse = { pageIndex: 2, pageSize: 2, total: 10 };
+    if (data.pageIndex !== undefined && data.pageIndex !== page.pageIndex) {
+      page = { pageIndex: 2, pageSize: 2, total: 10 };
       const users = [
         mockRestUser({
           name: `Local User ${this.users.length + 4}`,
@@ -226,7 +226,7 @@ export default class UsersServiceMock {
         }),
       ];
 
-      return this.reply({ pageRestResponse, users });
+      return this.reply({ page, users });
     }
 
     const users = this.getFilteredRestUsers({
@@ -239,7 +239,7 @@ export default class UsersServiceMock {
     });
 
     return this.reply({
-      pageRestResponse: {
+      page: {
         pageIndex: 1,
         pageSize: users.length,
         total: 10,

@@ -625,7 +625,7 @@ export default class IssuesServiceMock {
 
   handleGetUsers = () => {
     return this.reply({
-      pageRestResponse: mockPaging(),
+      page: mockPaging(),
       users: [mockLoggedInUser() as unknown as RestUser],
     });
   };

@@ -52,7 +52,7 @@ export function useUsersQueries<U extends RestUserBase>(
   return results.reduce(
     (acc, { data, isLoading }) => ({
       users: acc.users.concat(data?.users ?? []),
-      total: data?.pageRestResponse.total,
+      total: data?.page.total,
       isLoading: acc.isLoading || isLoading,
     }),
     { users: [] as U[], total: 0, isLoading: false }

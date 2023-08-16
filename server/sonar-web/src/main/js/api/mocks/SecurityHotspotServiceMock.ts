@@ -127,7 +127,7 @@ export default class SecurityHotspotServiceMock {
         mockRestUser({ name: 'User Doe', login: 'user.doe' }),
         mockRestUser({ name: 'User Foo', login: 'user.foo' }),
       ],
-      pageRestResponse: mockPaging(),
+      page: mockPaging(),
     });
   };
 

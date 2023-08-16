@@ -20,6 +20,10 @@
 package org.sonar.server.v2.api.user.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,7 +75,7 @@ public class DefaultUserControllerTest {
   private final UsersSearchRestResponseGenerator responseGenerator = mock(UsersSearchRestResponseGenerator.class);
   private final MockMvc mockMvc = ControllerTester.getMockMvc(new DefaultUserController(userSession, userService, responseGenerator));
 
-  private static final Gson gson = new Gson();
+  private static final Gson gson =  new GsonBuilder().registerTypeAdapter(RestUser.class, new RestUserDeserializer()).create();
 
   @Test
   public void search_whenNoParameters_shouldUseDefaultAndForwardToUserService() throws Exception {
@@ -114,25 +118,25 @@ public class DefaultUserControllerTest {
   @Test
   public void search_whenAdminParametersUsedButNotAdmin_shouldFail() throws Exception {
     mockMvc.perform(get(USER_ENDPOINT)
-      .param("sonarQubeLastConnectionDateFrom", "2020-01-01T00:00:00+0100"))
+        .param("sonarQubeLastConnectionDateFrom", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
         content().string("{\"message\":\"parameter sonarQubeLastConnectionDateFrom requires Administer System permission.\"}"));
 
     mockMvc.perform(get(USER_ENDPOINT)
-      .param("sonarQubeLastConnectionDateTo", "2020-01-01T00:00:00+0100"))
+        .param("sonarQubeLastConnectionDateTo", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
         content().string("{\"message\":\"parameter sonarQubeLastConnectionDateTo requires Administer System permission.\"}"));
 
     mockMvc.perform(get(USER_ENDPOINT)
-      .param("sonarLintLastConnectionDateFrom", "2020-01-01T00:00:00+0100"))
+        .param("sonarLintLastConnectionDateFrom", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
         content().string("{\"message\":\"parameter sonarLintLastConnectionDateFrom requires Administer System permission.\"}"));
 
     mockMvc.perform(get(USER_ENDPOINT)
-      .param("sonarLintLastConnectionDateTo", "2020-01-01T00:00:00+0100"))
+        .param("sonarLintLastConnectionDateTo", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
         content().string("{\"message\":\"parameter sonarLintLastConnectionDateTo requires Administer System permission.\"}"));
@@ -160,6 +164,19 @@ public class DefaultUserControllerTest {
       .containsExactlyElementsOf(restUserForAdmins);
     assertThat(actualUsersSearchRestResponse.page().total()).isEqualTo(users.size());
 
+  }
+
+  static class RestUserDeserializer extends TypeAdapter<RestUser> {
+
+    @Override
+    public void write(JsonWriter out, RestUser value) {
+      throw new IllegalStateException("not implemented");
+    }
+
+    @Override
+    public RestUser read(JsonReader reader) {
+      return gson.fromJson(reader, RestUserForAdmins.class);
+    }
   }
 
   private UserSearchResult generateUserSearchResult(String id, boolean active, boolean local, boolean managed, int groupsCount, int tokensCount) {
@@ -311,9 +328,9 @@ public class DefaultUserControllerTest {
     userSession.logIn().setNonSystemAdministrator();
 
     mockMvc.perform(
-      post(USER_ENDPOINT)
-        .contentType(MediaType.APPLICATION_JSON_VALUE)
-        .content(gson.toJson(new UserCreateRestRequest(null, null, "login", "name", null, null))))
+        post(USER_ENDPOINT)
+          .contentType(MediaType.APPLICATION_JSON_VALUE)
+          .content(gson.toJson(new UserCreateRestRequest(null, null, "login", "name", null, null))))
       .andExpectAll(
         status().isForbidden(),
         content().json("{\"message\":\"Insufficient privileges\"}"));
