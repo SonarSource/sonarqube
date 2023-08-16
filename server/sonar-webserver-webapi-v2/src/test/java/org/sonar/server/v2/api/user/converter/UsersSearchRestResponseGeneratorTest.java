@@ -57,7 +57,7 @@ public class UsersSearchRestResponseGeneratorTest {
     UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(), paging);
 
     assertThat(usersForResponse.users()).isEmpty();
-    assertPaginationInformationAreCorrect(paging, usersForResponse.pageRestResponse());
+    assertPaginationInformationAreCorrect(paging, usersForResponse.page());
   }
 
   @Test
@@ -75,7 +75,7 @@ public class UsersSearchRestResponseGeneratorTest {
     RestUser expectUser1 = buildExpectedResponseForAdmin(userSearchResult1);
     RestUser expectUser2 = buildExpectedResponseForAdmin(userSearchResult2);
     assertThat(usersForResponse.users()).containsExactly(expectUser1, expectUser2);
-    assertPaginationInformationAreCorrect(paging, usersForResponse.pageRestResponse());
+    assertPaginationInformationAreCorrect(paging, usersForResponse.page());
   }
 
   private static RestUser buildExpectedResponseForAdmin(UserSearchResult userSearchResult) {
@@ -113,7 +113,7 @@ public class UsersSearchRestResponseGeneratorTest {
     RestUser expectUser1 = buildExpectedResponseForUser(userSearchResult1);
     RestUser expectUser2 = buildExpectedResponseForUser(userSearchResult2);
     assertThat(usersForResponse.users()).containsExactly(expectUser1, expectUser2);
-    assertPaginationInformationAreCorrect(paging, usersForResponse.pageRestResponse());
+    assertPaginationInformationAreCorrect(paging, usersForResponse.page());
   }
 
   private static RestUser buildExpectedResponseForUser(UserSearchResult userSearchResult) {
@@ -149,7 +149,7 @@ public class UsersSearchRestResponseGeneratorTest {
     RestUser expectUser1 = buildExpectedResponseForAnonymous(userSearchResult1);
     RestUser expectUser2 = buildExpectedResponseForAnonymous(userSearchResult2);
     assertThat(usersForResponse.users()).containsExactly(expectUser1, expectUser2);
-    assertPaginationInformationAreCorrect(paging, usersForResponse.pageRestResponse());
+    assertPaginationInformationAreCorrect(paging, usersForResponse.page());
   }
 
   private static RestUser buildExpectedResponseForAnonymous(UserSearchResult userSearchResult) {

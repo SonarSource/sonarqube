@@ -20,7 +20,6 @@
 package org.sonar.server.v2.api.model;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -30,15 +29,11 @@ import org.jetbrains.annotations.Nullable;
 public record RestPage(
   @Min(1)
   @Max(500)
-  @Parameter(
-    description = "Number of results per page",
-    schema = @Schema(defaultValue = DEFAULT_PAGE_SIZE, implementation = Integer.class))
+  @Schema(defaultValue = DEFAULT_PAGE_SIZE, description = "Number of results per page")
   Integer pageSize,
 
   @Positive
-  @Parameter(
-    description = "1-based page number",
-    schema = @Schema(defaultValue = DEFAULT_PAGE_INDEX, implementation = Integer.class))
+  @Schema(defaultValue = DEFAULT_PAGE_INDEX, description = "Number of results per page")
   Integer pageIndex
 ) {
 

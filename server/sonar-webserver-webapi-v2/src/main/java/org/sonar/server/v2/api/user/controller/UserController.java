@@ -65,10 +65,14 @@ public interface UserController {
 
   @DeleteMapping(path = "/{login}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Deactivate a user", description = "Deactivate a user. Requires Administer System permission.")
+  @Operation(summary = "Deactivate a user", description = "Deactivates a user. Requires Administer System permission.")
   void deactivate(
-    @PathVariable("login") @Parameter(description = "The login of the user to delete.", required = true, in = ParameterIn.PATH) String login,
-    @RequestParam(value = "anonymize", required = false, defaultValue = "false") @Parameter(description = "Anonymize user in addition to deactivating it.") Boolean anonymize);
+    @PathVariable("login")
+    @Parameter(description = "The login of the user to delete.", required = true, in = ParameterIn.PATH)
+    String login,
+    @RequestParam(value = "anonymize", required = false, defaultValue = "false")
+    @Parameter(description = "Anonymize user in addition to deactivating it.")
+    Boolean anonymize);
 
   @GetMapping(path = "/{login}")
   @ResponseStatus(HttpStatus.OK)
@@ -93,6 +97,6 @@ public interface UserController {
       If a deactivated user account exists with the given login, it will be reactivated.
       Requires Administer System permission
     """)
-  RestUser create(@Valid @RequestBody(required = true) UserCreateRestRequest userCreateRestRequest);
+  RestUser create(@Valid @RequestBody UserCreateRestRequest userCreateRestRequest);
 
 }

@@ -23,5 +23,5 @@ import java.util.List;
 import org.sonar.server.v2.api.response.PageRestResponse;
 import org.sonar.server.v2.api.user.model.RestUser;
 
-public record UsersSearchRestResponse(List<RestUser> users, PageRestResponse pageRestResponse) {
+public record UsersSearchRestResponse(List<RestUser> users, PageRestResponse page) {
 }

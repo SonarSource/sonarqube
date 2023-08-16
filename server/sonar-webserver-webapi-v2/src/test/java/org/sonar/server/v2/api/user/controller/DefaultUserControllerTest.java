@@ -157,7 +157,7 @@ public class DefaultUserControllerTest {
     UsersSearchRestResponse actualUsersSearchRestResponse = gson.fromJson(mvcResult.getResponse().getContentAsString(), UsersSearchRestResponse.class);
     assertThat(actualUsersSearchRestResponse.users())
       .containsExactlyElementsOf(restUsers);
-    assertThat(actualUsersSearchRestResponse.pageRestResponse().total()).isEqualTo(users.size());
+    assertThat(actualUsersSearchRestResponse.page().total()).isEqualTo(users.size());
 
   }
 
