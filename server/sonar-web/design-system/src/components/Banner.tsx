@@ -21,12 +21,7 @@ import styled from '@emotion/styled';
 import { ReactNode } from 'react';
 import { useIntl } from 'react-intl';
 import tw from 'twin.macro';
-import {
-  LAYOUT_BANNER_HEIGHT,
-  LAYOUT_VIEWPORT_MIN_WIDTH,
-  themeColor,
-  themeContrast,
-} from '../helpers';
+import { LAYOUT_BANNER_HEIGHT, LAYOUT_VIEWPORT_MIN_WIDTH, themeColor } from '../helpers';
 import { ThemeColors } from '../types';
 import { InteractiveIconBase } from './InteractiveIcon';
 import { CloseIcon, FlagErrorIcon, FlagInfoIcon, FlagSuccessIcon, FlagWarningIcon } from './icons';
@@ -78,12 +73,17 @@ export function Banner({ children, onDismiss, variant }: Props) {
         fontColor={variantInfo.fontColor}
       >
         <BannerInner>
-          {variantInfo.icon}
-          {children}
+          <div className="sw-flex">
+            <div className="sw-mr-3">{variantInfo.icon}</div>
+            {children}
+          </div>
+
           {onDismiss && (
             <BannerCloseIcon
               Icon={CloseIcon}
               aria-label={intl.formatMessage({ id: 'dismiss' })}
+              backGroundColor={variantInfo.backGroundColor}
+              fontColor={variantInfo.fontColor}
               onClick={onDismiss}
               size="small"
             />
@@ -110,17 +110,19 @@ const BannerWrapper = styled.div<{
 const BannerInner = styled.div`
   width: 100%;
   height: inherit;
-
   ${tw`sw-box-border`}
-  ${tw`sw-flex sw-items-center sw-gap-3`}
+  ${tw`sw-flex sw-items-center sw-justify-between sw-gap-3`}
   ${tw`sw-px-4`}
   ${tw`sw-body-sm`}
 `;
 
-const BannerCloseIcon = styled(InteractiveIconBase)`
-  --background: ${themeColor('bannerIcon')};
-  --backgroundHover: ${themeColor('bannerIconHover')};
-  --color: ${themeContrast('bannerIcon')};
-  --colorHover: ${themeContrast('bannerIconHover')};
+const BannerCloseIcon = styled(InteractiveIconBase)<{
+  backGroundColor: ThemeColors;
+  fontColor: ThemeColors;
+}>`
+  --background: ${({ backGroundColor }) => themeColor(backGroundColor)};
+  --backgroundHover: ${({ fontColor }) => themeColor(fontColor)};
+  --color: ${({ fontColor }) => themeColor(fontColor)};
+  --colorHover: ${({ backGroundColor }) => themeColor(backGroundColor)};
   --focus: ${themeColor('bannerIconFocus', 0.2)};
 `;

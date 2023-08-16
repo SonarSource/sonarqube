@@ -19,6 +19,7 @@
  */
 import { TopBar } from 'design-system';
 import * as React from 'react';
+import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
 import { translate } from '../../../../helpers/l10n';
 import {
   ProjectAlmBindingConfigurationErrors,
@@ -60,26 +61,35 @@ export default function ComponentNav(props: ComponentNavProps) {
     }
   }, [component, component.key]);
 
-  let prDecoNotifComponent;
+  let prDecoNotifComponent: JSX.Element;
   if (projectBindingErrors !== undefined) {
     prDecoNotifComponent = <ComponentNavProjectBindingErrorNotif component={component} />;
   }
 
   return (
-    <>
-      <TopBar id="context-navigation" aria-label={translate('qualifier', component.qualifier)}>
-        <div className="sw-min-h-10 sw-flex sw-justify-between">
-          <Header component={component} projectBinding={projectBinding} />
-          <HeaderMeta
-            component={component}
-            currentTask={currentTask}
-            isInProgress={isInProgress}
-            isPending={isPending}
-          />
-        </div>
-        <Menu component={component} isInProgress={isInProgress} isPending={isPending} />
-      </TopBar>
-      {prDecoNotifComponent}
-    </>
+    <ScreenPositionHelper className="sw-inline">
+      {({ top }) => (
+        <>
+          <TopBar
+            className="sw-sticky"
+            id="context-navigation"
+            aria-label={translate('qualifier', component.qualifier)}
+            style={{ top: `${top}px` }}
+          >
+            <div className="sw-min-h-10 sw-flex sw-justify-between">
+              <Header component={component} projectBinding={projectBinding} />
+              <HeaderMeta
+                component={component}
+                currentTask={currentTask}
+                isInProgress={isInProgress}
+                isPending={isPending}
+              />
+            </div>
+            <Menu component={component} isInProgress={isInProgress} isPending={isPending} />
+          </TopBar>
+          {prDecoNotifComponent}
+        </>
+      )}
+    </ScreenPositionHelper>
   );
 }

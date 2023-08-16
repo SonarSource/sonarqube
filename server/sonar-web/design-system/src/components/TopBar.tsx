@@ -19,11 +19,10 @@
  */
 import styled from '@emotion/styled';
 import tw from 'twin.macro';
-import { LAYOUT_GLOBAL_NAV_HEIGHT, LAYOUT_VIEWPORT_MIN_WIDTH } from '../helpers';
+import { LAYOUT_VIEWPORT_MIN_WIDTH } from '../helpers';
 import { themeColor, themeContrast, themeShadow } from '../helpers/theme';
 
 export const TopBar = styled.nav`
-  ${tw`sw-sticky sw-top-0`}
   ${tw`sw-z-top-navbar`}
   ${tw`sw-px-6 sw-pt-4`}
   ${tw`sw-box-border`};
@@ -32,7 +31,6 @@ export const TopBar = styled.nav`
   ${tw`sw-text-sm`}
 
   min-width: ${LAYOUT_VIEWPORT_MIN_WIDTH}px;
-  top: ${LAYOUT_GLOBAL_NAV_HEIGHT}px;
 
   background-color: ${themeColor('navbar')};
   color: ${themeContrast('navbar')};
