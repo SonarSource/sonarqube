@@ -41,6 +41,7 @@ const PROJECT: Project = {
   qualifier: ComponentQualifier.Project,
   tags: [],
   visibility: Visibility.Public,
+  isScannable: false,
 };
 
 const USER_LOGGED_OUT = mockCurrentUser();
@@ -64,9 +65,15 @@ it('should display private badge', () => {
   expect(screen.getByLabelText('visibility.private')).toBeInTheDocument();
 });
 
-it('should display configure analysis button for logged in user', () => {
-  renderProjectCard({ ...PROJECT, analysisDate: undefined }, USER_LOGGED_IN);
+it('should display configure analysis button for logged in user and scan rights', () => {
+  const user = mockLoggedInUser();
+  renderProjectCard({ ...PROJECT, isScannable: true, analysisDate: undefined }, user);
   expect(screen.getByText('projects.configure_analysis')).toBeInTheDocument();
+});
+
+it('should not display configure analysis button for logged in user and without scan rights', () => {
+  renderProjectCard({ ...PROJECT, analysisDate: undefined }, USER_LOGGED_IN);
+  expect(screen.queryByText('projects.configure_analysis')).not.toBeInTheDocument();
 });
 
 it('should display applications', () => {

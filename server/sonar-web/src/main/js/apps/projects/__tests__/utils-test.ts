@@ -27,6 +27,7 @@ jest.mock('../../../api/components', () => ({
   searchProjects: jest
     .fn()
     .mockResolvedValue({ components: [], facets: [], paging: { total: 10 } }),
+  getScannableProjects: jest.fn().mockResolvedValue({ projects: [] }),
 }));
 
 jest.mock('../../../api/measures', () => ({
@@ -136,17 +137,23 @@ describe('fetchProjects', () => {
           languages: { css: 10, js: 2 },
         },
         projects: components.map(
-          (component: Component & { measures: { languages?: string; new_coverage?: string } }) => {
+          (
+            component: Component & {
+              measures: { languages?: string; new_coverage?: string };
+              isScannable: boolean;
+            }
+          ) => {
             // eslint-disable-next-line jest/no-conditional-in-test
             if (component.key === 'foo') {
               component.measures = { new_coverage: '10' };
             } else {
               component.measures = { languages: '20' };
             }
-
+            component.isScannable = false;
             return component;
           }
         ),
+
         total: 2,
       });
     });

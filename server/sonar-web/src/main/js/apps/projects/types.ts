@@ -31,6 +31,7 @@ export interface Project {
   qualifier: ComponentQualifier;
   tags: string[];
   visibility: Visibility;
+  isScannable: boolean;
 }
 
 export interface Facet {

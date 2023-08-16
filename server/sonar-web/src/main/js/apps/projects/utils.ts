@@ -19,7 +19,7 @@
  */
 
 import { invert } from 'lodash';
-import { Facet, searchProjects } from '../../api/components';
+import { Facet, getScannableProjects, searchProjects } from '../../api/components';
 import { getMeasuresForProjects } from '../../api/measures';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { isDiffMetric } from '../../helpers/measures';
@@ -149,6 +149,7 @@ export const LEAK_FACETS = [
 ];
 
 const REVERSED_FACETS = ['coverage', 'new_coverage'];
+let scannableProjectsCached: { key: string; name: string }[] | null = null;
 
 export function localizeSorting(sort?: string): string {
   return translate('projects.sort', sort ?? 'name');
@@ -158,6 +159,19 @@ export function parseSorting(sort: string): { sortValue: string; sortDesc: boole
   const desc = sort.startsWith('-');
 
   return { sortValue: desc ? sort.substring(1) : sort, sortDesc: desc };
+}
+
+export async function fetchScannableProjects() {
+  if (scannableProjectsCached) {
+    return Promise.resolve({ scannableProjects: scannableProjectsCached });
+  }
+
+  const response = await getScannableProjects().then(({ projects }) => {
+    scannableProjectsCached = projects;
+    return projects;
+  });
+
+  return { scannableProjects: response };
 }
 
 export function fetchProjects({
@@ -180,9 +194,13 @@ export function fetchProjects({
 
   return searchProjects(data)
     .then((response) =>
-      Promise.all([fetchProjectMeasures(response.components, query), Promise.resolve(response)])
+      Promise.all([
+        fetchProjectMeasures(response.components, query),
+        Promise.resolve(response),
+        fetchScannableProjects(),
+      ])
     )
-    .then(([measures, { components, facets, paging }]) => {
+    .then(([measures, { components, facets, paging }, { scannableProjects }]) => {
       return {
         facets: getFacetsMap(facets),
         projects: components.map((component) => {
@@ -196,7 +214,11 @@ export function fetchProjects({
               }
             });
 
-          return { ...component, measures: componentMeasures };
+          return {
+            ...component,
+            measures: componentMeasures,
+            isScannable: scannableProjects.find((p) => p.key === component.key) !== undefined,
+          };
         }),
         total: paging.total,
       };

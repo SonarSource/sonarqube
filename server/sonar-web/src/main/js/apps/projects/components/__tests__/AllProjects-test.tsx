@@ -203,6 +203,7 @@ function shallowRender({
         qualifier: ComponentQualifier.Project,
         tags: [],
         visibility: Visibility.Public,
+        isScannable: false,
       },
     ],
     total: 0,

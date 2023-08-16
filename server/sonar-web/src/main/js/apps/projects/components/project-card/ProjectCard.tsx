@@ -196,7 +196,7 @@ function renderSecondLine(
   project: Props['project'],
   isNewCode: boolean
 ) {
-  const { analysisDate, key, leakPeriodDate, measures, qualifier } = project;
+  const { analysisDate, key, leakPeriodDate, measures, qualifier, isScannable } = project;
 
   if (analysisDate && (!isNewCode || leakPeriodDate)) {
     return (
@@ -215,11 +215,14 @@ function renderSecondLine(
           ? translate('projects.no_new_code_period', qualifier)
           : translate('projects.not_analyzed', qualifier)}
       </Note>
-      {qualifier !== ComponentQualifier.Application && !analysisDate && isLoggedIn(currentUser) && (
-        <StandoutLink className="sw-ml-2 sw-body-sm-highlight" to={getProjectUrl(key)}>
-          {translate('projects.configure_analysis')}
-        </StandoutLink>
-      )}
+      {qualifier !== ComponentQualifier.Application &&
+        !analysisDate &&
+        isLoggedIn(currentUser) &&
+        isScannable && (
+          <StandoutLink className="sw-ml-2 sw-body-sm-highlight" to={getProjectUrl(key)}>
+            {translate('projects.configure_analysis')}
+          </StandoutLink>
+        )}
     </div>
   );
 }

@@ -3,6 +3,7 @@
 exports[`handles showing favorite projects on load 1`] = `
 [
   {
+    "isScannable": false,
     "key": "foo",
     "measures": {},
     "name": "Foo",
@@ -17,6 +18,7 @@ exports[`handles showing favorite projects on load 2`] = `
 [
   {
     "isFavorite": true,
+    "isScannable": false,
     "key": "foo",
     "measures": {},
     "name": "Foo",
@@ -30,6 +32,7 @@ exports[`handles showing favorite projects on load 2`] = `
 exports[`handles updating the favorite status of a project 1`] = `
 [
   {
+    "isScannable": false,
     "key": "foo",
     "measures": {},
     "name": "Foo",
@@ -44,6 +47,7 @@ exports[`handles updating the favorite status of a project 2`] = `
 [
   {
     "isFavorite": true,
+    "isScannable": false,
     "key": "foo",
     "measures": {},
     "name": "Foo",
@@ -162,6 +166,7 @@ exports[`renders 1`] = `
             projects={
               [
                 {
+                  "isScannable": false,
                   "key": "foo",
                   "measures": {},
                   "name": "Foo",
