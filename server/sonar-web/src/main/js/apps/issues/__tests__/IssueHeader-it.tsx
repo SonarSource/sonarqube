@@ -22,8 +22,7 @@ import * as React from 'react';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { mockIssue, mockRuleDetails } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { byLabelText, byRole, byText } from '../../../helpers/testSelector';
-import { RuleStatus } from '../../../types/rules';
+import { byRole, byText } from '../../../helpers/testSelector';
 import { Dict } from '../../../types/types';
 import IssueHeader from '../components/IssueHeader';
 
@@ -38,11 +37,10 @@ it('renders correctly', async () => {
         codeVariants: ['first', 'second'],
         effort: '5min',
         quickFixAvailable: true,
-        ruleStatus: RuleStatus.Deprecated,
         externalRuleEngine: 'eslint',
       },
     },
-    { eslint: 'yes' }
+    { eslint: 'eslint' }
   );
 
   // Title
@@ -88,11 +86,8 @@ it('renders correctly', async () => {
   // SonarLint badge
   expect(byText('issue.quick_fix_available_with_sonarlint_no_link').get()).toBeInTheDocument();
 
-  // Rule status - Deprecated
-  expect(byLabelText(`issue.resolution.badge.${RuleStatus.Deprecated}`).get()).toBeInTheDocument();
-
   // Rule external engine
-  expect(byText(/issue.resolution.badge/).get()).toBeInTheDocument();
+  expect(byText('eslint').get()).toBeInTheDocument();
 });
 
 it('renders correctly when some data is not provided', () => {
@@ -112,13 +107,8 @@ it('renders correctly when some data is not provided', () => {
     byText('issue.quick_fix_available_with_sonarlint_no_link').query()
   ).not.toBeInTheDocument();
 
-  // Rule status deprecated
-  expect(
-    byLabelText(`issue.resolution.badge.${RuleStatus.Deprecated}`).query()
-  ).not.toBeInTheDocument();
-
   // Rule external engine
-  expect(byText(/issue.resolution.badge/).query()).not.toBeInTheDocument();
+  expect(byText('eslint').query()).not.toBeInTheDocument();
 });
 
 function renderIssueHeader(

@@ -657,12 +657,6 @@ describe('issues item', () => {
     await expect(
       screen.getByText('issue.quick_fix_available_with_sonarlint_no_link')
     ).toHaveATooltipWithContent('issue.quick_fix_available_with_sonarlint');
-
-    expect(
-      screen.getByRole('status', {
-        name: 'issue.resolution.badge.DEPRECATED',
-      })
-    ).toBeInTheDocument();
   });
 });
 

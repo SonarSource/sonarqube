@@ -23,7 +23,6 @@ import { Badge, CommentIcon, SeparatorCircleIcon, themeColor } from 'design-syst
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isDefined } from '../../../helpers/types';
-import { RuleStatus } from '../../../types/rules';
 import { Issue } from '../../../types/types';
 import Tooltip from '../../controls/Tooltip';
 import DateFromNow from '../../intl/DateFromNow';
@@ -52,10 +51,7 @@ export default function IssueMetaBar(props: Props) {
   return (
     <ul className="sw-flex sw-items-center sw-gap-2 sw-body-sm">
       <li className={issueMetaListItemClassNames}>
-        <IssueBadges
-          quickFixAvailable={issue.quickFixAvailable}
-          ruleStatus={issue.ruleStatus as RuleStatus | undefined}
-        />
+        <IssueBadges quickFixAvailable={issue.quickFixAvailable} />
       </li>
 
       {ruleEngine && (

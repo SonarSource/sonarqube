@@ -36,7 +36,6 @@ import {
   IssueTransition,
   IssueType,
 } from '../../../types/issues';
-import { RuleStatus } from '../../../types/rules';
 import Issue from '../Issue';
 
 jest.mock('../../../helpers/preferences', () => ({
@@ -65,15 +64,6 @@ describe('rendering', () => {
     await ui.clickIssueMessage();
     expect(onClick).toHaveBeenCalledWith(issue.key);
   });
-
-  it.each([RuleStatus.Deprecated, RuleStatus.Removed])(
-    'should render correctly for a %s rule',
-    (ruleStatus) => {
-      const { ui } = getPageObject();
-      renderIssue({ issue: mockIssue(false, { ruleStatus }) });
-      expect(ui.ruleStatusBadge(ruleStatus).get()).toBeInTheDocument();
-    }
-  );
 
   it('should render correctly for external rule engines', () => {
     renderIssue({ issue: mockIssue(true, { externalRuleEngine: 'ESLINT' }) });
@@ -194,7 +184,6 @@ function getPageObject() {
 
   const selectors = {
     // Issue
-    ruleStatusBadge: (status: RuleStatus) => byText(`issue.resolution.badge.${status}`),
     locationsBadge: (count: number) => byText(count),
     lineInfo: (line: number) => byText(`L${line}`),
     effort: (effort: string) => byText(`issue.x_effort.${effort}`),

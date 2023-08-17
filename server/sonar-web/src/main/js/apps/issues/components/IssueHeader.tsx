@@ -31,7 +31,6 @@ import * as React from 'react';
 import { setIssueAssignee } from '../../../api/issues';
 import { updateIssue } from '../../../components/issue/actions';
 import IssueActionsBar from '../../../components/issue/components/IssueActionsBar';
-import { RuleBadge } from '../../../components/issue/components/IssueBadges';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
 import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
 import { WorkspaceContext } from '../../../components/workspace/context';
@@ -43,7 +42,6 @@ import { getKeyboardShortcutEnabled } from '../../../helpers/preferences';
 import { getComponentIssuesUrl, getPathUrlAsString, getRuleUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueActions, IssueType } from '../../../types/issues';
-import { RuleStatus } from '../../../types/rules';
 import { Issue, RuleDetails } from '../../../types/types';
 import IssueHeaderMeta from './IssueHeaderMeta';
 
@@ -148,10 +146,6 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
             return null;
           }}
         </WorkspaceContext.Consumer>
-        {(issue.ruleStatus === RuleStatus.Deprecated ||
-          issue.ruleStatus === RuleStatus.Removed) && (
-          <RuleBadge ruleStatus={issue.ruleStatus} className="sw-ml-1" />
-        )}
       </Note>
     );
   };

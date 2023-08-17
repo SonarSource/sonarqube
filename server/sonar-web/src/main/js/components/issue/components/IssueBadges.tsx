@@ -17,61 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import { Badge } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { RuleStatus } from '../../../types/rules';
-import DocumentationTooltip from '../../common/DocumentationTooltip';
+import { translate } from '../../../helpers/l10n';
 import Link from '../../common/Link';
 import Tooltip from '../../controls/Tooltip';
 import SonarLintIcon from '../../icons/SonarLintIcon';
 
 export interface IssueBadgesProps {
   quickFixAvailable?: boolean;
-  ruleStatus?: RuleStatus;
 }
 
 export default function IssueBadges(props: IssueBadgesProps) {
-  const { quickFixAvailable, ruleStatus } = props;
+  const { quickFixAvailable } = props;
 
   return (
     <div className="sw-flex">
       <SonarLintBadge quickFixAvailable={quickFixAvailable} />
-      <span className={classNames({ 'sw-ml-2': quickFixAvailable })}>
-        <RuleBadge ruleStatus={ruleStatus} />
-      </span>
     </div>
   );
-}
-
-export function RuleBadge({
-  ruleStatus,
-  className,
-}: {
-  ruleStatus?: RuleStatus;
-  className?: string;
-}) {
-  if (ruleStatus === RuleStatus.Deprecated || ruleStatus === RuleStatus.Removed) {
-    return (
-      <DocumentationTooltip
-        content={translate('rules.status', ruleStatus, 'help')}
-        links={[
-          {
-            href: '/user-guide/rules/overview/',
-            label: translateWithParameters('see_x', translate('rules')),
-          },
-        ]}
-      >
-        <Badge variant="deleted" className={className}>
-          {translate('issue.resolution.badge', ruleStatus)}
-        </Badge>
-      </DocumentationTooltip>
-    );
-  }
-
-  return null;
 }
 
 export function SonarLintBadge({ quickFixAvailable }: { quickFixAvailable?: boolean }) {
