@@ -33,7 +33,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskMessageDto;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
@@ -259,7 +259,7 @@ public class ComponentActionIT {
         .setUuid("uuid_" + i)
         .setTaskUuid(activity.getUuid())
         .setMessage("m_" + i)
-        .setType(CeTaskMessageType.GENERIC)
+        .setType(MessageType.GENERIC)
         .setCreatedAt(i))
       .toList();
 

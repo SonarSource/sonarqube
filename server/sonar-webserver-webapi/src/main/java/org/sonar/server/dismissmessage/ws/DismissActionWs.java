@@ -17,26 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.ce;
+package org.sonar.server.dismissmessage.ws;
 
-public enum CeTaskMessageType {
-  INFO(false, false),
-  GENERIC(false, true),
-  SUGGEST_DEVELOPER_EDITION_UPGRADE(true, true);
+import org.sonar.api.server.ws.WebService;
 
-  private final boolean dismissible;
-  private final boolean isWarning;
+public class DismissActionWs implements WebService {
 
-  CeTaskMessageType(boolean dismissible, boolean isWarning) {
-    this.dismissible = dismissible;
-    this.isWarning = isWarning;
+  private final DismissMessageWsAction[] actions;
+  public DismissActionWs(DismissMessageWsAction... actions) {
+    this.actions = actions;
   }
 
-  public boolean isDismissible() {
-    return dismissible;
-  }
-
-  public boolean isWarning() {
-    return isWarning;
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController("api/dismiss_message")
+      .setDescription("Manage message dismissal.")
+      .setSince("10.2");
+    for (DismissMessageWsAction action : actions) {
+      action.define(controller);
+    }
+    controller.done();
   }
 }

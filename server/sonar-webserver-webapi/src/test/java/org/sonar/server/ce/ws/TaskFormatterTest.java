@@ -33,7 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskMessageDto;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.user.UserDto;
 import org.sonarqube.ws.Ce;
@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeQueueTesting.makeInProgress;
-import static org.sonar.db.ce.CeTaskMessageType.INFO;
+import static org.sonar.db.dismissmessage.MessageType.INFO;
 
 public class TaskFormatterTest {
 
@@ -202,8 +202,8 @@ public class TaskFormatterTest {
   @Test
   public void formatActivity_filterNonWarnings_andSetMessagesAndCount() {
     TestActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED, null);
-    CeTaskMessageDto warning1 = createCeTaskMessageDto(1998, CeTaskMessageType.GENERIC);
-    CeTaskMessageDto warning2 = createCeTaskMessageDto(1999, CeTaskMessageType.GENERIC);
+    CeTaskMessageDto warning1 = createCeTaskMessageDto(1998, MessageType.GENERIC);
+    CeTaskMessageDto warning2 = createCeTaskMessageDto(1999, MessageType.GENERIC);
 
     List<CeTaskMessageDto> ceTaskMessageDtos = new ArrayList<>(dto.getCeTaskMessageDtos());
     ceTaskMessageDtos.add(warning1);
@@ -292,12 +292,12 @@ public class TaskFormatterTest {
       .setAnalysisUuid("U1");
   }
 
-  private CeTaskMessageDto createCeTaskMessageDto(int i, CeTaskMessageType ceTaskMessageType) {
+  private CeTaskMessageDto createCeTaskMessageDto(int i, MessageType messageType) {
     CeTaskMessageDto ceTaskMessageDto = new CeTaskMessageDto();
     ceTaskMessageDto.setMessage("message_" + i);
     ceTaskMessageDto.setCreatedAt(system2.now());
     ceTaskMessageDto.setTaskUuid("uuid_" + i);
-    ceTaskMessageDto.setType(ceTaskMessageType);
+    ceTaskMessageDto.setType(messageType);
     return ceTaskMessageDto;
   }
 

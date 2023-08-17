@@ -40,7 +40,7 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.collect.ImmutableList.of;
@@ -112,7 +112,7 @@ public class HandleUnanalyzedLanguagesStepTest {
           " C++ and SomeLang cannot be analyzed with your current SonarQube edition. Please consider" +
           " <a target=\"_blank\" href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to Developer Edition</a> to find Bugs," +
           " Code Smells, Vulnerabilities and Security Hotspots in these files.",
-        CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE));
+        MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE));
     assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_C_KEY).get().getIntValue()).isEqualTo(10);
     assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY).get().getIntValue()).isEqualTo(20);
   }

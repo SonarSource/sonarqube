@@ -17,23 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.db.dismissmessage;
 
-import java.util.List;
-import java.util.Optional;
-import org.apache.ibatis.annotations.Param;
+public enum MessageType {
+  INFO(false, false),
+  GENERIC(false, true),
+  SUGGEST_DEVELOPER_EDITION_UPGRADE(true, true),
+  GLOBAL_NCD_90(true, false),
+  GLOBAL_NCD_PAGE_90(true, false),
+  PROJECT_NCD_90(true, false),
+  PROJECT_NCD_PAGE_90(true, false),
+  BRANCH_NCD_90(true, false);
 
-public interface UserDismissedMessagesMapper {
-  void insert(@Param("dto") UserDismissedMessageDto dto);
+  private final boolean dismissible;
+  private final boolean isWarning;
 
-  Optional<UserDismissedMessageDto> selectByUserUuidAndProjectUuidAndMessageType(@Param("userUuid") String userUuid, @Param("projectUuid") String projectUuid,
-    @Param("messageType") String messageType);
+  MessageType(boolean dismissible, boolean isWarning) {
+    this.dismissible = dismissible;
+    this.isWarning = isWarning;
+  }
 
-  Optional<UserDismissedMessageDto> selectByUserUuidAndMessageType(@Param("userUuid") String userUuid, @Param("messageType") String messageType);
+  public boolean isDismissible() {
+    return dismissible;
+  }
 
-  List<UserDismissedMessageDto> selectByUserUuid(@Param("userUuid") String userUuid);
-
-  void deleteByUserUuid(@Param("userUuid") String userUuid);
-
-  void deleteByType(@Param("messageType") String messageType);
+  public boolean isWarning() {
+    return isWarning;
+  }
 }

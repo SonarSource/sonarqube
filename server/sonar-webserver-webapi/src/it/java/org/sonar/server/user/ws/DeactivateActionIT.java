@@ -30,7 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -289,11 +289,11 @@ public class DeactivateActionIT {
     ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser();
 
-    db.users().insertUserDismissedMessage(user, project1, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
-    db.users().insertUserDismissedMessage(user, project2, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    db.users().insertUserDismissedMessageOnProject(user, project1, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    db.users().insertUserDismissedMessageOnProject(user, project2, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
     UserDto anotherUser = db.users().insertUser();
-    UserDismissedMessageDto msg3 = db.users().insertUserDismissedMessage(anotherUser, project1, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
-    UserDismissedMessageDto msg4 = db.users().insertUserDismissedMessage(anotherUser, project2, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    UserDismissedMessageDto msg3 = db.users().insertUserDismissedMessageOnProject(anotherUser, project1, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    UserDismissedMessageDto msg4 = db.users().insertUserDismissedMessageOnProject(anotherUser, project2, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
 
     deactivate(user.getLogin());
 

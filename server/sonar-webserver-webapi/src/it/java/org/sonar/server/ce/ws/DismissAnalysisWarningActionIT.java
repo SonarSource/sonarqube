@@ -29,7 +29,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskMessageDto;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
@@ -46,8 +46,8 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.Assert.assertThrows;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 
@@ -80,7 +80,9 @@ public class DismissAnalysisWarningActionIT {
       .setParam("component", "6653f062-7c03-4b55-bcd2-0dac67640c4d")
       .setParam("warning", "55c40b35-4145-4b78-bdf2-dfb242c25f15");
 
-    assertThrows("Authentication is required", UnauthorizedException.class, request::execute);
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Authentication is required");
   }
 
   @Test
@@ -93,7 +95,9 @@ public class DismissAnalysisWarningActionIT {
       .setParam("component", project.getKee())
       .setParam("warning", "55c40b35-4145-4b78-bdf2-dfb242c25f15");
 
-    assertThrows("Insufficient privileges", ForbiddenException.class, request::execute);
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -103,7 +107,7 @@ public class DismissAnalysisWarningActionIT {
     userSession.logIn(user).addProjectPermission(UserRole.USER, project.getProjectDto());
     SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchComponent());
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project.getMainBranchComponent(), SUCCESS, analysis, REPORT);
-    CeTaskMessageDto taskMessageDismissible = createTaskMessage(activity, "dismissable warning", CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    CeTaskMessageDto taskMessageDismissible = createTaskMessage(activity, "dismissable warning", MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
 
     TestResponse response = underTest.newRequest()
       .setParam("component", project.projectKey())
@@ -113,7 +117,7 @@ public class DismissAnalysisWarningActionIT {
     assertThat(response.getStatus()).isEqualTo(204);
     assertThat(db.select("select * from user_dismissed_messages"))
       .extracting("USER_UUID", "PROJECT_UUID", "MESSAGE_TYPE")
-      .containsExactly(tuple(userSession.getUuid(), project.projectUuid(), CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE.name()));
+      .containsExactly(tuple(userSession.getUuid(), project.projectUuid(), MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE.name()));
   }
 
   @Test
@@ -123,7 +127,7 @@ public class DismissAnalysisWarningActionIT {
     userSession.logIn(user).addProjectPermission(UserRole.USER, project.getProjectDto());
     SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchComponent());
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project.getMainBranchComponent(), SUCCESS, analysis, REPORT);
-    CeTaskMessageDto taskMessageDismissible = createTaskMessage(activity, "dismissable warning", CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    CeTaskMessageDto taskMessageDismissible = createTaskMessage(activity, "dismissable warning", MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
 
     underTest.newRequest()
       .setParam("component", project.projectKey())
@@ -137,7 +141,7 @@ public class DismissAnalysisWarningActionIT {
     assertThat(response.getStatus()).isEqualTo(204);
     assertThat(db.select("select * from user_dismissed_messages"))
       .extracting("USER_UUID", "PROJECT_UUID", "MESSAGE_TYPE")
-      .containsExactly(tuple(userSession.getUuid(), project.projectUuid(), CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE.name()));
+      .containsExactly(tuple(userSession.getUuid(), project.projectUuid(), MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE.name()));
   }
 
   @Test
@@ -153,7 +157,9 @@ public class DismissAnalysisWarningActionIT {
       .setParam("component", project.projectKey())
       .setParam("warning", taskMessage.getUuid());
 
-    assertThrows(format("Message '%s' cannot be dismissed.", taskMessage.getUuid()), IllegalArgumentException.class, request::execute);
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("Message '%s' cannot be dismissed.", taskMessage.getUuid()));
     assertThat(db.countRowsOfTable("USER_DISMISSED_MESSAGES")).isZero();
   }
 
@@ -170,15 +176,17 @@ public class DismissAnalysisWarningActionIT {
       .setParam("component", project.projectKey())
       .setParam("warning", warningUuid);
 
-    assertThrows(format("Message '%s' not found", warningUuid), NotFoundException.class, request::execute);
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Message '%s' not found.", warningUuid));
     assertThat(db.countRowsOfTable("USER_DISMISSED_MESSAGES")).isZero();
   }
 
   private CeTaskMessageDto createTaskMessage(CeActivityDto activity, String warning) {
-    return createTaskMessage(activity, warning, CeTaskMessageType.GENERIC);
+    return createTaskMessage(activity, warning, MessageType.GENERIC);
   }
 
-  private CeTaskMessageDto createTaskMessage(CeActivityDto activity, String warning, CeTaskMessageType messageType) {
+  private CeTaskMessageDto createTaskMessage(CeActivityDto activity, String warning, MessageType messageType) {
     CeTaskMessageDto ceTaskMessageDto = new CeTaskMessageDto()
       .setUuid("m-uuid-" + counter++)
       .setTaskUuid(activity.getUuid())

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.dismissmessage.MessageType;
 
 public class CeTaskMessageDao implements Dao {
   public void insert(DbSession dbSession, CeTaskMessageDto dto) {
@@ -41,7 +42,7 @@ public class CeTaskMessageDao implements Dao {
     return getMapper(dbSession).selectNonDismissedByUserAndTask(taskUuid, userUuid);
   }
 
-  public void deleteByType(DbSession session, CeTaskMessageType type) {
+  public void deleteByType(DbSession session, MessageType type) {
     getMapper(session).deleteByType(type.name());
   }
 

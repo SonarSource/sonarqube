@@ -36,7 +36,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskMessageDto;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
@@ -129,7 +129,7 @@ public class TaskActionIT {
           .setUuid("u_" + i)
           .setTaskUuid(queueDto.getUuid())
           .setMessage("m_" + i)
-          .setType(CeTaskMessageType.GENERIC)
+          .setType(MessageType.GENERIC)
           .setCreatedAt(queueDto.getUuid().hashCode() + i)));
     db.commit();
 
@@ -500,8 +500,8 @@ public class TaskActionIT {
     logInAsSystemAdministrator();
 
     CeActivityDto activityDto = persist(createActivityDto("uuid1"));
-    insertMessage(activityDto, 1, CeTaskMessageType.INFO);
-    CeTaskMessageDto warning = insertMessage(activityDto, 2, CeTaskMessageType.GENERIC);
+    insertMessage(activityDto, 1, MessageType.INFO);
+    CeTaskMessageDto warning = insertMessage(activityDto, 2, MessageType.GENERIC);
 
     callEndpointAndAssertWarnings(activityDto, List.of(warning));
   }
@@ -520,15 +520,15 @@ public class TaskActionIT {
   }
 
   private CeTaskMessageDto insertWarning(CeActivityDto task, int i) {
-    return insertMessage(task, i, CeTaskMessageType.GENERIC);
+    return insertMessage(task, i, MessageType.GENERIC);
   }
 
-  private CeTaskMessageDto insertMessage(CeActivityDto task, int i, CeTaskMessageType ceTaskMessageType) {
+  private CeTaskMessageDto insertMessage(CeActivityDto task, int i, MessageType messageType) {
     CeTaskMessageDto res = new CeTaskMessageDto()
       .setUuid(UuidFactoryFast.getInstance().create())
       .setTaskUuid(task.getUuid())
       .setMessage("msg_" + task.getUuid() + "_" + i)
-      .setType(ceTaskMessageType)
+      .setType(messageType)
       .setCreatedAt(task.getUuid().hashCode() + i);
     db.getDbClient().ceTaskMessageDao().insert(db.getSession(), res);
     db.getSession().commit();

@@ -62,7 +62,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeQueueDto.Status;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskMessageDto;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
@@ -910,9 +910,9 @@ public class PurgeDaoIT {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ProjectDto anotherProject = db.components().insertPrivateProject().getProjectDto();
 
-    UserDismissedMessageDto msg1 = db.users().insertUserDismissedMessage(user1, project, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
-    UserDismissedMessageDto msg2 = db.users().insertUserDismissedMessage(user2, project, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
-    UserDismissedMessageDto msg3 = db.users().insertUserDismissedMessage(user1, anotherProject, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    UserDismissedMessageDto msg1 = db.users().insertUserDismissedMessageOnProject(user1, project, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    UserDismissedMessageDto msg2 = db.users().insertUserDismissedMessageOnProject(user2, project, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    UserDismissedMessageDto msg3 = db.users().insertUserDismissedMessageOnProject(user1, anotherProject, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
 
     assertThat(uuidsIn("user_dismissed_messages")).containsOnly(msg1.getUuid(), msg2.getUuid(), msg3.getUuid());
 
@@ -2002,7 +2002,7 @@ public class PurgeDaoIT {
         .setUuid(UuidFactoryFast.getInstance().create())
         .setTaskUuid(uuid)
         .setMessage("key_" + uuid.hashCode() + i)
-        .setType(CeTaskMessageType.GENERIC)
+        .setType(MessageType.GENERIC)
         .setCreatedAt(2_333_444L + i))
       .forEach(dto -> dbClient.ceTaskMessageDao().insert(dbSession, dto));
     dbSession.commit();

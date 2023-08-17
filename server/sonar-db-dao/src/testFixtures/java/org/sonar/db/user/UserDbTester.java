@@ -32,7 +32,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
@@ -489,12 +489,22 @@ public class UserDbTester {
     return dto;
   }
 
-  public final UserDismissedMessageDto insertUserDismissedMessage(UserDto userDto, ProjectDto projectDto, CeTaskMessageType messageType) {
+  public final UserDismissedMessageDto insertUserDismissedMessageOnProject(UserDto userDto, ProjectDto projectDto, MessageType messageType) {
     UserDismissedMessageDto dto = new UserDismissedMessageDto()
       .setUuid(Uuids.create())
       .setUserUuid(userDto.getUuid())
       .setProjectUuid(projectDto.getUuid())
-      .setCeMessageType(messageType);
+      .setMessageType(messageType);
+    db.getDbClient().userDismissedMessagesDao().insert(db.getSession(), dto);
+    db.commit();
+    return dto;
+  }
+
+  public final UserDismissedMessageDto insertUserDismissedMessageOnInstance(UserDto userDto, MessageType messageType) {
+    UserDismissedMessageDto dto = new UserDismissedMessageDto()
+      .setUuid(Uuids.create())
+      .setUserUuid(userDto.getUuid())
+      .setMessageType(messageType);
     db.getDbClient().userDismissedMessagesDao().insert(db.getSession(), dto);
     db.commit();
     return dto;

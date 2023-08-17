@@ -42,7 +42,7 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -702,9 +702,9 @@ public class PurgeCommandsIT {
     UserDto user2 = dbTester.users().insertUser();
     ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
     ProjectDto anotherProject = dbTester.components().insertPrivateProject().getProjectDto();
-    dbTester.users().insertUserDismissedMessage(user1, project, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
-    dbTester.users().insertUserDismissedMessage(user2, project, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
-    dbTester.users().insertUserDismissedMessage(user1, anotherProject, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    dbTester.users().insertUserDismissedMessageOnProject(user1, project, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    dbTester.users().insertUserDismissedMessageOnProject(user2, project, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    dbTester.users().insertUserDismissedMessageOnProject(user1, anotherProject, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
 
     purgeCommands.deleteUserDismissedMessages(project.getUuid());

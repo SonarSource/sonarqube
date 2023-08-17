@@ -20,6 +20,7 @@
 package org.sonar.db.ce;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.sonar.db.dismissmessage.MessageType;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.StringUtils.abbreviate;
@@ -35,18 +36,24 @@ public class CeTaskMessageDto {
    * UUID of the task the message belongs to. Not null
    */
   private String taskUuid;
+
   /**
    * The text of the message. Not null
    */
   private String message;
+
   /**
    * Type of the message
    */
-  private CeTaskMessageType type;
+  private MessageType type;
   /**
    * Timestamp the message was created. Not null
    */
   private long createdAt;
+
+  public CeTaskMessageDto() {
+    //Nothing to do
+  }
 
   public String getUuid() {
     return uuid;
@@ -76,11 +83,11 @@ public class CeTaskMessageDto {
     return this;
   }
 
-  public CeTaskMessageType getType() {
+  public MessageType getType() {
     return type;
   }
 
-  public CeTaskMessageDto setType(CeTaskMessageType type) {
+  public CeTaskMessageDto setType(MessageType type) {
     this.type = type;
     return this;
   }

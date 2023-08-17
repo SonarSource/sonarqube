@@ -85,6 +85,7 @@ import org.sonar.server.component.index.EntityDefinitionIndexer;
 import org.sonar.server.component.ws.ComponentViewerJsonWriter;
 import org.sonar.server.component.ws.ComponentsWsModule;
 import org.sonar.server.developers.ws.DevelopersWsModule;
+import org.sonar.server.dismissmessage.ws.DismissMessageWsModule;
 import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
 import org.sonar.server.duplication.ws.ShowResponseBuilder;
@@ -622,6 +623,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // monitoring
       ServerMonitoringMetrics.class,
+
+      // dismiss message
+      new DismissMessageWsModule(),
 
       AzureMetricsTask.class,
       BitbucketMetricsTask.class,

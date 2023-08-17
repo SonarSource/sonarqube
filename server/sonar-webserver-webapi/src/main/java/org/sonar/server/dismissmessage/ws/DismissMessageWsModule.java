@@ -17,23 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.server.dismissmessage.ws;
 
-import java.util.List;
-import java.util.Optional;
-import org.apache.ibatis.annotations.Param;
+import org.sonar.core.platform.Module;
 
-public interface UserDismissedMessagesMapper {
-  void insert(@Param("dto") UserDismissedMessageDto dto);
-
-  Optional<UserDismissedMessageDto> selectByUserUuidAndProjectUuidAndMessageType(@Param("userUuid") String userUuid, @Param("projectUuid") String projectUuid,
-    @Param("messageType") String messageType);
-
-  Optional<UserDismissedMessageDto> selectByUserUuidAndMessageType(@Param("userUuid") String userUuid, @Param("messageType") String messageType);
-
-  List<UserDismissedMessageDto> selectByUserUuid(@Param("userUuid") String userUuid);
-
-  void deleteByUserUuid(@Param("userUuid") String userUuid);
-
-  void deleteByType(@Param("messageType") String messageType);
+public class DismissMessageWsModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(
+      DismissActionWs.class,
+      DismissAction.class);
+  }
 }

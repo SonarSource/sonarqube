@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 
@@ -44,7 +45,7 @@ public class CeTaskMessageDaoIT {
       .setUuid("uuid_1")
       .setTaskUuid("task_uuid_1")
       .setMessage("message_1")
-      .setType(CeTaskMessageType.GENERIC)
+      .setType(MessageType.GENERIC)
       .setCreatedAt(1_222_333L));
     dbTester.getSession().commit();
 
@@ -52,9 +53,9 @@ public class CeTaskMessageDaoIT {
       dbTester.select("select uuid as \"UUID\", task_uuid as \"TASK_UUID\", message as \"MESSAGE\", message_type as \"TYPE\", " +
         "created_at as \"CREATED_AT\" from ce_task_message"))
           .hasSize(1)
-          .extracting(t -> t.get("UUID"), t -> t.get("TASK_UUID"), t -> t.get("MESSAGE"), t -> CeTaskMessageType.valueOf((String) t.get("TYPE")),
+          .extracting(t -> t.get("UUID"), t -> t.get("TASK_UUID"), t -> t.get("MESSAGE"), t -> MessageType.valueOf((String) t.get("TYPE")),
             t -> t.get("CREATED_AT"))
-          .containsOnly(Tuple.tuple("uuid_1", "task_uuid_1", "message_1", CeTaskMessageType.GENERIC, 1_222_333L));
+          .containsOnly(Tuple.tuple("uuid_1", "task_uuid_1", "message_1", MessageType.GENERIC, 1_222_333L));
   }
 
   @Test
@@ -78,13 +79,13 @@ public class CeTaskMessageDaoIT {
   public void deleteByType_deletes_messages_of_given_type() {
     String task1 = "task1";
     CeTaskMessageDto[] messages = {
-      insertMessage(task1, 0, 1_222_333L, CeTaskMessageType.GENERIC),
-      insertMessage(task1, 1, 2_222_333L, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE),
-      insertMessage(task1, 2, 1_111_333L, CeTaskMessageType.GENERIC),
-      insertMessage(task1, 3, 1_222_111L, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE)
+      insertMessage(task1, 0, 1_222_333L, MessageType.GENERIC),
+      insertMessage(task1, 1, 2_222_333L, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE),
+      insertMessage(task1, 2, 1_111_333L, MessageType.GENERIC),
+      insertMessage(task1, 3, 1_222_111L, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE)
     };
 
-    underTest.deleteByType(dbTester.getSession(), CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    underTest.deleteByType(dbTester.getSession(), MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
 
     assertThat(underTest.selectByUuid(dbTester.getSession(), messages[0].getUuid())).isPresent();
     assertThat(underTest.selectByUuid(dbTester.getSession(), messages[1].getUuid())).isEmpty();
@@ -106,10 +107,10 @@ public class CeTaskMessageDaoIT {
   public void selectNonDismissedByUserAndTask_returns_non_dismissed_messages() {
     UserDto user = dbTester.users().insertUser();
     ProjectDto project = dbTester.components().insertPrivateProject().getProjectDto();
-    dbTester.users().insertUserDismissedMessage(user, project, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    dbTester.users().insertUserDismissedMessageOnProject(user, project, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
     String taskUuid = "17ae66e6-fe83-4c80-b704-4b04e9c5abe8";
     CeTaskMessageDto msg1 = insertMessage(taskUuid, 1, 1_222_333L);
-    insertMessage(taskUuid, 2, 1_222_334L, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    insertMessage(taskUuid, 2, 1_222_334L, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
     CeTaskMessageDto msg3 = insertMessage(taskUuid, 3, 1_222_335L);
     List<CeTaskMessageDto> messages = underTest.selectNonDismissedByUserAndTask(dbTester.getSession(), taskUuid, user.getUuid());
 
@@ -118,10 +119,10 @@ public class CeTaskMessageDaoIT {
   }
 
   private CeTaskMessageDto insertMessage(String taskUuid, int i, long createdAt) {
-    return insertMessage(taskUuid, i, createdAt, CeTaskMessageType.GENERIC);
+    return insertMessage(taskUuid, i, createdAt, MessageType.GENERIC);
   }
 
-  private CeTaskMessageDto insertMessage(String taskUuid, int i, long createdAt, CeTaskMessageType messageType) {
+  private CeTaskMessageDto insertMessage(String taskUuid, int i, long createdAt, MessageType messageType) {
     CeTaskMessageDto res = new CeTaskMessageDto()
       .setUuid("message_" + i)
       .setTaskUuid(taskUuid)

@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 
 /**
  * Clean up messages (like removing upgrade suggestions after an edition upgrade)
@@ -57,8 +57,8 @@ public class UpgradeSuggestionsCleaner implements Startable {
   private void deleteUpgradeMessageDismissals() {
     LOGGER.info("Dismissed messages cleanup");
     try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.userDismissedMessagesDao().deleteByType(dbSession, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
-      dbClient.ceTaskMessageDao().deleteByType(dbSession, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+      dbClient.userDismissedMessagesDao().deleteByType(dbSession, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+      dbClient.ceTaskMessageDao().deleteByType(dbSession, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
       dbSession.commit();
     }
   }

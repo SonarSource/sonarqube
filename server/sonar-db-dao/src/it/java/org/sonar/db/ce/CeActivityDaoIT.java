@@ -47,6 +47,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.project.ProjectDto;
 
 import static java.util.Collections.emptyList;
@@ -153,7 +154,7 @@ public class CeActivityDaoIT {
       .setUuid(UuidFactoryFast.getInstance().create())
       .setTaskUuid(task.getUuid())
       .setMessage("message_" + task.getUuid() + "_" + i)
-      .setType(CeTaskMessageType.GENERIC)
+      .setType(MessageType.GENERIC)
       .setCreatedAt(task.getUuid().hashCode() + i);
   }
 

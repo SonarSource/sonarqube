@@ -36,7 +36,7 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 
 import static java.lang.String.format;
 import static org.sonar.core.language.UnanalyzedLanguages.C;
@@ -124,7 +124,7 @@ public class HandleUnanalyzedLanguagesStep implements ComputationStep {
     }
 
     String message = format(LANGUAGE_UPGRADE_MESSAGE, fileCountLabel, languageLabel, sortedLanguageMap.size() == 1 ? "this file" : "these files");
-    return new CeTaskMessages.Message(message, system.now(), CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    return new CeTaskMessages.Message(message, system.now(), MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
   }
 
   private void computeMeasures(Map<String, Integer> filesPerLanguage) {

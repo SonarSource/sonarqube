@@ -34,7 +34,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskMessageDto;
-import org.sonar.db.ce.CeTaskMessageType;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.user.UserDismissedMessageDto;
 import org.sonar.db.user.UserDto;
 
@@ -83,11 +83,11 @@ public class UpgradeSuggestionsCleanerIT {
   public void start_cleans_up_obsolete_upgrade_suggestions(SonarEdition edition) {
     when(sonarRuntime.getEdition()).thenReturn(edition);
     insertTask(TASK_UUID);
-    insertCeTaskMessage("ctm1", CeTaskMessageType.GENERIC, "msg1");
-    insertCeTaskMessage("ctm2", CeTaskMessageType.GENERIC, "msg2");
-    insertCeTaskMessage("ctm3", CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE, "upgrade-msg-1");
-    insertInUserDismissedMessages("u1", CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
-    insertInUserDismissedMessages("u2", CeTaskMessageType.GENERIC);
+    insertCeTaskMessage("ctm1", MessageType.GENERIC, "msg1");
+    insertCeTaskMessage("ctm2", MessageType.GENERIC, "msg2");
+    insertCeTaskMessage("ctm3", MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE, "upgrade-msg-1");
+    insertInUserDismissedMessages("u1", MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    insertInUserDismissedMessages("u2", MessageType.GENERIC);
 
     underTest.start();
     underTest.stop();
@@ -104,11 +104,11 @@ public class UpgradeSuggestionsCleanerIT {
   public void start_does_nothing_in_community_edition() {
     when(sonarRuntime.getEdition()).thenReturn(SonarEdition.COMMUNITY);
     insertTask(TASK_UUID);
-    insertCeTaskMessage("ctm1", CeTaskMessageType.GENERIC, "msg1");
-    insertCeTaskMessage("ctm2", CeTaskMessageType.GENERIC, "msg2");
-    insertCeTaskMessage("ctm3", CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE, "upgrade-msg-1");
-    insertInUserDismissedMessages("u1", CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
-    insertInUserDismissedMessages("u2", CeTaskMessageType.GENERIC);
+    insertCeTaskMessage("ctm1", MessageType.GENERIC, "msg1");
+    insertCeTaskMessage("ctm2", MessageType.GENERIC, "msg2");
+    insertCeTaskMessage("ctm3", MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE, "upgrade-msg-1");
+    insertInUserDismissedMessages("u1", MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    insertInUserDismissedMessages("u2", MessageType.GENERIC);
 
     underTest.start();
 
@@ -140,7 +140,7 @@ public class UpgradeSuggestionsCleanerIT {
       new CeActivityDto(new CeQueueDto().setUuid(taskUuid).setTaskType("ISSUE_SYNC")).setStatus(CeActivityDto.Status.FAILED));
   }
 
-  private void insertCeTaskMessage(String uuid, CeTaskMessageType messageType, String msg) {
+  private void insertCeTaskMessage(String uuid, MessageType messageType, String msg) {
     CeTaskMessageDto dto = new CeTaskMessageDto()
       .setUuid(uuid)
       .setMessage(msg)
@@ -150,12 +150,12 @@ public class UpgradeSuggestionsCleanerIT {
     dbTester.getSession().commit();
   }
 
-  private void insertInUserDismissedMessages(String uuid, CeTaskMessageType messageType) {
+  private void insertInUserDismissedMessages(String uuid, MessageType messageType) {
     UserDismissedMessageDto dto = new UserDismissedMessageDto()
       .setUuid(uuid)
       .setUserUuid(user.getUuid())
       .setProjectUuid("PROJECT_1")
-      .setCeMessageType(messageType);
+      .setMessageType(messageType);
     dbTester.getDbClient().userDismissedMessagesDao().insert(dbTester.getSession(), dto);
     dbTester.getSession().commit();
   }
