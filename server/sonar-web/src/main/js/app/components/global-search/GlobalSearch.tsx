@@ -411,9 +411,7 @@ export class GlobalSearch extends React.PureComponent<Props, State> {
             placeholder={translate('search.search_for_projects')}
             size="auto"
             value={query}
-            tooShortText={translateWithParameters('select2.tooShort', MIN_SEARCH_QUERY_LENGTH)}
             searchInputAriaLabel={translate('search_verb')}
-            clearIconAriaLabel={translate('clear')}
           />
         </Popup>
       </div>

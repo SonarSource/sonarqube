@@ -72,7 +72,6 @@ export default function TagsSelect(props: Props) {
           <TagsSelector
             allowNewElements={allowCreation}
             createElementLabel={translateWithParameters('issue.create_tag')}
-            clearIconAriaLabel={translate('clear')}
             headerLabel={translate('issue_bulk_change.select_tags')}
             noResultsLabel={translate('no_results')}
             onSelect={onSelect}

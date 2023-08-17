@@ -62,7 +62,6 @@ export default function AddGraphMetricPopup({
 
   return (
     <MultiSelectMenu
-      clearIconAriaLabel={translate('clear_verb')}
       createElementLabel=""
       searchInputAriaLabel={translate('project_activity.graphs.custom.select_metric')}
       allowNewElements={false}

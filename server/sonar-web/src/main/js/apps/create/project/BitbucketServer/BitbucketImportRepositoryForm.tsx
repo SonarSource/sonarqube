@@ -76,7 +76,6 @@ export default function BitbucketImportRepositoryForm(props: BitbucketImportRepo
       <div className="sw-mb-10 sw-w-abs-400">
         <InputSearch
           searchInputAriaLabel={translate('onboarding.create_project.search_repositories_by_name')}
-          clearIconAriaLabel={translate('clear')}
           onChange={props.onSearch}
           placeholder={translate('onboarding.create_project.search_repositories_by_name')}
           size="full"

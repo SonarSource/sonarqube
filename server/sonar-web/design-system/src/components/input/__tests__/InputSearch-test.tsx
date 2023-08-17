@@ -76,13 +76,11 @@ it('should clear input using escape', async () => {
 function setupWithProps(props: Partial<FCProps<typeof InputSearch>> = {}) {
   return renderWithContext(
     <InputSearch
-      clearIconAriaLabel=""
       maxLength={150}
       minLength={2}
       onChange={jest.fn()}
       placeholder="placeholder"
       searchInputAriaLabel=""
-      tooShortText="too short"
       value="foo"
       {...props}
     />

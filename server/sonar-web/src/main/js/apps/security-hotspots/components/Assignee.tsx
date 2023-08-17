@@ -122,7 +122,6 @@ export default function Assignee(props: Props) {
       minLength={minSearchLength}
       isDiscreet
       controlLabel={controlLabel}
-      tooShortText={translateWithParameters('search.tooShort', String(minSearchLength))}
       placeholder={translate('search.search_for_users')}
       aria-label={translate('search.search_for_users')}
     />

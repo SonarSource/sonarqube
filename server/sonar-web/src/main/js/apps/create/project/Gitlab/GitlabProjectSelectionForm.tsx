@@ -77,7 +77,8 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
         onChange={props.onSearch}
         placeholder={translate('onboarding.create_project.search_repositories')}
         value={searchQuery}
-        clearIconAriaLabel={translate('clear')}
+        minLength={3}
+        loading={searching}
       />
 
       {projects.length === 0 ? (

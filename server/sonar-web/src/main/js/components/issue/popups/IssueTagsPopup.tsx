@@ -56,7 +56,6 @@ function IssueTagsPopup({ selectedTags, setTags }: IssueTagsPopupProps) {
     <TagsSelector
       headerLabel={translate('issue.tags')}
       searchInputAriaLabel={translate('search.search_for_tags')}
-      clearIconAriaLabel={translate('clear')}
       createElementLabel={translate('issue.create_tag')}
       noResultsLabel={translate('no_results')}
       onSearch={onSearch}

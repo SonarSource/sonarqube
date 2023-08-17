@@ -28,7 +28,6 @@ import { MultiSelectMenuOption } from './MultiSelectMenuOption';
 interface Props {
   allowNewElements?: boolean;
   allowSelection?: boolean;
-  clearIconAriaLabel: string;
   createElementLabel: string;
   elements: string[];
   footerNode?: React.ReactNode;
@@ -262,7 +261,6 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
       headerNode = '',
       footerNode = '',
       inputId,
-      clearIconAriaLabel,
       noResultsLabel,
       searchInputAriaLabel,
     } = this.props;
@@ -280,7 +278,6 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
           <InputSearch
             autoFocus
             className="sw-mt-1"
-            clearIconAriaLabel={clearIconAriaLabel}
             id={inputId}
             loading={this.state.loading}
             onChange={this.handleSearchChange}

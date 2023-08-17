@@ -20,14 +20,13 @@
 import classNames from 'classnames';
 import { omit } from 'lodash';
 import React, { RefObject } from 'react';
-import { useIntl } from 'react-intl';
 import { GroupBase, InputProps, components } from 'react-select';
 import AsyncSelect, { AsyncProps } from 'react-select/async';
 import Select from 'react-select/dist/declarations/src/Select';
 import { INPUT_SIZES } from '../../helpers';
 import { Key } from '../../helpers/keyboard';
-import { InputSearch } from './InputSearch';
 import { LabelValueSelectOption, SelectProps, selectStyle } from './InputSelect';
+import { SearchSelectControlledInput } from './SearchSelectControlledInput';
 
 type SearchSelectProps<
   V,
@@ -89,10 +88,8 @@ export function SearchSelectInput<
   Group extends GroupBase<Option> = GroupBase<Option>
 >(props: InputProps<Option, IsMulti, Group>) {
   const {
-    selectProps: { clearIconLabel, placeholder, isLoading, inputValue, minLength, tooShortText },
+    selectProps: { placeholder, isLoading, inputValue, minLength },
   } = props;
-
-  const intl = useIntl();
 
   const onChange = (v: string, prevValue = '') => {
     props.selectProps.onInputChange(v, { action: 'input-change', prevInputValue: prevValue });
@@ -108,13 +105,11 @@ export function SearchSelectInput<
   };
 
   return (
-    <InputSearch
-      clearIconAriaLabel={clearIconLabel ?? intl.formatMessage({ id: 'clear' })}
+    <SearchSelectControlledInput
       loading={isLoading && inputValue.length >= (minLength ?? 0)}
       minLength={minLength}
       onChange={onChange}
       size="full"
-      tooShortText={tooShortText}
       value={inputValue}
     >
       <components.Input
@@ -123,6 +118,6 @@ export function SearchSelectInput<
         placeholder={placeholder as string}
         style={{}}
       />
-    </InputSearch>
+    </SearchSelectControlledInput>
   );
 }

@@ -84,7 +84,6 @@ function Wrapper(overrides: Partial<FCProps<typeof Tags>> = {}) {
 
   const overlay = (
     <TagsSelector
-      clearIconAriaLabel="clear"
       createElementLabel="create new tag"
       headerLabel="edit tags"
       noResultsLabel="no results"

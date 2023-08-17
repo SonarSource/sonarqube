@@ -21,7 +21,6 @@ import { MultiSelectMenu } from './input/MultiSelectMenu';
 
 interface Props {
   allowNewElements?: boolean;
-  clearIconAriaLabel: string;
   createElementLabel: string;
   headerLabel: string;
   noResultsLabel: string;
@@ -38,7 +37,6 @@ const LIST_SIZE = 10;
 export function TagsSelector(props: Props) {
   const {
     allowNewElements,
-    clearIconAriaLabel,
     createElementLabel,
     headerLabel,
     noResultsLabel,
@@ -50,7 +48,6 @@ export function TagsSelector(props: Props) {
   return (
     <MultiSelectMenu
       allowNewElements={allowNewElements}
-      clearIconAriaLabel={clearIconAriaLabel}
       createElementLabel={createElementLabel}
       elements={tags}
       headerNode={<div className="sw-mt-4 sw-font-semibold">{headerLabel}</div>}

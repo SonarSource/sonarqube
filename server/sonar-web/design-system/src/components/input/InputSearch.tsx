@@ -22,6 +22,7 @@ import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
 import React, { PropsWithChildren, useEffect, useMemo, useRef, useState } from 'react';
+import { useIntl } from 'react-intl';
 import tw, { theme } from 'twin.macro';
 import { DEBOUNCE_DELAY, INPUT_SIZES } from '../../helpers/constants';
 import { Key } from '../../helpers/keyboard';
@@ -36,7 +37,6 @@ import { SearchIcon } from '../icons/SearchIcon';
 interface Props {
   autoFocus?: boolean;
   className?: string;
-  clearIconAriaLabel: string;
   id?: string;
   innerRef?: React.RefCallback<HTMLInputElement>;
   loading?: boolean;
@@ -50,7 +50,6 @@ interface Props {
   placeholder?: string;
   searchInputAriaLabel?: string;
   size?: InputSizeKeys;
-  tooShortText?: string;
   value?: string;
 }
 
@@ -72,14 +71,20 @@ export function InputSearch({
   maxLength = DEFAULT_MAX_LENGTH,
   size = 'medium',
   value: parentValue,
-  tooShortText,
   searchInputAriaLabel,
-  clearIconAriaLabel,
-  children,
 }: PropsWithChildren<Props>) {
+  const intl = useIntl();
   const input = useRef<null | HTMLElement>(null);
   const [value, setValue] = useState(parentValue ?? '');
-  const debouncedOnChange = useMemo(() => debounce(onChange, DEBOUNCE_DELAY), [onChange]);
+  const [dirty, setDirty] = useState(false);
+  const debouncedOnChange = useMemo(
+    () =>
+      debounce((val: string) => {
+        onChange(val);
+        setDirty(false);
+      }, DEBOUNCE_DELAY),
+    [onChange]
+  );
 
   const tooShort = isDefined(minLength) && value.length > 0 && value.length < minLength;
   const inputClassName = classNames('js-input-search', {
@@ -87,13 +92,8 @@ export function InputSearch({
     'sw-pr-10': value.length > 0,
   });
 
-  /*
-   * ParentValue is useful as an initial value for a page load
-   * And when the parent component wants to empty the search (facet search)
-   * After that the input value is controlled by this component
-   */
   useEffect(() => {
-    if (parentValue === '' || (parentValue !== undefined && value === '')) {
+    if (parentValue !== undefined && !dirty) {
       setValue(parentValue);
     }
   }, [parentValue]); // eslint-disable-line
@@ -113,6 +113,7 @@ export function InputSearch({
   const handleInputChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
     const eventValue = event.currentTarget.value;
     setValue(eventValue);
+    setDirty(true);
     changeValue(eventValue);
   };
 
@@ -140,42 +141,44 @@ export function InputSearch({
       id={id}
       onMouseDown={onMouseDown}
       style={{ '--inputSize': INPUT_SIZES[size] }}
-      title={tooShort && tooShortText && isDefined(minLength) ? tooShortText : ''}
+      title={
+        tooShort && isDefined(minLength)
+          ? intl.formatMessage({ id: 'select2.tooShort' }, { 0: minLength })
+          : ''
+      }
     >
       <StyledInputWrapper className="sw-flex sw-items-center">
-        {children ?? (
-          <input
-            aria-label={searchInputAriaLabel ?? placeholder}
-            autoComplete="off"
-            className={inputClassName}
-            maxLength={maxLength}
-            onBlur={onBlur}
-            onChange={handleInputChange}
-            onFocus={onFocus}
-            onKeyDown={handleInputKeyDown}
-            placeholder={placeholder}
-            ref={ref}
-            role="searchbox"
-            type="search"
-            value={value}
-          />
-        )}
+        <input
+          aria-label={searchInputAriaLabel ?? placeholder}
+          autoComplete="off"
+          className={inputClassName}
+          maxLength={maxLength}
+          onBlur={onBlur}
+          onChange={handleInputChange}
+          onFocus={onFocus}
+          onKeyDown={handleInputKeyDown}
+          placeholder={placeholder}
+          ref={ref}
+          role="searchbox"
+          type="search"
+          value={value}
+        />
         <Spinner className="sw-z-normal" loading={loading ?? false}>
           <StyledSearchIcon />
         </Spinner>
         {value && (
           <StyledInteractiveIcon
             Icon={CloseIcon}
-            aria-label={clearIconAriaLabel}
+            aria-label={intl.formatMessage({ id: 'clear' })}
             className="it__search-box-clear"
             onClick={handleClearClick}
             size="small"
           />
         )}
 
-        {tooShort && tooShortText && isDefined(minLength) && (
+        {tooShort && isDefined(minLength) && (
           <StyledNote className="sw-ml-1" role="note">
-            {tooShortText}
+            {intl.formatMessage({ id: 'select2.tooShort' }, { 0: minLength })}
           </StyledNote>
         )}
       </StyledInputWrapper>
@@ -237,7 +240,7 @@ export const StyledInputWrapper = styled.div`
   }
 `;
 
-const StyledSearchIcon = styled(SearchIcon)`
+export const StyledSearchIcon = styled(SearchIcon)`
   color: ${themeColor('inputBorder')};
   top: calc((${theme('height.control')} - ${theme('spacing.4')}) / 2);
 
@@ -251,7 +254,7 @@ export const StyledInteractiveIcon = styled(InteractiveIcon)`
   ${tw`sw-right-2`}
 `;
 
-const StyledNote = styled.span`
+export const StyledNote = styled.span`
   color: ${themeColor('inputPlaceholder')};
   top: calc(1px + ${theme('inset.2')});
 

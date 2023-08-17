@@ -80,7 +80,6 @@ function renderRepositoryList(props: GitHubProjectCreateRendererProps) {
             onChange={props.onSearch}
             placeholder={translate('onboarding.create_project.search_repositories')}
             value={searchQuery}
-            clearIconAriaLabel={translate('clear')}
           />
         </div>
 

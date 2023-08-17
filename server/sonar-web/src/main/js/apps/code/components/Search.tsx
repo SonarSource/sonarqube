@@ -167,7 +167,6 @@ class Search extends React.PureComponent<Props, State> {
           </div>
         )}
         <InputSearch
-          clearIconAriaLabel={translate('clear')}
           searchInputAriaLabel={searchPlaceholder}
           minLength={3}
           onChange={this.handleQueryChange}

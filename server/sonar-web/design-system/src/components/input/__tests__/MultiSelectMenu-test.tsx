@@ -97,7 +97,6 @@ it('should show no results', () => {
 function renderMultiselect(props: Partial<MultiSelectMenu['props']> = {}) {
   return renderWithContext(
     <MultiSelectMenu
-      clearIconAriaLabel="clear"
       createElementLabel="create thing"
       elements={[]}
       filterSelected={jest.fn()}

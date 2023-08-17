@@ -36,13 +36,11 @@ exports[`should display all selected items 1`] = `
     <InputSearch
       autoFocus={false}
       className="it__search-box-input sw-mb-4 sw-w-full"
-      clearIconAriaLabel="clear"
       minLength={2}
       onChange={[Function]}
       placeholder="search for foo..."
       searchInputAriaLabel="search_verb"
       size="auto"
-      tooShortText="select2.tooShort.2"
       value=""
     />
     <FacetItemsList
@@ -121,13 +119,11 @@ exports[`should render 1`] = `
     <InputSearch
       autoFocus={false}
       className="it__search-box-input sw-mb-4 sw-w-full"
-      clearIconAriaLabel="clear"
       minLength={2}
       onChange={[Function]}
       placeholder="search for foo..."
       searchInputAriaLabel="search_verb"
       size="auto"
-      tooShortText="select2.tooShort.2"
       value=""
     />
     <FacetItemsList
@@ -197,13 +193,11 @@ exports[`should search 1`] = `
     <InputSearch
       autoFocus={false}
       className="it__search-box-input sw-mb-4 sw-w-full"
-      clearIconAriaLabel="clear"
       minLength={2}
       onChange={[Function]}
       placeholder="search for foo..."
       searchInputAriaLabel="search_verb"
       size="auto"
-      tooShortText="select2.tooShort.2"
       value="query"
     />
     <FacetItemsList
@@ -266,13 +260,11 @@ exports[`should search 2`] = `
     <InputSearch
       autoFocus={false}
       className="it__search-box-input sw-mb-4 sw-w-full"
-      clearIconAriaLabel="clear"
       minLength={2}
       onChange={[Function]}
       placeholder="search for foo..."
       searchInputAriaLabel="search_verb"
       size="auto"
-      tooShortText="select2.tooShort.2"
       value="query"
     />
     <FacetItemsList
@@ -345,13 +337,11 @@ exports[`should search 3`] = `
     <InputSearch
       autoFocus={false}
       className="it__search-box-input sw-mb-4 sw-w-full"
-      clearIconAriaLabel="clear"
       minLength={2}
       onChange={[Function]}
       placeholder="search for foo..."
       searchInputAriaLabel="search_verb"
       size="auto"
-      tooShortText="select2.tooShort.2"
       value=""
     />
     <FacetItemsList
@@ -421,13 +411,11 @@ exports[`should search 4`] = `
     <InputSearch
       autoFocus={false}
       className="it__search-box-input sw-mb-4 sw-w-full"
-      clearIconAriaLabel="clear"
       minLength={2}
       onChange={[Function]}
       placeholder="search for foo..."
       searchInputAriaLabel="search_verb"
       size="auto"
-      tooShortText="select2.tooShort.2"
       value="blabla"
     />
     <div
@@ -463,13 +451,11 @@ exports[`should search 5`] = `
     <InputSearch
       autoFocus={false}
       className="it__search-box-input sw-mb-4 sw-w-full"
-      clearIconAriaLabel="clear"
       minLength={2}
       onChange={[Function]}
       placeholder="search for foo..."
       searchInputAriaLabel="search_verb"
       size="auto"
-      tooShortText="select2.tooShort.2"
       value="blabla"
     />
     <div

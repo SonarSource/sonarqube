@@ -76,7 +76,6 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
     <div>
       <div className="sw-flex sw-items-center sw-mb-6 sw-w-abs-400">
         <InputSearch
-          clearIconAriaLabel={translate('clear')}
           loading={searching}
           minLength={3}
           onChange={props.onSearch}

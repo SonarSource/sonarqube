@@ -21,7 +21,7 @@ import { InputSearch, LightLabel, LightPrimary } from 'design-system';
 import * as React from 'react';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import Tooltip from '../../../components/controls/Tooltip';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import ApplicationCreation from './ApplicationCreation';
@@ -66,9 +66,7 @@ export default function PageHeader(props: Props) {
               size="auto"
               placeholder={translate('search.search_for_projects')}
               value={query.search ?? ''}
-              tooShortText={translateWithParameters('select2.tooShort', MIN_SEARCH_QUERY_LENGTH)}
               searchInputAriaLabel={translate('search_verb')}
-              clearIconAriaLabel={translate('clear')}
             />
           </Tooltip>
           <PerspectiveSelect onChange={props.onPerspectiveChange} view={view} />

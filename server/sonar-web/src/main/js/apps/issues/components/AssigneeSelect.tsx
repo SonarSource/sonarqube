@@ -100,7 +100,6 @@ export default function AssigneeSelect(props: AssigneeSelectProps) {
           ? translateWithParameters('select2.tooShort', MIN_QUERY_LENGTH)
           : translate('select2.noMatches')
       }
-      tooShortText={translateWithParameters('search.tooShort', MIN_QUERY_LENGTH)}
       placeholder={translate('search.search_for_users')}
       controlLabel={controlLabel}
       controlAriaLabel={translate('issue_bulk_change.assignee.change')}

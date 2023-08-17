@@ -150,7 +150,6 @@ export default function IssueAssignee(props: Props) {
         onMenuClose={handleClose}
         isDiscreet
         controlLabel={controlLabel}
-        tooShortText={translateWithParameters('search.tooShort', String(minSearchLength))}
         placeholder={translate('search.search_for_users')}
         aria-label={translate('search.search_for_users')}
         zLevel={PopupZLevel.Absolute}

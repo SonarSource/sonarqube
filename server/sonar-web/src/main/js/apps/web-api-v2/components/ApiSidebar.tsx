@@ -79,7 +79,6 @@ export default function ApiSidebar({ apisList, docInfo }: Props) {
         className="sw-w-full"
         placeholder={translate('api_documentation.v2.search')}
         onChange={setSearch}
-        clearIconAriaLabel={translate('clear')}
         value={search}
       />
 

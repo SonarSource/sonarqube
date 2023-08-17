@@ -119,7 +119,6 @@ function MetaTagsSelector({ selectedTags, setProjectTags }: MetaTagsSelectorProp
     <TagsSelector
       headerLabel={translate('tags')}
       searchInputAriaLabel={translate('search.search_for_tags')}
-      clearIconAriaLabel={translate('clear')}
       createElementLabel={translate('issue.create_tag')}
       noResultsLabel={translate('no_results')}
       onSearch={onSearch}

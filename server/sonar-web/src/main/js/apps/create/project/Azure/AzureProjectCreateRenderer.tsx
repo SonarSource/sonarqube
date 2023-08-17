@@ -136,7 +136,6 @@ export default function AzureProjectCreateRenderer(props: AzureProjectCreateRend
           <>
             <div className="sw-mb-10 sw-w-abs-400">
               <InputSearch
-                clearIconAriaLabel={translate('clear')}
                 onChange={props.onSearch}
                 placeholder={translate('onboarding.create_project.search_projects_repositories')}
                 size="full"

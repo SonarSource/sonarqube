@@ -380,9 +380,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
         size="auto"
         value={this.state.query}
         searchInputAriaLabel={translate('search_verb')}
-        clearIconAriaLabel={translate('clear')}
         minLength={minSearchLength}
-        tooShortText={translateWithParameters('select2.tooShort', minSearchLength)}
       />
     );
   }

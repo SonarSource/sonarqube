@@ -172,7 +172,6 @@ export class Menu extends React.PureComponent<Props, State> {
           size="auto"
           value={query}
           searchInputAriaLabel={translate('search_verb')}
-          clearIconAriaLabel={translate('clear')}
         />
         <MenuItemList
           branchLikeTree={branchLikesToDisplayTree}
