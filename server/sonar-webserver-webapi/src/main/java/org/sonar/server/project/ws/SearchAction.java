@@ -241,10 +241,8 @@ public class SearchAction implements ProjectsWsAction {
       .setName(dto.name())
       .setQualifier(dto.qualifier())
       .setVisibility(dto.isPrivate() ? PRIVATE.getLabel() : PUBLIC.getLabel());
-    if (snapshot != null) {
-      ofNullable(lastAnalysisDate).ifPresent(d -> builder.setLastAnalysisDate(formatDateTime(d)));
-      ofNullable(snapshot.getRevision()).ifPresent(builder::setRevision);
-    }
+    ofNullable(snapshot).map(SnapshotDto::getRevision).ifPresent(builder::setRevision);
+    ofNullable(lastAnalysisDate).ifPresent(d -> builder.setLastAnalysisDate(formatDateTime(d)));
     ofNullable(isManaged).ifPresent(builder::setManaged);
 
     return builder.build();

@@ -36,6 +36,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.management.ManagedProjectService;
@@ -90,7 +91,7 @@ public class SearchActionIT {
   private final WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession, managedProjectService));
 
   @Test
-  public void search_by_key_query_with_partial_match_case_insensitive() {
+  public void handle_whenSearchingByKeyQueryWithPartialMatchCaseInsensitive() {
     userSession.addPermission(ADMINISTER);
     db.components().insertPrivateProject(p -> p.setKey("project-_%-key")).getMainBranchComponent();
     db.components().insertPrivateProject(p -> p.setKey("PROJECT-_%-KEY")).getMainBranchComponent();
@@ -102,7 +103,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_private_projects() {
+  public void handle_whenSearchingPrivateProjects() {
     userSession.addPermission(ADMINISTER);
     db.components().insertPrivateProject(p -> p.setKey("private-key")).getMainBranchComponent();
     db.components().insertPublicProject(p -> p.setKey("public-key")).getMainBranchComponent();
@@ -113,7 +114,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_public_projects() {
+  public void handle_whenSearchingPublicProjects() {
     userSession.addPermission(ADMINISTER);
     db.components().insertPrivateProject(p -> p.setKey("private-key")).getMainBranchComponent();
     db.components().insertPublicProject(p -> p.setKey("public-key")).getMainBranchComponent();
@@ -124,7 +125,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_projects_when_no_qualifier_set() {
+  public void handle_whenSearchingProjectsWithNoQualifierSet() {
     userSession.addPermission(ADMINISTER);
     db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1)).getMainBranchComponent();
     db.components().insertPublicPortfolio();
@@ -135,7 +136,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_projects() {
+  public void handle_whenSearchingProjects() {
     userSession.addPermission(ADMINISTER);
     ProjectData project = db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
     db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_2));
@@ -151,7 +152,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_views() {
+  public void handle_whenSearchingViews() {
     userSession.addPermission(ADMINISTER);
     db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
     db.components().insertPublicPortfolio(p -> p.setKey("view1"));
@@ -162,7 +163,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_projects_and_views() {
+  public void handle_whenSearchingProjectsAndViews() {
     userSession.addPermission(ADMINISTER);
     db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
     db.components().insertPublicPortfolio(p -> p.setKey("view1"));
@@ -173,7 +174,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_all() {
+  public void handle_whenSearchingAll() {
     userSession.addPermission(ADMINISTER);
     db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_1));
     db.components().insertPrivateProject(p -> p.setKey(PROJECT_KEY_2));
@@ -184,7 +185,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_for_old_projects() {
+  public void handle_whenSearchingOldProjects() {
     userSession.addPermission(ADMINISTER);
     long aLongTimeAgo = 1_000_000_000L;
     long inBetween = 2_000_000_000L;
@@ -212,7 +213,47 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_return_manage_status() {
+  public void handle_whenMainBranchAnalyzed_shouldReturnLatestAnalysisDateForAllBranchesAndRevision() {
+    userSession.addPermission(ADMINISTER);
+    ProjectData project = db.components().insertPublicProject();
+    SnapshotDto snapshotProject = db.components().insertSnapshot(project, s -> s.setLast(true).setCreatedAt(1_000_000L));
+    BranchDto branch = db.components().insertProjectBranch(project.getProjectDto());
+
+    // Make sure branch analysis is later
+    SnapshotDto snapshotBranch = db.components().insertSnapshot(branch, s -> s.setLast(true).setCreatedAt(2_000_000L));
+
+    SearchWsResponse response = call(SearchRequest.builder().build());
+    assertThat(response.getComponentsList()).extracting(Component::getKey, Component::getLastAnalysisDate, Component::getRevision)
+      .containsExactlyInAnyOrder(
+        tuple(project.projectKey(), formatDateTime(snapshotBranch.getCreatedAt()), snapshotProject.getRevision())
+      );
+  }
+
+  @Test
+  public void handle_whenMainBranchUnanalyzed_shouldStillReturnLatestBranchAnalysisDateAndEmptyRevision() {
+    userSession.addPermission(ADMINISTER);
+    ProjectData project = db.components().insertPublicProject();
+    BranchDto branch = db.components().insertProjectBranch(project.getProjectDto());
+    SnapshotDto snapshot = db.components().insertSnapshot(branch, s -> s.setLast(true));
+
+    SearchWsResponse response = call(SearchRequest.builder().build());
+    assertThat(response.getComponentsList()).extracting(Component::getKey, Component::getLastAnalysisDate, Component::getRevision)
+      .containsOnly(tuple(project.projectKey(), formatDateTime(snapshot.getAnalysisDate()), ""));
+  }
+
+  @Test
+  public void handle_whenAllBranchesUnanalyzed_shouldNotReturnAnalysisDate() {
+    userSession.addPermission(ADMINISTER);
+    ProjectData oldProject = db.components().insertPublicProject();
+    db.components().insertProjectBranch(oldProject.getProjectDto());
+
+    SearchWsResponse response = call(SearchRequest.builder().build());
+    assertThat(response.getComponentsList()).extracting(Component::getKey, Component::getLastAnalysisDate, Component::getRevision)
+      .containsOnly(tuple(oldProject.projectKey(), "", ""));
+  }
+
+  @Test
+  public void handle_whenSearching_shouldReturnManagedStatus() {
     userSession.addPermission(ADMINISTER);
     ProjectData managedProject = db.components().insertPrivateProject();
     ProjectData notManagedProject = db.components().insertPrivateProject();
@@ -237,7 +278,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void does_not_return_branches_when_searching_by_key() {
+  public void handle_whenSearchingByKey_shouldNotReturnBranches() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     db.components().insertProjectBranch(project);
     userSession.addPermission(ADMINISTER);
@@ -248,7 +289,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void result_is_paginated() {
+  public void handle_whenSearching_shouldBePaginated() {
     userSession.addPermission(ADMINISTER);
     for (int i = 1; i <= 9; i++) {
       int j = i;
@@ -260,7 +301,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void provisioned_projects() {
+  public void handle_whenSearchingProvisionedProjects() {
     userSession.addPermission(ADMINISTER);
     ProjectDto provisionedProject = db.components().insertPrivateProject().getProjectDto();
     ProjectData analyzedProject = db.components().insertPrivateProject();
@@ -274,7 +315,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_by_component_keys() {
+  public void handle_whenSearchingByComponentKeys() {
     userSession.addPermission(ADMINISTER);
     ProjectDto jdk = db.components().insertPrivateProject().getProjectDto();
     ProjectDto sonarqube = db.components().insertPrivateProject().getProjectDto();
@@ -290,7 +331,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void request_throws_IAE_if_more_than_1000_projects() {
+  public void handle_whenSearchingMoreThanThousandProjects_shouldFail() {
     SearchRequest request = SearchRequest.builder()
       .setProjects(Collections.nCopies(1_001, "foo"))
       .build();
@@ -300,7 +341,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void fail_when_not_system_admin() {
+  public void handle_whenSearchingWithoutAdminPermission_shouldFail() {
     userSession.addPermission(ADMINISTER_QUALITY_PROFILES);
 
     SearchRequest request = SearchRequest.builder().build();
@@ -309,7 +350,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void fail_on_invalid_qualifier() {
+  public void handle_whenSearchingWithInvalidQualifier() {
     userSession.addPermission(ADMINISTER_QUALITY_PROFILES);
 
     SearchRequest request = SearchRequest.builder().setQualifiers(singletonList("BRC")).build();
