@@ -72,6 +72,7 @@ import org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -406,6 +407,69 @@ public class ListActionIT {
     assertThat(result.getProjectKey()).isEqualTo(project.getKey());
     assertThat(result.getBranchKey()).isEqualTo("PROJECT_BRANCH");
     assertThat(result.getEffectiveValue()).isEqualTo(DateUtils.formatDateTime(analysis.getCreatedAt()));
+  }
+
+  @Test
+  public void list_branch_with_its_own_previous_non_compliant_value() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branchWithOwnSettings = db.components().insertProjectBranch(project, branchDto -> branchDto.setKey("OWN_SETTINGS"));
+
+    var ncd = tester.insert(new NewCodePeriodDto()
+      .setProjectUuid(project.getUuid())
+      .setBranchUuid(branchWithOwnSettings.getUuid())
+      .setType(NewCodePeriodType.NUMBER_OF_DAYS)
+      .setValue("90")
+      .setPreviousNonCompliantValue("120"));
+
+    var updatedAt = ncd.getUpdatedAt();
+
+    userSession.registerProjects(project);
+
+    ListWSResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(ListWSResponse.class);
+
+    assertThat(response).isNotNull();
+    assertThat(response.getNewCodePeriodsCount()).isEqualTo(2); // main branch + OWN_SETTINGS branch
+    assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getBranchKey)
+      .contains(DEFAULT_MAIN_BRANCH_NAME, "OWN_SETTINGS");
+
+    assertThat(response.getNewCodePeriodsList())
+      .filteredOn(resp -> !resp.getInherited())
+      .hasSize(1)
+      .extracting(ShowWSResponse::getType, ShowWSResponse::getValue, ShowWSResponse::getPreviousNonCompliantValue, ShowWSResponse::getUpdatedAt)
+      .containsOnly(tuple(NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "90", "120", updatedAt));
+  }
+
+  @Test
+  public void list_branch_with_inherited_previous_non_compliant_value() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    db.components().insertProjectBranch(project, branchDto -> branchDto.setKey("PROJECT_SETTINGS"));
+
+    tester.insert(new NewCodePeriodDto()
+      .setProjectUuid(project.getUuid())
+      .setType(NewCodePeriodType.NUMBER_OF_DAYS)
+      .setValue("90")
+      .setPreviousNonCompliantValue("100"));
+
+    userSession.registerProjects(project);
+
+    ListWSResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(ListWSResponse.class);
+
+    assertThat(response).isNotNull();
+    assertThat(response.getNewCodePeriodsCount()).isEqualTo(2); // main branch + PROJECT_SETTINGS branch
+    assertThat(response.getNewCodePeriodsList()).extracting(ShowWSResponse::getBranchKey)
+      .contains(DEFAULT_MAIN_BRANCH_NAME, "PROJECT_SETTINGS");
+
+    assertThat(response.getNewCodePeriodsList())
+      .hasSize(2)
+      .extracting(ShowWSResponse::getType, ShowWSResponse::getValue, ShowWSResponse::getPreviousNonCompliantValue)
+      .containsExactlyInAnyOrder(
+        tuple(NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "90", ""),
+        tuple(NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "90", "")
+      );
   }
 
   private void createBranches(ProjectDto project, int numberOfBranches, BranchType branchType) {
