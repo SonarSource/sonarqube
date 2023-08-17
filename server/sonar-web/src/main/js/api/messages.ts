@@ -17,31 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { throwGlobalError } from '../helpers/error';
+import { getJSON, postJSON } from '../helpers/request';
 
-export enum NewCodeDefinitionType {
-  PreviousVersion = 'PREVIOUS_VERSION',
-  NumberOfDays = 'NUMBER_OF_DAYS',
-  SpecificAnalysis = 'SPECIFIC_ANALYSIS',
-  ReferenceBranch = 'REFERENCE_BRANCH',
-  Inherited = 'INHERITED',
+export enum MessageTypes {
+  GlobalNcd90 = 'global_ncd_90',
+  ProjectNcd90 = 'project_ncd_90',
+  BranchNcd90 = 'branch_ncd_90',
 }
 
-export interface NewCodeDefinition {
-  type: NewCodeDefinitionType;
-  value?: string;
-  effectiveValue?: string;
-  inherited?: boolean;
-  previousNonCompliantValue?: string;
-  updatedAt?: number;
+export interface MessageDismissParams {
+  messageType: MessageTypes;
+  projectKey?: string;
 }
 
-export interface NewCodeDefinitiondWithCompliance {
-  type?: NewCodeDefinitionType;
-  value?: string;
-  isCompliant: boolean;
+export function checkMessageDismissed(data: MessageDismissParams): Promise<{
+  dismissed: boolean;
+}> {
+  return getJSON('/api/dismiss_message/check', data).catch(throwGlobalError);
 }
 
-export interface NewCodeDefinitionBranch extends NewCodeDefinition {
-  projectKey: string;
-  branchKey: string;
+export function setMessageDismissed(data: MessageDismissParams): Promise<void> {
+  return postJSON('api/dismiss_message/dismiss', data).catch(throwGlobalError);
 }

@@ -2,6 +2,7 @@
 
 exports[`should render correctly: default 1`] = `
 <Fragment>
+  <withCurrentUserContext(GlobalNCDAutoUpdateMessage) />
   <withRouter(withAppStateContext(PageTracker)) />
   <Outlet />
   <KeyboardShortcutsModal />
@@ -10,6 +11,7 @@ exports[`should render correctly: default 1`] = `
 
 exports[`should render correctly: with gravatar 1`] = `
 <Fragment>
+  <withCurrentUserContext(GlobalNCDAutoUpdateMessage) />
   <withRouter(withAppStateContext(PageTracker))>
     <link
       href="http://example.com"
