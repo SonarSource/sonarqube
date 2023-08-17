@@ -72,7 +72,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
       .setDescription("Get code snippets involved in an issue or hotspot. Requires 'See Source Code permission' permission on the project<br/>")
       .setSince("7.8")
       .setInternal(true)
-      .setResponseExample(getResource(getClass(), "example-show.json"))
+      .setResponseExample(getResource(getClass(), "example-issue-snippets.json"))
       .setHandler(this);
 
     action
