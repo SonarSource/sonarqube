@@ -20,6 +20,7 @@
 import { TopBar } from 'design-system';
 import * as React from 'react';
 import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
+import NCDAutoUpdateMessage from '../../../../components/new-code-definition/NCDAutoUpdateMessage';
 import { translate } from '../../../../helpers/l10n';
 import {
   ProjectAlmBindingConfigurationErrors,
@@ -87,6 +88,7 @@ export default function ComponentNav(props: ComponentNavProps) {
             </div>
             <Menu component={component} isInProgress={isInProgress} isPending={isPending} />
           </TopBar>
+          <NCDAutoUpdateMessage component={component} />
           {prDecoNotifComponent}
         </>
       )}

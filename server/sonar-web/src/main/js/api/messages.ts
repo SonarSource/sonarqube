@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { throwGlobalError } from '../helpers/error';
-import { getJSON, postJSON } from '../helpers/request';
+import { getJSON, post } from '../helpers/request';
 
 export enum MessageTypes {
   GlobalNcd90 = 'GLOBAL_NCD_90',
@@ -39,5 +39,5 @@ export function checkMessageDismissed(data: MessageDismissParams): Promise<{
 }
 
 export function setMessageDismissed(data: MessageDismissParams): Promise<void> {
-  return postJSON('api/dismiss_message/dismiss', data).catch(throwGlobalError);
+  return post('/api/dismiss_message/dismiss', data).catch(throwGlobalError);
 }

@@ -27,6 +27,7 @@ export enum NewCodeDefinitionType {
 }
 
 export interface NewCodeDefinition {
+  projectKey?: string;
   type: NewCodeDefinitionType;
   value?: string;
   effectiveValue?: string;
