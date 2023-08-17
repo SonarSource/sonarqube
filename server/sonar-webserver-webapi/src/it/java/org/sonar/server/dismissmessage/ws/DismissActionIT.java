@@ -85,7 +85,6 @@ public class DismissActionIT {
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Invalid message type: invalid");
-
   }
 
   @Test

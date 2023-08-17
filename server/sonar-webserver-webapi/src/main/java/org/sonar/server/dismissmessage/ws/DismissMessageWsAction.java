@@ -19,7 +19,35 @@
  */
 package org.sonar.server.dismissmessage.ws;
 
+import javax.annotation.Nullable;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.server.ws.WsAction;
 
 public interface DismissMessageWsAction extends WsAction {
+  String PARAM_PROJECT_KEY = "projectKey";
+  String PARAM_MESSAGE_TYPE = "messageType";
+
+  static MessageType parseMessageType(String messageType) throws IllegalArgumentException {
+    try {
+      return MessageType.valueOf(messageType);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("Invalid message type: " + messageType);
+    }
+  }
+
+  static void verifyProjectKeyAndMessageType(@Nullable String projectKey, MessageType type) {
+    switch (type) {
+      case GLOBAL_NCD_90, GLOBAL_NCD_PAGE_90 -> {
+        if (projectKey != null) {
+          throw new IllegalArgumentException("The 'projectKey' parameter is not expected for message type: " + type);
+        }
+      }
+      case PROJECT_NCD_90, PROJECT_NCD_PAGE_90, BRANCH_NCD_90 -> {
+        if(projectKey == null) {
+          throw new IllegalArgumentException("The 'projectKey' parameter is missing for message type: " + type);
+        }
+      }
+      default -> throw new IllegalArgumentException("Unexpected message type: " + type);
+    }
+  }
 }

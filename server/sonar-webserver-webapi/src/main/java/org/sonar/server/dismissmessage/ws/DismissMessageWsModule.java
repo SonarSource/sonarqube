@@ -26,6 +26,7 @@ public class DismissMessageWsModule extends Module {
   protected void configureModule() {
     add(
       DismissActionWs.class,
-      DismissAction.class);
+      DismissAction.class,
+      CheckAction.class);
   }
 }
