@@ -45,8 +45,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.api.rules.CleanCodeAttributeCategory;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.tracking.Trackable;

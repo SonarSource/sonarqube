@@ -79,12 +79,20 @@ public class SearchRequestTest {
     assertThat(underTest.getSort()).isEqualTo("CREATION_DATE");
     assertThat(underTest.getAsc()).isTrue();
     assertThat(underTest.getInNewCodePeriod()).isTrue();
-    assertThat(underTest.getOwaspTop10For2021()).containsExactly("a2", "a3");
-    assertThat(underTest.getOwaspAsvs40()).containsExactly("1.1.1", "4.2.2");
-    assertThat(underTest.getOwaspAsvsLevel()).isEqualTo(2);
+    assertOwasp(underTest);
     assertThat(underTest.getPciDss32()).containsExactly("1", "4");
     assertThat(underTest.getPciDss40()).containsExactly("3", "5");
     assertThat(underTest.getCodeVariants()).containsExactly("variant1", "variant2");
+    assertCleanCodeInformation(underTest);
+  }
+
+  private static void assertOwasp(SearchRequest underTest) {
+    assertThat(underTest.getOwaspTop10For2021()).containsExactly("a2", "a3");
+    assertThat(underTest.getOwaspAsvs40()).containsExactly("1.1.1", "4.2.2");
+    assertThat(underTest.getOwaspAsvsLevel()).isEqualTo(2);
+  }
+
+  private static void assertCleanCodeInformation(SearchRequest underTest) {
     assertThat(underTest.getCleanCodeAttributesCategories()).containsExactly("ADAPTABLE");
     assertThat(underTest.getImpactSeverities()).containsExactly("HIGH", "LOW");
     assertThat(underTest.getImpactSoftwareQualities()).containsExactly("RELIABILITY", "SECURITY");

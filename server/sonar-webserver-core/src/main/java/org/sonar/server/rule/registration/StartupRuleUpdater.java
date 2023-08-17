@@ -167,8 +167,9 @@ public class StartupRuleUpdater {
 
   private static boolean mergeCleanCodeAttribute(RulesDefinition.Rule def, RuleDto dto) {
     boolean changed = false;
-    if (!Objects.equals(dto.getCleanCodeAttribute(), def.cleanCodeAttribute()) && (def.cleanCodeAttribute() != null)) {
-      dto.setCleanCodeAttribute(def.cleanCodeAttribute());
+    CleanCodeAttribute defCleanCodeAttribute = def.cleanCodeAttribute();
+    if (!Objects.equals(dto.getCleanCodeAttribute(), defCleanCodeAttribute) && (defCleanCodeAttribute != null)) {
+      dto.setCleanCodeAttribute(defCleanCodeAttribute);
       changed = true;
     }
     // apply non-nullable default
@@ -205,7 +206,7 @@ public class StartupRuleUpdater {
   private static boolean mergeEducationPrinciples(RulesDefinition.Rule ruleDef, RuleDto dto) {
     boolean changed = false;
     if (dto.getEducationPrinciples().size() != ruleDef.educationPrincipleKeys().size() ||
-      !dto.getEducationPrinciples().containsAll(ruleDef.educationPrincipleKeys())) {
+        !dto.getEducationPrinciples().containsAll(ruleDef.educationPrincipleKeys())) {
       dto.setEducationPrinciples(ruleDef.educationPrincipleKeys());
       changed = true;
     }
@@ -219,10 +220,10 @@ public class StartupRuleUpdater {
       dto.setSystemTags(emptySet());
       changed = true;
     } else if (dto.getSystemTags().size() != ruleDef.tags().size() ||
-      !dto.getSystemTags().containsAll(ruleDef.tags())) {
-        dto.setSystemTags(ruleDef.tags());
-        changed = true;
-      }
+               !dto.getSystemTags().containsAll(ruleDef.tags())) {
+      dto.setSystemTags(ruleDef.tags());
+      changed = true;
+    }
     return changed;
   }
 
@@ -233,10 +234,10 @@ public class StartupRuleUpdater {
       dto.setSecurityStandards(emptySet());
       changed = true;
     } else if (dto.getSecurityStandards().size() != ruleDef.securityStandards().size() ||
-      !dto.getSecurityStandards().containsAll(ruleDef.securityStandards())) {
-        dto.setSecurityStandards(ruleDef.securityStandards());
-        changed = true;
-      }
+               !dto.getSecurityStandards().containsAll(ruleDef.securityStandards())) {
+      dto.setSecurityStandards(ruleDef.securityStandards());
+      changed = true;
+    }
     return changed;
   }
 

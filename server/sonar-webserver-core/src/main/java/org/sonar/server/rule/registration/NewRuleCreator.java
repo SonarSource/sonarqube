@@ -65,6 +65,7 @@ public class NewRuleCreator {
   }
 
   RuleDto createRuleWithSimpleFields(RulesDefinition.Rule ruleDef, String uuid, long now) {
+    CleanCodeAttribute cleanCodeAttribute = ruleDef.cleanCodeAttribute();
     RuleDto ruleDto = new RuleDto()
       .setUuid(uuid)
       .setRuleKey(RuleKey.of(ruleDef.repository().key(), ruleDef.key()))
@@ -84,7 +85,7 @@ public class NewRuleCreator {
       .setIsAdHoc(false)
       .setCreatedAt(now)
       .setUpdatedAt(now)
-      .setCleanCodeAttribute(ruleDef.cleanCodeAttribute() != null ? ruleDef.cleanCodeAttribute() : CleanCodeAttribute.defaultCleanCodeAttribute())
+      .setCleanCodeAttribute(cleanCodeAttribute != null ? cleanCodeAttribute : CleanCodeAttribute.defaultCleanCodeAttribute())
       .setEducationPrinciples(ruleDef.educationPrincipleKeys());
 
     if (isNotEmpty(ruleDef.htmlDescription())) {

@@ -141,7 +141,10 @@ public class IssueDoc extends BaseDoc {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN);
   }
 
-  @Deprecated
+  /**
+   * @deprecated since 10.2
+   */
+  @Deprecated(since = "10.2")
   public RuleType type() {
     return RuleType.valueOf(getField(IssueIndexDefinition.FIELD_ISSUE_TYPE));
   }
@@ -203,7 +206,10 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
-  @Deprecated
+  /**
+   * @deprecated since 10.2
+   */
+  @Deprecated(since = "10.2")
   public IssueDoc setSeverity(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, s);
     setField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE, Severity.ALL.indexOf(s));
@@ -280,7 +286,7 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
-  @Deprecated
+  @Deprecated(since = "10.2")
   public IssueDoc setType(RuleType type) {
     setField(IssueIndexDefinition.FIELD_ISSUE_TYPE, type.toString());
     return this;

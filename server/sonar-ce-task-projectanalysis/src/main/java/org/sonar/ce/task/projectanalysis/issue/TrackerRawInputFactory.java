@@ -201,6 +201,16 @@ public class TrackerRawInputFactory {
       return issue;
     }
 
+    private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> convertImpacts(RuleKey ruleKey, List<ScannerReport.Impact> overridenImpactsList) {
+      if (overridenImpactsList.isEmpty()) {
+        return Collections.emptyMap();
+      }
+      Rule rule = ruleRepository.getByKey(ruleKey);
+      return overridenImpactsList.stream()
+        .filter(i -> rule.getDefaultImpacts().containsKey(SoftwareQuality.valueOf(i.getSoftwareQuality())))
+        .collect(Collectors.toMap(i -> SoftwareQuality.valueOf(i.getSoftwareQuality()), i -> org.sonar.api.issue.impact.Severity.valueOf(i.getSeverity())));
+    }
+
     private DbIssues.Flow.Builder convertLocations(ScannerReport.Flow flow) {
       DbIssues.Flow.Builder dbFlowBuilder = DbIssues.Flow.newBuilder();
       for (ScannerReport.IssueLocation location : flow.getLocationList()) {
@@ -212,6 +222,7 @@ public class TrackerRawInputFactory {
       toFlowType(flow.getType()).ifPresent(dbFlowBuilder::setType);
       return dbFlowBuilder;
     }
+
 
     private DefaultIssue toExternalIssue(LineHashSequence lineHashSeq, ScannerReport.ExternalIssue reportExternalIssue, Map<RuleKey, ScannerReport.AdHocRule> adHocRuleMap) {
       DefaultIssue issue = new DefaultIssue();
@@ -362,15 +373,6 @@ public class TrackerRawInputFactory {
 
   }
 
-  private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> convertImpacts(RuleKey ruleKey, List<ScannerReport.Impact> overridenImpactsList) {
-    if (overridenImpactsList.isEmpty()) {
-      return Collections.emptyMap();
-    }
-    Rule rule = ruleRepository.getByKey(ruleKey);
-    return overridenImpactsList.stream()
-      .filter(i -> rule.getDefaultImpacts().containsKey(SoftwareQuality.valueOf(i.getSoftwareQuality())))
-      .collect(Collectors.toMap(i -> SoftwareQuality.valueOf(i.getSoftwareQuality()), i -> org.sonar.api.issue.impact.Severity.valueOf(i.getSeverity())));
-  }
 
   private static DbIssues.MessageFormattings convertMessageFormattings(List<ScannerReport.MessageFormatting> msgFormattings) {
     DbIssues.MessageFormattings.Builder builder = DbIssues.MessageFormattings.newBuilder();

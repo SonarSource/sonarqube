@@ -242,12 +242,18 @@ public final class IndexedIssueDto {
     return this;
   }
 
-  @Deprecated
+  /**
+   * @deprecated since 10.2
+   */
+  @Deprecated(since = "10.2")
   public Integer getIssueType() {
     return issueType;
   }
 
-  @Deprecated
+  /**
+   * @deprecated since 10.2
+   */
+  @Deprecated(since = "10.2")
   public IndexedIssueDto setIssueType(Integer issueType) {
     this.issueType = issueType;
     return this;

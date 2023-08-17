@@ -69,7 +69,7 @@ public class IssueTesting {
       .setStatus(Issue.STATUS_OPEN)
       .setResolution(null)
       .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
-      //TODO map to correct impact
+      //TODO map to correct impact. Will be fixed with persistence of impacts on issues
       .addImpact(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
       .setEffort((long) RandomUtils.nextInt(10))
       .setAssigneeUuid("assignee-uuid_" + randomAlphabetic(26))
