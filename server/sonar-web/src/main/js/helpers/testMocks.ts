@@ -714,8 +714,6 @@ export function mockRestUser(overrides: Partial<RestUserDetailed> = {}): RestUse
     sonarQubeLastConnectionDate: null,
     sonarLintLastConnectionDate: null,
     scmAccounts: [],
-    tokensCount: 0,
-    groupsCount: 0,
     avatar: 'buzzonthemoon',
     ...overrides,
   };

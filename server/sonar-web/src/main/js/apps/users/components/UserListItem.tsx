@@ -22,7 +22,9 @@ import { ButtonIcon } from '../../../components/controls/buttons';
 import BulletListIcon from '../../../components/icons/BulletListIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import LegacyAvatar from '../../../components/ui/LegacyAvatar';
+import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useUserGroupsCountQuery, useUserTokensQuery } from '../../../queries/users';
 import { IdentityProvider } from '../../../types/types';
 import { RestUserDetailed } from '../../../types/users';
 import GroupsForm from './GroupsForm';
@@ -42,8 +44,6 @@ export default function UserListItem(props: UserListItemProps) {
   const {
     name,
     login,
-    groupsCount,
-    tokensCount,
     avatar,
     sonarQubeLastConnectionDate,
     sonarLintLastConnectionDate,
@@ -52,6 +52,8 @@ export default function UserListItem(props: UserListItemProps) {
 
   const [openTokenForm, setOpenTokenForm] = React.useState(false);
   const [openGroupForm, setOpenGroupForm] = React.useState(false);
+  const { data: tokens, isLoading: tokensAreLoading } = useUserTokensQuery(login);
+  const { data: groupsCount, isLoading: groupsAreLoading } = useUserGroupsCountQuery(login);
 
   return (
     <tr>
@@ -75,28 +77,32 @@ export default function UserListItem(props: UserListItemProps) {
         <DateFromNow date={sonarLintLastConnectionDate ?? ''} hourPrecision />
       </td>
       <td className="thin nowrap text-middle">
-        {groupsCount}
-        {manageProvider === undefined && (
+        <Spinner loading={groupsAreLoading}>
+          {groupsCount}
+          {manageProvider === undefined && (
+            <ButtonIcon
+              aria-label={translateWithParameters('users.update_users_groups', user.login)}
+              className="js-user-groups spacer-left button-small"
+              onClick={() => setOpenGroupForm(true)}
+              tooltip={translate('users.update_groups')}
+            >
+              <BulletListIcon />
+            </ButtonIcon>
+          )}
+        </Spinner>
+      </td>
+      <td className="thin nowrap text-middle">
+        <Spinner loading={tokensAreLoading}>
+          {tokens?.length}
           <ButtonIcon
-            aria-label={translateWithParameters('users.update_users_groups', user.login)}
-            className="js-user-groups spacer-left button-small"
-            onClick={() => setOpenGroupForm(true)}
-            tooltip={translate('users.update_groups')}
+            className="js-user-tokens spacer-left button-small"
+            onClick={() => setOpenTokenForm(true)}
+            tooltip={translateWithParameters('users.update_tokens')}
+            aria-label={translateWithParameters('users.update_tokens_for_x', name ?? login)}
           >
             <BulletListIcon />
           </ButtonIcon>
-        )}
-      </td>
-      <td className="thin nowrap text-middle">
-        {tokensCount}
-        <ButtonIcon
-          className="js-user-tokens spacer-left button-small"
-          onClick={() => setOpenTokenForm(true)}
-          tooltip={translateWithParameters('users.update_tokens')}
-          aria-label={translateWithParameters('users.update_tokens_for_x', name ?? login)}
-        >
-          <BulletListIcon />
-        </ButtonIcon>
+        </Spinner>
       </td>
 
       <td className="thin nowrap text-right text-middle">

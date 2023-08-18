@@ -20,7 +20,6 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { revokeToken } from '../../../api/user-tokens';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import { Button } from '../../../components/controls/buttons';
 import WarningIcon from '../../../components/icons/WarningIcon';
@@ -28,6 +27,7 @@ import DateFormatter from '../../../components/intl/DateFormatter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useRevokeTokenMutation } from '../../../queries/users';
 import { UserToken } from '../../../types/token';
 
 export type TokenDeleteConfirmation = 'inline' | 'modal';
@@ -35,136 +35,107 @@ export type TokenDeleteConfirmation = 'inline' | 'modal';
 interface Props {
   deleteConfirmation: TokenDeleteConfirmation;
   login: string;
-  onRevokeToken: (token: UserToken) => void;
   token: UserToken;
 }
 
-interface State {
-  loading: boolean;
-  showConfirmation: boolean;
-}
+export default function TokensFormItem(props: Props) {
+  const { token, deleteConfirmation, login } = props;
+  const [showConfirmation, setShowConfirmation] = React.useState(false);
+  const { mutateAsync, isLoading } = useRevokeTokenMutation();
 
-export default class TokensFormItem extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: false, showConfirmation: false };
+  const handleRevoke = () => mutateAsync({ login, name: token.name });
 
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleClick = () => {
-    if (this.state.showConfirmation) {
-      this.handleRevoke().then(() => {
-        if (this.mounted) {
-          this.setState({ showConfirmation: false });
-        }
-      });
+  const handleClick = () => {
+    if (showConfirmation) {
+      handleRevoke()
+        .then(() => setShowConfirmation(false))
+        .catch(() => setShowConfirmation(false));
     } else {
-      this.setState({ showConfirmation: true });
+      setShowConfirmation(true);
     }
   };
 
-  handleRevoke = () => {
-    this.setState({ loading: true });
-    return revokeToken({ login: this.props.login, name: this.props.token.name }).then(
-      () => this.props.onRevokeToken(this.props.token),
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
-  };
-
-  render() {
-    const { deleteConfirmation, token } = this.props;
-    const { loading, showConfirmation } = this.state;
-    return (
-      <tr className={classNames({ 'text-muted-2': token.isExpired })}>
-        <td title={token.name} className="hide-overflow nowrap">
-          {token.name}
-          {token.isExpired && (
-            <div className="spacer-top text-warning">
-              <WarningIcon className="little-spacer-right" />
-              {translate('my_account.tokens.expired')}
-            </div>
-          )}
-        </td>
-        <td title={translate('users.tokens', token.type)} className="hide-overflow thin">
-          {translate('users.tokens', token.type, 'short')}
-        </td>
-        <td title={token.project?.name} className="hide-overflow">
-          {token.project?.name}
-        </td>
-        <td className="thin nowrap">
-          <DateFromNow date={token.lastConnectionDate} hourPrecision />
-        </td>
-        <td className="thin nowrap text-right">
-          <DateFormatter date={token.createdAt} long />
-        </td>
-        <td className={classNames('thin nowrap text-right', { 'text-warning': token.isExpired })}>
-          {token.expirationDate ? <DateFormatter date={token.expirationDate} long /> : '–'}
-        </td>
-        <td className="thin nowrap text-right">
-          {token.isExpired && (
-            <Button
-              className="button-red input-small"
-              disabled={loading}
-              onClick={this.handleRevoke}
-              aria-label={translateWithParameters('users.tokens.remove_label', token.name)}
-            >
-              <Spinner className="little-spacer-right" loading={loading}>
-                {translate('remove')}
-              </Spinner>
-            </Button>
-          )}
-          {!token.isExpired && deleteConfirmation === 'modal' && (
-            <ConfirmButton
-              confirmButtonText={translate('yes')}
-              isDestructive
-              modalBody={
-                <FormattedMessage
-                  defaultMessage={translate('users.tokens.sure_X')}
-                  id="users.tokens.sure_X"
-                  values={{ token: <strong>{token.name}</strong> }}
-                />
-              }
-              modalHeader={translateWithParameters('users.tokens.revoke_label', token.name)}
-              onConfirm={this.handleRevoke}
-            >
-              {({ onClick }) => (
-                <Button
-                  className="button-red input-small"
-                  disabled={loading}
-                  onClick={onClick}
-                  aria-label={translateWithParameters('users.tokens.revoke_label', token.name)}
-                >
-                  {translate('users.tokens.revoke')}
-                </Button>
-              )}
-            </ConfirmButton>
-          )}
-          {!token.isExpired && deleteConfirmation === 'inline' && (
-            <Button
-              className="button-red input-small"
-              disabled={loading}
-              aria-label={
-                showConfirmation
-                  ? translate('users.tokens.sure')
-                  : translateWithParameters('users.tokens.revoke_label', token.name)
-              }
-              onClick={this.handleClick}
-            >
-              <Spinner className="little-spacer-right" loading={loading} />
-              {showConfirmation ? translate('users.tokens.sure') : translate('users.tokens.revoke')}
-            </Button>
-          )}
-        </td>
-      </tr>
-    );
-  }
+  return (
+    <tr className={classNames({ 'text-muted-2': token.isExpired })}>
+      <td title={token.name} className="hide-overflow nowrap">
+        {token.name}
+        {token.isExpired && (
+          <div className="spacer-top text-warning">
+            <WarningIcon className="little-spacer-right" />
+            {translate('my_account.tokens.expired')}
+          </div>
+        )}
+      </td>
+      <td title={translate('users.tokens', token.type)} className="hide-overflow thin">
+        {translate('users.tokens', token.type, 'short')}
+      </td>
+      <td title={token.project?.name} className="hide-overflow">
+        {token.project?.name}
+      </td>
+      <td className="thin nowrap">
+        <DateFromNow date={token.lastConnectionDate} hourPrecision />
+      </td>
+      <td className="thin nowrap text-right">
+        <DateFormatter date={token.createdAt} long />
+      </td>
+      <td className={classNames('thin nowrap text-right', { 'text-warning': token.isExpired })}>
+        {token.expirationDate ? <DateFormatter date={token.expirationDate} long /> : '–'}
+      </td>
+      <td className="thin nowrap text-right">
+        {token.isExpired && (
+          <Button
+            className="button-red input-small"
+            disabled={isLoading}
+            onClick={handleRevoke}
+            aria-label={translateWithParameters('users.tokens.remove_label', token.name)}
+          >
+            <Spinner className="little-spacer-right" loading={isLoading}>
+              {translate('remove')}
+            </Spinner>
+          </Button>
+        )}
+        {!token.isExpired && deleteConfirmation === 'modal' && (
+          <ConfirmButton
+            confirmButtonText={translate('yes')}
+            isDestructive
+            modalBody={
+              <FormattedMessage
+                defaultMessage={translate('users.tokens.sure_X')}
+                id="users.tokens.sure_X"
+                values={{ token: <strong>{token.name}</strong> }}
+              />
+            }
+            modalHeader={translateWithParameters('users.tokens.revoke_label', token.name)}
+            onConfirm={handleRevoke}
+          >
+            {({ onClick }) => (
+              <Button
+                className="button-red input-small"
+                disabled={isLoading}
+                onClick={onClick}
+                aria-label={translateWithParameters('users.tokens.revoke_label', token.name)}
+              >
+                {translate('users.tokens.revoke')}
+              </Button>
+            )}
+          </ConfirmButton>
+        )}
+        {!token.isExpired && deleteConfirmation === 'inline' && (
+          <Button
+            className="button-red input-small"
+            disabled={isLoading}
+            aria-label={
+              showConfirmation
+                ? translate('users.tokens.sure')
+                : translateWithParameters('users.tokens.revoke_label', token.name)
+            }
+            onClick={handleClick}
+          >
+            <Spinner className="little-spacer-right" loading={isLoading} />
+            {showConfirmation ? translate('users.tokens.sure') : translate('users.tokens.revoke')}
+          </Button>
+        )}
+      </td>
+    </tr>
+  );
 }

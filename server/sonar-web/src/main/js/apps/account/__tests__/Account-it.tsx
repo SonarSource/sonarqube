@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import selectEvent from 'react-select-event';
@@ -274,7 +274,7 @@ describe('security page', () => {
       );
 
       expect(await screen.findByText('users.tokens')).toBeInTheDocument();
-      expect(screen.getAllByRole('row')).toHaveLength(3); // 2 tokens + header
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3)); // 2 tokens + header
 
       // Add the token
       const newTokenName = 'importantToken';
@@ -356,7 +356,7 @@ describe('security page', () => {
 
       await user.click(screen.getByRole('button', { name: 'yes' }));
 
-      expect(screen.getAllByRole('row')).toHaveLength(3); // 2 tokens + header
+      await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3)); // 2 tokens + header
     }
   );
 
@@ -377,7 +377,7 @@ describe('security page', () => {
     expect(await screen.findByText('users.tokens')).toBeInTheDocument();
 
     // expired token is flagged as such
-    const expiredTokenRow = screen.getByRole('row', { name: /expired token/ });
+    const expiredTokenRow = await screen.findByRole('row', { name: /expired token/ });
     expect(within(expiredTokenRow).getByText('my_account.tokens.expired')).toBeInTheDocument();
 
     // unexpired token is not flagged

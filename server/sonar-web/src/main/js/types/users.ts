@@ -112,8 +112,6 @@ export interface RestUserDetailed extends RestUser {
   sonarQubeLastConnectionDate: string | null;
   sonarLintLastConnectionDate: string | null;
   scmAccounts: string[];
-  groupsCount: number;
-  tokensCount: number;
 }
 
 export const enum ChangePasswordResults {

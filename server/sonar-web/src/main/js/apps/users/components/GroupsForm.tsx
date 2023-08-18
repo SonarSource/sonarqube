@@ -19,7 +19,6 @@
  */
 import { find, without } from 'lodash';
 import * as React from 'react';
-import { addUserToGroup, removeUserFromGroup } from '../../../api/user_groups';
 import { UserGroup, getUserGroups } from '../../../api/users';
 import Modal from '../../../components/controls/Modal';
 import SelectList, {
@@ -28,7 +27,7 @@ import SelectList, {
 } from '../../../components/controls/SelectList';
 import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
-import { useInvalidateUsersList } from '../../../queries/users';
+import { useAddUserToGroupMutation, useRemoveUserToGroupMutation } from '../../../queries/users';
 import { RestUserDetailed } from '../../../types/users';
 
 interface Props {
@@ -45,8 +44,8 @@ export default function GroupsForm(props: Props) {
   const [groups, setGroups] = React.useState<UserGroup[]>([]);
   const [groupsTotalCount, setGroupsTotalCount] = React.useState<number | undefined>(undefined);
   const [selectedGroups, setSelectedGroups] = React.useState<string[]>([]);
-
-  const invalidateUserList = useInvalidateUsersList();
+  const { mutateAsync: addUserToGroup } = useAddUserToGroupMutation();
+  const { mutateAsync: removeUserFromGroup } = useRemoveUserToGroupMutation();
 
   const fetchUsers = (searchParams: SelectListSearchParams) =>
     getUserGroups({
@@ -86,11 +85,6 @@ export default function GroupsForm(props: Props) {
       setSelectedGroups(without(selectedGroups, name));
     });
 
-  const handleClose = () => {
-    invalidateUserList();
-    props.onClose();
-  };
-
   const renderElement = (name: string): React.ReactNode => {
     const group = find(groups, { name });
     return (
@@ -111,7 +105,7 @@ export default function GroupsForm(props: Props) {
   const header = translate('users.update_groups');
 
   return (
-    <Modal contentLabel={header} onRequestClose={handleClose}>
+    <Modal contentLabel={header} onRequestClose={props.onClose}>
       <div className="modal-head">
         <h2>{header}</h2>
       </div>
@@ -133,7 +127,7 @@ export default function GroupsForm(props: Props) {
       </div>
 
       <footer className="modal-foot">
-        <ResetButtonLink onClick={handleClose}>{translate('done')}</ResetButtonLink>
+        <ResetButtonLink onClick={props.onClose}>{translate('done')}</ResetButtonLink>
       </footer>
     </Modal>
   );

@@ -22,7 +22,6 @@ import { FormattedMessage } from 'react-intl';
 import Modal from '../../../components/controls/Modal';
 import { ResetButtonLink } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
-import { useInvalidateUsersList } from '../../../queries/users';
 import { RestUserDetailed } from '../../../types/users';
 import TokensForm from './TokensForm';
 
@@ -32,37 +31,24 @@ interface Props {
 }
 
 export default function TokensFormModal(props: Props) {
-  const [hasTokenCountChanged, setHasTokenCountChanged] = React.useState(false);
-  const invalidateUserList = useInvalidateUsersList();
-
-  const handleClose = () => {
-    if (hasTokenCountChanged) {
-      invalidateUserList();
-    }
-    props.onClose();
-  };
+  const { user } = props;
 
   return (
-    <Modal size="large" contentLabel={translate('users.tokens')} onRequestClose={handleClose}>
+    <Modal size="large" contentLabel={translate('users.tokens')} onRequestClose={props.onClose}>
       <header className="modal-head">
         <h2>
           <FormattedMessage
             defaultMessage={translate('users.user_X_tokens')}
             id="users.user_X_tokens"
-            values={{ user: <em>{props.user.name}</em> }}
+            values={{ user: <em>{user.name}</em> }}
           />
         </h2>
       </header>
       <div className="modal-body modal-container">
-        <TokensForm
-          deleteConfirmation="inline"
-          login={props.user.login}
-          updateTokensCount={() => setHasTokenCountChanged(true)}
-          displayTokenTypeInput={false}
-        />
+        <TokensForm deleteConfirmation="inline" login={user.login} displayTokenTypeInput={false} />
       </div>
       <footer className="modal-foot">
-        <ResetButtonLink onClick={handleClose}>{translate('done')}</ResetButtonLink>
+        <ResetButtonLink onClick={props.onClose}>{translate('done')}</ResetButtonLink>
       </footer>
     </Modal>
   );

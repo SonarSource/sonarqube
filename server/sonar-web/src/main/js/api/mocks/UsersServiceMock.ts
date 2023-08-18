@@ -55,7 +55,6 @@ const DEFAULT_USERS = [
     sonarQubeLastConnectionDate: '2023-06-27T17:08:59+0200',
     sonarLintLastConnectionDate: '2023-05-27T17:08:59+0200',
     email: 'alice.merveille@wonderland.com',
-    groupsCount: 2,
   }),
   mockRestUser({
     managed: false,
@@ -109,6 +108,13 @@ const DEFAULT_GROUPS: UserGroup[] = [
     id: 1003,
     name: 'test3',
     description: 'test3',
+    selected: true,
+    default: false,
+  },
+  {
+    id: 1004,
+    name: 'test4',
+    description: 'test4',
     selected: false,
     default: false,
   },
@@ -314,18 +320,25 @@ export default class UsersServiceMock {
   };
 
   handleGetUserGroups: typeof getUserGroups = (data) => {
+    if (data.login !== 'alice.merveille') {
+      return this.reply({
+        paging: { pageIndex: 1, pageSize: 10, total: 0 },
+        groups: [],
+      });
+    }
     const filteredGroups = this.groups
       .filter((g) => g.name.includes(data.q ?? ''))
       .filter((g) => {
         switch (data.selected) {
-          case 'selected':
-            return g.selected;
+          case 'all':
+            return true;
           case 'deselected':
             return !g.selected;
           default:
-            return true;
+            return g.selected;
         }
       });
+
     return this.reply({
       paging: { pageIndex: 1, pageSize: 10, total: filteredGroups.length },
       groups: filteredGroups,
@@ -334,7 +347,6 @@ export default class UsersServiceMock {
 
   handleAddUserToGroup: typeof addUserToGroup = ({ name }) => {
     this.groups = this.groups.map((g) => (g.name === name ? { ...g, selected: true } : g));
-    this.users.find((u) => u.login === 'alice.merveille')!.groupsCount++;
     return this.reply({});
   };
 
@@ -350,7 +362,6 @@ export default class UsersServiceMock {
       }
       return g;
     });
-    this.users.find((u) => u.login === 'alice.merveille')!.groupsCount--;
     return isDefault
       ? Promise.reject({
           errors: [{ msg: 'Cannot remove Default group' }],

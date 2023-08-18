@@ -41,9 +41,9 @@ export default class UserTokensMock {
   constructor() {
     this.tokens = cloneDeep(defaultTokens);
 
-    (getTokens as jest.Mock).mockImplementation(this.handleGetTokens);
-    (generateToken as jest.Mock).mockImplementation(this.handleGenerateToken);
-    (revokeToken as jest.Mock).mockImplementation(this.handleRevokeToken);
+    jest.mocked(getTokens).mockImplementation(this.handleGetTokens);
+    jest.mocked(generateToken).mockImplementation(this.handleGenerateToken);
+    jest.mocked(revokeToken).mockImplementation(this.handleRevokeToken);
   }
 
   handleGetTokens = () => {
@@ -58,7 +58,7 @@ export default class UserTokensMock {
     expirationDate,
   }: {
     name: string;
-    login?: string;
+    login: string;
     type: TokenType;
     projectKey: string;
     expirationDate?: string;

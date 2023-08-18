@@ -283,15 +283,15 @@ describe('in non managed mode', () => {
   it('should be able to edit the groups of a user', async () => {
     const user = userEvent.setup();
     renderUsersApp();
-    expect(await within(await ui.aliceRow.find()).findByText('2')).toBeInTheDocument();
+    expect(await within(await ui.aliceRow.find()).findByText('3')).toBeInTheDocument();
 
     await act(async () => user.click(await ui.aliceUpdateGroupButton.find()));
     expect(await ui.dialogGroups.find()).toBeInTheDocument();
 
-    expect(ui.getGroups()).toHaveLength(2);
+    expect(ui.getGroups()).toHaveLength(3);
 
     await act(async () => user.click(await ui.allFilter.find()));
-    expect(ui.getGroups()).toHaveLength(3);
+    expect(ui.getGroups()).toHaveLength(4);
 
     await act(() => user.click(ui.unselectedFilter.get()));
     expect(ui.reloadButton.query()).not.toBeInTheDocument();
@@ -299,11 +299,11 @@ describe('in non managed mode', () => {
     expect(await ui.reloadButton.find()).toBeInTheDocument();
 
     await act(() => user.click(ui.selectedFilter.get()));
-    expect(ui.getGroups()).toHaveLength(3);
+    expect(ui.getGroups()).toHaveLength(4);
 
     await act(() => user.click(ui.doneButton.get()));
     expect(ui.dialogGroups.query()).not.toBeInTheDocument();
-    expect(await within(await ui.aliceRow.find()).findByText('3')).toBeInTheDocument();
+    expect(await within(await ui.aliceRow.find()).findByText('4')).toBeInTheDocument();
 
     await act(async () => user.click(await ui.aliceUpdateGroupButton.find()));
 
@@ -312,15 +312,15 @@ describe('in non managed mode', () => {
     await act(() => user.click(ui.getGroups()[1]));
     expect(await ui.reloadButton.find()).toBeInTheDocument();
     await act(() => user.click(ui.reloadButton.get()));
-    expect(ui.getGroups()).toHaveLength(2);
+    expect(ui.getGroups()).toHaveLength(3);
 
-    await act(() => user.type(within(ui.dialogGroups.get()).getByRole('searchbox'), '3'));
+    await act(() => user.type(within(ui.dialogGroups.get()).getByRole('searchbox'), '4'));
 
     expect(ui.getGroups()).toHaveLength(1);
 
     await act(() => user.click(ui.doneButton.get()));
     expect(ui.dialogGroups.query()).not.toBeInTheDocument();
-    expect(await within(await ui.aliceRow.find()).findByText('2')).toBeInTheDocument();
+    expect(await within(await ui.aliceRow.find()).findByText('3')).toBeInTheDocument();
   });
 
   it('should update user', async () => {
@@ -388,7 +388,7 @@ describe('in non managed mode', () => {
     expect(
       screen.queryByText(`user.${ChangePasswordResults.OldPasswordIncorrect}`)
     ).not.toBeInTheDocument();
-    await user.click(ui.changeButton.get());
+    await act(() => user.click(ui.changeButton.get()));
     expect(
       await within(ui.dialogPasswords.get()).findByText(
         `user.${ChangePasswordResults.OldPasswordIncorrect}`
@@ -405,7 +405,7 @@ describe('in non managed mode', () => {
     expect(
       screen.queryByText(`user.${ChangePasswordResults.NewPasswordSameAsOld}`)
     ).not.toBeInTheDocument();
-    await user.click(ui.changeButton.get());
+    await act(() => user.click(ui.changeButton.get()));
     expect(
       await screen.findByText(`user.${ChangePasswordResults.NewPasswordSameAsOld}`)
     ).toBeInTheDocument();
@@ -415,7 +415,7 @@ describe('in non managed mode', () => {
     await user.type(ui.newPassword.get(), 'test2');
     await user.type(ui.confirmPassword.get(), 'test2');
 
-    await user.click(ui.changeButton.get());
+    await act(() => user.click(ui.changeButton.get()));
 
     expect(ui.dialogPasswords.query()).not.toBeInTheDocument();
   });
