@@ -18,26 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
-import { SEVERITIES } from '../../../helpers/constants';
+import { CLEAN_CODE_CATEGORIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import Facet, { BasicProps } from './Facet';
 
-export default class DefaultSeverityFacet extends React.PureComponent<BasicProps> {
-  renderName = (severity: string) => <SeverityHelper severity={severity} />;
+export default function AttributeCategoryFacet(props: BasicProps) {
+  const renderName = React.useCallback(
+    (attribute: string) => translate('issue.clean_code_attribute_category', attribute),
+    []
+  );
 
-  renderTextName = (severity: string) => translate('severity', severity);
-
-  render() {
-    return (
-      <Facet
-        {...this.props}
-        halfWidth
-        options={SEVERITIES}
-        property="severities"
-        renderName={this.renderName}
-        renderTextName={this.renderTextName}
-      />
-    );
-  }
+  return (
+    <Facet
+      {...props}
+      options={CLEAN_CODE_CATEGORIES}
+      property="cleanCodeAttributeCategories"
+      renderName={renderName}
+      renderTextName={renderName}
+    />
+  );
 }

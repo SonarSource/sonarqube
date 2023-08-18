@@ -67,12 +67,13 @@ jest.mock('../quality-profiles');
 
 type FacetFilter = Pick<
   SearchRulesQuery,
+  | 'impactSeverities'
+  | 'impactSoftwareQualities'
   | 'languages'
   | 'tags'
   | 'available_since'
   | 'q'
   | 'types'
-  | 'severities'
   | 'repositories'
   | 'qprofile'
   | 'activation'
@@ -81,6 +82,7 @@ type FacetFilter = Pick<
   | 'owaspTop10-2021'
   | 'cwe'
   | 'is_template'
+  | 'cleanCodeAttributeCategories'
 >;
 
 const FACET_RULE_MAP: { [key: string]: keyof Rule } = {
@@ -151,10 +153,12 @@ export default class CodingRulesServiceMock {
   }
 
   filterFacet({
+    impactSeverities,
+    impactSoftwareQualities,
+    cleanCodeAttributeCategories,
     languages,
     available_since,
     q,
-    severities,
     types,
     tags,
     is_template,
@@ -167,14 +171,30 @@ export default class CodingRulesServiceMock {
     activation,
   }: FacetFilter) {
     let filteredRules = this.rules;
+    if (cleanCodeAttributeCategories) {
+      filteredRules = filteredRules.filter(
+        (r) =>
+          r.cleanCodeAttributeCategory &&
+          cleanCodeAttributeCategories.includes(r.cleanCodeAttributeCategory)
+      );
+    }
+    if (impactSoftwareQualities) {
+      filteredRules = filteredRules.filter(
+        (r) =>
+          r.impacts &&
+          r.impacts.some(({ softwareQuality }) => impactSoftwareQualities.includes(softwareQuality))
+      );
+    }
+    if (impactSeverities) {
+      filteredRules = filteredRules.filter(
+        (r) => r.impacts && r.impacts.some(({ severity }) => impactSeverities.includes(severity))
+      );
+    }
     if (types) {
       filteredRules = filteredRules.filter((r) => types.includes(r.type));
     }
     if (languages) {
       filteredRules = filteredRules.filter((r) => r.lang && languages.includes(r.lang));
-    }
-    if (severities) {
-      filteredRules = filteredRules.filter((r) => r.severity && severities.includes(r.severity));
     }
     if (qprofile) {
       const qProfileLang = this.qualityProfile.find((p) => p.key === qprofile)?.language;
@@ -365,7 +385,8 @@ export default class CodingRulesServiceMock {
     p,
     ps,
     available_since,
-    severities,
+    impactSeverities,
+    impactSoftwareQualities,
     repositories,
     qprofile,
     sonarsourceSecurity,
@@ -377,6 +398,7 @@ export default class CodingRulesServiceMock {
     rule_key,
     is_template,
     activation,
+    cleanCodeAttributeCategories,
   }: SearchRulesQuery): Promise<SearchRulesResponse> => {
     const standards = await getStandards();
     const facetCounts: Array<{ property: string; values: { val: string; count: number }[] }> = [];
@@ -424,7 +446,9 @@ export default class CodingRulesServiceMock {
         languages,
         available_since,
         q,
-        severities,
+        impactSeverities,
+        impactSoftwareQualities,
+        cleanCodeAttributeCategories,
         repositories,
         types,
         tags,

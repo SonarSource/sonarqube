@@ -29,6 +29,7 @@ export interface SearchRulesQuery {
   active_severities?: string;
   asc?: boolean | string;
   available_since?: string;
+  cleanCodeAttributeCategories?: string;
   cwe?: string;
   f?: string;
   facets?: string;
@@ -45,7 +46,8 @@ export interface SearchRulesQuery {
   repositories?: string;
   rule_key?: string;
   s?: string;
-  severities?: string;
+  impactSoftwareQualities?: string;
+  impactSeverities?: string;
   sonarsourceSecurity?: string;
   statuses?: string;
   tags?: string;

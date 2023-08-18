@@ -19,14 +19,13 @@
  */
 
 import * as React from 'react';
+import { CLEAN_CODE_CATEGORIES } from '../../../helpers/constants';
 import { CleanCodeAttributeCategory } from '../../../types/clean-code-taxonomy';
 import { CommonProps, SimpleListStyleFacet } from './SimpleListStyleFacet';
 
 interface Props extends CommonProps {
   categories: Array<CleanCodeAttributeCategory>;
 }
-
-const CATEGORIES = Object.values(CleanCodeAttributeCategory);
 
 export function AttributeCategoryFacet(props: Props) {
   const { categories = [], ...rest } = props;
@@ -35,7 +34,7 @@ export function AttributeCategoryFacet(props: Props) {
     <SimpleListStyleFacet
       property="cleanCodeAttributeCategories"
       itemNamePrefix="issue.clean_code_attribute_category"
-      listItems={CATEGORIES}
+      listItems={CLEAN_CODE_CATEGORIES}
       selectedItems={categories}
       {...rest}
     />

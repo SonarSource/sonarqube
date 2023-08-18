@@ -58,10 +58,8 @@ import {
   OpenFacets,
   Query,
   areQueriesEqual,
-  getAppFacet,
   getOpen,
   getSelected,
-  getServerFacet,
   hasRuleKey,
   parseQuery,
   serializeQuery,
@@ -114,7 +112,8 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
         ),
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
         standards: shouldOpenStandardsFacet({}, query),
-        types: true,
+        cleanCodeAttributeCategories: true,
+        impactSoftwareQualities: true,
       },
       referencedProfiles: {},
       referencedRepositories: {},
@@ -199,8 +198,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
     const { openFacets } = this.state;
     return Object.keys(openFacets)
       .filter((facet: FacetKey) => openFacets[facet])
-      .filter((facet: FacetKey) => shouldRequestFacet(facet))
-      .map((facet: FacetKey) => getServerFacet(facet));
+      .filter((facet: FacetKey) => shouldRequestFacet(facet));
   };
 
   getFieldsToFetch = () => {
@@ -214,6 +212,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
       'sysTags',
       'tags',
       'templateKey',
+      'cleanCodeAttribute',
     ];
     if (parseQuery(this.props.location.query).profile) {
       fields.push('actives', 'params');
@@ -226,7 +225,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
     facets: this.getFacetsToFetch().join(),
     ps: PAGE_SIZE,
     s: 'name',
-    ...this.props.location.query,
+    ...serializeQuery(parseQuery(this.props.location.query)),
   });
 
   stopLoading = () => {
@@ -299,7 +298,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
   };
 
   fetchFacet = (facet: FacetKey) => {
-    this.makeFetchRequest({ ps: 1, facets: getServerFacet(facet) }).then(({ facets }) => {
+    this.makeFetchRequest({ ps: 1, facets: facet }).then(({ facets }) => {
       if (this.mounted) {
         this.setState((state) => ({ facets: { ...state.facets, ...facets }, loading: false }));
       }
@@ -711,7 +710,7 @@ function parseFacets(rawFacets: { property: string; values: { count: number; val
     for (const rawValue of rawFacet.values) {
       values[rawValue.val] = rawValue.count;
     }
-    facets[getAppFacet(rawFacet.property)] = values;
+    facets[rawFacet.property as FacetKey] = values;
   }
   return facets;
 }

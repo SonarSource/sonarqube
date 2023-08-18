@@ -533,9 +533,9 @@ export interface QualityGate {
 export type RawQuery = Dict<any>;
 
 export interface Rule {
-  cleanCodeAttributeCategory: CleanCodeAttributeCategory;
-  cleanCodeAttribute: CleanCodeAttribute;
-  impacts: Array<{
+  cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
+  cleanCodeAttribute?: CleanCodeAttribute;
+  impacts?: Array<{
     softwareQuality: SoftwareQuality;
     severity: SoftwareImpactSeverity;
   }>;

@@ -41,11 +41,15 @@ const selectors = {
   clearAllFiltersButton: byRole('button', { name: 'clear_all_filters' }),
 
   // Facets
+  cleanCodeCategoriesFacet: byRole('button', {
+    name: 'coding_rules.facet.cleanCodeAttributeCategories',
+  }),
   languagesFacet: byRole('button', { name: 'coding_rules.facet.languages' }),
   typeFacet: byRole('button', { name: 'coding_rules.facet.types' }),
   tagsFacet: byRole('button', { name: 'coding_rules.facet.tags' }),
   repositoriesFacet: byRole('button', { name: 'coding_rules.facet.repositories' }),
-  severetiesFacet: byRole('button', { name: 'coding_rules.facet.severities' }),
+  softwareQualitiesFacet: byRole('button', { name: 'coding_rules.facet.impactSoftwareQualities' }),
+  severetiesFacet: byRole('button', { name: 'coding_rules.facet.impactSeverities' }),
   statusesFacet: byRole('button', { name: 'coding_rules.facet.statuses' }),
   standardsFacet: byRole('button', { name: 'issues.facet.standards' }),
   standardsOwasp2017Top10Facet: byRole('button', { name: 'issues.facet.owaspTop10' }),

@@ -19,14 +19,13 @@
  */
 
 import * as React from 'react';
+import { SOFTWARE_QUALITIES } from '../../../helpers/constants';
 import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { CommonProps, SimpleListStyleFacet } from './SimpleListStyleFacet';
 
 interface Props extends CommonProps {
   qualities: Array<SoftwareQuality>;
 }
-
-const QUALITIES = Object.values(SoftwareQuality);
 
 export function SoftwareQualityFacet(props: Props) {
   const { qualities = [], ...rest } = props;
@@ -35,7 +34,7 @@ export function SoftwareQualityFacet(props: Props) {
     <SimpleListStyleFacet
       property="impactSoftwareQualities"
       itemNamePrefix="issue.software_quality"
-      listItems={QUALITIES}
+      listItems={SOFTWARE_QUALITIES}
       selectedItems={qualities}
       {...rest}
     />

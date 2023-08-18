@@ -20,7 +20,7 @@
 import { act, fireEvent, screen } from '@testing-library/react';
 import selectEvent from 'react-select-event';
 import CodingRulesServiceMock, { RULE_TAGS_MOCK } from '../../../api/mocks/CodingRulesServiceMock';
-import { RULE_TYPES } from '../../../helpers/constants';
+import { CLEAN_CODE_CATEGORIES, SOFTWARE_QUALITIES } from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { dateInputEvent, renderAppRoutes } from '../../../helpers/testReactTestingUtils';
@@ -57,8 +57,12 @@ describe('Rules app list', () => {
       1
     );
 
-    // Renders type facets
-    RULE_TYPES.map((type) => `issue.type.${type}`).forEach((name) =>
+    // Renders clean code categories and software qualities facets
+    CLEAN_CODE_CATEGORIES.map(
+      (category) => `issue.clean_code_attribute_category.${category}`
+    ).forEach((name) => expect(ui.facetItem(name).get()).toBeInTheDocument());
+
+    SOFTWARE_QUALITIES.map((quality) => `issue.software_quality.${quality}`).forEach((name) =>
       expect(ui.facetItem(name).get()).toBeInTheDocument()
     );
 
@@ -77,6 +81,7 @@ describe('Rules app list', () => {
       ui.availableSinceFacet,
       ui.templateFacet,
       ui.qpFacet,
+      ui.typeFacet,
     ].forEach((facet) => {
       expect(facet.get()).toHaveAttribute('aria-expanded', 'false');
     });
@@ -159,6 +164,31 @@ describe('Rules app list', () => {
         await user.click(ui.facetItem('cute').get());
       });
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
+
+      // Clear all filters
+      await act(async () => {
+        await user.click(ui.clearAllFiltersButton.get());
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(11);
+
+      // Filter by clean code category
+      await act(async () => {
+        await user.click(ui.facetItem('issue.clean_code_attribute_category.ADAPTABLE').get());
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
+
+      // Filter by software quality
+      await act(async () => {
+        await user.click(ui.facetItem('issue.software_quality.MAINTAINABILITY').get());
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
+
+      // Filter by severity
+      await act(async () => {
+        await user.click(ui.severetiesFacet.get());
+        await user.click(ui.facetItem('severity.HIGH').get());
+      });
+      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(9);
     });
 
     it('filter by standards', async () => {
@@ -368,7 +398,8 @@ describe('Rule app details', () => {
         ui.ruleCleanCodeAttributeCategory(CleanCodeAttributeCategory.Adaptable).get()
       ).toBeInTheDocument();
       expect(ui.ruleCleanCodeAttribute(CleanCodeAttribute.Clear).get()).toBeInTheDocument();
-      expect(ui.ruleSoftwareQuality(SoftwareQuality.Maintainability).get()).toBeInTheDocument();
+      // 1 In Rule details + 1 in facet
+      expect(ui.ruleSoftwareQuality(SoftwareQuality.Maintainability).getAll()).toHaveLength(2);
       expect(document.title).toEqual('page_title.template.with_category.coding_rules.page');
       expect(screen.getByText('Why')).toBeInTheDocument();
       expect(screen.getByText('Because')).toBeInTheDocument();
@@ -683,11 +714,17 @@ describe('redirects', () => {
   });
 
   it('should handle hash parameters', async () => {
-    renderCodingRulesApp(mockLoggedInUser(), 'coding_rules#languages=c,js|types=BUG');
-    // 2 languages
+    const { ui } = getPageObjects();
+
+    renderCodingRulesApp(
+      mockLoggedInUser(),
+      'coding_rules#languages=c,js|types=BUG|cleanCodeAttributeCategories=ADAPTABLE'
+    );
     expect(await screen.findByText('x_selected.2')).toBeInTheDocument();
-    expect(screen.getAllByTitle('issue.type.BUG')).toHaveLength(2);
-    // Only 3 rules shown
+    expect(screen.getByTitle('issue.type.BUG')).toBeInTheDocument();
+    expect(ui.facetItem('issue.clean_code_attribute_category.ADAPTABLE').get()).toBeChecked();
+
+    // Only 2 rules shown
     expect(screen.getByText('x_of_y_shown.2.2')).toBeInTheDocument();
   });
 });

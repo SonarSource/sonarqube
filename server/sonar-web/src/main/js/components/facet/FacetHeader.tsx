@@ -91,7 +91,7 @@ export default class FacetHeader extends React.PureComponent<Props> {
         {this.props.onClick ? (
           <span className="search-navigator-facet-header display-flex-center">
             <button
-              className="button-link"
+              className="button-link display-flex-center"
               type="button"
               onClick={this.handleClick}
               aria-expanded={open}

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isEqual, isNil, omitBy } from 'lodash';
+import { compact, isEqual, isNil, omitBy, uniq } from 'lodash';
+import { SoftwareImpactSeverity } from '../types/clean-code-taxonomy';
 import { RawQuery } from '../types/types';
 import { isValidDate, parseDate, toISO8601WithOffsetString, toShortISO8601String } from './dates';
 
@@ -124,4 +125,27 @@ export function serializeOptionalBoolean(value: boolean | undefined): string | u
     return 'false';
   }
   return undefined;
+}
+
+export function parseImpactSeverityQuery(
+  newSeverities: string,
+  oldSeverities?: string
+): SoftwareImpactSeverity[] {
+  const OLD_TO_NEW_MAPPER = {
+    BLOCKER: SoftwareImpactSeverity.High,
+    CRITICAL: SoftwareImpactSeverity.High,
+    MAJOR: SoftwareImpactSeverity.Medium,
+    MINOR: SoftwareImpactSeverity.Low,
+    INFO: SoftwareImpactSeverity.Low,
+  };
+
+  // Merging new and old severities includes mapping for old to new
+  return compact(
+    uniq([
+      ...parseAsArray<SoftwareImpactSeverity>(newSeverities, parseAsString),
+      ...parseAsArray(oldSeverities, parseAsString).map(
+        (oldSeverity: string) => OLD_TO_NEW_MAPPER[oldSeverity as keyof typeof OLD_TO_NEW_MAPPER]
+      ),
+    ])
+  );
 }

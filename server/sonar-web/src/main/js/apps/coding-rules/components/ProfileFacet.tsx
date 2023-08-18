@@ -56,7 +56,6 @@ export default class ProfileFacet extends React.PureComponent<Props> {
   handleClear = () =>
     this.props.onChange({
       activation: undefined,
-      activationSeverities: [],
       compareToProfile: undefined,
       inheritance: undefined,
       profile: undefined,

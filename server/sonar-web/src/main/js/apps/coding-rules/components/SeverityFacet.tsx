@@ -17,47 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import * as React from 'react';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import SoftwareImpactSeverityIcon from '../../../components/icons/SoftwareImpactSeverityIcon';
 import { IMPACT_SEVERITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
-import { SoftwareImpactSeverity } from '../../../types/clean-code-taxonomy';
-import { CommonProps, SimpleListStyleFacet } from './SimpleListStyleFacet';
+import Facet, { BasicProps } from './Facet';
 
-interface Props extends CommonProps {
-  severities: SoftwareImpactSeverity[];
-}
+export default function SeverityFacet(props: BasicProps) {
+  const renderName = React.useCallback(
+    (severity: string) => (
+      <div className="sw-flex">
+        <SoftwareImpactSeverityIcon severity={severity} />
+        <span className="sw-ml-1">{translate('severity', severity)}</span>
+      </div>
+    ),
+    []
+  );
 
-export function SeverityFacet(props: Props) {
-  const { severities = [], ...rest } = props;
+  const renderTextName = React.useCallback(
+    (severity: string) => translate('severity', severity),
+    []
+  );
 
   return (
-    <SimpleListStyleFacet
+    <Facet
+      {...props}
+      options={IMPACT_SEVERITIES}
       property="impactSeverities"
-      itemNamePrefix="severity"
-      listItems={IMPACT_SEVERITIES}
-      selectedItems={severities}
-      renderIcon={(severity: string) => <SoftwareImpactSeverityIcon severity={severity} />}
-      help={
-        <DocumentationTooltip
-          placement="right"
-          content={
-            <>
-              <p>{translate('issues.facet.impactSeverities.help.line1')}</p>
-              <p className="sw-mt-2">{translate('issues.facet.impactSeverities.help.line2')}</p>
-            </>
-          }
-          links={[
-            {
-              href: '/user-guide/clean-code',
-              label: translate('learn_more'),
-            },
-          ]}
-        />
-      }
-      {...rest}
-    />
+      renderName={renderName}
+      renderTextName={renderTextName}
+    >
+      <DocumentationTooltip
+        className="spacer-left"
+        placement="right"
+        content={
+          <>
+            <p>{translate('issues.facet.impactSeverities.help.line1')}</p>
+            <p className="sw-mt-2">{translate('issues.facet.impactSeverities.help.line2')}</p>
+          </>
+        }
+        links={[
+          {
+            href: '/user-guide/clean-code',
+            label: translate('learn_more'),
+          },
+        ]}
+      />
+    </Facet>
   );
 }

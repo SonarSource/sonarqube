@@ -21,13 +21,15 @@ import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
 import { Dict } from '../../../types/types';
 import { Facets, OpenFacets, Query } from '../query';
-import ActivationSeverityFacet from './ActivationSeverityFacet';
+import AttributeCategoryFacet from './AttributeCategoryFacet';
 import AvailableSinceFacet from './AvailableSinceFacet';
-import DefaultSeverityFacet from './DefaultSeverityFacet';
 import InheritanceFacet from './InheritanceFacet';
 import LanguageFacet from './LanguageFacet';
 import ProfileFacet from './ProfileFacet';
+import SoftwareQualityFacet from './SoftwareQualityFacet';
+
 import RepositoryFacet from './RepositoryFacet';
+import SeverityFacet from './SeverityFacet';
 import { StandardFacet } from './StandardFacet';
 import StatusFacet from './StatusFacet';
 import TagFacet from './TagFacet';
@@ -54,10 +56,6 @@ export default function FacetsList(props: FacetsListProps) {
     props.selectedProfile === undefined ||
     !props.selectedProfile.isInherited;
 
-  const activationSeverityDisabled =
-    props.query.compareToProfile !== undefined ||
-    props.selectedProfile === undefined ||
-    !props.query.activation;
   return (
     <>
       <LanguageFacet
@@ -68,18 +66,43 @@ export default function FacetsList(props: FacetsListProps) {
         stats={props.facets && props.facets.languages}
         values={props.query.languages}
       />
+
+      <AttributeCategoryFacet
+        onChange={props.onFilterChange}
+        onToggle={props.onFacetToggle}
+        open={!!props.openFacets.cleanCodeAttributeCategories}
+        stats={props.facets?.cleanCodeAttributeCategories}
+        values={props.query.cleanCodeAttributeCategories}
+      />
+
+      <SoftwareQualityFacet
+        onChange={props.onFilterChange}
+        onToggle={props.onFacetToggle}
+        open={!!props.openFacets.impactSoftwareQualities}
+        stats={props.facets?.impactSoftwareQualities}
+        values={props.query.impactSoftwareQualities}
+      />
+
+      <SeverityFacet
+        onChange={props.onFilterChange}
+        onToggle={props.onFacetToggle}
+        open={!!props.openFacets.impactSeverities}
+        stats={props.facets?.impactSeverities}
+        values={props.query.impactSeverities}
+      />
+
       <TypeFacet
         onChange={props.onFilterChange}
         onToggle={props.onFacetToggle}
         open={!!props.openFacets.types}
-        stats={props.facets && props.facets.types}
+        stats={props.facets?.types}
         values={props.query.types}
       />
       <TagFacet
         onChange={props.onFilterChange}
         onToggle={props.onFacetToggle}
         open={!!props.openFacets.tags}
-        stats={props.facets && props.facets.tags}
+        stats={props.facets?.tags}
         values={props.query.tags}
       />
       <RepositoryFacet
@@ -87,27 +110,21 @@ export default function FacetsList(props: FacetsListProps) {
         onToggle={props.onFacetToggle}
         open={!!props.openFacets.repositories}
         referencedRepositories={props.referencedRepositories}
-        stats={props.facets && props.facets.repositories}
+        stats={props.facets?.repositories}
         values={props.query.repositories}
       />
-      <DefaultSeverityFacet
-        onChange={props.onFilterChange}
-        onToggle={props.onFacetToggle}
-        open={!!props.openFacets.severities}
-        stats={props.facets && props.facets.severities}
-        values={props.query.severities}
-      />
+
       <StatusFacet
         onChange={props.onFilterChange}
         onToggle={props.onFacetToggle}
         open={!!props.openFacets.statuses}
-        stats={props.facets && props.facets.statuses}
+        stats={props.facets?.statuses}
         values={props.query.statuses}
       />
       <StandardFacet
         cwe={props.query.cwe}
         cweOpen={!!props.openFacets.cwe}
-        cweStats={props.facets && props.facets.cwe}
+        cweStats={props.facets?.cwe}
         fetchingCwe={false}
         fetchingOwaspTop10={false}
         fetchingOwaspTop10-2021={false}
@@ -117,14 +134,14 @@ export default function FacetsList(props: FacetsListProps) {
         open={!!props.openFacets.standards}
         owaspTop10={props.query.owaspTop10}
         owaspTop10Open={!!props.openFacets.owaspTop10}
-        owaspTop10Stats={props.facets && props.facets.owaspTop10}
+        owaspTop10Stats={props.facets?.owaspTop10}
         owaspTop10-2021={props.query['owaspTop10-2021']}
         owaspTop10-2021Open={!!props.openFacets['owaspTop10-2021']}
-        owaspTop10-2021Stats={props.facets && props.facets['owaspTop10-2021']}
+        owaspTop10-2021Stats={props.facets?.['owaspTop10-2021']}
         query={props.query}
         sonarsourceSecurity={props.query.sonarsourceSecurity}
         sonarsourceSecurityOpen={!!props.openFacets.sonarsourceSecurity}
-        sonarsourceSecurityStats={props.facets && props.facets.sonarsourceSecurity}
+        sonarsourceSecurityStats={props.facets?.sonarsourceSecurity}
       />
       <AvailableSinceFacet
         onChange={props.onFilterChange}
@@ -156,14 +173,6 @@ export default function FacetsList(props: FacetsListProps) {
             onToggle={props.onFacetToggle}
             open={!!props.openFacets.inheritance}
             value={props.query.inheritance}
-          />
-          <ActivationSeverityFacet
-            disabled={activationSeverityDisabled}
-            onChange={props.onFilterChange}
-            onToggle={props.onFacetToggle}
-            open={!!props.openFacets.activationSeverities}
-            stats={props.facets && props.facets.activationSeverities}
-            values={props.query.activationSeverities}
           />
         </>
       )}

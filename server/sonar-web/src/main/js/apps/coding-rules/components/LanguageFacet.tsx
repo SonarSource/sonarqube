@@ -74,6 +74,7 @@ class LanguageFacet extends React.PureComponent<Props> {
         getFacetItemText={this.getLanguageName}
         getSearchResultKey={(language) => language.key}
         getSearchResultText={(language) => language.name}
+        maxInitialItems={10}
         minSearchLength={1}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}

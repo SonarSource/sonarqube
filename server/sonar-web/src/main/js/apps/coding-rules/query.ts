@@ -24,20 +24,28 @@ import {
   parseAsOptionalBoolean,
   parseAsOptionalString,
   parseAsString,
+  parseImpactSeverityQuery,
   queriesEqual,
   serializeDateShort,
   serializeOptionalBoolean,
   serializeString,
   serializeStringArray,
 } from '../../helpers/query';
+import {
+  CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../../types/clean-code-taxonomy';
 import { Dict, RawQuery, RuleInheritance } from '../../types/types';
 
 export interface Query {
   activation: boolean | undefined;
-  activationSeverities: string[];
   availableSince: Date | undefined;
+  cleanCodeAttributeCategories: CleanCodeAttributeCategory[];
   compareToProfile: string | undefined;
   cwe: string[];
+  impactSeverities: SoftwareImpactSeverity[];
+  impactSoftwareQualities: SoftwareQuality[];
   inheritance: RuleInheritance | undefined;
   languages: string[];
   owaspTop10: string[];
@@ -78,10 +86,18 @@ export interface Actives {
 export function parseQuery(query: RawQuery): Query {
   return {
     activation: parseAsOptionalBoolean(query.activation),
-    activationSeverities: parseAsArray(query.active_severities, parseAsString),
     availableSince: parseAsDate(query.available_since),
+    cleanCodeAttributeCategories: parseAsArray<CleanCodeAttributeCategory>(
+      query.cleanCodeAttributeCategories,
+      parseAsString
+    ),
     compareToProfile: parseAsOptionalString(query.compareToProfile),
     cwe: parseAsArray(query.cwe, parseAsString),
+    impactSeverities: parseImpactSeverityQuery(query.impactSeverities, query.severities),
+    impactSoftwareQualities: parseAsArray<SoftwareQuality>(
+      query.impactSoftwareQualities,
+      parseAsString
+    ),
     inheritance: parseAsInheritance(query.inheritance),
     languages: parseAsArray(query.languages, parseAsString),
     owaspTop10: parseAsArray(query.owaspTop10, parseAsString),
@@ -102,11 +118,13 @@ export function parseQuery(query: RawQuery): Query {
 export function serializeQuery(query: Query): RawQuery {
   return cleanQuery({
     activation: serializeOptionalBoolean(query.activation),
-    active_severities: serializeStringArray(query.activationSeverities),
     available_since: serializeDateShort(query.availableSince),
+    cleanCodeAttributeCategories: serializeStringArray(query.cleanCodeAttributeCategories),
     compareToProfile: serializeString(query.compareToProfile),
     cwe: serializeStringArray(query.cwe),
     inheritance: serializeInheritance(query.inheritance),
+    impactSeverities: serializeStringArray(query.impactSeverities),
+    impactSoftwareQualities: serializeStringArray(query.impactSoftwareQualities),
     is_template: serializeOptionalBoolean(query.template),
     languages: serializeStringArray(query.languages),
     owaspTop10: serializeStringArray(query.owaspTop10),
@@ -115,7 +133,7 @@ export function serializeQuery(query: Query): RawQuery {
     qprofile: serializeString(query.profile),
     repositories: serializeStringArray(query.repositories),
     rule_key: serializeString(query.ruleKey),
-    severities: serializeStringArray(query.severities),
+    severities: undefined,
     sonarsourceSecurity: serializeStringArray(query.sonarsourceSecurity),
     statuses: serializeStringArray(query.statuses),
     tags: serializeStringArray(query.tags),
@@ -141,16 +159,11 @@ export function shouldRequestFacet(facet: string): facet is FacetKey {
     'statuses',
     'tags',
     'types',
+    'cleanCodeAttributeCategories',
+    'impactSoftwareQualities',
+    'impactSeverities',
   ];
   return facetsToRequest.includes(facet);
-}
-
-export function getServerFacet(facet: FacetKey) {
-  return facet === 'activationSeverities' ? 'active_severities' : facet;
-}
-
-export function getAppFacet(serverFacet: string): FacetKey {
-  return serverFacet === 'active_severities' ? 'activationSeverities' : (serverFacet as FacetKey);
 }
 
 export function getOpen(query: RawQuery) {

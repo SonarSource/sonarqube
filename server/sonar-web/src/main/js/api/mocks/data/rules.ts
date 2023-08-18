@@ -21,6 +21,11 @@
 import { RuleDescriptionSections } from '../../../apps/coding-rules/rule';
 import { mockRule, mockRuleActivation, mockRuleDetails } from '../../../helpers/testMocks';
 import {
+  CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../../../types/clean-code-taxonomy';
+import {
   ADVANCED_RULE,
   RULE_1,
   RULE_10,
@@ -113,6 +118,9 @@ export function mockRuleDetailsList() {
       key: RULE_3,
       repo: 'repo2',
       name: 'Unknown rule',
+      impacts: [
+        { softwareQuality: SoftwareQuality.Maintainability, severity: SoftwareImpactSeverity.Low },
+      ],
       lang: 'js',
       langName: 'JavaScript',
     }),
@@ -128,6 +136,7 @@ export function mockRuleDetailsList() {
       type: 'VULNERABILITY',
       lang: 'py',
       langName: 'Python',
+      cleanCodeAttributeCategory: CleanCodeAttributeCategory.Consistent,
       name: 'Awsome Python rule',
       descriptionSections: [
         { key: RuleDescriptionSections.INTRODUCTION, content: introTitle },

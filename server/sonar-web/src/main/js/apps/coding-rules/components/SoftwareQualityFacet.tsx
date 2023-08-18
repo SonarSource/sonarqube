@@ -17,33 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
-import { SEVERITIES } from '../../../helpers/constants';
+import { SOFTWARE_QUALITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
 import Facet, { BasicProps } from './Facet';
 
-interface Props extends BasicProps {
-  disabled: boolean;
-}
+export default function SoftwareQualityFacet(props: BasicProps) {
+  const renderName = React.useCallback(
+    (quality: string) => translate('issue.software_quality', quality),
+    []
+  );
 
-export default class ActivationSeverityFacet extends React.PureComponent<Props> {
-  renderName = (severity: string) => <SeverityHelper severity={severity} />;
-
-  renderTextName = (severity: string) => translate('severity', severity);
-
-  render() {
-    return (
-      <Facet
-        {...this.props}
-        disabled={this.props.disabled}
-        disabledHelper={translate('coding_rules.filters.active_severity.inactive')}
-        halfWidth
-        options={SEVERITIES}
-        property="activationSeverities"
-        renderName={this.renderName}
-        renderTextName={this.renderTextName}
-      />
-    );
-  }
+  return (
+    <Facet
+      {...props}
+      options={SOFTWARE_QUALITIES}
+      property="impactSoftwareQualities"
+      renderName={renderName}
+      renderTextName={renderName}
+    />
+  );
 }
