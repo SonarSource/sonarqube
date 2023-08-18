@@ -26,7 +26,7 @@ import MessagesServiceMock from '../../../api/mocks/MessagesServiceMock';
 import NewCodePeriodsServiceMock from '../../../api/mocks/NewCodePeriodsServiceMock';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../helpers/testSelector';
+import { byLabelText, byText } from '../../../helpers/testSelector';
 import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { GlobalNCDAutoUpdateMessage } from '../GlobalNCDAutoUpdateMessage';
 
@@ -44,8 +44,8 @@ afterEach(() => {
 });
 
 const ui = {
-  message: byText(/new_code_definition.auto_update.message/),
-  dismissButton: byRole('button', { name: 'dismiss' }),
+  message: byText(/new_code_definition.auto_update.global.message/),
+  dismissButton: byLabelText('alert.dismiss'),
   reviewLink: byText('new_code_definition.auto_update.review_link'),
   adminNcdMessage: byText('Admin NCD'),
 };

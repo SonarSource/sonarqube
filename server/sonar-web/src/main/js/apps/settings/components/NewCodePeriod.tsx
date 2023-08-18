@@ -37,6 +37,8 @@ import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 interface State {
   currentSetting?: NewCodeDefinitionType;
   days: string;
+  previousNonCompliantValue?: string;
+  ncdUpdatedAt?: number;
   loading: boolean;
   currentSettingValue?: string;
   isChanged: boolean;
@@ -66,13 +68,15 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
 
   fetchNewCodePeriodSetting() {
     getNewCodePeriod()
-      .then(({ type, value }) => {
+      .then(({ type, value, previousNonCompliantValue, updatedAt }) => {
         this.setState(({ days }) => ({
           currentSetting: type,
           days: type === NewCodeDefinitionType.NumberOfDays ? String(value) : days,
           loading: false,
           currentSettingValue: value,
           selected: type,
+          previousNonCompliantValue,
+          ncdUpdatedAt: updatedAt,
         }));
       })
       .catch(() => {
@@ -139,6 +143,8 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
     const {
       currentSetting,
       days,
+      previousNonCompliantValue,
+      ncdUpdatedAt,
       loading,
       isChanged,
       currentSettingValue,
@@ -208,6 +214,8 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
                         <NewCodeDefinitionDaysOption
                           className="spacer-top sw-mb-4"
                           days={days}
+                          previousNonCompliantValue={previousNonCompliantValue}
+                          updatedAt={ncdUpdatedAt}
                           isChanged={isChanged}
                           isValid={isValid}
                           onChangeDays={this.onSelectDays}

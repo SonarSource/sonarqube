@@ -18,17 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { FlagErrorIcon, InputField, Note, SelectionCard } from 'design-system';
+import { noop } from 'lodash';
 import * as React from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
+import { checkMessageDismissed, MessageTypes, setMessageDismissed } from '../../api/messages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import {
   NUMBER_OF_DAYS_MAX_VALUE,
   NUMBER_OF_DAYS_MIN_VALUE,
 } from '../../helpers/new-code-definition';
+import { isDefined } from '../../helpers/types';
 import { NewCodeDefinitionType } from '../../types/new-code-definition';
+import DocLink from '../common/DocLink';
+import DismissableAlertComponent from '../ui/DismissableAlertComponent';
 
 export interface Props {
   className?: string;
   days: string;
+  previousNonCompliantValue?: string;
+  updatedAt?: number;
   disabled?: boolean;
   isChanged: boolean;
   isValid: boolean;
@@ -38,7 +47,38 @@ export interface Props {
 }
 
 export default function NewCodeDefinitionDaysOption(props: Props) {
-  const { className, days, disabled, isChanged, isValid, onChangeDays, onSelect, selected } = props;
+  const {
+    className,
+    days,
+    previousNonCompliantValue,
+    updatedAt,
+    disabled,
+    isChanged,
+    isValid,
+    onChangeDays,
+    onSelect,
+    selected,
+  } = props;
+
+  const [ncdAutoUpdateBannerDismissed, setNcdAutoUpdateBannerDismissed] = useState(true);
+
+  useEffect(() => {
+    async function fetchMessageDismissed() {
+      const messageStatus = await checkMessageDismissed({
+        messageType: MessageTypes.GlobalNcdPage90,
+      });
+      setNcdAutoUpdateBannerDismissed(messageStatus.dismissed);
+    }
+
+    if (isDefined(previousNonCompliantValue)) {
+      fetchMessageDismissed().catch(noop);
+    }
+  }, [previousNonCompliantValue]);
+
+  const handleBannerDismiss = useCallback(async () => {
+    await setMessageDismissed({ messageType: MessageTypes.GlobalNcdPage90 });
+    setNcdAutoUpdateBannerDismissed(true);
+  }, []);
 
   return (
     <SelectionCard
@@ -77,6 +117,33 @@ export default function NewCodeDefinitionDaysOption(props: Props) {
                 NUMBER_OF_DAYS_MAX_VALUE
               )}
             </Note>
+
+            {isDefined(previousNonCompliantValue) &&
+              isDefined(updatedAt) &&
+              !ncdAutoUpdateBannerDismissed && (
+                <DismissableAlertComponent
+                  variant="info"
+                  display="inline"
+                  className="sw-mt-4 sw-max-w-[800px]"
+                  onDismiss={handleBannerDismiss}
+                >
+                  <FormattedMessage
+                    defaultMessage="new_code_definition.auto_update.global.page.message"
+                    id="new_code_definition.auto_update.global.page.message"
+                    tagName="span"
+                    values={{
+                      previousDays: previousNonCompliantValue,
+                      days,
+                      date: new Date(updatedAt).toLocaleDateString(),
+                      link: (
+                        <DocLink to="/project-administration/clean-as-you-code-settings/defining-new-code/#new-code-definition-options">
+                          {translate('learn_more')}
+                        </DocLink>
+                      ),
+                    }}
+                  />
+                </DismissableAlertComponent>
+              )}
           </div>
         )}
       </>

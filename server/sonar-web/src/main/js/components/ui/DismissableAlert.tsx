@@ -17,14 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
 import * as React from 'react';
-import { ButtonIcon } from '../../components/controls/buttons';
-import ClearIcon from '../../components/icons/ClearIcon';
-import { Alert, AlertProps } from '../../components/ui/Alert';
-import { translate } from '../../helpers/l10n';
+import { AlertProps } from '../../components/ui/Alert';
 import { get, save } from '../../helpers/storage';
 import './DismissableAlert.css';
+import DismissableAlertComponent from './DismissableAlertComponent';
 
 export interface DismissableAlertProps extends AlertProps {
   alertKey: string;
@@ -35,7 +32,7 @@ export interface DismissableAlertProps extends AlertProps {
 export const DISMISSED_ALERT_STORAGE_KEY = 'sonarqube.dismissed_alert';
 
 export default function DismissableAlert(props: DismissableAlertProps) {
-  const { alertKey, children, className, display = 'banner', variant } = props;
+  const { alertKey, children } = props;
   const [show, setShow] = React.useState(false);
 
   React.useEffect(() => {
@@ -50,21 +47,14 @@ export default function DismissableAlert(props: DismissableAlertProps) {
   };
 
   return !show ? null : (
-    <div className={classNames('dismissable-alert-wrapper', className)}>
-      <Alert className={`dismissable-alert-${display}`} display={display} variant={variant}>
-        <div className="display-flex-center dismissable-alert-content">
-          <div className="flex-1">{children}</div>
-          <ButtonIcon
-            aria-label={translate('alert.dismiss')}
-            onClick={() => {
-              hideAlert();
-              setShow(false);
-            }}
-          >
-            <ClearIcon size={12} thin />
-          </ButtonIcon>
-        </div>
-      </Alert>
-    </div>
+    <DismissableAlertComponent
+      onDismiss={() => {
+        hideAlert();
+        setShow(false);
+      }}
+      {...props}
+    >
+      {children}
+    </DismissableAlertComponent>
   );
 }

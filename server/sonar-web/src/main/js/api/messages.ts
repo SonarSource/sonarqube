@@ -21,9 +21,10 @@ import { throwGlobalError } from '../helpers/error';
 import { getJSON, postJSON } from '../helpers/request';
 
 export enum MessageTypes {
-  GlobalNcd90 = 'global_ncd_90',
-  ProjectNcd90 = 'project_ncd_90',
-  BranchNcd90 = 'branch_ncd_90',
+  GlobalNcd90 = 'GLOBAL_NCD_90',
+  GlobalNcdPage90 = 'GLOBAL_NCD_PAGE_90',
+  ProjectNcd90 = 'PROJECT_NCD_90',
+  BranchNcd90 = 'BRANCH_NCD_90',
 }
 
 export interface MessageDismissParams {

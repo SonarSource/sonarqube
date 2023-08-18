@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Banner } from 'design-system';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { MessageTypes, checkMessageDismissed, setMessageDismissed } from '../../api/messages';
+import { checkMessageDismissed, MessageTypes, setMessageDismissed } from '../../api/messages';
 import { getNewCodePeriod } from '../../api/newCodePeriod';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
@@ -32,6 +31,7 @@ import { NewCodeDefinition, NewCodeDefinitionType } from '../../types/new-code-d
 import { Permissions } from '../../types/permissions';
 import { isLoggedIn } from '../../types/users';
 import Link from '../common/Link';
+import DismissableAlertComponent from '../ui/DismissableAlertComponent';
 
 interface Props extends Pick<CurrentUserContextInterface, 'currentUser'> {}
 
@@ -78,10 +78,10 @@ export function GlobalNCDAutoUpdateMessage(props: Props) {
   }
 
   return (
-    <Banner onDismiss={handleBannerDismiss} variant="info">
+    <DismissableAlertComponent onDismiss={handleBannerDismiss} variant="info" display="banner">
       <FormattedMessage
-        defaultMessage="new_code_definition.auto_update.message"
-        id="new_code_definition.auto_update.message"
+        defaultMessage="new_code_definition.auto_update.global.message"
+        id="new_code_definition.auto_update.global.message"
         tagName="span"
         values={{
           previousDays: newCodeDefinition.previousNonCompliantValue,
@@ -101,7 +101,7 @@ export function GlobalNCDAutoUpdateMessage(props: Props) {
           ),
         }}
       />
-    </Banner>
+    </DismissableAlertComponent>
   );
 }
 

@@ -20,20 +20,25 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import { MessageTypes } from '../../../../api/messages';
+import MessagesServiceMock from '../../../../api/mocks/MessagesServiceMock';
 import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../helpers/testSelector';
+import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import { NewCodeDefinitionType } from '../../../../types/new-code-definition';
 import NewCodePeriod from '../NewCodePeriod';
 
 let newCodeMock: NewCodePeriodsServiceMock;
+let messagesMock: MessagesServiceMock;
 
 beforeAll(() => {
   newCodeMock = new NewCodePeriodsServiceMock();
+  messagesMock = new MessagesServiceMock();
 });
 
 afterEach(() => {
   newCodeMock.reset();
+  messagesMock.reset();
 });
 
 const ui = {
@@ -45,6 +50,8 @@ const ui = {
   daysInput: byRole('spinbutton') /* spinbutton is the default role for a number input */,
   saveButton: byRole('button', { name: 'save' }),
   cancelButton: byRole('button', { name: 'cancel' }),
+  ncdAutoUpdateMessage: byText(/new_code_definition.auto_update.global.page.message/),
+  ncdAutoUpdateMessageDismiss: byLabelText('alert.dismiss'),
 };
 
 it('renders and behaves as expected', async () => {
@@ -109,6 +116,48 @@ it('renders and behaves properly when the current value is not compliant', async
   await user.type(ui.daysInput.get(), '92');
 
   expect(ui.daysNumberErrorMessage.get()).toBeInTheDocument();
+});
+
+it('displays information message when NCD is automatically updated', async () => {
+  newCodeMock.setNewCodePeriod({
+    type: NewCodeDefinitionType.NumberOfDays,
+    value: '90',
+    previousNonCompliantValue: '120',
+    updatedAt: 1692279521904,
+  });
+  renderNewCodePeriod();
+
+  expect(await ui.ncdAutoUpdateMessage.find()).toBeVisible();
+});
+
+it('dismisses information message when NCD is automatically updated', async () => {
+  newCodeMock.setNewCodePeriod({
+    type: NewCodeDefinitionType.NumberOfDays,
+    value: '90',
+    previousNonCompliantValue: '120',
+    updatedAt: 1692279521904,
+  });
+  renderNewCodePeriod();
+
+  expect(await ui.ncdAutoUpdateMessage.find()).toBeVisible();
+
+  const user = userEvent.setup();
+  await user.click(ui.ncdAutoUpdateMessageDismiss.get());
+
+  expect(ui.ncdAutoUpdateMessage.query()).not.toBeInTheDocument();
+});
+
+it('does not display information message when NCD is automatically updated if message is already dismissed', () => {
+  newCodeMock.setNewCodePeriod({
+    type: NewCodeDefinitionType.NumberOfDays,
+    value: '90',
+    previousNonCompliantValue: '120',
+    updatedAt: 1692279521904,
+  });
+  messagesMock.setMessageDismissed({ messageType: MessageTypes.GlobalNcdPage90 });
+  renderNewCodePeriod();
+
+  expect(ui.ncdAutoUpdateMessage.query()).not.toBeInTheDocument();
 });
 
 function renderNewCodePeriod() {
