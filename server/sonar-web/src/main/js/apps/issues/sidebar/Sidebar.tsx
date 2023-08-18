@@ -182,31 +182,32 @@ export class SidebarClass extends React.PureComponent<Props> {
           />
         )}
 
-        <AttributeCategoryFacet
-          fetching={this.props.loadingFacets.cleanCodeAttributeCategories === true}
-          needIssueSync={needIssueSync}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets.cleanCodeAttributeCategories}
-          stats={facets.cleanCodeAttributeCategories}
-          categories={query.cleanCodeAttributeCategories}
-        />
-        <BasicSeparator className="sw-my-4" />
-
-        <SoftwareQualityFacet
-          fetching={this.props.loadingFacets.impactSoftwareQualities === true}
-          needIssueSync={needIssueSync}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets.impactSoftwareQualities}
-          stats={facets.impactSoftwareQualities}
-          qualities={query.impactSoftwareQualities}
-        />
-
-        <BasicSeparator className="sw-my-4" />
-
         {!needIssueSync && (
           <>
+            <AttributeCategoryFacet
+              fetching={this.props.loadingFacets.cleanCodeAttributeCategories === true}
+              needIssueSync={needIssueSync}
+              onChange={this.props.onFilterChange}
+              onToggle={this.props.onFacetToggle}
+              open={!!openFacets.cleanCodeAttributeCategories}
+              stats={facets.cleanCodeAttributeCategories}
+              categories={query.cleanCodeAttributeCategories}
+            />
+
+            <BasicSeparator className="sw-my-4" />
+
+            <SoftwareQualityFacet
+              fetching={this.props.loadingFacets.impactSoftwareQualities === true}
+              needIssueSync={needIssueSync}
+              onChange={this.props.onFilterChange}
+              onToggle={this.props.onFacetToggle}
+              open={!!openFacets.impactSoftwareQualities}
+              stats={facets.impactSoftwareQualities}
+              qualities={query.impactSoftwareQualities}
+            />
+
+            <BasicSeparator className="sw-my-4" />
+
             <SeverityFacet
               fetching={this.props.loadingFacets.impactSeverities === true}
               onChange={this.props.onFilterChange}
