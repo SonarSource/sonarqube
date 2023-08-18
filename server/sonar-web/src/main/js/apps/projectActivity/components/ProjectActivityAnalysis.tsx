@@ -93,7 +93,7 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
   if (analysis.buildString) {
     tooltipContent = (
       <>
-        {tooltipContent}
+        {tooltipContent}{' '}
         {translateWithParameters('project_activity.analysis_build_string_X', analysis.buildString)}
       </>
     );
