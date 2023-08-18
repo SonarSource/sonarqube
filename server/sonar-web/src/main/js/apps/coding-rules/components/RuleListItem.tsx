@@ -134,7 +134,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
       return null;
     }
 
-    const canCopy = selectedProfile.actions && selectedProfile.actions.copy;
+    const canCopy = selectedProfile.actions?.copy;
     if (selectedProfile.isBuiltIn && canCopy) {
       return (
         <td className="coding-rule-table-meta-cell coding-rule-activation-actions">
@@ -147,7 +147,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
       );
     }
 
-    const canEdit = selectedProfile.actions && selectedProfile.actions.edit;
+    const canEdit = selectedProfile.actions?.edit;
     if (!canEdit) {
       return null;
     }
