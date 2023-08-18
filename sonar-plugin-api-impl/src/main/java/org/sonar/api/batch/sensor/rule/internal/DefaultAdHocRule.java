@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.sensor.rule.internal;
 
-import java.util.Collections;
+import java.util.EnumMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -43,6 +43,10 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
   private String engineId;
   private String ruleId;
 
+  private CleanCodeAttribute cleanCodeAttribute;
+
+  private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = new EnumMap<>(SoftwareQuality.class);
+
   public DefaultAdHocRule() {
     super(null);
   }
@@ -59,6 +63,7 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
 
   @Override
   public DefaultAdHocRule addDefaultImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {
+    impacts.put(softwareQuality, severity);
     return this;
   }
 
@@ -93,8 +98,7 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
     checkState(isNotBlank(engineId), "Engine id is mandatory on ad hoc rule");
     checkState(isNotBlank(ruleId), "Rule id is mandatory on ad hoc rule");
     checkState(isNotBlank(name), "Name is mandatory on every ad hoc rule");
-    checkState(severity != null, "Severity is mandatory on every ad hoc rule");
-    checkState(type != null, "Type is mandatory on every ad hoc rule");
+    checkState(!impacts.isEmpty() || (severity != null && type != null), "Impact should be provided, or Severity and Type instead");
     storage.store(this);
   }
 
@@ -105,13 +109,13 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
 
   @Override
   public Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> defaultImpacts() {
-    return Collections.emptyMap();
+    return impacts;
   }
 
   @CheckForNull
   @Override
   public CleanCodeAttribute cleanCodeAttribute() {
-    return null;
+    return cleanCodeAttribute;
   }
 
   @Override
@@ -145,7 +149,8 @@ public class DefaultAdHocRule extends DefaultStorable implements AdHocRule, NewA
   }
 
   @Override
-  public DefaultAdHocRule cleanCodeAttribute(CleanCodeAttribute attribute) {
+  public DefaultAdHocRule cleanCodeAttribute(CleanCodeAttribute cleanCodeAttribute) {
+    this.cleanCodeAttribute = cleanCodeAttribute;
     return this;
   }
 

@@ -57,7 +57,11 @@ import org.sonar.api.batch.sensor.rule.AdHocRule;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.util.CloseableIterator;
@@ -257,9 +261,32 @@ public class DefaultSensorStorage implements SensorStorage {
     if (description != null) {
       builder.setDescription(description);
     }
-    builder.setSeverity(Constants.Severity.valueOf(adHocRule.severity().name()));
-    builder.setType(ScannerReport.IssueType.valueOf(adHocRule.type().name()));
+
+
+    org.sonar.api.batch.rule.Severity severity = adHocRule.severity();
+    if (severity != null) {
+      builder.setSeverity(Constants.Severity.valueOf(severity.name()));
+    }
+
+    RuleType type = adHocRule.type();
+    if (type != null) {
+      builder.setType(ScannerReport.IssueType.valueOf(type.name()));
+    }
+    builder.addAllDefaultImpacts(mapImpacts(adHocRule.defaultImpacts()));
+
+    CleanCodeAttribute cleanCodeAttribute = adHocRule.cleanCodeAttribute();
+    if (cleanCodeAttribute != null) {
+      builder.setCleanCodeAttribute(cleanCodeAttribute.name());
+    }
     writer.appendAdHocRule(builder.build());
+  }
+
+  private static List<ScannerReport.Impact> mapImpacts(Map<SoftwareQuality, Severity> impactsMap) {
+    return impactsMap.entrySet().stream()
+      .map(e -> ScannerReport.Impact.newBuilder()
+        .setSoftwareQuality(e.getKey().name())
+        .setSeverity(e.getValue().name()).build())
+      .collect(toList());
   }
 
   @Override
