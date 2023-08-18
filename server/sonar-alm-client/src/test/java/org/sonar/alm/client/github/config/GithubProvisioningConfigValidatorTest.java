@@ -53,9 +53,11 @@ public class GithubProvisioningConfigValidatorTest {
   private static final String INCOMPLETE_APP_CONFIG_STATUS = "The GitHub App configuration is not complete.";
   private static final String MISSING_EMAIL_PERMISSION = "Missing GitHub permissions: Account permissions > Email addresses (Read-only)";
   private static final String MISSING_ALL_AUTOPROVISIONNING_PERMISSIONS = "Missing GitHub permissions: Organization permissions > Members (Read-only), "
+    + "Organization permissions > Administration (Read-only), "
     + "Repository permissions > Administration (Read-only), Repository permissions > Metadata (Read-only)";
   private static final String MISSING_ALL_PERMISSIONS = "Missing GitHub permissions: Account permissions > Email addresses (Read-only), "
-    + "Organization permissions > Members (Read-only), Repository permissions > Administration (Read-only), Repository permissions > Metadata (Read-only)";
+    + "Organization permissions > Members (Read-only), Organization permissions > Administration (Read-only), "
+    + "Repository permissions > Administration (Read-only), Repository permissions > Metadata (Read-only)";
   private static final String NO_INSTALLATIONS_STATUS = "The GitHub App is not installed on any organizations or the organization is not white-listed.";
   private static final String SUSPENDED_INSTALLATION = "Installation suspended";
 
@@ -193,7 +195,6 @@ public class GithubProvisioningConfigValidatorTest {
     assertThat(checkResult.installations()).isEmpty();
 
     verifyAppConfiguration(appConfigurationCaptor.getValue());
-
   }
 
   @Test
@@ -270,7 +271,15 @@ public class GithubProvisioningConfigValidatorTest {
   private GsonApp mockGithubAppWithValidConfig(ArgumentCaptor<GithubAppConfiguration> appConfigurationCaptor) {
     GsonApp githubApp = mock(GsonApp.class);
     when(githubClient.getApp(appConfigurationCaptor.capture())).thenReturn(githubApp);
-    when(githubApp.getPermissions()).thenReturn(Permissions.builder().setMembers("read").setEmails("read").setMetadata("read").setAdministration("read").build());
+    when(githubApp.getPermissions()).thenReturn(
+      Permissions.builder()
+        .setMembers("read")
+        .setEmails("read")
+        .setMetadata("read")
+        .setRepoAdministration("read")
+        .setOrgAdministration("read")
+        .build()
+    );
 
     return githubApp;
   }
@@ -301,7 +310,15 @@ public class GithubProvisioningConfigValidatorTest {
 
   private static GithubAppInstallation mockInstallationWithAllPermissions(String org) {
     GithubAppInstallation installation = mockInstallation(org);
-    when(installation.permissions()).thenReturn(Permissions.builder().setMembers("read").setEmails("read").setMetadata("read").setAdministration("read").build());
+    when(installation.permissions()).thenReturn(
+      Permissions.builder()
+        .setMembers("read")
+        .setEmails("read")
+        .setMetadata("read")
+        .setRepoAdministration("read")
+        .setOrgAdministration("read")
+        .build()
+    );
     return installation;
   }
 

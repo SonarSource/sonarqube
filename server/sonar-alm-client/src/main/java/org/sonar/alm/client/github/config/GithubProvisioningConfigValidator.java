@@ -40,6 +40,7 @@ import static org.sonar.alm.client.github.config.ConfigCheckResult.InstallationS
 public class GithubProvisioningConfigValidator {
 
   private static final String ORG_MEMBERS_PERMISSION = "Organization permissions > Members (Read-only)";
+  private static final String ORG_ADMIN_PERMISSION = "Organization permissions > Administration (Read-only)";
   private static final String ACCOUNT_EMAILS_PERMISSION = "Account permissions > Email addresses (Read-only)";
   private static final String REPO_ADMIN_PERMISSION = "Repository permissions > Administration (Read-only)";
   private static final String REPO_METADATA_PERMISSION = "Repository permissions > Metadata (Read-only)";
@@ -129,15 +130,7 @@ public class GithubProvisioningConfigValidator {
     if (permissions.getEmails() == null) {
       missingPermissions.add(ACCOUNT_EMAILS_PERMISSION);
     }
-    if (permissions.getMembers() == null) {
-      missingPermissions.add(ORG_MEMBERS_PERMISSION);
-    }
-    if (permissions.getAdministration() == null) {
-      missingPermissions.add(REPO_ADMIN_PERMISSION);
-    }
-    if (permissions.getMetadata() == null) {
-      missingPermissions.add(REPO_METADATA_PERMISSION);
-    }
+    checkCommonPermissions(permissions, missingPermissions);
     if (missingPermissions.isEmpty()) {
       return ConfigStatus.SUCCESS;
     }
@@ -167,19 +160,26 @@ public class GithubProvisioningConfigValidator {
 
   private static ConfigStatus autoProvisioningInstallationConfigStatus(Permissions permissions) {
     List<String> missingPermissions = new ArrayList<>();
+    checkCommonPermissions(permissions, missingPermissions);
+    if (missingPermissions.isEmpty()) {
+      return ConfigStatus.SUCCESS;
+    }
+    return failedStatus(missingPermissions);
+  }
+
+  private static void checkCommonPermissions(Permissions permissions, List<String> missingPermissions) {
     if (permissions.getMembers() == null) {
       missingPermissions.add(ORG_MEMBERS_PERMISSION);
     }
-    if (permissions.getAdministration() == null) {
+    if (permissions.getOrgAdministration() == null) {
+      missingPermissions.add(ORG_ADMIN_PERMISSION);
+    }
+    if (permissions.getRepoAdministration() == null) {
       missingPermissions.add(REPO_ADMIN_PERMISSION);
     }
     if (permissions.getMetadata() == null) {
       missingPermissions.add(REPO_METADATA_PERMISSION);
     }
-    if (missingPermissions.isEmpty()) {
-      return ConfigStatus.SUCCESS;
-    }
-    return failedStatus(missingPermissions);
   }
 
 }

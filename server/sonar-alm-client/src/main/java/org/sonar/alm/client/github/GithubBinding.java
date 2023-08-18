@@ -155,16 +155,20 @@ public class GithubBinding {
     @SerializedName("metadata")
     String metadata;
     @SerializedName("administration")
-    String administration;
+    String repoAdministration;
+
+    @SerializedName("organization_administration")
+    String orgAdministration;
 
     public Permissions(@Nullable String checks, @Nullable String members, @Nullable String emails, @Nullable String contents, @Nullable String metadata,
-      @Nullable String administration) {
+      @Nullable String repoAdministration, @Nullable String orgAdministration) {
       this.checks = checks;
       this.members = members;
       this.emails = emails;
       this.contents = contents;
       this.metadata = metadata;
-      this.administration = administration;
+      this.repoAdministration = repoAdministration;
+      this.orgAdministration = orgAdministration;
     }
 
     public Permissions() {
@@ -203,8 +207,13 @@ public class GithubBinding {
     }
 
     @CheckForNull
-    public String getAdministration() {
-      return administration;
+    public String getRepoAdministration() {
+      return repoAdministration;
+    }
+
+    @CheckForNull
+    public String getOrgAdministration() {
+      return orgAdministration;
     }
 
     public static class Builder {
@@ -213,7 +222,9 @@ public class GithubBinding {
       private String emails;
       private String contents;
       private String metadata;
-      private String administration;
+      private String repoAdministration;
+
+      private String orgAdministration;
 
       private Builder() {
         // Use static factory method
@@ -244,13 +255,18 @@ public class GithubBinding {
         return this;
       }
 
-      public Builder setAdministration(String administration) {
-        this.administration = administration;
+      public Builder setRepoAdministration(String repoAdministration) {
+        this.repoAdministration = repoAdministration;
+        return this;
+      }
+
+      public Builder setOrgAdministration(String orgAdministration) {
+        this.orgAdministration = orgAdministration;
         return this;
       }
 
       public GithubBinding.Permissions build() {
-        return new GithubBinding.Permissions(checks, members, emails, contents, metadata, administration);
+        return new GithubBinding.Permissions(checks, members, emails, contents, metadata, repoAdministration, orgAdministration);
       }
     }
   }
