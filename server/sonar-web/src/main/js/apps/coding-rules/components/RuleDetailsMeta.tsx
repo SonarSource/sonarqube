@@ -20,10 +20,10 @@
 
 import * as React from 'react';
 import Link from '../../../components/common/Link';
-import { ButtonLink } from '../../../components/controls/buttons';
 import Dropdown from '../../../components/controls/Dropdown';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Tooltip from '../../../components/controls/Tooltip';
+import { ButtonLink } from '../../../components/controls/buttons';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import LinkIcon from '../../../components/icons/LinkIcon';
 import DateFormatter from '../../../components/intl/DateFormatter';
@@ -33,14 +33,10 @@ import { PopupPlacement } from '../../../components/ui/popups';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 import { Dict, RuleDetails } from '../../../types/types';
-import { Query } from '../query';
 import RuleDetailsTagsPopup from './RuleDetailsTagsPopup';
-import SimilarRulesFilter from './SimilarRulesFilter';
 
 interface Props {
   canWrite: boolean | undefined;
-  hideSimilarRulesFilter?: boolean;
-  onFilterChange: (changes: Partial<Query>) => void;
   onTagsChange: (tags: string[]) => void;
   referencedRepositories: Dict<{ key: string; language: string; name: string }>;
   ruleDetails: RuleDetails;
@@ -239,9 +235,6 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
               >
                 <LinkIcon />
               </Link>
-            )}
-            {!this.props.hideSimilarRulesFilter && (
-              <SimilarRulesFilter onFilterChange={this.props.onFilterChange} rule={ruleDetails} />
             )}
           </div>
           <h1 className="page-title coding-rules-detail-header">{ruleDetails.name}</h1>

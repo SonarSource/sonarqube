@@ -26,7 +26,7 @@ import { Button } from '../../../components/controls/buttons';
 import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict, RuleActivation, RuleDetails as TypeRuleDetails } from '../../../types/types';
-import { Activation, Query } from '../query';
+import { Activation } from '../query';
 import CustomRuleButton from './CustomRuleButton';
 import RuleDetailsCustomRules from './RuleDetailsCustomRules';
 import RuleDetailsDescription from './RuleDetailsDescription';
@@ -41,7 +41,6 @@ interface Props {
   onActivate: (profile: string, rule: string, activation: Activation) => void;
   onDeactivate: (profile: string, rule: string) => void;
   onDelete: (rule: string) => void;
-  onFilterChange: (changes: Partial<Query>) => void;
   referencedProfiles: Dict<Profile>;
   referencedRepositories: Dict<{ key: string; language: string; name: string }>;
   ruleKey: string;
@@ -166,7 +165,6 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
         <Spinner loading={this.state.loading}>
           <RuleDetailsMeta
             canWrite={canWrite}
-            onFilterChange={this.props.onFilterChange}
             onTagsChange={this.handleTagsChange}
             referencedRepositories={this.props.referencedRepositories}
             ruleDetails={ruleDetails}

@@ -653,7 +653,6 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
                   onActivate={this.handleRuleActivate}
                   onDeactivate={this.handleRuleDeactivate}
                   onDelete={this.handleRuleDelete}
-                  onFilterChange={this.handleFilterChange}
                   referencedProfiles={this.state.referencedProfiles}
                   referencedRepositories={this.state.referencedRepositories}
                   ruleKey={openRule.key}
@@ -669,7 +668,6 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
                         key={rule.key}
                         onActivate={this.handleRuleActivate}
                         onDeactivate={this.handleRuleDeactivate}
-                        onFilterChange={this.handleFilterChange}
                         onOpen={this.handleRuleOpen}
                         rule={rule}
                         selected={rule.key === selected}

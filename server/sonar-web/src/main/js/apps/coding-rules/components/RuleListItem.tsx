@@ -30,17 +30,15 @@ import TagsList from '../../../components/tags/TagsList';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 import { Rule } from '../../../types/types';
-import { Activation, Query } from '../query';
+import { Activation } from '../query';
 import ActivationButton from './ActivationButton';
 import RuleInheritanceIcon from './RuleInheritanceIcon';
-import SimilarRulesFilter from './SimilarRulesFilter';
 
 interface Props {
   activation?: Activation;
   isLoggedIn: boolean;
   onActivate: (profile: string, rule: string, activation: Activation) => void;
   onDeactivate: (profile: string, rule: string) => void;
-  onFilterChange: (changes: Partial<Query>) => void;
   onOpen: (ruleKey: string) => void;
   rule: Rule;
   selected: boolean;
@@ -256,7 +254,6 @@ export default class RuleListItem extends React.PureComponent<Props> {
                       tags={allTags}
                     />
                   )}
-                  <SimilarRulesFilter onFilterChange={this.props.onFilterChange} rule={rule} />
                 </div>
               </td>
 

@@ -30,16 +30,6 @@ const selectors = {
   ruleListItemLink: (name: string) => byRole('link', { name }),
   ruleListItem: byRole('listitem'),
   currentListItem: byRole('listitem', { current: true }),
-  similarIssuesButton: (rule: string) =>
-    byRole('button', { name: `coding_rules.filter_similar_rules_x.${rule}` }),
-  similarIssuesFilterByLang: (lang: string) =>
-    byRole('button', { name: `coding_rules.filter_by_language.${lang}` }),
-  similarIssuesFilterByType: (type: string) =>
-    byRole('button', { name: `coding_rules.filter_by_type.${type}` }),
-  similarIssuesFilterBySeverity: (severity: string) =>
-    byRole('button', { name: `coding_rules.filter_by_severity.${severity}` }),
-  similarIssuesFilterByTag: (tag: string) =>
-    byRole('button', { name: `coding_rules.filter_by_tag.${tag}` }),
 
   // Filters
   searchInput: byRole('searchbox', { name: 'search.search_for_rules' }),

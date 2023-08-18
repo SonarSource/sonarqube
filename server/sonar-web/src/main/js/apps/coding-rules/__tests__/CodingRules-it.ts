@@ -193,41 +193,6 @@ describe('Rules app list', () => {
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(11);
     });
 
-    it('filters by similar rules', async () => {
-      const { ui, user } = getPageObjects();
-      renderCodingRulesApp(mockCurrentUser());
-      await ui.appLoaded();
-
-      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(11);
-
-      const ruleName = 'Awesome Python rule with education principles';
-
-      await act(async () => {
-        await user.click(ui.similarIssuesButton(ruleName).get());
-        await user.click(ui.similarIssuesFilterByLang('Python').get());
-      });
-      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(6);
-
-      await act(async () => {
-        await user.click(ui.similarIssuesButton(ruleName).get());
-        await user.click(ui.similarIssuesFilterByType('issue.type.VULNERABILITY').get());
-      });
-      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(3);
-      expect(ui.facetItem('issue.type.VULNERABILITY').get()).toBeChecked();
-
-      await act(async () => {
-        await user.click(ui.similarIssuesButton(ruleName).get());
-        await user.click(ui.similarIssuesFilterBySeverity('MINOR').get());
-      });
-      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(2);
-
-      await act(async () => {
-        await user.click(ui.similarIssuesButton(ruleName).get());
-        await user.click(ui.similarIssuesFilterByTag('awesome').get());
-      });
-      expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
-    });
-
     it('filters by search', async () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(mockCurrentUser());

@@ -12,8 +12,6 @@ exports[`should render 2`] = `
 >
   <RuleDetailsMeta
     canWrite={false}
-    hideSimilarRulesFilter={true}
-    onFilterChange={[Function]}
     onTagsChange={[Function]}
     referencedRepositories={
       {
