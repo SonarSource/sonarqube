@@ -50,12 +50,8 @@ export function Spinner(props: React.PropsWithChildren<Props>) {
 
   return (
     <>
-      <div className="sw-overflow-hidden">
-        <StyledSpinner
-          aria-live="polite"
-          className={classNames(className, { 'a11y-hidden': !loading })}
-          role="status"
-        >
+      <div className={classNames('sw-overflow-hidden', { 'a11y-hidden': !loading })}>
+        <StyledSpinner aria-live="polite" className={className} role="status">
           {loading && <span className="a11y-hidden">{ariaLabel}</span>}
         </StyledSpinner>
       </div>

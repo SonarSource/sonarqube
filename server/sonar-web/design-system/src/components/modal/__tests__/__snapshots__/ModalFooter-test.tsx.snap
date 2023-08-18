@@ -55,11 +55,11 @@ exports[`should render with primary and secondary buttons 1`] = `
     class="emotion-0 emotion-1"
   >
     <div
-      class="sw-overflow-hidden"
+      class="sw-overflow-hidden a11y-hidden"
     >
       <div
         aria-live="polite"
-        class="a11y-hidden emotion-2 emotion-3"
+        class="emotion-2 emotion-3"
         role="status"
       />
     </div>
@@ -132,11 +132,11 @@ exports[`should render with secondary button 1`] = `
     class="emotion-0 emotion-1"
   >
     <div
-      class="sw-overflow-hidden"
+      class="sw-overflow-hidden a11y-hidden"
     >
       <div
         aria-live="polite"
-        class="a11y-hidden emotion-2 emotion-3"
+        class="emotion-2 emotion-3"
         role="status"
       />
     </div>
