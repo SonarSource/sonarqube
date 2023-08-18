@@ -86,10 +86,7 @@ function NCDAutoUpdateMessage(props: NCDAutoUpdateMessageProps) {
         }
       );
 
-      if (
-        isPreviouslyNonCompliantDaysNCD(newCodeDefinition) &&
-        (!component || !newCodeDefinition?.inherited)
-      ) {
+      if (isPreviouslyNonCompliantDaysNCD(newCodeDefinition)) {
         setPreviouslyNonCompliantNewCodeDefinition(newCodeDefinition);
 
         const messageStatus = await checkMessageDismissed(

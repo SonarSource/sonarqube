@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { within } from '@testing-library/react';
+import { act, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { first, last } from 'lodash';
 import selectEvent from 'react-select-event';
+import { MessageTypes } from '../../../../api/messages';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
+import MessagesServiceMock from '../../../../api/mocks/MessagesServiceMock';
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
@@ -31,7 +33,7 @@ import {
   RenderContext,
   renderAppWithComponentContext,
 } from '../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../helpers/testSelector';
+import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import { Feature } from '../../../../types/features';
 import { NewCodeDefinitionType } from '../../../../types/new-code-definition';
 import routes from '../../routes';
@@ -40,19 +42,21 @@ jest.mock('../../../../api/newCodeDefinition');
 jest.mock('../../../../api/projectActivity');
 jest.mock('../../../../api/branches');
 
-const codePeriodsMock = new NewCodeDefinitionServiceMock();
+const newCodeDefinitionMock = new NewCodeDefinitionServiceMock();
 const projectActivityMock = new ProjectActivityServiceMock();
 const branchHandler = new BranchesServiceMock();
+const messagesMock = new MessagesServiceMock();
 
 afterEach(() => {
   branchHandler.reset();
-  codePeriodsMock.reset();
+  newCodeDefinitionMock.reset();
   projectActivityMock.reset();
+  messagesMock.reset();
 });
 
 it('renders correctly without branch support feature', async () => {
   const { ui } = getPageObjects();
-  renderProjectBaselineApp();
+  renderProjectNewCodeDefinitionApp();
   await ui.appIsLoaded();
 
   expect(await ui.generalSettingRadio.find()).toBeChecked();
@@ -67,14 +71,14 @@ it('renders correctly without branch support feature', async () => {
 });
 
 it('prevents selection of global setting if it is not compliant and warns non-admin about it', async () => {
-  codePeriodsMock.setNewCodePeriod({
+  newCodeDefinitionMock.setNewCodePeriod({
     type: NewCodeDefinitionType.NumberOfDays,
     value: '99',
     inherited: true,
   });
 
   const { ui } = getPageObjects();
-  renderProjectBaselineApp();
+  renderProjectNewCodeDefinitionApp();
   await ui.appIsLoaded();
 
   expect(await ui.generalSettingRadio.find()).toBeChecked();
@@ -83,14 +87,14 @@ it('prevents selection of global setting if it is not compliant and warns non-ad
 });
 
 it('prevents selection of global setting if it is not compliant and warns admin about it', async () => {
-  codePeriodsMock.setNewCodePeriod({
+  newCodeDefinitionMock.setNewCodePeriod({
     type: NewCodeDefinitionType.NumberOfDays,
     value: '99',
     inherited: true,
   });
 
   const { ui } = getPageObjects();
-  renderProjectBaselineApp({ appState: mockAppState({ canAdmin: true }) });
+  renderProjectNewCodeDefinitionApp({ appState: mockAppState({ canAdmin: true }) });
   await ui.appIsLoaded();
 
   expect(await ui.generalSettingRadio.find()).toBeChecked();
@@ -101,7 +105,7 @@ it('prevents selection of global setting if it is not compliant and warns admin 
 
 it('renders correctly with branch support feature', async () => {
   const { ui } = getPageObjects();
-  renderProjectBaselineApp({
+  renderProjectNewCodeDefinitionApp({
     featureList: [Feature.BranchSupport],
     appState: mockAppState({ canAdmin: true }),
   });
@@ -120,7 +124,7 @@ it('renders correctly with branch support feature', async () => {
 
 it('can set previous version specific setting', async () => {
   const { ui, user } = getPageObjects();
-  renderProjectBaselineApp();
+  renderProjectNewCodeDefinitionApp();
   await ui.appIsLoaded();
 
   expect(await ui.previousVersionRadio.find()).toHaveClass('disabled');
@@ -141,7 +145,7 @@ it('can set previous version specific setting', async () => {
 
 it('can set number of days specific setting', async () => {
   const { ui, user } = getPageObjects();
-  renderProjectBaselineApp();
+  renderProjectNewCodeDefinitionApp();
   await ui.appIsLoaded();
 
   expect(await ui.numberDaysRadio.find()).toHaveClass('disabled');
@@ -162,7 +166,7 @@ it('can set number of days specific setting', async () => {
 
 it('can set reference branch specific setting', async () => {
   const { ui, user } = getPageObjects();
-  renderProjectBaselineApp({
+  renderProjectNewCodeDefinitionApp({
     featureList: [Feature.BranchSupport],
   });
   await ui.appIsLoaded();
@@ -179,11 +183,11 @@ it('can set reference branch specific setting', async () => {
 
 it('cannot set specific analysis setting', async () => {
   const { ui } = getPageObjects();
-  codePeriodsMock.setNewCodePeriod({
+  newCodeDefinitionMock.setNewCodePeriod({
     type: NewCodeDefinitionType.SpecificAnalysis,
     value: 'analysis_id',
   });
-  renderProjectBaselineApp();
+  renderProjectNewCodeDefinitionApp();
   await ui.appIsLoaded();
 
   expect(await ui.specificAnalysisRadio.find()).toBeChecked();
@@ -198,7 +202,7 @@ it('cannot set specific analysis setting', async () => {
 
 it('renders correctly branch modal', async () => {
   const { ui } = getPageObjects();
-  renderProjectBaselineApp({
+  renderProjectNewCodeDefinitionApp({
     featureList: [Feature.BranchSupport],
   });
   await ui.appIsLoaded();
@@ -210,7 +214,7 @@ it('renders correctly branch modal', async () => {
 
 it('can set a previous version setting for branch', async () => {
   const { ui, user } = getPageObjects();
-  renderProjectBaselineApp({
+  renderProjectNewCodeDefinitionApp({
     featureList: [Feature.BranchSupport],
   });
   await ui.appIsLoaded();
@@ -232,7 +236,7 @@ it('can set a previous version setting for branch', async () => {
 
 it('can set a number of days setting for branch', async () => {
   const { ui } = getPageObjects();
-  renderProjectBaselineApp({
+  renderProjectNewCodeDefinitionApp({
     featureList: [Feature.BranchSupport],
   });
   await ui.appIsLoaded();
@@ -246,14 +250,14 @@ it('can set a number of days setting for branch', async () => {
 
 it('cannot set a specific analysis setting for branch', async () => {
   const { ui } = getPageObjects();
-  codePeriodsMock.setListBranchesNewCode([
+  newCodeDefinitionMock.setListBranchesNewCode([
     mockNewCodePeriodBranch({
       branchKey: 'main',
       type: NewCodeDefinitionType.SpecificAnalysis,
       value: 'analysis_id',
     }),
   ]);
-  renderProjectBaselineApp({
+  renderProjectNewCodeDefinitionApp({
     featureList: [Feature.BranchSupport],
   });
   await ui.appIsLoaded();
@@ -272,7 +276,7 @@ it('cannot set a specific analysis setting for branch', async () => {
 
 it('can set a reference branch setting for branch', async () => {
   const { ui } = getPageObjects();
-  renderProjectBaselineApp({
+  renderProjectNewCodeDefinitionApp({
     featureList: [Feature.BranchSupport],
   });
   await ui.appIsLoaded();
@@ -284,7 +288,108 @@ it('can set a reference branch setting for branch', async () => {
   ).toBeInTheDocument();
 });
 
-function renderProjectBaselineApp(context: RenderContext = {}, params?: string) {
+it('should display NCD banner if some branches had their NCD automatically changed', async () => {
+  const { ui } = getPageObjects();
+
+  newCodeDefinitionMock.setListBranchesNewCode([
+    {
+      projectKey: 'test-project:test',
+      branchKey: 'test-branch',
+      type: NewCodeDefinitionType.NumberOfDays,
+      value: '25',
+      inherited: true,
+      updatedAt: 1692720953662,
+    },
+    {
+      projectKey: 'test-project:test',
+      branchKey: 'master',
+      type: NewCodeDefinitionType.NumberOfDays,
+      value: '32',
+      previousNonCompliantValue: '150',
+      updatedAt: 1692721852743,
+    },
+  ]);
+
+  renderProjectNewCodeDefinitionApp({
+    featureList: [Feature.BranchSupport],
+  });
+
+  expect(await ui.branchNCDsBanner.find()).toBeInTheDocument();
+  expect(
+    ui.branchNCDsBanner.byText('new_code_definition.auto_update.branch.list_itemmaster32150').get()
+  ).toBeInTheDocument();
+});
+
+it('should not display NCD banner if some branches had their NCD automatically changed and banne has been dismissed', async () => {
+  const { ui } = getPageObjects();
+
+  newCodeDefinitionMock.setListBranchesNewCode([
+    {
+      projectKey: 'test-project:test',
+      branchKey: 'test-branch',
+      type: NewCodeDefinitionType.NumberOfDays,
+      value: '25',
+      inherited: true,
+      updatedAt: 1692720953662,
+    },
+    {
+      projectKey: 'test-project:test',
+      branchKey: 'master',
+      type: NewCodeDefinitionType.NumberOfDays,
+      value: '32',
+      previousNonCompliantValue: '150',
+      updatedAt: 1692721852743,
+    },
+  ]);
+  messagesMock.setMessageDismissed({
+    projectKey: 'test-project:test',
+    messageType: MessageTypes.BranchNcd90,
+  });
+
+  renderProjectNewCodeDefinitionApp({
+    featureList: [Feature.BranchSupport],
+  });
+
+  expect(await ui.branchNCDsBanner.query()).not.toBeInTheDocument();
+});
+
+it('should correctly dismiss branch banner', async () => {
+  const { ui } = getPageObjects();
+
+  newCodeDefinitionMock.setListBranchesNewCode([
+    {
+      projectKey: 'test-project:test',
+      branchKey: 'test-branch',
+      type: NewCodeDefinitionType.NumberOfDays,
+      value: '25',
+      inherited: true,
+      updatedAt: 1692720953662,
+    },
+    {
+      projectKey: 'test-project:test',
+      branchKey: 'master',
+      type: NewCodeDefinitionType.NumberOfDays,
+      value: '32',
+      previousNonCompliantValue: '150',
+      updatedAt: 1692721852743,
+    },
+  ]);
+
+  renderProjectNewCodeDefinitionApp({
+    featureList: [Feature.BranchSupport],
+  });
+
+  expect(await ui.branchNCDsBanner.find()).toBeInTheDocument();
+
+  const user = userEvent.setup();
+  await act(async () => {
+    await user.click(ui.dismissButton.get());
+  });
+
+  expect(ui.branchNCDsBanner.query()).not.toBeInTheDocument();
+});
+
+function renderProjectNewCodeDefinitionApp(context: RenderContext = {}, params?: string) {
   return renderAppWithComponentContext(
     'baseline',
     routes,
@@ -328,6 +433,8 @@ function getPageObjects() {
     saved: byText('settings.state.saved'),
     complianceWarningAdmin: byText('new_code_definition.compliance.warning.explanation.admin'),
     complianceWarning: byText('new_code_definition.compliance.warning.explanation'),
+    branchNCDsBanner: byText(/new_code_definition.auto_update.branch.message/),
+    dismissButton: byLabelText('alert.dismiss'),
   };
 
   async function appIsLoaded() {

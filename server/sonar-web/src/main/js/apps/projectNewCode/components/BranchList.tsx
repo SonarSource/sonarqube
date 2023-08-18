@@ -22,6 +22,11 @@ import {
   listBranchesNewCodeDefinition,
   resetNewCodeDefinition,
 } from '../../../api/newCodeDefinition';
+import BranchNCDAutoUpdateMessage from '../../../components/new-code-definition/BranchNCDAutoUpdateMessage';
+import {
+  PreviouslyNonCompliantBranchNCD,
+  isPreviouslyNonCompliantDaysNCD,
+} from '../../../components/new-code-definition/utils';
 import Spinner from '../../../components/ui/Spinner';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
@@ -43,6 +48,7 @@ interface State {
   branches: BranchWithNewCodePeriod[];
   editedBranch?: BranchWithNewCodePeriod;
   loading: boolean;
+  previouslyNonCompliantBranchNCDs?: PreviouslyNonCompliantBranchNCD[];
 }
 
 export default class BranchList extends React.PureComponent<Props, State> {
@@ -93,7 +99,15 @@ export default class BranchList extends React.PureComponent<Props, State> {
           };
         });
 
-        this.setState({ branches: branchesWithBaseline, loading: false });
+        const previouslyNonCompliantBranchNCDs = newCodePeriods.filter(
+          isPreviouslyNonCompliantDaysNCD
+        );
+
+        this.setState({
+          branches: branchesWithBaseline,
+          loading: false,
+          previouslyNonCompliantBranchNCDs,
+        });
       },
       () => {
         this.setState({ loading: false });
@@ -116,11 +130,14 @@ export default class BranchList extends React.PureComponent<Props, State> {
   };
 
   closeEditModal = (branch?: string, newSetting?: NewCodeDefinition) => {
-    if (branch) {
-      this.setState({
+    if (branch !== undefined) {
+      this.setState(({ previouslyNonCompliantBranchNCDs }) => ({
         branches: this.updateBranchNewCodePeriod(branch, newSetting),
+        previouslyNonCompliantBranchNCDs: previouslyNonCompliantBranchNCDs?.filter(
+          ({ branchKey }) => branchKey !== branch
+        ),
         editedBranch: undefined,
-      });
+      }));
     } else {
       this.setState({ editedBranch: undefined });
     }
@@ -136,8 +153,8 @@ export default class BranchList extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branchList, inheritedSetting, globalNewCodeDefinition } = this.props;
-    const { branches, editedBranch, loading } = this.state;
+    const { branchList, component, inheritedSetting, globalNewCodeDefinition } = this.props;
+    const { branches, editedBranch, loading, previouslyNonCompliantBranchNCDs } = this.state;
 
     if (branches.length < 1) {
       return null;
@@ -148,7 +165,13 @@ export default class BranchList extends React.PureComponent<Props, State> {
     }
 
     return (
-      <>
+      <div>
+        {previouslyNonCompliantBranchNCDs && (
+          <BranchNCDAutoUpdateMessage
+            component={component}
+            previouslyNonCompliantBranchNCDs={previouslyNonCompliantBranchNCDs}
+          />
+        )}
         <table className="data zebra">
           <thead>
             <tr>
@@ -182,7 +205,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
             globalNewCodeDefinition={globalNewCodeDefinition}
           />
         )}
-      </>
+      </div>
     );
   }
 }

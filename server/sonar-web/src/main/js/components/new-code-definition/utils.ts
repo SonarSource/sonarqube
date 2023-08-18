@@ -19,7 +19,11 @@
  */
 
 import { hasGlobalPermission } from '../../helpers/users';
-import { NewCodeDefinition, NewCodeDefinitionType } from '../../types/new-code-definition';
+import {
+  NewCodeDefinition,
+  NewCodeDefinitionBranch,
+  NewCodeDefinitionType,
+} from '../../types/new-code-definition';
 import { Permissions } from '../../types/permissions';
 import { Component } from '../../types/types';
 import { CurrentUser, isLoggedIn } from '../../types/users';
@@ -34,13 +38,22 @@ export enum NewCodeDefinitionLevels {
 export type PreviouslyNonCompliantNCD = NewCodeDefinition &
   Required<Pick<NewCodeDefinition, 'previousNonCompliantValue' | 'updatedAt'>>;
 
+export type PreviouslyNonCompliantBranchNCD = PreviouslyNonCompliantNCD & NewCodeDefinitionBranch;
+
 export function isPreviouslyNonCompliantDaysNCD(
   newCodeDefinition: NewCodeDefinition
-): newCodeDefinition is PreviouslyNonCompliantNCD {
+): newCodeDefinition is PreviouslyNonCompliantNCD;
+export function isPreviouslyNonCompliantDaysNCD(
+  newCodeDefinition: NewCodeDefinitionBranch
+): newCodeDefinition is PreviouslyNonCompliantBranchNCD;
+export function isPreviouslyNonCompliantDaysNCD(
+  newCodeDefinition: NewCodeDefinition | NewCodeDefinitionBranch
+): newCodeDefinition is PreviouslyNonCompliantNCD | PreviouslyNonCompliantBranchNCD {
   return (
     newCodeDefinition.type === NewCodeDefinitionType.NumberOfDays &&
     newCodeDefinition.previousNonCompliantValue !== undefined &&
-    newCodeDefinition.updatedAt !== undefined
+    newCodeDefinition.updatedAt !== undefined &&
+    !newCodeDefinition.inherited
   );
 }
 
