@@ -52,7 +52,7 @@ it('renders correctly', async () => {
 
   // CCT attribute
   const cctBadge = byText(
-    `issue.clean_code_attribute_category.${issue.cleanCodeAttributeCategory}.issue`
+    `issue.clean_code_attribute_category.${issue.cleanCodeAttributeCategory}.title_short`
   ).get();
   expect(cctBadge).toBeInTheDocument();
   await expect(cctBadge).toHaveATooltipWithContent(

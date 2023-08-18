@@ -26,23 +26,37 @@ import DocumentationTooltip from '../common/DocumentationTooltip';
 
 export interface Props {
   className?: string;
+  type?: 'issue' | 'rule';
   cleanCodeAttributeCategory: CleanCodeAttributeCategory;
   cleanCodeAttribute?: CleanCodeAttribute;
 }
 
 export function CleanCodeAttributePill(props: Props) {
-  const { className, cleanCodeAttributeCategory, cleanCodeAttribute } = props;
-
-  const translationKey = cleanCodeAttribute
-    ? `issue.clean_code_attribute.${cleanCodeAttribute}`
-    : `issue.clean_code_attribute_category.${cleanCodeAttributeCategory}`;
+  const { className, cleanCodeAttributeCategory, cleanCodeAttribute, type = 'issue' } = props;
+  const showAdvice = type === 'issue';
 
   return (
     <DocumentationTooltip
       content={
         <>
-          <p className="sw-mb-4">{translate(translationKey, 'title')}</p>
-          <p>{translate(translationKey, 'advice')}</p>
+          <p className="sw-mb-4">
+            {translate(
+              type,
+              cleanCodeAttribute ? 'clean_code_attribute' : 'clean_code_attribute_category',
+              cleanCodeAttribute ?? cleanCodeAttributeCategory,
+              'title'
+            )}
+          </p>
+          {showAdvice && (
+            <p>
+              {translate(
+                type,
+                cleanCodeAttribute ? 'clean_code_attribute' : 'clean_code_attribute_category',
+                cleanCodeAttribute ?? cleanCodeAttributeCategory,
+                'advice'
+              )}
+            </p>
+          )}
         </>
       }
       links={[
@@ -54,10 +68,15 @@ export function CleanCodeAttributePill(props: Props) {
     >
       <Pill variant="neutral" data-guiding-id="issue-1" className={className}>
         <span className={classNames({ 'sw-font-semibold': !!cleanCodeAttribute })}>
-          {translate('issue.clean_code_attribute_category', cleanCodeAttributeCategory, 'issue')}
+          {translate(
+            type,
+            'clean_code_attribute_category',
+            cleanCodeAttributeCategory,
+            'title_short'
+          )}
         </span>
         {cleanCodeAttribute && (
-          <span> | {translate('issue.clean_code_attribute', cleanCodeAttribute)}</span>
+          <span> | {translate(type, 'clean_code_attribute', cleanCodeAttribute)}</span>
         )}
       </Pill>
     </DocumentationTooltip>

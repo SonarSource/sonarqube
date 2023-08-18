@@ -24,6 +24,7 @@ import { RULE_TYPES } from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { dateInputEvent, renderAppRoutes } from '../../../helpers/testReactTestingUtils';
+import { CleanCodeAttributeCategory, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
 import { getPageObjects } from '../utils-tests';
@@ -43,6 +44,14 @@ describe('Rules app list', () => {
     handler
       .allRulesName()
       .forEach((name) => expect(ui.ruleListItemLink(name).get()).toBeInTheDocument());
+
+    // Render clean code attributes.
+    expect(
+      ui.ruleCleanCodeAttributeCategory(CleanCodeAttributeCategory.Adaptable).getAll().length
+    ).toBeGreaterThan(1);
+    expect(ui.ruleSoftwareQuality(SoftwareQuality.Maintainability).getAll().length).toBeGreaterThan(
+      1
+    );
 
     // Renders type facets
     RULE_TYPES.map((type) => `issue.type.${type}`).forEach((name) =>

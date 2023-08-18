@@ -24,8 +24,9 @@ import Link from '../../../components/common/Link';
 import { Button } from '../../../components/controls/buttons';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import Tooltip from '../../../components/controls/Tooltip';
-import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import SeverityIcon from '../../../components/icons/SeverityIcon';
+import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
+import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
 import TagsList from '../../../components/tags/TagsList';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
@@ -231,6 +232,13 @@ export default class RuleListItem extends React.PureComponent<Props> {
 
               <td className="coding-rule-table-meta-cell">
                 <div className="display-flex-center coding-rule-meta">
+                  {rule.cleanCodeAttributeCategory !== undefined && (
+                    <CleanCodeAttributePill
+                      className="spacer-left"
+                      cleanCodeAttributeCategory={rule.cleanCodeAttributeCategory}
+                      type="rule"
+                    />
+                  )}
                   {rule.status !== 'READY' && (
                     <span className="spacer-left badge badge-error">
                       {translate('rules.status', rule.status)}
@@ -239,14 +247,16 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   <span className="display-inline-flex-center spacer-left note">
                     {rule.langName}
                   </span>
-                  <Tooltip overlay={translate('coding_rules.type.tooltip', rule.type)}>
-                    <span className="display-inline-flex-center spacer-left note">
-                      <IssueTypeIcon query={rule.type} />
-                      <span className="little-spacer-left text-middle">
-                        {translate('issue.type', rule.type)}
-                      </span>
-                    </span>
-                  </Tooltip>
+                  {rule.impacts !== undefined &&
+                    rule.impacts.map(({ severity, softwareQuality }) => (
+                      <SoftwareImpactPill
+                        className="spacer-left"
+                        key={softwareQuality}
+                        severity={severity}
+                        quality={softwareQuality}
+                        type="rule"
+                      />
+                    ))}
                   {allTags.length > 0 && (
                     <TagsList
                       allowUpdate={false}

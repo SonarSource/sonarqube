@@ -29,11 +29,12 @@ import SoftwareImpactSeverityIcon from '../icons/SoftwareImpactSeverityIcon';
 export interface Props {
   className?: string;
   severity: SoftwareImpactSeverity;
+  type?: 'issue' | 'rule';
   quality: SoftwareQuality;
 }
 
 export default function SoftwareImpactPill(props: Props) {
-  const { className, severity, quality } = props;
+  const { className, severity, quality, type = 'issue' } = props;
 
   const variant = {
     [SoftwareImpactSeverity.High]: 'danger',
@@ -45,8 +46,8 @@ export default function SoftwareImpactPill(props: Props) {
     <DocumentationTooltip
       content={
         <FormattedMessage
-          id="issue.impact.severity.tooltip"
-          defaultMessage={translate('issue.impact.severity.tooltip')}
+          id={`${type}.impact.severity.tooltip`}
+          defaultMessage={translate(`${type}.impact.severity.tooltip`)}
           values={{
             severity: translate('severity', severity).toLowerCase(),
             quality: translate('issue.software_quality', quality).toLowerCase(),

@@ -21,6 +21,11 @@ import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Profile } from '../../api/quality-profiles';
 import { byLabelText, byPlaceholderText, byRole, byText } from '../../helpers/testSelector';
+import {
+  CleanCodeAttribute,
+  CleanCodeAttributeCategory,
+  SoftwareQuality,
+} from '../../types/clean-code-taxonomy';
 
 const selectors = {
   loading: byLabelText('loading'),
@@ -92,6 +97,11 @@ const selectors = {
   saveButton: byRole('button', { name: 'save' }),
   cancelButton: byRole('button', { name: 'cancel' }),
   removeButton: byRole('button', { name: 'remove' }),
+  ruleCleanCodeAttributeCategory: (category: CleanCodeAttributeCategory) =>
+    byText(`rule.clean_code_attribute_category.${category}.title_short`),
+  ruleCleanCodeAttribute: (attribute: CleanCodeAttribute) =>
+    byText(new RegExp(`rule\\.clean_code_attribute\\.${attribute}$`)),
+  ruleSoftwareQuality: (quality: SoftwareQuality) => byText(`issue.software_quality.${quality}`),
 
   // Rule tags
   tagsDropdown: byRole('button', { name: /tags_list_x/ }),
