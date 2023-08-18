@@ -31,53 +31,57 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 public class CspFilter implements Filter {
-  
-  private final List<String> cspHeaders = new ArrayList<>();
-  private String policies = null;
 
-  @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
-    cspHeaders.add("Content-Security-Policy");
-    cspHeaders.add("X-Content-Security-Policy");
-    cspHeaders.add("X-WebKit-CSP");
+    private final List<String> cspHeaders = new ArrayList<>();
+    private String policies = null;
 
-    List<String> cspPolicies = new ArrayList<>();
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        cspHeaders.add("Content-Security-Policy");
+        cspHeaders.add("X-Content-Security-Policy");
+        cspHeaders.add("X-WebKit-CSP");
 
-    // Directives not specified default to this one.
-    cspPolicies.add("default-src 'self'");
+        List<String> cspPolicies = new ArrayList<>();
 
-    cspPolicies.add("base-uri 'none'");
-    cspPolicies.add("img-src * data: blob:");
-    cspPolicies.add("object-src 'none'");
+        // Directives not specified default to this one.
+        cspPolicies.add("default-src 'self'");
 
-    // Allow list for Google Tag Manager, Pendo and FullStory Scripts
-    cspPolicies.add("connect-src 'self' https://edge.fullstory.com https://rs.fullstory.com http: https:");
-    cspPolicies.add(
-            "script-src 'self' https://www.googletagmanager.com https://pendo-io-static.storage.googleapis.com "
-                    + "https://app.pendo.io https://cdn.pendo.io https://data.pendo.io https://edge.fullstory.com "
-                    + "https://rs.fullstory.com https://ssl.google-analytics.com/ga.js "
-                    + "https://static.zdassets.com/ekr/snippet.js "
-                    + "https://connect.facebook.net/en_US/fbevents.js "
-                    + "https://snap.licdn.com/li.lms-analytics/insight.min.js 'unsafe-inline' 'unsafe-eval'");
+        cspPolicies.add("base-uri 'none'");
+        cspPolicies.add("img-src * data: blob:");
+        cspPolicies.add("object-src 'none'");
 
-    cspPolicies.add("style-src 'self' 'unsafe-inline'");
-    cspPolicies.add("worker-src 'none'");
-    this.policies = String.join("; ", cspPolicies).trim();
-  }
-
-  @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-    // Add policies to all HTTP headers
-    for (String header : this.cspHeaders) {
-      ((HttpServletResponse) response).setHeader(header, this.policies);
+        // Allow list for GoogleTagManager, Pendo, FullStory, Linkedin, GoogleAnalytics, Facebook, zdassets Scripts.
+        cspPolicies.add("connect-src 'self' https://edge.fullstory.com https://rs.fullstory.com app.pendo.io "
+                + "data.pendo.io pendo-static-6580644462460928.storage.googleapis.com http: https:");
+        cspPolicies.add(
+                "script-src 'self' https://www.googletagmanager.com https://pendo-io-static.storage.googleapis.com "
+                        + "pendo-static-6580644462460928.storage.googleapis.com "
+                        + "https://app.pendo.io https://cdn.pendo.io https://data.pendo.io https://edge.fullstory.com "
+                        + "https://rs.fullstory.com https://ssl.google-analytics.com https://static.zdassets.com "
+                        + "https://connect.facebook.net https://snap.licdn.com 'unsafe-inline' 'unsafe-eval'");
+        cspPolicies.add("style-src 'self' 'unsafe-inline' app.pendo.io cdn.pendo.io "
+                + "pendo-static-6580644462460928.storage.googleapis.com");
+        cspPolicies.add("worker-src 'none'");
+        cspPolicies.add("frame-ancestors 'self' app.pendo.io");
+        cspPolicies.add("frame-src 'self' app.pendo.io");
+        cspPolicies.add("child-src 'self' app.pendo.io");
+        this.policies = String.join("; ", cspPolicies).trim();
     }
 
-    chain.doFilter(request, response);
-  }
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        // Add policies to all HTTP headers
+        for (String header : this.cspHeaders) {
+            ((HttpServletResponse) response).setHeader(header, this.policies);
+        }
 
-  @Override
-  public void destroy() {
-    // Not used
-  }
+        chain.doFilter(request, response);
+    }
+
+    @Override
+    public void destroy() {
+        // Not used
+    }
 
 }
