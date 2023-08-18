@@ -24,8 +24,8 @@ import java.util.Objects;
 import java.util.Optional;
 import org.jetbrains.annotations.Nullable;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.Paging;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.PaginationInformation;
 import org.sonar.server.common.user.UsersSearchResponseGenerator;
 import org.sonar.server.common.user.service.UserSearchResult;
 import org.sonar.server.user.UserSession;
@@ -45,9 +45,9 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
   }
 
   @Override
-  public UsersSearchRestResponse toUsersForResponse(List<UserSearchResult> userSearchResults, Paging paging) {
+  public UsersSearchRestResponse toUsersForResponse(List<UserSearchResult> userSearchResults, PaginationInformation paginationInformation) {
     List<RestUser> usersForResponse = toUsersForResponse(userSearchResults);
-    PageRestResponse pageRestResponse = new PageRestResponse(paging.pageIndex(), paging.pageSize(), paging.total());
+    PageRestResponse pageRestResponse = new PageRestResponse(paginationInformation.pageIndex(), paginationInformation.pageSize(), paginationInformation.total());
     return new UsersSearchRestResponse(usersForResponse, pageRestResponse);
   }
 

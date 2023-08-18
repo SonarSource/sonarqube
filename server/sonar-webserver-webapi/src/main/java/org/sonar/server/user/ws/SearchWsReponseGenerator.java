@@ -22,8 +22,8 @@ package org.sonar.server.user.ws;
 import java.util.List;
 import java.util.Objects;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.Paging;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.PaginationInformation;
 import org.sonar.server.common.user.UsersSearchResponseGenerator;
 import org.sonar.server.common.user.service.UserSearchResult;
 import org.sonar.server.user.UserSession;
@@ -42,13 +42,13 @@ public class SearchWsReponseGenerator implements UsersSearchResponseGenerator<Us
   }
 
   @Override
-  public Users.SearchWsResponse toUsersForResponse(List<UserSearchResult> userSearchResults, Paging paging) {
+  public Users.SearchWsResponse toUsersForResponse(List<UserSearchResult> userSearchResults, PaginationInformation paginationInformation) {
     Users.SearchWsResponse.Builder responseBuilder = newBuilder();
     userSearchResults.forEach(user -> responseBuilder.addUsers(toSearchResponsUser(user)));
     responseBuilder.getPagingBuilder()
-      .setPageIndex(paging.pageIndex())
-      .setPageSize(paging.pageSize())
-      .setTotal(paging.total())
+      .setPageIndex(paginationInformation.pageIndex())
+      .setPageSize(paginationInformation.pageSize())
+      .setTotal(paginationInformation.total())
       .build();
     return responseBuilder.build();
   }

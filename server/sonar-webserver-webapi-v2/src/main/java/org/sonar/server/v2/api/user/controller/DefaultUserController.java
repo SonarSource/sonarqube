@@ -21,7 +21,7 @@ package org.sonar.server.v2.api.user.controller;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.Paging;
+import org.sonar.server.common.PaginationInformation;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.user.service.UserCreateRequest;
 import org.sonar.server.common.user.service.UserSearchResult;
@@ -37,7 +37,7 @@ import org.sonar.server.v2.api.user.request.UserCreateRestRequest;
 import org.sonar.server.v2.api.user.request.UsersSearchRestRequest;
 import org.sonar.server.v2.api.user.response.UsersSearchRestResponse;
 
-import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.server.common.PaginationInformation.forPageIndex;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class DefaultUserController implements UserController {
@@ -60,7 +60,7 @@ public class DefaultUserController implements UserController {
     checkRequest(!RestSortOrder.DESC.equals(order), "order parameter is present for doc-demo purpose, it will be removed.");
 
     SearchResults<UserSearchResult> userSearchResults = userService.findUsers(toUserSearchRequest(usersSearchRestRequest, page));
-    Paging paging = forPageIndex(page.pageIndex()).withPageSize(page.pageSize()).andTotal(userSearchResults.total());
+    PaginationInformation paging = forPageIndex(page.pageIndex()).withPageSize(page.pageSize()).andTotal(userSearchResults.total());
 
     return usersSearchResponseGenerator.toUsersForResponse(userSearchResults.searchResults(), paging);
   }

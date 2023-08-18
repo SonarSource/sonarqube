@@ -27,9 +27,9 @@ import javax.validation.constraints.Positive;
 import org.jetbrains.annotations.Nullable;
 
 public record RestPage(
-  @Min(1)
+  @Min(0)
   @Max(500)
-  @Schema(defaultValue = DEFAULT_PAGE_SIZE, description = "Number of results per page")
+  @Schema(defaultValue = DEFAULT_PAGE_SIZE, description = "Number of results per page. A value of 0 will only return the pagination information.")
   Integer pageSize,
 
   @Positive

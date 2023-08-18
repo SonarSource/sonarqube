@@ -76,7 +76,9 @@ public class UserService {
     UserQuery userQuery = buildUserQuery(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
       int totalUsers = dbClient.userDao().countUsers(dbSession, userQuery);
-
+      if (request.getPageSize() == 0) {
+        return new SearchResults<>(List.of(), totalUsers);
+      }
       List<UserSearchResult> searchResults = performSearch(dbSession, userQuery, request.getPage(), request.getPageSize());
       return new SearchResults<>(searchResults, totalUsers);
     }

@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.Paging;
+import org.sonar.server.common.PaginationInformation;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.user.service.UserSearchResult;
 import org.sonar.server.common.user.service.UserService;
@@ -38,7 +38,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.server.common.PaginationInformation.forPageIndex;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements UsersWsAction {
@@ -171,7 +171,7 @@ public class SearchAction implements UsersWsAction {
 
   private Users.SearchWsResponse doHandle(UsersSearchRequest request) {
     SearchResults<UserSearchResult> userSearchResults = userService.findUsers(request);
-    Paging paging = forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(userSearchResults.total());
+    PaginationInformation paging = forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(userSearchResults.total());
 
     return searchWsReponseGenerator.toUsersForResponse(userSearchResults.searchResults(), paging);
   }

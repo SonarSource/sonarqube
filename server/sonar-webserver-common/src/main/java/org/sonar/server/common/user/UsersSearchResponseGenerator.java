@@ -20,11 +20,11 @@
 package org.sonar.server.common.user;
 
 import java.util.List;
-import org.sonar.api.utils.Paging;
+import org.sonar.server.common.PaginationInformation;
 import org.sonar.server.common.user.service.UserSearchResult;
 
 public interface UsersSearchResponseGenerator<T> {
 
-  T toUsersForResponse(List<UserSearchResult> userSearchResults, Paging paging);
+  T toUsersForResponse(List<UserSearchResult> userSearchResults, PaginationInformation paginationInformation);
 
 }

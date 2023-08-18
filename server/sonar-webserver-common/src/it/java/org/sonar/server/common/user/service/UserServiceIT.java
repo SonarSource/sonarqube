@@ -366,6 +366,15 @@ public class UserServiceIT {
   }
 
   @Test
+  public void search_whenPageSizeIsZero_shouldOnlyReturnPaginationInfo() {
+    IntStream.rangeClosed(0, 9).forEach(i -> db.users().insertUser(u -> u.setLogin("user-" + i).setName("User " + i)));
+
+    SearchResults<UserSearchResult> users = userService.findUsers(UsersSearchRequest.builder().setPageSize(0).build());
+    assertThat(users.searchResults()).isEmpty();
+    assertThat(users.total()).isEqualTo(10);
+  }
+
+  @Test
   public void return_empty_result_when_no_user() {
     SearchResults<UserSearchResult> users = userService.findUsers(SEARCH_REQUEST);
 

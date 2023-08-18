@@ -28,8 +28,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.Paging;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.PaginationInformation;
 import org.sonar.server.common.user.service.UserSearchResult;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.response.PageRestResponse;
@@ -42,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.common.PaginationInformation.forPageIndex;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsersSearchRestResponseGeneratorTest {
@@ -54,7 +55,7 @@ public class UsersSearchRestResponseGeneratorTest {
 
   @Test
   public void toUsersForResponse_whenNoResults_mapsCorrectly() {
-    Paging paging = Paging.forPageIndex(1).withPageSize(2).andTotal(3);
+    PaginationInformation paging = forPageIndex(1).withPageSize(2).andTotal(3);
 
     UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(), paging);
 
@@ -67,7 +68,7 @@ public class UsersSearchRestResponseGeneratorTest {
     when(userSession.isLoggedIn()).thenReturn(true);
     when(userSession.isSystemAdministrator()).thenReturn(true);
 
-    Paging paging = Paging.forPageIndex(1).withPageSize(2).andTotal(3);
+    PaginationInformation paging = forPageIndex(1).withPageSize(2).andTotal(3);
 
     UserSearchResult userSearchResult1 = mockSearchResult(1, true);
     UserSearchResult userSearchResult2 = mockSearchResult(2, false);
@@ -105,7 +106,7 @@ public class UsersSearchRestResponseGeneratorTest {
   public void toUsersForResponse_whenNonAdmin_mapsNonAdminFields() {
     when(userSession.isLoggedIn()).thenReturn(true);
 
-    Paging paging = Paging.forPageIndex(1).withPageSize(2).andTotal(3);
+    PaginationInformation paging = forPageIndex(1).withPageSize(2).andTotal(3);
 
     UserSearchResult userSearchResult1 = mockSearchResult(1, true);
     UserSearchResult userSearchResult2 = mockSearchResult(2, false);
@@ -134,7 +135,7 @@ public class UsersSearchRestResponseGeneratorTest {
 
   @Test
   public void toUsersForResponse_whenAnonymous_returnsOnlyNameAndLogin() {
-    Paging paging = Paging.forPageIndex(1).withPageSize(2).andTotal(3);
+    PaginationInformation paging = forPageIndex(1).withPageSize(2).andTotal(3);
 
     UserSearchResult userSearchResult1 = mockSearchResult(1, true);
     UserSearchResult userSearchResult2 = mockSearchResult(2, false);
@@ -182,10 +183,10 @@ public class UsersSearchRestResponseGeneratorTest {
     return userSearchResult;
   }
 
-  private static void assertPaginationInformationAreCorrect(Paging paging, PageRestResponse pageRestResponse) {
-    assertThat(pageRestResponse.pageIndex()).isEqualTo(paging.pageIndex());
-    assertThat(pageRestResponse.pageSize()).isEqualTo(paging.pageSize());
-    assertThat(pageRestResponse.total()).isEqualTo(paging.total());
+  private static void assertPaginationInformationAreCorrect(PaginationInformation paginationInformation, PageRestResponse pageRestResponse) {
+    assertThat(pageRestResponse.pageIndex()).isEqualTo(paginationInformation.pageIndex());
+    assertThat(pageRestResponse.pageSize()).isEqualTo(paginationInformation.pageSize());
+    assertThat(pageRestResponse.total()).isEqualTo(paginationInformation.total());
   }
 
 }
