@@ -24,10 +24,10 @@ import Dropdown from '../../../components/controls/Dropdown';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Tooltip from '../../../components/controls/Tooltip';
 import { ButtonLink } from '../../../components/controls/buttons';
-import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import LinkIcon from '../../../components/icons/LinkIcon';
 import DateFormatter from '../../../components/intl/DateFormatter';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
+import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
+import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
 import TagsList from '../../../components/tags/TagsList';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -45,29 +45,6 @@ interface Props {
 const EXTERNAL_RULE_REPO_PREFIX = 'external_';
 
 export default class RuleDetailsMeta extends React.PureComponent<Props> {
-  renderType = () => {
-    const { ruleDetails } = this.props;
-    return (
-      <Tooltip overlay={translate('coding_rules.type.tooltip', ruleDetails.type)}>
-        <li className="coding-rules-detail-property" data-meta="type">
-          <IssueTypeIcon className="little-spacer-right" query={ruleDetails.type} />
-          {translate('issue.type', ruleDetails.type)}
-        </li>
-      </Tooltip>
-    );
-  };
-
-  renderSeverity = () => (
-    <Tooltip overlay={translate('default_severity')}>
-      <li className="coding-rules-detail-property" data-meta="severity">
-        <SeverityHelper
-          className="display-inline-flex-center"
-          severity={this.props.ruleDetails.severity}
-        />
-      </li>
-    </Tooltip>
-  );
-
   renderStatus = () => {
     const { ruleDetails } = this.props;
     if (ruleDetails.status === 'READY') {
@@ -224,6 +201,15 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     const hasTypeData = !ruleDetails.isExternal || ruleDetails.type !== 'UNKNOWN';
     return (
       <div className="js-rule-meta">
+        {ruleDetails.cleanCodeAttributeCategory !== undefined && (
+          <CleanCodeAttributePill
+            className="big-spacer-bottom"
+            cleanCodeAttributeCategory={ruleDetails.cleanCodeAttributeCategory}
+            cleanCodeAttribute={ruleDetails.cleanCodeAttribute}
+            type="rule"
+          />
+        )}
+
         <div className="page-header">
           <div className="pull-right">
             {this.renderKey()}
@@ -240,24 +226,42 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
           <h1 className="page-title coding-rules-detail-header">{ruleDetails.name}</h1>
         </div>
 
-        {hasTypeData && (
-          <ul className="coding-rules-detail-properties">
-            {this.renderType()}
-            {this.renderSeverity()}
-            {!ruleDetails.isExternal && this.renderStatus()}
-            {this.renderTags()}
-            {!ruleDetails.isExternal && this.renderCreationDate()}
-            {this.renderRepository()}
-            {!ruleDetails.isExternal && (
-              <>
-                {this.renderTemplate()}
-                {this.renderParentTemplate()}
-                {this.renderRemediation()}
-              </>
-            )}
-            {ruleDetails.isExternal && this.renderExternalBadge()}
-          </ul>
-        )}
+        <div className="display-flex-center">
+          {ruleDetails.impacts !== undefined && (
+            <div className="sw-flex sw-items-center flex-1">
+              <span>{translate('issue.software_qualities.label')}</span>
+              <ul className="sw-flex sw-gap-2">
+                {ruleDetails.impacts.map(({ severity, softwareQuality }) => (
+                  <li key={softwareQuality}>
+                    <SoftwareImpactPill
+                      className="little-spacer-left"
+                      severity={severity}
+                      quality={softwareQuality}
+                      type="rule"
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {hasTypeData && (
+            <ul className="coding-rules-detail-properties">
+              {!ruleDetails.isExternal && this.renderStatus()}
+              {this.renderTags()}
+              {!ruleDetails.isExternal && this.renderCreationDate()}
+              {this.renderRepository()}
+              {!ruleDetails.isExternal && (
+                <>
+                  {this.renderTemplate()}
+                  {this.renderParentTemplate()}
+                  {this.renderRemediation()}
+                </>
+              )}
+              {ruleDetails.isExternal && this.renderExternalBadge()}
+            </ul>
+          )}
+        </div>
       </div>
     );
   }

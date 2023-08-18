@@ -100,7 +100,7 @@
 .coding-rules-detail-property {
   display: flex;
   align-items: center;
-  margin-right: calc(2 * var(--gridSize));
+  margin-right: var(--gridSize);
   margin-bottom: var(--gridSize);
   font-size: var(--smallFontSize);
 }

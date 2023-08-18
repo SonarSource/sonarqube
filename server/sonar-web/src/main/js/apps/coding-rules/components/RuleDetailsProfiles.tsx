@@ -24,8 +24,6 @@ import InstanceMessage from '../../../components/common/InstanceMessage';
 import Link from '../../../components/common/Link';
 import { Button } from '../../../components/controls/buttons';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
-import Tooltip from '../../../components/controls/Tooltip';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';
 import { Dict, RuleActivation, RuleDetails } from '../../../types/types';
@@ -81,21 +79,6 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
       </div>
     );
   };
-
-  renderSeverity = (activation: RuleActivation, parentActivation?: RuleActivation) => (
-    <td className="coding-rules-detail-quality-profile-severity">
-      <Tooltip overlay={translate('coding_rules.activation_severity')}>
-        <span>
-          <SeverityHelper className="display-inline-flex-center" severity={activation.severity} />
-        </span>
-      </Tooltip>
-      {parentActivation !== undefined && activation.severity !== parentActivation.severity && (
-        <div className="coding-rules-detail-quality-profile-inheritance">
-          {translate('coding_rules.original')} {translate('severity', parentActivation.severity)}
-        </div>
-      )}
-    </td>
-  );
 
   renderParameter = (param: { key: string; value: string }, parentActivation?: RuleActivation) => {
     const originalParam =
@@ -212,7 +195,6 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
           {this.renderInheritedProfile(activation, profile)}
         </td>
 
-        {this.renderSeverity(activation, parentActivation)}
         {!ruleDetails.templateKey && this.renderParameters(activation, parentActivation)}
         {this.renderActions(activation, profile)}
       </tr>

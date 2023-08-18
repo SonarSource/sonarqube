@@ -24,7 +24,11 @@ import { RULE_TYPES } from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
 import { dateInputEvent, renderAppRoutes } from '../../../helpers/testReactTestingUtils';
-import { CleanCodeAttributeCategory, SoftwareQuality } from '../../../types/clean-code-taxonomy';
+import {
+  CleanCodeAttribute,
+  CleanCodeAttributeCategory,
+  SoftwareQuality,
+} from '../../../types/clean-code-taxonomy';
 import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
 import { getPageObjects } from '../utils-tests';
@@ -360,6 +364,11 @@ describe('Rule app details', () => {
       renderCodingRulesApp(undefined, 'coding_rules?open=rule1');
       await ui.appLoaded();
       expect(ui.ruleTitle('Awsome java rule').get()).toBeInTheDocument();
+      expect(
+        ui.ruleCleanCodeAttributeCategory(CleanCodeAttributeCategory.Adaptable).get()
+      ).toBeInTheDocument();
+      expect(ui.ruleCleanCodeAttribute(CleanCodeAttribute.Clear).get()).toBeInTheDocument();
+      expect(ui.ruleSoftwareQuality(SoftwareQuality.Maintainability).get()).toBeInTheDocument();
       expect(document.title).toEqual('page_title.template.with_category.coding_rules.page');
       expect(screen.getByText('Why')).toBeInTheDocument();
       expect(screen.getByText('Because')).toBeInTheDocument();
