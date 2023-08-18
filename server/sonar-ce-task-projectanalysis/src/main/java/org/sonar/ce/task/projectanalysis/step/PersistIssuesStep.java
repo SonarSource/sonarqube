@@ -40,7 +40,6 @@ import org.sonar.db.issue.AnticipatedTransitionMapper;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.issue.IssueMapper;
 import org.sonar.db.issue.NewCodeReferenceIssueDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.server.issue.IssueStorage;
@@ -79,7 +78,7 @@ public class PersistIssuesStep implements ComputationStep {
     context.getStatistics().add("cacheSize", humanReadableByteCountSI(protoIssueCache.fileSize()));
     IssueStatistics statistics = new IssueStatistics();
     try (DbSession dbSession = dbClient.openSession(true);
-         CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse()) {
+      CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse()) {
       List<DefaultIssue> addedIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
       List<DefaultIssue> updatedIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
       List<DefaultIssue> noLongerNewIssues = new ArrayList<>(ISSUE_BATCHING_SIZE);
@@ -144,8 +143,8 @@ public class PersistIssuesStep implements ComputationStep {
     });
   }
 
-  private void persistUpdatedIssues(IssueStatistics statistics, List<DefaultIssue> updatedIssues, IssueDao
-    issueDao, IssueChangeMapper changeMapper, DbSession dbSession) {
+  private void persistUpdatedIssues(IssueStatistics statistics, List<DefaultIssue> updatedIssues, IssueDao issueDao,
+    IssueChangeMapper changeMapper, DbSession dbSession) {
     if (updatedIssues.isEmpty()) {
       return;
     }
@@ -173,8 +172,7 @@ public class PersistIssuesStep implements ComputationStep {
     updatedIssues.forEach(i -> issueStorage.insertChanges(changeMapper, i, uuidFactory));
   }
 
-  private static void persistNoLongerNewIssues(IssueStatistics
-    statistics, List<DefaultIssue> noLongerNewIssues, IssueDao issueDao, DbSession dbSession) {
+  private static void persistNoLongerNewIssues(IssueStatistics statistics, List<DefaultIssue> noLongerNewIssues, IssueDao issueDao, DbSession dbSession) {
     if (noLongerNewIssues.isEmpty()) {
       return;
     }
@@ -186,8 +184,7 @@ public class PersistIssuesStep implements ComputationStep {
 
   }
 
-  private void persistNewCodeIssuesToMigrate(IssueStatistics
-    statistics, List<DefaultIssue> newCodeIssuesToMigrate, IssueDao issueDao, DbSession dbSession) {
+  private void persistNewCodeIssuesToMigrate(IssueStatistics statistics, List<DefaultIssue> newCodeIssuesToMigrate, IssueDao issueDao, DbSession dbSession) {
     if (newCodeIssuesToMigrate.isEmpty()) {
       return;
     }

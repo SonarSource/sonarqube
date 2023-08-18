@@ -19,14 +19,18 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
 
@@ -47,6 +51,7 @@ public class UpdateConflictResolverTest {
       .setRuleKey(RuleKey.of("java", "AvoidCycles"))
       .setProjectUuid("U1")
       .setComponentUuid("U2")
+      .addImpact(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH)
       .setNew(false)
       .setStatus(STATUS_OPEN);
 
@@ -60,6 +65,7 @@ public class UpdateConflictResolverTest {
       .setRuleKey("java", "AvoidCycles")
       .setProjectUuid("U1")
       .setComponentUuid("U2")
+      .addImpact(new ImpactDto(UuidFactoryFast.getInstance().create(), SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH))
       .setLine(10)
       .setStatus(STATUS_OPEN)
 
@@ -73,6 +79,9 @@ public class UpdateConflictResolverTest {
     IssueDto updatedIssue = argument.getValue();
     assertThat(updatedIssue.getKee()).isEqualTo("ABCDE");
     assertThat(updatedIssue.getAssigneeUuid()).isEqualTo("arthur-uuid");
+    assertThat(updatedIssue.getImpacts())
+      .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactlyInAnyOrder(Tuple.tuple(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH));
   }
 
   @Test

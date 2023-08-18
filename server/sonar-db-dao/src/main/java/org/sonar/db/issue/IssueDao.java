@@ -101,15 +101,15 @@ public class IssueDao implements Dao {
 
   public void insert(DbSession session, IssueDto dto) {
     mapper(session).insert(dto);
-    updateIssueImpacts(dto, mapper(session));
+    insertIssueImpacts(dto, mapper(session));
   }
 
   private static void updateIssueImpacts(IssueDto issueDto, IssueMapper mapper) {
     mapper.deleteIssueImpacts(issueDto.getKey());
-    insertIssueImpact(issueDto, mapper);
+    insertIssueImpacts(issueDto, mapper);
   }
 
-  private static void insertIssueImpact(IssueDto issueDto, IssueMapper mapper) {
+  private static void insertIssueImpacts(IssueDto issueDto, IssueMapper mapper) {
     issueDto.getImpacts()
       .forEach(impact -> mapper.insertIssueImpact(issueDto.getKey(), impact));
   }
