@@ -31,10 +31,14 @@ import { mockIssueAuthors, mockIssueChangelog } from '../../helpers/mocks/issues
 import { RequestData } from '../../helpers/request';
 import { getStandards } from '../../helpers/security-standard';
 import { mockLoggedInUser, mockPaging, mockRuleDetails } from '../../helpers/testMocks';
+import {
+  CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../../types/clean-code-taxonomy';
 import { SearchRulesResponse } from '../../types/coding-rules';
 import {
   ASSIGNEE_ME,
-  CleanCodeAttributeCategory,
   IssueResolution,
   IssueStatus,
   IssueTransition,
@@ -44,8 +48,6 @@ import {
   RawIssue,
   RawIssuesResponse,
   ReferencedComponent,
-  SoftwareImpactSeverity,
-  SoftwareQuality,
 } from '../../types/issues';
 import { SearchRulesQuery } from '../../types/rules';
 import { Standards } from '../../types/security';

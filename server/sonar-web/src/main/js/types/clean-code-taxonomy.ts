@@ -18,26 +18,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as React from 'react';
-import { CleanCodeAttributeCategory } from '../../../types/clean-code-taxonomy';
-import { CommonProps, SimpleListStyleFacet } from './SimpleListStyleFacet';
-
-interface Props extends CommonProps {
-  categories: Array<CleanCodeAttributeCategory>;
+export enum SoftwareImpactSeverity {
+  High = 'HIGH',
+  Medium = 'MEDIUM',
+  Low = 'LOW',
 }
 
-const CATEGORIES = Object.values(CleanCodeAttributeCategory);
+export enum CleanCodeAttributeCategory {
+  Consistent = 'CONSISTENT',
+  Intentional = 'INTENTIONAL',
+  Adaptable = 'ADAPTABLE',
+  Responsible = 'RESPONSIBLE',
+}
 
-export function AttributeCategoryFacet(props: Props) {
-  const { categories = [], ...rest } = props;
+export enum CleanCodeAttribute {
+  Clear = 'CLEAR',
+  Complete = 'COMPLETE',
+  Conventional = 'CONVENTIONAL',
+  Distinct = 'DISTINCT',
+  Efficient = 'EFFICIENT',
+  Focused = 'FOCUSED',
+  Formatted = 'FORMATTED',
+  Identifiable = 'IDENTIFIABLE',
+  Lawful = 'LAWFUL',
+  Logical = 'LOGICAL',
+  Modular = 'MODULAR',
+  Respectful = 'RESPECTFUL',
+  Tested = 'TESTED',
+  Trustworthy = 'TRUSTWORTHY',
+}
 
-  return (
-    <SimpleListStyleFacet
-      property="cleanCodeAttributeCategories"
-      itemNamePrefix="issue.clean_code_attribute_category"
-      listItems={CATEGORIES}
-      selectedItems={categories}
-      {...rest}
-    />
-  );
+export enum SoftwareQuality {
+  Security = 'SECURITY',
+  Reliability = 'RELIABILITY',
+  Maintainability = 'MAINTAINABILITY',
 }

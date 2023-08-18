@@ -21,7 +21,7 @@ import {
   CleanCodeAttributeCategory,
   SoftwareImpactSeverity,
   SoftwareQuality,
-} from '../../../types/issues';
+} from '../../../types/clean-code-taxonomy';
 import { SecurityStandard } from '../../../types/security';
 import {
   parseQuery,

@@ -23,6 +23,10 @@ import { mockSnippetsByComponent } from '../../../helpers/mocks/sources';
 import { mockLoggedInUser, mockRawIssue } from '../../../helpers/testMocks';
 import {
   CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../../../types/clean-code-taxonomy';
+import {
   IssueActions,
   IssueResolution,
   IssueScope,
@@ -30,8 +34,6 @@ import {
   IssueStatus,
   IssueType,
   RawIssue,
-  SoftwareImpactSeverity,
-  SoftwareQuality,
 } from '../../../types/issues';
 import { Dict, FlowType, SnippetsByComponent } from '../../../types/types';
 import {

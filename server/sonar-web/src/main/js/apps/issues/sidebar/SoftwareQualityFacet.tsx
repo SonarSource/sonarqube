@@ -19,7 +19,7 @@
  */
 
 import * as React from 'react';
-import { SoftwareQuality } from '../../../types/issues';
+import { SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { CommonProps, SimpleListStyleFacet } from './SimpleListStyleFacet';
 
 interface Props extends CommonProps {

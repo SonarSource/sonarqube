@@ -24,7 +24,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import { SoftwareImpactSeverity } from '../../types/issues';
+import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';
 import { Dict } from '../../types/types';
 import { IconProps } from './Icon';
 

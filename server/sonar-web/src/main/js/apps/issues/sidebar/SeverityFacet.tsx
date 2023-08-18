@@ -22,7 +22,7 @@ import * as React from 'react';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import SoftwareImpactSeverityIcon from '../../../components/icons/SoftwareImpactSeverityIcon';
 import { translate } from '../../../helpers/l10n';
-import { SoftwareImpactSeverity } from '../../../types/issues';
+import { SoftwareImpactSeverity } from '../../../types/clean-code-taxonomy';
 import { CommonProps, SimpleListStyleFacet } from './SimpleListStyleFacet';
 
 interface Props extends CommonProps {

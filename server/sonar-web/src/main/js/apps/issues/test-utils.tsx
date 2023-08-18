@@ -31,7 +31,7 @@ import {
   CleanCodeAttributeCategory,
   SoftwareImpactSeverity,
   SoftwareQuality,
-} from '../../types/issues';
+} from '../../types/clean-code-taxonomy';
 import { Component } from '../../types/types';
 import { NoticeType } from '../../types/users';
 import IssuesApp from './components/IssuesApp';

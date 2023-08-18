@@ -21,7 +21,7 @@ import classNames from 'classnames';
 import { Pill } from 'design-system';
 import React from 'react';
 import { translate } from '../../helpers/l10n';
-import { CleanCodeAttribute, CleanCodeAttributeCategory } from '../../types/issues';
+import { CleanCodeAttribute, CleanCodeAttributeCategory } from '../../types/clean-code-taxonomy';
 import DocumentationTooltip from '../common/DocumentationTooltip';
 
 export interface Props {

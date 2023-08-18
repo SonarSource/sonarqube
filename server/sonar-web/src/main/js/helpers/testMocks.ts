@@ -24,19 +24,15 @@ import { Exporter, Profile, ProfileChangelogEvent } from '../apps/quality-profil
 import { LogsLevels } from '../apps/system/utils';
 import { Location, Router } from '../components/hoc/withRouter';
 import { AppState } from '../types/appstate';
-import { RuleRepository } from '../types/coding-rules';
-import { EditionKey } from '../types/editions';
 import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,
-  IssueScope,
-  IssueSeverity,
-  IssueStatus,
-  IssueType,
-  RawIssue,
   SoftwareImpactSeverity,
   SoftwareQuality,
-} from '../types/issues';
+} from '../types/clean-code-taxonomy';
+import { RuleRepository } from '../types/coding-rules';
+import { EditionKey } from '../types/editions';
+import { IssueScope, IssueSeverity, IssueStatus, IssueType, RawIssue } from '../types/issues';
 import { Language } from '../types/languages';
 import { Notification } from '../types/notifications';
 import { DumpStatus, DumpTask } from '../types/project-dump';
@@ -593,6 +589,8 @@ export function mockRuleActivation(overrides: Partial<RuleActivation> = {}): Rul
 
 export function mockRuleDetails(overrides: Partial<RuleDetails> = {}): RuleDetails {
   return {
+    cleanCodeAttributeCategory: CleanCodeAttributeCategory.Adaptable,
+    cleanCodeAttribute: CleanCodeAttribute.Clear,
     key: 'squid:S1337',
     repo: 'squid',
     name: '".equals()" should not be used to test the values of "Atomic" classes',
@@ -608,6 +606,9 @@ export function mockRuleDetails(overrides: Partial<RuleDetails> = {}): RuleDetai
     severity: 'MAJOR',
     status: 'READY',
     isTemplate: false,
+    impacts: [
+      { softwareQuality: SoftwareQuality.Maintainability, severity: SoftwareImpactSeverity.High },
+    ],
     tags: [],
     sysTags: ['multi-threading'],
     lang: 'java',

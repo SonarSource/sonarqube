@@ -17,6 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  CleanCodeAttribute,
+  CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from './clean-code-taxonomy';
 import { Issue, Paging, TextRange } from './types';
 import { UserBase } from './users';
 
@@ -30,11 +36,6 @@ export enum IssueType {
 }
 
 // Keep this enum in the correct order (most severe to least severe).
-export enum SoftwareImpactSeverity {
-  High = 'HIGH',
-  Medium = 'MEDIUM',
-  Low = 'LOW',
-}
 
 export enum IssueSeverity {
   Blocker = 'BLOCKER',
@@ -42,36 +43,6 @@ export enum IssueSeverity {
   Major = 'MAJOR',
   Minor = 'MINOR',
   Info = 'INFO',
-}
-
-export enum CleanCodeAttributeCategory {
-  Consistent = 'CONSISTENT',
-  Intentional = 'INTENTIONAL',
-  Adaptable = 'ADAPTABLE',
-  Responsible = 'RESPONSIBLE',
-}
-
-export enum CleanCodeAttribute {
-  Clear = 'CLEAR',
-  Complete = 'COMPLETE',
-  Conventional = 'CONVENTIONAL',
-  Distinct = 'DISTINCT',
-  Efficient = 'EFFICIENT',
-  Focused = 'FOCUSED',
-  Formatted = 'FORMATTED',
-  Identifiable = 'IDENTIFIABLE',
-  Lawful = 'LAWFUL',
-  Logical = 'LOGICAL',
-  Modular = 'MODULAR',
-  Respectful = 'RESPECTFUL',
-  Tested = 'TESTED',
-  Trustworthy = 'TRUSTWORTHY',
-}
-
-export enum SoftwareQuality {
-  Security = 'SECURITY',
-  Reliability = 'RELIABILITY',
-  Maintainability = 'MAINTAINABILITY',
 }
 
 export enum IssueScope {

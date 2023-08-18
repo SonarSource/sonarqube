@@ -35,11 +35,10 @@ import { get, save } from '../../helpers/storage';
 import { isDefined } from '../../helpers/types';
 import {
   CleanCodeAttributeCategory,
-  Facet,
-  RawFacet,
   SoftwareImpactSeverity,
   SoftwareQuality,
-} from '../../types/issues';
+} from '../../types/clean-code-taxonomy';
+import { Facet, RawFacet } from '../../types/issues';
 import { MetricType } from '../../types/metrics';
 import { SecurityStandard } from '../../types/security';
 import { Dict, Issue, Paging, RawQuery } from '../../types/types';

@@ -143,6 +143,9 @@ export default class CodingRulesServiceMock {
         'sysTags',
         'tags',
         'type',
+        'cleanCodeAttributeCategory',
+        'cleanCodeAttribute',
+        'impacts',
       ])
     );
   }

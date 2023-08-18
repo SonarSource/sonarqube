@@ -22,7 +22,7 @@ import { Pill } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../helpers/l10n';
-import { SoftwareImpactSeverity, SoftwareQuality } from '../../types/issues';
+import { SoftwareImpactSeverity, SoftwareQuality } from '../../types/clean-code-taxonomy';
 import DocumentationTooltip from '../common/DocumentationTooltip';
 import SoftwareImpactSeverityIcon from '../icons/SoftwareImpactSeverityIcon';
 

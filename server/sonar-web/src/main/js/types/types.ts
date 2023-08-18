@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleDescriptionSection } from '../apps/coding-rules/rule';
-import { ComponentQualifier, Visibility } from './component';
 import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,
-  MessageFormatting,
   SoftwareImpactSeverity,
   SoftwareQuality,
-} from './issues';
+} from './clean-code-taxonomy';
+import { ComponentQualifier, Visibility } from './component';
+import { MessageFormatting } from './issues';
 import { NewCodeDefinitionType } from './new-code-definition';
 import { UserActive, UserBase } from './users';
 
@@ -533,6 +533,12 @@ export interface QualityGate {
 export type RawQuery = Dict<any>;
 
 export interface Rule {
+  cleanCodeAttributeCategory: CleanCodeAttributeCategory;
+  cleanCodeAttribute: CleanCodeAttribute;
+  impacts: Array<{
+    softwareQuality: SoftwareQuality;
+    severity: SoftwareImpactSeverity;
+  }>;
   isTemplate?: boolean;
   key: string;
   lang?: string;
