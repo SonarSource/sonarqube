@@ -100,6 +100,15 @@ public class StickyFacetBuilder {
       .subAggregation(facetTopAggregation);
   }
 
+  public AggregationBuilder buildTopAggregationStickyFacet(String fieldName, String facetName, AggregationBuilder additionalAggregationFilter) {
+    BoolQueryBuilder facetFilter = getStickyFacetFilter(fieldName);
+    return AggregationBuilders
+      .global(facetName)
+      .subAggregation(AggregationBuilders
+        .filter(facetName + "_filter", facetFilter)
+        .subAggregation(additionalAggregationFilter));
+  }
+
   public BoolQueryBuilder getStickyFacetFilter(String... fieldNames) {
     BoolQueryBuilder facetFilter = boolQuery().must(query);
     for (Map.Entry<String, QueryBuilder> filter : filters.entrySet()) {

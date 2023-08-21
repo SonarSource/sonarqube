@@ -19,9 +19,9 @@
  */
 package org.sonar.server.rule.index;
 
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.client.RequestOptions;
@@ -93,7 +93,7 @@ public class RuleIndexDefinitionIT {
       "quick", "brown", "fox", "jump", "over", "lazi", "dog");
 
     // the following method fails if PUT fails
-    tester.putDocuments(TYPE_RULE, new RuleDoc(ImmutableMap.of(
+    tester.putDocuments(TYPE_RULE, new RuleDoc(Map.of(
       FIELD_RULE_UUID, "123",
       FIELD_RULE_HTML_DESCRIPTION, longText,
       FIELD_RULE_REPOSITORY, "java",

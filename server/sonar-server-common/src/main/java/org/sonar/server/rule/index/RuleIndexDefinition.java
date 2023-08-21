@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule.index;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import javax.inject.Inject;
 import org.sonar.api.config.Configuration;
@@ -68,7 +67,7 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String FIELD_RULE_SONARSOURCE_SECURITY = "sonarsourceSecurity";
   public static final String FIELD_RULE_TAGS = "tags";
 
-  public static final Set<String> SORT_FIELDS = ImmutableSet.of(
+  public static final Set<String> SORT_FIELDS = Set.of(
     FIELD_RULE_NAME,
     FIELD_RULE_UPDATED_AT,
     FIELD_RULE_CREATED_AT,
@@ -80,6 +79,13 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String FIELD_ACTIVE_RULE_INHERITANCE = "activeRule_inheritance";
   public static final String FIELD_ACTIVE_RULE_PROFILE_UUID = "activeRule_ruleProfile";
   public static final String FIELD_ACTIVE_RULE_SEVERITY = "activeRule_severity";
+
+  public static final String FIELD_RULE_CLEAN_CODE_ATTRIBUTE_CATEGORY = "cleanCodeAttributeCategory";
+  public static final String FIELD_RULE_IMPACTS = "impacts";
+  public static final String SUB_FIELD_SOFTWARE_QUALITY = "softwareQuality";
+  public static final String SUB_FIELD_SEVERITY = "severity";
+  public static final String FIELD_RULE_IMPACT_SOFTWARE_QUALITY = FIELD_RULE_IMPACTS + "." + SUB_FIELD_SOFTWARE_QUALITY;
+  public static final String FIELD_RULE_IMPACT_SEVERITY = FIELD_RULE_IMPACTS + "." + SUB_FIELD_SEVERITY;
 
   private final Configuration config;
   private final boolean enableSource;
@@ -148,6 +154,12 @@ public class RuleIndexDefinition implements IndexDefinition {
     ruleMapping.keywordFieldBuilder(FIELD_RULE_OWASP_TOP_10_2021).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_SANS_TOP_25).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_SONARSOURCE_SECURITY).disableNorms().build();
+
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_CLEAN_CODE_ATTRIBUTE_CATEGORY).disableNorms().build();
+    ruleMapping.nestedFieldBuilder(FIELD_RULE_IMPACTS)
+      .addKeywordField(SUB_FIELD_SOFTWARE_QUALITY)
+      .addKeywordField(SUB_FIELD_SEVERITY)
+      .build();
 
     // Active rule
     index.createTypeMapping(TYPE_ACTIVE_RULE)

@@ -28,6 +28,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
+import org.sonar.db.issue.ImpactDto;
 
 public class RuleForIndexingDto {
 
@@ -53,6 +54,9 @@ public class RuleForIndexingDto {
   private long createdAt;
   private long updatedAt;
   private Set<RuleDescriptionSectionDto> ruleDescriptionSectionsDtos = new HashSet<>();
+
+  private String cleanCodeAttributeCategory;
+  private Set<ImpactDto> impacts = new HashSet<>();
 
   @VisibleForTesting
   public RuleForIndexingDto() {
@@ -82,6 +86,12 @@ public class RuleForIndexingDto {
     if (r.getRuleDescriptionSectionDtos() != null) {
       ruleForIndexingDto.setRuleDescriptionSectionsDtos(Sets.newHashSet(r.getRuleDescriptionSectionDtos()));
     }
+
+    if (r.getCleanCodeAttribute() != null) {
+      ruleForIndexingDto.cleanCodeAttributeCategory = r.getCleanCodeAttribute().getAttributeCategory().name();
+    }
+    ruleForIndexingDto.setImpacts(r.getDefaultImpacts());
+
     return ruleForIndexingDto;
   }
 
@@ -204,5 +214,21 @@ public class RuleForIndexingDto {
 
   public void setType(int type) {
     this.type = type;
+  }
+
+  public String getCleanCodeAttributeCategory() {
+    return cleanCodeAttributeCategory;
+  }
+
+  public void setCleanCodeAttributeCategory(String cleanCodeAttributeCategory) {
+    this.cleanCodeAttributeCategory = cleanCodeAttributeCategory;
+  }
+
+  public Set<ImpactDto> getImpacts() {
+    return impacts;
+  }
+
+  public void setImpacts(Set<ImpactDto> impacts) {
+    this.impacts = impacts;
   }
 }

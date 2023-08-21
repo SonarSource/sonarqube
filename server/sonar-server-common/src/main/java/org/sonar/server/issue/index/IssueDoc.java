@@ -292,8 +292,8 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
-  public IssueDoc setImpacts(Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> softwareQualities) {
-    List<Map<String, String>> convertedMap = softwareQualities
+  public IssueDoc setImpacts(Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts) {
+    List<Map<String, String>> convertedMap = impacts
       .entrySet()
       .stream()
       .map(entry -> Map.of(

@@ -30,12 +30,16 @@ import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
@@ -66,7 +70,9 @@ import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.newRule;
+import static org.sonar.db.rule.RuleTesting.setCleanCodeAttribute;
 import static org.sonar.db.rule.RuleTesting.setCreatedAt;
+import static org.sonar.db.rule.RuleTesting.setImpacts;
 import static org.sonar.db.rule.RuleTesting.setIsExternal;
 import static org.sonar.db.rule.RuleTesting.setIsTemplate;
 import static org.sonar.db.rule.RuleTesting.setLanguage;
@@ -778,6 +784,143 @@ public class RuleIndexIT {
     // 2. find no new rules since tomorrow.
     RuleQuery availableSinceNowQuery = new RuleQuery().setAvailableSince(1000L);
     verifyEmptySearch(availableSinceNowQuery);
+  }
+
+  @Test
+  public void search_by_clean_code_attribute() {
+    RuleDto ruleDto = createRule(setRepositoryKey("php"), setCleanCodeAttribute(CleanCodeAttribute.FOCUSED));
+    index();
+
+    RuleQuery query = new RuleQuery();
+    query.setCleanCodeAttributesCategory(CleanCodeAttribute.LOGICAL.getAttributeCategory().name());
+    SearchIdResult result1 = underTest.search(query, new SearchOptions());
+    assertThat(result1.getUuids()).isEmpty();
+
+
+    query = new RuleQuery();
+    query.setCleanCodeAttributesCategory(CleanCodeAttribute.FOCUSED.getAttributeCategory().name());
+
+    SearchIdResult result2 = underTest.search(query, new SearchOptions());
+
+    assertThat(result2.getUuids()).containsOnly(ruleDto.getUuid());
+  }
+
+  @Test
+  public void search_by_software_quality() {
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH).setUuid("uuid");
+    RuleDto phpRule = createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
+    index();
+
+    RuleQuery query = new RuleQuery();
+    SearchIdResult result1 = underTest.search(query.setImpactSoftwareQualities(List.of(SoftwareQuality.MAINTAINABILITY.name())), new SearchOptions());
+    assertThat(result1.getUuids()).isEmpty();
+
+
+    query = new RuleQuery();
+    SearchIdResult result2 = underTest.search(query.setImpactSoftwareQualities(List.of(SoftwareQuality.SECURITY.name())), new SearchOptions());
+    assertThat(result2.getUuids()).containsOnly(phpRule.getUuid());
+  }
+
+  @Test
+  public void search_by_severity() {
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH).setUuid("uuid");
+    RuleDto phpRule = createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
+    index();
+
+    RuleQuery query = new RuleQuery();
+    SearchIdResult result1 = underTest.search(query.setImpactSeverities(List.of(Severity.MEDIUM.name())), new SearchOptions());
+    assertThat(result1.getUuids()).isEmpty();
+
+
+    query = new RuleQuery();
+    SearchIdResult result2 = underTest.search(query.setImpactSeverities(List.of(Severity.HIGH.name())), new SearchOptions());
+    assertThat(result2.getUuids()).containsOnly(phpRule.getUuid());
+  }
+
+  @Test
+  public void search_should_support_clean_code_attribute_category_facet() {
+    createRule(setRepositoryKey("php"), setCleanCodeAttribute(CleanCodeAttribute.FOCUSED));
+    createRule(setRepositoryKey("php"), setCleanCodeAttribute(CleanCodeAttribute.LOGICAL));
+    index();
+
+    RuleQuery query = new RuleQuery();
+
+    SearchIdResult result2 = underTest.search(query,  new SearchOptions().addFacets(singletonList("cleanCodeAttributeCategories")));
+
+    assertThat(result2.getFacets().getAll()).hasSize(1);
+    assertThat(result2.getFacets().getAll().get("cleanCodeAttributeCategories")).containsOnly(entry("ADAPTABLE", 1L), entry("INTENTIONAL", 1L));
+  }
+
+  @Test
+  public void search_should_support_software_quality_facet() {
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH).setUuid("uuid");
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW).setUuid("uuid2");
+    createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
+    createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2)));
+    index();
+
+    RuleQuery query = new RuleQuery();
+
+    SearchIdResult result2 = underTest.search(query, new SearchOptions().addFacets(singletonList("impacts.softwareQuality")));
+
+    assertThat(result2.getFacets().getAll()).hasSize(1);
+    assertThat(result2.getFacets().getAll().get("impacts.softwareQuality"))
+      .containsOnly(
+        entry("SECURITY", 1L),
+        entry("MAINTAINABILITY", 1L),
+        entry("RELIABILITY", 0L));
+  }
+
+  @Test
+  public void search_should_support_software_quality_facet_with_filtering() {
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH).setUuid("uuid");
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW).setUuid("uuid2");
+    createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
+    createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2)));
+    index();
+
+    RuleQuery query = new RuleQuery();
+
+    SearchIdResult result2 = underTest.search(query.setImpactSeverities(Set.of(Severity.HIGH.name())), new SearchOptions().addFacets(singletonList("impacts.softwareQuality")));
+
+    assertThat(result2.getFacets().getAll()).hasSize(1);
+    assertThat(result2.getFacets().getAll().get("impacts.softwareQuality"))
+      .containsOnly(
+        entry("SECURITY", 1L),
+        entry("MAINTAINABILITY", 0L),
+        entry("RELIABILITY", 0L));
+  }
+
+  @Test
+  public void search_should_support_severity_facet() {
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH).setUuid("uuid");
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW).setUuid("uuid2");
+    createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
+    createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2)));
+    index();
+
+    RuleQuery query = new RuleQuery();
+
+    SearchIdResult result2 = underTest.search(query,  new SearchOptions().addFacets(singletonList("impacts.severity")));
+
+    assertThat(result2.getFacets().getAll()).hasSize(1);
+    assertThat(result2.getFacets().getAll().get("impacts.severity")).containsOnly(entry("LOW", 1L), entry("MEDIUM", 0L), entry("HIGH", 1L));
+  }
+
+  @Test
+  public void search_should_support_severity_facet_with_filters() {
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH).setUuid("uuid");
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW).setUuid("uuid2");
+    createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
+    createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2)));
+    index();
+
+    RuleQuery query = new RuleQuery();
+
+    SearchIdResult result2 = underTest.search(query.setImpactSeverities(Set.of("LOW")),  new SearchOptions().addFacets(singletonList("impacts.severity")));
+
+    assertThat(result2.getFacets().getAll()).hasSize(1);
+    assertThat(result2.getFacets().getAll().get("impacts.severity")).containsOnly(entry("LOW", 1L), entry("MEDIUM", 0L), entry("HIGH", 1L));
   }
 
   @Test

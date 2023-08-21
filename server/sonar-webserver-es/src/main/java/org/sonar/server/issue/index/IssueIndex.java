@@ -404,7 +404,8 @@ public class IssueIndex {
     return client.search(requestBuilder);
   }
 
-  private void configureTopAggregations(IssueQuery query, SearchOptions options, SearchSourceBuilder esRequest, AllFilters allFilters, RequestFiltersComputer filterComputer) {
+  private void configureTopAggregations(IssueQuery query, SearchOptions options, SearchSourceBuilder esRequest, AllFilters allFilters,
+    RequestFiltersComputer filterComputer) {
     TopAggregationHelper aggregationHelper = newAggregationHelper(filterComputer, query);
 
     configureTopAggregations(aggregationHelper, query, options, allFilters, esRequest);
@@ -900,7 +901,8 @@ public class IssueIndex {
     esRequest.aggregation(aggregation);
   }
 
-  private static void addImpactSoftwareQualityFacetIfNeeded(SearchOptions options, IssueQuery query, TopAggregationHelper aggregationHelper, SearchSourceBuilder esRequest) {
+  private static void addImpactSoftwareQualityFacetIfNeeded(SearchOptions options, IssueQuery query, TopAggregationHelper aggregationHelper,
+    SearchSourceBuilder esRequest) {
     if (!options.getFacets().contains(PARAM_IMPACT_SOFTWARE_QUALITIES)) {
       return;
     }

@@ -19,6 +19,7 @@
  */
 package org.sonar.db.rule;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -240,6 +241,14 @@ public class RuleTesting {
 
   public static Consumer<RuleDto> setTags(String... tags) {
     return rule -> rule.setTags(copyOf(tags));
+  }
+
+  public static Consumer<RuleDto> setCleanCodeAttribute(CleanCodeAttribute cleanCodeAttribute) {
+    return rule -> rule.setCleanCodeAttribute(cleanCodeAttribute);
+  }
+
+  public static Consumer<RuleDto> setImpacts(Collection<ImpactDto> impacts) {
+    return rule -> rule.replaceAllDefaultImpacts(impacts);
   }
 
 }

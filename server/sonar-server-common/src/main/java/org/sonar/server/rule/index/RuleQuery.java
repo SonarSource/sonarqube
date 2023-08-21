@@ -58,6 +58,10 @@ public class RuleQuery {
   private Collection<String> sansTop25;
   private Collection<String> cwe;
   private Collection<String> sonarsourceSecurity;
+  private Collection<String> impactSeverities;
+  private Collection<String> impactSoftwareQualities;
+  private String cleanCodeAttributesCategory;
+
 
   @CheckForNull
   public QProfileDto getQProfile() {
@@ -337,4 +341,32 @@ public class RuleQuery {
     this.sonarsourceSecurity = sonarsourceSecurity;
     return this;
   }
+
+  public Collection<String> getImpactSeverities() {
+    return impactSeverities;
+  }
+
+  public RuleQuery setImpactSeverities(Collection<String> impactSeverities) {
+    this.impactSeverities = impactSeverities;
+    return this;
+  }
+
+  public Collection<String> getImpactSoftwareQualities() {
+    return impactSoftwareQualities;
+  }
+
+  public RuleQuery setImpactSoftwareQualities(Collection<String> impactSoftwareQualities) {
+    this.impactSoftwareQualities = impactSoftwareQualities;
+    return this;
+  }
+
+  public String getCleanCodeAttributesCategory() {
+    return cleanCodeAttributesCategory;
+  }
+
+  public RuleQuery setCleanCodeAttributesCategory(String cleanCodeAttributesCategory) {
+    this.cleanCodeAttributesCategory = cleanCodeAttributesCategory;
+    return this;
+  }
+
 }

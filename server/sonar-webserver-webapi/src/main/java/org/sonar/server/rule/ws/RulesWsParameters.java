@@ -48,6 +48,10 @@ public class RulesWsParameters {
   public static final String PARAM_TEMPLATE_KEY = "template_key";
   public static final String PARAM_COMPARE_TO_PROFILE = "compareToProfile";
 
+  public static final String PARAM_IMPACT_SOFTWARE_QUALITIES = "impactSoftwareQualities";
+  public static final String PARAM_IMPACT_SEVERITIES = "impactSeverities";
+  public static final String PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES = "cleanCodeAttributeCategories";
+
   public static final String FIELD_REPO = "repo";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_CREATED_AT = "createdAt";
