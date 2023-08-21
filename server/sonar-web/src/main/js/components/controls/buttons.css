@@ -66,6 +66,7 @@
   border-color: var(--darkBlue);
 }
 
+.button:disabled,
 .button.disabled {
   color: var(--disableGrayText) !important;
   border-color: var(--disableGrayBorder) !important;
