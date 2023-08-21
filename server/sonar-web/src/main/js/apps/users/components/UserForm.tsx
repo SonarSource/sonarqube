@@ -25,7 +25,7 @@ import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { throwGlobalError } from '../../../helpers/error';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { parseMessage } from '../../../helpers/request';
+import { parseError } from '../../../helpers/request';
 import { usePostUserMutation, useUpdateUserMutation } from '../../../queries/users';
 import { RestUserDetailed } from '../../../types/users';
 import UserScmAccountInput from './UserScmAccountInput';
@@ -56,7 +56,7 @@ export default function UserForm(props: Props) {
     if (![BAD_REQUEST, INTERNAL_SERVER_ERROR].includes(response.status)) {
       throwGlobalError(response);
     } else {
-      parseMessage(response).then((errorMsg) => setError(errorMsg), throwGlobalError);
+      parseError(response).then((errorMsg) => setError(errorMsg), throwGlobalError);
     }
   };
 

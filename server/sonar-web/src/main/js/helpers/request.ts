@@ -183,17 +183,7 @@ export function parseText(response: Response): Promise<string> {
 export function parseError(response: Response): Promise<string> {
   const DEFAULT_MESSAGE = translate('default_error_message');
   return parseJSON(response)
-    .then(({ errors }) => errors.map((error: any) => error.msg).join('. '))
-    .catch(() => DEFAULT_MESSAGE);
-}
-
-/**
- * Parse message response of failed request
- */
-export function parseMessage(response: Response): Promise<string> {
-  const DEFAULT_MESSAGE = translate('default_error_message');
-  return parseJSON(response)
-    .then(({ message }) => message)
+    .then(({ errors, message }) => message ?? errors.map((error: any) => error.msg).join('. '))
     .catch(() => DEFAULT_MESSAGE);
 }
 
