@@ -19,7 +19,7 @@
  */
 import { noop } from 'lodash';
 import * as React from 'react';
-import { setNewCodePeriod } from '../../../api/newCodePeriod';
+import { setNewCodeDefinition } from '../../../api/newCodeDefinition';
 import Modal from '../../../components/controls/Modal';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
@@ -32,9 +32,9 @@ import { getNumberOfDaysDefaultValue } from '../../../helpers/new-code-definitio
 import { Branch, BranchWithNewCodePeriod } from '../../../types/branch-like';
 import { NewCodeDefinition, NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { getSettingValue, validateSetting } from '../utils';
-import BaselineSettingAnalysis from './BaselineSettingAnalysis';
-import BaselineSettingReferenceBranch from './BaselineSettingReferenceBranch';
 import BranchAnalysisList from './BranchAnalysisList';
+import NewCodeDefinitionSettingAnalysis from './NewCodeDefinitionSettingAnalysis';
+import NewCodeDefinitionSettingReferenceBranch from './NewCodeDefinitionSettingReferenceBranch';
 
 interface Props {
   branch: BranchWithNewCodePeriod;
@@ -55,7 +55,7 @@ interface State {
   selected?: NewCodeDefinitionType;
 }
 
-export default class BranchBaselineSettingModal extends React.PureComponent<Props, State> {
+export default class BranchNewCodeDefinitionSettingModal extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -109,7 +109,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
 
     if (type) {
       this.setState({ saving: true });
-      setNewCodePeriod({
+      setNewCodeDefinition({
         project: component,
         type,
         value,
@@ -193,7 +193,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
                 onSelect={this.handleSelectSetting}
                 selected={selected === NewCodeDefinitionType.NumberOfDays}
               />
-              <BaselineSettingReferenceBranch
+              <NewCodeDefinitionSettingReferenceBranch
                 branchList={branchList.map(this.branchToOption)}
                 onChangeReferenceBranch={this.handleSelectReferenceBranch}
                 onSelect={this.handleSelectSetting}
@@ -202,7 +202,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
                 settingLevel="branch"
               />
               {currentSetting === NewCodeDefinitionType.SpecificAnalysis && (
-                <BaselineSettingAnalysis
+                <NewCodeDefinitionSettingAnalysis
                   onSelect={noop}
                   selected={selected === NewCodeDefinitionType.SpecificAnalysis}
                 />

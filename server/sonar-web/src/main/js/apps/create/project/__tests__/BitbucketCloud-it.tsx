@@ -25,7 +25,7 @@ import selectEvent from 'react-select-event';
 import { searchForBitbucketCloudRepositories } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
-import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
+import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import CreateProjectPage from '../CreateProjectPage';
@@ -36,7 +36,7 @@ jest.mock('../../../../api/alm-settings');
 
 let almIntegrationHandler: AlmIntegrationsServiceMock;
 let almSettingsHandler: AlmSettingsServiceMock;
-let newCodePeriodHandler: NewCodePeriodsServiceMock;
+let newCodePeriodHandler: NewCodeDefinitionServiceMock;
 
 const ui = {
   bitbucketCloudCreateProjectButton: byText(
@@ -57,7 +57,7 @@ beforeAll(() => {
   });
   almIntegrationHandler = new AlmIntegrationsServiceMock();
   almSettingsHandler = new AlmSettingsServiceMock();
-  newCodePeriodHandler = new NewCodePeriodsServiceMock();
+  newCodePeriodHandler = new NewCodeDefinitionServiceMock();
 });
 
 beforeEach(() => {

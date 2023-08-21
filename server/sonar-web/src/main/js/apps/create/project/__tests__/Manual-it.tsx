@@ -21,8 +21,8 @@ import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import * as React from 'react';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
-import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
-import { getNewCodePeriod } from '../../../../api/newCodePeriod';
+import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
+import { getNewCodeDefinition } from '../../../../api/newCodeDefinition';
 import { mockProject } from '../../../../helpers/mocks/projects';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
@@ -31,7 +31,7 @@ import { NewCodeDefinitionType } from '../../../../types/new-code-definition';
 import CreateProjectPage, { CreateProjectPageProps } from '../CreateProjectPage';
 
 jest.mock('../../../../api/alm-settings');
-jest.mock('../../../../api/newCodePeriod');
+jest.mock('../../../../api/newCodeDefinition');
 jest.mock('../../../../api/project-management', () => ({
   setupManualProjectCreation: jest
     .fn()
@@ -89,7 +89,7 @@ async function fillFormAndNext(displayName: string, user: UserEvent) {
 }
 
 let almSettingsHandler: AlmSettingsServiceMock;
-let newCodePeriodHandler: NewCodePeriodsServiceMock;
+let newCodePeriodHandler: NewCodeDefinitionServiceMock;
 
 const original = window.location;
 
@@ -99,7 +99,7 @@ beforeAll(() => {
     value: { replace: jest.fn() },
   });
   almSettingsHandler = new AlmSettingsServiceMock();
-  newCodePeriodHandler = new NewCodePeriodsServiceMock();
+  newCodePeriodHandler = new NewCodeDefinitionServiceMock();
 });
 
 beforeEach(() => {
@@ -122,7 +122,7 @@ it('should fill form and move to NCD selection', async () => {
 
 it('should select the global NCD when it is compliant', async () => {
   jest
-    .mocked(getNewCodePeriod)
+    .mocked(getNewCodeDefinition)
     .mockResolvedValue({ type: NewCodeDefinitionType.NumberOfDays, value: '30' });
   const user = userEvent.setup();
   renderCreateProject();
@@ -140,7 +140,7 @@ it('should select the global NCD when it is compliant', async () => {
 
 it('global NCD option should be disabled if not compliant', async () => {
   jest
-    .mocked(getNewCodePeriod)
+    .mocked(getNewCodeDefinition)
     .mockResolvedValue({ type: NewCodeDefinitionType.NumberOfDays, value: '96' });
   const user = userEvent.setup();
   renderCreateProject();
@@ -159,7 +159,7 @@ it.each([
   'should show warning message when global NCD is not compliant',
   async ({ canAdmin, message }) => {
     jest
-      .mocked(getNewCodePeriod)
+      .mocked(getNewCodeDefinition)
       .mockResolvedValue({ type: NewCodeDefinitionType.NumberOfDays, value: '96' });
     const user = userEvent.setup();
     renderCreateProject({ appState: mockAppState({ canAdmin }) });
@@ -173,7 +173,7 @@ it.each([ui.ncdOptionRefBranchRadio, ui.ncdOptionPreviousVersionRadio])(
   'should override the global NCD and pick a compliant NCD',
   async (option) => {
     jest
-      .mocked(getNewCodePeriod)
+      .mocked(getNewCodeDefinition)
       .mockResolvedValue({ type: NewCodeDefinitionType.NumberOfDays, value: '96' });
     const user = userEvent.setup();
     renderCreateProject();
@@ -197,7 +197,7 @@ it.each([ui.ncdOptionRefBranchRadio, ui.ncdOptionPreviousVersionRadio])(
 
 it('number of days ignores non-numeric inputs', async () => {
   jest
-    .mocked(getNewCodePeriod)
+    .mocked(getNewCodeDefinition)
     .mockResolvedValue({ type: NewCodeDefinitionType.NumberOfDays, value: '60' });
   const user = userEvent.setup();
   renderCreateProject();

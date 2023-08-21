@@ -22,7 +22,7 @@ import { screen } from '@testing-library/react';
 import * as React from 'react';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
-import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
+import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { AlmKeys } from '../../../../types/alm-settings';
@@ -33,7 +33,7 @@ jest.mock('../../../../api/alm-settings');
 
 let almIntegrationHandler: AlmIntegrationsServiceMock;
 let almSettingsHandler: AlmSettingsServiceMock;
-let newCodePeriodHandler: NewCodePeriodsServiceMock;
+let newCodePeriodHandler: NewCodeDefinitionServiceMock;
 
 const original = window.location;
 
@@ -44,7 +44,7 @@ beforeAll(() => {
   });
   almIntegrationHandler = new AlmIntegrationsServiceMock();
   almSettingsHandler = new AlmSettingsServiceMock();
-  newCodePeriodHandler = new NewCodePeriodsServiceMock();
+  newCodePeriodHandler = new NewCodeDefinitionServiceMock();
 });
 
 beforeEach(() => {

@@ -40,13 +40,13 @@ import overviewRoutes from '../../apps/overview/routes';
 import permissionTemplatesRoutes from '../../apps/permission-templates/routes';
 import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/permissions/routes';
 import projectActivityRoutes from '../../apps/projectActivity/routes';
-import projectBaselineRoutes from '../../apps/projectBaseline/routes';
 import projectBranchesRoutes from '../../apps/projectBranches/routes';
 import ProjectDeletionApp from '../../apps/projectDeletion/App';
 import projectDumpRoutes from '../../apps/projectDump/routes';
 import projectInfoRoutes from '../../apps/projectInformation/routes';
 import ProjectKeyApp from '../../apps/projectKey/ProjectKeyApp';
 import ProjectLinksApp from '../../apps/projectLinks/ProjectLinksApp';
+import projectNewCodeDefinitionRoutes from '../../apps/projectNewCode/routes';
 import projectQualityGateRoutes from '../../apps/projectQualityGate/routes';
 import projectQualityProfilesRoutes from '../../apps/projectQualityProfiles/routes';
 import projectsRoutes from '../../apps/projects/routes';
@@ -127,7 +127,7 @@ function renderComponentRoutes() {
             element={<ProjectAdminPageExtension />}
           />
           {backgroundTasksRoutes()}
-          {projectBaselineRoutes()}
+          {projectNewCodeDefinitionRoutes()}
           {projectBranchesRoutes()}
           {projectDumpRoutes()}
           {settingsRoutes()}

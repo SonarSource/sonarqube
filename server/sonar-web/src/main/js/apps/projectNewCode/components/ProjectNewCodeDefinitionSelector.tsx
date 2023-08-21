@@ -34,9 +34,9 @@ import { isNewCodeDefinitionCompliant } from '../../../helpers/new-code-definiti
 import { Branch } from '../../../types/branch-like';
 import { NewCodeDefinition, NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { validateSetting } from '../utils';
-import BaselineSettingAnalysis from './BaselineSettingAnalysis';
-import BaselineSettingReferenceBranch from './BaselineSettingReferenceBranch';
 import BranchAnalysisList from './BranchAnalysisList';
+import NewCodeDefinitionSettingAnalysis from './NewCodeDefinitionSettingAnalysis';
+import NewCodeDefinitionSettingReferenceBranch from './NewCodeDefinitionSettingReferenceBranch';
 
 export interface ProjectBaselineSelectorProps {
   analysis?: string;
@@ -66,7 +66,7 @@ function branchToOption(b: Branch) {
   return { label: b.name, value: b.name, isMain: b.isMain };
 }
 
-export default function ProjectBaselineSelector(props: ProjectBaselineSelectorProps) {
+export default function ProjectNewCodeDefinitionSelector(props: ProjectBaselineSelectorProps) {
   const {
     analysis,
     branch,
@@ -160,7 +160,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
             selected={overrideGeneralSetting && selected === NewCodeDefinitionType.NumberOfDays}
           />
           {branchesEnabled && (
-            <BaselineSettingReferenceBranch
+            <NewCodeDefinitionSettingReferenceBranch
               branchList={branchList.map(branchToOption)}
               disabled={!overrideGeneralSetting}
               onChangeReferenceBranch={props.onSelectReferenceBranch}
@@ -173,7 +173,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
             />
           )}
           {!branchesEnabled && currentSetting === NewCodeDefinitionType.SpecificAnalysis && (
-            <BaselineSettingAnalysis
+            <NewCodeDefinitionSettingAnalysis
               onSelect={noop}
               selected={
                 overrideGeneralSetting && selected === NewCodeDefinitionType.SpecificAnalysis

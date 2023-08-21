@@ -28,14 +28,14 @@ import {
   NewCodeDefinitionType,
 } from '../../types/new-code-definition';
 import {
-  getNewCodePeriod,
-  listBranchesNewCodePeriod,
-  resetNewCodePeriod,
-  setNewCodePeriod,
-} from '../newCodePeriod';
+  getNewCodeDefinition,
+  listBranchesNewCodeDefinition,
+  resetNewCodeDefinition,
+  setNewCodeDefinition,
+} from '../newCodeDefinition';
 
-jest.mock('../newCodePeriod');
-export default class NewCodePeriodsServiceMock {
+jest.mock('../newCodeDefinition');
+export default class NewCodeDefinitionServiceMock {
   #defaultNewCodePeriod = mockNewCodePeriod({ inherited: true });
   #defaultListBranchesNewCode = [
     mockNewCodePeriodBranch({ inherited: true, branchKey: 'main' }),
@@ -52,10 +52,12 @@ export default class NewCodePeriodsServiceMock {
   constructor() {
     this.#newCodePeriod = cloneDeep(this.#defaultNewCodePeriod);
     this.#listBranchesNewCode = cloneDeep(this.#defaultListBranchesNewCode);
-    jest.mocked(getNewCodePeriod).mockImplementation(this.handleGetNewCodePeriod);
-    jest.mocked(setNewCodePeriod).mockImplementation(this.handleSetNewCodePeriod);
-    jest.mocked(resetNewCodePeriod).mockImplementation(this.handleResetNewCodePeriod);
-    jest.mocked(listBranchesNewCodePeriod).mockImplementation(this.handleListBranchesNewCodePeriod);
+    jest.mocked(getNewCodeDefinition).mockImplementation(this.handleGetNewCodePeriod);
+    jest.mocked(setNewCodeDefinition).mockImplementation(this.handleSetNewCodePeriod);
+    jest.mocked(resetNewCodeDefinition).mockImplementation(this.handleResetNewCodePeriod);
+    jest
+      .mocked(listBranchesNewCodeDefinition)
+      .mockImplementation(this.handleListBranchesNewCodePeriod);
   }
 
   handleGetNewCodePeriod = () => {

@@ -22,7 +22,7 @@ import userEvent from '@testing-library/user-event';
 import { first, last } from 'lodash';
 import selectEvent from 'react-select-event';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
-import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
+import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockNewCodePeriodBranch } from '../../../../helpers/mocks/new-code-definition';
@@ -36,11 +36,11 @@ import { Feature } from '../../../../types/features';
 import { NewCodeDefinitionType } from '../../../../types/new-code-definition';
 import routes from '../../routes';
 
-jest.mock('../../../../api/newCodePeriod');
+jest.mock('../../../../api/newCodeDefinition');
 jest.mock('../../../../api/projectActivity');
 jest.mock('../../../../api/branches');
 
-const codePeriodsMock = new NewCodePeriodsServiceMock();
+const codePeriodsMock = new NewCodeDefinitionServiceMock();
 const projectActivityMock = new ProjectActivityServiceMock();
 const branchHandler = new BranchesServiceMock();
 

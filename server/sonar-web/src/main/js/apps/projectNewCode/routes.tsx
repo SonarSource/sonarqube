@@ -17,26 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import RadioCard from '../../../components/controls/RadioCard';
-import { translate } from '../../../helpers/l10n';
-import { NewCodeDefinitionType } from '../../../types/new-code-definition';
+import React from 'react';
+import { Route } from 'react-router-dom';
+import ProjectNewCodeDefinitionApp from './components/ProjectNewCodeDefinitionApp';
 
-export interface Props {
-  onSelect: (selection: NewCodeDefinitionType) => void;
-  selected: boolean;
-}
+const routes = () => <Route path="baseline" element={<ProjectNewCodeDefinitionApp />} />;
 
-export default function BaselineSettingAnalysis({ onSelect, selected }: Props) {
-  return (
-    <RadioCard
-      noRadio
-      disabled
-      onClick={() => onSelect(NewCodeDefinitionType.SpecificAnalysis)}
-      selected={selected}
-      title={translate('baseline.specific_analysis')}
-    >
-      <p className="big-spacer-bottom">{translate('baseline.specific_analysis.description')}</p>
-    </RadioCard>
-  );
-}
+export default routes;

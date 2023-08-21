@@ -25,14 +25,14 @@ import {
   NewCodeDefinitionType,
 } from '../types/new-code-definition';
 
-export function getNewCodePeriod(data?: {
+export function getNewCodeDefinition(data?: {
   project?: string;
   branch?: string;
 }): Promise<Omit<NewCodeDefinition, 'effectiveValue'>> {
   return getJSON('/api/new_code_periods/show', data).catch(throwGlobalError);
 }
 
-export function setNewCodePeriod(data: {
+export function setNewCodeDefinition(data: {
   project?: string;
   branch?: string;
   type: NewCodeDefinitionType;
@@ -41,11 +41,11 @@ export function setNewCodePeriod(data: {
   return post('/api/new_code_periods/set', data).catch(throwGlobalError);
 }
 
-export function resetNewCodePeriod(data: { project?: string; branch?: string }): Promise<void> {
+export function resetNewCodeDefinition(data: { project?: string; branch?: string }): Promise<void> {
   return post('/api/new_code_periods/unset', data).catch(throwGlobalError);
 }
 
-export function listBranchesNewCodePeriod(data: {
+export function listBranchesNewCodeDefinition(data: {
   project: string;
 }): Promise<{ newCodePeriods: NewCodeDefinitionBranch[] }> {
   return getJSON('/api/new_code_periods/list', data).catch(throwGlobalError);

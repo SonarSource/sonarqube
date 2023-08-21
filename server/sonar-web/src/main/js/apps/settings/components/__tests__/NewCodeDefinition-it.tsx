@@ -22,17 +22,17 @@ import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { MessageTypes } from '../../../../api/messages';
 import MessagesServiceMock from '../../../../api/mocks/MessagesServiceMock';
-import NewCodePeriodsServiceMock from '../../../../api/mocks/NewCodePeriodsServiceMock';
+import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import { NewCodeDefinitionType } from '../../../../types/new-code-definition';
-import NewCodePeriod from '../NewCodePeriod';
+import NewCodeDefinition from '../NewCodeDefinition';
 
-let newCodeMock: NewCodePeriodsServiceMock;
+let newCodeMock: NewCodeDefinitionServiceMock;
 let messagesMock: MessagesServiceMock;
 
 beforeAll(() => {
-  newCodeMock = new NewCodePeriodsServiceMock();
+  newCodeMock = new NewCodeDefinitionServiceMock();
   messagesMock = new MessagesServiceMock();
 });
 
@@ -161,5 +161,5 @@ it('does not display information message when NCD is automatically updated if me
 });
 
 function renderNewCodePeriod() {
-  return renderComponent(<NewCodePeriod />);
+  return renderComponent(<NewCodeDefinition />);
 }

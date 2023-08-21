@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { getNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
+import { getNewCodeDefinition, setNewCodeDefinition } from '../../../api/newCodeDefinition';
 import DocLink from '../../../components/common/DocLink';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
@@ -47,7 +47,7 @@ interface State {
   success: boolean;
 }
 
-export default class NewCodePeriod extends React.PureComponent<{}, State> {
+export default class NewCodeDefinition extends React.PureComponent<{}, State> {
   mounted = false;
   state: State = {
     loading: true,
@@ -67,7 +67,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
   }
 
   fetchNewCodePeriodSetting() {
-    getNewCodePeriod()
+    getNewCodeDefinition()
       .then(({ type, value, previousNonCompliantValue, updatedAt }) => {
         this.setState(({ days }) => ({
           currentSetting: type,
@@ -114,7 +114,7 @@ export default class NewCodePeriod extends React.PureComponent<{}, State> {
     const value = type === NewCodeDefinitionType.NumberOfDays ? days : undefined;
 
     this.setState({ saving: true, success: false });
-    setNewCodePeriod({
+    setNewCodeDefinition({
       type: type as NewCodeDefinitionType,
       value,
     }).then(

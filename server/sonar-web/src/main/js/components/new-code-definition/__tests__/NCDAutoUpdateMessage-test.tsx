@@ -23,7 +23,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import { MessageTypes } from '../../../api/messages';
 import MessagesServiceMock from '../../../api/mocks/MessagesServiceMock';
-import NewCodePeriodsServiceMock from '../../../api/mocks/NewCodePeriodsServiceMock';
+import NewCodeDefinitionServiceMock from '../../../api/mocks/NewCodeDefinitionServiceMock';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
@@ -32,7 +32,7 @@ import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { Component } from '../../../types/types';
 import NCDAutoUpdateMessage from '../NCDAutoUpdateMessage';
 
-let newCodeDefinitionMock: NewCodePeriodsServiceMock;
+let newCodeDefinitionMock: NewCodeDefinitionServiceMock;
 let messagesMock: MessagesServiceMock;
 
 describe('Global NCD update notification banner', () => {
@@ -54,7 +54,7 @@ describe('Global NCD update notification banner', () => {
   }
 
   beforeAll(() => {
-    newCodeDefinitionMock = new NewCodePeriodsServiceMock();
+    newCodeDefinitionMock = new NewCodeDefinitionServiceMock();
     messagesMock = new MessagesServiceMock();
   });
 
@@ -143,7 +143,7 @@ describe('Project NCD update notification banner', () => {
   }
 
   beforeAll(() => {
-    newCodeDefinitionMock = new NewCodePeriodsServiceMock();
+    newCodeDefinitionMock = new NewCodeDefinitionServiceMock();
     messagesMock = new MessagesServiceMock();
   });
 

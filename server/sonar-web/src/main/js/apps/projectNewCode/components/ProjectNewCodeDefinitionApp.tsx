@@ -21,7 +21,11 @@ import classNames from 'classnames';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { getNewCodePeriod, resetNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
+import {
+  getNewCodeDefinition,
+  resetNewCodeDefinition,
+  setNewCodeDefinition,
+} from '../../../api/newCodeDefinition';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
@@ -46,7 +50,7 @@ import '../styles.css';
 import { getSettingValue } from '../utils';
 import AppHeader from './AppHeader';
 import BranchList from './BranchList';
-import ProjectBaselineSelector from './ProjectBaselineSelector';
+import ProjectNewCodeDefinitionSelector from './ProjectNewCodeDefinitionSelector';
 
 interface Props extends WithAvailableFeaturesProps {
   branchLike: Branch;
@@ -71,7 +75,7 @@ interface State {
   success?: boolean;
 }
 
-class ProjectBaselineApp extends React.PureComponent<Props, State> {
+class ProjectNewCodeDefinitionApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     branchList: [],
@@ -140,8 +144,8 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
 
     Promise.all([
-      getNewCodePeriod(),
-      getNewCodePeriod({
+      getNewCodeDefinition(),
+      getNewCodeDefinition({
         branch: this.props.hasFeature(Feature.BranchSupport) ? undefined : branchLike?.name,
         project: component.key,
       }),
@@ -173,7 +177,7 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
 
   resetSetting = () => {
     this.setState({ saving: true });
-    resetNewCodePeriod({ project: this.props.component.key }).then(
+    resetNewCodeDefinition({ project: this.props.component.key }).then(
       () => {
         this.setState({
           saving: false,
@@ -233,7 +237,7 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
 
     if (type) {
       this.setState({ saving: true });
-      setNewCodePeriod({
+      setNewCodeDefinition({
         project: component.key,
         type,
         value,
@@ -287,7 +291,7 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
               {branchSupportEnabled && <h2>{translate('project_baseline.default_setting')}</h2>}
 
               {generalSetting && overrideGeneralSetting !== undefined && (
-                <ProjectBaselineSelector
+                <ProjectNewCodeDefinitionSelector
                   analysis={analysis}
                   branch={branchLike}
                   branchList={branchList}
@@ -346,5 +350,5 @@ class ProjectBaselineApp extends React.PureComponent<Props, State> {
 }
 
 export default withComponentContext(
-  withAvailableFeatures(withAppStateContext(withBranchLikes(ProjectBaselineApp)))
+  withAvailableFeatures(withAppStateContext(withBranchLikes(ProjectNewCodeDefinitionApp)))
 );

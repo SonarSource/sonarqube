@@ -27,7 +27,7 @@ import {
 } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
-import { getNewCodePeriod } from '../../api/newCodePeriod';
+import { getNewCodeDefinition } from '../../api/newCodeDefinition';
 import { translate } from '../../helpers/l10n';
 import {
   getNumberOfDaysDefaultValue,
@@ -88,7 +88,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
 
   React.useEffect(() => {
     function fetchGlobalNcd() {
-      getNewCodePeriod().then(setGlobalNcd, noop);
+      getNewCodeDefinition().then(setGlobalNcd, noop);
     }
 
     fetchGlobalNcd();

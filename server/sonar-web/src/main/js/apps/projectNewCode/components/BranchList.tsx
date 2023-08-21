@@ -18,7 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../api/newCodePeriod';
+import {
+  listBranchesNewCodeDefinition,
+  resetNewCodeDefinition,
+} from '../../../api/newCodeDefinition';
 import Spinner from '../../../components/ui/Spinner';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
@@ -26,8 +29,8 @@ import { DEFAULT_NEW_CODE_DEFINITION_TYPE } from '../../../helpers/new-code-defi
 import { Branch, BranchLike, BranchWithNewCodePeriod } from '../../../types/branch-like';
 import { NewCodeDefinition } from '../../../types/new-code-definition';
 import { Component } from '../../../types/types';
-import BranchBaselineSettingModal from './BranchBaselineSettingModal';
 import BranchListRow from './BranchListRow';
+import BranchNewCodeDefinitionSettingModal from './BranchNewCodeDefinitionSettingModal';
 
 interface Props {
   branchList: Branch[];
@@ -72,7 +75,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
     const project = this.props.component.key;
     this.setState({ loading: true });
 
-    listBranchesNewCodePeriod({ project }).then(
+    listBranchesNewCodeDefinition({ project }).then(
       (branchSettings) => {
         const newCodePeriods = branchSettings.newCodePeriods
           ? branchSettings.newCodePeriods.filter((ncp) => !ncp.inherited)
@@ -124,7 +127,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
   };
 
   resetToDefault = (branch: string) => {
-    return resetNewCodePeriod({
+    return resetNewCodeDefinition({
       project: this.props.component.key,
       branch,
     }).then(() => {
@@ -170,7 +173,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
           </tbody>
         </table>
         {editedBranch && (
-          <BranchBaselineSettingModal
+          <BranchNewCodeDefinitionSettingModal
             branch={editedBranch}
             branchList={branchList}
             component={this.props.component.key}

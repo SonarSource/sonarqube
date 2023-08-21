@@ -20,7 +20,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { MessageTypes, checkMessageDismissed, setMessageDismissed } from '../../api/messages';
-import { getNewCodePeriod } from '../../api/newCodePeriod';
+import { getNewCodeDefinition } from '../../api/newCodeDefinition';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import { NEW_CODE_PERIOD_CATEGORY } from '../../apps/settings/constants';
@@ -80,7 +80,7 @@ function NCDAutoUpdateMessage(props: NCDAutoUpdateMessageProps) {
 
   useEffect(() => {
     async function fetchNewCodeDefinition() {
-      const newCodeDefinition = await getNewCodePeriod(
+      const newCodeDefinition = await getNewCodeDefinition(
         component && {
           project: component.key,
         }

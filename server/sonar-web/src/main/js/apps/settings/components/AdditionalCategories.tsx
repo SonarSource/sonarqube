@@ -29,11 +29,11 @@ import {
   NEW_CODE_PERIOD_CATEGORY,
   PULL_REQUEST_DECORATION_BINDING_CATEGORY,
 } from '../constants';
-import AlmIntegration from './almIntegration/AlmIntegration';
 import { AnalysisScope } from './AnalysisScope';
-import Authentication from './authentication/Authentication';
 import Languages from './Languages';
-import NewCodePeriod from './NewCodePeriod';
+import NewCodeDefinition from './NewCodeDefinition';
+import AlmIntegration from './almIntegration/AlmIntegration';
+import Authentication from './authentication/Authentication';
 import PullRequestDecorationBinding from './pullRequestDecorationBinding/PRDecorationBinding';
 
 export interface AdditionalCategoryComponentProps {
@@ -110,7 +110,7 @@ function getLanguagesComponent(props: AdditionalCategoryComponentProps) {
 }
 
 function getNewCodePeriodComponent() {
-  return <NewCodePeriod />;
+  return <NewCodeDefinition />;
 }
 
 function getAnalysisScopeComponent(props: AdditionalCategoryComponentProps) {

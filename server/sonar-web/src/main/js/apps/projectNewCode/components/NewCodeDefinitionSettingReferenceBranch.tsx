@@ -83,7 +83,9 @@ function renderBranchOption(props: OptionProps<BranchOption, false>) {
   );
 }
 
-export default function BaselineSettingReferenceBranch(props: BaselineSettingReferenceBranchProps) {
+export default function NewCodeDefinitionSettingReferenceBranch(
+  props: BaselineSettingReferenceBranchProps
+) {
   const { branchList, className, disabled, referenceBranch, selected, settingLevel } = props;
 
   const currentBranch = branchList.find((b) => b.value === referenceBranch) || {
