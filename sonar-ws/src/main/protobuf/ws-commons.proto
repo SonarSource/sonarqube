@@ -79,27 +79,29 @@ enum RuleScope {
 }
 
 enum CleanCodeAttribute {
-  CONVENTIONAL = 0;
-  FORMATTED = 1;
-  IDENTIFIABLE = 2;
-  CLEAR = 3;
-  COMPLETE = 4;
-  EFFICIENT = 5;
-  LOGICAL = 6;
-  DISTINCT = 7;
-  FOCUSED = 8;
-  MODULAR = 9;
-  TESTED = 10;
-  LAWFUL = 11;
-  RESPECTFUL = 12;
-  TRUSTWORTHY = 13;
+  UNKNOWN_ATTRIBUTE = 0;
+  CONVENTIONAL = 1;
+  FORMATTED = 2;
+  IDENTIFIABLE = 3;
+  CLEAR = 4;
+  COMPLETE = 5;
+  EFFICIENT = 6;
+  LOGICAL = 7;
+  DISTINCT = 8;
+  FOCUSED = 9;
+  MODULAR = 10;
+  TESTED = 11;
+  LAWFUL = 12;
+  RESPECTFUL = 13;
+  TRUSTWORTHY = 14;
 }
 
 enum CleanCodeAttributeCategory {
-  ADAPTABLE = 0;
-  CONSISTENT = 1;
-  INTENTIONAL = 2;
-  RESPONSIBLE = 3;
+  UNKNOWN_CATEGORY = 0;
+  ADAPTABLE = 1;
+  CONSISTENT = 2;
+  INTENTIONAL = 3;
+  RESPONSIBLE = 4;
 }
 
 message Impact {
@@ -108,15 +110,17 @@ message Impact {
 }
 
 enum SoftwareQuality {
-  MAINTAINABILITY = 0;
-  RELIABILITY = 1;
-  SECURITY = 2;
+  UNKNOWN_IMPACT_QUALITY = 0;
+  MAINTAINABILITY = 1;
+  RELIABILITY = 2;
+  SECURITY = 3;
 }
 
 enum ImpactSeverity {
-  LOW = 0;
-  MEDIUM = 1;
-  HIGH = 2;
+  UNKNOWN_IMPACT_SEVERITY = 0;
+  LOW = 1;
+  MEDIUM = 2;
+  HIGH = 3;
 }
 
 // Lines start at 1 and line offsets start at 0
