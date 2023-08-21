@@ -24,6 +24,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -48,6 +50,7 @@ public class AddUserAction implements UserGroupsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final GroupWsSupport support;
+  private final Logger logger = Loggers.get(AddUserAction.class);
 
   public AddUserAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
     this.dbClient = dbClient;
@@ -84,7 +87,8 @@ public class AddUserAction implements UserGroupsWsAction {
       OrganizationDto organization = support.findOrganizationByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION_KEY));
       checkMembership(dbSession, organization, user);
       support.checkGroupIsNotDefault(dbSession, group);
-
+      logger.info("Add User : {} to UserGroup : {} :: organization : {} and LoggedInUser : {} ", login, group.getUuid(),
+              group.getOrganizationUuid(),userSession.getLogin());
       if (!isMemberOf(dbSession, user, group)) {
         UserGroupDto membershipDto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserUuid(user.getUuid());
         dbClient.userGroupDao().insert(dbSession, membershipDto, group.getName(), login);

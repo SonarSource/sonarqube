@@ -24,6 +24,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.DefaultTemplates;
@@ -48,6 +50,7 @@ public class DeleteTemplateAction implements PermissionsWsAction {
   private final UserSession userSession;
   private final PermissionWsSupport wsSupport;
   private final DefaultTemplatesResolver defaultTemplatesResolver;
+  private static final Logger logger = Loggers.get(DeleteTemplateAction.class);
 
   public DeleteTemplateAction(DbClient dbClient, UserSession userSession, PermissionWsSupport support,
     DefaultTemplatesResolver defaultTemplatesResolver) {
@@ -84,6 +87,8 @@ public class DeleteTemplateAction implements PermissionsWsAction {
   }
 
   private void doHandle(DeleteTemplateRequest request) {
+    logger.info("Delete Permission Template Request :: templateUuid {}, User: {}",
+            request.getTemplateId(), userSession.getLogin());
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
               request.getTemplateId(), request.getOrganization(), request.getTemplateName()));

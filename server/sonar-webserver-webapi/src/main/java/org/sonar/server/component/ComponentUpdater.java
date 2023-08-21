@@ -28,6 +28,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.i18n.I18n;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -65,6 +67,7 @@ public class ComponentUpdater {
   private final ProjectIndexers projectIndexers;
   private final UuidFactory uuidFactory;
   private final DefaultBranchNameResolver defaultBranchNameResolver;
+  private static final Logger logger = Loggers.get(ComponentUpdater.class);
 
   public ComponentUpdater(DbClient dbClient, I18n i18n, System2 system2,
     PermissionTemplateService permissionTemplateService, FavoriteUpdater favoriteUpdater,
@@ -91,6 +94,7 @@ public class ComponentUpdater {
 
   public ComponentDto create(DbSession dbSession, NewComponent newComponent, @Nullable String userUuid, @Nullable String userLogin,
     @Nullable String mainBranchName) {
+    logger.debug("Update Component:: newComponent :{}, userUuid: {} ", newComponent.key(), userUuid);
     ComponentDto componentDto = createWithoutCommit(dbSession, newComponent, userUuid, userLogin, mainBranchName, c -> {
     });
     commitAndIndex(dbSession, componentDto);

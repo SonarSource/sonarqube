@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 import javax.annotation.Nullable;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -48,6 +50,7 @@ public class QProfileRulesImpl implements QProfileRules {
   private final RuleIndex ruleIndex;
   private final ActiveRuleIndexer activeRuleIndexer;
   private final QualityProfileChangeEventService qualityProfileChangeEventService;
+  private final Logger logger = Loggers.get(QProfileRulesImpl.class);
 
   public QProfileRulesImpl(DbClient db, RuleActivator ruleActivator, RuleIndex ruleIndex, ActiveRuleIndexer activeRuleIndexer,
     QualityProfileChangeEventService qualityProfileChangeEventService) {
@@ -94,7 +97,8 @@ public class QProfileRulesImpl implements QProfileRules {
     for (String ruleUuid : ruleUuids) {
       changes.addAll(ruleActivator.deactivate(dbSession, context, ruleUuid, false));
     }
-
+    logger.debug("Rule Deactivated for qProfileUuid :{}, organizationUuid : {} ", profile.getRulesProfileUuid(),
+            profile.getOrganizationUuid());
     qualityProfileChangeEventService.distributeRuleChangeEvent(List.of(profile), changes, profile.getLanguage());
 
     activeRuleIndexer.commitAndIndex(dbSession, changes);

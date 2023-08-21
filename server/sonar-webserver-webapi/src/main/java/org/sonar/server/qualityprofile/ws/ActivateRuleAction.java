@@ -26,6 +26,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -51,6 +53,7 @@ public class ActivateRuleAction implements QProfileWsAction {
   private final QProfileRules ruleActivator;
   private final UserSession userSession;
   private final QProfileWsSupport wsSupport;
+  private final Logger logger = Loggers.get(ActivateRuleAction.class);
 
   public ActivateRuleAction(DbClient dbClient, QProfileRules ruleActivator, UserSession userSession, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;
@@ -104,6 +107,8 @@ public class ActivateRuleAction implements QProfileWsAction {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       wsSupport.checkCanEdit(dbSession, organization, profile);
       RuleActivation activation = readActivation(dbSession, request);
+      logger.debug("Rule Activation for Custom QProfiles, ruleUuid: {}, severity: {} and organizationUuid : {}, user : {} ",
+              activation.getRuleUuid(), activation.getSeverity(), organization.getUuid(), userSession.getLogin());
       ruleActivator.activateAndCommit(dbSession, profile, singletonList(activation));
     }
 

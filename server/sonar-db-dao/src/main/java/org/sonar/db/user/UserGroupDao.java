@@ -20,6 +20,8 @@
 package org.sonar.db.user;
 
 import java.util.Set;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
@@ -27,6 +29,7 @@ import org.sonar.db.audit.model.UserGroupNewValue;
 
 public class UserGroupDao implements Dao {
   private final AuditPersister auditPersister;
+  private final Logger logger = Loggers.get(UserGroupDao.class);
 
   public UserGroupDao(AuditPersister auditPersister) {
     this.auditPersister = auditPersister;
@@ -34,6 +37,7 @@ public class UserGroupDao implements Dao {
 
   public UserGroupDto insert(DbSession session, UserGroupDto dto, String groupName, String login) {
     mapper(session).insert(dto);
+    logger.debug("Added User : {} to User Group : {}", login, dto.getGroupUuid());
     auditPersister.addUserToGroup(session, new UserGroupNewValue(dto, groupName, login));
     return dto;
   }
@@ -44,6 +48,7 @@ public class UserGroupDao implements Dao {
 
   public void delete(DbSession session, GroupDto group, UserDto user) {
     int deletedRows = mapper(session).delete(group.getUuid(), user.getUuid());
+    logger.debug("Removed User : {} from User Group : {}", user.getName(), group.getUuid());
 
     if (deletedRows > 0) {
       auditPersister.deleteUserFromGroup(session, new UserGroupNewValue(group, user));
