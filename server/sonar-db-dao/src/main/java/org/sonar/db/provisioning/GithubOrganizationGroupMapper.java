@@ -26,6 +26,7 @@ import org.apache.ibatis.annotations.Param;
 public interface GithubOrganizationGroupMapper {
 
   Set<GithubOrganizationGroupDto> selectAll();
+
   void insert(GithubOrganizationGroupDto githubOrganizationGroupDto);
 
   Optional<GithubOrganizationGroupDto> selectByGroupUuid(@Param("groupUuid") String groupUuid);

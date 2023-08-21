@@ -60,7 +60,7 @@ public class GroupService {
     removeGroupFromQualityGateEdit(dbSession, group);
     removeGroupScimLink(dbSession, group);
     removeExternalGroupMapping(dbSession, group);
-    removeGithubOrganizationGroupDao(dbSession, group);
+    removeGithubOrganizationGroup(dbSession, group);
 
     removeGroup(dbSession, group);
   }
@@ -164,7 +164,7 @@ public class GroupService {
   private void removeExternalGroupMapping(DbSession dbSession, GroupDto group) {
     dbClient.externalGroupDao().deleteByGroupUuid(dbSession, group.getUuid());
   }
-  private void removeGithubOrganizationGroupDao(DbSession dbSession, GroupDto group) {
+  private void removeGithubOrganizationGroup(DbSession dbSession, GroupDto group) {
     dbClient.githubOrganizationGroupDao().deleteByGroupUuid(dbSession, group.getUuid());
   }
 
