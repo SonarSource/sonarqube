@@ -65,6 +65,7 @@ import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 public class LogbackHelper extends AbstractLogHelper {
 
   private static final String LOGBACK_LOGGER_NAME_PATTERN = "%logger{20}";
+  private static final String WEBLOG_PATTERN = "sonar.web.logs.pattern";
 
   public LogbackHelper() {
     super(LOGBACK_LOGGER_NAME_PATTERN);
@@ -243,7 +244,7 @@ public class LogbackHelper extends AbstractLogHelper {
     }
     PatternLayoutEncoder encoder = new PatternLayoutEncoder();
     encoder.setContext(context);
-    encoder.setPattern(buildLogPattern(config));
+    encoder.setPattern(props.value(WEBLOG_PATTERN, buildLogPattern(config)));
     encoder.start();
     return encoder;
   }
