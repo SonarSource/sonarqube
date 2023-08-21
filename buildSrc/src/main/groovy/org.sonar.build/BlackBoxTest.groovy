@@ -11,6 +11,7 @@ class BlackBoxTest extends Test {
 
     systemProperty 'java.awt.headless', 'true'
     systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
+    systemProperty 'webdriver.chrome.driver', System.getProperty('webdriver.chrome.driver')
 
     if (!project.version.endsWith("-SNAPSHOT")) {
       systemProperty 'sonar.runtimeVersion', project.version
