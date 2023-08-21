@@ -277,6 +277,9 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     const mode: CreateProjectModes | undefined = location.query?.mode;
     const isProjectSetupDone = location.query?.setncd === 'true';
     const gridLayoutStyle = mode ? 'sw-col-start-2 sw-col-span-10' : 'sw-col-span-12';
+    const pageTitle = mode
+      ? translate(`onboarding.create_project.${mode}.title`)
+      : translate('onboarding.create_project.select_method');
 
     return (
       <LargeCenteredLayout
@@ -284,7 +287,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
         className="sw-pt-8 sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12"
       >
         <div className={gridLayoutStyle}>
-          <Helmet title={translate('onboarding.create_project.select_method')} titleTemplate="%s" />
+          <Helmet title={pageTitle} titleTemplate="%s" />
           <A11ySkipTarget anchor="create_project_main" />
 
           <div className={classNames({ 'sw-hidden': isProjectSetupDone })}>

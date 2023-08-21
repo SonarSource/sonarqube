@@ -49,7 +49,7 @@ jest.mock('../../../../api/settings', () => ({
 
 const ui = {
   manualCreateProjectOption: byText('onboarding.create_project.select_method.manual'),
-  manualProjectHeader: byText('onboarding.create_project.setup_manually'),
+  manualProjectHeader: byText('onboarding.create_project.manual.title'),
   displayNameField: byRole('textbox', {
     name: /onboarding.create_project.display_name/,
   }),

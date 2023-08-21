@@ -71,7 +71,7 @@ it('should ask for PAT when it is not set yet and show the import project featur
   const user = userEvent.setup();
   renderCreateProject();
 
-  expect(screen.getByText('onboarding.create_project.from_bbs')).toBeInTheDocument();
+  expect(screen.getByText('onboarding.create_project.bitbucket.title')).toBeInTheDocument();
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
   expect(screen.getByText('onboarding.create_project.pat_form.title')).toBeInTheDocument();
@@ -97,7 +97,7 @@ it('should show import project feature when PAT is already set', async () => {
   const user = userEvent.setup();
   renderCreateProject();
 
-  expect(screen.getByText('onboarding.create_project.from_bbs')).toBeInTheDocument();
+  expect(screen.getByText('onboarding.create_project.bitbucket.title')).toBeInTheDocument();
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
   await act(async () => {
@@ -153,7 +153,7 @@ it('should show search filter when PAT is already set', async () => {
   const user = userEvent.setup();
   renderCreateProject();
 
-  expect(screen.getByText('onboarding.create_project.from_bbs')).toBeInTheDocument();
+  expect(screen.getByText('onboarding.create_project.bitbucket.title')).toBeInTheDocument();
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
   await act(async () => {
@@ -175,7 +175,7 @@ it('should show search filter when PAT is already set', async () => {
 it('should show no result message when there are no projects', async () => {
   almIntegrationHandler.setBitbucketServerProjects([]);
   renderCreateProject();
-  expect(screen.getByText('onboarding.create_project.from_bbs')).toBeInTheDocument();
+  expect(screen.getByText('onboarding.create_project.bitbucket.title')).toBeInTheDocument();
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
   await act(async () => {

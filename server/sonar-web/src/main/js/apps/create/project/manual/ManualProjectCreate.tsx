@@ -227,7 +227,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
 
     return (
       <div className="sw-max-w-[50%]">
-        <Title>{translate('onboarding.create_project.setup_manually')}</Title>
+        <Title>{translate('onboarding.create_project.manual.title')}</Title>
         {branchesEnabled && (
           <FlagMessage className="sw-my-4" variant="info">
             {translate('onboarding.create_project.pr_decoration.information')}

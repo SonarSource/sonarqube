@@ -66,11 +66,9 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
   return (
     <PageContentFontWrapper>
       <header className="sw-mb-10">
-        <Title className="sw-mb-4">
-          {translate('onboarding.create_project.import_selected_repo')}
-        </Title>
+        <Title className="sw-mb-4">{translate('onboarding.create_project.bitbucket.title')}</Title>
         <LightPrimary className="sw-body-sm">
-          {translate('onboarding.create_project.from_bbs')}
+          {translate('onboarding.create_project.bitbucket.subtitle')}
         </LightPrimary>
       </header>
 
