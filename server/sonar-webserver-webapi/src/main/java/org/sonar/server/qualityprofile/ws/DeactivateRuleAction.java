@@ -23,6 +23,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -43,6 +45,7 @@ public class DeactivateRuleAction implements QProfileWsAction {
   private final QProfileRules ruleActivator;
   private final UserSession userSession;
   private final QProfileWsSupport wsSupport;
+  private final Logger logger = Loggers.get(DeactivateRuleAction.class);
 
   public DeactivateRuleAction(DbClient dbClient, QProfileRules ruleActivator, UserSession userSession, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;
@@ -85,6 +88,8 @@ public class DeactivateRuleAction implements QProfileWsAction {
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(qualityProfileKey));
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       wsSupport.checkCanEdit(dbSession, organization, profile);
+      logger.info("Deactivate rule from QProfile Request :: ruleUuid : {}, qProfileUuid :{} and organization : {}, user : {}",
+              rule.getUuid(), profile.getRulesProfileUuid(), organization.getUuid(), userSession.getLogin());
       ruleActivator.deactivateAndCommit(dbSession, profile, singletonList(rule.getUuid()));
     }
     response.noContent();

@@ -25,6 +25,8 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -58,6 +60,7 @@ public class CreateAction implements ProjectsWsAction {
   private final ComponentUpdater componentUpdater;
   private final ProjectDefaultVisibility projectDefaultVisibility;
   private final ProjectsWsSupport support;
+  private static final Logger logger = Loggers.get(CreateAction.class);
 
   public CreateAction(DbClient dbClient, UserSession userSession, ComponentUpdater componentUpdater,
     ProjectDefaultVisibility projectDefaultVisibility, ProjectsWsSupport support) {
@@ -118,6 +121,8 @@ public class CreateAction implements ProjectsWsAction {
   private CreateWsResponse doHandle(CreateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = support.getOrganization(dbSession, request.getOrganization());
+      logger.info("Create Project Action:: organizationUuid :{}, projectKey: {} ", organization.getUuid(),
+              request.getProjectKey());
       userSession.checkPermission(OrganizationPermission.PROVISION_PROJECTS, organization);
       String visibility = request.getVisibility();
       boolean changeToPrivate = visibility == null ? projectDefaultVisibility.get(dbSession).isPrivate() : "private".equals(visibility);

@@ -30,6 +30,8 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -50,6 +52,7 @@ public class PermissionTemplateDao implements Dao {
   private final System2 system;
   private final UuidFactory uuidFactory;
   private final AuditPersister auditPersister;
+  private static final Logger logger = Loggers.get(PermissionTemplateDao.class);
 
   public PermissionTemplateDao(UuidFactory uuidFactory, System2 system, AuditPersister auditPersister) {
     this.uuidFactory = uuidFactory;
@@ -158,6 +161,7 @@ public class PermissionTemplateDao implements Dao {
   }
 
   public void deleteByUuid(DbSession session, String templateUuid, String templateName) {
+    logger.debug("Delete Permission Template :: template_uuid : {}, templateName: {}", templateUuid, templateName);
     PermissionTemplateMapper mapper = mapper(session);
     mapper.deleteUserPermissionsByTemplateUuid(templateUuid);
     mapper.deleteGroupPermissionsByTemplateUuid(templateUuid);
@@ -221,6 +225,8 @@ public class PermissionTemplateDao implements Dao {
 
   public void insertGroupPermission(DbSession session, String templateUuid, @Nullable String groupUuid, String permission,
     String templateName, @Nullable String groupName) {
+    logger.debug("Adding Group to Template, permissionType : {}, group : {} and templateUuid : {}", permission,
+            groupName, templateUuid);
     PermissionTemplateGroupDto permissionTemplateGroup = new PermissionTemplateGroupDto()
       .setUuid(uuidFactory.create())
       .setTemplateUuid(templateUuid)
@@ -242,6 +248,8 @@ public class PermissionTemplateDao implements Dao {
 
   public void deleteGroupPermission(DbSession session, String templateUuid, @Nullable String groupUuid, String permission, String templateName,
     @Nullable String groupName) {
+    logger.debug(" Removing Group from Permission Template, permissionType : {}, group : {} and templateUuid : {}",
+            permission, groupName, templateUuid);
     PermissionTemplateGroupDto permissionTemplateGroup = new PermissionTemplateGroupDto()
       .setTemplateUuid(templateUuid)
       .setPermission(permission)

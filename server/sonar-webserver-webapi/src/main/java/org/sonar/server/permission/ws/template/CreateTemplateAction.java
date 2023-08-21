@@ -26,6 +26,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -57,6 +59,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
   private final System2 system;
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
+  private static final Logger logger = Loggers.get(CreateTemplateAction.class);
 
   public CreateTemplateAction(DbClient dbClient, UserSession userSession, System2 system, PermissionWsSupport wsSupport, WsParameters wsParameters) {
     this.dbClient = dbClient;
@@ -107,6 +110,8 @@ public class CreateTemplateAction implements PermissionsWsAction {
 
   private CreateTemplateWsResponse doHandle(CreateTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      logger.info("Create Permission Template Request :: organization_key : {}, templateName: {}",
+              request.getOrganization(), request.getName());
       OrganizationDto org = wsSupport.findOrganization(dbSession, request.getOrganization());
       checkGlobalAdmin(userSession, org.getUuid());
 
@@ -120,6 +125,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
   }
 
   private void validateTemplateNameForCreation(DbSession dbSession, OrganizationDto org, String name) {
+    logger.debug("Validating Template Name :: organization_key : {}, templateName: {}", org.getKey(), name);
     PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao()
       .selectByName(dbSession, org.getUuid(), name);
     checkRequest(permissionTemplateWithSameName == null, format(MSG_TEMPLATE_WITH_SAME_NAME, name));
@@ -136,6 +142,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
       .setCreatedAt(now)
       .setUpdatedAt(now));
     dbSession.commit();
+    logger.info("Template Creation Completed :: organization_key : {}, templateName: {}", org.getKey(), request.getName());
     return template;
   }
 

@@ -23,6 +23,8 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -48,6 +50,7 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
   private final PermissionWsSupport support;
   private final UserSession userSession;
   private final WsParameters wsParameters;
+  private static final Logger logger = Loggers.get(AddGroupToTemplateAction.class);
 
   public AddGroupToTemplateAction(DbClient dbClient, PermissionWsSupport support, UserSession userSession, WsParameters wsParameters) {
     this.dbClient = dbClient;
@@ -85,7 +88,8 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
 
       PermissionTemplateDto template = support.findTemplate(dbSession, fromRequest(request));
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
-
+      logger.info("Add Group to Permission Template Request :: organizationUuid : {}, templateName: {} and permissionType: {}, user: {}",
+              template.getOrganizationUuid(), template.getName(), permission, userSession.getLogin());
       if (!groupAlreadyAdded(dbSession, template.getUuid(), permission, group)) {
         dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), group.getUuid(), permission,
           template.getName(), request.param(PARAM_GROUP_NAME));

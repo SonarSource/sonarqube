@@ -24,6 +24,8 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -50,6 +52,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
   private final PermissionService permissionService;
+  private final Logger logger = Loggers.get(RemoveGroupAction.class);
 
   public RemoveGroupAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
                            WsParameters wsParameters, PermissionService permissionService) {
@@ -93,6 +96,9 @@ public class RemoveGroupAction implements PermissionsWsAction {
 
       wsSupport.checkPermissionManagementAccess(userSession, group.getOrganizationUuid(), project.orElse(null));
 
+      logger.info("Remove Permission for a Group :: permission {}, organizationUuid : {}, groupUuid: {}, user : {}",
+              request.mandatoryParam(PARAM_PERMISSION), group.getOrganizationUuid(), group.getUuid(),
+              userSession.getLogin());
       PermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.REMOVE,
         request.mandatoryParam(PARAM_PERMISSION),

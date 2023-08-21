@@ -25,6 +25,8 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -49,6 +51,7 @@ public class AddGroupAction implements PermissionsWsAction {
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
   private final PermissionService permissionService;
+  private final Logger logger = Loggers.get(AddGroupAction.class);
 
   public AddGroupAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
                         WsParameters wsParameters, PermissionService permissionService) {
@@ -90,6 +93,9 @@ public class AddGroupAction implements PermissionsWsAction {
       GroupUuidOrAnyone group = wsSupport.findGroup(dbSession, request);
       Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
       wsSupport.checkPermissionManagementAccess(userSession, group.getOrganizationUuid(), project.orElse(null));
+      logger.info("Grant Permission to a group:: permission {}, organizationUuid : {}, groupUuid: {}, user : {}",
+              request.mandatoryParam(PARAM_PERMISSION), group.getOrganizationUuid(), group.getUuid(),
+              userSession.getLogin());
       PermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.ADD,
         request.mandatoryParam(PARAM_PERMISSION),
