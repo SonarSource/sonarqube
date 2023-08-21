@@ -31,13 +31,18 @@ import { Alert } from "../../../components/ui/Alert";
 import withCurrentUserContext from "../../../app/components/current-user/withCurrentUserContext";
 import { Location, withRouter } from "../../../components/hoc/withRouter";
 import './OrganizationApp.css';
+import { hasGlobalPermission } from "../../../helpers/users";
+import { Permissions } from "../../../types/permissions";
+import { CurrentUser } from "../../../types/users";
+import NotFound from "../../../app/components/NotFound";
 
 interface OrganizationAppProps {
+  currentUser: CurrentUser;
   userOrganizations: Organization[];
   location: Location;
 }
 
-const OrganizationApp: React.FC<OrganizationAppProps> = ({ userOrganizations, location }) => {
+const OrganizationApp: React.FC<OrganizationAppProps> = ({ currentUser, userOrganizations, location }) => {
 
   const { organizationKey } = useParams();
   const [organization, setOrganization] = useState<Organization>();
@@ -65,6 +70,12 @@ const OrganizationApp: React.FC<OrganizationAppProps> = ({ userOrganizations, lo
 
   if (!organization) {
     return null;
+  }
+
+  const isMember = userOrganizations.find(o => o.kee == organization.kee);
+  const isSysAdmin = hasGlobalPermission(currentUser, Permissions.Admin);
+  if (!isMember && !isSysAdmin) {
+    return <NotFound withContainer={false} />;
   }
 
   return (
