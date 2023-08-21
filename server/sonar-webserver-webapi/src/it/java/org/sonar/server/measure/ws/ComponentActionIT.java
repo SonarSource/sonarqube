@@ -19,8 +19,6 @@
  */
 package org.sonar.server.measure.ws;
 
-import java.util.Optional;
-import java.util.function.Function;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -44,7 +42,6 @@ import org.sonarqube.ws.Measures.Component;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
 
 import static java.lang.Double.parseDouble;
-import static java.util.function.Predicate.not;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -190,70 +187,6 @@ public class ComponentActionIT {
     assertThat(response.getComponent().getMeasuresList())
       .extracting(Measures.Measure::getMetric, m -> parseDouble(m.getValue()))
       .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getValue()));
-  }
-
-  @Test
-  public void new_issue_count_measures_are_transformed_in_pr() {
-    ProjectData projectData = db.components().insertPrivateProject();
-    ComponentDto mainBranch = projectData.getMainBranchComponent();
-    userSession.addProjectPermission(USER, projectData.getProjectDto())
-      .registerBranches(projectData.getMainBranchDto());
-    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
-    userSession.addProjectBranchMapping(projectData.projectUuid(), branch);
-    SnapshotDto analysis = db.components().insertSnapshot(branch);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
-    MetricDto bugs = db.measures().insertMetric(m1 -> m1.setKey("bugs").setValueType("INT"));
-    MetricDto newBugs = db.measures().insertMetric(m1 -> m1.setKey("new_bugs").setValueType("INT"));
-    MetricDto violations = db.measures().insertMetric(m1 -> m1.setKey("violations").setValueType("INT"));
-    MetricDto newViolations = db.measures().insertMetric(m1 -> m1.setKey("new_violations").setValueType("INT"));
-    LiveMeasureDto bugMeasure = db.measures().insertLiveMeasure(file, bugs, m -> m.setValue(12.0d));
-    LiveMeasureDto newBugMeasure = db.measures().insertLiveMeasure(file, newBugs, m -> m.setValue(1d));
-    LiveMeasureDto violationMeasure = db.measures().insertLiveMeasure(file, violations, m -> m.setValue(20.0d));
-
-    ComponentWsResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, file.getKey())
-      .setParam(PARAM_PULL_REQUEST, "pr-123")
-      .setParam(PARAM_METRIC_KEYS, newBugs.getKey() + "," + bugs.getKey() + "," + newViolations.getKey())
-      .executeProtobuf(ComponentWsResponse.class);
-
-    assertThat(response.getComponent()).extracting(Component::getKey, Component::getPullRequest)
-      .containsExactlyInAnyOrder(file.getKey(), "pr-123");
-
-    Function<Measures.Measure, Double> extractVariation = m -> Optional.ofNullable(m.getPeriod())
-      .map(Measures.PeriodValue::getValue)
-      .filter(not(String::isEmpty))
-      .map(Double::parseDouble)
-      .orElse(null);
-    assertThat(response.getComponent().getMeasuresList())
-      .extracting(Measures.Measure::getMetric, extractVariation, m -> m.getValue().isEmpty() ? null : parseDouble(m.getValue()))
-      .containsExactlyInAnyOrder(
-        tuple(newBugs.getKey(), bugMeasure.getValue(), null),
-        tuple(bugs.getKey(), null, bugMeasure.getValue()),
-        tuple(newViolations.getKey(), violationMeasure.getValue(), null));
-  }
-
-  @Test
-  public void new_issue_count_measures_are_not_transformed_if_they_dont_exist_in_pr() {
-    ProjectData projectData = db.components().insertPrivateProject();
-    ComponentDto mainBranch = projectData.getMainBranchComponent();
-    userSession.addProjectPermission(USER, projectData.getProjectDto());
-    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
-    userSession.addProjectBranchMapping(projectData.projectUuid(), branch);
-    SnapshotDto analysis = db.components().insertSnapshot(branch);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
-    MetricDto bugs = db.measures().insertMetric(m1 -> m1.setKey("bugs").setOptimizedBestValue(false).setValueType("INT"));
-    MetricDto newBugs = db.measures().insertMetric(m1 -> m1.setKey("new_bugs").setOptimizedBestValue(false).setValueType("INT"));
-
-    ComponentWsResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, file.getKey())
-      .setParam(PARAM_PULL_REQUEST, "pr-123")
-      .setParam(PARAM_METRIC_KEYS, newBugs.getKey() + "," + bugs.getKey())
-      .executeProtobuf(ComponentWsResponse.class);
-
-    assertThat(response.getComponent()).extracting(Component::getKey, Component::getPullRequest)
-      .containsExactlyInAnyOrder(file.getKey(), "pr-123");
-
-    assertThat(response.getComponent().getMeasuresList()).isEmpty();
   }
 
   @Test

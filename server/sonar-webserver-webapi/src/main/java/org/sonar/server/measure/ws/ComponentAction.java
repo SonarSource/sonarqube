@@ -145,23 +145,9 @@ public class ComponentAction implements MeasuresWsAction {
       checkPermissions(component);
       SnapshotDto analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, component.branchUuid()).orElse(null);
 
-      boolean isPR = isPR(pullRequest);
-
-      Set<String> metricKeysToRequest = new HashSet<>(request.metricKeys);
-
-      if (isPR) {
-        PrMeasureFix.addReplacementMetricKeys(metricKeysToRequest);
-      }
-
-      List<MetricDto> metrics = searchMetrics(dbSession, metricKeysToRequest);
+      List<MetricDto> metrics = searchMetrics(dbSession, new HashSet<>(request.getMetricKeys()));
       List<LiveMeasureDto> measures = searchMeasures(dbSession, component, metrics);
       Map<MetricDto, LiveMeasureDto> measuresByMetric = getMeasuresByMetric(measures, metrics);
-
-      if (isPR) {
-        Set<String> originalMetricKeys = new HashSet<>(request.metricKeys);
-        PrMeasureFix.createReplacementMeasures(metrics, measuresByMetric, originalMetricKeys);
-        PrMeasureFix.removeMetricsNotRequested(metrics, originalMetricKeys);
-      }
 
       Optional<Measures.Period> period = snapshotToWsPeriods(analysis);
       Optional<RefComponent> reference = getReference(dbSession, component);
@@ -169,7 +155,7 @@ public class ComponentAction implements MeasuresWsAction {
     }
   }
 
-  public List<MetricDto> searchMetrics(DbSession dbSession, Collection<String> metricKeys) {
+  public List<MetricDto> searchMetrics(DbSession dbSession, Set<String> metricKeys) {
     List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, metricKeys);
     if (metrics.size() < metricKeys.size()) {
       Set<String> foundMetricKeys = metrics.stream().map(MetricDto::getKey).collect(Collectors.toSet());
@@ -220,10 +206,6 @@ public class ComponentAction implements MeasuresWsAction {
         measures.add(metricWithBestValue.getBestValue());
       }
     }
-  }
-
-  private static boolean isPR(@Nullable String pullRequest) {
-    return pullRequest != null;
   }
 
   private ComponentDto loadComponent(DbSession dbSession, ComponentRequest request, @Nullable String branch, @Nullable String pullRequest) {

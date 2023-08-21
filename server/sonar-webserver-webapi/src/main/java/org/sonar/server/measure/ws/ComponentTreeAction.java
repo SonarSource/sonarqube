@@ -104,8 +104,8 @@ import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeri
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -426,26 +426,12 @@ public class ComponentTreeAction implements MeasuresWsAction {
           .build();
       }
 
-      Set<String> requestedMetricKeys = new HashSet<>(wsRequest.getMetricKeys());
-      Set<String> metricKeysToSearch = new HashSet<>(requestedMetricKeys);
-
-      boolean isPR = isPR(wsRequest.getPullRequest());
-      if (isPR) {
-        PrMeasureFix.addReplacementMetricKeys(metricKeysToSearch);
-      }
-
       ComponentTreeQuery componentTreeQuery = toComponentTreeQuery(wsRequest, baseComponent);
       List<ComponentDto> components = searchComponents(dbSession, componentTreeQuery);
 
-      List<MetricDto> metrics = searchMetrics(dbSession, metricKeysToSearch);
-      Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric = searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, componentTreeQuery,
-        components,
-        metrics);
-
-      if (isPR) {
-        PrMeasureFix.removeMetricsNotRequested(metrics, requestedMetricKeys);
-        PrMeasureFix.createReplacementMeasures(metrics, measuresByComponentUuidAndMetric, requestedMetricKeys);
-      }
+      List<MetricDto> metrics = searchMetrics(dbSession, new HashSet<>(wsRequest.getMetricKeys()));
+      Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric =
+        searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, componentTreeQuery, components, metrics);
 
       components = filterComponents(components, measuresByComponentUuidAndMetric, metrics, wsRequest);
       components = filterAuthorizedComponents(components);
@@ -475,10 +461,6 @@ public class ComponentTreeAction implements MeasuresWsAction {
     return dbClient.branchDao().selectByUuids(dbSession, referenceUuids).stream()
       .filter(b -> !b.isMain())
       .collect(Collectors.toMap(BranchDto::getUuid, BranchDto::getBranchKey));
-  }
-
-  private static boolean isPR(@Nullable String pullRequest) {
-    return pullRequest != null;
   }
 
   private ComponentDto loadComponent(DbSession dbSession, ComponentTreeRequest request) {
