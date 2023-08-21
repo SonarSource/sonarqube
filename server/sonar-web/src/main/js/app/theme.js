@@ -228,6 +228,7 @@ module.exports = {
     globalNavHeightRaw: 6 * grid,
     globalNavContentHeightRaw: 4 * grid,
     contextNavHeightRaw: 9 * grid,
+    contextNavHeightWithError: 106,
   },
 
   fonts: {

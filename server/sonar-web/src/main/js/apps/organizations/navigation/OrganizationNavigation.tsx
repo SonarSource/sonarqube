@@ -70,13 +70,14 @@ export class OrganizationNavigation extends React.PureComponent<Props, State> {
   }
 
   render(){
-    const { contextNavHeightRaw } = rawSizes;
+    const { contextNavHeightRaw, contextNavHeightWithError } = rawSizes;
     const {location,organization,userOrganizations} = {...this.props}  
     const {error} = {...this.state};
     
+    const height = (error?.length>0) ? contextNavHeightWithError : contextNavHeightRaw;
     return (
       <>
-      <ContextNavBar height={contextNavHeightRaw} id="context-navigation">
+      <ContextNavBar height={height} id="context-navigation">
         <div className="navbar-context-justified">
           <OrganizationNavigationHeader
               organization={organization}
@@ -90,8 +91,7 @@ export class OrganizationNavigation extends React.PureComponent<Props, State> {
             location={location}
             organization={organization}
         />
-      </ContextNavBar>
-      {
+        {
         error?.length>0 ? (
         <div className='org-alert'>
           <div className='org-alert-inner'>
@@ -105,6 +105,7 @@ export class OrganizationNavigation extends React.PureComponent<Props, State> {
         </div>
         ) : (<></>)
       }
+      </ContextNavBar>
     </>
   );
   }
