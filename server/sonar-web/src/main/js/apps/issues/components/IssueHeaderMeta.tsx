@@ -22,7 +22,7 @@ import { BasicSeparator, LightLabel, themeBorder, Tooltip } from 'design-system'
 import React from 'react';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import IssueTags from '../../../components/issue/components/IssueTags';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
 
 interface Props {
@@ -65,9 +65,7 @@ export default function IssueHeaderMeta(props: Props) {
 
       {issue.effort && (
         <>
-          <HotspotHeaderInfo title={translate('issue.effort')}>
-            {translateWithParameters('issue.x_effort', issue.effort)}
-          </HotspotHeaderInfo>
+          <HotspotHeaderInfo title={translate('issue.effort')}>{issue.effort}</HotspotHeaderInfo>
           {separator}
         </>
       )}
