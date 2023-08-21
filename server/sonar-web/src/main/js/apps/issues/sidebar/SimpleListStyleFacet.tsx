@@ -42,6 +42,7 @@ interface Props<T = string> extends CommonProps {
   listItems: Array<T>;
   itemNamePrefix: string;
   selectedItems: Array<T>;
+  renderIcon?: (item: string) => React.ReactNode;
 }
 
 export function SimpleListStyleFacet(props: Props) {
@@ -55,6 +56,7 @@ export function SimpleListStyleFacet(props: Props) {
     listItems,
     itemNamePrefix,
     help,
+    renderIcon,
   } = props;
 
   const nbSelectableItems = listItems.filter((item) => stats[item]).length;
@@ -86,6 +88,7 @@ export function SimpleListStyleFacet(props: Props) {
               active={active}
               className="it__search-navigator-facet"
               key={item}
+              icon={renderIcon?.(item)}
               name={translate(itemNamePrefix, item)}
               onClick={(itemValue, multiple) => {
                 if (multiple) {

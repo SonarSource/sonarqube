@@ -20,6 +20,7 @@
 
 import * as React from 'react';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
+import SoftwareImpactSeverityIcon from '../../../components/icons/SoftwareImpactSeverityIcon';
 import { translate } from '../../../helpers/l10n';
 import { SoftwareImpactSeverity } from '../../../types/issues';
 import { CommonProps, SimpleListStyleFacet } from './SimpleListStyleFacet';
@@ -39,6 +40,7 @@ export function SeverityFacet(props: Props) {
       itemNamePrefix="severity"
       listItems={SEVERITIES}
       selectedItems={severities}
+      renderIcon={(severity: string) => <SoftwareImpactSeverityIcon severity={severity} />}
       help={
         <DocumentationTooltip
           placement="right"
