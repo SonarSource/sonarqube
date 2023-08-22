@@ -92,7 +92,6 @@ const ui = {
     saveConfigButton: byRole('button', { name: 'settings.almintegration.form.save' }),
     confirmProvisioningButton: byRole('button', { name: 'yes' }),
     saveScim: byRole('button', { name: 'save' }),
-    groupAttribute: byRole('textbox', { name: 'property.sonar.auth.saml.group.name.name' }),
     enableConfigButton: byRole('button', { name: 'settings.authentication.form.enable' }),
     disableConfigButton: byRole('button', { name: 'settings.authentication.form.disable' }),
     editConfigButton: byRole('button', { name: 'settings.authentication.form.edit' }),
@@ -309,11 +308,7 @@ describe('SAML tab', () => {
     await user.click(await saml.enableConfigButton.find());
 
     expect(await saml.jitProvisioningButton.find()).toBeChecked();
-
-    await user.type(saml.groupAttribute.get(), 'group');
-    expect(saml.saveScim.get()).toBeEnabled();
-    await user.click(saml.saveScim.get());
-    await waitFor(() => expect(saml.saveScim.query()).toBeDisabled());
+    expect(saml.saveScim.get()).toBeDisabled();
 
     await user.click(saml.scimProvisioningButton.get());
     expect(saml.saveScim.get()).toBeEnabled();

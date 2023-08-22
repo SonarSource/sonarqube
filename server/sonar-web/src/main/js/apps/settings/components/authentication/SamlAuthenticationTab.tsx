@@ -36,12 +36,9 @@ import {
 } from '../../../../queries/identity-provider';
 import { useSaveValueMutation } from '../../../../queries/settings';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
-import { getPropertyName } from '../../utils';
-import DefinitionDescription from '../DefinitionDescription';
 import ConfigurationForm from './ConfigurationForm';
 import useSamlConfiguration, {
   SAML_ENABLED_FIELD,
-  SAML_GROUP_NAME,
   SAML_SCIM_DEPRECATED,
 } from './hook/useSamlConfiguration';
 
@@ -52,7 +49,7 @@ interface SamlAuthenticationProps {
 export const SAML = 'saml';
 
 const CONFIG_TEST_PATH = '/saml/validation_init';
-const SAML_EXCLUDED_FIELD = [SAML_ENABLED_FIELD, SAML_GROUP_NAME, SAML_SCIM_DEPRECATED];
+const SAML_EXCLUDED_FIELD = [SAML_ENABLED_FIELD, SAML_SCIM_DEPRECATED];
 
 export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
   const { definitions } = props;
@@ -253,22 +250,6 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
                       <p>
                         {translate('settings.authentication.saml.form.provisioning_at_login.sub')}
                       </p>
-                      {groupValue && (
-                        <div className="settings-definition">
-                          <DefinitionDescription definition={groupValue.definition} />
-                          <div className="settings-definition-right">
-                            <input
-                              id={groupValue.definition.key}
-                              maxLength={4000}
-                              name={groupValue.definition.key}
-                              onChange={(e) => setNewGroupSetting(e.currentTarget.value)}
-                              type="text"
-                              value={String(groupValue.newValue ?? groupValue.value ?? '')}
-                              aria-label={getPropertyName(groupValue.definition)}
-                            />
-                          </div>
-                        </div>
-                      )}
                     </RadioCard>
                   </div>
                 ) : (

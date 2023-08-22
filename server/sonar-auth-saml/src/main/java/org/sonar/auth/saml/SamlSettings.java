@@ -189,7 +189,7 @@ public class SamlSettings {
       PropertyDefinition.builder(GROUP_NAME_ATTRIBUTE)
         .name("SAML group attribute")
         .description("Attribute defining the user groups in SAML, used to synchronize group memberships. If you leave this field empty, " +
-          "group memberships are managed locally by SonarQube administrators.")
+          "group memberships will not be synced when users log in.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .index(10)
