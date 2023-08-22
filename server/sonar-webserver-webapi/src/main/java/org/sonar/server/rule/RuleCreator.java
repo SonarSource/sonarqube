@@ -190,8 +190,6 @@ public class RuleCreator {
     RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), requireNonNull(newRule.markdownDescription()));
     int type = newRule.type() == null ? templateRuleDto.getType() : newRule.type().getDbConstant();
     String severity = newRule.severity();
-    SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(RuleType.valueOf(type));
-    org.sonar.api.issue.impact.Severity impactSeverity = ImpactMapper.convertToImpactSeverity(severity);
 
     RuleDto ruleDto = new RuleDto()
       .setUuid(uuidFactory.create())
@@ -203,7 +201,6 @@ public class RuleCreator {
       .setSeverity(severity)
       .setStatus(newRule.status())
       .setType(type)
-      .addDefaultImpact(new ImpactDto().setUuid(uuidFactory.create()).setSoftwareQuality(softwareQuality).setSeverity(impactSeverity))
       .setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL)
       .setLanguage(templateRuleDto.getLanguage())
       .setDefRemediationFunction(templateRuleDto.getDefRemediationFunction())
@@ -219,6 +216,12 @@ public class RuleCreator {
       .setUpdatedAt(system2.now())
       .setDescriptionFormat(Format.MARKDOWN)
       .addRuleDescriptionSectionDto(ruleDescriptionSectionDto);
+
+    if (type != RuleType.SECURITY_HOTSPOT.getDbConstant()) {
+      SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(RuleType.valueOf(type));
+      org.sonar.api.issue.impact.Severity impactSeverity = ImpactMapper.convertToImpactSeverity(severity);
+      ruleDto = ruleDto.addDefaultImpact(new ImpactDto().setUuid(uuidFactory.create()).setSoftwareQuality(softwareQuality).setSeverity(impactSeverity));
+    }
 
     Set<String> tags = templateRuleDto.getTags();
     if (!tags.isEmpty()) {

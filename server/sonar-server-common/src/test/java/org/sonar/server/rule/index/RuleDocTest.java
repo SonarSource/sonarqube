@@ -19,7 +19,10 @@
  */
 package org.sonar.server.rule.index;
 
+import java.util.Set;
 import org.junit.Test;
+import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.api.rules.RuleType;
 import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
@@ -120,6 +123,19 @@ public class RuleDocTest {
       .contains(convertToHtml(section1.getContent()))
       .contains(convertToHtml(section2.getContent()))
       .hasSameSizeAs(convertToHtml(section1.getContent()) + " " + convertToHtml(section2.getContent()));
+  }
+
+  @Test
+  public void ruleDocOf_whenSecurityHotSpot_shouldNotPopulateCleanCodeAttribute() {
+    RuleDto ruleDto = newRule();
+    ruleDto.setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL);
+    ruleDto.setType(RuleType.SECURITY_HOTSPOT.getDbConstant());
+
+    RuleForIndexingDto ruleForIndexingDto = RuleForIndexingDto.fromRuleDto(ruleDto);
+
+    SecurityStandards securityStandards = fromSecurityStandards(Set.of());
+    Object field = RuleDoc.createFrom(ruleForIndexingDto, securityStandards).getNullableField(RuleIndexDefinition.FIELD_RULE_CLEAN_CODE_ATTRIBUTE_CATEGORY);
+    assertThat(field).isNull();
   }
 
   private static RuleDescriptionSectionDto buildRuleDescriptionSectionDto(String key, String content) {

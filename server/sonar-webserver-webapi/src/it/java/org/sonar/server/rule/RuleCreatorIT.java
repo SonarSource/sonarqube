@@ -163,6 +163,24 @@ public class RuleCreatorIT {
   }
 
   @Test
+  public void create_whenTypeIsHotspot_shouldNotComputeDefaultImpact() {
+    // insert template rule
+    RuleDto templateRule = createTemplateRule();
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+      .setName("My custom")
+      .setMarkdownDescription("some description")
+      .setSeverity(Severity.MAJOR)
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("regex", ""));
+
+    RuleKey customRuleKey = underTest.create(dbSession, newRule);
+
+    RuleDto rule = dbTester.getDbClient().ruleDao().selectOrFailByKey(dbSession, customRuleKey);
+    assertThat(rule.getDefaultImpacts()).isEmpty();
+  }
+
+  @Test
   public void create_custom_rule_with_no_parameter_value() {
     // insert template rule
     RuleDto templateRule = createTemplateRuleWithIntArrayParam();

@@ -297,7 +297,7 @@ public class RuleDoc extends BaseDoc {
     return this;
   }
 
-  private RuleDoc setCleanCodeAttributeCategory(String cleanCodeAttributeCategory) {
+  public RuleDoc setCleanCodeAttributeCategory(@Nullable String cleanCodeAttributeCategory) {
     setField(RuleIndexDefinition.FIELD_RULE_CLEAN_CODE_ATTRIBUTE_CATEGORY, cleanCodeAttributeCategory);
     return this;
   }
@@ -343,7 +343,7 @@ public class RuleDoc extends BaseDoc {
       .setUpdatedAt(dto.getUpdatedAt())
       .setHtmlDescription(getConcatenatedSectionsInHtml(dto))
       .setTemplateKey(getRuleKey(dto))
-      .setCleanCodeAttributeCategory(dto.getCleanCodeAttributeCategory())
+      .setCleanCodeAttributeCategory(dto.getTypeAsRuleType() != RuleType.SECURITY_HOTSPOT ? dto.getCleanCodeAttributeCategory() : null)
       .setImpacts(dto.getImpacts().stream().collect(Collectors.toMap(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)));
   }
 

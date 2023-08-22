@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.db.issue.ImpactDto;
@@ -222,7 +223,7 @@ public class RuleMapper {
   }
 
   private static void setCleanCodeAttributes(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if(shouldReturnField(fieldsToReturn, FIELD_CLEAN_CODE_ATTRIBUTE)){
+    if (shouldReturnField(fieldsToReturn, FIELD_CLEAN_CODE_ATTRIBUTE) && ruleDto.getType() != RuleType.SECURITY_HOTSPOT.getDbConstant()) {
       ruleResponse.setCleanCodeAttribute(Common.CleanCodeAttribute.valueOf(ruleDto.getCleanCodeAttribute().name()));
       ruleResponse.setCleanCodeAttributeCategory(Common.CleanCodeAttributeCategory.valueOf(ruleDto.getCleanCodeAttribute().getAttributeCategory().name()));
     }
