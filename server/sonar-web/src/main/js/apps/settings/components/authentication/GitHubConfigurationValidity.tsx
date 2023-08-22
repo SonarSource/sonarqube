@@ -132,11 +132,19 @@ export default function GitHubConfigurationValidity({
               <div key={msg}>{msg}</div>
             ))}
           </div>
-          <div>
-            <Button onClick={() => setOpenDetails(true)} disabled={isFetching} className="sw-mr-2">
+          <div className="sw-flex">
+            <Button
+              onClick={() => setOpenDetails(true)}
+              disabled={isFetching}
+              className="sw-mr-2 sw-whitespace-nowrap sw-text-center"
+            >
               {translate(`${intlPrefix}.details`)}
             </Button>
-            <Button onClick={() => refetch()} disabled={isFetching}>
+            <Button
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="sw-whitespace-nowrap sw-text-center"
+            >
               {translate(`${intlPrefix}.test`)}
             </Button>
           </div>
