@@ -26,8 +26,8 @@ import withAvailableFeatures, {
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
 import DocLink from '../../../components/common/DocLink';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
-import { Button } from '../../../components/controls/buttons';
 import ModalButton, { ModalProps } from '../../../components/controls/ModalButton';
+import { Button } from '../../../components/controls/buttons';
 import { Alert } from '../../../components/ui/Alert';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { Feature } from '../../../types/features';
@@ -194,8 +194,8 @@ export class Conditions extends React.PureComponent<Props, State> {
           </Alert>
         )}
 
-        {qualityGate.caycStatus === CaycStatus.NonCompliant && (
-          <Alert className="big-spacer-top big-spacer-bottom" variant="warning">
+        {qualityGate.caycStatus === CaycStatus.NonCompliant && canEdit && (
+          <Alert className="big-spacer-top big-spacer-bottom" variant="warning" role="alert">
             <h4 className="spacer-bottom cayc-warning-header">
               {translate('quality_gates.cayc_missing.banner.title')}
             </h4>

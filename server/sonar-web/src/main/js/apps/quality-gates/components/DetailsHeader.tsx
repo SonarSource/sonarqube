@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { setQualityGateAsDefault } from '../../../api/quality-gates';
-import { Button } from '../../../components/controls/buttons';
 import ModalButton from '../../../components/controls/ModalButton';
 import Tooltip from '../../../components/controls/Tooltip';
+import { Button } from '../../../components/controls/buttons';
 import AlertWarnIcon from '../../../components/icons/AlertWarnIcon';
 import { translate } from '../../../helpers/l10n';
 import { CaycStatus, QualityGate } from '../../../types/types';
@@ -64,6 +64,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
   render() {
     const { qualityGate } = this.props;
     const actions = qualityGate.actions || ({} as any);
+    const canEdit = Boolean(actions?.manageConditions);
 
     return (
       <div className="layout-page-header-panel layout-page-main-header issues-main-header">
@@ -72,7 +73,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
             <div className="pull-left display-flex-center">
               <h2>{qualityGate.name}</h2>
               {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="spacer-left" />}
-              {qualityGate.caycStatus === CaycStatus.NonCompliant && (
+              {qualityGate.caycStatus === CaycStatus.NonCompliant && canEdit && (
                 <Tooltip overlay={<CaycBadgeTooltip />} mouseLeaveDelay={TOOLTIP_MOUSE_LEAVE_DELAY}>
                   <AlertWarnIcon className="spacer-left" description={<CaycBadgeTooltip />} />
                 </Tooltip>

@@ -26,7 +26,7 @@ import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { Analysis, GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
-import { Component, MeasureEnhanced, Metric, Period } from '../../../types/types';
+import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';
 import ActivityPanel from './ActivityPanel';
 import FirstAnalysisNextStepsNotif from './FirstAnalysisNextStepsNotif';
 import MeasuresPanel from './MeasuresPanel';
@@ -50,6 +50,7 @@ export interface BranchOverviewRendererProps {
   period?: Period;
   projectIsEmpty?: boolean;
   qgStatuses?: QualityGateStatus[];
+  qualityGate?: QualityGate;
 }
 
 export default function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
@@ -70,6 +71,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
     period,
     projectIsEmpty,
     qgStatuses,
+    qualityGate,
   } = props;
 
   const leakPeriod = component.qualifier === ComponentQualifier.Application ? appLeak : period;
@@ -95,6 +97,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                     component={component}
                     loading={loadingStatus}
                     qgStatuses={qgStatuses}
+                    qualityGate={qualityGate}
                   />
                 </div>
 

@@ -81,13 +81,12 @@ export function deleteCondition(data: { id: string }): Promise<void> {
   return post('/api/qualitygates/delete_condition', data);
 }
 
-export function getGateForProject(data: { project: string }): Promise<QualityGate | undefined> {
+export function getGateForProject(data: { project: string }): Promise<QualityGate> {
   return getJSON('/api/qualitygates/get_by_project', data).then(
-    ({ qualityGate }) =>
-      qualityGate && {
-        ...qualityGate,
-        isDefault: qualityGate.default,
-      },
+    ({ qualityGate }) => ({
+      ...qualityGate,
+      isDefault: qualityGate.default,
+    }),
     throwGlobalError
   );
 }

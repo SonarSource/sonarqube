@@ -22,7 +22,12 @@ import * as React from 'react';
 import { getApplicationDetails, getApplicationLeak } from '../../../api/application';
 import { getMeasuresWithPeriodAndMetrics } from '../../../api/measures';
 import { getProjectActivity } from '../../../api/projectActivity';
-import { getApplicationQualityGate, getQualityGateProjectStatus } from '../../../api/quality-gates';
+import {
+  fetchQualityGate,
+  getApplicationQualityGate,
+  getGateForProject,
+  getQualityGateProjectStatus,
+} from '../../../api/quality-gates';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import {
   getActivityGraph,
@@ -47,7 +52,7 @@ import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import { Analysis, GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus, QualityGateStatusCondition } from '../../../types/quality-gates';
-import { Component, MeasureEnhanced, Metric, Period } from '../../../types/types';
+import { Component, MeasureEnhanced, Metric, Period, QualityGate } from '../../../types/types';
 import '../styles.css';
 import { HISTORY_METRICS_LIST, METRICS } from '../utils';
 import BranchOverviewRenderer from './BranchOverviewRenderer';
@@ -70,6 +75,7 @@ interface State {
   metrics?: Metric[];
   period?: Period;
   qgStatuses?: QualityGateStatus[];
+  qualityGate?: QualityGate;
 }
 
 export const BRANCH_OVERVIEW_ACTIVITY_GRAPH = 'sonar_branch_overview.graph';
@@ -111,6 +117,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
       this.loadApplicationStatus();
     } else {
       this.loadProjectStatus();
+      this.loadProjectQualityGate();
     }
   };
 
@@ -268,6 +275,13 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     );
   };
 
+  loadProjectQualityGate = async () => {
+    const { component } = this.props;
+    const qualityGate = await getGateForProject({ project: component.key });
+    const qgDetails = await fetchQualityGate({ name: qualityGate.name });
+    this.setState({ qualityGate: qgDetails });
+  };
+
   loadMeasuresAndMeta = (
     componentKey: string,
     branchLike?: BranchLike,
@@ -409,6 +423,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
       metrics,
       period,
       qgStatuses,
+      qualityGate,
     } = this.state;
 
     const projectIsEmpty =
@@ -436,6 +451,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
         period={period}
         projectIsEmpty={projectIsEmpty}
         qgStatuses={qgStatuses}
+        qualityGate={qualityGate}
       />
     );
   }

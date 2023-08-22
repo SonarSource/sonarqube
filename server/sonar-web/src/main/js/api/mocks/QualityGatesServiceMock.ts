@@ -19,10 +19,19 @@
  */
 import { cloneDeep, flatten, omit, remove } from 'lodash';
 import { Project } from '../../apps/quality-gates/components/Projects';
-import { mockQualityGate } from '../../helpers/mocks/quality-gates';
+import {
+  mockQualityGate,
+  mockQualityGateApplicationStatus,
+  mockQualityGateProjectStatus,
+} from '../../helpers/mocks/quality-gates';
 import { mockUserBase } from '../../helpers/mocks/users';
 import { mockCondition, mockGroup } from '../../helpers/testMocks';
 import { MetricKey } from '../../types/metrics';
+import {
+  QualityGateApplicationStatus,
+  QualityGateProjectStatus,
+  SearchPermissionsParameters,
+} from '../../types/quality-gates';
 import { CaycStatus, Condition, QualityGate } from '../../types/types';
 import {
   addGroup,
@@ -36,7 +45,9 @@ import {
   dissociateGateWithProject,
   fetchQualityGate,
   fetchQualityGates,
+  getApplicationQualityGate,
   getGateForProject,
+  getQualityGateProjectStatus,
   renameQualityGate,
   searchGroups,
   searchProjects,
@@ -45,6 +56,8 @@ import {
   updateCondition,
 } from '../quality-gates';
 
+jest.mock('../quality-gates');
+
 export class QualityGatesServiceMock {
   isAdmin = false;
   readOnlyList: QualityGate[];
@@ -52,6 +65,8 @@ export class QualityGatesServiceMock {
   projects: Project[];
   getGateForProjectGateName: string;
   throwOnGetGateForProject: boolean;
+  qualityGateProjectStatus: QualityGateProjectStatus;
+  applicationQualityGate: QualityGateApplicationStatus;
 
   constructor(list?: QualityGate[]) {
     this.readOnlyList = list || [
@@ -198,22 +213,27 @@ export class QualityGatesServiceMock {
     this.getGateForProjectGateName = 'SonarSource way';
     this.throwOnGetGateForProject = false;
 
-    (fetchQualityGate as jest.Mock).mockImplementation(this.showHandler);
-    (fetchQualityGates as jest.Mock).mockImplementation(this.listHandler);
-    (createQualityGate as jest.Mock).mockImplementation(this.createHandler);
-    (deleteQualityGate as jest.Mock).mockImplementation(this.destroyHandler);
-    (copyQualityGate as jest.Mock).mockImplementation(this.copyHandler);
+    jest.mocked(fetchQualityGate).mockImplementation(this.showHandler);
+    jest.mocked(fetchQualityGates).mockImplementation(this.listHandler);
+    jest.mocked(createQualityGate).mockImplementation(this.createHandler);
+    jest.mocked(deleteQualityGate).mockImplementation(this.destroyHandler);
+    jest.mocked(copyQualityGate).mockImplementation(this.copyHandler);
     (renameQualityGate as jest.Mock).mockImplementation(this.renameHandler);
-    (createCondition as jest.Mock).mockImplementation(this.createConditionHandler);
-    (updateCondition as jest.Mock).mockImplementation(this.updateConditionHandler);
-    (deleteCondition as jest.Mock).mockImplementation(this.deleteConditionHandler);
-    (searchProjects as jest.Mock).mockImplementation(this.searchProjectsHandler);
-    (searchUsers as jest.Mock).mockImplementation(this.searchUsersHandler);
-    (searchGroups as jest.Mock).mockImplementation(this.searchGroupsHandler);
-    (associateGateWithProject as jest.Mock).mockImplementation(this.selectHandler);
-    (dissociateGateWithProject as jest.Mock).mockImplementation(this.deSelectHandler);
-    (setQualityGateAsDefault as jest.Mock).mockImplementation(this.setDefaultHandler);
+    jest.mocked(createCondition).mockImplementation(this.createConditionHandler);
+    jest.mocked(updateCondition).mockImplementation(this.updateConditionHandler);
+    jest.mocked(deleteCondition).mockImplementation(this.deleteConditionHandler);
+    jest.mocked(searchProjects).mockImplementation(this.searchProjectsHandler);
+    jest.mocked(searchUsers).mockImplementation(this.searchUsersHandler);
+    jest.mocked(searchGroups).mockImplementation(this.searchGroupsHandler);
+    jest.mocked(associateGateWithProject).mockImplementation(this.selectHandler);
+    jest.mocked(dissociateGateWithProject).mockImplementation(this.deSelectHandler);
+    jest.mocked(setQualityGateAsDefault).mockImplementation(this.setDefaultHandler);
     (getGateForProject as jest.Mock).mockImplementation(this.projectGateHandler);
+    jest.mocked(getQualityGateProjectStatus).mockImplementation(this.handleQualityGetProjectStatus);
+    jest.mocked(getApplicationQualityGate).mockImplementation(this.handleGetApplicationQualityGate);
+
+    this.qualityGateProjectStatus = mockQualityGateProjectStatus({});
+    this.applicationQualityGate = mockQualityGateApplicationStatus({});
 
     // To be implemented.
     (addUser as jest.Mock).mockResolvedValue({});
@@ -416,6 +436,7 @@ export class QualityGatesServiceMock {
     selected,
     query,
   }: {
+    gateName: string;
     selected: string;
     query: string | undefined;
   }) => {
@@ -437,7 +458,7 @@ export class QualityGatesServiceMock {
     return this.reply(response);
   };
 
-  searchUsersHandler = ({ selected }: { selected: string }) => {
+  searchUsersHandler = ({ selected }: SearchPermissionsParameters) => {
     if (selected === 'selected') {
       return this.reply({ users: [] });
     }
@@ -445,7 +466,7 @@ export class QualityGatesServiceMock {
     return this.reply({ users: [mockUserBase()] });
   };
 
-  searchGroupsHandler = ({ selected }: { selected: string }) => {
+  searchGroupsHandler = ({ selected }: SearchPermissionsParameters) => {
     if (selected === 'selected') {
       return this.reply({ groups: [] });
     }
@@ -475,6 +496,22 @@ export class QualityGatesServiceMock {
     }
 
     return this.reply(this.list.find((qg) => qg.name === this.getGateForProjectGateName));
+  };
+
+  handleGetApplicationQualityGate = () => {
+    return this.reply(this.applicationQualityGate);
+  };
+
+  setApplicationQualityGateStatus = (status: QualityGateApplicationStatus) => {
+    this.applicationQualityGate = mockQualityGateApplicationStatus(status);
+  };
+
+  handleQualityGetProjectStatus = () => {
+    return this.reply(this.qualityGateProjectStatus);
+  };
+
+  setQualityGateProjectStatus = (status: QualityGateProjectStatus) => {
+    this.qualityGateProjectStatus = mockQualityGateProjectStatus(status);
   };
 
   reply<T>(response: T): Promise<T> {

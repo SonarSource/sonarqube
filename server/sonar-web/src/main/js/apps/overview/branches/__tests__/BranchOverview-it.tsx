@@ -23,11 +23,9 @@ import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { getMeasuresWithPeriodAndMetrics } from '../../../../api/measures';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
+import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
 import { getProjectActivity } from '../../../../api/projectActivity';
-import {
-  getApplicationQualityGate,
-  getQualityGateProjectStatus,
-} from '../../../../api/quality-gates';
+import { getQualityGateProjectStatus } from '../../../../api/quality-gates';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
 import { getActivityGraph, saveActivityGraph } from '../../../../components/activity-graph/utils';
 import { isDiffMetric } from '../../../../helpers/measures';
@@ -81,47 +79,6 @@ jest.mock('../../../../api/measures', () => {
         metrics,
       });
     }),
-  };
-});
-
-jest.mock('../../../../api/quality-gates', () => {
-  const { mockQualityGateProjectStatus, mockQualityGateApplicationStatus } = jest.requireActual(
-    '../../../../helpers/mocks/quality-gates'
-  );
-  const { MetricKey } = jest.requireActual('../../../../types/metrics');
-  return {
-    getQualityGateProjectStatus: jest.fn().mockResolvedValue(
-      mockQualityGateProjectStatus({
-        status: 'ERROR',
-        conditions: [
-          {
-            actualValue: '2',
-            comparator: 'GT',
-            errorThreshold: '1',
-            metricKey: MetricKey.new_reliability_rating,
-            periodIndex: 1,
-            status: 'ERROR',
-          },
-          {
-            actualValue: '5',
-            comparator: 'GT',
-            errorThreshold: '2.0',
-            metricKey: MetricKey.bugs,
-            periodIndex: 0,
-            status: 'ERROR',
-          },
-          {
-            actualValue: '2',
-            comparator: 'GT',
-            errorThreshold: '1.0',
-            metricKey: 'unknown_metric',
-            periodIndex: 0,
-            status: 'ERROR',
-          },
-        ],
-      })
-    ),
-    getApplicationQualityGate: jest.fn().mockResolvedValue(mockQualityGateApplicationStatus()),
   };
 });
 
@@ -195,19 +152,58 @@ jest.mock('../../../../components/activity-graph/utils', () => {
 });
 
 const almHandler = new AlmSettingsServiceMock();
+let qualityGatesMock: QualityGatesServiceMock;
 
-beforeEach(jest.clearAllMocks);
+beforeAll(() => {
+  qualityGatesMock = new QualityGatesServiceMock();
+  qualityGatesMock.setQualityGateProjectStatus(
+    mockQualityGateProjectStatus({
+      status: 'ERROR',
+      conditions: [
+        {
+          actualValue: '2',
+          comparator: 'GT',
+          errorThreshold: '1',
+          metricKey: MetricKey.new_reliability_rating,
+          periodIndex: 1,
+          status: 'ERROR',
+        },
+        {
+          actualValue: '5',
+          comparator: 'GT',
+          errorThreshold: '2.0',
+          metricKey: MetricKey.bugs,
+          periodIndex: 0,
+          status: 'ERROR',
+        },
+        {
+          actualValue: '2',
+          comparator: 'GT',
+          errorThreshold: '1.0',
+          metricKey: 'unknown_metric',
+          periodIndex: 0,
+          status: 'ERROR',
+        },
+      ],
+    })
+  );
+  qualityGatesMock.setApplicationQualityGateStatus(mockQualityGateApplicationStatus());
+});
 
 afterEach(() => {
+  jest.clearAllMocks();
+  qualityGatesMock.reset();
   almHandler.reset();
 });
 
 describe('project overview', () => {
   it('should show a successful QG', async () => {
     const user = userEvent.setup();
-    jest
-      .mocked(getQualityGateProjectStatus)
-      .mockResolvedValueOnce(mockQualityGateProjectStatus({ status: 'OK' }));
+    qualityGatesMock.setQualityGateProjectStatus(
+      mockQualityGateProjectStatus({
+        status: 'OK',
+      })
+    );
     renderBranchOverview();
 
     // QG panel
@@ -236,10 +232,61 @@ describe('project overview', () => {
     renderBranchOverview();
 
     expect(await screen.findByText('metric.level.OK')).toBeInTheDocument();
-    expect(screen.getByText('overview.quality_gate.conditions.cayc.warning')).toBeInTheDocument();
+    expect(
+      screen.queryByText('overview.quality_gate.conditions.cayc.warning')
+    ).not.toBeInTheDocument();
+  });
+
+  it('should show a successful non-compliant QG as admin', async () => {
+    jest
+      .mocked(getQualityGateProjectStatus)
+      .mockResolvedValueOnce(
+        mockQualityGateProjectStatus({ status: 'OK', caycStatus: CaycStatus.NonCompliant })
+      );
+    qualityGatesMock.setIsAdmin(true);
+    qualityGatesMock.setGetGateForProjectName('Non Cayc QG');
+
+    renderBranchOverview();
+
+    await screen.findByText('metric.level.OK');
+    expect(
+      await screen.findByText('overview.quality_gate.conditions.cayc.warning')
+    ).toBeInTheDocument();
   });
 
   it('should show a failed QG', async () => {
+    qualityGatesMock.setQualityGateProjectStatus(
+      mockQualityGateProjectStatus({
+        status: 'ERROR',
+        conditions: [
+          {
+            actualValue: '2',
+            comparator: 'GT',
+            errorThreshold: '1',
+            metricKey: MetricKey.new_reliability_rating,
+            periodIndex: 1,
+            status: 'ERROR',
+          },
+          {
+            actualValue: '5',
+            comparator: 'GT',
+            errorThreshold: '2.0',
+            metricKey: MetricKey.bugs,
+            periodIndex: 0,
+            status: 'ERROR',
+          },
+          {
+            actualValue: '2',
+            comparator: 'GT',
+            errorThreshold: '1.0',
+            metricKey: 'unknown_metric',
+            periodIndex: 0,
+            status: 'ERROR',
+          },
+        ],
+      })
+    );
+
     renderBranchOverview();
 
     expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument();
@@ -312,7 +359,7 @@ describe('application overview', () => {
         },
       ],
     });
-    jest.mocked(getApplicationQualityGate).mockResolvedValueOnce(appStatus);
+    qualityGatesMock.setApplicationQualityGateStatus(appStatus);
 
     renderBranchOverview({ component });
     expect(
@@ -380,7 +427,7 @@ it('should correctly handle graph type storage', async () => {
 });
 
 function renderBranchOverview(props: Partial<BranchOverview['props']> = {}) {
-  renderComponent(
+  return renderComponent(
     <CurrentUserContextProvider currentUser={mockLoggedInUser()}>
       <BranchOverview
         branch={mockMainBranch()}

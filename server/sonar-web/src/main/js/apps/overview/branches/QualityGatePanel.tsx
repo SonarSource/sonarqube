@@ -23,7 +23,7 @@ import { flatMap } from 'lodash';
 import * as React from 'react';
 import { ComponentQualifier, isApplication } from '../../../types/component';
 import { QualityGateStatus } from '../../../types/quality-gates';
-import { CaycStatus, Component } from '../../../types/types';
+import { CaycStatus, Component, QualityGate } from '../../../types/types';
 import IgnoredConditionWarning from '../components/IgnoredConditionWarning';
 import QualityGateStatusHeader from '../components/QualityGateStatusHeader';
 import QualityGateStatusPassedView from '../components/QualityGateStatusPassedView';
@@ -37,10 +37,11 @@ export interface QualityGatePanelProps {
   component: Pick<Component, 'key' | 'qualifier' | 'qualityGate'>;
   loading?: boolean;
   qgStatuses?: QualityGateStatus[];
+  qualityGate?: QualityGate;
 }
 
 export function QualityGatePanel(props: QualityGatePanelProps) {
-  const { component, loading, qgStatuses = [] } = props;
+  const { component, loading, qgStatuses = [], qualityGate } = props;
 
   if (qgStatuses === undefined) {
     return null;
@@ -112,6 +113,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
 
       {qgStatuses.length === 1 &&
         qgStatuses[0].caycStatus === CaycStatus.NonCompliant &&
+        qualityGate?.actions?.manageConditions &&
         !isApp && (
           <Card className="sw-mt-4 sw-body-sm">
             <CleanAsYouCodeWarning component={component} />

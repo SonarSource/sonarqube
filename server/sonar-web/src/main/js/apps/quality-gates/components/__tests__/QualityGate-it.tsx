@@ -22,11 +22,9 @@ import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
 import { searchProjects, searchUsers } from '../../../../api/quality-gates';
-import { renderAppRoutes, RenderContext } from '../../../../helpers/testReactTestingUtils';
+import { RenderContext, renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
 import { Feature } from '../../../../types/features';
 import routes from '../../routes';
-
-jest.mock('../../../../api/quality-gates');
 
 let handler: QualityGatesServiceMock;
 
@@ -346,6 +344,33 @@ it('should show warning banner when CAYC condition is not properly set and shoul
   expect(overallConditionsWrapper.getByText('Complexity / Function')).toBeInTheDocument();
 });
 
+it('should not warn user when quality gate is not CAYC compliant and user has no permission to edit it', async () => {
+  const user = userEvent.setup();
+  renderQualityGateApp();
+
+  const nonCompliantQualityGate = await screen.findByRole('link', { name: 'Non Cayc QG' });
+
+  await user.click(nonCompliantQualityGate);
+
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  expect(screen.queryByText('quality_gates.cayc.tooltip.message')).not.toBeInTheDocument();
+});
+
+it('should warn user when quality gate is not CAYC compliant and user has permission to edit it', async () => {
+  const user = userEvent.setup();
+  handler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  const nonCompliantQualityGate = await screen.findByRole('link', { name: /Non Cayc QG/ });
+
+  await user.click(nonCompliantQualityGate);
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    /quality_gates.cayc_missing.banner.title/
+  );
+  expect(screen.getAllByText('quality_gates.cayc.tooltip.message').length).toBeGreaterThan(0);
+});
+
 it('should show success banner when quality gate is CAYC compliant', async () => {
   const user = userEvent.setup();
   handler.setIsAdmin(true);
@@ -626,5 +651,5 @@ describe('The Permissions section', () => {
 });
 
 function renderQualityGateApp(context?: RenderContext) {
-  renderAppRoutes('quality_gates', routes, context);
+  return renderAppRoutes('quality_gates', routes, context);
 }

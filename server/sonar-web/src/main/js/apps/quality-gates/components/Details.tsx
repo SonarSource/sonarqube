@@ -63,6 +63,7 @@ export default class Details extends React.PureComponent<Props, State> {
 
   fetchDetails = () => {
     const { qualityGateName } = this.props;
+
     this.setState({ loading: true });
     return fetchQualityGate({ name: qualityGateName }).then(
       (qualityGate) => {

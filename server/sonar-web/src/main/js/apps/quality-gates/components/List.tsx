@@ -49,14 +49,15 @@ export default function List({ qualityGates, currentQualityGate }: Props) {
           )}
           {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="little-spacer-left" />}
 
-          {qualityGate.caycStatus === CaycStatus.NonCompliant && (
-            <Tooltip overlay={translate('quality_gates.cayc.tooltip.message')}>
-              <AlertWarnIcon
-                className="spacer-left"
-                description={translate('quality_gates.cayc.tooltip.message')}
-              />
-            </Tooltip>
-          )}
+          {qualityGate.caycStatus === CaycStatus.NonCompliant &&
+            qualityGate.actions?.manageConditions && (
+              <Tooltip overlay={translate('quality_gates.cayc.tooltip.message')}>
+                <AlertWarnIcon
+                  className="spacer-left"
+                  description={translate('quality_gates.cayc.tooltip.message')}
+                />
+              </Tooltip>
+            )}
         </NavLink>
       ))}
     </div>
