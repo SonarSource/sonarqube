@@ -91,7 +91,10 @@ public class ActivateRulesActionIT {
       "owaspTop10",
       "owaspTop10-2021",
       "sansTop25",
-      "sonarsourceSecurity");
+      "sonarsourceSecurity",
+      "cleanCodeAttributeCategories",
+      "impactSoftwareQualities",
+      "impactSeverities");
   }
 
   @Test

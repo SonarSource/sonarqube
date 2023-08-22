@@ -35,16 +35,21 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDescriptionSectionContextDto;
@@ -149,7 +154,7 @@ public class SearchActionIT {
     assertThat(def.since()).isEqualTo("4.4");
     assertThat(def.isInternal()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
-    assertThat(def.params()).hasSize(28);
+    assertThat(def.params()).hasSize(31);
 
     WebService.Param compareToProfile = def.param("compareToProfile");
     assertThat(compareToProfile.since()).isEqualTo("6.5");
@@ -471,6 +476,58 @@ public class SearchActionIT {
   }
 
   @Test
+  public void execute_whenFacetIsSoftwareQuality_shouldReturnCorrectMatch() {
+    db.rules().insert(
+      r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH))));
+    db.rules().insert(
+      r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.MEDIUM))));
+    indexRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam("facets", "impactSoftwareQualities")
+      .setParam("impactSeverities", Severity.HIGH.name())
+      .executeProtobuf(SearchResponse.class);
+    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> entry(v.getVal(), v.getCount()))
+      .contains(entry(SoftwareQuality.MAINTAINABILITY.name(), 1L), entry(SoftwareQuality.RELIABILITY.name(), 0L), entry(SoftwareQuality.SECURITY.name(), 0L));
+  }
+
+  //TODO will be fixed by subtask SONAR-20234
+  @Test
+  public void execute_whenFacetIsImpactSeverity_shouldReturnCorrectMatch() {
+    db.rules().insert(
+      r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH))));
+    db.rules().insert(
+      r -> r.replaceAllDefaultImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.MEDIUM))));
+    indexRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam("facets", "impactSeverities")
+      .setParam("impactSoftwareQualities", SoftwareQuality.RELIABILITY.name())
+      .executeProtobuf(SearchResponse.class);
+    assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> entry(v.getVal(), v.getCount()))
+      .contains(entry(Severity.HIGH.name(), 1L), entry(Severity.MEDIUM.name(), 0L), entry(Severity.LOW.name(), 0L));
+  }
+
+  @Test
+  public void execute_whenFacetIsCleanCodeAttributeCategories_shouldReturnCorrectMatch() {
+    db.rules().insert(
+      r -> r.setCleanCodeAttribute(CleanCodeAttribute.COMPLETE)
+        .replaceAllDefaultImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.HIGH))));
+    db.rules().insert(
+      r -> r.setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL));
+    indexRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam("facets", "cleanCodeAttributeCategories")
+      .setParam("impactSoftwareQualities", SoftwareQuality.RELIABILITY.name())
+      .executeProtobuf(SearchResponse.class);
+    assertThat(result.getFacets().getFacets(0).getValuesList())
+      .extracting(v -> entry(v.getVal(), v.getCount())).contains(
+        entry(CleanCodeAttribute.COMPLETE.getAttributeCategory().name(), 1L),
+        entry(CleanCodeAttribute.CONVENTIONAL.getAttributeCategory().name(), 0L)
+      );
+  }
+  @Test
   public void should_included_selected_non_matching_tag_in_facet() {
     RuleDto rule = db.rules().insert(setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tagA"));
     indexRules();
@@ -510,7 +567,7 @@ public class SearchActionIT {
     assertThat(result.getRulesList())
       .extracting(r -> r.getImpacts().getImpactsList().stream().findFirst().orElseThrow(() -> new IllegalStateException("Impact is a mandatory field in the response.")))
       .extracting(Common.Impact::getSoftwareQuality, Common.Impact::getSeverity)
-        .containsExactly(tuple(Common.SoftwareQuality.MAINTAINABILITY, Common.ImpactSeverity.HIGH));
+      .containsExactly(tuple(Common.SoftwareQuality.MAINTAINABILITY, Common.ImpactSeverity.HIGH));
 
     // selected fields
     assertThat(result.getRulesList()).extracting(Rule::getCleanCodeAttribute).containsExactly(Common.CleanCodeAttribute.CLEAR);

@@ -861,10 +861,10 @@ public class RuleIndexIT {
 
     RuleQuery query = new RuleQuery();
 
-    SearchIdResult result2 = underTest.search(query, new SearchOptions().addFacets(singletonList("impacts.softwareQuality")));
+    SearchIdResult result2 = underTest.search(query, new SearchOptions().addFacets(singletonList("impactSoftwareQualities")));
 
     assertThat(result2.getFacets().getAll()).hasSize(1);
-    assertThat(result2.getFacets().getAll().get("impacts.softwareQuality"))
+    assertThat(result2.getFacets().getAll().get("impactSoftwareQualities"))
       .containsOnly(
         entry("SECURITY", 1L),
         entry("MAINTAINABILITY", 1L),
@@ -881,10 +881,10 @@ public class RuleIndexIT {
 
     RuleQuery query = new RuleQuery();
 
-    SearchIdResult result2 = underTest.search(query.setImpactSeverities(Set.of(Severity.HIGH.name())), new SearchOptions().addFacets(singletonList("impacts.softwareQuality")));
+    SearchIdResult result2 = underTest.search(query.setImpactSeverities(Set.of(Severity.HIGH.name())), new SearchOptions().addFacets(singletonList("impactSoftwareQualities")));
 
     assertThat(result2.getFacets().getAll()).hasSize(1);
-    assertThat(result2.getFacets().getAll().get("impacts.softwareQuality"))
+    assertThat(result2.getFacets().getAll().get("impactSoftwareQualities"))
       .containsOnly(
         entry("SECURITY", 1L),
         entry("MAINTAINABILITY", 0L),
@@ -901,10 +901,10 @@ public class RuleIndexIT {
 
     RuleQuery query = new RuleQuery();
 
-    SearchIdResult result2 = underTest.search(query,  new SearchOptions().addFacets(singletonList("impacts.severity")));
+    SearchIdResult result2 = underTest.search(query, new SearchOptions().addFacets(singletonList("impactSeverities")));
 
     assertThat(result2.getFacets().getAll()).hasSize(1);
-    assertThat(result2.getFacets().getAll().get("impacts.severity")).containsOnly(entry("LOW", 1L), entry("MEDIUM", 0L), entry("HIGH", 1L));
+    assertThat(result2.getFacets().getAll().get("impactSeverities")).containsOnly(entry("LOW", 1L), entry("MEDIUM", 0L), entry("HIGH", 1L));
   }
 
   @Test
@@ -917,10 +917,10 @@ public class RuleIndexIT {
 
     RuleQuery query = new RuleQuery();
 
-    SearchIdResult result2 = underTest.search(query.setImpactSeverities(Set.of("LOW")),  new SearchOptions().addFacets(singletonList("impacts.severity")));
+    SearchIdResult result2 = underTest.search(query.setImpactSeverities(Set.of("LOW")), new SearchOptions().addFacets(singletonList("impactSeverities")));
 
     assertThat(result2.getFacets().getAll()).hasSize(1);
-    assertThat(result2.getFacets().getAll().get("impacts.severity")).containsOnly(entry("LOW", 1L), entry("MEDIUM", 0L), entry("HIGH", 1L));
+    assertThat(result2.getFacets().getAll().get("impactSeverities")).containsOnly(entry("LOW", 1L), entry("MEDIUM", 0L), entry("HIGH", 1L));
   }
 
   @Test

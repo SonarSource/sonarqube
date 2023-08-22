@@ -536,8 +536,8 @@ public class RuleIndex {
             .filter(termsQuery(FIELD_RULE_IMPACT_SEVERITY, query.getImpactSeverities())) : mainQuery.apply(softwareQuality)))
       .toArray(FiltersAggregator.KeyedFilter[]::new);
 
-    NestedAggregationBuilder nestedAggregationBuilder = AggregationBuilders.nested("nested_" + FIELD_RULE_IMPACT_SOFTWARE_QUALITY, FIELD_RULE_IMPACTS)
-      .subAggregation(filters(FIELD_RULE_IMPACT_SOFTWARE_QUALITY, keyedFilters));
+    NestedAggregationBuilder nestedAggregationBuilder = AggregationBuilders.nested("nested_" + FACET_IMPACT_SOFTWARE_QUALITY, FIELD_RULE_IMPACTS)
+      .subAggregation(filters(FACET_IMPACT_SOFTWARE_QUALITY, keyedFilters));
 
     AggregationBuilder aggregationBuilder = stickyFacetBuilder.buildTopAggregationStickyFacet(FIELD_RULE_IMPACT_SOFTWARE_QUALITY, FACET_IMPACT_SOFTWARE_QUALITY, nestedAggregationBuilder);
 
@@ -559,8 +559,8 @@ public class RuleIndex {
           : mainQuery.apply(severity)))
       .toArray(FiltersAggregator.KeyedFilter[]::new);
 
-    NestedAggregationBuilder nestedAggregationBuilder = AggregationBuilders.nested("nested_" + FIELD_RULE_IMPACT_SEVERITY, FIELD_RULE_IMPACTS)
-      .subAggregation(filters(FIELD_RULE_IMPACT_SEVERITY, keyedFilters).subAggregation(reverseNested("reverse_nested_" + FIELD_RULE_IMPACT_SEVERITY)));
+    NestedAggregationBuilder nestedAggregationBuilder = AggregationBuilders.nested("nested_" + FACET_IMPACT_SEVERITY, FIELD_RULE_IMPACTS)
+      .subAggregation(filters(FACET_IMPACT_SEVERITY, keyedFilters).subAggregation(reverseNested("reverse_nested_" + FIELD_RULE_IMPACT_SEVERITY)));
 
     AggregationBuilder aggregationBuilder = stickyFacetBuilder.buildTopAggregationStickyFacet(FIELD_RULE_IMPACT_SEVERITY, FACET_IMPACT_SEVERITY, nestedAggregationBuilder);
 

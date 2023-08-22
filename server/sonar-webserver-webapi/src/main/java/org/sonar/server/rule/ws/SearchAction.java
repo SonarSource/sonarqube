@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,7 +38,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.CleanCodeAttributeCategory;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -84,7 +87,10 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEPRECATED_KEYS;
 import static org.sonar.server.rule.ws.RulesWsParameters.OPTIONAL_FIELDS;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_CWE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SEVERITIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IMPACT_SOFTWARE_QUALITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10_2021;
@@ -173,14 +179,19 @@ public class SearchAction implements RulesWsAction {
         new Change("10.0", "The value 'defaultDebtRemFn' for the 'f' parameter has been deprecated, use 'defaultRemFn' instead"),
         new Change("10.0", "The value 'sansTop25' for the parameter 'facets' has been deprecated"),
         new Change("10.0", "Parameter 'sansTop25' is deprecated"),
-        new Change("10.2", format("Parameters '%s', '%s', and '%s' are now deprecated.", PARAM_SEVERITIES, PARAM_TYPES, PARAM_ACTIVE_SEVERITIES)),
         new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
-        new Change("10.2", "The field 'cleanCodeAttribute' has been added to the 'f' parameter"),
-        new Change("10.2", format("add '%s', '%s' and '%s' to the 'facets' parameter.", FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY, FACET_IMPACT_SOFTWARE_QUALITY, FACET_IMPACT_SEVERITY)),
-        new Change("10.2", format("Parameters '%s', '%s', and '%s' are now deprecated, use '%s' instead.", PARAM_SEVERITIES, PARAM_TYPES, PARAM_ACTIVE_SEVERITIES, "impacts")),
         new Change("10.2", "The fields 'type' and 'severity' are deprecated in the response. Use 'impacts' instead."),
-        new Change("10.2", "The values 'severity' and 'types' for the parameter 'facets' has been deprecated. Use 'impact' instead.")
-        );
+        new Change("10.2", "The field 'cleanCodeAttribute' has been added to the 'f' parameter."),
+        new Change("10.2", "The value 'severity' for the 'f' parameter has been deprecated."),
+        new Change("10.2",
+          format("The values '%s', '%s' and '%s' have been added to the 'facets' parameter.", FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY, FACET_IMPACT_SOFTWARE_QUALITY,
+            FACET_IMPACT_SEVERITY)),
+        new Change("10.2", format("The values 'severity' and 'types' for the 'facets' parameter have been deprecated. Use '%s' and '%s' instead.", FACET_IMPACT_SEVERITY,
+          FACET_IMPACT_SOFTWARE_QUALITY)),
+        new Change("10.2",
+          format("Parameters '%s', '%s', and '%s' are now deprecated. Use '%s' and '%s' instead.", PARAM_SEVERITIES, PARAM_TYPES, PARAM_ACTIVE_SEVERITIES,
+            PARAM_IMPACT_SOFTWARE_QUALITIES, PARAM_IMPACT_SEVERITIES)));
+
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
       .setPossibleValues(POSSIBLE_FACETS)
@@ -336,6 +347,9 @@ public class SearchAction implements RulesWsAction {
     addMandatoryFacetValues(results, FACET_OWASP_TOP_10_2021, request.getOwaspTop10For2021());
     addMandatoryFacetValues(results, FACET_SANS_TOP_25, request.getSansTop25());
     addMandatoryFacetValues(results, FACET_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
+    addMandatoryFacetValues(results, PARAM_IMPACT_SOFTWARE_QUALITIES, enumToStringCollection(SoftwareQuality.values()));
+    addMandatoryFacetValues(results, PARAM_IMPACT_SEVERITIES, enumToStringCollection(org.sonar.api.issue.impact.Severity.values()));
+    addMandatoryFacetValues(results, PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES, enumToStringCollection(CleanCodeAttributeCategory.values()));
 
     Common.Facet.Builder facet = Common.Facet.newBuilder();
     Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
@@ -352,6 +366,9 @@ public class SearchAction implements RulesWsAction {
     facetValuesByFacetKey.put(FACET_OWASP_TOP_10_2021, request.getOwaspTop10For2021());
     facetValuesByFacetKey.put(FACET_SANS_TOP_25, request.getSansTop25());
     facetValuesByFacetKey.put(FACET_SONARSOURCE_SECURITY, request.getSonarsourceSecurity());
+    facetValuesByFacetKey.put(FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY, request.getCleanCodeAttributesCategories());
+    facetValuesByFacetKey.put(FACET_IMPACT_SOFTWARE_QUALITY, request.getImpactSoftwareQualities());
+    facetValuesByFacetKey.put(FACET_IMPACT_SEVERITY, request.getImpactSeverities());
 
     for (String facetName : context.getFacets()) {
       facet.clear().setProperty(facetName);
@@ -369,6 +386,10 @@ public class SearchAction implements RulesWsAction {
       }
       response.getFacetsBuilder().addFacets(facet);
     }
+  }
+
+  private static Collection<String> enumToStringCollection(Enum<?>... enumValues) {
+    return Arrays.stream(enumValues).map(Enum::name).toList();
   }
 
   private static void addZeroFacetsForSelectedItems(Common.Facet.Builder facet, @Nullable List<String> requestParams, Set<String> itemsFromFacets) {
@@ -399,6 +420,9 @@ public class SearchAction implements RulesWsAction {
   private static SearchRequest toSearchWsRequest(Request request) {
     request.mandatoryParamAsBoolean(ASCENDING);
     return new SearchRequest()
+      .setImpactSeverities(request.paramAsStrings(PARAM_IMPACT_SEVERITIES))
+      .setImpactSoftwareQualities(request.paramAsStrings(PARAM_IMPACT_SOFTWARE_QUALITIES))
+      .setCleanCodeAttributesCategories(request.paramAsStrings(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES))
       .setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES))
       .setF(request.paramAsStrings(FIELDS))
       .setFacets(request.paramAsStrings(FACETS))
@@ -502,6 +526,10 @@ public class SearchAction implements RulesWsAction {
     private List<String> owaspTop10For2021;
     private List<String> sansTop25;
     private List<String> sonarsourceSecurity;
+    private List<String> impactSeverities;
+    private List<String> impactSoftwareQualities;
+    private List<String> cleanCodeAttributesCategories;
+
 
     private SearchRequest setActiveSeverities(List<String> activeSeverities) {
       this.activeSeverities = activeSeverities;
@@ -649,6 +677,33 @@ public class SearchAction implements RulesWsAction {
 
     public SearchRequest setSonarsourceSecurity(@Nullable List<String> sonarsourceSecurity) {
       this.sonarsourceSecurity = sonarsourceSecurity;
+      return this;
+    }
+
+    public List<String> getImpactSeverities() {
+      return impactSeverities;
+    }
+
+    public SearchRequest setImpactSeverities(@Nullable List<String> impactSeverities) {
+      this.impactSeverities = impactSeverities;
+      return this;
+    }
+
+    public List<String> getImpactSoftwareQualities() {
+      return impactSoftwareQualities;
+    }
+
+    public SearchRequest setImpactSoftwareQualities(@Nullable List<String> impactSoftwareQualities) {
+      this.impactSoftwareQualities = impactSoftwareQualities;
+      return this;
+    }
+
+    public List<String> getCleanCodeAttributesCategories() {
+      return cleanCodeAttributesCategories;
+    }
+
+    public SearchRequest setCleanCodeAttributesCategories(@Nullable List<String> cleanCodeAttributesCategories) {
+      this.cleanCodeAttributesCategories = cleanCodeAttributesCategories;
       return this;
     }
   }

@@ -346,7 +346,7 @@ public class RuleQuery {
     return impactSeverities;
   }
 
-  public RuleQuery setImpactSeverities(Collection<String> impactSeverities) {
+  public RuleQuery setImpactSeverities(@Nullable Collection<String> impactSeverities) {
     this.impactSeverities = impactSeverities;
     return this;
   }
@@ -355,7 +355,7 @@ public class RuleQuery {
     return impactSoftwareQualities;
   }
 
-  public RuleQuery setImpactSoftwareQualities(Collection<String> impactSoftwareQualities) {
+  public RuleQuery setImpactSoftwareQualities(@Nullable Collection<String> impactSoftwareQualities) {
     this.impactSoftwareQualities = impactSoftwareQualities;
     return this;
   }
@@ -364,7 +364,7 @@ public class RuleQuery {
     return cleanCodeAttributesCategory;
   }
 
-  public RuleQuery setCleanCodeAttributesCategory(String cleanCodeAttributesCategory) {
+  public RuleQuery setCleanCodeAttributesCategory(@Nullable String cleanCodeAttributesCategory) {
     this.cleanCodeAttributesCategory = cleanCodeAttributesCategory;
     return this;
   }
