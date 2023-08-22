@@ -35,6 +35,7 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.api.rules.CleanCodeAttributeCategory;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
@@ -792,13 +793,13 @@ public class RuleIndexIT {
     index();
 
     RuleQuery query = new RuleQuery();
-    query.setCleanCodeAttributesCategory(CleanCodeAttribute.LOGICAL.getAttributeCategory().name());
+    query.setCleanCodeAttributesCategories(List.of(CleanCodeAttribute.LOGICAL.getAttributeCategory().name()));
     SearchIdResult result1 = underTest.search(query, new SearchOptions());
     assertThat(result1.getUuids()).isEmpty();
 
 
     query = new RuleQuery();
-    query.setCleanCodeAttributesCategory(CleanCodeAttribute.FOCUSED.getAttributeCategory().name());
+    query.setCleanCodeAttributesCategories(List.of(CleanCodeAttribute.FOCUSED.getAttributeCategory().name()));
 
     SearchIdResult result2 = underTest.search(query, new SearchOptions());
 
@@ -845,10 +846,26 @@ public class RuleIndexIT {
 
     RuleQuery query = new RuleQuery();
 
-    SearchIdResult result2 = underTest.search(query,  new SearchOptions().addFacets(singletonList("cleanCodeAttributeCategories")));
+    SearchIdResult result2 = underTest.search(query, new SearchOptions().addFacets(singletonList("cleanCodeAttributeCategories")));
 
     assertThat(result2.getFacets().getAll()).hasSize(1);
     assertThat(result2.getFacets().getAll().get("cleanCodeAttributeCategories")).containsOnly(entry("ADAPTABLE", 1L), entry("INTENTIONAL", 1L));
+  }
+
+  @Test
+  public void search_should_support_clean_code_attribute_category_facet_with_filtering() {
+    RuleDto php = createRule(setRepositoryKey("php"), setCleanCodeAttribute(CleanCodeAttribute.FOCUSED));
+    RuleDto php1 = createRule(setRepositoryKey("php"), setCleanCodeAttribute(CleanCodeAttribute.LOGICAL));
+    RuleDto java = createRule(setRepositoryKey("java"), setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL));
+    index();
+
+    RuleQuery query = new RuleQuery();
+
+    SearchIdResult result = underTest.search(
+      query.setCleanCodeAttributesCategories(List.of(CleanCodeAttributeCategory.CONSISTENT.name(), CleanCodeAttributeCategory.ADAPTABLE.name())),
+      new SearchOptions().addFacets(singletonList("cleanCodeAttributeCategories")));
+
+    assertThat(result.getUuids()).containsExactlyInAnyOrder(php.getUuid(), java.getUuid());
   }
 
   @Test
@@ -921,6 +938,27 @@ public class RuleIndexIT {
 
     assertThat(result2.getFacets().getAll()).hasSize(1);
     assertThat(result2.getFacets().getAll().get("impactSeverities")).containsOnly(entry("LOW", 1L), entry("MEDIUM", 0L), entry("HIGH", 1L));
+  }
+
+  @Test
+  public void search_should_support_software_quality_and_severity_facets_with_filtering() {
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(Severity.HIGH).setUuid("uuid");
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW).setUuid("uuid2");
+    createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
+    createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2)));
+    index();
+
+    RuleQuery query = new RuleQuery().setImpactSeverities(Set.of("LOW"))
+      .setImpactSoftwareQualities(Set.of(SoftwareQuality.MAINTAINABILITY.name()));
+    SearchOptions searchOptions = new SearchOptions().addFacets(List.of("impactSeverities", "impactSoftwareQualities"));
+    SearchIdResult result2 = underTest.search(query, searchOptions);
+
+    assertThat(result2.getFacets().getAll()).hasSize(2);
+    assertThat(result2.getFacets().getAll().get("impactSeverities")).containsOnly(entry("LOW", 1L), entry("MEDIUM", 0L), entry("HIGH", 0L));
+    assertThat(result2.getFacets().getAll().get("impactSoftwareQualities")).containsOnly(
+      entry(SoftwareQuality.SECURITY.name(), 0L),
+      entry(SoftwareQuality.MAINTAINABILITY.name(), 1L),
+      entry(SoftwareQuality.RELIABILITY.name(), 0L));
   }
 
   @Test

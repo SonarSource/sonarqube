@@ -491,7 +491,6 @@ public class SearchActionIT {
       .contains(entry(SoftwareQuality.MAINTAINABILITY.name(), 1L), entry(SoftwareQuality.RELIABILITY.name(), 0L), entry(SoftwareQuality.SECURITY.name(), 0L));
   }
 
-  //TODO will be fixed by subtask SONAR-20234
   @Test
   public void execute_whenFacetIsImpactSeverity_shouldReturnCorrectMatch() {
     db.rules().insert(
@@ -502,7 +501,7 @@ public class SearchActionIT {
 
     SearchResponse result = ws.newRequest()
       .setParam("facets", "impactSeverities")
-      .setParam("impactSoftwareQualities", SoftwareQuality.RELIABILITY.name())
+      .setParam("impactSoftwareQualities", SoftwareQuality.MAINTAINABILITY.name())
       .executeProtobuf(SearchResponse.class);
     assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> entry(v.getVal(), v.getCount()))
       .contains(entry(Severity.HIGH.name(), 1L), entry(Severity.MEDIUM.name(), 0L), entry(Severity.LOW.name(), 0L));

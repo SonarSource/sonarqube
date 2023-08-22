@@ -107,7 +107,7 @@ public class RuleQueryFactory {
     query.setOwaspTop10For2021(request.paramAsStrings(PARAM_OWASP_TOP_10_2021));
     query.setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25));
     query.setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
-    query.setCleanCodeAttributesCategory(request.param(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES));
+    query.setCleanCodeAttributesCategories(request.paramAsStrings(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES));
     query.setImpactSeverities(request.paramAsStrings(PARAM_IMPACT_SEVERITIES));
     query.setImpactSoftwareQualities(request.paramAsStrings(PARAM_IMPACT_SOFTWARE_QUALITIES));
 

@@ -60,7 +60,7 @@ public class RuleQuery {
   private Collection<String> sonarsourceSecurity;
   private Collection<String> impactSeverities;
   private Collection<String> impactSoftwareQualities;
-  private String cleanCodeAttributesCategory;
+  private Collection<String> cleanCodeAttributesCategories;
 
 
   @CheckForNull
@@ -360,12 +360,12 @@ public class RuleQuery {
     return this;
   }
 
-  public String getCleanCodeAttributesCategory() {
-    return cleanCodeAttributesCategory;
+  public Collection<String> getCleanCodeAttributesCategories() {
+    return cleanCodeAttributesCategories;
   }
 
-  public RuleQuery setCleanCodeAttributesCategory(@Nullable String cleanCodeAttributesCategory) {
-    this.cleanCodeAttributesCategory = cleanCodeAttributesCategory;
+  public RuleQuery setCleanCodeAttributesCategories(@Nullable Collection<String> cleanCodeAttributesCategories) {
+    this.cleanCodeAttributesCategories = cleanCodeAttributesCategories;
     return this;
   }
 
