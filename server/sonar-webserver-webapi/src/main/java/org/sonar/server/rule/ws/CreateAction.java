@@ -88,7 +88,8 @@ public class CreateAction implements RulesWsAction {
       .setChangelog(
         new Change("5.5", "Creating manual rule is not more possible"),
         new Change("10.0","Drop deprecated keys: 'custom_key', 'template_key', 'markdown_description', 'prevent_reactivation'"),
-        new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response")
+        new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
+        new Change("10.2", "Fields 'type' and 'severity' are deprecated in the response. Use 'impacts' instead.")
         )
       .setHandler(this);
 

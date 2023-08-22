@@ -88,7 +88,8 @@ public class ShowAction implements RulesWsAction {
         new Change("10.0", "The deprecated field 'debtOverloaded' has been removed, use 'remFnOverloaded' instead."),
         new Change("10.0", "The field 'defaultDebtRemFnType' has been deprecated, use 'defaultRemFnType' instead"),
         new Change("10.0", "The field 'debtRemFnType' has been deprecated, use 'remFnType' instead"),
-        new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"));
+        new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
+        new Change("10.2", "The field 'severity' and 'type' in the response have been deprecated, use 'impacts' instead."));
 
     action
       .createParam(PARAM_KEY)

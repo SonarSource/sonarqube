@@ -176,9 +176,11 @@ public class SearchAction implements RulesWsAction {
         new Change("10.2", format("Parameters '%s', '%s', and '%s' are now deprecated.", PARAM_SEVERITIES, PARAM_TYPES, PARAM_ACTIVE_SEVERITIES)),
         new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
         new Change("10.2", "The field 'cleanCodeAttribute' has been added to the 'f' parameter"),
-        new Change("10.2", format("add '%s', '%s' and '%s' to the 'facets' parameter.",FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY, FACET_IMPACT_SOFTWARE_QUALITY, FACET_IMPACT_SEVERITY))
+        new Change("10.2", format("add '%s', '%s' and '%s' to the 'facets' parameter.", FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY, FACET_IMPACT_SOFTWARE_QUALITY, FACET_IMPACT_SEVERITY)),
+        new Change("10.2", format("Parameters '%s', '%s', and '%s' are now deprecated, use '%s' instead.", PARAM_SEVERITIES, PARAM_TYPES, PARAM_ACTIVE_SEVERITIES, "impacts")),
+        new Change("10.2", "The fields 'type' and 'severity' are deprecated in the response. Use 'impacts' instead."),
+        new Change("10.2", "The values 'severity' and 'types' for the parameter 'facets' has been deprecated. Use 'impact' instead.")
         );
-
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
       .setPossibleValues(POSSIBLE_FACETS)

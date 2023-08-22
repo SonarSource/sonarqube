@@ -90,6 +90,9 @@ public class UpdateAction implements RulesWsAction {
       .setResponseExample(Resources.getResource(getClass(), "update-example.json"))
       .setDescription("Update an existing rule.<br>" +
         "Requires the 'Administer Quality Profiles' permission")
+      .setChangelog(
+        new Change("10.2", "The field 'severity' and 'type' in the response have been deprecated, use 'impacts' instead.")
+      )
       .setSince("4.4")
       .setChangelog(
         new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"))
