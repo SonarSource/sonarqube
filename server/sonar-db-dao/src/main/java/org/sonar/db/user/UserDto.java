@@ -71,6 +71,7 @@ public class UserDto implements UserId {
 
   private Long createdAt;
   private Long updatedAt;
+  private boolean onboarded = false;
 
   public String getUuid() {
     return uuid;
@@ -299,6 +300,15 @@ public class UserDto implements UserId {
 
   UserDto setUpdatedAt(long updatedAt) {
     this.updatedAt = updatedAt;
+    return this;
+  }
+
+  public boolean isOnboarded() {
+    return onboarded;
+  }
+
+  public UserDto setOnboarded(boolean onboarded) {
+    this.onboarded = onboarded;
     return this;
   }
 

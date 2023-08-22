@@ -44,6 +44,8 @@ public class UsersWsParameters {
   public static final String PARAM_NEW_EXTERNAL_PROVIDER = "newExternalProvider";
   public static final String PARAM_NEW_EXTERNAL_IDENTITY = "newExternalIdentity";
 
+  public static final String ONBOARDED = "onboarded";
+
   private UsersWsParameters() {
     // Only static stuff
   }

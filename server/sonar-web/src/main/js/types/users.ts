@@ -23,6 +23,7 @@ export interface CurrentUser {
   usingSonarLintConnectedMode?: boolean;
   dismissedNotices: { [key: string]: boolean };
   groups?:string[];
+  onboarded: boolean;
 }
 
 export interface Notice {

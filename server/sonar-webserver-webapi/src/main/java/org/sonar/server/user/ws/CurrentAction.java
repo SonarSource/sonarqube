@@ -137,7 +137,8 @@ public class CurrentAction implements UsersWsAction {
       .setHomepage(buildHomepage(dbSession, user))
       .setUsingSonarLintConnectedMode(user.getLastSonarlintConnectionDate() != null)
       .putDismissedNotices(EDUCATION_PRINCIPLES, isNoticeDismissed(user, EDUCATION_PRINCIPLES))
-      .putDismissedNotices(SONARLINT_AD, isNoticeDismissed(user, SONARLINT_AD));
+      .putDismissedNotices(SONARLINT_AD, isNoticeDismissed(user, SONARLINT_AD))
+      .setOnboarded(user.isOnboarded());
     ofNullable(emptyToNull(user.getEmail())).ifPresent(builder::setEmail);
     ofNullable(emptyToNull(user.getEmail())).ifPresent(u -> builder.setAvatar(avatarResolver.create(user)));
     ofNullable(user.getExternalLogin()).ifPresent(builder::setExternalIdentity);

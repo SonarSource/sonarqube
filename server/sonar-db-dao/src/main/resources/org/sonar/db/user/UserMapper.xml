@@ -24,7 +24,8 @@
         u.last_connection_date as "lastConnectionDate",
         u.last_sonarlint_connection as "lastSonarlintConnectionDate",
         u.created_at as "createdAt",
-        u.updated_at as "updatedAt"
+        u.updated_at as "updatedAt",
+        u.onboarded as "onboarded"
     </sql>
 
     <select id="selectByUuid" parameterType="String" resultType="User">
@@ -217,7 +218,8 @@
         homepage_type,
         homepage_parameter,
         created_at,
-        updated_at
+        updated_at,
+        onboarded
         ) values (
         #{user.uuid,jdbcType=VARCHAR},
         #{user.login,jdbcType=VARCHAR},
@@ -237,7 +239,8 @@
         #{user.homepageType,jdbcType=VARCHAR},
         #{user.homepageParameter,jdbcType=VARCHAR},
         #{user.createdAt,jdbcType=BIGINT},
-        #{user.updatedAt,jdbcType=BIGINT}
+        #{user.updatedAt,jdbcType=BIGINT},
+        #{user.onboarded, jdbcType=BOOLEAN}
         )
     </insert>
 
@@ -260,7 +263,8 @@
         homepage_parameter = #{user.homepageParameter, jdbcType=VARCHAR},
         last_connection_date = #{user.lastConnectionDate,jdbcType=BIGINT},
         last_sonarlint_connection = #{user.lastSonarlintConnectionDate,jdbcType=BIGINT},
-        updated_at = #{user.updatedAt,jdbcType=BIGINT}
+        updated_at = #{user.updatedAt,jdbcType=BIGINT},
+        onboarded = #{user.onboarded, jdbcType=BOOLEAN}
         where
         uuid = #{user.uuid, jdbcType=VARCHAR}
     </update>

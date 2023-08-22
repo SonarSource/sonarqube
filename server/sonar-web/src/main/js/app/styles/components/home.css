@@ -1,0 +1,94 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2023 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+ .landing {
+    background-image: url('/images/grc/grc-bg.jpg');
+    background-position: center center;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: calc(100% - 100px);
+    position: absolute;
+}
+
+.home {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    align-items: center;
+}
+
+.light-emblem {
+    width: 50px;
+    height: 50px;
+}
+
+h1 {
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.welcome-block {
+    display: flex;
+    flex-direction: row;
+}
+
+.block {
+    width: 220px;
+    height: 220px;
+    background-color: #e5e7ea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.block a {
+    text-align: center;
+    border: none;
+}
+
+.block p {
+    color: #041847;
+}
+
+.grc-icon {
+    width: 160px;
+    margin-bottom: 1rem;
+}
+
+.grc-logo {
+    width: 100px;
+    margin-bottom: 1rem;
+}
+
+.grc-org-logo {
+    width: 85px;
+    margin-bottom: 1rem;
+}
+
+.icon-card{
+    text-align: center;
+    cursor: pointer;
+}
+
+body {
+    overflow-y: auto;
+}

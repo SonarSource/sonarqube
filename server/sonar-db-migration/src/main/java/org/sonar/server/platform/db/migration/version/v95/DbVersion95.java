@@ -47,7 +47,7 @@ public class DbVersion95 implements DbVersion {
 
       .add(6415, "Migrate hotspot rule descriptions", MigrateHotspotRuleDescriptions.class)
 
-      .add(6416, "Remove onboarded column from User table", DropOnboardedColumnFromUserTable.class)
+//      .add(6416, "Remove onboarded column from User table", DropOnboardedColumnFromUserTable.class)
 
       .add(6417, "Add column 'user_triggered' to 'audits'", AddUserTriggeredColumnToAudits.class)
       .add(6418, "Upsert value of 'user_triggered' in 'audits'", UpsertAuditsUserTriggeredValue.class)

@@ -93,6 +93,7 @@ import NavigateWithParams from './NavigateWithParams';
 import NavigateWithSearchAndHash from './NavigateWithSearchAndHash';
 import organizationsRoutes from '../../apps/organizations/routes';
 import { Organization } from "../../types/types";
+import Home from '../components/Home';
 
 function renderRedirect({ from, to }: { from: string; to: string }) {
   return <Route path={from} element={<Navigate to={{ pathname: to }} replace={true} />} />;
@@ -308,6 +309,7 @@ export default function startReactApp(
                         path="admin/plugin_risk_consent"
                         element={<PluginRiskConsent />}
                       />
+                      <Route path="home" element={<Home />} />
                       <Route path="not_found" element={<NotFound />} />
                       <Route path="*" element={<NotFound />} />
                     </Route>

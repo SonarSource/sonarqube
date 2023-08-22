@@ -44,7 +44,8 @@ public class UsersWsModule extends Module {
       HomepageTypesImpl.class,
       UserAnonymizer.class,
       UpdateIdentityProviderAction.class,
-      DismissNoticeAction.class);
+      DismissNoticeAction.class,
+      OnboardedAction.class);
 
   }
 }

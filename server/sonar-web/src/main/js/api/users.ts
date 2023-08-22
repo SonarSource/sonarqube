@@ -100,3 +100,7 @@ export function deactivateUser(data: { login: string; anonymize?: boolean }): Pr
 export function setHomePage(homepage: HomePage): Promise<void | Response> {
   return post('/api/users/set_homepage', homepage).catch(throwGlobalError);
 }
+
+export function skipOnboarding(): Promise<void | Response> {
+  return post('/api/users/onboarded').catch(throwGlobalError);
+}

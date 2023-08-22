@@ -19,27 +19,51 @@
  */
 import * as React from 'react';
 import { Navigate, To } from 'react-router-dom';
-import { getHomePageUrl } from '../../helpers/urls';
+import { getHomePageUrl, isDeploymentForAmazon, isDeploymentForCodeScan } from '../../helpers/urls';
+import { AppState } from '../../types/appstate';
 import { CurrentUser, isLoggedIn } from '../../types/users';
+import withAppStateContext from './app-state/withAppStateContext';
 import withCurrentUserContext from './current-user/withCurrentUserContext';
 
+
 export interface LandingProps {
+  appState: AppState
   currentUser: CurrentUser;
 }
 
-export function Landing({ currentUser }: LandingProps) {
-  let redirectUrl: To;
-    if(isLoggedIn(currentUser)) {
-      if (currentUser.homepage) {
-          redirectUrl = getHomePageUrl(currentUser.homepage);
-        } else {
-          redirectUrl = '/projects';
-        }
-    } else {
-      redirectUrl = '/sessions/new';
-    }
+function getRedirectURL(currentUser: any){
+  let redirectUrl: To = "";
+  if(currentUser.homepage) {
+    redirectUrl = getHomePageUrl(currentUser.homepage);
+  } else {
+    redirectUrl = '/projects';
+  }
+  return redirectUrl;
+}
 
+function Landing({ appState, currentUser }: LandingProps) {
+  const { whiteLabel } = appState
+  let redirectUrl: To = "";
+
+  if(isLoggedIn(currentUser)) {
+    if(isDeploymentForCodeScan(whiteLabel)) {
+      if(!currentUser.onboarded) {
+        redirectUrl = '/home'
+      } else {
+        redirectUrl = getRedirectURL(currentUser);
+      }
+    } else if(isDeploymentForAmazon(whiteLabel)) {
+      redirectUrl = getRedirectURL(currentUser);
+    }      
+  } else {
+    redirectUrl = '/sessions/new';
+  }
+  
   return <Navigate to={redirectUrl} replace={true} />;
 }
 
-export default withCurrentUserContext(Landing);
+export default withCurrentUserContext(withAppStateContext(Landing));
+
+
+
+
