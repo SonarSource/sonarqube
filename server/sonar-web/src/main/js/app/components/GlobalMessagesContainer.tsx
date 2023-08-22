@@ -20,11 +20,11 @@
 import styled from '@emotion/styled';
 import React from 'react';
 import { registerListener, unregisterListener } from '../../helpers/globalMessages';
-import { Message } from '../../types/globalMessages';
+import { Message, MessageLevel } from '../../types/globalMessages';
 import { zIndexes } from '../theme';
 import GlobalMessage from './GlobalMessage';
 
-const MESSAGE_DISPLAY_TIME = 5000;
+const MESSAGE_DISPLAY_TIME = 10000;
 const MAX_MESSAGES = 3;
 
 interface State {
@@ -53,8 +53,13 @@ export default class GlobalMessagesContainer extends React.Component<{}, State> 
   }
 
   handleAddMessage = (message: Message) => {
-    if (this.mounted) {
-      this.setState(({ messages }) => ({ messages: [...messages, message].slice(-MAX_MESSAGES) }));
+    if (
+      this.mounted &&
+      !this.state.messages.some((m) => m.level === MessageLevel.Error && m.text === message.text)
+    ) {
+      this.setState(({ messages }) => ({
+        messages: [...messages, message].slice(-MAX_MESSAGES),
+      }));
 
       setTimeout(() => {
         this.closeMessage(message.id);
@@ -78,15 +83,30 @@ export default class GlobalMessagesContainer extends React.Component<{}, State> 
     }
 
     return (
-      <MessagesContainer>
-        {messages.map((message) => (
-          <GlobalMessage
-            closeGlobalMessage={this.closeMessage}
-            key={message.id}
-            message={message}
-          />
-        ))}
-      </MessagesContainer>
+      <>
+        <MessagesContainer role="alert">
+          {messages
+            .filter((m) => m.level === MessageLevel.Error)
+            .map((message) => (
+              <GlobalMessage
+                closeGlobalMessage={this.closeMessage}
+                key={message.id}
+                message={message}
+              />
+            ))}
+        </MessagesContainer>
+        <MessagesContainer role="status">
+          {messages
+            .filter((m) => m.level === MessageLevel.Success)
+            .map((message) => (
+              <GlobalMessage
+                closeGlobalMessage={this.closeMessage}
+                key={message.id}
+                message={message}
+              />
+            ))}
+        </MessagesContainer>
+      </>
     );
   }
 }

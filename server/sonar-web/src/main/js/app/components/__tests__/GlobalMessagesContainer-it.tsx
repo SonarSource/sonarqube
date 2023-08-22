@@ -38,6 +38,12 @@ it('should display messages', () => {
   expect(screen.getByRole('alert')).toHaveTextContent('This is an error');
   expect(screen.getByRole('status')).toHaveTextContent('This was a triumph!');
 
+  // No duplicate message
+  addGlobalErrorMessage('This is an error');
+  expect(screen.getByRole('alert')).toHaveTextContent(/^This is an error$/);
+  addGlobalSuccessMessage('This was a triumph!');
+  expect(screen.getByRole('status')).toHaveTextContent(/^This was a triumph!This was a triumph!$/);
+
   jest.runAllTimers();
 
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();

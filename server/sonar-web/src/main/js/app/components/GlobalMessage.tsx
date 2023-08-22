@@ -33,11 +33,7 @@ export interface GlobalMessageProps {
 export default function GlobalMessage(props: GlobalMessageProps) {
   const { message } = props;
   return (
-    <MessageBox
-      data-testid={`global-message__${message.level}`}
-      level={message.level}
-      role={message.level === 'SUCCESS' ? 'status' : 'alert'}
-    >
+    <MessageBox data-testid={`global-message__${message.level}`} level={message.level}>
       {cutLongWords(message.text)}
       <CloseButton
         className="button-small"

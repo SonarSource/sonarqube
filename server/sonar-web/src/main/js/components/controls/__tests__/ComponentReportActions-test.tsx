@@ -133,7 +133,9 @@ it('should allow user to (un)subscribe', async () => {
   await user.click(unsubscribeButton);
 
   expect(unsubscribeFromEmailReport).toHaveBeenCalledWith(component.key, branch.name);
-  expect(screen.getAllByRole('status')).toHaveLength(2);
+  expect(screen.getByRole('status')).toHaveTextContent(
+    'component_report.subscribe_x_s...component_report.unsubscribe_x...'
+  );
 });
 
 it('should prevent user to subscribe if no email', async () => {

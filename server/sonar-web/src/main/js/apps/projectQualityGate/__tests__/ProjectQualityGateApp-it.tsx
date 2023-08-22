@@ -86,7 +86,7 @@ it('should be able to select and save specific Quality Gate', async () => {
   expect(ui.defaultRadioQualityGate.get()).toBeChecked();
 
   await userEvent.click(ui.saveButton.get());
-  expect(ui.statusMessage.getAll()[1]).toHaveTextContent(/project_quality_gate.success/);
+  expect(ui.statusMessage.get()).toHaveTextContent(/project_quality_gate.success/);
 });
 
 it('shows warning for quality gate that doesnt have conditions on new code', async () => {
