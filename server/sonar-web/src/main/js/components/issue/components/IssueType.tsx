@@ -41,7 +41,7 @@ export default function IssueType({ issue }: Props) {
         },
       ]}
     >
-      <DisabledText className="sw-flex sw-items-center sw-gap-1 sw-cursor-not-allowed">
+      <DisabledText className="sw-flex sw-items-center sw-gap-1">
         <IssueTypeIcon fill="iconTypeDisabled" type={issue.type} aria-hidden />
         {translate('issue.type', issue.type)}
       </DisabledText>

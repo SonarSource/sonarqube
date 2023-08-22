@@ -99,7 +99,9 @@ export default class IssueTransition extends React.PureComponent<Props> {
           onMenuClose={this.handleClose}
           onMenuOpen={() => this.toggleSetTransition(true)}
           value={issue.resolution ?? 'OPEN'}
-          customValue={<StatusHelper resolution={issue.resolution} status={issue.status} />}
+          customValue={
+            <StatusHelper className="sw-flex" resolution={issue.resolution} status={issue.status} />
+          }
         />
       );
     }

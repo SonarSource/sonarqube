@@ -100,7 +100,7 @@ function IndicatorsContainer<
 >(props: OptionProps<Option, IsMulti, Group>) {
   return (
     <components.IndicatorsContainer {...props}>
-      <div className="sw-pr-2">
+      <div className="sw-pr-2 sw-flex">
         <ChevronDownIcon />
       </div>
     </components.IndicatorsContainer>

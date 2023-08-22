@@ -42,7 +42,7 @@ export default function IssueSeverity({ issue }: Props) {
         },
       ]}
     >
-      <DisabledText className="sw-flex sw-items-center sw-gap-1 sw-cursor-not-allowed">
+      <DisabledText className="sw-flex sw-items-center sw-gap-1">
         <IssueSeverityIcon
           fill="iconSeverityDisabled"
           severity={issue.severity as IssueSeverityType}
