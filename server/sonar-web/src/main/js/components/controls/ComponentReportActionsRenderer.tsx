@@ -75,6 +75,7 @@ export default function ComponentReportActionsRenderer(props: ComponentReportAct
     <Dropdown
       id="component-report"
       size="auto"
+      allowResizing
       placement={PopupPlacement.BottomRight}
       zLevel={PopupZLevel.Default}
       overlay={
