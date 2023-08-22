@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.MDC;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.ServletFilter.UrlPattern;
@@ -136,6 +137,7 @@ public class UserSessionInitializer {
         .build();
     }
     threadLocalSession.set(session);
+    MDC.put("userId", session.getLogin());
     checkTokenUserSession(response, session);
     request.setAttribute(ACCESS_LOG_LOGIN, defaultString(session.getLogin(), "-"));
   }
