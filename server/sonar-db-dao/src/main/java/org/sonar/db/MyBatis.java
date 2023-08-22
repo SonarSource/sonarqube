@@ -191,7 +191,7 @@ public class MyBatis {
   }
 
   public void start() {
-    LogFactory.useSlf4jLogging();
+    LogFactory.useNoLogging();
 
     MyBatisConfBuilder confBuilder = new MyBatisConfBuilder(database);
 
