@@ -76,8 +76,6 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
       Boolean managed = userSearchResult.managed();
       String sqLastConnectionDate = toDateTime(userDto.getLastConnectionDate());
       String slLastConnectionDate = toDateTime(userDto.getLastSonarlintConnectionDate());
-      int groupSize = userSearchResult.groups().size();
-      int tokensCount = userSearchResult.tokensCount();
       List<String> scmAccounts = userSearchResult.userDto().getSortedScmAccounts();
       return new RestUserForAdmins(
         login,
@@ -92,8 +90,6 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
         avatar,
         sqLastConnectionDate,
         slLastConnectionDate,
-        groupSize,
-        tokensCount,
         scmAccounts);
     }
     return new RestUserForLoggedInUsers(login, login, name, email, active, local, externalIdentityProvider, avatar);

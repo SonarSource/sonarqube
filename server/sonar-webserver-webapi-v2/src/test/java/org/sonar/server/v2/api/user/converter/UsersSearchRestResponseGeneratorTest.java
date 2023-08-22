@@ -96,8 +96,6 @@ public class UsersSearchRestResponseGeneratorTest {
       userSearchResult.avatar().orElse(null),
       toDateTime(userDto.getLastConnectionDate()),
       toDateTime(userDto.getLastSonarlintConnectionDate()),
-      userSearchResult.groups().size(),
-      userSearchResult.tokensCount(),
       userSearchResult.userDto().getSortedScmAccounts()
     );
   }
@@ -178,8 +176,6 @@ public class UsersSearchRestResponseGeneratorTest {
 
     when(userSearchResult.userDto()).thenReturn(user1);
     when(userSearchResult.managed()).thenReturn(booleanFlagsValue);
-    when(userSearchResult.tokensCount()).thenReturn(i);
-    when(userSearchResult.groups().size()).thenReturn(i * 100);
     return userSearchResult;
   }
 

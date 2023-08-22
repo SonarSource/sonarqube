@@ -45,10 +45,6 @@ public record RestUserForAdmins(
   @Nullable
   String sonarLintLastConnectionDate,
   @Nullable
-  Integer groupsCount,
-  @Nullable
-  Integer tokensCount,
-  @Nullable
   List<String> scmAccounts
 ) implements RestUser {
 }

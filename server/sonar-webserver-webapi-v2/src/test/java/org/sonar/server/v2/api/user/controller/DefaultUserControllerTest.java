@@ -213,8 +213,6 @@ public class DefaultUserControllerTest {
       userSearchResult.avatar().orElse(""),
       formatDateTime(userSearchResult.userDto().getLastConnectionDate()),
       formatDateTime(userSearchResult.userDto().getLastSonarlintConnectionDate()),
-      userSearchResult.groups().size(),
-      userSearchResult.tokensCount(),
       userSearchResult.userDto().getSortedScmAccounts());
   }
 
