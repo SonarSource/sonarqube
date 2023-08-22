@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectexport.component;
 
 import com.google.common.collect.ImmutableSet;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
+import java.util.Date;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -59,7 +60,7 @@ public class ExportComponentsStepIT {
     .setEnabled(true)
     .setUuid(PROJECT_UUID)
     .setUuidPath(UUID_PATH_OF_ROOT)
-    .setCreatedAt(1596749115856L)
+    .setCreatedAt(new Date(1596749115856L))
     .setBranchUuid(PROJECT_UUID);
 
   private static final String FILE_UUID = "FILE_UUID";
@@ -73,7 +74,7 @@ public class ExportComponentsStepIT {
     .setUuid(FILE_UUID)
     .setUuidPath(FILE_UUID_PATH)
     .setEnabled(true)
-    .setCreatedAt(1596749148406L)
+    .setCreatedAt(new Date(1596749148406L))
     .setBranchUuid(PROJECT_UUID);
 
   @Rule

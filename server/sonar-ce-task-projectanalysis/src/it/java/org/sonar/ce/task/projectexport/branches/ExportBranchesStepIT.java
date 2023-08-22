@@ -98,7 +98,7 @@ public class ExportBranchesStepIT {
     ProjectData projectData = dbTester.components().insertPublicProject(PROJECT_UUID);
     for (BranchDto branch : branches) {
       createdAt = DateUtils.addMinutes(createdAt, 10);
-      dbTester.components().insertProjectBranch(projectData.getProjectDto(), branch).setCreatedAt(createdAt.getTime());
+      dbTester.components().insertProjectBranch(projectData.getProjectDto(), branch).setCreatedAt(createdAt);
     }
     dbTester.commit();
     when(projectHolder.projectDto()).thenReturn(projectData.getProjectDto());

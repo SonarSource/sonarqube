@@ -75,14 +75,14 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
 
   private final System2 system2 = mock(System2.class);
   private final DbClient dbClient = db.getDbClient();
-  private Long now;
+  private Date now;
   private final MutableDisabledComponentsHolder disabledComponentsHolder = mock(MutableDisabledComponentsHolder.class, RETURNS_DEEP_STUBS);
   private PersistComponentsStep underTest;
 
   @Before
   public void setup() throws Exception {
-    now = DATE_FORMAT.parse("2015-06-02").getTime();
-    when(system2.now()).thenReturn(now);
+    now = DATE_FORMAT.parse("2015-06-02");
+    when(system2.now()).thenReturn(now.getTime());
 
     BranchPersister branchPersister = mock(BranchPersister.class);
     ProjectPersister projectPersister = mock(ProjectPersister.class);
@@ -365,7 +365,7 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
   @Test
   public void do_not_update_created_at_on_existing_component() {
     Date oldDate = DateUtils.parseDate("2015-01-01");
-    ComponentDto project = prepareProject(p -> p.setCreatedAt(oldDate.getTime()));
+    ComponentDto project = prepareProject(p -> p.setCreatedAt(oldDate));
     db.getSession().commit();
 
     treeRootHolder.setRoot(

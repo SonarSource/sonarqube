@@ -343,7 +343,7 @@
         )
       </if>
     <if test="query.createdAfter != null">
-      and p.created_at &gt;= #{query.createdAfter,jdbcType=BIGINT}
+      and p.created_at &gt;= #{query.createdAfter,jdbcType=TIMESTAMP}
     </if>
   </sql>
 
@@ -539,7 +539,7 @@
     #{path,jdbcType=VARCHAR},
     #{copyComponentUuid,jdbcType=VARCHAR},
     #{enabled,jdbcType=BOOLEAN},
-    #{createdAt,jdbcType=BIGINT},
+    #{createdAt,jdbcType=TIMESTAMP},
     ${_false},
     null,
     null,

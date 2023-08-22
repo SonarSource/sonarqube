@@ -38,7 +38,7 @@ public class ComponentQueryTest {
       .setNameOrKeyQuery("key")
       .setAnyBranchAnalyzedBefore(100L)
       .setAnyBranchAnalyzedAfter(200L)
-      .setCreatedAfter(new Date(300L).getTime())
+      .setCreatedAfter(new Date(300L))
       .setQualifiers(PROJECT)
       .build();
 
@@ -46,7 +46,7 @@ public class ComponentQueryTest {
     assertThat(underTest.getQualifiers()).containsOnly(PROJECT);
     assertThat(underTest.getAnyBranchAnalyzedBefore()).isEqualTo(100L);
     assertThat(underTest.getAnyBranchAnalyzedAfter()).isEqualTo(200L);
-    assertThat(underTest.getCreatedAfter()).isEqualTo(300L);
+    assertThat(underTest.getCreatedAfter().getTime()).isEqualTo(300L);
     assertThat(underTest.isOnProvisionedOnly()).isFalse();
     assertThat(underTest.isPartialMatchOnKey()).isFalse();
     assertThat(underTest.hasEmptySetOfComponents()).isFalse();

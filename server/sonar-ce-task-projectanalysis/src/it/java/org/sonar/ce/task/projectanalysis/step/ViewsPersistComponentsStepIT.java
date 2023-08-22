@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -87,14 +88,14 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
 
   private final System2 system2 = mock(System2.class);
   private final DbClient dbClient = dbTester.getDbClient();
-  private Long now;
+  private Date now;
   private final MutableDisabledComponentsHolder disabledComponentsHolder = mock(MutableDisabledComponentsHolder.class, RETURNS_DEEP_STUBS);
   private PersistComponentsStep underTest;
 
   @Before
   public void setup() throws Exception {
-    now = DATE_FORMAT.parse("2015-06-02").getTime();
-    when(system2.now()).thenReturn(now);
+    now = DATE_FORMAT.parse("2015-06-02");
+    when(system2.now()).thenReturn(now.getTime());
 
     analysisMetadataHolder.setBranch(new DefaultBranchImpl(DEFAULT_MAIN_BRANCH_NAME));
     BranchPersister branchPersister = mock(BranchPersister.class);

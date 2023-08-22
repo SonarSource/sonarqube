@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -211,7 +212,7 @@ public class ComponentUpdater {
       .setScope(Scopes.PROJECT)
       .setQualifier(newComponent.qualifier())
       .setPrivate(newComponent.isPrivate())
-      .setCreatedAt(now);
+      .setCreatedAt(new Date(now));
 
     dbClient.componentDao().insert(session, component, true);
     return component;

@@ -68,7 +68,7 @@ public class ComponentTesting {
       .setBranchUuid(branch.branchUuid())
       .setQualifier(Qualifiers.FILE)
       .setPath(path)
-      .setCreatedAt(new Date().getTime())
+      .setCreatedAt(new Date())
       .setLanguage("xoo");
   }
 
@@ -214,7 +214,7 @@ public class ComponentTesting {
       .setUuidPath(formatUuidPathFromParent(parent))
       .setKey(uuid)
       .setBranchUuid(branch.branchUuid())
-      .setCreatedAt(new Date().getTime())
+      .setCreatedAt(new Date())
       .setEnabled(true)
       .setPrivate(branch.isPrivate());
   }

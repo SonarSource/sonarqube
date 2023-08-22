@@ -24,6 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -986,9 +987,9 @@ public class ComponentDaoIT {
 
   @Test
   public void selectByQuery_verify_order() {
-    Long firstDate = system2.now();
-    Long secondDate = system2.now();
-    Long thirdDate = system2.now();
+    Date firstDate = new Date(system2.now());
+    Date secondDate = new Date(system2.now());
+    Date thirdDate = new Date(system2.now());
 
     ComponentDto project3 = db.components().insertPrivateProject(componentDto -> componentDto.setName("project3").setCreatedAt(thirdDate)).getMainBranchComponent();
     ComponentDto project1 = db.components().insertPrivateProject(componentDto -> componentDto.setName("project1").setCreatedAt(firstDate)).getMainBranchComponent();
@@ -1363,15 +1364,15 @@ public class ComponentDaoIT {
 
   @Test
   public void selectByQuery_filter_created_at() {
-    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setCreatedAt(parseDate("2018-02-01").getTime())).getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setCreatedAt(parseDate("2018-06-01").getTime())).getMainBranchComponent();
+    ComponentDto project1 = db.components().insertPrivateProject(p -> p.setCreatedAt(parseDate("2018-02-01"))).getMainBranchComponent();
+    ComponentDto project2 = db.components().insertPrivateProject(p -> p.setCreatedAt(parseDate("2018-06-01"))).getMainBranchComponent();
 
-    assertThat(selectProjectUuidsByQuery(q -> q.setCreatedAfter(parseDate("2017-12-01").getTime())))
+    assertThat(selectProjectUuidsByQuery(q -> q.setCreatedAfter(parseDate("2017-12-01"))))
       .containsExactlyInAnyOrder(project1.uuid(), project2.uuid());
-    assertThat(selectProjectUuidsByQuery(q -> q.setCreatedAfter(parseDate("2018-02-20").getTime())))
+    assertThat(selectProjectUuidsByQuery(q -> q.setCreatedAfter(parseDate("2018-02-20"))))
       .containsExactlyInAnyOrder(project2.uuid());
 
-    assertThat(selectProjectUuidsByQuery(q -> q.setCreatedAfter(parseDate("2019-01-01").getTime())))
+    assertThat(selectProjectUuidsByQuery(q -> q.setCreatedAfter(parseDate("2019-01-01"))))
       .isEmpty();
   }
 

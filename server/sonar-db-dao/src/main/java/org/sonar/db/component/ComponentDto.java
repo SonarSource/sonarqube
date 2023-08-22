@@ -21,6 +21,7 @@ package org.sonar.db.component;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
@@ -97,7 +98,7 @@ public class ComponentDto {
   private boolean enabled = true;
   private boolean isPrivate = false;
 
-  private Long createdAt;
+  private Date createdAt;
 
   public static String formatUuidPathFromParent(ComponentDto parent) {
     checkArgument(!Strings.isNullOrEmpty(parent.getUuidPath()));
@@ -244,12 +245,12 @@ public class ComponentDto {
     return this;
   }
 
-  public Long getCreatedAt() {
+  public Date getCreatedAt() {
     return createdAt;
   }
 
-  public ComponentDto setCreatedAt(Long createdAt) {
-    this.createdAt = createdAt;
+  public ComponentDto setCreatedAt(Date datetime) {
+    this.createdAt = datetime;
     return this;
   }
 

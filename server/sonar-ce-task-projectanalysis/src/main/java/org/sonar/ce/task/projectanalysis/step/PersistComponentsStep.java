@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -330,7 +331,7 @@ public class PersistComponentsStep implements ComputationStep {
       componentDto.setUuid(componentUuid);
       componentDto.setKey(componentKey);
       componentDto.setEnabled(true);
-      componentDto.setCreatedAt(system2.now());
+      componentDto.setCreatedAt(new Date(system2.now()));
 
       return componentDto;
     }

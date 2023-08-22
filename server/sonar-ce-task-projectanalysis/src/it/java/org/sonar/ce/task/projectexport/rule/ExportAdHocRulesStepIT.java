@@ -185,7 +185,7 @@ public class ExportAdHocRulesStepIT {
     Date createdAt = new Date();
     ProjectData projectData = dbTester.components().insertPublicProject(PROJECT_UUID);
     mainBranch = projectData.getMainBranchComponent();
-    BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(projectData.getProjectDto(), branch).setCreatedAt(createdAt.getTime()));
+    BRANCHES.forEach(branch -> dbTester.components().insertProjectBranch(projectData.getProjectDto(), branch).setCreatedAt(createdAt));
     dbTester.commit();
     return projectData.getProjectDto();
   }
