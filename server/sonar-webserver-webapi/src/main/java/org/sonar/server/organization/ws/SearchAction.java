@@ -19,24 +19,6 @@
  */
 package org.sonar.server.organization.ws;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.annotation.Nullable;
-import org.sonar.api.server.ws.Change;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationQuery;
-import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.Organizations.Organization;
-
 import static java.lang.String.format;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
@@ -47,6 +29,22 @@ import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Common.Paging;
+
+import java.util.List;
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.organization.OrganizationQuery;
+import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.Organizations.Organization;
 
 public class SearchAction implements OrganizationsWsAction {
 
@@ -115,6 +113,7 @@ public class SearchAction implements OrganizationsWsAction {
     private OrganizationQuery buildDbQuery(Request request) {
         return newOrganizationQueryBuilder()
                 .setKeys(request.paramAsStrings(PARAM_ORGANIZATIONS))
+                .setMember(getUserIdIfFilterOnMembership(request))
                 .build();
     }
 
@@ -168,5 +167,11 @@ public class SearchAction implements OrganizationsWsAction {
                 .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
                 .setTotal(total)
                 .build();
+    }
+
+    @CheckForNull
+    private String getUserIdIfFilterOnMembership(Request request) {
+        boolean filterOnAuthenticatedUser = request.mandatoryParamAsBoolean(PARAM_MEMBER);
+        return (userSession.isLoggedIn() && filterOnAuthenticatedUser) ? userSession.getUuid() : null;
     }
 }

@@ -98,6 +98,10 @@
 
   <sql id="sqlSelectByQuery">
     from organizations org
+    <if test="query.member != null">
+      inner join organization_members om on org.uuid=om.organization_uuid
+        and om.user_uuid=#{query.member,jdbcType=VARCHAR}
+    </if>
     <where>
       <if test="query.keys != null">
         org.kee in
