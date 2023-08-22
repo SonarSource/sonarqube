@@ -98,6 +98,7 @@ import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.newRuleWithoutDescriptionSection;
 import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
+import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_CLEAN_CODE_ATTRIBUTE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
@@ -320,8 +321,7 @@ public class SearchActionIT {
       r -> r.setName("Name"),
       r -> r.setRepositoryKey("repo_key"),
       r -> r.setSeverity("MINOR"),
-      r -> r.setLanguage("java")
-      );
+      r -> r.setLanguage("java"));
     indexRules();
 
     Rules.SearchResponse response = ws.newRequest().executeProtobuf(Rules.SearchResponse.class);
@@ -497,6 +497,27 @@ public class SearchActionIT {
   }
 
   @Test
+  public void returnRuleCleanCodeFields_whenEndpointIsCalled() {
+    RuleDto rule = db.rules()
+      .insert();
+    indexRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam(WebService.Param.FIELDS, FIELD_CLEAN_CODE_ATTRIBUTE)
+      .executeProtobuf(SearchResponse.class);
+
+    // mandatory fields
+    assertThat(result.getRulesList())
+      .extracting(r -> r.getImpacts().getImpactsList().stream().findFirst().orElseThrow(() -> new IllegalStateException("Impact is a mandatory field in the response.")))
+      .extracting(Common.Impact::getSoftwareQuality, Common.Impact::getSeverity)
+        .containsExactly(tuple(Common.SoftwareQuality.MAINTAINABILITY, Common.ImpactSeverity.HIGH));
+
+    // selected fields
+    assertThat(result.getRulesList()).extracting(Rule::getCleanCodeAttribute).containsExactly(Common.CleanCodeAttribute.CLEAR);
+    assertThat(result.getRulesList()).extracting(Rule::getCleanCodeAttributeCategory).containsExactly(Common.CleanCodeAttributeCategory.INTENTIONAL);
+  }
+
+  @Test
   public void should_return_specified_fields() {
     when(macroInterpreter.interpret(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -523,8 +544,7 @@ public class SearchActionIT {
     checkField(rule, "gapDescription", Rule::getGapDescription, rule.getGapDescription());
     checkDescriptionSections(rule, rule.getRuleDescriptionSectionDtos().stream()
       .map(SearchActionIT::toProtobufDto)
-      .collect(Collectors.toSet())
-    );
+      .collect(Collectors.toSet()));
   }
 
   private RuleDescriptionSectionDto createRuleDescriptionSectionWithContext(String key, String content, @Nullable String contextKey) {
@@ -995,10 +1015,10 @@ public class SearchActionIT {
     indexRules();
 
     ws.newRequest()
-            .setParam(WebService.Param.PAGE, "2")
-            .setParam(WebService.Param.PAGE_SIZE, "9")
-            .execute()
-            .assertJson(this.getClass(), "paging.json");
+      .setParam(WebService.Param.PAGE, "2")
+      .setParam(WebService.Param.PAGE_SIZE, "9")
+      .execute()
+      .assertJson(this.getClass(), "paging.json");
   }
 
   @Test
@@ -1049,7 +1069,6 @@ public class SearchActionIT {
     List<Rule.DescriptionSection> actualSections = result.getRules(0).getDescriptionSections().getDescriptionSectionsList();
     assertThat(actualSections).hasSameElementsAs(expected);
   }
-
 
   private void verifyNoResults(Consumer<TestRequest> requestPopulator) {
     verify(requestPopulator);

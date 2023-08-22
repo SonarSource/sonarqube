@@ -34,6 +34,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDescriptionSectionContextDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
@@ -51,6 +52,7 @@ import org.sonarqube.ws.Rules;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
+import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_CLEAN_CODE_ATTRIBUTE;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_CREATED_AT;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEBT_REM_FUNCTION;
 import static org.sonar.server.rule.ws.RulesWsParameters.FIELD_DEFAULT_DEBT_REM_FUNCTION;
@@ -117,6 +119,7 @@ public class RuleMapper {
     // Mandatory fields
     ruleResponse.setKey(ruleDto.getKey().toString());
     ruleResponse.setType(Common.RuleType.forNumber(ruleDto.getType()));
+    setImpacts(ruleResponse, ruleDto);
 
     // Optional fields
     setName(ruleResponse, ruleDto, fieldsToReturn);
@@ -148,7 +151,21 @@ public class RuleMapper {
       setAdHocType(ruleResponse, ruleDto);
     }
     setEducationPrinciples(ruleResponse, ruleDto, fieldsToReturn);
+    setCleanCodeAttributes(ruleResponse, ruleDto, fieldsToReturn);
+
     return ruleResponse;
+  }
+
+  private static void setImpacts(Rules.Rule.Builder ruleResponse, RuleDto ruleDto) {
+    Rules.Impacts.Builder impactsBuilder = Rules.Impacts.newBuilder();
+    ruleDto.getDefaultImpacts().forEach(impactDto -> impactsBuilder.addImpacts(toImpact(impactDto)));
+    ruleResponse.setImpacts(impactsBuilder.build());
+  }
+
+  private static Common.Impact toImpact(ImpactDto impactDto) {
+    Common.ImpactSeverity severity = Common.ImpactSeverity.valueOf(impactDto.getSeverity().name());
+    Common.SoftwareQuality softwareQuality = Common.SoftwareQuality.valueOf(impactDto.getSoftwareQuality().name());
+    return Common.Impact.newBuilder().setSeverity(severity).setSoftwareQuality(softwareQuality).build();
   }
 
   private static void setAdHocName(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
@@ -201,6 +218,13 @@ public class RuleMapper {
   private static void setEducationPrinciples(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_EDUCATION_PRINCIPLES)) {
       ruleResponse.getEducationPrinciplesBuilder().addAllEducationPrinciples((ruleDto.getEducationPrinciples()));
+    }
+  }
+
+  private static void setCleanCodeAttributes(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+    if(shouldReturnField(fieldsToReturn, FIELD_CLEAN_CODE_ATTRIBUTE)){
+      ruleResponse.setCleanCodeAttribute(Common.CleanCodeAttribute.valueOf(ruleDto.getCleanCodeAttribute().name()));
+      ruleResponse.setCleanCodeAttributeCategory(Common.CleanCodeAttributeCategory.valueOf(ruleDto.getCleanCodeAttribute().getAttributeCategory().name()));
     }
   }
 

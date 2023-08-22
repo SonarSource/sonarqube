@@ -131,6 +131,10 @@ public class ShowActionIT {
     assertThat(resultRule.getParams().getParamsList())
       .extracting(Rule.Param::getKey, Rule.Param::getHtmlDesc, Rule.Param::getDefaultValue)
       .containsExactlyInAnyOrder(tuple(ruleParam.getName(), ruleParam.getDescription(), ruleParam.getDefaultValue()));
+    assertThat(resultRule.getImpacts().getImpactsList())
+      .extracting(Common.Impact::getSoftwareQuality, Common.Impact::getSeverity)
+      .containsExactly(tuple(Common.SoftwareQuality.MAINTAINABILITY, Common.ImpactSeverity.HIGH));
+
     assertThat(resultRule.getEducationPrinciples().getEducationPrinciplesList()).containsExactlyElementsOf(rule.getEducationPrinciples());
   }
 
@@ -144,6 +148,19 @@ public class ShowActionIT {
 
     assertThat(result.getRule().getTags().getTagsList())
       .containsExactly(rule.getTags().toArray(new String[0]));
+  }
+
+  //<test case name>_when<conditionInCamelCase>_should<assertionInCamelCase>
+  @Test
+  public void returnRuleCleanCodeFields_whenEndpointIsCalled() {
+    RuleDto rule = db.rules().insert(setTags("tag1", "tag2"), r -> r.setNoteData(null).setNoteUserUuid(null));
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .executeProtobuf(ShowResponse.class);
+
+    assertThat(result.getRule().getCleanCodeAttribute()).isEqualTo(Common.CleanCodeAttribute.CLEAR);
+    assertThat(result.getRule().getCleanCodeAttributeCategory()).isEqualTo(Common.CleanCodeAttributeCategory.INTENTIONAL);
   }
 
   @Test
@@ -334,7 +351,7 @@ public class ShowActionIT {
 
   @Test
   public void show_adhoc_rule() {
-    //Ad-hoc description has no description sections defined
+    // Ad-hoc description has no description sections defined
     RuleDto externalRule = db.rules().insert(newRuleWithoutDescriptionSection()
       .setIsExternal(true)
       .setIsAdHoc(true)
@@ -391,8 +408,7 @@ public class ShowActionIT {
         tuple(ASSESS_THE_PROBLEM_SECTION_KEY, "<div>This is not a problem</div>", "", ""),
         tuple(HOW_TO_FIX_SECTION_KEY, "<div>I don't want to fix</div>", "", ""),
         tuple(RESOURCES_SECTION_KEY, "<div>I want to fix with Spring</div>", section4context1.getContext().getKey(), section4context1.getContext().getDisplayName()),
-        tuple(RESOURCES_SECTION_KEY, "<div>I want to fix with Servlet</div>", section4context2.getContext().getKey(), section4context2.getContext().getDisplayName())
-      );
+        tuple(RESOURCES_SECTION_KEY, "<div>I want to fix with Servlet</div>", section4context2.getContext().getKey(), section4context2.getContext().getDisplayName()));
   }
 
   @Test

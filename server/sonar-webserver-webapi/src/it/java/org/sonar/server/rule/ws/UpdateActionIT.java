@@ -44,6 +44,7 @@ import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsAction;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -299,6 +300,29 @@ public class UpdateActionIT {
       ws.newRequest().setMethod("POST").execute();
     })
       .isInstanceOf(UnauthorizedException.class);
+  }
+
+  @Test
+  public void returnRuleCleanCodeFields_whenEndpointIsCalled() {
+    UserDto userAuthenticated = db.users().insertUser();
+    userSession.logIn(userAuthenticated).addPermission(ADMINISTER_QUALITY_PROFILES);
+
+    RuleDto rule = db.rules()
+      .insert();
+
+    Rules.UpdateResponse updateResponse = ws.newRequest().setMethod("POST")
+      .setParam("key", rule.getKey().toString())
+      .executeProtobuf(Rules.UpdateResponse.class);
+
+    // mandatory fields
+    assertThat(updateResponse.getRule())
+      .extracting(r -> r.getImpacts().getImpactsList().stream().findFirst().orElseThrow(() -> new IllegalStateException("Impact is a mandatory field in the response.")))
+      .extracting(Common.Impact::getSoftwareQuality, Common.Impact::getSeverity)
+      .containsExactly(Common.SoftwareQuality.MAINTAINABILITY, Common.ImpactSeverity.HIGH);
+
+    // selected fields
+    assertThat(updateResponse.getRule()).extracting(Rules.Rule::getCleanCodeAttribute).isEqualTo(Common.CleanCodeAttribute.CLEAR);
+    assertThat(updateResponse.getRule()).extracting(Rules.Rule::getCleanCodeAttributeCategory).isEqualTo(Common.CleanCodeAttributeCategory.INTENTIONAL);
   }
 
   private void logInAsQProfileAdministrator() {

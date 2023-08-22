@@ -86,8 +86,10 @@ public class CreateAction implements RulesWsAction {
       .setResponseExample(Resources.getResource(getClass(), "create-example.json"))
       .setSince("4.4")
       .setChangelog(
+        new Change("5.5", "Creating manual rule is not more possible"),
         new Change("10.0","Drop deprecated keys: 'custom_key', 'template_key', 'markdown_description', 'prevent_reactivation'"),
-        new Change("5.5", "Creating manual rule is not more possible"))
+        new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response")
+        )
       .setHandler(this);
 
     action

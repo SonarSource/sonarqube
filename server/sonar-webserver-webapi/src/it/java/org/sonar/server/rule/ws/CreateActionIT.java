@@ -107,30 +107,45 @@ public class CreateActionIT {
       .setParam("params", "regex=a.*")
       .execute().getInput();
 
-    assertJson(result).isSimilarTo("{\n" +
-      "  \"rule\": {\n" +
-      "    \"key\": \"java:MY_CUSTOM\",\n" +
-      "    \"repo\": \"java\",\n" +
-      "    \"name\": \"My custom rule\",\n" +
-      "    \"htmlDesc\": \"Description\",\n" +
-      "    \"severity\": \"MAJOR\",\n" +
-      "    \"status\": \"BETA\",\n" +
-      "    \"type\": \"BUG\",\n" +
-      "    \"internalKey\": \"configKey_S001\",\n" +
-      "    \"isTemplate\": false,\n" +
-      "    \"templateKey\": \"java:S001\",\n" +
-      "    \"sysTags\": [\"systag1\", \"systag2\"],\n" +
-      "    \"lang\": \"js\",\n" +
-      "    \"params\": [\n" +
-      "      {\n" +
-      "        \"key\": \"regex\",\n" +
-      "        \"htmlDesc\": \"Reg ex\",\n" +
-      "        \"defaultValue\": \"a.*\",\n" +
-      "        \"type\": \"STRING\"\n" +
-      "      }\n" +
-      "    ]\n" +
-      "  }\n" +
-      "}\n");
+    String expetedResult = """
+      {
+        "rule": {
+          "key": "java:MY_CUSTOM",
+          "repo": "java",
+          "name": "My custom rule",
+          "htmlDesc": "Description",
+          "severity": "MAJOR",
+          "status": "BETA",
+          "type": "BUG",
+          "internalKey": "configKey_S001",
+          "isTemplate": false,
+          "templateKey": "java:S001",
+          "sysTags": [
+            "systag1",
+            "systag2"
+          ],
+          "lang": "js",
+          "params": [
+            {
+              "key": "regex",
+              "htmlDesc": "Reg ex",
+              "defaultValue": "a.*",
+              "type": "STRING"
+            }
+          ],
+          "cleanCodeAttribute": "CONVENTIONAL",
+          "cleanCodeAttributeCategory": "CONSISTENT",
+          "impacts": [
+            {
+              "softwareQuality": "RELIABILITY",
+              "severity": "MEDIUM"
+            }
+          ]
+        }
+      }
+      """;
+
+    assertJson(result).isSimilarTo(expetedResult);
   }
 
   @Test

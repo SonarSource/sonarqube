@@ -70,6 +70,7 @@ public class RulesWsParameters {
   public static final String FIELD_NOTE_LOGIN = "noteLogin";
   public static final String FIELD_MARKDOWN_NOTE = "mdNote";
   public static final String FIELD_HTML_NOTE = "htmlNote";
+  public static final String FIELD_CLEAN_CODE_ATTRIBUTE = "cleanCodeAttribute";
 
   /**
    * Value for 'f' parameter which is used to return all the "defaultDebtRemFn" fields.
@@ -112,7 +113,7 @@ public class RulesWsParameters {
     FIELD_MARKDOWN_DESCRIPTION, FIELD_DESCRIPTION_SECTIONS, FIELD_NOTE_LOGIN, FIELD_MARKDOWN_NOTE, FIELD_HTML_NOTE,
     FIELD_DEFAULT_DEBT_REM_FUNCTION, FIELD_DEBT_REM_FUNCTION,
     FIELD_DEFAULT_REM_FUNCTION, FIELD_GAP_DESCRIPTION, FIELD_REM_FUNCTION_OVERLOADED, FIELD_REM_FUNCTION,
-    FIELD_PARAMS, FIELD_ACTIVES, FIELD_SCOPE, FIELD_DEPRECATED_KEYS, FIELD_EDUCATION_PRINCIPLES);
+    FIELD_PARAMS, FIELD_ACTIVES, FIELD_SCOPE, FIELD_DEPRECATED_KEYS, FIELD_EDUCATION_PRINCIPLES, FIELD_CLEAN_CODE_ATTRIBUTE);
 
   private RulesWsParameters() {
     // prevent instantiation

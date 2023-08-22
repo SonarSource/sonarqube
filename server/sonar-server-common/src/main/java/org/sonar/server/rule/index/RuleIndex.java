@@ -135,6 +135,9 @@ public class RuleIndex {
   public static final String FACET_OWASP_TOP_10 = "owaspTop10";
   public static final String FACET_OWASP_TOP_10_2021 = "owaspTop10-2021";
   public static final String FACET_SONARSOURCE_SECURITY = "sonarsourceSecurity";
+  public static final String FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY = "cleanCodeAttributeCategories";
+  public static final String FACET_IMPACT_SOFTWARE_QUALITY = "impactSoftwareQualities";
+  public static final String FACET_IMPACT_SEVERITY = "impactSeverities";
 
   private static final int MAX_FACET_SIZE = 100;
 

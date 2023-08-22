@@ -30,6 +30,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -90,6 +91,8 @@ public class UpdateAction implements RulesWsAction {
       .setDescription("Update an existing rule.<br>" +
         "Requires the 'Administer Quality Profiles' permission")
       .setSince("4.4")
+      .setChangelog(
+        new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"))
       .setHandler(this);
 
     action.createParam(PARAM_KEY)

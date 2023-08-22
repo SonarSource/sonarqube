@@ -66,7 +66,10 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.rule.index.RuleIndex.ALL_STATUSES_EXCEPT_REMOVED;
 import static org.sonar.server.rule.index.RuleIndex.FACET_ACTIVE_SEVERITIES;
+import static org.sonar.server.rule.index.RuleIndex.FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY;
 import static org.sonar.server.rule.index.RuleIndex.FACET_CWE;
+import static org.sonar.server.rule.index.RuleIndex.FACET_IMPACT_SEVERITY;
+import static org.sonar.server.rule.index.RuleIndex.FACET_IMPACT_SOFTWARE_QUALITY;
 import static org.sonar.server.rule.index.RuleIndex.FACET_LANGUAGES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_OLD_DEFAULT;
 import static org.sonar.server.rule.index.RuleIndex.FACET_OWASP_TOP_10;
@@ -111,7 +114,11 @@ public class SearchAction implements RulesWsAction {
     FACET_OWASP_TOP_10,
     FACET_OWASP_TOP_10_2021,
     FACET_SANS_TOP_25,
-    FACET_SONARSOURCE_SECURITY};
+    FACET_SONARSOURCE_SECURITY,
+    FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY,
+    FACET_IMPACT_SEVERITY,
+    FACET_IMPACT_SOFTWARE_QUALITY
+  };
 
   private final RuleQueryFactory ruleQueryFactory;
   private final DbClient dbClient;
@@ -166,7 +173,11 @@ public class SearchAction implements RulesWsAction {
         new Change("10.0", "The value 'defaultDebtRemFn' for the 'f' parameter has been deprecated, use 'defaultRemFn' instead"),
         new Change("10.0", "The value 'sansTop25' for the parameter 'facets' has been deprecated"),
         new Change("10.0", "Parameter 'sansTop25' is deprecated"),
-        new Change("10.2", format("Parameters '%s', '%s', and '%s' are now deprecated.", PARAM_SEVERITIES, PARAM_TYPES, PARAM_ACTIVE_SEVERITIES)));
+        new Change("10.2", format("Parameters '%s', '%s', and '%s' are now deprecated.", PARAM_SEVERITIES, PARAM_TYPES, PARAM_ACTIVE_SEVERITIES)),
+        new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
+        new Change("10.2", "The field 'cleanCodeAttribute' has been added to the 'f' parameter"),
+        new Change("10.2", format("add '%s', '%s' and '%s' to the 'facets' parameter.",FACET_CLEAN_CODE_ATTRIBUTE_CATEGORY, FACET_IMPACT_SOFTWARE_QUALITY, FACET_IMPACT_SEVERITY))
+        );
 
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
