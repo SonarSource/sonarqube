@@ -255,12 +255,13 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   private void hardStopImpl() {
     try {
       hardStopAll();
-      finalizeStop();
     } catch (InterruptedException e) {
       // ignore and assume SQ stop is handled by another thread
       LOG.debug("Stopping all processes was interrupted in the middle of a hard stop" +
         " (current thread name is \"{}\")", Thread.currentThread().getName());
       Thread.currentThread().interrupt();
+    } finally {
+      finalizeStop();
     }
   }
 
