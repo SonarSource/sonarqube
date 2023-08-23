@@ -210,6 +210,7 @@ public class AlmIntegrationsService extends BaseService {
         .setHeader("X-GitHub-Event", request.getGithubEventHeader())
         .setHeader("X-Hub-Signature", request.getGithubSignatureHeader())
         .setHeader("X-Hub-Signature-256", request.getGithubSignature256Header())
+        .setHeader("x-github-hook-installation-target-id", request.getGithubAppId())
         .setBody(request.getPayload())
         .setMediaType(MediaTypes.JSON)
     ).content();
