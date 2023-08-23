@@ -233,7 +233,7 @@ subprojects {
       dependency 'com.sonarsource.dbd:sonar-dbd-plugin:1.16.0.4300'
       dependency 'com.sonarsource.dbd:sonar-dbd-java-frontend-plugin:1.16.0.4300'
       dependency 'com.sonarsource.dbd:sonar-dbd-python-frontend-plugin:1.16.0.4300'
-      dependency 'com.sonarsource.pli:sonar-pli-plugin:1.13.0.3651'
+      dependency 'com.sonarsource.pli:sonar-pli-plugin:1.14.0.3735'
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.9.0.5181'
       dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.10.0.3598'
       dependency 'com.sonarsource.rpg:sonar-rpg-plugin:3.6.0.3520'
