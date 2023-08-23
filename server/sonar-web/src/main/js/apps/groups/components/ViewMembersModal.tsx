@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Spinner } from 'design-system/lib';
+import { Spinner } from 'design-system';
 import * as React from 'react';
 import { getUsersInGroup } from '../../../api/user_groups';
 import ListFooter from '../../../components/controls/ListFooter';

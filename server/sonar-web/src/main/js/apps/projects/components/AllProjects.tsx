@@ -23,7 +23,7 @@ import {
   PageContentFontWrapper,
   themeBorder,
   themeColor,
-} from 'design-system/lib';
+} from 'design-system';
 import { keyBy, mapValues, omitBy, pick } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
