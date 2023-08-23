@@ -25,7 +25,7 @@ definitions:
     - step: &build-step
         name: Build the project, and run the SonarQube analysis
         script:
-          - export SONAR_SCANNER_VERSION=4.6.2.2472
+          - export SONAR_SCANNER_VERSION=5.0.1.3006
           - mkdir $HOME/.sonar
           - curl -sSLo $HOME/.sonar/build-wrapper-linux-x86.zip \${SONAR_HOST_URL}/static/cpp/build-wrapper-linux-x86.zip
           - unzip -o $HOME/.sonar/build-wrapper-linux-x86.zip -d $HOME/.sonar/

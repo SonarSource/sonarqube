@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export default function gradleExample(branchesEnabled: boolean, mainBranchName: string) {
-  return `image: openjdk:8
+  return `image: eclipse-temurin:17
 
 definitions:
   steps:

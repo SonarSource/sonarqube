@@ -100,7 +100,7 @@ export default function DownloadScanner(props: DownloadScannerProps) {
 
 function getRemoteDownloadSnippet(os: OSs) {
   if (os === OSs.Windows) {
-    return `$env:SONAR_SCANNER_VERSION = "4.7.0.2747"
+    return `$env:SONAR_SCANNER_VERSION = "5.0.1.3006"
 $env:SONAR_DIRECTORY = [System.IO.Path]::Combine($(get-location).Path,".sonar")
 $env:SONAR_SCANNER_HOME = "$env:SONAR_DIRECTORY/sonar-scanner-$env:SONAR_SCANNER_VERSION-windows"
 rm $env:SONAR_SCANNER_HOME -Force -Recurse -ErrorAction SilentlyContinue
@@ -114,7 +114,7 @@ $env:SONAR_SCANNER_OPTS="-server"
 `;
   }
   const suffix = os === OSs.MacOS ? 'macosx' : 'linux';
-  return `export SONAR_SCANNER_VERSION=4.7.0.2747
+  return `export SONAR_SCANNER_VERSION=5.0.1.3006
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-${suffix}
 curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-${suffix}.zip
 unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/

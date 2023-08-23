@@ -31,10 +31,10 @@ export interface GradleProps {
 }
 
 const GRADLE_YAML_STEPS = `
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 17
       - name: Cache SonarQube packages
         uses: actions/cache@v1
         with:

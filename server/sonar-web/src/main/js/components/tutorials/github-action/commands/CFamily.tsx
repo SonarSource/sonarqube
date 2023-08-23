@@ -48,7 +48,7 @@ const STEPS = {
 
       - name: Download and install the SonarScanner
         env:
-          SONAR_SCANNER_VERSION: 4.6.2.2472
+          SONAR_SCANNER_VERSION: 5.0.1.3006
         run: |
           curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-\${{ env.SONAR_SCANNER_VERSION }}-linux.zip
           unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
@@ -71,14 +71,14 @@ const STEPS = {
 
       - name: Download and install the SonarScanner
         run: |
-          curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-macosx.zip
+          curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-macosx.zip
           unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
 
       - name: Build and analyse the project
         run: |
           # Potential improvement : add these paths to the PATH env var.
           $HOME/.sonar/build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your clean build command>
-          $HOME/.sonar/sonar-scanner-4.6.2.2472-macosx/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output
+          $HOME/.sonar/sonar-scanner-5.0.1.3006-macosx/bin/sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output
         env:
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}`,
@@ -98,16 +98,16 @@ const STEPS = {
       - name: Download and install the SonarScanner
         shell: powershell
         run: |
-          $path = "$HOME/.sonar/sonar-scanner-cli-4.6.2.2472-windows.zip"
+          $path = "$HOME/.sonar/sonar-scanner-cli-5.0.1.3006-windows.zip"
           [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-          (New-Object System.Net.WebClient).DownloadFile("https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-windows.zip", $path)
+          (New-Object System.Net.WebClient).DownloadFile("https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-windows.zip", $path)
           Add-Type -AssemblyName System.IO.Compression.FileSystem
           [System.IO.Compression.ZipFile]::ExtractToDirectory($path, "$HOME/.sonar")
 
       - name: Build and analyse the project
         shell: powershell
         run: |
-          $env:Path += ";$HOME/.sonar/build-wrapper-win-x86;$HOME/.sonar/sonar-scanner-4.6.2.2472-windows/bin"
+          $env:Path += ";$HOME/.sonar/build-wrapper-win-x86;$HOME/.sonar/sonar-scanner-5.0.1.3006-windows/bin"
           build-wrapper-win-x86-64 --out-dir bw-output <your clean build command>
           sonar-scanner.bat "-Dsonar.cfamily.build-wrapper-output=bw-output"
         env:

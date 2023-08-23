@@ -23,7 +23,7 @@ export default function mavenExample(
   projectKey: string,
   projectName: string
 ) {
-  return `image: maven:3-openjdk-11
+  return `image: maven:3-eclipse-temurin-17
 
 definitions:
   steps:

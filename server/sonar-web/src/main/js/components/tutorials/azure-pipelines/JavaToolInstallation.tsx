@@ -51,7 +51,7 @@ export default function JavaToolInstallation() {
             field: translate(
               'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_version'
             ),
-            value: '11',
+            value: '17',
           })}
           {' ' /* explicit space between the two strings */}
           {translate(

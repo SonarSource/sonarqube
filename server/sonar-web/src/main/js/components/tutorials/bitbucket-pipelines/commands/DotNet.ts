@@ -22,7 +22,7 @@ export default function dotNetExample(
   mainBranchName: string,
   projectKey: string
 ) {
-  return `image: mcr.microsoft.com/dotnet/core/sdk:latest
+  return `image: mcr.microsoft.com/dotnet/sdk:7.0
 
 definitions:
   steps:
@@ -33,7 +33,7 @@ definitions:
           - sonar
         script:
           - apt-get update
-          - apt-get install --yes openjdk-11-jre
+          - apt-get install --yes --no-install-recommends openjdk-17-jre
           - dotnet tool install --global dotnet-sonarscanner
           - export PATH="$PATH:/root/.dotnet/tools"
           - dotnet sonarscanner begin /k:"${projectKey}" /d:"sonar.token=\${SONAR_TOKEN}"  /d:"sonar.host.url=\${SONAR_HOST_URL}"

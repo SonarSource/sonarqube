@@ -7,7 +7,7 @@ exports[`should follow and complete all steps: .NET: gitlab-ci.yml 1`] = `
 
 sonarqube-check:
   stage: sonarqube-check
-  image: mcr.microsoft.com/dotnet/core/sdk:latest
+  image: mcr.microsoft.com/dotnet/sdk:7.0
   variables:
     SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
@@ -17,7 +17,7 @@ sonarqube-check:
       - .sonar/cache
   script: 
       - "apt-get update"
-      - "apt-get install --yes openjdk-11-jre"
+      - "apt-get install --yes --no-install-recommends openjdk-17-jre"
       - "dotnet tool install --global dotnet-sonarscanner"
       - "export PATH=\\"$PATH:$HOME/.dotnet/tools\\""
       - "dotnet sonarscanner begin /k:\\"my-project\\" /d:sonar.token=\\"$SONAR_TOKEN\\" /d:\\"sonar.host.url=$SONAR_HOST_URL\\" "
@@ -126,7 +126,7 @@ exports[`should follow and complete all steps: Maven: gitlab-ci.yml 1`] = `
 
 sonarqube-check:
   stage: sonarqube-check
-  image: maven:3.9.3-eclipse-temurin-17
+  image: maven:3-eclipse-temurin-17
   variables:
     SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
@@ -178,7 +178,7 @@ exports[`should follow and complete all steps: Other: gitlab-ci.yml 1`] = `
 sonarqube-check:
   stage: sonarqube-check
   image: 
-    name: sonarsource/sonar-scanner-cli:latest
+    name: sonarsource/sonar-scanner-cli:5.0
     entrypoint: [""]
   variables:
     SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache

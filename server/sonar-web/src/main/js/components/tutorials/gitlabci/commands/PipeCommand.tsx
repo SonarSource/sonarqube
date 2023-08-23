@@ -33,15 +33,15 @@ const BUILD_TOOL_SPECIFIC = {
     script: () => 'gradle sonar',
   },
   [BuildTools.Maven]: {
-    image: 'maven:3.9.3-eclipse-temurin-17',
+    image: 'maven:3-eclipse-temurin-17',
     script: () => `
     - mvn verify sonar:sonar`,
   },
   [BuildTools.DotNet]: {
-    image: 'mcr.microsoft.com/dotnet/core/sdk:latest',
+    image: 'mcr.microsoft.com/dotnet/sdk:7.0',
     script: (projectKey: string) => `
       - "apt-get update"
-      - "apt-get install --yes openjdk-11-jre"
+      - "apt-get install --yes --no-install-recommends openjdk-17-jre"
       - "dotnet tool install --global dotnet-sonarscanner"
       - "export PATH=\\"$PATH:$HOME/.dotnet/tools\\""
       - "dotnet sonarscanner begin /k:\\"${projectKey}\\" /d:sonar.token=\\"$SONAR_TOKEN\\" /d:\\"sonar.host.url=$SONAR_HOST_URL\\" "
@@ -50,7 +50,7 @@ const BUILD_TOOL_SPECIFIC = {
   },
   [BuildTools.Other]: {
     image: `
-    name: sonarsource/sonar-scanner-cli:latest
+    name: sonarsource/sonar-scanner-cli:5.0
     entrypoint: [""]`,
     script: () => `
     - sonar-scanner`,

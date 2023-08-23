@@ -25,7 +25,7 @@ definitions:
     - step: &build-step
         name: SonarQube analysis
         script:
-          - pipe: sonarsource/sonarqube-scan:1.0.0
+          - pipe: sonarsource/sonarqube-scan:2.0.1
             variables:
               SONAR_HOST_URL: \${SONAR_HOST_URL} # Get the value from the repository/workspace variable.
               SONAR_TOKEN: \${SONAR_TOKEN} # Get the value from the repository/workspace variable. You shouldn't set secret in clear text here.
