@@ -50,7 +50,6 @@ export function Pill({ children, variant, ...rest }: PillProps) {
 const StyledPill = styled.span<{
   color: ThemeColors;
 }>`
-  ${tw`sw-cursor-pointer`};
   ${tw`sw-body-sm`};
   ${tw`sw-w-fit`};
   ${tw`sw-inline-block`};

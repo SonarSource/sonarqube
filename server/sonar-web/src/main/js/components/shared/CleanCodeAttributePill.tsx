@@ -33,7 +33,6 @@ export interface Props {
 
 export function CleanCodeAttributePill(props: Props) {
   const { className, cleanCodeAttributeCategory, cleanCodeAttribute, type = 'issue' } = props;
-  const showAdvice = type === 'issue';
 
   return (
     <DocumentationTooltip
@@ -47,16 +46,14 @@ export function CleanCodeAttributePill(props: Props) {
               'title'
             )}
           </p>
-          {showAdvice && (
-            <p>
-              {translate(
-                type,
-                cleanCodeAttribute ? 'clean_code_attribute' : 'clean_code_attribute_category',
-                cleanCodeAttribute ?? cleanCodeAttributeCategory,
-                'advice'
-              )}
-            </p>
-          )}
+          <p>
+            {translate(
+              'issue',
+              cleanCodeAttribute ? 'clean_code_attribute' : 'clean_code_attribute_category',
+              cleanCodeAttribute ?? cleanCodeAttributeCategory,
+              'advice'
+            )}
+          </p>
         </>
       }
       links={[

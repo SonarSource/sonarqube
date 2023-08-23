@@ -247,16 +247,15 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   <span className="display-inline-flex-center spacer-left note">
                     {rule.langName}
                   </span>
-                  {rule.impacts !== undefined &&
-                    rule.impacts.map(({ severity, softwareQuality }) => (
-                      <SoftwareImpactPill
-                        className="spacer-left"
-                        key={softwareQuality}
-                        severity={severity}
-                        quality={softwareQuality}
-                        type="rule"
-                      />
-                    ))}
+                  {rule.impacts.map(({ severity, softwareQuality }) => (
+                    <SoftwareImpactPill
+                      className="spacer-left"
+                      key={softwareQuality}
+                      severity={severity}
+                      quality={softwareQuality}
+                      type="rule"
+                    />
+                  ))}
                   {allTags.length > 0 && (
                     <TagsList
                       allowUpdate={false}

@@ -19,14 +19,18 @@
  */
 
 import * as React from 'react';
+import { colors } from '../../../app/theme';
+import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import Link from '../../../components/common/Link';
 import Dropdown from '../../../components/controls/Dropdown';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Tooltip from '../../../components/controls/Tooltip';
 import { ButtonLink } from '../../../components/controls/buttons';
+import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import LinkIcon from '../../../components/icons/LinkIcon';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
+import SeverityHelper from '../../../components/shared/SeverityHelper';
 import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
 import TagsList from '../../../components/tags/TagsList';
 import { PopupPlacement } from '../../../components/ui/popups';
@@ -45,6 +49,56 @@ interface Props {
 const EXTERNAL_RULE_REPO_PREFIX = 'external_';
 
 export default class RuleDetailsMeta extends React.PureComponent<Props> {
+  renderType = () => {
+    const { ruleDetails } = this.props;
+    return (
+      <li className="coding-rules-detail-property muted" data-meta="type">
+        <DocumentationTooltip
+          content={
+            <>
+              <p className="sw-mb-4">{translate('coding_rules.type.deprecation.title')}</p>
+              <p>{translate('coding_rules.type.deprecation.filter_by')}</p>
+            </>
+          }
+          links={[
+            {
+              href: '/user-guide/rules',
+              label: translate('learn_more'),
+            },
+          ]}
+        >
+          <IssueTypeIcon className="little-spacer-right" query={ruleDetails.type} />
+          {translate('issue.type', ruleDetails.type)}
+        </DocumentationTooltip>
+      </li>
+    );
+  };
+
+  renderSeverity = () => (
+    <li className="coding-rules-detail-property muted" data-meta="severity">
+      <DocumentationTooltip
+        content={
+          <>
+            <p className="sw-mb-4">{translate('coding_rules.severity.deprecation.title')}</p>
+            <p>{translate('coding_rules.severity.deprecation.filter_by')}</p>
+          </>
+        }
+        links={[
+          {
+            href: '/user-guide/rules',
+            label: translate('learn_more'),
+          },
+        ]}
+      >
+        <SeverityHelper
+          fill={colors.neutral200}
+          className="display-inline-flex-center"
+          severity={this.props.ruleDetails.severity}
+        />
+      </DocumentationTooltip>
+    </li>
+  );
+
   renderStatus = () => {
     const { ruleDetails } = this.props;
     if (ruleDetails.status === 'READY') {
@@ -65,7 +119,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     const allTags = [...sysTags, ...tags];
 
     return (
-      <li className="coding-rules-detail-property" data-meta="tags">
+      <div className="coding-rules-detail-property null-spacer-bottom" data-meta="tags">
         {this.props.canWrite ? (
           <Dropdown
             closeOnClick={false}
@@ -77,7 +131,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
                 tags={tags}
               />
             }
-            overlayPlacement={PopupPlacement.BottomLeft}
+            overlayPlacement={PopupPlacement.BottomRight}
           >
             <ButtonLink>
               <TagsList
@@ -93,7 +147,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
             tags={allTags.length > 0 ? allTags : [translate('coding_rules.no_tags')]}
           />
         )}
-      </li>
+      </div>
     );
   };
 
@@ -201,17 +255,15 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     const hasTypeData = !ruleDetails.isExternal || ruleDetails.type !== 'UNKNOWN';
     return (
       <div className="js-rule-meta">
-        {ruleDetails.cleanCodeAttributeCategory !== undefined && (
-          <CleanCodeAttributePill
-            className="big-spacer-bottom"
-            cleanCodeAttributeCategory={ruleDetails.cleanCodeAttributeCategory}
-            cleanCodeAttribute={ruleDetails.cleanCodeAttribute}
-            type="rule"
-          />
-        )}
-
-        <div className="page-header">
-          <div className="pull-right">
+        <div className="display-flex-space-between spacer-bottom">
+          {ruleDetails.cleanCodeAttributeCategory !== undefined && (
+            <CleanCodeAttributePill
+              cleanCodeAttributeCategory={ruleDetails.cleanCodeAttributeCategory}
+              cleanCodeAttribute={ruleDetails.cleanCodeAttribute}
+              type="rule"
+            />
+          )}
+          <div className="pull-right display-flex-center spacer-right">
             {this.renderKey()}
             {!ruleDetails.isExternal && (
               <Link
@@ -223,11 +275,15 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
               </Link>
             )}
           </div>
+        </div>
+
+        <div className="display-flex-space-between big-spacer-bottom">
           <h1 className="page-title coding-rules-detail-header">{ruleDetails.name}</h1>
+          {this.renderTags()}
         </div>
 
         <div className="display-flex-center">
-          {ruleDetails.impacts !== undefined && (
+          {!!ruleDetails.impacts.length && (
             <div className="sw-flex sw-items-center flex-1">
               <span>{translate('issue.software_qualities.label')}</span>
               <ul className="sw-flex sw-gap-2">
@@ -247,8 +303,9 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
 
           {hasTypeData && (
             <ul className="coding-rules-detail-properties">
+              {this.renderType()}
+              {this.renderSeverity()}
               {!ruleDetails.isExternal && this.renderStatus()}
-              {this.renderTags()}
               {!ruleDetails.isExternal && this.renderCreationDate()}
               {this.renderRepository()}
               {!ruleDetails.isExternal && (

@@ -23,16 +23,17 @@ import { translate } from '../../helpers/l10n';
 
 interface Props {
   className?: string;
+  fill?: string;
   severity: string;
 }
 
-export default function SeverityHelper({ className, severity }: Props) {
+export default function SeverityHelper({ className, severity, fill }: Props) {
   if (!severity) {
     return null;
   }
   return (
     <span className={className}>
-      <SeverityIcon className="little-spacer-right" severity={severity} aria-hidden />
+      <SeverityIcon className="little-spacer-right" fill={fill} severity={severity} aria-hidden />
       {translate('severity', severity)}
     </span>
   );

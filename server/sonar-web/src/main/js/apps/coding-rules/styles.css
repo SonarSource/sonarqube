@@ -105,6 +105,10 @@
   font-size: var(--smallFontSize);
 }
 
+.coding-rules-detail-property.muted {
+  color: var(--neutral200);
+}
+
 .coding-rules-detail-tag + .coding-rules-detail-tag {
   margin-left: 10px;
 }
