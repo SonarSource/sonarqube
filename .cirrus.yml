@@ -557,7 +557,7 @@ qa_github_task:
   <<: *GRADLE_CACHE_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
-    cpu: 2.4
+    cpu: 4
     memory: 7Gb
   env:
     QA_CATEGORY: GITHUB
