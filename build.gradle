@@ -263,7 +263,7 @@ subprojects {
       dependency 'org.sonarsource.slang:sonar-scala-plugin:1.14.0.4481'
       dependency "org.sonarsource.api.plugin:sonar-plugin-api:$pluginApiVersion"
       dependency "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures:$pluginApiVersion"
-      dependency 'org.sonarsource.xml:sonar-xml-plugin:2.8.1.4006'
+      dependency 'org.sonarsource.xml:sonar-xml-plugin:2.10.0.4108'
       dependency 'org.sonarsource.iac:sonar-iac-plugin:1.20.0.5654'
       dependency 'org.sonarsource.text:sonar-text-plugin:2.1.0.1163'
 
