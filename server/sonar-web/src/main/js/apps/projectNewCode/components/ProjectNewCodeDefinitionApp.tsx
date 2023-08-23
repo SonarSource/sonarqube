@@ -62,16 +62,18 @@ interface Props extends WithAvailableFeaturesProps {
 interface State {
   analysis?: string;
   branchList: Branch[];
-  currentSetting?: NewCodeDefinitionType;
-  currentSettingValue?: string;
-  days: string;
-  generalSetting?: NewCodeDefinition;
+  newCodeDefinitionType?: NewCodeDefinitionType;
+  newCodeDefinitionValue?: string;
+  previousNonCompliantValue?: string;
+  projectNcdUpdatedAt?: number;
+  numberOfDays: string;
+  globalNewCodeDefinition?: NewCodeDefinition;
   isChanged: boolean;
   loading: boolean;
-  overrideGeneralSetting?: boolean;
+  overrideGlobalNewCodeDefinition?: boolean;
   referenceBranch?: string;
   saving: boolean;
-  selected?: NewCodeDefinitionType;
+  selectedNewCodeDefinitionType?: NewCodeDefinitionType;
   success?: boolean;
 }
 
@@ -79,7 +81,7 @@ class ProjectNewCodeDefinitionApp extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
     branchList: [],
-    days: getNumberOfDaysDefaultValue(),
+    numberOfDays: getNumberOfDaysDefaultValue(),
     isChanged: false,
     loading: true,
     saving: false,
@@ -105,30 +107,43 @@ class ProjectNewCodeDefinitionApp extends React.PureComponent<Props, State> {
   }
 
   getUpdatedState(params: {
-    currentSetting?: NewCodeDefinitionType;
-    currentSettingValue?: string;
-    generalSetting: NewCodeDefinition;
+    newCodeDefinitionType?: NewCodeDefinitionType;
+    newCodeDefinitionValue?: string;
+    globalNewCodeDefinition: NewCodeDefinition;
+    previousNonCompliantValue?: string;
+    projectNcdUpdatedAt?: number;
   }) {
-    const { currentSetting, currentSettingValue, generalSetting } = params;
+    const {
+      newCodeDefinitionType,
+      newCodeDefinitionValue,
+      globalNewCodeDefinition,
+      previousNonCompliantValue,
+      projectNcdUpdatedAt,
+    } = params;
     const { referenceBranch } = this.state;
 
-    const defaultDays = getNumberOfDaysDefaultValue(generalSetting);
+    const defaultDays = getNumberOfDaysDefaultValue(globalNewCodeDefinition);
 
     return {
       loading: false,
-      currentSetting,
-      currentSettingValue,
-      generalSetting,
+      newCodeDefinitionType,
+      newCodeDefinitionValue,
+      previousNonCompliantValue,
+      projectNcdUpdatedAt,
+      globalNewCodeDefinition,
       isChanged: false,
-      selected: currentSetting || generalSetting.type,
-      overrideGeneralSetting: Boolean(currentSetting),
-      days:
-        (currentSetting === NewCodeDefinitionType.NumberOfDays && currentSettingValue) ||
+      selectedNewCodeDefinitionType: newCodeDefinitionType ?? globalNewCodeDefinition.type,
+      overrideGlobalNewCodeDefinition: Boolean(newCodeDefinitionType),
+      numberOfDays:
+        (newCodeDefinitionType === NewCodeDefinitionType.NumberOfDays && newCodeDefinitionValue) ||
         defaultDays,
       analysis:
-        (currentSetting === NewCodeDefinitionType.SpecificAnalysis && currentSettingValue) || '',
+        (newCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis &&
+          newCodeDefinitionValue) ||
+        '',
       referenceBranch:
-        (currentSetting === NewCodeDefinitionType.ReferenceBranch && currentSettingValue) ||
+        (newCodeDefinitionType === NewCodeDefinitionType.ReferenceBranch &&
+          newCodeDefinitionValue) ||
         referenceBranch,
     };
   }
@@ -150,21 +165,23 @@ class ProjectNewCodeDefinitionApp extends React.PureComponent<Props, State> {
         project: component.key,
       }),
     ]).then(
-      ([generalSetting, setting]) => {
+      ([globalNewCodeDefinition, setting]) => {
         if (this.mounted) {
-          if (!generalSetting.type) {
-            generalSetting = { type: DEFAULT_NEW_CODE_DEFINITION_TYPE };
+          if (!globalNewCodeDefinition.type) {
+            globalNewCodeDefinition = { type: DEFAULT_NEW_CODE_DEFINITION_TYPE };
           }
-          const currentSettingValue = setting.value;
-          const currentSetting = setting.inherited
+          const newCodeDefinitionValue = setting.value;
+          const newCodeDefinitionType = setting.inherited
             ? undefined
             : setting.type || DEFAULT_NEW_CODE_DEFINITION_TYPE;
 
           this.setState(
             this.getUpdatedState({
-              generalSetting,
-              currentSetting,
-              currentSettingValue,
+              globalNewCodeDefinition,
+              newCodeDefinitionType,
+              newCodeDefinitionValue,
+              previousNonCompliantValue: setting.previousNonCompliantValue,
+              projectNcdUpdatedAt: setting.updatedAt,
             })
           );
         }
@@ -181,9 +198,9 @@ class ProjectNewCodeDefinitionApp extends React.PureComponent<Props, State> {
       () => {
         this.setState({
           saving: false,
-          currentSetting: undefined,
+          newCodeDefinitionType: undefined,
           isChanged: false,
-          selected: undefined,
+          selectedNewCodeDefinitionType: undefined,
           success: true,
         });
         this.resetSuccess();
@@ -194,7 +211,7 @@ class ProjectNewCodeDefinitionApp extends React.PureComponent<Props, State> {
     );
   };
 
-  handleSelectDays = (days: string) => this.setState({ days, isChanged: true });
+  handleSelectDays = (days: string) => this.setState({ numberOfDays: days, isChanged: true });
 
   handleSelectReferenceBranch = (referenceBranch: string) => {
     this.setState({ referenceBranch, isChanged: true });
@@ -203,37 +220,47 @@ class ProjectNewCodeDefinitionApp extends React.PureComponent<Props, State> {
   handleCancel = () =>
     this.setState(
       ({
-        generalSetting = { type: DEFAULT_NEW_CODE_DEFINITION_TYPE },
-        currentSetting,
-        currentSettingValue,
-      }) => this.getUpdatedState({ generalSetting, currentSetting, currentSettingValue })
+        globalNewCodeDefinition = { type: DEFAULT_NEW_CODE_DEFINITION_TYPE },
+        newCodeDefinitionType,
+        newCodeDefinitionValue,
+      }) =>
+        this.getUpdatedState({
+          globalNewCodeDefinition,
+          newCodeDefinitionType,
+          newCodeDefinitionValue,
+        })
     );
 
-  handleSelectSetting = (selected?: NewCodeDefinitionType) => {
+  handleSelectSetting = (selectedNewCodeDefinitionType?: NewCodeDefinitionType) => {
     this.setState((currentState) => ({
-      selected,
-      isChanged: selected !== currentState.selected,
+      selectedNewCodeDefinitionType,
+      isChanged: selectedNewCodeDefinitionType !== currentState.selectedNewCodeDefinitionType,
     }));
   };
 
-  handleToggleSpecificSetting = (overrideGeneralSetting: boolean) =>
+  handleToggleSpecificSetting = (overrideGlobalNewCodeDefinition: boolean) =>
     this.setState((currentState) => ({
-      overrideGeneralSetting,
-      isChanged: currentState.overrideGeneralSetting !== overrideGeneralSetting,
+      overrideGlobalNewCodeDefinition,
+      isChanged: currentState.overrideGlobalNewCodeDefinition !== overrideGlobalNewCodeDefinition,
     }));
 
   handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const { component } = this.props;
-    const { days, selected: type, referenceBranch, overrideGeneralSetting } = this.state;
+    const {
+      numberOfDays,
+      selectedNewCodeDefinitionType: type,
+      referenceBranch,
+      overrideGlobalNewCodeDefinition,
+    } = this.state;
 
-    if (!overrideGeneralSetting) {
+    if (!overrideGlobalNewCodeDefinition) {
       this.resetSetting();
       return;
     }
 
-    const value = getSettingValue({ type, days, referenceBranch });
+    const value = getSettingValue({ type, numberOfDays, referenceBranch });
 
     if (type) {
       this.setState({ saving: true });
@@ -245,8 +272,10 @@ class ProjectNewCodeDefinitionApp extends React.PureComponent<Props, State> {
         () => {
           this.setState({
             saving: false,
-            currentSetting: type,
-            currentSettingValue: value || undefined,
+            newCodeDefinitionType: type,
+            newCodeDefinitionValue: value || undefined,
+            previousNonCompliantValue: undefined,
+            projectNcdUpdatedAt: Date.now(),
             isChanged: false,
             success: true,
           });
@@ -264,16 +293,18 @@ class ProjectNewCodeDefinitionApp extends React.PureComponent<Props, State> {
     const {
       analysis,
       branchList,
-      currentSetting,
-      days,
-      generalSetting,
+      newCodeDefinitionType,
+      numberOfDays,
+      previousNonCompliantValue,
+      projectNcdUpdatedAt,
+      globalNewCodeDefinition,
       isChanged,
       loading,
-      currentSettingValue,
-      overrideGeneralSetting,
+      newCodeDefinitionValue,
+      overrideGlobalNewCodeDefinition,
       referenceBranch,
       saving,
-      selected,
+      selectedNewCodeDefinitionType,
       success,
     } = this.state;
     const branchSupportEnabled = this.props.hasFeature(Feature.BranchSupport);
@@ -290,7 +321,7 @@ class ProjectNewCodeDefinitionApp extends React.PureComponent<Props, State> {
             <div className="panel-white project-baseline">
               {branchSupportEnabled && <h2>{translate('project_baseline.default_setting')}</h2>}
 
-              {generalSetting && overrideGeneralSetting !== undefined && (
+              {globalNewCodeDefinition && overrideGlobalNewCodeDefinition !== undefined && (
                 <ProjectNewCodeDefinitionSelector
                   analysis={analysis}
                   branch={branchLike}
@@ -298,10 +329,12 @@ class ProjectNewCodeDefinitionApp extends React.PureComponent<Props, State> {
                   branchesEnabled={branchSupportEnabled}
                   canAdmin={appState.canAdmin}
                   component={component.key}
-                  currentSetting={currentSetting}
-                  currentSettingValue={currentSettingValue}
-                  days={days}
-                  generalSetting={generalSetting}
+                  newCodeDefinitionType={newCodeDefinitionType}
+                  newCodeDefinitionValue={newCodeDefinitionValue}
+                  days={numberOfDays}
+                  previousNonCompliantValue={previousNonCompliantValue}
+                  projectNcdUpdatedAt={projectNcdUpdatedAt}
+                  globalNewCodeDefinition={globalNewCodeDefinition}
                   isChanged={isChanged}
                   onCancel={this.handleCancel}
                   onSelectDays={this.handleSelectDays}
@@ -309,10 +342,10 @@ class ProjectNewCodeDefinitionApp extends React.PureComponent<Props, State> {
                   onSelectSetting={this.handleSelectSetting}
                   onSubmit={this.handleSubmit}
                   onToggleSpecificSetting={this.handleToggleSpecificSetting}
-                  overrideGeneralSetting={overrideGeneralSetting}
+                  overrideGlobalNewCodeDefinition={overrideGlobalNewCodeDefinition}
                   referenceBranch={referenceBranch}
                   saving={saving}
-                  selected={selected}
+                  selectedNewCodeDefinitionType={selectedNewCodeDefinitionType}
                 />
               )}
 
@@ -322,7 +355,7 @@ class ProjectNewCodeDefinitionApp extends React.PureComponent<Props, State> {
                   {translate('settings.state.saved')}
                 </span>
               </div>
-              {generalSetting && branchSupportEnabled && (
+              {globalNewCodeDefinition && branchSupportEnabled && (
                 <div className="huge-spacer-top branch-baseline-selector">
                   <hr />
                   <h2>{translate('project_baseline.configure_branches')}</h2>
@@ -330,14 +363,14 @@ class ProjectNewCodeDefinitionApp extends React.PureComponent<Props, State> {
                     branchList={branchList}
                     component={component}
                     inheritedSetting={
-                      currentSetting
+                      newCodeDefinitionType
                         ? {
-                            type: currentSetting,
-                            value: currentSettingValue,
+                            type: newCodeDefinitionType,
+                            value: newCodeDefinitionValue,
                           }
-                        : generalSetting
+                        : globalNewCodeDefinition
                     }
-                    generalSetting={generalSetting}
+                    globalNewCodeDefinition={globalNewCodeDefinition}
                   />
                 </div>
               )}

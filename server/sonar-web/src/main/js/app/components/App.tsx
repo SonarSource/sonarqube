@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { Outlet } from 'react-router-dom';
-import NCDAutoUpdateMessage from '../../components/new-code-definition/NCDAutoUpdateMessage';
 import { AppState } from '../../types/appstate';
 import { GlobalSettingKeys } from '../../types/settings';
 import KeyboardShortcutsModal from './KeyboardShortcutsModal';
@@ -90,7 +89,6 @@ export class App extends React.PureComponent<Props> {
   render() {
     return (
       <>
-        <NCDAutoUpdateMessage />
         <PageTracker>{this.renderPreconnectLink()}</PageTracker>
         <Outlet />
         <KeyboardShortcutsModal />

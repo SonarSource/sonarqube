@@ -27,6 +27,7 @@ import GlobalNewCodeDefinitionDescription from '../../../components/new-code-def
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
 import NewCodeDefinitionWarning from '../../../components/new-code-definition/NewCodeDefinitionWarning';
+import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
 import { Alert } from '../../../components/ui/Alert';
 import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
@@ -45,10 +46,12 @@ export interface ProjectBaselineSelectorProps {
   branchesEnabled?: boolean;
   canAdmin: boolean | undefined;
   component: string;
-  currentSetting?: NewCodeDefinitionType;
-  currentSettingValue?: string;
+  newCodeDefinitionType?: NewCodeDefinitionType;
+  newCodeDefinitionValue?: string;
+  previousNonCompliantValue?: string;
+  projectNcdUpdatedAt?: number;
   days: string;
-  generalSetting: NewCodeDefinition;
+  globalNewCodeDefinition: NewCodeDefinition;
   isChanged: boolean;
   onCancel: () => void;
   onSelectDays: (value: string) => void;
@@ -58,8 +61,8 @@ export interface ProjectBaselineSelectorProps {
   onToggleSpecificSetting: (selection: boolean) => void;
   referenceBranch?: string;
   saving: boolean;
-  selected?: NewCodeDefinitionType;
-  overrideGeneralSetting: boolean;
+  selectedNewCodeDefinitionType?: NewCodeDefinitionType;
+  overrideGlobalNewCodeDefinition: boolean;
 }
 
 function branchToOption(b: Branch) {
@@ -74,24 +77,26 @@ export default function ProjectNewCodeDefinitionSelector(props: ProjectBaselineS
     branchesEnabled,
     canAdmin,
     component,
-    currentSetting,
-    currentSettingValue,
+    newCodeDefinitionType,
+    newCodeDefinitionValue,
+    previousNonCompliantValue,
+    projectNcdUpdatedAt,
     days,
-    generalSetting,
+    globalNewCodeDefinition,
     isChanged,
-    overrideGeneralSetting,
+    overrideGlobalNewCodeDefinition,
     referenceBranch,
     saving,
-    selected,
+    selectedNewCodeDefinitionType,
   } = props;
 
-  const isGlobalNcdCompliant = isNewCodeDefinitionCompliant(generalSetting);
+  const isGlobalNcdCompliant = isNewCodeDefinitionCompliant(globalNewCodeDefinition);
 
   const isValid = validateSetting({
-    days,
-    overrideGeneralSetting,
+    numberOfDays: days,
+    overrideGlobalNewCodeDefinition,
     referenceBranch,
-    selected,
+    selectedNewCodeDefinitionType,
   });
 
   if (branch === undefined) {
@@ -102,7 +107,7 @@ export default function ProjectNewCodeDefinitionSelector(props: ProjectBaselineS
     <form className="project-baseline-selector" onSubmit={props.onSubmit}>
       <div className="big-spacer-top spacer-bottom" role="radiogroup">
         <RadioButton
-          checked={!overrideGeneralSetting}
+          checked={!overrideGlobalNewCodeDefinition}
           className="big-spacer-bottom"
           disabled={!isGlobalNcdCompliant}
           onCheck={() => props.onToggleSpecificSetting(false)}
@@ -121,14 +126,14 @@ export default function ProjectNewCodeDefinitionSelector(props: ProjectBaselineS
 
         <div className="sw-ml-4">
           <GlobalNewCodeDefinitionDescription
-            globalNcd={generalSetting}
+            globalNcd={globalNewCodeDefinition}
             isGlobalNcdCompliant={isGlobalNcdCompliant}
             canAdmin={canAdmin}
           />
         </div>
 
         <RadioButton
-          checked={overrideGeneralSetting}
+          checked={overrideGlobalNewCodeDefinition}
           className="huge-spacer-top"
           onCheck={() => props.onToggleSpecificSetting(true)}
           value="specific"
@@ -139,51 +144,67 @@ export default function ProjectNewCodeDefinitionSelector(props: ProjectBaselineS
 
       <div className="big-spacer-left big-spacer-right project-baseline-setting">
         <NewCodeDefinitionWarning
-          newCodeDefinitionType={currentSetting}
-          newCodeDefinitionValue={currentSettingValue}
+          newCodeDefinitionType={newCodeDefinitionType}
+          newCodeDefinitionValue={newCodeDefinitionValue}
           isBranchSupportEnabled={branchesEnabled}
-          level="project"
+          level={NewCodeDefinitionLevels.Project}
         />
         <div className="display-flex-column big-spacer-bottom sw-gap-4" role="radiogroup">
           <NewCodeDefinitionPreviousVersionOption
-            disabled={!overrideGeneralSetting}
+            disabled={!overrideGlobalNewCodeDefinition}
             onSelect={props.onSelectSetting}
-            selected={overrideGeneralSetting && selected === NewCodeDefinitionType.PreviousVersion}
+            selected={
+              overrideGlobalNewCodeDefinition &&
+              selectedNewCodeDefinitionType === NewCodeDefinitionType.PreviousVersion
+            }
           />
           <NewCodeDefinitionDaysOption
             days={days}
-            disabled={!overrideGeneralSetting}
+            currentDaysValue={
+              newCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
+                ? newCodeDefinitionValue
+                : undefined
+            }
+            previousNonCompliantValue={previousNonCompliantValue}
+            updatedAt={projectNcdUpdatedAt}
+            disabled={!overrideGlobalNewCodeDefinition}
             isChanged={isChanged}
             isValid={isValid}
             onChangeDays={props.onSelectDays}
             onSelect={props.onSelectSetting}
-            selected={overrideGeneralSetting && selected === NewCodeDefinitionType.NumberOfDays}
+            selected={
+              overrideGlobalNewCodeDefinition &&
+              selectedNewCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
+            }
+            settingLevel={NewCodeDefinitionLevels.Project}
           />
           {branchesEnabled && (
             <NewCodeDefinitionSettingReferenceBranch
               branchList={branchList.map(branchToOption)}
-              disabled={!overrideGeneralSetting}
+              disabled={!overrideGlobalNewCodeDefinition}
               onChangeReferenceBranch={props.onSelectReferenceBranch}
               onSelect={props.onSelectSetting}
               referenceBranch={referenceBranch || ''}
               selected={
-                overrideGeneralSetting && selected === NewCodeDefinitionType.ReferenceBranch
+                overrideGlobalNewCodeDefinition &&
+                selectedNewCodeDefinitionType === NewCodeDefinitionType.ReferenceBranch
               }
-              settingLevel="project"
+              settingLevel={NewCodeDefinitionLevels.Project}
             />
           )}
-          {!branchesEnabled && currentSetting === NewCodeDefinitionType.SpecificAnalysis && (
+          {!branchesEnabled && newCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis && (
             <NewCodeDefinitionSettingAnalysis
               onSelect={noop}
               selected={
-                overrideGeneralSetting && selected === NewCodeDefinitionType.SpecificAnalysis
+                overrideGlobalNewCodeDefinition &&
+                selectedNewCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis
               }
             />
           )}
         </div>
         {!branchesEnabled &&
-          overrideGeneralSetting &&
-          selected === NewCodeDefinitionType.SpecificAnalysis && (
+          overrideGlobalNewCodeDefinition &&
+          selectedNewCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis && (
             <BranchAnalysisList
               analysis={analysis || ''}
               branch={branch.name}

@@ -122,7 +122,12 @@ function NCDAutoUpdateMessage(props: NCDAutoUpdateMessageProps) {
     : 'new_code_definition.auto_update.project.message';
 
   return (
-    <DismissableAlertComponent onDismiss={handleBannerDismiss} variant="info" display="banner">
+    <DismissableAlertComponent
+      onDismiss={handleBannerDismiss}
+      variant="info"
+      display="banner"
+      bannerClassName="sw-mb-0"
+    >
       <FormattedMessage
         id={bannerMessageId}
         values={{

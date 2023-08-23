@@ -42,6 +42,7 @@ import Tooltip from '../controls/Tooltip';
 import GlobalNewCodeDefinitionDescription from './GlobalNewCodeDefinitionDescription';
 import NewCodeDefinitionDaysOption from './NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from './NewCodeDefinitionPreviousVersionOption';
+import { NewCodeDefinitionLevels } from './utils';
 
 interface Props {
   canAdmin: boolean | undefined;
@@ -174,6 +175,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
           onChangeDays={setDays}
           onSelect={handleNcdChanged}
           selected={selectedNcdType === NewCodeDefinitionType.NumberOfDays}
+          settingLevel={NewCodeDefinitionLevels.NewProject}
         />
 
         <SelectionCard

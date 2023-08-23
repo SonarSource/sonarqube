@@ -20,9 +20,9 @@
 import { FlagErrorIcon, InputField, Note, SelectionCard } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { checkMessageDismissed, MessageTypes, setMessageDismissed } from '../../api/messages';
+import { MessageTypes, checkMessageDismissed, setMessageDismissed } from '../../api/messages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import {
   NUMBER_OF_DAYS_MAX_VALUE,
@@ -32,11 +32,14 @@ import { isDefined } from '../../helpers/types';
 import { NewCodeDefinitionType } from '../../types/new-code-definition';
 import DocLink from '../common/DocLink';
 import DismissableAlertComponent from '../ui/DismissableAlertComponent';
+import { NewCodeDefinitionLevels } from './utils';
 
 export interface Props {
   className?: string;
   days: string;
+  currentDaysValue?: string;
   previousNonCompliantValue?: string;
+  projectKey?: string;
   updatedAt?: number;
   disabled?: boolean;
   isChanged: boolean;
@@ -44,13 +47,16 @@ export interface Props {
   onChangeDays: (value: string) => void;
   onSelect: (selection: NewCodeDefinitionType) => void;
   selected: boolean;
+  settingLevel: NewCodeDefinitionLevels;
 }
 
 export default function NewCodeDefinitionDaysOption(props: Props) {
   const {
     className,
     days,
+    currentDaysValue,
     previousNonCompliantValue,
+    projectKey,
     updatedAt,
     disabled,
     isChanged,
@@ -58,22 +64,41 @@ export default function NewCodeDefinitionDaysOption(props: Props) {
     onChangeDays,
     onSelect,
     selected,
+    settingLevel,
   } = props;
 
   const [ncdAutoUpdateBannerDismissed, setNcdAutoUpdateBannerDismissed] = useState(true);
 
   useEffect(() => {
     async function fetchMessageDismissed() {
-      const messageStatus = await checkMessageDismissed({
-        messageType: MessageTypes.GlobalNcdPage90,
-      });
+      const messageStatus = await checkMessageDismissed(
+        projectKey
+          ? {
+              messageType: MessageTypes.ProjectNcdPage90,
+              projectKey,
+            }
+          : {
+              messageType: MessageTypes.GlobalNcdPage90,
+            }
+      );
       setNcdAutoUpdateBannerDismissed(messageStatus.dismissed);
     }
 
     if (isDefined(previousNonCompliantValue)) {
       fetchMessageDismissed().catch(noop);
     }
-  }, [previousNonCompliantValue]);
+  }, [previousNonCompliantValue, projectKey, settingLevel]);
+
+  const shouldShowAutoUpdateBanner = useMemo(() => {
+    return (
+      (settingLevel === NewCodeDefinitionLevels.Global ||
+        settingLevel === NewCodeDefinitionLevels.Project) &&
+      isDefined(previousNonCompliantValue) &&
+      isDefined(updatedAt) &&
+      !disabled &&
+      !ncdAutoUpdateBannerDismissed
+    );
+  }, [disabled, ncdAutoUpdateBannerDismissed, previousNonCompliantValue, settingLevel, updatedAt]);
 
   const handleBannerDismiss = useCallback(async () => {
     await setMessageDismissed({ messageType: MessageTypes.GlobalNcdPage90 });
@@ -118,32 +143,30 @@ export default function NewCodeDefinitionDaysOption(props: Props) {
               )}
             </Note>
 
-            {isDefined(previousNonCompliantValue) &&
-              isDefined(updatedAt) &&
-              !ncdAutoUpdateBannerDismissed && (
-                <DismissableAlertComponent
-                  variant="info"
-                  display="inline"
-                  className="sw-mt-4 sw-max-w-[800px]"
-                  onDismiss={handleBannerDismiss}
-                >
-                  <FormattedMessage
-                    defaultMessage="new_code_definition.auto_update.global.page.message"
-                    id="new_code_definition.auto_update.global.page.message"
-                    tagName="span"
-                    values={{
-                      previousDays: previousNonCompliantValue,
-                      days,
-                      date: new Date(updatedAt).toLocaleDateString(),
-                      link: (
-                        <DocLink to="/project-administration/clean-as-you-code-settings/defining-new-code/#new-code-definition-options">
-                          {translate('learn_more')}
-                        </DocLink>
-                      ),
-                    }}
-                  />
-                </DismissableAlertComponent>
-              )}
+            {shouldShowAutoUpdateBanner && (
+              <DismissableAlertComponent
+                variant="info"
+                display="inline"
+                className="sw-mt-4 sw-max-w-[800px]"
+                onDismiss={handleBannerDismiss}
+              >
+                <FormattedMessage
+                  defaultMessage="new_code_definition.auto_update.ncd_page.message"
+                  id="new_code_definition.auto_update.ncd_page.message"
+                  tagName="span"
+                  values={{
+                    previousDays: previousNonCompliantValue,
+                    days: currentDaysValue,
+                    date: isDefined(updatedAt) && new Date(updatedAt).toLocaleDateString(),
+                    link: (
+                      <DocLink to="/project-administration/clean-as-you-code-settings/defining-new-code/#new-code-definition-options">
+                        {translate('learn_more')}
+                      </DocLink>
+                    ),
+                  }}
+                />
+              </DismissableAlertComponent>
+            )}
           </div>
         )}
       </>

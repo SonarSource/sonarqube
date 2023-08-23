@@ -24,6 +24,13 @@ import { Permissions } from '../../types/permissions';
 import { Component } from '../../types/types';
 import { CurrentUser, isLoggedIn } from '../../types/users';
 
+export enum NewCodeDefinitionLevels {
+  Global = 'GLOBAL',
+  Project = 'PROJECT',
+  Branch = 'BRANCH',
+  NewProject = 'NEW_PROJECT',
+}
+
 export type PreviouslyNonCompliantNCD = NewCodeDefinition &
   Required<Pick<NewCodeDefinition, 'previousNonCompliantValue' | 'updatedAt'>>;
 

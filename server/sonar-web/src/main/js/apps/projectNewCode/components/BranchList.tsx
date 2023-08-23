@@ -36,7 +36,7 @@ interface Props {
   branchList: Branch[];
   component: Component;
   inheritedSetting: NewCodeDefinition;
-  generalSetting: NewCodeDefinition;
+  globalNewCodeDefinition: NewCodeDefinition;
 }
 
 interface State {
@@ -136,7 +136,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branchList, inheritedSetting, generalSetting } = this.props;
+    const { branchList, inheritedSetting, globalNewCodeDefinition } = this.props;
     const { branches, editedBranch, loading } = this.state;
 
     if (branches.length < 1) {
@@ -179,7 +179,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
             component={this.props.component.key}
             onClose={this.closeEditModal}
             inheritedSetting={inheritedSetting}
-            generalSetting={generalSetting}
+            globalNewCodeDefinition={globalNewCodeDefinition}
           />
         )}
       </>

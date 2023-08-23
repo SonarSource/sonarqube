@@ -23,6 +23,7 @@ import { components, OptionProps } from 'react-select';
 import Select from '../../../components/controls/Select';
 import Tooltip from '../../../components/controls/Tooltip';
 import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
+import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -36,7 +37,10 @@ export interface BaselineSettingReferenceBranchProps {
   onSelect: (selection: NewCodeDefinitionType) => void;
   referenceBranch: string;
   selected: boolean;
-  settingLevel: 'project' | 'branch';
+  settingLevel: Exclude<
+    NewCodeDefinitionLevels,
+    NewCodeDefinitionLevels.NewProject | NewCodeDefinitionLevels.Global
+  >;
 }
 
 export interface BranchOption {
@@ -110,7 +114,7 @@ export default function NewCodeDefinitionSettingReferenceBranch(
         </div>
         {selected && (
           <>
-            {settingLevel === 'project' && (
+            {settingLevel === NewCodeDefinitionLevels.Project && (
               <p className="spacer-top">{translate('baseline.reference_branch.description2')}</p>
             )}
             <div className="big-spacer-top display-flex-column">

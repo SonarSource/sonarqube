@@ -25,6 +25,7 @@ import { ResetButtonLink, SubmitButton } from '../../../components/controls/butt
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
 import NewCodeDefinitionWarning from '../../../components/new-code-definition/NewCodeDefinitionWarning';
+import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
 import Spinner from '../../../components/ui/Spinner';
 import { toISO8601WithOffsetString } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -42,7 +43,7 @@ interface Props {
   component: string;
   onClose: (branch?: string, newSetting?: NewCodeDefinition) => void;
   inheritedSetting: NewCodeDefinition;
-  generalSetting: NewCodeDefinition;
+  globalNewCodeDefinition: NewCodeDefinition;
 }
 
 interface State {
@@ -52,7 +53,7 @@ interface State {
   isChanged: boolean;
   referenceBranch: string;
   saving: boolean;
-  selected?: NewCodeDefinitionType;
+  selectedNewCodeDefinitionType?: NewCodeDefinitionType;
 }
 
 export default class BranchNewCodeDefinitionSettingModal extends React.PureComponent<Props, State> {
@@ -61,7 +62,7 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
   constructor(props: Props) {
     super(props);
 
-    const { branch, branchList, inheritedSetting, generalSetting } = props;
+    const { branch, branchList, inheritedSetting, globalNewCodeDefinition } = props;
     const otherBranches = branchList.filter((b) => b.name !== branch.name);
     const defaultBranch = otherBranches.length > 0 ? otherBranches[0].name : '';
 
@@ -69,12 +70,12 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
       analysis: this.getValueFromProps(NewCodeDefinitionType.SpecificAnalysis) || '',
       days:
         this.getValueFromProps(NewCodeDefinitionType.NumberOfDays) ||
-        getNumberOfDaysDefaultValue(generalSetting, inheritedSetting),
+        getNumberOfDaysDefaultValue(globalNewCodeDefinition, inheritedSetting),
       isChanged: false,
       referenceBranch:
         this.getValueFromProps(NewCodeDefinitionType.ReferenceBranch) || defaultBranch,
       saving: false,
-      selected: branch.newCodePeriod?.type,
+      selectedNewCodeDefinitionType: branch.newCodePeriod?.type,
     };
   }
 
@@ -103,9 +104,15 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
     e.preventDefault();
 
     const { branch, component } = this.props;
-    const { analysis, analysisDate, days, referenceBranch, selected: type } = this.state;
+    const {
+      analysis,
+      analysisDate,
+      days,
+      referenceBranch,
+      selectedNewCodeDefinitionType: type,
+    } = this.state;
 
-    const value = getSettingValue({ type, analysis, days, referenceBranch });
+    const value = getSettingValue({ type, analysis, numberOfDays: days, referenceBranch });
 
     if (type) {
       this.setState({ saving: true });
@@ -146,13 +153,17 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
   handleSelectReferenceBranch = (referenceBranch: string) =>
     this.setState({ referenceBranch, isChanged: true });
 
-  handleSelectSetting = (selected: NewCodeDefinitionType) => {
-    this.setState((currentState) => ({ selected, isChanged: selected !== currentState.selected }));
+  handleSelectSetting = (selectedNewCodeDefinitionType: NewCodeDefinitionType) => {
+    this.setState((currentState) => ({
+      selectedNewCodeDefinitionType,
+      isChanged: selectedNewCodeDefinitionType !== currentState.selectedNewCodeDefinitionType,
+    }));
   };
 
   render() {
     const { branch, branchList } = this.props;
-    const { analysis, days, isChanged, referenceBranch, saving, selected } = this.state;
+    const { analysis, days, isChanged, referenceBranch, saving, selectedNewCodeDefinitionType } =
+      this.state;
 
     const header = translateWithParameters('baseline.new_code_period_for_branch_x', branch.name);
 
@@ -160,9 +171,9 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
     const currentSettingValue = branch.newCodePeriod?.value;
 
     const isValid = validateSetting({
-      days,
+      numberOfDays: days,
       referenceBranch,
-      selected,
+      selectedNewCodeDefinitionType,
     });
 
     return (
@@ -177,13 +188,13 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
               newCodeDefinitionType={currentSetting}
               newCodeDefinitionValue={currentSettingValue}
               isBranchSupportEnabled
-              level="branch"
+              level={NewCodeDefinitionLevels.Branch}
             />
             <div className="display-flex-column huge-spacer-bottom sw-gap-4" role="radiogroup">
               <NewCodeDefinitionPreviousVersionOption
                 isDefault={false}
                 onSelect={this.handleSelectSetting}
-                selected={selected === NewCodeDefinitionType.PreviousVersion}
+                selected={selectedNewCodeDefinitionType === NewCodeDefinitionType.PreviousVersion}
               />
               <NewCodeDefinitionDaysOption
                 days={days}
@@ -191,24 +202,27 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
                 isValid={isValid}
                 onChangeDays={this.handleSelectDays}
                 onSelect={this.handleSelectSetting}
-                selected={selected === NewCodeDefinitionType.NumberOfDays}
+                selected={selectedNewCodeDefinitionType === NewCodeDefinitionType.NumberOfDays}
+                settingLevel={NewCodeDefinitionLevels.Branch}
               />
               <NewCodeDefinitionSettingReferenceBranch
                 branchList={branchList.map(this.branchToOption)}
                 onChangeReferenceBranch={this.handleSelectReferenceBranch}
                 onSelect={this.handleSelectSetting}
                 referenceBranch={referenceBranch}
-                selected={selected === NewCodeDefinitionType.ReferenceBranch}
-                settingLevel="branch"
+                selected={selectedNewCodeDefinitionType === NewCodeDefinitionType.ReferenceBranch}
+                settingLevel={NewCodeDefinitionLevels.Branch}
               />
               {currentSetting === NewCodeDefinitionType.SpecificAnalysis && (
                 <NewCodeDefinitionSettingAnalysis
                   onSelect={noop}
-                  selected={selected === NewCodeDefinitionType.SpecificAnalysis}
+                  selected={
+                    selectedNewCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis
+                  }
                 />
               )}
             </div>
-            {selected === NewCodeDefinitionType.SpecificAnalysis && (
+            {selectedNewCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis && (
               <BranchAnalysisList
                 analysis={analysis}
                 branch={branch.name}

@@ -24,6 +24,7 @@ export enum MessageTypes {
   GlobalNcd90 = 'GLOBAL_NCD_90',
   GlobalNcdPage90 = 'GLOBAL_NCD_PAGE_90',
   ProjectNcd90 = 'PROJECT_NCD_90',
+  ProjectNcdPage90 = 'PROJECT_NCD_PAGE_90',
   BranchNcd90 = 'BRANCH_NCD_90',
 }
 

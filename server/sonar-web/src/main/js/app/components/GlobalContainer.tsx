@@ -25,6 +25,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import A11yProvider from '../../components/a11y/A11yProvider';
 import A11ySkipLinks from '../../components/a11y/A11ySkipLinks';
 import SuggestionsProvider from '../../components/embed-docs-modal/SuggestionsProvider';
+import NCDAutoUpdateMessage from '../../components/new-code-definition/NCDAutoUpdateMessage';
 import Workspace from '../../components/workspace/Workspace';
 import GlobalFooter from './GlobalFooter';
 import StartupModal from './StartupModal';
@@ -80,6 +81,7 @@ export default function GlobalContainer() {
                           <div className="sw-sticky sw-top-0 sw-z-global-navbar">
                             <SystemAnnouncement />
                             <IndexationNotification />
+                            <NCDAutoUpdateMessage />
                             <UpdateNotification dismissable />
                             <GlobalNav location={location} />
                           </div>

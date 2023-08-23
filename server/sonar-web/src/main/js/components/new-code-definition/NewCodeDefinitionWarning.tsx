@@ -24,12 +24,13 @@ import { isNewCodeDefinitionCompliant } from '../../helpers/new-code-definition'
 import { NewCodeDefinitionType } from '../../types/new-code-definition';
 import DocLink from '../common/DocLink';
 import { Alert } from '../ui/Alert';
+import { NewCodeDefinitionLevels } from './utils';
 
 export interface NewCodeDefinitionWarningProps {
   newCodeDefinitionType: NewCodeDefinitionType | undefined;
   newCodeDefinitionValue: string | undefined;
   isBranchSupportEnabled: boolean | undefined;
-  level: 'branch' | 'project' | 'global';
+  level: Exclude<NewCodeDefinitionLevels, NewCodeDefinitionLevels.NewProject>;
 }
 
 export default function NewCodeDefinitionWarning({
@@ -73,7 +74,9 @@ export default function NewCodeDefinitionWarning({
         <p className="sw-mb-2">
           {translate(
             `baseline.number_days.compliance_warning.content.${level}${
-              isBranchSupportEnabled && level === 'project' ? '.with_branch_support' : ''
+              isBranchSupportEnabled && level === NewCodeDefinitionLevels.Project
+                ? '.with_branch_support'
+                : ''
             }`
           )}
         </p>

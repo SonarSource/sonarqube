@@ -26,6 +26,7 @@ import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
 import NewCodeDefinitionWarning from '../../../components/new-code-definition/NewCodeDefinitionWarning';
+import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
 import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import {
@@ -42,6 +43,7 @@ interface State {
   loading: boolean;
   currentSettingValue?: string;
   isChanged: boolean;
+  projectKey?: string;
   saving: boolean;
   selected?: NewCodeDefinitionType;
   success: boolean;
@@ -68,7 +70,7 @@ export default class NewCodeDefinition extends React.PureComponent<{}, State> {
 
   fetchNewCodePeriodSetting() {
     getNewCodeDefinition()
-      .then(({ type, value, previousNonCompliantValue, updatedAt }) => {
+      .then(({ type, value, previousNonCompliantValue, projectKey, updatedAt }) => {
         this.setState(({ days }) => ({
           currentSetting: type,
           days: type === NewCodeDefinitionType.NumberOfDays ? String(value) : days,
@@ -76,6 +78,7 @@ export default class NewCodeDefinition extends React.PureComponent<{}, State> {
           currentSettingValue: value,
           selected: type,
           previousNonCompliantValue,
+          projectKey,
           ncdUpdatedAt: updatedAt,
         }));
       })
@@ -124,6 +127,8 @@ export default class NewCodeDefinition extends React.PureComponent<{}, State> {
             saving: false,
             currentSetting: type,
             currentSettingValue: value || undefined,
+            previousNonCompliantValue: undefined,
+            ncdUpdatedAt: Date.now(),
             isChanged: false,
             success: true,
           });
@@ -148,6 +153,7 @@ export default class NewCodeDefinition extends React.PureComponent<{}, State> {
       loading,
       isChanged,
       currentSettingValue,
+      projectKey,
       saving,
       selected,
       success,
@@ -214,19 +220,26 @@ export default class NewCodeDefinition extends React.PureComponent<{}, State> {
                         <NewCodeDefinitionDaysOption
                           className="spacer-top sw-mb-4"
                           days={days}
+                          currentDaysValue={
+                            currentSetting === NewCodeDefinitionType.NumberOfDays
+                              ? currentSettingValue
+                              : undefined
+                          }
                           previousNonCompliantValue={previousNonCompliantValue}
+                          projectKey={projectKey}
                           updatedAt={ncdUpdatedAt}
                           isChanged={isChanged}
                           isValid={isValid}
                           onChangeDays={this.onSelectDays}
                           onSelect={this.onSelectSetting}
                           selected={selected === NewCodeDefinitionType.NumberOfDays}
+                          settingLevel={NewCodeDefinitionLevels.Global}
                         />
                         <NewCodeDefinitionWarning
                           newCodeDefinitionType={currentSetting}
                           newCodeDefinitionValue={currentSettingValue}
                           isBranchSupportEnabled={undefined}
-                          level="global"
+                          level={NewCodeDefinitionLevels.Global}
                         />
                         {isChanged && (
                           <div className="big-spacer-top">

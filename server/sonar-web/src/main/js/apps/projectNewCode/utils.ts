@@ -22,18 +22,18 @@ import { NewCodeDefinitionType } from '../../types/new-code-definition';
 
 export function getSettingValue({
   analysis,
-  days,
+  numberOfDays,
   referenceBranch,
   type,
 }: {
   analysis?: string;
-  days?: string;
+  numberOfDays?: string;
   referenceBranch?: string;
   type?: NewCodeDefinitionType;
 }) {
   switch (type) {
     case NewCodeDefinitionType.NumberOfDays:
-      return days;
+      return numberOfDays;
     case NewCodeDefinitionType.ReferenceBranch:
       return referenceBranch;
     case NewCodeDefinitionType.SpecificAnalysis:
@@ -44,20 +44,26 @@ export function getSettingValue({
 }
 
 export function validateSetting(state: {
-  days: string;
-  overrideGeneralSetting?: boolean;
+  numberOfDays: string;
+  overrideGlobalNewCodeDefinition?: boolean;
   referenceBranch?: string;
-  selected?: NewCodeDefinitionType;
+  selectedNewCodeDefinitionType?: NewCodeDefinitionType;
 }) {
-  const { days, overrideGeneralSetting, referenceBranch = '', selected } = state;
+  const {
+    numberOfDays,
+    overrideGlobalNewCodeDefinition,
+    referenceBranch = '',
+    selectedNewCodeDefinitionType,
+  } = state;
 
   return (
-    overrideGeneralSetting === false ||
-    (!!selected &&
+    overrideGlobalNewCodeDefinition === false ||
+    (!!selectedNewCodeDefinitionType &&
       isNewCodeDefinitionCompliant({
-        type: selected,
-        value: days,
+        type: selectedNewCodeDefinitionType,
+        value: numberOfDays,
       }) &&
-      (selected !== NewCodeDefinitionType.ReferenceBranch || referenceBranch.length > 0))
+      (selectedNewCodeDefinitionType !== NewCodeDefinitionType.ReferenceBranch ||
+        referenceBranch.length > 0))
   );
 }

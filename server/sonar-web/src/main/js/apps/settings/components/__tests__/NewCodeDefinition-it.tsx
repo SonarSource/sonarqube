@@ -50,7 +50,7 @@ const ui = {
   daysInput: byRole('spinbutton') /* spinbutton is the default role for a number input */,
   saveButton: byRole('button', { name: 'save' }),
   cancelButton: byRole('button', { name: 'cancel' }),
-  ncdAutoUpdateMessage: byText(/new_code_definition.auto_update.global.page.message/),
+  ncdAutoUpdateMessage: byText(/new_code_definition.auto_update.ncd_page.message/),
   ncdAutoUpdateMessageDismiss: byLabelText('alert.dismiss'),
 };
 

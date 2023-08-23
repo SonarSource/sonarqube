@@ -25,17 +25,22 @@ import ClearIcon from '../icons/ClearIcon';
 import { Alert, AlertProps } from './Alert';
 
 export interface DismissableAlertComponentProps extends AlertProps {
+  bannerClassName?: string;
   className?: string;
   children: React.ReactNode;
   onDismiss: () => void;
 }
 
 export default function DismissableAlertComponent(props: DismissableAlertComponentProps) {
-  const { className, display = 'banner', variant, children, onDismiss } = props;
+  const { bannerClassName, className, display = 'banner', variant, children, onDismiss } = props;
 
   return (
     <div className={classNames('dismissable-alert-wrapper', className)}>
-      <Alert className={`dismissable-alert-${display}`} display={display} variant={variant}>
+      <Alert
+        className={classNames(`dismissable-alert-${display}`, bannerClassName)}
+        display={display}
+        variant={variant}
+      >
         <div className="display-flex-center dismissable-alert-content">
           <div className="flex-1">{children}</div>
           <ButtonIcon aria-label={translate('alert.dismiss')} onClick={onDismiss}>
