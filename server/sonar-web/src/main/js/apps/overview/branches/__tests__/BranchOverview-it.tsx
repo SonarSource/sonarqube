@@ -232,21 +232,6 @@ describe('project overview', () => {
     expect(screen.getByText('overview.quality_gate.conditions.cayc.warning')).toBeInTheDocument();
   });
 
-  it('should show Cayc message when QG is over-compliant', async () => {
-    jest
-      .mocked(getQualityGateProjectStatus)
-      .mockResolvedValueOnce(
-        mockQualityGateProjectStatus({ status: 'OK', caycStatus: CaycStatus.OverCompliant })
-      );
-
-    renderBranchOverview();
-
-    expect(await screen.findByText('metric.level.OK')).toBeInTheDocument();
-    expect(
-      screen.getByText('overview.quality_gate.conditions.cayc_over_compliant.link')
-    ).toBeInTheDocument();
-  });
-
   it('should show a failed QG', async () => {
     renderBranchOverview();
 

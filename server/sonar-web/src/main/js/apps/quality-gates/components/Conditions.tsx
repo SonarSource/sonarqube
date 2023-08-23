@@ -194,27 +194,6 @@ export class Conditions extends React.PureComponent<Props, State> {
           </Alert>
         )}
 
-        {qualityGate.caycStatus === CaycStatus.OverCompliant && (
-          <Alert className="big-spacer-top big-spacer-bottom cayc-success-banner" variant="info">
-            <h4 className="spacer-bottom cayc-over-compliant-header">
-              {translate('quality_gates.cayc_over_compliant.banner.title')}
-            </h4>
-            <div className="cayc-warning-description spacer-top">
-              <FormattedMessage
-                id="quality_gates.cayc_over_compliant.banner.description"
-                defaultMessage={translate('quality_gates.cayc_over_compliant.banner.description')}
-                values={{
-                  link: (
-                    <DocLink to="/user-guide/clean-as-you-code/#potential-drawbacks">
-                      {translate('quality_gates.cayc_over_compliant.banner.link')}
-                    </DocLink>
-                  ),
-                }}
-              />
-            </div>
-          </Alert>
-        )}
-
         {qualityGate.caycStatus === CaycStatus.NonCompliant && (
           <Alert className="big-spacer-top big-spacer-bottom" variant="warning">
             <h4 className="spacer-bottom cayc-warning-header">

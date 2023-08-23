@@ -376,29 +376,6 @@ it('should show success banner when quality gate is CAYC compliant', async () =>
   expect(await conditionsWrapper.findByText('Duplicated Lines (%)')).toBeInTheDocument();
 });
 
-it('should show info banner when quality gate is CAYC over-compliant', async () => {
-  const user = userEvent.setup();
-  handler.setIsAdmin(true);
-  renderQualityGateApp();
-
-  const qualityGate = await screen.findByText('Over Compliant CAYC QG');
-
-  await user.click(qualityGate);
-
-  expect(screen.getByText('quality_gates.cayc.banner.title')).toBeInTheDocument();
-  expect(
-    screen.getByText('quality_gates.cayc.banner.description1', { exact: false })
-  ).toBeInTheDocument();
-  expect(screen.getByText('quality_gates.cayc_over_compliant.banner.title')).toBeInTheDocument();
-  expect(
-    screen.queryByText('quality_gates.cayc_condition.missing_warning.title')
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', { name: 'quality_gates.cayc_condition.review_update' })
-  ).not.toBeInTheDocument();
-  expect(screen.getByText('quality_gates.cayc.unlock_edit')).toBeInTheDocument();
-});
-
 it('should unlock editing option for CAYC conditions', async () => {
   const user = userEvent.setup();
   handler.setIsAdmin(true);

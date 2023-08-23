@@ -24,34 +24,22 @@ import { useDocUrl } from '../../../helpers/docs';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getProjectQueryUrl } from '../../../helpers/urls';
 import { QualityGateStatus } from '../../../types/quality-gates';
-import { CaycStatus } from '../../../types/types';
 
 interface Props {
   projects: QualityGateStatus[];
-  caycStatus: CaycStatus;
 }
 
-export default function ApplicationNonCaycProjectWarning({ projects, caycStatus }: Props) {
+export default function ApplicationNonCaycProjectWarning({ projects }: Props) {
   const caycUrl = useDocUrl('/user-guide/clean-as-you-code/');
-  const caycDrawbacksUrl = useDocUrl('/user-guide/clean-as-you-code/#potential-drawbacks');
 
   return (
     <Card className="sw-mt-4 sw-body-sm">
-      {caycStatus === CaycStatus.NonCompliant ? (
-        <FlagMessage variant="warning">
-          {translateWithParameters(
-            'overview.quality_gate.application.non_cayc.projects_x',
-            projects.length
-          )}
-        </FlagMessage>
-      ) : (
-        <p className="sw-p-2">
-          {translateWithParameters(
-            'overview.quality_gate.application.cayc_over_compliant.projects_x',
-            projects.length
-          )}
-        </p>
-      )}
+      <FlagMessage variant="warning">
+        {translateWithParameters(
+          'overview.quality_gate.application.non_cayc.projects_x',
+          projects.length
+        )}
+      </FlagMessage>
 
       <ul className="sw-mt-4 sw-ml-2 sw-mb-2">
         {projects.map(({ key, name, branchLike }) => (
@@ -62,13 +50,7 @@ export default function ApplicationNonCaycProjectWarning({ projects, caycStatus 
       </ul>
       <hr className="sw-my-4" />
       <div className="sw-m-2 sw-mt-4">
-        {caycStatus === CaycStatus.NonCompliant ? (
-          <Link to={caycUrl}>{translate('overview.quality_gate.conditions.cayc.link')}</Link>
-        ) : (
-          <Link to={caycDrawbacksUrl}>
-            {translate('overview.quality_gate.conditions.cayc_over_compliant.link')}
-          </Link>
-        )}
+        <Link to={caycUrl}>{translate('overview.quality_gate.conditions.cayc.link')}</Link>
       </div>
     </Card>
   );

@@ -31,7 +31,6 @@ import { QualityGateStatusTitle } from '../components/QualityGateStatusTitle';
 import SonarLintPromotion from '../components/SonarLintPromotion';
 import ApplicationNonCaycProjectWarning from './ApplicationNonCaycProjectWarning';
 import CleanAsYouCodeWarning from './CleanAsYouCodeWarning';
-import CleanAsYouCodeWarningOverCompliant from './CleanAsYouCodeWarningOverCompliant';
 import QualityGatePanelSection from './QualityGatePanelSection';
 
 export interface QualityGatePanelProps {
@@ -62,12 +61,6 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
   const nonCaycProjectsInApp = isApp
     ? qgStatuses
         .filter(({ caycStatus }) => caycStatus === CaycStatus.NonCompliant)
-        .sort(({ name: a }, { name: b }) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
-    : [];
-
-  const overCompliantCaycProjectsInApp = isApp
-    ? qgStatuses
-        .filter(({ caycStatus }) => caycStatus === CaycStatus.OverCompliant)
         .sort(({ name: a }, { name: b }) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
     : [];
 
@@ -114,17 +107,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
       </Card>
 
       {nonCaycProjectsInApp.length > 0 && (
-        <ApplicationNonCaycProjectWarning
-          projects={nonCaycProjectsInApp}
-          caycStatus={CaycStatus.NonCompliant}
-        />
-      )}
-
-      {overCompliantCaycProjectsInApp.length > 0 && (
-        <ApplicationNonCaycProjectWarning
-          projects={overCompliantCaycProjectsInApp}
-          caycStatus={CaycStatus.OverCompliant}
-        />
+        <ApplicationNonCaycProjectWarning projects={nonCaycProjectsInApp} />
       )}
 
       {qgStatuses.length === 1 &&
@@ -132,14 +115,6 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
         !isApp && (
           <Card className="sw-mt-4 sw-body-sm">
             <CleanAsYouCodeWarning component={component} />
-          </Card>
-        )}
-
-      {qgStatuses.length === 1 &&
-        qgStatuses[0].caycStatus === CaycStatus.OverCompliant &&
-        !isApp && (
-          <Card className="sw-mt-4 sw-body-sm">
-            <CleanAsYouCodeWarningOverCompliant component={component} />
           </Card>
         )}
 
