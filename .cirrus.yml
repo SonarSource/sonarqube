@@ -65,7 +65,9 @@ github_task_template: &GITHUB_TASK_TEMPLATE
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
     changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/github/**/*.java',
     'private/core-extension-developer-server/src/main/java/com/sonarsource/github/**/*.java',
-    'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/github/**/*.java')
+    'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/github/**/*.java',
+    'private/it-branch/it-tests/src/test/java/com/sonarsource/provisioning/github/*.java'
+    )
 
 gitlab_task_template: &GITLAB_TASK_TEMPLATE
   only_if: >-
@@ -563,6 +565,22 @@ qa_github_task:
     QA_CATEGORY: GITHUB
     GITHUB_COM_CODE_SCANNING_ALERTS_TECHNICAL_USER_USERNAME: QA-task
     GITHUB_COM_CODE_SCANNING_ALERTS_TECHNICAL_USER_TOKEN: VAULT[development/github/token/SonarSource-sonar-enterprise-code-scanning token]
+  script:
+    - ./private/cirrus/cirrus-qa.sh h2
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
+qa_github_provisioning_task:
+  <<: *DEFAULT_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *GITHUB_TASK_TEMPLATE
+  <<: *JAR_CACHE_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
+    cpu: 4
+    memory: 7Gb
+  env:
+    QA_CATEGORY: GITHUB_PROVISIONING
   script:
     - ./private/cirrus/cirrus-qa.sh h2
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
