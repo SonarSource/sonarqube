@@ -25,7 +25,6 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.encoder.Encoder;
-import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.process.ProcessId;
@@ -41,7 +40,7 @@ import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuil
 public abstract class ServerProcessLogging {
 
   public static final String STARTUP_LOGGER_NAME = "startup";
-  protected static final Set<String> JMX_RMI_LOGGER_NAMES = ImmutableSet.of(
+  protected static final Set<String> JMX_RMI_LOGGER_NAMES = Set.of(
     "javax.management.remote.timeout",
     "javax.management.remote.misc",
     "javax.management.remote.rmi",
@@ -51,7 +50,7 @@ public abstract class ServerProcessLogging {
     "sun.rmi.transport.misc",
     "sun.rmi.server.call",
     "sun.rmi.dgc");
-  protected static final Set<String> LOGGER_NAMES_TO_TURN_OFF = ImmutableSet.of(
+  protected static final Set<String> LOGGER_NAMES_TO_TURN_OFF = Set.of(
     // mssql driver
     "com.microsoft.sqlserver.jdbc.internals",
     "com.microsoft.sqlserver.jdbc.ResultSet",
@@ -99,6 +98,9 @@ public abstract class ServerProcessLogging {
     builder.immutableLevel("com.hazelcast.replicatedmap.impl.operation.SyncReplicatedMapDataOperation", Level.INFO);
     // Netty (used by Elasticsearch)
     builder.immutableLevel("io.netty.buffer.PoolThreadCache", Level.INFO);
+    // Spring related
+    builder.immutableLevel("org.springframework", Level.WARN);
+    builder.immutableLevel("org.sonar.core.platform.PriorityBeanFactory", Level.WARN);
 
     extendLogLevelConfiguration(builder);
 
