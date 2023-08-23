@@ -125,6 +125,7 @@ public class AlmSettingsService extends BaseService {
         .setParam("url", request.getUrl())
         .setParam("clientId", request.getClientId())
         .setParam("clientSecret", request.getClientSecret())
+        .setParam("webhookSecret", request.getWebhookSecret())
         .setMediaType(MediaTypes.JSON)).content();
   }
 

@@ -37,6 +37,7 @@ public class CreateGithubRequest {
   private String url;
   private String clientId;
   private String clientSecret;
+  private String webhookSecret;
 
   /**
    * This is a mandatory parameter.
@@ -104,5 +105,15 @@ public class CreateGithubRequest {
   @CheckForNull
   public String getClientSecret() {
     return clientSecret;
+  }
+
+  public CreateGithubRequest setWebhookSecret(@Nullable String webhookSecret) {
+    this.webhookSecret = webhookSecret;
+    return this;
+  }
+
+  @CheckForNull
+  public String getWebhookSecret() {
+    return webhookSecret;
   }
 }
