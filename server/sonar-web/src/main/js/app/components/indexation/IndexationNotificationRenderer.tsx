@@ -23,6 +23,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import DocLink from '../../../components/common/DocLink';
 import Link from '../../../components/common/Link';
 import { Alert, AlertProps } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -97,9 +98,15 @@ function renderCompletedWithFailureBanner() {
 function renderInProgressBanner(completedCount: number, total: number) {
   return (
     <>
-      <span className="spacer-right">{`${translate('indexation.in_progress')} ${translate(
-        'indexation.projects_unavailable'
-      )}`}</span>
+      <span className="spacer-right">
+        <FormattedMessage id="indexation.in_progress" />{' '}
+        <FormattedMessage
+          id="indexation.features_partly_available"
+          values={{
+            link: renderIndexationDocPageLink(),
+          }}
+        />
+      </span>
       <i className="spinner spacer-right" />
 
       <span className="spacer-right">
@@ -126,9 +133,15 @@ function renderInProgressBanner(completedCount: number, total: number) {
 function renderInProgressWithFailureBanner(completedCount: number, total: number) {
   return (
     <>
-      <span className="spacer-right">{`${translate('indexation.in_progress')} ${translate(
-        'indexation.projects_unavailable'
-      )}`}</span>
+      <span className="spacer-right">
+        <FormattedMessage id="indexation.in_progress" />{' '}
+        <FormattedMessage
+          id="indexation.features_partly_available"
+          values={{
+            link: renderIndexationDocPageLink(),
+          }}
+        />
+      </span>
       <i className="spinner spacer-right" />
 
       <span className="spacer-right">
@@ -164,5 +177,13 @@ function renderBackgroundTasksPageLink(hasError: boolean, text: string) {
     >
       {text}
     </Link>
+  );
+}
+
+function renderIndexationDocPageLink() {
+  return (
+    <DocLink to="/instance-administration/reindexing/">
+      <FormattedMessage id="indexation.features_partly_available.link" />
+    </DocLink>
   );
 }

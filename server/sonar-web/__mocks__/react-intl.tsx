@@ -21,13 +21,14 @@ import * as React from 'react';
 
 module.exports = {
   ...jest.requireActual('react-intl'),
-  FormattedMessage: ({ id, values }: { id: string; values: { [x: string]: React.ReactNode } }) => {
+  FormattedMessage: ({ id, values }: { id: string; values?: { [x: string]: React.ReactNode } }) => {
     return (
       <>
         {id}
-        {Object.entries(values).map(([key, value]) => (
-          <React.Fragment key={key}>{value}</React.Fragment>
-        ))}
+        {values !== undefined &&
+          Object.entries(values).map(([key, value]) => (
+            <React.Fragment key={key}>{value}</React.Fragment>
+          ))}
       </>
     );
   },
