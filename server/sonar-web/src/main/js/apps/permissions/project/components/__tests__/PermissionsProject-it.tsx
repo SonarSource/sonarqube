@@ -244,9 +244,9 @@ it('should not allow to change visibility for GH Project with auto-provisioning'
   );
   await ui.appLoaded();
 
-  expect(ui.visibilityRadio(Visibility.Public).get()).toHaveClass('disabled');
+  expect(ui.visibilityRadio(Visibility.Public).get()).toBeDisabled();
   expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
-  expect(ui.visibilityRadio(Visibility.Private).get()).toHaveClass('disabled');
+  expect(ui.visibilityRadio(Visibility.Private).get()).toBeDisabled();
   await act(async () => {
     await ui.turnProjectPrivate();
   });

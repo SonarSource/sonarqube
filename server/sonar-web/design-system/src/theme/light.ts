@@ -135,6 +135,7 @@ export const lightTheme = {
     radioDisabled: secondary.default,
     radioDisabledBackground: secondary.light,
     radioDisabledBorder: secondary.default,
+    radioDisabledLabel: COLORS.blueGrey[300],
 
     // switch
     switch: secondary.default,

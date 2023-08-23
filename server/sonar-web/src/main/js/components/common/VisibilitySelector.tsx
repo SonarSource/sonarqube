@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { RadioButton } from 'design-system';
 import * as React from 'react';
-import Radio from '../../components/controls/Radio';
 import { translate } from '../../helpers/l10n';
 import { Visibility } from '../../types/component';
 
@@ -38,7 +38,7 @@ export default function VisibilitySelector(props: VisibilitySelectorProps) {
   return (
     <div className={classNames(className)}>
       {Object.values(Visibility).map((v) => (
-        <Radio
+        <RadioButton
           className={`huge-spacer-right visibility-${v}`}
           key={v}
           value={v}
@@ -52,7 +52,7 @@ export default function VisibilitySelector(props: VisibilitySelectorProps) {
               <p className="note">{translate('visibility', v, 'description.long')}</p>
             )}
           </div>
-        </Radio>
+        </RadioButton>
       ))}
     </div>
   );

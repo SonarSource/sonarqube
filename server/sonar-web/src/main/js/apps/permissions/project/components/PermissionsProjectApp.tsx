@@ -359,7 +359,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
             {({ data: githubProvisioningStatus, isFetching }) => (
               <VisibilitySelector
                 canTurnToPrivate={canTurnToPrivate}
-                className="big-spacer-top big-spacer-bottom"
+                className="sw-flex big-spacer-top big-spacer-bottom"
                 onChange={this.handleVisibilityChange}
                 loading={loading || isFetching}
                 disabled={isGitHubProject && !!githubProvisioningStatus}

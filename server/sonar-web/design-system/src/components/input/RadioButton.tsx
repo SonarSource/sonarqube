@@ -55,12 +55,10 @@ export function RadioButton({
   };
 
   return (
-    <label
+    <LabelStyled
       className={classNames(
-        'sw-flex sw-items-center',
         {
-          'sw-cursor-pointer': !disabled,
-          'sw-cursor-not-allowed': disabled,
+          disabled,
         },
         className
       )}
@@ -75,9 +73,19 @@ export function RadioButton({
         {...htmlProps}
       />
       {children}
-    </label>
+    </LabelStyled>
   );
 }
+
+const LabelStyled = styled.label<{ disabled?: boolean }>`
+  ${tw`sw-flex sw-items-center`}
+  ${tw`sw-cursor-pointer`}
+
+  &.disabled {
+    color: ${themeColor('radioDisabledLabel')};
+    ${tw`sw-cursor-not-allowed`}
+  }
+`;
 
 export const RadioButtonStyled = styled.input`
   appearance: none; //disables native style
