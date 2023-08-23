@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
-import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Radio from '../../../components/controls/Radio';
 import Select from '../../../components/controls/Select';
 import SimpleModal from '../../../components/controls/SimpleModal';
+import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Component } from '../../../types/types';
@@ -126,6 +126,7 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
                     <div className="display-flex-center">
                       <Select
                         className="abs-width-300"
+                        aria-label={translate('project_quality_profile.always_use_specific')}
                         isDisabled={submitting || hasSelectedSysDefault}
                         onChange={({ value }: ProfileOption) => setSelected(value)}
                         options={profileOptions}

@@ -21,9 +21,9 @@ import { difference } from 'lodash';
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
-import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import Select, { LabelValueSelectOption } from '../../../components/controls/Select';
 import SimpleModal from '../../../components/controls/SimpleModal';
+import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { Languages } from '../../../types/languages';
 import { Dict } from '../../../types/types';
@@ -90,6 +90,9 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
                   className="abs-width-300"
                   isDisabled={submitting}
                   id="language"
+                  aria-label={translate(
+                    'project_quality_profile.add_language_modal.choose_language'
+                  )}
                   onChange={({ value }: LabelValueSelectOption) => {
                     setSelected({ language: value, key: undefined });
                   }}
@@ -107,6 +110,9 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
                   className="abs-width-300"
                   isDisabled={submitting || !language}
                   id="profiles"
+                  aria-label={translate(
+                    'project_quality_profile.add_language_modal.choose_profile'
+                  )}
                   onChange={({ value }: ProfileOption) => setSelected({ language, key: value })}
                   options={profileOptions}
                   components={{
