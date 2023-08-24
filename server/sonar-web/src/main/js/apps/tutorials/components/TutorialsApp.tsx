@@ -23,18 +23,16 @@ import withComponentContext from '../../../app/components/componentContext/withC
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import TutorialSelection from '../../../components/tutorials/TutorialSelection';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
-import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { Component } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 
 export interface TutorialsAppProps {
   component: Component;
   currentUser: CurrentUser;
-  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function TutorialsApp(props: TutorialsAppProps) {
-  const { component, currentUser, projectBinding } = props;
+  const { component, currentUser } = props;
 
   if (!isLoggedIn(currentUser)) {
     handleRequiredAuthentication();
@@ -44,11 +42,7 @@ export function TutorialsApp(props: TutorialsAppProps) {
   return (
     <LargeCenteredLayout className="sw-pt-8">
       <PageContentFontWrapper>
-        <TutorialSelection
-          component={component}
-          currentUser={currentUser}
-          projectBinding={projectBinding}
-        />
+        <TutorialSelection component={component} currentUser={currentUser} />
       </PageContentFontWrapper>
     </LargeCenteredLayout>
   );

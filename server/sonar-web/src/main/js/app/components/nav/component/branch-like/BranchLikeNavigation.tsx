@@ -23,7 +23,6 @@ import EscKeydownHandler from '../../../../../components/controls/EscKeydownHand
 import FocusOutHandler from '../../../../../components/controls/FocusOutHandler';
 import OutsideClickHandler from '../../../../../components/controls/OutsideClickHandler';
 import { useBranchesQuery } from '../../../../../queries/branch';
-import { AlmKeys, ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
 import { ComponentQualifier } from '../../../../../types/component';
 import { Feature } from '../../../../../types/features';
 import { Component } from '../../../../../types/types';
@@ -37,14 +36,12 @@ import PRLink from './PRLink';
 
 export interface BranchLikeNavigationProps extends WithAvailableFeaturesProps {
   component: Component;
-  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
   const {
     component,
     component: { configuration },
-    projectBinding,
   } = props;
 
   const { data: { branchLikes, branchLike: currentBranchLike } = { branchLikes: [] } } =
@@ -56,7 +53,6 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
   }
 
   const isApplication = component.qualifier === ComponentQualifier.Application;
-  const isGitLab = projectBinding !== undefined && projectBinding.alm === AlmKeys.GitLab;
 
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
   const canAdminComponent = configuration?.showSettings;
@@ -114,11 +110,9 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
           <BranchHelpTooltip
             component={component}
             isApplication={isApplication}
-            projectBinding={projectBinding}
             hasManyBranches={hasManyBranches}
             canAdminComponent={canAdminComponent}
             branchSupportEnabled={branchSupportEnabled}
-            isGitLab={isGitLab}
           />
         </div>
 

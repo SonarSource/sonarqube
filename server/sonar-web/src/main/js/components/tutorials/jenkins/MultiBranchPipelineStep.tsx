@@ -149,7 +149,7 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                 </ListItem>
                 <ListItem>
                   {almBinding !== undefined &&
-                  projectBinding !== undefined &&
+                  projectBinding != null &&
                   buildGithubLink(almBinding, projectBinding) !== null ? (
                     <LabelValuePair
                       translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.repo_url"

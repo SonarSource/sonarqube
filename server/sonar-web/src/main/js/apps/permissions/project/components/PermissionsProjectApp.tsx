@@ -31,8 +31,8 @@ import {
   PERMISSIONS_ORDER_BY_QUALIFIER,
   convertToPermissionDefinitions,
 } from '../../../../helpers/permissions';
+import { useIsGitHubProjectQuery } from '../../../../queries/devops-integration';
 import { useGithubProvisioningEnabledQuery } from '../../../../queries/identity-provider';
-import { AlmKeys } from '../../../../types/alm-settings';
 import { ComponentContextShape, Visibility } from '../../../../types/component';
 import { Permissions } from '../../../../types/permissions';
 import { Component, Paging, PermissionGroup, PermissionUser } from '../../../../types/types';
@@ -322,7 +322,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { component, projectBinding } = this.props;
+    const { component } = this.props;
     const {
       filter,
       groups,
@@ -342,46 +342,51 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
       order = without(order, Permissions.Browse, Permissions.CodeViewer);
     }
     const permissions = convertToPermissionDefinitions(order, 'projects_role');
-    const isGitHubProject = projectBinding?.alm === AlmKeys.GitHub;
 
     return (
       <main className="page page-limited" id="project-permissions-page">
         <Helmet defer={false} title={translate('permissions.page')} />
 
-        <PageHeader
-          component={component}
-          isGitHubProject={isGitHubProject}
-          loadHolders={this.loadHolders}
-          loading={loading}
-        />
-        <div>
-          <UseQuery query={useGithubProvisioningEnabledQuery}>
-            {({ data: githubProvisioningStatus, isFetching }) => (
-              <VisibilitySelector
-                canTurnToPrivate={canTurnToPrivate}
-                className="sw-flex big-spacer-top big-spacer-bottom"
-                onChange={this.handleVisibilityChange}
-                loading={loading || isFetching}
-                disabled={isGitHubProject && !!githubProvisioningStatus}
-                visibility={component.visibility}
+        <UseQuery query={useIsGitHubProjectQuery} args={[component.key]}>
+          {({ data: isGitHubProject }) => (
+            <>
+              <PageHeader
+                component={component}
+                isGitHubProject={isGitHubProject}
+                loadHolders={this.loadHolders}
+                loading={loading}
               />
-            )}
-          </UseQuery>
+              <div>
+                <UseQuery query={useGithubProvisioningEnabledQuery}>
+                  {({ data: githubProvisioningStatus, isFetching }) => (
+                    <VisibilitySelector
+                      canTurnToPrivate={canTurnToPrivate}
+                      className="sw-flex big-spacer-top big-spacer-bottom"
+                      onChange={this.handleVisibilityChange}
+                      loading={loading || isFetching}
+                      disabled={isGitHubProject && !!githubProvisioningStatus}
+                      visibility={component.visibility}
+                    />
+                  )}
+                </UseQuery>
 
-          {disclaimer && (
-            <PublicProjectDisclaimer
-              component={component}
-              onClose={this.handleCloseDisclaimer}
-              onConfirm={this.handleTurnProjectToPublic}
-            />
+                {disclaimer && (
+                  <PublicProjectDisclaimer
+                    component={component}
+                    onClose={this.handleCloseDisclaimer}
+                    onConfirm={this.handleTurnProjectToPublic}
+                  />
+                )}
+              </div>
+            </>
           )}
-        </div>
+        </UseQuery>
+
         <AllHoldersList
           filter={filter}
           onGrantPermissionToGroup={this.handleGrantPermissionToGroup}
           onGrantPermissionToUser={this.handleGrantPermissionToUser}
           groups={groups}
-          isGitHubProject={isGitHubProject}
           groupsPaging={groupsPaging}
           onFilter={this.handleFilterChange}
           onLoadMore={this.handleLoadMore}

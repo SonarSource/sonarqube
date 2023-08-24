@@ -24,7 +24,7 @@ import Link from '../../../components/common/Link';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import { translate } from '../../../helpers/l10n';
 import { queryToSearch } from '../../../helpers/urls';
-import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import { useProjectBindingQuery } from '../../../queries/devops-integration';
 import { ComponentQualifier } from '../../../types/component';
 import { Component } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
@@ -35,18 +35,18 @@ export interface FirstAnalysisNextStepsNotifProps {
   component: Component;
   currentUser: CurrentUser;
   detectedCIOnLastAnalysis?: boolean;
-  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function FirstAnalysisNextStepsNotif(props: FirstAnalysisNextStepsNotifProps) {
-  const { component, currentUser, branchesEnabled, detectedCIOnLastAnalysis, projectBinding } =
-    props;
+  const { component, currentUser, branchesEnabled, detectedCIOnLastAnalysis } = props;
 
-  if (!isLoggedIn(currentUser) || component.qualifier !== ComponentQualifier.Project) {
+  const { data: projectBinding, isLoading } = useProjectBindingQuery(component.key);
+
+  if (!isLoggedIn(currentUser) || component.qualifier !== ComponentQualifier.Project || isLoading) {
     return null;
   }
 
-  const showConfigurePullRequestDecoNotif = branchesEnabled && projectBinding === undefined;
+  const showConfigurePullRequestDecoNotif = branchesEnabled && projectBinding == null;
   const showConfigureCINotif =
     detectedCIOnLastAnalysis !== undefined ? !detectedCIOnLastAnalysis : false;
 

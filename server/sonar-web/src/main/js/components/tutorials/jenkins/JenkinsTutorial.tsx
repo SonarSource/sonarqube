@@ -23,11 +23,8 @@ import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import { translate } from '../../../helpers/l10n';
-import {
-  AlmKeys,
-  AlmSettingsInstance,
-  ProjectAlmBindingResponse,
-} from '../../../types/alm-settings';
+import { useProjectBindingQuery } from '../../../queries/devops-integration';
+import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
 import AllSet from '../components/AllSet';
@@ -42,16 +39,20 @@ export interface JenkinsTutorialProps extends WithAvailableFeaturesProps {
   almBinding?: AlmSettingsInstance;
   baseUrl: string;
   component: Component;
-  projectBinding?: ProjectAlmBindingResponse;
   willRefreshAutomatically?: boolean;
 }
 
 export function JenkinsTutorial(props: JenkinsTutorialProps) {
-  const { almBinding, baseUrl, component, projectBinding, willRefreshAutomatically } = props;
+  const { almBinding, baseUrl, component, willRefreshAutomatically } = props;
+  const { data: projectBinding } = useProjectBindingQuery(component.key);
   const hasSelectAlmStep = projectBinding?.alm === undefined;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
   const [alm, setAlm] = React.useState<AlmKeys | undefined>(projectBinding?.alm);
   const [done, setDone] = React.useState(false);
+
+  React.useEffect(() => {
+    setAlm(projectBinding?.alm);
+  }, [projectBinding]);
 
   return (
     <>

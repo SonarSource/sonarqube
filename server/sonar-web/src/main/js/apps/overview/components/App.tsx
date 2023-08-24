@@ -27,7 +27,6 @@ import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { isPullRequest } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { useBranchesQuery } from '../../../queries/branch';
-import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { isPortfolioLike } from '../../../types/component';
 import { Feature } from '../../../types/features';
 import { Component } from '../../../types/types';
@@ -37,11 +36,10 @@ import EmptyOverview from './EmptyOverview';
 
 interface AppProps extends WithAvailableFeaturesProps {
   component: Component;
-  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function App(props: AppProps) {
-  const { component, projectBinding } = props;
+  const { component } = props;
   const branchSupportEnabled = props.hasFeature(Feature.BranchSupport);
   const { data } = useBranchesQuery(component);
 
@@ -76,7 +74,6 @@ export function App(props: AppProps) {
               branch={branchLike}
               branchesEnabled={branchSupportEnabled}
               component={component}
-              projectBinding={projectBinding}
             />
           )}
         </main>

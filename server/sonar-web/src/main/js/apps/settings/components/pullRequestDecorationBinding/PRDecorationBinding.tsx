@@ -19,21 +19,14 @@
  */
 import { cloneDeep } from 'lodash';
 import * as React from 'react';
-import {
-  deleteProjectAlmBinding,
-  getAlmSettings,
-  getProjectAlmBinding,
-  setProjectAzureBinding,
-  setProjectBitbucketBinding,
-  setProjectBitbucketCloudBinding,
-  setProjectGithubBinding,
-  setProjectGitlabBinding,
-  validateProjectAlmBinding,
-} from '../../../../api/alm-settings';
+import { getAlmSettings, validateProjectAlmBinding } from '../../../../api/alm-settings';
 import withCurrentUserContext from '../../../../app/components/current-user/withCurrentUserContext';
-import { throwGlobalError } from '../../../../helpers/error';
-import { HttpStatus } from '../../../../helpers/request';
 import { hasGlobalPermission } from '../../../../helpers/users';
+import {
+  useDeleteProjectAlmBindingMutation,
+  useProjectBindingQuery,
+  useSetProjectBindingMutation,
+} from '../../../../queries/devops-integration';
 import {
   AlmKeys,
   AlmSettingsInstance,
@@ -78,205 +71,39 @@ const REQUIRED_FIELDS_BY_ALM: {
 
 const INITIAL_FORM_DATA = { key: '', repository: '', monorepo: false };
 
-export class PRDecorationBinding extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = {
-    formData: cloneDeep(INITIAL_FORM_DATA),
-    instances: [],
-    isChanged: false,
-    isConfigured: false,
-    isValid: false,
-    loading: true,
-    updating: false,
-    successfullyUpdated: false,
-    checkingConfiguration: false,
-  };
+export function PRDecorationBinding(props: Props) {
+  const { component, currentUser } = props;
+  const [formData, setFormData] = React.useState<FormData>(cloneDeep(INITIAL_FORM_DATA));
+  const [instances, setInstances] = React.useState<AlmSettingsInstance[]>([]);
+  const [configurationErrors, setConfigurationErrors] = React.useState(undefined);
+  const [loading, setLoading] = React.useState(true);
+  const [successfullyUpdated, setSuccessfullyUpdated] = React.useState(false);
+  const [checkingConfiguration, setCheckingConfiguration] = React.useState(false);
+  const { data: originalData } = useProjectBindingQuery(component.key);
+  const { mutateAsync: deleteMutation, isLoading: isDeleting } = useDeleteProjectAlmBindingMutation(
+    component.key
+  );
+  const { mutateAsync: updateMutation, isLoading: isUpdating } = useSetProjectBindingMutation();
 
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchDefinitions();
-  }
+  const isConfigured = !!originalData;
+  const updating = isDeleting || isUpdating;
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchDefinitions = () => {
-    const project = this.props.component.key;
-    return Promise.all([getAlmSettings(project), this.getProjectBinding(project)])
-      .then(([instances, originalData]) => {
-        if (this.mounted) {
-          this.setState(({ formData }) => {
-            const newFormData = originalData || formData;
-            return {
-              formData: newFormData,
-              instances: instances || [],
-              isChanged: false,
-              isConfigured: !!originalData,
-              isValid: this.validateForm(newFormData),
-              loading: false,
-              originalData: newFormData,
-              configurationErrors: undefined,
-            };
-          });
-        }
-      })
-      .catch(() => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      })
-      .then(() => this.checkConfiguration());
-  };
-
-  getProjectBinding(project: string): Promise<ProjectAlmBindingResponse | undefined> {
-    return getProjectAlmBinding(project).catch((response: Response) => {
-      if (response && response.status === HttpStatus.NotFound) {
-        return undefined;
+  const isValid = React.useMemo(() => {
+    const validateForm = ({ key, ...additionalFields }: State['formData']) => {
+      const selected = instances.find((i) => i.key === key);
+      if (!key || !selected) {
+        return false;
       }
-      return throwGlobalError(response);
-    });
-  }
+      return REQUIRED_FIELDS_BY_ALM[selected.alm].reduce(
+        (result: boolean, field) => result && Boolean(additionalFields[field]),
+        true
+      );
+    };
 
-  catchError = () => {
-    if (this.mounted) {
-      this.setState({ updating: false });
-    }
-  };
+    return validateForm(formData);
+  }, [formData, instances]);
 
-  handleReset = () => {
-    const { component } = this.props;
-    this.setState({ updating: true });
-    deleteProjectAlmBinding(component.key)
-      .then(() => {
-        if (this.mounted) {
-          this.setState({
-            formData: {
-              key: '',
-              repository: '',
-              slug: '',
-              monorepo: false,
-            },
-            originalData: undefined,
-            isChanged: false,
-            isConfigured: false,
-            updating: false,
-            successfullyUpdated: true,
-            configurationErrors: undefined,
-          });
-        }
-      })
-      .catch(this.catchError);
-  };
-
-  submitProjectAlmBinding(
-    alm: AlmKeys,
-    key: string,
-    almSpecificFields: Omit<FormData, 'key'>
-  ): Promise<void> {
-    const almSetting = key;
-    const { repository, slug = '', monorepo = false } = almSpecificFields;
-    const project = this.props.component.key;
-
-    switch (alm) {
-      case AlmKeys.Azure: {
-        return setProjectAzureBinding({
-          almSetting,
-          project,
-          projectName: slug,
-          repositoryName: repository,
-          monorepo,
-        });
-      }
-      case AlmKeys.BitbucketServer: {
-        return setProjectBitbucketBinding({
-          almSetting,
-          project,
-          repository,
-          slug,
-          monorepo,
-        });
-      }
-      case AlmKeys.BitbucketCloud: {
-        return setProjectBitbucketCloudBinding({
-          almSetting,
-          project,
-          repository,
-          monorepo,
-        });
-      }
-      case AlmKeys.GitHub: {
-        // By default it must remain true.
-        const summaryCommentEnabled = almSpecificFields?.summaryCommentEnabled ?? true;
-        return setProjectGithubBinding({
-          almSetting,
-          project,
-          repository,
-          summaryCommentEnabled,
-          monorepo,
-        });
-      }
-
-      case AlmKeys.GitLab: {
-        return setProjectGitlabBinding({
-          almSetting,
-          project,
-          repository,
-          monorepo,
-        });
-      }
-
-      default:
-        return Promise.reject();
-    }
-  }
-
-  checkConfiguration = async () => {
-    const {
-      component: { key: projectKey },
-    } = this.props;
-
-    const { isConfigured } = this.state;
-
-    if (!isConfigured) {
-      return;
-    }
-
-    this.setState({ checkingConfiguration: true, configurationErrors: undefined });
-
-    const configurationErrors = await validateProjectAlmBinding(projectKey).catch((error) => error);
-
-    if (this.mounted) {
-      this.setState({ checkingConfiguration: false, configurationErrors });
-    }
-  };
-
-  handleSubmit = () => {
-    this.setState({ updating: true });
-    const {
-      formData: { key, ...additionalFields },
-      instances,
-    } = this.state;
-
-    const selected = instances.find((i) => i.key === key);
-    if (!key || !selected) {
-      return;
-    }
-
-    this.submitProjectAlmBinding(selected.alm, key, additionalFields)
-      .then(() => {
-        if (this.mounted) {
-          this.setState({
-            updating: false,
-            successfullyUpdated: true,
-          });
-        }
-      })
-      .then(this.fetchDefinitions)
-      .catch(this.catchError);
-  };
-
-  isDataSame(
+  const isDataSame = (
     { key, repository = '', slug = '', summaryCommentEnabled = false, monorepo = false }: FormData,
     {
       key: oKey = '',
@@ -285,7 +112,7 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
       summaryCommentEnabled: osummaryCommentEnabled = false,
       monorepo: omonorepo = false,
     }: FormData
-  ) {
+  ) => {
     return (
       key === oKey &&
       repository === oRepository &&
@@ -293,54 +120,153 @@ export class PRDecorationBinding extends React.PureComponent<Props, State> {
       summaryCommentEnabled === osummaryCommentEnabled &&
       monorepo === omonorepo
     );
-  }
-
-  handleFieldChange = (id: keyof ProjectAlmBindingResponse, value: string | boolean) => {
-    this.setState(({ formData, originalData }) => {
-      const newFormData = {
-        ...formData,
-        [id]: value,
-      };
-
-      return {
-        formData: newFormData,
-        isValid: this.validateForm(newFormData),
-        isChanged: !this.isDataSame(newFormData, originalData || cloneDeep(INITIAL_FORM_DATA)),
-        successfullyUpdated: false,
-      };
-    });
   };
 
-  validateForm = ({ key, ...additionalFields }: State['formData']) => {
-    const { instances } = this.state;
+  const isChanged = !isDataSame(formData, originalData ?? cloneDeep(INITIAL_FORM_DATA));
+
+  React.useEffect(() => {
+    fetchDefinitions();
+  }, []);
+
+  React.useEffect(() => {
+    checkConfiguration();
+  }, [originalData]);
+
+  React.useEffect(() => {
+    setFormData((formData) => originalData ?? formData);
+  }, [originalData]);
+
+  const fetchDefinitions = () => {
+    const project = component.key;
+
+    return getAlmSettings(project)
+      .then((instances) => {
+        setInstances(instances || []);
+        setConfigurationErrors(undefined);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  };
+
+  const handleReset = () => {
+    deleteMutation()
+      .then(() => {
+        setFormData({
+          key: '',
+          repository: '',
+          slug: '',
+          monorepo: false,
+        });
+        setSuccessfullyUpdated(true);
+        setConfigurationErrors(undefined);
+      })
+      .catch(() => {});
+  };
+
+  const submitProjectAlmBinding = (
+    alm: AlmKeys,
+    key: string,
+    almSpecificFields: Omit<FormData, 'key'>
+  ): Promise<void> => {
+    const almSetting = key;
+    const { repository, slug = '', monorepo = false } = almSpecificFields;
+    const project = component.key;
+
+    const baseParams = {
+      almSetting,
+      project,
+      repository,
+      monorepo,
+    };
+    let updateParams;
+
+    if (alm === AlmKeys.Azure || alm === AlmKeys.BitbucketServer) {
+      updateParams = {
+        alm,
+        ...baseParams,
+        slug,
+      };
+    } else if (alm === AlmKeys.GitHub) {
+      updateParams = {
+        alm,
+        ...baseParams,
+        summaryCommentEnabled: almSpecificFields?.summaryCommentEnabled ?? true,
+      };
+    } else {
+      updateParams = {
+        alm,
+        ...baseParams,
+      };
+    }
+
+    return updateMutation(updateParams);
+  };
+
+  const checkConfiguration = async () => {
+    const projectKey = component.key;
+
+    if (!isConfigured) {
+      return;
+    }
+
+    setCheckingConfiguration(true);
+    setConfigurationErrors(undefined);
+
+    const configurationErrors = await validateProjectAlmBinding(projectKey).catch((error) => error);
+
+    setCheckingConfiguration(false);
+    setConfigurationErrors(configurationErrors);
+  };
+
+  const handleSubmit = () => {
+    const { key, ...additionalFields } = formData;
+
     const selected = instances.find((i) => i.key === key);
     if (!key || !selected) {
-      return false;
+      return;
     }
-    return REQUIRED_FIELDS_BY_ALM[selected.alm].reduce(
-      (result: boolean, field) => result && Boolean(additionalFields[field]),
-      true
-    );
+
+    submitProjectAlmBinding(selected.alm, key, additionalFields)
+      .then(() => {
+        setSuccessfullyUpdated(true);
+      })
+      .then(fetchDefinitions)
+      .catch(() => {});
   };
 
-  handleCheckConfiguration = async () => {
-    await this.checkConfiguration();
+  const handleFieldChange = (id: keyof ProjectAlmBindingResponse, value: string | boolean) => {
+    setFormData((formData) => ({
+      ...formData,
+      [id]: value,
+    }));
+    setSuccessfullyUpdated(false);
   };
 
-  render() {
-    const { currentUser } = this.props;
+  const handleCheckConfiguration = async () => {
+    await checkConfiguration();
+  };
 
-    return (
-      <PRDecorationBindingRenderer
-        onFieldChange={this.handleFieldChange}
-        onReset={this.handleReset}
-        onSubmit={this.handleSubmit}
-        onCheckConfiguration={this.handleCheckConfiguration}
-        isSysAdmin={hasGlobalPermission(currentUser, Permissions.Admin)}
-        {...this.state}
-      />
-    );
-  }
+  return (
+    <PRDecorationBindingRenderer
+      onFieldChange={handleFieldChange}
+      onReset={handleReset}
+      onSubmit={handleSubmit}
+      onCheckConfiguration={handleCheckConfiguration}
+      isSysAdmin={hasGlobalPermission(currentUser, Permissions.Admin)}
+      instances={instances}
+      formData={formData}
+      isChanged={isChanged}
+      isValid={isValid}
+      isConfigured={isConfigured}
+      loading={loading}
+      updating={updating}
+      successfullyUpdated={successfullyUpdated}
+      checkingConfiguration={checkingConfiguration}
+      configurationErrors={configurationErrors}
+    />
+  );
 }
 
 export default withCurrentUserContext(PRDecorationBinding);

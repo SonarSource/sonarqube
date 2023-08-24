@@ -20,11 +20,7 @@
 import { BasicSeparator, Title, TutorialStep, TutorialStepList } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import {
-  AlmKeys,
-  AlmSettingsInstance,
-  ProjectAlmBindingResponse,
-} from '../../../types/alm-settings';
+import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 import AllSet from '../components/AllSet';
@@ -38,21 +34,13 @@ export interface GitHubActionTutorialProps {
   component: Component;
   currentUser: LoggedInUser;
   mainBranchName: string;
-  projectBinding?: ProjectAlmBindingResponse;
   willRefreshAutomatically?: boolean;
 }
 
 export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
   const [done, setDone] = React.useState<boolean>(false);
-  const {
-    almBinding,
-    baseUrl,
-    currentUser,
-    component,
-    projectBinding,
-    mainBranchName,
-    willRefreshAutomatically,
-  } = props;
+  const { almBinding, baseUrl, currentUser, component, mainBranchName, willRefreshAutomatically } =
+    props;
   return (
     <>
       <Title>{translate('onboarding.tutorial.with.github_ci.title')}</Title>
@@ -66,7 +54,6 @@ export default function GitHubActionTutorial(props: GitHubActionTutorialProps) {
             baseUrl={baseUrl}
             component={component}
             currentUser={currentUser}
-            projectBinding={projectBinding}
           />
         </TutorialStep>
         <TutorialStep title={translate('onboarding.tutorial.with.github_action.yaml.title')}>

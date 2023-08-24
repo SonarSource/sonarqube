@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { act, screen } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import AuthenticationServiceMock from '../../../../../api/mocks/AuthenticationServiceMock';
 import PermissionsServiceMock from '../../../../../api/mocks/PermissionsServiceMock';
 import { mockComponent } from '../../../../../helpers/mocks/component';
@@ -46,14 +47,17 @@ import { getPageObject } from '../../../test-utils';
 
 let serviceMock: PermissionsServiceMock;
 let authHandler: AuthenticationServiceMock;
+let almHandler: AlmSettingsServiceMock;
 beforeAll(() => {
   serviceMock = new PermissionsServiceMock();
   authHandler = new AuthenticationServiceMock();
+  almHandler = new AlmSettingsServiceMock();
 });
 
 afterEach(() => {
   serviceMock.reset();
   authHandler.reset();
+  almHandler.reset();
 });
 
 describe('rendering', () => {
@@ -237,11 +241,13 @@ it('should not allow to change visibility for GH Project with auto-provisioning'
   const user = userEvent.setup();
   const ui = getPageObject(user);
   authHandler.githubProvisioningStatus = true;
-  renderPermissionsProjectApp(
-    {},
-    { featureList: [Feature.GithubProvisioning] },
-    { projectBinding: { alm: AlmKeys.GitHub, key: 'test', repository: 'test', monorepo: false } }
-  );
+  almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
+    almSetting: 'test',
+    repository: 'test',
+    monorepo: false,
+    project: 'my-project',
+  });
+  renderPermissionsProjectApp({}, { featureList: [Feature.GithubProvisioning] });
   await ui.appLoaded();
 
   expect(ui.visibilityRadio(Visibility.Public).get()).toBeDisabled();
@@ -257,11 +263,13 @@ it('should allow to change visibility for non-GH Project', async () => {
   const user = userEvent.setup();
   const ui = getPageObject(user);
   authHandler.githubProvisioningStatus = true;
-  renderPermissionsProjectApp(
-    {},
-    { featureList: [Feature.GithubProvisioning] },
-    { projectBinding: { alm: AlmKeys.Azure, key: 'test', repository: 'test', monorepo: false } }
-  );
+  almHandler.handleSetProjectBinding(AlmKeys.Azure, {
+    almSetting: 'test',
+    repository: 'test',
+    monorepo: false,
+    project: 'my-project',
+  });
+  renderPermissionsProjectApp({}, { featureList: [Feature.GithubProvisioning] });
   await ui.appLoaded();
 
   expect(ui.visibilityRadio(Visibility.Public).get()).not.toHaveClass('disabled');
@@ -277,11 +285,13 @@ it('should allow to change visibility for GH Project with disabled auto-provisio
   const user = userEvent.setup();
   const ui = getPageObject(user);
   authHandler.githubProvisioningStatus = false;
-  renderPermissionsProjectApp(
-    {},
-    { featureList: [Feature.GithubProvisioning] },
-    { projectBinding: { alm: AlmKeys.GitHub, key: 'test', repository: 'test', monorepo: false } }
-  );
+  almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
+    almSetting: 'test',
+    repository: 'test',
+    monorepo: false,
+    project: 'my-project',
+  });
+  renderPermissionsProjectApp({}, { featureList: [Feature.GithubProvisioning] });
   await ui.appLoaded();
 
   expect(ui.visibilityRadio(Visibility.Public).get()).not.toHaveClass('disabled');
@@ -297,18 +307,25 @@ it('should have disabled permissions for GH Project', async () => {
   const user = userEvent.setup();
   const ui = getPageObject(user);
   authHandler.githubProvisioningStatus = true;
+  almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
+    almSetting: 'test',
+    repository: 'test',
+    monorepo: false,
+    project: 'my-project',
+  });
   renderPermissionsProjectApp(
     {},
     { featureList: [Feature.GithubProvisioning] },
     {
       component: mockComponent({ visibility: Visibility.Private }),
-      projectBinding: { alm: AlmKeys.GitHub, key: 'test', repository: 'test', monorepo: false },
     }
   );
   await ui.appLoaded();
 
   expect(ui.pageTitle.get()).toBeInTheDocument();
-  expect(ui.pageTitle.get()).toHaveAccessibleName(/project_permission.github_managed/);
+  await waitFor(() =>
+    expect(ui.pageTitle.get()).toHaveAccessibleName(/project_permission.github_managed/)
+  );
   expect(ui.pageTitle.byRole('img').get()).toBeInTheDocument();
   expect(ui.githubExplanations.get()).toBeInTheDocument();
 
@@ -379,12 +396,15 @@ it('should allow to change permissions for GH Project without auto-provisioning'
   const user = userEvent.setup();
   const ui = getPageObject(user);
   authHandler.githubProvisioningStatus = false;
+  almHandler.handleSetProjectBinding(AlmKeys.GitHub, {
+    almSetting: 'test',
+    repository: 'test',
+    monorepo: false,
+    project: 'my-project',
+  });
   renderPermissionsProjectApp(
     { visibility: Visibility.Private },
-    { featureList: [Feature.GithubProvisioning] },
-    {
-      projectBinding: { alm: AlmKeys.GitHub, key: 'test', repository: 'test', monorepo: false },
-    }
+    { featureList: [Feature.GithubProvisioning] }
   );
   await ui.appLoaded();
 
@@ -423,15 +443,20 @@ function renderPermissionsProjectApp(
   contextOverride: Partial<RenderContext> = {},
   componentContextOverride: Partial<ComponentContextShape> = {}
 ) {
-  return renderAppWithComponentContext('project_roles', projectPermissionsRoutes, contextOverride, {
-    component: mockComponent({
-      visibility: Visibility.Public,
-      configuration: {
-        canUpdateProjectVisibilityToPrivate: true,
-        canApplyPermissionTemplate: true,
-      },
-      ...override,
-    }),
-    ...componentContextOverride,
-  });
+  return renderAppWithComponentContext(
+    'project_roles?id=my-project',
+    projectPermissionsRoutes,
+    contextOverride,
+    {
+      component: mockComponent({
+        visibility: Visibility.Public,
+        configuration: {
+          canUpdateProjectVisibilityToPrivate: true,
+          canApplyPermissionTemplate: true,
+        },
+        ...override,
+      }),
+      ...componentContextOverride,
+    }
+  );
 }

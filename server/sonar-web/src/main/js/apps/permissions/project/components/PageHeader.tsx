@@ -31,7 +31,7 @@ import ApplyTemplate from './ApplyTemplate';
 
 interface Props {
   component: Component;
-  isGitHubProject: boolean;
+  isGitHubProject?: boolean;
   loadHolders: () => void;
   loading: boolean;
 }

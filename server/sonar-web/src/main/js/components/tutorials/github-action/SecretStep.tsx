@@ -27,7 +27,8 @@ import {
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
-import { AlmSettingsInstance, ProjectAlmBindingResponse } from '../../../types/alm-settings';
+import { useProjectBindingQuery } from '../../../queries/devops-integration';
+import { AlmSettingsInstance } from '../../../types/alm-settings';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 import { InlineSnippet } from '../components/InlineSnippet';
@@ -40,11 +41,11 @@ export interface SecretStepProps {
   baseUrl: string;
   component: Component;
   currentUser: LoggedInUser;
-  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export default function SecretStep(props: SecretStepProps) {
-  const { almBinding, baseUrl, component, currentUser, projectBinding } = props;
+  const { almBinding, baseUrl, component, currentUser } = props;
+  const { data: projectBinding } = useProjectBindingQuery(component.key);
 
   return (
     <>

@@ -21,11 +21,10 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import * as React from 'react';
-import { getAlmSettingsNoCatch } from '../../../api/alm-settings';
 import { getScannableProjects } from '../../../api/components';
+import AlmSettingsServiceMock from '../../../api/mocks/AlmSettingsServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
-import { mockProjectAlmBindingResponse } from '../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockLoggedInUser } from '../../../helpers/testMocks';
 import { renderApp } from '../../../helpers/testReactTestingUtils';
@@ -47,25 +46,24 @@ jest.mock('../../../helpers/urls', () => ({
   getHostUrl: jest.fn().mockReturnValue('http://host.url'),
 }));
 
-jest.mock('../../../api/alm-settings', () => ({
-  getAlmSettingsNoCatch: jest.fn().mockRejectedValue(null),
-}));
-
 jest.mock('../../../api/components', () => ({
   getScannableProjects: jest.fn().mockResolvedValue({ projects: [] }),
 }));
 
 let settingsMock: SettingsServiceMock;
 let tokenMock: UserTokensMock;
+let almMock: AlmSettingsServiceMock;
 
 beforeAll(() => {
   settingsMock = new SettingsServiceMock();
   tokenMock = new UserTokensMock();
+  almMock = new AlmSettingsServiceMock();
 });
 
 afterEach(() => {
   tokenMock.reset();
   settingsMock.reset();
+  almMock.reset();
 });
 
 beforeEach(jest.clearAllMocks);
@@ -112,27 +110,29 @@ it.each([
   [AlmKeys.BitbucketServer, [TutorialModes.Jenkins]],
   [AlmKeys.BitbucketCloud, [TutorialModes.BitbucketPipelines, TutorialModes.Jenkins]],
 ])('should show correct buttons if project is bound to %s', async (alm, modes) => {
-  renderTutorialSelection({ projectBinding: mockProjectAlmBindingResponse({ alm }) });
+  almMock.handleSetProjectBinding(alm, {
+    project: 'foo',
+    almSetting: 'foo',
+    repository: 'repo',
+    monorepo: false,
+  });
+  renderTutorialSelection();
   await waitOnDataLoaded();
 
   modes.forEach((mode) => expect(ui.chooseTutorialLink(mode).get()).toBeInTheDocument());
 });
 
 it('should correctly fetch the corresponding ALM setting', async () => {
-  jest
-    .mocked(getAlmSettingsNoCatch)
-    .mockResolvedValueOnce([
-      { key: 'binding', url: 'https://enterprise.github.com', alm: AlmKeys.GitHub },
-    ]);
-  renderTutorialSelection(
-    {
-      projectBinding: mockProjectAlmBindingResponse({ alm: AlmKeys.GitHub, key: 'binding' }),
-    },
-    `tutorials?selectedTutorial=${TutorialModes.Jenkins}&id=bar`
-  );
+  almMock.handleSetProjectBinding(AlmKeys.GitHub, {
+    project: 'foo',
+    almSetting: 'conf-github-1',
+    repository: 'repo',
+    monorepo: false,
+  });
+  renderTutorialSelection({}, `tutorials?selectedTutorial=${TutorialModes.Jenkins}&id=foo`);
   await waitOnDataLoaded();
 
-  expect(screen.getByText('https://enterprise.github.com', { exact: false })).toBeInTheDocument();
+  expect(await screen.findByText('http://url', { exact: false })).toBeInTheDocument();
 });
 
 it('should correctly fetch the instance URL', async () => {

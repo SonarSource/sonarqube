@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { ProjectAlmBindingResponse } from '../../../../types/alm-settings';
 import { Component } from '../../../../types/types';
 import { CurrentUser } from '../../../../types/users';
 import withCurrentUserContext from '../../current-user/withCurrentUserContext';
@@ -28,17 +27,16 @@ import BranchLikeNavigation from './branch-like/BranchLikeNavigation';
 export interface HeaderProps {
   component: Component;
   currentUser: CurrentUser;
-  projectBinding?: ProjectAlmBindingResponse;
 }
 
 export function Header(props: HeaderProps) {
-  const { component, currentUser, projectBinding } = props;
+  const { component, currentUser } = props;
 
   return (
     <div className="sw-flex sw-flex-shrink sw-items-center">
       <Breadcrumb component={component} currentUser={currentUser} />
 
-      <BranchLikeNavigation component={component} projectBinding={projectBinding} />
+      <BranchLikeNavigation component={component} />
     </div>
   );
 }

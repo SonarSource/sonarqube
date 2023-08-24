@@ -114,7 +114,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
   let showAzurePipelines = true;
   let showJenkins = true;
 
-  if (projectBinding !== undefined) {
+  if (projectBinding != null) {
     showGitHubActions = projectBinding.alm === AlmKeys.GitHub;
     showGitLabCICD = projectBinding.alm === AlmKeys.GitLab;
     showBitbucketPipelines = projectBinding.alm === AlmKeys.BitbucketCloud;
@@ -227,7 +227,6 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           component={component}
           currentUser={currentUser}
           mainBranchName={mainBranchName}
-          projectBinding={projectBinding}
           willRefreshAutomatically={willRefreshAutomatically}
         />
       )}
@@ -239,7 +238,6 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           component={component}
           currentUser={currentUser}
           mainBranchName={mainBranchName}
-          projectBinding={projectBinding}
           willRefreshAutomatically={willRefreshAutomatically}
         />
       )}
@@ -249,7 +247,6 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
           almBinding={almBinding}
           baseUrl={baseUrl}
           component={component}
-          projectBinding={projectBinding}
           willRefreshAutomatically={willRefreshAutomatically}
         />
       )}

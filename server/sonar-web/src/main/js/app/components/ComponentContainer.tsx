@@ -22,7 +22,7 @@ import { differenceBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
-import { getProjectAlmBinding, validateProjectAlmBinding } from '../../api/alm-settings';
+import { validateProjectAlmBinding } from '../../api/alm-settings';
 import { getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/navigation';
@@ -30,10 +30,7 @@ import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { translateWithParameters } from '../../helpers/l10n';
 import { HttpStatus } from '../../helpers/request';
 import { getPortfolioUrl, getProjectUrl } from '../../helpers/urls';
-import {
-  ProjectAlmBindingConfigurationErrors,
-  ProjectAlmBindingResponse,
-} from '../../types/alm-settings';
+import { ProjectAlmBindingConfigurationErrors } from '../../types/alm-settings';
 import { ComponentQualifier, isPortfolioLike } from '../../types/component';
 import { Feature } from '../../types/features';
 import { Task, TaskStatuses, TaskTypes } from '../../types/tasks';
@@ -56,7 +53,6 @@ interface State {
   currentTask?: Task;
   isPending: boolean;
   loading: boolean;
-  projectBinding?: ProjectAlmBindingResponse;
   projectBindingErrors?: ProjectAlmBindingConfigurationErrors;
   tasksInProgress?: Task[];
 }
@@ -124,17 +120,10 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       this.props.router.replace(getPortfolioUrl(componentWithQualifier.key));
     }
 
-    let projectBinding;
-
-    if (componentWithQualifier.qualifier === ComponentQualifier.Project) {
-      projectBinding = await getProjectAlmBinding(key).catch(() => undefined);
-    }
-
     if (this.mounted) {
       this.setState(
         {
           component: componentWithQualifier,
-          projectBinding,
           loading: false,
         },
         () => {
@@ -329,8 +318,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       return <ComponentContainerNotFound />;
     }
 
-    const { currentTask, isPending, projectBinding, projectBindingErrors, tasksInProgress } =
-      this.state;
+    const { currentTask, isPending, projectBindingErrors, tasksInProgress } = this.state;
 
     const isInProgress = tasksInProgress && tasksInProgress.length > 0;
 
@@ -353,7 +341,6 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               currentTask={currentTask}
               isInProgress={isInProgress}
               isPending={isPending}
-              projectBinding={projectBinding}
               projectBindingErrors={projectBindingErrors}
             />
           )}
@@ -370,7 +357,6 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               isPending,
               onComponentChange: this.handleComponentChange,
               fetchComponent: this.fetchComponent,
-              projectBinding,
             }}
           >
             <Outlet />

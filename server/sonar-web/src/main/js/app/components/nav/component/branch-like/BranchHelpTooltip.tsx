@@ -24,29 +24,28 @@ import Link from '../../../../../components/common/Link';
 import HelpTooltip from '../../../../../components/controls/HelpTooltip';
 import { translate, translateWithParameters } from '../../../../../helpers/l10n';
 import { getApplicationAdminUrl } from '../../../../../helpers/urls';
-import { ProjectAlmBindingResponse } from '../../../../../types/alm-settings';
+import { useProjectBindingQuery } from '../../../../../queries/devops-integration';
+import { AlmKeys } from '../../../../../types/alm-settings';
 import { Component } from '../../../../../types/types';
 
 interface Props {
   component: Component;
   isApplication: boolean;
-  projectBinding?: ProjectAlmBindingResponse;
   hasManyBranches: boolean;
   canAdminComponent?: boolean;
   branchSupportEnabled: boolean;
-  isGitLab: boolean;
 }
 
 export default function BranchHelpTooltip({
   component,
   isApplication,
-  projectBinding,
   hasManyBranches,
   canAdminComponent,
   branchSupportEnabled,
-  isGitLab,
 }: Props) {
   const helpIcon = <HelperHintIcon aria-label="help-tooltip" />;
+  const { data: projectBinding } = useProjectBindingQuery(component.key);
+  const isGitLab = projectBinding != null && projectBinding.alm === AlmKeys.GitLab;
 
   if (isApplication) {
     if (!hasManyBranches && canAdminComponent) {
@@ -71,7 +70,7 @@ export default function BranchHelpTooltip({
       return (
         <DocumentationTooltip
           content={
-            projectBinding !== undefined
+            projectBinding != null
               ? translateWithParameters(
                   `branch_like_navigation.no_branch_support.content_x.${isGitLab ? 'mr' : 'pr'}`,
                   translate('alm', projectBinding.alm)
@@ -87,7 +86,7 @@ export default function BranchHelpTooltip({
             },
           ]}
           title={
-            projectBinding !== undefined
+            projectBinding != null
               ? translate('branch_like_navigation.no_branch_support.title', isGitLab ? 'mr' : 'pr')
               : translate('branch_like_navigation.no_branch_support.title')
           }

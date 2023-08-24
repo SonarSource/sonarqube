@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
+import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLanguage } from '../../../../helpers/testMocks';
@@ -41,9 +43,11 @@ jest.mock('../../../../api/settings', () => ({
 }));
 
 const tokenMock = new UserTokensMock();
+const almMock = new AlmSettingsServiceMock();
 
 afterEach(() => {
   tokenMock.reset();
+  almMock.reset();
 });
 
 const ui = {
@@ -169,21 +173,21 @@ it.each([AlmKeys.GitHub, AlmKeys.BitbucketCloud])(
   '%s: completes tutorial with bound alm and project',
   async (alm: AlmKeys) => {
     const user = userEvent.setup();
+    await almMock.handleSetProjectBinding(alm, {
+      almSetting: 'my-project',
+      project: 'my-project',
+      repository: 'my-project',
+      monorepo: true,
+    });
     renderJenkinsTutorial({
       almBinding: {
         alm,
         url: 'http://localhost/qube',
         key: 'my-project',
       },
-      projectBinding: {
-        alm,
-        key: 'my-project',
-        repository: 'my-project',
-        monorepo: true,
-      },
     });
 
-    expect(ui.devopsPlatformTitle.query()).not.toBeInTheDocument();
+    await waitFor(() => expect(ui.devopsPlatformTitle.query()).not.toBeInTheDocument());
 
     expect(ui.webhookAlmLink(alm).get()).toBeInTheDocument();
     await user.click(ui.mavenBuildButton.get());

@@ -20,11 +20,7 @@
 import { BasicSeparator, Title, TutorialStep, TutorialStepList } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
-import {
-  AlmKeys,
-  AlmSettingsInstance,
-  ProjectAlmBindingResponse,
-} from '../../../types/alm-settings';
+import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import { Component } from '../../../types/types';
 import { LoggedInUser } from '../../../types/users';
 import AllSet from '../components/AllSet';
@@ -46,20 +42,12 @@ export interface BitbucketPipelinesTutorialProps {
   component: Component;
   currentUser: LoggedInUser;
   mainBranchName: string;
-  projectBinding?: ProjectAlmBindingResponse;
   willRefreshAutomatically?: boolean;
 }
 
 export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTutorialProps) {
-  const {
-    almBinding,
-    baseUrl,
-    currentUser,
-    component,
-    projectBinding,
-    willRefreshAutomatically,
-    mainBranchName,
-  } = props;
+  const { almBinding, baseUrl, currentUser, component, willRefreshAutomatically, mainBranchName } =
+    props;
 
   const [done, setDone] = React.useState<boolean>(false);
   return (
@@ -75,7 +63,6 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
             baseUrl={baseUrl}
             component={component}
             currentUser={currentUser}
-            projectBinding={projectBinding}
           />
         </TutorialStep>
         <TutorialStep title={translate('onboarding.tutorial.with.bitbucket_pipelines.yaml.title')}>
@@ -101,7 +88,10 @@ export default function BitbucketPipelinesTutorial(props: BitbucketPipelinesTuto
         {done && (
           <>
             <BasicSeparator className="sw-my-10" />
-            <AllSet alm={AlmKeys.GitLab} willRefreshAutomatically={willRefreshAutomatically} />
+            <AllSet
+              alm={AlmKeys.BitbucketCloud}
+              willRefreshAutomatically={willRefreshAutomatically}
+            />
           </>
         )}
       </TutorialStepList>

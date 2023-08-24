@@ -48,6 +48,7 @@ import {
   deleteProjectAlmBinding,
   getAlmDefinitions,
   getAlmSettings,
+  getAlmSettingsNoCatch,
   getProjectAlmBinding,
   setProjectAzureBinding,
   setProjectBitbucketBinding,
@@ -109,6 +110,8 @@ interface EnhancedProjectAlmBindingParam extends ProjectAlmBindingParams {
   summaryCommentEnabled?: boolean;
 }
 
+jest.mock('../alm-settings');
+
 export default class AlmSettingsServiceMock {
   #almDefinitions: AlmSettingsBindingDefinitions;
   #almSettings: AlmSettingsInstance[];
@@ -120,6 +123,7 @@ export default class AlmSettingsServiceMock {
     this.#almSettings = cloneDeep(defaultAlmSettings);
     this.#almDefinitions = cloneDeep(defaultAlmDefinitions);
     jest.mocked(getAlmSettings).mockImplementation(this.handleGetAlmSettings);
+    jest.mocked(getAlmSettingsNoCatch).mockImplementation(this.handleGetAlmSettings);
     jest.mocked(getAlmDefinitions).mockImplementation(this.handleGetAlmDefinitions);
     jest.mocked(countBoundProjects).mockImplementation(this.handleCountBoundProjects);
     jest.mocked(validateAlmSettings).mockImplementation(this.handleValidateAlmSettings);

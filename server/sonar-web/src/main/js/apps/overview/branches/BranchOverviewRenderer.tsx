@@ -21,7 +21,6 @@ import { LargeCenteredLayout, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import { parseDate } from '../../../helpers/dates';
-import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
@@ -49,7 +48,6 @@ export interface BranchOverviewRendererProps {
   metrics?: Metric[];
   onGraphChange: (graph: GraphType) => void;
   period?: Period;
-  projectBinding?: ProjectAlmBindingResponse;
   projectIsEmpty?: boolean;
   qgStatuses?: QualityGateStatus[];
 }
@@ -70,7 +68,6 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
     metrics = [],
     onGraphChange,
     period,
-    projectBinding,
     projectIsEmpty,
     qgStatuses,
   } = props;
@@ -83,7 +80,6 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
         component={component}
         branchesEnabled={branchesEnabled}
         detectedCIOnLastAnalysis={detectedCIOnLastAnalysis}
-        projectBinding={projectBinding}
       />
       <LargeCenteredLayout>
         <PageContentFontWrapper>

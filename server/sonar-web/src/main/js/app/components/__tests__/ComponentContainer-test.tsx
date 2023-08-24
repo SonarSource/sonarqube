@@ -32,7 +32,6 @@ import { mockTask } from '../../../helpers/mocks/tasks';
 import { HttpStatus } from '../../../helpers/request';
 import { mockLocation, mockRouter } from '../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../helpers/testUtils';
-import { AlmKeys } from '../../../types/alm-settings';
 import { ComponentQualifier, Visibility } from '../../../types/component';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 import { Component } from '../../../types/types';
@@ -113,40 +112,6 @@ it('changes component', () => {
     qualifier: ComponentQualifier.Project,
     visibility: Visibility.Private,
   });
-});
-
-it('loads the project binding, if any', async () => {
-  const component = mockComponent({
-    breadcrumbs: [{ key: 'foo', name: 'foo', qualifier: ComponentQualifier.Project }],
-  });
-
-  jest
-    .mocked(getComponentNavigation)
-    .mockResolvedValueOnce({} as unknown as Awaited<ReturnType<typeof getComponentNavigation>>);
-
-  jest
-    .mocked(getComponentData)
-    .mockResolvedValueOnce({ component } as unknown as Awaited<ReturnType<typeof getComponentData>>)
-    .mockResolvedValueOnce({ component } as unknown as Awaited<
-      ReturnType<typeof getComponentData>
-    >);
-
-  jest
-    .mocked(getProjectAlmBinding)
-    .mockResolvedValueOnce(undefined as unknown as Awaited<ReturnType<typeof getProjectAlmBinding>>)
-    .mockResolvedValueOnce({
-      alm: AlmKeys.GitHub,
-      key: 'foo',
-    } as unknown as Awaited<ReturnType<typeof getProjectAlmBinding>>);
-
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(getProjectAlmBinding).toHaveBeenCalled();
-  expect(wrapper.state().projectBinding).toBeUndefined();
-
-  wrapper.setProps({ location: mockLocation({ query: { id: 'bar' } }) });
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state().projectBinding).toEqual({ alm: AlmKeys.GitHub, key: 'foo' });
 });
 
 it("doesn't load branches portfolio", async () => {

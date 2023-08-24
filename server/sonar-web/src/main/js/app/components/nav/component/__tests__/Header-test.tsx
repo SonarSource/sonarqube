@@ -20,8 +20,8 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
+import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import BranchesServiceMock from '../../../../../api/mocks/BranchesServiceMock';
-import { mockProjectAlmBindingResponse } from '../../../../../helpers/mocks/alm-settings';
 import { mockMainBranch, mockPullRequest } from '../../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../../helpers/mocks/component';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
@@ -37,8 +37,12 @@ jest.mock('../../../../../api/favorites', () => ({
 }));
 
 const handler = new BranchesServiceMock();
+const almHandler = new AlmSettingsServiceMock();
 
-beforeEach(() => handler.reset());
+beforeEach(() => {
+  handler.reset();
+  almHandler.reset();
+});
 
 it('should render correctly when there is only 1 branch', async () => {
   handler.emptyBranchesAndPullRequest();
@@ -153,14 +157,15 @@ it('should show the correct help tooltip for applications', async () => {
 it('should show the correct help tooltip when branch support is not enabled', async () => {
   handler.emptyBranchesAndPullRequest();
   handler.addBranch(mockMainBranch());
+  almHandler.handleSetProjectBinding(AlmKeys.GitLab, {
+    almSetting: 'key',
+    project: 'header-project',
+    repository: 'header-project',
+    monorepo: true,
+  });
   renderHeader(
     {
       currentUser: mockLoggedInUser(),
-      projectBinding: mockProjectAlmBindingResponse({
-        alm: AlmKeys.GitLab,
-        key: 'key',
-        monorepo: true,
-      }),
     },
     []
   );

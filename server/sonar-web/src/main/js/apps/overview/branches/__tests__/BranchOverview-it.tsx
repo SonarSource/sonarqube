@@ -22,6 +22,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { getMeasuresWithPeriodAndMetrics } from '../../../../api/measures';
+import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import { getProjectActivity } from '../../../../api/projectActivity';
 import {
   getApplicationQualityGate,
@@ -193,7 +194,13 @@ jest.mock('../../../../components/activity-graph/utils', () => {
   };
 });
 
+const almHandler = new AlmSettingsServiceMock();
+
 beforeEach(jest.clearAllMocks);
+
+afterEach(() => {
+  almHandler.reset();
+});
 
 describe('project overview', () => {
   it('should show a successful QG', async () => {

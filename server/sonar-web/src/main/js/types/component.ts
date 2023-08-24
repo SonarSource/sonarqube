@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ProjectAlmBindingResponse } from './alm-settings';
 import { Component, LightComponent } from './types';
 
 export enum Visibility {
@@ -101,5 +100,4 @@ export interface ComponentContextShape {
   isPending?: boolean;
   onComponentChange: (changes: Partial<Component>) => void;
   fetchComponent: () => Promise<void>;
-  projectBinding?: ProjectAlmBindingResponse;
 }

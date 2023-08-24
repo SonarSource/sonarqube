@@ -21,11 +21,9 @@
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import selectEvent from 'react-select-event';
+import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import UserTokensMock from '../../../../api/mocks/UserTokensMock';
-import {
-  mockAlmSettingsInstance,
-  mockProjectAlmBindingResponse,
-} from '../../../../helpers/mocks/alm-settings';
+import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockLanguage, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { RenderContext, renderApp } from '../../../../helpers/testReactTestingUtils';
@@ -47,9 +45,11 @@ jest.mock('../../../../api/settings', () => ({
 }));
 
 const tokenMock = new UserTokensMock();
+const almMock = new AlmSettingsServiceMock();
 
 afterEach(() => {
   tokenMock.reset();
+  almMock.reset();
 });
 
 const ui = {
@@ -134,12 +134,17 @@ it('should generate/delete a new token or use existing one', async () => {
 
 it('navigates between steps', async () => {
   const user = userEvent.setup();
+  almMock.handleSetProjectBinding(AlmKeys.GitHub, {
+    almSetting: 'my-project',
+    project: 'my-project',
+    repository: 'my-project',
+    monorepo: true,
+  });
   renderGithubActionTutorial({
     almBinding: mockAlmSettingsInstance({
       alm: AlmKeys.GitHub,
       url: 'http://localhost/qube',
     }),
-    projectBinding: mockProjectAlmBindingResponse({ alm: AlmKeys.GitHub }),
   });
 
   // If project is bound, link to repo is visible

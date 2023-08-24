@@ -41,7 +41,6 @@ import {
   extractStatusConditionsFromProjectStatus,
 } from '../../../helpers/qualityGates';
 import { isDefined } from '../../../helpers/types';
-import { ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import { ApplicationPeriod } from '../../../types/application';
 import { Branch, BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
@@ -57,7 +56,6 @@ interface Props {
   branch?: Branch;
   branchesEnabled?: boolean;
   component: Component;
-  projectBinding?: ProjectAlmBindingResponse;
 }
 
 interface State {
@@ -398,7 +396,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branch, branchesEnabled, component, projectBinding } = this.props;
+    const { branch, branchesEnabled, component } = this.props;
     const {
       analyses,
       appLeak,
@@ -436,7 +434,6 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
         metrics={metrics}
         onGraphChange={this.handleGraphChange}
         period={period}
-        projectBinding={projectBinding}
         projectIsEmpty={projectIsEmpty}
         qgStatuses={qgStatuses}
       />

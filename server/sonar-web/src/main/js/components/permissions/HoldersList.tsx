@@ -22,6 +22,7 @@ import * as React from 'react';
 import UseQuery from '../../helpers/UseQuery';
 import { translate } from '../../helpers/l10n';
 import { isPermissionDefinitionGroup } from '../../helpers/permissions';
+import { useIsGitHubProjectQuery } from '../../queries/devops-integration';
 import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider';
 import { Dict, PermissionDefinitions, PermissionGroup, PermissionUser } from '../../types/types';
 import GroupHolder from './GroupHolder';
@@ -39,7 +40,6 @@ interface Props {
   permissions: PermissionDefinitions;
   query?: string;
   selectedPermission?: string;
-  isGitHubProject?: boolean;
   users: PermissionUser[];
 }
 
@@ -103,36 +103,40 @@ export default class HoldersList extends React.PureComponent<Props, State> {
   }
 
   renderItem(item: PermissionUser | PermissionGroup, permissions: PermissionDefinitions) {
-    const { isGitHubProject, selectedPermission, isComponentPrivate } = this.props;
+    const { selectedPermission, isComponentPrivate } = this.props;
     return (
-      <UseQuery key={this.getKey(item)} query={useGithubProvisioningEnabledQuery}>
-        {({ data: githubProvisioningStatus }) => (
-          <>
-            {this.isPermissionUser(item) ? (
-              <UserHolder
-                key={`user-${item.login}`}
-                onToggle={this.handleUserToggle}
-                permissions={permissions}
-                selectedPermission={selectedPermission}
-                user={item}
-                disabled={isGitHubProject && !!githubProvisioningStatus && item.managed}
-                removeOnly={isGitHubProject && !!githubProvisioningStatus && !item.managed}
-                isGitHubProject={isGitHubProject}
-              />
-            ) : (
-              <GroupHolder
-                group={item}
-                isComponentPrivate={isComponentPrivate}
-                key={`group-${item.id || item.name}`}
-                onToggle={this.handleGroupToggle}
-                permissions={permissions}
-                selectedPermission={selectedPermission}
-                disabled={isGitHubProject && !!githubProvisioningStatus && item.managed}
-                removeOnly={isGitHubProject && !!githubProvisioningStatus && !item.managed}
-                isGitHubProject={isGitHubProject}
-              />
+      <UseQuery key={this.getKey(item)} query={useIsGitHubProjectQuery}>
+        {({ data: isGitHubProject }) => (
+          <UseQuery query={useGithubProvisioningEnabledQuery}>
+            {({ data: githubProvisioningStatus }) => (
+              <>
+                {this.isPermissionUser(item) ? (
+                  <UserHolder
+                    key={`user-${item.login}`}
+                    onToggle={this.handleUserToggle}
+                    permissions={permissions}
+                    selectedPermission={selectedPermission}
+                    user={item}
+                    disabled={isGitHubProject && !!githubProvisioningStatus && item.managed}
+                    removeOnly={isGitHubProject && !!githubProvisioningStatus && !item.managed}
+                    isGitHubProject={isGitHubProject}
+                  />
+                ) : (
+                  <GroupHolder
+                    group={item}
+                    isComponentPrivate={isComponentPrivate}
+                    key={`group-${item.id || item.name}`}
+                    onToggle={this.handleGroupToggle}
+                    permissions={permissions}
+                    selectedPermission={selectedPermission}
+                    disabled={isGitHubProject && !!githubProvisioningStatus && item.managed}
+                    removeOnly={isGitHubProject && !!githubProvisioningStatus && !item.managed}
+                    isGitHubProject={isGitHubProject}
+                  />
+                )}
+              </>
             )}
-          </>
+          </UseQuery>
         )}
       </UseQuery>
     );

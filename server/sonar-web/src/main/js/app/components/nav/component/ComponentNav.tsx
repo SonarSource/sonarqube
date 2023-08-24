@@ -22,10 +22,7 @@ import * as React from 'react';
 import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
 import NCDAutoUpdateMessage from '../../../../components/new-code-definition/NCDAutoUpdateMessage';
 import { translate } from '../../../../helpers/l10n';
-import {
-  ProjectAlmBindingConfigurationErrors,
-  ProjectAlmBindingResponse,
-} from '../../../../types/alm-settings';
+import { ProjectAlmBindingConfigurationErrors } from '../../../../types/alm-settings';
 import { ComponentQualifier } from '../../../../types/component';
 import { Task } from '../../../../types/tasks';
 import { Component } from '../../../../types/types';
@@ -40,13 +37,11 @@ export interface ComponentNavProps {
   currentTask?: Task;
   isInProgress?: boolean;
   isPending?: boolean;
-  projectBinding?: ProjectAlmBindingResponse;
   projectBindingErrors?: ProjectAlmBindingConfigurationErrors;
 }
 
 export default function ComponentNav(props: ComponentNavProps) {
-  const { component, currentTask, isInProgress, isPending, projectBinding, projectBindingErrors } =
-    props;
+  const { component, currentTask, isInProgress, isPending, projectBindingErrors } = props;
 
   React.useEffect(() => {
     const { breadcrumbs, key, name } = component;
@@ -78,7 +73,7 @@ export default function ComponentNav(props: ComponentNavProps) {
             style={{ top: `${top}px` }}
           >
             <div className="sw-min-h-10 sw-flex sw-justify-between">
-              <Header component={component} projectBinding={projectBinding} />
+              <Header component={component} />
               <HeaderMeta
                 component={component}
                 currentTask={currentTask}
