@@ -53,10 +53,10 @@ public class ExternalGroupDao implements Dao {
   public String getManagedGroupSqlFilter(boolean filterByManaged) {
     if (filterByManaged) {
       return  "(exists (select group_uuid from external_groups eg where eg.group_uuid = uuid) "
-        + "or exists (select group_uuid from github_orgs_groups gog eg where gog.group_uuid = uuid))";
+        + "or exists (select group_uuid from github_orgs_groups gog where gog.group_uuid = uuid))";
     }
     return "(not exists (select group_uuid from external_groups eg where eg.group_uuid = uuid) "
-      + "and not exists (select group_uuid from github_orgs_groups gog eg where gog.group_uuid = uuid))";
+      + "and not exists (select group_uuid from github_orgs_groups gog where gog.group_uuid = uuid))";
   }
 
   public void deleteByExternalIdentityProvider(DbSession dbSession, String externalIdentityProvider) {
