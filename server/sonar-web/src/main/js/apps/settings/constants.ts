@@ -29,6 +29,7 @@ export const PULL_REQUEST_DECORATION_BINDING_CATEGORY = 'pull_request_decoration
 export const CATEGORY_OVERRIDES: Dict<string> = {
   abap: LANGUAGES_CATEGORY,
   apex: LANGUAGES_CATEGORY,
+  azureresourcemanager: LANGUAGES_CATEGORY,
   'c / c++ / objective-c': LANGUAGES_CATEGORY,
   'c#': LANGUAGES_CATEGORY,
   cloudformation: LANGUAGES_CATEGORY,
