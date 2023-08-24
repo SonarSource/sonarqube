@@ -101,6 +101,14 @@ public abstract class ServerProcessLogging {
     // Spring related
     builder.immutableLevel("org.springframework", Level.WARN);
     builder.immutableLevel("org.sonar.core.platform.PriorityBeanFactory", Level.WARN);
+    // Network-communication related
+    builder.immutableLevel("org.apache.http", Level.WARN);
+    builder.immutableLevel("okhttp3", Level.WARN);
+    builder.immutableLevel("sun.net", Level.WARN);
+    // JDK security
+    builder.immutableLevel("jdk.event.security", Level.WARN);
+    // GitHub library
+    builder.immutableLevel("org.kohsuke", Level.WARN);
 
     extendLogLevelConfiguration(builder);
 
