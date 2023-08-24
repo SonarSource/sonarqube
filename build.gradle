@@ -1,4 +1,5 @@
 import groovy.json.JsonOutput
+import groovy.text.SimpleTemplateEngine
 import org.sonar.build.BlackBoxTest
 
 import static org.gradle.api.JavaVersion.VERSION_17
@@ -457,6 +458,30 @@ subprojects {
     // when needed (see protobuf modules for example)
   }
 
+  task generatePackageInfo {
+    doLast {
+      def allPathsContainingJavaFiles = [] as Set
+
+      fileTree('src/main/java/').matching() {
+        include "*/**/*.java"
+      }.forEach {
+        allPathsContainingJavaFiles << it.toPath().toFile().getParent();
+      }
+
+      allPathsContainingJavaFiles.each {
+        String packageInfoPath = it + "/package-info.java"
+        File packageInfoFile = new File (packageInfoPath)
+        if (!packageInfoFile.exists()) {
+            logger.warn("Creating file: " + packageInfoPath)
+            def packageName = packageInfoFile.getParent().takeAfter("src/main/java/").replaceAll("/", "\\.")
+            String packageInfoContent = applyPackageInfoTemplate(packageName)
+            packageInfoFile << packageInfoContent
+        }
+      }
+    }
+  }
+  generatePackageInfo.finalizedBy(licenseFormat)
+
   jacocoTestReport {
     reports {
       xml.required = true
@@ -668,6 +693,16 @@ subprojects {
       return !artifactoryPublish.skip && isMainBranch && gradle.taskGraph.hasTask(":artifactoryPublish")
     }
   }
+}
+
+static def applyPackageInfoTemplate(packageName) {
+  def engine = new SimpleTemplateEngine()
+  def templateText = "@ParametersAreNonnullByDefault\n" +
+          "package $packageName;\n" +
+          "\n" +
+          "import javax.annotation.ParametersAreNonnullByDefault;\n"
+  def templateParams = ["packageName": packageName]
+  engine.createTemplate(templateText).make(templateParams).toString()
 }
 
 gradle.projectsEvaluated { gradle ->

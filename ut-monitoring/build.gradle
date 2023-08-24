@@ -12,6 +12,7 @@ dependencies {
     api 'org.sonarsource.api.plugin:sonar-plugin-api'
 
     compileOnlyApi 'org.aspectj:aspectjtools'
+    compileOnlyApi 'com.google.code.findbugs:jsr305'
 }
 
 tasks.withType(JavaCompile) {
