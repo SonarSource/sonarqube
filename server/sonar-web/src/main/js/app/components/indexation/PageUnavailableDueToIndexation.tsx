@@ -50,7 +50,7 @@ export class PageUnavailableDueToIndexation extends React.PureComponent<WithInde
                 id="indexation.page_unavailable.description.additional_information"
                 values={{
                   link: (
-                    <Link to="https://docs.sonarqube.org/latest/instance-administration/reindexing/">
+                    <Link to="https://docs.sonarsource.com/sonarqube/latest/instance-administration/reindexing/">
                       {translate('learn_more')}
                     </Link>
                   ),

@@ -8,7 +8,7 @@ SonarQube provides the capability to not only show health of an application but 
 
 - [Website](https://www.sonarqube.org)
 - [Download](https://www.sonarqube.org/downloads/)
-- [Documentation](https://docs.sonarqube.org)
+- [Documentation](https://docs.sonarsource.com/sonarqube)
 - [Twitter](https://twitter.com/SonarQube)
 - [SonarSource](https://www.sonarsource.com), author of SonarQube
 - [Issue tracking](https://jira.sonarsource.com/browse/SONAR/), read-only. Only SonarSourcers can create tickets.
@@ -17,7 +17,7 @@ SonarQube provides the capability to not only show health of an application but 
 
 ## Have Question or Feedback?
 
-For support questions ("How do I?", "I got this error, why?", ...), please first read the [documentation](https://docs.sonarqube.org) and then head to the [SonarSource Community](https://community.sonarsource.com/c/help/sq/10). The answer to your question has likely already been answered! 🤓
+For support questions ("How do I?", "I got this error, why?", ...), please first read the [documentation](https://docs.sonarsource.com/sonarqube) and then head to the [SonarSource Community](https://community.sonarsource.com/c/help/sq/10). The answer to your question has likely already been answered! 🤓
 
 Be aware that this forum is a community, so the standard pleasantries ("Hi", "Thanks", ...) are expected. And if you don't get an answer to your thread, you should sit on your hands for at least three days before bumping it. Operators are not standing by. 😄
 

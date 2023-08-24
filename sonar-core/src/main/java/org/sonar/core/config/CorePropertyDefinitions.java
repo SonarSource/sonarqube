@@ -124,7 +124,7 @@ public class CorePropertyDefinitions {
         .build(),
       PropertyDefinition.builder(DOCUMENTATION_BASE_URL)
         .name("Base URL of the documentation")
-        .description("Base URL to be used in SonarQube documentation links, such as <i>https://docs.sonarqube.org/</i>")
+        .description("Base URL to be used in SonarQube documentation links, such as <i>https://docs.sonarsource.com/sonarqube/</i>")
         .defaultValue(DefaultDocumentationLinkGenerator.DOCUMENTATION_PUBLIC_URL)
         .hidden()
         .type(STRING)

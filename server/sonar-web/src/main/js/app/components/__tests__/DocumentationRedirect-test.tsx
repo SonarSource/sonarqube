@@ -29,7 +29,7 @@ it('should redirect to static doc for specific version', async () => {
 
   expect(await screen.findByRole('link')).toHaveAttribute(
     'href',
-    'https://docs.sonarqube.org/10.0/land'
+    'https://docs.sonarsource.com/sonarqube/10.0/land'
   );
 });
 
@@ -38,7 +38,7 @@ it('should redirect to static doc for latest version', async () => {
 
   expect(await screen.findByRole('link')).toHaveAttribute(
     'href',
-    'https://docs.sonarqube.org/latest/land'
+    'https://docs.sonarsource.com/sonarqube/latest/land'
   );
 });
 

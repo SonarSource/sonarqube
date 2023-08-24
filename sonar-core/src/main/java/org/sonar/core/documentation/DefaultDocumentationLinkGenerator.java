@@ -27,7 +27,7 @@ import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.platform.SonarQubeVersion;
 
 public class DefaultDocumentationLinkGenerator implements DocumentationLinkGenerator {
-  public static final String DOCUMENTATION_PUBLIC_URL = "https://docs.sonarqube.org/";
+  public static final String DOCUMENTATION_PUBLIC_URL = "https://docs.sonarsource.com/sonarqube/";
 
   private final String documentationBaseUrl;
 

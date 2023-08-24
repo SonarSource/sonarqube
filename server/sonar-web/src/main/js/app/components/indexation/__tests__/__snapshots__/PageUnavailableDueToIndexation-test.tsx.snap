@@ -21,7 +21,7 @@ exports[`should render correctly 1`] = `
           values={
             {
               "link": <StandoutLink
-                to="https://docs.sonarqube.org/latest/instance-administration/reindexing/"
+                to="https://docs.sonarsource.com/sonarqube/latest/instance-administration/reindexing/"
               >
                 learn_more
               </StandoutLink>,

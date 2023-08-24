@@ -98,7 +98,7 @@ public class DefaultActiveRulesLoaderTest {
     assertThatThrownBy(() -> loader.load("c+-test_c+-values-17445"))
       .isInstanceOf(MessageException.class)
       .hasMessage("Elasticsearch indices have become inconsistent. Consider re-indexing. " +
-        "Check documentation for more information https://docs.sonarqube.org/latest/setup/troubleshooting");
+        "Check documentation for more information https://docs.sonarsource.com/sonarqube/latest/setup/troubleshooting");
   }
 
   private String urlOfPage(int page) {

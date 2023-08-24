@@ -29,7 +29,7 @@ public class LogMessageIfSonarScimEnabledPresentProperty extends DataChange {
 
   private static final Logger LOG = LoggerFactory.getLogger(LogMessageIfSonarScimEnabledPresentProperty.class);
   public static final String SONAR_SCIM_ENABLED = "sonar.scim.enabled";
-  private static final String SCIM_DOC_URL = "https://docs.sonarqube.org/10.1/instance-administration/authentication/saml/scim/overview/";
+  private static final String SCIM_DOC_URL = "https://docs.sonarsource.com/sonarqube/10.1/instance-administration/authentication/saml/scim/overview/";
 
   public LogMessageIfSonarScimEnabledPresentProperty(Database db) {
     super(db);

@@ -52,7 +52,7 @@ public class DatabaseServerCompatibility implements Startable {
       }
 
       String msg = "The database must be manually upgraded. Please backup the database and browse /setup. "
-        + "For more information: https://docs.sonarqube.org/latest/setup/upgrading";
+        + "For more information: https://docs.sonarsource.com/sonarqube/latest/setup/upgrading";
       LoggerFactory.getLogger(DatabaseServerCompatibility.class).warn(msg);
       Logger logger = LoggerFactory.getLogger(STARTUP_LOGGER_NAME);
       logger.warn(HIGHLIGHTER);

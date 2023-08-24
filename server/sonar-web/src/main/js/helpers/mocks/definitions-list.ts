@@ -554,7 +554,7 @@ export const definitions: ExtendedSettingDefinition[] = [
     key: 'sonar.cobol.aucobol.preprocessor.directives.default',
     name: 'AcuCobol preprocessor default directives',
     description:
-      'This property allows to set preprocessor directives used to compile every COBOL program. See the \'ACUCOBOL-GT Source Code Control directives\' section in the <a target="_blank" href="http://docs.sonarqube.org/display/PLUG/COBOL+Plugin+Advanced+Configuration">documentation of the plugin</a>.',
+      'This property allows to set preprocessor directives used to compile every COBOL program. See the \'ACUCOBOL-GT Source Code Control directives\' section in the <a target="_blank" href="http://docs.sonarsource.com/sonarqube/display/PLUG/COBOL+Plugin+Advanced+Configuration">documentation of the plugin</a>.',
     category: 'COBOL',
     subCategory: 'Preprocessor',
     options: [],

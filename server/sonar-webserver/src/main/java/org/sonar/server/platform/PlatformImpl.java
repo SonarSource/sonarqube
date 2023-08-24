@@ -100,7 +100,7 @@ public class PlatformImpl implements Platform {
 
     // if AutoDbMigration kicked in or no DB migration was required, startup can be resumed in another thread
     if (dbRequiresMigration()) {
-      LOGGER.info("Database needs to be migrated. Please refer to https://docs.sonarqube.org/latest/setup/upgrading");
+      LOGGER.info("Database needs to be migrated. Please refer to https://docs.sonarsource.com/sonarqube/latest/setup/upgrading");
     } else {
       this.autoStarter = createAutoStarter();
 

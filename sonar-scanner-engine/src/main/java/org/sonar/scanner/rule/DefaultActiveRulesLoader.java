@@ -103,7 +103,7 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
       ActiveList activeList = actives.get(r.getKey());
       if (activeList == null) {
         throw MessageException.of("Elasticsearch indices have become inconsistent. Consider re-indexing. " +
-          "Check documentation for more information https://docs.sonarqube.org/latest/setup/troubleshooting");
+          "Check documentation for more information https://docs.sonarsource.com/sonarqube/latest/setup/troubleshooting");
       }
       Active active = activeList.getActiveList(0);
 

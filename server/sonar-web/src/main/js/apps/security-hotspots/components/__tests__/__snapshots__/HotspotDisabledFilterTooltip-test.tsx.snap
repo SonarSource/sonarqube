@@ -20,7 +20,7 @@ exports[`should render correctly and stop event propagation 1`] = `
     </span>
     <a
       class="sw-ml-1"
-      href="https://docs.sonarqube.org/latest/instance-administration/reindexing/"
+      href="https://docs.sonarsource.com/sonarqube/latest/instance-administration/reindexing/"
       rel="noopener noreferrer"
       target="_blank"
     >

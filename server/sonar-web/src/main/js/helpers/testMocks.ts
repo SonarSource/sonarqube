@@ -82,7 +82,7 @@ export function mockAppState(overrides: Partial<AppState> = {}): AppState {
     qualifiers: ['TRK'],
     settings: {},
     version: '1.0',
-    documentationUrl: 'https://docs.sonarqube.org/10.0',
+    documentationUrl: 'https://docs.sonarsource.com/sonarqube/10.0',
     ...overrides,
   };
 }

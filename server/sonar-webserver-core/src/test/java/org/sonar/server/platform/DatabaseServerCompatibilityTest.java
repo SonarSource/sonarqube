@@ -69,10 +69,10 @@ public class DatabaseServerCompatibilityTest {
     assertThat(logTester.logs()).hasSize(4);
     assertThat(logTester.logs(Level.WARN)).contains(
       "The database must be manually upgraded. Please backup the database and browse /setup. "
-        + "For more information: https://docs.sonarqube.org/latest/setup/upgrading",
+        + "For more information: https://docs.sonarsource.com/sonarqube/latest/setup/upgrading",
       "################################################################################",
       "The database must be manually upgraded. Please backup the database and browse /setup. "
-        + "For more information: https://docs.sonarqube.org/latest/setup/upgrading",
+        + "For more information: https://docs.sonarsource.com/sonarqube/latest/setup/upgrading",
       "################################################################################");
   }
 

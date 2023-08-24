@@ -4,7 +4,7 @@ exports[`should render correctly and start polling if issue sync is needed 1`] =
 <IndexationContextProvider
   appState={
     {
-      "documentationUrl": "https://docs.sonarqube.org/10.0",
+      "documentationUrl": "https://docs.sonarsource.com/sonarqube/10.0",
       "edition": "community",
       "needIssueSync": true,
       "productionDatabase": true,

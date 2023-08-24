@@ -330,7 +330,7 @@ public class GlobalActionTest {
   @Test
   public void call_shouldReturnDocumentationUrl() {
     init();
-    String url = "https://docs.sonarqube.org/10.0";
+    String url = "https://docs.sonarsource.com/sonarqube/10.0";
     when(documentationLinkGenerator.getDocumentationLink(null)).thenReturn(url);
 
     String json = call();
