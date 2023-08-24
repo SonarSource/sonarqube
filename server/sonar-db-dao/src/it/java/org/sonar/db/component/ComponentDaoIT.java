@@ -44,6 +44,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.Pagination;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.NoOpAuditPersister;
@@ -79,6 +80,7 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.SUBVIEW;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.utils.DateUtils.parseDate;
+import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
@@ -931,35 +933,35 @@ public class ComponentDaoIT {
     SnapshotDto analyzedPortfolio = db.components().insertProjectAndSnapshot(ComponentTesting.newPortfolio());
 
     Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder().setQualifiers(PROJECT).setOnProvisionedOnly(true);
-    assertThat(underTest.selectByQuery(dbSession, query.get().build(), 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, query.get().build(), forPage(1).andSize(10)))
       .extracting(ComponentDto::uuid)
       .containsOnly(provisionedProject.uuid());
 
     // pagination
-    assertThat(underTest.selectByQuery(dbSession, query.get().build(), 2, 10)).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, query.get().build(), forPage(3).andSize(10))).isEmpty();
 
     // filter on qualifiers
-    assertThat(underTest.selectByQuery(dbSession, query.get().setQualifiers("XXX").build(), 0, 10)).isEmpty();
-    assertThat(underTest.selectByQuery(dbSession, query.get().setQualifiers(PROJECT, "XXX").build(), 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, query.get().setQualifiers("XXX").build(), forPage(1).andSize(10))).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, query.get().setQualifiers(PROJECT, "XXX").build(), forPage(1).andSize(10)))
       .extracting(ComponentDto::uuid)
       .containsOnly(provisionedProject.uuid());
-    assertThat(underTest.selectByQuery(dbSession, query.get().setQualifiers(PROJECT, Qualifiers.VIEW).build(), 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, query.get().setQualifiers(PROJECT, Qualifiers.VIEW).build(), forPage(1).andSize(10)))
       .extracting(ComponentDto::uuid)
       .containsOnly(provisionedProject.uuid(), provisionedPortfolio.uuid());
 
     // match key
-    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery(provisionedProject.getKey()).build(), 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery(provisionedProject.getKey()).build(), forPage(1).andSize(10)))
       .extracting(ComponentDto::uuid)
       .containsExactly(provisionedProject.uuid());
-    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery("pROvisiONed.proJEcT").setPartialMatchOnKey(true).build(), 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery("pROvisiONed.proJEcT").setPartialMatchOnKey(true).build(), forPage(1).andSize(10)))
       .extracting(ComponentDto::uuid)
       .containsExactly(provisionedProject.uuid());
-    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery("missing").setPartialMatchOnKey(true).build(), 0, 10)).isEmpty();
-    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery("to be escaped '\"\\%").setPartialMatchOnKey(true).build(), 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery("missing").setPartialMatchOnKey(true).build(), forPage(1).andSize(10))).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery("to be escaped '\"\\%").setPartialMatchOnKey(true).build(), forPage(1).andSize(10)))
       .isEmpty();
 
     // match name
-    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery("ned proj").setPartialMatchOnKey(true).build(), 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, query.get().setNameOrKeyQuery("ned proj").setPartialMatchOnKey(true).build(), forPage(1).andSize(10)))
       .extracting(ComponentDto::uuid)
       .containsExactly(provisionedProject.uuid());
   }
@@ -972,7 +974,7 @@ public class ComponentDaoIT {
 
     // the project does not have any analysis
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    assertThat(underTest.selectByQuery(dbSession, query.get().build(), 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, query.get().build(), forPage(1).andSize(10)))
       .extracting(ComponentDto::uuid)
       .containsOnly(project.uuid());
 
@@ -981,7 +983,7 @@ public class ComponentDaoIT {
     ComponentDto branchWithoutAnalysis = db.components().insertProjectBranch(project);
     ComponentDto branchWithAnalysis = db.components().insertProjectBranch(project);
     db.components().insertSnapshot(branchWithAnalysis);
-    assertThat(underTest.selectByQuery(dbSession, query.get().build(), 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, query.get().build(), forPage(1).andSize(10)))
       .isEmpty();
   }
 
@@ -999,7 +1001,7 @@ public class ComponentDaoIT {
       .setQualifiers(PROJECT)
       .setOnProvisionedOnly(true);
 
-    List<ComponentDto> results = underTest.selectByQuery(dbSession, query.get().build(), 0, 10);
+    List<ComponentDto> results = underTest.selectByQuery(dbSession, query.get().build(), forPage(1).andSize(10));
     assertThat(results)
       .extracting(ComponentDto::uuid)
       .containsExactly(
@@ -1172,7 +1174,8 @@ public class ComponentDaoIT {
 
   private void assertThatSelectByQueryThrowsIAE(ComponentQuery.Builder query, String expectedMessage) {
     ComponentQuery componentQuery = query.build();
-    assertThatThrownBy(() -> underTest.selectByQuery(dbSession, componentQuery, 0, Integer.MAX_VALUE))
+    Pagination pagination = forPage(1).andSize(Integer.MAX_VALUE);
+    assertThatThrownBy(() -> underTest.selectByQuery(dbSession, componentQuery, pagination))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(expectedMessage);
   }
@@ -1186,12 +1189,12 @@ public class ComponentDaoIT {
     }
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("oJect").setQualifiers(PROJECT).build();
-    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 1, 3);
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, forPage(2).andSize(3));
     int count = underTest.countByQuery(dbSession, query);
 
     assertThat(result).hasSize(3);
     assertThat(count).isEqualTo(9);
-    assertThat(result).extracting(ComponentDto::name).containsExactly("project-2", "project-3", "project-4");
+    assertThat(result).extracting(ComponentDto::name).containsExactly("project-4", "project-5", "project-6");
   }
 
   @Test
@@ -1199,8 +1202,8 @@ public class ComponentDaoIT {
     ComponentDto main = db.components().insertPublicProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(main);
 
-    assertThat(underTest.selectByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY, 0, 2)).hasSize(1);
-    assertThat(underTest.selectByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY, 0, 2).get(0).uuid()).isEqualTo(main.uuid());
+    assertThat(underTest.selectByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY, forPage(1).andSize(2))).hasSize(1);
+    assertThat(underTest.selectByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY, forPage(1).andSize(2)).get(0).uuid()).isEqualTo(main.uuid());
   }
 
   @Test
@@ -1216,7 +1219,7 @@ public class ComponentDaoIT {
     db.components().insertProjectAndSnapshot(newPrivateProjectDto().setName("project-\\_%/-name"));
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("-\\_%/-").setQualifiers(PROJECT).build();
-    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, forPage(1).andSize(10));
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).name()).isEqualTo("project-\\_%/-name");
@@ -1228,7 +1231,7 @@ public class ComponentDaoIT {
     db.components().insertProjectAndSnapshot(newPrivateProjectDto().setKey("project-key-that-does-not-match"));
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("project-_%-key").setQualifiers(PROJECT).build();
-    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, forPage(1).andSize(10));
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getKey()).isEqualTo("project-_%-key");
@@ -1242,7 +1245,7 @@ public class ComponentDaoIT {
       .setNameOrKeyQuery("JECT-K")
       .setPartialMatchOnKey(true)
       .setQualifiers(PROJECT).build();
-    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, forPage(1).andSize(10));
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getKey()).isEqualTo("project-key");
@@ -1267,19 +1270,11 @@ public class ComponentDaoIT {
       .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
 
     // before date on any branch
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedBefore(recentTime)))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(recentTime)))
       .containsExactlyInAnyOrder(oldProject.uuid());
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedBefore(aLongTimeAgo)))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(aLongTimeAgo)))
       .isEmpty();
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedBefore(recentTime + 1_000L)))
-      .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
-
-    // after date
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedAfter(recentTime - 1_000L)))
-      .containsExactlyInAnyOrder(recentProject.uuid());
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedAfter(recentTime + 1_000L)))
-      .isEmpty();
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedAfter(aLongTimeAgo)))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(recentTime + 1_000L)))
       .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
   }
 
@@ -1306,19 +1301,11 @@ public class ComponentDaoIT {
     assertThat(selectProjectUuidsByQuery(q -> q.setAnalyzedBefore(recentTime + 1_000L))).isEmpty();
 
     // before date on any branch
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedBefore(recentTime)))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(recentTime)))
       .containsExactlyInAnyOrder(oldProject.uuid());
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedBefore(aLongTimeAgo)))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(aLongTimeAgo)))
       .isEmpty();
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedBefore(recentTime + 1_000L)))
-      .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
-
-    // after date
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedAfter(recentTime - 1_000L)))
-      .containsExactlyInAnyOrder(recentProject.uuid());
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedAfter(recentTime + 1_000L)))
-      .isEmpty();
-    assertThat(selectProjectUuidsByQuery(q -> q.setAnyBranchAnalyzedAfter(aLongTimeAgo)))
+    assertThat(selectProjectUuidsByQuery(q -> q.setAllBranchesAnalyzedBefore(recentTime + 1_000L)))
       .containsExactlyInAnyOrder(oldProject.uuid(), recentProject.uuid());
   }
 
@@ -1387,7 +1374,7 @@ public class ComponentDaoIT {
   private List<String> selectUuidsByQuery(String qualifier, Consumer<ComponentQuery.Builder> query) {
     ComponentQuery.Builder builder = ComponentQuery.builder().setQualifiers(qualifier);
     query.accept(builder);
-    return underTest.selectByQuery(dbSession, builder.build(), 0, 5)
+    return underTest.selectByQuery(dbSession, builder.build(), forPage(1).andSize(5))
       .stream()
       .map(ComponentDto::uuid)
       .toList();
@@ -1402,9 +1389,9 @@ public class ComponentDaoIT {
     ComponentQuery publicProjectsQuery = ComponentQuery.builder().setPrivate(false).setQualifiers(PROJECT).build();
     ComponentQuery allProjectsQuery = ComponentQuery.builder().setPrivate(null).setQualifiers(PROJECT).build();
 
-    assertThat(underTest.selectByQuery(dbSession, privateProjectsQuery, 0, 10)).extracting(ComponentDto::getKey).containsExactly("private-key");
-    assertThat(underTest.selectByQuery(dbSession, publicProjectsQuery, 0, 10)).extracting(ComponentDto::getKey).containsExactly("public-key");
-    assertThat(underTest.selectByQuery(dbSession, allProjectsQuery, 0, 10)).extracting(ComponentDto::getKey).containsOnly("public-key", "private-key");
+    assertThat(underTest.selectByQuery(dbSession, privateProjectsQuery, forPage(1).andSize(10))).extracting(ComponentDto::getKey).containsExactly("private-key");
+    assertThat(underTest.selectByQuery(dbSession, publicProjectsQuery, forPage(1).andSize(10))).extracting(ComponentDto::getKey).containsExactly("public-key");
+    assertThat(underTest.selectByQuery(dbSession, allProjectsQuery, forPage(1).andSize(10))).extracting(ComponentDto::getKey).containsOnly("public-key", "private-key");
   }
 
   @Test
@@ -1412,7 +1399,7 @@ public class ComponentDaoIT {
     db.components().insertPrivateProject().getMainBranchComponent();
     ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(PROJECT).setComponentKeys(emptySet()).build();
 
-    List<ComponentDto> result = underTest.selectByQuery(dbSession, dbQuery, 0, 10);
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, dbQuery, forPage(1).andSize(10));
     int count = underTest.countByQuery(dbSession, dbQuery);
 
     assertThat(result).isEmpty();
@@ -1427,7 +1414,7 @@ public class ComponentDaoIT {
     ComponentQuery query = ComponentQuery.builder().setQualifiers(PROJECT)
       .setComponentKeys(newHashSet(sonarqube.getKey(), jdk8.getKey())).build();
 
-    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, forPage(1).andSize(10));
 
     assertThat(result).hasSize(2).extracting(ComponentDto::getKey)
       .containsExactlyInAnyOrder(sonarqube.getKey(), jdk8.getKey())
@@ -1439,7 +1426,7 @@ public class ComponentDaoIT {
     db.components().insertPrivateProject().getMainBranchComponent();
     ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(PROJECT).setComponentUuids(emptySet()).build();
 
-    List<ComponentDto> result = underTest.selectByQuery(dbSession, dbQuery, 0, 10);
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, dbQuery, forPage(1).andSize(10));
     int count = underTest.countByQuery(dbSession, dbQuery);
 
     assertThat(result).isEmpty();
@@ -1454,7 +1441,7 @@ public class ComponentDaoIT {
     ComponentQuery query = ComponentQuery.builder().setQualifiers(PROJECT)
       .setComponentUuids(newHashSet(sonarqube.uuid(), jdk8.uuid())).build();
 
-    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, forPage(1).andSize(10));
 
     assertThat(result).hasSize(2).extracting(ComponentDto::uuid)
       .containsOnlyOnce(sonarqube.uuid(), jdk8.uuid())

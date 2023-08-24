@@ -37,6 +37,7 @@ import org.sonar.core.i18n.I18n;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeTaskQuery;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.entity.EntityDto;
@@ -54,6 +55,7 @@ import static java.util.Collections.singleton;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
+import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -156,7 +158,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
       checkGlobalAdmin(userSession);
 
       ComponentQuery componentQuery = buildDbQuery(request);
-      List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, componentQuery, 0, Integer.MAX_VALUE);
+      List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, componentQuery, forPage(1).andSize(CeTaskQuery.MAX_COMPONENT_UUIDS));
 
       Set<String> entityUuids = components.stream()
         .map(ComponentDto::getKey)

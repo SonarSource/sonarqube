@@ -210,19 +210,34 @@
   </select>
 
   <select id="selectByQuery" resultType="Component">
+    <include refid="mainBranchAndPortfoliosWith"/>
     select
       <include refid="componentColumns"/>
     <include refid="sqlSelectByQuery"/>
     ORDER BY LOWER(p.name), p.name, p.created_at
+    offset (#{pagination.startRowNumber,jdbcType=INTEGER}-1) rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
   </select>
 
   <select id="countByQuery" resultType="int">
+    <include refid="mainBranchAndPortfoliosWith"/>
     select count(p.uuid)
     <include refid="sqlSelectByQuery"/>
   </select>
 
+  <sql id="mainBranchAndPortfoliosWith">
+    WITH main_branch_and_portfolios AS (SELECT p.uuid as projectUuid, p.kee as kee, p.uuid
+      from portfolios p
+      UNION
+      SELECT pb.project_uuid as projectUuid, p.kee as kee, pb.uuid
+      FROM project_branches pb
+      INNER JOIN projects p on pb.project_uuid = p.uuid
+      where pb.is_main = ${_true}
+    )
+  </sql>
+
   <sql id="sqlSelectByQuery">
-    from components p
+    from main_branch_and_portfolios mbp
+      INNER JOIN components p on mbp.kee = p.kee and p.branch_uuid = mbp.uuid
     <if test="query.analyzedBefore!=null">
       inner join snapshots sa on sa.root_component_uuid=p.uuid
         and sa.status='P' and sa.islast=${_true} and sa.created_at &lt; #{query.analyzedBefore,jdbcType=BIGINT}
@@ -230,8 +245,6 @@
     left join project_branches pb on pb.uuid = p.branch_uuid
     where
       p.enabled=${_true}
-      AND <include refid="mainBranchOrPortfolio"/>
-      AND p.copy_component_uuid is null
       <if test="query.qualifiers!=null">
         and p.qualifier in
           <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
@@ -278,48 +291,6 @@
           select 1 from snapshots sp
           inner join project_branches pb2 on sp.root_component_uuid = pb2.uuid
           where pb2.project_uuid = pb.project_uuid
-        )
-      </if>
-      <if test="query.anyBranchAnalyzedAfter != null">
-        and (
-          exists(
-            -- branches of projects and applications
-            select 1 from snapshots s
-            inner join project_branches pb2 on s.root_component_uuid = pb2.uuid
-            where pb2.project_uuid = pb.project_uuid
-            and s.status='P'
-            and s.islast = ${_true}
-            and s.created_at &gt;= #{query.anyBranchAnalyzedAfter,jdbcType=BIGINT}
-          )
-          or exists (
-            -- portfolios
-            select 1 from snapshots s
-            where s.root_component_uuid = p.uuid
-            and s.status='P'
-            and s.islast = ${_true}
-            and s.created_at &gt;= #{query.anyBranchAnalyzedAfter,jdbcType=BIGINT}
-          )
-        )
-      </if>
-      <if test="query.anyBranchAnalyzedBefore != null">
-        and (
-          exists(
-          -- branches of projects and applications
-          select 1 from snapshots s
-          inner join project_branches pb2 on s.root_component_uuid = pb2.uuid
-          where pb2.project_uuid = pb.project_uuid
-          and s.status='P'
-          and s.islast = ${_true}
-          and s.created_at &lt; #{query.anyBranchAnalyzedBefore,jdbcType=BIGINT}
-          )
-          or exists (
-          -- portfolios
-          select 1 from snapshots s
-          where s.root_component_uuid = p.uuid
-          and s.status='P'
-          and s.islast = ${_true}
-          and s.created_at &lt; #{query.anyBranchAnalyzedBefore,jdbcType=BIGINT}
-          )
         )
       </if>
       <if test="query.allBranchesAnalyzedBefore != null">

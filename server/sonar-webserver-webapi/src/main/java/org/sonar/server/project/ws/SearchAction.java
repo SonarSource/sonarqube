@@ -53,6 +53,7 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
+import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.project.Visibility.PRIVATE;
 import static org.sonar.server.project.Visibility.PUBLIC;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -167,7 +168,7 @@ public class SearchAction implements ProjectsWsAction {
 
       ComponentQuery query = buildDbQuery(request);
       Paging paging = buildPaging(dbSession, request, query);
-      List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, query, paging.offset(), paging.pageSize());
+      List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, query, forPage(paging.pageIndex()).andSize(paging.pageSize()));
       Set<String> componentUuids = components.stream().map(ComponentDto::uuid).collect(Collectors.toSet());
       List<BranchDto> branchDtos = dbClient.branchDao().selectByUuids(dbSession, componentUuids);
       Map<String, String> componentUuidToProjectUuid = branchDtos.stream().collect(Collectors.toMap(BranchDto::getUuid,BranchDto::getProjectUuid));

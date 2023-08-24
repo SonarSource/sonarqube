@@ -31,10 +31,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.ComponentNewValue;
@@ -104,8 +104,8 @@ public class ComponentDao implements Dao {
    * @throws IllegalArgumentException if parameter query#getComponentKeys() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
    * @throws IllegalArgumentException if parameter query#getMainComponentUuids() has more than {@link org.sonar.db.DatabaseUtils#PARTITION_SIZE_FOR_ORACLE} values
    */
-  public List<ComponentDto> selectByQuery(DbSession dbSession, ComponentQuery query, int offset, int limit) {
-    return selectByQueryImpl(dbSession, query, offset, limit);
+  public List<ComponentDto> selectByQuery(DbSession dbSession, ComponentQuery query, Pagination pagination) {
+    return selectByQueryImpl(dbSession, query, pagination);
   }
 
   /**
@@ -117,12 +117,12 @@ public class ComponentDao implements Dao {
     return countByQueryImpl(session, query);
   }
 
-  private static List<ComponentDto> selectByQueryImpl(DbSession session, ComponentQuery query, int offset, int limit) {
+  private static List<ComponentDto> selectByQueryImpl(DbSession session, ComponentQuery query, Pagination pagination) {
     if (query.hasEmptySetOfComponents()) {
       return emptyList();
     }
     checkThatNotTooManyComponents(query);
-    return mapper(session).selectByQuery(query, new RowBounds(offset, limit));
+    return mapper(session).selectByQuery(query, pagination);
   }
 
   private static int countByQueryImpl(DbSession session, ComponentQuery query) {

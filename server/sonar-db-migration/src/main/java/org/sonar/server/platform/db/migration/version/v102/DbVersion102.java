@@ -25,7 +25,6 @@ import org.sonar.server.platform.db.migration.version.DbVersion;
 // ignoring bad number formatting, as it's indented that we align the migration numbers to SQ versions
 @SuppressWarnings("java:S3937")
 public class DbVersion102 implements DbVersion {
-
   /**
    * We use the start of the 10.X cycle as an opportunity to align migration numbers with the SQ version number.
    * Please follow this pattern:
@@ -98,6 +97,7 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_043, "Create 'previous_non_compliant_value' in 'new_code_periods' table", CreatePreviousNonCompliantValueInNewCodePeriods.class)
       .add(10_2_044, "Update column 'value' and populate column 'previous_non_compliant_value' in 'new_code_periods' table",
         UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriods.class)
-      .add(10_2_045, "Alter 'project_uuid' in 'user_dismissed_messages' - make it nullable", MakeProjectUuidNullableInUserDismissedMessages.class);
+      .add(10_2_045, "Alter 'project_uuid' in 'user_dismissed_messages' - make it nullable", MakeProjectUuidNullableInUserDismissedMessages.class)
+      .add(10_2_046, "Create index 'project_branches_project_uuid' in 'project_branches' table", CreateIndexProjectUuidInProjectBranches.class);
   }
 }

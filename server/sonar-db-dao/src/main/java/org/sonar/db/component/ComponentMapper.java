@@ -26,7 +26,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.Pagination;
 
 public interface ComponentMapper {
   @CheckForNull
@@ -54,7 +54,7 @@ public interface ComponentMapper {
 
   List<ComponentDto> selectComponentsByQualifiers(@Param("qualifiers") Collection<String> qualifiers);
 
-  List<ComponentDto> selectByQuery(@Param("query") ComponentQuery query, RowBounds rowBounds);
+  List<ComponentDto> selectByQuery(@Param("query") ComponentQuery query, @Param("pagination") Pagination pagination);
 
   int countByQuery(@Param("query") ComponentQuery query);
 

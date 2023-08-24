@@ -298,7 +298,7 @@ public class ActivityAction implements CeWsAction {
       .setNameOrKeyQuery(componentQuery)
       .setQualifiers(POSSIBLE_QUALIFIERS)
       .build();
-    List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, 0, CeTaskQuery.MAX_COMPONENT_UUIDS);
+    List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, forPage(1).andSize(CeTaskQuery.MAX_COMPONENT_UUIDS));
     return dbClient.entityDao().selectByKeys(dbSession, componentDtos.stream().map(ComponentDto::getKey).collect(toSet()));
   }
 

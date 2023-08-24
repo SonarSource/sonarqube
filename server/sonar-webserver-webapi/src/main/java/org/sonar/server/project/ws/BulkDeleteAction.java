@@ -57,6 +57,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.project.ws.SearchAction.buildDbQuery;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
@@ -150,7 +151,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
       checkIfAnalyzedBeforeIsFutureDate(searchRequest);
 
       ComponentQuery query = buildDbQuery(searchRequest);
-      Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, query, 0, Integer.MAX_VALUE));
+      Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, query, forPage(1).andSize(Integer.MAX_VALUE)));
       List<EntityDto> entities = dbClient.entityDao().selectByKeys(dbSession, componentDtos.stream().map(ComponentDto::getKey).collect(toSet()));
       Set<String> entityUuids = entities.stream().map(EntityDto::getUuid).collect(toSet());
       Map<String, String> mainBranchUuidByEntityUuid = dbClient.branchDao().selectMainBranchesByProjectUuids(dbSession, entityUuids).stream()
