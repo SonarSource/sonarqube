@@ -4986,6 +4986,7 @@ __metadata:
     jest-axe: 7.0.1
     jest-environment-jsdom: 29.5.0
     jest-junit: 16.0.0
+    jest-slow-test-reporter: 1.0.0
     jsdom: 21.1.1
     lodash: 4.17.21
     lunr: 2.3.9
@@ -9629,6 +9630,13 @@ __metadata:
     slash: ^3.0.0
     strip-bom: ^4.0.0
   checksum: 7af27bd9d54cf1c5735404cf8d76c6509d5610b1ec0106a21baa815c1aff15d774ce534ac2834bc440dccfe6348bae1885fd9a806f23a94ddafdc0f5bae4b09d
+  languageName: node
+  linkType: hard
+
+"jest-slow-test-reporter@npm:1.0.0":
+  version: 1.0.0
+  resolution: "jest-slow-test-reporter@npm:1.0.0"
+  checksum: bfbf15ca823f1a2861c33cbe3e9549638d78fa07dc5197464a1bbeb8a30c2d75e7f6f6976b16117db7decaef62cb94a6d641d2bb5823ad72bb46d2af5d49e217
   languageName: node
   linkType: hard
 

@@ -62,6 +62,7 @@ module.exports = {
         outputFilepath: '/tmp/ut-ts-web-monitoring.log',
       },
     ],
+    ['jest-slow-test-reporter', { numTests: 5, warnOnSlowerThan: 10000, color: true }],
   ],
   testTimeout: 60000,
 };
