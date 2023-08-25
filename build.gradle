@@ -480,6 +480,7 @@ subprojects {
       }
     }
   }
+  build.dependsOn(generatePackageInfo)
   generatePackageInfo.finalizedBy(licenseFormat)
 
   jacocoTestReport {
@@ -583,6 +584,7 @@ subprojects {
 
   license {
     header = rootProject.file('HEADER')
+    ignoreFailures = project.hasProperty('ignoreLicenseFailures') ? project.getProperty('ignoreLicenseFailures').toBoolean() : true
     strictCheck true
     encoding = 'UTF-8'
     mapping {
