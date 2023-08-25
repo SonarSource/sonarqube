@@ -18,7 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { BareButton, SubnavigationItem, themeColor, themeContrast } from 'design-system';
+import {
+  BareButton,
+  IssueMessageHighlighting,
+  SubnavigationItem,
+  themeColor,
+  themeContrast,
+} from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
 import { Issue } from '../../../types/types';
@@ -60,7 +66,10 @@ export default function SubnavigationIssue(props: ConciseIssueProps) {
       >
         <div className="sw-w-full">
           <StyledIssueTitle aria-current={selected} className="sw-mb-2">
-            {issue.message}
+            <IssueMessageHighlighting
+              message={issue.message}
+              messageFormattings={issue.messageFormattings}
+            />
           </StyledIssueTitle>
           <IssueInfo className="sw-flex sw-justify-between sw-gap-2">
             <IssueItemLocationsQuantity issue={issue} />

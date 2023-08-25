@@ -19,12 +19,11 @@
  */
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { LocationMarker, StyledMarker, themeColor } from 'design-system';
+import { IssueMessageHighlighting, LocationMarker, StyledMarker, themeColor } from 'design-system';
 import * as React from 'react';
 import { translateWithParameters } from '../../helpers/l10n';
 import { MessageFormatting } from '../../types/issues';
 import LocationMessage from '../common/LocationMessage';
-import { IssueMessageHighlighting } from '../issue/IssueMessageHighlighting';
 import './SingleFileLocationNavigator.css';
 
 interface Props {

@@ -21,6 +21,7 @@ import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
   ClipboardIconButton,
+  IssueMessageHighlighting,
   LAYOUT_GLOBAL_NAV_HEIGHT,
   LAYOUT_PROJECT_NAV_HEIGHT,
   LightLabel,
@@ -33,7 +34,6 @@ import {
   themeShadow,
 } from 'design-system';
 import React from 'react';
-import { IssueMessageHighlighting } from '../../../components/issue/IssueMessageHighlighting';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import {

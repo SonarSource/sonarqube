@@ -19,6 +19,7 @@
  */
 import styled from '@emotion/styled';
 import * as React from 'react';
+import tw from 'twin.macro';
 import { themeColor } from '../helpers';
 
 export interface MessageFormatting {
@@ -39,7 +40,7 @@ export interface IssueMessageHighlightingProps {
 export function IssueMessageHighlighting(props: IssueMessageHighlightingProps) {
   const { message, messageFormattings } = props;
 
-  if (!message) {
+  if (message === undefined || message === '') {
     return null;
   }
 
@@ -96,7 +97,7 @@ export function IssueMessageHighlighting(props: IssueMessageHighlightingProps) {
           <React.Fragment key={`${message}-${start}-${end}`}>
             {message.slice(beginning, start)}
             {type === MessageFormattingType.CODE ? (
-              <SingleLineSnippet className="sw-code sw-rounded-1 sw-py-1/2 sw-px-1 sw-border sw-border-solid">
+              <SingleLineSnippet className="sw-code sw-rounded-1 sw-px-1 sw-border sw-border-solid">
                 {message.slice(start, end)}
               </SingleLineSnippet>
             ) : (
@@ -115,4 +116,9 @@ const SingleLineSnippet = styled.span`
   background: ${themeColor('codeSnippetBackground')};
   border-color: ${themeColor('codeSnippetBorder')};
   color: ${themeColor('codeSnippetInline')};
+  ${tw`sw-py-1/2`}
+
+  a & {
+    ${tw`sw-pb-0`}
+  }
 `;
