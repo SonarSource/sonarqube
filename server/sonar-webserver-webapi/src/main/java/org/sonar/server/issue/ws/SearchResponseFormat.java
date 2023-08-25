@@ -209,7 +209,9 @@ public class SearchResponseFormat {
       Sort.Builder wsSort = Sort.newBuilder();
       Object[] sortValue = issueMap.get(issueBuilder.getKey());
       for (Object sort : sortValue) {
-        wsSort.addSort(sort.toString());
+        if (sort != null) {
+          wsSort.addSort(sort.toString());
+        }
       }
       issueBuilder.setSort(wsSort);
     }
