@@ -86,6 +86,7 @@ import org.sonar.server.es.searchrequest.RequestFiltersComputer.AllFilters;
 import org.sonar.server.es.searchrequest.SimpleFieldTopAggregationDefinition;
 import org.sonar.server.es.searchrequest.SubAggregationHelper;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition;
+import org.sonar.server.es.searchrequest.TopAggregationDefinition.FilterScope;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.SimpleFieldFilterScope;
 import org.sonar.server.es.searchrequest.TopAggregationHelper;
 import org.sonar.server.issue.index.IssueQuery.PeriodStart;
@@ -256,9 +257,8 @@ public class IssueIndex {
 
   public enum Facet {
     SEVERITIES(PARAM_SEVERITIES, FIELD_ISSUE_SEVERITY, STICKY, Severity.ALL.size()),
-    IMPACT_SOFTWARE_QUALITY(PARAM_IMPACT_SOFTWARE_QUALITIES, FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY, STICKY, SoftwareQuality.values().length),
-    IMPACT_SEVERITY(PARAM_IMPACT_SEVERITIES, FIELD_ISSUE_IMPACT_SEVERITY, STICKY,
-      org.sonar.api.issue.impact.Severity.values().length),
+    IMPACT_SOFTWARE_QUALITY(PARAM_IMPACT_SOFTWARE_QUALITIES, FIELD_ISSUE_IMPACTS, STICKY),
+    IMPACT_SEVERITY(PARAM_IMPACT_SEVERITIES, FIELD_ISSUE_IMPACTS, STICKY),
     CLEAN_CODE_ATTRIBUTE_CATEGORY(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES, FIELD_ISSUE_CLEAN_CODE_ATTRIBUTE_CATEGORY, STICKY, CleanCodeAttributeCategory.values().length),
     STATUSES(PARAM_STATUSES, FIELD_ISSUE_STATUS, STICKY, Issue.STATUSES.size()),
     // Resolutions facet returns one more element than the number of resolutions to take into account unresolved issues
@@ -286,7 +286,7 @@ public class IssueIndex {
     CODE_VARIANTS(PARAM_CODE_VARIANTS, FIELD_ISSUE_CODE_VARIANTS, STICKY, MAX_FACET_SIZE);
 
     private final String name;
-    private final SimpleFieldTopAggregationDefinition topAggregation;
+    private final TopAggregationDefinition<FilterScope> topAggregation;
     private final Integer numberOfTerms;
 
     Facet(String name, String fieldName, boolean sticky, int numberOfTerms) {
@@ -309,11 +309,11 @@ public class IssueIndex {
       return topAggregation.getFilterScope().getFieldName();
     }
 
-    public TopAggregationDefinition.FilterScope getFilterScope() {
+    public FilterScope getFilterScope() {
       return topAggregation.getFilterScope();
     }
 
-    public SimpleFieldTopAggregationDefinition getTopAggregationDef() {
+    public TopAggregationDefinition<FilterScope> getTopAggregationDef() {
       return topAggregation;
     }
 
@@ -602,7 +602,8 @@ public class IssueIndex {
     if (query.impactSoftwareQualities().isEmpty() && query.impactSeverities().isEmpty()) {
       return;
     }
-    if (!query.impactSoftwareQualities().isEmpty()) {
+
+    if (!query.impactSoftwareQualities().isEmpty() && query.impactSeverities().isEmpty()) {
       allFilters.addFilter(
         FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY,
         IMPACT_SOFTWARE_QUALITY.getFilterScope(),
@@ -610,9 +611,10 @@ public class IssueIndex {
           FIELD_ISSUE_IMPACTS,
           termsQuery(FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY, query.impactSoftwareQualities()),
           ScoreMode.Avg));
+      return;
     }
 
-    if (!query.impactSeverities().isEmpty()) {
+    if (!query.impactSeverities().isEmpty() && query.impactSoftwareQualities().isEmpty()) {
       allFilters.addFilter(
         FIELD_ISSUE_IMPACT_SEVERITY,
         IMPACT_SEVERITY.getFilterScope(),
@@ -620,7 +622,15 @@ public class IssueIndex {
           FIELD_ISSUE_IMPACTS,
           termsQuery(FIELD_ISSUE_IMPACT_SEVERITY, query.impactSeverities()),
           ScoreMode.Avg));
+      return;
     }
+
+    BoolQueryBuilder impactsFilter = boolQuery()
+      .filter(termsQuery(FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY, query.impactSoftwareQualities()))
+      .filter(termsQuery(FIELD_ISSUE_IMPACT_SEVERITY, query.impactSeverities()));
+
+    allFilters.addFilter(FIELD_ISSUE_IMPACTS, new SimpleFieldFilterScope(FIELD_ISSUE_IMPACTS),
+      nestedQuery(FIELD_ISSUE_IMPACTS, impactsFilter, ScoreMode.Avg));
   }
 
   private static void addComponentRelatedFilters(IssueQuery query, AllFilters filters) {
@@ -914,7 +924,7 @@ public class IssueIndex {
       .map(softwareQuality -> new FiltersAggregator.KeyedFilter(softwareQuality.name(),
         query.impactSeverities().isEmpty() ? mainQuery.apply(softwareQuality)
           : mainQuery.apply(softwareQuality)
-            .filter(termsQuery(FIELD_ISSUE_IMPACT_SEVERITY, query.impactSeverities()))))
+          .filter(termsQuery(FIELD_ISSUE_IMPACT_SEVERITY, query.impactSeverities()))))
       .toArray(FiltersAggregator.KeyedFilter[]::new);
 
     AggregationBuilder aggregation = aggregationHelper.buildTopAggregation(
@@ -938,7 +948,7 @@ public class IssueIndex {
       .map(severity -> new FiltersAggregator.KeyedFilter(severity.name(),
         query.impactSoftwareQualities().isEmpty() ? mainQuery.apply(severity)
           : mainQuery.apply(severity)
-            .filter(termsQuery(FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY, query.impactSoftwareQualities()))))
+          .filter(termsQuery(FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY, query.impactSoftwareQualities()))))
       .toArray(FiltersAggregator.KeyedFilter[]::new);
 
     AggregationBuilder aggregation = aggregationHelper.buildTopAggregation(

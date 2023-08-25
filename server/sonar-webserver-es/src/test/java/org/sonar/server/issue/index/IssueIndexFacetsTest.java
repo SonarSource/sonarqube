@@ -715,6 +715,11 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
       entry("RELIABILITY", 0L),
       entry("SECURITY", 0L));
 
+    assertThatFacetHasOnly(IssueQuery.builder().impactSoftwareQualities(Set.of(MAINTAINABILITY.name())), "impactSoftwareQualities",
+      entry("MAINTAINABILITY", 3L),
+      entry("RELIABILITY", 2L),
+      entry("SECURITY", 0L));
+
     assertThatFacetHasOnly(IssueQuery.builder().impactSeverities(Set.of(Severity.MEDIUM.name())), "impactSoftwareQualities",
       entry("MAINTAINABILITY", 0L),
       entry("RELIABILITY", 1L),
@@ -731,6 +736,33 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
       entry("MAINTAINABILITY", 1L),
       entry("RELIABILITY", 0L),
       entry("SECURITY", 0L));
+  }
+
+  @Test
+  public void search_whenFilteredOnSeverityAndSoftwareQuality_shouldReturnImpactFacets() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("I1", project.uuid(), file).setImpacts(Map.of(
+        MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW,
+        RELIABILITY, org.sonar.api.issue.impact.Severity.LOW)));
+
+    assertThatFacetHasOnly(IssueQuery.builder()
+      .impactSoftwareQualities(Set.of(MAINTAINABILITY.name()))
+      .impactSeverities(Set.of(org.sonar.api.issue.impact.Severity.LOW.name())),
+      "impactSoftwareQualities",
+      entry("MAINTAINABILITY", 1L),
+      entry("RELIABILITY", 1L),
+      entry("SECURITY", 0L));
+
+    assertThatFacetHasOnly(IssueQuery.builder()
+      .impactSoftwareQualities(Set.of(MAINTAINABILITY.name()))
+      .impactSeverities(Set.of(org.sonar.api.issue.impact.Severity.LOW.name())),
+      "impactSeverities",
+      entry("HIGH", 0L),
+      entry("MEDIUM", 0L),
+      entry("LOW", 1L));
   }
 
   @Test

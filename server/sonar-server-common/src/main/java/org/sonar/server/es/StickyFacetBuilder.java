@@ -100,8 +100,8 @@ public class StickyFacetBuilder {
       .subAggregation(facetTopAggregation);
   }
 
-  public AggregationBuilder buildTopAggregationStickyFacet(String fieldName, String facetName, AggregationBuilder additionalAggregationFilter) {
-    BoolQueryBuilder facetFilter = getStickyFacetFilter(fieldName);
+  public AggregationBuilder buildNestedAggregationStickyFacet(String parentFieldName, String childFieldName, String facetName, AggregationBuilder additionalAggregationFilter) {
+    BoolQueryBuilder facetFilter = getStickyFacetFilter(parentFieldName + "." + childFieldName, parentFieldName);
     return AggregationBuilders
       .global(facetName)
       .subAggregation(AggregationBuilders

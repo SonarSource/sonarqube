@@ -519,7 +519,7 @@ public class RuleIndexIT {
 
     List<RuleDto> rules = new ArrayList<>();
 
-    //Creation of one rule for each standard security category defined (except other)
+    // Creation of one rule for each standard security category defined (except other)
     for (Map.Entry<SecurityStandards.SQCategory, Set<String>> sqCategorySetEntry : SecurityStandards.CWES_BY_SQ_CATEGORY.entrySet()) {
       rules.add(createRule(setSecurityStandards(of("cwe:" + sqCategorySetEntry.getValue().iterator().next())), r -> r.setType(SECURITY_HOTSPOT)));
     }
@@ -797,7 +797,6 @@ public class RuleIndexIT {
     SearchIdResult result1 = underTest.search(query, new SearchOptions());
     assertThat(result1.getUuids()).isEmpty();
 
-
     query = new RuleQuery();
     query.setCleanCodeAttributesCategories(List.of(CleanCodeAttribute.FOCUSED.getAttributeCategory().name()));
 
@@ -816,7 +815,6 @@ public class RuleIndexIT {
     SearchIdResult result1 = underTest.search(query.setImpactSoftwareQualities(List.of(SoftwareQuality.MAINTAINABILITY.name())), new SearchOptions());
     assertThat(result1.getUuids()).isEmpty();
 
-
     query = new RuleQuery();
     SearchIdResult result2 = underTest.search(query.setImpactSoftwareQualities(List.of(SoftwareQuality.SECURITY.name())), new SearchOptions());
     assertThat(result2.getUuids()).containsOnly(phpRule.getUuid());
@@ -831,7 +829,6 @@ public class RuleIndexIT {
     RuleQuery query = new RuleQuery();
     SearchIdResult result1 = underTest.search(query.setImpactSeverities(List.of(Severity.MEDIUM.name())), new SearchOptions());
     assertThat(result1.getUuids()).isEmpty();
-
 
     query = new RuleQuery();
     SearchIdResult result2 = underTest.search(query.setImpactSeverities(List.of(Severity.HIGH.name())), new SearchOptions());
@@ -906,6 +903,35 @@ public class RuleIndexIT {
         entry("SECURITY", 1L),
         entry("MAINTAINABILITY", 0L),
         entry("RELIABILITY", 0L));
+  }
+
+  @Test
+  public void search_whenFilteringOnSeverityAndSoftwareQuality_shouldReturnFacet() {
+    ImpactDto impactDto = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH).setUuid("uuid");
+    ImpactDto impactDto2 = new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.LOW).setUuid("uuid2");
+    ImpactDto impactDto3 = new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.LOW).setUuid("uuid3");
+    createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto)));
+    createRule(setRepositoryKey("php"), setImpacts(List.of(impactDto2, impactDto3)));
+    index();
+
+    RuleQuery query = new RuleQuery();
+
+    SearchIdResult result = underTest.search(
+      query.setImpactSeverities(Set.of(Severity.LOW.name())).setImpactSoftwareQualities(List.of(SoftwareQuality.MAINTAINABILITY.name())),
+      new SearchOptions().addFacets(List.of("impactSoftwareQualities", "impactSeverities")));
+
+    assertThat(result.getFacets().getAll()).hasSize(2);
+    assertThat(result.getFacets().getAll().get("impactSoftwareQualities"))
+      .containsOnly(
+        entry("SECURITY", 0L),
+        entry("MAINTAINABILITY", 1L),
+        entry("RELIABILITY", 1L));
+
+    assertThat(result.getFacets().getAll().get("impactSeverities"))
+      .containsOnly(
+        entry("HIGH", 1L),
+        entry("MEDIUM", 0L),
+        entry("LOW", 1L));
   }
 
   @Test
