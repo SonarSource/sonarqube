@@ -18,10 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { mount } from 'enzyme';
 import * as React from 'react';
+import { useContext } from 'react';
 import { mockAppState } from '../../../../helpers/testMocks';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { byText } from '../../../../helpers/testSelector';
 import { IndexationStatus } from '../../../../types/indexation';
+import { IndexationContext } from '../IndexationContext';
 import {
   IndexationContextProvider,
   IndexationContextProviderProps,
@@ -32,29 +35,21 @@ beforeEach(() => jest.clearAllMocks());
 
 jest.mock('../IndexationNotificationHelper');
 
-it('should render correctly and start polling if issue sync is needed', () => {
-  const wrapper = mountRender();
-
-  expect(wrapper).toMatchSnapshot();
+it('should render correctly, start polling if issue sync is needed and stop when unmounted', () => {
+  const { unmount } = renderIndexationContextProvider();
   expect(IndexationNotificationHelper.startPolling).toHaveBeenCalled();
+  unmount();
+  expect(IndexationNotificationHelper.stopPolling).toHaveBeenCalled();
 });
 
 it('should not start polling if no issue sync is needed', () => {
   const appState = mockAppState({ needIssueSync: false });
-  const wrapper = mountRender({ appState });
-
+  renderIndexationContextProvider({ appState });
   expect(IndexationNotificationHelper.startPolling).not.toHaveBeenCalled();
-
-  const expectedStatus: IndexationStatus = {
-    hasFailures: false,
-    isCompleted: true,
-  };
-
-  expect(wrapper.state().status).toEqual(expectedStatus);
 });
 
 it('should update the state on new status', () => {
-  const wrapper = mountRender();
+  renderIndexationContextProvider();
 
   const triggerNewStatus = jest.mocked(IndexationNotificationHelper.startPolling).mock
     .calls[0][0] as (status: IndexationStatus) => void;
@@ -64,21 +59,15 @@ it('should update the state on new status', () => {
     isCompleted: true,
   };
 
+  expect(byText('null').get()).toBeInTheDocument();
+
   triggerNewStatus(newStatus);
 
-  expect(wrapper.state().status).toEqual(newStatus);
+  expect(byText('{"status":{"hasFailures":false,"isCompleted":true}}').get()).toBeInTheDocument();
 });
 
-it('should stop polling when component is destroyed', () => {
-  const wrapper = mountRender();
-
-  wrapper.unmount();
-
-  expect(IndexationNotificationHelper.stopPolling).toHaveBeenCalled();
-});
-
-function mountRender(props?: IndexationContextProviderProps) {
-  return mount<IndexationContextProvider>(
+function renderIndexationContextProvider(props?: IndexationContextProviderProps) {
+  return renderComponent(
     <IndexationContextProvider appState={mockAppState({ needIssueSync: true, ...props?.appState })}>
       <TestComponent />
     </IndexationContextProvider>
@@ -86,5 +75,6 @@ function mountRender(props?: IndexationContextProviderProps) {
 }
 
 function TestComponent() {
-  return <h1>TestComponent</h1>;
+  const state = useContext(IndexationContext);
+  return <div>{JSON.stringify(state)}</div>;
 }

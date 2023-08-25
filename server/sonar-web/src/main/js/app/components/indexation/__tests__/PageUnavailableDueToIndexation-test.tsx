@@ -18,14 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { shallow } from 'enzyme';
 import * as React from 'react';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { byRole } from '../../../../helpers/testSelector';
 import { PageUnavailableDueToIndexation } from '../PageUnavailableDueToIndexation';
 
 it('should render correctly', () => {
-  const wrapper = shallowRender();
+  renderPageUnavailableToIndexation();
 
-  expect(wrapper).toMatchSnapshot();
+  expect(byRole('link', { name: 'learn_more' }).get()).toBeInTheDocument();
 });
 
 it('should not refresh the page once the indexation is complete if there were failures', () => {
@@ -36,17 +37,17 @@ it('should not refresh the page once the indexation is complete if there were fa
     value: { reload },
   });
 
-  const wrapper = shallowRender();
+  const { rerender } = renderPageUnavailableToIndexation();
 
   expect(reload).not.toHaveBeenCalled();
 
-  wrapper.setProps({
-    indexationContext: {
-      status: { hasFailures: true, isCompleted: true },
-    },
-  });
-
-  wrapper.update();
+  rerender(
+    <PageUnavailableDueToIndexation
+      indexationContext={{
+        status: { hasFailures: true, isCompleted: true },
+      }}
+    />
+  );
 
   expect(reload).not.toHaveBeenCalled();
 });
@@ -59,23 +60,23 @@ it('should refresh the page once the indexation is complete if there were NO fai
     value: { reload },
   });
 
-  const wrapper = shallowRender();
+  const { rerender } = renderPageUnavailableToIndexation();
 
   expect(reload).not.toHaveBeenCalled();
 
-  wrapper.setProps({
-    indexationContext: {
-      status: { hasFailures: false, isCompleted: true },
-    },
-  });
-
-  wrapper.update();
+  rerender(
+    <PageUnavailableDueToIndexation
+      indexationContext={{
+        status: { hasFailures: false, isCompleted: true },
+      }}
+    />
+  );
 
   expect(reload).toHaveBeenCalled();
 });
 
-function shallowRender() {
-  return shallow<PageUnavailableDueToIndexation>(
+function renderPageUnavailableToIndexation() {
+  return renderComponent(
     <PageUnavailableDueToIndexation
       indexationContext={{
         status: { completedCount: 23, hasFailures: false, isCompleted: false, total: 42 },
