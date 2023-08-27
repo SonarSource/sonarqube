@@ -24,7 +24,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface QualityProfileExportMapper {
-  List<ExportRuleDto> selectByProfileUuid(String uuid);
+  List<ExportRuleDto> selectByProfileUuid(@Param("uuid") String uuid, @Param("organizationUuid") String organizationUuid);
 
   List<ExportRuleParamDto> selectParamsByActiveRuleUuids(@Param("activeRuleUuids") Collection<String> activeRuleUuids);
 }

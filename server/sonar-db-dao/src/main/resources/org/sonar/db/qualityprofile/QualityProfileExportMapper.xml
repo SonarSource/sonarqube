@@ -60,9 +60,9 @@
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
     inner join rules r on r.uuid = a.rule_uuid and r.status != 'REMOVED'
     left join rules rt on rt.uuid = r.template_uuid
-    left join rules_metadata rm on rm.rule_uuid = r.uuid
+    left join rules_metadata rm on rm.rule_uuid = r.uuid and rm.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     <include refid="leftOuterJoinRulesDefaultDescriptionSection"/>
-    where oqp.uuid = #{id, jdbcType=VARCHAR}
+    where oqp.uuid = #{uuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectParamsByActiveRuleUuids" parameterType="map" resultType="org.sonar.db.qualityprofile.ExportRuleParamDto">

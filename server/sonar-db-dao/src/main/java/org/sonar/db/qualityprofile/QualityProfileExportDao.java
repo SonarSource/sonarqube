@@ -31,7 +31,7 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 public class QualityProfileExportDao implements Dao {
 
   public List<ExportRuleDto> selectRulesByProfile(DbSession dbSession, QProfileDto profile) {
-    List<ExportRuleDto> exportRules = mapper(dbSession).selectByProfileUuid(profile.getKee());
+    List<ExportRuleDto> exportRules = mapper(dbSession).selectByProfileUuid(profile.getKee(), profile.getOrganizationUuid());
 
     /* Custom merge function, choose existing value*/
     Map<String, ExportRuleDto> exportRulesByUuid = exportRules.stream().collect(Collectors.toMap(ExportRuleDto::getActiveRuleUuid,x -> x,
