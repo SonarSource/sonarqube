@@ -34,6 +34,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.server.component.ComponentFinder;
@@ -46,7 +47,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
-import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.webhook.ws.WebhookWsSupport.copyDtoToProtobuf;
@@ -121,17 +121,17 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (isNotBlank(webhookUuid)) {
         totalElements = dbClient.webhookDeliveryDao().countDeliveriesByWebhookUuid(dbSession, webhookUuid);
-        deliveries = dbClient.webhookDeliveryDao().selectByWebhookUuid(dbSession, webhookUuid, offset(page, pageSize), pageSize);
+        deliveries = dbClient.webhookDeliveryDao().selectByWebhookUuid(dbSession, webhookUuid, Pagination.forPage(page).andSize(pageSize));
         projectUuidMap = getProjectsDto(dbSession, deliveries);
       } else if (projectKey != null) {
         ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
         projectUuidMap = new HashMap<>();
         projectUuidMap.put(project.getUuid(), project);
         totalElements = dbClient.webhookDeliveryDao().countDeliveriesByProjectUuid(dbSession, project.getUuid());
-        deliveries = dbClient.webhookDeliveryDao().selectOrderedByProjectUuid(dbSession, project.getUuid(), offset(page, pageSize), pageSize);
+        deliveries = dbClient.webhookDeliveryDao().selectOrderedByProjectUuid(dbSession, project.getUuid(), Pagination.forPage(page).andSize(pageSize));
       } else {
         totalElements = dbClient.webhookDeliveryDao().countDeliveriesByCeTaskUuid(dbSession, ceTaskId);
-        deliveries = dbClient.webhookDeliveryDao().selectOrderedByCeTaskUuid(dbSession, ceTaskId, offset(page, pageSize), pageSize);
+        deliveries = dbClient.webhookDeliveryDao().selectOrderedByCeTaskUuid(dbSession, ceTaskId, Pagination.forPage(page).andSize(pageSize));
         projectUuidMap = getProjectsDto(dbSession, deliveries);
       }
     }

@@ -22,9 +22,9 @@ package org.sonar.db.webhook;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -42,8 +42,8 @@ public class WebhookDeliveryDao implements Dao {
   /**
    * All the deliveries for the specified webhook. Results are ordered by descending date.
    */
-  public List<WebhookDeliveryLiteDto> selectByWebhookUuid(DbSession dbSession, String webhookUuid, int offset, int limit) {
-    return mapper(dbSession).selectByWebhookUuid(webhookUuid, new RowBounds(offset, limit));
+  public List<WebhookDeliveryLiteDto> selectByWebhookUuid(DbSession dbSession, String webhookUuid, Pagination pagination) {
+    return mapper(dbSession).selectByWebhookUuid(webhookUuid, pagination);
   }
 
   public int countDeliveriesByProjectUuid(DbSession dbSession, String projectUuid) {
@@ -53,8 +53,8 @@ public class WebhookDeliveryDao implements Dao {
   /**
    * All the deliveries for the specified project. Results are ordered by descending date.
    */
-  public List<WebhookDeliveryLiteDto> selectOrderedByProjectUuid(DbSession dbSession, String projectUuid, int offset, int limit) {
-    return mapper(dbSession).selectOrderedByProjectUuid(projectUuid, new RowBounds(offset, limit));
+  public List<WebhookDeliveryLiteDto> selectOrderedByProjectUuid(DbSession dbSession, String projectUuid, Pagination pagination) {
+    return mapper(dbSession).selectOrderedByProjectUuid(projectUuid, pagination);
   }
 
   public int countDeliveriesByCeTaskUuid(DbSession dbSession, String ceTaskId) {
@@ -64,8 +64,8 @@ public class WebhookDeliveryDao implements Dao {
   /**
    * All the deliveries for the specified CE task. Results are ordered by descending date.
    */
-  public List<WebhookDeliveryLiteDto> selectOrderedByCeTaskUuid(DbSession dbSession, String ceTaskUuid, int offset, int limit) {
-    return mapper(dbSession).selectOrderedByCeTaskUuid(ceTaskUuid, new RowBounds(offset, limit));
+  public List<WebhookDeliveryLiteDto> selectOrderedByCeTaskUuid(DbSession dbSession, String ceTaskUuid, Pagination pagination) {
+    return mapper(dbSession).selectOrderedByCeTaskUuid(ceTaskUuid, pagination);
   }
 
   public void insert(DbSession dbSession, WebhookDeliveryDto dto) {
@@ -78,7 +78,7 @@ public class WebhookDeliveryDao implements Dao {
 
   public Map<String, WebhookDeliveryLiteDto> selectLatestDeliveries(DbSession dbSession, List<WebhookDto> webhooks) {
     return webhooks.stream()
-      .flatMap(webhook -> selectByWebhookUuid(dbSession, webhook.getUuid(),0,1).stream())
+      .flatMap(webhook -> selectByWebhookUuid(dbSession, webhook.getUuid(), Pagination.forPage(1).andSize(1)).stream())
       .collect(toMap(WebhookDeliveryLiteDto::getWebhookUuid, identity()));
   }
 

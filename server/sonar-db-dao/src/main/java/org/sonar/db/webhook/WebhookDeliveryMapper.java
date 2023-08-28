@@ -22,7 +22,7 @@ package org.sonar.db.webhook;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.Pagination;
 
 public interface WebhookDeliveryMapper {
 
@@ -31,15 +31,15 @@ public interface WebhookDeliveryMapper {
 
   int countByWebhookUuid(@Param("webhookUuid") String webhookUuid);
 
-  List<WebhookDeliveryLiteDto> selectByWebhookUuid(@Param("webhookUuid") String webhookUuid, RowBounds rowBounds);
+  List<WebhookDeliveryLiteDto> selectByWebhookUuid(@Param("webhookUuid") String webhookUuid, @Param("pagination") Pagination pagination);
 
   int countByProjectUuid(@Param("projectUuid") String projectUuid);
 
-  List<WebhookDeliveryLiteDto> selectOrderedByProjectUuid(@Param("projectUuid") String projectUuid, RowBounds rowBounds);
+  List<WebhookDeliveryLiteDto> selectOrderedByProjectUuid(@Param("projectUuid") String projectUuid, @Param("pagination") Pagination pagination);
 
   int countByCeTaskUuid(@Param("ceTaskUuid") String ceTaskId);
 
-  List<WebhookDeliveryLiteDto> selectOrderedByCeTaskUuid(@Param("ceTaskUuid") String ceTaskUuid, RowBounds rowBounds);
+  List<WebhookDeliveryLiteDto> selectOrderedByCeTaskUuid(@Param("ceTaskUuid") String ceTaskUuid, @Param("pagination") Pagination pagination);
 
   void insert(WebhookDeliveryDto dto);
 

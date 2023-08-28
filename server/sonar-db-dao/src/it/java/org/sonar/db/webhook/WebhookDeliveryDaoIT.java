@@ -28,6 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.Pagination;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +57,7 @@ public class WebhookDeliveryDaoIT {
   public void selectOrderedByComponentUuid_returns_empty_if_no_records() {
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D1", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1"));
 
-    List<WebhookDeliveryLiteDto> deliveries = underTest.selectOrderedByProjectUuid(dbSession, "ANOTHER_PROJECT", 0, 10);
+    List<WebhookDeliveryLiteDto> deliveries = underTest.selectOrderedByProjectUuid(dbSession, "ANOTHER_PROJECT", Pagination.all());
 
     assertThat(deliveries).isEmpty();
   }
@@ -70,7 +71,7 @@ public class WebhookDeliveryDaoIT {
     underTest.insert(dbSession, dto2);
     underTest.insert(dbSession, dto1);
 
-    List<WebhookDeliveryLiteDto> deliveries = underTest.selectOrderedByProjectUuid(dbSession, "PROJECT_1", 0, 10);
+    List<WebhookDeliveryLiteDto> deliveries = underTest.selectOrderedByProjectUuid(dbSession, "PROJECT_1", Pagination.all());
 
     assertThat(deliveries).extracting(WebhookDeliveryLiteDto::getUuid).containsExactly("D2", "D1");
   }
@@ -79,7 +80,7 @@ public class WebhookDeliveryDaoIT {
   public void selectOrderedByCeTaskUuid_returns_empty_if_no_records() {
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D1", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1"));
 
-    List<WebhookDeliveryLiteDto> deliveries = underTest.selectOrderedByCeTaskUuid(dbSession, "ANOTHER_TASK", 0, 10);
+    List<WebhookDeliveryLiteDto> deliveries = underTest.selectOrderedByCeTaskUuid(dbSession, "ANOTHER_TASK", Pagination.all());
 
     assertThat(deliveries).isEmpty();
   }
@@ -93,7 +94,7 @@ public class WebhookDeliveryDaoIT {
     underTest.insert(dbSession, dto2);
     underTest.insert(dbSession, dto1);
 
-    List<WebhookDeliveryLiteDto> deliveries = underTest.selectOrderedByCeTaskUuid(dbSession, "TASK_1", 0, 10);
+    List<WebhookDeliveryLiteDto> deliveries = underTest.selectOrderedByCeTaskUuid(dbSession, "TASK_1", Pagination.all());
 
     assertThat(deliveries).extracting(WebhookDeliveryLiteDto::getUuid).containsExactly("D2", "D1");
   }
@@ -103,7 +104,7 @@ public class WebhookDeliveryDaoIT {
 
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D1", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1"));
 
-    List<WebhookDeliveryLiteDto> deliveries = underTest.selectByWebhookUuid(dbSession, "a-webhook-uuid", 0, 10);
+    List<WebhookDeliveryLiteDto> deliveries = underTest.selectByWebhookUuid(dbSession, "a-webhook-uuid", Pagination.all());
 
     assertThat(deliveries).isEmpty();
   }
@@ -118,7 +119,7 @@ public class WebhookDeliveryDaoIT {
     underTest.insert(dbSession, dto2);
     underTest.insert(dbSession, dto1);
 
-    List<WebhookDeliveryLiteDto> deliveries = underTest.selectByWebhookUuid(dbSession, webhookDto.getUuid(), 0, 10);
+    List<WebhookDeliveryLiteDto> deliveries = underTest.selectByWebhookUuid(dbSession, webhookDto.getUuid(), Pagination.all());
 
     assertThat(deliveries).extracting(WebhookDeliveryLiteDto::getUuid).containsExactly("D2", "D1");
   }
@@ -133,7 +134,7 @@ public class WebhookDeliveryDaoIT {
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D5", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW - 1_000L));
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("D6", webhookDto.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW));
 
-    List<WebhookDeliveryLiteDto> deliveries = underTest.selectByWebhookUuid(dbSession, webhookDto.getUuid(), 2, 2);
+    List<WebhookDeliveryLiteDto> deliveries = underTest.selectByWebhookUuid(dbSession, webhookDto.getUuid(), Pagination.forPage(2).andSize(2));
 
     assertThat(deliveries).extracting(WebhookDeliveryLiteDto::getUuid).containsExactly("D4", "D3");
   }

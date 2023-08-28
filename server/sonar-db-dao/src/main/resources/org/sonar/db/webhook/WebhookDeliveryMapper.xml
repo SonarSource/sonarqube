@@ -33,11 +33,12 @@
     where webhook_uuid = #{webhookUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByWebhookUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
+  <select id="selectByWebhookUuid" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
     select <include refid="sqlLiteColumns" />
     from webhook_deliveries
     where webhook_uuid = #{webhookUuid,jdbcType=VARCHAR}
     order by created_at desc
+    offset (#{pagination.startRowNumber,jdbcType=INTEGER}-1) rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
   </select>
 
   <select id="countByProjectUuid" parameterType="String" resultType="int">
@@ -47,18 +48,20 @@
     where project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectOrderedByProjectUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
+  <select id="selectOrderedByProjectUuid" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
     select <include refid="sqlLiteColumns" />
     from webhook_deliveries
     where project_uuid = #{projectUuid,jdbcType=VARCHAR}
     order by created_at desc
+    offset (#{pagination.startRowNumber,jdbcType=INTEGER}-1) rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
   </select>
 
-  <select id="selectOrderedByCeTaskUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
+  <select id="selectOrderedByCeTaskUuid" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
     select <include refid="sqlLiteColumns" />
     from webhook_deliveries
     where ce_task_uuid = #{ceTaskUuid,jdbcType=VARCHAR}
     order by created_at desc
+    offset (#{pagination.startRowNumber,jdbcType=INTEGER}-1) rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
   </select>
 
   <select id="countByCeTaskUuid" parameterType="String" resultType="int">
