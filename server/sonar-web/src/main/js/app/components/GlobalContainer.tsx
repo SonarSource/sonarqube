@@ -84,6 +84,10 @@ export default function GlobalContainer() {
                             <NCDAutoUpdateMessage />
                             <UpdateNotification dismissable />
                             <GlobalNav location={location} />
+                            {/* The following is the portal anchor point for the component nav
+                             * See ComponentContainer.tsx
+                             */}
+                            <div id="component-nav-portal" />
                           </div>
                           <Outlet />
                         </MetricsContextProvider>

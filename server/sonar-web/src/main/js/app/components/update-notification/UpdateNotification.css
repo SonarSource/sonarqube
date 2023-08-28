@@ -23,7 +23,6 @@
 
 .promote-update-notification .dismissable-alert-banner {
   margin-bottom: 0 !important;
-  position: fixed;
   width: 100%;
   z-index: var(--globalBannerZIndex);
 }

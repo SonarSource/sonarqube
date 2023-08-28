@@ -20,6 +20,7 @@
 
 import { differenceBy } from 'lodash';
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
 import { validateProjectAlmBinding } from '../../api/alm-settings';
@@ -63,10 +64,13 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   watchStatusTimer?: number;
   mounted = false;
   state: State = { isPending: false, loading: true };
+  portalAnchor: Element | null = null;
 
   componentDidMount() {
     this.mounted = true;
     this.fetchComponent();
+
+    this.portalAnchor = document.querySelector('#component-nav-portal');
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -335,14 +339,18 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
         {component &&
           !([ComponentQualifier.File, ComponentQualifier.TestFile] as string[]).includes(
             component.qualifier
-          ) && (
+          ) &&
+          this.portalAnchor &&
+          /* Use a portal to fix positioning until we can fully review the layout */
+          createPortal(
             <ComponentNav
               component={component}
               currentTask={currentTask}
               isInProgress={isInProgress}
               isPending={isPending}
               projectBindingErrors={projectBindingErrors}
-            />
+            />,
+            this.portalAnchor
           )}
 
         {loading ? (

@@ -22,7 +22,6 @@
 }
 
 .system-announcement-banner {
-  position: fixed;
   width: 100%;
   z-index: var(--globalBannerZIndex);
 }

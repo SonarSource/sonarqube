@@ -23,7 +23,6 @@ import { LAYOUT_VIEWPORT_MIN_WIDTH } from '../helpers';
 import { themeColor, themeContrast, themeShadow } from '../helpers/theme';
 
 export const TopBar = styled.nav`
-  ${tw`sw-z-top-navbar`}
   ${tw`sw-px-6 sw-pt-4`}
   ${tw`sw-box-border`};
   ${tw`sw-w-full`};

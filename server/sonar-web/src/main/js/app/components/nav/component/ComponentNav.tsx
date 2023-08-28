@@ -19,7 +19,6 @@
  */
 import { TopBar } from 'design-system';
 import * as React from 'react';
-import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
 import NCDAutoUpdateMessage from '../../../../components/new-code-definition/NCDAutoUpdateMessage';
 import { translate } from '../../../../helpers/l10n';
 import { ProjectAlmBindingConfigurationErrors } from '../../../../types/alm-settings';
@@ -57,36 +56,24 @@ export default function ComponentNav(props: ComponentNavProps) {
     }
   }, [component, component.key]);
 
-  let prDecoNotifComponent: JSX.Element;
-  if (projectBindingErrors !== undefined) {
-    prDecoNotifComponent = <ComponentNavProjectBindingErrorNotif component={component} />;
-  }
-
   return (
-    <ScreenPositionHelper className="sw-inline">
-      {({ top }) => (
-        <>
-          <TopBar
-            className="sw-sticky"
-            id="context-navigation"
-            aria-label={translate('qualifier', component.qualifier)}
-            style={{ top: `${top}px` }}
-          >
-            <div className="sw-min-h-10 sw-flex sw-justify-between">
-              <Header component={component} />
-              <HeaderMeta
-                component={component}
-                currentTask={currentTask}
-                isInProgress={isInProgress}
-                isPending={isPending}
-              />
-            </div>
-            <Menu component={component} isInProgress={isInProgress} isPending={isPending} />
-          </TopBar>
-          <NCDAutoUpdateMessage component={component} />
-          {prDecoNotifComponent}
-        </>
+    <>
+      <TopBar id="context-navigation" aria-label={translate('qualifier', component.qualifier)}>
+        <div className="sw-min-h-10 sw-flex sw-justify-between">
+          <Header component={component} />
+          <HeaderMeta
+            component={component}
+            currentTask={currentTask}
+            isInProgress={isInProgress}
+            isPending={isPending}
+          />
+        </div>
+        <Menu component={component} isInProgress={isInProgress} isPending={isPending} />
+      </TopBar>
+      <NCDAutoUpdateMessage component={component} />
+      {projectBindingErrors !== undefined && (
+        <ComponentNavProjectBindingErrorNotif component={component} />
       )}
-    </ScreenPositionHelper>
+    </>
   );
 }

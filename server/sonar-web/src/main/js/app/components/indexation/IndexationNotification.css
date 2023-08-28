@@ -22,7 +22,6 @@
 }
 
 .indexation-notification-banner {
-  position: fixed;
   width: 100%;
   z-index: var(--globalBannerZIndex);
   margin-bottom: 0 !important;
