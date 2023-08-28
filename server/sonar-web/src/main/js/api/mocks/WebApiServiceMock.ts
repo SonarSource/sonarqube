@@ -19,25 +19,59 @@
  */
 import { cloneDeep } from 'lodash';
 import { OpenAPIV3 } from 'openapi-types';
-import { fetchOpenAPI } from '../web-api';
+import { mockAction } from '../../helpers/mocks/webapi';
+import { fetchOpenAPI, fetchWebApi } from '../web-api';
 import { openApiTestData } from './data/web-api';
 
 jest.mock('../web-api');
 
+const BASE_DOMAINS = [
+  {
+    actions: [
+      mockAction(),
+      mockAction({ key: 'memos', description: 'get normal memos' }),
+      mockAction({
+        key: 'deprecated',
+        description: 'deprecated action',
+        deprecatedSince: '2012-07-23',
+      }),
+    ],
+    description: 'foo',
+    internal: false,
+    path: 'foo/bar',
+    since: '1.0',
+  },
+  {
+    actions: [mockAction({ key: 'ia', description: 'get internal memos', internal: true })],
+    description: 'internal stuff',
+    internal: false,
+    path: 'internal/thing1',
+    since: '1.3',
+  },
+];
+
 export default class WebApiServiceMock {
   openApiDocument: OpenAPIV3.Document;
+  domains;
 
   constructor() {
     this.openApiDocument = cloneDeep(openApiTestData);
+    this.domains = cloneDeep(BASE_DOMAINS);
 
     jest.mocked(fetchOpenAPI).mockImplementation(this.handleFetchOpenAPI);
+    jest.mocked(fetchWebApi).mockImplementation(this.handleFetchWebAPI);
   }
 
   handleFetchOpenAPI: typeof fetchOpenAPI = () => {
     return Promise.resolve(this.openApiDocument);
   };
 
+  handleFetchWebAPI = () => {
+    return Promise.resolve(this.domains);
+  };
+
   reset = () => {
     this.openApiDocument = cloneDeep(openApiTestData);
+    this.domains = cloneDeep(BASE_DOMAINS);
   };
 }

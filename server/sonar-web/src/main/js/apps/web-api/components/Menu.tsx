@@ -46,25 +46,28 @@ export default function Menu(props: Props) {
   const renderDomain = (domain: WebApi.Domain) => {
     const internal = !domain.actions.find((action) => !action.internal);
     return (
-      <Link
-        className={classNames('list-group-item', {
+      <li
+        className={classNames('list-group-item sw-p-0', {
           active: isDomainPathActive(domain.path, splat),
         })}
         key={domain.path}
-        to={{ pathname: '/web_api/' + domain.path, search: queryToSearch(serializeQuery(query)) }}
       >
-        <h3 className="list-group-item-heading">
-          {domain.path}
-          {domain.deprecatedSince && <DeprecatedBadge since={domain.deprecatedSince} />}
-          {internal && <InternalBadge />}
-        </h3>
-      </Link>
+        <Link
+          to={{ pathname: '/web_api/' + domain.path, search: queryToSearch(serializeQuery(query)) }}
+        >
+          <h3 className="sw-truncate sw-px-2 sw-py-3">
+            {domain.path}
+            {domain.deprecatedSince && <DeprecatedBadge since={domain.deprecatedSince} />}
+            {internal && <InternalBadge />}
+          </h3>
+        </Link>
+      </li>
     );
   };
 
   return (
-    <div className="api-documentation-results panel">
-      <div className="list-group">{filteredDomains.map(renderDomain)}</div>
+    <div className="api-documentation-results panel" role="menu">
+      <ul className="list-group">{filteredDomains.map(renderDomain)}</ul>
     </div>
   );
 }

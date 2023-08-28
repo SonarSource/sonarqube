@@ -17,18 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import DeprecatedBadge from '../DeprecatedBadge';
+import { WebApi } from '../../types/types';
 
-it('should render with version', () => {
-  expect(shallow(<DeprecatedBadge since="5.6" />)).toMatchSnapshot();
-});
+export function mockAction(overrides: Partial<WebApi.Action> = {}): WebApi.Action {
+  return {
+    key: 'action1',
+    internal: false,
+    changelog: [],
+    description: 'Action 1',
+    hasResponseExample: false,
+    post: false,
+    ...overrides,
+  };
+}
 
-it('should render without version', () => {
-  expect(shallow(<DeprecatedBadge />)).toMatchSnapshot();
-});
+export function mockDomain(overrides: Partial<WebApi.Domain> = {}): WebApi.Domain {
+  return {
+    actions: [mockAction()],
+    description: 'foo',
+    path: 'foo/bar',
+    since: '1.0',
+    ...overrides,
+  };
+}
 
-it('should render with malformed version', () => {
-  expect(shallow(<DeprecatedBadge since="foo" />)).toMatchSnapshot();
-});
+export function mockParam(overrides: Partial<WebApi.Param> = {}): WebApi.Param {
+  return {
+    key: 'p1',
+    description: 'parameter 1',
+    internal: false,
+    required: false,
+    ...overrides,
+  };
+}
