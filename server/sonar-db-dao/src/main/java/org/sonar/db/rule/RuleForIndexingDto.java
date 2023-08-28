@@ -216,6 +216,7 @@ public class RuleForIndexingDto {
     this.type = type;
   }
 
+  @CheckForNull
   public String getCleanCodeAttributeCategory() {
     return cleanCodeAttributeCategory;
   }

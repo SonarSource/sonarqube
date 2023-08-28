@@ -69,11 +69,20 @@ public class NewRuleCreatorTest {
 
   @Test
   public void from_whenRuleDefinitionDoesHaveCleanCodeAttribute_shouldReturnThisAttribute() {
-    RulesDefinition.Rule ruleDef = getDefaultRule(CleanCodeAttribute.TESTED);
+    RulesDefinition.Rule ruleDef = getDefaultRule(CleanCodeAttribute.TESTED, RuleType.CODE_SMELL);
 
     RuleDto newRuleDto = underTest.createNewRule(context, ruleDef, mock());
 
     assertThat(newRuleDto.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.TESTED);
+  }
+
+  @Test
+  public void createNewRule_whenRuleDefinitionDoesHaveCleanCodeAttributeAndIsSecurityHotspot_shouldReturnNull() {
+    RulesDefinition.Rule ruleDef = getDefaultRule(CleanCodeAttribute.TESTED, RuleType.SECURITY_HOTSPOT);
+
+    RuleDto newRuleDto = underTest.createNewRule(context, ruleDef, mock());
+    assertThat(newRuleDto.getCleanCodeAttribute()).isNull();
+    assertThat(newRuleDto.getDefaultImpacts()).isEmpty();
   }
 
   @Test
@@ -89,14 +98,14 @@ public class NewRuleCreatorTest {
       .containsOnly(tuple(SoftwareQuality.RELIABILITY, Severity.LOW));
   }
 
-  private static RulesDefinition.Rule getDefaultRule(@Nullable CleanCodeAttribute attribute) {
+  private static RulesDefinition.Rule getDefaultRule(@Nullable CleanCodeAttribute attribute, RuleType ruleType) {
     RulesDefinition.Rule ruleDef = mock(RulesDefinition.Rule.class);
     RulesDefinition.Repository repository = mock(RulesDefinition.Repository.class);
     when(ruleDef.repository()).thenReturn(repository);
 
     when(ruleDef.key()).thenReturn("key");
     when(repository.key()).thenReturn("repoKey");
-    when(ruleDef.type()).thenReturn(RuleType.CODE_SMELL);
+    when(ruleDef.type()).thenReturn(ruleType);
     when(ruleDef.scope()).thenReturn(RuleScope.TEST);
     when(ruleDef.cleanCodeAttribute()).thenReturn(attribute);
     when(ruleDef.severity()).thenReturn(MAJOR);
@@ -105,6 +114,6 @@ public class NewRuleCreatorTest {
   }
 
   private static RulesDefinition.Rule getDefaultRule() {
-    return getDefaultRule(null);
+    return getDefaultRule(null, RuleType.CODE_SMELL);
   }
 }

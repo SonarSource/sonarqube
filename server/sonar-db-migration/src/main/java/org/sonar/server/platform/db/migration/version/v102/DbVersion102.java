@@ -86,8 +86,6 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_032, "Increase size of 'ce_queue.main_is_last_key' from 55 to 80 characters", IncreaseMainIsLastKeyInCeActivity.class)
       .add(10_2_033, "Add column 'clean_code_attribute' in 'rules' table", AddCleanCodeAttributeInRules.class)
       .add(10_2_034, "Populate 'clean_code_attribute' column in 'rules' table", PopulateCleanCodeAttributeColumnInRules.class)
-      //TODO SONAR-20073
-      //.add(10_2_035, "Make 'clean_code_attribute' column not nullable in 'rules' table", MakeCleanCodeAttributeColumnNotNullableInRules.class);
 
       .add(10_2_036, "Create 'rules_default_impacts' table", CreateRulesDefaultImpactsTable.class)
       .add(10_2_037, "Create unique constraint index on 'rules_default_impacts' table", CreateUniqueConstraintOnRulesDefaultImpacts.class)

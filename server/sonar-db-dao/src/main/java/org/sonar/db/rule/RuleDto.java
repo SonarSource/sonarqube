@@ -431,11 +431,12 @@ public class RuleDto {
     return this;
   }
 
+  @CheckForNull
   public CleanCodeAttribute getCleanCodeAttribute() {
     return cleanCodeAttribute;
   }
 
-  public RuleDto setCleanCodeAttribute(CleanCodeAttribute cleanCodeAttribute) {
+  public RuleDto setCleanCodeAttribute(@Nullable CleanCodeAttribute cleanCodeAttribute) {
     this.cleanCodeAttribute = cleanCodeAttribute;
     return this;
   }

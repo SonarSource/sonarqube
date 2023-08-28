@@ -771,6 +771,7 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
+  @CheckForNull
   public CleanCodeAttribute getCleanCodeAttribute() {
     return cleanCodeAttribute;
   }

@@ -166,6 +166,9 @@ public class StartupRuleUpdater {
   }
 
   private static boolean mergeCleanCodeAttribute(RulesDefinition.Rule def, RuleDto dto) {
+    if (dto.getEnumType() == RuleType.SECURITY_HOTSPOT) {
+      return false;
+    }
     boolean changed = false;
     CleanCodeAttribute defCleanCodeAttribute = def.cleanCodeAttribute();
     if (!Objects.equals(dto.getCleanCodeAttribute(), defCleanCodeAttribute) && (defCleanCodeAttribute != null)) {

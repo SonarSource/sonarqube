@@ -119,4 +119,26 @@ public class NewAdHocRuleTest {
       .hasMessage("'issue type' not expected to be null for an ad hoc rule, or impacts should be provided instead");
   }
 
+  @Test
+  public void constructor_whenRuleHotspot_shouldNotPopulateImpactsNorAttribute() {
+    NewAdHocRule adHocRule1 = new NewAdHocRule(ScannerReport.ExternalIssue.newBuilder()
+      .setEngineId("eslint")
+      .setType(ScannerReport.IssueType.SECURITY_HOTSPOT)
+      .setSeverity(Constants.Severity.BLOCKER)
+      .setRuleId("no-cond-assign").build());
+    assertThat(adHocRule1.getDefaultImpacts()).isEmpty();
+    assertThat(adHocRule1.getCleanCodeAttribute()).isNull();
+  }
+
+  @Test
+  public void constructor_whenIssueHotspot_shouldNotPopulateImpactsNorAttribute() {
+    NewAdHocRule adHocRule1 = new NewAdHocRule(ScannerReport.ExternalIssue.newBuilder()
+      .setType(ScannerReport.IssueType.SECURITY_HOTSPOT)
+      .setSeverity(Constants.Severity.BLOCKER)
+      .setEngineId("eslint")
+      .setRuleId("no-cond-assign").build());
+    assertThat(adHocRule1.getDefaultImpacts()).isEmpty();
+    assertThat(adHocRule1.getCleanCodeAttribute()).isNull();
+  }
+
 }

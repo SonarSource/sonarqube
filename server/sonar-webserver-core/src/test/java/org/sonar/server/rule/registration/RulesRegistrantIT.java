@@ -227,6 +227,8 @@ public class RulesRegistrantIT {
     assertThat(hotspotRule.getUpdatedAt()).isEqualTo(RulesRegistrantIT.DATE1.getTime());
     assertThat(hotspotRule.getType()).isEqualTo(RuleType.SECURITY_HOTSPOT.getDbConstant());
     assertThat(hotspotRule.getSecurityStandards()).containsExactly("cwe:1", "cwe:123", "cwe:863", "owaspTop10-2021:a1", "owaspTop10-2021:a3");
+    assertThat(hotspotRule.getDefaultImpacts()).isEmpty();
+    assertThat(hotspotRule.getCleanCodeAttribute()).isNull();
   }
 
   @Test

@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -146,8 +147,9 @@ public class PushEventFactory {
     issue.getRuleDescriptionContextKey().ifPresent(event::setRuleDescriptionContextKey);
 
     Rule rule = ruleRepository.getByKey(issue.getRuleKey());
-    event.setCleanCodeAttribute(rule.cleanCodeAttribute().name());
-    event.setCleanCodeAttributeCategory(rule.cleanCodeAttribute().getAttributeCategory().name());
+    CleanCodeAttribute cleanCodeAttribute = requireNonNull(rule.cleanCodeAttribute());
+    event.setCleanCodeAttribute(cleanCodeAttribute.name());
+    event.setCleanCodeAttributeCategory(cleanCodeAttribute.getAttributeCategory().name());
     event.setImpacts(computeEffectiveImpacts(rule.getDefaultImpacts(), issue.impacts()));
     return event;
   }

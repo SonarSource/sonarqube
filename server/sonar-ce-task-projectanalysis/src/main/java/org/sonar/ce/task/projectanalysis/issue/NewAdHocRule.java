@@ -51,8 +51,7 @@ public class NewAdHocRule {
   private final String severity;
   private final RuleType ruleType;
   private final boolean hasDetails;
-
-  private final CleanCodeAttribute cleanCodeAttribute;
+  private CleanCodeAttribute cleanCodeAttribute = null;
 
   private final Map<SoftwareQuality, Severity> defaultImpacts = new EnumMap<>(SoftwareQuality.class);
 
@@ -70,11 +69,29 @@ public class NewAdHocRule {
     this.name = ruleFromScannerReport.getName();
     this.description = trimToNull(ruleFromScannerReport.getDescription());
     this.hasDetails = true;
-    this.cleanCodeAttribute = mapCleanCodeAttribute(trimToNull(ruleFromScannerReport.getCleanCodeAttribute()));
     this.ruleType = determineType(ruleFromScannerReport);
     this.severity = determineSeverity(ruleFromScannerReport);
-    this.defaultImpacts.putAll(determineImpacts(ruleFromScannerReport));
+    if (!ScannerReport.IssueType.SECURITY_HOTSPOT.equals(ruleFromScannerReport.getType())) {
+      this.cleanCodeAttribute = mapCleanCodeAttribute(trimToNull(ruleFromScannerReport.getCleanCodeAttribute()));
+      this.defaultImpacts.putAll(determineImpacts(ruleFromScannerReport));
+    }
+  }
 
+  public NewAdHocRule(ScannerReport.ExternalIssue fromIssue) {
+    Preconditions.checkArgument(isNotBlank(fromIssue.getEngineId()), "'engine id' not expected to be null for an ad hoc rule");
+    Preconditions.checkArgument(isNotBlank(fromIssue.getRuleId()), "'rule id' not expected to be null for an ad hoc rule");
+    this.key = RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + fromIssue.getEngineId(), fromIssue.getRuleId());
+    this.engineId = fromIssue.getEngineId();
+    this.ruleId = fromIssue.getRuleId();
+    this.name = null;
+    this.description = null;
+    this.severity = null;
+    this.ruleType = null;
+    this.hasDetails = false;
+    if (!ScannerReport.IssueType.SECURITY_HOTSPOT.equals(fromIssue.getType())) {
+      this.cleanCodeAttribute = CleanCodeAttribute.defaultCleanCodeAttribute();
+      this.defaultImpacts.put(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM);
+    }
   }
 
   private Map<SoftwareQuality, Severity> determineImpacts(ScannerReport.AdHocRule ruleFromScannerReport) {
@@ -131,21 +148,6 @@ public class NewAdHocRule {
     return SoftwareQuality.valueOf(softwareQuality);
   }
 
-  public NewAdHocRule(ScannerReport.ExternalIssue fromIssue) {
-    Preconditions.checkArgument(isNotBlank(fromIssue.getEngineId()), "'engine id' not expected to be null for an ad hoc rule");
-    Preconditions.checkArgument(isNotBlank(fromIssue.getRuleId()), "'rule id' not expected to be null for an ad hoc rule");
-    this.key = RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + fromIssue.getEngineId(), fromIssue.getRuleId());
-    this.engineId = fromIssue.getEngineId();
-    this.ruleId = fromIssue.getRuleId();
-    this.name = null;
-    this.description = null;
-    this.severity = null;
-    this.ruleType = null;
-    this.hasDetails = false;
-    this.cleanCodeAttribute = CleanCodeAttribute.defaultCleanCodeAttribute();
-    this.defaultImpacts.put(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM);
-  }
-
   public RuleKey getKey() {
     return key;
   }
@@ -182,6 +184,7 @@ public class NewAdHocRule {
     return hasDetails;
   }
 
+  @CheckForNull
   public CleanCodeAttribute getCleanCodeAttribute() {
     return cleanCodeAttribute;
   }

@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
@@ -223,9 +224,10 @@ public class RuleMapper {
   }
 
   private static void setCleanCodeAttributes(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, FIELD_CLEAN_CODE_ATTRIBUTE) && ruleDto.getType() != RuleType.SECURITY_HOTSPOT.getDbConstant()) {
-      ruleResponse.setCleanCodeAttribute(Common.CleanCodeAttribute.valueOf(ruleDto.getCleanCodeAttribute().name()));
-      ruleResponse.setCleanCodeAttributeCategory(Common.CleanCodeAttributeCategory.valueOf(ruleDto.getCleanCodeAttribute().getAttributeCategory().name()));
+    CleanCodeAttribute cleanCodeAttribute = ruleDto.getCleanCodeAttribute();
+    if (shouldReturnField(fieldsToReturn, FIELD_CLEAN_CODE_ATTRIBUTE) && cleanCodeAttribute != null) {
+      ruleResponse.setCleanCodeAttribute(Common.CleanCodeAttribute.valueOf(cleanCodeAttribute.name()));
+      ruleResponse.setCleanCodeAttributeCategory(Common.CleanCodeAttributeCategory.valueOf(cleanCodeAttribute.getAttributeCategory().name()));
     }
   }
 
@@ -262,7 +264,7 @@ public class RuleMapper {
   private static void setGapDescription(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
     String gapDescription = ruleDto.getGapDescription();
     if (shouldReturnField(fieldsToReturn, FIELD_GAP_DESCRIPTION)
-      && gapDescription != null) {
+        && gapDescription != null) {
       ruleResponse.setGapDescription(gapDescription);
     }
   }
@@ -389,6 +391,7 @@ public class RuleMapper {
 
   /**
    * This was done to preserve backward compatibility with SonarLint until they stop using htmlDesc field in api/rules/[show|search] endpoints, see SONAR-16635
+   *
    * @deprecated the method should be removed once SonarLint supports rules.descriptionSections fields, I.E in 10.x and DB is cleaned up of non-necessary default sections.
    */
   @Deprecated(since = "9.6", forRemoval = true)

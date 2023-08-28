@@ -25,13 +25,15 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+
 public class PopulateCleanCodeAttributeColumnInRules extends DataChange {
 
   private static final String SELECT_QUERY = """
     SELECT uuid, clean_code_attribute
     FROM rules
-    WHERE clean_code_attribute is null
-    """;
+    WHERE clean_code_attribute is null and (rule_type <> %1$s or ad_hoc_type <> %1$s)
+    """.formatted(SECURITY_HOTSPOT.getDbConstant());
 
   private static final String UPDATE_QUERY = """
     UPDATE rules

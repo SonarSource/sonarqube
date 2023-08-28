@@ -51,12 +51,6 @@ public class NewRuleCreator {
 
   RuleDto createNewRule(RulesRegistrationContext context, RulesDefinition.Rule ruleDef, DbSession session) {
     RuleDto newRule = createRuleWithSimpleFields(ruleDef, uuidFactory.create(), system2.now());
-
-    newRule.replaceAllDefaultImpacts(ruleDef.defaultImpacts().entrySet()
-      .stream()
-      .map(e -> new ImpactDto().setUuid(uuidFactory.create()).setSoftwareQuality(e.getKey()).setSeverity(e.getValue()))
-      .collect(Collectors.toSet()));
-
     ruleDescriptionSectionsGeneratorResolver.generateFor(ruleDef).forEach(newRule::addRuleDescriptionSectionDto);
 
     dbClient.ruleDao().insert(session, newRule);
@@ -65,7 +59,6 @@ public class NewRuleCreator {
   }
 
   RuleDto createRuleWithSimpleFields(RulesDefinition.Rule ruleDef, String uuid, long now) {
-    CleanCodeAttribute cleanCodeAttribute = ruleDef.cleanCodeAttribute();
     RuleDto ruleDto = new RuleDto()
       .setUuid(uuid)
       .setRuleKey(RuleKey.of(ruleDef.repository().key(), ruleDef.key()))
@@ -85,8 +78,16 @@ public class NewRuleCreator {
       .setIsAdHoc(false)
       .setCreatedAt(now)
       .setUpdatedAt(now)
-      .setCleanCodeAttribute(cleanCodeAttribute != null ? cleanCodeAttribute : CleanCodeAttribute.defaultCleanCodeAttribute())
       .setEducationPrinciples(ruleDef.educationPrincipleKeys());
+
+    if (!RuleType.SECURITY_HOTSPOT.equals(ruleDef.type())) {
+      CleanCodeAttribute cleanCodeAttribute = ruleDef.cleanCodeAttribute();
+      ruleDto.setCleanCodeAttribute(cleanCodeAttribute != null ? cleanCodeAttribute : CleanCodeAttribute.defaultCleanCodeAttribute());
+      ruleDto.replaceAllDefaultImpacts(ruleDef.defaultImpacts().entrySet()
+        .stream()
+        .map(e -> new ImpactDto().setUuid(uuidFactory.create()).setSoftwareQuality(e.getKey()).setSeverity(e.getValue()))
+        .collect(Collectors.toSet()));
+    }
 
     if (isNotEmpty(ruleDef.htmlDescription())) {
       ruleDto.setDescriptionFormat(RuleDto.Format.HTML);

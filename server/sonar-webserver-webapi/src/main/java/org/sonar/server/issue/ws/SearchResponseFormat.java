@@ -175,11 +175,9 @@ public class SearchResponseFormat {
     issueBuilder.setType(Common.RuleType.forNumber(dto.getType()));
 
     CleanCodeAttribute cleanCodeAttribute = dto.getCleanCodeAttribute();
-    String cleanCodeAttributeString = cleanCodeAttribute != null ? cleanCodeAttribute.name() : null;
-    String cleanCodeAttributeCategoryString = cleanCodeAttribute != null ? cleanCodeAttribute.getAttributeCategory().name() : null;
-    if (cleanCodeAttributeString != null) {
-      issueBuilder.setCleanCodeAttribute(Common.CleanCodeAttribute.valueOf(cleanCodeAttributeString));
-      issueBuilder.setCleanCodeAttributeCategory(Common.CleanCodeAttributeCategory.valueOf(cleanCodeAttributeCategoryString));
+    if (cleanCodeAttribute != null) {
+      issueBuilder.setCleanCodeAttribute(Common.CleanCodeAttribute.valueOf(cleanCodeAttribute.name()));
+      issueBuilder.setCleanCodeAttributeCategory(Common.CleanCodeAttributeCategory.valueOf(cleanCodeAttribute.getAttributeCategory().name()));
     }
     issueBuilder.addAllImpacts(dto.getEffectiveImpacts().entrySet()
       .stream()

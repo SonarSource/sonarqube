@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.api.rules.RuleType;
 import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,7 +69,24 @@ public class PopulateCleanCodeAttributeColumnInRulesTest {
       .extracting(stringObjectMap -> stringObjectMap.get("CLEAN_CODE_ATTRIBUTE")).containsExactly(CleanCodeAttribute.FOCUSED.name());
   }
 
-  private void insertRule(String uuid, @Nullable CleanCodeAttribute cleanCodeAttribute) {
+  @Test
+  public void execute_whenRuleIsHotspot_shouldNotUpdate() throws SQLException {
+    insertRule("1", RuleType.SECURITY_HOTSPOT, null, null);
+    underTest.execute();
+    assertThat(db.select("select UUID, CLEAN_CODE_ATTRIBUTE from rules"))
+      .extracting(stringObjectMap -> stringObjectMap.get("CLEAN_CODE_ATTRIBUTE")).containsOnlyNulls();
+  }
+
+  @Test
+  public void execute_whenAdhocRuleIsHotspot_shouldNotUpdate() throws SQLException {
+    insertRule("1", null, RuleType.SECURITY_HOTSPOT, null);
+    underTest.execute();
+    assertThat(db.select("select UUID, CLEAN_CODE_ATTRIBUTE from rules"))
+      .extracting(stringObjectMap -> stringObjectMap.get("CLEAN_CODE_ATTRIBUTE")).containsOnlyNulls();
+  }
+
+
+  private void insertRule(String uuid, @Nullable RuleType ruleType, @Nullable RuleType adhocRuleType, @Nullable CleanCodeAttribute cleanCodeAttribute) {
     db.executeInsert(TABLE_NAME,
       "UUID", uuid,
       "PLUGIN_RULE_KEY", "key",
@@ -76,7 +94,13 @@ public class PopulateCleanCodeAttributeColumnInRulesTest {
       "SCOPE", "1",
       "CLEAN_CODE_ATTRIBUTE", cleanCodeAttribute != null ? cleanCodeAttribute.name() : null,
       "IS_TEMPLATE", false,
+      "RULE_TYPE", ruleType != null ? ruleType.getDbConstant() : null,
+      "AD_HOC_TYPE", adhocRuleType != null ? adhocRuleType.getDbConstant() : null,
       "IS_AD_HOC", false,
       "IS_EXTERNAL", false);
+  }
+
+  private void insertRule(String uuid, @Nullable CleanCodeAttribute cleanCodeAttribute) {
+    insertRule(uuid, RuleType.CODE_SMELL, null, cleanCodeAttribute);
   }
 }

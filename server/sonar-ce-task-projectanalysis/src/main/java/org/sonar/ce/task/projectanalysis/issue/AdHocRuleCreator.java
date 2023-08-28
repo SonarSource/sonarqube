@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -89,8 +90,9 @@ public class AdHocRuleCreator {
       }
     }
 
-    if (!Objects.equals(ruleDtoToUpdate.getCleanCodeAttribute(), adHoc.getCleanCodeAttribute())) {
-      ruleDtoToUpdate.setCleanCodeAttribute(adHoc.getCleanCodeAttribute());
+    CleanCodeAttribute cleanCodeAttribute = adHoc.getCleanCodeAttribute();
+    if (!Objects.equals(ruleDtoToUpdate.getCleanCodeAttribute(), cleanCodeAttribute)) {
+      ruleDtoToUpdate.setCleanCodeAttribute(cleanCodeAttribute);
       changed = true;
     }
 
