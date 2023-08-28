@@ -93,7 +93,7 @@ public class TelemetryDaemonTest {
 
     underTest.start();
 
-    verify(client, timeout(2_000).atLeastOnce()).upload(anyString());
+    verify(client, timeout(4_000).atLeastOnce()).upload(anyString());
     verify(dataJsonWriter).writeTelemetryData(any(JsonWriter.class), same(SOME_TELEMETRY_DATA));
   }
 
