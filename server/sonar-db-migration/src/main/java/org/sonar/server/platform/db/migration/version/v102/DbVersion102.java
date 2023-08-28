@@ -25,6 +25,7 @@ import org.sonar.server.platform.db.migration.version.DbVersion;
 // ignoring bad number formatting, as it's indented that we align the migration numbers to SQ versions
 @SuppressWarnings("java:S3937")
 public class DbVersion102 implements DbVersion {
+
   /**
    * We use the start of the 10.X cycle as an opportunity to align migration numbers with the SQ version number.
    * Please follow this pattern:
@@ -85,6 +86,8 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_032, "Increase size of 'ce_queue.main_is_last_key' from 55 to 80 characters", IncreaseMainIsLastKeyInCeActivity.class)
       .add(10_2_033, "Add column 'clean_code_attribute' in 'rules' table", AddCleanCodeAttributeInRules.class)
       .add(10_2_034, "Populate 'clean_code_attribute' column in 'rules' table", PopulateCleanCodeAttributeColumnInRules.class)
+      //TODO SONAR-20073
+      //.add(10_2_035, "Make 'clean_code_attribute' column not nullable in 'rules' table", MakeCleanCodeAttributeColumnNotNullableInRules.class);
 
       .add(10_2_036, "Create 'rules_default_impacts' table", CreateRulesDefaultImpactsTable.class)
       .add(10_2_037, "Create unique constraint index on 'rules_default_impacts' table", CreateUniqueConstraintOnRulesDefaultImpacts.class)
@@ -98,6 +101,14 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_044, "Update column 'value' and populate column 'previous_non_compliant_value' in 'new_code_periods' table",
         UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriods.class)
       .add(10_2_045, "Alter 'project_uuid' in 'user_dismissed_messages' - make it nullable", MakeProjectUuidNullableInUserDismissedMessages.class)
-      .add(10_2_046, "Create index 'project_branches_project_uuid' in 'project_branches' table", CreateIndexProjectUuidInProjectBranches.class);
+      .add(10_2_046, "Create index 'project_branches_project_uuid' in 'project_branches' table", CreateIndexProjectUuidInProjectBranches.class)
+
+      .add(10_2_047, "Drop index 'idx_wbhk_dlvrs_wbhk_uuid' in 'webhook_deliveries'", DropIndexWebhookUuidInWebhookDeliveries.class)
+      .add(10_2_048, "Create index 'wb_webhook_uuid_created_at' in 'webhook_deliveries'", CreateIndexWebhookUuidCreatedAtInWebhookDeliveries.class)
+      .add(10_2_049, "Drop index 'wd_project_uuid' in 'webhook_deliveries'", DropIndexProjectUuidInWebhookDeliveries.class)
+      .add(10_2_050, "Create index 'wd_project_uuid_created_at' in 'webhook_deliveries'", CreateIndexProjectUuidCreatedAtInWebhookDeliveries.class)
+      .add(10_2_051, "Drop index 'ce_task_uuid' in 'webhook_deliveries'", DropIndexTaskUuidInWebhookDeliveries.class)
+      .add(10_2_052, "Create index 'wd_task_uuid_created_at' in 'webhook_deliveries'", CreateIndexTaskUuidCreatedAtInWebhookDeliveries.class)
+    ;
   }
 }
