@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.ibatis.cursor.Cursor;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.ce.task.projectexport.steps.DumpElement;
 import org.sonar.ce.task.projectexport.steps.DumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
@@ -73,6 +74,7 @@ public class ExportAdHocRulesStep implements ComputationStep {
   }
 
   private static ProjectDump.AdHocRule convertToAdHocRule(RuleDto ruleDto, ProjectDump.AdHocRule.Builder builder) {
+    CleanCodeAttribute cleanCodeAttribute = ruleDto.getCleanCodeAttribute();
     return builder
       .clear()
       .setRef(ruleDto.getUuid())
@@ -84,7 +86,7 @@ public class ExportAdHocRulesStep implements ComputationStep {
       .setType(ruleDto.getType())
       .setScope(ruleDto.getScope().name())
       .setMetadata(buildMetadata(ruleDto))
-      .setCleanCodeAttribute(ruleDto.getCleanCodeAttribute() != null ? ruleDto.getCleanCodeAttribute().name() : null)
+      .setCleanCodeAttribute(cleanCodeAttribute != null ? cleanCodeAttribute.name() : null)
       .addAllImpacts(buildImpacts(ruleDto.getDefaultImpacts()))
       .build();
   }

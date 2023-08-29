@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.issue.ImpactDto;
 
@@ -87,8 +88,9 @@ public class RuleForIndexingDto {
       ruleForIndexingDto.setRuleDescriptionSectionsDtos(Sets.newHashSet(r.getRuleDescriptionSectionDtos()));
     }
 
-    if (r.getCleanCodeAttribute() != null) {
-      ruleForIndexingDto.cleanCodeAttributeCategory = r.getCleanCodeAttribute().getAttributeCategory().name();
+    CleanCodeAttribute cleanCodeAttribute = r.getCleanCodeAttribute();
+    if (cleanCodeAttribute != null) {
+      ruleForIndexingDto.cleanCodeAttributeCategory = cleanCodeAttribute.getAttributeCategory().name();
     }
     ruleForIndexingDto.setImpacts(r.getDefaultImpacts());
 
