@@ -44,7 +44,7 @@ import withAvailableFeatures, {
 import { ComponentContext } from './componentContext/ComponentContext';
 import ComponentNav from './nav/component/ComponentNav';
 
-interface Props extends WithAvailableFeaturesProps {
+export interface Props extends WithAvailableFeaturesProps {
   location: Location;
   router: Router;
 }

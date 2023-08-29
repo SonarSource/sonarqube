@@ -18,51 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import { getProjectAlmBinding, validateProjectAlmBinding } from '../../../api/alm-settings';
-import { getBranches, getPullRequests } from '../../../api/branches';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import React, { useContext } from 'react';
+import { Route } from 'react-router-dom';
+import { validateProjectAlmBinding } from '../../../api/alm-settings';
 import { getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/navigation';
 import { mockProjectAlmBindingConfigurationErrors } from '../../../helpers/mocks/alm-settings';
-import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../helpers/mocks/component';
-import { mockTask } from '../../../helpers/mocks/tasks';
 import { HttpStatus } from '../../../helpers/request';
 import { mockLocation, mockRouter } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../helpers/testUtils';
-import { ComponentQualifier, Visibility } from '../../../types/component';
+import { renderAppRoutes, renderComponent } from '../../../helpers/testReactTestingUtils';
+import { byRole, byText } from '../../../helpers/testSelector';
+import { ComponentQualifier } from '../../../types/component';
 import { TaskStatuses, TaskTypes } from '../../../types/tasks';
-import { Component } from '../../../types/types';
 import handleRequiredAuthorization from '../../utils/handleRequiredAuthorization';
-import { ComponentContainer } from '../ComponentContainer';
-
-jest.mock('../../../api/branches', () => {
-  const { mockMainBranch, mockPullRequest } = jest.requireActual(
-    '../../../helpers/mocks/branch-like'
-  );
-
-  return {
-    getBranches: jest
-      .fn()
-      .mockResolvedValue([mockMainBranch({ status: { qualityGateStatus: 'OK' } })]),
-    getPullRequests: jest
-      .fn()
-      .mockResolvedValue([
-        mockPullRequest({ key: 'pr-89', status: { qualityGateStatus: 'ERROR' } }),
-        mockPullRequest({ key: 'pr-90', title: 'PR Feature 2' }),
-      ]),
-  };
-});
+import ComponentContainer, { Props } from '../ComponentContainer';
+import { ComponentContext } from '../componentContext/ComponentContext';
 
 jest.mock('../../../api/ce', () => ({
-  getAnalysisStatus: jest.fn().mockResolvedValue({ component: { warnings: [] } }),
   getTasksForComponent: jest.fn().mockResolvedValue({ queue: [] }),
 }));
 
 jest.mock('../../../api/components', () => ({
-  getComponentData: jest.fn().mockResolvedValue({ component: { analysisDate: '2018-07-30' } }),
+  getComponentData: jest
+    .fn()
+    .mockResolvedValue({ component: { name: 'component name', analysisDate: '2018-07-30' } }),
 }));
 
 jest.mock('../../../api/navigation', () => ({
@@ -73,7 +56,6 @@ jest.mock('../../../api/navigation', () => ({
 }));
 
 jest.mock('../../../api/alm-settings', () => ({
-  getProjectAlmBinding: jest.fn().mockResolvedValue(undefined),
   validateProjectAlmBinding: jest.fn().mockResolvedValue(undefined),
 }));
 
@@ -82,241 +64,78 @@ jest.mock('../../utils/handleRequiredAuthorization', () => ({
   default: jest.fn(),
 }));
 
-// eslint-disable-next-line react/function-component-definition
-const Inner = () => <div />;
+const ui = {
+  projectTitle: byRole('link', { name: 'Project' }),
+  portfolioTitle: byRole('link', { name: 'portfolio' }),
+  overviewPageLink: byRole('link', { name: 'overview.page' }),
+  issuesPageLink: byRole('link', { name: 'issues.page' }),
+  hotspotsPageLink: byRole('link', { name: 'layout.security_hotspots' }),
+  measuresPageLink: byRole('link', { name: 'layout.measures' }),
+  codePageLink: byRole('link', { name: 'code.page' }),
+  activityPageLink: byRole('link', { name: 'project_activity.page' }),
+  projectInfoLink: byRole('link', { name: 'project.info.title' }),
+  dashboardNotFound: byText('dashboard.project.not_found'),
+  goBackToHomePageLink: byRole('link', { name: 'go_back_to_homepage' }),
+};
 
-beforeEach(() => {
-  jest.useFakeTimers();
+afterEach(() => {
   jest.clearAllMocks();
 });
 
-afterEach(() => {
-  jest.runOnlyPendingTimers();
-  jest.useRealTimers();
-});
+it('should render the component nav correctly for portfolio', async () => {
+  renderComponentContainerAsComponent();
+  expect(await ui.portfolioTitle.find()).toHaveAttribute('href', '/portfolio?id=portfolioKey');
+  expect(ui.issuesPageLink.get()).toHaveAttribute(
+    'href',
+    '/project/issues?id=portfolioKey&resolved=false'
+  );
+  expect(ui.measuresPageLink.get()).toHaveAttribute('href', '/component_measures?id=portfolioKey');
+  expect(ui.activityPageLink.get()).toHaveAttribute('href', '/project/activity?id=portfolioKey');
 
-it('changes component', () => {
-  const wrapper = shallowRender();
-
-  wrapper.setState({
-    component: {
-      qualifier: ComponentQualifier.Project,
-      visibility: Visibility.Public,
-    } as Component,
-    loading: false,
-  });
-
-  wrapper.instance().handleComponentChange({ visibility: Visibility.Private });
-
-  expect(wrapper.state().component).toEqual({
-    qualifier: ComponentQualifier.Project,
-    visibility: Visibility.Private,
+  await waitFor(() => {
+    expect(getTasksForComponent).toHaveBeenCalledWith('portfolioKey');
   });
 });
 
-it("doesn't load branches portfolio", async () => {
-  const wrapper = shallowRender({ location: mockLocation({ query: { id: 'portfolioKey' } }) });
-  await waitAndUpdate(wrapper);
-  expect(getBranches).not.toHaveBeenCalled();
-  expect(getPullRequests).not.toHaveBeenCalled();
-  expect(getComponentData).toHaveBeenCalledWith({ component: 'portfolioKey', branch: undefined });
-  expect(getComponentNavigation).toHaveBeenCalledWith({
-    component: 'portfolioKey',
-    branch: undefined,
+it('should render the component nav correctly for projects', async () => {
+  const component = mockComponent({
+    breadcrumbs: [{ key: 'project', name: 'Project', qualifier: ComponentQualifier.Project }],
+    key: 'project-key',
+    analysisDate: '2018-07-30',
   });
-});
-
-it('fetches status', async () => {
-  jest.mocked(getComponentData).mockResolvedValueOnce({
-    component: {},
-  } as unknown as Awaited<ReturnType<typeof getComponentData>>);
-
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(getTasksForComponent).toHaveBeenCalledWith('portfolioKey');
-});
-
-it('filters correctly the pending tasks for a main branch', () => {
-  const wrapper = shallowRender();
-  const component = wrapper.instance();
-  const mainBranch = mockMainBranch();
-  const branch3 = mockBranch({ name: 'branch-3' });
-  const pullRequest = mockPullRequest();
-
-  expect(component.isSameBranch({})).toBe(true);
-  wrapper.setProps({ location: mockLocation({ query: { branch: mainBranch.name } }) });
-  expect(component.isSameBranch({ branch: mainBranch.name })).toBe(true);
-  expect(component.isSameBranch({})).toBe(false);
-  wrapper.setProps({ location: mockLocation({ query: { branch: branch3.name } }) });
-  expect(component.isSameBranch({ branch: branch3.name })).toBe(true);
-  wrapper.setProps({ location: mockLocation({ query: { pullRequest: pullRequest.key } }) });
-  expect(component.isSameBranch({ pullRequest: pullRequest.key })).toBe(true);
-
-  const currentTask = mockTask({ pullRequest: pullRequest.key, status: TaskStatuses.InProgress });
-  const failedTask = { ...currentTask, status: TaskStatuses.Failed };
-  const pendingTasks = [currentTask, mockTask({ branch: branch3.name }), mockTask()];
-  expect(component.getCurrentTask(failedTask)).toBe(failedTask);
-  wrapper.setProps({ location: mockLocation({ query: {} }) });
-  expect(component.getCurrentTask(currentTask)).toBeUndefined();
-  wrapper.setProps({ location: mockLocation({ query: { pullRequest: pullRequest.key } }) });
-  expect(component.getCurrentTask(currentTask)).toMatchObject(currentTask);
-
-  expect(component.getPendingTasksForBranchLike(pendingTasks)).toMatchObject([currentTask]);
-  wrapper.setProps({ location: mockLocation({ query: {} }) });
-  expect(component.getPendingTasksForBranchLike(pendingTasks)).toMatchObject([{}]);
-});
-
-it('reload component after task progress finished', async () => {
-  jest
-    .mocked(getTasksForComponent)
-    .mockResolvedValueOnce({
-      queue: [{ id: 'foo', status: TaskStatuses.InProgress, type: TaskTypes.ViewRefresh }],
-    } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>)
-    .mockResolvedValueOnce({
-      queue: [],
-    } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
-
-  const wrapper = shallowRender();
-
-  // First round, there's something in the queue, and component navigation was
-  // not called again (it's called once at mount, hence the 1 times assertion
-  // here).
-  await waitAndUpdate(wrapper);
-  expect(getComponentNavigation).toHaveBeenCalledTimes(1);
-  expect(getTasksForComponent).toHaveBeenCalledTimes(1);
-
-  jest.runOnlyPendingTimers();
-
-  // Second round, the queue is now empty, hence we assume the previous task
-  // was done. We immediately load the component again.
-  expect(getTasksForComponent).toHaveBeenCalledTimes(2);
-
-  // Trigger the update.
-  await waitAndUpdate(wrapper);
-  // The component was correctly re-loaded.
-  expect(getComponentNavigation).toHaveBeenCalledTimes(2);
-  // The status API call will be called 1 final time after the component is
-  // fully loaded, so the total will be 3.
-  expect(getTasksForComponent).toHaveBeenCalledTimes(3);
-
-  // Make sure the timeout was cleared. It should not be called again.
-  jest.runAllTimers();
-  await waitAndUpdate(wrapper);
-  // The number of calls haven't changed.
-  expect(getComponentNavigation).toHaveBeenCalledTimes(2);
-  expect(getTasksForComponent).toHaveBeenCalledTimes(3);
-});
-
-it('reloads component after task progress finished, and moves straight to current', async () => {
-  jest.mocked(getComponentData).mockResolvedValueOnce({
-    component: { key: 'bar' },
-  } as unknown as Awaited<ReturnType<typeof getComponentData>>);
 
   jest
-    .mocked(getTasksForComponent)
-    .mockResolvedValueOnce({ queue: [] } as unknown as Awaited<
-      ReturnType<typeof getTasksForComponent>
-    >)
-    .mockResolvedValueOnce({
-      queue: [],
-      current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.AppRefresh },
-    } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
-
-  const wrapper = shallowRender();
-
-  // First round, nothing in the queue, and component navigation was not called
-  // again (it's called once at mount, hence the 1 times assertion here).
-  await waitAndUpdate(wrapper);
-  expect(getComponentNavigation).toHaveBeenCalledTimes(1);
-  expect(getTasksForComponent).toHaveBeenCalledTimes(1);
-
-  jest.runOnlyPendingTimers();
-
-  // Second round, nothing in the queue, BUT a success task is current. This
-  // means the queue was processed too quick for us to see, and we didn't see
-  // any pending tasks in the queue. So we immediately load the component again.
-  expect(getTasksForComponent).toHaveBeenCalledTimes(2);
-
-  // Trigger the update.
-  await waitAndUpdate(wrapper);
-  // The component was correctly re-loaded.
-  expect(getComponentNavigation).toHaveBeenCalledTimes(2);
-  // The status API call will be called 1 final time after the component is
-  // fully loaded, so the total will be 3.
-  expect(getTasksForComponent).toHaveBeenCalledTimes(3);
-});
-
-it('only fully loads a non-empty component once', async () => {
-  jest.mocked(getComponentData).mockResolvedValueOnce({
-    component: { key: 'bar', analysisDate: '2019-01-01' },
-  } as unknown as Awaited<ReturnType<typeof getComponentData>>);
-
-  jest.mocked(getTasksForComponent).mockResolvedValueOnce({
-    queue: [],
-    current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.Report },
-  } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
-
-  const wrapper = shallowRender();
-
-  await waitAndUpdate(wrapper);
-  expect(getComponentNavigation).toHaveBeenCalledTimes(1);
-  expect(getTasksForComponent).toHaveBeenCalledTimes(1);
-});
-
-it('should redirect if in tutorials and ends the first analyses', async () => {
-  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
-    component: { key: 'bar', analysisDate: undefined },
-  });
-  (getTasksForComponent as jest.Mock<any>).mockResolvedValueOnce({
-    queue: [],
-    current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.Report },
-  });
-
-  const replace = jest.fn();
-  const wrapper = shallowRender({
-    location: mockLocation({ pathname: '/tutorials' }),
-    router: mockRouter({ replace }),
-  });
-
-  await waitAndUpdate(wrapper);
-  expect(replace).toHaveBeenCalledTimes(1);
-});
-
-it('only fully reloads a non-empty component if there was previously some task in progress', async () => {
-  jest.mocked(getComponentData).mockResolvedValueOnce({
-    component: { key: 'bar', analysisDate: '2019-01-01' },
-  } as unknown as Awaited<ReturnType<typeof getComponentData>>);
+    .mocked(getComponentNavigation)
+    .mockResolvedValueOnce({} as unknown as Awaited<ReturnType<typeof getComponentNavigation>>);
 
   jest
-    .mocked(getTasksForComponent)
-    .mockResolvedValueOnce({
-      queue: [{ id: 'foo', status: TaskStatuses.InProgress, type: TaskTypes.AppRefresh }],
-    } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>)
-    .mockResolvedValueOnce({
-      queue: [],
-      current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.AppRefresh },
-    } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
+    .mocked(getComponentData)
+    .mockResolvedValueOnce({ component } as unknown as Awaited<
+      ReturnType<typeof getComponentData>
+    >);
 
-  const wrapper = shallowRender();
+  renderComponentContainerAsComponent();
+  expect(await ui.projectTitle.find()).toHaveAttribute('href', '/dashboard?id=project');
+  expect(ui.overviewPageLink.get()).toHaveAttribute('href', '/dashboard?id=project-key');
+  expect(ui.issuesPageLink.get()).toHaveAttribute(
+    'href',
+    '/project/issues?id=project-key&resolved=false'
+  );
+  expect(ui.hotspotsPageLink.get()).toHaveAttribute('href', '/security_hotspots?id=project-key');
+  expect(ui.measuresPageLink.get()).toHaveAttribute('href', '/component_measures?id=project-key');
+  expect(ui.codePageLink.get()).toHaveAttribute('href', '/code?id=project-key');
+  expect(ui.activityPageLink.get()).toHaveAttribute('href', '/project/activity?id=project-key');
+  expect(ui.projectInfoLink.get()).toHaveAttribute('href', '/project/information?id=project-key');
+});
 
-  // First round, a pending task in the queue. This should trigger a reload of the
-  // status endpoint.
-  await waitAndUpdate(wrapper);
-  jest.runOnlyPendingTimers();
-
-  // Second round, nothing in the queue, and a success task is current. This
-  // implies the current task was updated, and previously we displayed some information
-  // about a pending task. This new information must prompt the component to reload
-  // all data.
-  expect(getTasksForComponent).toHaveBeenCalledTimes(2);
-
-  // Trigger the update.
-  await waitAndUpdate(wrapper);
-  // The component was correctly re-loaded.
-  expect(getComponentNavigation).toHaveBeenCalledTimes(2);
-  // The status API call will be called 1 final time after the component is
-  // fully loaded, so the total will be 3.
-  expect(getTasksForComponent).toHaveBeenCalledTimes(3);
+it('should be able to change component', async () => {
+  const user = userEvent.setup();
+  renderComponentContainer();
+  expect(await screen.findByText('This is a test component')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'change component' })).toBeInTheDocument();
+  expect(screen.getByText('component name')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'change component' }));
+  expect(screen.getByText('new component name')).toBeInTheDocument();
 });
 
 it('should show component not found if it does not exist', async () => {
@@ -324,9 +143,163 @@ it('should show component not found if it does not exist', async () => {
     .mocked(getComponentNavigation)
     .mockRejectedValueOnce(new Response(null, { status: HttpStatus.NotFound }));
 
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
+  renderComponentContainer();
+
+  expect(await ui.dashboardNotFound.find()).toBeInTheDocument();
+  expect(ui.goBackToHomePageLink.get()).toBeInTheDocument();
+});
+
+describe('getTasksForComponent', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('reload component after task progress finished', async () => {
+    jest
+      .mocked(getTasksForComponent)
+      .mockResolvedValueOnce({
+        queue: [{ id: 'foo', status: TaskStatuses.InProgress, type: TaskTypes.ViewRefresh }],
+      } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>)
+      .mockResolvedValueOnce({
+        queue: [],
+      } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
+
+    renderComponentContainer();
+
+    // First round, there's something in the queue, and component navigation was
+    // not called again (it's called once at mount, hence the 1 times assertion
+    // here).
+    await waitFor(() => {
+      expect(getComponentNavigation).toHaveBeenCalledTimes(1);
+    });
+    expect(getComponentNavigation).toHaveBeenCalledTimes(1);
+    expect(getTasksForComponent).toHaveBeenCalledTimes(1);
+
+    jest.runOnlyPendingTimers();
+
+    // Second round, the queue is now empty, hence we assume the previous task
+    // was done. We immediately load the component again.
+    expect(getTasksForComponent).toHaveBeenCalledTimes(2);
+
+    // Trigger the update.
+    // The component was correctly re-loaded.
+    await waitFor(() => {
+      expect(getComponentNavigation).toHaveBeenCalledTimes(2);
+    });
+    // The status API call will be called 1 final time after the component is
+    // fully loaded, so the total will be 3.
+    expect(getTasksForComponent).toHaveBeenCalledTimes(3);
+
+    // Make sure the timeout was cleared. It should not be called again.
+    jest.runAllTimers();
+    // The number of calls haven't changed.
+    await waitFor(() => {
+      expect(getComponentNavigation).toHaveBeenCalledTimes(2);
+    });
+    expect(getTasksForComponent).toHaveBeenCalledTimes(3);
+  });
+
+  it('reloads component after task progress finished, and moves straight to current', async () => {
+    jest.mocked(getComponentData).mockResolvedValueOnce({
+      component: { key: 'bar' },
+    } as unknown as Awaited<ReturnType<typeof getComponentData>>);
+
+    jest
+      .mocked(getTasksForComponent)
+      .mockResolvedValueOnce({ queue: [] } as unknown as Awaited<
+        ReturnType<typeof getTasksForComponent>
+      >)
+      .mockResolvedValueOnce({
+        queue: [],
+        current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.AppRefresh },
+      } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
+
+    renderComponentContainer();
+
+    // First round, nothing in the queue, and component navigation was not called
+    // again (it's called once at mount, hence the 1 times assertion here).
+    await waitFor(() => {
+      expect(getComponentNavigation).toHaveBeenCalledTimes(1);
+    });
+    expect(getTasksForComponent).toHaveBeenCalledTimes(1);
+
+    jest.runOnlyPendingTimers();
+
+    // Second round, nothing in the queue, BUT a success task is current. This
+    // means the queue was processed too quick for us to see, and we didn't see
+    // any pending tasks in the queue. So we immediately load the component again.
+    expect(getTasksForComponent).toHaveBeenCalledTimes(2);
+
+    // Trigger the update.
+    // The component was correctly re-loaded.
+    await waitFor(() => {
+      expect(getComponentNavigation).toHaveBeenCalledTimes(2);
+    });
+    // The status API call will be called 1 final time after the component is
+    // fully loaded, so the total will be 3.
+    expect(getTasksForComponent).toHaveBeenCalledTimes(3);
+  });
+
+  it('only fully loads a non-empty component once', async () => {
+    jest.mocked(getComponentData).mockResolvedValueOnce({
+      component: { key: 'bar', analysisDate: '2019-01-01' },
+    } as unknown as Awaited<ReturnType<typeof getComponentData>>);
+
+    jest.mocked(getTasksForComponent).mockResolvedValueOnce({
+      queue: [],
+      current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.Report },
+    } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
+
+    renderComponentContainer();
+    await waitFor(() => {
+      expect(getComponentNavigation).toHaveBeenCalledTimes(1);
+    });
+
+    expect(getTasksForComponent).toHaveBeenCalledTimes(1);
+  });
+
+  it('only fully reloads a non-empty component if there was previously some task in progress', async () => {
+    jest.mocked(getComponentData).mockResolvedValueOnce({
+      component: { key: 'bar', analysisDate: '2019-01-01' },
+    } as unknown as Awaited<ReturnType<typeof getComponentData>>);
+
+    jest
+      .mocked(getTasksForComponent)
+      .mockResolvedValueOnce({
+        queue: [{ id: 'foo', status: TaskStatuses.InProgress, type: TaskTypes.AppRefresh }],
+      } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>)
+      .mockResolvedValueOnce({
+        queue: [],
+        current: { id: 'foo', status: TaskStatuses.Success, type: TaskTypes.AppRefresh },
+      } as unknown as Awaited<ReturnType<typeof getTasksForComponent>>);
+
+    renderComponentContainer();
+
+    // First round, a pending task in the queue. This should trigger a reload of the
+    // status endpoint.
+    await waitFor(() => {
+      expect(getTasksForComponent).toHaveBeenCalledTimes(1);
+    });
+    jest.runOnlyPendingTimers();
+
+    // Second round, nothing in the queue, and a success task is current. This
+    // implies the current task was updated, and previously we displayed some information
+    // about a pending task. This new information must prompt the component to reload
+    // all data.
+    expect(getTasksForComponent).toHaveBeenCalledTimes(2);
+
+    // The component was correctly re-loaded.
+    await waitFor(() => {
+      expect(getComponentNavigation).toHaveBeenCalledTimes(2);
+    });
+    // The status API call will be called 1 final time after the component is
+    // fully loaded, so the total will be 3.
+    expect(getTasksForComponent).toHaveBeenCalledTimes(3);
+  });
 });
 
 it('should redirect if the user has no access', async () => {
@@ -334,27 +307,10 @@ it('should redirect if the user has no access', async () => {
     .mocked(getComponentNavigation)
     .mockRejectedValueOnce(new Response(null, { status: HttpStatus.Forbidden }));
 
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  expect(handleRequiredAuthorization).toHaveBeenCalled();
-});
-
-it('should redirect if the component is a portfolio', async () => {
-  const componentKey = 'comp-key';
-
-  jest.mocked(getComponentData).mockResolvedValueOnce({
-    component: { key: componentKey, breadcrumbs: [{ qualifier: ComponentQualifier.Portfolio }] },
-  } as unknown as Awaited<ReturnType<typeof getComponentData>>);
-
-  const replace = jest.fn();
-
-  const wrapper = shallowRender({
-    location: mockLocation({ pathname: '/dashboard' }),
-    router: mockRouter({ replace }),
+  renderComponentContainer();
+  await waitFor(() => {
+    expect(handleRequiredAuthorization).toHaveBeenCalled();
   });
-
-  await waitAndUpdate(wrapper);
-  expect(replace).toHaveBeenCalledWith({ pathname: '/portfolio', search: `?id=${componentKey}` });
 });
 
 describe('should correctly validate the project binding depending on the context', () => {
@@ -382,11 +338,29 @@ describe('should correctly validate the project binding depending on the context
       jest.mocked(validateProjectAlmBinding).mockResolvedValueOnce(projectBindingErrors);
     }
 
-    const wrapper = shallowRender({ hasFeature: () => true });
-    await waitAndUpdate(wrapper);
-    expect(wrapper.state().projectBindingErrors).toBe(projectBindingErrors);
+    renderComponentContainer({ hasFeature: jest.fn().mockReturnValue(true) });
+    await waitFor(() => {
+      expect(validateProjectAlmBinding).toHaveBeenCalledTimes(n);
+    });
+  });
 
-    expect(validateProjectAlmBinding).toHaveBeenCalledTimes(n);
+  it('should show error message when check is not OK', async () => {
+    jest
+      .mocked(getComponentNavigation)
+      .mockResolvedValueOnce({} as unknown as Awaited<ReturnType<typeof getComponentNavigation>>);
+
+    jest
+      .mocked(getComponentData)
+      .mockResolvedValueOnce({ component: COMPONENT } as unknown as Awaited<
+        ReturnType<typeof getComponentData>
+      >);
+
+    jest.mocked(validateProjectAlmBinding).mockResolvedValueOnce(PROJECT_BINDING_ERRORS);
+
+    renderComponentContainerAsComponent({ hasFeature: jest.fn().mockReturnValue(true) });
+    expect(
+      await screen.findByText('component_navigation.pr_deco.error_detected_X', { exact: false })
+    ).toBeInTheDocument();
   });
 });
 
@@ -411,23 +385,66 @@ it.each([
         ReturnType<typeof getComponentData>
       >);
 
-    const wrapper = shallowRender();
-    await waitAndUpdate(wrapper);
-
-    expect(getProjectAlmBinding).not.toHaveBeenCalled();
-    expect(validateProjectAlmBinding).not.toHaveBeenCalled();
+    renderComponentContainer({ hasFeature: jest.fn().mockReturnValue(true) });
+    await waitFor(() => {
+      expect(validateProjectAlmBinding).not.toHaveBeenCalled();
+    });
   }
 );
 
-function shallowRender(props: Partial<ComponentContainer['props']> = {}) {
-  return shallow<ComponentContainer>(
-    <ComponentContainer
-      hasFeature={jest.fn().mockReturnValue(false)}
-      location={mockLocation({ query: { id: 'foo' } })}
-      router={mockRouter()}
-      {...props}
+function renderComponentContainerAsComponent(props: Partial<Props> = {}) {
+  return renderComponent(
+    <>
+      <div id="component-nav-portal" />{' '}
+      <ComponentContainer
+        hasFeature={jest.fn().mockReturnValue(false)}
+        location={mockLocation({ query: { id: 'foo' } })}
+        router={mockRouter()}
+        {...props}
+      />
+    </>
+  );
+}
+
+function renderComponentContainer(props: Partial<Props> = {}, pathName: string = '/') {
+  renderAppRoutes(pathName, () => (
+    <Route
+      element={
+        <ComponentContainer
+          hasFeature={jest.fn().mockReturnValue(false)}
+          location={mockLocation({ query: { id: 'foo' } })}
+          router={mockRouter()}
+          {...props}
+        />
+      }
     >
-      <Inner />
-    </ComponentContainer>
+      <Route path="*" element={<TestComponent />} />
+    </Route>
+  ));
+}
+
+function TestComponent() {
+  const { component, onComponentChange } = useContext(ComponentContext);
+
+  return (
+    <div>
+      This is a test component
+      <span>{component?.name}</span>
+      <button
+        onClick={() =>
+          onComponentChange(
+            mockComponent({
+              name: 'new component name',
+              breadcrumbs: [
+                { key: 'portfolioKey', name: 'portfolio', qualifier: ComponentQualifier.Portfolio },
+              ],
+            })
+          )
+        }
+        type="button"
+      >
+        change component
+      </button>
+    </div>
   );
 }
