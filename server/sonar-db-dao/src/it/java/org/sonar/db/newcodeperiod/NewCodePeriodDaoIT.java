@@ -29,6 +29,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
 
@@ -116,6 +117,52 @@ public class NewCodePeriodDaoIT {
 
     db.commit();
     assertNewCodePeriodRowCount(1);
+  }
+
+  @Test
+  public void update_referenceBranchPeriod_value() {
+    insert("1", "proj-uuid", null, REFERENCE_BRANCH, "oldBranchName", null);
+    insert("2", "proj-uuid-2", null, REFERENCE_BRANCH, "anotherBranch", null);
+
+    underTest.updateBranchReferenceValues(dbSession, new BranchDto()
+      .setBranchType(BranchType.BRANCH)
+      .setUuid("branch-uuid")
+      .setProjectUuid("proj-uuid")
+      .setKey("oldBranchName"), "newBranchName");
+
+    //second project reference branch renaming should not affect the reference branch
+    underTest.updateBranchReferenceValues(dbSession, new BranchDto()
+      .setBranchType(BranchType.BRANCH)
+      .setUuid("branch-uuid")
+      .setProjectUuid("proj-uuid-2")
+      .setKey("oldBranchName"), "newBranchName");
+
+    db.commit();
+
+    Optional<NewCodePeriodDto> updatedNewCodePeriod = underTest.selectByUuid(dbSession, "1");
+    Optional<NewCodePeriodDto> unmodifiedNewCodePeriod = underTest.selectByUuid(dbSession, "2");
+
+    assertThat(updatedNewCodePeriod).isNotNull()
+      .isNotEmpty();
+
+    assertThat(unmodifiedNewCodePeriod).isNotNull()
+      .isNotEmpty();
+
+    assertNewCodePeriodRowCount(2);
+
+    NewCodePeriodDto updatedResult = updatedNewCodePeriod.get();
+    assertThat(updatedResult.getUuid()).isEqualTo("1");
+    assertThat(updatedResult.getProjectUuid()).isEqualTo("proj-uuid");
+    assertThat(updatedResult.getBranchUuid()).isNull();
+    assertThat(updatedResult.getType()).isEqualTo(REFERENCE_BRANCH);
+    assertThat(updatedResult.getValue()).isEqualTo("newBranchName");
+
+    NewCodePeriodDto unmodifiedResult = unmodifiedNewCodePeriod.get();
+    assertThat(unmodifiedResult.getUuid()).isEqualTo("2");
+    assertThat(unmodifiedResult.getProjectUuid()).isEqualTo("proj-uuid-2");
+    assertThat(unmodifiedResult.getBranchUuid()).isNull();
+    assertThat(unmodifiedResult.getType()).isEqualTo(REFERENCE_BRANCH);
+    assertThat(unmodifiedResult.getValue()).isEqualTo("anotherBranch");
   }
 
   @Test

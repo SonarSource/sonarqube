@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
@@ -72,6 +73,15 @@ public class NewCodePeriodDao implements Dao {
   public void update(DbSession dbSession, NewCodePeriodDto dto) {
     requireNonNull(dto.getUuid(), "Uuid of NewCodePeriod must be specified.");
     mapper(dbSession).update(dto.setUpdatedAt(system2.now()));
+  }
+
+  public void updateBranchReferenceValues(DbSession dbSession, BranchDto branchDto, String newBranchName) {
+    requireNonNull(branchDto, "Original referenced branch must be specified.");
+    requireNonNull(branchDto.getProjectUuid(), MSG_PROJECT_UUID_NOT_SPECIFIED);
+    requireNonNull(newBranchName, "New branch name must be specified.");
+    selectAllByProject(dbSession, branchDto.getProjectUuid()).stream()
+      .filter(newCP -> NewCodePeriodType.REFERENCE_BRANCH.equals(newCP.getType()) && branchDto.getBranchKey().equals(newCP.getValue()))
+      .forEach(newCodePeriodDto -> update(dbSession, newCodePeriodDto.setValue(newBranchName)));
   }
 
   public Optional<NewCodePeriodDto> selectByProject(DbSession dbSession, String projectUuid) {

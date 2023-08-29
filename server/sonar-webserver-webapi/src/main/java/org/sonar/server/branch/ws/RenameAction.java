@@ -79,13 +79,16 @@ public class RenameAction implements BranchWsAction {
       checkPermission(project);
 
       Optional<BranchDto> existingBranch = dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), newBranchName);
-      checkArgument(!existingBranch.filter(b -> !b.isMain()).isPresent(),
+      checkArgument(existingBranch.filter(b -> !b.isMain()).isEmpty(),
         "Impossible to update branch name: a branch with name \"%s\" already exists in the project.", newBranchName);
 
       BranchDto mainBranchDto = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, project.getUuid())
         .orElseThrow(() -> new NotFoundException("Cannot find main branch for project: " + project.getUuid()));
 
       dbClient.branchDao().updateBranchName(dbSession, mainBranchDto.getUuid(), newBranchName);
+
+      dbClient.newCodePeriodDao().updateBranchReferenceValues(dbSession, mainBranchDto, newBranchName);
+
       dbSession.commit();
       response.noContent();
     }

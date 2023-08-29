@@ -30,6 +30,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -118,6 +120,34 @@ public class RenameActionIT {
 
     Optional<BranchDto> unchangedBranch = db.getDbClient().branchDao().selectByUuid(db.getSession(), branch.getUuid());
     assertThat(unchangedBranch.get().getKey()).isEqualTo("branch");
+  }
+
+  @Test
+  public void whenRenameIsTriggered_eventualBranchReferencesPeriods_areUpdatedToo() {
+    userSession.logIn();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    db.newCodePeriods().insert(getBranchReferenceNewCodePeriod(project));
+    userSession.addProjectPermission(UserRole.ADMIN, project);
+
+    tester.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("name", "newBranchName")
+      .execute();
+
+    assertThat(db.countRowsOfTable("project_branches")).isEqualTo(1);
+    Optional<BranchDto> mainBranch = db.getDbClient().branchDao().selectMainBranchByProjectUuid(db.getSession(), project.getUuid());
+    assertThat(mainBranch.get().getKey()).isEqualTo("newBranchName");
+
+    Optional<NewCodePeriodDto> updatedCodeReference = db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), project.getUuid());
+    assertThat(updatedCodeReference.get().getValue()).isEqualTo("newBranchName");
+  }
+
+  private NewCodePeriodDto getBranchReferenceNewCodePeriod(ProjectDto project) {
+    Optional<BranchDto> mainBranch = db.getDbClient().branchDao().selectMainBranchByProjectUuid(db.getSession(), project.getUuid());
+    return new NewCodePeriodDto()
+      .setProjectUuid(project.getUuid())
+      .setValue(mainBranch.get().getBranchKey())
+      .setType(NewCodePeriodType.REFERENCE_BRANCH);
   }
 
   @Test
