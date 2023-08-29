@@ -85,6 +85,7 @@ export default class WorkspaceComponentViewer extends React.PureComponent<Props>
 
         <div
           className="workspace-viewer-container"
+          role="complementary"
           ref={(node) => (this.container = node)}
           style={{ height: this.props.height }}
         >

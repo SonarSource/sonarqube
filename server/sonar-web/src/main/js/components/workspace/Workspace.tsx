@@ -22,11 +22,11 @@ import * as React from 'react';
 import { getRulesApp } from '../../api/rules';
 import { get, save } from '../../helpers/storage';
 import { Dict } from '../../types/types';
-import { ComponentDescriptor, RuleDescriptor, WorkspaceContext } from './context';
-import './styles.css';
 import WorkspaceComponentViewer from './WorkspaceComponentViewer';
 import WorkspaceNav from './WorkspaceNav';
 import WorkspacePortal from './WorkspacePortal';
+import { ComponentDescriptor, WorkspaceContext } from './context';
+import './styles.css';
 
 const WORKSPACE = 'sonarqube-workspace';
 interface State {
@@ -35,7 +35,6 @@ interface State {
   height: number;
   maximized?: boolean;
   open: { component?: string };
-  rules: RuleDescriptor[];
 }
 
 export const MIN_HEIGHT = 0.05;
@@ -44,7 +43,6 @@ export const INITIAL_HEIGHT = 300;
 
 export const TYPE_KEY = '__type__';
 export enum WorkspaceTypes {
-  Rule = 'rule',
   Component = 'component',
 }
 
@@ -67,7 +65,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
   }
 
   componentDidUpdate(_: {}, prevState: State) {
-    if (prevState.components !== this.state.components || prevState.rules !== this.state.rules) {
+    if (prevState.components !== this.state.components) {
       this.saveWorkspace();
     }
   }
@@ -93,11 +91,10 @@ export default class Workspace extends React.PureComponent<{}, State> {
       const components: ComponentDescriptor[] = data.filter(
         (x) => x[TYPE_KEY] === WorkspaceTypes.Component
       );
-      const rules: RuleDescriptor[] = data.filter((x) => x[TYPE_KEY] === WorkspaceTypes.Rule);
-      return { components, rules };
+      return { components };
     } catch {
       // Fail silently.
-      return { components: [], rules: [] };
+      return { components: [] };
     }
   };
 
@@ -108,7 +105,6 @@ export default class Workspace extends React.PureComponent<{}, State> {
       ...this.state.components.map((x) =>
         omit({ ...x, [TYPE_KEY]: WorkspaceTypes.Component }, 'line')
       ),
-      ...this.state.rules.map((x) => ({ ...x, [TYPE_KEY]: WorkspaceTypes.Rule })),
     ];
     save(WORKSPACE, JSON.stringify(data));
   };
@@ -166,7 +162,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
   };
 
   render() {
-    const { components, externalRulesRepoNames, height, maximized, open, rules } = this.state;
+    const { components, externalRulesRepoNames, height, maximized, open } = this.state;
 
     const openComponent = open.component && components.find((x) => x.key === open.component);
 
@@ -181,7 +177,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
       >
         {this.props.children}
         <WorkspacePortal>
-          {(components.length > 0 || rules.length > 0) && (
+          {components.length > 0 && (
             <WorkspaceNav
               components={components}
               onComponentClose={this.handleComponentClose}
