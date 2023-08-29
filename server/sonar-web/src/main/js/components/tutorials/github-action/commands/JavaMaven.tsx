@@ -49,7 +49,6 @@ function mavenYamlSteps(projectKey: string, projectName: string) {
           restore-keys: \${{ runner.os }}-m2
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${projectKey} -Dsonar.projectName='${projectName}'`;

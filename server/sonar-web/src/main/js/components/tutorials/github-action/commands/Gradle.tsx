@@ -49,7 +49,6 @@ const GRADLE_YAML_STEPS = `
           restore-keys: \${{ runner.os }}-gradle
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
         run: ./gradlew build sonar --info`;

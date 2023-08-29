@@ -43,7 +43,6 @@ jobs:
           dotnet tool update dotnet-sonarscanner --tool-path .\\.sonar\\scanner
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         shell: powershell
         run: |
           .\\.sonar\\scanner\\dotnet-sonarscanner begin /k:"my-project" /d:sonar.token="\${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="\${{ secrets.SONAR_HOST_URL }}"
@@ -223,7 +222,6 @@ jobs:
           restore-keys: \${{ runner.os }}-gradle
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
         run: ./gradlew build sonar --info"
@@ -291,7 +289,6 @@ jobs:
           restore-keys: \${{ runner.os }}-m2
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: \${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: \${{ secrets.SONAR_HOST_URL }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=my-project -Dsonar.projectName='MyProject'"

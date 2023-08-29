@@ -56,7 +56,6 @@ function dotnetYamlSteps(projectKey: string) {
           dotnet tool update dotnet-sonarscanner --tool-path .\\.sonar\\scanner
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         shell: powershell
         run: |
           .\\.sonar\\scanner\\dotnet-sonarscanner begin /k:"${projectKey}" /d:sonar.token="\${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="\${{ secrets.SONAR_HOST_URL }}"
