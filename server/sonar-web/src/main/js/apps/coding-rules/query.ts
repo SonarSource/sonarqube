@@ -24,7 +24,6 @@ import {
   parseAsOptionalBoolean,
   parseAsOptionalString,
   parseAsString,
-  parseImpactSeverityQuery,
   queriesEqual,
   serializeDateShort,
   serializeOptionalBoolean,
@@ -93,7 +92,7 @@ export function parseQuery(query: RawQuery): Query {
     ),
     compareToProfile: parseAsOptionalString(query.compareToProfile),
     cwe: parseAsArray(query.cwe, parseAsString),
-    impactSeverities: parseImpactSeverityQuery(query.impactSeverities, query.severities),
+    impactSeverities: parseAsArray<SoftwareImpactSeverity>(query.impactSeverities, parseAsString),
     impactSoftwareQualities: parseAsArray<SoftwareQuality>(
       query.impactSoftwareQualities,
       parseAsString
@@ -133,7 +132,7 @@ export function serializeQuery(query: Query): RawQuery {
     qprofile: serializeString(query.profile),
     repositories: serializeStringArray(query.repositories),
     rule_key: serializeString(query.ruleKey),
-    severities: undefined,
+    severities: serializeStringArray(query.severities),
     sonarsourceSecurity: serializeStringArray(query.sonarsourceSecurity),
     statuses: serializeStringArray(query.statuses),
     tags: serializeStringArray(query.tags),
