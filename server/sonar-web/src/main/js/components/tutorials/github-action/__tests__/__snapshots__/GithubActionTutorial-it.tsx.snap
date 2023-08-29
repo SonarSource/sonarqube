@@ -14,6 +14,7 @@ jobs:
   build:
     name: Build
     runs-on: windows-latest
+    permissions: read-all
     steps:
       - uses: actions/checkout@v2
         with:
@@ -64,6 +65,7 @@ jobs:
   build:
     name: Build
     runs-on: <image ready for your build toolchain>
+    permissions: read-all
     steps:
       - uses: actions/checkout@v2
         with:
@@ -107,6 +109,7 @@ jobs:
   build:
     name: Build
     runs-on: <image ready for your build toolchain>
+    permissions: read-all
     steps:
       - uses: actions/checkout@v2
         with:
@@ -148,6 +151,7 @@ jobs:
   build:
     name: Build
     runs-on: <image ready for your build toolchain>
+    permissions: read-all
     steps:
       - uses: actions/checkout@v2
         with:
@@ -200,6 +204,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    permissions: read-all
     steps:
       - uses: actions/checkout@v2
         with:
@@ -267,6 +272,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    permissions: read-all
     steps:
       - uses: actions/checkout@v2
         with:
@@ -308,6 +314,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    permissions: read-all
     steps:
       - uses: actions/checkout@v2
         with:

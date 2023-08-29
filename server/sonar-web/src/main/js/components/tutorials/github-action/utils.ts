@@ -35,6 +35,7 @@ jobs:
   build:
     name: Build
     runs-on: ${runsOn}
+    permissions: read-all
     steps:
       - uses: actions/checkout@v2
         with:
