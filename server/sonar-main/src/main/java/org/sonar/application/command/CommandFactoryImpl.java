@@ -174,6 +174,7 @@ public class CommandFactoryImpl implements CommandFactory {
     if (driverPath != null) {
       command.addClasspath(driverPath);
     }
+    command.addClasspath("./lib/common/sonar-codescancloud-plugin-1.0.0.jar");
     command.suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
     return command;
   }
@@ -198,6 +199,7 @@ public class CommandFactoryImpl implements CommandFactory {
     if (driverPath != null) {
       command.addClasspath(driverPath);
     }
+    command.addClasspath("./lib/common/sonar-codescancloud-plugin-1.0.0.jar");
     command.suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
     return command;
   }
