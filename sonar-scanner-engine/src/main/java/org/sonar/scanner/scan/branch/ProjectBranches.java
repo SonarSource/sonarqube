@@ -22,7 +22,6 @@ package org.sonar.scanner.scan.branch;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 
@@ -31,8 +30,6 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public class ProjectBranches {
-  // matches server-side default when creating a project. See BranchDto#DEFAULT_MAIN_BRANCH_NAME
-  private static final String DEFAULT_MAIN_BRANCH_NAME = "main";
 
   private final Map<String, BranchInfo> branches;
   private final String defaultBranchName;
@@ -48,7 +45,7 @@ public class ProjectBranches {
       }
     }
 
-    this.defaultBranchName = Objects.requireNonNullElse(mainBranchName, DEFAULT_MAIN_BRANCH_NAME);
+    this.defaultBranchName = mainBranchName;
   }
 
   @CheckForNull
