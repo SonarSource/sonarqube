@@ -130,7 +130,7 @@ public class SynchronousWebHooksImplIT {
     assertThat(logTester.logs(DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
     assertThat(logTester.logs(DEBUG)).contains("Failed to send webhook 'Second' | url=http://url2 | message=Fail to connect");
     verify(deliveryStorage, times(2)).persist(any(WebhookDelivery.class));
-    verify(deliveryStorage).purge(projectDto.getUuid());
+    verify(deliveryStorage).purge();
     verifyLogStatistics(2, 0);
   }
 
@@ -151,7 +151,7 @@ public class SynchronousWebHooksImplIT {
     assertThat(caller.countSent()).isOne();
     assertThat(logTester.logs(DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
     verify(deliveryStorage).persist(any(WebhookDelivery.class));
-    verify(deliveryStorage).purge(projectDto.getUuid());
+    verify(deliveryStorage).purge();
     verifyLogStatistics(0, 1);
   }
 
@@ -180,7 +180,7 @@ public class SynchronousWebHooksImplIT {
       .contains("Sent webhook '4Fourth' | url=http://url4 | time=5678ms | status=200")
       .contains("Sent webhook '5Fifth' | url=http://url5 | time=9256ms | status=200");
     verify(deliveryStorage, times(5)).persist(any(WebhookDelivery.class));
-    verify(deliveryStorage).purge(projectDto.getUuid());
+    verify(deliveryStorage).purge();
     verifyLogStatistics(3, 2);
   }
 

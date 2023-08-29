@@ -78,7 +78,7 @@ public class AsynchronousWebHooksImplIT {
 
     assertThat(caller.countSent()).isEqualTo(2);
     verify(deliveryStorage, times(2)).persist(any(WebhookDelivery.class));
-    verify(deliveryStorage).purge(project.getUuid());
+    verify(deliveryStorage).purge();
   }
 
   private static class RecordingAsyncExecution implements AsyncExecution {

@@ -56,10 +56,10 @@ public class WebhookDeliveryStorage {
     }
   }
 
-  public void purge(String projectUuid) {
+  public void purge() {
     long beforeDate = system.now() - ALIVE_DELAY_MS;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.webhookDeliveryDao().deleteProjectBeforeDate(dbSession, projectUuid, beforeDate);
+      dbClient.webhookDeliveryDao().deleteAllBeforeDate(dbSession, beforeDate);
       dbSession.commit();
     }
   }

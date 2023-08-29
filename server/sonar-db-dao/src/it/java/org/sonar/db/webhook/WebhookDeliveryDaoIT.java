@@ -208,30 +208,22 @@ public class WebhookDeliveryDaoIT {
   @Test
   public void deleteComponentBeforeDate_deletes_rows_before_date() {
     underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_1", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1").setCreatedAt(1_000_000L));
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_2", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_2").setCreatedAt(2_000_000L));
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_3", "WEBHOOK_UUID_1", "PROJECT_2", "TASK_3").setCreatedAt(1_000_000L));
+    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_2", "WEBHOOK_UUID_2", "PROJECT_1", "TASK_2").setCreatedAt(2_000_000L));
+    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_3", "WEBHOOK_UUID_3", "PROJECT_2", "TASK_3").setCreatedAt(1_000_000L));
+    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_4", "WEBHOOK_UUID_4", "PROJECT_3", "TASK_4").setCreatedAt(2_000_000L));
 
     // should delete the old delivery on PROJECT_1 and keep the one of PROJECT_2
-    underTest.deleteProjectBeforeDate(dbSession, "PROJECT_1", 1_500_000L);
+    underTest.deleteAllBeforeDate(dbSession, 1_500_000L);
 
     List<Map<String, Object>> uuids = dbTester.select(dbSession, "select uuid as \"uuid\" from webhook_deliveries");
-    assertThat(uuids).extracting(column -> column.get("uuid")).containsOnly("DELIVERY_2", "DELIVERY_3");
+    assertThat(uuids).extracting(column -> column.get("uuid")).containsOnly("DELIVERY_2", "DELIVERY_4");
   }
 
   @Test
   public void deleteComponentBeforeDate_does_nothing_on_empty_table() {
-    underTest.deleteProjectBeforeDate(dbSession, "PROJECT_1", 1_500_000L);
+    underTest.deleteAllBeforeDate(dbSession, 1_500_000L);
 
     assertThat(dbTester.countRowsOfTable(dbSession, "webhook_deliveries")).isZero();
-  }
-
-  @Test
-  public void deleteComponentBeforeDate_does_nothing_on_invalid_uuid() {
-    underTest.insert(dbSession, WebhookDeliveryTesting.newDto("DELIVERY_1", "WEBHOOK_UUID_1", "PROJECT_1", "TASK_1").setCreatedAt(1_000_000L));
-
-    underTest.deleteProjectBeforeDate(dbSession, "PROJECT_2", 1_500_000L);
-
-    assertThat(dbTester.countRowsOfTable(dbSession, "webhook_deliveries")).isOne();
   }
 
   private void verifyMandatoryFields(WebhookDeliveryDto expected, WebhookDeliveryDto actual) {

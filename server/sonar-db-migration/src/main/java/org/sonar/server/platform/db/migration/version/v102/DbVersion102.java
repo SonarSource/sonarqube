@@ -109,6 +109,8 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_050, "Create index 'wd_project_uuid_created_at' in 'webhook_deliveries'", CreateIndexProjectUuidCreatedAtInWebhookDeliveries.class)
       .add(10_2_051, "Drop index 'ce_task_uuid' in 'webhook_deliveries'", DropIndexTaskUuidInWebhookDeliveries.class)
       .add(10_2_052, "Create index 'wd_task_uuid_created_at' in 'webhook_deliveries'", CreateIndexTaskUuidCreatedAtInWebhookDeliveries.class)
+      .add(10_2_053, "Create index 'wd_created_at' in 'webhook_deliveries'", CreateIndexCreatedAtInWebhookDeliveries.class)
+
     ;
   }
 }

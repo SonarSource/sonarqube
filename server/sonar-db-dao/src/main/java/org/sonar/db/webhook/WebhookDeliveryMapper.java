@@ -43,7 +43,7 @@ public interface WebhookDeliveryMapper {
 
   void insert(WebhookDeliveryDto dto);
 
-  void deleteProjectBeforeDate(@Param("projectUuid") String projectUuid, @Param("beforeDate") long beforeDate);
+  void deleteAllBeforeDate(@Param("beforeDate") long beforeDate);
 
   void deleteByWebhookUuid(@Param("webhookUuid") String webhookUuid);
 }

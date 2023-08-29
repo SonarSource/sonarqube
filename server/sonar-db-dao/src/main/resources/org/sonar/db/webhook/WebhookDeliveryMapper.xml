@@ -108,10 +108,9 @@
     where webhook_uuid = #{webhookUuid,jdbcType=VARCHAR}
   </select>
 
-  <delete id="deleteProjectBeforeDate" parameterType="map">
+  <delete id="deleteAllBeforeDate" parameterType="map">
     delete from webhook_deliveries
     where
-    project_uuid = #{projectUuid,jdbcType=VARCHAR} and
     created_at &lt; #{beforeDate,jdbcType=BIGINT}
   </delete>
 </mapper>

@@ -89,17 +89,17 @@ public class WebhookDeliveryStorageIT {
   }
 
   @Test
-  public void purge_deletes_records_older_than_one_month_on_the_project() {
+  public void purge_deletes_records_older_than_one_month() {
     when(system.now()).thenReturn(NOW);
     dbClient.webhookDeliveryDao().insert(dbSession, newDto("D1", "PROJECT_1", TWO_MONTHS_AGO));
     dbClient.webhookDeliveryDao().insert(dbSession, newDto("D2", "PROJECT_1", TWO_WEEKS_AGO));
     dbClient.webhookDeliveryDao().insert(dbSession, newDto("D3", "PROJECT_2", TWO_MONTHS_AGO));
+    dbClient.webhookDeliveryDao().insert(dbSession, newDto("D4", "PROJECT_2", TWO_WEEKS_AGO));
     dbSession.commit();
 
-    underTest.purge("PROJECT_1");
+    underTest.purge();
 
-    // do not purge another project PROJECT_2
-    assertThat(selectAllDeliveryUuids(dbTester, dbSession)).containsOnly("D2", "D3");
+    assertThat(selectAllDeliveryUuids(dbTester, dbSession)).containsOnly("D2", "D4");
   }
 
   @Test

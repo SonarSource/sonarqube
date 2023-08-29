@@ -116,7 +116,7 @@ public class WebHooksImpl implements WebHooks {
       log(delivery);
       deliveryStorage.persist(delivery);
     }));
-    asyncExecution.addToQueue(() -> deliveryStorage.purge(analysis.projectUuid()));
+    asyncExecution.addToQueue(deliveryStorage::purge);
   }
 
   private static void log(WebhookDelivery delivery) {

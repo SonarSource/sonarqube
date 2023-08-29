@@ -72,8 +72,8 @@ public class WebhookDeliveryDao implements Dao {
     mapper(dbSession).insert(dto);
   }
 
-  public void deleteProjectBeforeDate(DbSession dbSession, String projectUuid, long beforeDate) {
-    mapper(dbSession).deleteProjectBeforeDate(projectUuid, beforeDate);
+  public void deleteAllBeforeDate(DbSession dbSession, long beforeDate) {
+    mapper(dbSession).deleteAllBeforeDate(beforeDate);
   }
 
   public Map<String, WebhookDeliveryLiteDto> selectLatestDeliveries(DbSession dbSession, List<WebhookDto> webhooks) {
