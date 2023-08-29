@@ -41,6 +41,7 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class SubmitAction implements CeWsAction {
 
+  private static final String PARAM_ORGANIZATION_KEY = "organization";
   private static final String PARAM_PROJECT_KEY = "projectKey";
   private static final String PARAM_PROJECT_NAME = "projectName";
   private static final String PARAM_REPORT_DATA = "report";
@@ -62,6 +63,12 @@ public class SubmitAction implements CeWsAction {
       .setSince("5.2")
       .setHandler(this)
       .setResponseExample(getClass().getResource("submit-example.json"));
+
+    action.createParam(PARAM_ORGANIZATION_KEY)
+        .setDescription("Key of the organization the project belongs to")
+        .setExampleValue("my-org")
+        .setSince("6.3")
+        .setInternal(true);
 
     action
       .createParam(PARAM_PROJECT_KEY)
@@ -91,13 +98,14 @@ public class SubmitAction implements CeWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
+    String organizationKey = wsRequest.mandatoryParam(PARAM_ORGANIZATION_KEY);
     String projectKey = wsRequest.mandatoryParam(PARAM_PROJECT_KEY);
     String projectName = abbreviate(defaultIfBlank(wsRequest.param(PARAM_PROJECT_NAME), projectKey), MAX_COMPONENT_NAME_LENGTH);
 
     Map<String, String> characteristics = parseTaskCharacteristics(wsRequest);
 
     try (InputStream report = new BufferedInputStream(wsRequest.mandatoryParamAsPart(PARAM_REPORT_DATA).getInputStream())) {
-      CeTask task = reportSubmitter.submit(projectKey, projectName, characteristics, report);
+      CeTask task = reportSubmitter.submit(organizationKey, projectKey, projectName, characteristics, report);
       Ce.SubmitResponse submitResponse = Ce.SubmitResponse.newBuilder()
         .setTaskId(task.getUuid())
         .setProjectId(task.getComponent().get().getUuid())

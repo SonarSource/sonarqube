@@ -39,7 +39,6 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.BadRequestException;
@@ -47,6 +46,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
@@ -73,10 +73,10 @@ public class ReportSubmitter {
     this.branchSupport = branchSupport;
   }
 
-  public CeTask submit(String projectKey, @Nullable String projectName, Map<String, String> characteristics, InputStream reportInput) {
+  public CeTask submit(String organizationKey, String projectKey, @Nullable String projectName, Map<String, String> characteristics, InputStream reportInput) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       boolean projectCreated = false;
-      OrganizationDto organizationDto = getOrganizationDtoOrFail(dbSession, projectKey);
+      OrganizationDto organizationDto = getOrganizationDtoOrFail(dbSession, organizationKey);
       // Note: when the main branch is analyzed, the characteristics may or may not have the branch name, so componentKey#isMainBranch is not
       // reliable!
       BranchSupport.ComponentKey componentKey = branchSupport.createComponentKey(projectKey, characteristics);
@@ -86,6 +86,7 @@ public class ReportSubmitter {
       if (mainBranchComponentOpt.isPresent()) {
         mainBranchComponent = mainBranchComponentOpt.get();
         validateProject(dbSession, mainBranchComponent, projectKey);
+        ensureOrganizationIsConsistent(mainBranchComponent, organizationDto);
       } else {
         mainBranchComponent = createProject(dbSession, organizationDto, componentKey.getKey(), projectName);
         projectCreated = true;
@@ -134,12 +135,9 @@ public class ReportSubmitter {
     }
   }
 
-  private OrganizationDto getOrganizationDtoOrFail(DbSession dbSession, String projectKey) {
-    ProjectDto projectDto = dbClient.projectDao().selectProjectByKey(dbSession, projectKey)
-            .orElseThrow(() -> new NotFoundException(format("Project with key '%s' does not exist", projectKey)));
-
-    return dbClient.organizationDao().selectByUuid(dbSession, projectDto.getOrganizationUuid())
-            .orElseThrow(() -> new NotFoundException(format("Organization with uuid '%s' does not exist", projectDto.getOrganizationUuid())));
+  private OrganizationDto getOrganizationDtoOrFail(DbSession dbSession, String organizationKey) {
+    return dbClient.organizationDao().selectByKey(dbSession, organizationKey)
+        .orElseThrow(() -> new NotFoundException(format("Organization with key '%s' does not exist", organizationKey)));
   }
 
   private void validateProject(DbSession dbSession, ComponentDto component, String rawProjectKey) {
@@ -158,6 +156,12 @@ public class ReportSubmitter {
     if (!errors.isEmpty()) {
       throw BadRequestException.create(errors);
     }
+  }
+
+  private static void ensureOrganizationIsConsistent(ComponentDto project, OrganizationDto organizationDto) {
+    checkArgument(project.getOrganizationUuid().equals(organizationDto.getUuid()),
+        "Organization of component with key '%s' does not match specified organization '%s'",
+        project.getKey(), organizationDto.getKey());
   }
 
   private ComponentDto createProject(DbSession dbSession, OrganizationDto organization, String projectKey, @Nullable String projectName) {

@@ -204,6 +204,7 @@ public class ReportPublisher implements Startable {
     PostRequest.Part filePart = new PostRequest.Part(MediaTypes.ZIP, report);
     PostRequest post = new PostRequest("api/ce/submit")
       .setMediaType(MediaTypes.PROTOBUF)
+      .setParam("organization", properties.organizationKey().orElse(null))
       .setParam("projectKey", moduleHierarchy.root().key())
       .setParam("projectName", moduleHierarchy.root().getOriginalName())
       .setPart("report", filePart);
@@ -244,6 +245,7 @@ public class ReportPublisher implements Startable {
   void prepareAndDumpMetadata(String taskId) {
     Map<String, String> metadata = new LinkedHashMap<>();
 
+    properties.organizationKey().ifPresent(org -> metadata.put("organization", org));
     metadata.put("projectKey", moduleHierarchy.root().key());
     metadata.put("serverUrl", server.getPublicRootUrl());
     metadata.put("serverVersion", server.getVersion());
