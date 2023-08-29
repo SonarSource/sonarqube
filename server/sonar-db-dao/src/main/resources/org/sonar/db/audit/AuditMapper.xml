@@ -5,6 +5,7 @@
 
   <sql id="sqlColumns">
     a.uuid as "uuid",
+    a.organization_uid as "organizationUuid",
     a.user_uuid as "userUuid",
     a.user_login as "userLogin",
     a.user_triggered as "userTriggered",
@@ -16,6 +17,7 @@
 
   <sql id="sqlColumnsInInnerQuery">
     uuid,
+    organization_uid,
     user_uuid,
     user_login,
     user_triggered,
@@ -65,6 +67,7 @@
     INSERT INTO audits
     (
       uuid,
+      organization_uuid,
       user_uuid,
       user_login,
       user_triggered,
@@ -75,6 +78,7 @@
     )
     VALUES (
       #{dto.uuid, jdbcType=VARCHAR},
+      #{dto.organizationUuid, jdbcType=VARCHAR},
       #{dto.userUuid, jdbcType=VARCHAR},
       #{dto.userLogin, jdbcType=VARCHAR},
       #{dto.userTriggered, jdbcType=BOOLEAN},

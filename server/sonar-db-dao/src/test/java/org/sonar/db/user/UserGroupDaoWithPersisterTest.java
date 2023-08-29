@@ -91,7 +91,7 @@ public class UserGroupDaoWithPersisterTest {
     underTest.deleteByGroupUuid(db.getSession(), group1.getUuid(), group1.getName());
     db.getSession().commit();
 
-    verify(auditPersister).addUserGroup(any(), any());
+    verify(auditPersister).addUserGroup(any(), any(), any());
     verifyNoMoreInteractions(auditPersister);
   }
 
@@ -152,7 +152,7 @@ public class UserGroupDaoWithPersisterTest {
     db.getSession().commit();
 
     verify(auditPersister).addUser(any(), any());
-    verify(auditPersister).addUserGroup(any(), any());
+    verify(auditPersister).addUserGroup(any(), any(), any());
     verifyNoMoreInteractions(auditPersister);
   }
 }

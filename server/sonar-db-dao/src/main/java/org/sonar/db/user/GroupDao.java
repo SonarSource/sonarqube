@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -71,10 +72,12 @@ public class GroupDao implements Dao {
   }
 
   public void deleteByUuid(DbSession dbSession, String groupUuid, String groupName) {
+    GroupDto dto = selectByUuid(dbSession, groupUuid);
+
     int deletedRows = mapper(dbSession).deleteByUuid(groupUuid);
 
     if (deletedRows > 0) {
-      auditPersister.deleteUserGroup(dbSession, new UserGroupNewValue(groupUuid, groupName));
+      auditPersister.deleteUserGroup(dbSession, dto.getOrganizationUuid(), new UserGroupNewValue(groupUuid, groupName));
     }
   }
 
@@ -91,14 +94,16 @@ public class GroupDao implements Dao {
     item.setCreatedAt(createdAt)
       .setUpdatedAt(createdAt);
     mapper(session).insert(item);
-    auditPersister.addUserGroup(session, new UserGroupNewValue(item.getUuid(), item.getName()));
+    Objects.nonNull(item.getOrganizationUuid());
+    auditPersister.addUserGroup(session, item.getOrganizationUuid(), new UserGroupNewValue(item.getUuid(), item.getName()));
     return item;
   }
 
   public GroupDto update(DbSession session, GroupDto item) {
     item.setUpdatedAt(new Date(system.now()));
     mapper(session).update(item);
-    auditPersister.updateUserGroup(session, new UserGroupNewValue(item));
+    Objects.nonNull(item.getOrganizationUuid());
+    auditPersister.updateUserGroup(session, item.getOrganizationUuid(), new UserGroupNewValue(item));
     return item;
   }
 

@@ -66,7 +66,7 @@ public class GroupDaoWithPersisterTest {
   public void insertAndUpdateGroupIsPersisted() {
     dbClient.groupDao().insert(db.getSession(), aGroup);
 
-    verify(auditPersister).addUserGroup(eq(db.getSession()), newValueCaptor.capture());
+    verify(auditPersister).addUserGroup(eq(db.getSession()), aGroup.getOrganizationUuid(), newValueCaptor.capture());
 
     UserGroupNewValue newValue = newValueCaptor.getValue();
 
@@ -82,7 +82,7 @@ public class GroupDaoWithPersisterTest {
       .setCreatedAt(new Date(NOW + 1_000L));
     underTest.update(db.getSession(), dto);
 
-    verify(auditPersister).updateUserGroup(eq(db.getSession()), newValueCaptor.capture());
+    verify(auditPersister).updateUserGroup(eq(db.getSession()), dto.getOrganizationUuid(), newValueCaptor.capture());
 
     newValue = newValueCaptor.getValue();
     assertThat(newValue)
@@ -95,12 +95,12 @@ public class GroupDaoWithPersisterTest {
   public void deleteGroupIsPersisted() {
     dbClient.groupDao().insert(db.getSession(), aGroup);
 
-    verify(auditPersister).addUserGroup(eq(db.getSession()), any());
+    verify(auditPersister).addUserGroup(eq(db.getSession()), aGroup.getOrganizationUuid(), any());
 
     underTest.deleteByUuid(db.getSession(), aGroup.getUuid(), aGroup.getName());
 
     assertThat(db.countRowsOfTable(db.getSession(), "groups")).isZero();
-    verify(auditPersister).deleteUserGroup(eq(db.getSession()), newValueCaptor.capture());
+    verify(auditPersister).deleteUserGroup(eq(db.getSession()), aGroup.getOrganizationUuid(), newValueCaptor.capture());
     assertThat(newValueCaptor.getValue())
       .extracting(UserGroupNewValue::getGroupUuid, UserGroupNewValue::getName)
       .containsExactly(aGroup.getUuid(), aGroup.getName());

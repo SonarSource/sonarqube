@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 public class AuditDto {
 
   private String uuid;
+  private String organizationUuid;
   private String userUuid;
   private String userLogin;
   private boolean userTriggered;
@@ -38,6 +39,14 @@ public class AuditDto {
 
   public void setUuid(String uuid) {
     this.uuid = uuid;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
+  }
+
+  public void setOrganizationUuid(String organizationUuid) {
+    this.organizationUuid = organizationUuid;
   }
 
   public String getUserUuid() {
