@@ -509,8 +509,8 @@ describe('in manage mode', () => {
       await user.click(await ui.localFilter.find());
     });
 
+    expect(await ui.aliceRowWithLocalBadge.find()).toBeInTheDocument();
     expect(ui.bobRow.query()).not.toBeInTheDocument();
-    expect(ui.aliceRowWithLocalBadge.get()).toBeInTheDocument();
   });
 
   it('should be able to change tokens of a user', async () => {
