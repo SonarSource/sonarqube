@@ -59,6 +59,7 @@ include 'sonar-testing-harness'
 include 'sonar-testing-ldap'
 include 'sonar-ws'
 include 'sonar-ws-generator'
+include 'test-monitoring'
 include 'ut-monitoring'
 
 ext.isCiServer = System.getenv().containsKey("CIRRUS_CI")

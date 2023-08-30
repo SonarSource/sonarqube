@@ -65,6 +65,7 @@ allprojects {
   ext {
     release = project.hasProperty('release') && project.getProperty('release')
     official = project.hasProperty('official') && project.getProperty('official')
+    withTestMonitoring = project.hasProperty('withTestMonitoring')
   }
 
   ext.enableBom = enableBom
@@ -637,12 +638,15 @@ subprojects {
   tasks.withType(Test) {
     configurations {
       utMonitoring
+      testMonitoring
     }
 
     dependencies {
       testImplementation project(":ut-monitoring")
+      testImplementation project(":test-monitoring")
 
       utMonitoring 'org.aspectj:aspectjweaver:1.9.19'
+      testMonitoring 'org.aspectj:aspectjweaver:1.9.19'
     }
   }
 
@@ -672,6 +676,17 @@ subprojects {
       doFirst {
         ext {
           aspectJWeaver = configurations.utMonitoring.resolvedConfiguration.resolvedArtifacts.find { it.name == 'aspectjweaver' }
+        }
+        jvmArgs "-javaagent:${aspectJWeaver.file}"
+      }
+    }
+  }
+
+  if (ext.withTestMonitoring) {
+    tasks.withType(Test) {
+      doFirst {
+        ext {
+          aspectJWeaver = configurations.testMonitoring.resolvedConfiguration.resolvedArtifacts.find { it.name == 'aspectjweaver' }
         }
         jvmArgs "-javaagent:${aspectJWeaver.file}"
       }
