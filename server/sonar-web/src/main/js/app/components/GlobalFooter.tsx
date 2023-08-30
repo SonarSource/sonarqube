@@ -24,16 +24,15 @@ import Link from '../../components/common/Link';
 import { Alert } from '../../components/ui/Alert';
 import { getEdition } from '../../helpers/editions';
 import { translate, translateWithParameters } from '../../helpers/l10n';
-import { AppState } from '../../types/appstate';
-import withAppStateContext from './app-state/withAppStateContext';
 import GlobalFooterBranding from './GlobalFooterBranding';
+import { AppStateContext } from './app-state/AppStateContext';
 
-export interface GlobalFooterProps {
+interface GlobalFooterProps {
   hideLoggedInInfo?: boolean;
-  appState?: AppState;
 }
 
-export function GlobalFooter({ hideLoggedInInfo, appState }: GlobalFooterProps) {
+export default function GlobalFooter({ hideLoggedInInfo }: GlobalFooterProps) {
+  const appState = React.useContext(AppStateContext);
   const currentEdition = appState?.edition && getEdition(appState.edition);
 
   return (
@@ -93,5 +92,3 @@ export function GlobalFooter({ hideLoggedInInfo, appState }: GlobalFooterProps) 
     </div>
   );
 }
-
-export default withAppStateContext(GlobalFooter);
