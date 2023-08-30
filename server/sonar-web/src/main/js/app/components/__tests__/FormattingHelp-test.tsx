@@ -17,10 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { byRole } from '../../../helpers/testSelector';
 import FormattingHelp from '../FormattingHelp';
 
 it('should render correctly', () => {
-  expect(shallow(<FormattingHelp />)).toMatchSnapshot();
+  renderComponent(<FormattingHelp />);
+
+  expect(byRole('row').getAll()).toHaveLength(10);
 });
