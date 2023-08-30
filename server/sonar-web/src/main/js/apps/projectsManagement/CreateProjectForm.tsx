@@ -222,6 +222,16 @@ class CreateProjectForm extends React.PureComponent<Props, State> {
                   value={this.state.mainBranchName}
                 />
               </div>
+              {/* <div className="modal-field">
+                <label>{translate('visibility')}</label>
+                <VisibilitySelector
+                  canTurnToPrivate={defaultProjectVisibility !== undefined}
+                  className="little-spacer-top"
+                  onChange={this.handleVisibilityChange}
+                  visibility={this.state.visibility}
+                />
+              </div> */}
+              
             </div>
 
             <footer className="modal-foot">
