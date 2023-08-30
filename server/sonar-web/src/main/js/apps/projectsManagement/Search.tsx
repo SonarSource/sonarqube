@@ -169,26 +169,30 @@ export class Search extends React.PureComponent<Props, State> {
     );
   };
 
-  renderVisibilityFilter = () => {
-    const options = [
-      { value: 'all', label: translate('visibility.both') },
-      { value: 'public', label: translate('visibility.public') },
-      { value: 'private', label: translate('visibility.private') },
-    ];
-    return (
-      <td className="thin nowrap text-middle">
-        <Select
-          className="input-small"
-          isDisabled={!this.props.ready}
-          name="projects-visibility"
-          onChange={this.handleVisibilityChange}
-          options={options}
-          isSearchable={false}
-          value={options.find((option) => option.value === (this.props.visibility || 'all'))}
-        />
-      </td>
-    );
-  };
+  // renderVisibilityFilter = () => {
+  //   const options = [
+  //     { value: 'all', label: translate('visibility.both') },
+  //     { value: 'public', label: translate('visibility.public') },
+  //     { value: 'private', label: translate('visibility.private') },
+  //   ];
+  //   return (
+  //     <td className="thin nowrap text-middle">
+  //       <Select
+  //         className="input-small"
+  //         isDisabled={!this.props.ready}
+  //         name="projects-visibility"
+  //         onChange={this.handleVisibilityChange}
+  //         options={options}
+  //         isSearchable={false}
+  //         value={options.find((option) => option.value === (this.props.visibility || 'all'))}
+  //       />
+  //     </td>
+  //   );
+  // };
+
+  renderVisibilityFilter = () =>{
+    return (<td></td>);
+  }
 
   renderTypeFilter = () =>
     this.props.qualifiers === 'TRK' ? (
