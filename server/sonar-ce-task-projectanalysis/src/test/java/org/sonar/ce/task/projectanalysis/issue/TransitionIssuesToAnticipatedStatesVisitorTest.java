@@ -23,8 +23,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ComponentImpl;
 import org.sonar.ce.task.projectanalysis.component.ProjectAttributes;
@@ -33,19 +37,28 @@ import org.sonar.core.issue.AnticipatedTransition;
 import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 
 public class TransitionIssuesToAnticipatedStatesVisitorTest {
-
+  @Rule
+  public LogTester logTester = new LogTester();
   private final IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
 
   private final AnticipatedTransitionRepository anticipatedTransitionRepository = mock(AnticipatedTransitionRepository.class);
 
-  private final TransitionIssuesToAnticipatedStatesVisitor underTest = new TransitionIssuesToAnticipatedStatesVisitor(anticipatedTransitionRepository, issueLifecycle);
+  private final CeTaskMessages ceTaskMessages = mock(CeTaskMessages.class);
+
+  private final TransitionIssuesToAnticipatedStatesVisitor underTest = new TransitionIssuesToAnticipatedStatesVisitor(anticipatedTransitionRepository, issueLifecycle, ceTaskMessages);
 
   @Test
   public void givenMatchingAnticipatedTransitions_transitionsShouldBeAppliedToIssues() {
@@ -61,6 +74,60 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
     assertThat(issue.getAnticipatedTransitionUuid()).isPresent();
     verify(issueLifecycle).doManualTransition(issue, "wontfix", "admin");
     verify(issueLifecycle).addComment(issue, "doing the transition in an anticipated way", "admin");
+  }
+
+  @Test
+  public void givenMatchingAnticipatedTransitions_whenExceptionIsThrown_transitionsShouldNotBeAppliedAndWarningLogged() {
+    Component component = getComponent(Component.Type.FILE);
+    String exceptionMessage = "Cannot apply transition";
+
+    when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component)).thenReturn(getAnticipatedTransitions("projectKey", "fileName"));
+    doThrow(new IllegalStateException(exceptionMessage)).when(issueLifecycle).doManualTransition(any(), any(), any());
+    DefaultIssue issue = getDefaultIssue(1, "abcdefghi", "issue message");
+    issue.setComponentKey(component.getKey());
+
+    underTest.beforeComponent(component);
+    underTest.onIssue(component, issue);
+
+    assertThat(issue.isBeingClosed()).isFalse();
+    assertThat(issue.getAnticipatedTransitionUuid()).isEmpty();
+    verify(issueLifecycle).doManualTransition(issue, "wontfix", "admin");
+    verifyNoMoreInteractions(issueLifecycle);
+    assertThat(logTester.logs(Level.WARN))
+      .contains(String.format("Cannot resolve issue at line %s of %s due to: %s", issue.getLine(), issue.componentKey(), exceptionMessage));
+    verify(ceTaskMessages, times(1)).add(any());
+  }
+
+  @Test
+  public void givenMatchingAnticipatedTransitionsOnResolvedIssue_transitionsShouldNotBeAppliedToIssues() {
+    Component component = getComponent(Component.Type.FILE);
+    when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component)).thenReturn(getAnticipatedTransitions("projectKey", "fileName"));
+
+    DefaultIssue issue = getDefaultIssue(1, "abcdefghi", "issue message");
+    issue.setStatus(STATUS_RESOLVED);
+
+    underTest.beforeComponent(component);
+    underTest.onIssue(component, issue);
+
+    assertThat(issue.isBeingClosed()).isFalse();
+    assertThat(issue.getAnticipatedTransitionUuid()).isNotPresent();
+    verifyNoInteractions(issueLifecycle);
+  }
+
+  @Test
+  public void givenMatchingAnticipatedTransitions_whenIssueIsNotNew_transitionsShouldNotBeAppliedToIssues() {
+    Component component = getComponent(Component.Type.FILE);
+    when(anticipatedTransitionRepository.getAnticipatedTransitionByComponent(component)).thenReturn(getAnticipatedTransitions("projectKey", "fileName"));
+
+    DefaultIssue issue = getDefaultIssue(1, "abcdefghi", "issue message");
+    issue.setNew(false);
+
+    underTest.beforeComponent(component);
+    underTest.onIssue(component, issue);
+
+    assertThat(issue.isBeingClosed()).isFalse();
+    assertThat(issue.getAnticipatedTransitionUuid()).isNotPresent();
+    verifyNoInteractions(issueLifecycle);
   }
 
   @Test
@@ -140,6 +207,8 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
 
   private DefaultIssue getDefaultIssue(Integer line, String hash, String message) {
     DefaultIssue defaultIssue = new DefaultIssue();
+    defaultIssue.setStatus(STATUS_OPEN);
+    defaultIssue.setResolution(null);
     defaultIssue.setLine(line);
     defaultIssue.setChecksum(hash);
     defaultIssue.setMessage(message);

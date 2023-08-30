@@ -19,16 +19,22 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.AnticipatedTransition;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.AnticipatedTransitionTracker;
 import org.sonar.core.issue.tracking.Tracking;
+import org.sonar.db.dismissmessage.MessageType;
 
+import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 
 /**
@@ -36,15 +42,21 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
  */
 public class TransitionIssuesToAnticipatedStatesVisitor extends IssueVisitor {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(TransitionIssuesToAnticipatedStatesVisitor.class);
+  public static final String TRANSITION_ERROR_TEMPLATE = "Cannot resolve issue at line {} of {} due to: {}";
+
   private Collection<AnticipatedTransition> anticipatedTransitions;
   private final AnticipatedTransitionTracker<DefaultIssue, AnticipatedTransition> tracker = new AnticipatedTransitionTracker<>();
   private final IssueLifecycle issueLifecycle;
 
+  private final CeTaskMessages ceTaskMessages;
+
   private final AnticipatedTransitionRepository anticipatedTransitionRepository;
 
-  public TransitionIssuesToAnticipatedStatesVisitor(AnticipatedTransitionRepository anticipatedTransitionRepository, IssueLifecycle issueLifecycle) {
+  public TransitionIssuesToAnticipatedStatesVisitor(AnticipatedTransitionRepository anticipatedTransitionRepository, IssueLifecycle issueLifecycle, CeTaskMessages ceTaskMessages) {
     this.anticipatedTransitionRepository = anticipatedTransitionRepository;
     this.issueLifecycle = issueLifecycle;
+    this.ceTaskMessages = ceTaskMessages;
   }
 
   @Override
@@ -56,7 +68,7 @@ public class TransitionIssuesToAnticipatedStatesVisitor extends IssueVisitor {
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
-    if (issue.isNew()) {
+    if (isEligibleForAnticipatedTransitions(issue)) {
       Tracking<DefaultIssue, AnticipatedTransition> tracking = tracker.track(List.of(issue), anticipatedTransitions);
       Map<DefaultIssue, AnticipatedTransition> matchedRaws = tracking.getMatchedRaws();
       if (matchedRaws.containsKey(issue)) {
@@ -65,13 +77,32 @@ public class TransitionIssuesToAnticipatedStatesVisitor extends IssueVisitor {
     }
   }
 
+  private static boolean isEligibleForAnticipatedTransitions(DefaultIssue issue) {
+    return issue.isNew() && STATUS_OPEN.equals(issue.getStatus()) && null == issue.resolution();
+  }
+
   private void performAnticipatedTransition(DefaultIssue issue, AnticipatedTransition anticipatedTransition) {
-    issue.setBeingClosed(true);
-    issue.setAnticipatedTransitionUuid(anticipatedTransition.getUuid());
-    issueLifecycle.doManualTransition(issue, anticipatedTransition.getTransition(), anticipatedTransition.getUserUuid());
-    String transitionComment = anticipatedTransition.getComment();
-    String comment = Strings.isNotBlank(transitionComment) ? transitionComment : "Automatically transitioned from SonarLint";
-    issueLifecycle.addComment(issue, comment, anticipatedTransition.getUserUuid());
+    try {
+      issueLifecycle.doManualTransition(issue, anticipatedTransition.getTransition(), anticipatedTransition.getUserUuid());
+      String transitionComment = anticipatedTransition.getComment();
+      String comment = Strings.isNotBlank(transitionComment) ? transitionComment : "Automatically transitioned from SonarLint";
+      issueLifecycle.addComment(issue, comment, anticipatedTransition.getUserUuid());
+      issue.setBeingClosed(true);
+      issue.setAnticipatedTransitionUuid(anticipatedTransition.getUuid());
+    } catch (Exception e) {
+      LOGGER.warn(TRANSITION_ERROR_TEMPLATE, issue.getLine(), issue.componentKey(), e.getMessage());
+      ceTaskMessages.add(
+        new CeTaskMessages.Message(getMessage(issue, e),
+          Instant.now().toEpochMilli(),
+          MessageType.GENERIC));
+    }
+  }
+
+  private static String getMessage(DefaultIssue issue, Exception e) {
+    final int MAX_LENGTH = 50;
+    int componentKeyLength = issue.componentKey().length();
+    String componentKey = componentKeyLength > MAX_LENGTH ? ("..." + issue.componentKey().substring(componentKeyLength - MAX_LENGTH, componentKeyLength)) : issue.componentKey();
+    return String.format(TRANSITION_ERROR_TEMPLATE.replace("{}", "%s"), issue.getLine(), componentKey, e.getMessage());
   }
 
 }
