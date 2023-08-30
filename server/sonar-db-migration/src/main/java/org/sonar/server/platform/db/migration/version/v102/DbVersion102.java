@@ -110,6 +110,7 @@ public class DbVersion102 implements DbVersion {
       .add(10_2_052, "Create index 'wd_task_uuid_created_at' in 'webhook_deliveries'", CreateIndexTaskUuidCreatedAtInWebhookDeliveries.class)
       .add(10_2_053, "Create index 'wd_created_at' in 'webhook_deliveries'", CreateIndexCreatedAtInWebhookDeliveries.class)
 
+      .add(10_2_054, "Insert property github.userConsentementForPermissionProvisioningRequired", AddUserConsentRequiredIfGithubAutoProvisioningEnabled.class)
     ;
   }
 }
