@@ -40,6 +40,7 @@ import { Location, Router, withRouter } from '../../../components/hoc/withRouter
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { parseDate } from '../../../helpers/dates';
 import { serializeStringArray } from '../../../helpers/query';
+import { withBranchLikes } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
@@ -414,4 +415,6 @@ function RedirectWrapper(props: Props) {
   return shouldRedirect ? null : <ProjectActivityApp {...props} />;
 }
 
-export default withComponentContext(withRouter(withMetricsContext(RedirectWrapper)));
+export default withComponentContext(
+  withRouter(withMetricsContext(withBranchLikes(RedirectWrapper)))
+);
