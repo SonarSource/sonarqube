@@ -114,6 +114,7 @@ class CreateProjectForm extends React.PureComponent<Props, State> {
     };
 
     this.setState({ loading: true });
+    data.visibility = "private";
     createProject(data).then(
       (response) => {
         if (this.mounted) {
@@ -221,7 +222,7 @@ class CreateProjectForm extends React.PureComponent<Props, State> {
                   value={this.state.mainBranchName}
                 />
               </div>
-              <div className="modal-field">
+              {/* <div className="modal-field">
                 <label>{translate('visibility')}</label>
                 <VisibilitySelector
                   canTurnToPrivate={defaultProjectVisibility !== undefined}
@@ -229,7 +230,8 @@ class CreateProjectForm extends React.PureComponent<Props, State> {
                   onChange={this.handleVisibilityChange}
                   visibility={this.state.visibility}
                 />
-              </div>
+              </div> */}
+              
             </div>
 
             <footer className="modal-foot">
