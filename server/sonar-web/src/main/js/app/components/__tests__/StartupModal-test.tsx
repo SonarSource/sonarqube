@@ -17,16 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { differenceInDays } from 'date-fns';
-import { shallow, ShallowWrapper } from 'enzyme';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { showLicense } from '../../../api/editions';
-import { toShortISO8601String } from '../../../helpers/dates';
-import { hasMessage } from '../../../helpers/l10n';
-import { mockLicense } from '../../../helpers/mocks/editions';
-import { get, save } from '../../../helpers/storage';
-import { mockAppState, mockLocation, mockRouter } from '../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../helpers/testUtils';
+import { save } from '../../../helpers/storage';
+import { mockAppState, mockCurrentUser } from '../../../helpers/testMocks';
+import { renderApp } from '../../../helpers/testReactTestingUtils';
+import { byRole, byText } from '../../../helpers/testSelector';
 import { EditionKey } from '../../../types/editions';
 import { LoggedInUser } from '../../../types/users';
 import { StartupModal } from '../StartupModal';
@@ -38,10 +34,6 @@ jest.mock('../../../api/editions', () => ({
 jest.mock('../../../helpers/storage', () => ({
   get: jest.fn(),
   save: jest.fn(),
-}));
-
-jest.mock('../../../helpers/l10n', () => ({
-  hasMessage: jest.fn().mockReturnValue(true),
 }));
 
 jest.mock('../../../helpers/dates', () => ({
@@ -61,73 +53,54 @@ const LOGGED_IN_USER: LoggedInUser = {
 };
 
 beforeEach(() => {
-  jest.mocked(differenceInDays).mockClear();
-  jest.mocked(hasMessage).mockClear();
-  jest.mocked(get).mockClear();
-  jest.mocked(save).mockClear();
-  jest.mocked(showLicense).mockClear();
-  jest.mocked(toShortISO8601String).mockClear();
+  jest.clearAllMocks();
 });
 
-it('should render only the children', async () => {
-  const wrapper = getWrapper({ appState: mockAppState({ edition: EditionKey.community }) });
-  await shouldNotHaveModals(wrapper);
-  expect(showLicense).toHaveBeenCalledTimes(0);
-  expect(wrapper.find('div').exists()).toBe(true);
+it('should check license and open on its own', async () => {
+  const user = userEvent.setup();
+  renderStartupModal();
 
-  await shouldNotHaveModals(getWrapper({ appState: mockAppState({ canAdmin: false }) }));
+  await new Promise(setImmediate);
 
-  jest.mocked(hasMessage).mockReturnValueOnce(false);
-  await shouldNotHaveModals(getWrapper());
+  expect(save).toHaveBeenCalled();
+  expect(ui.modalHeader.get()).toBeInTheDocument();
 
-  jest.mocked(showLicense).mockResolvedValueOnce(mockLicense({ isValidEdition: true }));
-  await shouldNotHaveModals(getWrapper());
+  await user.click(ui.licensePageLink.get());
 
-  jest.mocked(get).mockReturnValueOnce('date');
-  jest.mocked(differenceInDays).mockReturnValueOnce(0);
-  await shouldNotHaveModals(getWrapper());
-
-  await shouldNotHaveModals(
-    getWrapper({
-      appState: mockAppState({ canAdmin: false }),
-      currentUser: { ...LOGGED_IN_USER },
-      location: mockLocation({ pathname: '/create-organization' }),
-    })
-  );
+  expect(byText('/admin/extension/license/app').get()).toBeInTheDocument();
 });
 
-it('should render license prompt', async () => {
-  await shouldDisplayLicense(getWrapper());
-  expect(save).toHaveBeenCalledWith('sonarqube.license.prompt', 'short-not-iso-date', 'luke');
+it.each([
+  [
+    'community edition',
+    { appState: mockAppState({ canAdmin: true, edition: EditionKey.community }) },
+  ],
+  ['Cannot admin', { appState: mockAppState({ canAdmin: false, edition: EditionKey.enterprise }) }],
+  ['User is not logged in', { currentUser: mockCurrentUser() }],
+])('should not open when not necessary: %s', async (_, props: Partial<StartupModal['props']>) => {
+  renderStartupModal(props);
 
-  jest.mocked(get).mockReturnValueOnce('date');
-  jest.mocked(differenceInDays).mockReturnValueOnce(1);
-  await shouldDisplayLicense(getWrapper());
+  await new Promise(setImmediate);
 
-  jest.mocked(showLicense).mockResolvedValueOnce(mockLicense({ isValidEdition: false }));
-  await shouldDisplayLicense(getWrapper());
+  expect(save).not.toHaveBeenCalled();
+  expect(ui.modalHeader.query()).not.toBeInTheDocument();
 });
 
-async function shouldNotHaveModals(wrapper: ShallowWrapper) {
-  await waitAndUpdate(wrapper);
-  expect(wrapper.find('LicensePromptModal').exists()).toBe(false);
-}
-
-async function shouldDisplayLicense(wrapper: ShallowWrapper) {
-  await waitAndUpdate(wrapper);
-  expect(wrapper.find('LicensePromptModal').exists()).toBe(true);
-}
-
-function getWrapper(props: Partial<StartupModal['props']> = {}) {
-  return shallow<StartupModal>(
+function renderStartupModal(props: Partial<StartupModal['props']> = {}) {
+  return renderApp(
+    '/',
     <StartupModal
       appState={mockAppState({ edition: EditionKey.enterprise, canAdmin: true })}
       currentUser={LOGGED_IN_USER}
-      location={mockLocation({ pathname: 'foo/bar' })}
-      router={mockRouter()}
       {...props}
     >
       <div />
     </StartupModal>
   );
 }
+
+const ui = {
+  modalHeader: byRole('heading', { name: 'license.prompt.title' }),
+  licensePageLink: byRole('link', { name: 'license.prompt.link' }),
+  modalCancelButton: byRole('button', { name: 'cancel' }),
+};

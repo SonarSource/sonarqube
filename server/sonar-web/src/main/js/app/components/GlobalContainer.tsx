@@ -61,45 +61,44 @@ export default function GlobalContainer() {
     <ThemeProvider theme={lightTheme}>
       <SuggestionsProvider>
         <A11yProvider>
-          <StartupModal>
-            <A11ySkipLinks />
-            <div className="global-container">
-              <div
-                className={classNames('page-wrapper', {
-                  'new-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND.includes(location.pathname),
-                  'white-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE.includes(
-                    location.pathname
-                  ),
-                })}
-                id="container"
-              >
-                <div className="page-container">
-                  <Workspace>
-                    <IndexationContextProvider>
-                      <LanguagesContextProvider>
-                        <MetricsContextProvider>
-                          <div className="sw-sticky sw-top-0 sw-z-global-navbar">
-                            <SystemAnnouncement />
-                            <IndexationNotification />
-                            <NCDAutoUpdateMessage />
-                            <UpdateNotification dismissable />
-                            <GlobalNav location={location} />
-                            {/* The following is the portal anchor point for the component nav
-                             * See ComponentContainer.tsx
-                             */}
-                            <div id="component-nav-portal" />
-                          </div>
-                          <Outlet />
-                        </MetricsContextProvider>
-                      </LanguagesContextProvider>
-                    </IndexationContextProvider>
-                  </Workspace>
-                </div>
-                <PromotionNotification />
+          <A11ySkipLinks />
+          <div className="global-container">
+            <div
+              className={classNames('page-wrapper', {
+                'new-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND.includes(location.pathname),
+                'white-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE.includes(
+                  location.pathname
+                ),
+              })}
+              id="container"
+            >
+              <div className="page-container">
+                <Workspace>
+                  <IndexationContextProvider>
+                    <LanguagesContextProvider>
+                      <MetricsContextProvider>
+                        <div className="sw-sticky sw-top-0 sw-z-global-navbar">
+                          <SystemAnnouncement />
+                          <IndexationNotification />
+                          <NCDAutoUpdateMessage />
+                          <UpdateNotification dismissable />
+                          <GlobalNav location={location} />
+                          {/* The following is the portal anchor point for the component nav
+                           * See ComponentContainer.tsx
+                           */}
+                          <div id="component-nav-portal" />
+                        </div>
+                        <Outlet />
+                      </MetricsContextProvider>
+                    </LanguagesContextProvider>
+                  </IndexationContextProvider>
+                </Workspace>
               </div>
-              <GlobalFooter />
+              <PromotionNotification />
             </div>
-          </StartupModal>
+            <GlobalFooter />
+          </div>
+          <StartupModal />
         </A11yProvider>
       </SuggestionsProvider>
     </ThemeProvider>
