@@ -126,7 +126,9 @@ public class HazelcastMemberBuilder {
       // Don't phone home
       .setProperty("hazelcast.phone.home.enabled", "false")
       // Use slf4j for logging
-      .setProperty("hazelcast.logging.type", "slf4j");
+      .setProperty("hazelcast.logging.type", "slf4j")
+      .setProperty("hazelcast.partial.member.disconnection.resolution.heartbeat.count", "5")
+    ;
 
     MemberAttributeConfig attributes = config.getMemberAttributeConfig();
     attributes.setAttribute(Attribute.NODE_NAME.getKey(), requireNonNull(nodeName, "Node name is missing"));
