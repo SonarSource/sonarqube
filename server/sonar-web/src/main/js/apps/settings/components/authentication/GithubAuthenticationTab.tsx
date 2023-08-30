@@ -36,14 +36,16 @@ import {
 } from '../../../../queries/identity-provider';
 import { AlmKeys } from '../../../../types/alm-settings';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
-import { DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
+import { AuthenticationTabs, DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
+import AutoProvisioningConsent from './AutoProvisionningConsent';
 import ConfigurationForm from './ConfigurationForm';
 import GitHubConfigurationValidity from './GitHubConfigurationValidity';
 import useGithubConfiguration, { GITHUB_JIT_FIELDS } from './hook/useGithubConfiguration';
 
 interface GithubAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
+  currentTab: AuthenticationTabs;
 }
 
 const GITHUB_EXCLUDED_FIELD = [
@@ -53,7 +55,7 @@ const GITHUB_EXCLUDED_FIELD = [
 ];
 
 export default function GithubAuthenticationTab(props: GithubAuthenticationProps) {
-  const { definitions } = props;
+  const { definitions, currentTab } = props;
   const { data } = useIdentityProviderQuery();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showConfirmProvisioningModal, setShowConfirmProvisioningModal] = useState(false);
@@ -341,6 +343,8 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
           hasLegacyConfiguration={hasLegacyConfiguration}
         />
       )}
+
+      {currentTab === AlmKeys.GitHub && <AutoProvisioningConsent />}
     </div>
   );
 }

@@ -177,7 +177,11 @@ export default class SettingsServiceMock {
     const definition = this.#definitions.find(
       (d) => d.key === data.keys
     ) as ExtendedSettingDefinition;
-    if (definition.type === SettingType.PROPERTY_SET) {
+    if (data.keys === 'sonar.auth.github.userConsentForPermissionProvisioningRequired') {
+      this.#settingValues = this.#settingValues.filter(
+        (s) => s.key !== 'sonar.auth.github.userConsentForPermissionProvisioningRequired'
+      );
+    } else if (definition.type === SettingType.PROPERTY_SET) {
       setting.fieldValues = [];
     } else if (definition.multiValues === true) {
       setting.values = definition.defaultValue?.split(',') ?? [];
@@ -228,6 +232,16 @@ export default class SettingsServiceMock {
 
   setSecretKeyAvailable = (val = false) => {
     this.#secretKeyAvailable = val;
+  };
+
+  presetGithubAutoProvisioning = () => {
+    this.set('sonar.auth.github.enabled', 'true');
+    this.set('sonar.auth.github.clientId.secured', 'client ID');
+    this.set('sonar.auth.github.clientSecret.secured', 'shut');
+    this.set('sonar.auth.github.appId', 'Appid');
+    this.set('sonar.auth.github.privateKey.secured', 'private key');
+    this.set('sonar.auth.github.apiUrl', 'API url');
+    this.set('sonar.auth.github.webUrl', 'web URL');
   };
 
   reset = () => {

@@ -174,6 +174,7 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
 
                   {tab.key === AlmKeys.GitHub && (
                     <GithubAuthenticationTab
+                      currentTab={currentTab}
                       definitions={definitions.filter((def) => def.subCategory === AlmKeys.GitHub)}
                     />
                   )}

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getValues, resetSettingValue, setSettingValue } from '../api/settings';
+import { getValue, getValues, resetSettingValue, setSettingValue } from '../api/settings';
 import { ExtendedSettingDefinition } from '../types/settings';
 
 type SettingValue = string | boolean | string[];
@@ -26,6 +26,12 @@ type SettingValue = string | boolean | string[];
 export function useGetValuesQuery(keys: string[]) {
   return useQuery(['settings', 'values', keys] as const, ({ queryKey: [_a, _b, keys] }) => {
     return getValues({ keys });
+  });
+}
+
+export function useGetValueQuery(key: string) {
+  return useQuery(['settings', 'details', key] as const, ({ queryKey: [_a, _b, key] }) => {
+    return getValue({ key }).then((v) => v ?? null);
   });
 }
 

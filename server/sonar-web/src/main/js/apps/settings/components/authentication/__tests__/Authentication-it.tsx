@@ -185,6 +185,15 @@ const ui = {
     configDetailsDialog: byRole('dialog', {
       name: 'settings.authentication.github.configuration.validation.details.title',
     }),
+    continueAutoButton: byRole('button', {
+      name: 'settings.authentication.github.confirm_auto_provisioning.continue',
+    }),
+    switchJitButton: byRole('button', {
+      name: 'settings.authentication.github.confirm_auto_provisioning.switch_jit',
+    }),
+    consentDialog: byRole('dialog', {
+      name: 'settings.authentication.github.confirm_auto_provisioning.header',
+    }),
     getConfigDetailsTitle: () => within(ui.github.configDetailsDialog.get()).getByRole('heading'),
     getOrgs: () => within(ui.github.configDetailsDialog.get()).getAllByRole('listitem'),
     fillForm: async (user: UserEvent) => {
@@ -785,6 +794,38 @@ describe('Github tab', () => {
 
       expect(await github.syncWarning.find()).toBeInTheDocument();
       expect(github.syncSummary.get()).toBeInTheDocument();
+    });
+
+    it('should display a modal if user was already using auto and continue using auto provisioning', async () => {
+      const user = userEvent.setup();
+      settingsHandler.presetGithubAutoProvisioning();
+      handler.enableGithubProvisioning();
+      settingsHandler.set('sonar.auth.github.userConsentForPermissionProvisioningRequired', '');
+      renderAuthentication([Feature.GithubProvisioning]);
+
+      await user.click(await github.tab.find());
+
+      expect(await github.consentDialog.find()).toBeInTheDocument();
+      await user.click(github.continueAutoButton.get());
+
+      expect(await github.githubProvisioningButton.find()).toBeChecked();
+      expect(github.consentDialog.query()).not.toBeInTheDocument();
+    });
+
+    it('should display a modal if user was already using auto and switch to JIT', async () => {
+      const user = userEvent.setup();
+      settingsHandler.presetGithubAutoProvisioning();
+      handler.enableGithubProvisioning();
+      settingsHandler.set('sonar.auth.github.userConsentForPermissionProvisioningRequired', '');
+      renderAuthentication([Feature.GithubProvisioning]);
+
+      await user.click(await github.tab.find());
+
+      expect(await github.consentDialog.find()).toBeInTheDocument();
+      await user.click(github.switchJitButton.get());
+
+      expect(await github.jitProvisioningButton.find()).toBeChecked();
+      expect(github.consentDialog.query()).not.toBeInTheDocument();
     });
   });
 });

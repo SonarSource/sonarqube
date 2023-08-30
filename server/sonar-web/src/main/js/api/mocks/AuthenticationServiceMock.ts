@@ -100,6 +100,11 @@ export default class AuthenticationServiceMock {
     };
   };
 
+  enableGithubProvisioning = () => {
+    this.scimStatus = false;
+    this.githubProvisioningStatus = true;
+  };
+
   handleActivateScim = () => {
     this.scimStatus = true;
     return Promise.resolve();
