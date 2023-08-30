@@ -19,6 +19,9 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import withAppStateContext, {
+  WithAppStateContextProps,
+} from '../../../../app/components/app-state/withAppStateContext';
 import Link from '../../../../components/common/Link';
 import { getTabId, getTabPanelId } from '../../../../components/controls/BoxedTabs';
 import { Button } from '../../../../components/controls/buttons';
@@ -32,6 +35,7 @@ import {
   AlmSettingsBindingStatus,
   isBitbucketCloudBindingDefinition,
 } from '../../../../types/alm-settings';
+import { EditionKey } from '../../../../types/editions';
 import { Dict } from '../../../../types/types';
 import AlmBindingDefinitionBox from './AlmBindingDefinitionBox';
 import AlmBindingDefinitionForm from './AlmBindingDefinitionForm';
@@ -62,9 +66,10 @@ const AUTHENTICATION_AVAILABLE_PLATFORMS = [
   AlmKeys.BitbucketServer,
 ];
 
-export default function AlmTabRenderer(props: AlmTabRendererProps) {
+function AlmTabRenderer(props: AlmTabRendererProps & WithAppStateContextProps) {
   const {
     almTab,
+    appState: { edition },
     branchesEnabled,
     definitions,
     definitionStatus,
@@ -76,6 +81,8 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
   } = props;
 
   const preventCreation = loadingProjectCount || (!multipleAlmEnabled && definitions.length > 0);
+
+  const isCommunityEdition = edition === EditionKey.community;
 
   return (
     <div
@@ -128,7 +135,11 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
         <Alert variant="info" className="spacer">
           <FormattedMessage
             id="settings.almintegration.tabs.authentication-moved"
-            defaultMessage={translate('settings.almintegration.tabs.authentication_moved')}
+            defaultMessage={
+              isCommunityEdition
+                ? translate('settings.almintegration.tabs.community_edition_cannot_delegate_auth')
+                : translate('settings.almintegration.tabs.authentication_moved')
+            }
             values={{
               link: (
                 <Link
@@ -147,3 +158,5 @@ export default function AlmTabRenderer(props: AlmTabRendererProps) {
     </div>
   );
 }
+
+export default withAppStateContext(AlmTabRenderer);
