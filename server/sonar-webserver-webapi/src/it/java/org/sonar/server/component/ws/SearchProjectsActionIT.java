@@ -1194,25 +1194,28 @@ public class SearchProjectsActionIT {
   @Test
   public void return_last_analysis_date() {
     userSession.logIn();
-    ComponentDto project1 = db.components().insertPublicProject().getMainBranchComponent();
-    db.components().insertSnapshot(project1, snapshot -> snapshot.setCreatedAt(10_000_000_000L).setLast(false));
-    db.components().insertSnapshot(project1, snapshot -> snapshot.setCreatedAt(20_000_000_000L).setLast(true));
-    authorizationIndexerTester.allowOnlyAnyone(project1);
-    ComponentDto project2 = db.components().insertPublicProject().getMainBranchComponent();
-    db.components().insertSnapshot(project2, snapshot -> snapshot.setCreatedAt(30_000_000_000L).setLast(true));
-    authorizationIndexerTester.allowOnlyAnyone(project2);
+    ProjectData projectData1 = db.components().insertPublicProject();
+    ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
+    db.components().insertSnapshot(mainBranch1, snapshot -> snapshot.setCreatedAt(10_000_000_000L).setLast(false));
+    db.components().insertSnapshot(mainBranch1, snapshot -> snapshot.setCreatedAt(20_000_000_000L).setLast(true));
+    authorizationIndexerTester.allowOnlyAnyone(projectData1.getProjectDto());
+    ProjectData projectData2 = db.components().insertPublicProject();
+    ComponentDto mainBranch2 = projectData2.getMainBranchComponent();
+    db.components().insertSnapshot(mainBranch2, snapshot -> snapshot.setCreatedAt(30_000_000_000L).setLast(true));
+    authorizationIndexerTester.allowOnlyAnyone(projectData2.getProjectDto());
     // No snapshot on project 3
-    ComponentDto project3 = db.components().insertPublicProject().getMainBranchComponent();
-    authorizationIndexerTester.allowOnlyAnyone(project3);
+    ProjectData projectData3 = db.components().insertPublicProject();
+    ComponentDto mainBranch3 = projectData3.getMainBranchComponent();
+    authorizationIndexerTester.allowOnlyAnyone(projectData3.getProjectDto());
     index();
 
     SearchProjectsWsResponse result = call(request.setAdditionalFields(singletonList("analysisDate")));
 
     assertThat(result.getComponentsList()).extracting(Component::getKey, Component::hasAnalysisDate, Component::getAnalysisDate)
       .containsOnly(
-        tuple(project1.getKey(), true, formatDateTime(new Date(20_000_000_000L))),
-        tuple(project2.getKey(), true, formatDateTime(new Date(30_000_000_000L))),
-        tuple(project3.getKey(), false, ""));
+        tuple(mainBranch1.getKey(), true, formatDateTime(new Date(20_000_000_000L))),
+        tuple(mainBranch2.getKey(), true, formatDateTime(new Date(30_000_000_000L))),
+        tuple(mainBranch3.getKey(), false, ""));
   }
 
   @Test
@@ -1251,9 +1254,9 @@ public class SearchProjectsActionIT {
   @Test
   public void return_visibility_flag() {
     userSession.logIn();
-    ComponentDto privateProject = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto privateProject = db.components().insertPublicProject().getProjectDto();
     authorizationIndexerTester.allowOnlyAnyone(privateProject);
-    ComponentDto publicProject = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto publicProject = db.components().insertPrivateProject().getProjectDto();
     authorizationIndexerTester.allowOnlyAnyone(publicProject);
     index();
 
@@ -1267,9 +1270,9 @@ public class SearchProjectsActionIT {
 
   @Test
   public void does_not_return_branches() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
     authorizationIndexerTester.allowOnlyAnyone(project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    db.components().insertProjectBranch(project);
     index();
 
     SearchProjectsWsResponse result = call(request);

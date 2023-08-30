@@ -30,6 +30,7 @@ import org.elasticsearch.search.SearchHit;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -157,23 +158,23 @@ public class IssueIndexTest extends IssueIndexTestCommon {
 
   @Test
   public void authorized_issues_on_groups() {
-    ComponentDto project1 = newPrivateProjectDto();
-    ComponentDto project2 = newPrivateProjectDto();
-    ComponentDto project3 = newPrivateProjectDto();
-    ComponentDto file1 = newFileDto(project1);
-    ComponentDto file2 = newFileDto(project2);
-    ComponentDto file3 = newFileDto(project3);
+    ProjectData project1 = db.components().insertPublicProject();
+    ProjectData project2 = db.components().insertPublicProject();
+    ProjectData project3 = db.components().insertPublicProject();
+    ComponentDto file1 = newFileDto(project1.getMainBranchComponent());
+    ComponentDto file2 = newFileDto(project2.getMainBranchComponent());
+    ComponentDto file3 = newFileDto(project3.getMainBranchComponent());
     GroupDto group1 = newGroupDto();
     GroupDto group2 = newGroupDto();
 
     // project1 can be seen by group1
-    indexIssue(newDoc("I1", project1.uuid(), file1));
-    authorizationIndexer.allowOnlyGroup(project1, group1);
+    indexIssue(newDoc("I1", project1.projectUuid(), true, file1));
+    authorizationIndexer.allowOnlyGroup(project1.getProjectDto(), group1);
     // project2 can be seen by group2
-    indexIssue(newDoc("I2", project2.uuid(), file2));
-    authorizationIndexer.allowOnlyGroup(project2, group2);
+    indexIssue(newDoc("I2", project2.projectUuid(), true, file2));
+    authorizationIndexer.allowOnlyGroup(project2.getProjectDto(), group2);
     // project3 can be seen by nobody but root
-    indexIssue(newDoc("I3", project3.uuid(), file3));
+    indexIssue(newDoc("I3", project3.projectUuid(), true, file3));
 
     userSessionRule.logIn().setGroups(group1);
     assertThatSearchReturnsOnly(IssueQuery.builder(), "I1");
@@ -189,30 +190,30 @@ public class IssueIndexTest extends IssueIndexTestCommon {
     assertThatSearchReturnsEmpty(IssueQuery.builder());
 
     userSessionRule.logIn().setGroups(group1, group2);
-    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList(project3.uuid())));
+    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList(project3.projectUuid())));
   }
 
   @Test
   public void authorized_issues_on_user() {
-    ComponentDto project1 = newPrivateProjectDto();
-    ComponentDto project2 = newPrivateProjectDto();
-    ComponentDto project3 = newPrivateProjectDto();
-    ComponentDto file1 = newFileDto(project1);
-    ComponentDto file2 = newFileDto(project2);
-    ComponentDto file3 = newFileDto(project3);
+    ProjectData project1 = db.components().insertPublicProject();
+    ProjectData project2 = db.components().insertPublicProject();
+    ProjectData project3 = db.components().insertPublicProject();
+    ComponentDto file1 = newFileDto(project1.getMainBranchComponent());
+    ComponentDto file2 = newFileDto(project2.getMainBranchComponent());
+    ComponentDto file3 = newFileDto(project3.getMainBranchComponent());
     UserDto user1 = newUserDto();
     UserDto user2 = newUserDto();
 
     // project1 can be seen by john, project2 by max, project3 cannot be seen by anyone
-    indexIssue(newDoc("I1", project1.uuid(), file1));
-    authorizationIndexer.allowOnlyUser(project1, user1);
-    indexIssue(newDoc("I2", project2.uuid(), file2));
-    authorizationIndexer.allowOnlyUser(project2, user2);
-    indexIssue(newDoc("I3", project3.uuid(), file3));
+    indexIssue(newDoc("I1", project1.projectUuid(), true, file1));
+    authorizationIndexer.allowOnlyUser(project1.getProjectDto(), user1);
+    indexIssue(newDoc("I2", project2.projectUuid(), true, file2));
+    authorizationIndexer.allowOnlyUser(project2.getProjectDto(), user2);
+    indexIssue(newDoc("I3", project3.projectUuid(), true, file3));
 
     userSessionRule.logIn(user1);
     assertThatSearchReturnsOnly(IssueQuery.builder(), "I1");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList(project3.getKey())));
+    assertThatSearchReturnsEmpty(IssueQuery.builder().projectUuids(singletonList(project3.projectUuid())));
 
     userSessionRule.logIn(user2);
     assertThatSearchReturnsOnly(IssueQuery.builder(), "I2");

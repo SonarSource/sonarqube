@@ -45,7 +45,16 @@ public class IssueDocTesting {
     return newDocForProject(Uuids.createFast(), project);
   }
 
+  /**
+   * main branch definition should not be done based on main branch uuid.
+   * Use org.sonar.server.issue.IssueDocTesting#newDoc(java.lang.String, java.lang.String, boolean, org.sonar.db.component.ComponentDto) instead.
+   */
+  @Deprecated
   public static IssueDoc newDoc(String key, String projectUuid, ComponentDto componentDto) {
+    return newDoc(key, projectUuid, componentDto.branchUuid().equals(projectUuid), componentDto);
+  }
+
+  public static IssueDoc newDoc(String key, String projectUuid, boolean isMainBranch, ComponentDto componentDto) {
     return newDoc()
       .setKey(key)
       .setBranchUuid(componentDto.branchUuid())
@@ -53,7 +62,7 @@ public class IssueDocTesting {
       .setProjectUuid(projectUuid)
       // File path make no sens on modules and projects
       .setFilePath(!componentDto.scope().equals(Scopes.PROJECT) ? componentDto.path() : null)
-      .setIsMainBranch(componentDto.branchUuid().equals(projectUuid))
+      .setIsMainBranch(isMainBranch)
       .setFuncCreationDate(Date.from(LocalDateTime.of(1970, 1, 1, 1, 1).toInstant(ZoneOffset.UTC)));
   }
 

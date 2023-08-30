@@ -19,8 +19,11 @@
  */
 package org.sonar.server.permission.index;
 
+import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.stream.Stream;
+import org.assertj.core.api.Assertions;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.GroupDto;
@@ -38,29 +41,19 @@ public class PermissionIndexerTester {
     this.permissionIndexer = new PermissionIndexer(null, esTester.client(), indexers);
   }
 
-  public PermissionIndexerTester allowOnlyAnyone(ComponentDto... projects) {
-    return allow(stream(projects).map(project -> new IndexPermissions(project.uuid(), project.qualifier()).allowAnyone()).toList());
+  public PermissionIndexerTester allowOnlyAnyone(ComponentDto... portfolios) {
+    stream(portfolios)
+      .forEach(p -> Preconditions.checkArgument(p.qualifier().equals(Qualifiers.VIEW), "Permission should be applied on a portfolio"));
+    return allow(stream(portfolios).map(project -> new IndexPermissions(project.uuid(), project.qualifier()).allowAnyone()).toList());
   }
 
   public PermissionIndexerTester allowOnlyAnyone(EntityDto... entities) {
     return allow(stream(entities).map(entity -> new IndexPermissions(entity.getUuid(), entity.getQualifier()).allowAnyone()).toList());
   }
 
-  public PermissionIndexerTester allowOnlyUser(ComponentDto project, UserDto user) {
-    IndexPermissions dto = new IndexPermissions(project.uuid(), project.qualifier())
-      .addUserUuid(user.getUuid());
-    return allow(dto);
-  }
-
   public PermissionIndexerTester allowOnlyUser(EntityDto entityDto, UserDto user) {
     IndexPermissions dto = new IndexPermissions(entityDto.getUuid(), entityDto.getQualifier())
       .addUserUuid(user.getUuid());
-    return allow(dto);
-  }
-
-  public PermissionIndexerTester allowOnlyGroup(ComponentDto project, GroupDto group) {
-    IndexPermissions dto = new IndexPermissions(project.uuid(), project.qualifier())
-      .addGroupUuid(group.getUuid());
     return allow(dto);
   }
 

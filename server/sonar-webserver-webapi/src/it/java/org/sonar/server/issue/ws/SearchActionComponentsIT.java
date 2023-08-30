@@ -282,7 +282,7 @@ public class SearchActionComponentsIT {
     ComponentDto subView = db.components().insertComponent(ComponentTesting.newSubPortfolio(view, "SV1", "MySubView"));
     db.components().insertComponent(newProjectCopy(project, subView));
     allowAnyoneOnProjects(projectData.getProjectDto());
-    allowAnyoneOnPortfolios(view, subView);
+    allowAnyoneOnPortfolios(view);
     indexIssuesAndViews();
 
     ws.newRequest()

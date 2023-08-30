@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
@@ -560,15 +561,14 @@ public class SuggestionsActionIT {
 
   @Test
   public void does_not_return_branches() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    authorizationIndexerTester.allowOnlyAnyone(project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    ProjectDto projectDto = db.components().insertPublicProject().getProjectDto();
+    authorizationIndexerTester.allowOnlyAnyone(projectDto);
+    db.components().insertProjectBranch(projectDto);
     entityDefinitionIndexer.indexAll();
-    authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_QUERY, project.name())
+      .setParam(PARAM_QUERY, projectDto.getName())
       .executeProtobuf(SuggestionsWsResponse.class);
 
     assertThat(response.getResultsList())
