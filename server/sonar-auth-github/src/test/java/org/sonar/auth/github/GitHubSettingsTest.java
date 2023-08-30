@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.auth.github.GitHubSettings.USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE;
 
 public class GitHubSettingsTest {
   @Rule
@@ -99,6 +100,17 @@ public class GitHubSettingsTest {
     enableGithubAuthenticationWithGithubApp();
     when(internalProperties.read(GitHubSettings.PROVISIONING)).thenReturn(Optional.of(Boolean.TRUE.toString()));
     assertThat(underTest.isProvisioningEnabled()).isTrue();
+  }
+
+  @Test
+  public void isUserConsentRequiredAfterUpgrade_returnsFalseByDefault() {
+    assertThat(underTest.isUserConsentRequiredAfterUpgrade()).isFalse();
+  }
+
+  @Test
+  public void isUserConsentRequiredAfterUpgrade_returnsTrueIfPropertyPresent() {
+    settings.setProperty(USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE, "");
+    assertThat(underTest.isUserConsentRequiredAfterUpgrade()).isTrue();
   }
 
   @Test

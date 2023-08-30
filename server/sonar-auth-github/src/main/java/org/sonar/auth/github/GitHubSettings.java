@@ -60,6 +60,8 @@ public class GitHubSettings {
   public static final String ORGANIZATIONS = "sonar.auth.github.organizations";
   @VisibleForTesting
   static final String PROVISIONING = "provisioning.github.enabled";
+  @VisibleForTesting
+  static final String USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE = "sonar.auth.github.userConsentForPermissionProvisioningRequired";
 
   private static final String CATEGORY = "authentication";
   private static final String SUBCATEGORY = "github";
@@ -158,6 +160,10 @@ public class GitHubSettings {
 
   public boolean isProvisioningEnabled() {
     return isEnabled() && internalProperties.read(PROVISIONING).map(Boolean::parseBoolean).orElse(false);
+  }
+
+  public boolean isUserConsentRequiredAfterUpgrade() {
+    return configuration.get(USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE).isPresent();
   }
 
   public static List<PropertyDefinition> definitions() {
