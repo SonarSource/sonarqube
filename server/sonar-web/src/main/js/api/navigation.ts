@@ -26,7 +26,7 @@ import { Extension, NavigationComponent } from '../types/types';
 export function getComponentNavigation(
   data: { component: string } & BranchParameters
 ): Promise<NavigationComponent> {
-  return getJSON('/api/navigation/component', data).catch(throwGlobalError);
+  return getJSON('/api/navigation/component', data);
 }
 
 export function getMarketplaceNavigation(): Promise<{ serverId: string; ncloc: number }> {

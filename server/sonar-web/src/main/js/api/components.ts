@@ -160,10 +160,6 @@ export function getComponentShow(data: { component: string } & BranchParameters)
   return getComponentData(data).catch(throwGlobalError);
 }
 
-export function getParents(component: string): Promise<any> {
-  return getComponentShow({ component }).then((r) => r.ancestors);
-}
-
 export function getBreadcrumbs(
   data: { component: string } & BranchParameters
 ): Promise<Array<Omit<ComponentRaw, 'tags'>>> {

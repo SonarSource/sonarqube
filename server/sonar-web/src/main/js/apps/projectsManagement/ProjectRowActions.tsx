@@ -22,6 +22,7 @@ import { getComponentNavigation } from '../../api/navigation';
 import { Project } from '../../api/project-management';
 import ActionsDropdown, { ActionsDropdownItem } from '../../components/controls/ActionsDropdown';
 import Spinner from '../../components/ui/Spinner';
+import { throwGlobalError } from '../../helpers/error';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
 import { useGithubProvisioningEnabledQuery } from '../../queries/identity-provider';
@@ -41,20 +42,19 @@ export default function ProjectRowActions({ currentUser, project }: Props) {
   const [restoreAccessModal, setRestoreAccessModal] = useState(false);
   const { data: githubProvisioningEnabled } = useGithubProvisioningEnabledQuery();
 
-  const fetchPermissions = () => {
+  const fetchPermissions = async () => {
     setLoading(true);
-    getComponentNavigation({ component: project.key }).then(
-      ({ configuration }) => {
-        const hasAccess = Boolean(
-          configuration && configuration.showPermissions && configuration.canBrowseProject
-        );
-        setHasAccess(hasAccess);
-        setLoading(false);
-      },
-      () => {
-        setLoading(false);
-      }
-    );
+
+    try {
+      const { configuration } = await getComponentNavigation({ component: project.key });
+      const hasAccess = Boolean(configuration?.showPermissions && configuration?.canBrowseProject);
+      setHasAccess(hasAccess);
+      setLoading(false);
+    } catch (error) {
+      throwGlobalError(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDropdownOpen = () => {

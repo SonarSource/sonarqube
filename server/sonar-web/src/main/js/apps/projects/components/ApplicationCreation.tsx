@@ -24,6 +24,7 @@ import withAppStateContext from '../../../app/components/app-state/withAppStateC
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import CreateApplicationForm from '../../../app/components/extensions/CreateApplicationForm';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { throwGlobalError } from '../../../helpers/error';
 import { translate } from '../../../helpers/l10n';
 import { getComponentAdminUrl, getComponentOverviewUrl } from '../../../helpers/urls';
 import { hasGlobalPermission } from '../../../helpers/users';
@@ -59,14 +60,16 @@ export function ApplicationCreation(props: ApplicationCreationProps) {
     key: string;
     qualifier: ComponentQualifier;
   }) => {
-    return getComponentNavigation({ component: key }).then(({ configuration }) => {
-      if (configuration && configuration.showSettings) {
-        router.push(getComponentAdminUrl(key, qualifier));
-      } else {
-        router.push(getComponentOverviewUrl(key, qualifier));
-      }
-      setShowForm(false);
-    });
+    return getComponentNavigation({ component: key })
+      .then(({ configuration }) => {
+        if (configuration?.showSettings) {
+          router.push(getComponentAdminUrl(key, qualifier));
+        } else {
+          router.push(getComponentOverviewUrl(key, qualifier));
+        }
+        setShowForm(false);
+      })
+      .catch(throwGlobalError);
   };
 
   return (

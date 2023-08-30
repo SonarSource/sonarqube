@@ -22,14 +22,24 @@ import { Helmet } from 'react-helmet-async';
 import Link from '../../components/common/Link';
 import { translate } from '../../helpers/l10n';
 
-export default function ComponentContainerNotFound() {
+export interface ComponentContainerNotFoundProps {
+  isPortfolioLike: boolean;
+}
+
+export default function ComponentContainerNotFound({
+  isPortfolioLike,
+}: ComponentContainerNotFoundProps) {
+  const componentType = isPortfolioLike ? 'portfolio' : 'project';
+
   return (
     <>
       <Helmet defaultTitle={translate('404_not_found')} defer={false} />
       <div className="page-wrapper-simple" id="bd">
         <div className="page-simple" id="nonav">
-          <h2 className="big-spacer-bottom">{translate('dashboard.project_not_found')}</h2>
-          <p className="spacer-bottom">{translate('dashboard.project_not_found.2')}</p>
+          <h2 className="big-spacer-bottom">
+            {translate('dashboard', componentType, 'not_found')}
+          </h2>
+          <p className="spacer-bottom">{translate('dashboard', componentType, 'not_found.2')}</p>
           <p>
             <Link to="/">{translate('go_back_to_homepage')}</Link>
           </p>

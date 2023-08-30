@@ -32,7 +32,7 @@ import { translateWithParameters } from '../../helpers/l10n';
 import { HttpStatus } from '../../helpers/request';
 import { getPortfolioUrl, getProjectUrl } from '../../helpers/urls';
 import { ProjectAlmBindingConfigurationErrors } from '../../types/alm-settings';
-import { ComponentQualifier, isPortfolioLike } from '../../types/component';
+import { ComponentQualifier, isFile, isPortfolioLike } from '../../types/component';
 import { Feature } from '../../types/features';
 import { Task, TaskStatuses, TaskTypes } from '../../types/tasks';
 import { Component } from '../../types/types';
@@ -118,7 +118,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
      * This is a fail-safe in case there are still some faulty links remaining.
      */
     if (
-      this.props.location.pathname.match('dashboard') &&
+      this.props.location.pathname.includes('dashboard') &&
       isPortfolioLike(componentWithQualifier.qualifier)
     ) {
       this.props.router.replace(getPortfolioUrl(componentWithQualifier.key));
@@ -131,7 +131,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
           loading: false,
         },
         () => {
-          if (shouldRedirectToDashboard && this.props.location.pathname.match('tutorials')) {
+          if (shouldRedirectToDashboard && this.props.location.pathname.includes('tutorials')) {
             this.props.router.replace(getProjectUrl(key));
           }
         }
@@ -319,7 +319,11 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     const { component, loading } = this.state;
 
     if (!loading && !component) {
-      return <ComponentContainerNotFound />;
+      return (
+        <ComponentContainerNotFound
+          isPortfolioLike={this.props.location.pathname.includes('portfolio')}
+        />
+      );
     }
 
     const { currentTask, isPending, projectBindingErrors, tasksInProgress } = this.state;
@@ -335,11 +339,8 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             component?.name ?? ''
           )}
         />
-
         {component &&
-          !([ComponentQualifier.File, ComponentQualifier.TestFile] as string[]).includes(
-            component.qualifier
-          ) &&
+          !isFile(component.qualifier) &&
           this.portalAnchor &&
           /* Use a portal to fix positioning until we can fully review the layout */
           createPortal(
@@ -352,7 +353,6 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             />,
             this.portalAnchor
           )}
-
         {loading ? (
           <div className="page page-limited">
             <i className="spinner" />
