@@ -166,11 +166,12 @@ export function useBranchStatusQuery(component: Component) {
   });
 }
 
-export function useBranchWarrningQuery(component: Component) {
+export function useBranchWarningQuery(component: Component) {
   const branchQuery = useBranchesQuery(component);
   const branchLike = branchQuery.data?.branchLike;
+  const key = useBranchesQueryKey(InnerState.Warning);
   return useQuery({
-    queryKey: useBranchesQueryKey(InnerState.Warning),
+    queryKey: key,
     queryFn: async ({ queryKey }) => {
       const { query, componentKey } = getContext(queryKey);
       const { component: branchStatus } = await getAnalysisStatus({
@@ -179,7 +180,7 @@ export function useBranchWarrningQuery(component: Component) {
       });
       return branchStatus.warnings;
     },
-    enabled: !!branchLike && isProject(component.qualifier),
+    enabled: !!branchLike && isProject(component.qualifier) && component.key === key[1],
     staleTime: BRANCHES_STALE_TIME,
   });
 }

@@ -20,7 +20,7 @@
 import { FlagMessage, Link, Spinner } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
-import { useBranchWarrningQuery } from '../../../../queries/branch';
+import { useBranchWarningQuery } from '../../../../queries/branch';
 import { Task, TaskStatuses } from '../../../../types/tasks';
 import { Component } from '../../../../types/types';
 import { AnalysisErrorModal } from './AnalysisErrorModal';
@@ -35,7 +35,7 @@ export interface HeaderMetaProps {
 
 export function AnalysisStatus(props: HeaderMetaProps) {
   const { component, currentTask, isInProgress, isPending } = props;
-  const { data: warnings, isLoading } = useBranchWarrningQuery(component);
+  const { data: warnings, isLoading } = useBranchWarningQuery(component);
 
   const [modalIsVisible, setDisplayModal] = React.useState(false);
   const openModal = React.useCallback(() => {
