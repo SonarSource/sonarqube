@@ -113,6 +113,13 @@ vm_instance_template: &VM_TEMPLATE
   cpu: 4
   memory: 8G
 
+t2xlarge_node_selector: &T2XLARGE_NODE_SELECTOR
+  nodeSelectorTerms:
+    - matchExpressions:
+        - key: node.kubernetes.io/instance-type
+          operator: In
+          values: t2.xlarge
+
 oracle_additional_container_template: &ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
   name: oracle
   image: gvenzl/oracle-xe:21-faststart
@@ -432,6 +439,7 @@ qa_ha_task:
     memory: 10Gb
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
+    <<: *T2XLARGE_NODE_SELECTOR
   env:
     QA_CATEGORY: HA
   script:
