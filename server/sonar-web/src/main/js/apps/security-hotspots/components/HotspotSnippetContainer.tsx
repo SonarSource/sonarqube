@@ -197,7 +197,7 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
   };
 
   render() {
-    const { branchLike, component, hotspot, selectedHotspotLocation } = this.props;
+    const { hotspot, selectedHotspotLocation } = this.props;
     const { highlightedSymbols, lastLine, loading, sourceLines, secondaryLocations } = this.state;
 
     const locations = locationsByLine([hotspot]);
@@ -206,8 +206,6 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
 
     return (
       <HotspotSnippetContainerRenderer
-        branchLike={branchLike}
-        component={component}
         highlightedSymbols={highlightedSymbols}
         hotspot={hotspot}
         loading={loading}

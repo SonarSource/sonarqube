@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ClipboardIconButton, HoverLink, Note, themeBorder, themeColor } from 'design-system';
@@ -50,8 +51,11 @@ function HotspotSnippetHeader(props: HotspotSnippetHeaderProps) {
   const displayProjectName = component.qualifier === ComponentQualifier.Application;
 
   return (
-    <StyledHeader className="sw-flex sw-justify-between sw-gap-2 sw-px-4 sw-py-3 sw-box-border">
-      <Note className="sw-flex sw-items-center sw-gap-2 sw-flex-wrap sw-flex-1  sw-my-1/2">
+    <StyledHeader
+      className={`sw-box-border sw-flex sw-gap-2 sw-justify-between -sw-mb-4 sw-mt-6 sw-px-4
+                  sw-py-3`}
+    >
+      <Note className="sw-flex sw-flex-1 sw-flex-wrap sw-gap-2 sw-items-center sw-my-1/2">
         {displayProjectName && (
           <span>
             <HoverLink to={getBranchLikeUrl(project.key, branchLike)}>
@@ -82,7 +86,7 @@ function HotspotSnippetHeader(props: HotspotSnippetHeaderProps) {
 
 const StyledHeader = withTheme(styled.div`
   background-color: ${themeColor('codeLine')};
-  border-bottom: ${themeBorder('default', 'codeLineBorder')};
+  border: ${themeBorder('default', 'codeLineBorder')};
 `);
 
 export default withCurrentUserContext(HotspotSnippetHeader);

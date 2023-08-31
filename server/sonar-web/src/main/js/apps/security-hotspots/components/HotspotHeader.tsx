@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
@@ -47,6 +48,7 @@ import { SecurityStandard, Standards } from '../../../types/security';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
 import HotspotHeaderRightSection from './HotspotHeaderRightSection';
+import HotspotSnippetHeader from './HotspotSnippetHeader';
 import Status from './status/Status';
 import StatusReviewButton from './status/StatusReviewButton';
 
@@ -54,6 +56,7 @@ export interface HotspotHeaderProps {
   hotspot: Hotspot;
   component: Component;
   branchLike?: BranchLike;
+  isCodeTab?: boolean;
   standards?: Standards;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
   tabs: React.ReactNode;
@@ -67,7 +70,8 @@ interface StyledHeaderProps {
 }
 
 export function HotspotHeader(props: HotspotHeaderProps) {
-  const { hotspot, component, branchLike, standards, tabs, isCompressed, isScrolled } = props;
+  const { branchLike, component, hotspot, isCodeTab, isCompressed, isScrolled, standards, tabs } =
+    props;
   const { message, messageFormattings, rule, key } = hotspot;
   const refrechBranchStatus = useRefreshBranchStatus();
 
@@ -86,10 +90,17 @@ export function HotspotHeader(props: HotspotHeaderProps) {
   };
 
   const content = isCompressed ? (
-    <div className="sw-flex sw-justify-between">
-      {tabs}
-      <StatusReviewButton hotspot={hotspot} onStatusChange={handleStatusChange} />
-    </div>
+    <span>
+      <div className="sw-flex sw-justify-between">
+        {tabs}
+
+        <StatusReviewButton hotspot={hotspot} onStatusChange={handleStatusChange} />
+      </div>
+
+      {isCodeTab && (
+        <HotspotSnippetHeader hotspot={hotspot} component={component} branchLike={branchLike} />
+      )}
+    </span>
   ) : (
     <>
       <div className="sw-flex sw-justify-between sw-gap-8 sw-mb-4">
@@ -124,6 +135,10 @@ export function HotspotHeader(props: HotspotHeaderProps) {
         </div>
       </div>
       {tabs}
+
+      {isCodeTab && (
+        <HotspotSnippetHeader hotspot={hotspot} component={component} branchLike={branchLike} />
+      )}
     </>
   );
 

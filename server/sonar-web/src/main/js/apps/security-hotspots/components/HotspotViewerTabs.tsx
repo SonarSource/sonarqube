@@ -186,6 +186,7 @@ export default function HotspotViewerTabs(props: Props) {
         branchLike={branchLike}
         component={component}
         hotspot={hotspot}
+        isCodeTab={currentTab.value === TabKeys.Code}
         isCompressed={isCompressed}
         isScrolled={isScrolled}
         onUpdateHotspot={props.onUpdateHotspot}

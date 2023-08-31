@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { themeBorder, themeColor } from 'design-system';
 import * as React from 'react';
 import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
-import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
 import {
-  Component,
   ExpandDirection,
   FlowLocation,
   LinearIssueLocation,
@@ -35,10 +34,8 @@ import {
 } from '../../../types/types';
 import SnippetViewer from '../../issues/crossComponentSourceViewer/SnippetViewer';
 import HotspotPrimaryLocationBox from './HotspotPrimaryLocationBox';
-import HotspotSnippetHeader from './HotspotSnippetHeader';
 
 export interface HotspotSnippetContainerRendererProps {
-  branchLike?: BranchLike;
   highlightedSymbols: string[];
   hotspot: Hotspot;
   loading: boolean;
@@ -50,7 +47,6 @@ export interface HotspotSnippetContainerRendererProps {
   sourceLines: SourceLine[];
   sourceViewerFile: SourceViewerFile;
   secondaryLocations: FlowLocation[];
-  component: Component;
 }
 
 const noop = () => undefined;
@@ -111,16 +107,14 @@ export default function HotspotSnippetContainerRenderer(
   props: HotspotSnippetContainerRendererProps
 ) {
   const {
-    branchLike,
     highlightedSymbols,
     hotspot,
     loading,
     locations: primaryLocations,
+    secondaryLocations,
+    selectedHotspotLocation,
     sourceLines,
     sourceViewerFile,
-    secondaryLocations,
-    component,
-    selectedHotspotLocation,
   } = props;
 
   const scrollableRef = React.useRef<HTMLDivElement>(null);
@@ -153,8 +147,6 @@ export default function HotspotSnippetContainerRenderer(
       )}
 
       <SourceFileWrapper className="sw-box-border sw-w-full sw-rounded-1" ref={scrollableRef}>
-        <HotspotSnippetHeader hotspot={hotspot} component={component} branchLike={branchLike} />
-
         <Spinner className="big-spacer" loading={loading} />
 
         {!loading && sourceLines.length > 0 && (
