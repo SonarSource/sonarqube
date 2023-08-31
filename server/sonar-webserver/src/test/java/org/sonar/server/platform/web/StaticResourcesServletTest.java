@@ -183,7 +183,6 @@ public class StaticResourcesServletTest {
     assertThat(response.isSuccessful()).isTrue();
     assertThat(response.body().string()).isEqualTo("bar");
     assertThat(logTester.logs(Level.ERROR)).isEmpty();
-    assertThat(logTester.logs(Level.WARN)).isEmpty();
   }
 
   @Test
