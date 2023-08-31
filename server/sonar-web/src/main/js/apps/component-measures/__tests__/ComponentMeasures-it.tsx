@@ -34,6 +34,11 @@ import { Feature } from '../../../types/features';
 import { MetricKey } from '../../../types/metrics';
 import routes from '../routes';
 
+jest.mock('lodash', () => ({
+  ...jest.requireActual('lodash'),
+  throttle: (fn: (...args: unknown[]) => unknown) => fn,
+}));
+
 jest.mock('../../../api/metrics', () => {
   const { DEFAULT_METRICS } = jest.requireActual('../../../helpers/mocks/metrics');
   const metrics = Object.values(MetricKey).map(
@@ -340,10 +345,10 @@ describe('navigation', () => {
     await user.click(ui.maintainabilityDomainBtn.get());
     await user.click(ui.measureBtn('Code Smells 8').get());
 
-    // Select "folderA".
-    await ui.arrowDown();
+    await ui.arrowDown(); // Select the 1st element ("folderA")
+
     await act(async () => {
-      await ui.arrowRight();
+      await ui.arrowRight(); // Open "folderA"
     });
 
     expect(
@@ -355,21 +360,21 @@ describe('navigation', () => {
 
     // Move back to project.
     await act(async () => {
-      await ui.arrowLeft();
+      await ui.arrowLeft(); // Close "folderA"
     });
 
     expect(
       within(ui.measuresRow('folderA').get()).getByRole('cell', { name: '3' })
     ).toBeInTheDocument();
 
-    // Go to "folderA/out.tsx".
     await act(async () => {
-      await ui.arrowRight();
+      await ui.arrowRight(); // Open "folderA"
     });
-    await ui.arrowDown();
-    await ui.arrowDown();
+
+    await ui.arrowDown(); // Select the 1st element ("out.tsx")
+
     await act(async () => {
-      await ui.arrowRight();
+      await ui.arrowRight(); // Open "out.tsx"
     });
 
     expect((await ui.sourceCode.findAll()).length).toBeGreaterThan(0);
