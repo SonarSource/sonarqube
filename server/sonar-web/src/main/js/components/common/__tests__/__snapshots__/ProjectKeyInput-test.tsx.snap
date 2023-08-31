@@ -123,6 +123,7 @@ exports[`should render correctly: with label, help, and placeholder 1`] = `
     id="project-key"
     maxLength={400}
     minLength={1}
+    name="foo.label"
     onChange={[MockFunction]}
     placeholder="foo.placeholder"
     type="text"

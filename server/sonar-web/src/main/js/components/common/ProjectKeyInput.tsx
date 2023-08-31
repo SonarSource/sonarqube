@@ -63,6 +63,7 @@ export default function ProjectKeyInput(props: ProjectKeyInputProps) {
       required={label !== undefined}
     >
       <input
+        name={label}
         autoFocus={autofocus}
         className={classNames('input-super-large', {
           'is-invalid': isInvalid,
