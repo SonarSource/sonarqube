@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mount, shallow } from 'enzyme';
 import * as React from 'react';
+import { Route } from 'react-router-dom';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { mockComponent } from '../../../helpers/mocks/component';
+import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
+import { byText } from '../../../helpers/testSelector';
 import { ProjectAdminContainer } from '../ProjectAdminContainer';
 
 jest.mock('../../utils/handleRequiredAuthorization', () => {
@@ -28,30 +30,33 @@ jest.mock('../../utils/handleRequiredAuthorization', () => {
 });
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  renderProjectAdminContainer();
+
+  expect(byText('children').get()).toBeInTheDocument();
 });
 
 it('should redirect for authorization if needed', () => {
   jest.useFakeTimers();
-  mountRender({ component: mockComponent({ configuration: { showSettings: false } }) });
+  renderProjectAdminContainer({
+    component: mockComponent({ configuration: { showSettings: false } }),
+  });
   jest.runAllTimers();
   expect(handleRequiredAuthorization).toHaveBeenCalled();
   jest.useRealTimers();
 });
 
-function mountRender(props: Partial<ProjectAdminContainer['props']> = {}) {
-  return mount(createComponent(props));
-}
-
-function shallowRender(props: Partial<ProjectAdminContainer['props']> = {}) {
-  return shallow(createComponent(props));
-}
-
-function createComponent(props: Partial<ProjectAdminContainer['props']> = {}) {
-  return (
-    <ProjectAdminContainer
-      component={mockComponent({ configuration: { showSettings: true } })}
-      {...props}
-    />
-  );
+function renderProjectAdminContainer(props: Partial<ProjectAdminContainer['props']> = {}) {
+  return renderAppRoutes('project/settings', () => (
+    <Route
+      path="project/settings"
+      element={
+        <ProjectAdminContainer
+          component={mockComponent({ configuration: { showSettings: true } })}
+          {...props}
+        />
+      }
+    >
+      <Route index element={<div>children</div>} />
+    </Route>
+  ));
 }

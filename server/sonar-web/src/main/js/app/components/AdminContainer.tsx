@@ -103,7 +103,7 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
       ({ status }) => {
         if (this.mounted) {
           this.setState({ systemStatus: status });
-          document.location.reload();
+          window.location.reload();
         }
       },
       () => {}

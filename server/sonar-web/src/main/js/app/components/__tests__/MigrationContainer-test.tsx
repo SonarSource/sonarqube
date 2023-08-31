@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
+import { Route } from 'react-router-dom';
 import { getSystemStatus } from '../../../helpers/system';
+import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
+import { byText } from '../../../helpers/testSelector';
 import MigrationContainer from '../MigrationContainer';
 
 jest.mock('../../../helpers/system', () => ({
@@ -49,14 +51,26 @@ afterAll(() => {
 
 it('should render correctly if system is up', () => {
   (getSystemStatus as jest.Mock).mockReturnValueOnce('UP');
-  expect(shallowRender()).toMatchSnapshot();
+
+  renderMigrationContainer();
+
+  expect(byText('children').get()).toBeInTheDocument();
 });
 
 it('should render correctly if system is starting', () => {
   (getSystemStatus as jest.Mock).mockReturnValueOnce('STARTING');
-  expect(shallowRender()).toMatchSnapshot();
+
+  renderMigrationContainer();
+
+  expect(
+    byText('/maintenance?return_to=%2Fprojects%3Fquery%3Dtoto%23hash').get()
+  ).toBeInTheDocument();
 });
 
-function shallowRender() {
-  return shallow(<MigrationContainer />);
+function renderMigrationContainer() {
+  return renderAppRoutes('/', () => (
+    <Route element={<MigrationContainer />}>
+      <Route index element={<div>children</div>} />
+    </Route>
+  ));
 }
