@@ -29,8 +29,10 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.PortfolioData;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.project.ProjectDto;
@@ -189,41 +191,56 @@ public class CreateActionIT {
 
   @Test
   public void fail_if_directory() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "A/B"));
-    failIfNotAProjectWithKey(project, directory);
-    failIfNotAProjectWithUuid(project, directory);
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project.getMainBranchComponent(), "A/B"));
+    failIfNotAProjectWithKey(project.getProjectDto(), directory);
+    failIfNotAProjectWithUuid(project.getProjectDto(), directory);
   }
 
   @Test
   public void fail_if_file() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-    failIfNotAProjectWithKey(project, file);
-    failIfNotAProjectWithUuid(project, file);
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project.getMainBranchComponent()));
+    failIfNotAProjectWithKey(project.getProjectDto(), file);
+    failIfNotAProjectWithUuid(project.getProjectDto(), file);
   }
 
   @Test
   public void fail_if_view() {
-    ComponentDto view = db.components().insertPrivatePortfolio();
-    failIfNotAProjectWithKey(view, view);
-    failIfNotAProjectWithUuid(view, view);
+    PortfolioData view = db.components().insertPrivatePortfolioData();
+
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, view.getRootComponent());
+    assertThatThrownBy(() -> ws.newRequest()
+      .setParam(PARAM_NAME, "Custom")
+      .setParam(PARAM_URL, "http://example.org")
+      .setParam(PARAM_PROJECT_KEY, view.getPortfolioDto().getKey())
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Project '" + view.getPortfolioDto().getKey() + "' not found");
+
+    assertThatThrownBy(() -> ws.newRequest()
+      .setParam(PARAM_NAME, "Custom")
+      .setParam(PARAM_URL, "http://example.org")
+      .setParam(PARAM_PROJECT_ID, view.getPortfolioDto().getUuid())
+      .execute())
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Project '" + view.getPortfolioDto().getUuid() + "' not found");
 
   }
 
   @Test
   public void fail_when_using_branch_db_uuid() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.logIn().addProjectPermission(UserRole.USER, project.getProjectDto());
+    BranchDto branch = db.components().insertProjectBranch(project.getProjectDto());
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam(PARAM_PROJECT_ID, branch.uuid())
+      .setParam(PARAM_PROJECT_ID, branch.getUuid())
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")
       .execute())
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(format("Project '%s' not found", branch.uuid()));
+      .hasMessageContaining(format("Project '%s' not found", branch.getUuid()));
   }
 
   @Test
@@ -236,8 +253,8 @@ public class CreateActionIT {
     assertThat(action.params()).hasSize(4);
   }
 
-  private void failIfNotAProjectWithKey(ComponentDto root, ComponentDto component) {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, root);
+  private void failIfNotAProjectWithKey(ProjectDto project, ComponentDto component) {
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_NAME, "Custom")
@@ -248,8 +265,8 @@ public class CreateActionIT {
       .hasMessageContaining("Project '" + component.getKey() + "' not found");
   }
 
-  private void failIfNotAProjectWithUuid(ComponentDto root, ComponentDto component) {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, root);
+  private void failIfNotAProjectWithUuid(ProjectDto project, ComponentDto component) {
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_NAME, "Custom")

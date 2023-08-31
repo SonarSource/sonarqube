@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.PortfolioData;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
@@ -191,16 +192,16 @@ public class ComponentActionIT {
 
   @Test
   public void reference_key_in_the_response() {
-    ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto view = db.components().insertPrivatePortfolio();
-    userSession.addProjectPermission(USER, view);
-    db.components().insertSnapshot(view);
-    ComponentDto projectCopy = db.components().insertComponent(newProjectCopy("project-uuid-copy", mainBranch, view));
+    ProjectData mainBranch = db.components().insertPrivateProject();
+    PortfolioData view = db.components().insertPrivatePortfolioData();
+    userSession.addProjectPermission(USER, view.getRootComponent());
+    db.components().insertSnapshot(view.getPortfolioDto());
+    ComponentDto projectCopy = db.components().insertComponent(newProjectCopy("project-uuid-copy", mainBranch.getMainBranchComponent(), view.getRootComponent()));
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     ComponentWsResponse response = newRequest(projectCopy.getKey(), metric.getKey());
 
-    assertThat(response.getComponent().getRefKey()).isEqualTo(mainBranch.getKey());
+    assertThat(response.getComponent().getRefKey()).isEqualTo(mainBranch.getMainBranchComponent().getKey());
   }
 
   @Test
@@ -244,9 +245,10 @@ public class ComponentActionIT {
 
   @Test
   public void use_best_values() {
-    ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
-    userSession.addProjectPermission(USER, mainBranch);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(projectData.getMainBranchComponent()));
+    userSession.addProjectPermission(USER, projectData.getProjectDto())
+      .registerBranches(projectData.getMainBranchDto());
     MetricDto metric = db.measures().insertMetric(m -> m
       .setValueType("INT")
       .setBestValue(7.0d)

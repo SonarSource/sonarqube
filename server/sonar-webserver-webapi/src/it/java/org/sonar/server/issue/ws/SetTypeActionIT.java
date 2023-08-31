@@ -41,11 +41,14 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -66,6 +69,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -110,7 +114,8 @@ public class SetTypeActionIT {
     new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
       new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, new SequenceUuidFactory()),
-      mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer), responseWriter, system2));
+      mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer),
+    responseWriter, system2));
 
   @Test
   @UseDataProvider("allTypesFromToExceptHotspots")
@@ -262,14 +267,23 @@ public class SetTypeActionIT {
   }
 
   private void setUserWithBrowseAndAdministerIssuePermission(IssueDto issueDto) {
-    ComponentDto project = dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get();
-    userSession.logIn(dbTester.users().insertUser("john"))
+    BranchDto branchDto = dbClient.branchDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid())
+      .orElseThrow(() -> new IllegalStateException(format("Couldn't find branch with uuid : %s", issueDto.getProjectUuid())));
+    ProjectDto project = dbClient.projectDao().selectByUuid(dbTester.getSession(), branchDto.getProjectUuid())
+      .orElseThrow(() -> new IllegalStateException(format("Couldn't find project with uuid : %s", branchDto.getProjectUuid())));
+    UserDto user = dbTester.users().insertUser("john");
+    userSession.logIn(user)
       .addProjectPermission(ISSUE_ADMIN, project)
-      .addProjectPermission(USER, project);
+      .addProjectPermission(USER, project)
+      .registerBranches(branchDto);
   }
 
   private void logInAndAddProjectPermission(String login, IssueDto issueDto, String permission) {
-    userSession.logIn(login).addProjectPermission(permission, dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get());
+    BranchDto branchDto = dbClient.branchDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid())
+      .orElseThrow(() -> new IllegalStateException(format("Couldn't find branch with uuid : %s", issueDto.getProjectUuid())));
+    userSession.logIn(login)
+      .addProjectPermission(permission, dbClient.projectDao().selectByUuid(dbTester.getSession(), branchDto.getProjectUuid())
+        .orElseThrow(() -> new IllegalStateException(format("Couldn't find project with uuid %s", branchDto.getProjectUuid()))));
   }
 
   private void verifyContentOfPreloadedSearchResponseData(IssueDto issue) {

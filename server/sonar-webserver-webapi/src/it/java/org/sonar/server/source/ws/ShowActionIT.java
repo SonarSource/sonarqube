@@ -32,6 +32,7 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.source.SourceService;
@@ -56,8 +57,9 @@ public class ShowActionIT {
   private DbSession session = mock(DbSession.class);
   private ComponentDao componentDao = mock(ComponentDao.class);
   private BranchDao branchDao = mock(BranchDao.class);
-  private ComponentDto project = ComponentTesting.newPrivateProjectDto();
-  private ComponentDto file = ComponentTesting.newFileDto(project);
+  private ProjectDto project = ComponentTesting.newProjectDto();
+  private ComponentDto mainBranchComponentDto = ComponentTesting.newBranchComponent(project, ComponentTesting.newMainBranchDto(project.getUuid()));
+  private ComponentDto file = ComponentTesting.newFileDto(mainBranchComponentDto);
   private ShowAction underTest = new ShowAction(sourceService, dbClient, userSessionRule,
     new ComponentFinder(dbClient, new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT)));
   private WsActionTester tester = new WsActionTester(underTest);
@@ -72,7 +74,8 @@ public class ShowActionIT {
   @Test
   public void show_source() {
     String fileKey = "src/Foo.java";
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project)
+      .addProjectBranchMapping(project.getUuid(), mainBranchComponentDto);
     when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
     when(sourceService.getLinesAsHtml(eq(session), eq(file.uuid()), anyInt(), anyInt())).thenReturn(Optional.of(newArrayList(
       "/*",
@@ -91,7 +94,8 @@ public class ShowActionIT {
   @Test
   public void show_source_with_from_and_to_params() {
     String fileKey = "src/Foo.java";
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project)
+      .addProjectBranchMapping(project.getUuid(), mainBranchComponentDto);
     when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
     when(sourceService.getLinesAsHtml(session, file.uuid(), 3, 5)).thenReturn(Optional.of(newArrayList(
       " */",
@@ -108,7 +112,8 @@ public class ShowActionIT {
   @Test
   public void show_source_accept_from_less_than_one() {
     String fileKey = "src/Foo.java";
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project)
+      .addProjectBranchMapping(project.getUuid(), mainBranchComponentDto);
     when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
     when(sourceService.getLinesAsHtml(session, file.uuid(), 1, 5)).thenReturn(Optional.of(newArrayList(
       " */",

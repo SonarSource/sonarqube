@@ -28,6 +28,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
@@ -138,11 +139,11 @@ public class DeselectActionIT {
 
   @Test
   public void fail_when_not_project_admin() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.logIn().addProjectPermission(UserRole.ISSUE_ADMIN, project);
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.logIn().addProjectPermission(UserRole.ISSUE_ADMIN, project.getProjectDto());
 
     assertThatThrownBy(() -> ws.newRequest()
-      .setParam("projectKey", project.getKey())
+      .setParam("projectKey", project.projectKey())
       .execute())
       .isInstanceOf(ForbiddenException.class);
   }

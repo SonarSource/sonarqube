@@ -32,10 +32,12 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -58,6 +60,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -123,11 +126,11 @@ public class SetSeverityActionIT {
   @Test
   public void set_severity_is_not_distributed_for_pull_request() {
     RuleDto rule = dbTester.rules().insertIssueRule();
-    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto mainBranch = dbTester.components().insertPrivateProject().getMainBranchComponent();
 
-    ComponentDto pullRequest = dbTester.components().insertProjectBranch(project, b -> b.setKey("myBranch1")
+    ComponentDto pullRequest = dbTester.components().insertProjectBranch(mainBranch, b -> b.setKey("myBranch1")
       .setBranchType(BranchType.PULL_REQUEST)
-      .setMergeBranchUuid(project.uuid()));
+      .setMergeBranchUuid(mainBranch.uuid()));
 
     ComponentDto file = dbTester.components().insertComponent(newFileDto(pullRequest));
     IssueDto issue = newIssue(rule, pullRequest, file).setType(CODE_SMELL).setSeverity(MAJOR);
@@ -177,7 +180,7 @@ public class SetSeverityActionIT {
 
   @Test
   public void fail_when_not_authenticated() {
-    assertThatThrownBy(() ->  call("ABCD", MAJOR))
+    assertThatThrownBy(() -> call("ABCD", MAJOR))
       .isInstanceOf(UnauthorizedException.class);
   }
 
@@ -217,17 +220,24 @@ public class SetSeverityActionIT {
   }
 
   private void logInAndAddProjectPermission(IssueDto issueDto, String permission) {
+    BranchDto branchDto = dbClient.branchDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid())
+      .orElseThrow(() -> new IllegalStateException(format("Couldn't find branch with uuid : %s", issueDto.getProjectUuid())));
     UserDto user = dbTester.users().insertUser("john");
     userSession.logIn(user)
-      .addProjectPermission(permission, dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get());
+      .addProjectPermission(permission, dbClient.projectDao().selectByUuid(dbTester.getSession(), branchDto.getProjectUuid())
+        .orElseThrow(() -> new IllegalStateException(format("Couldn't find project with uuid %s", branchDto.getProjectUuid()))));
   }
 
   private void setUserWithBrowseAndAdministerIssuePermission(IssueDto issueDto) {
-    ComponentDto project = dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get();
+    BranchDto branchDto = dbClient.branchDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid())
+      .orElseThrow(() -> new IllegalStateException(format("Couldn't find branch with uuid : %s", issueDto.getProjectUuid())));
+    ProjectDto project = dbClient.projectDao().selectByUuid(dbTester.getSession(), branchDto.getProjectUuid())
+      .orElseThrow(() -> new IllegalStateException(format("Couldn't find project with uuid : %s", branchDto.getProjectUuid())));
     UserDto user = dbTester.users().insertUser("john");
     userSession.logIn(user)
       .addProjectPermission(ISSUE_ADMIN, project)
-      .addProjectPermission(USER, project);
+      .addProjectPermission(USER, project)
+      .registerBranches(branchDto);
   }
 
   private void verifyContentOfPreloadedSearchResponseData(IssueDto issue) {

@@ -177,6 +177,10 @@ public class ComponentTesting {
     return newProjectCopy(Uuids.createFast(), project.getMainBranchComponent(), view.getMainBranchComponent());
   }
 
+  public static ComponentDto newProjectCopy(ProjectData project, PortfolioData view) {
+    return newProjectCopy(Uuids.createFast(), project.getMainBranchComponent(), view.getRootComponent());
+  }
+
   public static ComponentDto newProjectCopy(ComponentDto project, ComponentDto view) {
     return newProjectCopy(Uuids.createFast(), project, view);
   }
@@ -254,10 +258,23 @@ public class ComponentTesting {
       .setBranchType(BranchType.BRANCH);
   }
 
+  public static BranchDto newMainBranchDto(String projectUUid) {
+    return new BranchDto()
+      .setKey(DEFAULT_MAIN_BRANCH_NAME)
+      .setIsMain(true)
+      .setUuid(Uuids.createFast())
+      .setProjectUuid(projectUUid)
+      .setBranchType(BranchType.BRANCH);
+  }
+
   public static ProjectDto newProjectDto() {
+    return newProjectDto("uuid").setPrivate(true);
+  }
+
+  public static ProjectDto newProjectDto(String projectUuid) {
     return new ProjectDto()
       .setKey("projectKey")
-      .setUuid("uuid")
+      .setUuid(projectUuid)
       .setName("projectName")
       .setQualifier(Qualifiers.PROJECT);
   }

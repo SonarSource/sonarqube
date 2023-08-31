@@ -136,14 +136,15 @@ public class SearchEventsActionNewIssuesIT {
   @Test
   public void does_not_return_old_issue() {
     userSession.logIn();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
-    SnapshotDto analysis = insertAnalysis(project, 1_500_000_000_000L);
-    db.issues().insert(db.rules().insert(), project, project, i -> i.setIssueCreationDate(new Date(analysis.getCreatedAt() - 10_000L)));
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(USER, project.getProjectDto());
+    SnapshotDto analysis = insertAnalysis(project.getMainBranchComponent(), 1_500_000_000_000L);
+    db.issues().insert(db.rules().insert(), project.getMainBranchComponent(), project.getMainBranchComponent(),
+      i -> i.setIssueCreationDate(new Date(analysis.getCreatedAt() - 10_000L)));
     issueIndexer.indexAllIssues();
 
     SearchEventsWsResponse result = ws.newRequest()
-      .setParam(PARAM_PROJECTS, project.getKey())
+      .setParam(PARAM_PROJECTS, project.projectKey())
       .setParam(PARAM_FROM, formatDateTime(analysis.getCreatedAt() - 1_000L))
       .executeProtobuf(SearchEventsWsResponse.class);
 

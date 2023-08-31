@@ -28,6 +28,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.workflow.FunctionExecutor;
@@ -63,11 +64,12 @@ public class TransitionServiceIT {
 
   @Test
   public void list_transitions() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent()));
     RuleDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
-    userSession.logIn().addProjectPermission(ISSUE_ADMIN, project);
+    IssueDto issue = db.issues().insert(rule, project.getMainBranchComponent(), file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
+    userSession.logIn().addProjectPermission(ISSUE_ADMIN, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
 
     List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());
 
@@ -76,11 +78,12 @@ public class TransitionServiceIT {
 
   @Test
   public void list_transitions_returns_empty_list_on_external_issue() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent()));
     RuleDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
-    IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
-    userSession.logIn().addProjectPermission(ISSUE_ADMIN, project);
+    IssueDto externalIssue = db.issues().insert(externalRule, project.getMainBranchComponent(), file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
+    userSession.logIn().addProjectPermission(ISSUE_ADMIN, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
 
     List<Transition> result = underTest.listTransitions(externalIssue.toDefaultIssue());
 

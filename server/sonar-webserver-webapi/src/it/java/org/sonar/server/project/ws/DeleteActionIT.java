@@ -150,14 +150,14 @@ public class DeleteActionIT {
 
   @Test
   public void return_403_if_not_project_admin_nor_org_admin() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData project = db.components().insertPrivateProject();
 
     userSessionRule.logIn()
-      .addProjectPermission(UserRole.CODEVIEWER, project)
-      .addProjectPermission(UserRole.ISSUE_ADMIN, project)
-      .addProjectPermission(UserRole.USER, project);
+      .addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
+      .addProjectPermission(UserRole.ISSUE_ADMIN, project.getProjectDto())
+      .addProjectPermission(UserRole.USER, project.getProjectDto());
 
-    TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, project.getKey());
+    TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, project.projectKey());
     assertThatThrownBy(() -> call(request))
       .isInstanceOf(ForbiddenException.class);
   }

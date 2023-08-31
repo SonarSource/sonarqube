@@ -143,7 +143,8 @@ public class ReportSubmitterIT {
   public void submit_a_report_on_existing_project() {
     ProjectData project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(SCAN.getKey(), project.getMainBranchComponent());
+    userSession.logIn(user).addProjectPermission(SCAN.getKey(), project.getProjectDto())
+      .addProjectBranchMapping(project.projectUuid(), project.getMainBranchComponent());
     mockSuccessfulPrepareSubmitCall();
 
     underTest.submit(project.projectKey(), project.getProjectDto().getName(), emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
@@ -255,11 +256,13 @@ public class ReportSubmitterIT {
 
   @Test
   public void submit_a_report_on_existing_project_with_project_scan_permission() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(SCAN.getKey(), project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ProjectDto project = projectData.getProjectDto();
+    userSession.addProjectPermission(SCAN.getKey(), project)
+      .addProjectBranchMapping(project.getUuid(), projectData.getMainBranchComponent());
     mockSuccessfulPrepareSubmitCall();
 
-    underTest.submit(project.getKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
+    underTest.submit(project.getKey(), project.getName(), emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
     verify(queue).submit(any(CeTaskSubmit.class));
   }

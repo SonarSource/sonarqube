@@ -26,16 +26,18 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
@@ -330,14 +332,14 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
   @Test
   public void fail_when_using_branch_uuid() {
     UserDto user = db.users().insertUser(newUserDto());
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    ProjectData project = db.components().insertPublicProject();
+    BranchDto branch = db.components().insertProjectBranch(project.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, project.getProjectDto());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto());
 
     assertThatThrownBy(() -> {
       newRequest()
-        .setParam(PARAM_PROJECT_ID, branch.uuid())
+        .setParam(PARAM_PROJECT_ID, branch.getUuid())
         .setParam(PARAM_USER_LOGIN, user.getLogin())
         .setParam(PARAM_PERMISSION, GlobalPermission.ADMINISTER.getKey())
         .execute();

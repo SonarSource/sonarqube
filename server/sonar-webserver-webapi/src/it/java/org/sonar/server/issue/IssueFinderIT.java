@@ -23,9 +23,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -70,7 +73,7 @@ public class IssueFinderIT {
     IssueDto issueDto = insertIssue();
     addProjectPermission(issueDto, USER);
 
-    assertThatThrownBy(() ->  underTest.getByKey(db.getSession(), "UNKNOWN"))
+    assertThatThrownBy(() -> underTest.getByKey(db.getSession(), "UNKNOWN"))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Issue with key 'UNKNOWN' does not exist");
   }
@@ -86,12 +89,16 @@ public class IssueFinderIT {
 
   private IssueDto insertIssue() {
     RuleDto rule = ruleDbTester.insert(newRule());
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    return issueDbTester.insert(newIssue(rule, project, file));
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent()));
+    return issueDbTester.insert(newIssue(rule, project.getMainBranchComponent(), file));
   }
 
   private void addProjectPermission(IssueDto issueDto, String permission) {
-    userSession.addProjectPermission(permission, db.getDbClient().componentDao().selectByUuid(db.getSession(), issueDto.getProjectUuid()).get());
+    BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), issueDto.getProjectUuid())
+      .orElseThrow(() -> new IllegalStateException("Couldn't find branch :" + issueDto.getProjectUuid()));
+    ProjectDto projectDto = db.getDbClient().projectDao().selectByUuid(db.getSession(), branchDto.getProjectUuid()).get();
+    userSession.addProjectPermission(permission, projectDto)
+      .registerBranches(branchDto);
   }
 }

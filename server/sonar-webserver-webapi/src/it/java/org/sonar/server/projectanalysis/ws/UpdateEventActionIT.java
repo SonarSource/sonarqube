@@ -28,8 +28,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -65,8 +64,8 @@ public class UpdateEventActionIT {
 
   @Test
   public void json_example() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setUuid("A2"));
+    ProjectData project = db.components().insertPrivateProject();
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project.getMainBranchDto()).setUuid("A2"));
     db.events().insertEvent(newEvent(analysis)
       .setUuid("E1")
       .setCategory(OTHER.getLabel())
@@ -159,10 +158,10 @@ public class UpdateEventActionIT {
 
   @Test
   public void throw_ForbiddenException_if_not_project_administrator() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
+    ProjectData project = db.components().insertPrivateProject();
+    SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchDto());
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    userSession.logIn().addProjectPermission(UserRole.USER, project.getProjectDto());
 
     assertThatThrownBy(() -> call("E1", "name"))
       .isInstanceOf(ForbiddenException.class);
@@ -244,13 +243,14 @@ public class UpdateEventActionIT {
     return request.executeProtobuf(UpdateEventResponse.class);
   }
 
-  private void logInAsProjectAdministrator(ComponentDto project) {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+  private void logInAsProjectAdministrator(ProjectData project) {
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
   }
 
   private SnapshotDto createAnalysisAndLogInAsProjectAdministrator(String version) {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setProjectVersion(version));
+    ProjectData project = db.components().insertPrivateProject();
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project.getMainBranchDto()).setProjectVersion(version));
     logInAsProjectAdministrator(project);
     return analysis;
   }

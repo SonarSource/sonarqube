@@ -29,8 +29,8 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -41,7 +41,6 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.event.EventTesting.newEvent;
 import static org.sonar.server.projectanalysis.ws.EventCategory.VERSION;
@@ -59,8 +58,8 @@ public class DeleteEventActionIT {
 
   @Test
   public void delete_event() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
+    ProjectData project = db.components().insertPrivateProject();
+    SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchDto());
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
     db.events().insertEvent(newEvent(analysis).setUuid("E2"));
     logInAsProjectAdministrator(project);
@@ -73,8 +72,8 @@ public class DeleteEventActionIT {
 
   @Test
   public void delete_version_event() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setProjectVersion("5.6.3").setLast(false));
+    ProjectData project = db.components().insertPrivateProject();
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project.getMainBranchDto()).setProjectVersion("5.6.3").setLast(false));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(VERSION.getLabel()));
     logInAsProjectAdministrator(project);
 
@@ -86,8 +85,8 @@ public class DeleteEventActionIT {
 
   @Test
   public void fail_if_version_for_last_analysis() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setProjectVersion("5.6.3").setLast(true));
+    ProjectData project = db.components().insertPrivateProject();
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project.getMainBranchDto()).setProjectVersion("5.6.3").setLast(true));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(VERSION.getLabel()));
     logInAsProjectAdministrator(project);
 
@@ -98,8 +97,8 @@ public class DeleteEventActionIT {
 
   @Test
   public void fail_if_category_different_than_other_and_version() {
-    ComponentDto project = newPrivateProjectDto("P1");
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
+    ProjectData project = db.components().insertPrivateProject();
+    SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchDto());
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory("Profile"));
     logInAsProjectAdministrator(project);
 
@@ -149,7 +148,8 @@ public class DeleteEventActionIT {
     request.execute();
   }
 
-  private void logInAsProjectAdministrator(ComponentDto project) {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+  private void logInAsProjectAdministrator(ProjectData project) {
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
   }
 }

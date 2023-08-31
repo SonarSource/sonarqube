@@ -436,7 +436,7 @@ public class ShowActionIT {
   public void fail_if_component_is_removed() {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    userSession.addProjectPermission(USER, mainBranch)
+    userSession.addProjectPermission(USER, projectData.getProjectDto())
       .registerBranches(projectData.getMainBranchDto());
     db.components().insertComponent(newFileDto(mainBranch).setKey("file-key").setEnabled(false));
 

@@ -813,10 +813,9 @@ public class SearchActionIT {
   @Test
   public void fail_if_hotspots_provided_with_onlyMine_param() {
     ProjectData projectData = dbTester.components().insertPrivateProject();
-    ComponentDto project = projectData.getMainBranchComponent();
 
     userSessionRule.registerProjects(projectData.getProjectDto());
-    userSessionRule.logIn().addProjectPermission(USER, project);
+    userSessionRule.logIn().addProjectPermission(USER, projectData.getProjectDto());
 
     TestRequest request = actionTester.newRequest()
       .setParam(PARAM_HOTSPOTS, IntStream.range(2, 10).mapToObj(String::valueOf).collect(joining(",")))

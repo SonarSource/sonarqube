@@ -26,6 +26,7 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
@@ -264,13 +265,12 @@ public class AddActionIT {
 
   @Test
   public void fail_when_unknown_project_dispatcher_on_private_project() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, project);
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(USER, project.getProjectDto());
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
 
-    String projectKey = project.getKey();
-    assertThatThrownBy(() -> call("Dispatcher42", null, projectKey, null))
+    assertThatThrownBy(() -> call("Dispatcher42", null, project.projectKey(), null))
       .isInstanceOf(BadRequestException.class)
       .hasMessageContaining("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2]");
   }

@@ -28,6 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
@@ -57,9 +58,9 @@ public class DeleteActionIT {
 
   @Test
   public void project_administrator_deletes_analysis() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(false).setStatus(STATUS_PROCESSED));
-    db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setLast(true).setStatus(STATUS_PROCESSED));
+    ProjectData project = db.components().insertPrivateProject();
+    db.components().insertSnapshot(newAnalysis(project.getMainBranchDto()).setUuid("A1").setLast(false).setStatus(STATUS_PROCESSED));
+    db.components().insertSnapshot(newAnalysis(project.getMainBranchDto()).setUuid("A2").setLast(true).setStatus(STATUS_PROCESSED));
     logInAsProjectAdministrator(project);
 
     call("A1");
@@ -81,8 +82,8 @@ public class DeleteActionIT {
 
   @Test
   public void last_analysis_cannot_be_deleted() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(true));
+    ProjectData project = db.components().insertPrivateProject();
+    db.components().insertSnapshot(newAnalysis(project.getMainBranchDto()).setUuid("A1").setLast(true));
     logInAsProjectAdministrator(project);
 
     assertThatThrownBy(() -> call("A1"))
@@ -93,11 +94,11 @@ public class DeleteActionIT {
   @Test
   public void fail_when_analysis_is_new_code_period_baseline() {
     String analysisUuid = RandomStringUtils.randomAlphabetic(12);
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setUuid(analysisUuid).setLast(false));
+    ProjectData project = db.components().insertPrivateProject();
+    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project.getMainBranchDto()).setUuid(analysisUuid).setLast(false));
     db.newCodePeriods().insert(new NewCodePeriodDto()
-      .setProjectUuid(project.uuid())
-      .setBranchUuid(project.uuid())
+      .setProjectUuid(project.projectUuid())
+      .setBranchUuid(project.mainBranchUuid())
       .setType(NewCodePeriodType.SPECIFIC_ANALYSIS)
       .setValue(analysis.getUuid()));
     db.commit();
@@ -119,8 +120,8 @@ public class DeleteActionIT {
 
   @Test
   public void fail_when_analysis_is_unprocessed() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(false).setStatus(STATUS_UNPROCESSED));
+    ProjectData project = db.components().insertPrivateProject();
+    db.components().insertSnapshot(newAnalysis(project.getMainBranchDto()).setUuid("A1").setLast(false).setStatus(STATUS_UNPROCESSED));
     logInAsProjectAdministrator(project);
 
     assertThatThrownBy(() -> call("A1"))
@@ -144,7 +145,8 @@ public class DeleteActionIT {
       .execute();
   }
 
-  private void logInAsProjectAdministrator(ComponentDto project) {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+  private void logInAsProjectAdministrator(ProjectData project) {
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
   }
 }

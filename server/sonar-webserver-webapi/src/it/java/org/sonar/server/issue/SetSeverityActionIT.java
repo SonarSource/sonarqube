@@ -30,9 +30,11 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.UserSessionRule;
@@ -120,11 +122,14 @@ public class SetSeverityActionIT {
   }
 
   private void setUserWithBrowseAndAdministerIssuePermission(IssueDto issue) {
-    ComponentDto project = db.getDbClient().componentDao().selectByUuid(db.getSession(), issue.getProjectUuid()).get();
-    ComponentDto component = db.getDbClient().componentDao().selectByUuid(db.getSession(), issue.getComponentUuid()).get();
+
+    BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), issue.getProjectUuid())
+      .orElseThrow(() -> new IllegalStateException("Couldn't find branch :" + issue.getProjectUuid()));
+    ProjectDto project = db.getDbClient().projectDao().selectByUuid(db.getSession(), branchDto.getProjectUuid()).get();
     userSession.logIn(USER_LOGIN)
-      .addProjectPermission(ISSUE_ADMIN, project, component)
-      .addProjectPermission(USER, project, component);
+      .addProjectPermission(ISSUE_ADMIN, project)
+      .addProjectPermission(USER, project)
+      .registerBranches(branchDto);
   }
 
   private IssueDto newIssue() {

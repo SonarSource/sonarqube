@@ -32,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.component.TestComponentFinder;
@@ -59,20 +60,21 @@ public class ScmActionIT {
   private final ScmAction underTest = new ScmAction(dbClient, new SourceService(dbTester.getDbClient(), new HtmlSourceDecorator()),
     userSessionRule, TestComponentFinder.from(dbTester));
   private final WsActionTester tester = new WsActionTester(underTest);
-  private ComponentDto project;
+  private ProjectData project;
   private ComponentDto file;
 
   @Before
   public void setUp() {
-    project = dbTester.components().insertPrivateProject(PROJECT_UUID).getMainBranchComponent();
-    file = ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);
+    project = dbTester.components().insertPrivateProject(PROJECT_UUID);
+    file = ComponentTesting.newFileDto(project.getMainBranchComponent(), null, FILE_UUID).setKey(FILE_KEY);
     dbClient.componentDao().insertOnMainBranch(dbTester.getSession(), file);
     dbTester.getSession().commit();
   }
 
   @Test
   public void show_scm() {
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
       .setUuid(Uuids.createFast())
@@ -90,7 +92,8 @@ public class ScmActionIT {
 
   @Test
   public void show_scm_from_given_range_lines() {
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
       .setUuid(Uuids.createFast())
@@ -114,7 +117,8 @@ public class ScmActionIT {
 
   @Test
   public void not_group_lines_by_commit() {
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
 
     // lines 1 and 2 are the same commit, but not 3 (different date)
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
@@ -138,7 +142,8 @@ public class ScmActionIT {
 
   @Test
   public void group_lines_by_commit() {
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
 
     // lines 1 and 2 are the same commit, but not 3 (different date)
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
@@ -162,7 +167,8 @@ public class ScmActionIT {
 
   @Test
   public void accept_negative_value_in_from_parameter() {
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
       .setUuid(Uuids.createFast())
@@ -186,7 +192,8 @@ public class ScmActionIT {
 
   @Test
   public void return_empty_value_when_no_scm() {
-    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
       .setUuid(Uuids.createFast())
@@ -203,7 +210,8 @@ public class ScmActionIT {
 
   @Test
   public void fail_without_code_viewer_permission() {
-    userSessionRule.addProjectPermission(UserRole.USER, project, file);
+    userSessionRule.addProjectPermission(UserRole.USER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
 
     assertThatThrownBy(() -> {
       tester.newRequest()

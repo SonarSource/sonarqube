@@ -33,6 +33,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -58,9 +59,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
-import static org.sonar.db.component.ComponentDbTester.toProjectDto;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
@@ -85,7 +84,7 @@ public class SearchHistoryActionIT {
 
   private final WsActionTester ws = new WsActionTester(new SearchHistoryAction(dbClient, TestComponentFinder.from(db), userSession));
 
-  private ComponentDto project;
+  private ProjectData project;
   private SnapshotDto analysis;
   private MetricDto complexityMetric;
   private MetricDto nclocMetric;
@@ -94,9 +93,10 @@ public class SearchHistoryActionIT {
 
   @Before
   public void setUp() {
-    project = newPrivateProjectDto();
-    analysis = db.components().insertProjectAndSnapshot(project);
-    userSession.addProjectPermission(UserRole.USER, project);
+    project = db.components().insertPrivateProject();
+    analysis = db.components().insertSnapshot(project.getProjectDto());
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
     nclocMetric = insertNclocMetric();
     complexityMetric = insertComplexityMetric();
     newViolationMetric = insertNewViolationMetric();
@@ -105,10 +105,11 @@ public class SearchHistoryActionIT {
 
   @Test
   public void empty_response() {
-    project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
+    project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getKey())
+      .setComponent(project.projectKey())
       .setMetrics(singletonList(complexityMetric.getKey()))
       .build();
 
@@ -124,12 +125,13 @@ public class SearchHistoryActionIT {
 
   @Test
   public void analyses_but_no_measure() {
-    project = db.components().insertPrivateProject().getMainBranchComponent();
-    analysis = db.components().insertSnapshot(project);
-    userSession.addProjectPermission(UserRole.USER, project);
+    project = db.components().insertPrivateProject();
+    analysis = db.components().insertSnapshot(project.getProjectDto());
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getKey())
+      .setComponent(project.projectKey())
       .setMetrics(singletonList(complexityMetric.getKey()))
       .build();
 
@@ -142,11 +144,11 @@ public class SearchHistoryActionIT {
 
   @Test
   public void return_metrics() {
-    dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project, analysis).setValue(42.0d));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project.mainBranchUuid(), analysis).setValue(42.0d));
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getKey())
+      .setComponent(project.projectKey())
       .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
       .build();
 
@@ -159,19 +161,19 @@ public class SearchHistoryActionIT {
 
   @Test
   public void return_measures() {
-    SnapshotDto laterAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(analysis.getCreatedAt() + 42_000));
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    SnapshotDto laterAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project.getMainBranchDto()).setCreatedAt(analysis.getCreatedAt() + 42_000));
+    ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent()));
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(complexityMetric, project, analysis).setValue(101d),
-      newMeasureDto(complexityMetric, project, laterAnalysis).setValue(100d),
+      newMeasureDto(complexityMetric, project.mainBranchUuid(), analysis).setValue(101d),
+      newMeasureDto(complexityMetric, project.mainBranchUuid(), laterAnalysis).setValue(100d),
       newMeasureDto(complexityMetric, file, analysis).setValue(42d),
-      newMeasureDto(nclocMetric, project, analysis).setValue(201d),
-      newMeasureDto(newViolationMetric, project, analysis).setValue(5d),
-      newMeasureDto(newViolationMetric, project, laterAnalysis).setValue(10d));
+      newMeasureDto(nclocMetric, project.mainBranchUuid(), analysis).setValue(201d),
+      newMeasureDto(newViolationMetric, project.mainBranchUuid(), analysis).setValue(5d),
+      newMeasureDto(newViolationMetric, project.mainBranchUuid(), laterAnalysis).setValue(10d));
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getKey())
+      .setComponent(project.projectKey())
       .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
       .build();
     SearchHistoryResponse result = call(request);
@@ -201,17 +203,18 @@ public class SearchHistoryActionIT {
 
   @Test
   public void pagination_applies_to_analyses() {
-    project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
+    project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
     List<String> analysisDates = LongStream.rangeClosed(1, 9)
-      .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(i * 1_000_000_000)))
-      .peek(a -> dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project, a).setValue(101d)))
+      .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project.mainBranchUuid()).setCreatedAt(i * 1_000_000_000)))
+      .peek(a -> dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project.mainBranchUuid(), a).setValue(101d)))
       .map(a -> formatDateTime(a.getCreatedAt()))
       .toList();
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getKey())
+      .setComponent(project.projectKey())
       .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
       .setPage(2)
       .setPageSize(3)
@@ -225,17 +228,18 @@ public class SearchHistoryActionIT {
 
   @Test
   public void inclusive_from_and_to_dates() {
-    project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
+    project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
     List<String> analysisDates = LongStream.rangeClosed(1, 9)
-      .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(System2.INSTANCE.now() + i * 1_000_000_000L)))
-      .peek(a -> dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project, a).setValue(Double.valueOf(a.getCreatedAt()))))
+      .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project.mainBranchUuid()).setCreatedAt(System2.INSTANCE.now() + i * 1_000_000_000L)))
+      .peek(a -> dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project.mainBranchUuid(), a).setValue(Double.valueOf(a.getCreatedAt()))))
       .map(a -> formatDateTime(a.getCreatedAt()))
       .toList();
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getKey())
+      .setComponent(project.projectKey())
       .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
       .setFrom(analysisDates.get(1))
       .setTo(analysisDates.get(3))
@@ -252,7 +256,7 @@ public class SearchHistoryActionIT {
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey("optimized").setValueType(ValueType.INT.name()).setOptimizedBestValue(true).setBestValue(456d));
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey("new_optimized").setValueType(ValueType.INT.name()).setOptimizedBestValue(true).setBestValue(789d));
     db.commit();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent()));
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
       .setComponent(file.getKey())
@@ -266,7 +270,7 @@ public class SearchHistoryActionIT {
 
     // Best value is not applied to project
     request = SearchHistoryRequest.builder()
-      .setComponent(project.getKey())
+      .setComponent(project.projectKey())
       .setMetrics(asList("optimized", "new_optimized"))
       .build();
     result = call(request);
@@ -277,11 +281,11 @@ public class SearchHistoryActionIT {
 
   @Test
   public void do_not_return_unprocessed_analyses() {
-    dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setStatus(STATUS_UNPROCESSED));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(project.getMainBranchDto()).setStatus(STATUS_UNPROCESSED));
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getKey())
+      .setComponent(project.projectKey())
       .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
       .build();
     SearchHistoryResponse result = call(request);
@@ -292,11 +296,11 @@ public class SearchHistoryActionIT {
 
   @Test
   public void branch() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
-    userSession.addProjectBranchMapping(project.uuid(), branch);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setKey("my_branch"));
+    userSession.addProjectBranchMapping(project.projectUuid(), branch);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.mainBranchUuid()));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     MeasureDto measure = db.measures().insertMeasure(file, analysis, nclocMetric, m -> m.setValue(2d));
 
@@ -316,11 +320,11 @@ public class SearchHistoryActionIT {
 
   @Test
   public void pull_request() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
-    userSession.addProjectBranchMapping(project.uuid(), branch);
-    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+    userSession.addProjectBranchMapping(project.projectUuid(), branch);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch, project.mainBranchUuid()));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     MeasureDto measure = db.measures().insertMeasure(file, analysis, nclocMetric, m -> m.setValue(2d));
 
@@ -341,7 +345,7 @@ public class SearchHistoryActionIT {
   @Test
   public void fail_if_unknown_metric() {
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getKey())
+      .setComponent(project.projectKey())
       .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), "METRIC_42", "42_METRIC"))
       .build();
 
@@ -352,9 +356,9 @@ public class SearchHistoryActionIT {
 
   @Test
   public void fail_if_not_enough_permissions() {
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project.getProjectDto());
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getKey())
+      .setComponent(project.projectKey())
       .setMetrics(singletonList(complexityMetric.getKey()))
       .build();
 
@@ -364,19 +368,19 @@ public class SearchHistoryActionIT {
 
   @Test
   public void fail_if_not_enough_permissions_for_application() {
-    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData application = db.components().insertPrivateApplication();
+    ProjectData project1 = db.components().insertPrivateProject();
+    ProjectData project2 = db.components().insertPrivateProject();
 
     userSession.logIn()
       .registerApplication(
-        toProjectDto(application, 1L),
-        toProjectDto(project1, 1L),
-        toProjectDto(project2, 1L))
-      .addProjectPermission(UserRole.USER, application, project1);
+        application.getProjectDto(),
+        project1.getProjectDto(),
+        project2.getProjectDto())
+      .addProjectPermission(UserRole.USER, application.getProjectDto(), project1.getProjectDto());
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(application.getKey())
+      .setComponent(application.projectKey())
       .setMetrics(singletonList(complexityMetric.getKey()))
       .build();
 
@@ -397,32 +401,32 @@ public class SearchHistoryActionIT {
 
   @Test
   public void fail_when_component_is_removed() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto());
-    db.components().insertComponent(newFileDto(project).setKey("file-key").setEnabled(false));
-    userSession.addProjectPermission(UserRole.USER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    db.components().insertComponent(newFileDto(project.getMainBranchComponent()).setKey("file-key").setEnabled(false));
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_COMPONENT, "file-key")
       .setParam(PARAM_METRICS, "ncloc")
       .execute())
-        .isInstanceOf(NotFoundException.class)
-        .hasMessageContaining("Component key 'file-key' not found");
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Component key 'file-key' not found");
   }
 
   @Test
   public void fail_if_branch_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    userSession.addProjectPermission(UserRole.USER, project);
-    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent()));
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    db.components().insertProjectBranch(project.getProjectDto(), b -> b.setKey("my_branch"));
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
       .setParam(PARAM_BRANCH, "another_branch")
       .setParam(PARAM_METRICS, "ncloc")
       .execute())
-        .isInstanceOf(NotFoundException.class)
-        .hasMessageContaining(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining(String.format("Component '%s' on branch '%s' not found", file.getKey(), "another_branch"));
   }
 
   @Test
@@ -444,19 +448,20 @@ public class SearchHistoryActionIT {
 
   @Test
   public void json_example() {
-    project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
+    project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
     long now = parseDateTime("2017-01-23T17:00:53+0100").getTime();
     LongStream.rangeClosed(0, 2)
-      .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(now + i * 24 * 1_000 * 60 * 60)))
+      .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project.getMainBranchDto()).setCreatedAt(now + i * 24 * 1_000 * 60 * 60)))
       .forEach(analysis -> dbClient.measureDao().insert(dbSession,
-        newMeasureDto(complexityMetric, project, analysis).setValue(45d),
-        newMeasureDto(newViolationMetric, project, analysis).setValue(46d),
-        newMeasureDto(nclocMetric, project, analysis).setValue(47d)));
+        newMeasureDto(complexityMetric, project.mainBranchUuid(), analysis).setValue(45d),
+        newMeasureDto(newViolationMetric, project.mainBranchUuid(), analysis).setValue(46d),
+        newMeasureDto(nclocMetric, project.mainBranchUuid(), analysis).setValue(47d)));
     db.commit();
 
     String result = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
+      .setParam(PARAM_COMPONENT, project.projectKey())
       .setParam(PARAM_METRICS, String.join(",", asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey())))
       .execute().getInput();
 
@@ -465,11 +470,11 @@ public class SearchHistoryActionIT {
 
   @Test
   public void measure_without_values() {
-    dbClient.measureDao().insert(dbSession, newMeasureDto(stringMetric, project, analysis).setValue(null).setData(null));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(stringMetric, project.mainBranchUuid(), analysis).setValue(null).setData(null));
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
-      .setComponent(project.getKey())
+      .setComponent(project.projectKey())
       .setMetrics(singletonList(stringMetric.getKey()))
       .build();
     SearchHistoryResponse result = call(request);

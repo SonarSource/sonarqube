@@ -53,13 +53,13 @@ import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Indexers;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.index.FooIndexDefinition;
@@ -243,10 +243,10 @@ public class UpdateVisibilityActionIT {
 
   @Test
   public void execute_throws_ForbiddenException_if_user_has_all_permissions_but_ADMIN_on_specified_component() {
-    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
-    request.setParam(PARAM_PROJECT, project.getKey())
+    ProjectData project = dbTester.components().insertPublicProject();
+    request.setParam(PARAM_PROJECT, project.projectKey())
       .setParam(PARAM_VISIBILITY, randomVisibility);
-    userSessionRule.addProjectPermission(UserRole.ISSUE_ADMIN, project);
+    userSessionRule.addProjectPermission(UserRole.ISSUE_ADMIN, project.getProjectDto());
     Arrays.stream(GlobalPermission.values())
       .forEach(userSessionRule::addPermission);
 
@@ -258,10 +258,10 @@ public class UpdateVisibilityActionIT {
   @Test
   public void execute_throws_ForbiddenException_if_user_has_ADMIN_permission_but_sonar_allowPermissionManagementForProjectAdmins_is_set_to_false() {
     when(configuration.getBoolean(CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY)).thenReturn(of(false));
-    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
-    request.setParam(PARAM_PROJECT, project.getKey())
+    ProjectData project = dbTester.components().insertPublicProject();
+    request.setParam(PARAM_PROJECT, project.projectKey())
       .setParam(PARAM_VISIBILITY, randomVisibility);
-    userSessionRule.addProjectPermission(UserRole.ADMIN, project);
+    userSessionRule.addProjectPermission(UserRole.ADMIN, project.getProjectDto());
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class)

@@ -377,13 +377,13 @@ public class TreeActionIT {
 
   @Test
   public void branch() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
     String branchKey = "my_branch";
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
-    userSession.addProjectBranchMapping(project.uuid(), branch);
-    ComponentDto directory = db.components().insertComponent(newDirectoryOnBranch(branch, "dir", project.uuid()));
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(directory, project.uuid()));
+    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setKey(branchKey));
+    userSession.addProjectBranchMapping(project.projectUuid(), branch);
+    ComponentDto directory = db.components().insertComponent(newDirectoryOnBranch(branch, "dir", project.mainBranchUuid()));
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(directory, project.mainBranchUuid()));
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, branch.getKey())
@@ -400,9 +400,10 @@ public class TreeActionIT {
 
   @Test
   public void dont_show_branch_if_main_branch() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-    userSession.addProjectPermission(UserRole.USER, project);
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertFile(project.getMainBranchDto());
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto())
+      .addProjectBranchMapping(project.projectUuid(), project.getMainBranchComponent());
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
@@ -415,13 +416,13 @@ public class TreeActionIT {
 
   @Test
   public void pull_request() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
     String pullRequestId = "pr-123";
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(pullRequestId).setBranchType(PULL_REQUEST));
-    userSession.addProjectBranchMapping(project.uuid(), branch);
-    ComponentDto directory = db.components().insertComponent(newDirectoryOnBranch(branch, "dir", project.uuid()));
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(directory, project.uuid()));
+    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setKey(pullRequestId).setBranchType(PULL_REQUEST));
+    userSession.addProjectBranchMapping(project.projectUuid(), branch);
+    ComponentDto directory = db.components().insertComponent(newDirectoryOnBranch(branch, "dir", project.mainBranchUuid()));
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(directory, project.mainBranchUuid()));
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, directory.getKey())
@@ -437,13 +438,13 @@ public class TreeActionIT {
 
   @Test
   public void fail_when_not_enough_privileges() {
-    ComponentDto project = db.components().insertPrivateProject("project-uuid").getMainBranchComponent();
+    ProjectData project = db.components().insertPrivateProject("project-uuid");
     userSession.logIn()
-      .addProjectPermission(UserRole.CODEVIEWER, project);
+      .addProjectPermission(UserRole.CODEVIEWER, project.getProjectDto());
     db.commit();
 
     TestRequest request = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey());
+      .setParam(PARAM_COMPONENT, project.projectKey());
     assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class);
   }
@@ -531,16 +532,16 @@ public class TreeActionIT {
 
   @Test
   public void fail_if_branch_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(UserRole.USER, project);
-    db.components().insertProjectBranch(project, b -> b.setKey("my_branch"));
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.USER, project.getProjectDto());
+    db.components().insertProjectBranch(project.getProjectDto(), b -> b.setKey("my_branch"));
 
     TestRequest request = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
+      .setParam(PARAM_COMPONENT, project.projectKey())
       .setParam(PARAM_BRANCH, "another_branch");
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage(format("Component '%s' on branch '%s' not found", project.getKey(), "another_branch"));
+      .hasMessage(format("Component '%s' on branch '%s' not found", project.projectKey(), "another_branch"));
   }
 
   private static ComponentDto newFileDto(ComponentDto moduleOrProject, @Nullable ComponentDto directory, int i) {

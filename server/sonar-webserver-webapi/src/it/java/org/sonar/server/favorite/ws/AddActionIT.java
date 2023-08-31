@@ -29,6 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -84,7 +85,7 @@ public class AddActionIT {
 
   @Test
   public void fail_when_no_browse_permission_on_the_project() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     assertThatThrownBy(() -> call(project.getKey()))
@@ -109,10 +110,10 @@ public class AddActionIT {
 
   @Test
   public void fail_on_file() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent()));
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(USER, project);
+    userSession.logIn(user).addProjectPermission(USER, project.getProjectDto());
 
     assertThatThrownBy(() -> call(file.getKey()))
       .isInstanceOf(NotFoundException.class)

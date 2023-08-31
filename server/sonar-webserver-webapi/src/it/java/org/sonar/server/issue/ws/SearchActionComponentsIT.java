@@ -37,8 +37,8 @@ import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.es.EsTester;
 import org.sonar.server.common.avatar.AvatarResolverImpl;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
@@ -368,7 +368,7 @@ public class SearchActionComponentsIT {
     IssueDto issueOnProject2 = db.issues().insertIssue(issueRule, project2, project2);
     db.issues().insertHotspot(hotspotRule, project2, project2);
     allowAnyoneOnProjects(projectData1.getProjectDto(), projectData2.getProjectDto(), applicatioData.getProjectDto());
-    userSession.addProjectPermission(USER, application);
+    userSession.addProjectPermission(USER, applicatioData.getProjectDto());
     indexIssuesAndViews();
 
     // All issues on applicationBranch1
