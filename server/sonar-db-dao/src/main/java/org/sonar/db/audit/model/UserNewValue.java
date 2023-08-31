@@ -30,6 +30,11 @@ import org.sonar.db.user.UserDto;
 import static java.util.Objects.requireNonNull;
 
 public class UserNewValue extends NewValue {
+
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   private String userUuid;
   private String userLogin;
 
@@ -78,6 +83,10 @@ public class UserNewValue extends NewValue {
     this.lastConnectionDate = userDto.getLastConnectionDate();
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   public String getUserUuid() {
     return this.userUuid;
   }

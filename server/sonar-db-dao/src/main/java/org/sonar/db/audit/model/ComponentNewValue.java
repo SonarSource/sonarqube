@@ -28,6 +28,11 @@ import org.sonar.db.project.ProjectDto;
 import static java.util.Objects.requireNonNull;
 
 public class ComponentNewValue extends NewValue {
+
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   private final String componentUuid;
   private final String componentKey;
   private final String componentName;
@@ -72,6 +77,10 @@ public class ComponentNewValue extends NewValue {
     this.qualifier = qualifier;
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   public String getComponentUuid() {
     return componentUuid;
   }

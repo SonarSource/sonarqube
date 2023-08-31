@@ -22,6 +22,11 @@ package org.sonar.db.audit.model;
 public class ProjectBadgeTokenNewValue extends NewValue {
 
   private final String projectKey;
+
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   private final String userUuid;
   private final String userLogin;
 

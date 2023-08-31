@@ -25,6 +25,11 @@ import org.apache.commons.lang.ObjectUtils;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 
 public class PermissionTemplateNewValue extends NewValue {
+
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   private String templateUuid;
   private String name;
 
@@ -37,12 +42,21 @@ public class PermissionTemplateNewValue extends NewValue {
   @Nullable
   private String permission;
 
+
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   private String userUuid;
 
   @Nullable
   private String userLogin;
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   private String groupUuid;
 
@@ -82,6 +96,10 @@ public class PermissionTemplateNewValue extends NewValue {
     this.withProjectCreator = withProjectCreator;
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   public String getTemplateUuid() {
     return this.templateUuid;
   }
@@ -105,6 +123,10 @@ public class PermissionTemplateNewValue extends NewValue {
     return this.permission;
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @CheckForNull
   public String getUserUuid() {
     return this.userUuid;
@@ -115,6 +137,10 @@ public class PermissionTemplateNewValue extends NewValue {
     return this.userLogin;
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @CheckForNull
   public String getGroupUuid() {
     return this.groupUuid;

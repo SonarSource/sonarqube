@@ -26,6 +26,10 @@ import org.sonar.db.user.UserId;
 
 public class UserPermissionNewValue extends PermissionNewValue {
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   private final String userUuid;
 
@@ -50,6 +54,10 @@ public class UserPermissionNewValue extends PermissionNewValue {
     this.userLogin = userId != null ? userId.getLogin() : null;
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   public String getUserUuid() {
     return userUuid;

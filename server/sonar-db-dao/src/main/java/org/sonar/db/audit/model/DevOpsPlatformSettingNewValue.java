@@ -27,6 +27,11 @@ import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.ProjectDto;
 
 public class DevOpsPlatformSettingNewValue extends NewValue {
+
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   private String devOpsPlatformSettingUuid;
 
@@ -45,6 +50,10 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
   @Nullable
   private String clientId;
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   private String projectUuid;
 
@@ -98,6 +107,10 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
     this.projectName = projectDto.getName();
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @CheckForNull
   public String getDevOpsPlatformSettingUuid() {
     return this.devOpsPlatformSettingUuid;
@@ -128,6 +141,10 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
     return this.clientId;
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @CheckForNull
   public String getProjectUuid() {
     return this.projectUuid;

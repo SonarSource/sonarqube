@@ -28,6 +28,11 @@ import org.sonar.db.qualityprofile.QProfileEditGroupsDto;
 import org.sonar.db.user.GroupDto;
 
 public class GroupEditorNewValue extends AbstractEditorNewValue {
+
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @Nullable
   private String groupUuid;
   @Nullable
@@ -76,6 +81,10 @@ public class GroupEditorNewValue extends AbstractEditorNewValue {
     this.qualityProfileName = qualityProfileDto.getName();
   }
 
+  /**
+   * @deprecated The uuids in the audit logs are not product requirement anymore and will be removed in 11.x
+   */
+  @Deprecated(since = "10.2")
   @CheckForNull
   public String getGroupUuid() {
     return this.groupUuid;
