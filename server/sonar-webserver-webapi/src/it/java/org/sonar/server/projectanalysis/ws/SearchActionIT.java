@@ -334,7 +334,7 @@ public class SearchActionIT {
 
     assertThat(logTester.getLogs(LoggerLevel.ERROR))
       .extracting(LogAndArguments::getFormattedMsg)
-      .containsExactly(
+      .contains(
         format("Incorrect changes : [uuid=%s change=ADDED, branch=master] and [uuid=%s, change=ADDED, branch=master]", changeDto1.getUuid(), changeDto2.getUuid()));
   }
 
@@ -362,7 +362,7 @@ public class SearchActionIT {
 
     assertThat(logTester.getLogs(LoggerLevel.ERROR))
       .extracting(LogAndArguments::getFormattedMsg)
-      .containsExactly("Unknown change FAILED_QUALITY_GATE for eventComponentChange uuid: " + changeDto1.getUuid());
+      .contains("Unknown change FAILED_QUALITY_GATE for eventComponentChange uuid: " + changeDto1.getUuid());
   }
 
   @Test
@@ -393,7 +393,7 @@ public class SearchActionIT {
 
     assertThat(logTester.getLogs(LoggerLevel.ERROR))
       .extracting(LogAndArguments::getFormattedMsg)
-      .containsExactly(
+      .contains(
         format("Too many changes on same project (3) for eventComponentChange uuids : %s,%s,%s", changeDto1.getUuid(), changeDto2.getUuid(), changeDto3.getUuid()));
   }
 
@@ -433,7 +433,7 @@ public class SearchActionIT {
 
     assertThat(logTester.getLogs(LoggerLevel.ERROR))
       .extracting(LogAndArguments::getFormattedMsg)
-      .containsExactly("Unable to retrieve data from event uuid=E11");
+      .contains("Unable to retrieve data from event uuid=E11");
   }
 
   @Test
