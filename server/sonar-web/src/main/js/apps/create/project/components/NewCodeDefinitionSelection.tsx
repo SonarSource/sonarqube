@@ -30,13 +30,12 @@ import { NewCodeDefinitiondWithCompliance } from '../../../../types/new-code-def
 import { CreateProjectApiCallback } from '../types';
 
 interface Props {
-  canAdmin: boolean;
   createProjectFnRef: CreateProjectApiCallback | null;
   router: Router;
 }
 
 export default function NewCodeDefinitionSelection(props: Props) {
-  const { canAdmin, createProjectFnRef, router } = props;
+  const { createProjectFnRef, router } = props;
 
   const [submitting, setSubmitting] = React.useState(false);
   const [selectedDefinition, selectDefinition] = React.useState<NewCodeDefinitiondWithCompliance>();
@@ -75,7 +74,7 @@ export default function NewCodeDefinitionSelection(props: Props) {
         />
       </p>
 
-      <NewCodeDefinitionSelector canAdmin={canAdmin} onNcdChanged={selectDefinition} />
+      <NewCodeDefinitionSelector onNcdChanged={selectDefinition} />
 
       <div className="sw-mt-10 sw-mb-8">
         <ButtonPrimary

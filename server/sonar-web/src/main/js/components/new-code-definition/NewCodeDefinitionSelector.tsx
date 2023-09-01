@@ -38,29 +38,22 @@ import {
   NewCodeDefinitionType,
   NewCodeDefinitiondWithCompliance,
 } from '../../types/new-code-definition';
-import Tooltip from '../controls/Tooltip';
 import GlobalNewCodeDefinitionDescription from './GlobalNewCodeDefinitionDescription';
 import NewCodeDefinitionDaysOption from './NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from './NewCodeDefinitionPreviousVersionOption';
 import { NewCodeDefinitionLevels } from './utils';
 
 interface Props {
-  canAdmin: boolean | undefined;
   onNcdChanged: (ncd: NewCodeDefinitiondWithCompliance) => void;
 }
 
 export default function NewCodeDefinitionSelector(props: Props) {
-  const { canAdmin, onNcdChanged } = props;
+  const { onNcdChanged } = props;
 
   const [globalNcd, setGlobalNcd] = React.useState<NewCodeDefinition | null>(null);
   const [selectedNcdType, setSelectedNcdType] = React.useState<NewCodeDefinitionType | null>(null);
   const [days, setDays] = React.useState<string>('');
   const [isChanged, setIsChanged] = React.useState<boolean>(false);
-
-  const isGlobalNcdCompliant = React.useMemo(
-    () => Boolean(globalNcd && isNewCodeDefinitionCompliant(globalNcd)),
-    [globalNcd]
-  );
 
   React.useEffect(() => {
     const numberOfDays = getNumberOfDaysDefaultValue(globalNcd);
@@ -115,34 +108,19 @@ export default function NewCodeDefinitionSelector(props: Props) {
         <RadioButton
           aria-label={translate('new_code_definition.global_setting')}
           checked={selectedNcdType === NewCodeDefinitionType.Inherited}
-          disabled={!isGlobalNcdCompliant}
           onCheck={() => handleNcdChanged(NewCodeDefinitionType.Inherited)}
           value="general"
         >
-          <Tooltip
-            overlay={
-              isGlobalNcdCompliant
-                ? null
-                : translate('new_code_definition.compliance.warning.title.global')
-            }
-          >
-            <span className="sw-font-semibold">
-              {translate('new_code_definition.global_setting')}
-            </span>
-          </Tooltip>
+          <span className="sw-font-semibold">
+            {translate('new_code_definition.global_setting')}
+          </span>
         </RadioButton>
 
         <StyledGlobalSettingWrapper
           className="sw-mt-4 sw-ml-6"
           selected={selectedNcdType === NewCodeDefinitionType.Inherited}
         >
-          {globalNcd && (
-            <GlobalNewCodeDefinitionDescription
-              globalNcd={globalNcd}
-              isGlobalNcdCompliant={isGlobalNcdCompliant}
-              canAdmin={canAdmin}
-            />
-          )}
+          {globalNcd && <GlobalNewCodeDefinitionDescription globalNcd={globalNcd} />}
         </StyledGlobalSettingWrapper>
 
         <RadioButton

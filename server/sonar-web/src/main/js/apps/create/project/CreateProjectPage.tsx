@@ -272,7 +272,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
   }
 
   render() {
-    const { appState, location, router } = this.props;
+    const { location, router } = this.props;
     const { creatingAlmDefinition } = this.state;
     const mode: CreateProjectModes | undefined = location.query?.mode;
     const isProjectSetupDone = location.query?.setncd === 'true';
@@ -295,7 +295,6 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
           </div>
           <div className={classNames({ 'sw-hidden': !isProjectSetupDone })}>
             <NewCodeDefinitionSelection
-              canAdmin={Boolean(appState.canAdmin)}
               router={router}
               createProjectFnRef={this.createProjectFnRef}
             />

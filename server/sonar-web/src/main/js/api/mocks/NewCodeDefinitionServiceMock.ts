@@ -60,7 +60,13 @@ export default class NewCodeDefinitionServiceMock {
       .mockImplementation(this.handleListBranchesNewCodePeriod);
   }
 
-  handleGetNewCodePeriod = () => {
+  handleGetNewCodePeriod = (data?: { branch?: string; project?: string }) => {
+    if (data?.branch !== undefined) {
+      return this.reply(
+        this.#listBranchesNewCode.find((b) => b.branchKey === data?.branch) as NewCodeDefinition
+      );
+    }
+
     return this.reply(this.#newCodePeriod);
   };
 
@@ -70,15 +76,14 @@ export default class NewCodeDefinitionServiceMock {
     type: NewCodeDefinitionType;
     value?: string;
   }) => {
-    const { type, value, branch } = data;
-    if (branch) {
-      const branchNewCode = this.#listBranchesNewCode.find(
-        (bNew) => bNew.branchKey === branch
-      ) as NewCodeDefinitionBranch;
-      branchNewCode.type = type;
-      branchNewCode.value = value;
+    const { project, type, value, branch } = data;
+    if (project !== undefined && branch !== undefined) {
+      this.#listBranchesNewCode = this.#listBranchesNewCode.filter((b) => b.branchKey !== branch);
+      this.#listBranchesNewCode.push(
+        mockNewCodePeriodBranch({ type, value, branchKey: branch, projectKey: project })
+      );
     } else {
-      this.#newCodePeriod = mockNewCodePeriod({ type, value });
+      this.#newCodePeriod = mockNewCodePeriod({ projectKey: project, type, value });
     }
 
     return this.reply(undefined);

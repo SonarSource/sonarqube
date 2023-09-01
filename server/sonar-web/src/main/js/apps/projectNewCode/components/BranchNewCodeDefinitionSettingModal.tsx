@@ -22,9 +22,9 @@ import * as React from 'react';
 import { setNewCodeDefinition } from '../../../api/newCodeDefinition';
 import Modal from '../../../components/controls/Modal';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import NewCodeDefinitionAnalysisWarning from '../../../components/new-code-definition/NewCodeDefinitionAnalysisWarning';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
-import NewCodeDefinitionWarning from '../../../components/new-code-definition/NewCodeDefinitionWarning';
 import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
 import Spinner from '../../../components/ui/Spinner';
 import { toISO8601WithOffsetString } from '../../../helpers/dates';
@@ -168,7 +168,6 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
     const header = translateWithParameters('baseline.new_code_period_for_branch_x', branch.name);
 
     const currentSetting = branch.newCodePeriod?.type;
-    const currentSettingValue = branch.newCodePeriod?.value;
 
     const isValid = validateSetting({
       numberOfDays: days,
@@ -184,12 +183,9 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body modal-container branch-baseline-setting-modal">
             <p className="sw-mb-3">{translate('baseline.new_code_period_for_branch_x.question')}</p>
-            <NewCodeDefinitionWarning
-              newCodeDefinitionType={currentSetting}
-              newCodeDefinitionValue={currentSettingValue}
-              isBranchSupportEnabled
-              level={NewCodeDefinitionLevels.Branch}
-            />
+            {currentSetting === NewCodeDefinitionType.SpecificAnalysis && (
+              <NewCodeDefinitionAnalysisWarning />
+            )}
             <div className="display-flex-column huge-spacer-bottom sw-gap-4" role="radiogroup">
               <NewCodeDefinitionPreviousVersionOption
                 isDefault={false}

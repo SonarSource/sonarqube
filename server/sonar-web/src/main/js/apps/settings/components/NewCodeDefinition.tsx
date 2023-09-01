@@ -17,15 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+import classNames from 'classnames';
+import React, { useCallback, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { getNewCodeDefinition, setNewCodeDefinition } from '../../../api/newCodeDefinition';
 import DocLink from '../../../components/common/DocLink';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
-import NewCodeDefinitionWarning from '../../../components/new-code-definition/NewCodeDefinitionWarning';
 import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
 import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
@@ -33,245 +31,149 @@ import {
   getNumberOfDaysDefaultValue,
   isNewCodeDefinitionCompliant,
 } from '../../../helpers/new-code-definition';
+import {
+  useNewCodeDefinitionMutation,
+  useNewCodeDefinitionQuery,
+} from '../../../queries/newCodeDefinition';
 import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 
-interface State {
-  currentSetting?: NewCodeDefinitionType;
-  days: string;
-  previousNonCompliantValue?: string;
-  ncdUpdatedAt?: number;
-  loading: boolean;
-  currentSettingValue?: string;
-  isChanged: boolean;
-  projectKey?: string;
-  saving: boolean;
-  selected?: NewCodeDefinitionType;
-  success: boolean;
-}
+export default function NewCodeDefinition() {
+  const [numberOfDays, setNumberOfDays] = React.useState(getNumberOfDaysDefaultValue());
+  const [selectedNewCodeDefinitionType, setSelectedNewCodeDefinitionType] = React.useState<
+    NewCodeDefinitionType | undefined
+  >(undefined);
 
-export default class NewCodeDefinition extends React.PureComponent<{}, State> {
-  mounted = false;
-  state: State = {
-    loading: true,
-    days: getNumberOfDaysDefaultValue(),
-    isChanged: false,
-    saving: false,
-    success: false,
-  };
+  const { data: newCodeDefinition, isLoading } = useNewCodeDefinitionQuery();
+  const { isLoading: isSaving, mutate: postNewCodeDefinition } = useNewCodeDefinitionMutation();
 
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchNewCodePeriodSetting();
-  }
+  const resetNewCodeDefinition = useCallback(() => {
+    setSelectedNewCodeDefinitionType(newCodeDefinition?.type);
+    setNumberOfDays(getNumberOfDaysDefaultValue(newCodeDefinition));
+  }, [newCodeDefinition]);
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  fetchNewCodePeriodSetting() {
-    getNewCodeDefinition()
-      .then(({ type, value, previousNonCompliantValue, projectKey, updatedAt }) => {
-        this.setState(({ days }) => ({
-          currentSetting: type,
-          days: type === NewCodeDefinitionType.NumberOfDays ? String(value) : days,
-          loading: false,
-          currentSettingValue: value,
-          selected: type,
-          previousNonCompliantValue,
-          projectKey,
-          ncdUpdatedAt: updatedAt,
-        }));
-      })
-      .catch(() => {
-        this.setState({ loading: false });
-      });
-  }
-
-  onSelectDays = (days: string) => {
-    this.setState({ days, success: false, isChanged: true });
-  };
-
-  onSelectSetting = (selected: NewCodeDefinitionType) => {
-    this.setState((currentState) => ({
-      selected,
-      success: false,
-      isChanged: selected !== currentState.selected,
-    }));
-  };
-
-  onCancel = () => {
-    this.setState(({ currentSetting, currentSettingValue, days }) => ({
-      isChanged: false,
-      selected: currentSetting,
-      days:
-        currentSetting === NewCodeDefinitionType.NumberOfDays ? String(currentSettingValue) : days,
-    }));
-  };
-
-  onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { days, selected } = this.state;
+    const type = selectedNewCodeDefinitionType;
+    const value = type === NewCodeDefinitionType.NumberOfDays ? numberOfDays : undefined;
 
-    const type = selected;
-    const value = type === NewCodeDefinitionType.NumberOfDays ? days : undefined;
-
-    this.setState({ saving: true, success: false });
-    setNewCodeDefinition({
-      type: type as NewCodeDefinitionType,
+    postNewCodeDefinition({
+      type,
       value,
-    }).then(
-      () => {
-        if (this.mounted) {
-          this.setState({
-            saving: false,
-            currentSetting: type,
-            currentSettingValue: value || undefined,
-            previousNonCompliantValue: undefined,
-            ncdUpdatedAt: Date.now(),
-            isChanged: false,
-            success: true,
-          });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({
-            saving: false,
-          });
-        }
-      }
-    );
+    });
   };
 
-  render() {
-    const {
-      currentSetting,
-      days,
-      previousNonCompliantValue,
-      ncdUpdatedAt,
-      loading,
-      isChanged,
-      currentSettingValue,
-      projectKey,
-      saving,
-      selected,
-      success,
-    } = this.state;
+  useEffect(() => {
+    resetNewCodeDefinition();
+  }, [resetNewCodeDefinition]);
 
-    const isValid =
-      selected !== NewCodeDefinitionType.NumberOfDays ||
-      isNewCodeDefinitionCompliant({ type: NewCodeDefinitionType.NumberOfDays, value: days });
+  const isValid =
+    selectedNewCodeDefinitionType !== NewCodeDefinitionType.NumberOfDays ||
+    isNewCodeDefinitionCompliant({ type: NewCodeDefinitionType.NumberOfDays, value: numberOfDays });
 
-    return (
-      <>
-        <h2
-          className="settings-sub-category-name settings-definition-name"
-          title={translate('settings.new_code_period.title')}
-        >
-          {translate('settings.new_code_period.title')}
-        </h2>
+  const isFormTouched =
+    selectedNewCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
+      ? numberOfDays !== newCodeDefinition?.value
+      : selectedNewCodeDefinitionType !== newCodeDefinition?.type;
 
-        <ul className="settings-sub-categories-list">
-          <li>
-            <ul className="settings-definitions-list">
-              <li>
-                <div className="settings-definition">
-                  <div className="settings-definition-left">
-                    <div className="small">
-                      <p className="sw-mb-2">
-                        {translate('settings.new_code_period.description0')}
-                      </p>
-                      <p className="sw-mb-2">
-                        {translate('settings.new_code_period.description1')}
-                      </p>
-                      <p className="sw-mb-2">
-                        {translate('settings.new_code_period.description2')}
-                      </p>
+  return (
+    <>
+      <h2
+        className="settings-sub-category-name settings-definition-name"
+        title={translate('settings.new_code_period.title')}
+      >
+        {translate('settings.new_code_period.title')}
+      </h2>
 
-                      <p className="sw-mb-2">
-                        <FormattedMessage
-                          defaultMessage={translate('settings.new_code_period.description3')}
-                          id="settings.new_code_period.description3"
-                          values={{
-                            link: (
-                              <DocLink to="/project-administration/defining-new-code/">
-                                {translate('settings.new_code_period.description3.link')}
-                              </DocLink>
-                            ),
-                          }}
-                        />
-                      </p>
+      <ul className="settings-sub-categories-list">
+        <li>
+          <ul className="settings-definitions-list">
+            <li>
+              <div className="settings-definition">
+                <div className="settings-definition-left">
+                  <div className="small">
+                    <p className="sw-mb-2">{translate('settings.new_code_period.description0')}</p>
+                    <p className="sw-mb-2">{translate('settings.new_code_period.description1')}</p>
+                    <p className="sw-mb-2">{translate('settings.new_code_period.description2')}</p>
 
-                      <p className="sw-mt-4">
-                        <strong>{translate('settings.new_code_period.question')}</strong>
-                      </p>
-                    </div>
-                  </div>
+                    <p className="sw-mb-2">
+                      <FormattedMessage
+                        defaultMessage={translate('settings.new_code_period.description3')}
+                        id="settings.new_code_period.description3"
+                        values={{
+                          link: (
+                            <DocLink to="/project-administration/defining-new-code/">
+                              {translate('settings.new_code_period.description3.link')}
+                            </DocLink>
+                          ),
+                        }}
+                      />
+                    </p>
 
-                  <div className="settings-definition-right">
-                    <Spinner loading={loading}>
-                      <form onSubmit={this.onSubmit}>
-                        <NewCodeDefinitionPreviousVersionOption
-                          isDefault
-                          onSelect={this.onSelectSetting}
-                          selected={selected === NewCodeDefinitionType.PreviousVersion}
-                        />
-                        <NewCodeDefinitionDaysOption
-                          className="spacer-top sw-mb-4"
-                          days={days}
-                          currentDaysValue={
-                            currentSetting === NewCodeDefinitionType.NumberOfDays
-                              ? currentSettingValue
-                              : undefined
-                          }
-                          previousNonCompliantValue={previousNonCompliantValue}
-                          projectKey={projectKey}
-                          updatedAt={ncdUpdatedAt}
-                          isChanged={isChanged}
-                          isValid={isValid}
-                          onChangeDays={this.onSelectDays}
-                          onSelect={this.onSelectSetting}
-                          selected={selected === NewCodeDefinitionType.NumberOfDays}
-                          settingLevel={NewCodeDefinitionLevels.Global}
-                        />
-                        <NewCodeDefinitionWarning
-                          newCodeDefinitionType={currentSetting}
-                          newCodeDefinitionValue={currentSettingValue}
-                          isBranchSupportEnabled={undefined}
-                          level={NewCodeDefinitionLevels.Global}
-                        />
-                        {isChanged && (
-                          <div className="big-spacer-top">
-                            <p className="spacer-bottom">
-                              {translate('baseline.next_analysis_notice')}
-                            </p>
-                            <Spinner className="spacer-right" loading={saving} />
-                            <SubmitButton disabled={saving || !isValid}>
-                              {translate('save')}
-                            </SubmitButton>
-                            <ResetButtonLink className="spacer-left" onClick={this.onCancel}>
-                              {translate('cancel')}
-                            </ResetButtonLink>
-                          </div>
-                        )}
-                        {!saving && !loading && success && (
-                          <div className="big-spacer-top">
-                            <span className="text-success">
-                              <AlertSuccessIcon className="spacer-right" />
-                              {translate('settings.state.saved')}
-                            </span>
-                          </div>
-                        )}
-                      </form>
-                    </Spinner>
+                    <p className="sw-mt-4">
+                      <strong>{translate('settings.new_code_period.question')}</strong>
+                    </p>
                   </div>
                 </div>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </>
-    );
-  }
+
+                <div className="settings-definition-right">
+                  <Spinner loading={isLoading}>
+                    <form onSubmit={onSubmit}>
+                      <NewCodeDefinitionPreviousVersionOption
+                        isDefault
+                        onSelect={setSelectedNewCodeDefinitionType}
+                        selected={
+                          selectedNewCodeDefinitionType === NewCodeDefinitionType.PreviousVersion
+                        }
+                      />
+                      <NewCodeDefinitionDaysOption
+                        className="spacer-top sw-mb-4"
+                        days={numberOfDays}
+                        currentDaysValue={
+                          newCodeDefinition?.type === NewCodeDefinitionType.NumberOfDays
+                            ? newCodeDefinition?.value
+                            : undefined
+                        }
+                        previousNonCompliantValue={newCodeDefinition?.previousNonCompliantValue}
+                        projectKey={newCodeDefinition?.projectKey}
+                        updatedAt={newCodeDefinition?.updatedAt}
+                        isChanged={isFormTouched}
+                        isValid={isValid}
+                        onChangeDays={setNumberOfDays}
+                        onSelect={setSelectedNewCodeDefinitionType}
+                        selected={
+                          selectedNewCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
+                        }
+                        settingLevel={NewCodeDefinitionLevels.Global}
+                      />
+                      <div className="big-spacer-top">
+                        <p className={classNames('spacer-bottom', { invisible: !isFormTouched })}>
+                          {translate('baseline.next_analysis_notice')}
+                        </p>
+                        <Spinner className="spacer-right" loading={isSaving} />
+                        {!isSaving && (
+                          <>
+                            <SubmitButton disabled={!isFormTouched || !isValid}>
+                              {translate('save')}
+                            </SubmitButton>
+                            <ResetButtonLink
+                              className="spacer-left"
+                              disabled={!isFormTouched}
+                              onClick={resetNewCodeDefinition}
+                            >
+                              {translate('cancel')}
+                            </ResetButtonLink>
+                          </>
+                        )}
+                      </div>
+                    </form>
+                  </Spinner>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </>
+  );
 }

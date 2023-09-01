@@ -70,39 +70,6 @@ it('renders correctly without branch support feature', async () => {
   expect(ui.referenceBranchRadio.query()).not.toBeInTheDocument();
 });
 
-it('prevents selection of global setting if it is not compliant and warns non-admin about it', async () => {
-  newCodeDefinitionMock.setNewCodePeriod({
-    type: NewCodeDefinitionType.NumberOfDays,
-    value: '99',
-    inherited: true,
-  });
-
-  const { ui } = getPageObjects();
-  renderProjectNewCodeDefinitionApp();
-  await ui.appIsLoaded();
-
-  expect(await ui.generalSettingRadio.find()).toBeChecked();
-  expect(ui.generalSettingRadio.get()).toBeDisabled();
-  expect(ui.complianceWarning.get()).toBeVisible();
-});
-
-it('prevents selection of global setting if it is not compliant and warns admin about it', async () => {
-  newCodeDefinitionMock.setNewCodePeriod({
-    type: NewCodeDefinitionType.NumberOfDays,
-    value: '99',
-    inherited: true,
-  });
-
-  const { ui } = getPageObjects();
-  renderProjectNewCodeDefinitionApp({ appState: mockAppState({ canAdmin: true }) });
-  await ui.appIsLoaded();
-
-  expect(await ui.generalSettingRadio.find()).toBeChecked();
-  expect(ui.generalSettingRadio.get()).toBeDisabled();
-  expect(ui.complianceWarningAdmin.get()).toBeVisible();
-  expect(ui.complianceWarning.query()).not.toBeInTheDocument();
-});
-
 it('renders correctly with branch support feature', async () => {
   const { ui } = getPageObjects();
   renderProjectNewCodeDefinitionApp({
@@ -134,13 +101,13 @@ it('can set previous version specific setting', async () => {
   // Save changes
   await user.click(ui.saveButton.get());
 
-  expect(ui.saved.get()).toBeInTheDocument();
+  expect(ui.saveButton.get()).toBeDisabled();
 
   // Set general setting
   await user.click(ui.generalSettingRadio.get());
   expect(ui.previousVersionRadio.get()).toHaveClass('disabled');
   await user.click(ui.saveButton.get());
-  expect(ui.saved.get()).toBeInTheDocument();
+  expect(ui.saveButton.get()).toBeDisabled();
 });
 
 it('can set number of days specific setting', async () => {
@@ -161,7 +128,7 @@ it('can set number of days specific setting', async () => {
   await ui.setNumberDaysSetting('10');
   await user.click(ui.saveButton.get());
 
-  expect(ui.saved.get()).toBeInTheDocument();
+  expect(ui.saveButton.get()).toBeDisabled();
 });
 
 it('can set reference branch specific setting', async () => {
@@ -178,15 +145,18 @@ it('can set reference branch specific setting', async () => {
   // Save changes
   await user.click(ui.saveButton.get());
 
-  expect(ui.saved.get()).toBeInTheDocument();
+  expect(ui.saveButton.get()).toBeDisabled();
 });
 
 it('cannot set specific analysis setting', async () => {
   const { ui } = getPageObjects();
-  newCodeDefinitionMock.setNewCodePeriod({
-    type: NewCodeDefinitionType.SpecificAnalysis,
-    value: 'analysis_id',
-  });
+  newCodeDefinitionMock.setListBranchesNewCode([
+    mockNewCodePeriodBranch({
+      branchKey: 'main',
+      type: NewCodeDefinitionType.SpecificAnalysis,
+      value: 'analysis_id',
+    }),
+  ]);
   renderProjectNewCodeDefinitionApp();
   await ui.appIsLoaded();
 
@@ -430,9 +400,6 @@ function getPageObjects() {
       byRole('button', { name: `branch_list.show_actions_for_x.${branch}` }),
     editButton: byRole('button', { name: 'edit' }),
     resetToDefaultButton: byRole('button', { name: 'reset_to_default' }),
-    saved: byText('settings.state.saved'),
-    complianceWarningAdmin: byText('new_code_definition.compliance.warning.explanation.admin'),
-    complianceWarning: byText('new_code_definition.compliance.warning.explanation'),
     branchNCDsBanner: byText(/new_code_definition.auto_update.branch.message/),
     dismissButton: byLabelText('alert.dismiss'),
   };

@@ -20,11 +20,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { MessageTypes, checkMessageDismissed, setMessageDismissed } from '../../api/messages';
-import { getNewCodeDefinition } from '../../api/newCodeDefinition';
 import { CurrentUserContextInterface } from '../../app/components/current-user/CurrentUserContext';
 import withCurrentUserContext from '../../app/components/current-user/withCurrentUserContext';
 import { NEW_CODE_PERIOD_CATEGORY } from '../../apps/settings/constants';
 import { queryToSearch } from '../../helpers/urls';
+import { useNewCodeDefinitionQuery } from '../../queries/newCodeDefinition';
 import { Component } from '../../types/types';
 import Link from '../common/Link';
 import DismissableAlertComponent from '../ui/DismissableAlertComponent';
@@ -35,11 +35,12 @@ import {
 } from './utils';
 
 interface NCDAutoUpdateMessageProps extends Pick<CurrentUserContextInterface, 'currentUser'> {
+  branchName?: string;
   component?: Component;
 }
 
 function NCDAutoUpdateMessage(props: NCDAutoUpdateMessageProps) {
-  const { component, currentUser } = props;
+  const { branchName, component, currentUser } = props;
   const isGlobalBanner = component === undefined;
   const intl = useIntl();
 
@@ -47,10 +48,14 @@ function NCDAutoUpdateMessage(props: NCDAutoUpdateMessageProps) {
   const [previouslyNonCompliantNewCodeDefinition, setPreviouslyNonCompliantNewCodeDefinition] =
     useState<PreviouslyNonCompliantNCD | undefined>(undefined);
 
-  const isAdmin = useMemo(
-    () => isGlobalOrProjectAdmin(currentUser, component),
-    [component, currentUser]
-  );
+  const isAdmin = isGlobalOrProjectAdmin(currentUser, component);
+
+  const { data: newCodeDefinition } = useNewCodeDefinitionQuery({
+    branchName,
+    enabled: isAdmin,
+    projectKey: component?.key,
+  });
+
   const ncdReviewLinkTo = useMemo(
     () =>
       isGlobalBanner
@@ -79,37 +84,30 @@ function NCDAutoUpdateMessage(props: NCDAutoUpdateMessageProps) {
   }, [component, isGlobalBanner]);
 
   useEffect(() => {
-    async function fetchNewCodeDefinition() {
-      const newCodeDefinition = await getNewCodeDefinition(
-        component && {
-          project: component.key,
-        }
+    async function updateMessageStatus() {
+      const messageStatus = await checkMessageDismissed(
+        isGlobalBanner
+          ? {
+              messageType: MessageTypes.GlobalNcd90,
+            }
+          : {
+              messageType: MessageTypes.ProjectNcd90,
+              projectKey: component.key,
+            }
       );
 
-      if (isPreviouslyNonCompliantDaysNCD(newCodeDefinition)) {
-        setPreviouslyNonCompliantNewCodeDefinition(newCodeDefinition);
-
-        const messageStatus = await checkMessageDismissed(
-          isGlobalBanner
-            ? {
-                messageType: MessageTypes.GlobalNcd90,
-              }
-            : {
-                messageType: MessageTypes.ProjectNcd90,
-                projectKey: component.key,
-              }
-        );
-
-        setDismissed(messageStatus.dismissed);
-      }
+      setDismissed(messageStatus.dismissed);
     }
 
-    if (isAdmin) {
-      fetchNewCodeDefinition();
+    if (newCodeDefinition && isPreviouslyNonCompliantDaysNCD(newCodeDefinition)) {
+      setPreviouslyNonCompliantNewCodeDefinition(newCodeDefinition);
+      updateMessageStatus();
+    } else {
+      setPreviouslyNonCompliantNewCodeDefinition(undefined);
     }
-  }, [isAdmin, component, isGlobalBanner]);
+  }, [component?.key, isGlobalBanner, newCodeDefinition]);
 
-  if (!isAdmin || dismissed || !previouslyNonCompliantNewCodeDefinition) {
+  if (dismissed || !previouslyNonCompliantNewCodeDefinition) {
     return null;
   }
 

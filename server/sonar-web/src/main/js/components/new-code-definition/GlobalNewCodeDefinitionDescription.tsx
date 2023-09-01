@@ -17,23 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { NewCodeDefinition, NewCodeDefinitionType } from '../../types/new-code-definition';
 
 interface Props {
   globalNcd: NewCodeDefinition;
-  isGlobalNcdCompliant: boolean;
-  canAdmin?: boolean;
 }
 
-export default function GlobalNewCodeDefinitionDescription({
-  globalNcd,
-  isGlobalNcdCompliant,
-  canAdmin,
-}: Props) {
+export default function GlobalNewCodeDefinitionDescription({ globalNcd }: Props) {
   let setting: string;
   let description: string;
   let useCase: string;
@@ -51,46 +43,10 @@ export default function GlobalNewCodeDefinitionDescription({
   }
 
   return (
-    <>
-      <div className="sw-flex sw-flex-col sw-gap-2 sw-max-w-[800px]">
-        <strong className="sw-font-bold">{setting}</strong>
-        {isGlobalNcdCompliant && (
-          <>
-            <span>{description}</span>
-            <span>{useCase}</span>
-          </>
-        )}
-      </div>
-      {!isGlobalNcdCompliant && (
-        <FlagMessage variant="warning" className="sw-mt-4 sw-max-w-[800px]">
-          <span>
-            <p className="sw-mb-2 sw-font-bold">
-              {translate('new_code_definition.compliance.warning.title.global')}
-            </p>
-            <p className="sw-mb-2">
-              {canAdmin ? (
-                <FormattedMessage
-                  id="new_code_definition.compliance.warning.explanation.admin"
-                  defaultMessage={translate(
-                    'new_code_definition.compliance.warning.explanation.admin'
-                  )}
-                  values={{
-                    link: (
-                      <Link to="/admin/settings?category=new_code_period">
-                        {translate(
-                          'new_code_definition.compliance.warning.explanation.action.admin.link'
-                        )}
-                      </Link>
-                    ),
-                  }}
-                />
-              ) : (
-                translate('new_code_definition.compliance.warning.explanation')
-              )}
-            </p>
-          </span>
-        </FlagMessage>
-      )}
-    </>
+    <div className="sw-flex sw-flex-col sw-gap-2 sw-max-w-[800px]">
+      <strong className="sw-font-bold">{setting}</strong>
+      <span>{description}</span>
+      <span>{useCase}</span>
+    </div>
   );
 }

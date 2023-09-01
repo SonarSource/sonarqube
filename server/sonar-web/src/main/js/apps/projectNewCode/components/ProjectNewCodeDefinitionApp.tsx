@@ -17,22 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import { debounce } from 'lodash';
-import * as React from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import {
-  getNewCodeDefinition,
-  resetNewCodeDefinition,
-  setNewCodeDefinition,
-} from '../../../api/newCodeDefinition';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
-import AlertSuccessIcon from '../../../components/icons/AlertSuccessIcon';
 import Spinner from '../../../components/ui/Spinner';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
@@ -41,10 +33,14 @@ import {
   getNumberOfDaysDefaultValue,
 } from '../../../helpers/new-code-definition';
 import { withBranchLikes } from '../../../queries/branch';
+import {
+  useNewCodeDefinitionMutation,
+  useNewCodeDefinitionQuery,
+} from '../../../queries/newCodeDefinition';
 import { AppState } from '../../../types/appstate';
 import { Branch, BranchLike } from '../../../types/branch-like';
 import { Feature } from '../../../types/features';
-import { NewCodeDefinition, NewCodeDefinitionType } from '../../../types/new-code-definition';
+import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { Component } from '../../../types/types';
 import '../styles.css';
 import { getSettingValue } from '../utils';
@@ -52,334 +48,192 @@ import AppHeader from './AppHeader';
 import BranchList from './BranchList';
 import ProjectNewCodeDefinitionSelector from './ProjectNewCodeDefinitionSelector';
 
-interface Props extends WithAvailableFeaturesProps {
+interface ProjectNewCodeDefinitionAppProps extends WithAvailableFeaturesProps {
   branchLike: Branch;
   branchLikes: BranchLike[];
   component: Component;
   appState: AppState;
 }
 
-interface State {
-  analysis?: string;
-  branchList: Branch[];
-  newCodeDefinitionType?: NewCodeDefinitionType;
-  newCodeDefinitionValue?: string;
-  previousNonCompliantValue?: string;
-  projectNcdUpdatedAt?: number;
-  numberOfDays: string;
-  globalNewCodeDefinition?: NewCodeDefinition;
-  isChanged: boolean;
-  loading: boolean;
-  overrideGlobalNewCodeDefinition?: boolean;
-  referenceBranch?: string;
-  saving: boolean;
-  selectedNewCodeDefinitionType?: NewCodeDefinitionType;
-  success?: boolean;
-}
+function ProjectNewCodeDefinitionApp(props: ProjectNewCodeDefinitionAppProps) {
+  const { appState, component, branchLike, branchLikes, hasFeature } = props;
 
-class ProjectNewCodeDefinitionApp extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = {
-    branchList: [],
-    numberOfDays: getNumberOfDaysDefaultValue(),
-    isChanged: false,
-    loading: true,
-    saving: false,
-  };
+  const [isSpecificNewCodeDefinition, setIsSpecificNewCodeDefinition] = useState<boolean>();
+  const [numberOfDays, setNumberOfDays] = useState(getNumberOfDaysDefaultValue());
+  const [referenceBranch, setReferenceBranch] = useState<string | undefined>(undefined);
+  const [specificAnalysis, setSpecificAnalysis] = useState<string | undefined>(undefined);
+  const [selectedNewCodeDefinitionType, setSelectedNewCodeDefinitionType] =
+    useState<NewCodeDefinitionType>(DEFAULT_NEW_CODE_DEFINITION_TYPE);
 
-  // We use debounce as we could have multiple save in less that 3sec.
-  resetSuccess = debounce(() => this.setState({ success: undefined }), 3000);
+  const {
+    data: globalNewCodeDefinition = { type: DEFAULT_NEW_CODE_DEFINITION_TYPE },
+    isLoading: isGlobalNCDLoading,
+  } = useNewCodeDefinitionQuery();
+  const { data: projectNewCodeDefinition, isLoading: isProjectNCDLoading } =
+    useNewCodeDefinitionQuery({
+      branchName: hasFeature(Feature.BranchSupport) ? undefined : branchLike?.name,
+      projectKey: component.key,
+    });
+  const { isLoading: isSaving, mutate: postNewCodeDefinition } = useNewCodeDefinitionMutation();
 
-  componentDidMount() {
-    this.mounted = true;
-    this.fetchLeakPeriodSetting();
-    this.sortAndFilterBranches(this.props.branchLikes);
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.branchLikes !== this.props.branchLikes) {
-      this.sortAndFilterBranches(this.props.branchLikes);
+  const branchList = useMemo(() => {
+    return sortBranches(branchLikes.filter(isBranch));
+  }, [branchLikes]);
+  const isFormTouched = useMemo(() => {
+    if (isSpecificNewCodeDefinition === undefined) {
+      return false;
     }
-  }
+    if (isSpecificNewCodeDefinition !== !projectNewCodeDefinition?.inherited) {
+      return true;
+    }
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+    if (!isSpecificNewCodeDefinition) {
+      return false;
+    }
 
-  getUpdatedState(params: {
-    newCodeDefinitionType?: NewCodeDefinitionType;
-    newCodeDefinitionValue?: string;
-    globalNewCodeDefinition: NewCodeDefinition;
-    previousNonCompliantValue?: string;
-    projectNcdUpdatedAt?: number;
-  }) {
-    const {
-      newCodeDefinitionType,
-      newCodeDefinitionValue,
-      globalNewCodeDefinition,
-      previousNonCompliantValue,
-      projectNcdUpdatedAt,
-    } = params;
-    const { referenceBranch } = this.state;
+    if (selectedNewCodeDefinitionType !== projectNewCodeDefinition?.type) {
+      return true;
+    }
 
-    const defaultDays = getNumberOfDaysDefaultValue(globalNewCodeDefinition);
+    switch (selectedNewCodeDefinitionType) {
+      case NewCodeDefinitionType.NumberOfDays:
+        return numberOfDays !== String(projectNewCodeDefinition?.value);
+      case NewCodeDefinitionType.ReferenceBranch:
+        return referenceBranch !== projectNewCodeDefinition?.value;
+      case NewCodeDefinitionType.SpecificAnalysis:
+        return specificAnalysis !== projectNewCodeDefinition?.value;
+      default:
+        return false;
+    }
+  }, [
+    isSpecificNewCodeDefinition,
+    numberOfDays,
+    projectNewCodeDefinition,
+    referenceBranch,
+    selectedNewCodeDefinitionType,
+    specificAnalysis,
+  ]);
 
-    return {
-      loading: false,
-      newCodeDefinitionType,
-      newCodeDefinitionValue,
-      previousNonCompliantValue,
-      projectNcdUpdatedAt,
-      globalNewCodeDefinition,
-      isChanged: false,
-      selectedNewCodeDefinitionType: newCodeDefinitionType ?? globalNewCodeDefinition.type,
-      overrideGlobalNewCodeDefinition: Boolean(newCodeDefinitionType),
-      numberOfDays:
-        (newCodeDefinitionType === NewCodeDefinitionType.NumberOfDays && newCodeDefinitionValue) ||
-        defaultDays,
-      analysis:
-        (newCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis &&
-          newCodeDefinitionValue) ||
-        '',
-      referenceBranch:
-        (newCodeDefinitionType === NewCodeDefinitionType.ReferenceBranch &&
-          newCodeDefinitionValue) ||
-        referenceBranch,
-    };
-  }
+  const defaultReferenceBranch = branchList[0]?.name;
+  const isLoading = isGlobalNCDLoading || isProjectNCDLoading;
+  const branchSupportEnabled = hasFeature(Feature.BranchSupport);
 
-  sortAndFilterBranches(branchLikes: BranchLike[] = []) {
-    const branchList = sortBranches(branchLikes.filter(isBranch));
-    this.setState({ branchList, referenceBranch: branchList[0]?.name });
-  }
-
-  fetchLeakPeriodSetting() {
-    const { branchLike, component } = this.props;
-
-    this.setState({ loading: true });
-
-    Promise.all([
-      getNewCodeDefinition(),
-      getNewCodeDefinition({
-        branch: this.props.hasFeature(Feature.BranchSupport) ? undefined : branchLike?.name,
-        project: component.key,
-      }),
-    ]).then(
-      ([globalNewCodeDefinition, setting]) => {
-        if (this.mounted) {
-          if (!globalNewCodeDefinition.type) {
-            globalNewCodeDefinition = { type: DEFAULT_NEW_CODE_DEFINITION_TYPE };
-          }
-          const newCodeDefinitionValue = setting.value;
-          const newCodeDefinitionType = setting.inherited
-            ? undefined
-            : setting.type || DEFAULT_NEW_CODE_DEFINITION_TYPE;
-
-          this.setState(
-            this.getUpdatedState({
-              globalNewCodeDefinition,
-              newCodeDefinitionType,
-              newCodeDefinitionValue,
-              previousNonCompliantValue: setting.previousNonCompliantValue,
-              projectNcdUpdatedAt: setting.updatedAt,
-            })
-          );
-        }
-      },
-      () => {
-        this.setState({ loading: false });
-      }
+  const resetStatesFromProjectNewCodeDefinition = useCallback(() => {
+    setIsSpecificNewCodeDefinition(
+      projectNewCodeDefinition === undefined ? undefined : !projectNewCodeDefinition.inherited
     );
-  }
-
-  resetSetting = () => {
-    this.setState({ saving: true });
-    resetNewCodeDefinition({ project: this.props.component.key }).then(
-      () => {
-        this.setState({
-          saving: false,
-          newCodeDefinitionType: undefined,
-          isChanged: false,
-          selectedNewCodeDefinitionType: undefined,
-          success: true,
-        });
-        this.resetSuccess();
-      },
-      () => {
-        this.setState({ saving: false });
-      }
+    setSelectedNewCodeDefinitionType(
+      projectNewCodeDefinition?.type ?? DEFAULT_NEW_CODE_DEFINITION_TYPE
     );
+    setNumberOfDays(getNumberOfDaysDefaultValue(globalNewCodeDefinition, projectNewCodeDefinition));
+    setReferenceBranch(
+      projectNewCodeDefinition?.type === NewCodeDefinitionType.ReferenceBranch
+        ? projectNewCodeDefinition.value
+        : defaultReferenceBranch
+    );
+    setSpecificAnalysis(
+      projectNewCodeDefinition?.type === NewCodeDefinitionType.SpecificAnalysis
+        ? projectNewCodeDefinition.value
+        : undefined
+    );
+  }, [defaultReferenceBranch, globalNewCodeDefinition, projectNewCodeDefinition]);
+
+  const onResetNewCodeDefinition = () => {
+    postNewCodeDefinition({
+      branch: hasFeature(Feature.BranchSupport) ? undefined : branchLike?.name,
+      project: component.key,
+      type: undefined,
+    });
   };
 
-  handleSelectDays = (days: string) => this.setState({ numberOfDays: days, isChanged: true });
-
-  handleSelectReferenceBranch = (referenceBranch: string) => {
-    this.setState({ referenceBranch, isChanged: true });
-  };
-
-  handleCancel = () =>
-    this.setState(
-      ({
-        globalNewCodeDefinition = { type: DEFAULT_NEW_CODE_DEFINITION_TYPE },
-        newCodeDefinitionType,
-        newCodeDefinitionValue,
-      }) =>
-        this.getUpdatedState({
-          globalNewCodeDefinition,
-          newCodeDefinitionType,
-          newCodeDefinitionValue,
-        })
-    );
-
-  handleSelectSetting = (selectedNewCodeDefinitionType?: NewCodeDefinitionType) => {
-    this.setState((currentState) => ({
-      selectedNewCodeDefinitionType,
-      isChanged: selectedNewCodeDefinitionType !== currentState.selectedNewCodeDefinitionType,
-    }));
-  };
-
-  handleToggleSpecificSetting = (overrideGlobalNewCodeDefinition: boolean) =>
-    this.setState((currentState) => ({
-      overrideGlobalNewCodeDefinition,
-      isChanged: currentState.overrideGlobalNewCodeDefinition !== overrideGlobalNewCodeDefinition,
-    }));
-
-  handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { component } = this.props;
-    const {
-      numberOfDays,
-      selectedNewCodeDefinitionType: type,
-      referenceBranch,
-      overrideGlobalNewCodeDefinition,
-    } = this.state;
-
-    if (!overrideGlobalNewCodeDefinition) {
-      this.resetSetting();
+    if (!isSpecificNewCodeDefinition) {
+      onResetNewCodeDefinition();
       return;
     }
 
-    const value = getSettingValue({ type, numberOfDays, referenceBranch });
+    const value = getSettingValue({
+      type: selectedNewCodeDefinitionType,
+      numberOfDays,
+      referenceBranch,
+    });
 
-    if (type) {
-      this.setState({ saving: true });
-      setNewCodeDefinition({
+    if (selectedNewCodeDefinitionType) {
+      postNewCodeDefinition({
+        branch: hasFeature(Feature.BranchSupport) ? undefined : branchLike?.name,
         project: component.key,
-        type,
+        type: selectedNewCodeDefinitionType,
         value,
-      }).then(
-        () => {
-          this.setState({
-            saving: false,
-            newCodeDefinitionType: type,
-            newCodeDefinitionValue: value || undefined,
-            previousNonCompliantValue: undefined,
-            projectNcdUpdatedAt: Date.now(),
-            isChanged: false,
-            success: true,
-          });
-          this.resetSuccess();
-        },
-        () => {
-          this.setState({ saving: false });
-        }
-      );
+      });
     }
   };
 
-  render() {
-    const { appState, component, branchLike } = this.props;
-    const {
-      analysis,
-      branchList,
-      newCodeDefinitionType,
-      numberOfDays,
-      previousNonCompliantValue,
-      projectNcdUpdatedAt,
-      globalNewCodeDefinition,
-      isChanged,
-      loading,
-      newCodeDefinitionValue,
-      overrideGlobalNewCodeDefinition,
-      referenceBranch,
-      saving,
-      selectedNewCodeDefinitionType,
-      success,
-    } = this.state;
-    const branchSupportEnabled = this.props.hasFeature(Feature.BranchSupport);
+  useEffect(() => {
+    setReferenceBranch(defaultReferenceBranch);
+  }, [defaultReferenceBranch]);
 
-    return (
-      <>
-        <Suggestions suggestions="project_baseline" />
-        <Helmet defer={false} title={translate('project_baseline.page')} />
-        <div className="page page-limited">
-          <AppHeader canAdmin={!!appState.canAdmin} />
-          <Spinner loading={loading} />
+  useEffect(() => {
+    resetStatesFromProjectNewCodeDefinition();
+  }, [resetStatesFromProjectNewCodeDefinition]);
 
-          {!loading && (
-            <div className="panel-white project-baseline">
-              {branchSupportEnabled && <h2>{translate('project_baseline.default_setting')}</h2>}
+  return (
+    <>
+      <Suggestions suggestions="project_baseline" />
+      <Helmet defer={false} title={translate('project_baseline.page')} />
+      <div className="page page-limited">
+        <AppHeader canAdmin={!!appState.canAdmin} />
+        <Spinner loading={isLoading} />
 
-              {globalNewCodeDefinition && overrideGlobalNewCodeDefinition !== undefined && (
-                <ProjectNewCodeDefinitionSelector
-                  analysis={analysis}
-                  branch={branchLike}
+        {!isLoading && (
+          <div className="panel-white project-baseline">
+            {branchSupportEnabled && <h2>{translate('project_baseline.default_setting')}</h2>}
+
+            {globalNewCodeDefinition && isSpecificNewCodeDefinition !== undefined && (
+              <ProjectNewCodeDefinitionSelector
+                analysis={specificAnalysis}
+                branch={branchLike}
+                branchList={branchList}
+                branchesEnabled={branchSupportEnabled}
+                component={component.key}
+                newCodeDefinitionType={projectNewCodeDefinition?.type}
+                newCodeDefinitionValue={projectNewCodeDefinition?.value}
+                days={numberOfDays}
+                previousNonCompliantValue={projectNewCodeDefinition?.previousNonCompliantValue}
+                projectNcdUpdatedAt={projectNewCodeDefinition?.updatedAt}
+                globalNewCodeDefinition={globalNewCodeDefinition}
+                isChanged={isFormTouched}
+                onCancel={resetStatesFromProjectNewCodeDefinition}
+                onSelectDays={setNumberOfDays}
+                onSelectReferenceBranch={setReferenceBranch}
+                onSelectSetting={setSelectedNewCodeDefinitionType}
+                onSubmit={onSubmit}
+                onToggleSpecificSetting={setIsSpecificNewCodeDefinition}
+                overrideGlobalNewCodeDefinition={isSpecificNewCodeDefinition}
+                referenceBranch={referenceBranch}
+                saving={isSaving}
+                selectedNewCodeDefinitionType={selectedNewCodeDefinitionType}
+              />
+            )}
+
+            {globalNewCodeDefinition && branchSupportEnabled && (
+              <div className="huge-spacer-top branch-baseline-selector">
+                <hr />
+                <h2>{translate('project_baseline.configure_branches')}</h2>
+                <BranchList
                   branchList={branchList}
-                  branchesEnabled={branchSupportEnabled}
-                  canAdmin={appState.canAdmin}
-                  component={component.key}
-                  newCodeDefinitionType={newCodeDefinitionType}
-                  newCodeDefinitionValue={newCodeDefinitionValue}
-                  days={numberOfDays}
-                  previousNonCompliantValue={previousNonCompliantValue}
-                  projectNcdUpdatedAt={projectNcdUpdatedAt}
+                  component={component}
+                  inheritedSetting={projectNewCodeDefinition ?? globalNewCodeDefinition}
                   globalNewCodeDefinition={globalNewCodeDefinition}
-                  isChanged={isChanged}
-                  onCancel={this.handleCancel}
-                  onSelectDays={this.handleSelectDays}
-                  onSelectReferenceBranch={this.handleSelectReferenceBranch}
-                  onSelectSetting={this.handleSelectSetting}
-                  onSubmit={this.handleSubmit}
-                  onToggleSpecificSetting={this.handleToggleSpecificSetting}
-                  overrideGlobalNewCodeDefinition={overrideGlobalNewCodeDefinition}
-                  referenceBranch={referenceBranch}
-                  saving={saving}
-                  selectedNewCodeDefinitionType={selectedNewCodeDefinitionType}
                 />
-              )}
-
-              <div className={classNames('spacer-top', { invisible: saving || !success })}>
-                <span className="text-success">
-                  <AlertSuccessIcon className="spacer-right" />
-                  {translate('settings.state.saved')}
-                </span>
               </div>
-              {globalNewCodeDefinition && branchSupportEnabled && (
-                <div className="huge-spacer-top branch-baseline-selector">
-                  <hr />
-                  <h2>{translate('project_baseline.configure_branches')}</h2>
-                  <BranchList
-                    branchList={branchList}
-                    component={component}
-                    inheritedSetting={
-                      newCodeDefinitionType
-                        ? {
-                            type: newCodeDefinitionType,
-                            value: newCodeDefinitionValue,
-                          }
-                        : globalNewCodeDefinition
-                    }
-                    globalNewCodeDefinition={globalNewCodeDefinition}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </>
-    );
-  }
+            )}
+          </div>
+        )}
+      </div>
+    </>
+  );
 }
 
 export default withComponentContext(

@@ -21,17 +21,24 @@ import { TopBar } from 'design-system';
 import * as React from 'react';
 import NCDAutoUpdateMessage from '../../../../components/new-code-definition/NCDAutoUpdateMessage';
 import { translate } from '../../../../helpers/l10n';
+import { withBranchLikes } from '../../../../queries/branch';
 import { ProjectAlmBindingConfigurationErrors } from '../../../../types/alm-settings';
+import { Branch } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
+import { Feature } from '../../../../types/features';
 import { Task } from '../../../../types/tasks';
 import { Component } from '../../../../types/types';
 import RecentHistory from '../../RecentHistory';
+import withAvailableFeatures, {
+  WithAvailableFeaturesProps,
+} from '../../available-features/withAvailableFeatures';
 import ComponentNavProjectBindingErrorNotif from './ComponentNavProjectBindingErrorNotif';
 import Header from './Header';
 import HeaderMeta from './HeaderMeta';
 import Menu from './Menu';
 
-export interface ComponentNavProps {
+export interface ComponentNavProps extends WithAvailableFeaturesProps {
+  branchLike?: Branch;
   component: Component;
   currentTask?: Task;
   isInProgress?: boolean;
@@ -39,8 +46,16 @@ export interface ComponentNavProps {
   projectBindingErrors?: ProjectAlmBindingConfigurationErrors;
 }
 
-export default function ComponentNav(props: ComponentNavProps) {
-  const { component, currentTask, isInProgress, isPending, projectBindingErrors } = props;
+function ComponentNav(props: ComponentNavProps) {
+  const {
+    branchLike,
+    component,
+    currentTask,
+    hasFeature,
+    isInProgress,
+    isPending,
+    projectBindingErrors,
+  } = props;
 
   React.useEffect(() => {
     const { breadcrumbs, key, name } = component;
@@ -70,10 +85,15 @@ export default function ComponentNav(props: ComponentNavProps) {
         </div>
         <Menu component={component} isInProgress={isInProgress} isPending={isPending} />
       </TopBar>
-      <NCDAutoUpdateMessage component={component} />
+      <NCDAutoUpdateMessage
+        branchName={hasFeature(Feature.BranchSupport) ? undefined : branchLike?.name}
+        component={component}
+      />
       {projectBindingErrors !== undefined && (
         <ComponentNavProjectBindingErrorNotif component={component} />
       )}
     </>
   );
 }
+
+export default withAvailableFeatures(withBranchLikes(ComponentNav));

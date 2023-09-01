@@ -21,17 +21,15 @@ import classNames from 'classnames';
 import { RadioButton } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
-import Tooltip from '../../../components/controls/Tooltip';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import GlobalNewCodeDefinitionDescription from '../../../components/new-code-definition/GlobalNewCodeDefinitionDescription';
+import NewCodeDefinitionAnalysisWarning from '../../../components/new-code-definition/NewCodeDefinitionAnalysisWarning';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
-import NewCodeDefinitionWarning from '../../../components/new-code-definition/NewCodeDefinitionWarning';
 import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
 import { Alert } from '../../../components/ui/Alert';
 import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
-import { isNewCodeDefinitionCompliant } from '../../../helpers/new-code-definition';
 import { Branch } from '../../../types/branch-like';
 import { NewCodeDefinition, NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { validateSetting } from '../utils';
@@ -44,7 +42,6 @@ export interface ProjectBaselineSelectorProps {
   branch?: Branch;
   branchList: Branch[];
   branchesEnabled?: boolean;
-  canAdmin: boolean | undefined;
   component: string;
   newCodeDefinitionType?: NewCodeDefinitionType;
   newCodeDefinitionValue?: string;
@@ -56,7 +53,7 @@ export interface ProjectBaselineSelectorProps {
   onCancel: () => void;
   onSelectDays: (value: string) => void;
   onSelectReferenceBranch: (value: string) => void;
-  onSelectSetting: (value?: NewCodeDefinitionType) => void;
+  onSelectSetting: (value: NewCodeDefinitionType) => void;
   onSubmit: (e: React.SyntheticEvent<HTMLFormElement>) => void;
   onToggleSpecificSetting: (selection: boolean) => void;
   referenceBranch?: string;
@@ -75,7 +72,6 @@ export default function ProjectNewCodeDefinitionSelector(props: ProjectBaselineS
     branch,
     branchList,
     branchesEnabled,
-    canAdmin,
     component,
     newCodeDefinitionType,
     newCodeDefinitionValue,
@@ -89,8 +85,6 @@ export default function ProjectNewCodeDefinitionSelector(props: ProjectBaselineS
     saving,
     selectedNewCodeDefinitionType,
   } = props;
-
-  const isGlobalNcdCompliant = isNewCodeDefinitionCompliant(globalNewCodeDefinition);
 
   const isValid = validateSetting({
     numberOfDays: days,
@@ -109,27 +103,14 @@ export default function ProjectNewCodeDefinitionSelector(props: ProjectBaselineS
         <RadioButton
           checked={!overrideGlobalNewCodeDefinition}
           className="big-spacer-bottom"
-          disabled={!isGlobalNcdCompliant}
           onCheck={() => props.onToggleSpecificSetting(false)}
           value="general"
         >
-          <Tooltip
-            overlay={
-              isGlobalNcdCompliant
-                ? null
-                : translate('project_baseline.compliance.warning.title.global')
-            }
-          >
-            <span>{translate('project_baseline.global_setting')}</span>
-          </Tooltip>
+          <span>{translate('project_baseline.global_setting')}</span>
         </RadioButton>
 
         <div className="sw-ml-4">
-          <GlobalNewCodeDefinitionDescription
-            globalNcd={globalNewCodeDefinition}
-            isGlobalNcdCompliant={isGlobalNcdCompliant}
-            canAdmin={canAdmin}
-          />
+          <GlobalNewCodeDefinitionDescription globalNcd={globalNewCodeDefinition} />
         </div>
 
         <RadioButton
@@ -143,12 +124,9 @@ export default function ProjectNewCodeDefinitionSelector(props: ProjectBaselineS
       </div>
 
       <div className="big-spacer-left big-spacer-right project-baseline-setting">
-        <NewCodeDefinitionWarning
-          newCodeDefinitionType={newCodeDefinitionType}
-          newCodeDefinitionValue={newCodeDefinitionValue}
-          isBranchSupportEnabled={branchesEnabled}
-          level={NewCodeDefinitionLevels.Project}
-        />
+        {newCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis && (
+          <NewCodeDefinitionAnalysisWarning />
+        )}
         <div className="display-flex-column big-spacer-bottom sw-gap-4" role="radiogroup">
           <NewCodeDefinitionPreviousVersionOption
             disabled={!overrideGlobalNewCodeDefinition}
@@ -184,7 +162,7 @@ export default function ProjectNewCodeDefinitionSelector(props: ProjectBaselineS
               disabled={!overrideGlobalNewCodeDefinition}
               onChangeReferenceBranch={props.onSelectReferenceBranch}
               onSelect={props.onSelectSetting}
-              referenceBranch={referenceBranch || ''}
+              referenceBranch={referenceBranch ?? ''}
               selected={
                 overrideGlobalNewCodeDefinition &&
                 selectedNewCodeDefinitionType === NewCodeDefinitionType.ReferenceBranch
@@ -206,22 +184,26 @@ export default function ProjectNewCodeDefinitionSelector(props: ProjectBaselineS
           overrideGlobalNewCodeDefinition &&
           selectedNewCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis && (
             <BranchAnalysisList
-              analysis={analysis || ''}
+              analysis={analysis ?? ''}
               branch={branch.name}
               component={component}
               onSelectAnalysis={noop}
             />
           )}
       </div>
-      <div className={classNames('big-spacer-top', { invisible: !isChanged })}>
-        <Alert variant="info" className="spacer-bottom">
+      <div className="big-spacer-top">
+        <Alert variant="info" className={classNames('spacer-bottom', { invisible: !isChanged })}>
           {translate('baseline.next_analysis_notice')}
         </Alert>
         <Spinner className="spacer-right" loading={saving} />
-        <SubmitButton disabled={saving || !isValid || !isChanged}>{translate('save')}</SubmitButton>
-        <ResetButtonLink className="spacer-left" onClick={props.onCancel}>
-          {translate('cancel')}
-        </ResetButtonLink>
+        {!saving && (
+          <>
+            <SubmitButton disabled={!isValid || !isChanged}>{translate('save')}</SubmitButton>
+            <ResetButtonLink className="spacer-left" disabled={!isChanged} onClick={props.onCancel}>
+              {translate('cancel')}
+            </ResetButtonLink>
+          </>
+        )}
       </div>
     </form>
   );

@@ -24,7 +24,6 @@ import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
 import { getNewCodeDefinition } from '../../../../api/newCodeDefinition';
 import { mockProject } from '../../../../helpers/mocks/projects';
-import { mockAppState } from '../../../../helpers/testMocks';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../../helpers/testSelector';
 import { NewCodeDefinitionType } from '../../../../types/new-code-definition';
@@ -73,8 +72,6 @@ const ui = {
     name: /new_code_definition.number_days.specify_days/,
   }),
   ncdOptionDaysInputError: byText('new_code_definition.number_days.invalid.1.90'),
-  ncdWarningTextAdmin: byText('new_code_definition.compliance.warning.explanation.admin'),
-  ncdWarningText: byText('new_code_definition.compliance.warning.explanation'),
   projectDashboardText: byText('/dashboard?id=foo'),
 };
 
@@ -137,63 +134,6 @@ it('should select the global NCD when it is compliant', async () => {
 
   expect(ui.projectCreateButton.get()).toBeEnabled();
 });
-
-it('global NCD option should be disabled if not compliant', async () => {
-  jest
-    .mocked(getNewCodeDefinition)
-    .mockResolvedValue({ type: NewCodeDefinitionType.NumberOfDays, value: '96' });
-  const user = userEvent.setup();
-  renderCreateProject();
-  await fillFormAndNext('test', user);
-
-  expect(ui.newCodeDefinitionHeader.get()).toBeInTheDocument();
-  expect(ui.inheritGlobalNcdRadio.get()).toBeInTheDocument();
-  expect(ui.inheritGlobalNcdRadio.get()).toBeDisabled();
-  expect(ui.projectCreateButton.get()).toBeDisabled();
-});
-
-it.each([
-  { canAdmin: true, message: ui.ncdWarningTextAdmin },
-  { canAdmin: false, message: ui.ncdWarningText },
-])(
-  'should show warning message when global NCD is not compliant',
-  async ({ canAdmin, message }) => {
-    jest
-      .mocked(getNewCodeDefinition)
-      .mockResolvedValue({ type: NewCodeDefinitionType.NumberOfDays, value: '96' });
-    const user = userEvent.setup();
-    renderCreateProject({ appState: mockAppState({ canAdmin }) });
-    await fillFormAndNext('test', user);
-
-    expect(message.get()).toBeInTheDocument();
-  }
-);
-
-it.each([ui.ncdOptionRefBranchRadio, ui.ncdOptionPreviousVersionRadio])(
-  'should override the global NCD and pick a compliant NCD',
-  async (option) => {
-    jest
-      .mocked(getNewCodeDefinition)
-      .mockResolvedValue({ type: NewCodeDefinitionType.NumberOfDays, value: '96' });
-    const user = userEvent.setup();
-    renderCreateProject();
-    await fillFormAndNext('test', user);
-
-    expect(ui.newCodeDefinitionHeader.get()).toBeInTheDocument();
-    expect(ui.inheritGlobalNcdRadio.get()).toBeInTheDocument();
-    expect(ui.inheritGlobalNcdRadio.get()).toBeDisabled();
-    expect(ui.projectCreateButton.get()).toBeDisabled();
-    expect(ui.overrideNcdRadio.get()).toBeEnabled();
-    expect(option.get()).toHaveClass('disabled');
-
-    await user.click(ui.overrideNcdRadio.get());
-    expect(option.get()).not.toHaveClass('disabled');
-
-    await user.click(option.get());
-
-    expect(ui.projectCreateButton.get()).toBeEnabled();
-  }
-);
 
 it('number of days ignores non-numeric inputs', async () => {
   jest
