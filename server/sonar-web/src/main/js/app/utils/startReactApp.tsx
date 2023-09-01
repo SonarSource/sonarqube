@@ -39,7 +39,6 @@ import projectActivityRoutes from '../../apps/projectActivity/routes';
 import projectBaselineRoutes from '../../apps/projectBaseline/routes';
 import projectBranchesRoutes from '../../apps/projectBranches/routes';
 import ProjectDeletionApp from '../../apps/projectDeletion/App';
-import projectDumpRoutes from '../../apps/projectDump/routes';
 import ProjectKeyApp from '../../apps/projectKey/Key';
 import ProjectLinksApp from '../../apps/projectLinks/App';
 import projectQualityGateRoutes from '../../apps/projectQualityGate/routes';
@@ -195,7 +194,6 @@ function renderComponentRoutes() {
           {backgroundTasksRoutes()}
           {projectBaselineRoutes()}
           {projectBranchesRoutes()}
-          {projectDumpRoutes()}
           {settingsRoutes()}
           {webhooksRoutes()}
 

@@ -435,21 +435,22 @@ export class Menu extends React.PureComponent<Props> {
   };
 
   renderImportExportLink = (query: Query, isProject: boolean) => {
-    if (!isProject) {
-      return null;
-    }
-    return (
-      <li key="import-export">
-        <NavLink
-          to={{
-            pathname: '/project/import_export',
-            search: new URLSearchParams(query).toString(),
-          }}
-        >
-          {translate('project_dump.page')}
-        </NavLink>
-      </li>
-    );
+    // if (!isProject) {
+    //   return null;
+    // }
+    // return (
+    //   <li key="import-export">
+    //     <NavLink
+    //       to={{
+    //         pathname: '/project/import_export',
+    //         search: new URLSearchParams(query).toString(),
+    //       }}
+    //     >
+    //       {translate('project_dump.page')}
+    //     </NavLink>
+    //   </li>
+    // );
+    return null;
   };
 
   renderProfilesLink = (query: Query) => {
