@@ -17,31 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
 import { getAllMetrics } from '../../../../api/metrics';
 import { mockMetric } from '../../../../helpers/testMocks';
-import { waitAndUpdate } from '../../../../helpers/testUtils';
+import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { byRole } from '../../../../helpers/testSelector';
+import { MetricKey } from '../../../../types/metrics';
+import { MetricsContext } from '../MetricsContext';
 import MetricsContextProvider from '../MetricsContextProvider';
 
 jest.mock('../../../../api/metrics', () => ({
-  getAllMetrics: jest.fn().mockResolvedValue({}),
+  getAllMetrics: jest.fn().mockResolvedValue([]),
 }));
 
 it('should call metric', async () => {
-  const metrics = { coverage: mockMetric() };
-  jest.mocked(getAllMetrics).mockResolvedValueOnce(Object.values(metrics));
-  const wrapper = shallowRender();
+  const metrics = [
+    mockMetric({ key: MetricKey.alert_status, name: 'Alert Status' }),
+    mockMetric({ key: MetricKey.code_smells, name: 'Code Smells' }),
+  ];
+  jest.mocked(getAllMetrics).mockResolvedValueOnce(metrics);
+  renderMetricsContextProvider();
 
-  expect(getAllMetrics).toHaveBeenCalled();
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state()).toEqual({ metrics });
+  expect(await byRole('listitem').findAll()).toHaveLength(2);
 });
 
-function shallowRender() {
-  return shallow<MetricsContextProvider>(
+function renderMetricsContextProvider() {
+  return renderComponent(
     <MetricsContextProvider>
-      <div />
+      <Consumer />
     </MetricsContextProvider>
+  );
+}
+
+function Consumer() {
+  const metrics = React.useContext(MetricsContext);
+  return (
+    <ul>
+      {Object.keys(metrics).map((k) => (
+        <li key={k}>{metrics[k].name}</li>
+      ))}
+    </ul>
   );
 }
