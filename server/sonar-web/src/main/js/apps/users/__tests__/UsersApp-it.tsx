@@ -277,7 +277,7 @@ describe('in non managed mode', () => {
       await user.click(await ui.showMore.find());
     });
 
-    expect(ui.userRows.getAll()).toHaveLength(8);
+    expect(await ui.userRows.findAll()).toHaveLength(8);
   });
 
   it('should be able to edit the groups of a user', async () => {
