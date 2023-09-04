@@ -44,6 +44,7 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
 import static org.sonar.db.component.ComponentValidator.MAX_COMPONENT_NAME_LENGTH;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
+import static org.sonar.server.exceptions.BadRequestException.throwBadRequestException;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -125,6 +126,9 @@ public class CreateAction implements ProjectsWsAction {
               request.getProjectKey());
       userSession.checkPermission(OrganizationPermission.PROVISION_PROJECTS, organization);
       String visibility = request.getVisibility();
+      if (visibility != null && "public".equals(visibility)) {
+        throwBadRequestException("Users are not allowed to create project with public visibility");
+      }
       boolean changeToPrivate = visibility == null ? projectDefaultVisibility.get(dbSession).isPrivate() : "private".equals(visibility);
 
       ComponentDto componentDto = componentUpdater.create(dbSession, newComponentBuilder()
