@@ -97,7 +97,7 @@ pipelines:
 
 exports[`should follow and complete all steps: Groovy: build.gradle 1`] = `
 "plugins {
-  id "org.sonarqube" version "4.2.1.3168"
+  id "org.sonarqube" version "4.3.1.3277"
 }
 
 sonar {
@@ -110,7 +110,7 @@ sonar {
 
 exports[`should follow and complete all steps: Kotlin: build.gradle.kts 1`] = `
 "plugins {
-  id("org.sonarqube") version "4.2.1.3168"
+  id("org.sonarqube") version "4.3.1.3277"
 }
     
 sonar {
