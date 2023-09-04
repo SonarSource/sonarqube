@@ -24,16 +24,18 @@ import javax.annotation.Nullable;
 import org.sonar.server.common.PaginationInformation;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.user.service.UserCreateRequest;
-import org.sonar.server.common.user.service.UserSearchResult;
+import org.sonar.server.common.user.service.UserInformation;
 import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.common.user.service.UsersSearchRequest;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.model.RestPage;
 import org.sonar.server.v2.api.model.RestSortOrder;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
 import org.sonar.server.v2.api.user.model.RestUser;
 import org.sonar.server.v2.api.user.request.UserCreateRestRequest;
+import org.sonar.server.v2.api.user.request.UserUpdateRestRequest;
 import org.sonar.server.v2.api.user.request.UsersSearchRestRequest;
 import org.sonar.server.v2.api.user.response.UsersSearchRestResponse;
 
@@ -59,7 +61,7 @@ public class DefaultUserController implements UserController {
     throwIfAdminOnlyParametersAreUsed(usersSearchRestRequest);
     checkRequest(!RestSortOrder.DESC.equals(order), "order parameter is present for doc-demo purpose, it will be removed.");
 
-    SearchResults<UserSearchResult> userSearchResults = userService.findUsers(toUserSearchRequest(usersSearchRestRequest, page));
+    SearchResults<UserInformation> userSearchResults = userService.findUsers(toUserSearchRequest(usersSearchRestRequest, page));
     PaginationInformation paging = forPageIndex(page.pageIndex()).withPageSize(page.pageSize()).andTotal(userSearchResults.total());
 
     return usersSearchResponseGenerator.toUsersForResponse(userSearchResults.searchResults(), paging);
@@ -106,6 +108,22 @@ public class DefaultUserController implements UserController {
   @Override
   public RestUser fetchUser(String login) {
     return usersSearchResponseGenerator.toRestUser(userService.fetchUser(login));
+  }
+
+  @Override
+  public RestUser updateUser(String login, UserUpdateRestRequest updateRequest) {
+    userSession.checkLoggedIn().checkIsSystemAdministrator();
+    UpdateUser update = toUpdateUser(updateRequest);
+    UserInformation updatedUser = userService.updateUser(login, update);
+    return usersSearchResponseGenerator.toRestUser(updatedUser);
+  }
+
+  private static UpdateUser toUpdateUser(UserUpdateRestRequest updateRequest) {
+    UpdateUser update = new UpdateUser();
+    updateRequest.getName().applyIfDefined(update::setName);
+    updateRequest.getEmail().applyIfDefined(update::setEmail);
+    updateRequest.getScmAccounts().applyIfDefined(update::setScmAccounts);
+    return update;
   }
 
   @Override

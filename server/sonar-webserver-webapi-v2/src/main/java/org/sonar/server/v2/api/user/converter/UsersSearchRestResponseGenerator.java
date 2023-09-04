@@ -27,7 +27,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.PaginationInformation;
 import org.sonar.server.common.user.UsersSearchResponseGenerator;
-import org.sonar.server.common.user.service.UserSearchResult;
+import org.sonar.server.common.user.service.UserInformation;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.response.PageRestResponse;
 import org.sonar.server.v2.api.user.model.RestUser;
@@ -45,20 +45,20 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
   }
 
   @Override
-  public UsersSearchRestResponse toUsersForResponse(List<UserSearchResult> userSearchResults, PaginationInformation paginationInformation) {
-    List<RestUser> usersForResponse = toUsersForResponse(userSearchResults);
+  public UsersSearchRestResponse toUsersForResponse(List<UserInformation> userInformations, PaginationInformation paginationInformation) {
+    List<RestUser> usersForResponse = toUsersForResponse(userInformations);
     PageRestResponse pageRestResponse = new PageRestResponse(paginationInformation.pageIndex(), paginationInformation.pageSize(), paginationInformation.total());
     return new UsersSearchRestResponse(usersForResponse, pageRestResponse);
   }
 
-  private List<RestUser> toUsersForResponse(List<UserSearchResult> userSearchResults) {
-    return userSearchResults.stream()
+  private List<RestUser> toUsersForResponse(List<UserInformation> userInformations) {
+    return userInformations.stream()
       .map(this::toRestUser)
       .toList();
   }
 
-  public RestUser toRestUser(UserSearchResult userSearchResult) {
-    UserDto userDto = userSearchResult.userDto();
+  public RestUser toRestUser(UserInformation userInformation) {
+    UserDto userDto = userInformation.userDto();
 
     String login = userDto.getLogin();
     String name = userDto.getName();
@@ -66,17 +66,17 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
       return new RestUserForAnonymousUsers(login, login, name);
     }
 
-    String avatar = userSearchResult.avatar().orElse(null);
+    String avatar = userInformation.avatar().orElse(null);
     Boolean active = userDto.isActive();
     Boolean local = userDto.isLocal();
     String email = userDto.getEmail();
     String externalIdentityProvider = userDto.getExternalIdentityProvider();
     if (userSession.isSystemAdministrator() || Objects.equals(userSession.getUuid(), userDto.getUuid())) {
       String externalLogin = userDto.getExternalLogin();
-      Boolean managed = userSearchResult.managed();
+      Boolean managed = userInformation.managed();
       String sqLastConnectionDate = toDateTime(userDto.getLastConnectionDate());
       String slLastConnectionDate = toDateTime(userDto.getLastSonarlintConnectionDate());
-      List<String> scmAccounts = userSearchResult.userDto().getSortedScmAccounts();
+      List<String> scmAccounts = userInformation.userDto().getSortedScmAccounts();
       return new RestUserForAdmins(
         login,
         login,

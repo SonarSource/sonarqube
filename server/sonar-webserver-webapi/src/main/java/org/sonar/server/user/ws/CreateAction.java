@@ -29,7 +29,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.user.service.UserCreateRequest;
-import org.sonar.server.common.user.service.UserSearchResult;
+import org.sonar.server.common.user.service.UserInformation;
 import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Users.CreateWsResponse;
@@ -126,8 +126,8 @@ public class CreateAction implements UsersWsAction {
   }
 
   private CreateWsResponse doHandle(UserCreateRequest userCreateRequest) {
-    UserSearchResult userSearchResult = userService.createUser(userCreateRequest);
-    return buildResponse(userSearchResult.userDto());
+    UserInformation userInformation = userService.createUser(userCreateRequest);
+    return buildResponse(userInformation.userDto());
   }
 
   private static CreateWsResponse buildResponse(UserDto userDto) {

@@ -63,7 +63,7 @@ public class RestResponseEntityExceptionHandler {
     String fieldName = fieldError.getField();
     String rejectedValueAsString = Optional.ofNullable(fieldError.getRejectedValue()).map(Object::toString).orElse("{}");
     String defaultMessage = fieldError.getDefaultMessage();
-    return String.format("Value %s for field %s was rejected. Error: %s", rejectedValueAsString, fieldName, defaultMessage);
+    return String.format("Value %s for field %s was rejected. Error: %s.", rejectedValueAsString, fieldName, defaultMessage);
   }
 
   @ExceptionHandler({ServerException.class, ForbiddenException.class, UnauthorizedException.class, BadRequestException.class})

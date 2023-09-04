@@ -29,7 +29,7 @@ import javax.validation.constraints.Size;
 public record UserCreateRestRequest(
   @Nullable
   @Email
-  @Size(max = 100)
+  @Size(min = 1, max = 100)
   @Schema(description = "User email")
   String email,
 
@@ -50,7 +50,7 @@ public record UserCreateRestRequest(
   String name,
 
   @Nullable
-  @Schema(description = "User password. Only mandatory when creating local user, otherwise it should not be set")
+  @Schema(description = "User password. Only mandatory when creating local user, otherwise it should not be set", accessMode = Schema.AccessMode.WRITE_ONLY)
   String password,
 
   @Nullable

@@ -33,13 +33,15 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.SearchResults;
-import org.sonar.server.common.user.service.UserSearchResult;
+import org.sonar.server.common.user.service.UserInformation;
 import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.common.user.service.UsersSearchRequest;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.UpdateUser;
 import org.sonar.server.v2.api.ControllerTester;
+import org.sonar.server.v2.api.model.RestError;
 import org.sonar.server.v2.api.response.PageRestResponse;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
 import org.sonar.server.v2.api.user.model.RestUser;
@@ -58,11 +60,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.server.v2.WebApiEndpoints.JSON_MERGE_PATCH_CONTENT_TYPE;
 import static org.sonar.server.v2.WebApiEndpoints.USER_ENDPOINT;
 import static org.sonar.server.v2.api.model.RestPage.DEFAULT_PAGE_INDEX;
 import static org.sonar.server.v2.api.model.RestPage.DEFAULT_PAGE_SIZE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -75,7 +79,7 @@ public class DefaultUserControllerTest {
   private final UsersSearchRestResponseGenerator responseGenerator = mock(UsersSearchRestResponseGenerator.class);
   private final MockMvc mockMvc = ControllerTester.getMockMvc(new DefaultUserController(userSession, userService, responseGenerator));
 
-  private static final Gson gson =  new GsonBuilder().registerTypeAdapter(RestUser.class, new RestUserDeserializer()).create();
+  private static final Gson gson = new GsonBuilder().registerTypeAdapter(RestUser.class, new RestUserDeserializer()).create();
 
   @Test
   public void search_whenNoParameters_shouldUseDefaultAndForwardToUserService() throws Exception {
@@ -118,25 +122,25 @@ public class DefaultUserControllerTest {
   @Test
   public void search_whenAdminParametersUsedButNotAdmin_shouldFail() throws Exception {
     mockMvc.perform(get(USER_ENDPOINT)
-        .param("sonarQubeLastConnectionDateFrom", "2020-01-01T00:00:00+0100"))
+      .param("sonarQubeLastConnectionDateFrom", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
         content().string("{\"message\":\"parameter sonarQubeLastConnectionDateFrom requires Administer System permission.\"}"));
 
     mockMvc.perform(get(USER_ENDPOINT)
-        .param("sonarQubeLastConnectionDateTo", "2020-01-01T00:00:00+0100"))
+      .param("sonarQubeLastConnectionDateTo", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
         content().string("{\"message\":\"parameter sonarQubeLastConnectionDateTo requires Administer System permission.\"}"));
 
     mockMvc.perform(get(USER_ENDPOINT)
-        .param("sonarLintLastConnectionDateFrom", "2020-01-01T00:00:00+0100"))
+      .param("sonarLintLastConnectionDateFrom", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
         content().string("{\"message\":\"parameter sonarLintLastConnectionDateFrom requires Administer System permission.\"}"));
 
     mockMvc.perform(get(USER_ENDPOINT)
-        .param("sonarLintLastConnectionDateTo", "2020-01-01T00:00:00+0100"))
+      .param("sonarLintLastConnectionDateTo", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
         content().string("{\"message\":\"parameter sonarLintLastConnectionDateTo requires Administer System permission.\"}"));
@@ -144,12 +148,12 @@ public class DefaultUserControllerTest {
 
   @Test
   public void search_whenUserServiceReturnUsers_shouldReturnThem() throws Exception {
-    UserSearchResult user1 = generateUserSearchResult("user1", true, true, false, 2, 3);
-    UserSearchResult user2 = generateUserSearchResult("user2", true, false, false, 3, 0);
-    UserSearchResult user3 = generateUserSearchResult("user3", true, false, true, 1, 1);
-    UserSearchResult user4 = generateUserSearchResult("user4", false, true, false, 0, 0);
-    List<UserSearchResult> users = List.of(user1, user2, user3, user4);
-    SearchResults<UserSearchResult> searchResult = new SearchResults<>(users, users.size());
+    UserInformation user1 = generateUserSearchResult("user1", true, true, false, 2, 3);
+    UserInformation user2 = generateUserSearchResult("user2", true, false, false, 3, 0);
+    UserInformation user3 = generateUserSearchResult("user3", true, false, true, 1, 1);
+    UserInformation user4 = generateUserSearchResult("user4", false, true, false, 0, 0);
+    List<UserInformation> users = List.of(user1, user2, user3, user4);
+    SearchResults<UserInformation> searchResult = new SearchResults<>(users, users.size());
     when(userService.findUsers(any())).thenReturn(searchResult);
     List<RestUser> restUserForAdmins = List.of(toRestUser(user1), toRestUser(user2), toRestUser(user3), toRestUser(user4));
     when(responseGenerator.toUsersForResponse(eq(searchResult.searchResults()), any())).thenReturn(new UsersSearchRestResponse(restUserForAdmins, new PageRestResponse(1, 50, 4)));
@@ -179,7 +183,7 @@ public class DefaultUserControllerTest {
     }
   }
 
-  private UserSearchResult generateUserSearchResult(String id, boolean active, boolean local, boolean managed, int groupsCount, int tokensCount) {
+  private UserInformation generateUserSearchResult(String id, boolean active, boolean local, boolean managed, int groupsCount, int tokensCount) {
     UserDto userDto = new UserDto()
       .setLogin("login_" + id)
       .setUuid("uuid_" + id)
@@ -196,24 +200,24 @@ public class DefaultUserControllerTest {
     List<String> groups = new ArrayList<>();
     IntStream.range(1, groupsCount).forEach(i -> groups.add("group" + i));
 
-    return new UserSearchResult(userDto, managed, Optional.of("avatar_" + id), groups, tokensCount);
+    return new UserInformation(userDto, managed, Optional.of("avatar_" + id), groups, tokensCount);
   }
 
-  private RestUserForAdmins toRestUser(UserSearchResult userSearchResult) {
+  private RestUserForAdmins toRestUser(UserInformation userInformation) {
     return new RestUserForAdmins(
-      userSearchResult.userDto().getLogin(),
-      userSearchResult.userDto().getLogin(),
-      userSearchResult.userDto().getName(),
-      userSearchResult.userDto().getEmail(),
-      userSearchResult.userDto().isActive(),
-      userSearchResult.userDto().isLocal(),
-      userSearchResult.managed(),
-      userSearchResult.userDto().getExternalLogin(),
-      userSearchResult.userDto().getExternalIdentityProvider(),
-      userSearchResult.avatar().orElse(""),
-      formatDateTime(userSearchResult.userDto().getLastConnectionDate()),
-      formatDateTime(userSearchResult.userDto().getLastSonarlintConnectionDate()),
-      userSearchResult.userDto().getSortedScmAccounts());
+      userInformation.userDto().getLogin(),
+      userInformation.userDto().getLogin(),
+      userInformation.userDto().getName(),
+      userInformation.userDto().getEmail(),
+      userInformation.userDto().isActive(),
+      userInformation.userDto().isLocal(),
+      userInformation.managed(),
+      userInformation.userDto().getExternalLogin(),
+      userInformation.userDto().getExternalIdentityProvider(),
+      userInformation.avatar().orElse(""),
+      formatDateTime(userInformation.userDto().getLastConnectionDate()),
+      formatDateTime(userInformation.userDto().getLastSonarlintConnectionDate()),
+      userInformation.userDto().getSortedScmAccounts());
   }
 
   @Test
@@ -310,7 +314,7 @@ public class DefaultUserControllerTest {
 
   @Test
   public void fetchUser_whenUserExists_shouldReturnUser() throws Exception {
-    UserSearchResult user = generateUserSearchResult("user1", true, true, false, 2, 3);
+    UserInformation user = generateUserSearchResult("user1", true, true, false, 2, 3);
     RestUserForAdmins restUserForAdmins = toRestUser(user);
     when(userService.fetchUser("userLogin")).thenReturn(user);
     when(responseGenerator.toRestUser(user)).thenReturn(restUserForAdmins);
@@ -326,9 +330,9 @@ public class DefaultUserControllerTest {
     userSession.logIn().setNonSystemAdministrator();
 
     mockMvc.perform(
-        post(USER_ENDPOINT)
-          .contentType(MediaType.APPLICATION_JSON_VALUE)
-          .content(gson.toJson(new UserCreateRestRequest(null, null, "login", "name", null, null))))
+      post(USER_ENDPOINT)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .content(gson.toJson(new UserCreateRestRequest(null, null, "login", "name", null, null))))
       .andExpectAll(
         status().isForbidden(),
         content().json("{\"message\":\"Insufficient privileges\"}"));
@@ -339,12 +343,12 @@ public class DefaultUserControllerTest {
     userSession.logIn().setSystemAdministrator();
 
     mockMvc.perform(
-        post(USER_ENDPOINT)
-          .contentType(MediaType.APPLICATION_JSON_VALUE)
-          .content(gson.toJson(new UserCreateRestRequest(null, null, null, "name", null, null))))
+      post(USER_ENDPOINT)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .content(gson.toJson(new UserCreateRestRequest(null, null, null, "name", null, null))))
       .andExpectAll(
         status().isBadRequest(),
-        content().json("{\"message\":\"Value {} for field login was rejected. Error: must not be null\"}"));
+        content().json("{\"message\":\"Value {} for field login was rejected. Error: must not be null.\"}"));
   }
 
   @Test
@@ -352,12 +356,12 @@ public class DefaultUserControllerTest {
     userSession.logIn().setSystemAdministrator();
 
     mockMvc.perform(
-        post(USER_ENDPOINT)
-          .contentType(MediaType.APPLICATION_JSON_VALUE)
-          .content(gson.toJson(new UserCreateRestRequest(null, null, "login", null, null, null))))
+      post(USER_ENDPOINT)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .content(gson.toJson(new UserCreateRestRequest(null, null, "login", null, null, null))))
       .andExpectAll(
         status().isBadRequest(),
-        content().json("{\"message\":\"Value {} for field name was rejected. Error: must not be null\"}"));
+        content().json("{\"message\":\"Value {} for field name was rejected. Error: must not be null.\"}"));
   }
 
   @Test
@@ -366,9 +370,9 @@ public class DefaultUserControllerTest {
     when(userService.createUser(any())).thenThrow(new IllegalArgumentException("IllegalArgumentException"));
 
     mockMvc.perform(
-        post(USER_ENDPOINT)
-          .contentType(MediaType.APPLICATION_JSON_VALUE)
-          .content(gson.toJson(new UserCreateRestRequest("e@mail.com", true, "login", "name", "password", List.of("scm")))))
+      post(USER_ENDPOINT)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .content(gson.toJson(new UserCreateRestRequest("e@mail.com", true, "login", "name", "password", List.of("scm")))))
       .andExpectAll(
         status().isBadRequest(),
         content().json("{\"message\":\"IllegalArgumentException\"}"));
@@ -377,20 +381,123 @@ public class DefaultUserControllerTest {
   @Test
   public void create_whenUserServiceReturnUser_shouldReturnIt() throws Exception {
     userSession.logIn().setSystemAdministrator();
-    UserSearchResult userSearchResult = generateUserSearchResult("1", true, true, false, 1, 2);
-    UserDto userDto = userSearchResult.userDto();
-    when(userService.createUser(any())).thenReturn(userSearchResult);
-    when(responseGenerator.toRestUser(userSearchResult)).thenReturn(toRestUser(userSearchResult));
+    UserInformation userInformation = generateUserSearchResult("1", true, true, false, 1, 2);
+    UserDto userDto = userInformation.userDto();
+    when(userService.createUser(any())).thenReturn(userInformation);
+    when(responseGenerator.toRestUser(userInformation)).thenReturn(toRestUser(userInformation));
 
     MvcResult mvcResult = mockMvc.perform(
-        post(USER_ENDPOINT)
-          .contentType(MediaType.APPLICATION_JSON_VALUE)
-          .content(gson.toJson(new UserCreateRestRequest(
-            userDto.getEmail(), userDto.isLocal(), userDto.getLogin(), userDto.getName(), "password", userDto.getSortedScmAccounts()))))
+      post(USER_ENDPOINT)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .content(gson.toJson(new UserCreateRestRequest(
+          userDto.getEmail(), userDto.isLocal(), userDto.getLogin(), userDto.getName(), "password", userDto.getSortedScmAccounts()))))
       .andExpect(status().isOk())
       .andReturn();
     RestUserForAdmins responseUser = gson.fromJson(mvcResult.getResponse().getContentAsString(), RestUserForAdmins.class);
-    assertThat(responseUser).isEqualTo(toRestUser(userSearchResult));
+    assertThat(responseUser).isEqualTo(toRestUser(userInformation));
+  }
+
+  @Test
+  public void updateUser_whenUserDoesntExist_shouldReturnNotFound() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+    when(userService.updateUser(eq("userLogin"), any(UpdateUser.class))).thenThrow(new NotFoundException("Not found"));
+    mockMvc.perform(patch(USER_ENDPOINT + "/userLogin")
+      .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
+      .content("{}"))
+      .andExpectAll(
+        status().isNotFound(),
+        content().json("{\"message\":\"Not found\"}"));
+  }
+
+  @Test
+  public void updateUser_whenCallerIsNotAdmin_shouldReturnForbidden() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
+
+    mockMvc.perform(
+      patch(USER_ENDPOINT + "/userLogin")
+        .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
+        .content("{}"))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+  }
+
+  @Test
+  public void updateUser_whenEmailIsProvided_shouldUpdateUserAndReturnUpdatedValue() throws Exception {
+    UpdateUser userUpdate = performPatchCallAndVerifyResponse("{\"email\":\"newemail@example.com\"}");
+    assertThat(userUpdate.email()).isEqualTo("newemail@example.com");
+    assertThat(userUpdate.name()).isNull();
+    assertThat(userUpdate.scmAccounts()).isNull();
+  }
+
+  private UpdateUser performPatchCallAndVerifyResponse(String payload) throws Exception {
+    userSession.logIn().setSystemAdministrator();
+    UserInformation userInformation = generateUserSearchResult("1", true, true, false, 1, 2);
+
+    when(userService.updateUser(eq("userLogin"), any())).thenReturn(userInformation);
+    when(responseGenerator.toRestUser(userInformation)).thenReturn(toRestUser(userInformation));
+
+    MvcResult mvcResult = mockMvc.perform(patch(USER_ENDPOINT + "/userLogin")
+      .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
+      .content(payload))
+      .andExpect(
+        status().isOk())
+      .andReturn();
+
+    RestUserForAdmins responseUser = gson.fromJson(mvcResult.getResponse().getContentAsString(), RestUserForAdmins.class);
+    assertThat(responseUser).isEqualTo(toRestUser(userInformation));
+
+    ArgumentCaptor<UpdateUser> updateUserCaptor = ArgumentCaptor.forClass(UpdateUser.class);
+    verify(userService).updateUser(eq("userLogin"), updateUserCaptor.capture());
+    return updateUserCaptor.getValue();
+  }
+
+  @Test
+  public void updateUser_whenNameIsProvided_shouldUpdateUserAndReturnUpdatedValue() throws Exception {
+    UpdateUser userUpdate = performPatchCallAndVerifyResponse("{\"name\":\"new name\"}");
+    assertThat(userUpdate.email()).isNull();
+    assertThat(userUpdate.name()).isEqualTo("new name");
+    assertThat(userUpdate.scmAccounts()).isNull();
+  }
+
+  @Test
+  public void updateUser_whenScmAccountsAreProvided_shouldUpdateUserAndReturnUpdatedValue() throws Exception {
+    UpdateUser userUpdate = performPatchCallAndVerifyResponse("{\"scmAccounts\":[\"account1\",\"account2\"]}");
+    assertThat(userUpdate.email()).isNull();
+    assertThat(userUpdate.name()).isNull();
+    assertThat(userUpdate.scmAccounts()).containsExactly("account1", "account2");
+  }
+
+  @Test
+  public void updateUser_whenEmailIsInvalid_shouldReturnBadRequest() throws Exception {
+    performPatchCallAndExpectBadRequest("{\"email\":\"notavalidemail\"}", "Value notavalidemail for field email was rejected. Error: must be a well-formed email address.");
+  }
+
+  private void performPatchCallAndExpectBadRequest(String payload, String expectedMessage) throws Exception {
+    userSession.logIn().setSystemAdministrator();
+
+    MvcResult mvcResult = mockMvc.perform(patch(USER_ENDPOINT + "/userLogin")
+      .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
+      .content(payload))
+      .andExpect(
+        status().isBadRequest())
+      .andReturn();
+
+    RestError error = gson.fromJson(mvcResult.getResponse().getContentAsString(), RestError.class);
+    assertThat(error.message()).isEqualTo(expectedMessage);
+  }
+
+  @Test
+  public void updateUser_whenEmailIsEmpty_shouldReturnBadRequest() throws Exception {
+    performPatchCallAndExpectBadRequest("{\"email\":\"\"}", "Value  for field email was rejected. Error: size must be between 1 and 100.");
+  }
+
+  @Test
+  public void updateUser_whenNameIsTooLong_shouldReturnBadRequest() throws Exception {
+    String tooLong = "toolong".repeat(30);
+    String payload = "{\"name\":\"" + tooLong + "\"}";
+    String message = "Value " + tooLong + " for field name was rejected. Error: size must be between 0 and 200.";
+    performPatchCallAndExpectBadRequest(payload, message);
   }
 
 }

@@ -17,14 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.user;
+package org.sonar.server.common.user.service;
 
-import java.util.List;
-import org.sonar.server.common.PaginationInformation;
-import org.sonar.server.common.user.service.UserInformation;
+import java.util.Collection;
+import java.util.Optional;
+import org.sonar.db.user.UserDto;
 
-public interface UsersSearchResponseGenerator<T> {
-
-  T toUsersForResponse(List<UserInformation> userInformations, PaginationInformation paginationInformation);
-
+public record UserInformation(UserDto userDto, boolean managed, Optional<String> avatar, Collection<String> groups, int tokensCount) {
 }

@@ -19,20 +19,25 @@
  */
 package org.sonar.server.v2.api.user.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import javax.annotation.Nullable;
 
 public record RestUserForAdmins(
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   String id,
   String login,
   String name,
   @Nullable
   String email,
   @Nullable
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   Boolean active,
   @Nullable
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   Boolean local,
   @Nullable
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   Boolean managed,
   @Nullable
   String externalLogin,
@@ -41,8 +46,10 @@ public record RestUserForAdmins(
   @Nullable
   String avatar,
   @Nullable
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   String sonarQubeLastConnectionDate,
   @Nullable
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   String sonarLintLastConnectionDate,
   @Nullable
   List<String> scmAccounts

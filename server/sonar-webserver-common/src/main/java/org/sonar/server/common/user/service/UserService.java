@@ -40,6 +40,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
+import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserUpdater;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -50,6 +51,7 @@ import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 public class UserService {
 
+  private static final String USER_NOT_FOUND_MESSAGE = "User '%s' not found";
   private final DbClient dbClient;
   private final AvatarResolver avatarResolver;
   private final ManagedInstanceService managedInstanceService;
@@ -72,14 +74,14 @@ public class UserService {
     this.userUpdater = userUpdater;
   }
 
-  public SearchResults<UserSearchResult> findUsers(UsersSearchRequest request) {
+  public SearchResults<UserInformation> findUsers(UsersSearchRequest request) {
     UserQuery userQuery = buildUserQuery(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
       int totalUsers = dbClient.userDao().countUsers(dbSession, userQuery);
       if (request.getPageSize() == 0) {
         return new SearchResults<>(List.of(), totalUsers);
       }
-      List<UserSearchResult> searchResults = performSearch(dbSession, userQuery, request.getPage(), request.getPageSize());
+      List<UserInformation> searchResults = performSearch(dbSession, userQuery, request.getPage(), request.getPageSize());
       return new SearchResults<>(searchResults, totalUsers);
     }
   }
@@ -106,7 +108,7 @@ public class UserService {
       .build();
   }
 
-  private List<UserSearchResult> performSearch(DbSession dbSession, UserQuery userQuery, int pageIndex, int pageSize) {
+  private List<UserInformation> performSearch(DbSession dbSession, UserQuery userQuery, int pageIndex, int pageSize) {
     List<UserDto> userDtos = findUsersAndSortByLogin(dbSession, userQuery, pageIndex, pageSize);
     List<String> logins = userDtos.stream().map(UserDto::getLogin).toList();
     Multimap<String, String> groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
@@ -138,7 +140,7 @@ public class UserService {
 
   public UserDto deactivate(String login, Boolean anonymize) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto userDto = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' not found", login);
+      UserDto userDto = findUserOrThrow(login, dbSession);
       managedInstanceChecker.throwIfUserIsManaged(dbSession, userDto.getUuid());
       UserDto deactivatedUser;
       if (Boolean.TRUE.equals(anonymize)) {
@@ -151,9 +153,13 @@ public class UserService {
     }
   }
 
-  public UserSearchResult fetchUser(String login) {
+  private UserDto findUserOrThrow(String login, DbSession dbSession) {
+    return checkFound(dbClient.userDao().selectByLogin(dbSession, login), USER_NOT_FOUND_MESSAGE, login);
+  }
+
+  public UserInformation fetchUser(String login) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto userDto = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' not found", login);
+      UserDto userDto = findUserOrThrow(login, dbSession);
       Collection<String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, Set.of(login)).get(login);
       int tokenCount = dbClient.userTokenDao().selectByUser(dbSession, userDto).size();
       boolean isManaged = managedInstanceService.isUserManaged(dbSession, userDto.getUuid());
@@ -161,8 +167,8 @@ public class UserService {
     }
   }
 
-  private UserSearchResult toUserSearchResult(Collection<String> groups, int tokenCount, boolean managed, UserDto userDto) {
-    return new UserSearchResult(
+  private UserInformation toUserSearchResult(Collection<String> groups, int tokenCount, boolean managed, UserDto userDto) {
+    return new UserInformation(
       userDto,
       managed,
       findAvatar(userDto),
@@ -170,7 +176,7 @@ public class UserService {
       tokenCount);
   }
 
-  public UserSearchResult createUser(UserCreateRequest userCreateRequest) {
+  public UserInformation createUser(UserCreateRequest userCreateRequest) {
     managedInstanceChecker.throwIfInstanceIsManaged();
     List<String> scmAccounts = userCreateRequest.getScmAccounts().orElse(new ArrayList<>());
     validateScmAccounts(scmAccounts);
@@ -189,13 +195,15 @@ public class UserService {
     }
   }
 
-  private UserSearchResult registerUser(DbSession dbSession, String login, NewUser.Builder newUserBuilder) {
+  private UserInformation registerUser(DbSession dbSession, String login, NewUser.Builder newUserBuilder) {
     UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
     if (user == null) {
-      user = userUpdater.createAndCommit(dbSession, newUserBuilder.build(), u -> {});
+      user = userUpdater.createAndCommit(dbSession, newUserBuilder.build(), u -> {
+      });
     } else {
       checkArgument(!user.isActive(), "An active user with login '%s' already exists", login);
-      user = userUpdater.reactivateAndCommit(dbSession, user, newUserBuilder.build(), u -> {});
+      user = userUpdater.reactivateAndCommit(dbSession, user, newUserBuilder.build(), u -> {
+      });
     }
     return fetchUser(user.getLogin());
   }
@@ -213,6 +221,15 @@ public class UserService {
     Set<String> duplicateCheck = new HashSet<>();
     for (String account : scmAccounts) {
       checkArgument(duplicateCheck.add(account), "Duplicate SCM account: '%s'", account);
+    }
+  }
+
+  public UserInformation updateUser(String login, UpdateUser updateUser) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      UserDto userDto = findUserOrThrow(login, dbSession);
+      userUpdater.updateAndCommit(dbSession, userDto, updateUser, u -> {
+      });
+      return fetchUser(userDto.getLogin());
     }
   }
 

@@ -24,6 +24,7 @@ public class WebApiEndpoints {
   public static final String LIVENESS_ENDPOINT = SYSTEM_ENDPOINTS + "/liveness";
   public static final String HEALTH_ENDPOINT = SYSTEM_ENDPOINTS + "/health";
   public static final String USER_ENDPOINT = "/users";
+  public static final String JSON_MERGE_PATCH_CONTENT_TYPE = "application/json-merge-patch+json";
 
   private WebApiEndpoints() {
   }

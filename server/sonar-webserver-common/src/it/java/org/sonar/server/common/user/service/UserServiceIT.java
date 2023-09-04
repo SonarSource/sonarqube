@@ -38,8 +38,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.audit.NoOpAuditPersister;
-import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
@@ -64,6 +64,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUserNotifier;
+import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
@@ -117,7 +118,7 @@ public class UserServiceIT {
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser(u -> u.setActive(false));
 
-    SearchResults<UserSearchResult> users = userService.findUsers(SEARCH_REQUEST);
+    SearchResults<UserInformation> users = userService.findUsers(SEARCH_REQUEST);
 
     assertThat(users.searchResults())
       .extracting(r -> r.userDto().getLogin(), r -> r.userDto().getName())
@@ -131,7 +132,7 @@ public class UserServiceIT {
     UserDto user1 = db.users().insertUser(u -> u.setActive(false));
     UserDto user2 = db.users().insertUser(u -> u.setActive(true));
 
-    SearchResults<UserSearchResult> users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(50).setDeactivated(true).build());
+    SearchResults<UserInformation> users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(50).setDeactivated(true).build());
 
     assertThat(users.searchResults())
       .extracting(r -> r.userDto().getLogin(), r -> r.userDto().getName())
@@ -148,16 +149,16 @@ public class UserServiceIT {
       .setLocal(true)
       .setScmAccounts(singletonList("user1")));
 
-    SearchResults<UserSearchResult> users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(50).setQuery("user-%_%-").build());
-    assertThat(users.searchResults()).extracting(UserSearchResult::userDto).extracting(UserDto::getLogin)
+    SearchResults<UserInformation> users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(50).setQuery("user-%_%-").build());
+    assertThat(users.searchResults()).extracting(UserInformation::userDto).extracting(UserDto::getLogin)
       .containsExactly(user.getLogin());
 
     users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(50).setQuery("user@MAIL.com").build());
-    assertThat(users.searchResults()).extracting(UserSearchResult::userDto).extracting(UserDto::getLogin)
+    assertThat(users.searchResults()).extracting(UserInformation::userDto).extracting(UserDto::getLogin)
       .containsExactly(user.getLogin());
 
     users = userService.findUsers(getBuilderWithDefaultsPageSize().setQuery("user-name").build());
-    assertThat(users.searchResults()).extracting(UserSearchResult::userDto).extracting(UserDto::getLogin)
+    assertThat(users.searchResults()).extracting(UserInformation::userDto).extracting(UserDto::getLogin)
       .containsExactly(user.getLogin());
   }
 
@@ -165,10 +166,10 @@ public class UserServiceIT {
   public void return_avatar() {
     UserDto user = db.users().insertUser(u -> u.setEmail("john@doe.com"));
 
-    SearchResults<UserSearchResult> users = userService.findUsers(SEARCH_REQUEST);
+    SearchResults<UserInformation> users = userService.findUsers(SEARCH_REQUEST);
 
     assertThat(users.searchResults())
-      .extracting(r -> r.userDto().getLogin(), UserSearchResult::avatar)
+      .extracting(r -> r.userDto().getLogin(), UserInformation::avatar)
       .containsExactlyInAnyOrder(
         tuple(user.getLogin(), Optional.of("6a6c19fea4a3676970167ce51f39e6ee")));
 
@@ -180,10 +181,10 @@ public class UserServiceIT {
     UserDto managedUser = db.users().insertUser(u -> u.setEmail("externalUser@doe.com"));
     mockUsersAsManaged(managedUser.getUuid());
 
-    SearchResults<UserSearchResult> users = userService.findUsers(SEARCH_REQUEST);
+    SearchResults<UserInformation> users = userService.findUsers(SEARCH_REQUEST);
 
     assertThat(users.searchResults())
-      .extracting(r -> r.userDto().getLogin(), UserSearchResult::managed)
+      .extracting(r -> r.userDto().getLogin(), UserInformation::managed)
       .containsExactlyInAnyOrder(
         tuple(managedUser.getLogin(), true),
         tuple(nonManagedUser.getLogin(), false));
@@ -198,10 +199,10 @@ public class UserServiceIT {
     mockUsersAsManaged(managedUser.getUuid());
     mockInstanceExternallyManagedAndFilterForManagedUsers();
 
-    SearchResults<UserSearchResult> users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(50).setManaged(true).build());
+    SearchResults<UserInformation> users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(50).setManaged(true).build());
 
     assertThat(users.searchResults())
-      .extracting(r -> r.userDto().getLogin(), UserSearchResult::managed)
+      .extracting(r -> r.userDto().getLogin(), UserInformation::managed)
       .containsExactlyInAnyOrder(
         tuple(managedUser.getLogin(), true));
 
@@ -215,10 +216,10 @@ public class UserServiceIT {
     mockUsersAsManaged(managedUser.getUuid());
     mockInstanceExternallyManagedAndFilterForManagedUsers();
 
-    SearchResults<UserSearchResult> users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(50).setManaged(false).build());
+    SearchResults<UserInformation> users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(50).setManaged(false).build());
 
     assertThat(users.searchResults())
-      .extracting(r -> r.userDto().getLogin(), UserSearchResult::managed)
+      .extracting(r -> r.userDto().getLogin(), UserInformation::managed)
       .containsExactlyInAnyOrder(
         tuple(nonManagedUser.getLogin(), false));
   }
@@ -236,7 +237,7 @@ public class UserServiceIT {
   public void return_scm_accounts() {
     UserDto user = db.users().insertUser(u -> u.setScmAccounts(asList("john1", "john2")));
 
-    SearchResults<UserSearchResult> users = userService.findUsers(SEARCH_REQUEST);
+    SearchResults<UserInformation> users = userService.findUsers(SEARCH_REQUEST);
 
     assertThat(users.searchResults())
       .extracting(r -> r.userDto().getLogin(), userSearchResult -> userSearchResult.userDto().getSortedScmAccounts())
@@ -249,10 +250,10 @@ public class UserServiceIT {
     db.users().insertToken(user);
     db.users().insertToken(user);
 
-    SearchResults<UserSearchResult> users = userService.findUsers(SEARCH_REQUEST);
+    SearchResults<UserInformation> users = userService.findUsers(SEARCH_REQUEST);
 
     assertThat(users.searchResults())
-      .extracting(r -> r.userDto().getLogin(), UserSearchResult::tokensCount)
+      .extracting(r -> r.userDto().getLogin(), UserInformation::tokensCount)
       .containsExactlyInAnyOrder(tuple(user.getLogin(), 2));
   }
 
@@ -260,7 +261,7 @@ public class UserServiceIT {
   public void return_user_not_having_email() {
     UserDto user = db.users().insertUser(u -> u.setEmail(null));
 
-    SearchResults<UserSearchResult> users = userService.findUsers(SEARCH_REQUEST);
+    SearchResults<UserInformation> users = userService.findUsers(SEARCH_REQUEST);
 
     assertThat(users.searchResults())
       .extracting(r -> r.userDto().getLogin(), userSearchResult -> userSearchResult.userDto().getEmail())
@@ -276,10 +277,10 @@ public class UserServiceIT {
     db.users().insertMember(group1, user);
     db.users().insertMember(group2, user);
 
-    SearchResults<UserSearchResult> users = userService.findUsers(SEARCH_REQUEST);
+    SearchResults<UserInformation> users = userService.findUsers(SEARCH_REQUEST);
 
     assertThat(users.searchResults())
-      .extracting(r -> r.userDto().getLogin(), UserSearchResult::groups)
+      .extracting(r -> r.userDto().getLogin(), UserInformation::groups)
       .containsExactlyInAnyOrder(tuple(user.getLogin(), asList(group1.getName(), group2.getName())));
   }
 
@@ -287,7 +288,7 @@ public class UserServiceIT {
   public void return_external_information() {
     UserDto user = db.users().insertUser();
 
-    SearchResults<UserSearchResult> users = userService.findUsers(SEARCH_REQUEST);
+    SearchResults<UserInformation> users = userService.findUsers(SEARCH_REQUEST);
 
     assertThat(users.searchResults())
       .extracting(
@@ -303,7 +304,7 @@ public class UserServiceIT {
     db.users().updateLastConnectionDate(userWithLastConnectionDate, 10_000_000_000L);
     UserDto userWithoutLastConnectionDate = db.users().insertUser();
 
-    SearchResults<UserSearchResult> users = userService.findUsers(SEARCH_REQUEST);
+    SearchResults<UserInformation> users = userService.findUsers(SEARCH_REQUEST);
 
     assertThat(users.searchResults())
       .extracting(r -> r.userDto().getLogin(), userSearchResult -> userSearchResult.userDto().getLastConnectionDate())
@@ -321,17 +322,17 @@ public class UserServiceIT {
     GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
 
-    SearchResults<UserSearchResult> users = userService.findUsers(SEARCH_REQUEST);
+    SearchResults<UserInformation> users = userService.findUsers(SEARCH_REQUEST);
 
     assertThat(users.searchResults())
-      .extracting(UserSearchResult::userDto)
+      .extracting(UserInformation::userDto)
       .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
         userDto -> !userDto.getSortedScmAccounts().isEmpty(), UserDto::getLastConnectionDate)
       .containsExactlyInAnyOrder(
         tuple(user.getLogin(), user.getName(), user.getEmail(), user.getExternalLogin(), user.getExternalIdentityProvider(), true, 10_000_000_000L));
 
     assertThat(users.searchResults())
-      .extracting(UserSearchResult::avatar, UserSearchResult::tokensCount, userSearchResult -> userSearchResult.groups().size())
+      .extracting(UserInformation::avatar, UserInformation::tokensCount, userSearchResult -> userSearchResult.groups().size())
       .containsExactly(tuple(Optional.of("5dcdf28d944831f2fb87d48b81500c66"), 2, 1));
 
   }
@@ -340,7 +341,7 @@ public class UserServiceIT {
   public void search_whenNoPagingInformationProvided_setsDefaultValues() {
     IntStream.rangeClosed(0, 9).forEach(i -> db.users().insertUser(u -> u.setLogin("user-" + i).setName("User " + i)));
 
-    SearchResults<UserSearchResult> users = userService.findUsers(SEARCH_REQUEST);
+    SearchResults<UserInformation> users = userService.findUsers(SEARCH_REQUEST);
 
     assertThat(users.total()).isEqualTo(10);
   }
@@ -349,7 +350,7 @@ public class UserServiceIT {
   public void search_with_paging() {
     IntStream.rangeClosed(0, 9).forEach(i -> db.users().insertUser(u -> u.setLogin("user-" + i).setName("User " + i)));
 
-    SearchResults<UserSearchResult> users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(5).build());
+    SearchResults<UserInformation> users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(5).build());
 
     assertThat(users.searchResults())
       .extracting(u -> u.userDto().getLogin())
@@ -369,14 +370,14 @@ public class UserServiceIT {
   public void search_whenPageSizeIsZero_shouldOnlyReturnPaginationInfo() {
     IntStream.rangeClosed(0, 9).forEach(i -> db.users().insertUser(u -> u.setLogin("user-" + i).setName("User " + i)));
 
-    SearchResults<UserSearchResult> users = userService.findUsers(UsersSearchRequest.builder().setPageSize(0).build());
+    SearchResults<UserInformation> users = userService.findUsers(UsersSearchRequest.builder().setPageSize(0).build());
     assertThat(users.searchResults()).isEmpty();
     assertThat(users.total()).isEqualTo(10);
   }
 
   @Test
   public void return_empty_result_when_no_user() {
-    SearchResults<UserSearchResult> users = userService.findUsers(SEARCH_REQUEST);
+    SearchResults<UserInformation> users = userService.findUsers(SEARCH_REQUEST);
 
     assertThat(users.searchResults()).isEmpty();
     assertThat(users.total()).isZero();
@@ -394,7 +395,7 @@ public class UserServiceIT {
     user = db.users().updateLastConnectionDate(user, lastConnection.toEpochMilli());
     user = db.users().updateSonarLintLastConnectionDate(user, lastConnection.toEpochMilli());
 
-    SearchResults<UserSearchResult> users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(50).setQuery("user-%_%-").build());
+    SearchResults<UserInformation> users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(50).setQuery("user-%_%-").build());
 
     assertThat(users.searchResults())
       .extracting(r -> r.userDto().getLogin())
@@ -709,7 +710,7 @@ public class UserServiceIT {
 
     when(managedInstanceService.isUserManaged(any(), eq(user.getUuid()))).thenReturn(false);
 
-    UserSearchResult result = userService.fetchUser(user.getLogin());
+    UserInformation result = userService.fetchUser(user.getLogin());
     UserDto resultUser = result.userDto();
     Collection<String> resultGroups = result.groups();
 
@@ -718,12 +719,38 @@ public class UserServiceIT {
     assertThat(result.managed()).isFalse();
   }
 
+  @Test
+  public void updateUser_whenUserDoesntExist_shouldThrowNotFoundException() {
+    UpdateUser update = new UpdateUser();
+    assertThatThrownBy(() -> userService.updateUser("login", update))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("User 'login' not found");
+  }
+
+  @Test
+  public void updateUser_whenUserExists_shouldApplyUpdateAndReturnUpdatedUser() {
+    UserDto user = db.users().insertUser();
+
+    UpdateUser updateUser = new UpdateUser();
+    updateUser.setName("new name");
+    updateUser.setEmail("newemail@example.com");
+    updateUser.setScmAccounts(List.of("account1", "account2"));
+
+    userService.updateUser(user.getLogin(), updateUser);
+
+    UserDto updatedUser = db.users().selectUserByLogin(user.getLogin()).orElseThrow();
+
+    assertThat(updatedUser.getName()).isEqualTo("new name");
+    assertThat(updatedUser.getEmail()).isEqualTo("newemail@example.com");
+    assertThat(updatedUser.getSortedScmAccounts()).containsExactly("account1", "account2");
+  }
+
   private void assertUserWithFilter(Function<UsersSearchRequest.Builder, UsersSearchRequest.Builder> query, String userLogin, boolean isExpectedToBeThere) {
 
     UsersSearchRequest.Builder builder = getBuilderWithDefaultsPageSize();
     builder = query.apply(builder);
 
-    SearchResults<UserSearchResult> users = userService.findUsers(builder.setQuery("user-%_%-").build());
+    SearchResults<UserInformation> users = userService.findUsers(builder.setQuery("user-%_%-").build());
 
     var assertion = assertThat(users.searchResults());
     if (isExpectedToBeThere) {
@@ -761,7 +788,7 @@ public class UserServiceIT {
       .setLocal(true)
       .build();
 
-    UserSearchResult user = userService.createUser(userCreateRequest);
+    UserInformation user = userService.createUser(userCreateRequest);
 
     assertThat(user.userDto())
       .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getSortedScmAccounts, UserDto::isLocal)
@@ -799,7 +826,7 @@ public class UserServiceIT {
       .setLocal(true)
       .build();
 
-    UserSearchResult user = userService.createUser(userCreateRequest);
+    UserInformation user = userService.createUser(userCreateRequest);
 
     assertThat(user.userDto().getSortedScmAccounts()).containsOnly("j,n");
   }

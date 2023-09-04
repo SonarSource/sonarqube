@@ -25,7 +25,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.PaginationInformation;
 import org.sonar.server.common.user.UsersSearchResponseGenerator;
-import org.sonar.server.common.user.service.UserSearchResult;
+import org.sonar.server.common.user.service.UserInformation;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Users;
 
@@ -42,9 +42,9 @@ public class SearchWsReponseGenerator implements UsersSearchResponseGenerator<Us
   }
 
   @Override
-  public Users.SearchWsResponse toUsersForResponse(List<UserSearchResult> userSearchResults, PaginationInformation paginationInformation) {
+  public Users.SearchWsResponse toUsersForResponse(List<UserInformation> userInformations, PaginationInformation paginationInformation) {
     Users.SearchWsResponse.Builder responseBuilder = newBuilder();
-    userSearchResults.forEach(user -> responseBuilder.addUsers(toSearchResponsUser(user)));
+    userInformations.forEach(user -> responseBuilder.addUsers(toSearchResponsUser(user)));
     responseBuilder.getPagingBuilder()
       .setPageIndex(paginationInformation.pageIndex())
       .setPageSize(paginationInformation.pageSize())
@@ -53,12 +53,12 @@ public class SearchWsReponseGenerator implements UsersSearchResponseGenerator<Us
     return responseBuilder.build();
   }
 
-  private Users.SearchWsResponse.User toSearchResponsUser(UserSearchResult userSearchResult) {
-    UserDto userDto = userSearchResult.userDto();
+  private Users.SearchWsResponse.User toSearchResponsUser(UserInformation userInformation) {
+    UserDto userDto = userInformation.userDto();
     Users.SearchWsResponse.User.Builder userBuilder = Users.SearchWsResponse.User.newBuilder().setLogin(userDto.getLogin());
     ofNullable(userDto.getName()).ifPresent(userBuilder::setName);
     if (userSession.isLoggedIn()) {
-      userSearchResult.avatar().ifPresent(userBuilder::setAvatar);
+      userInformation.avatar().ifPresent(userBuilder::setAvatar);
       userBuilder.setActive(userDto.isActive());
       userBuilder.setLocal(userDto.isLocal());
       ofNullable(userDto.getExternalIdentityProvider()).ifPresent(userBuilder::setExternalProvider);
@@ -68,15 +68,15 @@ public class SearchWsReponseGenerator implements UsersSearchResponseGenerator<Us
     }
     if (userSession.isSystemAdministrator() || Objects.equals(userSession.getUuid(), userDto.getUuid())) {
       ofNullable(userDto.getEmail()).ifPresent(userBuilder::setEmail);
-      if (!userSearchResult.groups().isEmpty()) {
-        userBuilder.setGroups(Users.SearchWsResponse.Groups.newBuilder().addAllGroups(userSearchResult.groups()));
+      if (!userInformation.groups().isEmpty()) {
+        userBuilder.setGroups(Users.SearchWsResponse.Groups.newBuilder().addAllGroups(userInformation.groups()));
       }
       ofNullable(userDto.getExternalLogin()).ifPresent(userBuilder::setExternalIdentity);
-      userBuilder.setTokensCount(userSearchResult.tokensCount());
+      userBuilder.setTokensCount(userInformation.tokensCount());
       ofNullable(userDto.getLastConnectionDate()).map(DateUtils::formatDateTime).ifPresent(userBuilder::setLastConnectionDate);
       ofNullable(userDto.getLastSonarlintConnectionDate())
         .map(DateUtils::formatDateTime).ifPresent(userBuilder::setSonarLintLastConnectionDate);
-      userBuilder.setManaged(TRUE.equals(userSearchResult.managed()));
+      userBuilder.setManaged(TRUE.equals(userInformation.managed()));
     }
     return userBuilder.build();
   }

@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.common.PaginationInformation;
 import org.sonar.server.common.SearchResults;
-import org.sonar.server.common.user.service.UserSearchResult;
+import org.sonar.server.common.user.service.UserInformation;
 import org.sonar.server.common.user.service.UserService;
 import org.sonar.server.common.user.service.UsersSearchRequest;
 import org.sonar.server.es.SearchOptions;
@@ -170,7 +170,7 @@ public class SearchAction implements UsersWsAction {
   }
 
   private Users.SearchWsResponse doHandle(UsersSearchRequest request) {
-    SearchResults<UserSearchResult> userSearchResults = userService.findUsers(request);
+    SearchResults<UserInformation> userSearchResults = userService.findUsers(request);
     PaginationInformation paging = forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(userSearchResults.total());
 
     return searchWsReponseGenerator.toUsersForResponse(userSearchResults.searchResults(), paging);

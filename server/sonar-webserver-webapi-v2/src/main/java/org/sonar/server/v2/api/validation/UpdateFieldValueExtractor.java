@@ -17,11 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.user.service;
+package org.sonar.server.v2.api.validation;
 
-import java.util.Collection;
-import java.util.Optional;
-import org.sonar.db.user.UserDto;
+import javax.validation.valueextraction.ExtractedValue;
+import javax.validation.valueextraction.UnwrapByDefault;
+import javax.validation.valueextraction.ValueExtractor;
+import org.sonar.server.v2.common.model.UpdateField;
 
-public record UserSearchResult(UserDto userDto, boolean managed, Optional<String> avatar, Collection<String> groups, int tokensCount) {
+@UnwrapByDefault
+public class UpdateFieldValueExtractor implements ValueExtractor<UpdateField<@ExtractedValue ?>> {
+
+  @Override
+  public void extractValues(UpdateField<?> originalValue, ValueReceiver receiver) {
+    receiver.value(null, originalValue.getValue());
+  }
 }

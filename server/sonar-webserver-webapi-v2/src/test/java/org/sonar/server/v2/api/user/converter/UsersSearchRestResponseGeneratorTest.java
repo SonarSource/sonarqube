@@ -30,7 +30,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.PaginationInformation;
-import org.sonar.server.common.user.service.UserSearchResult;
+import org.sonar.server.common.user.service.UserInformation;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.response.PageRestResponse;
 import org.sonar.server.v2.api.user.model.RestUserForAdmins;
@@ -70,19 +70,19 @@ public class UsersSearchRestResponseGeneratorTest {
 
     PaginationInformation paging = forPageIndex(1).withPageSize(2).andTotal(3);
 
-    UserSearchResult userSearchResult1 = mockSearchResult(1, true);
-    UserSearchResult userSearchResult2 = mockSearchResult(2, false);
+    UserInformation userInformation1 = mockSearchResult(1, true);
+    UserInformation userInformation2 = mockSearchResult(2, false);
 
-    UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(userSearchResult1, userSearchResult2), paging);
+    UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(userInformation1, userInformation2), paging);
 
-    RestUserForAdmins expectUser1 = buildExpectedResponseForAdmin(userSearchResult1);
-    RestUserForAdmins expectUser2 = buildExpectedResponseForAdmin(userSearchResult2);
+    RestUserForAdmins expectUser1 = buildExpectedResponseForAdmin(userInformation1);
+    RestUserForAdmins expectUser2 = buildExpectedResponseForAdmin(userInformation2);
     assertThat(usersForResponse.users()).containsExactly(expectUser1, expectUser2);
     assertPaginationInformationAreCorrect(paging, usersForResponse.page());
   }
 
-  private static RestUserForAdmins buildExpectedResponseForAdmin(UserSearchResult userSearchResult) {
-    UserDto userDto = userSearchResult.userDto();
+  private static RestUserForAdmins buildExpectedResponseForAdmin(UserInformation userInformation) {
+    UserDto userDto = userInformation.userDto();
     return new RestUserForAdmins(
       userDto.getLogin(),
       userDto.getLogin(),
@@ -90,13 +90,13 @@ public class UsersSearchRestResponseGeneratorTest {
       userDto.getEmail(),
       userDto.isActive(),
       userDto.isLocal(),
-      userSearchResult.managed(),
+      userInformation.managed(),
       userDto.getExternalLogin(),
       userDto.getExternalIdentityProvider(),
-      userSearchResult.avatar().orElse(null),
+      userInformation.avatar().orElse(null),
       toDateTime(userDto.getLastConnectionDate()),
       toDateTime(userDto.getLastSonarlintConnectionDate()),
-      userSearchResult.userDto().getSortedScmAccounts()
+      userInformation.userDto().getSortedScmAccounts()
     );
   }
 
@@ -106,19 +106,19 @@ public class UsersSearchRestResponseGeneratorTest {
 
     PaginationInformation paging = forPageIndex(1).withPageSize(2).andTotal(3);
 
-    UserSearchResult userSearchResult1 = mockSearchResult(1, true);
-    UserSearchResult userSearchResult2 = mockSearchResult(2, false);
+    UserInformation userInformation1 = mockSearchResult(1, true);
+    UserInformation userInformation2 = mockSearchResult(2, false);
 
-    UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(userSearchResult1, userSearchResult2), paging);
+    UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(userInformation1, userInformation2), paging);
 
-    RestUserForLoggedInUsers expectUser1 = buildExpectedResponseForUser(userSearchResult1);
-    RestUserForLoggedInUsers expectUser2 = buildExpectedResponseForUser(userSearchResult2);
+    RestUserForLoggedInUsers expectUser1 = buildExpectedResponseForUser(userInformation1);
+    RestUserForLoggedInUsers expectUser2 = buildExpectedResponseForUser(userInformation2);
     assertThat(usersForResponse.users()).containsExactly(expectUser1, expectUser2);
     assertPaginationInformationAreCorrect(paging, usersForResponse.page());
   }
 
-  private static RestUserForLoggedInUsers buildExpectedResponseForUser(UserSearchResult userSearchResult) {
-    UserDto userDto = userSearchResult.userDto();
+  private static RestUserForLoggedInUsers buildExpectedResponseForUser(UserInformation userInformation) {
+    UserDto userDto = userInformation.userDto();
     return new RestUserForLoggedInUsers(
       userDto.getLogin(),
       userDto.getLogin(),
@@ -127,7 +127,7 @@ public class UsersSearchRestResponseGeneratorTest {
       userDto.isActive(),
       userDto.isLocal(),
       userDto.getExternalIdentityProvider(),
-      userSearchResult.avatar().orElse(null)
+      userInformation.avatar().orElse(null)
     );
   }
 
@@ -135,19 +135,19 @@ public class UsersSearchRestResponseGeneratorTest {
   public void toUsersForResponse_whenAnonymous_returnsOnlyNameAndLogin() {
     PaginationInformation paging = forPageIndex(1).withPageSize(2).andTotal(3);
 
-    UserSearchResult userSearchResult1 = mockSearchResult(1, true);
-    UserSearchResult userSearchResult2 = mockSearchResult(2, false);
+    UserInformation userInformation1 = mockSearchResult(1, true);
+    UserInformation userInformation2 = mockSearchResult(2, false);
 
-    UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(userSearchResult1, userSearchResult2), paging);
+    UsersSearchRestResponse usersForResponse = usersSearchRestResponseGenerator.toUsersForResponse(List.of(userInformation1, userInformation2), paging);
 
-    RestUserForAnonymousUsers expectUser1 = buildExpectedResponseForAnonymous(userSearchResult1);
-    RestUserForAnonymousUsers expectUser2 = buildExpectedResponseForAnonymous(userSearchResult2);
+    RestUserForAnonymousUsers expectUser1 = buildExpectedResponseForAnonymous(userInformation1);
+    RestUserForAnonymousUsers expectUser2 = buildExpectedResponseForAnonymous(userInformation2);
     assertThat(usersForResponse.users()).containsExactly(expectUser1, expectUser2);
     assertPaginationInformationAreCorrect(paging, usersForResponse.page());
   }
 
-  private static RestUserForAnonymousUsers buildExpectedResponseForAnonymous(UserSearchResult userSearchResult) {
-    UserDto userDto = userSearchResult.userDto();
+  private static RestUserForAnonymousUsers buildExpectedResponseForAnonymous(UserInformation userInformation) {
+    UserDto userDto = userInformation.userDto();
     return new RestUserForAnonymousUsers(
       userDto.getLogin(),
       userDto.getLogin(),
@@ -159,8 +159,8 @@ public class UsersSearchRestResponseGeneratorTest {
     return Optional.ofNullable(dateTimeMs).map(DateUtils::formatDateTime).orElse(null);
   }
 
-  private static UserSearchResult mockSearchResult(int i, boolean booleanFlagsValue) {
-    UserSearchResult userSearchResult = mock(UserSearchResult.class, RETURNS_DEEP_STUBS);
+  private static UserInformation mockSearchResult(int i, boolean booleanFlagsValue) {
+    UserInformation userInformation = mock(UserInformation.class, RETURNS_DEEP_STUBS);
     UserDto user1 = new UserDto()
       .setUuid("uuid_" + i)
       .setLogin("login_" + i)
@@ -174,9 +174,9 @@ public class UsersSearchRestResponseGeneratorTest {
       .setLocal(booleanFlagsValue)
       .setActive(booleanFlagsValue);
 
-    when(userSearchResult.userDto()).thenReturn(user1);
-    when(userSearchResult.managed()).thenReturn(booleanFlagsValue);
-    return userSearchResult;
+    when(userInformation.userDto()).thenReturn(user1);
+    when(userInformation.managed()).thenReturn(booleanFlagsValue);
+    return userInformation;
   }
 
   private static void assertPaginationInformationAreCorrect(PaginationInformation paginationInformation, PageRestResponse pageRestResponse) {
