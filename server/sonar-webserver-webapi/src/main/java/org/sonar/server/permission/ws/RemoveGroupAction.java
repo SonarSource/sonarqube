@@ -96,7 +96,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
 
       wsSupport.checkPermissionManagementAccess(userSession, group.getOrganizationUuid(), project.orElse(null));
 
-      logger.info("Remove Permission for a Group :: permission {}, organizationUuid : {}, groupUuid: {}, user : {}",
+      logger.info("Remove Permission for a Group :: permission type: {}, organization: {}, group: {}, user: {}",
               request.mandatoryParam(PARAM_PERMISSION), group.getOrganizationUuid(), group.getUuid(),
               userSession.getLogin());
       PermissionChange change = new GroupPermissionChange(

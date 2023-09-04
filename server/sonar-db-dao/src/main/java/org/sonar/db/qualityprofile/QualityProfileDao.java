@@ -29,6 +29,8 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
@@ -47,6 +49,7 @@ public class QualityProfileDao implements Dao {
 
   private final System2 system;
   private final UuidFactory uuidFactory;
+  private final Logger logger = Loggers.get(QualityProfileDao.class);
 
   public QualityProfileDao(UuidFactory uuidFactory, System2 system) {
     this.uuidFactory = uuidFactory;
@@ -224,14 +227,20 @@ public class QualityProfileDao implements Dao {
 
   public void insertProjectProfileAssociation(DbSession dbSession, ProjectDto project, QProfileDto profile) {
     mapper(dbSession).insertProjectProfileAssociation(uuidFactory.create(), project.getUuid(), profile.getKee());
+    logger.info("Attached QProfile to Project :: project: {}, QProfile: {}, QPLanguage: {}", project.getKey(),
+            profile.getName(), profile.getLanguage());
   }
 
   public void deleteProjectProfileAssociation(DbSession dbSession, ProjectDto project, QProfileDto profile) {
     mapper(dbSession).deleteProjectProfileAssociation(project.getUuid(), profile.getKee());
+    logger.info("Deleted QProfiles from Project :: project: {}, QProfile: {}, QPLanguage: {}", project.getKey(),
+            profile.getName(), profile.getLanguage());
   }
 
   public void updateProjectProfileAssociation(DbSession dbSession, ProjectDto project, String newProfileUuid, String oldProfileUuid) {
     mapper(dbSession).updateProjectProfileAssociation(project.getUuid(), newProfileUuid, oldProfileUuid);
+    logger.info("Updated QProfiles to Project :: project: {}, old_QProfile: {}, new_QProfile: {}", project.getKey(),
+            oldProfileUuid, newProfileUuid);
   }
 
   public void deleteProjectAssociationsByProfileUuids(DbSession dbSession, Collection<String> profileUuids) {

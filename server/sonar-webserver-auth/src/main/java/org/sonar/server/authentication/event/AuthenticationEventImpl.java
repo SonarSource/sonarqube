@@ -37,10 +37,7 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
   public void loginSuccess(HttpServletRequest request, @Nullable String login, Source source) {
     checkRequest(request);
     requireNonNull(source, "source can't be null");
-    if (!LOGGER.isDebugEnabled()) {
-      return;
-    }
-    LOGGER.debug("login success [method|{}][provider|{}|{}][IP|{}|{}][login|{}]",
+    LOGGER.info("login success [method|{}][provider|{}|{}][IP|{}|{}][login|{}]",
       source.getMethod(), source.getProvider(), source.getProviderName(),
       request.getRemoteAddr(), getAllIps(request),
       preventLogFlood(emptyIfNull(login)));
@@ -54,11 +51,8 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
   public void loginFailure(HttpServletRequest request, AuthenticationException e) {
     checkRequest(request);
     requireNonNull(e, "AuthenticationException can't be null");
-    if (!LOGGER.isDebugEnabled()) {
-      return;
-    }
     Source source = e.getSource();
-    LOGGER.debug("login failure [cause|{}][method|{}][provider|{}|{}][IP|{}|{}][login|{}]",
+    LOGGER.info("login failure [cause|{}][method|{}][provider|{}|{}][IP|{}|{}][login|{}]",
       emptyIfNull(e.getMessage()),
       source.getMethod(), source.getProvider(), source.getProviderName(),
       request.getRemoteAddr(), getAllIps(request),

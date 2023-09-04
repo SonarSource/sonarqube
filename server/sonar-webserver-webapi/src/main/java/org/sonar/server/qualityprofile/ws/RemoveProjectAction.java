@@ -24,6 +24,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -47,6 +49,7 @@ public class RemoveProjectAction implements QProfileWsAction {
   private final ComponentFinder componentFinder;
   private final QProfileWsSupport wsSupport;
   private final QualityProfileChangeEventService qualityProfileChangeEventService;
+  private final Logger logger = Loggers.get(RemoveProjectAction.class);
 
   public RemoveProjectAction(DbClient dbClient, UserSession userSession, Languages languages, ComponentFinder componentFinder,
     QProfileWsSupport wsSupport, QualityProfileChangeEventService qualityProfileChangeEventService) {
@@ -89,6 +92,9 @@ public class RemoveProjectAction implements QProfileWsAction {
       ProjectDto project = loadProject(dbSession, request);
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromName(request));
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
+      logger.info(
+              "Remove QProfiles for a project Request :: organization: {}, project: {} and QProfile: {}, QProfile language: {}",
+              organization.getKey(), project.getKey(), profile.getKee(), profile.getLanguage());
       checkPermissions(profile, organization, project);
       if (!profile.getOrganizationUuid().equals(project.getOrganizationUuid())) {
         throw new IllegalArgumentException("Project and Quality profile must have the same organization");

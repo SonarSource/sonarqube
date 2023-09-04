@@ -24,6 +24,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -47,6 +49,7 @@ public class AddProjectAction implements QProfileWsAction {
   private final ComponentFinder componentFinder;
   private final QProfileWsSupport wsSupport;
   private final QualityProfileChangeEventService qualityProfileChangeEventService;
+  private final Logger logger = Loggers.get(AddProjectAction.class);
 
   public AddProjectAction(DbClient dbClient, UserSession userSession, Languages languages, ComponentFinder componentFinder,
     QProfileWsSupport wsSupport, QualityProfileChangeEventService qualityProfileChangeEventService) {
@@ -90,6 +93,9 @@ public class AddProjectAction implements QProfileWsAction {
       ProjectDto project = loadProject(dbSession, request);
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromName(request));
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
+      logger.info(
+              "Managing project Quality Profiles Request :: organization: {}, project: {} and QProfile: {}, QProfile language: {}",
+              organization.getKey(), project.getKey(), profile.getKee(), profile.getLanguage());
 
       if (!profile.getOrganizationUuid().equals(organization.getUuid())) {
         throw new IllegalArgumentException("Quality profile must have the same organization");

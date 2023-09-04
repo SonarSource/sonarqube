@@ -24,6 +24,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -50,6 +52,7 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
   private final UserSession userSession;
   private final WsParameters wsParameters;
   private final RequestValidator requestValidator;
+  private static final Logger logger = Loggers.get(RemoveUserFromTemplateAction.class);
 
   public RemoveUserFromTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession, WsParameters wsParameters, RequestValidator requestValidator) {
     this.dbClient = dbClient;
@@ -98,7 +101,8 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
-
+      logger.info("Remove User: {} from Permission Template Request :: organization : {}, templateName: {} and permissionType: {}",
+              userLogin, template.getOrganizationUuid(), template.getName(), permission);
       UserId user = wsSupport.findUser(dbSession, userLogin);
 
       dbClient.permissionTemplateDao().deleteUserPermission(dbSession, template.getUuid(), user.getUuid(), permission, template.getName(), user.getLogin());

@@ -24,9 +24,12 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewController;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.UserSession;
 
@@ -41,6 +44,7 @@ public class DeleteAction implements UserGroupsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final GroupWsSupport support;
+  private final Logger logger = Loggers.get(DeleteAction.class);
 
   public DeleteAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
     this.dbClient = dbClient;
@@ -69,6 +73,8 @@ public class DeleteAction implements UserGroupsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupDto group = support.findGroupDto(dbSession, request);
       userSession.checkPermission(OrganizationPermission.ADMINISTER, group.getOrganizationUuid());
+      logger.info("Delete Group Request :: group_name: {} and organization: {}", group.getName(),
+              group.getOrganizationUuid());
 
       support.checkGroupIsNotDefault(dbSession, group);
       checkNotTryingToDeleteLastAdminGroup(dbSession, group);
@@ -92,14 +98,17 @@ public class DeleteAction implements UserGroupsWsAction {
   }
 
   private void removeGroupPermissions(DbSession dbSession, GroupDto group) {
+    logger.debug("Removing group permissions for group: {}", group.getName());
     dbClient.roleDao().deleteGroupRolesByGroupUuid(dbSession, group.getUuid());
   }
 
   private void removeFromPermissionTemplates(DbSession dbSession, GroupDto group) {
+    logger.debug("Removing group from permission template for group: {}", group.getName());
     dbClient.permissionTemplateDao().deleteByGroup(dbSession, group.getUuid(), group.getName());
   }
 
   private void removeGroupMembers(DbSession dbSession, GroupDto group) {
+    logger.debug("Removing group members for group: {}", group.getName());
     dbClient.userGroupDao().deleteByGroupUuid(dbSession, group.getUuid(), group.getName());
   }
 }

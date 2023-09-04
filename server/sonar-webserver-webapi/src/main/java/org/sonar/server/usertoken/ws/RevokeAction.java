@@ -22,6 +22,8 @@ package org.sonar.server.usertoken.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
@@ -34,6 +36,7 @@ public class RevokeAction implements UserTokensWsAction {
 
   private final DbClient dbClient;
   private final UserTokenSupport userTokenSupport;
+  private static final Logger logger = Loggers.get(RevokeAction.class);
 
   public RevokeAction(DbClient dbClient, UserTokenSupport userTokenSupport) {
     this.dbClient = dbClient;
@@ -64,6 +67,7 @@ public class RevokeAction implements UserTokensWsAction {
     String name = request.mandatoryParam(PARAM_NAME);
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserDto user = userTokenSupport.getUser(dbSession, request);
+      logger.info("Revoke token request by user: {} and token name: {}", user.getLogin(), name);
       dbClient.userTokenDao().deleteByUserAndName(dbSession, user, name);
       dbSession.commit();
     }

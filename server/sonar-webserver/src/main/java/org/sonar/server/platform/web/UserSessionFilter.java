@@ -60,7 +60,6 @@ public class UserSessionFilter implements Filter {
     
     //Fix Me write new filter
     insertIntoMDC(servletRequest);
-    LOG.info("CODESCAN ****");
     
     DBSessions dbSessions = platform.getContainer().getComponentByType(DBSessions.class);
     ThreadLocalSettings settings = platform.getContainer().getComponentByType(ThreadLocalSettings.class);

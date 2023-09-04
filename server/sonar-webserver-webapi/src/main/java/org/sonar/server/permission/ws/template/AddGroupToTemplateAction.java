@@ -88,7 +88,7 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
 
       PermissionTemplateDto template = support.findTemplate(dbSession, fromRequest(request));
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
-      logger.info("Add Group to Permission Template Request :: organizationUuid : {}, templateName: {} and permissionType: {}, user: {}",
+      logger.info("Add Group to Permission Template Request :: organization : {}, templateName: {} and permissionType: {}, user: {}",
               template.getOrganizationUuid(), template.getName(), permission, userSession.getLogin());
       if (!groupAlreadyAdded(dbSession, template.getUuid(), permission, group)) {
         dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), group.getUuid(), permission,

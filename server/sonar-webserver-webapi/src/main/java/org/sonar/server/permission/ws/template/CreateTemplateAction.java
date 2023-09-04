@@ -110,7 +110,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
 
   private CreateTemplateWsResponse doHandle(CreateTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      logger.info("Create Permission Template Request :: organization_key : {}, templateName: {}",
+      logger.info("Create Permission Template Request :: organization : {}, templateName: {}",
               request.getOrganization(), request.getName());
       OrganizationDto org = wsSupport.findOrganization(dbSession, request.getOrganization());
       checkGlobalAdmin(userSession, org.getUuid());
@@ -125,7 +125,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
   }
 
   private void validateTemplateNameForCreation(DbSession dbSession, OrganizationDto org, String name) {
-    logger.debug("Validating Template Name :: organization_key : {}, templateName: {}", org.getKey(), name);
+    logger.debug("Validating Template Name :: organization : {}, templateName: {}", org.getKey(), name);
     PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao()
       .selectByName(dbSession, org.getUuid(), name);
     checkRequest(permissionTemplateWithSameName == null, format(MSG_TEMPLATE_WITH_SAME_NAME, name));
@@ -142,7 +142,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
       .setCreatedAt(now)
       .setUpdatedAt(now));
     dbSession.commit();
-    logger.info("Template Creation Completed :: organization_key : {}, templateName: {}", org.getKey(), request.getName());
+    logger.info("Template Creation Completed :: organization : {}, templateName: {}", org.getKey(), request.getName());
     return template;
   }
 

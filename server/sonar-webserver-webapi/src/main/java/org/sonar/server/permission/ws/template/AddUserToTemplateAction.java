@@ -25,6 +25,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -52,6 +54,7 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
   private final PermissionWsSupport wsSupport;
   private final UserSession userSession;
   private final WsParameters wsParameters;
+  private static final Logger logger = Loggers.get(AddUserToTemplateAction.class);
 
   public AddUserToTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, UserSession userSession, WsParameters wsParameters) {
     this.dbClient = dbClient;
@@ -98,6 +101,8 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
       OrganizationDto organizationDto = wsSupport.findOrganization(dbSession, request.getOrganization());
+      logger.info("Adding User: {} to Permission Template Request :: organization : {}, templateName: {} and permissionType: {}",
+              userLogin, template.getOrganizationUuid(), template.getName(), permission);
       checkGlobalAdmin(userSession, organizationDto.getUuid());
       UserId user = wsSupport.findUser(dbSession, userLogin);
       wsSupport.checkMembership(dbSession, organizationDto, user);

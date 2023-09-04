@@ -25,6 +25,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.user.UserGroupValidation;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -49,6 +51,7 @@ public class CreateAction implements UserGroupsWsAction {
   private final UserSession userSession;
   private final GroupWsSupport support;
   private final UuidFactory uuidFactory;
+  private final Logger logger = Loggers.get(CreateAction.class);
 
   public CreateAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
@@ -99,6 +102,8 @@ public class CreateAction implements UserGroupsWsAction {
         .setOrganizationUuid(organization.getUuid())
         .setName(request.mandatoryParam(PARAM_GROUP_NAME))
         .setDescription(request.param(PARAM_GROUP_DESCRIPTION));
+      logger.info("Create Group Request :: group name: {} and organization: {}", group.getName(),
+              organization.getUuid());
 
       // validations
       UserGroupValidation.validateGroupName(group.getName());
