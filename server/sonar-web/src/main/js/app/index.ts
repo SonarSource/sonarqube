@@ -31,10 +31,17 @@ installExtensionsHandler();
 initApplication();
 
 async function initApplication() {
-  const [l10nBundle, currentUser, userOrganizations, appState, availableFeatures] = await Promise.all([
+  const [userOrganizations] = await Promise.all([
+    isMainApp() ? getUserOrganizations() : undefined
+  ]).catch((error) => {
+    // eslint-disable-next-line no-console
+    console.error('Application failed to start', error);
+    throw error;
+  });
+
+  const [l10nBundle, currentUser, appState, availableFeatures] = await Promise.all([
     loadL10nBundle(),
     isMainApp() ? getCurrentUser() : undefined,
-    isMainApp() ? getUserOrganizations() : undefined,
     isMainApp() ? getGlobalNavigation() : undefined,
     isMainApp() ? getAvailableFeatures() : undefined,
   ]).catch((error) => {
@@ -44,7 +51,7 @@ async function initApplication() {
   });
 
   const startReactApp = await import('./utils/startReactApp').then((i) => i.default);
-  startReactApp(l10nBundle.locale, currentUser, userOrganizations, appState, availableFeatures);
+  startReactApp(l10nBundle.locale, userOrganizations, currentUser, appState, availableFeatures);
 }
 
 function isMainApp() {

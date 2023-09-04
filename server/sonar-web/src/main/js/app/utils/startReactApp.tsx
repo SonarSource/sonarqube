@@ -233,8 +233,8 @@ function renderAdminRoutes(canAdmin: boolean) {
 
 export default function startReactApp(
   lang: string,
-  currentUser?: CurrentUser,
   userOrganizations?: Organization[],
+  currentUser?: CurrentUser,
   appState?: AppState,
   availableFeatures?: Feature[]
 ) {
