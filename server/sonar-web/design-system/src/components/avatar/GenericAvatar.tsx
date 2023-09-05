@@ -21,23 +21,36 @@ import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import React from 'react';
 import tw from 'twin.macro';
-import { themeAvatarColor } from '../helpers/theme';
-import { IconProps } from './icons/Icon';
+import { themeAvatarColor } from '../../helpers/theme';
+import { IconProps } from '../icons/Icon';
+import { Size, iconSizeMap, sizeMap } from './utils';
 
 export interface GenericAvatarProps {
   Icon?: React.ComponentType<IconProps>;
   className?: string;
   name: string;
-  size?: number;
+  size?: Size;
 }
 
-export function GenericAvatar({ className, Icon, name, size = 24 }: GenericAvatarProps) {
+export function GenericAvatar({ className, Icon, name, size = 'sm' }: GenericAvatarProps) {
   const theme = useTheme();
   const text = name.length > 0 ? name[0].toUpperCase() : '';
 
+  const iconSize = iconSizeMap[size];
+
   return (
-    <StyledGenericAvatar aria-label={name} className={className} name={name} role="img" size={size}>
-      {Icon ? <Icon fill={themeAvatarColor(name, true)({ theme })} /> : text}
+    <StyledGenericAvatar
+      aria-label={name}
+      className={className}
+      name={name}
+      role="img"
+      size={sizeMap[size]}
+    >
+      {Icon ? (
+        <Icon fill={themeAvatarColor(name, true)({ theme })} height={iconSize} width={iconSize} />
+      ) : (
+        text
+      )}
     </StyledGenericAvatar>
   );
 }

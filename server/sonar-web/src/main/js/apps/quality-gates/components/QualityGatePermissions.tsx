@@ -27,7 +27,7 @@ import {
   searchGroups,
   searchUsers,
 } from '../../../api/quality-gates';
-import { Group, isUser, SearchPermissionsParameters } from '../../../types/quality-gates';
+import { Group, SearchPermissionsParameters, isUser } from '../../../types/quality-gates';
 import { QualityGate } from '../../../types/types';
 import { UserBase } from '../../../types/users';
 import QualityGatePermissionsRenderer from './QualityGatePermissionsRenderer';
@@ -159,10 +159,12 @@ export default class QualityGatePermissions extends React.Component<Props, State
       if (isUser(item)) {
         this.setState(({ users }) => ({
           users: users.filter((u) => u.login !== item.login),
+          permissionToDelete: undefined,
         }));
       } else {
         this.setState(({ groups }) => ({
           groups: groups.filter((g) => g.name !== item.name),
+          permissionToDelete: undefined,
         }));
       }
     }

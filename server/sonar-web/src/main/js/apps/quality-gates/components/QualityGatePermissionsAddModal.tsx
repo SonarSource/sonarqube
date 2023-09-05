@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LabelValueSelectOption } from 'design-system';
 import { debounce } from 'lodash';
 import * as React from 'react';
+import { Options } from 'react-select';
 import { searchGroups, searchUsers } from '../../../api/quality-gates';
-import { Group, SearchPermissionsParameters } from '../../../types/quality-gates';
+import { Group, SearchPermissionsParameters, isUser } from '../../../types/quality-gates';
 import { QualityGate } from '../../../types/types';
 import { UserBase } from '../../../types/users';
 import QualityGatePermissionsAddModalRenderer from './QualityGatePermissionsAddModalRenderer';
@@ -42,7 +44,6 @@ interface State {
 const DEBOUNCE_DELAY = 250;
 
 export default class QualityGatePermissionsAddModal extends React.Component<Props, State> {
-  mounted = false;
   state: State = {};
 
   constructor(props: Props) {
@@ -50,15 +51,10 @@ export default class QualityGatePermissionsAddModal extends React.Component<Prop
     this.handleSearch = debounce(this.handleSearch, DEBOUNCE_DELAY);
   }
 
-  componentDidMount() {
-    this.mounted = true;
-  }
-
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleSearch = (q: string, resolve: (options: OptionWithValue[]) => void) => {
+  handleSearch = (
+    q: string,
+    resolve: (options: Options<LabelValueSelectOption<UserBase | Group>>) => void
+  ) => {
     const { qualityGate } = this.props;
 
     const queryParams: SearchPermissionsParameters = {
@@ -68,13 +64,18 @@ export default class QualityGatePermissionsAddModal extends React.Component<Prop
     };
 
     Promise.all([searchUsers(queryParams), searchGroups(queryParams)])
-      .then(([usersResponse, groupsResponse]) => [...usersResponse.users, ...groupsResponse.groups])
+      .then(([usersResponse, groupsResponse]) =>
+        [...usersResponse.users, ...groupsResponse.groups].map((o) => ({
+          value: o,
+          label: isUser(o) ? `${o.name} ${o.login}` : o.name,
+        }))
+      )
       .then(resolve)
       .catch(() => resolve([]));
   };
 
-  handleSelection = (selection: UserBase | Group) => {
-    this.setState({ selection });
+  handleSelection = ({ value }: LabelValueSelectOption<UserBase | Group>) => {
+    this.setState({ selection: value });
   };
 
   handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {

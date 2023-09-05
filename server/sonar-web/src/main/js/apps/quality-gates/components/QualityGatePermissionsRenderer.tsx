@@ -17,11 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonSecondary,
+  DangerButtonPrimary,
+  Modal,
+  Spinner,
+  SubTitle,
+  Table,
+  TableRowInteractive,
+} from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import ConfirmModal from '../../../components/controls/ConfirmModal';
-import { Button } from '../../../components/controls/buttons';
-import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { Group, isUser } from '../../../types/quality-gates';
 import { QualityGate } from '../../../types/types';
@@ -50,29 +56,31 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
     props;
 
   return (
-    <div className="quality-gate-permissions" data-testid="quality-gate-permissions">
-      <h3 className="spacer-bottom">{translate('quality_gates.permissions')}</h3>
-      <p className="spacer-bottom">{translate('quality_gates.permissions.help')}</p>
+    <div data-testid="quality-gate-permissions">
+      <SubTitle as="h3" className="sw-body-md-highlight">
+        {translate('quality_gates.permissions')}
+      </SubTitle>
+      <p className="sw-body-sm sw-mb-2">{translate('quality_gates.permissions.help')}</p>
       <div>
         <Spinner loading={loading}>
-          <ul>
+          <Table columnCount={3} columnWidths={['40px', 'auto', '1%']} width="100%">
             {users.map((user) => (
-              <li key={user.login}>
+              <TableRowInteractive key={user.login}>
                 <PermissionItem onClickDelete={props.onClickDeletePermission} item={user} />
-              </li>
+              </TableRowInteractive>
             ))}
             {groups.map((group) => (
-              <li key={group.name}>
+              <TableRowInteractive key={group.name}>
                 <PermissionItem onClickDelete={props.onClickDeletePermission} item={group} />
-              </li>
+              </TableRowInteractive>
             ))}
-          </ul>
+          </Table>
         </Spinner>
       </div>
 
-      <Button className="big-spacer-top" onClick={props.onClickAddPermission}>
+      <ButtonSecondary className="sw-mt-4" onClick={props.onClickAddPermission}>
         {translate('quality_gates.permissions.grant')}
-      </Button>
+      </ButtonSecondary>
 
       {showAddModal && (
         <QualityGatePermissionsAddModal
@@ -84,30 +92,34 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
       )}
 
       {permissionToDelete && (
-        <ConfirmModal
-          header={
+        <Modal
+          headerTitle={
             isUser(permissionToDelete)
               ? translate('quality_gates.permissions.remove.user')
               : translate('quality_gates.permissions.remove.group')
           }
-          confirmButtonText={translate('remove')}
-          isDestructive
-          confirmData={permissionToDelete}
+          body={
+            <FormattedMessage
+              defaultMessage={
+                isUser(permissionToDelete)
+                  ? translate('quality_gates.permissions.remove.user.confirmation')
+                  : translate('quality_gates.permissions.remove.group.confirmation')
+              }
+              id="remove.confirmation"
+              values={{
+                user: <strong>{permissionToDelete.name}</strong>,
+              }}
+            />
+          }
+          primaryButton={
+            <DangerButtonPrimary
+              onClick={() => props.onConfirmDeletePermission(permissionToDelete)}
+            >
+              {translate('remove')}
+            </DangerButtonPrimary>
+          }
           onClose={props.onCloseDeletePermission}
-          onConfirm={props.onConfirmDeletePermission}
-        >
-          <FormattedMessage
-            defaultMessage={
-              isUser(permissionToDelete)
-                ? translate('quality_gates.permissions.remove.user.confirmation')
-                : translate('quality_gates.permissions.remove.group.confirmation')
-            }
-            id="remove.confirmation"
-            values={{
-              user: <strong>{permissionToDelete.name}</strong>,
-            }}
-          />
-        </ConfirmModal>
+        />
       )}
     </div>
   );

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
-import { render } from '../../helpers/testUtils';
+import { render } from '../../../helpers/testUtils';
+import { CustomIcon, IconProps } from '../../icons/Icon';
 import { GenericAvatar } from '../GenericAvatar';
-import { CustomIcon, IconProps } from '../icons/Icon';
 
 function TestIcon(props: IconProps) {
   return (
@@ -31,9 +31,9 @@ function TestIcon(props: IconProps) {
 }
 
 it('should render single word and size', () => {
-  render(<GenericAvatar name="foo" size={15} />);
+  render(<GenericAvatar name="foo" size="xs" />);
   const image = screen.getByRole('img');
-  expect(image).toHaveAttribute('size', '15');
+  expect(image).toHaveAttribute('size', '16');
   expect(screen.getByText('F')).toBeInTheDocument();
 });
 
@@ -45,7 +45,7 @@ it('should render multiple word with default size', () => {
 });
 
 it('should render without name', () => {
-  render(<GenericAvatar Icon={TestIcon} name="" size={32} />);
+  render(<GenericAvatar Icon={TestIcon} name="" size="md" />);
   const image = screen.getByRole('img');
-  expect(image).toHaveAttribute('size', '32');
+  expect(image).toHaveAttribute('size', '40');
 });

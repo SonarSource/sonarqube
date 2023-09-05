@@ -17,10 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ContentCell,
+  DestructiveIcon,
+  GenericAvatar,
+  Note,
+  TrashIcon,
+  UserGroupIcon,
+} from 'design-system';
 import * as React from 'react';
-import { DeleteButton } from '../../../components/controls/buttons';
-import GroupIcon from '../../../components/icons/GroupIcon';
-import LegacyAvatar from '../../../components/ui/LegacyAvatar';
+import { useIntl } from 'react-intl';
+import Avatar from '../../../components/ui/Avatar';
 import { Group, isUser } from '../../../types/quality-gates';
 import { UserBase } from '../../../types/users';
 
@@ -31,24 +38,37 @@ export interface PermissionItemProps {
 
 export default function PermissionItem(props: PermissionItemProps) {
   const { item } = props;
+  const { formatMessage } = useIntl();
 
   return (
-    <div className="display-flex-center permission-list-item padded">
-      {isUser(item) ? (
-        <LegacyAvatar className="spacer-right" hash={item.avatar} name={item.name} size={32} />
-      ) : (
-        <GroupIcon className="pull-left spacer-right" size={32} />
-      )}
+    <>
+      <ContentCell width={0}>
+        {isUser(item) ? (
+          <Avatar hash={item.avatar} name={item.name} size="md" />
+        ) : (
+          <GenericAvatar Icon={UserGroupIcon} name={item.name} size="md" />
+        )}
+      </ContentCell>
 
-      <div className="overflow-hidden flex-1">
-        <strong>{item.name}</strong>
-        {isUser(item) && <div className="note">{item.login}</div>}
-      </div>
+      <ContentCell>
+        <div className="sw-flex sw-flex-col">
+          <strong className="sw-body-sm-highlight">{item.name}</strong>
+          {isUser(item) && <Note>{item.login}</Note>}
+        </div>
+      </ContentCell>
 
-      <DeleteButton
-        onClick={() => props.onClickDelete(item)}
-        data-testid="permission-delete-button"
-      />
-    </div>
+      <ContentCell>
+        <DestructiveIcon
+          aria-label={formatMessage({
+            id: isUser(item)
+              ? 'quality_gates.permissions.remove.user'
+              : 'quality_gates.permissions.remove.group',
+          })}
+          Icon={TrashIcon}
+          onClick={() => props.onClickDelete(item)}
+          data-testid="permission-delete-button"
+        />
+      </ContentCell>
+    </>
   );
 }

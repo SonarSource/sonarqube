@@ -17,103 +17,139 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { omit } from 'lodash';
+import {
+  ButtonPrimary,
+  FormField,
+  GenericAvatar,
+  LabelValueSelectOption,
+  Modal,
+  SearchSelectDropdown,
+  UserGroupIcon,
+} from 'design-system';
 import * as React from 'react';
-import { components, ControlProps, OptionProps, SingleValueProps } from 'react-select';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
-import { SearchSelect } from '../../../components/controls/Select';
-import GroupIcon from '../../../components/icons/GroupIcon';
-import LegacyAvatar from '../../../components/ui/LegacyAvatar';
+import { GroupBase, OptionProps, Options, SingleValue, components } from 'react-select';
+import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
-import { Group, isUser } from '../../../types/quality-gates';
+import { Group as UserGroup, isUser } from '../../../types/quality-gates';
 import { UserBase } from '../../../types/users';
-import { OptionWithValue } from './QualityGatePermissionsAddModal';
 
 export interface QualityGatePermissionsAddModalRendererProps {
   onClose: () => void;
-  handleSearch: (q: string, resolve: (options: OptionWithValue[]) => void) => void;
-  onSelection: (selection: OptionWithValue) => void;
-  selection?: UserBase | Group;
+  handleSearch: (
+    q: string,
+    resolve: (options: Options<LabelValueSelectOption<UserBase | UserGroup>>) => void
+  ) => void;
+  onSelection: (selection: SingleValue<LabelValueSelectOption<UserBase | UserGroup>>) => void;
+  selection?: UserBase | UserGroup;
   onSubmit: (event: React.SyntheticEvent<HTMLFormElement>) => void;
   submitting: boolean;
 }
+
+const FORM_ID = 'quality-gate-permissions-add-modal';
+const USER_SELECT_INPUT_ID = 'quality-gate-permissions-add-modal-select-input';
 
 export default function QualityGatePermissionsAddModalRenderer(
   props: QualityGatePermissionsAddModalRendererProps,
 ) {
   const { selection, submitting } = props;
 
-  const header = translate('quality_gates.permissions.grant');
-
-  const noResultsText = translate('no_results');
+  const renderedSelection = React.useMemo(() => {
+    return <OptionRenderer option={selection} small />;
+  }, [selection]);
 
   return (
-    <Modal contentLabel={header} onRequestClose={props.onClose}>
-      <header className="modal-head">
-        <h2>{header}</h2>
-      </header>
-      <form onSubmit={props.onSubmit}>
-        <div className="modal-body">
-          <div className="modal-field">
-            <label htmlFor="quality-gate-permissions-add-modal-select-input">
-              {translate('quality_gates.permissions.search')}
-            </label>
-            <SearchSelect
-              inputId="quality-gate-permissions-add-modal-select-input"
+    <Modal
+      onClose={props.onClose}
+      headerTitle={translate('quality_gates.permissions.grant')}
+      body={
+        <form onSubmit={props.onSubmit} id={FORM_ID}>
+          <FormField
+            label={translate('quality_gates.permissions.search')}
+            htmlFor={USER_SELECT_INPUT_ID}
+          >
+            <SearchSelectDropdown
+              controlAriaLabel={translate('quality_gates.permissions.search')}
+              inputId={USER_SELECT_INPUT_ID}
               autoFocus
               isClearable={false}
               placeholder=""
               defaultOptions
-              noOptionsMessage={() => noResultsText}
+              noOptionsMessage={() => translate('no_results')}
               onChange={props.onSelection}
               loadOptions={props.handleSearch}
-              getOptionValue={(opt) => (isUser(opt) ? opt.login : opt.name)}
-              large
+              getOptionValue={({ value }) => (isUser(value) ? value.login : value.name)}
+              controlLabel={renderedSelection}
               components={{
-                Option: optionRenderer,
-                SingleValue: singleValueRenderer,
-                Control: controlRenderer,
+                Option,
               }}
             />
-          </div>
-        </div>
-        <footer className="modal-foot">
-          {submitting && <i className="spinner spacer-right" />}
-          <SubmitButton disabled={!selection || submitting}>{translate('add_verb')}</SubmitButton>
-          <ResetButtonLink onClick={props.onClose}>{translate('cancel')}</ResetButtonLink>
-        </footer>
-      </form>
-    </Modal>
+          </FormField>
+        </form>
+      }
+      primaryButton={
+        <ButtonPrimary disabled={!selection || submitting} type="submit" form={FORM_ID}>
+          {translate('add_verb')}
+        </ButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }
 
-export function customOptions(option: OptionWithValue) {
+function OptionRenderer({
+  option,
+  small = false,
+}: {
+  option?: UserBase | UserGroup;
+  small?: boolean;
+}) {
+  if (!option) {
+    return null;
+  }
   return (
-    <span className="display-flex-center" data-testid="qg-add-permission-option">
+    <>
       {isUser(option) ? (
-        <LegacyAvatar hash={option.avatar} name={option.name} size={16} />
+        <>
+          <Avatar
+            className={small ? 'sw-my-1/2' : ''}
+            hash={option.avatar}
+            name={option.name}
+            size={small ? 'xs' : 'sm'}
+          />
+          <span className="sw-ml-2">
+            <strong className="sw-body-sm-highlight sw-mr-1">{option.name}</strong>
+            {option.login}
+          </span>
+        </>
       ) : (
-        <GroupIcon size={16} />
+        <>
+          <GenericAvatar
+            className={small ? 'sw-my-1/2' : ''}
+            Icon={UserGroupIcon}
+            name={option.name}
+            size={small ? 'xs' : 'sm'}
+          />
+          <strong className="sw-body-sm-highlight sw-ml-2">{option.name}</strong>
+        </>
       )}
-      <strong className="spacer-left">{option.name}</strong>
-      {isUser(option) && <span className="note little-spacer-left">{option.login}</span>}
-    </span>
+    </>
   );
 }
 
-function optionRenderer(props: OptionProps<OptionWithValue, false>) {
-  return <components.Option {...props}>{customOptions(props.data)}</components.Option>;
-}
+function Option<
+  Option extends LabelValueSelectOption<UserBase | UserGroup>,
+  IsMulti extends boolean = false,
+  Group extends GroupBase<Option> = GroupBase<Option>
+>(props: OptionProps<Option, IsMulti, Group>) {
+  const {
+    data: { value },
+  } = props;
 
-function singleValueRenderer(props: SingleValueProps<OptionWithValue, false>) {
-  return <components.SingleValue {...props}>{customOptions(props.data)}</components.SingleValue>;
-}
-
-function controlRenderer(props: ControlProps<OptionWithValue, false>) {
   return (
-    <components.Control {...omit(props, ['children'])} className="abs-height-100">
-      {props.children}
-    </components.Control>
+    <components.Option {...props}>
+      <div className="sw-flex sw-items-center">
+        <OptionRenderer option={value} />
+      </div>
+    </components.Option>
   );
 }

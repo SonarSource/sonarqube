@@ -20,17 +20,9 @@
 import styled from '@emotion/styled';
 import { ReactEventHandler, useState } from 'react';
 import tw from 'twin.macro';
-import { themeBorder, themeColor } from '../helpers/theme';
+import { themeBorder, themeColor } from '../../helpers/theme';
 import { GenericAvatar } from './GenericAvatar';
-
-type Size = 'xs' | 'sm' | 'md' | 'lg';
-
-const sizeMap: Record<Size, number> = {
-  xs: 16,
-  sm: 24,
-  md: 40,
-  lg: 64,
-};
+import { Size, sizeMap } from './utils';
 
 interface AvatarProps {
   border?: boolean;
@@ -107,7 +99,7 @@ export function Avatar({
     return <input className="sw-appearance-none" />;
   }
 
-  return <GenericAvatar className={className} name={resolvedName} size={numberSize} />;
+  return <GenericAvatar className={className} name={resolvedName} size={size} />;
 }
 
 const StyledAvatar = styled.img<{ border?: boolean }>`

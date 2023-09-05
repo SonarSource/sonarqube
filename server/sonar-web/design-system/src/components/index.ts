@@ -19,7 +19,6 @@
  */
 
 export * from './Accordion';
-export * from './Avatar';
 export { Badge } from './Badge';
 export * from './Banner';
 export { BarChart } from './BarChart';
@@ -42,7 +41,6 @@ export { FailedQGConditionLink } from './FailedQGConditionLink';
 export * from './FavoriteButton';
 export { FlagMessage } from './FlagMessage';
 export * from './FlowStep';
-export * from './GenericAvatar';
 export * from './HighlightedSection';
 export { Histogram } from './Histogram';
 export { HotspotRating } from './HotspotRating';
@@ -83,6 +81,8 @@ export * from './TreeMap';
 export * from './TreeMapRect';
 export * from './TutorialStep';
 export * from './TutorialStepList';
+export * from './avatar/Avatar';
+export * from './avatar/GenericAvatar';
 export * from './buttons';
 export { ClipboardIconButton } from './clipboard';
 export * from './code-line/LineCoverage';

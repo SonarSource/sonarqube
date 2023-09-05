@@ -93,10 +93,12 @@ export function OcticonHoc(
   function IconWrapper({ fill, ...props }: IconProps) {
     const theme = useTheme();
 
+    const size = props.width ?? props.height ?? 'small';
+
     return (
       <WrappedOcticon
         fill={fill && themeColor(fill)({ theme })}
-        size="small"
+        size={size}
         verticalAlign="middle"
         {...props}
       />

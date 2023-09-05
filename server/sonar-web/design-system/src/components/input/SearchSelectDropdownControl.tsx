@@ -57,10 +57,13 @@ export function SearchSelectDropdownControl(props: SearchSelectDropdownControlPr
       tabIndex={disabled ? -1 : 0}
     >
       <InputValue
-        className={classNames('it__js-search-input-value sw-flex sw-justify-between', {
-          'is-disabled': disabled,
-          'is-placeholder': !label,
-        })}
+        className={classNames(
+          'it__js-search-input-value sw-flex sw-justify-between sw-items-center',
+          {
+            'is-disabled': disabled,
+            'is-placeholder': !label,
+          }
+        )}
       >
         <span className="sw-truncate">{label}</span>
         <ChevronDownIcon className="sw-ml-1" />

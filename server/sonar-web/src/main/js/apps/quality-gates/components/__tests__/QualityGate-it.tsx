@@ -571,7 +571,6 @@ describe('The Permissions section', () => {
     });
     expect(addUserButton).toBeDisabled();
     await user.click(searchUserInput);
-    expect(screen.getAllByTestId('qg-add-permission-option')).toHaveLength(2);
     await user.click(screen.getByText('userlogin'));
     expect(addUserButton).toBeEnabled();
     await user.click(addUserButton);
@@ -588,7 +587,7 @@ describe('The Permissions section', () => {
     await user.click(cancelButton);
 
     const permissionList = within(await screen.findByTestId('quality-gate-permissions'));
-    expect(permissionList.getByRole('listitem')).toBeInTheDocument();
+    expect(permissionList.getByRole('row')).toBeInTheDocument();
 
     // Delete the user permission
     const deleteButton = screen.getByTestId('permission-delete-button');
@@ -596,7 +595,7 @@ describe('The Permissions section', () => {
     const deletePopup = screen.getByRole('dialog');
     const dialogDeleteButton = within(deletePopup).getByRole('button', { name: 'remove' });
     await user.click(dialogDeleteButton);
-    expect(permissionList.queryByRole('listitem')).not.toBeInTheDocument();
+    expect(permissionList.queryByRole('row')).not.toBeInTheDocument();
   });
 
   it('should assign permission to a group and delete it later', async () => {
@@ -619,8 +618,7 @@ describe('The Permissions section', () => {
       name: 'add_verb',
     });
     await user.click(searchUserInput);
-    expect(screen.getAllByTestId('qg-add-permission-option')).toHaveLength(2);
-    await user.click(screen.getAllByTestId('qg-add-permission-option')[1]);
+    await user.click(within(popup).getByLabelText('Foo'));
     await user.click(addUserButton);
     expect(screen.getByText('Foo')).toBeInTheDocument();
 

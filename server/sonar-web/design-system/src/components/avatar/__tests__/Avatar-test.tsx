@@ -21,8 +21,8 @@
 /* eslint-disable import/no-extraneous-dependencies */
 
 import { fireEvent, screen } from '@testing-library/react';
-import { render } from '../../helpers/testUtils';
-import { FCProps } from '../../types/misc';
+import { render } from '../../../helpers/testUtils';
+import { FCProps } from '../../../types/misc';
 import { Avatar } from '../Avatar';
 
 const gravatarServerUrl = 'http://example.com/{EMAIL_MD5}.jpg?s={SIZE}';
