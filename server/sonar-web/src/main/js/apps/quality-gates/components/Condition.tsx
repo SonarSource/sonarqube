@@ -18,10 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import {
+  ActionCell,
+  ContentCell,
+  DestructiveIcon,
+  InteractiveIcon,
+  NumericalCell,
+  PencilIcon,
+  TableRow,
+  TextError,
+  TrashIcon,
+} from 'design-system';
 import * as React from 'react';
 import { deleteCondition } from '../../../api/quality-gates';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
-import { DeleteButton, EditButton } from '../../../components/controls/buttons';
 import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 import {
@@ -116,39 +126,39 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
     const isCaycCompliantAndOverCompliant = qualityGate.caycStatus !== CaycStatus.NonCompliant;
 
     return (
-      <tr className={classNames({ highlighted: updated })}>
-        <td className="text-middle">
+      <TableRow className={classNames({ highlighted: updated })}>
+        <ContentCell>
           {getLocalizedMetricNameNoDiffMetric(metric, metrics)}
-          {metric.hidden && (
-            <span className="text-danger little-spacer-left">{translate('deprecated')}</span>
-          )}
-        </td>
+          {metric.hidden && <TextError className="sw-ml-1" text={translate('deprecated')} />}
+        </ContentCell>
 
-        <td className="text-middle nowrap">{this.renderOperator()}</td>
+        <ContentCell className="sw-whitespace-nowrap">{this.renderOperator()}</ContentCell>
 
-        <td className="text-middle nowrap">
+        <NumericalCell className="sw-whitespace-nowrap">
           <ConditionValue
             metric={metric}
             isCaycModal={isCaycModal}
             condition={condition}
             isCaycCompliantAndOverCompliant={isCaycCompliantAndOverCompliant}
           />
-        </td>
-        <td className="text-middle nowrap display-flex-justify-end">
+        </NumericalCell>
+        <ActionCell>
           {!isCaycModal && canEdit && (
             <>
               {(!isCaycCompliantAndOverCompliant ||
                 !CAYC_CONDITIONS_WITH_FIXED_VALUE.includes(condition.metric) ||
                 (isCaycCompliantAndOverCompliant && showEdit)) && (
                 <>
-                  <EditButton
+                  <InteractiveIcon
+                    Icon={PencilIcon}
                     aria-label={translateWithParameters(
                       'quality_gates.condition.edit',
                       metric.name,
                     )}
                     data-test="quality-gates__condition-update"
                     onClick={this.handleOpenUpdate}
-                    className="spacer-right"
+                    className="sw-mr-4"
+                    size="small"
                   />
                   {this.state.modal && (
                     <ConditionModal
@@ -166,13 +176,15 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
                 !isCaycCondition(condition) ||
                 (isCaycCompliantAndOverCompliant && showEdit)) && (
                 <>
-                  <DeleteButton
+                  <DestructiveIcon
+                    Icon={TrashIcon}
                     aria-label={translateWithParameters(
                       'quality_gates.condition.delete',
                       metric.name,
                     )}
                     data-test="quality-gates__condition-delete"
                     onClick={this.handleDeleteClick}
+                    size="small"
                   />
                   {this.state.deleteFormOpen && (
                     <ConfirmModal
@@ -193,8 +205,8 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
               )}
             </>
           )}
-        </td>
-      </tr>
+        </ActionCell>
+      </TableRow>
     );
   }
 }

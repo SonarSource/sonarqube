@@ -38,6 +38,10 @@ export function GreyCard(props: CardProps) {
   return <GreyCardStyled {...rest}>{children}</GreyCardStyled>;
 }
 
+export const CardWithPrimaryBackground = styled(Card)`
+  background-color: ${themeColor('backgroundPrimary')};
+`;
+
 const CardStyled = styled.div`
   background-color: ${themeColor('backgroundSecondary')};
   border: ${themeBorder('default', 'projectCardBorder')};

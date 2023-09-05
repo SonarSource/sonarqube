@@ -17,34 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import styled from '@emotion/styled';
-import tw from 'twin.macro';
-import { themeColor } from '../helpers/theme';
 
-export const Title = styled.h1`
-  ${tw`sw-heading-lg`}
-  ${tw`sw-mb-4`}
-  color: ${themeColor('pageTitle')};
-`;
+import classNames from 'classnames';
+import { CheckIcon, LightLabel } from 'design-system';
+import * as React from 'react';
+import { translate } from '../../../helpers/l10n';
 
-export const SubTitle = styled.h2`
-  ${tw`sw-heading-md`}
-  ${tw`sw-mb-4`}
-  color: ${themeColor('pageTitle')};
-`;
-
-export const HeadingDark = styled.h2`
-  color: ${themeColor('pageContentDark')};
-
-  ${tw`sw-body-sm-highlight`}
-`;
-
-export const SubHeading = styled.h3`
-  ${tw`sw-body-md-highlight`}
-  ${tw`sw-mb-2`}
-  color: ${themeColor('pageContent')};
-`;
-
-export const SubHeadingHighlight = styled(SubHeading)`
-  color: ${themeColor('pageContentDark')};
-`;
+export default function CaycConditionsListItem({ index, last }: { index: number; last: boolean }) {
+  return (
+    <li className={classNames('sw-flex', { 'sw-mb-2': !last })}>
+      <CheckIcon className="sw-mr-1 sw-pt-1/2" />
+      <LightLabel>{translate(`quality_gates.cayc.banner.list_item${index + 1}`)}</LightLabel>
+    </li>
+  );
+}

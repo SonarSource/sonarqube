@@ -415,6 +415,10 @@ export const lightTheme = {
     qgIndicatorFailed: COLORS.red[200],
     qgIndicatorNotComputed: COLORS.blueGrey[200],
 
+    // quality gate texts colors
+    qgConditionNotCayc: COLORS.red[600],
+    qgConditionCayc: COLORS.green[600],
+
     // main bar
     mainBar: COLORS.white,
     mainBarHover: COLORS.blueGrey[600],

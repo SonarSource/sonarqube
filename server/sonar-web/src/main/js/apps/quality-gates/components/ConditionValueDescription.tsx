@@ -31,6 +31,7 @@ import { MetricKey, MetricType } from '../../../types/metrics';
 import { GlobalSettingKeys } from '../../../types/settings';
 import { Condition, Metric } from '../../../types/types';
 import { isCaycCondition } from '../utils';
+import { GreenColorText } from './ConditionValue';
 
 const NO_DESCRIPTION_CONDITION = [
   'new_security_hotspots_reviewed',
@@ -42,14 +43,14 @@ interface Props {
   appState: AppState;
   condition: Condition;
   metric: Metric;
-  className?: string;
+  isToBeModified?: boolean;
 }
 
 function ConditionValueDescription({
   condition,
   appState: { settings },
   metric,
-  className = '',
+  isToBeModified = false,
 }: Props) {
   if (condition.metric === MetricKey.new_maintainability_rating) {
     const maintainabilityGrid = getMaintainabilityGrid(
@@ -60,7 +61,7 @@ function ConditionValueDescription({
     const ratingLetter = formatMeasure(condition.error, MetricType.Rating);
 
     return (
-      <span className={className}>
+      <GreenColorText isToBeModified={isToBeModified}>
         (
         {condition.error === '1'
           ? translateWithParameters(
@@ -76,12 +77,12 @@ function ConditionValueDescription({
               ),
             )}
         )
-      </span>
+      </GreenColorText>
     );
   }
 
   return (
-    <span className={className}>
+    <GreenColorText isToBeModified={isToBeModified}>
       {isCaycCondition(condition) && !NO_DESCRIPTION_CONDITION.includes(condition.metric) && (
         <>
           (
@@ -91,7 +92,7 @@ function ConditionValueDescription({
           )
         </>
       )}
-    </span>
+    </GreenColorText>
   );
 }
 

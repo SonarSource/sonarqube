@@ -188,6 +188,14 @@ export function RatingCell({ children, ...props }: CellComponentProps) {
   );
 }
 
+export function ActionCell({ children, ...props }: CellComponentProps) {
+  return (
+    <CellComponent {...props}>
+      <div className="sw-text-right sw-justify-end sw-flex sw-items-center">{children}</div>
+    </CellComponent>
+  );
+}
+
 export function CheckboxCell({ children, ...props }: CellComponentProps) {
   return (
     <CellComponent {...props}>
