@@ -68,7 +68,7 @@ const ui = {
       name: `quality_profiles.comparison.activate_rule.${profileName}`,
     }),
   activateConfirmButton: byRole('button', { name: 'coding_rules.activate' }),
-  namePropupInput: byRole('textbox', { name: 'quality_profiles.new_name field_required' }),
+  namePropupInput: byRole('textbox', { name: 'quality_profiles.new_name required' }),
   filterByLang: byRole('combobox', { name: 'quality_profiles.filter_by:' }),
   listLinkCQualityProfile: byRole('link', { name: 'c quality profile' }),
   listLinkNewCQualityProfile: byRole('link', { name: 'New c quality profile' }),

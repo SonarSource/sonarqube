@@ -39,22 +39,8 @@ const ui = {
   grantPermissionButton: byRole('button', {
     name: 'quality_profiles.grant_permissions_to_more_users',
   }),
-  grantPermissionDialog: byRole('dialog', {
-    name: 'quality_profiles.grant_permissions_to_user_or_group',
-  }),
-  removeGroupDialog: byRole('dialog', {
-    name: 'quality_profiles.permissions.remove.group',
-  }),
-  removeUserDialog: byRole('dialog', {
-    name: 'quality_profiles.permissions.remove.user',
-  }),
-  deleteProfileDialog: byRole('dialog', { name: 'quality_profiles.delete_confirm_title' }),
-  changeProjectsDialog: byRole('dialog', { name: 'projects' }),
-  changeParentDialog: byRole('dialog', { name: 'quality_profiles.change_parent' }),
-  extendDialog: byRole('dialog', { name: /quality_profiles.extend_x_title/ }),
-  copyDialog: byRole('dialog', { name: /quality_profiles.copy_x_title/ }),
-  renameDialog: byRole('dialog', { name: /quality_profiles.rename_x_title/ }),
-  selectparent: byRole('combobox', { name: /quality_profiles.parent/ }),
+  dialog: byRole('dialog'),
+  selectField: byRole('combobox'),
   selectUserOrGroup: byRole('combobox', { name: 'quality_profiles.search_description' }),
   twitterCheckbox: byRole('checkbox', { name: 'Twitter Twitter' }),
   benflixCheckbox: byRole('checkbox', { name: 'Benflix Benflix' }),
@@ -112,7 +98,7 @@ describe('Admin or user with permission', () => {
       await act(async () => {
         await user.click(ui.grantPermissionButton.get());
       });
-      expect(ui.grantPermissionDialog.get()).toBeInTheDocument();
+      expect(ui.dialog.get()).toBeInTheDocument();
       await selectEvent.select(ui.selectUserOrGroup.get(), 'Buzz');
       await user.click(ui.addButton.get());
       expect(ui.permissionSection.byText('Buzz').get()).toBeInTheDocument();
@@ -123,7 +109,7 @@ describe('Admin or user with permission', () => {
           .byRole('button', { name: 'quality_profiles.permissions.remove.user_x.Buzz' })
           .get()
       );
-      expect(ui.removeUserDialog.get()).toBeInTheDocument();
+      expect(ui.dialog.get()).toBeInTheDocument();
       await user.click(ui.removeButton.get());
       expect(ui.permissionSection.byText('buzz').query()).not.toBeInTheDocument();
     });
@@ -138,7 +124,7 @@ describe('Admin or user with permission', () => {
       await act(async () => {
         await user.click(ui.grantPermissionButton.get());
       });
-      expect(ui.grantPermissionDialog.get()).toBeInTheDocument();
+      expect(ui.dialog.get()).toBeInTheDocument();
       await selectEvent.select(ui.selectUserOrGroup.get(), 'ACDC');
       await user.click(ui.addButton.get());
       expect(ui.permissionSection.byText('ACDC').get()).toBeInTheDocument();
@@ -149,7 +135,7 @@ describe('Admin or user with permission', () => {
           .byRole('button', { name: 'quality_profiles.permissions.remove.group_x.ACDC' })
           .get()
       );
-      expect(ui.removeGroupDialog.get()).toBeInTheDocument();
+      expect(ui.dialog.get()).toBeInTheDocument();
       await user.click(ui.removeButton.get());
       expect(ui.permissionSection.byText('ACDC').query()).not.toBeInTheDocument();
     });
@@ -169,7 +155,7 @@ describe('Admin or user with permission', () => {
       expect(await ui.projectSection.find()).toBeInTheDocument();
       expect(ui.projectSection.byText('Twitter').query()).not.toBeInTheDocument();
       await user.click(ui.changeProjectsButton.get());
-      expect(ui.changeProjectsDialog.get()).toBeInTheDocument();
+      expect(ui.dialog.get()).toBeInTheDocument();
 
       await user.click(ui.withoutFilterButton.get());
       await user.click(ui.twitterCheckbox.get());
@@ -184,7 +170,7 @@ describe('Admin or user with permission', () => {
       expect(await ui.projectSection.find()).toBeInTheDocument();
       expect(ui.projectSection.byText('Benflix').get()).toBeInTheDocument();
       await user.click(ui.changeProjectsButton.get());
-      expect(ui.changeProjectsDialog.get()).toBeInTheDocument();
+      expect(ui.dialog.get()).toBeInTheDocument();
 
       await user.click(ui.benflixCheckbox.get());
       await user.click(ui.closeButton.get());
@@ -241,11 +227,11 @@ describe('Admin or user with permission', () => {
       expect(ui.inheritanceSection.byText('PHP way').get()).toBeInTheDocument();
 
       await user.click(ui.changeParentButton.get());
-      expect(await ui.changeParentDialog.find()).toBeInTheDocument();
+      expect(await ui.dialog.find()).toBeInTheDocument();
       expect(ui.changeButton.get()).toBeDisabled();
-      await selectEvent.select(ui.selectparent.get(), 'PHP Sonar way 2');
+      await selectEvent.select(ui.selectField.get(), 'PHP Sonar way 2');
       await user.click(ui.changeButton.get());
-      expect(ui.changeParentDialog.query()).not.toBeInTheDocument();
+      expect(ui.dialog.query()).not.toBeInTheDocument();
 
       // Parents
       expect(ui.inheritanceSection.byText('PHP Sonar way 2').get()).toBeInTheDocument();
@@ -284,16 +270,16 @@ describe('Admin or user with permission', () => {
       await user.click(ui.qualityProfileActions.get());
       await user.click(ui.extendButton.get());
 
-      expect(ui.extendDialog.get()).toBeInTheDocument();
-      expect(ui.extendDialog.byRole('button', { name: 'extend' }).get()).toBeDisabled();
+      expect(ui.dialog.get()).toBeInTheDocument();
+      expect(ui.dialog.byRole('button', { name: 'extend' }).get()).toBeDisabled();
 
       await user.clear(ui.newNameInput.get());
       await user.type(ui.newNameInput.get(), 'Bad new PHP quality profile');
       await act(async () => {
-        await user.click(ui.extendDialog.byRole('button', { name: 'extend' }).get());
+        await user.click(ui.dialog.byRole('button', { name: 'extend' }).get());
       });
 
-      expect(ui.extendDialog.query()).not.toBeInTheDocument();
+      expect(ui.dialog.query()).not.toBeInTheDocument();
 
       expect(screen.getAllByText('Bad new PHP quality profile')).toHaveLength(2);
       expect(screen.getAllByText('Good old PHP quality profile')).toHaveLength(2);
@@ -306,16 +292,16 @@ describe('Admin or user with permission', () => {
       await user.click(await ui.qualityProfileActions.find());
       await user.click(ui.copyButton.get());
 
-      expect(ui.copyDialog.get()).toBeInTheDocument();
-      expect(ui.copyDialog.byRole('button', { name: 'copy' }).get()).toBeDisabled();
+      expect(ui.dialog.get()).toBeInTheDocument();
+      expect(ui.dialog.byRole('button', { name: 'copy' }).get()).toBeDisabled();
 
       await user.clear(ui.newNameInput.get());
       await user.type(ui.newNameInput.get(), 'Good old PHP quality profile copy');
       await act(async () => {
-        await user.click(ui.copyDialog.byRole('button', { name: 'copy' }).get());
+        await user.click(ui.dialog.byRole('button', { name: 'copy' }).get());
       });
 
-      expect(ui.copyDialog.query()).not.toBeInTheDocument();
+      expect(ui.dialog.query()).not.toBeInTheDocument();
 
       expect(screen.getAllByText('Good old PHP quality profile copy')).toHaveLength(2);
     });
@@ -327,16 +313,16 @@ describe('Admin or user with permission', () => {
       await user.click(await ui.qualityProfileActions.find());
       await user.click(ui.renameButton.get());
 
-      expect(ui.renameDialog.get()).toBeInTheDocument();
-      expect(ui.renameDialog.byRole('button', { name: 'rename' }).get()).toBeDisabled();
+      expect(ui.dialog.get()).toBeInTheDocument();
+      expect(ui.dialog.byRole('button', { name: 'rename' }).get()).toBeDisabled();
 
       await user.clear(ui.newNameInput.get());
       await user.type(ui.newNameInput.get(), 'Fossil PHP quality profile');
       await act(async () => {
-        await user.click(ui.renameDialog.byRole('button', { name: 'rename' }).get());
+        await user.click(ui.dialog.byRole('button', { name: 'rename' }).get());
       });
 
-      expect(ui.renameDialog.query()).not.toBeInTheDocument();
+      expect(ui.dialog.query()).not.toBeInTheDocument();
 
       expect(screen.getAllByText('Fossil PHP quality profile')).toHaveLength(2);
     });
@@ -366,14 +352,14 @@ describe('Admin or user with permission', () => {
       await user.click(await ui.qualityProfileActions.find());
       await user.click(ui.deleteQualityProfileButton.get());
 
-      expect(ui.deleteProfileDialog.get()).toBeInTheDocument();
+      expect(ui.dialog.get()).toBeInTheDocument();
       expect(
-        ui.deleteProfileDialog
+        ui.dialog
           .byText(/quality_profiles.are_you_sure_want_delete_profile_x_and_descendants/)
           .get()
       ).toBeInTheDocument();
       await act(async () => {
-        await user.click(ui.deleteProfileDialog.byRole('button', { name: 'delete' }).get());
+        await user.click(ui.dialog.byRole('button', { name: 'delete' }).get());
       });
 
       expect(ui.qualityProfilesHeader.get()).toBeInTheDocument();

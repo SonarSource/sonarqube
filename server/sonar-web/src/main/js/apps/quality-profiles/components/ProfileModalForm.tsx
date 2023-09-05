@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FormField, InputField, Modal } from 'design-system';
 import * as React from 'react';
-import Modal from '../../../components/controls/Modal';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
@@ -42,64 +40,62 @@ const LABELS_FOR_ACTION: Dict<{ button: string; header: string }> = {
 
 export default function ProfileModalForm(props: ProfileModalFormProps) {
   const { action, loading, profile } = props;
-  const [name, setName] = React.useState<string | undefined>(undefined);
+  const [name, setName] = React.useState('');
 
   const submitDisabled = loading || !name || name === profile.name;
   const labels = LABELS_FOR_ACTION[action];
-  const header = translateWithParameters(labels.header, profile.name, profile.languageName);
 
   return (
-    <Modal contentLabel={header} onRequestClose={props.onClose} size="small">
-      <form
-        onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => {
-          e.preventDefault();
-          if (name) {
-            props.onSubmit(name);
-          }
-        }}
-      >
-        <div className="modal-head">
-          <h2>{header}</h2>
-        </div>
-        <div className="modal-body">
+    <Modal
+      headerTitle={translateWithParameters(labels.header, profile.name, profile.languageName)}
+      onClose={props.onClose}
+      loading={loading}
+      body={
+        <>
           {action === ProfileActionModals.Copy && (
-            <p className="spacer-bottom">
+            <p className="sw-mb-8">
               {translateWithParameters('quality_profiles.copy_help', profile.name)}
             </p>
           )}
           {action === ProfileActionModals.Extend && (
-            <p className="spacer-bottom">
+            <p className="sw-mb-8">
               {translateWithParameters('quality_profiles.extend_help', profile.name)}
             </p>
           )}
 
-          <MandatoryFieldsExplanation className="modal-field" />
-          <div className="modal-field">
-            <label htmlFor="profile-name">
-              {translate('quality_profiles.new_name')}
-              <MandatoryFieldMarker />
-            </label>
-            <input
-              autoFocus
-              id="profile-name"
-              maxLength={100}
+          <MandatoryFieldsExplanation />
+
+          <FormField
+            className="sw-mt-2"
+            htmlFor="quality-profile-new-name"
+            label={translate('quality_profiles.new_name')}
+            required
+          >
+            <InputField
+              id="quality-profile-new-name"
               name="name"
-              onChange={(e: React.SyntheticEvent<HTMLInputElement>) => {
-                setName(e.currentTarget.value);
-              }}
+              onChange={(event) => setName(event.target.value)}
               required
-              size={50}
+              size="full"
               type="text"
-              value={name ?? profile.name}
+              value={name}
             />
-          </div>
-        </div>
-        <div className="modal-foot">
-          {loading && <i className="spinner spacer-right" />}
-          <SubmitButton disabled={submitDisabled}>{translate(labels.button)}</SubmitButton>
-          <ResetButtonLink onClick={props.onClose}>{translate('cancel')}</ResetButtonLink>
-        </div>
-      </form>
-    </Modal>
+          </FormField>
+        </>
+      }
+      primaryButton={
+        <ButtonPrimary
+          onClick={() => {
+            if (name) {
+              props.onSubmit(name);
+            }
+          }}
+          disabled={submitDisabled}
+        >
+          {translate(labels.button)}
+        </ButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }
