@@ -17,10 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  Badge,
+  BareButton,
+  FlagWarningIcon,
+  SubnavigationGroup,
+  SubnavigationItem,
+} from 'design-system';
 import * as React from 'react';
-import { NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Tooltip from '../../../components/controls/Tooltip';
-import AlertWarnIcon from '../../../components/icons/AlertWarnIcon';
+
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import { CaycStatus, QualityGate } from '../../../types/types';
@@ -32,34 +39,54 @@ interface Props {
 }
 
 export default function List({ qualityGates, currentQualityGate }: Props) {
-  return (
-    <div className="list-group">
-      {qualityGates.map((qualityGate) => (
-        <NavLink
-          className="list-group-item display-flex-center"
-          aria-current={currentQualityGate === qualityGate.name && 'page'}
-          key={qualityGate.name}
-          to={getQualityGateUrl(qualityGate.name)}
-        >
-          <span className="flex-1 text-ellipsis" title={qualityGate.name}>
-            {qualityGate.name}
-          </span>
-          {qualityGate.isDefault && (
-            <span className="badge little-spacer-left">{translate('default')}</span>
-          )}
-          {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="little-spacer-left" />}
+  const navigateTo = useNavigate();
 
-          {qualityGate.caycStatus === CaycStatus.NonCompliant &&
-            qualityGate.actions?.manageConditions && (
-              <Tooltip overlay={translate('quality_gates.cayc.tooltip.message')}>
-                <AlertWarnIcon
-                  className="spacer-left"
-                  description={translate('quality_gates.cayc.tooltip.message')}
-                />
-              </Tooltip>
-            )}
-        </NavLink>
-      ))}
-    </div>
+  function redirectQualityGate(qualityGateName: string) {
+    navigateTo(getQualityGateUrl(qualityGateName));
+  }
+
+  return (
+    <SubnavigationGroup>
+      {qualityGates.map((qualityGate) => {
+        const isDefaultTitle = qualityGate.isDefault ? ` ${translate('default')}` : '';
+        const isBuiltInTitle = qualityGate.isBuiltIn
+          ? ` ${translate('quality_gates.built_in')}`
+          : '';
+
+        return (
+          <SubnavigationItem
+            className="it__list-group-item"
+            active={currentQualityGate === qualityGate.name}
+            key={qualityGate.name}
+            onClick={() => {
+              redirectQualityGate(qualityGate.name);
+            }}
+          >
+            <div className="sw-flex sw-flex-col">
+              <BareButton
+                aria-current={currentQualityGate === qualityGate.name && 'page'}
+                title={`${qualityGate.name}${isDefaultTitle}${isBuiltInTitle}`}
+                className="sw-flex-1 sw-text-ellipsis sw-overflow-hidden sw-max-w-abs-250 sw-whitespace-nowrap"
+              >
+                {qualityGate.name}
+              </BareButton>
+
+              {(qualityGate.isDefault || qualityGate.isBuiltIn) && (
+                <div className="sw-mt-2">
+                  {qualityGate.isDefault && <Badge>{translate('default')}</Badge>}
+                  {qualityGate.isBuiltIn && <BuiltInQualityGateBadge />}
+                </div>
+              )}
+            </div>
+            {qualityGate.caycStatus === CaycStatus.NonCompliant &&
+              qualityGate.actions?.manageConditions && (
+                <Tooltip overlay={translate('quality_gates.cayc.tooltip.message')}>
+                  <FlagWarningIcon description={translate('quality_gates.cayc.tooltip.message')} />
+                </Tooltip>
+              )}
+          </SubnavigationItem>
+        );
+      })}
+    </SubnavigationGroup>
   );
 }

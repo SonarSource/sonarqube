@@ -17,11 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { withTheme } from '@emotion/react';
+import styled from '@emotion/styled';
+import {
+  LAYOUT_FOOTER_HEIGHT,
+  LAYOUT_GLOBAL_NAV_HEIGHT,
+  LargeCenteredLayout,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { NavigateFunction, useNavigate, useParams } from 'react-router-dom';
 import { fetchQualityGates } from '../../../api/quality-gates';
-import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import '../../../components/search-navigator.css';
 import Spinner from '../../../components/ui/Spinner';
@@ -115,7 +123,7 @@ class App extends React.PureComponent<Props, State> {
     const { canCreate, qualityGates } = this.state;
 
     return (
-      <>
+      <LargeCenteredLayout id="quality-gates-page">
         <Helmet
           defer={false}
           titleTemplate={translateWithParameters(
@@ -123,39 +131,43 @@ class App extends React.PureComponent<Props, State> {
             translate('quality_gates.page'),
           )}
         />
-        <div className="layout-page" id="quality-gates-page">
+        <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12 sw-w-full">
           <Suggestions suggestions="quality_gates" />
 
-          <ScreenPositionHelper className="layout-page-side-outer">
-            {({ top }) => (
-              <nav className="layout-page-side" style={{ top }}>
-                <div className="layout-page-side-inner">
-                  <div className="layout-page-filters">
-                    <ListHeader
-                      canCreate={canCreate}
-                      refreshQualityGates={this.fetchQualityGates}
-                    />
-                    <Spinner loading={this.state.loading}>
-                      <List qualityGates={qualityGates} currentQualityGate={name} />
-                    </Spinner>
-                  </div>
-                </div>
-              </nav>
-            )}
-          </ScreenPositionHelper>
+          <ContentWrapper className="sw-col-span-3 sw-px-4 sw-py-6">
+            <ListHeader canCreate={canCreate} refreshQualityGates={this.fetchQualityGates} />
+            <Spinner loading={this.state.loading}>
+              <List qualityGates={qualityGates} currentQualityGate={name} />
+            </Spinner>
+          </ContentWrapper>
 
           {name !== undefined && (
-            <Details
-              qualityGateName={name}
-              onSetDefault={this.handleSetDefault}
-              qualityGates={this.state.qualityGates}
-              refreshQualityGates={this.fetchQualityGates}
-            />
+            <ContentWrapper className="sw-col-span-9 sw-overflow-y-auto">
+              <Details
+                qualityGateName={name}
+                onSetDefault={this.handleSetDefault}
+                qualityGates={this.state.qualityGates}
+                refreshQualityGates={this.fetchQualityGates}
+              />
+            </ContentWrapper>
           )}
         </div>
-      </>
+      </LargeCenteredLayout>
     );
   }
+}
+
+function ContentWrapper({ className, children }: React.PropsWithChildren<{ className: string }>) {
+  return (
+    <StyledContentWrapper
+      className={className}
+      style={{
+        height: `calc(100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT}px)`,
+      }}
+    >
+      {children}
+    </StyledContentWrapper>
+  );
 }
 
 export default function AppWrapper() {
@@ -164,3 +176,11 @@ export default function AppWrapper() {
 
   return <App name={params['name']} navigate={navigate} />;
 }
+
+const StyledContentWrapper = withTheme(styled.div`
+  box-sizing: border-box;
+
+  background-color: ${themeColor('filterbar')};
+  border-right: ${themeBorder('default', 'filterbarBorder')};
+  overflow-x: hidden;
+`);

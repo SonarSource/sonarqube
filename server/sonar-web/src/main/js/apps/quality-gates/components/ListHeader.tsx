@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, HelperHintIcon, Note } from 'design-system';
 import * as React from 'react';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
-import { Button } from '../../../components/controls/buttons';
 import ModalButton from '../../../components/controls/ModalButton';
 import { translate } from '../../../helpers/l10n';
 import CreateQualityGateForm from './CreateQualityGateForm';
@@ -29,27 +29,31 @@ interface Props {
   refreshQualityGates: () => Promise<void>;
 }
 
+function CreateQualityGateModal({ refreshQualityGates }: Pick<Props, 'refreshQualityGates'>) {
+  return (
+    <div>
+      <ModalButton
+        modal={({ onClose }) => (
+          <CreateQualityGateForm onClose={onClose} onCreate={refreshQualityGates} />
+        )}
+      >
+        {({ onClick }) => (
+          <ButtonPrimary data-test="quality-gates__add" onClick={onClick}>
+            {translate('create')}
+          </ButtonPrimary>
+        )}
+      </ModalButton>
+    </div>
+  );
+}
+
 export default function ListHeader({ canCreate, refreshQualityGates }: Props) {
   return (
-    <div className="page-header">
-      {canCreate && (
-        <div className="page-actions">
-          <ModalButton
-            modal={({ onClose }) => (
-              <CreateQualityGateForm onClose={onClose} onCreate={refreshQualityGates} />
-            )}
-          >
-            {({ onClick }) => (
-              <Button data-test="quality-gates__add" onClick={onClick}>
-                {translate('create')}
-              </Button>
-            )}
-          </ModalButton>
-        </div>
-      )}
-
-      <div className="display-flex-center">
-        <h1 className="page-title">{translate('quality_gates.page')}</h1>
+    <div className="sw-flex sw-justify-between sw-pb-4">
+      <div className="sw-flex sw-justify-between">
+        <Note as="h1" className="sw-flex sw-items-center sw-body-md-highlight">
+          {translate('quality_gates.page')}
+        </Note>
         <DocumentationTooltip
           className="spacer-left"
           content={translate('quality_gates.help')}
@@ -59,8 +63,11 @@ export default function ListHeader({ canCreate, refreshQualityGates }: Props) {
               label: translate('learn_more'),
             },
           ]}
-        />
+        >
+          <HelperHintIcon />
+        </DocumentationTooltip>
       </div>
+      {canCreate && <CreateQualityGateModal refreshQualityGates={refreshQualityGates} />}
     </div>
   );
 }

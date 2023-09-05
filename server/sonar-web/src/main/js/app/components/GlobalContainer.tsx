@@ -50,6 +50,7 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND = [
   '/projects',
   '/project/information',
   '/web_api_v2',
+  '/quality_gates',
 ];
 
 const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = ['/tutorials', '/projects/create'];
@@ -66,7 +67,9 @@ export default function GlobalContainer() {
           <div className="global-container">
             <div
               className={classNames('page-wrapper', {
-                'new-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND.includes(location.pathname),
+                'new-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND.some((element) =>
+                  location.pathname.startsWith(element)
+                ),
                 'white-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE.includes(
                   location.pathname,
                 ),

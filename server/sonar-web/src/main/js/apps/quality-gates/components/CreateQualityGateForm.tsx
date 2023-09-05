@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary, FormField, InputField, Modal } from 'design-system';
 import * as React from 'react';
 import { createQualityGate } from '../../../api/quality-gates';
-import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
-import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
@@ -43,47 +42,66 @@ export class CreateQualityGateForm extends React.PureComponent<Props, State> {
     this.setState({ name: event.currentTarget.value });
   };
 
+  handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    this.handleCreate();
+  };
+
   handleCreate = async () => {
     const { name } = this.state;
 
-    if (name) {
+    if (name !== undefined) {
       const qualityGate = await createQualityGate({ name });
-
       await this.props.onCreate();
-
+      this.props.onClose();
       this.props.router.push(getQualityGateUrl(qualityGate.name));
     }
   };
 
   render() {
     const { name } = this.state;
-    return (
-      <ConfirmModal
-        confirmButtonText={translate('save')}
-        confirmDisable={!name}
-        header={translate('quality_gates.create')}
-        onClose={this.props.onClose}
-        onConfirm={this.handleCreate}
-        size="small"
-      >
+
+    const body = (
+      <form onSubmit={this.handleFormSubmit}>
         <MandatoryFieldsExplanation className="modal-field" />
-        <div className="modal-field">
-          <label htmlFor="quality-gate-form-name">
-            {translate('name')}
-            <MandatoryFieldMarker />
-          </label>
-          <input
-            autoFocus
+        <FormField
+          htmlFor="quality-gate-form-name"
+          label={translate('name')}
+          required
+          requiredAriaLabel={translate('field_required')}
+        >
+          <InputField
+            autoComplete="off"
             id="quality-gate-form-name"
-            maxLength={100}
+            maxLength={256}
+            name="key"
             onChange={this.handleNameChange}
-            required
-            size={50}
             type="text"
+            size="full"
             value={name}
           />
-        </div>
-      </ConfirmModal>
+        </FormField>
+      </form>
+    );
+
+    return (
+      <Modal
+        onClose={this.props.onClose}
+        headerTitle={translate('quality_gates.create')}
+        isScrollable
+        body={body}
+        primaryButton={
+          <ButtonSecondary
+            disabled={name === null || name === ''}
+            form="create-application-form"
+            type="submit"
+            onClick={this.handleCreate}
+          >
+            {translate('quality_gate.create')}
+          </ButtonSecondary>
+        }
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 }

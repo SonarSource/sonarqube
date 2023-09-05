@@ -39,7 +39,7 @@ it('should open the default quality gates', async () => {
 
   const defaultQualityGate = handler.getDefaultQualityGate();
   expect(
-    await screen.findByRole('link', {
+    await screen.findByRole('button', {
       current: 'page',
       name: `${defaultQualityGate.name} default`,
     })
@@ -50,13 +50,13 @@ it('should list all quality gates', async () => {
   renderQualityGateApp();
 
   expect(
-    await screen.findByRole('link', {
+    await screen.findByRole('button', {
       name: `${handler.getDefaultQualityGate().name} default`,
     })
   ).toBeInTheDocument();
 
   expect(
-    screen.getByRole('link', {
+    screen.getByRole('button', {
       name: `${handler.getBuiltInQualityGate().name} quality_gates.built_in`,
     })
   ).toBeInTheDocument();
@@ -72,14 +72,15 @@ it('should be able to create a quality gate then delete it', async () => {
   await user.click(createButton);
   await act(async () => {
     await user.click(screen.getByRole('textbox', { name: /name.*/ }));
-    await user.keyboard('testone{Enter}');
+    await user.keyboard('testone');
+    await user.click(screen.getByRole('button', { name: 'quality_gate.create' }));
   });
-  expect(await screen.findByRole('link', { name: 'testone' })).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: 'testone' })).toBeInTheDocument();
 
   // Using modal button
   createButton = await screen.findByRole('button', { name: 'create' });
   await user.click(createButton);
-  const saveButton = screen.getByRole('button', { name: 'save' });
+  const saveButton = screen.getByRole('button', { name: 'quality_gate.create' });
 
   expect(saveButton).toBeDisabled();
   const nameInput = screen.getByRole('textbox', { name: /name.*/ });
@@ -89,7 +90,7 @@ it('should be able to create a quality gate then delete it', async () => {
     await user.click(saveButton);
   });
 
-  const newQG = await screen.findByRole('link', { name: 'testtwo' });
+  const newQG = await screen.findByRole('button', { name: 'testtwo' });
 
   expect(newQG).toBeInTheDocument();
 
@@ -102,7 +103,7 @@ it('should be able to create a quality gate then delete it', async () => {
   await user.click(dialogDeleteButton);
 
   await waitFor(() => {
-    expect(screen.queryByRole('link', { name: 'testtwo' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'testtwo' })).not.toBeInTheDocument();
   });
 });
 
@@ -122,7 +123,7 @@ it('should be able to copy a quality gate which is CAYC compliant', async () => 
     await user.click(nameInput);
     await user.keyboard(' bis{Enter}');
   });
-  expect(await screen.findByRole('link', { name: /.* bis/ })).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: /.* bis/ })).toBeInTheDocument();
 });
 
 it('should not be able to copy a quality gate which is not CAYC compliant', async () => {
@@ -151,7 +152,7 @@ it('should be able to rename a quality gate', async () => {
   await user.click(nameInput);
   await user.keyboard('{Control>}a{/Control}New Name{Enter}');
 
-  expect(await screen.findByRole('link', { name: /New Name.*/ })).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: /New Name.*/ })).toBeInTheDocument();
 });
 
 it('should not be able to set as default a quality gate which is not CAYC compliant', async () => {
@@ -170,11 +171,11 @@ it('should be able to set as default a quality gate which is CAYC compliant', as
   handler.setIsAdmin(true);
   renderQualityGateApp();
 
-  const notDefaultQualityGate = await screen.findByRole('link', { name: /Sonar way/ });
+  const notDefaultQualityGate = await screen.findByRole('button', { name: /Sonar way/ });
   await user.click(notDefaultQualityGate);
   const setAsDefaultButton = screen.getByRole('button', { name: 'set_as_default' });
   await user.click(setAsDefaultButton);
-  expect(screen.getByRole('link', { name: /Sonar way/ })).toHaveTextContent('default');
+  expect(screen.getByRole('button', { name: /Sonar way default/ })).toBeInTheDocument();
 });
 
 it('should be able to add a condition', async () => {
@@ -256,7 +257,7 @@ it('should be able to handle duplicate or deprecated condition', async () => {
 
   await user.click(
     // make it a regexp to ignore badges:
-    await screen.findByRole('link', { name: new RegExp(handler.getCorruptedQualityGateName()) })
+    await screen.findByRole('button', { name: new RegExp(handler.getCorruptedQualityGateName()) })
   );
 
   expect(await screen.findByText('quality_gates.duplicated_conditions')).toBeInTheDocument();
@@ -351,7 +352,7 @@ it('should not warn user when quality gate is not CAYC compliant and user has no
   const user = userEvent.setup();
   renderQualityGateApp();
 
-  const nonCompliantQualityGate = await screen.findByRole('link', { name: 'Non Cayc QG' });
+  const nonCompliantQualityGate = await screen.findByRole('button', { name: 'Non Cayc QG' });
 
   await user.click(nonCompliantQualityGate);
 
@@ -364,7 +365,7 @@ it('should warn user when quality gate is not CAYC compliant and user has permis
   handler.setIsAdmin(true);
   renderQualityGateApp();
 
-  const nonCompliantQualityGate = await screen.findByRole('link', { name: /Non Cayc QG/ });
+  const nonCompliantQualityGate = await screen.findByRole('button', { name: /Non Cayc QG/ });
 
   await user.click(nonCompliantQualityGate);
 
@@ -529,7 +530,7 @@ describe('The Permissions section', () => {
 
     // await just to make sure we've loaded the page
     expect(
-      await screen.findByRole('link', {
+      await screen.findByRole('button', {
         name: `${handler.getDefaultQualityGate().name} default`,
       })
     ).toBeInTheDocument();
