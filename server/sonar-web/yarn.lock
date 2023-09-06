@@ -5196,7 +5196,7 @@ __metadata:
     fs-extra: 11.1.1
     http-proxy: 1.18.1
     jest: 29.6.4
-    jest-axe: 7.0.1
+    jest-axe: ^8.0.0
     jest-environment-jsdom: 29.6.4
     jest-junit: 16.0.0
     jest-slow-test-reporter: 1.0.0
@@ -5671,10 +5671,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axe-core@npm:4.5.1":
-  version: 4.5.1
-  resolution: "axe-core@npm:4.5.1"
-  checksum: db90c6b41483e9c3452393933072fe0b8c2221e6d9b96ae0e6a03a4ce1e4c35bec539c92e9b6fcd63c4acf6678ad3c3ca7f5ab1d884210d157867cc54acd4f6a
+"axe-core@npm:4.7.2":
+  version: 4.7.2
+  resolution: "axe-core@npm:4.7.2"
+  checksum: 5d86fa0f45213b0e54cbb5d713ce885c4a8fe3a72b92dd915a47aa396d6fd149c4a87fec53aa978511f6d941402256cfeb26f2db35129e370f25a453c688655a
   languageName: node
   linkType: hard
 
@@ -9643,15 +9643,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-axe@npm:7.0.1":
-  version: 7.0.1
-  resolution: "jest-axe@npm:7.0.1"
+"jest-axe@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "jest-axe@npm:8.0.0"
   dependencies:
-    axe-core: 4.5.1
+    axe-core: 4.7.2
     chalk: 4.1.2
     jest-matcher-utils: 29.2.2
     lodash.merge: 4.6.2
-  checksum: 3c9b0b8669f6fe5d143ee74aa0414831ea75bbe9e38551aa82352d9102e2827952a14cb3a6782fbd847a0febf6da3461424d1a2eb77256159719890f502cb01f
+  checksum: 895501afa6ac6c49e5e45ee1cd4a8e923589f220f6f950a8f5366cc3f3636aaee9c9d501a469f9658185e7a5928b59a337d4b4f1c7bb3f4b3b5ba8b3811c9f15
   languageName: node
   linkType: hard
 
