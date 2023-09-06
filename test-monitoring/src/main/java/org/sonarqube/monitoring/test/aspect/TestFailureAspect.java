@@ -47,15 +47,24 @@ public class TestFailureAspect {
   public static final String BUILD_NUMBER = System.getenv("BUILD_NUMBER");
   public static final String QA_CATEGORY = System.getenv("QA_CATEGORY");
 
-  private static final Path PATH = Paths.get("/tmp/test-monitoring.log");
+  private final Path path;
   private static final Gson GSON = new Gson();
 
-  static {
+  public TestFailureAspect() {
+    this(Paths.get("/tmp/test-monitoring.log"));
+  }
+
+  public TestFailureAspect(Path path) {
+    this.path = path;
+    createEmptyLogFile();
+  }
+
+  private void createEmptyLogFile() {
     try {
-      if (!Files.exists(PATH, LinkOption.NOFOLLOW_LINKS)) {
-        Files.createFile(PATH);
+      if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+        Files.createFile(path);
       }
-      Files.write(PATH, "".getBytes(UTF_8));
+      Files.write(path, "".getBytes(UTF_8));
     } catch (IOException e) {
       // Ignore
     }
@@ -90,10 +99,10 @@ public class TestFailureAspect {
       .build();
   }
 
-  public static void persistMeasure(Measure measure) {
+  private void persistMeasure(Measure measure) {
     try {
-      Files.write(PATH, GSON.toJson(measure).getBytes(UTF_8), StandardOpenOption.APPEND);
-      Files.write(PATH, "\n".getBytes(UTF_8), StandardOpenOption.APPEND);
+      Files.write(path, GSON.toJson(measure).getBytes(UTF_8), StandardOpenOption.APPEND);
+      Files.write(path, "\n".getBytes(UTF_8), StandardOpenOption.APPEND);
     } catch (IOException e) {
       // Ignore
     }

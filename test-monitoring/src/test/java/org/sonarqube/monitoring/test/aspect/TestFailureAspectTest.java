@@ -21,19 +21,15 @@ package org.sonarqube.monitoring.test.aspect;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.aspectj.lang.JoinPoint;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.notification.Failure;
 
-import static java.nio.file.Files.createDirectory;
-import static java.nio.file.Files.exists;
 import static java.nio.file.Files.readAllBytes;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.junit.runner.Description.createTestDescription;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -42,22 +38,17 @@ public class TestFailureAspectTest {
 
   private TestFailureAspect testFailureAspect;
 
-  private static final Path TMP_PATH = Path.of("/tmp");
-
-  @BeforeClass
-  public static void createTmpFolder() throws IOException {
-    if (!exists(TMP_PATH)) {
-      createDirectory(TMP_PATH);
-    }
-  }
+  private Path fakeLogPath;
 
   @Before
-  public void setup() {
-    testFailureAspect = new TestFailureAspect();
+  public void setup() throws IOException {
+    Path tempDir = Files.createTempDirectory("TestFailureAspectTest");
+    fakeLogPath = tempDir.resolve("fake-test-monitoring.log");
+    testFailureAspect = new TestFailureAspect(fakeLogPath);
   }
 
   @Test
-  public void afterFireTestFailure_shouldPersistMeasure() {
+  public void afterFireTestFailure_shouldPersistMeasure() throws IOException {
     JoinPoint joinPoint = mock(JoinPoint.class);
     Failure failure = new Failure(
       createTestDescription("testClass", "testMethod"),
@@ -66,8 +57,7 @@ public class TestFailureAspectTest {
 
     testFailureAspect.afterFireTestFailure(joinPoint);
 
-    String fileContent = getFileContent(Paths.get("/tmp/test-monitoring.log"));
-    assertThat(fileContent)
+    assertThat(getFileContent())
       .contains("\"timestamp\":\"" )
       .contains("\"testClass\":\"testClass\"")
       .contains("\"testMethod\":\"testMethod\"")
@@ -76,14 +66,9 @@ public class TestFailureAspectTest {
       .contains("\"exceptionLogs\":\"java.lang.IllegalStateException: some exception");
   }
 
-  private String getFileContent(Path path) {
-    try {
-      byte[] bytes = readAllBytes(path);
-      return new String(bytes, StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      fail("Unable to read file " + path, e);
-    }
-    return null;
+  private String getFileContent() throws IOException {
+    byte[] bytes = readAllBytes(fakeLogPath);
+    return new String(bytes, StandardCharsets.UTF_8);
   }
 
 }
