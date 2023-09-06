@@ -17,7 +17,7 @@ env:
   SONARQUBE_NEXT_TOKEN: VAULT[development/kv/data/next data.token]
   # to trigger docs deployment
   ELASTIC_PWD: VAULT[development/team/sonarqube/kv/data/elasticsearch-cloud data.password]
-  DATADOG_APIKEY: 
+  DATADOG_APIKEY: VAULT[development/team/sonarqube/kv/data/sq-datadog data.apikey]
   CIRRUS_LOG_TIMESTAMP: true
   BRANCH_MAIN: "master"
   BRANCH_NIGHTLY: "branch-nightly-build"
