@@ -84,7 +84,7 @@ export default function ViewMembersModal(props: Props) {
           placeholder={translate('search_verb')}
           value={query}
         />
-        <div className="select-list-list-container spacer-top">
+        <div className="select-list-list-container spacer-top sw-overflow-auto">
           <Spinner loading={loading}>
             <ul className="menu">
               {users.map((user) => (

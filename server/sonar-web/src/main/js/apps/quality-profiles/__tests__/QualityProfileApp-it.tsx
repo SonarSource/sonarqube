@@ -53,7 +53,7 @@ const ui = {
   closeButton: byRole('button', { name: 'close' }),
   changeProjectsButton: byRole('button', { name: 'quality_profiles.change_projects' }),
   changeButton: byRole('button', { name: 'change_verb' }),
-  withoutFilterButton: byRole('button', { name: 'quality_gates.projects.without' }),
+  withoutFilterButton: byRole('radio', { name: 'quality_gates.projects.without' }),
   changeParentButton: byRole('button', { name: 'quality_profiles.change_parent' }),
   qualityProfileActions: byRole('button', {
     name: /quality_profiles.actions/,

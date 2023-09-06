@@ -450,11 +450,11 @@ describe('The Project section', () => {
     expect(screen.getAllByRole('checkbox')).toHaveLength(2);
 
     // change tabs to show deselected projects
-    await user.click(screen.getByRole('button', { name: 'quality_gates.projects.without' }));
+    await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.without' }));
     expect(screen.getAllByRole('checkbox')).toHaveLength(2);
 
     // change tabs to show all projects
-    await user.click(screen.getByRole('button', { name: 'quality_gates.projects.all' }));
+    await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.all' }));
     expect(screen.getAllByRole('checkbox')).toHaveLength(4);
   });
 
@@ -479,7 +479,7 @@ describe('The Project section', () => {
     expect(screen.getAllByRole('checkbox')).toHaveLength(1);
 
     // change tabs to show deselected projects
-    await user.click(screen.getByRole('button', { name: 'quality_gates.projects.without' }));
+    await user.click(screen.getByRole('radio', { name: 'quality_gates.projects.without' }));
 
     const uncheckedProjects = screen.getAllByRole('checkbox')[0];
     expect(screen.getAllByRole('checkbox')).toHaveLength(3);

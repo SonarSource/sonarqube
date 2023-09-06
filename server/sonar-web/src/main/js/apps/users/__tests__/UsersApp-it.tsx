@@ -45,9 +45,7 @@ const authenticationHandler = new AuthenticationServiceMock();
 
 const ui = {
   createUserButton: byRole('button', { name: 'users.create_user' }),
-  allFilter: byRole('button', { name: 'all' }),
-  selectedFilter: byRole('button', { name: 'selected' }),
-  unselectedFilter: byRole('button', { name: 'unselected' }),
+  localAndManagedFilter: byRole('button', { name: 'all' }),
   managedFilter: byRole('button', { name: 'managed' }),
   localFilter: byRole('button', { name: 'local' }),
   showMore: byRole('button', { name: 'show_more' }),
@@ -100,6 +98,10 @@ const ui = {
   jackRow: byRole('row', { name: /Jack/ }),
 
   dialogGroups: byRole('dialog', { name: 'users.update_groups' }),
+  allFilter: byRole('radio', { name: 'all' }),
+  selectedFilter: byRole('radio', { name: 'selected' }),
+  unselectedFilter: byRole('radio', { name: 'unselected' }),
+
   getGroups: () => within(ui.dialogGroups.get()).getAllByRole('checkbox'),
   dialogTokens: byRole('dialog', { name: 'users.tokens' }),
   dialogPasswords: byRole('dialog', { name: 'my_profile.password.title' }),
@@ -206,7 +208,7 @@ describe('different filters combinations', () => {
     const user = userEvent.setup();
     renderUsersApp();
 
-    await act(async () => user.click(await ui.allFilter.find()));
+    await user.click(await ui.localAndManagedFilter.find());
     await act(async () => {
       await selectEvent.select(ui.activityFilter.get(), 'users.activity_filter.inactive_users');
     });
@@ -483,7 +485,7 @@ describe('in manage mode', () => {
   it('should render list of all users', async () => {
     renderUsersApp();
 
-    await act(async () => expect(await ui.allFilter.find()).toBeInTheDocument());
+    await act(async () => expect(await ui.localAndManagedFilter.find()).toBeInTheDocument());
 
     expect(ui.aliceRowWithLocalBadge.get()).toBeInTheDocument();
     expect(ui.bobRow.get()).toBeInTheDocument();

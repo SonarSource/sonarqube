@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputSearch, PageContentFontWrapper, ToggleButton } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import ButtonToggle from './ButtonToggle';
 import ListFooter from './ListFooter';
-import SearchBox from './SearchBox';
-import './SelectList.css';
 import SelectListListContainer from './SelectListListContainer';
 
 export enum SelectListFilter {
@@ -145,11 +143,11 @@ export default class SelectList extends React.PureComponent<Props, State> {
     const disabled = this.state.lastSearchParams.query !== '';
 
     return (
-      <div className="select-list">
-        <div className="display-flex-center">
-          <span className="select-list-filter spacer-right">
-            <ButtonToggle
-              onCheck={this.changeFilter}
+      <PageContentFontWrapper className="it__select-list">
+        <div className="sw-flex sw-items-center">
+          <span className="sw-mr-2">
+            <ToggleButton
+              onChange={this.changeFilter}
               disabled={disabled}
               options={[
                 { label: labelSelected, value: SelectListFilter.Selected },
@@ -159,7 +157,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
               value={filter}
             />
           </span>
-          <SearchBox
+          <InputSearch
             autoFocus={autoFocusSearch}
             loading={this.state.loading}
             onChange={this.handleQueryChange}
@@ -185,9 +183,10 @@ export default class SelectList extends React.PureComponent<Props, State> {
             needReload={this.props.needToReload}
             reload={this.onReload}
             total={this.props.elementsTotalCount}
+            useMIUIButtons
           />
         )}
-      </div>
+      </PageContentFontWrapper>
     );
   }
 }

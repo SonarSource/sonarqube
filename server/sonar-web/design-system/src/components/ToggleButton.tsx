@@ -51,6 +51,7 @@ export function ToggleButton<T extends ToggleButtonValueType>(props: ButtonToggl
     <Wrapper aria-label={label} role={role}>
       {options.map((option) => (
         <OptionButton
+          aria-checked={isRadioGroup ? option.value === value : undefined}
           aria-controls={isRadioGroup ? undefined : getTabPanelId(String(option.value))}
           aria-current={option.value === value}
           data-value={option.value}

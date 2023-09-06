@@ -38,9 +38,10 @@ const ui = {
   createGroupButton: byRole('button', { name: 'groups.create_group' }),
   infoManageMode: byText(/groups\.page\.managed_description/),
   description: byText('user_groups.page.description'),
-  allFilter: byRole('button', { name: 'all' }),
-  selectedFilter: byRole('button', { name: 'selected' }),
-  unselectedFilter: byRole('button', { name: 'unselected' }),
+  allFilter: byRole('radio', { name: 'all' }),
+  selectedFilter: byRole('radio', { name: 'selected' }),
+  unselectedFilter: byRole('radio', { name: 'unselected' }),
+  localAndManagedFilter: byRole('button', { name: 'all' }),
   managedFilter: byRole('button', { name: 'managed' }),
   localFilter: byRole('button', { name: 'local' }),
   searchInput: byRole('searchbox', { name: 'search.search_by_name' }),
@@ -296,7 +297,7 @@ describe('in manage mode', () => {
   it('should render list of all groups', async () => {
     renderGroupsApp();
 
-    await act(async () => expect(await ui.allFilter.find()).toBeInTheDocument());
+    await act(async () => expect(await ui.localAndManagedFilter.find()).toBeInTheDocument());
 
     expect(ui.localGroupRowWithLocalBadge.get()).toBeInTheDocument();
     expect(ui.managedGroupRow.get()).toBeInTheDocument();
