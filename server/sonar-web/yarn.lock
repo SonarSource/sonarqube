@@ -5167,7 +5167,7 @@ __metadata:
     chokidar: 3.5.3
     classnames: 2.3.2
     clipboard: 2.0.11
-    core-js: 3.31.0
+    core-js: 3.32.1
     d3-array: 3.2.4
     d3-hierarchy: 3.1.2
     d3-scale: 4.0.2
@@ -6314,10 +6314,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:3.31.0":
-  version: 3.31.0
-  resolution: "core-js@npm:3.31.0"
-  checksum: f7cf9b3010f7ca99c026d95b61743baca1a85512742ed2b67e8f65a72ac4f4fe0b90b00057783e886bdd39d3a295f42f845d33e7cba3973ed263df978343ab79
+"core-js@npm:3.32.1":
+  version: 3.32.1
+  resolution: "core-js@npm:3.32.1"
+  checksum: e4af91d9c6be7b59235feb3f273d16705126ce09a0b4a787144d131d874f0cd10be3c24fc52e5eea7d7cb03ceabe4be7b255abcd9474b5eb1ff365d2c5611f9a
   languageName: node
   linkType: hard
 
