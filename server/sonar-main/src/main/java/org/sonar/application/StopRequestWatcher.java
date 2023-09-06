@@ -21,7 +21,7 @@ package org.sonar.application;
 
 /**
  * Background thread that checks if a stop request
- * is sent, usually by Orchestrator
+ * is sent, usually by OrchestratorRule
  */
 public interface StopRequestWatcher {
 

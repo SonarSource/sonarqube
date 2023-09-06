@@ -37,7 +37,7 @@ public class OrchestratorSettingsUtils {
     // prevents instantiation
   }
 
-  public static void loadOrchestratorSettings(Settings settings) {
+  public static void loadOrchestratorRuleSettings(Settings settings) {
     String url = settings.getString("orchestrator.configUrl");
     if (isEmpty(url)) {
       return;
@@ -68,7 +68,7 @@ public class OrchestratorSettingsUtils {
         settings.setProperty(entry.getKey(), interpolatedValue);
       }
     } catch (Exception e) {
-      throw new IllegalStateException("Cannot load Orchestrator properties from:" + url, e);
+      throw new IllegalStateException("Cannot load OrchestratorRule properties from:" + url, e);
     } finally {
       IOUtils.closeQuietly(input);
     }
