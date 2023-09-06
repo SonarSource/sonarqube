@@ -50,7 +50,7 @@
     "twin.macro": "3.4.0",
     "typescript": "5.2.2",
     "vite": "4.4.9",
-    "vite-plugin-dts": "2.3.0",
+    "vite-plugin-dts": "3.5.3",
     "whatwg-fetch": "3.6.18"
   },
   "peerDependencies": {

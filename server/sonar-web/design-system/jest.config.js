@@ -52,7 +52,7 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/config/jest/SetupReactTestingLibrary.ts'],
   snapshotSerializers: ['@emotion/jest/serializer'],
   testEnvironment: 'jsdom',
-  testPathIgnorePatterns: ['<rootDir>/config/jest', '<rootDir>/node_modules', '<rootDir>/scripts'],
+  testPathIgnorePatterns: ['<rootDir>/config/jest', '<rootDir>/node_modules', '<rootDir>/scripts', '<rootDir>/lib'],
   testRegex: '(/__tests__/.*|\\-test)\\.(ts|tsx|js)$',
   transform: {
     '^.+\\.(t|j)sx?$': ['babel-jest', babelConfig],
