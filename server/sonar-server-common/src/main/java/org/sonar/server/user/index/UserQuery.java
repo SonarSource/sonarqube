@@ -19,6 +19,11 @@
  */
 package org.sonar.server.user.index;
 
+import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -30,12 +35,14 @@ public class UserQuery {
   private final String textQuery;
   private final String organizationUuid;
   private final String excludedOrganizationUuid;
+  private List<String> organizationUuids;
   private final boolean active;
 
   private UserQuery(Builder builder) {
     this.textQuery = builder.textQuery;
     this.organizationUuid = builder.organizationUuid;
     this.excludedOrganizationUuid = builder.excludedOrganizationUuid;
+    this.organizationUuids = ImmutableList.copyOf(builder.organizationUuids);
     this.active = builder.active;
   }
 
@@ -51,6 +58,10 @@ public class UserQuery {
     return Optional.ofNullable(excludedOrganizationUuid);
   }
 
+  public List<String> getOrganizationUuids() {
+    return organizationUuids;
+  }
+
   public boolean isActive() {
     return active;
   }
@@ -63,6 +74,7 @@ public class UserQuery {
     private String textQuery;
     private String organizationUuid;
     private String excludedOrganizationUuid;
+    private List<String> organizationUuids = new ArrayList<>();
     private boolean active = true;
 
     private Builder() {
@@ -91,6 +103,14 @@ public class UserQuery {
      */
     public Builder setExcludedOrganizationUuid(@Nullable String excludedOrganizationUuid) {
       this.excludedOrganizationUuid = excludedOrganizationUuid;
+      return this;
+    }
+
+    /**
+     * Include only users that are members of at least one of the OrganizationUuids
+     */
+    public Builder addOrganizationUuids(List<String> organizationUuids) {
+      this.organizationUuids.addAll(organizationUuids);
       return this;
     }
 

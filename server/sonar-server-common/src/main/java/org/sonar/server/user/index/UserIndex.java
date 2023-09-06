@@ -43,6 +43,7 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.USER_SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ACTIVE;
@@ -96,21 +97,26 @@ public class UserIndex {
       .sort(FIELD_NAME, SortOrder.ASC);
 
     BoolQueryBuilder filter = boolQuery().must(termQuery(FIELD_ACTIVE, userQuery.isActive()));
+    // UserQuery for Search Members API uses a single organization.
     userQuery.getOrganizationUuid()
             .ifPresent(o -> filter.must(termQuery(FIELD_ORGANIZATION_UUIDS, o)));
     userQuery.getExcludedOrganizationUuid()
             .ifPresent(o -> filter.mustNot(termQuery(FIELD_ORGANIZATION_UUIDS, o)));
+    // UserQuery for SearchAction uses a list of multiple organizations.
+    if (!userQuery.getOrganizationUuids().isEmpty()) {
+      filter.must(termsQuery(FIELD_ORGANIZATION_UUIDS, userQuery.getOrganizationUuids()));
+    }
 
     QueryBuilder esQuery = matchAllQuery();
     Optional<String> textQuery = userQuery.getTextQuery();
     if (textQuery.isPresent()) {
       esQuery = QueryBuilders.multiMatchQuery(textQuery.get(),
-        FIELD_LOGIN,
-        USER_SEARCH_GRAMS_ANALYZER.subField(FIELD_LOGIN),
-        FIELD_NAME,
-        USER_SEARCH_GRAMS_ANALYZER.subField(FIELD_NAME),
-        FIELD_EMAIL,
-        USER_SEARCH_GRAMS_ANALYZER.subField(FIELD_EMAIL))
+          FIELD_LOGIN,
+          USER_SEARCH_GRAMS_ANALYZER.subField(FIELD_LOGIN),
+          FIELD_NAME,
+          USER_SEARCH_GRAMS_ANALYZER.subField(FIELD_NAME),
+          FIELD_EMAIL,
+          USER_SEARCH_GRAMS_ANALYZER.subField(FIELD_EMAIL))
         .operator(Operator.AND);
     }
 
