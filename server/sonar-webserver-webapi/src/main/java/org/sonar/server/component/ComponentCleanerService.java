@@ -20,6 +20,7 @@
 package org.sonar.server.component;
 
 import java.util.List;
+import java.util.Optional;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.resources.Scopes;
@@ -30,6 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexers;
 
@@ -69,8 +71,9 @@ public class ComponentCleanerService {
   }
 
   public void delete(DbSession dbSession, ProjectDto project) {
-    logger.info("cleaning component entries for projectUuid : {} and organizationUuid : {}", project.getUuid(),
-            project.getOrganizationUuid());
+    Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, project.getOrganizationUuid());
+    logger.info("cleaning component entries for project: {}, projectId: {}, organization: {}, orgId: {}", project.getKey(),
+            project.getUuid(), organization.get().getKey(), organization.get().getUuid());
     dbClient.purgeDao().deleteProject(dbSession, project.getUuid(), project.getQualifier(), project.getName(), project.getKey());
     dbClient.userDao().cleanHomepage(dbSession, project);
     dbClient.userTokenDao().deleteByProjectKey(dbSession, project.getKey());
