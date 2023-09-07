@@ -122,7 +122,7 @@ public class CreateAction implements ProjectsWsAction {
   private CreateWsResponse doHandle(CreateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = support.getOrganization(dbSession, request.getOrganization());
-      logger.info("Create Project Action:: organizationUuid :{}, projectKey: {} ", organization.getUuid(),
+      logger.info("Create Project Action request:: organization :{}, projectKey: {} ", organization.getKey(),
               request.getProjectKey());
       userSession.checkPermission(OrganizationPermission.PROVISION_PROJECTS, organization);
       String visibility = request.getVisibility();

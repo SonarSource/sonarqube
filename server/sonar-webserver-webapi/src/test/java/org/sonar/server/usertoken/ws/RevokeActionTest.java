@@ -50,7 +50,8 @@ public class RevokeActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private WsActionTester ws = new WsActionTester(new RevokeAction(dbClient, new UserTokenSupport(db.getDbClient(), userSession)));
+  private WsActionTester ws = new WsActionTester(new RevokeAction(dbClient, new UserTokenSupport(db.getDbClient(), userSession),
+          userSession));
 
   @Test
   public void revoke_action() {

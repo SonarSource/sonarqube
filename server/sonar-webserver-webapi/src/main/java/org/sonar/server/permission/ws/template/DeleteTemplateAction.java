@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
@@ -28,6 +29,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.DefaultTemplates;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.DefaultTemplatesResolver;
@@ -87,8 +89,6 @@ public class DeleteTemplateAction implements PermissionsWsAction {
   }
 
   private void doHandle(DeleteTemplateRequest request) {
-    logger.info("Delete Permission Template Request :: templateUuid {}, User: {}",
-            request.getTemplateId(), userSession.getLogin());
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
               request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
@@ -97,6 +97,9 @@ public class DeleteTemplateAction implements PermissionsWsAction {
       DefaultTemplates defaultTemplates = retrieveDefaultTemplates(dbSession, template);
 
       checkTemplateUuidIsNotDefault(dbSession, template, defaultTemplates);
+      Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, template.getOrganizationUuid());
+      logger.info("Delete Permission Template Request :: organization: {}, orgId: {}, templateName {}, user: {}",
+              organization.get().getKey(), organization.get().getUuid(), template.getName(), userSession.getLogin());
       dbClient.permissionTemplateDao().deleteByUuid(dbSession, template.getUuid(), template.getName());
       updateViewDefaultTemplateWhenGovernanceIsNotInstalled(dbSession, template, defaultTemplates);
       dbSession.commit();

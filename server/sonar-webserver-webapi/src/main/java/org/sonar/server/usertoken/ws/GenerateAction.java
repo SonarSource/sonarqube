@@ -203,7 +203,7 @@ public class GenerateAction implements UserTokensWsAction {
     checkTokenDoesNotAlreadyExists(dbSession, user, userTokenDto.getName());
     dbClient.userTokenDao().insert(dbSession, userTokenDto, user.getLogin());
     dbSession.commit();
-    logger.info("Token generated successfully for the user: {}", user.getLogin());
+    logger.info("Token generated successfully by the user: {}", user.getLogin());
     return userTokenDto;
   }
 

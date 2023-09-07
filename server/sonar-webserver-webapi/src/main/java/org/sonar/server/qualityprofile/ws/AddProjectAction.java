@@ -94,7 +94,7 @@ public class AddProjectAction implements QProfileWsAction {
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromName(request));
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       logger.info(
-              "Managing project Quality Profiles Request :: organization: {}, project: {} and QProfile: {}, QProfile language: {}",
+              "Managing project QProfiles Request :: organization: {}, project: {} and QProfile: {}, QProfile language: {}",
               organization.getKey(), project.getKey(), profile.getKee(), profile.getLanguage());
 
       if (!profile.getOrganizationUuid().equals(organization.getUuid())) {

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import java.util.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -28,6 +29,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
@@ -73,8 +75,9 @@ public class DeleteAction implements UserGroupsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupDto group = support.findGroupDto(dbSession, request);
       userSession.checkPermission(OrganizationPermission.ADMINISTER, group.getOrganizationUuid());
-      logger.info("Delete Group Request :: group_name: {} and organization: {}", group.getName(),
-              group.getOrganizationUuid());
+      Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid());
+      logger.info("Delete Group Request :: groupName: {} and organization: {}, orgId: {}", group.getName(),
+              organization.get().getKey(), organization.get().getUuid());
 
       support.checkGroupIsNotDefault(dbSession, group);
       checkNotTryingToDeleteLastAdminGroup(dbSession, group);

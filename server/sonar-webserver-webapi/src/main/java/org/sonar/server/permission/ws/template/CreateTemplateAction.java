@@ -110,10 +110,11 @@ public class CreateTemplateAction implements PermissionsWsAction {
 
   private CreateTemplateWsResponse doHandle(CreateTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      logger.info("Create Permission Template Request :: organization : {}, templateName: {}",
-              request.getOrganization(), request.getName());
       OrganizationDto org = wsSupport.findOrganization(dbSession, request.getOrganization());
       checkGlobalAdmin(userSession, org.getUuid());
+
+      logger.info("Create Permission Template Request :: organization: {} and orgId: {}, templateName: {}",
+              org.getKey(), org.getUuid(), request.getName());
 
       validateTemplateNameForCreation(dbSession, org, request.getName());
       RequestValidator.validateProjectPattern(request.getProjectKeyPattern());
@@ -142,7 +143,8 @@ public class CreateTemplateAction implements PermissionsWsAction {
       .setCreatedAt(now)
       .setUpdatedAt(now));
     dbSession.commit();
-    logger.info("Template Creation Completed :: organization : {}, templateName: {}", org.getKey(), request.getName());
+    logger.info("Template Creation Completed :: organization: {}, orgId: {}, templateName: {}", org.getKey(),
+            org.getUuid(), request.getName());
     return template;
   }
 

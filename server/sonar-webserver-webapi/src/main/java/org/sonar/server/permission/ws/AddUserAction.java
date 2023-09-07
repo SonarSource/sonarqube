@@ -113,7 +113,8 @@ public class AddUserAction implements PermissionsWsAction {
         request.mandatoryParam(PARAM_PERMISSION),
         project.orElse(null),
         user, permissionService);
-      logger.info("Granting permissions for user: {} and permission type: {}", userLogin, change.getPermission());
+      logger.info("Granting permissions for user: {} and permission type: {}, organization: {}, orgId: {}", userLogin,
+              change.getPermission(), org.getKey(), org.getUuid());
       permissionUpdater.apply(dbSession, singletonList(change));
     }
     response.noContent();

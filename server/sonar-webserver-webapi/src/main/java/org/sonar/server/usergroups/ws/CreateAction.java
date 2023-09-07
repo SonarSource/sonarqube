@@ -102,8 +102,8 @@ public class CreateAction implements UserGroupsWsAction {
         .setOrganizationUuid(organization.getUuid())
         .setName(request.mandatoryParam(PARAM_GROUP_NAME))
         .setDescription(request.param(PARAM_GROUP_DESCRIPTION));
-      logger.info("Create Group Request :: group name: {} and organization: {}", group.getName(),
-              organization.getUuid());
+      logger.info("Create Group Request :: groupName: {} and organization: {}, orgId: {}", group.getName(),
+              organization.getKey(), organization.getUuid());
 
       // validations
       UserGroupValidation.validateGroupName(group.getName());

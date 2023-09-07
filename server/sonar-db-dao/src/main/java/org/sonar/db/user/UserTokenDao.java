@@ -107,7 +107,7 @@ public class UserTokenDao implements Dao {
 
   public void deleteByUserAndName(DbSession dbSession, UserDto user, String name) {
     int deletedRows = mapper(dbSession).deleteByUserUuidAndName(user.getUuid(), name);
-    logger.info("Token revoked by the user: {}", user.getLogin());
+    logger.info("Token revoked for the user: {}", user.getLogin());
 
     if (deletedRows > 0) {
       auditPersister.deleteUserToken(dbSession, new UserTokenNewValue(user, name));

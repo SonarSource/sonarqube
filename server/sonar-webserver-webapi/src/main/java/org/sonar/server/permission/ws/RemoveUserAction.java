@@ -101,7 +101,8 @@ public class RemoveUserAction implements PermissionsWsAction {
         permission,
         project.orElse(null),
         user, permissionService);
-      logger.info("Removing permissions for user: {} and permission type: {}", user, change.getPermission());
+      logger.info("Removing permissions for user: {} and permission type: {}, organization: {}, orgId: {}", user,
+              change.getPermission(), org.getKey(), org.getUuid());
       permissionUpdater.apply(dbSession, singletonList(change));
       response.noContent();
     }
