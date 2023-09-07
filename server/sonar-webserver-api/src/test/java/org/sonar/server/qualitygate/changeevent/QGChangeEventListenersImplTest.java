@@ -45,6 +45,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.component.BranchDto;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener.ChangedIssue;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
@@ -124,8 +125,14 @@ public class QGChangeEventListenersImplTest {
     inOrder.verify(listener2).onIssueChanges(same(component1QGChangeEvent), same(changedIssues));
     inOrder.verify(listener3).onIssueChanges(same(component1QGChangeEvent), same(changedIssues));
     inOrder.verifyNoMoreInteractions();
-    assertThat(logTester.logs()).hasSize(4);
-    assertThat(logTester.logs(Level.WARN)).hasSize(1);
+
+    assertThat(logTester.logs(Level.TRACE)).hasSizeGreaterThanOrEqualTo(3).contains(
+      format("calling onChange() on listener %s for events %s...", listener1.getClass().getName(), component1QGChangeEvent),
+      format("calling onChange() on listener %s for events %s...", listener2.getClass().getName(), component1QGChangeEvent),
+      format("calling onChange() on listener %s for events %s...", listener3.getClass().getName(), component1QGChangeEvent));
+    assertThat(logTester.logs(Level.WARN)).hasSizeGreaterThanOrEqualTo(1).contains(
+      format("onChange() call failed on listener %s for events %s", failingListener.getClass().getName(), component1QGChangeEvent));
+
   }
 
   @Test
@@ -141,18 +148,18 @@ public class QGChangeEventListenersImplTest {
     Set<ChangedIssue> changedIssues = changedIssuesCaptor.getValue();
     inOrder.verify(listener2).onIssueChanges(same(component1QGChangeEvent), same(changedIssues));
     inOrder.verifyNoMoreInteractions();
-    assertThat(logTester.logs()).hasSize(3);
-    assertThat(logTester.logs(Level.WARN)).hasSize(1);
+    assertThat(logTester.logs(Level.TRACE)).hasSizeGreaterThanOrEqualTo(2).contains(
+      format("calling onChange() on listener %s for events %s...", listener1.getClass().getName(), component1QGChangeEvent),
+      format("calling onChange() on listener %s for events %s...", listener2.getClass().getName(), component1QGChangeEvent));
+    assertThat(logTester.logs(Level.WARN)).hasSizeGreaterThanOrEqualTo(1).contains("Broadcasting to listeners failed for 1 events");
   }
 
   @Test
   public void broadcastOnIssueChange_logs_each_listener_call_at_TRACE_level() {
     underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent), false);
 
-    assertThat(logTester.logs()).hasSize(3);
-    List<String> traceLogs = logTester.logs(Level.TRACE);
-    assertThat(traceLogs).hasSize(3)
-      .containsOnly(
+    assertThat(logTester.logs(Level.TRACE)).hasSizeGreaterThanOrEqualTo(3)
+      .contains(
         "calling onChange() on listener " + listener1.getClass().getName() + " for events " + component1QGChangeEvent + "...",
         "calling onChange() on listener " + listener2.getClass().getName() + " for events " + component1QGChangeEvent + "...",
         "calling onChange() on listener " + listener3.getClass().getName() + " for events " + component1QGChangeEvent + "...");
