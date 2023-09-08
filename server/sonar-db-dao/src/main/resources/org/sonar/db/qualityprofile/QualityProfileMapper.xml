@@ -174,6 +174,14 @@
       and rp.language = dp.language
   </select>
 
+  <select id="selectAllDefaultProfiles" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
+    inner join default_qprofiles dp on dp.qprofile_uuid = oqp.uuid
+  </select>
+
   <select id="selectBuiltInRuleProfilesWithActiveRules" resultType="org.sonar.db.qualityprofile.RulesProfileDto">
     select <include refid="ruleProfileColumns"/>
     from rules_profiles rp
@@ -378,6 +386,18 @@
       AND (upper(pj.name) like #{nameOrKeyQuery, jdbcType=VARCHAR} or upper(pj.kee) like #{nameOrKeyQuery, jdbcType=VARCHAR})
     ORDER BY pj.name ASC
   </select>
+
+    <select id="selectAllProjectAssociations" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
+    SELECT
+      pj.uuid as projectUuid,
+      pj.kee as projectKey,
+      pj.name as projectName,
+      pp.profile_key as profileKey
+    FROM projects pj
+    INNER JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
+    WHERE
+      pj.qualifier='TRK'
+    </select>
 
   <select id="selectUuidsOfCustomRuleProfiles" parameterType="map" resultType="string">
     select oqp.rules_profile_uuid

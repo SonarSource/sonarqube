@@ -532,6 +532,40 @@ public class TelemetryDataJsonWriterTest {
   }
 
   @Test
+  public void writeTelemetryData_shouldWriteQualityProfiles() {
+    TelemetryData data = telemetryBuilder()
+      .setQualityProfiles(List.of(
+        new TelemetryData.QualityProfile("uuid-1", "parent-uuid-1", "js", true, false, true, 2, 3, 4),
+        new TelemetryData.QualityProfile("uuid-1", null, "js", false, true, null, null, null, null)))
+      .build();
+
+    String json = writeTelemetryData(data);
+    assertJson(json).isSimilarTo("""
+      {
+        "quality-profiles": [
+          {
+            "uuid": "uuid-1",
+            "parentUuid": "parent-uuid-1",
+            "language": "js",
+            "default": true,
+            "builtIn": false,
+            "builtInParent": true,
+            "rulesOverriddenCount": 2,
+            "rulesActivatedCount": 3,
+            "rulesDeactivatedCount": 4
+          },
+          {
+            "uuid": "uuid-1",
+            "language": "js",
+            "default": false,
+            "builtIn": true
+          }
+      ]}
+      """
+    );
+  }
+
+  @Test
   public void writes_all_branches() {
     TelemetryData data = telemetryBuilder()
       .setBranches(attachBranches())

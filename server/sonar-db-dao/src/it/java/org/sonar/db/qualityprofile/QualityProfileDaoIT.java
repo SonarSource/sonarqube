@@ -801,6 +801,52 @@ public class QualityProfileDaoIT {
   }
 
   @Test
+  public void selectAllProjectAssociation_shouldReturnAllProjectsAndQualityProfiles() {
+    ProjectDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name")).getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name")).getProjectDto();
+    ProjectDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name")).getProjectDto();
+    db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
+
+    QProfileDto profile1 = newQualityProfileDto();
+    db.qualityProfiles().insert(profile1);
+    db.qualityProfiles().associateWithProject(project1, profile1);
+
+    QProfileDto profile2 = newQualityProfileDto();
+    db.qualityProfiles().insert(profile2);
+    db.qualityProfiles().associateWithProject(project2, profile2);
+    QProfileDto profile3 = newQualityProfileDto();
+
+    assertThat(underTest.selectAllProjectAssociations(dbSession))
+      .extracting("projectUuid", "projectKey", "projectName", "profileKey")
+      .containsExactlyInAnyOrder(
+        tuple(project1.getUuid(), project1.getKey(), project1.getName(), profile1.getKee()),
+        tuple(project2.getUuid(), project2.getKey(), project2.getName(), profile2.getKee())
+      );
+  }
+
+  @Test
+  public void selectAllDefaultProfiles_shouldReturnExpectedProfiles() {
+
+    QProfileDto defaultProfile1 = newQualityProfileDto();
+    db.qualityProfiles().insert(defaultProfile1);
+
+    QProfileDto defaultProfile2 = newQualityProfileDto();
+    db.qualityProfiles().insert(defaultProfile2);
+
+    QProfileDto otherProfile = newQualityProfileDto();
+    db.qualityProfiles().insert(otherProfile);
+
+    db.qualityProfiles().setAsDefault(defaultProfile1, defaultProfile2);
+
+    assertThat(underTest.selectAllDefaultProfiles(dbSession))
+      .extracting("kee", "name", "language")
+      .containsExactlyInAnyOrder(
+        tuple(defaultProfile1.getKee(), defaultProfile1.getName(), defaultProfile1.getLanguage()),
+        tuple(defaultProfile2.getKee(), defaultProfile2.getName(), defaultProfile2.getLanguage())
+      );
+  }
+
+  @Test
   public void selectUuidsOfCustomRulesProfiles_returns_the_custom_profiles_with_specified_name() {
     QProfileDto outdatedProfile1 = db.qualityProfiles().insert(p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
     db.qualityProfiles().insert(p -> p.setIsBuiltIn(false).setLanguage("cobol").setName("foo"));

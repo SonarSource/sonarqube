@@ -46,7 +46,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.AnalysisPropertyDto;
-import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
@@ -54,6 +53,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTelemetryDto;
@@ -63,6 +63,7 @@ import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.qualitygate.QualityGateFinder;
+import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.telemetry.TelemetryData.Branch;
 import org.sonar.server.telemetry.TelemetryData.CloudUsage;
 import org.sonar.server.telemetry.TelemetryData.NewCodeDefinition;
@@ -114,14 +115,16 @@ public class TelemetryDataLoaderImplTest {
   private final ContainerSupport containerSupport = mock(ContainerSupport.class);
   private final QualityGateCaycChecker qualityGateCaycChecker = mock(QualityGateCaycChecker.class);
   private final QualityGateFinder qualityGateFinder = new QualityGateFinder(db.getDbClient());
+
+  private final QualityProfileDataProvider qualityProfileDataProvider = new QualityProfileDataProvider(db.getDbClient(), new QProfileComparison(db.getDbClient()));
   private final InternalProperties internalProperties = spy(new MapInternalProperties());
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
   private final CloudUsageDataProvider cloudUsageDataProvider = mock(CloudUsageDataProvider.class);
 
   private final TelemetryDataLoader communityUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider);
+    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider, qualityProfileDataProvider);
   private final TelemetryDataLoader commercialUnderTest = new TelemetryDataLoaderImpl(server, db.getDbClient(), pluginRepository, editionProvider,
-    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider);
+    internalProperties, configuration, containerSupport, qualityGateCaycChecker, qualityGateFinder, managedInstanceService, cloudUsageDataProvider, qualityProfileDataProvider);
 
   private QualityGateDto builtInDefaultQualityGate;
   private MetricDto bugsDto;
@@ -215,6 +218,11 @@ public class TelemetryDataLoaderImplTest {
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG1").setBuiltIn(true));
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG2"));
 
+    //quality profiles
+    QProfileDto qualityProfile1 = db.qualityProfiles().insert(qp -> qp.setIsBuiltIn(true));
+    QProfileDto qualityProfile2 = db.qualityProfiles().insert();
+    db.qualityProfiles().setAsDefault(qualityProfile1, qualityProfile2);
+
     // link one project to a non-default QG
     db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(mainBranch1), qualityGate1);
 
@@ -285,6 +293,11 @@ public class TelemetryDataLoaderImplTest {
         tuple(qualityGate1.getUuid(), "non-compliant"),
         tuple(qualityGate2.getUuid(), "non-compliant")
       );
+
+    assertThat(data.getQualityProfiles())
+      .extracting(TelemetryData.QualityProfile::uuid, TelemetryData.QualityProfile::isBuiltIn)
+      .containsExactlyInAnyOrder(tuple(qualityProfile1.getKee(), qualityProfile1.isBuiltIn()), tuple(qualityProfile2.getKee(), qualityProfile2.isBuiltIn()));
+
   }
 
   @Test
@@ -622,7 +635,7 @@ public class TelemetryDataLoaderImplTest {
 
   @DataProvider
   public static Object[][] getManagedInstanceData() {
-    return new Object[][] {
+    return new Object[][]{
       {true, "scim"},
       {true, "github"},
       {true, "gitlab"},

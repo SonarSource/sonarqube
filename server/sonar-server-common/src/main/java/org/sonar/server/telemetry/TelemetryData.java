@@ -52,6 +52,7 @@ public class TelemetryData {
   private final List<ProjectStatistics> projectStatistics;
   private final List<Branch> branches;
   private final List<QualityGate> qualityGates;
+  private final List<QualityProfile> qualityProfiles;
   private final Collection<NewCodeDefinition> newCodeDefinitions;
   private final Boolean hasUnanalyzedC;
   private final Boolean hasUnanalyzedCpp;
@@ -73,6 +74,7 @@ public class TelemetryData {
     projects = builder.projects;
     projectStatistics = builder.projectStatistics;
     qualityGates = builder.qualityGates;
+    qualityProfiles = builder.qualityProfiles;
     hasUnanalyzedC = builder.hasUnanalyzedC;
     hasUnanalyzedCpp = builder.hasUnanalyzedCpp;
     customSecurityConfigs = requireNonNullElse(builder.customSecurityConfigs, Set.of());
@@ -159,6 +161,10 @@ public class TelemetryData {
     return qualityGates;
   }
 
+  public List<QualityProfile> getQualityProfiles() {
+    return qualityProfiles;
+  }
+
   static Builder builder() {
     return new Builder();
   }
@@ -197,6 +203,7 @@ public class TelemetryData {
     private List<Branch> branches;
     private Collection<NewCodeDefinition> newCodeDefinitions;
     private List<QualityGate> qualityGates;
+    private List<QualityProfile> qualityProfiles;
     private int ncdId;
 
     private Builder() {
@@ -303,6 +310,12 @@ public class TelemetryData {
       return this;
     }
 
+
+    Builder setQualityProfiles(List<QualityProfile> qualityProfiles) {
+      this.qualityProfiles = qualityProfiles;
+      return this;
+    }
+
     Builder setNcdId(int ncdId) {
       this.ncdId = ncdId;
       return this;
@@ -349,10 +362,18 @@ public class TelemetryData {
   record QualityGate(String uuid, String caycStatus) {
   }
 
+  public record QualityProfile(String uuid, @Nullable String parentUuid, String language, boolean isDefault,
+                               boolean isBuiltIn,
+                        @Nullable Boolean builtInParent, @Nullable Integer rulesOverriddenCount,
+                        @Nullable Integer rulesActivatedCount, @Nullable Integer rulesDeactivatedCount
+  ) {
+  }
+
   record ManagedInstanceInformation(boolean isManaged, @Nullable String provider) {
   }
 
-  record CloudUsage(boolean kubernetes, @Nullable String kubernetesVersion, @Nullable String kubernetesPlatform, @Nullable String kubernetesProvider,
+  record CloudUsage(boolean kubernetes, @Nullable String kubernetesVersion, @Nullable String kubernetesPlatform,
+                    @Nullable String kubernetesProvider,
                     @Nullable String officialHelmChart, @Nullable String containerRuntime, boolean officialImage) {
   }
 

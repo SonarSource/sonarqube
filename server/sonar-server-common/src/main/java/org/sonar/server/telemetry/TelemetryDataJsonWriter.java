@@ -102,6 +102,7 @@ public class TelemetryDataJsonWriter {
     writeBranches(json, telemetryData);
     writeNewCodeDefinitions(json, telemetryData);
     writeQualityGates(json, telemetryData);
+    writeQualityProfiles(json, telemetryData);
     writeManagedInstanceInformation(json, telemetryData.getManagedInstanceInformation());
     writeCloudUsage(json, telemetryData.getCloudUsage());
     extensions.forEach(e -> e.write(json));
@@ -225,6 +226,28 @@ public class TelemetryDataJsonWriter {
     }
   }
 
+  private static void writeQualityProfiles(JsonWriter json, TelemetryData telemetryData) {
+    if (telemetryData.getQualityProfiles() != null) {
+      json.name("quality-profiles");
+      json.beginArray();
+      telemetryData.getQualityProfiles().forEach(qualityProfile -> {
+        json.beginObject();
+        json.prop("uuid", qualityProfile.uuid());
+        json.prop("parentUuid", qualityProfile.parentUuid());
+        json.prop(LANGUAGE_PROPERTY, qualityProfile.language());
+        json.prop("default", qualityProfile.isDefault());
+        json.prop("builtIn", qualityProfile.isBuiltIn());
+        if (qualityProfile.builtInParent() != null) {
+          json.prop("builtInParent", qualityProfile.builtInParent());
+        }
+        json.prop("rulesOverriddenCount", qualityProfile.rulesOverriddenCount());
+        json.prop("rulesActivatedCount", qualityProfile.rulesActivatedCount());
+        json.prop("rulesDeactivatedCount", qualityProfile.rulesDeactivatedCount());
+        json.endObject();
+      });
+      json.endArray();
+    }
+  }
   private static void writeManagedInstanceInformation(JsonWriter json, TelemetryData.ManagedInstanceInformation provider) {
     json.name(MANAGED_INSTANCE_PROPERTY);
     json.beginObject();

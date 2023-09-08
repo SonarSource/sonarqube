@@ -112,6 +112,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final QualityGateFinder qualityGateFinder;
   private final ManagedInstanceService managedInstanceService;
   private final CloudUsageDataProvider cloudUsageDataProvider;
+  private final QualityProfileDataProvider qualityProfileDataProvider;
   private final Set<NewCodeDefinition> newCodeDefinitions = new HashSet<>();
   private final Map<String, NewCodeDefinition> ncdByProject = new HashMap<>();
   private final Map<String, NewCodeDefinition> ncdByBranch = new HashMap<>();
@@ -121,7 +122,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   public TelemetryDataLoaderImpl(Server server, DbClient dbClient, PluginRepository pluginRepository,
     PlatformEditionProvider editionProvider, InternalProperties internalProperties, Configuration configuration,
     ContainerSupport containerSupport, QualityGateCaycChecker qualityGateCaycChecker, QualityGateFinder qualityGateFinder,
-    ManagedInstanceService managedInstanceService, CloudUsageDataProvider cloudUsageDataProvider) {
+    ManagedInstanceService managedInstanceService, CloudUsageDataProvider cloudUsageDataProvider, QualityProfileDataProvider qualityProfileDataProvider) {
     this.server = server;
     this.dbClient = dbClient;
     this.pluginRepository = pluginRepository;
@@ -133,6 +134,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     this.qualityGateFinder = qualityGateFinder;
     this.managedInstanceService = managedInstanceService;
     this.cloudUsageDataProvider = cloudUsageDataProvider;
+    this.qualityProfileDataProvider = qualityProfileDataProvider;
   }
 
   private static Database loadDatabaseMetadata(DbSession dbSession) {
@@ -173,6 +175,8 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       resolveQualityGates(data, dbSession);
       resolveUsers(data, dbSession);
     }
+
+    data.setQualityProfiles(qualityProfileDataProvider.retrieveQualityProfilesData());
 
     setSecurityCustomConfigIfPresent(data);
 
@@ -364,6 +368,8 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
 
     data.setQualityGates(qualityGates);
   }
+
+
 
   private void resolveUsers(TelemetryData.Builder data, DbSession dbSession) {
     data.setUsers(dbClient.userDao().selectUsersForTelemetry(dbSession));
