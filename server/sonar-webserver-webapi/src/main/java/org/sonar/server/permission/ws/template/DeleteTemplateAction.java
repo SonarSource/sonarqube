@@ -98,7 +98,7 @@ public class DeleteTemplateAction implements PermissionsWsAction {
 
       checkTemplateUuidIsNotDefault(dbSession, template, defaultTemplates);
       Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, template.getOrganizationUuid());
-      logger.info("Delete Permission Template Request :: organization: {}, orgId: {}, templateName {}, user: {}",
+      logger.info("Delete Permission Template Request :: organization: {}, orgId: {}, templateName: {}, user: {}",
               organization.get().getKey(), organization.get().getUuid(), template.getName(), userSession.getLogin());
       dbClient.permissionTemplateDao().deleteByUuid(dbSession, template.getUuid(), template.getName());
       updateViewDefaultTemplateWhenGovernanceIsNotInstalled(dbSession, template, defaultTemplates);
