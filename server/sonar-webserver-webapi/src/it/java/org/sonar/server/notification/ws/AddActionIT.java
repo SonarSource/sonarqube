@@ -269,8 +269,8 @@ public class AddActionIT {
     userSession.addProjectPermission(USER, project.getProjectDto());
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES));
-
-    assertThatThrownBy(() -> call("Dispatcher42", null, project.projectKey(), null))
+    String projectKey = project.projectKey();
+    assertThatThrownBy(() -> call("Dispatcher42", null, projectKey, null))
       .isInstanceOf(BadRequestException.class)
       .hasMessageContaining("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2]");
   }
