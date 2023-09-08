@@ -32,6 +32,7 @@
     lm.metric_uuid in <foreach item="metricUuid" collection="metricUuids" open="(" separator=","
                                close=")">#{metricUuid, jdbcType=VARCHAR}</foreach>
     and p.qualifier = 'TRK'
+    and pb.is_main = ${_true}
   </select>
 
   <select id="selectByComponentUuidsAndMetricKeys" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">

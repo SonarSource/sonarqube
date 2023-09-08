@@ -46,6 +46,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.AnalysisPropertyDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
@@ -170,6 +171,8 @@ public class TelemetryDataLoaderImplTest {
 
     ProjectData projectData1 = db.components().insertPrivateProject();
     ComponentDto mainBranch1 = projectData1.getMainBranchComponent();
+    var branch1 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("reference"));
+    var branch2 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("custom"));
     db.measures().insertLiveMeasure(mainBranch1, lines, m -> m.setValue(110d));
     db.measures().insertLiveMeasure(mainBranch1, ncloc, m -> m.setValue(110d));
     db.measures().insertLiveMeasure(mainBranch1, coverage, m -> m.setValue(80d));
@@ -179,6 +182,9 @@ public class TelemetryDataLoaderImplTest {
     db.measures().insertLiveMeasure(mainBranch1, securityHotspotsDto, m -> m.setValue(1d).setData((String) null));
     db.measures().insertLiveMeasure(mainBranch1, developmentCostDto, m -> m.setData("50").setValue(null));
     db.measures().insertLiveMeasure(mainBranch1, technicalDebtDto, m -> m.setValue(5d).setData((String) null));
+    //Measures on other branches
+    db.measures().insertLiveMeasure(branch1, technicalDebtDto, m -> m.setValue(6d).setData((String) null));
+    db.measures().insertLiveMeasure(branch2, technicalDebtDto, m -> m.setValue(7d).setData((String) null));
 
     ProjectData projectData2 = db.components().insertPrivateProject();
     ComponentDto mainBranch2 = projectData2.getMainBranchComponent();
@@ -211,9 +217,6 @@ public class TelemetryDataLoaderImplTest {
 
     // link one project to a non-default QG
     db.qualityGates().associateProjectToQualityGate(db.components().getProjectDtoByMainBranch(mainBranch1), qualityGate1);
-
-    var branch1 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("reference"));
-    var branch2 = db.components().insertProjectBranch(mainBranch1, branchDto -> branchDto.setKey("custom"));
 
     var ncd1 = db.newCodePeriods().insert(projectData1.projectUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "30");
     var ncd2 = db.newCodePeriods().insert(projectData1.projectUuid(), branch2.branchUuid(), NewCodePeriodType.REFERENCE_BRANCH, "reference");

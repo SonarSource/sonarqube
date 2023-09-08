@@ -166,6 +166,25 @@ public class LiveMeasureDaoIT {
   }
 
   @Test
+  public void selectForProjectMainBranchesByMetricUuids_whenMultipleBranches_shouldRetrieveMetricsFromMainBranch() {
+    MetricDto metric = db.measures().insertMetric();
+    ProjectData projectData = db.components().insertPrivateProject();
+    BranchDto mainBranch = projectData.getMainBranchDto();
+    BranchDto branch1 = db.components().insertProjectBranch(projectData.getProjectDto());
+    BranchDto branch2 = db.components().insertProjectBranch(projectData.getProjectDto());
+    underTest.insert(db.getSession(), newLiveMeasure(mainBranch, metric).setValue(3.14).setData((String) null));
+    underTest.insert(db.getSession(), newLiveMeasure(branch1, metric).setValue(4.54).setData((String) null));
+    underTest.insert(db.getSession(), newLiveMeasure(branch2, metric).setValue(99.99).setData((String) null));
+
+    List<ProjectMainBranchLiveMeasureDto> selected = underTest.selectForProjectMainBranchesByMetricUuids(db.getSession(), List.of(metric.getUuid()));
+    assertThat(selected)
+      .extracting(ProjectMainBranchLiveMeasureDto::getProjectUuid, ProjectMainBranchLiveMeasureDto::getMetricUuid,
+        ProjectMainBranchLiveMeasureDto::getValue, ProjectMainBranchLiveMeasureDto::getTextValue)
+      .containsExactlyInAnyOrder(
+        tuple(mainBranch.getProjectUuid(), metric.getUuid(), 3.14, null));
+  }
+
+  @Test
   public void selectForProjectsByMetricUuids_whenMetricDoesNotMatch_shouldReturnEmptyList() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     underTest.insert(db.getSession(), newLiveMeasure(project, metric).setValue(3.14).setData((String) null));
