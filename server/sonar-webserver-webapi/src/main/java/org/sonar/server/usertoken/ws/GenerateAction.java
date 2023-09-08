@@ -30,12 +30,15 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.usertoken.TokenGenerator;
 import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.UserTokens.GenerateWsResponse;
@@ -64,13 +67,17 @@ public class GenerateAction implements UserTokensWsAction {
   private final TokenGenerator tokenGenerator;
   private final UserTokenSupport userTokenSupport;
   private final GenerateActionValidation validation;
+  private static final Logger logger = Loggers.get(GenerateAction.class);
+  private final UserSession userSession;
 
-  public GenerateAction(DbClient dbClient, System2 system, TokenGenerator tokenGenerator, UserTokenSupport userTokenSupport, GenerateActionValidation validation) {
+  public GenerateAction(DbClient dbClient, System2 system, TokenGenerator tokenGenerator, UserTokenSupport userTokenSupport, GenerateActionValidation validation,
+          UserSession userSession) {
     this.dbClient = dbClient;
     this.system = system;
     this.tokenGenerator = tokenGenerator;
     this.userTokenSupport = userTokenSupport;
     this.validation = validation;
+    this.userSession = userSession;
   }
 
   @Override
@@ -127,6 +134,8 @@ public class GenerateAction implements UserTokensWsAction {
 
       UserDto user = userTokenSupport.getUser(dbSession, request);
       userTokenDtoFromRequest.setUserUuid(user.getUuid());
+      logger.info("Generate Token request:: tokenGeneratedBy: {}, tokenName: {}, tokenType: {}, tokenFor: {} ",
+              userSession.getLogin(), userTokenDtoFromRequest.getName(), request.mandatoryParam(PARAM_TYPE), user.getLogin());
 
       UserTokenDto userTokenDto = insertTokenInDb(dbSession, user, userTokenDtoFromRequest);
 
@@ -197,6 +206,7 @@ public class GenerateAction implements UserTokensWsAction {
     checkTokenDoesNotAlreadyExists(dbSession, user, userTokenDto.getName());
     dbClient.userTokenDao().insert(dbSession, userTokenDto, user.getLogin());
     dbSession.commit();
+    logger.info("Token generated successfully for the user: {}", user.getLogin());
     return userTokenDto;
   }
 

@@ -87,8 +87,8 @@ public class AddUserAction implements UserGroupsWsAction {
       OrganizationDto organization = support.findOrganizationByKey(dbSession, request.mandatoryParam(PARAM_ORGANIZATION_KEY));
       checkMembership(dbSession, organization, user);
       support.checkGroupIsNotDefault(dbSession, group);
-      logger.info("Add User : {} to UserGroup : {} :: organization : {} and LoggedInUser : {} ", login, group.getUuid(),
-              group.getOrganizationUuid(),userSession.getLogin());
+      logger.info("Add User: {} to UserGroup:{} :: groupId: {}, organization: {}, orgId: {} and LoggedInUser: {} ",
+              login, group.getName(), group.getUuid(), organization.getName(), organization.getUuid(), userSession.getLogin());
       if (!isMemberOf(dbSession, user, group)) {
         UserGroupDto membershipDto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserUuid(user.getUuid());
         dbClient.userGroupDao().insert(dbSession, membershipDto, group.getName(), login);

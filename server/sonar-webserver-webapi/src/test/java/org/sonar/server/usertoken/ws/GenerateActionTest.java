@@ -90,7 +90,8 @@ public class GenerateActionTest {
   private final GenerateActionValidation validation = new GenerateActionValidation(configuration, runtime);
 
   private final WsActionTester ws = new WsActionTester(
-    new GenerateAction(db.getDbClient(), System2.INSTANCE, tokenGenerator, new UserTokenSupport(db.getDbClient(), userSession), validation));
+    new GenerateAction(db.getDbClient(), System2.INSTANCE, tokenGenerator, new UserTokenSupport(db.getDbClient(), userSession), validation,
+            userSession));
 
   @Before
   public void setUp() {

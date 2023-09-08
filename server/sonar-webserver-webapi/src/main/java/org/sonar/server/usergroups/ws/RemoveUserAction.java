@@ -19,6 +19,7 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import java.util.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -28,6 +29,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -83,8 +85,9 @@ public class RemoveUserAction implements UserGroupsWsAction {
 
       String login = request.mandatoryParam(PARAM_LOGIN);
       UserDto user = getUser(dbSession, login);
-      logger.info("Remove User : {} from UserGroup : {} :: organization : {} and LoggedInUser : {} ", login, group.getUuid(),
-              group.getOrganizationUuid(),userSession.getLogin());
+      Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid());
+      logger.info("Remove User: {} from UserGroup: {} :: groupId: {}, organization: {}, orgId: {} and LoggedInUser: {}",
+              login, group.getName(), group.getUuid(), organization.get().getKey(), organization.get().getUuid(), userSession.getLogin());
       ensureLastAdminIsNotRemoved(dbSession, group, user);
 
       dbClient.userGroupDao().delete(dbSession, group, user);

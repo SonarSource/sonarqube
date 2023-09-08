@@ -23,6 +23,8 @@ import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -51,6 +53,7 @@ public class RemoveUserAction implements PermissionsWsAction {
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
   private final PermissionService permissionService;
+  private static final Logger logger = Loggers.get(RemoveUserAction.class);
 
   public RemoveUserAction(DbClient dbClient, UserSession userSession, PermissionUpdater permissionUpdater, PermissionWsSupport wsSupport,
     WsParameters wsParameters, PermissionService permissionService) {
@@ -98,6 +101,8 @@ public class RemoveUserAction implements PermissionsWsAction {
         permission,
         project.orElse(null),
         user, permissionService);
+      logger.info("Removing permissions for user: {} and permission type: {}, organization: {}, orgId: {}", user,
+              change.getPermission(), org.getKey(), org.getUuid());
       permissionUpdater.apply(dbSession, singletonList(change));
       response.noContent();
     }

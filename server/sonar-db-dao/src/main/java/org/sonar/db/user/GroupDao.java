@@ -30,6 +30,8 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Dao;
 import org.sonar.db.DaoUtils;
 import org.sonar.db.DbSession;
@@ -43,6 +45,7 @@ public class GroupDao implements Dao {
 
   private final System2 system;
   private final AuditPersister auditPersister;
+  private final Logger logger = Loggers.get(GroupDao.class);
 
   public GroupDao(System2 system, AuditPersister auditPersister) {
     this.system = system;
@@ -73,6 +76,7 @@ public class GroupDao implements Dao {
 
   public void deleteByUuid(DbSession dbSession, String groupUuid, String groupName) {
     GroupDto dto = selectByUuid(dbSession, groupUuid);
+    logger.info("Group deleted :: groupName {} and orgId: {}", groupName, dto.getOrganizationUuid());
 
     int deletedRows = mapper(dbSession).deleteByUuid(groupUuid);
 
@@ -94,6 +98,7 @@ public class GroupDao implements Dao {
     item.setCreatedAt(createdAt)
       .setUpdatedAt(createdAt);
     mapper(session).insert(item);
+    logger.info("Group Created :: groupName: {} and orgId: {}", item.getName(), item.getOrganizationUuid());
     Objects.nonNull(item.getOrganizationUuid());
     auditPersister.addUserGroup(session, item.getOrganizationUuid(), new UserGroupNewValue(item.getUuid(), item.getName()));
     return item;
