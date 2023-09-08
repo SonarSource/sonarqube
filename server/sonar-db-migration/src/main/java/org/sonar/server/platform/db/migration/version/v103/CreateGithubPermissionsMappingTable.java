@@ -31,7 +31,7 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVar
 public class CreateGithubPermissionsMappingTable extends CreateTableChange {
   static final String GITHUB_PERMISSIONS_MAPPING_TABLE_NAME = "github_perms_mapping";
   static final String GITHUB_ROLE_COLUMN = "github_role";
-  static final String SONARQUBE_ROLE_COLUMN = "sonarqube_role";
+  static final String SONARQUBE_PERMISSION_COLUMN = "sonarqube_permission";
 
   public CreateGithubPermissionsMappingTable(Database db) {
     super(db, GITHUB_PERMISSIONS_MAPPING_TABLE_NAME);
@@ -42,7 +42,7 @@ public class CreateGithubPermissionsMappingTable extends CreateTableChange {
     context.execute(new CreateTableBuilder(getDialect(), tableName)
       .addPkColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setIsNullable(false).setLimit(UUID_SIZE).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName(GITHUB_ROLE_COLUMN).setIsNullable(false).setLimit(100).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName(SONARQUBE_ROLE_COLUMN).setIsNullable(false).setLimit(64).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName(SONARQUBE_PERMISSION_COLUMN).setIsNullable(false).setLimit(64).build())
       .build());
   }
 }

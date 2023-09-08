@@ -44,7 +44,7 @@ public class CreateGithubPermissionsMappingTableTest {
     db.assertTableExists(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME);
     db.assertColumnDefinition(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME, "uuid", Types.VARCHAR, UUID_SIZE, false);
     db.assertColumnDefinition(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME, "github_role", Types.VARCHAR, 100, false);
-    db.assertColumnDefinition(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME, "sonarqube_role", Types.VARCHAR, 64, false);
+    db.assertColumnDefinition(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME, "sonarqube_permission", Types.VARCHAR, 64, false);
     db.assertPrimaryKey(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME, "pk_github_perms_mapping", "uuid");
   }
 

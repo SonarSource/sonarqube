@@ -29,7 +29,7 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.GITHUB_PERMISSIONS_MAPPING_TABLE_NAME;
 import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.GITHUB_ROLE_COLUMN;
-import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.SONARQUBE_ROLE_COLUMN;
+import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.SONARQUBE_PERMISSION_COLUMN;
 
 public class CreateUniqueIndexForGithubPermissionsMappingTable extends DdlChange {
 
@@ -53,7 +53,7 @@ public class CreateUniqueIndexForGithubPermissionsMappingTable extends DdlChange
         .setTable(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME)
         .setName(INDEX_NAME)
         .addColumn(GITHUB_ROLE_COLUMN)
-        .addColumn(SONARQUBE_ROLE_COLUMN)
+        .addColumn(SONARQUBE_PERMISSION_COLUMN)
         .setUnique(true)
         .build());
     }

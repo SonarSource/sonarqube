@@ -26,7 +26,7 @@ import org.sonar.db.CoreDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.GITHUB_PERMISSIONS_MAPPING_TABLE_NAME;
 import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.GITHUB_ROLE_COLUMN;
-import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.SONARQUBE_ROLE_COLUMN;
+import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.SONARQUBE_PERMISSION_COLUMN;
 import static org.sonar.server.platform.db.migration.version.v103.CreateUniqueIndexForGithubPermissionsMappingTable.INDEX_NAME;
 
 public class CreateUniqueIndexForGithubPermissionsMappingTableTest {
@@ -41,7 +41,7 @@ public class CreateUniqueIndexForGithubPermissionsMappingTableTest {
 
     createIndex.execute();
 
-    db.assertUniqueIndex(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME, INDEX_NAME, GITHUB_ROLE_COLUMN, SONARQUBE_ROLE_COLUMN);
+    db.assertUniqueIndex(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME, INDEX_NAME, GITHUB_ROLE_COLUMN, SONARQUBE_PERMISSION_COLUMN);
   }
 
   @Test
@@ -49,6 +49,6 @@ public class CreateUniqueIndexForGithubPermissionsMappingTableTest {
     createIndex.execute();
     createIndex.execute();
 
-    db.assertUniqueIndex(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME, INDEX_NAME, GITHUB_ROLE_COLUMN, SONARQUBE_ROLE_COLUMN);
+    db.assertUniqueIndex(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME, INDEX_NAME, GITHUB_ROLE_COLUMN, SONARQUBE_PERMISSION_COLUMN);
   }
 }
