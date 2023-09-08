@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -62,7 +63,7 @@ public class QProfileRulesImplIT {
   private RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
   private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), new TypeValidations(singletonList(new IntegerTypeValidation())),
-    userSession);
+    userSession, mock(Configuration.class));
   private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
 
   private QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);

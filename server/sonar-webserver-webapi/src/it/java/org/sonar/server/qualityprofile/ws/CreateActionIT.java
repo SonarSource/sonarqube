@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.RulePriority;
@@ -89,7 +90,7 @@ public class CreateActionIT {
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
   private ProfileImporter[] profileImporters = createImporters();
   private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
-  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, null, userSession);
+  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, null, userSession, mock(Configuration.class));
   private QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
   private QProfileExporters qProfileExporters = new QProfileExporters(dbClient, null, qProfileRules, profileImporters);
 

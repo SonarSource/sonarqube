@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -64,7 +65,7 @@ public class QProfileResetImplIT {
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
-  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession);
+  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession, mock(Configuration.class));
   private QProfileTree qProfileTree = new QProfileTreeImpl(db.getDbClient(), ruleActivator, system2, activeRuleIndexer, mock(QualityProfileChangeEventService.class));
   private QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, null, activeRuleIndexer, qualityProfileChangeEventService);
   private QProfileResetImpl underTest = new QProfileResetImpl(db.getDbClient(), ruleActivator, activeRuleIndexer, mock(QualityProfileChangeEventService.class));
@@ -89,7 +90,7 @@ public class QProfileResetImplIT {
   }
 
   @Test
-  public void inherited_rules_are_not_disabled() {
+  public void reset_whenRuleInherited_canBeDisabled() {
     QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE));
     QProfileDto childProfile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE));
     qProfileTree.setParentAndCommit(db.getSession(), childProfile, parentProfile);
@@ -102,7 +103,7 @@ public class QProfileResetImplIT {
 
     assertThat(db.getDbClient().activeRuleDao().selectByProfile(db.getSession(), childProfile))
       .extracting(OrgActiveRuleDto::getRuleKey)
-      .containsExactlyInAnyOrder(newRule.getKey(), existingRule.getKey());
+      .containsExactlyInAnyOrder(newRule.getKey());
     verify(qualityProfileChangeEventService, times(2)).distributeRuleChangeEvent(any(), any(), eq(childProfile.getLanguage()));
   }
 

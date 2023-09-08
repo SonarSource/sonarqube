@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -75,7 +76,7 @@ public class RuleActivatorIT {
   private final TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
 
   private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
-  private final RuleActivator underTest = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession);
+  private final RuleActivator underTest = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession, mock(Configuration.class));
 
   @Test
   public void reset_overridden_active_rule() {

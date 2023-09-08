@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile.ws;
 
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -61,7 +62,8 @@ public class DeactivateRuleAction implements QProfileWsAction {
         "</ul>")
       .setHandler(this)
       .setPost(true)
-      .setSince("4.4");
+      .setSince("4.4")
+      .setChangelog(new Change("10.3", "Inherited rules can be deactivated (if the global admin setting is enabled)"));
 
     deactivate.createParam(PARAM_KEY)
       .setDescription("Quality Profile key. Can be obtained through <code>api/qualityprofiles/search</code>")

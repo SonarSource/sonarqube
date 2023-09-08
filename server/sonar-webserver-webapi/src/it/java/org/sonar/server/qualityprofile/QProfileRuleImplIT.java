@@ -29,11 +29,14 @@ import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.api.PropertyType;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
@@ -74,6 +77,7 @@ import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.INHERITED;
+import static org.sonar.server.qualityprofile.ActiveRuleInheritance.OVERRIDES;
 
 public class QProfileRuleImplIT {
 
@@ -89,8 +93,9 @@ public class QProfileRuleImplIT {
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
   private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
+  private Configuration configuration = mock(Configuration.class);
 
-  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession);
+  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession, configuration);
   private QProfileRules underTest = new QProfileRulesImpl(db.getDbClient(), ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
 
   @Test
@@ -482,7 +487,7 @@ public class QProfileRuleImplIT {
   }
 
   @Test
-  public void activation_on_child_profile_is_propagated_to_descendants() {
+  public void activate_shouldPropagateActivationOnChildren() {
     RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
@@ -493,6 +498,86 @@ public class QProfileRuleImplIT {
     assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), null, emptyMap());
     assertThatRuleIsActivated(grandChildProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), any(), eq(childProfile.getLanguage()));
+  }
+
+  @Test
+  public void activate_whenChildProfileAlreadyActivatedRule_shouldNotStopPropagating() {
+    RuleDto rule = createRule();
+    QProfileDto parentProfile = createProfile(rule);
+    QProfileDto childProfile = createChildProfile(parentProfile);
+    QProfileDto childProfile2 = createChildProfile(childProfile);
+    QProfileDto childProfile3 = createChildProfile(childProfile2);
+
+    RuleActivation activation = RuleActivation.create(rule.getUuid(), MAJOR, emptyMap());
+
+    // Rule already active on childProfile2
+    List<ActiveRuleChange> changes = activate(childProfile2, activation);
+    assertThatRuleIsActivated(childProfile2, rule, changes, rule.getSeverityString(), null, emptyMap());
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
+    deactivate(childProfile3, rule);
+    assertThatProfileHasNoActiveRules(childProfile3);
+
+    changes = activate(parentProfile, activation);
+    assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsUpdated(childProfile2, rule, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(childProfile3, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThat(changes).hasSize(4);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
+  }
+
+  @Test
+  public void activate_whenChildAlreadyActivatedRuleWithOverriddenValues_shouldNotOverrideValues() {
+    RuleDto rule = createRule();
+    QProfileDto parentProfile = createProfile(rule);
+    QProfileDto childProfile = createChildProfile(parentProfile);
+    QProfileDto childProfile2 = createChildProfile(childProfile);
+    QProfileDto childProfile3 = createChildProfile(childProfile2);
+
+    List<ActiveRuleChange> changes = activate(childProfile2, RuleActivation.create(rule.getUuid(), CRITICAL, emptyMap()));
+    assertThatRuleIsActivated(childProfile2, rule, changes, CRITICAL, null, emptyMap());
+    assertThatRuleIsActivated(childProfile3, rule, changes, CRITICAL, INHERITED, emptyMap());
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
+
+    changes = activate(parentProfile, RuleActivation.create(rule.getUuid(), MAJOR, emptyMap()));
+    assertThatRuleIsActivated(parentProfile, rule, changes, MAJOR, null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, MAJOR, INHERITED, emptyMap());
+    assertThatRuleIsUpdated(childProfile2, rule, CRITICAL, OVERRIDES, emptyMap());
+    // childProfile3 is neither activated nor updated, it keeps its inherited value from childProfile2
+    assertThat(changes).hasSize(3);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
+  }
+
+  @Test
+  public void activate_whenParentHasRuleWithSameValues_shouldMarkInherited() {
+    RuleDto rule = createRule();
+    QProfileDto parentProfile = createProfile(rule);
+    QProfileDto childProfile = createChildProfile(parentProfile);
+
+    List<ActiveRuleChange> changes = activate(parentProfile, RuleActivation.create(rule.getUuid(), CRITICAL, emptyMap()));
+    assertThatRuleIsActivated(parentProfile, rule, changes, CRITICAL, null, emptyMap());
+    deactivate(childProfile, rule);
+    assertThatProfileHasNoActiveRules(childProfile);
+
+    changes = activate(childProfile, RuleActivation.create(rule.getUuid(), CRITICAL, emptyMap()));
+    assertThatRuleIsActivated(childProfile, rule, changes, CRITICAL, INHERITED, emptyMap());
+    assertThat(changes).hasSize(1);
+  }
+
+  @Test
+  public void activate_whenParentHasRuleWithDifferentValues_shouldMarkOverridden() {
+    RuleDto rule = createRule();
+    QProfileDto parentProfile = createProfile(rule);
+    QProfileDto childProfile = createChildProfile(parentProfile);
+
+    List<ActiveRuleChange> changes = activate(parentProfile, RuleActivation.create(rule.getUuid(), CRITICAL, emptyMap()));
+    assertThatRuleIsActivated(parentProfile, rule, changes, CRITICAL, null, emptyMap());
+    deactivate(childProfile, rule);
+    assertThatProfileHasNoActiveRules(childProfile);
+
+    changes = activate(childProfile, RuleActivation.create(rule.getUuid(), MAJOR, emptyMap()));
+    assertThatRuleIsActivated(childProfile, rule, changes, MAJOR, OVERRIDES, emptyMap());
+    assertThat(changes).hasSize(1);
   }
 
   @Test
@@ -538,7 +623,7 @@ public class QProfileRuleImplIT {
 
     assertThatProfileHasNoActiveRules(parentProfile);
     assertThatRuleIsUpdated(childProfile, rule, MAJOR, null, of(param.getName(), "foo"));
-    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, ActiveRuleInheritance.OVERRIDES, of(param.getName(), "bar"));
+    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, OVERRIDES, of(param.getName(), "bar"));
     assertThat(changes).hasSize(1);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(childProfile.getLanguage()));
   }
@@ -565,7 +650,7 @@ public class QProfileRuleImplIT {
 
     assertThatProfileHasNoActiveRules(parentProfile);
     assertThatRuleIsUpdated(childProfile, rule, BLOCKER, null, of(param.getName(), "baz"));
-    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, ActiveRuleInheritance.OVERRIDES, of(param.getName(), "bar"));
+    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, OVERRIDES, of(param.getName(), "bar"));
     assertThat(changes).hasSize(1);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(childProfile.getLanguage()));
   }
@@ -594,13 +679,13 @@ public class QProfileRuleImplIT {
     test.put(param.getName(), param.getDefaultValue());
     assertThatRuleIsUpdated(parentProfile, rule, rule.getSeverityString(), null, test);
     assertThatRuleIsUpdated(childProfile, rule, rule.getSeverityString(), INHERITED, of(param.getName(), param.getDefaultValue()));
-    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, ActiveRuleInheritance.OVERRIDES, of(param.getName(), "bar"));
+    assertThatRuleIsUpdated(grandChildProfile, rule, CRITICAL, OVERRIDES, of(param.getName(), "bar"));
     assertThat(changes).hasSize(2);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
   }
 
   @Test
-  public void active_on_parent_a_rule_already_activated_on_child() {
+  public void activate_whenRuleAlreadyActiveOnChildWithDifferentValues_shouldMarkOverridden() {
     RuleDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule);
     QProfileDto parentProfile = createProfile(rule);
@@ -610,17 +695,37 @@ public class QProfileRuleImplIT {
     List<ActiveRuleChange> changes = activate(childProfile, childActivation);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(childProfile.getLanguage()));
 
-    RuleActivation parentActivation = RuleActivation.create(rule.getUuid(), CRITICAL, of(param.getName(), "bar"));
+    RuleActivation parentActivation = RuleActivation.create(rule.getUuid(), MAJOR, of(param.getName(), "bar"));
     changes = activate(parentProfile, parentActivation);
 
-    assertThatRuleIsUpdated(parentProfile, rule, CRITICAL, null, of(param.getName(), "bar"));
-    assertThatRuleIsUpdated(childProfile, rule, MAJOR, ActiveRuleInheritance.OVERRIDES, of(param.getName(), "foo"));
+    assertThatRuleIsUpdated(parentProfile, rule, MAJOR, null, of(param.getName(), "bar"));
+    assertThatRuleIsUpdated(childProfile, rule, MAJOR, OVERRIDES, of(param.getName(), "foo"));
     assertThat(changes).hasSize(2);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
   }
 
   @Test
-  public void do_not_mark_as_overridden_if_same_values_than_parent() {
+  public void activate_whenRuleAlreadyActiveOnChildWithSameValues_shouldMarkInherited() {
+    RuleDto rule = createRule();
+    RuleParamDto param = db.rules().insertRuleParam(rule);
+    QProfileDto parentProfile = createProfile(rule);
+    QProfileDto childProfile = createChildProfile(parentProfile);
+
+    RuleActivation childActivation = RuleActivation.create(rule.getUuid(), MAJOR, of(param.getName(), "foo"));
+    List<ActiveRuleChange> changes = activate(childProfile, childActivation);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(childProfile.getLanguage()));
+
+    RuleActivation parentActivation = RuleActivation.create(rule.getUuid(), MAJOR, of(param.getName(), "foo"));
+    changes = activate(parentProfile, parentActivation);
+
+    assertThatRuleIsUpdated(parentProfile, rule, MAJOR, null, of(param.getName(), "foo"));
+    assertThatRuleIsUpdated(childProfile, rule, MAJOR, INHERITED, of(param.getName(), "foo"));
+    assertThat(changes).hasSize(2);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
+  }
+
+  @Test
+  public void activate_whenSettingValuesOnChildAndParentHasSameValues_shouldMarkInherited() {
     RuleDto rule = createRule();
     RuleParamDto param = db.rules().insertRuleParam(rule);
     QProfileDto parentProfile = createProfile(rule);
@@ -639,7 +744,26 @@ public class QProfileRuleImplIT {
   }
 
   @Test
-  public void propagate_deactivation_on_children() {
+  public void activate_whenSettingValuesOnChildAndParentHasDifferentValues_shouldMarkOverridden() {
+    RuleDto rule = createRule();
+    RuleParamDto param = db.rules().insertRuleParam(rule);
+    QProfileDto parentProfile = createProfile(rule);
+    QProfileDto childProfile = createChildProfile(parentProfile);
+
+    RuleActivation parentActivation = RuleActivation.create(rule.getUuid(), MAJOR, of(param.getName(), "foo"));
+    List<ActiveRuleChange> changes = activate(parentProfile, parentActivation);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
+
+    RuleActivation overrideActivation = RuleActivation.create(rule.getUuid(), CRITICAL, of(param.getName(), "bar"));
+    changes = activate(childProfile, overrideActivation);
+
+    assertThatRuleIsUpdated(childProfile, rule, CRITICAL, OVERRIDES, of(param.getName(), "bar"));
+    assertThat(changes).hasSize(1);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(childProfile.getLanguage()));
+  }
+
+  @Test
+  public void deactivate_shouldPropagateDeactivationOnChildren() {
     RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
@@ -658,7 +782,38 @@ public class QProfileRuleImplIT {
   }
 
   @Test
-  public void propagate_deactivation_on_children_even_when_overridden() {
+  public void deactivate_whenChildAlreadyDeactivatedRule_shouldNotStopPropagating() {
+    RuleDto rule = createRule();
+    QProfileDto parentProfile = createProfile(rule);
+    QProfileDto childProfile = createChildProfile(parentProfile);
+    QProfileDto childProfile2 = createChildProfile(childProfile);
+    QProfileDto childProfile3 = createChildProfile(childProfile2);
+
+    RuleActivation activation = RuleActivation.create(rule.getUuid());
+
+    // Rule active on parentProfile, childProfile1 and childProfile3 but not on childProfile2
+    List<ActiveRuleChange> changes = activate(parentProfile, activation);
+    assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(childProfile2, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThatRuleIsActivated(childProfile3, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
+    deactivate(childProfile2, rule);
+    changes = activate(childProfile3, activation);
+    assertThatProfileHasNoActiveRules(childProfile2);
+    assertThatRuleIsActivated(childProfile3, rule, changes, rule.getSeverityString(), null, emptyMap());
+
+    changes = deactivate(parentProfile, rule);
+    assertThatProfileHasNoActiveRules(parentProfile);
+    assertThatProfileHasNoActiveRules(childProfile);
+    assertThatProfileHasNoActiveRules(childProfile2);
+    assertThatProfileHasNoActiveRules(childProfile3);
+    assertThat(changes).hasSize(3);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
+  }
+
+  @Test
+  public void deactivate_whenChildOverridesRule_shouldPropagateDeactivation() {
     RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
@@ -671,6 +826,7 @@ public class QProfileRuleImplIT {
 
     activation = RuleActivation.create(rule.getUuid(), CRITICAL, null);
     changes = activate(childProfile, activation);
+    assertThatRuleIsUpdated(childProfile, rule, CRITICAL, OVERRIDES, emptyMap());
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(childProfile.getLanguage()));
 
     changes = deactivate(parentProfile, rule);
@@ -681,7 +837,26 @@ public class QProfileRuleImplIT {
   }
 
   @Test
-  public void cannot_deactivate_rule_inherited() {
+  public void deactivate_whenRuleInherited_canBeDeactivated() {
+    RuleDto rule = createRule();
+    QProfileDto parentProfile = createProfile(rule);
+    QProfileDto childProfile = createChildProfile(parentProfile);
+
+    RuleActivation activation = RuleActivation.create(rule.getUuid());
+    List<ActiveRuleChange> changes = activate(parentProfile, activation);
+    assertThatRuleIsActivated(parentProfile, rule, changes, rule.getSeverityString(), null, emptyMap());
+    assertThatRuleIsActivated(childProfile, rule, changes, rule.getSeverityString(), INHERITED, emptyMap());
+
+    changes = deactivate(childProfile, rule);
+    assertThatProfileHasNoActiveRules(childProfile);
+    assertThat(changes).hasSize(1);
+    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(parentProfile.getLanguage()));
+  }
+
+  @Test
+  public void deactivate_whenRuleInheritedAndPropertyDisabled_cannotBeDeactivated() {
+    Mockito.when(configuration.getBoolean(CorePropertyDefinitions.ALLOW_DISABLE_INHERITED_RULES)).thenReturn(Optional.of(false));
+
     RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
@@ -711,7 +886,7 @@ public class QProfileRuleImplIT {
 
     RuleActivation childActivation = RuleActivation.create(rule.getUuid(), BLOCKER, null);
     changes = activate(childProfile, childActivation);
-    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, ActiveRuleInheritance.OVERRIDES, emptyMap());
+    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, OVERRIDES, emptyMap());
     assertThat(changes).hasSize(1);
 
     RuleActivation resetActivation = RuleActivation.createReset(rule.getUuid());
@@ -738,7 +913,7 @@ public class QProfileRuleImplIT {
 
     RuleActivation childActivation = RuleActivation.create(rule.getUuid(), BLOCKER, null);
     changes = activate(childProfile, childActivation);
-    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, ActiveRuleInheritance.OVERRIDES, emptyMap());
+    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, OVERRIDES, emptyMap());
     assertThatRuleIsUpdated(grandChildProfile, rule, BLOCKER, INHERITED, emptyMap());
     assertThat(changes).hasSize(2);
 
@@ -746,7 +921,7 @@ public class QProfileRuleImplIT {
     RuleActivation resetActivation = RuleActivation.createReset(rule.getUuid());
     changes = activate(baseProfile, resetActivation);
     assertThatRuleIsUpdated(baseProfile, rule, rule.getSeverityString(), null, emptyMap());
-    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, ActiveRuleInheritance.OVERRIDES, emptyMap());
+    assertThatRuleIsUpdated(childProfile, rule, BLOCKER, OVERRIDES, emptyMap());
     assertThatRuleIsUpdated(grandChildProfile, rule, BLOCKER, INHERITED, emptyMap());
     assertThat(changes).hasSize(1);
 
@@ -832,12 +1007,12 @@ public class QProfileRuleImplIT {
   }
 
   @Test
-  public void bulk_deactivation_ignores_errors() {
+  public void bulkDeactivateAndCommit_whenRuleInherited_canBeDeactivated() {
     RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);
     QProfileDto childProfile = createChildProfile(parentProfile);
 
-    List<ActiveRuleChange> changes = activate(parentProfile, RuleActivation.create(rule.getUuid()));
+    activate(parentProfile, RuleActivation.create(rule.getUuid()));
     assertThatRuleIsActivated(parentProfile, rule, null, rule.getSeverityString(), null, emptyMap());
     assertThatRuleIsActivated(childProfile, rule, null, rule.getSeverityString(), INHERITED, emptyMap());
 
@@ -847,11 +1022,10 @@ public class QProfileRuleImplIT {
       .setQProfile(childProfile);
     BulkChangeResult bulkChangeResult = underTest.bulkDeactivateAndCommit(db.getSession(), childProfile, ruleQuery);
 
-    assertThat(bulkChangeResult.countFailed()).isOne();
-    assertThat(bulkChangeResult.countSucceeded()).isZero();
-    assertThat(bulkChangeResult.getChanges()).isEmpty();
-    assertThatRuleIsActivated(parentProfile, rule, null, rule.getSeverityString(), null, emptyMap());
-    assertThatRuleIsActivated(childProfile, rule, null, rule.getSeverityString(), INHERITED, emptyMap());
+    assertThat(bulkChangeResult.countFailed()).isZero();
+    assertThat(bulkChangeResult.countSucceeded()).isOne();
+    assertThat(bulkChangeResult.getChanges()).hasSize(1);
+    assertThatProfileHasNoActiveRules(childProfile);
   }
 
   @Test

@@ -28,6 +28,7 @@ import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -35,7 +36,6 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInQualityProfile;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -64,7 +64,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.api.rules.RulePriority.BLOCKER;
 import static org.sonar.api.rules.RulePriority.CRITICAL;
 import static org.sonar.api.rules.RulePriority.MAJOR;
@@ -87,7 +86,7 @@ public class BuiltInQProfileUpdateImplIT {
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
   private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
-  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession);
+  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession, mock(Configuration.class));
 
   private BuiltInQProfileUpdateImpl underTest = new BuiltInQProfileUpdateImpl(db.getDbClient(), ruleActivator, activeRuleIndexer,
     qualityProfileChangeEventService);
@@ -348,39 +347,6 @@ public class BuiltInQProfileUpdateImplIT {
     assertThatRuleHasParams(db, parentActiveRuleDto, tuple("min", "10"));
     assertThatRuleHasParams(db, childActiveRuleDto, tuple("min", "10"));
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
-  }
-
-  @Test
-  public void do_not_load_descendants_if_no_changes() {
-    RuleDto rule = db.rules().insert(r -> r.setLanguage("xoo"));
-
-    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
-    QProfileDto childProfile = createChildProfile(profile);
-
-    BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
-    NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile(profile.getName(), profile.getLanguage());
-    newQp.activateRule(rule.getRepositoryKey(), rule.getRuleKey());
-    newQp.done();
-
-    // first run
-    BuiltInQProfile builtIn = builtInProfileRepository.create(context.profile(profile.getLanguage(), profile.getName()), rule);
-    List<ActiveRuleChange> changes = underTest.update(db.getSession(), builtIn, RulesProfileDto.from(profile));
-    assertThat(changes).hasSize(2).extracting(ActiveRuleChange::getType).containsOnly(ActiveRuleChange.Type.ACTIVATED);
-    verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(persistedProfile.getLanguage()));
-
-    // second run, without any input changes
-    RuleActivator ruleActivatorWithoutDescendants = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession) {
-      @Override
-      DescendantProfilesSupplier createDescendantProfilesSupplier(DbSession dbSession) {
-        return (profiles, ruleIds) -> {
-          throw new IllegalStateException("BOOM - descendants should not be loaded");
-        };
-      }
-    };
-    changes = new BuiltInQProfileUpdateImpl(db.getDbClient(), ruleActivatorWithoutDescendants, activeRuleIndexer, qualityProfileChangeEventService)
-      .update(db.getSession(), builtIn, RulesProfileDto.from(profile));
-    assertThat(changes).isEmpty();
-    verifyNoMoreInteractions(qualityProfileChangeEventService);
   }
 
   @Test

@@ -31,10 +31,12 @@ import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
@@ -67,14 +69,15 @@ public class RuleActivator {
   private final DbClient db;
   private final TypeValidations typeValidations;
   private final UserSession userSession;
+  private final Configuration configuration;
 
-  public RuleActivator(System2 system2, DbClient db, TypeValidations typeValidations, UserSession userSession) {
+  public RuleActivator(System2 system2, DbClient db, TypeValidations typeValidations, UserSession userSession, Configuration configuration) {
     this.system2 = system2;
     this.db = db;
     this.typeValidations = typeValidations;
     this.userSession = userSession;
+    this.configuration = configuration;
   }
-
 
   public List<ActiveRuleChange> activate(DbSession dbSession, Collection<RuleActivation> activations, RuleActivationContext context) {
     return activations.stream().map(a -> activate(dbSession, a, context))
@@ -92,10 +95,10 @@ public class RuleActivator {
     checkRequest(RuleStatus.REMOVED != rule.getStatus(), "Rule was removed: %s", rule.getKey());
     checkRequest(!rule.isTemplate(), "Rule template can't be activated on a Quality profile: %s", rule.getKey());
     checkRequest(context.getRulesProfile().getLanguage().equals(rule.getLanguage()),
-      "%s rule %s cannot be activated on %s profile %s", rule.getLanguage(), rule.getKey(), context.getRulesProfile().getLanguage(), context.getRulesProfile().getName());
+      "%s rule %s cannot be activated on %s profile %s", rule.getLanguage(), rule.getKey(), context.getRulesProfile().getLanguage(),
+      context.getRulesProfile().getName());
     List<ActiveRuleChange> changes = new ArrayList<>();
-    ActiveRuleChange change;
-    boolean stopCascading = false;
+    ActiveRuleChange change = null;
 
     ActiveRuleWrapper activeRule = context.getActiveRule();
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(context.getRulesProfile(), rule.getKey());
@@ -107,16 +110,17 @@ public class RuleActivator {
       change = handleNewRuleActivation(activation, context, rule, activeRuleKey);
     } else {
       // already activated
-      if (context.isCascading() && activeRule.get().doesOverride()) {
-        // propagating to descendants, but child profile already overrides rule -> stop propagation
-        return changes;
-      }
-      change = new ActiveRuleChange(ActiveRuleChange.Type.UPDATED, activeRuleKey, rule);
-      stopCascading = handleUpdatedRuleActivation(activation, context, change, stopCascading, activeRule);
 
-      if (isSame(change, activeRule)) {
-        change = null;
-        stopCascading = true;
+      // No change if propagating to descendants, but child profile already overrides rule
+      if (!context.isCascading() || !activeRule.get().doesOverride()) {
+        change = new ActiveRuleChange(ActiveRuleChange.Type.UPDATED, activeRuleKey, rule);
+        handleUpdatedRuleActivation(activation, context, change, activeRule);
+
+        if (isSame(change, activeRule) || (context.isCascading() && activeRule.get().getInheritance() != null && !isSameAsParent(change, context))) {
+          // The rule config hasn't changed; or the rule is being propagated but the parent has a different config,
+          // which means the rule was overridden by a profile in the inheritance chain
+          change = null;
+        }
       }
     }
 
@@ -129,23 +133,20 @@ public class RuleActivator {
       updateProfileDates(dbSession, context);
     }
 
-    if (!stopCascading) {
-      changes.addAll(propagateActivationToDescendants(dbSession, activation, context));
-    }
+    changes.addAll(propagateActivationToDescendants(dbSession, activation, context));
 
     return changes;
   }
 
-  private boolean handleUpdatedRuleActivation(RuleActivation activation, RuleActivationContext context, ActiveRuleChange change,
-    boolean stopCascading, ActiveRuleWrapper activeRule) {
+  private void handleUpdatedRuleActivation(RuleActivation activation, RuleActivationContext context, ActiveRuleChange change,
+                                           ActiveRuleWrapper activeRule) {
     if (context.isCascading() && activeRule.get().getInheritance() == null) {
-      // activate on child, then on parent -> mark child as overriding parent
-      change.setInheritance(ActiveRuleInheritance.OVERRIDES);
+      // The rule is being propagated, but it was activated directly on this profile before
       change.setSeverity(activeRule.get().getSeverityString());
       for (ActiveRuleParamDto activeParam : activeRule.getParams()) {
         change.setParameter(activeParam.getKey(), activeParam.getValue());
       }
-      stopCascading = true;
+      change.setInheritance(isSameAsParent(change, context) ? ActiveRuleInheritance.INHERITED : ActiveRuleInheritance.OVERRIDES);
     } else {
       applySeverityAndParamToChange(activation, context, change);
       if (!context.isCascading() && context.getParentActiveRule() != null) {
@@ -153,14 +154,13 @@ public class RuleActivator {
         change.setInheritance(isSameAsParent(change, context) ? ActiveRuleInheritance.INHERITED : ActiveRuleInheritance.OVERRIDES);
       }
     }
-    return stopCascading;
   }
 
   private ActiveRuleChange handleNewRuleActivation(RuleActivation activation, RuleActivationContext context, RuleDto rule, ActiveRuleKey activeRuleKey) {
     ActiveRuleChange change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, activeRuleKey, rule);
     applySeverityAndParamToChange(activation, context, change);
-    if (context.isCascading() || isSameAsParent(change, context)) {
-      change.setInheritance(ActiveRuleInheritance.INHERITED);
+    if (context.isCascading() || context.getParentActiveRule() != null) {
+      change.setInheritance(isSameAsParent(change, context) ? ActiveRuleInheritance.INHERITED : ActiveRuleInheritance.OVERRIDES);
     }
     return change;
   }
@@ -328,13 +328,16 @@ public class RuleActivator {
     activeRule.setUpdatedAt(system2.now());
     activeRule.setCreatedAt(system2.now());
     dao.insert(dbSession, activeRule);
+    List<ActiveRuleParamDto> params = new ArrayList<>();
     for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
       if (param.getValue() != null) {
         ActiveRuleParamDto paramDto = ActiveRuleParamDto.createFor(rule.getParam(param.getKey()));
         paramDto.setValue(param.getValue());
+        params.add(paramDto);
         dao.insertParam(dbSession, activeRule, paramDto);
       }
     }
+    context.register(activeRule, params);
     return activeRule;
   }
 
@@ -384,15 +387,14 @@ public class RuleActivator {
   private List<ActiveRuleChange> doDeactivate(DbSession dbSession, RuleActivationContext context, boolean force) {
     List<ActiveRuleChange> changes = new ArrayList<>();
     ActiveRuleWrapper activeRule = context.getActiveRule();
-    if (activeRule == null) {
-      return changes;
-    }
+    if (activeRule != null) {
+      checkRequest(force || context.isCascading() || activeRule.get().getInheritance() == null || isAllowDisableInheritedRules(),
+        "Cannot deactivate inherited rule '%s'", context.getRule().get().getKey());
 
-    ActiveRuleChange change;
-    checkRequest(force || context.isCascading() || activeRule.get().getInheritance() == null, "Cannot deactivate inherited rule '%s'", context.getRule().get().getKey());
-    change = new ActiveRuleChange(ActiveRuleChange.Type.DEACTIVATED, activeRule.get(), context.getRule().get());
-    changes.add(change);
-    persist(change, context, dbSession);
+      ActiveRuleChange change = new ActiveRuleChange(ActiveRuleChange.Type.DEACTIVATED, activeRule.get(), context.getRule().get());
+      changes.add(change);
+      persist(change, context, dbSession);
+    }
 
     // get all inherited profiles (they are not built-in by design)
     context.getChildProfiles().forEach(child -> {
@@ -405,6 +407,10 @@ public class RuleActivator {
     }
 
     return changes;
+  }
+
+  private boolean isAllowDisableInheritedRules() {
+    return configuration.getBoolean(CorePropertyDefinitions.ALLOW_DISABLE_INHERITED_RULES).orElse(true);
   }
 
   @CheckForNull
@@ -516,9 +522,6 @@ public class RuleActivator {
     return true;
   }
 
-  /**
-   * True if trying to override an inherited rule but with exactly the same values
-   */
   private static boolean isSameAsParent(ActiveRuleChange change, RuleActivationContext context) {
     ActiveRuleWrapper parentActiveRule = context.getParentActiveRule();
     if (parentActiveRule == null) {
