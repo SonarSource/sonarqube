@@ -61,11 +61,12 @@ public class GitHubSettings {
   @VisibleForTesting
   static final String PROVISIONING = "provisioning.github.enabled";
   @VisibleForTesting
+  static final String PROVISION_VISIBILITY = "provisioning.github.project.visibility.enabled";
+  @VisibleForTesting
   static final String USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE = "sonar.auth.github.userConsentForPermissionProvisioningRequired";
 
   private static final String CATEGORY = "authentication";
   private static final String SUBCATEGORY = "github";
-
 
   private final Configuration configuration;
 
@@ -166,6 +167,10 @@ public class GitHubSettings {
     return configuration.get(USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE).isPresent();
   }
 
+  public boolean isProjectVisibilitySynchronizationActivated() {
+    return configuration.getBoolean(PROVISION_VISIBILITY).orElse(true);
+  }
+
   public static List<PropertyDefinition> definitions() {
     int index = 1;
     return Arrays.asList(
@@ -254,6 +259,16 @@ public class GitHubSettings {
         .multiValues(true)
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
+        .index(index)
+        .build(),
+      PropertyDefinition.builder(PROVISION_VISIBILITY)
+        .name("Provision project visibility")
+        .description("Change project visibility based on GitHub repository visibility. If disabled, every provisioned project will be private and will be seen only for those users"
+                     + " that have explicit GitHub permissions for the according repository.")
+        .type(BOOLEAN)
+        .category(CATEGORY)
+        .subCategory(SUBCATEGORY)
+        .defaultValue(valueOf(true))
         .index(index)
         .build());
   }

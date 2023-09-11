@@ -39,6 +39,7 @@ export const OPTIONAL_FIELDS = [
   ...GITHUB_JIT_FIELDS,
   'sonar.auth.github.organizations',
   'sonar.auth.github.groupsSync',
+  'provisioning.github.project.visibility.enabled',
 ];
 
 export interface SamlSettingValue {

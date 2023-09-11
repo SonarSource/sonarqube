@@ -37,15 +37,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.auth.github.GitHubSettings.USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE;
+import static org.sonar.auth.github.GitHubSettings.PROVISION_VISIBILITY;
 
 public class GitHubSettingsTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, GitHubSettings.definitions()));
-  private InternalProperties internalProperties = mock(InternalProperties.class);
+  private final MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, GitHubSettings.definitions()));
+  private final InternalProperties internalProperties = mock(InternalProperties.class);
 
-  private GitHubSettings underTest = new GitHubSettings(settings.asConfig(), internalProperties, db.getDbClient());
+  private final GitHubSettings underTest = new GitHubSettings(settings.asConfig(), internalProperties, db.getDbClient());
 
   @Test
   public void is_enabled() {
@@ -111,6 +112,22 @@ public class GitHubSettingsTest {
   public void isUserConsentRequiredAfterUpgrade_returnsTrueIfPropertyPresent() {
     settings.setProperty(USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE, "");
     assertThat(underTest.isUserConsentRequiredAfterUpgrade()).isTrue();
+  }
+
+  @Test
+  public void isProjectVisibilitySynchronizationActivated_whenPropertyNotSet_returnsTrueByDefault() {
+    assertThat(underTest.isProjectVisibilitySynchronizationActivated()).isTrue();
+  }
+
+  @Test
+  public void isProjectVisibilitySynchronizationActivated_whenPropertyIsSetToFalse_returnsFalse() {
+    settings.setProperty(PROVISION_VISIBILITY, "false");
+    assertThat(underTest.isProjectVisibilitySynchronizationActivated()).isFalse();
+  }
+  @Test
+  public void isProjectVisibilitySynchronizationActivated_whenPropertyIsSetToTrue_returnsTrue() {
+    settings.setProperty(PROVISION_VISIBILITY, "true");
+    assertThat(underTest.isProjectVisibilitySynchronizationActivated()).isTrue();
   }
 
   @Test
@@ -273,7 +290,8 @@ public class GitHubSettingsTest {
         "Synchronize teams as groups",
         "The API url for a GitHub instance.",
         "The WEB url for a GitHub instance.",
-        "Organizations");
+        "Organizations",
+        "Provision project visibility");
   }
 
   private void enableGithubAuthentication() {
