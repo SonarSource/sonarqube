@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DangerButtonPrimary, FlagMessage, Modal } from 'design-system';
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
-import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Profile } from '../types';
 
@@ -36,22 +34,17 @@ export default function DeleteProfileForm(props: DeleteProfileFormProps) {
   const header = translate('quality_profiles.delete_confirm_title');
 
   return (
-    <Modal contentLabel={header} onRequestClose={props.onClose}>
-      <form
-        onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => {
-          e.preventDefault();
-          props.onDelete();
-        }}
-      >
-        <div className="modal-head">
-          <h2>{header}</h2>
-        </div>
-        <div className="modal-body">
+    <Modal
+      headerTitle={header}
+      onClose={props.onClose}
+      loading={loading}
+      body={
+        <>
           {profile.childrenCount > 0 ? (
-            <div>
-              <Alert variant="warning">
+            <div className="sw-flex sw-flex-col">
+              <FlagMessage className="sw-mb-4" variant="warning">
                 {translate('quality_profiles.this_profile_has_descendants')}
-              </Alert>
+              </FlagMessage>
               <p>
                 {translateWithParameters(
                   'quality_profiles.are_you_sure_want_delete_profile_x_and_descendants',
@@ -69,15 +62,19 @@ export default function DeleteProfileForm(props: DeleteProfileFormProps) {
               )}
             </p>
           )}
-        </div>
-        <div className="modal-foot">
-          {loading && <i className="spinner spacer-right" />}
-          <SubmitButton className="button-red" disabled={loading}>
-            {translate('delete')}
-          </SubmitButton>
-          <ResetButtonLink onClick={props.onClose}>{translate('cancel')}</ResetButtonLink>
-        </div>
-      </form>
-    </Modal>
+        </>
+      }
+      primaryButton={
+        <DangerButtonPrimary
+          onClick={() => {
+            props.onDelete();
+          }}
+          disabled={loading}
+        >
+          {translate('delete')}
+        </DangerButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }
