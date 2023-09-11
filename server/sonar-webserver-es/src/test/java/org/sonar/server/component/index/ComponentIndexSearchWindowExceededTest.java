@@ -19,52 +19,42 @@
  */
 package org.sonar.server.component.index;
 
-import java.util.stream.IntStream;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.internal.SearchContext;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
+import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
 
 public class ComponentIndexSearchWindowExceededTest {
   @Rule
   public EsTester es = EsTester.create();
 
   private final WebAuthorizationTypeSupport authorizationTypeSupport = mock(WebAuthorizationTypeSupport.class);
-  private final ComponentIndex underTest = new ComponentIndex(es.client(), authorizationTypeSupport, System2.INSTANCE);
+  private final EsClient esClient = Mockito.spy(es.client());
+  private final ComponentIndex underTest = new ComponentIndex(esClient, authorizationTypeSupport, System2.INSTANCE);
 
   @Test
-  public void returns_correct_total_number_if_default_index_window_exceeded() {
-    // bypassing the permission check, to have easily 12_000 elements searcheable without having to inserting them + permission.
+  public void search_shouldUseAccurateCountTrackParameterAndNotLimitCountTo10000() {
+    // bypassing the permission check
     when(authorizationTypeSupport.createQueryFilter()).thenReturn(QueryBuilders.matchAllQuery());
 
-    index(IntStream.range(0, 12_000)
-      .mapToObj(i -> newDoc(ComponentTesting.newPublicProjectDto()))
-      .toArray(ComponentDoc[]::new));
+    underTest.search(ComponentQuery.builder().build(), new SearchOptions().setPage(2, 3));
 
-    SearchIdResult<String> result = underTest.search(ComponentQuery.builder().build(), new SearchOptions().setPage(2, 3));
-    assertThat(result.getTotal()).isEqualTo(12_000);
-  }
-
-  private void index(ComponentDoc... componentDocs) {
-    es.putDocuments(TYPE_COMPONENT.getMainType(), componentDocs);
-  }
-
-  private ComponentDoc newDoc(ComponentDto componentDoc) {
-    return new ComponentDoc()
-      .setId(componentDoc.uuid())
-      .setKey(componentDoc.getKey())
-      .setName(componentDoc.name())
-      .setQualifier(componentDoc.qualifier());
+    ArgumentCaptor<SearchRequest> searchRequestArgumentCaptor = ArgumentCaptor.forClass(SearchRequest.class);
+    verify(esClient).search(searchRequestArgumentCaptor.capture());
+    SearchRequest searchRequest = searchRequestArgumentCaptor.getValue();
+    assertThat(searchRequest.source().trackTotalHitsUpTo()).isEqualTo(SearchContext.TRACK_TOTAL_HITS_ACCURATE);
   }
 }
