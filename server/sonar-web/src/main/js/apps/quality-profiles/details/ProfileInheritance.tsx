@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { ButtonSecondary, Spinner, SubTitle, Table } from 'design-system';
+import { ButtonSecondary, FlagMessage, Spinner, SubTitle, Table } from 'design-system';
 import * as React from 'react';
 import { getProfileInheritance } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
@@ -136,6 +136,19 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
           )}
         </div>
 
+        {!extendsBuiltIn && (
+          <FlagMessage variant="info" className="sw-mb-4">
+            <div className="sw-flex sw-flex-col">
+              {translate('quality_profiles.no_built_in_updates_warning')}
+              {profile.actions?.edit && (
+                <span className="sw-mt-1">
+                  {translate('quality_profiles.no_built_in_updates_warning_admin')}
+                </span>
+              )}
+            </div>
+          </FlagMessage>
+        )}
+
         <Spinner loading={loading}>
           <Table columnCount={3} noSidePadding>
             {ancestors?.map((ancestor, index) => (
@@ -155,7 +168,6 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
                 })}
                 depth={ancestors ? ancestors.length : 0}
                 displayLink={false}
-                extendsBuiltIn={extendsBuiltIn}
                 language={profile.language}
                 profile={this.state.profile}
               />

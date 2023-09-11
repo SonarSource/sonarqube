@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { ContentCell, HelperHintIcon, TableRow } from 'design-system';
+import { ContentCell, TableRow } from 'design-system';
 import * as React from 'react';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translateWithParameters } from '../../../helpers/l10n';
 import { ProfileInheritanceDetails } from '../../../types/types';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import ProfileLink from '../components/ProfileLink';
@@ -30,22 +29,13 @@ interface Props {
   className?: string;
   depth: number;
   displayLink?: boolean;
-  extendsBuiltIn?: boolean;
   language: string;
   profile: ProfileInheritanceDetails;
   type?: string;
 }
 
 export default function ProfileInheritanceBox(props: Props) {
-  const {
-    className,
-    depth,
-    extendsBuiltIn,
-    language,
-    profile,
-    displayLink = true,
-    type = 'current',
-  } = props;
+  const { className, depth, language, profile, displayLink = true, type = 'current' } = props;
   const offset = 25 * depth;
 
   return (
@@ -60,11 +50,6 @@ export default function ProfileInheritanceBox(props: Props) {
             <span>{profile.name}</span>
           )}
           {profile.isBuiltIn && <BuiltInQualityProfileBadge />}
-          {extendsBuiltIn && (
-            <HelpTooltip overlay={translate('quality_profiles.extends_built_in')}>
-              <HelperHintIcon aria-label="help-tooltip" />
-            </HelpTooltip>
-          )}
         </div>
       </ContentCell>
 
