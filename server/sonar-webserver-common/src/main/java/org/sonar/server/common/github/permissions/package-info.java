@@ -17,16 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2;
+@ParametersAreNonnullByDefault
+package org.sonar.server.common.github.permissions;
 
-public class WebApiEndpoints {
-  private static final String SYSTEM_ENDPOINTS = "/system";
-  public static final String LIVENESS_ENDPOINT = SYSTEM_ENDPOINTS + "/liveness";
-  public static final String HEALTH_ENDPOINT = SYSTEM_ENDPOINTS + "/health";
-  public static final String USER_ENDPOINT = "/users";
-  public static final String GITHUB_PERMISSIONS_ENDPOINT = "/github-permission-mappings";
-  public static final String JSON_MERGE_PATCH_CONTENT_TYPE = "application/json-merge-patch+json";
-
-  private WebApiEndpoints() {
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;
