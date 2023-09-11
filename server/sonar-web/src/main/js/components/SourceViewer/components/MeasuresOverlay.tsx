@@ -90,7 +90,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 
@@ -105,7 +105,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
         ...getBranchLikeQuery(this.props.branchLike),
       }).then((measures) => {
         const withMetrics = enhanceMeasuresWithMetrics(measures, metrics).filter(
-          (measure) => measure.metric
+          (measure) => measure.metric,
         );
         return keyBy(withMetrics, (measure) => measure.metric.key);
       });
@@ -119,7 +119,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
         resolved: 'false',
         ...getBranchLikeQuery(this.props.branchLike),
       },
-      ['types', 'severities', 'tags']
+      ['types', 'severities', 'tags'],
     ).then(({ facets }) => {
       const severitiesFacet = facets.find((f) => f.property === 'severities');
       const tagsFacet = facets.find((f) => f.property === 'tags');
@@ -204,7 +204,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
                           {formatMeasure(f.count, MetricType.ShortInteger)}
                         </span>
                       </div>
-                    )
+                    ),
                   )}
                 </div>
               )}
@@ -220,7 +220,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
                           {formatMeasure(f.count, MetricType.ShortInteger)}
                         </span>
                       </div>
-                    )
+                    ),
                   )}
                 </div>
               )}
@@ -349,7 +349,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
           </div>
           {sortBy(
             measures.filter((measure) => measure.value !== undefined),
-            (measure) => getLocalizedMetricName(measure.metric)
+            (measure) => getLocalizedMetricName(measure.metric),
           ).map((measure) => this.renderMeasure(measure))}
         </div>
       </div>

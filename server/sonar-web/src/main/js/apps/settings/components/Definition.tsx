@@ -126,7 +126,7 @@ export default class Definition extends React.PureComponent<Props, State> {
         this.setState({
           validationMessage: translateWithParameters(
             'settings.state.url_not_valid',
-            changedValue ?? ''
+            changedValue ?? '',
           ),
         });
         return false;

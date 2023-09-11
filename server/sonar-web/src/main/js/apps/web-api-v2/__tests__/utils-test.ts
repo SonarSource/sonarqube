@@ -97,7 +97,7 @@ it('should dereference schema', () => {
           },
         },
       },
-    })
+    }),
   ).toStrictEqual({
     openapi: '3.0.1',
     info: {
@@ -213,7 +213,7 @@ it('should map open api response schema', () => {
           type: 'boolean',
         },
       },
-    })
+    }),
   ).toStrictEqual({
     str: 'string',
     int: 'integer (int32)',
@@ -227,13 +227,13 @@ it('should map open api response schema', () => {
       items: {
         type: 'string',
       },
-    })
+    }),
   ).toStrictEqual(['string']);
 
   expect(
     mapOpenAPISchema({
       type: 'string',
       enum: ['GREEN', 'YELLOW', 'RED'],
-    })
+    }),
   ).toStrictEqual(['GREEN', 'YELLOW', 'RED']);
 });

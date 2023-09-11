@@ -78,6 +78,6 @@ it('should render "show less", not "show more"', async () => {
 
 function render(props: Partial<Props> = {}) {
   return renderComponent(
-    <ListStyleFacetFooter nbShown={1} showMore={jest.fn()} total={42} {...props} />
+    <ListStyleFacetFooter nbShown={1} showMore={jest.fn()} total={42} {...props} />,
   );
 }

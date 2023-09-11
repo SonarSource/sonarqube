@@ -44,7 +44,7 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
   const lastUpgrade = systemUpgrades[0];
   const downloadUrl = getEditionDownloadUrl(
     getEdition(edition || EditionKey.community),
-    lastUpgrade
+    lastUpgrade,
   );
   let header = translate('system.latest_version');
   if (isLTSVersion) {

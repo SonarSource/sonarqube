@@ -39,7 +39,7 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       currentUser: mockLoggedInUser({ dismissedNotices: { [NoticeType.SONARLINT_AD]: true } }),
-    })
+    }),
   ).toMatchSnapshot('adAlreadySeen');
   expect(shallowRender({ currentUser: mockLoggedInUser() })).toMatchSnapshot('loggedIn');
 });
@@ -75,6 +75,6 @@ function shallowRender(props: Partial<CurrentUserContextInterface> = {}) {
       updateDismissedNotices={jest.fn()}
       updateCurrentUserHomepage={jest.fn()}
       {...props}
-    />
+    />,
   );
 }

@@ -45,7 +45,7 @@ export class PageUnavailableDueToIndexation extends React.PureComponent<WithInde
             <span className="sw-ml-1">
               <FormattedMessage
                 defaultMessage={translate(
-                  'indexation.page_unavailable.description.additional_information'
+                  'indexation.page_unavailable.description.additional_information',
                 )}
                 id="indexation.page_unavailable.description.additional_information"
                 values={{

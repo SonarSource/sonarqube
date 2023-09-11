@@ -94,7 +94,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props> {
               };
 
               const measure = componentMeasures.find(
-                (m) => m.metric === ISSUETYPE_METRIC_KEYS_MAP[type].metric
+                (m) => m.metric === ISSUETYPE_METRIC_KEYS_MAP[type].metric,
               );
 
               const linkUrl =
@@ -128,7 +128,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props> {
     const unitTestsOrLines = q === ComponentQualifier.TestFile ? MetricKey.tests : MetricKey.lines;
 
     const query = new URLSearchParams(
-      omitNil({ key, ...getBranchLikeQuery(this.props.branchLike) })
+      omitNil({ key, ...getBranchLikeQuery(this.props.branchLike) }),
     ).toString();
 
     const rawSourcesLink = `${getBaseUrl()}/api/sources/raw?${query}`;

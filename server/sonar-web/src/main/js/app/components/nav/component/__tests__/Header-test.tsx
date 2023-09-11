@@ -51,7 +51,7 @@ it('should render correctly when there is only 1 branch', async () => {
   expect(await screen.findByLabelText('help-tooltip')).toBeInTheDocument();
   expect(screen.getByText('project')).toBeInTheDocument();
   expect(
-    await screen.findByRole('button', { name: 'master overview.quality_gate_x.OK' })
+    await screen.findByRole('button', { name: 'master overview.quality_gate_x.OK' }),
   ).toBeDisabled();
 });
 
@@ -60,7 +60,7 @@ it('should render correctly when there are multiple branch', async () => {
   renderHeader();
 
   expect(
-    await screen.findByRole('button', { name: 'main overview.quality_gate_x.OK' })
+    await screen.findByRole('button', { name: 'main overview.quality_gate_x.OK' }),
   ).toBeEnabled();
 
   expect(screen.queryByLabelText('help-tooltip')).not.toBeInTheDocument();
@@ -70,19 +70,19 @@ it('should render correctly when there are multiple branch', async () => {
   expect(
     screen.getByRole('menuitem', {
       name: '03 – TEST-193 dumb commit overview.quality_gate_x.ERROR ERROR',
-    })
+    }),
   ).toBeInTheDocument();
   expect(
     screen.getByRole('menuitem', {
       name: '01 – TEST-191 update master overview.quality_gate_x.OK OK',
-    })
+    }),
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('menuitem', { name: 'normal-branch overview.quality_gate_x.ERROR ERROR' })
+    screen.getByRole('menuitem', { name: 'normal-branch overview.quality_gate_x.ERROR ERROR' }),
   ).toBeInTheDocument();
 
   await user.click(
-    screen.getByRole('menuitem', { name: 'normal-branch overview.quality_gate_x.ERROR ERROR' })
+    screen.getByRole('menuitem', { name: 'normal-branch overview.quality_gate_x.ERROR ERROR' }),
   );
   expect(screen.getByText('/dashboard?branch=normal-branch&id=header-project')).toBeInTheDocument();
 });
@@ -102,7 +102,7 @@ it('should show manage branch and pull request button for admin', async () => {
   expect(screen.getByRole('link', { name: 'branch_like_navigation.manage' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'branch_like_navigation.manage' })).toHaveAttribute(
     'href',
-    '/project/branches?id=header-project'
+    '/project/branches?id=header-project',
   );
 });
 
@@ -113,7 +113,7 @@ it('should render favorite button if the user is logged in', async () => {
 
   await user.click(screen.getByRole('button', { name: 'favorite.action.TRK.add' }));
   expect(
-    await screen.findByRole('button', { name: 'favorite.action.TRK.remove' })
+    await screen.findByRole('button', { name: 'favorite.action.TRK.remove' }),
   ).toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: 'favorite.action.TRK.remove' }));
@@ -130,12 +130,12 @@ it.each([['github'], ['gitlab'], ['bitbucket'], ['azure']])(
         currentUser: mockLoggedInUser(),
       },
       undefined,
-      'pullRequest=1001&id=compa'
+      'pullRequest=1001&id=compa',
     );
     const image = await screen.findByAltText(alm);
     expect(image).toBeInTheDocument();
     expect(image).toHaveAttribute('src', `/images/alm/${alm}.svg`);
-  }
+  },
 );
 
 it('should show the correct help tooltip for applications', async () => {
@@ -167,20 +167,20 @@ it('should show the correct help tooltip when branch support is not enabled', as
     {
       currentUser: mockLoggedInUser(),
     },
-    []
+    [],
   );
   expect(
-    await screen.findByText('branch_like_navigation.no_branch_support.title.mr')
+    await screen.findByText('branch_like_navigation.no_branch_support.title.mr'),
   ).toBeInTheDocument();
   expect(
-    screen.getByText('branch_like_navigation.no_branch_support.content_x.mr.alm.gitlab')
+    screen.getByText('branch_like_navigation.no_branch_support.content_x.mr.alm.gitlab'),
   ).toBeInTheDocument();
 });
 
 function renderHeader(
   props?: Partial<HeaderProps>,
   featureList = [Feature.BranchSupport],
-  params?: string
+  params?: string,
 ) {
   return renderApp(
     '/',
@@ -192,6 +192,6 @@ function renderHeader(
       currentUser={mockCurrentUser()}
       {...props}
     />,
-    { featureList, navigateTo: params ? `/?id=header-project&${params}` : '/?id=header-project' }
+    { featureList, navigateTo: params ? `/?id=header-project&${params}` : '/?id=header-project' },
   );
 }

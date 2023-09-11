@@ -65,6 +65,6 @@ it('renders correctly with big period', () => {
 
 function renderLeakPeriodLegend(overrides: Partial<LeakPeriodLegendProps> = {}) {
   return renderComponent(
-    <LeakPeriodLegend component={mockComponentMeasure()} period={PERIOD} {...overrides} />
+    <LeakPeriodLegend component={mockComponentMeasure()} period={PERIOD} {...overrides} />,
   );
 }

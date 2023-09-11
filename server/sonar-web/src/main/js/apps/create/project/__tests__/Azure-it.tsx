@@ -103,27 +103,27 @@ it('should show import project feature when PAT is already set', async () => {
   expect(
     screen.getByRole('row', {
       name: 'Azure repo 1 onboarding.create_project.repository_imported',
-    })
+    }),
   ).toBeInTheDocument();
 
   expect(
     screen.getByRole('row', {
       name: 'Azure repo 2 onboarding.create_project.import',
-    })
+    }),
   ).toBeInTheDocument();
 
   const importButton = screen.getByText('onboarding.create_project.import');
   await user.click(importButton);
 
   expect(
-    screen.getByRole('heading', { name: 'onboarding.create_project.new_code_definition.title' })
+    screen.getByRole('heading', { name: 'onboarding.create_project.new_code_definition.title' }),
   ).toBeInTheDocument();
 
   await user.click(screen.getByRole('radio', { name: 'new_code_definition.global_setting' }));
   await user.click(
     screen.getByRole('button', {
       name: 'onboarding.create_project.new_code_definition.create_project',
-    })
+    }),
   );
 
   expect(await screen.findByText('/dashboard?id=key')).toBeInTheDocument();
@@ -140,7 +140,7 @@ it('should show search filter when PAT is already set', async () => {
 
   // Should search with positive results
   const inputSearch = screen.getByPlaceholderText(
-    'onboarding.create_project.search_projects_repositories'
+    'onboarding.create_project.search_projects_repositories',
   );
   await user.click(inputSearch);
   await user.keyboard('s');

@@ -54,9 +54,9 @@ function CategoriesList(props: CategoriesListProps) {
             ? // Project settings
               c.availableForProject
             : // Global settings
-              c.availableGlobally
+              c.availableGlobally,
         )
-        .filter((c) => props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport)
+        .filter((c) => props.hasFeature(Feature.BranchSupport) || !c.requiresBranchSupport),
     );
   const sortedCategories = sortBy(categoriesWithName, (category) => category.name.toLowerCase());
 

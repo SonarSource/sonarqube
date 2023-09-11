@@ -86,7 +86,7 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
       },
       () => {
         /*noop*/
-      }
+      },
     );
   }
 
@@ -102,7 +102,7 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
     const seeAllRulesText = `${translate('see_all')} ${formatMeasure(
       latestRulesTotal,
       'SHORT_INT',
-      null
+      null,
     )}`;
 
     return (
@@ -124,11 +124,11 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
                     ? translateWithParameters(
                         'quality_profiles.latest_new_rules.activated',
                         rule.langName!,
-                        rule.activations
+                        rule.activations,
                       )
                     : translateWithParameters(
                         'quality_profiles.latest_new_rules.not_activated',
-                        rule.langName!
+                        rule.langName!,
                       )}
                 </div>
               </div>

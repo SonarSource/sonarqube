@@ -84,16 +84,16 @@ export function hasHistoryDataValue(series: Serie[]) {
 export function splitSeriesInGraphs(series: Serie[], maxGraph: number, maxSeries: number) {
   return flatMap(
     groupBy(series, (serie) => serie.type),
-    (type) => chunk(type, maxSeries)
+    (type) => chunk(type, maxSeries),
   ).slice(0, maxGraph);
 }
 
 export function generateCoveredLinesMetric(
   uncoveredLines: MeasureHistory,
-  measuresHistory: MeasureHistory[]
+  measuresHistory: MeasureHistory[],
 ): Serie {
   const linesToCover = measuresHistory.find(
-    (measure) => measure.metric === MetricKey.lines_to_cover
+    (measure) => measure.metric === MetricKey.lines_to_cover,
   );
 
   return {
@@ -113,7 +113,7 @@ export function generateSeries(
   measuresHistory: MeasureHistory[],
   graph: GraphType,
   metrics: Metric[],
-  displayedMetrics: string[]
+  displayedMetrics: string[],
 ): Serie[] {
   if (displayedMetrics.length <= 0 || measuresHistory === undefined) {
     return [];
@@ -139,8 +139,8 @@ export function generateSeries(
       }),
     (serie) =>
       displayedMetrics.indexOf(
-        serie.name === 'covered_lines' ? MetricKey.uncovered_lines : serie.name
-      )
+        serie.name === 'covered_lines' ? MetricKey.uncovered_lines : serie.name,
+      ),
   );
 }
 
@@ -148,7 +148,7 @@ export function saveActivityGraph(
   namespace: string,
   project: string,
   graph: GraphType,
-  metrics?: string[]
+  metrics?: string[],
 ) {
   save(namespace, graph, project);
 
@@ -159,7 +159,7 @@ export function saveActivityGraph(
 
 export function getActivityGraph(
   namespace: string,
-  project: string
+  project: string,
 ): { graph: GraphType; customGraphs: string[] } {
   const customGraphs = get(`${namespace}.custom`, project);
 

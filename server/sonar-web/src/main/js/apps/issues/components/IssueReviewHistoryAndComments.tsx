@@ -47,7 +47,7 @@ export default class IssueReviewHistoryAndComments extends React.PureComponent<P
   handleSubmitComment = (comment: string) => {
     return updateIssue(
       this.props.onChange,
-      addIssueComment({ issue: this.props.issue.key, text: comment })
+      addIssueComment({ issue: this.props.issue.key, text: comment }),
     );
   };
 

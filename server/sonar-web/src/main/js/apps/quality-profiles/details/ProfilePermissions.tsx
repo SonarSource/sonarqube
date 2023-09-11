@@ -88,7 +88,7 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   }
 

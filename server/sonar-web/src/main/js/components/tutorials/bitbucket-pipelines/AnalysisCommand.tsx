@@ -45,7 +45,7 @@ const YamlTemplate: Dictionary<
     branchesEnabled?: boolean,
     mainBranchName?: string,
     projectKey?: string,
-    projectName?: string
+    projectName?: string,
   ) => string
 > = {
   [BuildTools.Gradle]: gradleExample,
@@ -63,7 +63,7 @@ export function AnalysisCommand(props: AnalysisCommandProps) {
     branchSupportEnabled,
     mainBranchName,
     component.key,
-    component.name
+    component.name,
   );
 
   return (

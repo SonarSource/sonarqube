@@ -36,13 +36,13 @@ const STALE_TIME = 4 * 60 * 1000;
 
 export function useUsersQueries<U extends RestUserBase>(
   getParams: Omit<Parameters<typeof getUsers>[0], 'pageSize' | 'pageIndex'>,
-  numberOfPages: number
+  numberOfPages: number,
 ) {
   type QueryKey = [
     'user',
     'list',
     number,
-    Omit<Parameters<typeof getUsers>[0], 'pageSize' | 'pageIndex'>
+    Omit<Parameters<typeof getUsers>[0], 'pageSize' | 'pageIndex'>,
   ];
   const results = useQueries({
     queries: range(1, numberOfPages + 1).map((page: number) => ({
@@ -59,7 +59,7 @@ export function useUsersQueries<U extends RestUserBase>(
       total: data?.page.total,
       isLoading: acc.isLoading || isLoading,
     }),
-    { users: [] as U[], total: 0, isLoading: false }
+    { users: [] as U[], total: 0, isLoading: false },
   );
 }
 
@@ -140,7 +140,7 @@ export function useRevokeTokenMutation() {
     mutationFn: (data: Parameters<typeof revokeToken>[0]) => revokeToken(data),
     onSuccess(_, data) {
       queryClient.setQueryData<UserToken[]>(['user', data.login, 'tokens'], (oldData) =>
-        oldData ? oldData.filter((token) => token.name !== data.name) : undefined
+        oldData ? oldData.filter((token) => token.name !== data.name) : undefined,
       );
     },
   });
@@ -152,7 +152,7 @@ export function useAddUserToGroupMutation() {
     mutationFn: (data: Parameters<typeof addUserToGroup>[0]) => addUserToGroup(data),
     onSuccess(_, data) {
       queryClient.setQueryData<number>(['user', data.login, 'groups', 'total'], (oldData) =>
-        oldData !== undefined ? oldData + 1 : undefined
+        oldData !== undefined ? oldData + 1 : undefined,
       );
     },
   });
@@ -164,7 +164,7 @@ export function useRemoveUserToGroupMutation() {
     mutationFn: (data: Parameters<typeof removeUserFromGroup>[0]) => removeUserFromGroup(data),
     onSuccess(_, data) {
       queryClient.setQueryData<number>(['user', data.login, 'groups', 'total'], (oldData) =>
-        oldData !== undefined ? oldData - 1 : undefined
+        oldData !== undefined ? oldData - 1 : undefined,
       );
     },
   });

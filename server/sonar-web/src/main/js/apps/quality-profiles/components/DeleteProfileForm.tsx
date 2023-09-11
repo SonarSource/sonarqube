@@ -49,7 +49,7 @@ export default function DeleteProfileForm(props: DeleteProfileFormProps) {
                 {translateWithParameters(
                   'quality_profiles.are_you_sure_want_delete_profile_x_and_descendants',
                   profile.name,
-                  profile.languageName
+                  profile.languageName,
                 )}
               </p>
             </div>
@@ -58,7 +58,7 @@ export default function DeleteProfileForm(props: DeleteProfileFormProps) {
               {translateWithParameters(
                 'quality_profiles.are_you_sure_want_delete_profile_x',
                 profile.name,
-                profile.languageName
+                profile.languageName,
               )}
             </p>
           )}

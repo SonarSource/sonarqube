@@ -120,7 +120,7 @@ export function mockHotspotRule(overrides?: Partial<HotspotRule>): HotspotRule {
 }
 
 export function mockHotspotReviewHistoryElement(
-  overrides?: Partial<ReviewHistoryElement>
+  overrides?: Partial<ReviewHistoryElement>,
 ): ReviewHistoryElement {
   return {
     date: '2019-09-13T17:55:42+0200',

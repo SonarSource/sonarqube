@@ -64,7 +64,7 @@ it('should see the changelog', async () => {
   expect(rows[1]).not.toHaveTextContent('quality_profiles.severity');
   expect(rows[2]).toHaveTextContent('April 23, 2019');
   expect(rows[2]).toHaveTextContent(
-    'Systemquality_profiles.changelog.DEACTIVATEDRule 0quality_profiles.severity_set_to severity.MAJOR'
+    'Systemquality_profiles.changelog.DEACTIVATEDRule 0quality_profiles.severity_set_to severity.MAJOR',
   );
   expect(rows[3]).not.toHaveTextContent('April 23, 2019');
   expect(rows[3]).not.toHaveTextContent('Systemquality_profiles.changelog.DEACTIVATED');
@@ -74,7 +74,7 @@ it('should see the changelog', async () => {
   expect(rows[5]).toHaveTextContent('March 23, 2019');
   expect(rows[5]).toHaveTextContent('John Doequality_profiles.changelog.ACTIVATEDRule 2');
   expect(rows[5]).toHaveTextContent(
-    'quality_profiles.severity_set_to severity.CRITICALquality_profiles.parameter_set_to.credentialWords.foo,bar'
+    'quality_profiles.severity_set_to severity.CRITICALquality_profiles.parameter_set_to.credentialWords.foo,bar',
   );
   await user.click(ui.link.get(rows[1]));
   expect(screen.getByText('/coding_rules?rule_key=c%3Arule0')).toBeInTheDocument();
@@ -103,7 +103,7 @@ it('should load more', async () => {
     mockQualityProfileChangelogEvent({
       ruleKey: `c:rule${i}`,
       ruleName: `Rule ${i}`,
-    })
+    }),
   );
   renderChangeLog();
 
@@ -122,7 +122,7 @@ it('should see short changelog for php', async () => {
   expect(rows).toHaveLength(2);
   expect(rows[1]).toHaveTextContent('May 23, 2019');
   expect(rows[1]).toHaveTextContent(
-    'Systemquality_profiles.changelog.DEACTIVATEDPHP Rulequality_profiles.severity_set_to severity.MAJOR'
+    'Systemquality_profiles.changelog.DEACTIVATEDPHP Rulequality_profiles.severity_set_to severity.MAJOR',
   );
   expect(ui.showMore.query()).not.toBeInTheDocument();
 });

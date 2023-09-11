@@ -186,7 +186,7 @@ export default class AlmSettingsServiceMock {
       GitlabBindingDefinition[],
       AzureBindingDefinition[],
       BitbucketCloudBindingDefinition[],
-      BitbucketServerBindingDefinition[]
+      BitbucketServerBindingDefinition[],
     ]) {
       const foundIndex = definitionsGroup.findIndex((definition) => definition.key === key);
       if (foundIndex !== -1) {
@@ -199,7 +199,7 @@ export default class AlmSettingsServiceMock {
 
   removeFromAlmSettings = (almKey: string) => {
     this.#almSettings = cloneDeep(defaultAlmSettings).filter(
-      (almSetting) => almSetting.alm !== almKey
+      (almSetting) => almSetting.alm !== almKey,
     );
   };
 
@@ -235,7 +235,7 @@ export default class AlmSettingsServiceMock {
 
   handleUpdateGithubConfiguration = (data: GithubBindingDefinition & { newKey: string }) => {
     const definition = this.#almDefinitions[AlmKeys.GitHub].find(
-      (item) => item.key === data.key
+      (item) => item.key === data.key,
     ) as GithubBindingDefinition;
     Object.assign(definition, { ...data, key: data.newKey });
 
@@ -244,7 +244,7 @@ export default class AlmSettingsServiceMock {
 
   handleUpdateGitlabConfiguration = (data: GitlabBindingDefinition & { newKey: string }) => {
     const definition = this.#almDefinitions[AlmKeys.GitLab].find(
-      (item) => item.key === data.key
+      (item) => item.key === data.key,
     ) as GitlabBindingDefinition;
     Object.assign(definition, { ...data, key: data.newKey });
 
@@ -253,7 +253,7 @@ export default class AlmSettingsServiceMock {
 
   handleUpdateAzureConfiguration = (data: AzureBindingDefinition & { newKey: string }) => {
     const definition = this.#almDefinitions[AlmKeys.Azure].find(
-      (item) => item.key === data.key
+      (item) => item.key === data.key,
     ) as AzureBindingDefinition;
     Object.assign(definition, { ...data, key: data.newKey });
 
@@ -261,10 +261,10 @@ export default class AlmSettingsServiceMock {
   };
 
   handleUpdateBitbucketServerConfiguration = (
-    data: BitbucketServerBindingDefinition & { newKey: string }
+    data: BitbucketServerBindingDefinition & { newKey: string },
   ) => {
     const definition = this.#almDefinitions[AlmKeys.BitbucketServer].find(
-      (item) => item.key === data.key
+      (item) => item.key === data.key,
     ) as BitbucketServerBindingDefinition;
     Object.assign(definition, { ...data, key: data.newKey });
 
@@ -272,10 +272,10 @@ export default class AlmSettingsServiceMock {
   };
 
   handleUpdateBitbucketCloudConfiguration = (
-    data: BitbucketCloudBindingDefinition & { newKey: string }
+    data: BitbucketCloudBindingDefinition & { newKey: string },
   ) => {
     const definition = this.#almDefinitions[AlmKeys.BitbucketCloud].find(
-      (item) => item.key === data.key
+      (item) => item.key === data.key,
     ) as BitbucketCloudBindingDefinition;
     Object.assign(definition, { ...data, key: data.newKey });
 
@@ -289,7 +289,7 @@ export default class AlmSettingsServiceMock {
       return Promise.reject(
         new Response('', {
           status: 404,
-        })
+        }),
       );
     }
 

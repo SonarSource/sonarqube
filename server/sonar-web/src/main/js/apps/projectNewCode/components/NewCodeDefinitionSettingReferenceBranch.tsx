@@ -60,7 +60,7 @@ function renderBranchOption(props: OptionProps<BranchOption, false>) {
         <Tooltip
           overlay={translateWithParameters(
             'baseline.reference_branch.does_not_exist',
-            option.value
+            option.value,
           )}
         >
           <span>
@@ -88,7 +88,7 @@ function renderBranchOption(props: OptionProps<BranchOption, false>) {
 }
 
 export default function NewCodeDefinitionSettingReferenceBranch(
-  props: BaselineSettingReferenceBranchProps
+  props: BaselineSettingReferenceBranchProps,
 ) {
   const { branchList, className, disabled, referenceBranch, selected, settingLevel } = props;
 

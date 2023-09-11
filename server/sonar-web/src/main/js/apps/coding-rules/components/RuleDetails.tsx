@@ -88,7 +88,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 
@@ -102,7 +102,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     // optimistic update
     const oldTags = this.state.ruleDetails && this.state.ruleDetails.tags;
     this.setState((state) =>
-      state.ruleDetails ? { ruleDetails: { ...state.ruleDetails, tags } } : null
+      state.ruleDetails ? { ruleDetails: { ...state.ruleDetails, tags } } : null,
     );
     updateRule({
       key: this.props.ruleKey,
@@ -110,7 +110,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     }).catch(() => {
       if (this.mounted) {
         this.setState((state) =>
-          state.ruleDetails ? { ruleDetails: { ...state.ruleDetails, tags: oldTags } } : null
+          state.ruleDetails ? { ruleDetails: { ...state.ruleDetails, tags: oldTags } } : null,
         );
       }
     });
@@ -143,7 +143,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
 
   handleDelete = () => {
     return deleteRule({ key: this.props.ruleKey }).then(() =>
-      this.props.onDelete(this.props.ruleKey)
+      this.props.onDelete(this.props.ruleKey),
     );
   };
 
@@ -202,7 +202,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
                 isDestructive
                 modalBody={translateWithParameters(
                   'coding_rules.delete.custom.confirm',
-                  ruleDetails.name
+                  ruleDetails.name,
                 )}
                 modalHeader={translate('coding_rules.delete_rule')}
                 onConfirm={this.handleDelete}

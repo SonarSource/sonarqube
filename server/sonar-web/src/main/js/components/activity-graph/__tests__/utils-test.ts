@@ -81,7 +81,7 @@ describe('generateSeries', () => {
       utils.generateSeries(HISTORY, GraphType.coverage, METRICS, [
         MetricKey.uncovered_lines,
         MetricKey.lines_to_cover,
-      ])
+      ]),
     ).toMatchSnapshot();
   });
   it('should correctly handle non-existent data', () => {
@@ -104,7 +104,7 @@ describe('getDisplayedHistoryMetrics', () => {
   });
   it('should return all custom metrics for the custom graph', () => {
     expect(utils.getDisplayedHistoryMetrics(GraphType.custom, customMetrics)).toEqual(
-      customMetrics
+      customMetrics,
     );
   });
 });
@@ -141,7 +141,7 @@ describe('hasHistoryData', () => {
           name: 'bar',
           translatedName: 'bar',
         }),
-      ])
+      ]),
     ).toBe(true);
     expect(
       utils.hasHistoryData([
@@ -150,7 +150,7 @@ describe('hasHistoryData', () => {
           translatedName: 'bar',
           data: [{ x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 }],
         }),
-      ])
+      ]),
     ).toBe(false);
   });
 });
@@ -196,7 +196,7 @@ describe('saveActivityGraph', () => {
       expect(save).toHaveBeenCalledWith('foo', GraphType.custom, 'bar');
       // eslint-disable-next-line jest/no-conditional-in-test
       expect(save).toHaveBeenCalledWith('foo.custom', metrics.join(','), 'bar');
-    }
+    },
   );
 });
 
@@ -232,7 +232,7 @@ describe('getActivityGraph', () => {
         // eslint-disable-next-line jest/no-conditional-in-test
         customGraphs: data ? [MetricKey.bugs, MetricKey.code_smells] : [],
       });
-    }
+    },
   );
 
   it('should correctly retrieve data for unknown graphs', () => {

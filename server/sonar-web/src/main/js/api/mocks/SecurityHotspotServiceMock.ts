@@ -73,8 +73,8 @@ export default class SecurityHotspotServiceMock {
         mockSourceLine({
           line: n,
           code: '  <span class="sym-35 sym">symbole</span>',
-        })
-      )
+        }),
+      ),
     );
     jest.mocked(commentSecurityHotspot).mockImplementation(this.handleCommentSecurityHotspot);
     jest
@@ -136,7 +136,7 @@ export default class SecurityHotspotServiceMock {
     data: {
       projectKey: string;
       branch?: string;
-    }
+    },
   ) => {
     if (data?.branch === 'normal-branch') {
       return this.reply({
@@ -169,7 +169,7 @@ export default class SecurityHotspotServiceMock {
     return this.reply({
       paging: mockPaging(),
       hotspots: this.mockRawHotspots(false).filter(
-        (h) => hotspotKeys.includes(h.key) || hotspotKeys.length === 0
+        (h) => hotspotKeys.includes(h.key) || hotspotKeys.length === 0,
       ),
       components: [
         {

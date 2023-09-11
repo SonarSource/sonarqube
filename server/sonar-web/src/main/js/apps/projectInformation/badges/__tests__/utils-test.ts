@@ -35,25 +35,25 @@ const options: BadgeOptions = {
 describe('#getBadgeUrl', () => {
   it('should generate correct quality gate badge links', () => {
     expect(getBadgeUrl(BadgeType.qualityGate, options, 'foo')).toBe(
-      'host/api/project_badges/quality_gate?branch=master&project=foo&token=foo'
+      'host/api/project_badges/quality_gate?branch=master&project=foo&token=foo',
     );
   });
 
   it('should generate correct measures badge links', () => {
     expect(getBadgeUrl(BadgeType.measure, options, 'foo')).toBe(
-      'host/api/project_badges/measure?branch=master&project=foo&metric=alert_status&token=foo'
+      'host/api/project_badges/measure?branch=master&project=foo&metric=alert_status&token=foo',
     );
   });
 
   it('should ignore undefined parameters', () => {
     expect(getBadgeUrl(BadgeType.measure, { metric: 'alert_status' }, 'foo')).toBe(
-      'host/api/project_badges/measure?metric=alert_status&token=foo'
+      'host/api/project_badges/measure?metric=alert_status&token=foo',
     );
   });
 
   it('should force metric parameters', () => {
     expect(getBadgeUrl(BadgeType.measure, {}, 'foo')).toBe(
-      'host/api/project_badges/measure?metric=alert_status&token=foo'
+      'host/api/project_badges/measure?metric=alert_status&token=foo',
     );
   });
 });
@@ -61,7 +61,7 @@ describe('#getBadgeUrl', () => {
 describe('#getBadgeSnippet', () => {
   it('should generate a correct markdown image', () => {
     expect(getBadgeSnippet(BadgeType.measure, { ...options, format: 'md' }, 'foo')).toBe(
-      '[![alert_status](host/api/project_badges/measure?branch=master&project=foo&metric=alert_status&token=foo)](host/dashboard?id=foo&branch=master)'
+      '[![alert_status](host/api/project_badges/measure?branch=master&project=foo&metric=alert_status&token=foo)](host/dashboard?id=foo&branch=master)',
     );
   });
 });

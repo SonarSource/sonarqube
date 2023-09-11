@@ -219,11 +219,11 @@ export default class SourceViewerCode extends React.PureComponent<Props, State> 
         highlighted={line.line === highlightedLine}
         highlightedLocationMessage={optimizeLocationMessage(
           highlightedLocationMessage,
-          secondaryIssueLocations
+          secondaryIssueLocations,
         )}
         highlightedSymbols={optimizeHighlightedSymbols(
           symbolsByLine[line.line],
-          highlightedSymbols
+          highlightedSymbols,
         )}
         issueLocations={this.getIssueLocationsForLine(line)}
         issues={issuesForLine}
@@ -317,7 +317,7 @@ export default class SourceViewerCode extends React.PureComponent<Props, State> 
                   displayIssues,
                   index,
                   line: decoratedLinesMap[line.line] || line,
-                })
+                }),
               )}
             </tbody>
           </table>

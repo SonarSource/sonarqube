@@ -36,12 +36,12 @@ export default function BitbucketRepositories(props: BitbucketRepositoriesProps)
   const { projects, projectRepositories } = props;
 
   const [openProjectKeys, setOpenProjectKeys] = React.useState(
-    projects.length > 0 ? [projects[0].key] : []
+    projects.length > 0 ? [projects[0].key] : [],
   );
 
   const handleClick = (isOpen: boolean, projectKey: string) => {
     setOpenProjectKeys(
-      isOpen ? without(openProjectKeys, projectKey) : uniq([...openProjectKeys, projectKey])
+      isOpen ? without(openProjectKeys, projectKey) : uniq([...openProjectKeys, projectKey]),
     );
   };
 

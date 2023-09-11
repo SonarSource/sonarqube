@@ -68,7 +68,7 @@ export function setQualityGateAsDefault(data: { name: string }): Promise<void | 
 export function createCondition(
   data: {
     gateName: string;
-  } & Omit<Condition, 'id'>
+  } & Omit<Condition, 'id'>,
 ): Promise<Condition> {
   return postJSON('/api/qualitygates/create_condition', data).catch(throwGlobalError);
 }
@@ -87,7 +87,7 @@ export function getGateForProject(data: { project: string }): Promise<QualityGat
       ...qualityGate,
       isDefault: qualityGate.default,
     }),
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
@@ -126,7 +126,7 @@ export function getQualityGateProjectStatus(
   data: {
     projectKey?: string;
     projectId?: string;
-  } & BranchParameters
+  } & BranchParameters,
 ): Promise<QualityGateProjectStatus> {
   return getJSON('/api/qualitygates/project_status', data)
     .then((r) => r.projectStatus)

@@ -69,7 +69,7 @@ export default function ComponentCell(props: ComponentCellProps) {
     selectionKey,
     metric.key,
     component.branch ? fillBranchLike(component.branch) : branchLike,
-    view
+    view,
   );
 
   // This metric doesn't exist for project

@@ -30,7 +30,7 @@ import { Measure } from '../types/types';
 const COMPONENT_URL = '/api/measures/component';
 
 export function getMeasures(
-  data: { component: string; metricKeys: string } & BranchParameters
+  data: { component: string; metricKeys: string } & BranchParameters,
 ): Promise<Measure[]> {
   return getJSON(COMPONENT_URL, data).then((r) => r.component.measures, throwGlobalError);
 }
@@ -38,7 +38,7 @@ export function getMeasures(
 export function getMeasuresWithMetrics(
   component: string,
   metrics: string[],
-  branchParameters?: BranchParameters
+  branchParameters?: BranchParameters,
 ): Promise<MeasuresAndMetaWithMetrics> {
   return getJSON(COMPONENT_URL, {
     additionalFields: 'metrics',
@@ -51,7 +51,7 @@ export function getMeasuresWithMetrics(
 export function getMeasuresWithPeriod(
   component: string,
   metrics: string[],
-  branchParameters?: BranchParameters
+  branchParameters?: BranchParameters,
 ): Promise<MeasuresAndMetaWithPeriod> {
   return getJSON(COMPONENT_URL, {
     additionalFields: 'period',
@@ -64,7 +64,7 @@ export function getMeasuresWithPeriod(
 export function getMeasuresWithPeriodAndMetrics(
   component: string,
   metrics: string[],
-  branchParameters?: BranchParameters
+  branchParameters?: BranchParameters,
 ): Promise<MeasuresAndMetaWithPeriod & MeasuresAndMetaWithMetrics> {
   return getJSON(COMPONENT_URL, {
     additionalFields: 'period,metrics',
@@ -76,7 +76,7 @@ export function getMeasuresWithPeriodAndMetrics(
 
 export function getMeasuresForProjects(
   projectKeys: string[],
-  metricKeys: string[]
+  metricKeys: string[],
 ): Promise<MeasuresForProjects[]> {
   return getJSON('/api/measures/search', {
     projectKeys: projectKeys.join(),

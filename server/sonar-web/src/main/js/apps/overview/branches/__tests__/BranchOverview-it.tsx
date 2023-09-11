@@ -68,7 +68,7 @@ jest.mock('../../../../api/measures', () => {
           mockMeasure({
             metric: key,
             ...(isDiffMetric(key) ? { leak: '1' } : { period: undefined }),
-          })
+          }),
         );
       });
       return Promise.resolve({
@@ -185,7 +185,7 @@ beforeAll(() => {
           status: 'ERROR',
         },
       ],
-    })
+    }),
   );
   qualityGatesMock.setApplicationQualityGateStatus(mockQualityGateApplicationStatus());
 });
@@ -202,7 +202,7 @@ describe('project overview', () => {
     qualityGatesMock.setQualityGateProjectStatus(
       mockQualityGateProjectStatus({
         status: 'OK',
-      })
+      }),
     );
     renderBranchOverview();
 
@@ -210,7 +210,7 @@ describe('project overview', () => {
     expect(await screen.findByText('metric.level.OK')).toBeInTheDocument();
     expect(screen.getByText('overview.passed.clean_code')).toBeInTheDocument();
     expect(
-      screen.queryByText('overview.quality_gate.conditions.cayc.warning')
+      screen.queryByText('overview.quality_gate.conditions.cayc.warning'),
     ).not.toBeInTheDocument();
 
     //Measures panel
@@ -226,14 +226,14 @@ describe('project overview', () => {
     jest
       .mocked(getQualityGateProjectStatus)
       .mockResolvedValueOnce(
-        mockQualityGateProjectStatus({ status: 'OK', caycStatus: CaycStatus.NonCompliant })
+        mockQualityGateProjectStatus({ status: 'OK', caycStatus: CaycStatus.NonCompliant }),
       );
 
     renderBranchOverview();
 
     expect(await screen.findByText('metric.level.OK')).toBeInTheDocument();
     expect(
-      screen.queryByText('overview.quality_gate.conditions.cayc.warning')
+      screen.queryByText('overview.quality_gate.conditions.cayc.warning'),
     ).not.toBeInTheDocument();
   });
 
@@ -241,7 +241,7 @@ describe('project overview', () => {
     jest
       .mocked(getQualityGateProjectStatus)
       .mockResolvedValueOnce(
-        mockQualityGateProjectStatus({ status: 'OK', caycStatus: CaycStatus.NonCompliant })
+        mockQualityGateProjectStatus({ status: 'OK', caycStatus: CaycStatus.NonCompliant }),
       );
     qualityGatesMock.setIsAdmin(true);
     qualityGatesMock.setGetGateForProjectName('Non Cayc QG');
@@ -250,7 +250,7 @@ describe('project overview', () => {
 
     await screen.findByText('metric.level.OK');
     expect(
-      await screen.findByText('overview.quality_gate.conditions.cayc.warning')
+      await screen.findByText('overview.quality_gate.conditions.cayc.warning'),
     ).toBeInTheDocument();
   });
 
@@ -284,7 +284,7 @@ describe('project overview', () => {
             status: 'ERROR',
           },
         ],
-      })
+      }),
     );
 
     renderBranchOverview();
@@ -363,7 +363,7 @@ describe('application overview', () => {
 
     renderBranchOverview({ component });
     expect(
-      await screen.findByText('overview.quality_gate.application.non_cayc.projects_x.3')
+      await screen.findByText('overview.quality_gate.application.non_cayc.projects_x.3'),
     ).toBeInTheDocument();
     expect(screen.getByText('first project')).toBeInTheDocument();
     expect(screen.queryByText('second')).not.toBeInTheDocument();
@@ -399,7 +399,7 @@ it.each([
     await screen.findByText('overview.quality_gate.status');
 
     expect(screen.queryByText('overview.project.next_steps.set_up_ci') === null).toBe(expected);
-  }
+  },
 );
 
 it('should correctly handle graph type storage', async () => {
@@ -422,7 +422,7 @@ it('should correctly handle graph type storage', async () => {
   expect(saveActivityGraph).toHaveBeenCalledWith(
     BRANCH_OVERVIEW_ACTIVITY_GRAPH,
     'foo',
-    GraphType.issues
+    GraphType.issues,
   );
 });
 
@@ -438,6 +438,6 @@ function renderBranchOverview(props: Partial<BranchOverview['props']> = {}) {
         })}
         {...props}
       />
-    </CurrentUserContextProvider>
+    </CurrentUserContextProvider>,
   );
 }

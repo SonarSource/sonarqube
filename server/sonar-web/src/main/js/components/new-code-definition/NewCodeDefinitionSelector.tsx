@@ -67,7 +67,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
         type: selectedNcdType,
         value: days,
       }),
-    [selectedNcdType, days]
+    [selectedNcdType, days],
   );
 
   const handleNcdChanged = React.useCallback(
@@ -77,7 +77,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
         setIsChanged(true);
       }
     },
-    [selectedNcdType]
+    [selectedNcdType],
   );
 
   React.useEffect(() => {
@@ -137,7 +137,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
       <div className="sw-flex sw-flex-col sw-my-4 sw-mr-4 sw-gap-4" role="radiogroup">
         <NewCodeDefinitionPreviousVersionOption
           disabled={Boolean(
-            !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited
+            !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited,
           )}
           onSelect={handleNcdChanged}
           selected={selectedNcdType === NewCodeDefinitionType.PreviousVersion}
@@ -146,7 +146,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
         <NewCodeDefinitionDaysOption
           days={days}
           disabled={Boolean(
-            !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited
+            !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited,
           )}
           isChanged={isChanged}
           isValid={isCompliant}
@@ -158,7 +158,7 @@ export default function NewCodeDefinitionSelector(props: Props) {
 
         <SelectionCard
           disabled={Boolean(
-            !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited
+            !selectedNcdType || selectedNcdType === NewCodeDefinitionType.Inherited,
           )}
           onClick={() => handleNcdChanged(NewCodeDefinitionType.ReferenceBranch)}
           selected={selectedNcdType === NewCodeDefinitionType.ReferenceBranch}

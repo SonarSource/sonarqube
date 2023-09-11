@@ -55,10 +55,10 @@ describe('rendering', () => {
 
     // Shows warning for browse and code viewer permissions.
     await expect(ui.getHeaderTooltipIconByIndex(1)).toHaveATooltipWithContent(
-      'projects_role.public_projects_warning'
+      'projects_role.public_projects_warning',
     );
     await expect(ui.getHeaderTooltipIconByIndex(2)).toHaveATooltipWithContent(
-      'projects_role.public_projects_warning'
+      'projects_role.public_projects_warning',
     );
 
     // Check summaries.
@@ -69,13 +69,13 @@ describe('rendering', () => {
     const row1 = within(screen.getByRole('row', { name: /Permission Template 1/ }));
     PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE.forEach((permission, i) => {
       expect(row1.getAllByRole('cell').at(i + 1)?.textContent).toMatchSnapshot(
-        `Permission Template 1: ${permission}`
+        `Permission Template 1: ${permission}`,
       );
     });
     const row2 = within(screen.getByRole('row', { name: /Permission Template 2/ }));
     PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE.forEach((permission, i) => {
       expect(row2.getAllByRole('cell').at(i + 1)?.textContent).toMatchSnapshot(
-        `Permission Template 2: ${permission}`
+        `Permission Template 2: ${permission}`,
       );
     });
   });
@@ -104,9 +104,9 @@ describe('rendering', () => {
       await ui.appLoaded();
 
       await expect(ui.getHeaderTooltipIconByIndex(i)).toHaveATooltipWithContent(
-        `projects_role.${permission}.desc`
+        `projects_role.${permission}.desc`,
       );
-    }
+    },
   );
 });
 
@@ -148,7 +148,7 @@ describe('CRUD', () => {
       'Permission Template 2',
       'Updated name',
       'Updated description',
-      '/new pattern/'
+      '/new pattern/',
     );
 
     expect(ui.templateLink('Updated name').get()).toBeInTheDocument();
@@ -169,7 +169,7 @@ describe('CRUD', () => {
       'Permission Template 2',
       'Updated name',
       'Updated description',
-      '/new pattern/'
+      '/new pattern/',
     );
 
     expect(screen.getByText('Updated name')).toBeInTheDocument();
@@ -394,7 +394,7 @@ it.each([ComponentQualifier.Project, ComponentQualifier.Application, ComponentQu
     const regex = new RegExp(`permission_template\\.default_for\\.(.*)qualifiers.${qualifier}`);
     expect(row2.getByText(regex)).toBeInTheDocument();
     expect(row1.queryByText(regex)).not.toBeInTheDocument();
-  }
+  },
 );
 
 it('should show github warning', async () => {
@@ -485,7 +485,7 @@ function getPageObject(user: UserEvent) {
       if (pattern) {
         await user.type(
           modal.getByRole('textbox', { name: 'permission_template.key_pattern' }),
-          pattern
+          pattern,
         );
       }
       await user.click(modal.getByRole('button', { name: 'create' }));
@@ -508,7 +508,7 @@ function getPageObject(user: UserEvent) {
       name: string,
       newName: string,
       newDescription: string,
-      newPattern: string
+      newPattern: string,
     ) {
       await user.click(ui.cogMenuBtn(name).get());
       await user.click(ui.updateDetailsBtn.get());
@@ -543,7 +543,7 @@ function getPageObject(user: UserEvent) {
 
 function renderPermissionTemplatesApp(
   qualifiers = [ComponentQualifier.Project],
-  featureList: Feature[] = []
+  featureList: Feature[] = [],
 ) {
   renderAppWithAdminContext('admin/permission_templates', routes, {
     appState: mockAppState({ qualifiers }),

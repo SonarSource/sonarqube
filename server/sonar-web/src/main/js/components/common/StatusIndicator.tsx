@@ -41,7 +41,7 @@ export default function StatusIndicator({ className, color, size }: StatusIndica
             'small-status-indicator': size === 'small',
             'big-status-indicator': size === 'big',
           },
-          className
+          className,
         )}
       />
     </>

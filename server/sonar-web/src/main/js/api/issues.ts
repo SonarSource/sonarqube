@@ -61,7 +61,7 @@ export function listIssues(query: RequestData): Promise<ListIssuesResponse> {
 
 export function getFacets(
   query: RequestData,
-  facets: FacetName[]
+  facets: FacetName[],
 ): Promise<{
   facets: Array<{ property: string; values: FacetValue[] }>;
   response: RawIssuesResponse;
@@ -79,7 +79,7 @@ export function getFacets(
 
 export function getFacet(
   query: RequestData,
-  facet: FacetName
+  facet: FacetName,
 ): Promise<{ facet: { count: number; val: string }[]; response: RawIssuesResponse }> {
   return getFacets(query, [facet]).then((r) => {
     return { facet: r.facets[0].values, response: r.response };
@@ -173,7 +173,7 @@ export function getIssueFlowSnippets(issueKey: string): Promise<Dict<SnippetsByC
               lineMap[line.line] = line;
               return lineMap;
             },
-            {}
+            {},
           );
         }
       });

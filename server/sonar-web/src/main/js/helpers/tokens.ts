@@ -57,7 +57,7 @@ export async function getAvailableExpirationOptions() {
     return EXPIRATION_OPTIONS.filter(
       (option) =>
         option.value <= SETTINGS_EXPIRATION_MAP[maxTokenLifetime] &&
-        option.value !== TokenExpiration.NoExpiration
+        option.value !== TokenExpiration.NoExpiration,
     );
   }
 

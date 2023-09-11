@@ -132,7 +132,7 @@ export function createSnippets(params: {
 
       return snippets;
     },
-    []
+    [],
   );
 
   // Sort snippets by line number
@@ -161,7 +161,7 @@ export function linesForSnippets(snippets: Snippet[], componentLines: LineMap) {
 export function groupLocationsByComponent(
   issue: Issue,
   locations: FlowLocation[],
-  components: { [key: string]: SnippetsByComponent }
+  components: { [key: string]: SnippetsByComponent },
 ) {
   let currentComponent = '';
   let currentGroup: SnippetGroup;
@@ -214,7 +214,7 @@ export function expandSnippet({
 
   snippetToExpand.start = Math.max(
     0,
-    snippetToExpand.start - (direction === 'up' ? EXPAND_BY_LINES : 0)
+    snippetToExpand.start - (direction === 'up' ? EXPAND_BY_LINES : 0),
   );
   snippetToExpand.end += direction === 'down' ? EXPAND_BY_LINES : 0;
 
@@ -238,7 +238,7 @@ export function inSnippet(line: number, snippet: SourceLine[]) {
 
 export function getIssueReviewHistory(
   issue: Issue,
-  changelog: IssueChangelog[]
+  changelog: IssueChangelog[],
 ): ReviewHistoryElement[] {
   const history: ReviewHistoryElement[] = [];
 
@@ -265,7 +265,7 @@ export function getIssueReviewHistory(
           name: log.userName || log.user,
         },
         diffs: log.diffs,
-      }))
+      })),
     );
   }
 
@@ -283,7 +283,7 @@ export function getIssueReviewHistory(
         html: comment.htmlText,
         key: comment.key,
         markdown: comment.markdown,
-      }))
+      })),
     );
   }
 

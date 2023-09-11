@@ -37,7 +37,7 @@ export interface QualityGatePanelSectionProps {
 }
 
 function splitConditions(
-  conditions: QualityGateStatusConditionEnhanced[]
+  conditions: QualityGateStatusConditionEnhanced[],
 ): [QualityGateStatusConditionEnhanced[], QualityGateStatusConditionEnhanced[]] {
   const newCodeFailedConditions = [];
   const overallFailedConditions = [];
@@ -62,7 +62,7 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
   }, [collapsed]);
 
   const [newCodeFailedConditions, overallFailedConditions] = splitConditions(
-    qgStatus.failedConditions
+    qgStatus.failedConditions,
   );
 
   const showSectionTitles =
@@ -77,7 +77,7 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
       ? translate('quality_gates.conditions.new_code_1')
       : translateWithParameters(
           'quality_gates.conditions.new_code_x',
-          newCodeFailedConditions.length.toString()
+          newCodeFailedConditions.length.toString(),
         );
 
   const overallText =
@@ -85,7 +85,7 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
       ? translate('quality_gates.conditions.overall_code_1')
       : translateWithParameters(
           'quality_gates.conditions.overall_code_x',
-          overallFailedConditions.length.toString()
+          overallFailedConditions.length.toString(),
         );
 
   const renderFailedConditions = () => {

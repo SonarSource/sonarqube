@@ -129,7 +129,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
 
     this.loadUsersAndGroups(
       usersPaging ? usersPaging.pageIndex + 1 : 1,
-      groupsPaging ? groupsPaging.pageIndex + 1 : 1
+      groupsPaging ? groupsPaging.pageIndex + 1 : 1,
     ).then(([usersResponse, groupsResponse]) => {
       if (this.mounted) {
         this.setState(({ groups, users }) => ({
@@ -162,7 +162,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
           selectedPermission:
             state.selectedPermission === selectedPermission ? undefined : selectedPermission,
         }),
-        this.loadHolders
+        this.loadHolders,
       );
     }
   };
@@ -171,7 +171,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
     return this.state.groups.map((candidate) =>
       candidate.name === group
         ? { ...candidate, permissions: [...candidate.permissions, permission] }
-        : candidate
+        : candidate,
     );
   };
 
@@ -179,7 +179,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
     return this.state.users.map((candidate) =>
       candidate.login === user
         ? { ...candidate, permissions: [...candidate.permissions, permission] }
-        : candidate
+        : candidate,
     );
   };
 
@@ -187,7 +187,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
     return this.state.groups.map((candidate) =>
       candidate.name === group
         ? { ...candidate, permissions: without(candidate.permissions, permission) }
-        : candidate
+        : candidate,
     );
   };
 
@@ -195,7 +195,7 @@ class PermissionsProjectApp extends React.PureComponent<Props, State> {
     return this.state.users.map((candidate) =>
       candidate.login === user
         ? { ...candidate, permissions: without(candidate.permissions, permission) }
-        : candidate
+        : candidate,
     );
   };
 

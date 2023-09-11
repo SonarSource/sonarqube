@@ -24,7 +24,7 @@ import { BranchParameters } from '../types/branch-like';
 import { Extension, NavigationComponent } from '../types/types';
 
 export function getComponentNavigation(
-  data: { component: string } & BranchParameters
+  data: { component: string } & BranchParameters,
 ): Promise<NavigationComponent> {
   return getJSON('/api/navigation/component', data);
 }

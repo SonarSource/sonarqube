@@ -114,7 +114,7 @@ export default class MeasureOverview extends React.PureComponent<Props, State> {
           this.props.updateLoading({ bubbles: false });
         }
       },
-      () => this.props.updateLoading({ bubbles: false })
+      () => this.props.updateLoading({ bubbles: false }),
     );
   };
 

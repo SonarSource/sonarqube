@@ -76,7 +76,7 @@ export default function Assignee(props: Props) {
 
   const handleSearchAssignees = (
     query: string,
-    cb: (options: Options<LabelValueSelectOption<string>>) => void
+    cb: (options: Options<LabelValueSelectOption<string>>) => void,
   ) => {
     getUsers<RestUser>({ q: query })
       .then((result) => {
@@ -104,7 +104,7 @@ export default function Assignee(props: Props) {
           addGlobalSuccessMessage(
             userOption.value
               ? translateWithParameters('hotspots.assign.success', userOption.label)
-              : translate('hotspots.assign.unassign.success')
+              : translate('hotspots.assign.unassign.success'),
           );
         })
         .catch(noop);

@@ -138,5 +138,5 @@ class Extension extends React.PureComponent<ExtensionProps, State> {
 }
 
 export default injectIntl(
-  withRouter(withTheme(withAppStateContext(withCurrentUserContext(withQueryClient(Extension)))))
+  withRouter(withTheme(withAppStateContext(withCurrentUserContext(withQueryClient(Extension))))),
 );

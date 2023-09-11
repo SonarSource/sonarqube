@@ -195,11 +195,11 @@ export default class SettingsServiceMock {
   handleResetSettingValue = (data: { keys: string; component?: string } & BranchParameters) => {
     const setting = this.#settingValues.find((s) => s.key === data.keys) as SettingValue;
     const definition = this.#definitions.find(
-      (d) => d.key === data.keys
+      (d) => d.key === data.keys,
     ) as ExtendedSettingDefinition;
     if (data.keys === 'sonar.auth.github.userConsentForPermissionProvisioningRequired') {
       this.#settingValues = this.#settingValues.filter(
-        (s) => s.key !== 'sonar.auth.github.userConsentForPermissionProvisioningRequired'
+        (s) => s.key !== 'sonar.auth.github.userConsentForPermissionProvisioningRequired',
       );
     } else if (definition.type === SettingType.PROPERTY_SET) {
       setting.fieldValues = [];

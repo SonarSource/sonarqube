@@ -75,9 +75,9 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
     const contexts = sections
       .filter(
         (
-          section
+          section,
         ): section is RuleDescriptionSection & Required<Pick<RuleDescriptionSection, 'context'>> =>
-          section.context != null
+          section.context != null,
       )
       .map((section) => ({
         displayName: section.context.displayName || section.context.key,
@@ -142,7 +142,7 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
             <FlagMessage variant="info" className="sw-mb-4">
               {translateWithParameters(
                 'coding_rules.description_context.default_information',
-                defaultContext.displayName
+                defaultContext.displayName,
               )}
             </FlagMessage>
           )}
@@ -159,7 +159,7 @@ export default class RuleDescription extends React.PureComponent<Props, State> {
               <h2>
                 {translateWithParameters(
                   'coding_rules.description_context.subtitle',
-                  selectedContext.displayName
+                  selectedContext.displayName,
                 )}
               </h2>
             )}

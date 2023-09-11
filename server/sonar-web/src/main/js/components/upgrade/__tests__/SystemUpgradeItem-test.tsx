@@ -41,7 +41,7 @@ it('should display correctly', () => {
           downloadUrl: 'http://download.url/community',
         },
       ],
-    })
+    }),
   ).toMatchSnapshot();
 });
 
@@ -80,6 +80,6 @@ function shallowRender(props: Partial<SystemUpgradeItemProps> = {}) {
       isPatch={false}
       isLTSVersion={false}
       {...props}
-    />
+    />,
   );
 }

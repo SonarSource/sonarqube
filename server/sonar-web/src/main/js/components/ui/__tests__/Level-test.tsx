@@ -27,7 +27,7 @@ it('should render correctly', () => {
   expect(shallowRender({ muted: true, small: true })).toMatchSnapshot('muted and small');
   expect(shallowRender({ 'aria-label': 'ARIA Label' })).toMatchSnapshot('with aria-label');
   expect(shallowRender({ 'aria-labelledby': 'element-id' })).toMatchSnapshot(
-    'with aria-labelledby'
+    'with aria-labelledby',
   );
 });
 

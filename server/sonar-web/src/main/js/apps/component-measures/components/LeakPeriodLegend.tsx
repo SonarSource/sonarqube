@@ -59,7 +59,7 @@ class LeakPeriodLegend extends React.PureComponent<LeakPeriodLegendProps & Wrapp
 
     const leakPeriodLabel = getNewCodePeriodLabel(
       period,
-      period.mode === 'manual_baseline' ? this.formatDateTime : this.formatDate
+      period.mode === 'manual_baseline' ? this.formatDateTime : this.formatDate,
     );
 
     const label = (

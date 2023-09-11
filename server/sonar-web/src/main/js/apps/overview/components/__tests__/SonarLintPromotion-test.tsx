@@ -28,12 +28,12 @@ import { SonarLintPromotion, SonarLintPromotionProps } from '../SonarLintPromoti
 it('should render correctly', () => {
   renderSonarLintPromotion();
   expect(
-    screen.queryByText('overview.fix_failed_conditions_with_sonarlint')
+    screen.queryByText('overview.fix_failed_conditions_with_sonarlint'),
   ).not.toBeInTheDocument();
 
   renderSonarLintPromotion({ currentUser: mockCurrentUser({ usingSonarLintConnectedMode: true }) });
   expect(
-    screen.queryByText('overview.fix_failed_conditions_with_sonarlint')
+    screen.queryByText('overview.fix_failed_conditions_with_sonarlint'),
   ).not.toBeInTheDocument();
 });
 
@@ -51,14 +51,14 @@ it.each(
     MetricKey.new_security_rating,
     MetricKey.new_maintainability_rating,
     MetricKey.new_reliability_rating,
-  ].map(Array.of)
+  ].map(Array.of),
 )('should show message for %s', async (metric) => {
   renderSonarLintPromotion({
     qgConditions: [mockQualityGateStatusCondition({ metric: metric as string })],
   });
 
   expect(
-    await screen.findByText('overview.fix_failed_conditions_with_sonarlint')
+    await screen.findByText('overview.fix_failed_conditions_with_sonarlint'),
   ).toBeInTheDocument();
 });
 

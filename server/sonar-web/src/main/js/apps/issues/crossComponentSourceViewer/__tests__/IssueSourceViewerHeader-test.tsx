@@ -78,6 +78,6 @@ function renderIssueSourceViewerHeader(props: Partial<Props> = {}) {
       onExpand={jest.fn()}
       sourceViewerFile={mockSourceViewerFile('foo/bar.ts', 'my-project')}
       {...props}
-    />
+    />,
   );
 }

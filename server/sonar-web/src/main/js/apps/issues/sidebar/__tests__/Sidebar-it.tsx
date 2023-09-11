@@ -136,6 +136,6 @@ function renderSidebar(props: Partial<Sidebar['props']> = {}) {
       referencedRules={{}}
       referencedUsers={{}}
       {...props}
-    />
+    />,
   );
 }

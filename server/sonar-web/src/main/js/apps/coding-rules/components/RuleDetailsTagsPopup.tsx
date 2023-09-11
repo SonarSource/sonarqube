@@ -57,7 +57,7 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
           this.setState({ searchResult: without(tags, ...this.props.sysTags) });
         }
       },
-      () => {}
+      () => {},
     );
   };
 

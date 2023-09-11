@@ -30,7 +30,7 @@ export const parseQuery = memoize(
   (urlQuery: RawQuery): Query => ({
     search: parseAsString(urlQuery['search']),
     managed: urlQuery['managed'] !== undefined ? urlQuery['managed'] === 'true' : undefined,
-  })
+  }),
 );
 
 export const serializeQuery = memoize(
@@ -38,5 +38,5 @@ export const serializeQuery = memoize(
     cleanQuery({
       search: query.search ? serializeString(query.search) : undefined,
       managed: query.managed,
-    })
+    }),
 );

@@ -53,7 +53,7 @@ it('should behave correctly', async () => {
   const user = userEvent.setup();
 
   expect(
-    screen.getByRole('heading', { name: 'onboarding.token.generate.PROJECT_ANALYSIS_TOKEN' })
+    screen.getByRole('heading', { name: 'onboarding.token.generate.PROJECT_ANALYSIS_TOKEN' }),
   ).toBeInTheDocument();
   expect(screen.getByText('onboarding.token.text.PROJECT_ANALYSIS_TOKEN')).toBeInTheDocument();
 
@@ -92,7 +92,7 @@ it('should behave correctly', async () => {
   await typeInField(
     user,
     screen.getByLabelText('onboarding.token.name.label'),
-    'another token name'
+    'another token name',
   );
   await clickButton(user, 'onboarding.token.generate');
 
@@ -145,7 +145,7 @@ function renderEditTokenModal(props: Partial<EditTokenModal['props']> = {}) {
       currentUser={mockLoggedInUser()}
       onClose={jest.fn()}
       {...props}
-    />
+    />,
   );
 }
 

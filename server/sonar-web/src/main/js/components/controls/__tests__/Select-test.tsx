@@ -57,7 +57,7 @@ describe('Select', () => {
         components: {
           Input: inputRenderer,
         },
-      })
+      }),
     ).toMatchSnapshot('other props');
   });
 
@@ -67,7 +67,7 @@ describe('Select', () => {
 
   it('should render dropdownIndicator correctly', () => {
     expect(
-      dropdownIndicator(mockReactSelectDropdownIndicatorProps({ value: '' }))
+      dropdownIndicator(mockReactSelectDropdownIndicatorProps({ value: '' })),
     ).toMatchSnapshot();
   });
 
@@ -76,7 +76,7 @@ describe('Select', () => {
       loadingIndicator({ innerProps: { className: 'additional-class' } } as LoadingIndicatorProps<
         {},
         false
-      >)
+      >),
     ).toMatchSnapshot();
   });
 
@@ -87,7 +87,7 @@ describe('Select', () => {
   function shallowRender<
     Option = unknown,
     IsMulti extends boolean = boolean,
-    Group extends GroupBase<Option> = GroupBase<Option>
+    Group extends GroupBase<Option> = GroupBase<Option>,
   >(props: Partial<ReactSelectProps<Option, IsMulti, Group>> = {}) {
     return shallow<ReactSelectProps<Option, IsMulti, Group>>(<Select {...props} />);
   }
@@ -100,6 +100,6 @@ it.each([
   expect(
     shallow(<Component />)
       .dive()
-      .dive()
+      .dive(),
   ).toMatchSnapshot();
 });

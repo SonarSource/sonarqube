@@ -63,7 +63,7 @@ it('should handle key up/down', async () => {
     <>
       <textarea name="test-area" />
       <button type="button">last</button>
-    </>
+    </>,
   );
 
   await openToggler(user);

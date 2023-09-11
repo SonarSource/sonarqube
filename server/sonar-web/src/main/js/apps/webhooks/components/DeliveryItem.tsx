@@ -38,13 +38,13 @@ export default function DeliveryItem({ className, delivery, loading, payload }: 
       <p className="spacer-bottom">
         {translateWithParameters(
           'webhooks.delivery.response_x',
-          delivery.httpStatus || translate('webhooks.delivery.server_unreachable')
+          delivery.httpStatus || translate('webhooks.delivery.server_unreachable'),
         )}
       </p>
       <p className="spacer-bottom">
         {translateWithParameters(
           'webhooks.delivery.duration_x',
-          formatMeasure(delivery.durationMs, 'MILLISEC')
+          formatMeasure(delivery.durationMs, 'MILLISEC'),
         )}
       </p>
       <p className="spacer-bottom">{translate('webhooks.delivery.payload')}</p>

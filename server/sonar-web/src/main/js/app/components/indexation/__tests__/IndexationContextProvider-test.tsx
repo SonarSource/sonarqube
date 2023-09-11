@@ -70,7 +70,7 @@ function renderIndexationContextProvider(props?: IndexationContextProviderProps)
   return renderComponent(
     <IndexationContextProvider appState={mockAppState({ needIssueSync: true, ...props?.appState })}>
       <TestComponent />
-    </IndexationContextProvider>
+    </IndexationContextProvider>,
   );
 }
 

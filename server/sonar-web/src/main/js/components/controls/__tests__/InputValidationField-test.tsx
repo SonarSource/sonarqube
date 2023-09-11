@@ -39,6 +39,6 @@ function getWrapper(props = {}) {
       touched
       value="foo"
       {...props}
-    />
+    />,
   );
 }

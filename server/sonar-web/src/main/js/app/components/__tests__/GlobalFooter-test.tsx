@@ -67,7 +67,7 @@ it('should show the db warning message', () => {
 
 function renderGlobalFooter(
   props: Partial<FCProps<typeof GlobalFooter>> = {},
-  appStateOverride: Partial<AppState> = {}
+  appStateOverride: Partial<AppState> = {},
 ) {
   return renderComponent(<GlobalFooter {...props} />, '/', {
     appState: mockAppState({

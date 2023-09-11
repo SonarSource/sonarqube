@@ -142,7 +142,7 @@ export class ZoomTimeLine extends React.PureComponent<Props, State> {
     if (newZoomStart != null && overlayLeftPos != null && data.deltaX) {
       this.handleZoomUpdate(
         xScale,
-        sortBy([newZoomStart, Math.max(xDim[0], Math.min(data.x - overlayLeftPos, xDim[1]))])
+        sortBy([newZoomStart, Math.max(xDim[0], Math.min(data.x - overlayLeftPos, xDim[1]))]),
       );
     }
   };
@@ -261,13 +261,13 @@ export class ZoomTimeLine extends React.PureComponent<Props, State> {
         options.fixedPos,
         options.xDim,
         options.direction,
-        true
+        true,
       )}
       onStop={this.handleSelectionHandleDrag(
         options.xScale,
         options.fixedPos,
         options.xDim,
-        options.direction
+        options.direction,
       )}
       position={{ x: options.xPos, y: 0 }}
     >

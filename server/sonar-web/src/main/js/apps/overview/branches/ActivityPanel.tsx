@@ -99,7 +99,7 @@ export function ActivityPanel(props: ActivityPanelProps) {
           analyses={[]}
           ariaLabel={translateWithParameters(
             'overview.activity.graph_shows_data_for_x',
-            displayedMetrics.map((metricKey) => localizeMetric(metricKey)).join(', ')
+            displayedMetrics.map((metricKey) => localizeMetric(metricKey)).join(', '),
           )}
           canShowDataAsTable={false}
           graph={graph}

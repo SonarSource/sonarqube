@@ -45,7 +45,7 @@ export function isNewCodeDefinitionCompliant(newCodePeriod: NewCodeDefinition) {
 
 export function getNumberOfDaysDefaultValue(
   globalNewCodeDefinition?: NewCodeDefinition | null,
-  inheritedNewCodeDefinition?: NewCodeDefinition | null
+  inheritedNewCodeDefinition?: NewCodeDefinition | null,
 ) {
   if (
     inheritedNewCodeDefinition &&

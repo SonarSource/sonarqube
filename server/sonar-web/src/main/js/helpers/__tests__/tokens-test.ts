@@ -65,8 +65,8 @@ describe('getAvailableExpirationOptions', () => {
             value,
             label: `users.tokens.expiration.${value.toString()}`,
           };
-        }
-      )
+        },
+      ),
     );
   });
 
@@ -80,7 +80,7 @@ describe('getAvailableExpirationOptions', () => {
           value,
           label: `users.tokens.expiration.${value.toString()}`,
         };
-      })
+      }),
     );
   });
 

@@ -135,7 +135,7 @@ export default class ProjectManagementServiceMock {
         name,
         visibility,
         lastAnalysisDate: undefined,
-      })
+      }),
     );
     return this.reply({ project: this.#projects[0] });
   };

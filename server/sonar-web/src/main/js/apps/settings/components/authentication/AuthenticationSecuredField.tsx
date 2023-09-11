@@ -34,7 +34,7 @@ interface SamlToggleFieldProps {
 export default function AuthenticationSecuredField(props: SamlToggleFieldProps) {
   const { settingValue, definition, optional = true, isNotSet } = props;
   const [showSecretField, setShowSecretField] = React.useState(
-    !isNotSet && isSecuredDefinition(definition)
+    !isNotSet && isSecuredDefinition(definition),
   );
 
   useEffect(() => {

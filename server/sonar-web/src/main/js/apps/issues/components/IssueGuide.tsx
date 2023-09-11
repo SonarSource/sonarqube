@@ -78,7 +78,7 @@ export default function IssueGuide({ run }: Props) {
   const constructContent = (
     first: string,
     second: string,
-    extraContent?: string | React.ReactNode
+    extraContent?: string | React.ReactNode,
   ) => (
     <>
       <span>{translate(first)}</span>
@@ -115,7 +115,7 @@ export default function IssueGuide({ run }: Props) {
           <li>{translate('guiding.issue_list.4.content.list.1')}</li>
           <li>{translate('guiding.issue_list.4.content.list.2')}</li>
           <li>{translate('guiding.issue_list.4.content.list.3')}</li>
-        </ul>
+        </ul>,
       ),
       title: translate('guiding.issue_list.4.title'),
     },

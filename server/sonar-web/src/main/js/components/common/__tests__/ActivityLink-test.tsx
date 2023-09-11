@@ -50,7 +50,7 @@ it('renders correctly with graph and metric', () => {
   expect(anchorElement).toBeInTheDocument();
   expect(anchorElement).toHaveAttribute(
     'href',
-    '/project/activity?id=foo&graph=custom&custom_metrics=new_bugs%2Cbugs'
+    '/project/activity?id=foo&graph=custom&custom_metrics=new_bugs%2Cbugs',
   );
 });
 

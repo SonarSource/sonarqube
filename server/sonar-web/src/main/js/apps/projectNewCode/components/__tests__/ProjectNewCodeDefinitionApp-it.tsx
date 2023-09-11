@@ -191,7 +191,7 @@ it('can set a previous version setting for branch', async () => {
   await ui.setBranchPreviousVersionSetting('main');
 
   expect(
-    within(byRole('table').get()).getByText('new_code_definition.previous_version')
+    within(byRole('table').get()).getByText('new_code_definition.previous_version'),
   ).toBeInTheDocument();
 
   await user.click(await ui.branchActionsButton('main').find());
@@ -200,7 +200,7 @@ it('can set a previous version setting for branch', async () => {
   await user.click(ui.resetToDefaultButton.get());
 
   expect(
-    first(within(byRole('table').get()).getAllByText('branch_list.default_setting'))
+    first(within(byRole('table').get()).getAllByText('branch_list.default_setting')),
   ).toBeInTheDocument();
 });
 
@@ -214,7 +214,7 @@ it('can set a number of days setting for branch', async () => {
   await ui.setBranchNumberOfDaysSetting('main', '15');
 
   expect(
-    within(byRole('table').get()).getByText('new_code_definition.number_days: 15')
+    within(byRole('table').get()).getByText('new_code_definition.number_days: 15'),
   ).toBeInTheDocument();
 });
 
@@ -254,7 +254,7 @@ it('can set a reference branch setting for branch', async () => {
   await ui.setBranchReferenceToBranchSetting('main', 'normal-branch');
 
   expect(
-    byRole('table').byText('baseline.reference_branch: normal-branch').get()
+    byRole('table').byText('baseline.reference_branch: normal-branch').get(),
   ).toBeInTheDocument();
 });
 
@@ -286,7 +286,7 @@ it('should display NCD banner if some branches had their NCD automatically chang
 
   expect(await ui.branchNCDsBanner.find()).toBeInTheDocument();
   expect(
-    ui.branchNCDsBanner.byText('new_code_definition.auto_update.branch.list_itemmaster32150').get()
+    ui.branchNCDsBanner.byText('new_code_definition.auto_update.branch.list_itemmaster32150').get(),
   ).toBeInTheDocument();
 });
 
@@ -369,7 +369,7 @@ function renderProjectNewCodeDefinitionApp(context: RenderContext = {}, params?:
     },
     {
       component: mockComponent(),
-    }
+    },
   );
 }
 

@@ -108,7 +108,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
         'owaspTop10-2021': shouldOpenStandardsChildFacet(
           {},
           query,
-          SecurityStandard.OWASP_TOP10_2021
+          SecurityStandard.OWASP_TOP10_2021,
         ),
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
         standards: shouldOpenStandardsFacet({}, query),
@@ -245,7 +245,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
         });
         this.fetchFirstRules();
       },
-      this.stopLoading
+      this.stopLoading,
     );
   };
 
@@ -255,7 +255,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
         const actives = rawActives && parseActives(rawActives);
         const facets = rawFacets && parseFacets(rawFacets);
         return { actives, facets, paging, rules };
-      }
+      },
     );
 
   fetchFirstRules = (query?: RawQuery) => {
@@ -292,7 +292,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
             }));
           }
         },
-        this.stopLoading
+        this.stopLoading,
       );
     }
   };
@@ -467,7 +467,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
       if (willOpenProperty && property === STANDARDS) {
         newState.openFacets.sonarsourceSecurity = shouldOpenSonarSourceSecurityFacet(
           newState.openFacets,
-          parseQuery(this.props.location.query)
+          parseQuery(this.props.location.query),
         );
         // Force loading of sonarsource security facet data
         property = newState.openFacets.sonarsourceSecurity ? 'sonarsourceSecurity' : property;
@@ -571,7 +571,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
             title={translateWithParameters('coding_rule.page', openRule.langName, openRule.name)}
             titleTemplate={translateWithParameters(
               'page_title.template.with_category',
-              translate('coding_rules.page')
+              translate('coding_rules.page'),
             )}
           />
         ) : (

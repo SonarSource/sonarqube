@@ -38,7 +38,7 @@ it('should render correctly', () => {
         url="/url/foo/bar"
       >
         Link text
-      </IdentityProviderLink>
-    )
+      </IdentityProviderLink>,
+    ),
   ).toMatchSnapshot();
 });

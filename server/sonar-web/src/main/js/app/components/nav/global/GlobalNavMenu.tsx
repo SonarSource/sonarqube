@@ -142,7 +142,7 @@ class GlobalNavMenu extends React.PureComponent<Props> {
 
   render() {
     const governanceInstalled = this.props.appState.qualifiers.includes(
-      ComponentQualifier.Portfolio
+      ComponentQualifier.Portfolio,
     );
 
     return (

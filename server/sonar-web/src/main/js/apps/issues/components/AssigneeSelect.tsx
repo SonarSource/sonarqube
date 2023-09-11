@@ -81,7 +81,7 @@ export default function AssigneeSelect(props: AssigneeSelectProps) {
         .then(resolve)
         .catch(() => resolve([]));
     },
-    []
+    [],
   );
 
   return (

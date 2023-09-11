@@ -54,7 +54,7 @@ describe('ListFooter', () => {
         }
         /* eslint-enable jest/no-conditional-in-test */
         /* eslint-enable jest/no-conditional-expect */
-      }
+      },
     );
   });
 
@@ -113,7 +113,7 @@ describe('ListFooter using MIUI buttons', () => {
         }
         /* eslint-enable jest/no-conditional-in-test */
         /* eslint-enable jest/no-conditional-expect */
-      }
+      },
     );
   });
 
@@ -137,7 +137,7 @@ describe('ListFooter using MIUI buttons', () => {
 
   function renderListFooter(props: Partial<ListFooterProps> = {}) {
     return renderComponent(
-      <ListFooter count={3} loadMore={jest.fn()} total={5} useMIUIButtons {...props} />
+      <ListFooter count={3} loadMore={jest.fn()} total={5} useMIUIButtons {...props} />,
     );
   }
 });

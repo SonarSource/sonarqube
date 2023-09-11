@@ -59,7 +59,7 @@ it('should render correctly', async () => {
 });
 
 function renderMetaQualityprofiles(
-  overrides: Partial<Parameters<typeof MetaQualityProfiles>[0]> = {}
+  overrides: Partial<Parameters<typeof MetaQualityProfiles>[0]> = {},
 ) {
   return renderComponent(
     <LanguagesContext.Provider value={{ css: mockLanguage() }}>
@@ -79,6 +79,6 @@ function renderMetaQualityprofiles(
         ]}
         {...overrides}
       />
-    </LanguagesContext.Provider>
+    </LanguagesContext.Provider>,
   );
 }

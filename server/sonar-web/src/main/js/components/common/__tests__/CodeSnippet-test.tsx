@@ -28,7 +28,7 @@ it('renders correctly', () => {
   expect(shallowRender({ noCopy: true })).toMatchSnapshot('no copy');
   expect(shallowRender({ snippet: ['foo', 'bar'] })).toMatchSnapshot('array snippet');
   expect(shallowRender({ isOneLine: true, snippet: ['foo', 'bar'] })).toMatchSnapshot(
-    'single line with array snippet'
+    'single line with array snippet',
   );
 });
 

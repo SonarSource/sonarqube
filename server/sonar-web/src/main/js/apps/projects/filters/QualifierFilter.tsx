@@ -49,7 +49,7 @@ export default function QualifierFacet(props: QualifierFacetProps) {
         qualifier: active ? '' : itemValue,
       });
     },
-    [onQueryChange, value]
+    [onQueryChange, value],
   );
 
   return (

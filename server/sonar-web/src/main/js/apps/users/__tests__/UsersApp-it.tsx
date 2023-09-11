@@ -79,7 +79,7 @@ const ui = {
   aliceRowWithLocalBadge: byRole('row', {
     name: (accessibleName) =>
       accessibleName.startsWith(
-        'AM Alice Merveille alice.merveille alice.merveille@wonderland.com local '
+        'AM Alice Merveille alice.merveille alice.merveille@wonderland.com local ',
       ),
   }),
   bobRow: byRole('row', {
@@ -178,7 +178,7 @@ describe('different filters combinations', () => {
     await act(async () => {
       await selectEvent.select(
         ui.activityFilter.get(),
-        'users.activity_filter.active_sonarlint_users'
+        'users.activity_filter.active_sonarlint_users',
       );
     });
 
@@ -194,7 +194,7 @@ describe('different filters combinations', () => {
     await act(async () => {
       await selectEvent.select(
         ui.activityFilter.get(),
-        'users.activity_filter.active_sonarqube_users'
+        'users.activity_filter.active_sonarqube_users',
       );
     });
 
@@ -246,7 +246,7 @@ describe('in non managed mode', () => {
     await act(() => user.click(ui.createUserDialogButton.get()));
     expect(ui.dialogCreateUser.get()).toBeInTheDocument();
     expect(
-      await within(ui.dialogCreateUser.get()).findByText('Error: Empty SCM')
+      await within(ui.dialogCreateUser.get()).findByText('Error: Empty SCM'),
     ).toBeInTheDocument();
     // Remove SCM account
     await user.click(ui.deleteSCMButton().get());
@@ -329,7 +329,7 @@ describe('in non managed mode', () => {
 
     await act(async () => user.click(await ui.aliceUpdateButton.find()));
     await user.click(
-      await within(ui.aliceRow.get()).findByRole('button', { name: 'update_details' })
+      await within(ui.aliceRow.get()).findByRole('button', { name: 'update_details' }),
     );
     expect(await ui.dialogUpdateUser.find()).toBeInTheDocument();
 
@@ -350,7 +350,7 @@ describe('in non managed mode', () => {
 
     await act(async () => user.click(await ui.aliceUpdateButton.find()));
     await user.click(
-      await within(ui.aliceRow.get()).findByRole('button', { name: 'users.deactivate' })
+      await within(ui.aliceRow.get()).findByRole('button', { name: 'users.deactivate' }),
     );
     expect(await ui.dialogDeactivateUser.find()).toBeInTheDocument();
     expect(ui.deleteUserAlert.query()).not.toBeInTheDocument();
@@ -359,8 +359,8 @@ describe('in non managed mode', () => {
 
     await act(() =>
       user.click(
-        within(ui.dialogDeactivateUser.get()).getByRole('button', { name: 'users.deactivate' })
-      )
+        within(ui.dialogDeactivateUser.get()).getByRole('button', { name: 'users.deactivate' }),
+      ),
     );
     expect(ui.aliceRow.query()).not.toBeInTheDocument();
   });
@@ -372,7 +372,7 @@ describe('in non managed mode', () => {
 
     await act(async () => user.click(await ui.aliceUpdateButton.find()));
     await user.click(
-      await within(ui.aliceRow.get()).findByRole('button', { name: 'my_profile.password.title' })
+      await within(ui.aliceRow.get()).findByRole('button', { name: 'my_profile.password.title' }),
     );
     expect(await ui.dialogPasswords.find()).toBeInTheDocument();
 
@@ -386,13 +386,13 @@ describe('in non managed mode', () => {
 
     expect(ui.changeButton.get()).toBeEnabled();
     expect(
-      screen.queryByText(`user.${ChangePasswordResults.OldPasswordIncorrect}`)
+      screen.queryByText(`user.${ChangePasswordResults.OldPasswordIncorrect}`),
     ).not.toBeInTheDocument();
     await act(() => user.click(ui.changeButton.get()));
     expect(
       await within(ui.dialogPasswords.get()).findByText(
-        `user.${ChangePasswordResults.OldPasswordIncorrect}`
-      )
+        `user.${ChangePasswordResults.OldPasswordIncorrect}`,
+      ),
     ).toBeInTheDocument();
 
     await user.clear(ui.oldPassword.get());
@@ -403,11 +403,11 @@ describe('in non managed mode', () => {
     await user.type(ui.confirmPassword.get(), 'test');
 
     expect(
-      screen.queryByText(`user.${ChangePasswordResults.NewPasswordSameAsOld}`)
+      screen.queryByText(`user.${ChangePasswordResults.NewPasswordSameAsOld}`),
     ).not.toBeInTheDocument();
     await act(() => user.click(ui.changeButton.get()));
     expect(
-      await screen.findByText(`user.${ChangePasswordResults.NewPasswordSameAsOld}`)
+      await screen.findByText(`user.${ChangePasswordResults.NewPasswordSameAsOld}`),
     ).toBeInTheDocument();
 
     await user.clear(ui.newPassword.get());
@@ -453,10 +453,10 @@ describe('in manage mode', () => {
     await user.click(ui.bobUpdateButton.get());
 
     expect(
-      ui.bobRow.byRole('button', { name: 'users.deactivate' }).query()
+      ui.bobRow.byRole('button', { name: 'users.deactivate' }).query(),
     ).not.toBeInTheDocument();
     expect(
-      ui.bobRow.byRole('button', { name: 'my_profile.password.title' }).query()
+      ui.bobRow.byRole('button', { name: 'my_profile.password.title' }).query(),
     ).not.toBeInTheDocument();
 
     await user.click(await ui.bobRow.byRole('button', { name: 'update_scm' }).get());
@@ -521,8 +521,8 @@ describe('in manage mode', () => {
       user.click(
         await within(await ui.aliceRow.find()).findByRole('button', {
           name: 'users.update_tokens_for_x.Alice Merveille',
-        })
-      )
+        }),
+      ),
     );
     expect(await ui.dialogTokens.find()).toBeInTheDocument();
 
@@ -667,7 +667,7 @@ it('accessibility', async () => {
       .byRole('button', {
         name: 'users.update_tokens_for_x.Alice Merveille',
       })
-      .find()
+      .find(),
   );
   expect(await ui.dialogTokens.find()).toBeInTheDocument();
   await expect(await ui.dialogTokens.find()).toHaveNoA11yViolations();
@@ -676,7 +676,7 @@ it('accessibility', async () => {
   // user password dialog should be accessible
   await user.click(await ui.aliceUpdateButton.find());
   await user.click(
-    await ui.aliceRow.byRole('button', { name: 'my_profile.password.title' }).find()
+    await ui.aliceRow.byRole('button', { name: 'my_profile.password.title' }).find(),
   );
   expect(await ui.dialogPasswords.find()).toBeInTheDocument();
   await expect(await ui.dialogPasswords.find()).toHaveNoA11yViolations();

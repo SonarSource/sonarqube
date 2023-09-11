@@ -27,8 +27,8 @@ it('should render correctly', () => {
     shallow(
       <RadioCard recommended="Recommended for you" title="Radio Card" titleInfo="info">
         <div>content</div>
-      </RadioCard>
-    )
+      </RadioCard>,
+    ),
   ).toMatchSnapshot();
 
   expect(
@@ -40,8 +40,8 @@ it('should render correctly', () => {
         vertical
       >
         <div>content</div>
-      </RadioCard>
-    )
+      </RadioCard>,
+    ),
   ).toMatchSnapshot();
 });
 
@@ -50,7 +50,7 @@ it('should be actionable', () => {
   const wrapper = shallow(
     <RadioCard onClick={onClick} title="Radio Card">
       <div>content</div>
-    </RadioCard>
+    </RadioCard>,
   );
 
   expect(wrapper).toMatchSnapshot();

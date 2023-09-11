@@ -113,5 +113,5 @@ function ProjectInformationApp(props: Props) {
 }
 
 export default withComponentContext(
-  withCurrentUserContext(withMetricsContext(withAvailableFeatures(ProjectInformationApp)))
+  withCurrentUserContext(withMetricsContext(withAvailableFeatures(ProjectInformationApp))),
 );

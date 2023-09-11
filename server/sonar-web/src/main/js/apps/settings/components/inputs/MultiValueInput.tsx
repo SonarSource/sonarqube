@@ -60,7 +60,7 @@ export default class MultiValueInput extends React.PureComponent<DefaultSpeciali
               aria-label={translateWithParameters(
                 'settings.definition.delete_value',
                 getPropertyName(setting.definition),
-                value
+                value,
               )}
               onClick={() => this.handleDeleteValue(index)}
             />
@@ -77,7 +77,7 @@ export default class MultiValueInput extends React.PureComponent<DefaultSpeciali
       <div>
         <ul>
           {displayedValue.map((value, index) =>
-            this.renderInput(value, index, index === displayedValue.length - 1)
+            this.renderInput(value, index, index === displayedValue.length - 1),
           )}
         </ul>
       </div>

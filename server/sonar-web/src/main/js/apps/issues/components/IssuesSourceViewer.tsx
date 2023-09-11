@@ -101,7 +101,7 @@ export default class IssuesSourceViewer extends React.PureComponent<IssuesSource
     const selectedLocation = getSelectedLocation(
       openIssue,
       selectedFlowIndex,
-      selectedLocationIndex
+      selectedLocationIndex,
     );
 
     const highlightedLocationMessage =

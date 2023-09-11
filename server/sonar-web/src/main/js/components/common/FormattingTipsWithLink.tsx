@@ -32,7 +32,7 @@ export default class FormattingTipsWithLink extends React.PureComponent<Props> {
     window.open(
       getFormattingHelpUrl(),
       'Formatting',
-      'height=300,width=600,scrollbars=1,resizable=1'
+      'height=300,width=600,scrollbars=1,resizable=1',
     );
   }
 

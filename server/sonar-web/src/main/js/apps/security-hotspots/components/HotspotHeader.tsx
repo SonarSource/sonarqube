@@ -80,7 +80,7 @@ export function HotspotHeader(props: HotspotHeaderProps) {
       ...getBranchLikeQuery(branchLike),
       hotspots: key,
     }),
-    false
+    false,
   );
 
   const categoryStandard = standards?.[SecurityStandard.SONARSOURCE][rule.securityCategory]?.title;

@@ -28,12 +28,12 @@ it('should render and submit', async () => {
   const wrapper = shallow(
     <ValidationForm initialValues={{ foo: 'bar' }} onSubmit={onSubmit} validate={jest.fn()}>
       {render}
-    </ValidationForm>
+    </ValidationForm>,
   );
   expect(wrapper).toMatchSnapshot();
   wrapper.dive();
   expect(render).toHaveBeenCalledWith(
-    expect.objectContaining({ dirty: false, errors: {}, values: { foo: 'bar' } })
+    expect.objectContaining({ dirty: false, errors: {}, values: { foo: 'bar' } }),
   );
 
   onSubmit.mockResolvedValue(undefined).mockClear();

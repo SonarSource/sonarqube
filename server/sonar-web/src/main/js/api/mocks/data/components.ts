@@ -71,7 +71,7 @@ export function mockFullComponentTree(
     breadcrumbs: [
       { key: PARENT_COMPONENT_KEY, name: 'Foo', qualifier: ComponentQualifier.Project },
     ],
-  })
+  }),
 ): ComponentTree {
   const folderComponent = mockComponent({
     key: `${baseComponent.key}:${FOLDER1_KEY}`,
@@ -253,7 +253,7 @@ export function mockFullSourceViewerFileList(baseComponentKey = PARENT_COMPONENT
         mockSourceLine({
           line: n,
           code: 'function Test() {}',
-        })
+        }),
       ),
     },
     {
@@ -262,7 +262,7 @@ export function mockFullSourceViewerFileList(baseComponentKey = PARENT_COMPONENT
         mockSourceLine({
           line: n,
           code: 'function Test() {}',
-        })
+        }),
       ),
     },
     {
@@ -271,7 +271,7 @@ export function mockFullSourceViewerFileList(baseComponentKey = PARENT_COMPONENT
         mockSourceLine({
           line: n,
           code: 'function Test() {}',
-        })
+        }),
       ),
     },
     {
@@ -375,7 +375,7 @@ export function mockFullSourceViewerFileList(baseComponentKey = PARENT_COMPONENT
         mockSourceLine({
           line: n,
           code: `\u003cspan class\u003d"cd"\u003eLine ${n}\u003c/span\u003e`,
-        })
+        }),
       ),
     },
     {
@@ -388,7 +388,7 @@ export function mockFullSourceViewerFileList(baseComponentKey = PARENT_COMPONENT
         mockSourceLine({
           line: n,
           code: `\u003cspan class\u003d"cd"\u003eLine ${n}\u003c/span\u003e`,
-        })
+        }),
       ),
     },
     {
@@ -397,7 +397,7 @@ export function mockFullSourceViewerFileList(baseComponentKey = PARENT_COMPONENT
         mockSourceLine({
           line: n,
           code: '  <span class="sym-35 sym">symbole</span>',
-        })
+        }),
       ),
     },
   ] as SourceFile[];

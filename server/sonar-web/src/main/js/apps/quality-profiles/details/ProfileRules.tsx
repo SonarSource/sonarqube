@@ -60,11 +60,11 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
     activatedTotal: null,
     activatedByType: keyBy(
       TYPES.map((t) => ({ val: t, count: null })),
-      'val'
+      'val',
     ),
     allByType: keyBy(
       TYPES.map((t) => ({ val: t, count: null })),
-      'val'
+      'val',
     ),
     compareToSonarWay: null,
     total: null,
@@ -125,7 +125,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
             total: allRules.paging.total,
           });
         }
-      }
+      },
     );
   }
 

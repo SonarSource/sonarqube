@@ -82,7 +82,7 @@ it('should work correctly for logged in user with edit permission', async () => 
       onPerspectiveChange: onPerspectiveChangeMock,
       onSortChange: onSortChangeMock,
     },
-    mockLoggedInUser({ permissions: { global: ['admin', 'provisioning', 'applicationcreator'] } })
+    mockLoggedInUser({ permissions: { global: ['admin', 'provisioning', 'applicationcreator'] } }),
   );
   expect(getAlmSettings).toHaveBeenCalled();
   expect(ui.buttonAddProject.get()).toBeInTheDocument();
@@ -170,7 +170,7 @@ it('should render alm correctly even with wrong data', async () => {
 
   renderPageHeader(
     {},
-    mockLoggedInUser({ permissions: { global: ['admin', 'provisioning', 'applicationcreator'] } })
+    mockLoggedInUser({ permissions: { global: ['admin', 'provisioning', 'applicationcreator'] } }),
   );
 
   await user.click(ui.buttonAddProject.get());
@@ -179,13 +179,13 @@ it('should render alm correctly even with wrong data', async () => {
   expect(ui.selectOptionBitbucket.get()).toHaveAttribute('href', '/projects/create?mode=bitbucket');
   expect(ui.selectOptionBitbucketCloud.get()).toHaveAttribute(
     'href',
-    '/projects/create?mode=bitbucketcloud'
+    '/projects/create?mode=bitbucketcloud',
   );
 });
 
 function renderPageHeader(
   props: Partial<FCProps<typeof PageHeader>> = {},
-  currentUser: CurrentUser = mockLoggedInUser()
+  currentUser: CurrentUser = mockLoggedInUser(),
 ) {
   return renderComponent(
     <CurrentUserContextProvider currentUser={currentUser}>
@@ -201,6 +201,6 @@ function renderPageHeader(
       />
     </CurrentUserContextProvider>,
     '/',
-    { appState: mockAppState({ qualifiers: [ComponentQualifier.Application] }) }
+    { appState: mockAppState({ qualifiers: [ComponentQualifier.Application] }) },
   );
 }

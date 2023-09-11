@@ -62,7 +62,7 @@ describe('should render correctly', () => {
 });
 
 function renderAnalysisWarningsModal(
-  props: Partial<ComponentPropsType<typeof AnalysisWarningsModal>> = {}
+  props: Partial<ComponentPropsType<typeof AnalysisWarningsModal>> = {},
 ) {
   return renderComponent(
     <AnalysisWarningsModal
@@ -74,6 +74,6 @@ function renderAnalysisWarningsModal(
         mockTaskWarning({ message: 'warning 2' }),
       ]}
       {...props}
-    />
+    />,
   );
 }

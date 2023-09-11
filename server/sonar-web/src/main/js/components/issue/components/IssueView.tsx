@@ -87,7 +87,7 @@ export default class IssueView extends React.PureComponent<Props> {
       {
         'no-click': this.props.onClick === undefined,
         selected: this.props.selected,
-      }
+      },
     );
 
     return (

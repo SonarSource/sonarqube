@@ -114,9 +114,9 @@ function SnippetViewer(props: Props) {
       throttle(
         (hoveredLine: number) =>
           snippetSourcesMap ? setHoveredLine(snippetSourcesMap[hoveredLine]) : undefined,
-        THROTTLE_SHORT_DELAY
+        THROTTLE_SHORT_DELAY,
       ),
-    [snippetSourcesMap]
+    [snippetSourcesMap],
   );
 
   const onLineMouseLeave = React.useMemo(
@@ -124,9 +124,9 @@ function SnippetViewer(props: Props) {
       debounce(
         (line: number) =>
           setHoveredLine((hoveredLine) => (hoveredLine?.line === line ? undefined : hoveredLine)),
-        THROTTLE_SHORT_DELAY
+        THROTTLE_SHORT_DELAY,
       ),
-    []
+    [],
   );
 
   return (
@@ -149,7 +149,7 @@ function SnippetViewer(props: Props) {
             {snippet.map((line, index) => {
               const secondaryIssueLocations = getSecondaryIssueLocationsForLine(
                 line,
-                props.locations
+                props.locations,
               );
               const lineDuplications =
                 (duplicationsCount && duplicationsByLine && duplicationsByLine[line.line]) || [];
@@ -172,11 +172,11 @@ function SnippetViewer(props: Props) {
                   highlighted={false}
                   highlightedLocationMessage={optimizeLocationMessage(
                     props.highlightedLocationMessage,
-                    secondaryIssueLocations
+                    secondaryIssueLocations,
                   )}
                   highlightedSymbols={optimizeHighlightedSymbols(
                     symbols[line.line],
-                    props.highlightedSymbols
+                    props.highlightedSymbols,
                   )}
                   issueLocations={locationsByLine[line.line] || []}
                   issues={[]}

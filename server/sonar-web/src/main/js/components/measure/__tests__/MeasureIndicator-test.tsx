@@ -24,7 +24,11 @@ import MeasureIndicator from '../MeasureIndicator';
 
 it('renders correctly for coverage', () => {
   render(
-    <MeasureIndicator metricKey={MetricKey.coverage} metricType={MetricType.Percent} value="73.0" />
+    <MeasureIndicator
+      metricKey={MetricKey.coverage}
+      metricType={MetricType.Percent}
+      value="73.0"
+    />,
   );
   expect(screen.getByRole('img')).toMatchSnapshot();
 });

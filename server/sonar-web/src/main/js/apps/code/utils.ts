@@ -115,7 +115,7 @@ function storeChildrenBreadcrumbs(parentComponentKey: string, children: Breadcru
 export function getCodeMetrics(
   qualifier: string,
   branchLike?: BranchLike,
-  options: { includeQGStatus?: boolean; newCode?: boolean } = {}
+  options: { includeQGStatus?: boolean; newCode?: boolean } = {},
 ) {
   if (isPortfolioLike(qualifier)) {
     let metrics: MetricKey[] = [];
@@ -141,7 +141,7 @@ function retrieveComponentBase(
   componentKey: string,
   qualifier: string,
   instance: { mounted: boolean },
-  branchLike?: BranchLike
+  branchLike?: BranchLike,
 ) {
   const existing = getComponentFromBucket(componentKey);
   if (existing) {
@@ -166,7 +166,7 @@ export async function retrieveComponentChildren(
   componentKey: string,
   qualifier: string,
   instance: { mounted: boolean },
-  branchLike?: BranchLike
+  branchLike?: BranchLike,
 ): Promise<{ components: ComponentMeasure[]; page: number; total: number }> {
   const existing = getComponentChildren(componentKey);
   if (existing) {
@@ -189,7 +189,7 @@ export async function retrieveComponentChildren(
 
   if (instance.mounted && isPortfolioLike(qualifier)) {
     await Promise.all(
-      result.components.map((c) => getComponentData({ component: c.refKey || c.key }))
+      result.components.map((c) => getComponentData({ component: c.refKey || c.key })),
     ).then(
       (data) => {
         data.forEach(({ component: { analysisDate } }, i) => {
@@ -198,7 +198,7 @@ export async function retrieveComponentChildren(
       },
       () => {
         // noop
-      }
+      },
     );
   }
 
@@ -214,7 +214,7 @@ export async function retrieveComponentChildren(
 function retrieveComponentBreadcrumbs(
   component: string,
   instance: { mounted: boolean },
-  branchLike?: BranchLike
+  branchLike?: BranchLike,
 ): Promise<Breadcrumb[]> {
   const existing = getComponentBreadcrumbs(component);
   if (existing) {
@@ -235,7 +235,7 @@ export function retrieveComponent(
   componentKey: string,
   qualifier: string,
   instance: { mounted: boolean },
-  branchLike?: BranchLike
+  branchLike?: BranchLike,
 ): Promise<{
   breadcrumbs: Breadcrumb[];
   component: ComponentMeasure;
@@ -263,7 +263,7 @@ export function loadMoreChildren(
   page: number,
   qualifier: string,
   instance: { mounted: boolean },
-  branchLike?: BranchLike
+  branchLike?: BranchLike,
 ): Promise<Children> {
   const metrics = getCodeMetrics(qualifier, branchLike, {
     includeQGStatus: true,

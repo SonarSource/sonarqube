@@ -45,7 +45,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
     const { refreshItem, refreshList } = this.props;
     return Promise.all([refreshItem(), refreshList()]).then(
       () => {},
-      () => {}
+      () => {},
     );
   };
 
@@ -56,7 +56,7 @@ export default class DetailsHeader extends React.PureComponent<Props> {
       this.props.onSetDefault();
       setQualityGateAsDefault({ name: qualityGate.name }).then(
         this.handleActionRefresh,
-        this.handleActionRefresh
+        this.handleActionRefresh,
       );
     }
   };

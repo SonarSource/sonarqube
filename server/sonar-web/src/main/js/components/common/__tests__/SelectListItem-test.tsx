@@ -31,8 +31,8 @@ it('should render correctly with children', () => {
       <SelectListItem active="myitem" item="seconditem">
         <i className="custom-icon" />
         <p>seconditem</p>
-      </SelectListItem>
-    )
+      </SelectListItem>,
+    ),
   ).toMatchSnapshot();
 });
 

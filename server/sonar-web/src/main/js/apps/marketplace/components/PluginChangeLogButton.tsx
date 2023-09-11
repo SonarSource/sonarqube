@@ -42,7 +42,7 @@ export default function PluginChangeLogButton({ pluginName, release, update }: P
         aria-label={translateWithParameters(
           'marketplace.show_plugin_changelog',
           pluginName,
-          release.version
+          release.version,
         )}
       >
         <EllipsisIcon />

@@ -44,7 +44,7 @@ export default function ComponentBreadcrumbs({
   const displayProject =
     !component ||
     ![ComponentQualifier.Project, ComponentQualifier.Directory].includes(
-      component.qualifier as ComponentQualifier
+      component.qualifier as ComponentQualifier,
     );
 
   const displayBranchInformation = isView(component?.qualifier);
@@ -57,7 +57,7 @@ export default function ComponentBreadcrumbs({
     <DivStyled
       aria-label={translateWithParameters(
         'issues.on_file_x',
-        `${displayProject ? issue.projectName + ', ' : ''}${componentName}`
+        `${displayProject ? issue.projectName + ', ' : ''}${componentName}`,
       )}
       className="sw-flex sw-box-border sw-body-sm sw-w-full sw-pb-2 sw-pt-4 sw-truncate"
     >

@@ -179,7 +179,7 @@ export class SourceViewerClass extends React.PureComponent<Props, State> {
             if (this.props.onLoaded && this.state.component && this.state.issues) {
               this.props.onLoaded(this.state.component, finalSources, this.state.issues);
             }
-          }
+          },
         );
       }
     }
@@ -203,7 +203,7 @@ export class SourceViewerClass extends React.PureComponent<Props, State> {
     key: string,
     from: number | undefined,
     to: number | undefined,
-    branchLike: BranchLike | undefined
+    branchLike: BranchLike | undefined,
   ) {
     return getSources({ key, from, to, ...getBranchLikeQuery(branchLike) });
   }
@@ -257,13 +257,13 @@ export class SourceViewerClass extends React.PureComponent<Props, State> {
                 if (this.props.onLoaded) {
                   this.props.onLoaded(component, finalSources, issues);
                 }
-              }
+              },
             );
           }
         },
         () => {
           /* no op */
-        }
+        },
       );
     };
 
@@ -295,13 +295,13 @@ export class SourceViewerClass extends React.PureComponent<Props, State> {
 
       sourcesRequest.then(
         (sources) => loadIssuesCallback(component, sources),
-        (response) => onFailLoadSources(response, component)
+        (response) => onFailLoadSources(response, component),
       );
     };
 
     this.loadComponent(this.props.component, this.props.branchLike).then(
       onResolve,
-      onFailLoadComponent
+      onFailLoadComponent,
     );
   }
 
@@ -354,7 +354,7 @@ export class SourceViewerClass extends React.PureComponent<Props, State> {
       this.props.component,
       from,
       firstSourceLine.line - 1,
-      this.props.branchLike
+      this.props.branchLike,
     ).then(
       (sources) => {
         if (this.mounted) {
@@ -369,7 +369,7 @@ export class SourceViewerClass extends React.PureComponent<Props, State> {
       },
       () => {
         /* no op */
-      }
+      },
     );
   };
 
@@ -409,7 +409,7 @@ export class SourceViewerClass extends React.PureComponent<Props, State> {
       },
       () => {
         /* no op */
-      }
+      },
     );
   };
 
@@ -429,7 +429,7 @@ export class SourceViewerClass extends React.PureComponent<Props, State> {
       },
       () => {
         /* no op */
-      }
+      },
     );
   };
 
@@ -488,7 +488,7 @@ export class SourceViewerClass extends React.PureComponent<Props, State> {
   handleIssueChange = (issue: Issue) => {
     this.setState(({ issues = [] }) => {
       const newIssues = issues.map((candidate) =>
-        candidate.key === issue.key ? issue : candidate
+        candidate.key === issue.key ? issue : candidate,
       );
 
       return { issues: newIssues, issuesByLine: issuesByLine(newIssues) };

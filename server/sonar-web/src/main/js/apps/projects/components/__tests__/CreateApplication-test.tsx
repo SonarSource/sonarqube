@@ -76,7 +76,7 @@ it('should be able to create application when user is logged in and has permissi
 
   renderApplicationCreation(
     { router },
-    mockLoggedInUser({ permissions: { global: ['admin', 'applicationcreator'] } })
+    mockLoggedInUser({ permissions: { global: ['admin', 'applicationcreator'] } }),
   );
 
   await user.click(ui.buttonAddApplication.get());
@@ -104,7 +104,7 @@ it('should be able to create application when user is logged in and has permissi
     'app',
     'app description',
     'app-key',
-    Visibility.Private
+    Visibility.Private,
   );
   expect(routerPush).toHaveBeenCalledWith({
     pathname: '/project/admin/extension/developer-server/application-console',
@@ -116,7 +116,7 @@ it('should be able to create application when user is logged in and has permissi
 
 function renderApplicationCreation(
   props: Partial<FCProps<typeof ApplicationCreation>> = {},
-  currentUser: LoggedInUser = mockLoggedInUser()
+  currentUser: LoggedInUser = mockLoggedInUser(),
 ) {
   return renderComponent(
     <ApplicationCreation
@@ -124,6 +124,6 @@ function renderApplicationCreation(
       router={mockRouter()}
       appState={mockAppState({ qualifiers: [ComponentQualifier.Application] })}
       {...props}
-    />
+    />,
   );
 }

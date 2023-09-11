@@ -59,7 +59,7 @@ export function getComponents(parameters: SearchProjectsParameters): Promise<{
 }
 
 export function bulkDeleteProjects(
-  parameters: BaseSearchProjectsParameters
+  parameters: BaseSearchProjectsParameters,
 ): Promise<void | Response> {
   return post('/api/projects/bulk_delete', parameters).catch(throwGlobalError);
 }
@@ -98,9 +98,9 @@ export function setupManualProjectCreation(data: {
 }
 
 export function changeProjectDefaultVisibility(
-  projectVisibility: Visibility
+  projectVisibility: Visibility,
 ): Promise<void | Response> {
   return post('/api/projects/update_default_visibility', { projectVisibility }).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }

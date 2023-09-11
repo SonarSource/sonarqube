@@ -146,7 +146,7 @@ export default class ProjectModal extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ loading: false, open: false });
         }
-      }
+      },
     );
   };
 

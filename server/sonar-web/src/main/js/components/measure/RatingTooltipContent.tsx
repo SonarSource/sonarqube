@@ -71,12 +71,12 @@ export function RatingTooltipContent(props: RatingTooltipContentProps) {
       {rating === 1
         ? translateWithParameters(
             'metric.sqale_rating.tooltip.A',
-            formatMeasure(maintainabilityGrid[0] * PERCENT_MULTIPLIER, 'PERCENT')
+            formatMeasure(maintainabilityGrid[0] * PERCENT_MULTIPLIER, 'PERCENT'),
           )
         : translateWithParameters(
             'metric.sqale_rating.tooltip',
             ratingLetter,
-            formatMeasure(maintainabilityRatingThreshold * PERCENT_MULTIPLIER, 'PERCENT')
+            formatMeasure(maintainabilityRatingThreshold * PERCENT_MULTIPLIER, 'PERCENT'),
           )}
     </>
   );

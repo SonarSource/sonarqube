@@ -94,7 +94,9 @@
 }
 
 .search-box-clear.button:focus {
-  box-shadow: 0 0 0 1px white, 0 0 0 4px rgba(35, 106, 151, 0.5);
+  box-shadow:
+    0 0 0 1px white,
+    0 0 0 4px rgba(35, 106, 151, 0.5);
 }
 
 .search-box-input-note {

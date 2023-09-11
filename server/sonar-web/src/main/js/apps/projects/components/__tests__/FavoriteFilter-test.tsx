@@ -56,7 +56,7 @@ it.each([
 
     await user.click(screen.getByText(optionTranslationId));
     expect(save).toHaveBeenLastCalledWith('sonarqube.projects.default', localStorageValue);
-  }
+  },
 );
 
 it('does not render for anonymous', () => {
@@ -74,6 +74,6 @@ function renderFavoriteFilter({
       location={location}
       router={mockRouter()}
       params={{}}
-    />
+    />,
   );
 }

@@ -33,6 +33,6 @@ it('should open modal correctly', () => {
 
 function shallowRender(props: Partial<SystemUpgradeButton['props']> = {}) {
   return shallow<SystemUpgradeButton['props']>(
-    <SystemUpgradeButton systemUpgrades={[]} latestLTS="9.2" {...props} />
+    <SystemUpgradeButton systemUpgrades={[]} latestLTS="9.2" {...props} />,
   );
 }

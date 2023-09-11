@@ -59,7 +59,7 @@ export default function MetaTags(props: Props) {
   const handleSetProjectTags = (values: string[]) => {
     setTags(values).then(
       () => props.onComponentChange({ tags: values }),
-      () => {}
+      () => {},
     );
   };
 
@@ -103,7 +103,7 @@ function MetaTagsSelector({ selectedTags, setProjectTags }: MetaTagsSelectorProp
       ps: Math.min(selectedTags.length - 1 + LIST_SIZE, MAX_LIST_SIZE),
     }).then(
       ({ tags }) => setSearchResult(tags),
-      () => {}
+      () => {},
     );
   };
 

@@ -64,6 +64,6 @@ function renderQualityGateFilter(props: Partial<ComponentPropsType<typeof Qualit
       onQueryChange={jest.fn()}
       facet={{ OK: 6, ERROR: 3 }}
       {...props}
-    />
+    />,
   );
 }

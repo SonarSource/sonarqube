@@ -148,7 +148,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
                   alt="" // Should be ignored by screen readers
                   className="sw-h-4 sw-w-4"
                   src={`${getBaseUrl()}/images/tutorials/jenkins.svg`}
-                />
+                />,
               )}
 
             {showGitHubActions &&
@@ -159,7 +159,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
                   alt="" // Should be ignored by screen readers
                   className="sw-h-4 sw-w-4"
                   src={`${getBaseUrl()}/images/tutorials/github-actions.svg`}
-                />
+                />,
               )}
 
             {showBitbucketPipelines &&
@@ -170,7 +170,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
                   alt="" // Should be ignored by screen readers
                   className="sw-h-4 sw-w-4"
                   src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
-                />
+                />,
               )}
 
             {showGitLabCICD &&
@@ -181,7 +181,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
                   alt="" // Should be ignored by screen readers
                   className="sw-h-4 sw-w-4"
                   src={`${getBaseUrl()}/images/alm/gitlab.svg`}
-                />
+                />,
               )}
 
             {showAzurePipelines &&
@@ -192,7 +192,7 @@ export default function TutorialSelectionRenderer(props: TutorialSelectionRender
                   alt="" // Should be ignored by screen readers
                   className="sw-h-4 sw-w-4"
                   src={`${getBaseUrl()}/images/tutorials/azure-pipelines.svg`}
-                />
+                />,
               )}
 
             {renderAlm(TutorialModes.OtherCI, component.key)}

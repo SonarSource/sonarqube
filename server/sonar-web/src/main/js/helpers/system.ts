@@ -42,7 +42,7 @@ export function getReactDomContainerSelector() {
 
 export function initAppVariables() {
   const appVariablesDiv = document.querySelector<AppVariablesElement>(
-    getReactDomContainerSelector()
+    getReactDomContainerSelector(),
   );
   if (appVariablesDiv === null) {
     throw new Error('Failed to get app variables');

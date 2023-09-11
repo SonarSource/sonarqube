@@ -123,7 +123,7 @@ export class ProjectDumpApp extends React.Component<Props, State> {
           lastImportTask,
           lastAnalysisTask,
         };
-      }
+      },
     );
   };
 
@@ -148,7 +148,7 @@ export class ProjectDumpApp extends React.Component<Props, State> {
       },
       () => {
         /* no catch needed */
-      }
+      },
     );
   };
 

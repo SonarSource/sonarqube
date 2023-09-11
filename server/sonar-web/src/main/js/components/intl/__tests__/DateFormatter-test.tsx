@@ -32,11 +32,11 @@ it('should render correctly', () => {
 
 function renderDateFormatter(
   overrides: Partial<DateFormatterProps> = {},
-  children?: (d: string) => React.ReactNode
+  children?: (d: string) => React.ReactNode,
 ) {
   return renderComponent(
     <DateFormatter date={new Date('2020-02-20T20:20:20Z')} {...overrides}>
       {children}
-    </DateFormatter>
+    </DateFormatter>,
   );
 }

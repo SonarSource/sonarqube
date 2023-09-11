@@ -101,7 +101,7 @@ it('should render correctly when on a branch', async () => {
         extensions: [{ key: 'component-foo', name: 'ComponentFoo' }],
       },
     },
-    'branch=normal-branch'
+    'branch=normal-branch',
   );
 
   expect(await screen.findByRole('link', { name: 'overview.page' })).toBeInTheDocument();
@@ -119,7 +119,7 @@ it('should render correctly when on a pull request', async () => {
         extensions: [{ key: 'component-foo', name: 'ComponentFoo' }],
       },
     },
-    'pullRequest=01'
+    'pullRequest=01',
   );
 
   expect(await screen.findByRole('link', { name: 'overview.page' })).toBeInTheDocument();
@@ -127,7 +127,7 @@ it('should render correctly when on a pull request', async () => {
   expect(screen.getByRole('link', { name: 'layout.measures' })).toBeInTheDocument();
 
   expect(
-    screen.queryByRole('link', { name: `layout.settings.${ComponentQualifier.Project}` })
+    screen.queryByRole('link', { name: `layout.settings.${ComponentQualifier.Project}` }),
   ).not.toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'project.info.title' })).not.toBeInTheDocument();
 });
@@ -169,6 +169,6 @@ function renderMenu(props: Partial<ComponentPropsType<typeof Menu>> = {}, params
       {...props}
     />,
     params ? `/?${params}` : '/',
-    { featureList: [Feature.BranchSupport] }
+    { featureList: [Feature.BranchSupport] },
   );
 }

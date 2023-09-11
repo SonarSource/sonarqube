@@ -96,7 +96,7 @@ export function parseQuery(query: RawQuery): Query {
     author: isArray(query.author) ? query.author : [query.author].filter(isDefined),
     cleanCodeAttributeCategories: parseAsArray<CleanCodeAttributeCategory>(
       query.cleanCodeAttributeCategories,
-      parseAsString
+      parseAsString,
     ),
     createdAfter: parseAsDate(query.createdAfter),
     createdAt: parseAsString(query.createdAt),
@@ -108,7 +108,7 @@ export function parseQuery(query: RawQuery): Query {
     impactSeverities: parseAsArray<SoftwareImpactSeverity>(query.impactSeverities, parseAsString),
     impactSoftwareQualities: parseAsArray<SoftwareQuality>(
       query.impactSoftwareQualities,
-      parseAsString
+      parseAsString,
     ),
     inNewCodePeriod: parseAsBoolean(query.inNewCodePeriod, false),
     issues: parseAsArray(query.issues, parseAsString),
@@ -211,7 +211,7 @@ export function formatFacetStat(stat: number | undefined) {
 
 export const searchAssignees = (
   query: string,
-  page = 1
+  page = 1,
 ): Promise<{ paging: Paging; results: RestUser[] }> => {
   return getUsers<RestUser>({ pageIndex: page, q: query }).then(({ page, users }) => ({
     paging: page,
@@ -235,7 +235,7 @@ export function getLocations(
     secondaryLocations,
     flowsWithType,
   }: Pick<Issue, 'flows' | 'secondaryLocations' | 'flowsWithType'>,
-  selectedFlowIndex: number | undefined
+  selectedFlowIndex: number | undefined,
 ) {
   if (secondaryLocations.length > 0) {
     return secondaryLocations;
@@ -248,7 +248,7 @@ export function getLocations(
 export function getSelectedLocation(
   issue: Pick<Issue, 'flows' | 'secondaryLocations' | 'flowsWithType'>,
   selectedFlowIndex: number | undefined,
-  selectedLocationIndex: number | undefined
+  selectedLocationIndex: number | undefined,
 ) {
   const locations = getLocations(issue, selectedFlowIndex);
   if (
@@ -263,14 +263,14 @@ export function getSelectedLocation(
 
 export function allLocationsEmpty(
   issue: Pick<Issue, 'flows' | 'secondaryLocations' | 'flowsWithType'>,
-  selectedFlowIndex: number | undefined
+  selectedFlowIndex: number | undefined,
 ) {
   return getLocations(issue, selectedFlowIndex).every((location) => !location.msg);
 }
 
 export function shouldOpenStandardsFacet(
   openFacets: Dict<boolean>,
-  query: Partial<Query>
+  query: Partial<Query>,
 ): boolean {
   return (
     openFacets[STANDARDS] ||
@@ -286,7 +286,7 @@ export function shouldOpenStandardsChildFacet(
     | SecurityStandard.CWE
     | SecurityStandard.OWASP_TOP10
     | SecurityStandard.OWASP_TOP10_2021
-    | SecurityStandard.SONARSOURCE
+    | SecurityStandard.SONARSOURCE,
 ): boolean {
   const filter = query[standardType];
   return (
@@ -298,7 +298,7 @@ export function shouldOpenStandardsChildFacet(
 
 export function shouldOpenSonarSourceSecurityFacet(
   openFacets: Dict<boolean>,
-  query: Partial<Query>
+  query: Partial<Query>,
 ): boolean {
   // Open it by default if the parent is open, and no other standard is open.
   return (
@@ -318,7 +318,7 @@ function isOneStandardChildFacetOpen(openFacets: Dict<boolean>, query: Partial<Q
         | SecurityStandard.CWE
         | SecurityStandard.OWASP_TOP10
         | SecurityStandard.OWASP_TOP10_2021
-        | SecurityStandard.SONARSOURCE
-    ) => shouldOpenStandardsChildFacet(openFacets, query, standardType)
+        | SecurityStandard.SONARSOURCE,
+    ) => shouldOpenStandardsChildFacet(openFacets, query, standardType),
   );
 }

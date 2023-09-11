@@ -85,7 +85,7 @@ describe('DEFINITION_CHANGE events', () => {
             },
           }),
         },
-        `branch=${branchLike.name}&id=my-project`
+        `branch=${branchLike.name}&id=my-project`,
       );
 
       expect(await ui.definitionChangeLabel.find()).toBeInTheDocument();
@@ -95,7 +95,7 @@ describe('DEFINITION_CHANGE events', () => {
       expect(await ui.projectAddedTxt(branchLike).find()).toBeInTheDocument();
       expect(ui.projectLink('Foo').get()).toBeInTheDocument();
       expect(screen.getByText('master-foo')).toBeInTheDocument();
-    }
+    },
   );
 
   it.each([mockMainBranch(), mockBranch()])(
@@ -119,7 +119,7 @@ describe('DEFINITION_CHANGE events', () => {
             },
           }),
         },
-        `branch=${branchLike.name}&id=my-project`
+        `branch=${branchLike.name}&id=my-project`,
       );
 
       expect(ui.definitionChangeLabel.get()).toBeInTheDocument();
@@ -129,7 +129,7 @@ describe('DEFINITION_CHANGE events', () => {
       expect(await ui.projectRemovedTxt(branchLike).find()).toBeInTheDocument();
       expect(ui.projectLink('Bar').get()).toBeInTheDocument();
       expect(screen.getByText('master-bar')).toBeInTheDocument();
-    }
+    },
   );
 
   it('should render correctly for "BRANCH_CHANGED" events', async () => {
@@ -240,6 +240,6 @@ function renderEventInner(props: Partial<EventInnerProps> = {}, params?: string)
   return renderAppWithComponentContext(
     '/',
     () => <Route path="*" element={<EventInner event={mockAnalysisEvent()} {...props} />} />,
-    { navigateTo: params ? `/?id=my-project&${params}` : '/?id=my-project' }
+    { navigateTo: params ? `/?id=my-project&${params}` : '/?id=my-project' },
   );
 }

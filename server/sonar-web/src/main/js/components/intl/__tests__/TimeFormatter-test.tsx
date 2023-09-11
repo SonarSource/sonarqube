@@ -32,11 +32,11 @@ it('should render correctly', () => {
 
 function renderTimeFormatter(
   overrides: Partial<TimeFormatterProps> = {},
-  children?: (d: string) => React.ReactNode
+  children?: (d: string) => React.ReactNode,
 ) {
   return renderComponent(
     <TimeFormatter date={new Date('2020-02-20T20:20:20Z')} timeZone="UTC" {...overrides}>
       {children}
-    </TimeFormatter>
+    </TimeFormatter>,
   );
 }

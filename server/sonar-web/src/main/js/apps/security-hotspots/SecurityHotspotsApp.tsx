@@ -252,7 +252,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   }
 
   constructFiltersFromProps(
-    props: Props
+    props: Props,
   ): Pick<HotspotFilters, 'assignedToMe' | 'inNewCodePeriod'> {
     return {
       assignedToMe: props.location.query.assignedToMe === 'true' && isLoggedIn(props.currentUser),
@@ -371,7 +371,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         status: HotspotStatus.TO_REVIEW, // we're only interested in unresolved hotspots
         ...getBranchLikeQuery(branchLike),
       },
-      component.needIssueSync
+      component.needIssueSync,
     );
   }
 
@@ -384,7 +384,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       : undefined;
 
     const standard = SECURITY_STANDARDS.find(
-      (stnd) => stnd !== SecurityStandard.CWE && location.query[stnd] !== undefined
+      (stnd) => stnd !== SecurityStandard.CWE && location.query[stnd] !== undefined,
     );
 
     const filterByCategory = standard
@@ -404,7 +404,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
           projectKey: component.key,
           ...getBranchLikeQuery(branchLike),
         },
-        component.needIssueSync
+        component.needIssueSync,
       );
     }
 
@@ -438,7 +438,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         status,
         ...getBranchLikeQuery(branchLike),
       },
-      component.needIssueSync
+      component.needIssueSync,
     );
   }
 
@@ -471,7 +471,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         if (changes.inNewCodePeriod !== undefined) {
           this.fetchSecurityHotspotsReviewed();
         }
-      }
+      },
     );
   };
 
@@ -502,8 +502,8 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
     return Promise.all(
       range(hotspotsPageIndex).map((p) =>
-        this.fetchSecurityHotspots(p + 1 /* pages are 1-indexed */)
-      )
+        this.fetchSecurityHotspots(p + 1 /* pages are 1-indexed */),
+      ),
     )
       .then((hotspotPages) => {
         const allHotspots = flatMap(hotspotPages, 'hotspots');
@@ -588,7 +588,10 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         hotspotsReviewedMeasure={hotspotsReviewedMeasure}
         hotspotsTotal={hotspotsTotal}
         isStaticListOfHotspots={Boolean(
-          (hotspotKeys && hotspotKeys.length > 0) || filterByCategory || filterByCWE || filterByFile
+          (hotspotKeys && hotspotKeys.length > 0) ||
+            filterByCategory ||
+            filterByCWE ||
+            filterByFile,
         )}
         loading={loading}
         loadingMeasure={loadingMeasure}
@@ -617,8 +620,8 @@ export default withRouter(
           Component: SecurityHotspotsApp,
           showIndexationMessage: ({ component }) =>
             !!(component.qualifier === ComponentQualifier.Application && component.needIssueSync),
-        })
-      )
-    )
-  )
+        }),
+      ),
+    ),
+  ),
 );

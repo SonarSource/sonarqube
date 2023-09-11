@@ -74,7 +74,7 @@ export default class BranchesServiceMock {
 
   excludeBranchFromPurgeHandler: typeof excludeBranchFromPurge = (_, name, value) => {
     this.branches = this.branches.map((b) =>
-      b.name === name ? { ...b, excludedFromPurge: value } : b
+      b.name === name ? { ...b, excludedFromPurge: value } : b,
     );
     return this.reply(null);
   };

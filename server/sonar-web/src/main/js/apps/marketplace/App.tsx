@@ -108,7 +108,7 @@ class App extends React.PureComponent<Props, State> {
   fetchAllPlugins = (): Promise<Plugin[] | void> => {
     return Promise.all([getInstalledPluginsWithUpdates(), getAvailablePlugins()]).then(
       ([installed, available]) => uniqBy([...installed, ...available.plugins], 'key'),
-      this.stopLoadingPlugins
+      this.stopLoadingPlugins,
     );
   };
 

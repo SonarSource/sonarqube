@@ -70,7 +70,7 @@ it('should not be able to setup if no config and no admin rights', async () => {
   expect(await screen.findByText('onboarding.create_project.select_method')).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'setup' })).not.toBeInTheDocument();
   await expect(screen.getByLabelText('help-tooltip')).toHaveATooltipWithContent(
-    'onboarding.create_project.alm_not_configured'
+    'onboarding.create_project.alm_not_configured',
   );
 });
 
@@ -78,7 +78,7 @@ it('should be able to setup if config is present', async () => {
   renderCreateProject();
   expect(await screen.findByText('onboarding.create_project.select_method')).toBeInTheDocument();
   expect(
-    screen.getByRole('link', { name: 'onboarding.create_project.import_select_method.bitbucket' })
+    screen.getByRole('link', { name: 'onboarding.create_project.import_select_method.bitbucket' }),
   ).toBeInTheDocument();
 });
 

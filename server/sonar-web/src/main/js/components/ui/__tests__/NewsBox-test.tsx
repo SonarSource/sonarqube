@@ -38,6 +38,6 @@ function shallowRender(props: Partial<Props> = {}) {
   return shallow(
     <NewsBox onClose={jest.fn()} title="title" {...props}>
       <div>description</div>
-    </NewsBox>
+    </NewsBox>,
   );
 }

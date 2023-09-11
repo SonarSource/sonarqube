@@ -40,7 +40,7 @@ export interface QualityGatePermissionsAddModalRendererProps {
 }
 
 export default function QualityGatePermissionsAddModalRenderer(
-  props: QualityGatePermissionsAddModalRendererProps
+  props: QualityGatePermissionsAddModalRendererProps,
 ) {
   const { selection, submitting } = props;
 

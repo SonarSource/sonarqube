@@ -37,13 +37,13 @@ describe('isDuplicationBlockInRemovedComponent', () => {
       isDuplicationBlockInRemovedComponent([
         { _ref: '0', from: 2, size: 2 },
         { _ref: '0', from: 3, size: 1 },
-      ])
+      ]),
     ).toBe(false);
     expect(
       isDuplicationBlockInRemovedComponent([
         { _ref: undefined, from: 2, size: 2 },
         { _ref: '0', from: 3, size: 1 },
-      ])
+      ]),
     ).toBe(true);
   });
 });

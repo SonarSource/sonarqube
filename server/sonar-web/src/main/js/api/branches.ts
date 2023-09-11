@@ -24,14 +24,14 @@ import { Branch, PullRequest } from '../types/branch-like';
 export function getBranches(project: string): Promise<Branch[]> {
   return getJSON('/api/project_branches/list', { project }).then(
     (r) => r.branches,
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
 export function getPullRequests(project: string): Promise<PullRequest[]> {
   return getJSON('/api/project_pull_requests/list', { project }).then(
     (r) => r.pullRequests,
-    throwGlobalError
+    throwGlobalError,
   );
 }
 

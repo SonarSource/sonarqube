@@ -52,7 +52,7 @@ function ConditionValueDescription({
 }: Props) {
   if (condition.metric === 'new_maintainability_rating') {
     const maintainabilityGrid = getMaintainabilityGrid(
-      settings[GlobalSettingKeys.RatingGrid] ?? ''
+      settings[GlobalSettingKeys.RatingGrid] ?? '',
     );
     const maintainabilityRatingThreshold =
       maintainabilityGrid[Math.floor(Number(condition.error)) - GRID_INDEX_OFFSET];
@@ -64,12 +64,12 @@ function ConditionValueDescription({
         {condition.error === '1'
           ? translateWithParameters(
               'quality_gates.cayc.new_maintainability_rating.A',
-              formatMeasure(maintainabilityGrid[0] * PERCENT_MULTIPLIER, 'PERCENT')
+              formatMeasure(maintainabilityGrid[0] * PERCENT_MULTIPLIER, 'PERCENT'),
             )
           : translateWithParameters(
               'quality_gates.cayc.new_maintainability_rating',
               ratingLetter,
-              formatMeasure(maintainabilityRatingThreshold * PERCENT_MULTIPLIER, 'PERCENT')
+              formatMeasure(maintainabilityRatingThreshold * PERCENT_MULTIPLIER, 'PERCENT'),
             )}
         )
       </span>
@@ -82,7 +82,7 @@ function ConditionValueDescription({
         <>
           (
           {translate(
-            `quality_gates.cayc.${condition.metric}.${formatMeasure(condition.error, metric.type)}`
+            `quality_gates.cayc.${condition.metric}.${formatMeasure(condition.error, metric.type)}`,
           )}
           )
         </>

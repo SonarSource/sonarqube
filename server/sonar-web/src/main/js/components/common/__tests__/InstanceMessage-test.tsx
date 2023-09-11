@@ -45,7 +45,7 @@ it('should return the same message', () => {
 function shallowRender(
   children: (msg: string) => React.ReactChild,
   message: string,
-  onSonarCloud = false
+  onSonarCloud = false,
 ) {
   (getInstance as jest.Mock).mockImplementation(() => (onSonarCloud ? 'SonarCloud' : 'SonarQube'));
   return shallow(<InstanceMessage message={message}>{children}</InstanceMessage>);

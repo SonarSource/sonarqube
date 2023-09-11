@@ -61,7 +61,7 @@ describe('getJSON', () => {
     getJSON(url, { data: 'test' });
     expect(window.fetch).toHaveBeenCalledWith(
       url + '?data=test',
-      expect.objectContaining({ method: 'GET' })
+      expect.objectContaining({ method: 'GET' }),
     );
   });
 });
@@ -81,7 +81,7 @@ describe('getText', () => {
     getText(url, { data: 'test' });
     expect(window.fetch).toHaveBeenCalledWith(
       url + '?data=test',
-      expect.objectContaining({ method: 'GET' })
+      expect.objectContaining({ method: 'GET' }),
     );
   });
 });
@@ -97,7 +97,7 @@ describe('parseError', () => {
   it('should parse error and return concatenated messages', async () => {
     const response = new Response(
       JSON.stringify({ errors: [{ msg: 'Error1' }, { msg: 'Error2' }] }),
-      { status: HttpStatus.BadRequest }
+      { status: HttpStatus.BadRequest },
     );
     await expect(parseError(response)).resolves.toBe('Error1. Error2');
   });
@@ -145,7 +145,7 @@ describe('postJSON', () => {
     postJSON(url, { data: 'test' });
     expect(window.fetch).toHaveBeenCalledWith(
       url,
-      expect.objectContaining({ body: 'data=test', method: 'POST' })
+      expect.objectContaining({ body: 'data=test', method: 'POST' }),
     );
   });
 });
@@ -169,7 +169,7 @@ describe('postJSONBody', () => {
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
         body: '{"nested":{"data":"test","withArray":[1,2]}}',
         method: 'POST',
-      })
+      }),
     );
   });
 });
@@ -183,7 +183,7 @@ describe('post', () => {
 
     expect(window.fetch).toHaveBeenCalledWith(
       url,
-      expect.objectContaining({ body: 'data=test', method: 'POST' })
+      expect.objectContaining({ body: 'data=test', method: 'POST' }),
     );
     expect(response.json).not.toHaveBeenCalled();
     expect(response.text).not.toHaveBeenCalled();
@@ -197,7 +197,7 @@ describe('post', () => {
 
     expect(window.fetch).toHaveBeenCalledWith(
       url,
-      expect.objectContaining({ body: 'dataArray=1&dataArray=2', method: 'POST' })
+      expect.objectContaining({ body: 'dataArray=1&dataArray=2', method: 'POST' }),
     );
   });
 });
@@ -220,7 +220,7 @@ describe('requestTryAndRepeatUntil', () => {
     const promiseResult = requestTryAndRepeatUntil(
       apiCall,
       { max: -1, slowThreshold: -20 },
-      stopRepeat
+      stopRepeat,
     );
 
     for (let i = 1; i < 5; i++) {
@@ -245,7 +245,7 @@ describe('requestTryAndRepeatUntil', () => {
       apiCall,
       { max: -1, slowThreshold: -20 },
       stopRepeat,
-      [HttpStatus.GatewayTimeout]
+      [HttpStatus.GatewayTimeout],
     );
 
     for (let i = 1; i < 5; i++) {
@@ -268,7 +268,7 @@ describe('requestTryAndRepeatUntil', () => {
     const promiseResult = requestTryAndRepeatUntil(
       apiCall,
       { max: 3, slowThreshold: 0 },
-      stopRepeat
+      stopRepeat,
     );
 
     for (let i = 1; i < 3; i++) {
@@ -290,7 +290,7 @@ describe('requestTryAndRepeatUntil', () => {
     const promiseResult = requestTryAndRepeatUntil(
       apiCall,
       { max: 5, slowThreshold: 3 },
-      stopRepeat
+      stopRepeat,
     );
 
     for (let i = 1; i < 3; i++) {

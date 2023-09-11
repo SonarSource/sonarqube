@@ -57,7 +57,7 @@ export default function UsersList({ identityProviders, users, manageProvider }: 
           {users.map((user) => (
             <UserListItem
               identityProvider={identityProviders.find(
-                (provider) => user.externalProvider === provider.key
+                (provider) => user.externalProvider === provider.key,
               )}
               key={user.login}
               user={user}

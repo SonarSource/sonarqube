@@ -112,7 +112,7 @@ it('can choose build tools and copy provided settings', async () => {
   // Dotnet - Core
   await user.click(ui.dotnetBuildButton.get());
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
-    'dotnet core: install scanner globally'
+    'dotnet core: install scanner globally',
   );
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('dotnet core: execute command 1');
   expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot('dotnet core: execute command 2');
@@ -128,21 +128,21 @@ it('can choose build tools and copy provided settings', async () => {
   await user.click(ui.cFamilyBuildButton.get());
   await user.click(ui.linuxButton.get());
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
-    'cfamily linux: execute build wrapper'
+    'cfamily linux: execute build wrapper',
   );
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('cfamily linux: execute scanner');
 
   // C Family - Windows
   await user.click(ui.windowsButton.get());
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
-    'cfamily windows: execute build wrapper'
+    'cfamily windows: execute build wrapper',
   );
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('cfamily windows: execute scanner');
 
   // C Family - MacOS
   await user.click(ui.macosButton.get());
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(
-    'cfamily macos: execute build wrapper'
+    'cfamily macos: execute build wrapper',
   );
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot('cfamily macos: execute scanner');
 
@@ -170,6 +170,6 @@ function renderOtherTutorial({
       component={mockComponent()}
       currentUser={mockLoggedInUser()}
     />,
-    { languages }
+    { languages },
   );
 }

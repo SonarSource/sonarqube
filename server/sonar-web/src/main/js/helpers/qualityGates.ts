@@ -24,7 +24,7 @@ import {
 } from '../types/quality-gates';
 
 export function extractStatusConditionsFromProjectStatus(
-  projectStatus: QualityGateProjectStatus
+  projectStatus: QualityGateProjectStatus,
 ): QualityGateStatusCondition[] {
   const { conditions } = projectStatus;
   return conditions
@@ -40,7 +40,7 @@ export function extractStatusConditionsFromProjectStatus(
 }
 
 export function extractStatusConditionsFromApplicationStatusChildProject(
-  projectStatus: QualityGateApplicationStatusChildProject
+  projectStatus: QualityGateApplicationStatusChildProject,
 ): QualityGateStatusCondition[] {
   const { conditions } = projectStatus;
   return conditions

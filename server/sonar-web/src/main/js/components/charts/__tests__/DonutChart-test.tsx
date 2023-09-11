@@ -42,6 +42,6 @@ function shallowRender(props: Partial<DonutChartProps> = {}) {
       thickness={2}
       width={20}
       {...props}
-    />
+    />,
   );
 }

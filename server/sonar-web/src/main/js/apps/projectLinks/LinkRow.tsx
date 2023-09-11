@@ -73,7 +73,7 @@ export default class LinkRow extends React.PureComponent<Props> {
         isDestructive
         modalBody={translateWithParameters(
           'project_links.are_you_sure_to_delete_x_link',
-          link.name!
+          link.name!,
         )}
         modalHeader={translate('project_links.delete_project_link')}
         onConfirm={this.props.onDelete}

@@ -90,12 +90,12 @@ class CodeApp extends React.Component<Props, State> {
       componentKey,
       this.props.component.qualifier,
       this,
-      this.props.branchLike
+      this.props.branchLike,
     ).then((r) => {
       if (this.mounted) {
         if (
           [ComponentQualifier.File, ComponentQualifier.TestFile].includes(
-            r.component.qualifier as ComponentQualifier
+            r.component.qualifier as ComponentQualifier,
           )
         ) {
           this.setState({
@@ -154,7 +154,7 @@ class CodeApp extends React.Component<Props, State> {
       page + 1,
       this.props.component.qualifier,
       this,
-      this.props.branchLike
+      this.props.branchLike,
     ).then((r) => {
       if (this.mounted && r.components.length) {
         this.setState({

@@ -132,13 +132,13 @@ export function groupConditionsByMetric(conditions: Condition[]): GroupedByMetri
     {
       overallCodeConditions: [] as Condition[],
       newCodeConditions: [] as Condition[],
-    }
+    },
   );
 }
 
 export function groupAndSortByPriorityConditions(
   conditions: Condition[],
-  metrics: Dict<Metric>
+  metrics: Dict<Metric>,
 ): GroupedByMetricConditions {
   const groupedConditions = groupConditionsByMetric(conditions);
 
@@ -192,7 +192,7 @@ export function deleteCondition(qualityGate: QualityGate, condition: Condition):
 export function replaceCondition(
   qualityGate: QualityGate,
   newCondition: Condition,
-  oldCondition: Condition
+  oldCondition: Condition,
 ): QualityGate {
   const conditions =
     qualityGate.conditions &&

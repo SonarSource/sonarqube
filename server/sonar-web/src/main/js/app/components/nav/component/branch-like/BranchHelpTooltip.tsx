@@ -73,7 +73,7 @@ export default function BranchHelpTooltip({
             projectBinding != null
               ? translateWithParameters(
                   `branch_like_navigation.no_branch_support.content_x.${isGitLab ? 'mr' : 'pr'}`,
-                  translate('alm', projectBinding.alm)
+                  translate('alm', projectBinding.alm),
                 )
               : translate('branch_like_navigation.no_branch_support.content')
           }

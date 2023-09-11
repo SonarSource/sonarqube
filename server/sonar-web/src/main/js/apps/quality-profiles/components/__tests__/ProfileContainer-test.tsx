@@ -93,6 +93,6 @@ function renderProfileContainer(path: string, overrides: Partial<QualityProfiles
           </Route>
         </Routes>
       </MemoryRouter>
-    </HelmetProvider>
+    </HelmetProvider>,
   );
 }

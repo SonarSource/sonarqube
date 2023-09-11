@@ -104,7 +104,7 @@ export default function DomainSubnavigation(props: Props) {
             onChange={onChange}
             selected={selected}
           />
-        )
+        ),
       )}
     </SubnavigationAccordion>
   );

@@ -100,7 +100,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
         if (this.mounted) {
           this.setState({ submitting: false });
         }
-      }
+      },
     );
   };
 
@@ -217,7 +217,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
         : undefined;
 
     const introductionSection = ruleDetails.descriptionSections?.find(
-      (section) => section.key === RuleDescriptionSections.INTRODUCTION
+      (section) => section.key === RuleDescriptionSections.INTRODUCTION,
     )?.content;
 
     return (

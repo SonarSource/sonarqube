@@ -45,7 +45,7 @@ export default function DeactivateForm(props: Props) {
       { login: user.login, anonymize },
       {
         onSuccess: props.onClose,
-      }
+      },
     );
   };
 

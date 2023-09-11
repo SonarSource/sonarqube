@@ -38,7 +38,7 @@ export default function PasswordForm(props: Props) {
   const { user } = props;
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const [errorTranslationKey, setErrorTranslationKey] = React.useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [newPassword, setNewPassword] = React.useState('');
   const [oldPassword, setOldPassword] = React.useState('');

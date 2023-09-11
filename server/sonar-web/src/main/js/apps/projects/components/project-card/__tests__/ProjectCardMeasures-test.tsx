@@ -44,7 +44,7 @@ describe('Overall measures', () => {
   it("should be not be rendered if there's no line of code and application", () => {
     renderProjectCardMeasures(
       { [MetricKey.ncloc]: undefined },
-      { componentQualifier: ComponentQualifier.Application }
+      { componentQualifier: ComponentQualifier.Application },
     );
     expect(screen.getByText('portfolio.app.empty')).toBeInTheDocument();
   });
@@ -59,7 +59,7 @@ describe('New code measures', () => {
 
 function renderProjectCardMeasures(
   measuresOverride: Dict<string | undefined> = {},
-  props: Partial<ProjectCardMeasuresProps> = {}
+  props: Partial<ProjectCardMeasuresProps> = {},
 ) {
   const measures = {
     [MetricKey.alert_status]: 'ERROR',
@@ -90,6 +90,6 @@ function renderProjectCardMeasures(
       isNewCode={false}
       measures={measures}
       {...props}
-    />
+    />,
   );
 }

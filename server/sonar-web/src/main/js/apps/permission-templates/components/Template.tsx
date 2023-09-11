@@ -122,7 +122,7 @@ export default class Template extends React.PureComponent<Props, State> {
     });
     const [usersResponse, groupsResponse] = await this.loadUsersAndGroups(
       usersPaging ? usersPaging.pageIndex + 1 : 1,
-      groupsPaging ? groupsPaging.pageIndex + 1 : 1
+      groupsPaging ? groupsPaging.pageIndex + 1 : 1,
     );
     if (this.mounted) {
       this.setState(({ groups, users }) => ({
@@ -138,23 +138,23 @@ export default class Template extends React.PureComponent<Props, State> {
   removePermissionFromEntity = <T extends { login?: string; name: string; permissions: string[] }>(
     entities: T[],
     entity: string,
-    permission: string
+    permission: string,
   ): T[] =>
     entities.map((candidate) =>
       candidate.name === entity || candidate.login === entity
         ? { ...candidate, permissions: without(candidate.permissions, permission) }
-        : candidate
+        : candidate,
     );
 
   addPermissionToEntity = <T extends { login?: string; name: string; permissions: string[] }>(
     entities: T[],
     entity: string,
-    permission: string
+    permission: string,
   ): T[] =>
     entities.map((candidate) =>
       candidate.name === entity || candidate.login === entity
         ? { ...candidate, permissions: [...candidate.permissions, permission] }
-        : candidate
+        : candidate,
     );
 
   grantPermissionToUser = (login: string, permission: string) => {
@@ -297,7 +297,7 @@ export default class Template extends React.PureComponent<Props, State> {
       this.state;
     const permissions = convertToPermissionDefinitions(
       PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
-      'projects_role'
+      'projects_role',
     );
     const allUsers = [...users];
 

@@ -23,7 +23,9 @@ a {
   cursor: pointer;
   outline: none;
   text-decoration: none;
-  transition: border-bottom-color 0.2s ease, color 0.2s ease;
+  transition:
+    border-bottom-color 0.2s ease,
+    color 0.2s ease;
 }
 
 a:hover,

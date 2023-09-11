@@ -124,7 +124,7 @@ export default class ComputeEngineServiceMock {
         Math.max(
           +new Date(t.submittedAt),
           +new Date(t.startedAt ?? 0),
-          +new Date(t.executedAt ?? 0)
+          +new Date(t.executedAt ?? 0),
         );
 
       return getMaxDate(b) - getMaxDate(a);
@@ -167,7 +167,7 @@ export default class ComputeEngineServiceMock {
               case TaskStatuses.Pending:
                 stats.pendingTime = Math.max(
                   stats.pendingTime,
-                  differenceInMilliseconds(parseDate(task.submittedAt), Date.now())
+                  differenceInMilliseconds(parseDate(task.submittedAt), Date.now()),
                 );
                 stats.pending += 1;
                 break;
@@ -175,8 +175,8 @@ export default class ComputeEngineServiceMock {
 
             return stats;
           },
-          { failing: 0, inProgress: 0, pending: 0, pendingTime: 0 }
-        )
+          { failing: 0, inProgress: 0, pending: 0, pendingTime: 0 },
+        ),
     );
   };
 
@@ -203,10 +203,10 @@ export default class ComputeEngineServiceMock {
     const tasks = this.tasks.filter((t) => t.componentKey === componentKey);
     return Promise.resolve({
       queue: tasks.filter(
-        (t) => t.status === TaskStatuses.InProgress || t.status === TaskStatuses.Pending
+        (t) => t.status === TaskStatuses.InProgress || t.status === TaskStatuses.Pending,
       ),
       current: tasks.find(
-        (t) => t.status === TaskStatuses.Success || t.status === TaskStatuses.Failed
+        (t) => t.status === TaskStatuses.Success || t.status === TaskStatuses.Failed,
       ),
     });
   };
@@ -231,7 +231,7 @@ export default class ComputeEngineServiceMock {
       mockTask({
         id,
         ...overrides,
-      })
+      }),
     );
   };
 

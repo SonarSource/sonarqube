@@ -82,7 +82,7 @@ export function mapRules(rules: Array<{ key: string; name: string }>): Dict<stri
 
 export function groupByCategory(
   hotspots: RawHotspot[] = [],
-  securityCategories: StandardSecurityCategories
+  securityCategories: StandardSecurityCategories,
 ) {
   const groups = groupBy(hotspots, (h) => h.securityCategory);
 
@@ -95,7 +95,7 @@ export function groupByCategory(
   return [
     ...sortBy(
       groupList.filter((group) => group.key !== OTHERS_SECURITY_CATEGORY),
-      (group) => group.title
+      (group) => group.title,
     ),
     ...groupList.filter(({ key }) => key === OTHERS_SECURITY_CATEGORY),
   ];
@@ -115,7 +115,7 @@ function getCategoryTitle(key: string, securityCategories: StandardSecurityCateg
 
 export function constructSourceViewerFile(
   { component, project }: Hotspot,
-  lines?: number
+  lines?: number,
 ): SourceViewerFile {
   return {
     key: component.key,
@@ -153,7 +153,7 @@ export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[
           name: log.userName || log.user,
         },
         diffs: log.diffs,
-      }))
+      })),
     );
   }
 
@@ -170,7 +170,7 @@ export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[
         html: comment.htmlText,
         key: comment.key,
         markdown: comment.markdown,
-      }))
+      })),
     );
   }
 
@@ -187,7 +187,7 @@ const STATUS_AND_RESOLUTION_TO_STATUS_OPTION = {
 
 export function getStatusOptionFromStatusAndResolution(
   status: HotspotStatus,
-  resolution?: HotspotResolution
+  resolution?: HotspotResolution,
 ) {
   // Resolution is the most determinist info here, so we use it first to get the matching status option
   // If not provided, we use the status (which will be TO_REVIEW)
@@ -232,7 +232,7 @@ function getSecondaryLocations(flows: RawHotspot['flows']) {
     .map((flow) =>
       flow.map((location) => {
         return { ...location };
-      })
+      }),
     );
 
   const onlySecondaryLocations = parsedFlows.every((flow) => flow.length === 1);
@@ -254,7 +254,7 @@ function orderLocations(locations: FlowLocation[]) {
   return sortBy(
     locations,
     (location) => location.textRange && location.textRange.startLine,
-    (location) => location.textRange && location.textRange.startOffset
+    (location) => location.textRange && location.textRange.startOffset,
   );
 }
 

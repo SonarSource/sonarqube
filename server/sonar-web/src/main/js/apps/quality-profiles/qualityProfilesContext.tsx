@@ -34,7 +34,7 @@ export interface QualityProfilesContextProps {
 }
 
 export function withQualityProfilesContext<P extends Partial<QualityProfilesContextProps>>(
-  WrappedComponent: React.ComponentType<P>
+  WrappedComponent: React.ComponentType<P>,
 ): React.ComponentType<Omit<P, keyof QualityProfilesContextProps>> {
   function ComponentWithQualityProfilesProps(props: P) {
     const context = useOutletContext<QualityProfilesContextProps>();
@@ -43,7 +43,7 @@ export function withQualityProfilesContext<P extends Partial<QualityProfilesCont
 
   (ComponentWithQualityProfilesProps as React.FC<P>).displayName = getWrappedDisplayName(
     WrappedComponent,
-    'withQualityProfilesContext'
+    'withQualityProfilesContext',
   );
 
   return ComponentWithQualityProfilesProps;

@@ -59,7 +59,7 @@ export default class BackButton extends React.PureComponent<Props> {
           className={classNames(
             'link-no-underline',
             { 'cursor-not-allowed': this.props.disabled },
-            this.props.className
+            this.props.className,
           )}
           href="#"
           onClick={this.handleClick}

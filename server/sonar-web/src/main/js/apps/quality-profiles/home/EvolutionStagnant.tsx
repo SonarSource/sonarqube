@@ -63,7 +63,7 @@ export default function EvolutionStagnant(props: Props) {
                     {translateWithParameters(
                       'quality_profiles.x_updated_on_y',
                       profile.languageName,
-                      formattedDate
+                      formattedDate,
                     )}
                   </div>
                 )}

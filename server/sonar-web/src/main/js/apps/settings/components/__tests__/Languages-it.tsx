@@ -115,7 +115,7 @@ it('can save/reset/cancel or see error for custom mocked multi values definition
 
 function renderLanguages(
   overrides: Partial<AdditionalCategoryComponentProps> = {},
-  component = mockComponent()
+  component = mockComponent(),
 ) {
   return renderApp(
     '/',
@@ -125,6 +125,6 @@ function renderLanguages(
       categories={['javascript', 'sjava']}
       selectedCategory=""
       {...overrides}
-    />
+    />,
   );
 }

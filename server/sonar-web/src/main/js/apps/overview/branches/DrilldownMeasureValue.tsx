@@ -53,7 +53,7 @@ export function DrilldownMeasureValue(props: DrilldownMeasureValueProps) {
         aria-label={translateWithParameters(
           'overview.see_more_details_on_x_y',
           measure.value,
-          localizeMetric(metric)
+          localizeMetric(metric),
         )}
         to={url}
       >

@@ -94,6 +94,6 @@ function renderPageSidebar(overrides: Partial<PageSidebarProps> = {}, currentUse
         view="overall"
         {...overrides}
       />
-    </CurrentUserContext.Provider>
+    </CurrentUserContext.Provider>,
   ).container;
 }

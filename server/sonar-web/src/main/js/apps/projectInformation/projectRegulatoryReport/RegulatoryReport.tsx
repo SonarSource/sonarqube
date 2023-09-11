@@ -58,12 +58,12 @@ export default function RegulatoryReport({ component, branchLike }: Props) {
         const branches = await getBranches(component.key);
 
         const availableBranches = branches.filter(
-          (br) => br.analysisDate && (isMainBranch(br) || br.excludedFromPurge)
+          (br) => br.analysisDate && (isMainBranch(br) || br.excludedFromPurge),
         );
         const mainBranch = availableBranches.find(isMainBranch);
         const otherBranchSorted = orderBy(
           availableBranches.filter((b) => !isMainBranch(b)),
-          (b) => b.name
+          (b) => b.name,
         );
         const sortedBranch = mainBranch ? [mainBranch, ...otherBranchSorted] : otherBranchSorted;
         const options = sortedBranch.map((br) => {

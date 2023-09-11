@@ -107,7 +107,7 @@ export class ProjectActivityServiceMock {
       from?: string;
       p?: number;
       ps?: number;
-    } & BranchParameters
+    } & BranchParameters,
   ) => {
     const { project, ps = PAGE_SIZE, p = DEFAULT_PAGE, category, from } = data;
 
@@ -145,7 +145,7 @@ export class ProjectActivityServiceMock {
     analysisKey: string,
     name: string,
     category = ProjectAnalysisEventCategory.Other,
-    description?: string
+    description?: string,
   ) => {
     const analysis = this.findAnalysis(analysisKey);
 

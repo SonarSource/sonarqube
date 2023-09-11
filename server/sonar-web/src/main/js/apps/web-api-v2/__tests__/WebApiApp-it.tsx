@@ -38,13 +38,13 @@ const ui = {
   apiSidebarItem: byTestId('js-subnavigation-item'),
   requestBody: byText('api_documentation.v2.request_subheader.request_body'),
   queryParameter: byRole('list', { name: 'api_documentation.v2.request_subheader.query' }).byRole(
-    'listitem'
+    'listitem',
   ),
   pathParameter: byRole('list', { name: 'api_documentation.v2.request_subheader.path' }).byRole(
-    'listitem'
+    'listitem',
   ),
   requestHeader: byRole('list', { name: 'api_documentation.v2.request_subheader.header' }).byRole(
-    'listitem'
+    'listitem',
   ),
   response: byRole('list', { name: 'api_documentation.v2.response_header' }).byRole('listitem'),
 };
@@ -147,7 +147,7 @@ it('should show About page', async () => {
   expect(
     screen.getByText('This is a sample Pet Store Server based on the OpenAPI 3.0 specification.', {
       exact: false,
-    })
+    }),
   ).toBeInTheDocument();
   await user.click(ui.apiScopePet.get());
   await user.click(ui.apiSidebarItem.getAt(0));

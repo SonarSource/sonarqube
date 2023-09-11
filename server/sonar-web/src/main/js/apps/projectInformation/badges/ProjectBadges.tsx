@@ -123,7 +123,7 @@ export default function ProjectBadges(props: ProjectBadgesProps) {
               'overview.badges',
               BadgeType.qualityGate,
               'description',
-              qualifier
+              qualifier,
             )}
           />
         </div>

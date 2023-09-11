@@ -80,7 +80,7 @@ export function Menu(props: Props) {
   };
 
   const isGovernanceEnabled = extensions.some((extension) =>
-    extension.key.startsWith('governance/')
+    extension.key.startsWith('governance/'),
   );
 
   const getQuery = (): Query => {
@@ -93,7 +93,7 @@ export function Menu(props: Props) {
         <Tooltip
           overlay={translateWithParameters(
             'layout.all_project_must_be_accessible',
-            translate('qualifier', qualifier)
+            translate('qualifier', qualifier),
           )}
         >
           <a aria-disabled="true" className="disabled-link">
@@ -211,7 +211,7 @@ export function Menu(props: Props) {
     }
 
     const hasSecurityReportsEnabled = extensions.some((extension) =>
-      extension.key.startsWith('securityreport/')
+      extension.key.startsWith('securityreport/'),
     );
 
     if (!hasSecurityReportsEnabled) {
@@ -237,7 +237,7 @@ export function Menu(props: Props) {
       query,
       isProject(qualifier),
       isApplication(qualifier),
-      isPortfolioLike(qualifier)
+      isPortfolioLike(qualifier),
     );
     if (!adminLinks.some((link) => link != null)) {
       return null;
@@ -273,7 +273,7 @@ export function Menu(props: Props) {
     query: Query,
     isProject: boolean,
     isApplication: boolean,
-    isPortfolio: boolean
+    isPortfolio: boolean,
   ) => {
     return [
       renderSettingsLink(query, isApplication, isPortfolio),
@@ -524,7 +524,7 @@ export function Menu(props: Props) {
     const query = getQuery();
     const withoutSecurityExtension = extensions.filter(
       (extension) =>
-        !extension.key.startsWith('securityreport/') && !extension.key.startsWith('governance/')
+        !extension.key.startsWith('securityreport/') && !extension.key.startsWith('governance/'),
     );
 
     if (withoutSecurityExtension.length === 0) {

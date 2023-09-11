@@ -70,7 +70,7 @@ export default function AuthenticationMultiValueField(props: Props) {
                     aria-label={translateWithParameters(
                       'settings.definition.delete_value',
                       getPropertyName(definition),
-                      value
+                      value,
                     )}
                     onClick={() => handleDeleteValue(index)}
                   />

@@ -68,7 +68,7 @@ export default class PermissionHeader extends React.PureComponent<Props> {
         <Tooltip
           overlay={translateWithParameters(
             'global_permissions.filter_by_x_permission',
-            permission.name
+            permission.name,
           )}
         >
           <a href="#" onClick={this.handlePermissionClick}>

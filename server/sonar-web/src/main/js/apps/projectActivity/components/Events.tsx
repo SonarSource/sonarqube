@@ -39,7 +39,7 @@ function Events(props: EventsProps) {
     // versions last
     (event) => (event.category === ProjectAnalysisEventCategory.Version ? 1 : 0),
     // then the rest sorted by category
-    'category'
+    'category',
   );
 
   return (

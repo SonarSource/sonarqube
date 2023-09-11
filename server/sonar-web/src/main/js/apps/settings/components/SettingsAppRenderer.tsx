@@ -46,7 +46,7 @@ function SettingsAppRenderer(props: SettingsAppRendererProps) {
   const categories = React.useMemo(() => {
     return uniqBy(
       definitions.map((definition) => definition.category),
-      (category) => category.toLowerCase()
+      (category) => category.toLowerCase(),
     );
   }, [definitions]);
 

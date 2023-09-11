@@ -137,7 +137,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
           }
 
           const components = tree.components.map((component) =>
-            enhanceComponent(component, metric, metrics)
+            enhanceComponent(component, metric, metrics),
           );
 
           const measure = measures.find((m) => m.metric === requestedMetric.key);
@@ -155,7 +155,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
               components.find(
                 (c) =>
                   getComponentMeasureUniqueKey(c) ===
-                  getComponentMeasureUniqueKey(selectedComponent)
+                  getComponentMeasureUniqueKey(selectedComponent),
               )
                 ? selectedComponent
                 : undefined,
@@ -164,7 +164,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
       },
       () => {
         /* noop */
-      }
+      },
     );
   };
 
@@ -197,14 +197,14 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ loadingMoreComponents: false });
         }
-      }
+      },
     );
   };
 
   getComponentRequestParams(
     view: MeasurePageView,
     metric: Pick<Metric, 'key' | 'direction'>,
-    options: Object = {}
+    options: Object = {},
   ) {
     const strategy = view === MeasurePageView.list ? 'leaves' : 'children';
     const metricKeys = [metric.key];
@@ -259,7 +259,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
       const comp = this.state.components.find(
         (c) =>
           c.refKey === component.key ||
-          getComponentMeasureUniqueKey(c) === getComponentMeasureUniqueKey(component)
+          getComponentMeasureUniqueKey(c) === getComponentMeasureUniqueKey(component),
       );
 
       if (comp) {
@@ -285,7 +285,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
       ? getComponentMeasureUniqueKey(this.state.baseComponent)
       : getComponentMeasureUniqueKey(this.state.selectedComponent);
     const index = this.state.components.findIndex(
-      (component) => getComponentMeasureUniqueKey(component) === componentKey
+      (component) => getComponentMeasureUniqueKey(component) === componentKey,
     );
     return index !== -1 ? index : undefined;
   };

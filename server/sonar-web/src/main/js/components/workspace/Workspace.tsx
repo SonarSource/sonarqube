@@ -89,7 +89,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
     try {
       const data: any[] = JSON.parse(get(WORKSPACE) || '');
       const components: ComponentDescriptor[] = data.filter(
-        (x) => x[TYPE_KEY] === WorkspaceTypes.Component
+        (x) => x[TYPE_KEY] === WorkspaceTypes.Component,
       );
       return { components };
     } catch {
@@ -103,7 +103,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
       // Do not save line number, next time the file is open, it should be open
       // on the first line.
       ...this.state.components.map((x) =>
-        omit({ ...x, [TYPE_KEY]: WorkspaceTypes.Component }, 'line')
+        omit({ ...x, [TYPE_KEY]: WorkspaceTypes.Component }, 'line'),
       ),
     ];
     save(WORKSPACE, JSON.stringify(data));
@@ -135,7 +135,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
       const { key, name, qualifier } = details;
       this.setState((state: State) => ({
         components: state.components.map((component) =>
-          component.key === key ? { ...component, name, qualifier } : component
+          component.key === key ? { ...component, name, qualifier } : component,
         ),
       }));
     }

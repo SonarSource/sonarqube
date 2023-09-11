@@ -39,7 +39,7 @@ it('should display ticks', () => {
   ];
   const ticks = ['A', 'B', 'C'];
   const chart = shallow(
-    <BarChart barsWidth={20} data={data} height={100} width={100} xTicks={ticks} />
+    <BarChart barsWidth={20} data={data} height={100} width={100} xTicks={ticks} />,
   );
   expect(chart.find('.bar-chart-tick').length).toBe(3);
 });
@@ -52,7 +52,7 @@ it('should display values', () => {
   ];
   const values = ['A', 'B', 'C'];
   const chart = shallow(
-    <BarChart barsWidth={20} data={data} height={100} width={100} xValues={values} />
+    <BarChart barsWidth={20} data={data} height={100} width={100} xValues={values} />,
   );
   expect(chart.find('.bar-chart-tick').length).toBe(3);
 });
@@ -66,7 +66,14 @@ it('should display bars, ticks and values', () => {
   const ticks = ['A', 'B', 'C'];
   const values = ['A', 'B', 'C'];
   const chart = shallow(
-    <BarChart barsWidth={20} data={data} height={100} width={100} xTicks={ticks} xValues={values} />
+    <BarChart
+      barsWidth={20}
+      data={data}
+      height={100}
+      width={100}
+      xTicks={ticks}
+      xValues={values}
+    />,
   );
   expect(chart.find('.bar-chart-bar').length).toBe(3);
   expect(chart.find('.bar-chart-tick').length).toBe(6);

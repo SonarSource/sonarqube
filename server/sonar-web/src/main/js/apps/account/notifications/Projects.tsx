@@ -106,12 +106,12 @@ export default class Projects extends React.PureComponent<Props, State> {
     const { addedProjects, search } = this.state;
 
     const projects = uniqBy(notifications, ({ project }) => project).filter(
-      isNotificationProject
+      isNotificationProject,
     ) as NotificationProject[];
     const notificationsByProject = groupBy(notifications, (n) => n.project);
     const allProjects = uniqBy([...addedProjects, ...projects], (project) => project.project);
     const filteredProjects = sortBy(allProjects, 'projectName').filter((p) =>
-      this.filterSearch(p, search)
+      this.filterSearch(p, search),
     );
     const shouldBeCollapsed = Object.keys(notificationsByProject).length > THRESHOLD_COLLAPSED;
 

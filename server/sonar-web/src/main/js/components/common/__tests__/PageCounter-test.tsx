@@ -28,6 +28,6 @@ it('should render correctly', () => {
 
 function shallowRender(props: Partial<PageCounterProps> = {}) {
   return shallow<PageCounterProps>(
-    <PageCounter label="label" current={123} total={1234} {...props} />
+    <PageCounter label="label" current={123} total={1234} {...props} />,
   );
 }

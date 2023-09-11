@@ -52,7 +52,7 @@ export const parseQuery = memoize(
   (urlQuery: RawQuery): Query => ({
     filter: parseAsString(urlQuery['filter']) || DEFAULT_FILTER,
     search: parseAsString(urlQuery['search']),
-  })
+  }),
 );
 
 export const serializeQuery = memoize(
@@ -60,7 +60,7 @@ export const serializeQuery = memoize(
     cleanQuery({
       filter: query.filter === DEFAULT_FILTER ? undefined : serializeString(query.filter),
       search: query.search ? serializeString(query.search) : undefined,
-    })
+    }),
 );
 
 function getLastUpdates(updates: undefined | Update[]): Update[] {
@@ -71,7 +71,7 @@ function getLastUpdates(updates: undefined | Update[]): Update[] {
     (status) => {
       const index = findLastIndex(updates, (update) => update.status === status);
       return index > -1 ? updates[index] : undefined;
-    }
+    },
   );
   return lastUpdate.filter(isDefined);
 }
@@ -90,19 +90,19 @@ export function getInstalledPluginsWithUpdates(): Promise<InstalledPlugin[]> {
     .then(([installed, updates]) =>
       installed.map((plugin: InstalledPlugin) => {
         const updatePlugin: InstalledPlugin = updates.plugins.find(
-          (p: InstalledPlugin) => p.key === plugin.key
+          (p: InstalledPlugin) => p.key === plugin.key,
         );
         if (updatePlugin) {
           return {
             ...updatePlugin,
             ...plugin,
             updates: getLastUpdates(updatePlugin.updates).map((update) =>
-              addChangelog(update, updatePlugin.updates)
+              addChangelog(update, updatePlugin.updates),
             ),
           };
         }
         return plugin;
-      })
+      }),
     )
     .catch(throwGlobalError);
 }
@@ -112,7 +112,7 @@ export function getPluginUpdates(): Promise<InstalledPlugin[]> {
     .then(([updates, installed]) =>
       updates.plugins.map((updatePlugin: InstalledPlugin) => {
         const updates = getLastUpdates(updatePlugin.updates).map((update) =>
-          addChangelog(update, updatePlugin.updates)
+          addChangelog(update, updatePlugin.updates),
         );
         const plugin = installed.find((p: InstalledPlugin) => p.key === updatePlugin.key);
         if (plugin) {
@@ -123,7 +123,7 @@ export function getPluginUpdates(): Promise<InstalledPlugin[]> {
           };
         }
         return { ...updatePlugin, updates };
-      })
+      }),
     )
     .catch(throwGlobalError);
 }

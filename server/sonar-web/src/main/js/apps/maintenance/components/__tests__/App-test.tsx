@@ -111,7 +111,7 @@ describe('Maintenance', () => {
         // eslint-disable-next-line jest/no-conditional-expect
         expect(link).toHaveAttribute('href', linkInfo.href);
       }
-    }
+    },
   );
 
   it('should poll status', async () => {
@@ -147,7 +147,7 @@ describe('Maintenance', () => {
         location={mockLocation({ query: { return_to: '/return/to' } })}
         setup={false}
         {...props}
-      />
+      />,
     );
   }
 });
@@ -218,7 +218,7 @@ describe('Setup', () => {
         // eslint-disable-next-line jest/no-conditional-expect
         expect(link).toHaveAttribute('href', linkInfo.href);
       }
-    }
+    },
   );
 
   it('should handle DB migration', async () => {
@@ -267,7 +267,7 @@ describe('Setup', () => {
   function renderSetupApp(props: Partial<App['props']> = {}) {
     return renderApp(
       '/',
-      <App location={mockLocation({ query: { return_to: '/return/to' } })} setup {...props} />
+      <App location={mockLocation({ query: { return_to: '/return/to' } })} setup {...props} />,
     );
   }
 });

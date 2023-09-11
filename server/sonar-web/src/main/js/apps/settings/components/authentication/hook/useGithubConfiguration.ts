@@ -55,7 +55,7 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
   const { values, isValueChange, setNewValue } = config;
 
   const hasGithubProvisioning = useContext(AvailableFeaturesContext).includes(
-    Feature.GithubProvisioning
+    Feature.GithubProvisioning,
   );
   const { data: githubProvisioningStatus } = useGithubProvisioningEnabledQuery();
   const toggleGithubProvisioning = useToggleGithubProvisioningMutation();

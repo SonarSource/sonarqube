@@ -44,9 +44,9 @@ describe('groupLocationsByComponent', () => {
         'main.js': mockSnippetsByComponent(
           'main.js',
           'project',
-          [14, 15, 16, 17, 18, 22, 23, 24, 25, 26]
+          [14, 15, 16, 17, 18, 22, 23, 24, 25, 26],
         ),
-      }
+      },
     );
 
     expect(results).toHaveLength(1);
@@ -72,7 +72,7 @@ describe('groupLocationsByComponent', () => {
       {
         'A.js': mockSnippetsByComponent('A.js', 'project', [13, 14, 15, 16, 17, 18]),
         'B.js': mockSnippetsByComponent('B.js', 'project', [14, 15, 16, 17, 18]),
-      }
+      },
     );
 
     expect(results).toHaveLength(3);

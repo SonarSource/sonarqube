@@ -52,7 +52,7 @@ it('should render correctly and allow token generation', async () => {
   const user = userEvent.setup();
 
   expect(
-    screen.getByRole('heading', { name: 'onboarding.tutorial.with.azure_pipelines.title' })
+    screen.getByRole('heading', { name: 'onboarding.tutorial.with.azure_pipelines.title' }),
   ).toBeInTheDocument();
 
   //// Default step.
@@ -71,7 +71,7 @@ it('should render correctly and allow token generation', async () => {
 
   expect(lastToken!.type).toBe(TokenType.Global);
   expect(
-    within(modal).getByText(`users.tokens.new_token_created.${lastToken!.token}`)
+    within(modal).getByText(`users.tokens.new_token_created.${lastToken!.token}`),
   ).toBeInTheDocument();
   await clickButton(user, 'continue', modal);
 
@@ -119,7 +119,7 @@ function assertDefaultStepIsCorrectlyRendered() {
   expect(
     screen.getByRole('heading', {
       name: 'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.title',
-    })
+    }),
   ).toBeInTheDocument();
 }
 
@@ -127,11 +127,11 @@ function assertServiceEndpointStepIsCorrectlyRendered() {
   expect(
     screen.getByRole('heading', {
       name: 'onboarding.tutorial.with.azure_pipelines.ServiceEndpoint.title',
-    })
+    }),
   ).toBeInTheDocument();
   expect(getCopyToClipboardValue(0, 'Copy to clipboard')).toBe('https://sonarqube.example.com/');
   expect(
-    screen.getByRole('button', { name: 'onboarding.token.generate.long' })
+    screen.getByRole('button', { name: 'onboarding.token.generate.long' }),
   ).toBeInTheDocument();
 }
 
@@ -139,7 +139,7 @@ function assertDotNetStepIsCorrectlyRendered() {
   expect(
     screen.getByRole('heading', {
       name: 'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.title',
-    })
+    }),
   ).toBeInTheDocument();
 
   expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toBe('foo');
@@ -157,10 +157,10 @@ function assertCFamilyStepIsCorrectlyRendered(os: string) {
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot(`cfamily ${os}, copy shell script`);
   expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toBe('foo');
   expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
-    `cfamily ${os}, copy additional properties`
+    `cfamily ${os}, copy additional properties`,
   );
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
-    `cfamily ${os}, copy build-wrapper command`
+    `cfamily ${os}, copy build-wrapper command`,
   );
 }
 
@@ -172,13 +172,13 @@ function assertFinishStepIsCorrectlyRendered() {
   expect(
     screen.getByRole('heading', {
       name: 'onboarding.tutorial.ci_outro.done',
-    })
+    }),
   ).toBeInTheDocument();
 }
 
 function renderAzurePipelinesTutorial(
   props: Partial<AzurePipelinesTutorialProps> = {},
-  { languages = { c: mockLanguage({ key: 'c' }) } }: RenderContext = {}
+  { languages = { c: mockLanguage({ key: 'c' }) } }: RenderContext = {},
 ) {
   return renderApp(
     '/',
@@ -189,7 +189,7 @@ function renderAzurePipelinesTutorial(
       willRefreshAutomatically
       {...props}
     />,
-    { languages }
+    { languages },
   );
 }
 

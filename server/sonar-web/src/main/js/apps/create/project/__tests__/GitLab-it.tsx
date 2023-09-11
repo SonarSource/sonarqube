@@ -77,7 +77,7 @@ it('should ask for PAT when it is not set yet and show the import project featur
 
   expect(screen.getByText('onboarding.create_project.enter_pat')).toBeInTheDocument();
   expect(
-    screen.getByText('onboarding.create_project.pat_help.instructions.gitlab')
+    screen.getByText('onboarding.create_project.pat_help.instructions.gitlab'),
   ).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'save' })).toBeInTheDocument();
   await act(async () => {
@@ -107,12 +107,12 @@ it('should show import project feature when PAT is already set', async () => {
 
   projectItem = screen.getByRole('row', { name: /Gitlab project 1/ });
   expect(
-    within(projectItem).getByText('onboarding.create_project.repository_imported')
+    within(projectItem).getByText('onboarding.create_project.repository_imported'),
   ).toBeInTheDocument();
   expect(within(projectItem).getByRole('link', { name: /Gitlab project 1/ })).toBeInTheDocument();
   expect(within(projectItem).getByRole('link', { name: /Gitlab project 1/ })).toHaveAttribute(
     'href',
-    '/dashboard?id=key'
+    '/dashboard?id=key',
   );
 
   projectItem = screen.getByRole('row', { name: /Gitlab project 2/ });
@@ -123,14 +123,14 @@ it('should show import project feature when PAT is already set', async () => {
   await user.click(importButton);
 
   expect(
-    screen.getByRole('heading', { name: 'onboarding.create_project.new_code_definition.title' })
+    screen.getByRole('heading', { name: 'onboarding.create_project.new_code_definition.title' }),
   ).toBeInTheDocument();
 
   await user.click(screen.getByRole('radio', { name: 'new_code_definition.global_setting' }));
   await user.click(
     screen.getByRole('button', {
       name: 'onboarding.create_project.new_code_definition.create_project',
-    })
+    }),
   );
 
   expect(await screen.findByText('/dashboard?id=key')).toBeInTheDocument();

@@ -48,7 +48,7 @@ export class Form extends React.PureComponent<Props> {
     await deleteMethod(component.key);
 
     addGlobalSuccessMessage(
-      translateWithParameters('project_deletion.resource_deleted', component.name)
+      translateWithParameters('project_deletion.resource_deleted', component.name),
     );
     this.props.router.replace(redirectTo);
   };
@@ -61,7 +61,7 @@ export class Form extends React.PureComponent<Props> {
         isDestructive
         modalBody={translateWithParameters(
           'project_deletion.delete_resource_confirmation',
-          component.name
+          component.name,
         )}
         modalHeader={translate('qualifier.delete', component.qualifier)}
         onConfirm={this.handleDelete}

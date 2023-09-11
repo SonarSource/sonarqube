@@ -56,7 +56,7 @@ const EXPAND_ANIMATION_SPEED = 200;
 export async function animateExpansion(
   scrollableRef: React.RefObject<HTMLDivElement>,
   expandBlock: (direction: ExpandDirection) => Promise<void>,
-  direction: ExpandDirection
+  direction: ExpandDirection,
 ) {
   const wrapper = scrollableRef.current?.querySelector<HTMLElement>('.it__source-viewer-code');
   const table = wrapper?.firstChild as HTMLElement;
@@ -104,7 +104,7 @@ export async function animateExpansion(
 }
 
 export default function HotspotSnippetContainerRenderer(
-  props: HotspotSnippetContainerRendererProps
+  props: HotspotSnippetContainerRendererProps,
 ) {
   const {
     highlightedSymbols,
@@ -129,7 +129,7 @@ export default function HotspotSnippetContainerRenderer(
         secondaryLocationSelected={secondaryLocationSelected}
       />
     ),
-    [hotspot, secondaryLocationSelected]
+    [hotspot, secondaryLocationSelected],
   );
 
   const renderHotspotBoxInLine = (line: SourceLine) =>

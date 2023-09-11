@@ -105,7 +105,7 @@ export class FileFacet extends React.PureComponent<Props> {
     return this.renderFile(
       <>
         {head}/{highlightTerm(tail, term)}
-      </>
+      </>,
     );
   };
 

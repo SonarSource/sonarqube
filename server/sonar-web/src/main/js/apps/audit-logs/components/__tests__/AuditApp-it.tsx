@@ -84,22 +84,22 @@ it('should handle download button click', async () => {
   expect(downloadButton).toBeInTheDocument();
   expect(downloadButton).toHaveAttribute(
     'href',
-    '/api/audit_logs/download?from=2020-07-21T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z'
+    '/api/audit_logs/download?from=2020-07-21T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z',
   );
   await user.click(ui.weekRadio.get());
   expect(downloadButton).toHaveAttribute(
     'href',
-    '/api/audit_logs/download?from=2020-07-14T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z'
+    '/api/audit_logs/download?from=2020-07-14T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z',
   );
   await user.click(ui.monthRadio.get());
   expect(downloadButton).toHaveAttribute(
     'href',
-    '/api/audit_logs/download?from=2020-06-21T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z'
+    '/api/audit_logs/download?from=2020-06-21T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z',
   );
   await user.click(ui.trimesterRadio.get());
   expect(downloadButton).toHaveAttribute(
     'href',
-    '/api/audit_logs/download?from=2020-04-22T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z'
+    '/api/audit_logs/download?from=2020-04-22T12%3A00%3A00.000Z&to=2020-07-21T12%3A00%3A00.000Z',
   );
 
   await user.click(downloadButton);

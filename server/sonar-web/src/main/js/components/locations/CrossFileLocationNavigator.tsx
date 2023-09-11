@@ -109,7 +109,7 @@ export default class CrossFileLocationNavigator extends React.PureComponent<Prop
   renderLocation = (
     index: number,
     message: string | undefined,
-    messageFormattings: MessageFormatting[] | undefined
+    messageFormattings: MessageFormatting[] | undefined,
   ) => {
     return (
       <SingleFileLocationNavigator
@@ -126,7 +126,7 @@ export default class CrossFileLocationNavigator extends React.PureComponent<Prop
   renderGroup = (
     group: LocationGroup,
     groupIndex: number,
-    { onlyFirst = false, onlyLast = false } = {}
+    { onlyFirst = false, onlyLast = false } = {},
   ) => {
     const { firstLocationIndex } = group;
     const lastLocationIndex = group.locations.length - 1;
@@ -142,14 +142,14 @@ export default class CrossFileLocationNavigator extends React.PureComponent<Prop
               this.renderLocation(
                 firstLocationIndex,
                 group.locations[0].msg,
-                group.locations[0].msgFormattings
+                group.locations[0].msgFormattings,
               )}
 
             {onlyLast &&
               this.renderLocation(
                 firstLocationIndex + lastLocationIndex,
                 group.locations[lastLocationIndex].msg,
-                group.locations[lastLocationIndex].msgFormattings
+                group.locations[lastLocationIndex].msgFormattings,
               )}
 
             {!onlyFirst &&
@@ -158,8 +158,8 @@ export default class CrossFileLocationNavigator extends React.PureComponent<Prop
                 this.renderLocation(
                   firstLocationIndex + index,
                   location.msg,
-                  location.msgFormattings
-                )
+                  location.msgFormattings,
+                ),
               )}
           </div>
         )}
@@ -189,7 +189,7 @@ export default class CrossFileLocationNavigator extends React.PureComponent<Prop
               <a className="location-file-more" href="#" onClick={this.handleMoreLocationsClick}>
                 {translateWithParameters(
                   'issues.x_more_locations',
-                  locations.length - nbLocationsAlwaysDisplayed
+                  locations.length - nbLocationsAlwaysDisplayed,
                 )}
               </a>
             </div>

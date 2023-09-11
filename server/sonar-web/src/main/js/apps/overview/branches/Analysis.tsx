@@ -36,7 +36,7 @@ export function Analysis({ analysis, ...props }: AnalysisProps) {
     // versions first
     (event) => (event.category === 'VERSION' ? 0 : 1),
     // then the rest sorted by category
-    'category'
+    'category',
   );
 
   // use `TRK` for all components but applications

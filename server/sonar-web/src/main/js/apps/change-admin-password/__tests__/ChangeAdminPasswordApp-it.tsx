@@ -43,7 +43,7 @@ const ui = {
   }),
   unauthorizedMessage: byText('unauthorized.message'),
   defaultPasswordWarningMessage: byText(
-    'users.change_admin_password.form.cannot_use_default_password'
+    'users.change_admin_password.form.cannot_use_default_password',
   ),
 };
 
@@ -55,7 +55,7 @@ it('should disallow change when not an admin', () => {
 it('should allow changing password when using the default admin password', async () => {
   const user = userEvent.setup();
   renderChangeAdminPasswordApp(
-    mockAppState({ instanceUsesDefaultAdminCredentials: true, canAdmin: true })
+    mockAppState({ instanceUsesDefaultAdminCredentials: true, canAdmin: true }),
   );
   expect(ui.updateButton.get()).toBeDisabled();
   await user.type(ui.passwordInput.get(), 'password');
@@ -75,7 +75,7 @@ it('should allow changing password when using the default admin password', async
 it('should not allow to submit the default password', async () => {
   const user = userEvent.setup();
   renderChangeAdminPasswordApp(
-    mockAppState({ instanceUsesDefaultAdminCredentials: true, canAdmin: true })
+    mockAppState({ instanceUsesDefaultAdminCredentials: true, canAdmin: true }),
   );
 
   await user.type(ui.passwordInput.get(), DEFAULT_ADMIN_PASSWORD);

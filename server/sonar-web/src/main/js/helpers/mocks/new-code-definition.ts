@@ -32,7 +32,7 @@ export function mockNewCodePeriod(overrides: Partial<NewCodeDefinition> = {}): N
 }
 
 export function mockNewCodePeriodBranch(
-  overrides: Partial<NewCodeDefinitionBranch> = {}
+  overrides: Partial<NewCodeDefinitionBranch> = {},
 ): NewCodeDefinitionBranch {
   return {
     projectKey: 'pkey',

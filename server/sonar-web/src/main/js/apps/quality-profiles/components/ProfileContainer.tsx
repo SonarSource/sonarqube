@@ -64,7 +64,7 @@ export default function ProfileContainer() {
         title={profile.name}
         titleTemplate={translateWithParameters(
           'page_title.template.with_category',
-          translate('quality_profiles.page')
+          translate('quality_profiles.page'),
         )}
       />
       <ProfileHeader

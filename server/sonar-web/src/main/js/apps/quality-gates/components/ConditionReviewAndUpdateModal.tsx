@@ -60,7 +60,7 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
               this.props.onSaveCondition(resultCondition, currentCondition);
             }
           })
-          .catch(() => undefined)
+          .catch(() => undefined),
       );
     });
 
@@ -71,7 +71,7 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
           gateName: qualityGate.name,
         })
           .then((resultCondition) => this.props.onAddCondition(resultCondition))
-          .catch(() => undefined)
+          .catch(() => undefined),
       );
     });
 
@@ -86,19 +86,19 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
     const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
     const sortedWeakConditions = sortBy(
       weakConditions,
-      (condition) => metrics[condition.metric] && metrics[condition.metric].name
+      (condition) => metrics[condition.metric] && metrics[condition.metric].name,
     );
 
     const sortedMissingConditions = sortBy(
       missingConditions,
-      (condition) => metrics[condition.metric] && metrics[condition.metric].name
+      (condition) => metrics[condition.metric] && metrics[condition.metric].name,
     );
 
     return (
       <ConfirmModal
         header={translateWithParameters(
           'quality_gates.cayc.review_update_modal.header',
-          qualityGate.name
+          qualityGate.name,
         )}
         confirmButtonText={translate('quality_gates.cayc.review_update_modal.confirm_text')}
         onClose={this.props.onClose}
@@ -125,7 +125,7 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
               <h4 className="big-spacer-top spacer-bottom">
                 {translateWithParameters(
                   'quality_gates.cayc.review_update_modal.add_condition.header',
-                  sortedMissingConditions.length
+                  sortedMissingConditions.length,
                 )}
               </h4>
               <ConditionsTable
@@ -142,7 +142,7 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
               <h4 className="big-spacer-top spacer-bottom">
                 {translateWithParameters(
                   'quality_gates.cayc.review_update_modal.modify_condition.header',
-                  sortedWeakConditions.length
+                  sortedWeakConditions.length,
                 )}
               </h4>
               <ConditionsTable

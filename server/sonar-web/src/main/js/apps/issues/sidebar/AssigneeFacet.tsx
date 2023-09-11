@@ -55,7 +55,7 @@ export class AssigneeFacet extends React.PureComponent<Props> {
       this.props.onChange({ assigned: !this.props.assigned, assignees: [] });
     } else if (multiple) {
       const newValue = sortBy(
-        assignees.includes(itemValue) ? without(assignees, itemValue) : [...assignees, itemValue]
+        assignees.includes(itemValue) ? without(assignees, itemValue) : [...assignees, itemValue],
       );
 
       this.props.onChange({ assigned: true, assignees: newValue });
@@ -100,7 +100,7 @@ export class AssigneeFacet extends React.PureComponent<Props> {
       // put "not assigned" first
       (key) => (key === '' ? 0 : 1),
       // the sort by number
-      (key) => -stats[key]
+      (key) => -stats[key],
     );
   };
 

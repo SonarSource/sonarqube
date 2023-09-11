@@ -63,7 +63,7 @@ const almList: almList = [
 function renderAlmOption(
   props: CreateProjectModeSelectionProps,
   alm: AlmKeys,
-  mode: CreateProjectModes
+  mode: CreateProjectModes,
 ) {
   const {
     almCounts,
@@ -126,7 +126,7 @@ function separateAvailableOptions(almCounts: CreateProjectModeSelectionProps['al
   const availableOptions: almList = [];
   const unavailableOptions: almList = [];
   almList.forEach(({ key, mode }) =>
-    (almCounts[key] > 0 ? availableOptions : unavailableOptions).push({ key, mode })
+    (almCounts[key] > 0 ? availableOptions : unavailableOptions).push({ key, mode }),
   );
   return {
     availableOptions,

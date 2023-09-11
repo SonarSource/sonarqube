@@ -141,7 +141,7 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
               saving: false,
             });
           }
-        }
+        },
       );
     }
   };

@@ -162,7 +162,7 @@ export default class PluginsServiceMock {
 
   handleGetPluginUpdates = () => {
     return this.reply(
-      this.#installed.filter((plugin) => plugin.updates && plugin.updates.length > 0)
+      this.#installed.filter((plugin) => plugin.updates && plugin.updates.length > 0),
     );
   };
 
@@ -192,7 +192,7 @@ export default class PluginsServiceMock {
         'sonarLintSupported',
         'hash',
         'filename',
-        'documentationPath'
+        'documentationPath',
       ),
       implementationBuild: '20210101-000000',
     });
@@ -214,7 +214,7 @@ export default class PluginsServiceMock {
         'sonarLintSupported',
         'hash',
         'filename',
-        'documentationPath'
+        'documentationPath',
       ),
       version: plugin.updates[plugin.updates.length - 1].release?.version ?? '',
       implementationBuild: '20210101-000000',

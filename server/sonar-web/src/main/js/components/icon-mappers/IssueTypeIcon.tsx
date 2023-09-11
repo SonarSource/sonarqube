@@ -69,7 +69,7 @@ export function IssueTypeCircleIcon({ className, type, ...iconProps }: Props) {
     <CircleIconContainer
       className={classNames(
         'sw-inline-flex sw-items-center sw-justify-center sw-shrink-0 sw-w-6 sw-h-6',
-        className
+        className,
       )}
     >
       <IssueTypeIcon fill={themeContrast('issueTypeIcon')({ theme })} type={type} {...iconProps} />

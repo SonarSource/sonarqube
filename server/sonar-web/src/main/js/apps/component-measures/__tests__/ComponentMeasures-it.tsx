@@ -42,7 +42,7 @@ jest.mock('lodash', () => ({
 jest.mock('../../../api/metrics', () => {
   const { DEFAULT_METRICS } = jest.requireActual('../../../helpers/mocks/metrics');
   const metrics = Object.values(MetricKey).map(
-    (key) => DEFAULT_METRICS[key] ?? mockMetric({ key })
+    (key) => DEFAULT_METRICS[key] ?? mockMetric({ key }),
   );
   return {
     getAllMetrics: jest.fn().mockResolvedValue(metrics),
@@ -170,7 +170,7 @@ describe('rendering', () => {
     await ui.appLoaded();
 
     expect(
-      within(ui.noAccessWarning.get()).getByText('component_measures.not_all_measures_are_shown')
+      within(ui.noAccessWarning.get()).getByText('component_measures.not_all_measures_are_shown'),
     ).toBeInTheDocument();
   });
 
@@ -205,7 +205,7 @@ describe('rendering', () => {
         }),
         ancestors: [tree.component],
         children: [],
-      }))
+      })),
     );
     componentsHandler.registerComponentTree(tree);
     measuresHandler.registerComponentMeasures(
@@ -218,7 +218,7 @@ describe('rendering', () => {
           }),
         };
         return acc;
-      }, measures)
+      }, measures),
     );
 
     const { ui, user } = getPageObject();
@@ -239,7 +239,7 @@ describe('rendering', () => {
     await user.click(ui.measureBtn('Code Smells 8').get());
     expect(ui.goToActivityLink.get()).toHaveAttribute(
       'href',
-      '/project/activity?id=foo&graph=custom&custom_metrics=code_smells'
+      '/project/activity?id=foo&graph=custom&custom_metrics=code_smells',
     );
   });
 
@@ -272,18 +272,18 @@ describe('navigation', () => {
 
     await user.click(ui.measureBtn('Code Smells 8').get());
     expect(
-      within(ui.measuresRow('folderA').get()).getByRole('cell', { name: '3' })
+      within(ui.measuresRow('folderA').get()).getByRole('cell', { name: '3' }),
     ).toBeInTheDocument();
     expect(
-      within(ui.measuresRow('test1.js').get()).getByRole('cell', { name: '2' })
+      within(ui.measuresRow('test1.js').get()).getByRole('cell', { name: '2' }),
     ).toBeInTheDocument();
 
     await user.click(ui.fileLink('folderA').get());
     expect(
-      within(ui.measuresRow('out.tsx').get()).getByRole('cell', { name: '1' })
+      within(ui.measuresRow('out.tsx').get()).getByRole('cell', { name: '1' }),
     ).toBeInTheDocument();
     expect(
-      within(ui.measuresRow('in.tsx').get()).getByRole('cell', { name: '2' })
+      within(ui.measuresRow('in.tsx').get()).getByRole('cell', { name: '2' }),
     ).toBeInTheDocument();
 
     await user.click(ui.fileLink('out.tsx').get());
@@ -305,10 +305,10 @@ describe('navigation', () => {
     await ui.changeViewToList();
 
     expect(
-      within(ui.measuresRow('out.tsx').get()).getByRole('cell', { name: '1' })
+      within(ui.measuresRow('out.tsx').get()).getByRole('cell', { name: '1' }),
     ).toBeInTheDocument();
     expect(
-      within(ui.measuresRow('test1.js').get()).getByRole('cell', { name: '2' })
+      within(ui.measuresRow('test1.js').get()).getByRole('cell', { name: '2' }),
     ).toBeInTheDocument();
 
     await user.click(ui.fileLink('out.tsx').get());
@@ -352,10 +352,10 @@ describe('navigation', () => {
     });
 
     expect(
-      within(ui.measuresRow('out.tsx').get()).getByRole('cell', { name: '1' })
+      within(ui.measuresRow('out.tsx').get()).getByRole('cell', { name: '1' }),
     ).toBeInTheDocument();
     expect(
-      within(ui.measuresRow('in.tsx').get()).getByRole('cell', { name: '2' })
+      within(ui.measuresRow('in.tsx').get()).getByRole('cell', { name: '2' }),
     ).toBeInTheDocument();
 
     // Move back to project.
@@ -364,7 +364,7 @@ describe('navigation', () => {
     });
 
     expect(
-      within(ui.measuresRow('folderA').get()).getByRole('cell', { name: '3' })
+      within(ui.measuresRow('folderA').get()).getByRole('cell', { name: '3' }),
     ).toBeInTheDocument();
 
     await act(async () => {
@@ -386,7 +386,7 @@ describe('redirects', () => {
   it('should redirect old history route', () => {
     renderMeasuresApp('component_measures/metric/bugs/history?id=foo');
     expect(
-      screen.getByText('/project/activity?id=foo&graph=custom&custom_metrics=bugs')
+      screen.getByText('/project/activity?id=foo&graph=custom&custom_metrics=bugs'),
     ).toBeInTheDocument();
   });
 
@@ -422,7 +422,7 @@ it('should allow to load more components', async () => {
       }),
       ancestors: [tree.component],
       children: [],
-    }))
+    })),
   );
   componentsHandler.registerComponentTree(tree);
 
@@ -545,6 +545,6 @@ function renderMeasuresApp(navigateTo?: string, componentContext?: Partial<Compo
     'component_measures',
     routes,
     { navigateTo, featureList: [Feature.BranchSupport] },
-    { component: mockComponent({ key: 'foo' }), ...componentContext }
+    { component: mockComponent({ key: 'foo' }), ...componentContext },
   );
 }

@@ -28,8 +28,8 @@ describe('getCurrentPage', () => {
     expect(
       getCurrentPage(
         mockComponent({ key: 'foo', qualifier: ComponentQualifier.Portfolio }),
-        undefined
-      )
+        undefined,
+      ),
     ).toEqual({
       type: 'PORTFOLIO',
       component: 'foo',
@@ -40,8 +40,8 @@ describe('getCurrentPage', () => {
     expect(
       getCurrentPage(
         mockComponent({ key: 'foo', qualifier: ComponentQualifier.SubPortfolio }),
-        undefined
-      )
+        undefined,
+      ),
     ).toEqual({
       type: 'PORTFOLIO',
       component: 'foo',
@@ -52,8 +52,8 @@ describe('getCurrentPage', () => {
     expect(
       getCurrentPage(
         mockComponent({ key: 'foo', qualifier: ComponentQualifier.Application }),
-        mockBranch({ name: 'develop' })
-      )
+        mockBranch({ name: 'develop' }),
+      ),
     ).toEqual({ type: 'APPLICATION', component: 'foo', branch: 'develop' });
   });
 

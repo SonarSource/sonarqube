@@ -85,15 +85,15 @@ export function convertToFilter(query: Query, isFavorite: boolean): string {
   }
 
   ['coverage', 'new_coverage'].forEach((property) =>
-    pushMetricToArray(query, property, conditions, convertCoverage)
+    pushMetricToArray(query, property, conditions, convertCoverage),
   );
 
   ['duplications', 'new_duplications'].forEach((property) =>
-    pushMetricToArray(query, property, conditions, convertDuplications)
+    pushMetricToArray(query, property, conditions, convertDuplications),
   );
 
   ['size', 'new_lines'].forEach((property) =>
-    pushMetricToArray(query, property, conditions, convertSize)
+    pushMetricToArray(query, property, conditions, convertSize),
   );
 
   [
@@ -108,7 +108,7 @@ export function convertToFilter(query: Query, isFavorite: boolean): string {
   ].forEach((property) => pushMetricToArray(query, property, conditions, convertIssuesRating));
 
   ['languages', 'tags', 'qualifier'].forEach((property) =>
-    pushMetricToArray(query, property, conditions, convertArrayMetric)
+    pushMetricToArray(query, property, conditions, convertArrayMetric),
   );
 
   if (query['search'] != null) {
@@ -262,7 +262,7 @@ function pushMetricToArray(
   query: Query,
   property: string,
   conditionsArray: string[],
-  convertFunction: (metric: string, value: any) => string
+  convertFunction: (metric: string, value: any) => string,
 ): void {
   const metric = mapPropertyToMetric(property);
   if (query[property] != null && metric) {

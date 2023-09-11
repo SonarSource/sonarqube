@@ -31,7 +31,7 @@ function renderSentenceWithFieldAndValue(props: {
     <FormattedMessage
       id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.sentence"
       defaultMessage={translate(
-        'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.sentence'
+        'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.sentence',
       )}
       values={{
         field: <b className="sw-font-semibold">{field}</b>,
@@ -49,19 +49,19 @@ export default function JavaToolInstallation() {
         <ListItem>
           {renderSentenceWithFieldAndValue({
             field: translate(
-              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_version'
+              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_version',
             ),
             value: '17',
           })}
           {' ' /* explicit space between the two strings */}
           {translate(
-            'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.or_higher'
+            'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.or_higher',
           )}
         </ListItem>
         <ListItem>
           {renderSentenceWithFieldAndValue({
             field: translate(
-              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_architecture'
+              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_architecture',
             ),
             value: 'x64',
           })}
@@ -69,10 +69,10 @@ export default function JavaToolInstallation() {
         <ListItem>
           {renderSentenceWithFieldAndValue({
             field: translate(
-              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_source'
+              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.java_source',
             ),
             value: translate(
-              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.pre-installed'
+              'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java_installer.pre-installed',
             ),
           })}
         </ListItem>

@@ -64,8 +64,8 @@ export default function ComponentsHeader(props: ComponentsHeaderProps) {
       translate(
         'metric',
         metric,
-        SHORT_NAME_METRICS.includes(metric as MetricKey) ? 'short_name' : 'name'
-      )
+        SHORT_NAME_METRICS.includes(metric as MetricKey) ? 'short_name' : 'name',
+      ),
     );
 
     Cell = NumericalCell;

@@ -90,7 +90,7 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
     if (issue.assignee !== login) {
       updateIssue(
         this.props.onIssueChange,
-        setIssueAssignee({ issue: issue.key, assignee: login })
+        setIssueAssignee({ issue: issue.key, assignee: login }),
       );
     }
     this.handleIssuePopupToggle('assign', false);

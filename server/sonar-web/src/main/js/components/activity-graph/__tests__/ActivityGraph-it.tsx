@@ -238,7 +238,7 @@ function getPageObject() {
 
 function renderActivityGraph(
   graphsHistoryProps: Partial<GraphsHistory['props']> = {},
-  graphsHeaderProps: Partial<ComponentPropsType<typeof GraphsHeader>> = {}
+  graphsHeaderProps: Partial<ComponentPropsType<typeof GraphsHeader>> = {},
 ) {
   function ActivityGraph() {
     const [selectedMetrics, setSelectedMetrics] = React.useState<string[]>([]);
@@ -265,21 +265,21 @@ function renderActivityGraph(
       });
       history.push(
         mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200') }),
-        mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200') })
+        mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200') }),
       );
       measuresHistory.push(mockMeasureHistory({ metric, history }));
       metrics.push(
         mockMetric({
           key: metric,
           type: metric.includes('_density') || metric === MetricKey.coverage ? 'PERCENT' : 'INT',
-        })
+        }),
       );
     });
 
     // The following should be filtered out, and not be suggested as options.
     metrics.push(
       mockMetric({ key: MetricKey.new_bugs, type: 'INT' }),
-      mockMetric({ key: MetricKey.burned_budget, type: 'DATA' })
+      mockMetric({ key: MetricKey.burned_budget, type: 'DATA' }),
     );
 
     // The following will not be filtered out, but has no values.
@@ -292,14 +292,14 @@ function renderActivityGraph(
           date.setDate(date.getDate() + i);
           return mockHistoryItem({ date, value: undefined });
         }),
-      })
+      }),
     );
 
     const series = generateSeries(
       measuresHistory,
       graph,
       metrics,
-      getDisplayedHistoryMetrics(graph, selectedMetrics)
+      getDisplayedHistoryMetrics(graph, selectedMetrics),
     );
     const graphs = splitSeriesInGraphs(series, MAX_GRAPHS, MAX_SERIES_PER_GRAPH);
     const metricsTypeFilter =

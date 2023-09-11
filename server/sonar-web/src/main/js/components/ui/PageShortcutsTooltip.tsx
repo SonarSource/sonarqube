@@ -94,7 +94,7 @@ export default function PageShortcutsTooltip(props: PageShortcutsTooltipProps) {
       `}
         className={classNames(
           className,
-          'page-shortcuts-tooltip note text-center display-inline-block'
+          'page-shortcuts-tooltip note text-center display-inline-block',
         )}
       >
         <div aria-hidden>

@@ -33,7 +33,7 @@ export default function IssueChangelogDiff({ diff }: IssueChangelogDiffProps) {
         {translateWithParameters(
           'issue.change.file_move',
           diff.oldValue ?? '',
-          diff.newValue ?? ''
+          diff.newValue ?? '',
         )}
       </p>
     );
@@ -43,7 +43,7 @@ export default function IssueChangelogDiff({ diff }: IssueChangelogDiffProps) {
         {translateWithParameters(
           'issue.change.from_branch',
           diff.oldValue ?? '',
-          diff.newValue ?? ''
+          diff.newValue ?? '',
         )}
       </p>
     );
@@ -54,7 +54,7 @@ export default function IssueChangelogDiff({ diff }: IssueChangelogDiffProps) {
         {translateWithParameters(
           'issue.change.from_non_branch',
           diff.oldValue ?? '',
-          diff.newValue ?? ''
+          diff.newValue ?? '',
         )}
       </p>
     );
@@ -71,12 +71,12 @@ export default function IssueChangelogDiff({ diff }: IssueChangelogDiffProps) {
     message = translateWithParameters(
       'issue.changelog.changed_to',
       translate('issue.changelog.field', diff.key),
-      newValue
+      newValue,
     );
   } else {
     message = translateWithParameters(
       'issue.changelog.removed',
-      translate('issue.changelog.field', diff.key)
+      translate('issue.changelog.field', diff.key),
     );
   }
 

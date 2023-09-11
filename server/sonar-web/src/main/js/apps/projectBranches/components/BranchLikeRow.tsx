@@ -70,7 +70,7 @@ function BranchLikeRow(props: BranchLikeRowProps) {
         <ActionsDropdown
           label={translateWithParameters(
             'project_branch_pull_request.branch.actions_label',
-            getBranchLikeDisplayName(branchLike)
+            getBranchLikeDisplayName(branchLike),
           )}
         >
           {isBranch(branchLike) && !isMainBranch(branchLike) && (
@@ -88,7 +88,7 @@ function BranchLikeRow(props: BranchLikeRowProps) {
               {translate(
                 isPullRequest(branchLike)
                   ? 'project_branch_pull_request.pull_request.delete'
-                  : 'project_branch_pull_request.branch.delete'
+                  : 'project_branch_pull_request.branch.delete',
               )}
             </ActionsDropdownItem>
           )}

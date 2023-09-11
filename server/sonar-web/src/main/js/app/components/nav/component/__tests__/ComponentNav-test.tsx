@@ -30,21 +30,21 @@ import ComponentNav, { ComponentNavProps } from '../ComponentNav';
 it('renders correctly when there is a background task in progress', () => {
   renderComponentNav({ isInProgress: true });
   expect(
-    screen.getByText('project_navigation.analysis_status.in_progress', { exact: false })
+    screen.getByText('project_navigation.analysis_status.in_progress', { exact: false }),
   ).toBeInTheDocument();
 });
 
 it('renders correctly when there is a background task pending', () => {
   renderComponentNav({ isPending: true });
   expect(
-    screen.getByText('project_navigation.analysis_status.pending', { exact: false })
+    screen.getByText('project_navigation.analysis_status.pending', { exact: false }),
   ).toBeInTheDocument();
 });
 
 it('renders correctly when there is a failing background task', () => {
   renderComponentNav({ currentTask: mockTask({ status: TaskStatuses.Failed }) });
   expect(
-    screen.getByText('project_navigation.analysis_status.failed', { exact: false })
+    screen.getByText('project_navigation.analysis_status.failed', { exact: false }),
   ).toBeInTheDocument();
 });
 
@@ -53,7 +53,7 @@ it('renders correctly when the project binding is incorrect', () => {
     projectBindingErrors: mockProjectAlmBindingConfigurationErrors(),
   });
   expect(
-    screen.getByText('component_navigation.pr_deco.error_detected_X', { exact: false })
+    screen.getByText('component_navigation.pr_deco.error_detected_X', { exact: false }),
   ).toBeInTheDocument();
 });
 
@@ -73,6 +73,6 @@ function renderComponentNav(props: Partial<ComponentNavProps> = {}) {
       isInProgress={false}
       isPending={false}
       {...props}
-    />
+    />,
   );
 }

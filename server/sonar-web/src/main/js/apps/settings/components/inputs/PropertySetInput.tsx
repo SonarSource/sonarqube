@@ -80,7 +80,7 @@ export default class PropertySetInput extends React.PureComponent<DefaultSpecial
               aria-label={translateWithParameters(
                 'settings.definitions.delete_fields',
                 getPropertyName(setting.definition),
-                index
+                index,
               )}
               className="js-remove-value"
               onClick={() => this.handleDeleteValue(index)}
@@ -117,7 +117,7 @@ export default class PropertySetInput extends React.PureComponent<DefaultSpecial
           </thead>
           <tbody>
             {displayedValue.map((fieldValues, index) =>
-              this.renderFields(fieldValues, index, index === displayedValue.length - 1)
+              this.renderFields(fieldValues, index, index === displayedValue.length - 1),
             )}
           </tbody>
         </table>

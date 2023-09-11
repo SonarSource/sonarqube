@@ -42,11 +42,11 @@ export default function BitbucketSearchResults(props: BitbucketSearchResultsProp
   }
 
   const filteredProjects = projects.filter((p) =>
-    searchResults.some((r) => r.projectKey === p.key)
+    searchResults.some((r) => r.projectKey === p.key),
   );
   const filteredProjectKeys = filteredProjects.map((p) => p.key);
   const filteredSearchResults = searchResults.filter(
-    (r) => !filteredProjectKeys.includes(r.projectKey)
+    (r) => !filteredProjectKeys.includes(r.projectKey),
   );
 
   return (

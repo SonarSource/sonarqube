@@ -65,7 +65,7 @@ function renderAccessibleLabel(option: number) {
     ? translate('projects.facets.duplication.label', option.toString())
     : translateWithParameters(
         'projects.facets.label_no_data_x',
-        translate('metric_domain.Duplications')
+        translate('metric_domain.Duplications'),
       );
 }
 

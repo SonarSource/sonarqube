@@ -37,7 +37,7 @@ export default function ApplicationNonCaycProjectWarning({ projects }: Props) {
       <FlagMessage variant="warning">
         {translateWithParameters(
           'overview.quality_gate.application.non_cayc.projects_x',
-          projects.length
+          projects.length,
         )}
       </FlagMessage>
 

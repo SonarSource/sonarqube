@@ -83,13 +83,13 @@ export function getBrancheLikesAsTree(branchLikes: BranchLike[]): BranchLikeTree
   const mainBranch = branchLikes.find(isMainBranch);
   const branches = orderBy(
     branchLikes.filter(isBranch).filter((b) => !isMainBranch(b)),
-    (b) => b.name
+    (b) => b.name,
   );
   const pullRequests = orderBy(branchLikes.filter(isPullRequest), (b) => parseInt(b.key, 10), [
     'desc',
   ]);
   const parentlessPullRequests = pullRequests.filter(
-    (pr) => !pr.isOrphan && ![mainBranch, ...branches].find((b) => !!b && b.name === pr.base)
+    (pr) => !pr.isOrphan && ![mainBranch, ...branches].find((b) => !!b && b.name === pr.base),
   );
   const orphanPullRequests = pullRequests.filter((pr) => pr.isOrphan);
 
@@ -115,7 +115,7 @@ export function getBrancheLikesAsTree(branchLikes: BranchLike[]): BranchLikeTree
 
 export function getBranchLikeQuery(
   branchLike?: BranchLike,
-  includeMainBranch = false
+  includeMainBranch = false,
 ): BranchParameters {
   if (isBranch(branchLike) && (includeMainBranch || !isMainBranch(branchLike))) {
     return { branch: branchLike.name };
@@ -128,7 +128,7 @@ export function getBranchLikeQuery(
 // Create branch object from branch name or pull request key
 export function fillBranchLike(
   branch?: string,
-  pullRequest?: string
+  pullRequest?: string,
 ): Branch | PullRequest | undefined {
   if (branch) {
     return {

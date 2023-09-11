@@ -64,7 +64,7 @@ export default class CategoryDefinitionsList extends React.PureComponent<Props, 
     const { category, component, definitions } = this.props;
 
     const categoryDefinitions = definitions.filter(
-      (definition) => definition.category.toLowerCase() === category.toLowerCase()
+      (definition) => definition.category.toLowerCase() === category.toLowerCase(),
     );
 
     const keys = categoryDefinitions.map((definition) => definition.key);

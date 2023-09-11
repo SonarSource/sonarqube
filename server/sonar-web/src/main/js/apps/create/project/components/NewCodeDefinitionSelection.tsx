@@ -47,7 +47,7 @@ export default function NewCodeDefinitionSelection(props: Props) {
       setSubmitting(true);
       const { project } = await createProjectFnRef(
         selectedDefinition.type,
-        selectedDefinition.value
+        selectedDefinition.value,
       );
       setSubmitting(false);
       router.push(getProjectUrl(project.key));

@@ -102,7 +102,7 @@ export function getSettingValue(definition: SettingDefinition, settingValue?: Se
 
 export function combineDefinitionAndSettingValue(
   definition: ExtendedSettingDefinition,
-  value?: SettingValue
+  value?: SettingValue,
 ): SettingWithCategory {
   const hasValue = value !== undefined && value.inherited !== true;
   return {
@@ -118,7 +118,7 @@ export function getDefaultCategory(categories: string[]) {
     return DEFAULT_CATEGORY;
   }
   const sortedCategories = sortBy(categories, (category) =>
-    getCategoryName(category).toLowerCase()
+    getCategoryName(category).toLowerCase(),
   );
   return sortedCategories[0];
 }
@@ -226,7 +226,7 @@ export function isRealSettingKey(key: string) {
 
 export function buildSettingLink(
   definition: ExtendedSettingDefinition,
-  component?: Component
+  component?: Component,
 ): Partial<Path> {
   const { category, key } = definition;
 

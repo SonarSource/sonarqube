@@ -37,7 +37,7 @@ export default function applyCodeDifferences(element: Element | null) {
     }
     const [markedNonCompliant, markedCompliantCode] = differentiateCode(
       noncompliant.innerHTML,
-      compliant.innerHTML
+      compliant.innerHTML,
     );
 
     replaceInDom(noncompliant, markedNonCompliant);
@@ -52,14 +52,14 @@ function getExamplesFromDom(element: Element) {
     Object.values(
       groupBy(
         pres.filter((e) => e.getAttribute('data-diff-id') !== undefined),
-        (e) => e.getAttribute('data-diff-id')
-      )
+        (e) => e.getAttribute('data-diff-id'),
+      ),
     )
       // If we have 1 or 3+ example we can't display any differences
       .filter((diffsBlock) => diffsBlock.length === NUMBER_OF_EXAMPLES)
       .map(
         (diffBlock) =>
-          keyBy(diffBlock, (block) => block.getAttribute('data-diff-type')) as DiffBlock
+          keyBy(diffBlock, (block) => block.getAttribute('data-diff-type')) as DiffBlock,
       )
   );
 }

@@ -83,7 +83,7 @@ export function createBitbucketServerConfiguration(data: BitbucketServerBindingD
 }
 
 export function updateBitbucketServerConfiguration(
-  data: BitbucketServerBindingDefinition & { newKey: string }
+  data: BitbucketServerBindingDefinition & { newKey: string },
 ) {
   return post('/api/alm_settings/update_bitbucket', data).catch(throwGlobalError);
 }
@@ -93,7 +93,7 @@ export function createBitbucketCloudConfiguration(data: BitbucketCloudBindingDef
 }
 
 export function updateBitbucketCloudConfiguration(
-  data: BitbucketCloudBindingDefinition & { newKey: string }
+  data: BitbucketCloudBindingDefinition & { newKey: string },
 ) {
   return post('/api/alm_settings/update_bitbucketcloud', data).catch(throwGlobalError);
 }
@@ -145,7 +145,7 @@ export function setProjectGitlabBinding(data: GitlabProjectAlmBindingParams) {
 }
 
 export function validateProjectAlmBinding(
-  projectKey: string
+  projectKey: string,
 ): Promise<ProjectAlmBindingConfigurationErrors | undefined> {
   return get('/api/alm_settings/validate_binding', { project: projectKey })
     .then(() => undefined)

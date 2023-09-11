@@ -102,7 +102,7 @@ it('should show all branches', async () => {
   expect(ui.linkForAdmin.query()).not.toBeInTheDocument();
   expect(await ui.branchRow.findAll()).toHaveLength(4);
   expect(ui.branchRow.getAt(1)).toHaveTextContent(
-    'mainbranches.main_branchOK1 month agoproject_branch_pull_request.branch.auto_deletion.main_branch_tooltip'
+    'mainbranches.main_branchOK1 month agoproject_branch_pull_request.branch.auto_deletion.main_branch_tooltip',
   );
   expect(within(ui.branchRow.getAt(1)).getByRole('switch')).toBeDisabled();
   expect(within(ui.branchRow.getAt(1)).getByRole('switch')).toBeChecked();
@@ -126,19 +126,19 @@ it('should be able to rename main branch, but not others', async () => {
   expect(ui.renameBranchDialog.get()).toBeInTheDocument();
   expect(within(ui.renameBranchDialog.get()).getByRole('textbox')).toHaveValue('main');
   expect(
-    within(ui.renameBranchDialog.get()).getByRole('button', { name: 'rename' })
+    within(ui.renameBranchDialog.get()).getByRole('button', { name: 'rename' }),
   ).toBeDisabled();
   await user.clear(within(ui.renameBranchDialog.get()).getByRole('textbox'));
   expect(
-    within(ui.renameBranchDialog.get()).getByRole('button', { name: 'rename' })
+    within(ui.renameBranchDialog.get()).getByRole('button', { name: 'rename' }),
   ).toBeDisabled();
   await user.type(within(ui.renameBranchDialog.get()).getByRole('textbox'), 'develop');
   expect(within(ui.renameBranchDialog.get()).getByRole('button', { name: 'rename' })).toBeEnabled();
   await act(() =>
-    user.click(within(ui.renameBranchDialog.get()).getByRole('button', { name: 'rename' }))
+    user.click(within(ui.renameBranchDialog.get()).getByRole('button', { name: 'rename' })),
   );
   expect(ui.branchRow.getAt(1)).toHaveTextContent(
-    'developbranches.main_branchOK1 month agoproject_branch_pull_request.branch.auto_deletion.main_branch_tooltip'
+    'developbranches.main_branchOK1 month agoproject_branch_pull_request.branch.auto_deletion.main_branch_tooltip',
   );
 
   await user.click(await ui.updateSecondBranchBtn.find());
@@ -164,14 +164,14 @@ it('should be able to set a branch as the main branch', async () => {
     await user.click(
       within(ui.dialog.get()).getByRole('button', {
         name: 'project_branch_pull_request.branch.set_x_as_main.delete-branch',
-      })
+      }),
     );
   });
 
   // "delete-branch" is now the main branch.
   expect(ui.getBranchRow(/delete-branch/)).toBeInTheDocument();
   expect(
-    within(ui.getBranchRow(/delete-branch/)).getByText('branches.main_branch')
+    within(ui.getBranchRow(/delete-branch/)).getByText('branches.main_branch'),
   ).toBeInTheDocument();
   expect(within(ui.getBranchRow(/delete-branch/)).getByRole('switch')).toBeChecked();
   expect(within(ui.getBranchRow(/delete-branch/)).getByRole('switch')).toBeDisabled();
@@ -189,7 +189,7 @@ it('should be able to delete branch, but not main', async () => {
   expect(ui.deleteBranchDialog.get()).toBeInTheDocument();
   expect(ui.deleteBranchDialog.get()).toHaveTextContent('delete-branch');
   await act(() =>
-    user.click(within(ui.deleteBranchDialog.get()).getByRole('button', { name: 'delete' }))
+    user.click(within(ui.deleteBranchDialog.get()).getByRole('button', { name: 'delete' })),
   );
   expect(ui.branchRow.getAll()).toHaveLength(3);
 
@@ -224,7 +224,7 @@ it('should show all pull requests', async () => {
   expect(await ui.pullRequestRow.findAll()).toHaveLength(4);
   expect(ui.pullRequestRow.getAt(1)).toHaveTextContent('01 – TEST-191 update masterOK1 month ago');
   expect(ui.pullRequestRow.getAt(2)).toHaveTextContent(
-    '02 – TEST-192 update normal-branchERROR2 days ago'
+    '02 – TEST-192 update normal-branchERROR2 days ago',
   );
 });
 
@@ -238,7 +238,7 @@ it('should delete pull requests', async () => {
   expect(await ui.deletePullRequestDialog.find()).toBeInTheDocument();
   expect(ui.deletePullRequestDialog.get()).toHaveTextContent('01 – TEST-191 update master');
   await act(() =>
-    user.click(within(ui.deletePullRequestDialog.get()).getByRole('button', { name: 'delete' }))
+    user.click(within(ui.deletePullRequestDialog.get()).getByRole('button', { name: 'delete' })),
   );
   expect(ui.pullRequestRow.getAll()).toHaveLength(3);
 });
@@ -255,6 +255,6 @@ function renderProjectBranchesApp(overrides?: Partial<AppState>) {
       <ProjectBranchesApp />
     </ComponentContext.Provider>,
     '/?id=my-project',
-    { appState: mockAppState(overrides), featureList: [Feature.BranchSupport] }
+    { appState: mockAppState(overrides), featureList: [Feature.BranchSupport] },
   );
 }

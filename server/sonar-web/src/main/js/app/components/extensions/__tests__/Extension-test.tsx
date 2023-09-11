@@ -54,7 +54,7 @@ beforeAll(() => {
           </button>
         </div>
       );
-    }
+    },
   );
 
   getEnhancedWindow().registerExtension(
@@ -66,7 +66,7 @@ beforeAll(() => {
           el.innerHTML = '';
         };
       }
-    }
+    },
   );
 
   getEnhancedWindow().registerExtension('second-extension', () => {
@@ -87,7 +87,7 @@ it('should render React extensions correctly', async () => {
   await user.click(screen.getByRole('button', { name: 'Click first react' }));
 
   expect(
-    await screen.findByRole('button', { name: 'Click first react change' })
+    await screen.findByRole('button', { name: 'Click first react change' }),
   ).toBeInTheDocument();
 });
 

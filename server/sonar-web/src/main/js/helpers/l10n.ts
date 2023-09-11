@@ -60,7 +60,7 @@ export function translateWithParameters(
 
 export function getLocalizedMetricName(
   metric: { key: string; name?: string },
-  short = false
+  short = false,
 ): string {
   const bundleKey = `metric.${metric.key}.${short ? 'short_name' : 'name'}`;
 

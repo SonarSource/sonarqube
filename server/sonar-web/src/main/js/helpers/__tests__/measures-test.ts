@@ -61,13 +61,13 @@ describe('enhanceConditionWithMeasure', () => {
     ];
 
     expect(
-      enhanceConditionWithMeasure(mockQualityGateStatusCondition({ metric: 'bugs' }), measures)
+      enhanceConditionWithMeasure(mockQualityGateStatusCondition({ metric: 'bugs' }), measures),
     ).toMatchObject({
       measure: expect.objectContaining({ metric: expect.objectContaining({ key: 'bugs' }) }),
     });
 
     expect(
-      enhanceConditionWithMeasure(mockQualityGateStatusCondition({ metric: 'new_bugs' }), measures)
+      enhanceConditionWithMeasure(mockQualityGateStatusCondition({ metric: 'new_bugs' }), measures),
     ).toMatchObject({
       measure: expect.objectContaining({
         metric: expect.objectContaining({ key: 'new_bugs' }),
@@ -86,13 +86,13 @@ describe('isPeriodBestValue', () => {
     expect(isPeriodBestValue(mockMeasureEnhanced({ period: undefined }))).toBe(false);
     expect(
       isPeriodBestValue(
-        mockMeasureEnhanced({ period: { index: 1, value: '1.0', bestValue: false } })
-      )
+        mockMeasureEnhanced({ period: { index: 1, value: '1.0', bestValue: false } }),
+      ),
     ).toBe(false);
     expect(
       isPeriodBestValue(
-        mockMeasureEnhanced({ period: { index: 1, value: '1.0', bestValue: true } })
-      )
+        mockMeasureEnhanced({ period: { index: 1, value: '1.0', bestValue: true } }),
+      ),
     ).toBe(true);
   });
 });
@@ -156,16 +156,16 @@ describe('#formatMeasure()', () => {
     expect(formatMeasure(50.89, 'PERCENT', { decimals: 2 })).toBe('50.89%');
     expect(formatMeasure(50.89, 'PERCENT', { decimals: 3 })).toBe('50.890%');
     expect(formatMeasure(50, 'PERCENT', { decimals: 0, omitExtraDecimalZeros: true })).toBe(
-      '50.0%'
+      '50.0%',
     );
     expect(formatMeasure(50, 'PERCENT', { decimals: 1, omitExtraDecimalZeros: true })).toBe(
-      '50.0%'
+      '50.0%',
     );
     expect(formatMeasure(50, 'PERCENT', { decimals: 3, omitExtraDecimalZeros: true })).toBe(
-      '50.0%'
+      '50.0%',
     );
     expect(formatMeasure(50.89, 'PERCENT', { decimals: 3, omitExtraDecimalZeros: true })).toBe(
-      '50.89%'
+      '50.89%',
     );
   });
 

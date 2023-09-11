@@ -169,55 +169,55 @@ export interface ProjectAlmBindingConfigurationErrors {
 }
 
 export function isProjectBitbucketBindingResponse(
-  binding: ProjectAlmBindingResponse
+  binding: ProjectAlmBindingResponse,
 ): binding is ProjectBitbucketBindingResponse {
   return binding.alm === AlmKeys.BitbucketServer;
 }
 
 export function isProjectBitbucketCloudBindingResponse(
-  binding: ProjectAlmBindingResponse
+  binding: ProjectAlmBindingResponse,
 ): binding is ProjectBitbucketBindingResponse {
   return binding.alm === AlmKeys.BitbucketCloud;
 }
 
 export function isProjectGitHubBindingResponse(
-  binding: ProjectAlmBindingResponse
+  binding: ProjectAlmBindingResponse,
 ): binding is ProjectGitHubBindingResponse {
   return binding.alm === AlmKeys.GitHub;
 }
 
 export function isProjectGitLabBindingResponse(
-  binding: ProjectAlmBindingResponse
+  binding: ProjectAlmBindingResponse,
 ): binding is ProjectGitLabBindingResponse {
   return binding.alm === AlmKeys.GitLab;
 }
 
 export function isProjectAzureBindingResponse(
-  binding: ProjectAlmBindingResponse
+  binding: ProjectAlmBindingResponse,
 ): binding is ProjectAzureBindingResponse {
   return binding.alm === AlmKeys.Azure;
 }
 
 export function isBitbucketBindingDefinition(
-  binding?: AlmBindingDefinitionBase & { url?: string }
+  binding?: AlmBindingDefinitionBase & { url?: string },
 ): binding is BitbucketServerBindingDefinition {
   return binding !== undefined && binding.url !== undefined;
 }
 
 export function isBitbucketCloudBindingDefinition(
-  binding?: AlmBindingDefinitionBase & { clientId?: string; workspace?: string }
+  binding?: AlmBindingDefinitionBase & { clientId?: string; workspace?: string },
 ): binding is BitbucketCloudBindingDefinition {
   return binding !== undefined && binding.clientId !== undefined && binding.workspace !== undefined;
 }
 
 export function isGithubBindingDefinition(
-  binding?: AlmBindingDefinitionBase & { appId?: string; url?: string }
+  binding?: AlmBindingDefinitionBase & { appId?: string; url?: string },
 ): binding is GithubBindingDefinition {
   return binding !== undefined && binding.appId !== undefined && binding.url !== undefined;
 }
 
 export function isGitLabBindingDefinition(
-  binding?: AlmBindingDefinitionBase | GithubBindingDefinition | BitbucketCloudBindingDefinition
+  binding?: AlmBindingDefinitionBase | GithubBindingDefinition | BitbucketCloudBindingDefinition,
 ): binding is GitlabBindingDefinition {
   // There's too much overlap with the others. We must not only validate that certain fields are
   // present, we must also validate that others are NOT present. And even so, we cannot be 100%

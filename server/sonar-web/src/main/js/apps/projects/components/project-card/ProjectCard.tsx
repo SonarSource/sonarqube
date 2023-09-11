@@ -61,7 +61,7 @@ interface Props {
 function renderFirstLine(
   project: Props['project'],
   handleFavorite: Props['handleFavorite'],
-  isNewCode: boolean
+  isNewCode: boolean,
 ) {
   const { analysisDate, isFavorite, key, measures, name, qualifier, tags, visibility } = project;
   const formatted = formatMeasure(measures[MetricKey.alert_status], MetricType.Level);
@@ -194,7 +194,7 @@ function renderFirstLine(
 function renderSecondLine(
   currentUser: Props['currentUser'],
   project: Props['project'],
-  isNewCode: boolean
+  isNewCode: boolean,
 ) {
   const { analysisDate, key, leakPeriodDate, measures, qualifier, isScannable } = project;
 
@@ -234,7 +234,7 @@ export default function ProjectCard(props: Props) {
   return (
     <ProjectCardWrapper
       className={classNames(
-        'it_project_card sw-relative sw-box-border sw-rounded-1 sw-mb-page sw-h-full'
+        'it_project_card sw-relative sw-box-border sw-rounded-1 sw-mb-page sw-h-full',
       )}
       data-key={project.key}
     >

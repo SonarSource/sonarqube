@@ -50,7 +50,7 @@ export default function MeasureCell({ component, measure, metric }: Props) {
               value
                 ? translateWithParameters(
                     'metric.has_rating_X',
-                    formatMeasure(value, MetricType.Rating)
+                    formatMeasure(value, MetricType.Rating),
                   )
                 : translate('metric.no_rating')
             }

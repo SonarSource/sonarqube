@@ -48,7 +48,7 @@ export default function AboutProject(props: AboutProjectProps) {
     if (!isApp) {
       getProjectLinks(component.key).then(
         (links) => setLinks(links),
-        () => {}
+        () => {},
       );
     }
   }, [component.key, isApp]);

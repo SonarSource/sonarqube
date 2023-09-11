@@ -39,7 +39,7 @@ export default function CommentList(props: CommentListProps) {
   // sorting comment i.e showing newest on top
   const sortedComments = [...comments]?.sort(
     (com1, com2) =>
-      new Date(com2.createdAt || '').getTime() - new Date(com1.createdAt || '').getTime()
+      new Date(com2.createdAt || '').getTime() - new Date(com1.createdAt || '').getTime(),
   );
   return (
     <div className="issue-comment-list-wrapper spacer-bottom">

@@ -28,21 +28,21 @@ it('should render maintainability correctly', () => {
   expect(shallowRender()).toMatchSnapshot('sqale rating');
   expect(shallowRender({ value: 1 })).toMatchSnapshot('sqale rating A');
   expect(shallowRender({ appState: mockAppState({ settings: {} }) })).toMatchSnapshot(
-    'sqale rating default grid'
+    'sqale rating default grid',
   );
   expect(
     shallowRender({
       appState: mockAppState({ settings: { [GlobalSettingKeys.RatingGrid]: '0,0.1' } }),
-    })
+    }),
   ).toMatchSnapshot('sqale rating wrong grid');
 });
 
 it('should render other ratings correctly', () => {
   expect(shallowRender({ metricKey: MetricKey.security_rating })).toMatchSnapshot(
-    'security rating'
+    'security rating',
   );
   expect(shallowRender({ metricKey: MetricKey.new_security_rating })).toMatchSnapshot(
-    'new security rating'
+    'new security rating',
   );
 });
 
@@ -57,6 +57,6 @@ function shallowRender(overrides: Partial<RatingTooltipContentProps> = {}) {
       metricKey={MetricKey.sqale_rating}
       value={2}
       {...overrides}
-    />
+    />,
   );
 }

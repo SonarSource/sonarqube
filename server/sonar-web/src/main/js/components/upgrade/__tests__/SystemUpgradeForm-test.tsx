@@ -82,8 +82,8 @@ it.each([...Object.values(UpdateUseCase), undefined])(
           systemUpgrades={UPGRADES}
           latestLTS="9.1"
           updateUseCase={updateUseCase}
-        />
-      )
+        />,
+      ),
     ).toMatchSnapshot();
-  }
+  },
 );

@@ -55,6 +55,6 @@ function shallowRender(overrides: Partial<LocationsList['props']> = {}) {
       onLocationSelect={jest.fn()}
       selectedLocationIndex={undefined}
       {...overrides}
-    />
+    />,
   );
 }

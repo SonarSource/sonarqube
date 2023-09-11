@@ -90,6 +90,6 @@ function renderDocumentationTooltip(props: Partial<DocumentationTooltipProps> = 
       <Link to="/" target="_blank">
         Interactive element after
       </Link>
-    </>
+    </>,
   );
 }

@@ -66,14 +66,14 @@ function renderAccessibleLabel(option: number) {
     return translateWithParameters(
       'projects.facets.rating_label_single_x',
       translate('metric_domain.SecurityReview'),
-      formatMeasure(option, MetricType.Rating)
+      formatMeasure(option, MetricType.Rating),
     );
   }
 
   return translateWithParameters(
     'projects.facets.rating_label_multi_x',
     translate('metric_domain.SecurityReview'),
-    formatMeasure(option, MetricType.Rating)
+    formatMeasure(option, MetricType.Rating),
   );
 }
 

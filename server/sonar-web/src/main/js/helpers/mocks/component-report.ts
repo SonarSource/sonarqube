@@ -20,7 +20,7 @@
 import { ComponentReportStatus } from '../../types/component-report';
 
 export function mockComponentReportStatus(
-  props?: Partial<ComponentReportStatus>
+  props?: Partial<ComponentReportStatus>,
 ): ComponentReportStatus {
   return {
     canAdmin: true,

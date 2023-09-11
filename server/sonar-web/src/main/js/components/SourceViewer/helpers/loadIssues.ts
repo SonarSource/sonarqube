@@ -61,7 +61,7 @@ function loadSearchPage(query: RawQuery, page: number, pageSize = PAGE_SIZE): Pr
     p: page,
     ps: pageSize,
   }).then((r) =>
-    r.issues.map((issue) => parseIssueFromResponse(issue, r.components, r.users, r.rules))
+    r.issues.map((issue) => parseIssueFromResponse(issue, r.components, r.users, r.rules)),
   );
 }
 
@@ -69,7 +69,7 @@ async function loadPageAndNext(
   query: RawQuery,
   needIssueSync = false,
   page = 1,
-  pageSize = PAGE_SIZE
+  pageSize = PAGE_SIZE,
 ): Promise<Issue[]> {
   const issues = needIssueSync
     ? await loadListPage(query, page)
@@ -91,7 +91,7 @@ async function loadPageAndNext(
 export default function loadIssues(
   component: string,
   branchLike: BranchLike | undefined,
-  needIssueSync = false
+  needIssueSync = false,
 ): Promise<Issue[]> {
   const query = needIssueSync
     ? buildListQuery(component, branchLike)

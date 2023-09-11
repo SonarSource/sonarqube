@@ -62,7 +62,7 @@ export default function PluginAvailable(props: PluginAvailableProps) {
                       plugin.update.requires
                         .filter(({ key }) => !installedPluginKeys.includes(key))
                         .map((requiredPlugin) => requiredPlugin.name)
-                        .join(', ')
+                        .join(', '),
                     )}
                   </strong>
                 </p>

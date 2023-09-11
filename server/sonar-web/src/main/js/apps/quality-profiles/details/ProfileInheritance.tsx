@@ -83,7 +83,7 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   }
 
@@ -100,7 +100,7 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
       () => {
         this.loadData();
       },
-      () => {}
+      () => {},
     );
     this.closeForm();
   };

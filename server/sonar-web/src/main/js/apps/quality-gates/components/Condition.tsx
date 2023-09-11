@@ -89,7 +89,7 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
   removeCondition = (condition: ConditionType) => {
     deleteCondition({ id: condition.id }).then(
       () => this.props.onRemoveCondition(condition),
-      () => {}
+      () => {},
     );
   };
 
@@ -144,7 +144,7 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
                   <EditButton
                     aria-label={translateWithParameters(
                       'quality_gates.condition.edit',
-                      metric.name
+                      metric.name,
                     )}
                     data-test="quality-gates__condition-update"
                     onClick={this.handleOpenUpdate}
@@ -169,7 +169,7 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
                   <DeleteButton
                     aria-label={translateWithParameters(
                       'quality_gates.condition.delete',
-                      metric.name
+                      metric.name,
                     )}
                     data-test="quality-gates__condition-delete"
                     onClick={this.handleDeleteClick}
@@ -185,7 +185,7 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
                     >
                       {translateWithParameters(
                         'quality_gates.delete_condition.confirm.message',
-                        getLocalizedMetricName(this.props.metric)
+                        getLocalizedMetricName(this.props.metric),
                       )}
                     </ConfirmModal>
                   )}

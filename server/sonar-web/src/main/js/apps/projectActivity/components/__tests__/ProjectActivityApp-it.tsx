@@ -78,8 +78,8 @@ beforeEach(() => {
         history: projectActivityHandler
           .getAnalysesList()
           .map(({ date }) => mockHistoryItem({ value: '3', date: parseDate(date) })),
-      })
-    )
+      }),
+    ),
   );
 });
 
@@ -102,7 +102,7 @@ describe('rendering', () => {
         breadcrumbs: [
           { key: 'breadcrumb', name: 'breadcrumb', qualifier: ComponentQualifier.Project },
         ],
-      })
+      }),
     );
 
     await ui.appLoaded();
@@ -118,7 +118,7 @@ describe('rendering', () => {
         breadcrumbs: [
           { key: 'breadcrumb', name: 'breadcrumb', qualifier: ComponentQualifier.Project },
         ],
-      })
+      }),
     );
 
     await ui.changeGraphType(GraphType.custom);
@@ -136,7 +136,7 @@ describe('rendering', () => {
         mockComponent({
           qualifier,
           breadcrumbs: [{ key: 'breadcrumb', name: 'breadcrumb', qualifier }],
-        })
+        }),
       );
 
       await ui.changeGraphType(GraphType.custom);
@@ -144,9 +144,9 @@ describe('rendering', () => {
       expect(ui.metricCheckbox(MetricKey.security_review_rating).get()).toBeInTheDocument();
 
       expect(
-        ui.metricCheckbox(MetricKey.security_hotspots_reviewed).query()
+        ui.metricCheckbox(MetricKey.security_hotspots_reviewed).query(),
       ).not.toBeInTheDocument();
-    }
+    },
   );
 });
 
@@ -162,7 +162,7 @@ describe('CRUD', () => {
           { key: 'breadcrumb', name: 'breadcrumb', qualifier: ComponentQualifier.Project },
         ],
         configuration: { showHistory: true },
-      })
+      }),
     );
 
     await ui.appLoaded();
@@ -190,7 +190,7 @@ describe('CRUD', () => {
           { key: 'breadcrumb', name: 'breadcrumb', qualifier: ComponentQualifier.Project },
         ],
         configuration: { showHistory: true },
-      })
+      }),
     );
 
     await ui.appLoaded();
@@ -218,7 +218,7 @@ describe('CRUD', () => {
           { key: 'breadcrumb', name: 'breadcrumb', qualifier: ComponentQualifier.Project },
         ],
         configuration: { showHistory: true },
-      })
+      }),
     );
 
     await ui.appLoaded();
@@ -247,7 +247,7 @@ describe('data loading', () => {
           key: `analysis-${i}`,
           date: '2016-01-01T00:00:00+0200',
         });
-      })
+      }),
     );
 
     const { ui } = getPageObject();
@@ -277,7 +277,7 @@ describe('data loading', () => {
           { key: 'foo', name: 'foo', qualifier: ComponentQualifier.Portfolio },
           { key: 'unknown', name: 'unknown', qualifier: ComponentQualifier.SubPortfolio },
         ],
-      })
+      }),
     );
 
     await ui.appLoaded();
@@ -330,7 +330,7 @@ describe('filtering', () => {
           key: `analysis-${i}`,
           date: date.toDateString(),
         });
-      })
+      }),
     );
 
     const { ui } = getPageObject();
@@ -517,7 +517,7 @@ function getPageObject() {
       },
 
       async filterByCategory(
-        category: ProjectAnalysisEventCategory | ApplicationAnalysisEventCategory
+        category: ProjectAnalysisEventCategory | ApplicationAnalysisEventCategory,
       ) {
         await user.click(ui.categorySelect.get());
         const optionForType = await screen.findByText(`event.category.${category}`);
@@ -555,7 +555,7 @@ function getPageObject() {
 
         await user.click(monthSelector);
         const selectedMonthElements = within(ui.monthSelector.get()).getAllByText(
-          monthMap[parseDate(parsedDate).getMonth()]
+          monthMap[parseDate(parsedDate).getMonth()],
         );
         await user.click(selectedMonthElements[selectedMonthElements.length - 1]);
 
@@ -563,12 +563,12 @@ function getPageObject() {
 
         await user.click(yearSelector);
         const selectedYearElements = within(ui.yearSelector.get()).getAllByText(
-          parseDate(parsedDate).getFullYear()
+          parseDate(parsedDate).getFullYear(),
         );
         await user.click(selectedYearElements[selectedYearElements.length - 1]);
 
         await user.click(
-          screen.getByText(parseDate(parsedDate).getDate().toString(), { selector: 'button' })
+          screen.getByText(parseDate(parsedDate).getDate().toString(), { selector: 'button' }),
         );
       },
 
@@ -582,7 +582,7 @@ function getPageObject() {
 function renderProjectActivityAppContainer(
   component = mockComponent({
     breadcrumbs: [{ key: 'breadcrumb', name: 'breadcrumb', qualifier: ComponentQualifier.Project }],
-  })
+  }),
 ) {
   return renderAppWithComponentContext(
     'project/activity',
@@ -595,9 +595,9 @@ function renderProjectActivityAppContainer(
           mockMetric({ key: MetricKey.security_hotspots_reviewed }),
           mockMetric({ key: MetricKey.security_review_rating, type: MetricType.Rating }),
         ],
-        'key'
+        'key',
       ),
     },
-    { component }
+    { component },
   );
 }

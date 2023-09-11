@@ -33,6 +33,6 @@ function renderLanguageDistribution(props: Partial<LanguageDistributionProps> = 
       distribution="java=1734;js=845;cpp=73;<null>=15"
       languages={{ java: { key: 'java', name: 'Java' }, js: { key: 'js', name: 'JavaScript' } }}
       {...props}
-    />
+    />,
   );
 }

@@ -126,7 +126,7 @@ it('should not show any OAuth providers if none are configured', async () => {
 
   // No OAuth providers, login form display by default.
   expect(
-    screen.queryByRole('link', { name: 'login.login_with_x', exact: false })
+    screen.queryByRole('link', { name: 'login.login_with_x', exact: false }),
   ).not.toBeInTheDocument();
   expect(screen.getByLabelText('login')).toBeInTheDocument();
 });
@@ -160,6 +160,6 @@ it('should handle errors', async () => {
 
 function renderLoginContainer(props: Partial<LoginContainer['props']> = {}) {
   return renderComponent(
-    <LoginContainer location={mockLocation({ query: { return_to: '/some/path' } })} {...props} />
+    <LoginContainer location={mockLocation({ query: { return_to: '/some/path' } })} {...props} />,
   );
 }

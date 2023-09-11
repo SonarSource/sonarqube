@@ -144,7 +144,7 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
   onProvisionedChanged = (provisioned: boolean) => {
     this.setState(
       { ready: false, page: 1, query: '', provisioned, qualifiers: 'TRK', selection: [] },
-      this.requestProjects
+      this.requestProjects,
     );
   };
 
@@ -158,7 +158,7 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
         qualifiers: newQualifier,
         selection: [],
       },
-      this.requestProjects
+      this.requestProjects,
     );
   };
 
@@ -172,7 +172,7 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
         visibility: newVisibility === 'all' ? undefined : newVisibility,
         selection: [],
       },
-      this.requestProjects
+      this.requestProjects,
     );
   };
 

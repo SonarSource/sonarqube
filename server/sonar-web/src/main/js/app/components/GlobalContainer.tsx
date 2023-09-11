@@ -67,7 +67,7 @@ export default function GlobalContainer() {
               className={classNames('page-wrapper', {
                 'new-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND.includes(location.pathname),
                 'white-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE.includes(
-                  location.pathname
+                  location.pathname,
                 ),
               })}
               id="container"

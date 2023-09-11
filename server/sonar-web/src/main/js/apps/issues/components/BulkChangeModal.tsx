@@ -114,7 +114,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
           });
         }
       },
-      () => {}
+      () => {},
     );
   }
 
@@ -171,7 +171,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
         set_severity: this.state.severity,
         set_type: this.state.type,
       },
-      (x) => x !== undefined
+      (x) => x !== undefined,
     );
 
     const issueKeys = this.state.issues.map((issue) => issue.key);
@@ -187,7 +187,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
       (error) => {
         this.setState({ submitting: false });
         throwGlobalError(error);
-      }
+      },
     );
   };
 
@@ -221,7 +221,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
         assignee ||
         severity ||
         transition ||
-        type
+        type,
     );
   };
 
@@ -229,7 +229,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     field: InputField,
     label: string,
     affected: number | undefined,
-    input: React.ReactNode
+    input: React.ReactNode,
   ) => (
     <FormField htmlFor={`issues-bulk-change-${field}`} label={translate(label)}>
       <div className="sw-flex sw-items-center sw-justify-between">
@@ -269,7 +269,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
   renderTagsField = (
     field: InputField.addTags | InputField.removeTags,
     label: string,
-    allowCreate: boolean
+    allowCreate: boolean,
   ) => {
     const { initialTags } = this.state;
     const tags = this.state[field] ?? [];

@@ -46,7 +46,7 @@ export interface WithNotificationsProps {
 }
 
 export function withNotifications<P>(
-  WrappedComponent: React.ComponentType<P & WithNotificationsProps>
+  WrappedComponent: React.ComponentType<P & WithNotificationsProps>,
 ) {
   class Wrapper extends React.Component<P, State> {
     mounted = false;
@@ -86,7 +86,7 @@ export function withNotifications<P>(
           if (this.mounted) {
             this.setState({ loading: false });
           }
-        }
+        },
       );
     };
 
@@ -100,7 +100,7 @@ export function withNotifications<P>(
     removeNotificationFromState = (removed: Notification) => {
       this.setState((state) => {
         const notifications = state.notifications.filter(
-          (notification) => !this.areNotificationsEqual(notification, removed)
+          (notification) => !this.areNotificationsEqual(notification, removed),
         );
         return { notifications };
       });

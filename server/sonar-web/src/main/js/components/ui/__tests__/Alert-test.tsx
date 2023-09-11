@@ -35,13 +35,13 @@ it('verification of all variants of alert', () => {
 
 it('should render inline alert', () => {
   expect(shallowRender({ display: 'inline' }).find('Styled(div)[isInline=true]').exists()).toBe(
-    true
+    true,
   );
 });
 
 it('should render banner alert', () => {
   expect(shallowRender({ display: 'banner' }).find('Styled(div)[isBanner=true]').exists()).toBe(
-    true
+    true,
   );
 });
 
@@ -53,6 +53,6 @@ function shallowRender(props: Partial<AlertProps>) {
   return shallow(
     <Alert className="alert-test" id="error-message" variant="error" {...props}>
       This is an error!
-    </Alert>
+    </Alert>,
   );
 }

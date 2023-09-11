@@ -24,18 +24,18 @@ import { Visibility } from '../types/component';
 
 export function getApplicationLeak(
   application: string,
-  branch?: string
+  branch?: string,
 ): Promise<ApplicationPeriod[]> {
   return getJSON('/api/applications/show_leak', { application, branch }).then(
     (r) => r.leaks,
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
 export function getApplicationDetails(application: string, branch?: string): Promise<Application> {
   return getJSON('/api/applications/show', { application, branch }).then(
     (r) => r.application,
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
@@ -43,7 +43,7 @@ export function createApplication(
   name: string,
   description: string,
   key: string | undefined,
-  visibility: string
+  visibility: string,
 ): Promise<{
   application: {
     description?: string;
@@ -53,7 +53,7 @@ export function createApplication(
   };
 }> {
   return postJSON('/api/applications/create', { description, key, name, visibility }).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }
 

@@ -64,6 +64,6 @@ function shallowRender() {
   return shallow<A11yProvider>(
     <A11yProvider>
       <div />
-    </A11yProvider>
+    </A11yProvider>,
   );
 }

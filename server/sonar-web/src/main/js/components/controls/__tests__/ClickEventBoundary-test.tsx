@@ -44,6 +44,6 @@ function shallowRender(parentProps = {}, childProps = {}) {
           Click me
         </button>
       </ClickEventBoundary>
-    </div>
+    </div>,
   );
 }

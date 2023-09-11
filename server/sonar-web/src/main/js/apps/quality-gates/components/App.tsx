@@ -88,7 +88,7 @@ class App extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 
@@ -120,7 +120,7 @@ class App extends React.PureComponent<Props, State> {
           defer={false}
           titleTemplate={translateWithParameters(
             'page_title.template.with_category',
-            translate('quality_gates.page')
+            translate('quality_gates.page'),
           )}
         />
         <div className="layout-page" id="quality-gates-page">

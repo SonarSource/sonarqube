@@ -225,7 +225,7 @@ export class LineCode extends PureComponent<React.PropsWithChildren<Props>> {
                 highlightedSymbols,
                 issueLocations,
                 secondaryIssueLocations,
-              })
+              }),
             )}
           </LineCodePreFormatted>
           <div ref={this.findingNode}>{children}</div>

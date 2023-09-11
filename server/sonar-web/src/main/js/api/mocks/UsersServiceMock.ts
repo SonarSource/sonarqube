@@ -175,7 +175,7 @@ export default class UsersServiceMock {
         (user.sonarQubeLastConnectionDate === null ||
           isBefore(
             new Date(user.sonarQubeLastConnectionDate),
-            new Date(sonarQubeLastConnectionDateFrom)
+            new Date(sonarQubeLastConnectionDateFrom),
           ))
       ) {
         return false;
@@ -194,7 +194,7 @@ export default class UsersServiceMock {
         (user.sonarLintLastConnectionDate === null ||
           isBefore(
             new Date(user.sonarLintLastConnectionDate),
-            new Date(sonarLintLastConnectionDateFrom)
+            new Date(sonarLintLastConnectionDateFrom),
           ))
       ) {
         return false;
@@ -314,8 +314,8 @@ export default class UsersServiceMock {
                 'External Users and Groups Provisioning': 'GitHub',
               },
             }
-          : {}
-      )
+          : {},
+      ),
     );
   };
 

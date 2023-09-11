@@ -21,7 +21,7 @@ import { getJSON } from '../helpers/request';
 import { L10nBundleRequestParams, L10nBundleRequestResponse } from '../types/l10nBundle';
 
 export function fetchL10nBundle(
-  params: L10nBundleRequestParams
+  params: L10nBundleRequestParams,
 ): Promise<L10nBundleRequestResponse> {
   return getJSON('/api/l10n/index', params);
 }

@@ -105,7 +105,7 @@ class ProjectQualityGateApp extends React.PureComponent<Props, State> {
       qualitygates.map(async (qg) => {
         const detailedQp = await fetchQualityGate({ name: qg.name }).catch(() => qg);
         return { ...detailedQp, ...qg };
-      })
+      }),
     );
   };
 

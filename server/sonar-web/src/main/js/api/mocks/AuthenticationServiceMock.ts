@@ -89,7 +89,7 @@ export default class AuthenticationServiceMock {
         id: Math.random().toString(),
         type: TaskTypes.GithubProvisioning,
         ...overrides,
-      })
+      }),
     );
   };
 
@@ -135,10 +135,10 @@ export default class AuthenticationServiceMock {
     }
 
     const nextSync = this.tasks.find((t: Task) =>
-      [TaskStatuses.InProgress, TaskStatuses.Pending].includes(t.status)
+      [TaskStatuses.InProgress, TaskStatuses.Pending].includes(t.status),
     );
     const lastSync = this.tasks.find(
-      (t: Task) => ![TaskStatuses.InProgress, TaskStatuses.Pending].includes(t.status)
+      (t: Task) => ![TaskStatuses.InProgress, TaskStatuses.Pending].includes(t.status),
     );
 
     return Promise.resolve({

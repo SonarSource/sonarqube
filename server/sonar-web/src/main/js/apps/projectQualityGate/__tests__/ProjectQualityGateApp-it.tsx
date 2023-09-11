@@ -112,7 +112,7 @@ it('renders nothing and shows alert when any API fails', async () => {
 
 function renderProjectQualityGateApp(
   context?: RenderContext,
-  componentOverrides: Partial<Component> = { configuration: { showQualityGates: true } }
+  componentOverrides: Partial<Component> = { configuration: { showQualityGates: true } },
 ) {
   renderAppWithComponentContext('project/quality_gate', routes, context, {
     component: mockComponent(componentOverrides),

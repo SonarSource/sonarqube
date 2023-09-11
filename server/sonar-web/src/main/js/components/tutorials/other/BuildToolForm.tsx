@@ -59,7 +59,7 @@ export class BuildToolForm extends React.PureComponent<Props, State> {
       ({ config }) => ({ config: { buildTool: config.buildTool, os } }),
       () => {
         this.props.onDone(this.state.config);
-      }
+      },
     );
   };
 

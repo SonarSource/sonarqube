@@ -29,7 +29,7 @@ import { isDefined } from './types';
 
 export function enhanceMeasuresWithMetrics(
   measures: Measure[],
-  metrics: Metric[]
+  metrics: Metric[],
 ): MeasureEnhanced[] {
   return measures
     .map((measure) => {
@@ -41,7 +41,7 @@ export function enhanceMeasuresWithMetrics(
 
 export function enhanceConditionWithMeasure(
   condition: QualityGateStatusCondition,
-  measures: MeasureEnhanced[]
+  measures: MeasureEnhanced[],
 ): QualityGateStatusConditionEnhanced | undefined {
   const measure = measures.find((m) => m.metric.key === condition.metric);
 
@@ -85,7 +85,7 @@ interface Formatter {
 export function formatMeasure(
   value: string | number | undefined,
   type: string,
-  options?: any
+  options?: any,
 ): string {
   const formatter = getFormatter(type);
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -125,7 +125,7 @@ export function getShortType(type: string): string {
 function useFormatter(
   value: string | number | undefined,
   formatter: Formatter,
-  options?: any
+  options?: any,
 ): string {
   return value !== undefined && value !== '' ? formatter(value, options) : '';
 }
@@ -148,7 +148,7 @@ function getFormatter(type: string): Formatter {
 function numberFormatter(
   value: string | number,
   minimumFractionDigits = 0,
-  maximumFractionDigits = minimumFractionDigits
+  maximumFractionDigits = minimumFractionDigits,
 ) {
   const { format } = new Intl.NumberFormat(getCurrentLocale(), {
     minimumFractionDigits,
@@ -179,7 +179,7 @@ const shortIntFormats = [
 
 function shortIntFormatter(
   value: string | number,
-  option?: { roundingFunc?: (x: number) => number }
+  option?: { roundingFunc?: (x: number) => number },
 ): string {
   const roundingFunc = (option && option.roundingFunc) || undefined;
   if (typeof value === 'string') {
@@ -194,7 +194,7 @@ function shortIntFormatter(
         numberFormatter(
           numberRound(value / formatUnit, Math.pow(10, fraction), roundingFunc),
           0,
-          fraction
+          fraction,
         ) + translate(suffix)
       );
     }
@@ -206,7 +206,7 @@ function shortIntFormatter(
 function numberRound(
   value: number,
   fraction: number = 1000,
-  roundingFunc: (x: number) => number = Math.round
+  roundingFunc: (x: number) => number = Math.round,
 ) {
   return roundingFunc(value * fraction) / fraction;
 }
@@ -217,7 +217,7 @@ function floatFormatter(value: string | number): string {
 
 function percentFormatter(
   value: string | number,
-  { decimals, omitExtraDecimalZeros }: { decimals?: number; omitExtraDecimalZeros?: boolean } = {}
+  { decimals, omitExtraDecimalZeros }: { decimals?: number; omitExtraDecimalZeros?: boolean } = {},
 ): string {
   if (typeof value === 'string') {
     value = parseFloat(value);
@@ -308,14 +308,14 @@ function formatDuration(isNegative: boolean, days: number, hours: number, minute
     formatted = addSpaceIfNeeded(formatted);
     formatted += translateWithParameters(
       'work_duration.x_hours',
-      isNegative && formatted.length === 0 ? -1 * hours : hours
+      isNegative && formatted.length === 0 ? -1 * hours : hours,
     );
   }
   if (shouldDisplayMinutes(days, hours, minutes)) {
     formatted = addSpaceIfNeeded(formatted);
     formatted += translateWithParameters(
       'work_duration.x_minutes',
-      isNegative && formatted.length === 0 ? -1 * minutes : minutes
+      isNegative && formatted.length === 0 ? -1 * minutes : minutes,
     );
   }
   return formatted;
@@ -325,7 +325,7 @@ function formatDurationShort(
   isNegative: boolean,
   days: number,
   hours: number,
-  minutes: number
+  minutes: number,
 ): string {
   if (shouldDisplayDaysInShortFormat(days)) {
     const roundedDays = Math.round(days);
@@ -337,7 +337,7 @@ function formatDurationShort(
     const roundedHours = Math.round(hours);
     const formattedHours = formatMeasure(
       isNegative ? -1 * roundedHours : roundedHours,
-      'SHORT_INT'
+      'SHORT_INT',
     );
     return translateWithParameters('work_duration.x_hours', formattedHours);
   }

@@ -177,7 +177,7 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
             <ListItem>
               <strong>
                 {translate(
-                  'onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label'
+                  'onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.label',
                 )}
                 :
               </strong>
@@ -199,7 +199,7 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
                 <ListItem>
                   <strong>
                     {translate(
-                      'onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.label'
+                      'onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviors.ref_specs.label',
                     )}
                     :
                   </strong>
@@ -230,7 +230,7 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
           </UnorderedList>
           <p className="sw-ml-12">
             {translate(
-              'onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.leave_defaults'
+              'onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.leave_defaults',
             )}
           </p>
         </NumberedListItem>

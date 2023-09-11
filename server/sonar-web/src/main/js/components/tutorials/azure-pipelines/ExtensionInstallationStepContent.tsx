@@ -27,21 +27,21 @@ export default function ExtensionInstallationStepContent() {
     <span>
       <FormattedMessage
         defaultMessage={translate(
-          'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence'
+          'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence',
         )}
         id="onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence"
         values={{
           link: (
             <Link to="https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarqube">
               {translate(
-                'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence.link'
+                'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence.link',
               )}
             </Link>
           ),
           button: (
             <strong>
               {translate(
-                'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence.button'
+                'onboarding.tutorial.with.azure_pipelines.ExtensionInstallation.sentence.button',
               )}
             </strong>
           ),

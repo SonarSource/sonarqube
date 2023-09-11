@@ -47,7 +47,7 @@ it('should work for errors on Pull Requests', async () => {
       currentTask: mockTask({ pullRequest: '01', pullRequestTitle: 'Fix stuff' }),
     },
     undefined,
-    'pullRequest=01&id=my-project'
+    'pullRequest=01&id=my-project',
   );
 
   expect(await screen.findByText(/component_navigation.status.failed_X/)).toBeInTheDocument();
@@ -68,7 +68,7 @@ it('should explain to admins how to get the staktrace', () => {
     {
       component: mockComponent({ configuration: { showBackgroundTasks: true } }),
     },
-    'project/background_tasks'
+    'project/background_tasks',
   );
 
   expect(screen.getByText(/component_navigation.status.failed_X.admin.help/)).toBeInTheDocument();
@@ -78,7 +78,7 @@ it('should explain to admins how to get the staktrace', () => {
 function renderAnalysisErrorMessage(
   overrides: Partial<Parameters<typeof AnalysisErrorMessage>[0]> = {},
   location = '/',
-  params?: string
+  params?: string,
 ) {
   return renderApp(
     location,
@@ -88,6 +88,6 @@ function renderAnalysisErrorMessage(
       onLeave={jest.fn()}
       {...overrides}
     />,
-    { navigateTo: params ? `/?${params}` : undefined, featureList: [Feature.BranchSupport] }
+    { navigateTo: params ? `/?${params}` : undefined, featureList: [Feature.BranchSupport] },
   );
 }

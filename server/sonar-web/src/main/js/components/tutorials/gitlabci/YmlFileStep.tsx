@@ -148,7 +148,7 @@ export function YmlFileStep(props: YmlFileStepProps) {
           <NumberedListItem>
             <FormattedMessage
               defaultMessage={translate(
-                `onboarding.tutorial.with.gitlab_ci.project_key.${buildTool}.step2`
+                `onboarding.tutorial.with.gitlab_ci.project_key.${buildTool}.step2`,
               )}
               id={`onboarding.tutorial.with.gitlab_ci.project_key.${buildTool}.step2`}
               values={Object.assign(
@@ -177,7 +177,7 @@ export function YmlFileStep(props: YmlFileStepProps) {
                         </>
                       ),
                     }
-                  : {}
+                  : {},
               )}
             />
             {buildTool === BuildTools.Gradle ? (

@@ -66,7 +66,7 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 
@@ -93,7 +93,7 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
   render() {
     const header = translateWithParameters(
       'projects_role.apply_template_to_x',
-      this.props.project.name
+      this.props.project.name,
     );
 
     const options = this.state.permissionTemplates

@@ -32,7 +32,7 @@ describe('Dropdown', () => {
     expect(
       shallow(<Dropdown overlay={<div id="overlay" />}>{() => <div />}</Dropdown>)
         .find('div')
-        .exists()
+        .exists(),
     ).toBe(true);
   });
 
@@ -41,17 +41,17 @@ describe('Dropdown', () => {
       shallow(
         <Dropdown overlay={<div id="overlay" />}>
           <Button />
-        </Dropdown>
-      )
+        </Dropdown>,
+      ),
     );
 
     checkToggle(
       shallow(
         <Dropdown overlay={<div id="overlay" />}>
           <a href="#">click me!</a>
-        </Dropdown>
+        </Dropdown>,
       ),
-      'a'
+      'a',
     );
   });
 
@@ -60,8 +60,8 @@ describe('Dropdown', () => {
       shallow(
         <Dropdown overlay={<div id="overlay" />}>
           {({ onToggleClick }) => <Button onClick={onToggleClick} />}
-        </Dropdown>
-      )
+        </Dropdown>,
+      ),
     );
   });
 
@@ -70,7 +70,7 @@ describe('Dropdown', () => {
     const wrapper = mount(
       <Dropdown onOpen={onOpen} overlay={<div id="overlay" />}>
         <Button />
-      </Dropdown>
+      </Dropdown>,
     );
     expect(onOpen).not.toHaveBeenCalled();
     click(wrapper.find('Button'));
@@ -95,7 +95,7 @@ describe('DropdownOverlay', () => {
         <div />
       </DropdownOverlay>,
       // disable ScreenPositionFixer positioning
-      { disableLifecycleMethods: true }
+      { disableLifecycleMethods: true },
     );
 
     expect(wrapper.is(ScreenPositionFixer)).toBe(true);
@@ -106,7 +106,7 @@ describe('DropdownOverlay', () => {
     const wrapper = shallow(
       <DropdownOverlay placement={PopupPlacement.BottomRight}>
         <div />
-      </DropdownOverlay>
+      </DropdownOverlay>,
     );
     expect(wrapper.is('Popup')).toBe(true);
   });

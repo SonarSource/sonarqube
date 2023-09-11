@@ -399,7 +399,7 @@ const diacriticsMap: Dict<string> = {};
 defaultDiacriticsRemovalap.forEach((defaultDiacritic) =>
   defaultDiacritic.letters.split('').forEach((letter) => {
     diacriticsMap[letter] = defaultDiacritic.base;
-  })
+  }),
 );
 
 // "what?" version ... http://jsperf.com/diacritics/12

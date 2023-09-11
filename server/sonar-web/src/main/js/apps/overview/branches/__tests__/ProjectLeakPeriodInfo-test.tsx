@@ -73,7 +73,7 @@ it('should render correctly for "manual_baseline"', async () => {
   const rtl = renderProjectLeakPeriodInfo({ mode: 'manual_baseline' });
 
   expect(
-    await screen.findByText(/overview\.period\.manual_baseline\.formattedTime\..*/)
+    await screen.findByText(/overview\.period\.manual_baseline\.formattedTime\..*/),
   ).toBeInTheDocument();
   rtl.unmount();
   renderProjectLeakPeriodInfo({ mode: 'manual_baseline', parameter: '1.1.2' });
@@ -101,6 +101,6 @@ function renderProjectLeakPeriodInfo(period: Partial<Period> = {}) {
         } as IntlShape
       }
       leakPeriod={mockPeriod({ ...period })}
-    />
+    />,
   );
 }

@@ -36,7 +36,7 @@ export interface BitbucketCloudFormProps {
 export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
   const { formData } = props;
   const workspaceIDIsInvalid = Boolean(
-    formData.workspace && !BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT.test(formData.workspace)
+    formData.workspace && !BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT.test(formData.workspace),
   );
 
   return (

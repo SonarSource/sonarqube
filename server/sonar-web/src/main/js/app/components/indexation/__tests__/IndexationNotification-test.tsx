@@ -43,7 +43,7 @@ describe('Completed banner', () => {
         indexationContext={{
           status: { completedCount: 23, hasFailures: false, isCompleted: true, total: 42 },
         }}
-      />
+      />,
     );
 
     expect(IndexationNotificationHelper.shouldDisplayCompletedNotification).toHaveBeenCalled();
@@ -100,7 +100,7 @@ describe('Completed banner', () => {
         indexationContext={{
           status: { completedCount: 23, hasFailures: true, isCompleted: false, total: 42 },
         }}
-      />
+      />,
     );
 
     expect(byText('indexation.progression_with_error').get()).toBeInTheDocument();
@@ -111,7 +111,7 @@ describe('Completed banner', () => {
         indexationContext={{
           status: { completedCount: 23, hasFailures: true, isCompleted: true, total: 42 },
         }}
-      />
+      />,
     );
     expect(byText('indexation.completed_with_error').get()).toBeInTheDocument();
   });
@@ -131,7 +131,7 @@ describe('Completed banner', () => {
         indexationContext={{
           status: { completedCount: 23, hasFailures: false, isCompleted: true, total: 42 },
         }}
-      />
+      />,
     );
     expect(IndexationNotificationHelper.shouldDisplayCompletedNotification).toHaveBeenCalled();
   });
@@ -156,6 +156,6 @@ function renderIndexationNotification(props?: Partial<IndexationNotification['pr
         status: { completedCount: 23, hasFailures: false, isCompleted: false, total: 42 },
       }}
       {...props}
-    />
+    />,
   );
 }

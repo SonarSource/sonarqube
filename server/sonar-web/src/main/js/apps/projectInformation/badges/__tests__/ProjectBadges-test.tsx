@@ -34,7 +34,7 @@ import { BadgeType } from '../utils';
 jest.mock('../../../../helpers/urls', () => ({
   getHostUrl: () => 'host',
   getPathUrlAsString: (l: Location) => l.pathname,
-  getProjectUrl: () => ({ pathname: '/dashboard' } as Location),
+  getProjectUrl: () => ({ pathname: '/dashboard' }) as Location,
 }));
 
 jest.mock('../../../../api/project-badges', () => ({
@@ -68,27 +68,27 @@ it('should renew token', async () => {
   await waitFor(() =>
     expect(screen.getByAltText(`overview.badges.${BadgeType.qualityGate}.alt`)).toHaveAttribute(
       'src',
-      'host/api/project_badges/quality_gate?branch=branch-6.7&project=my-project&token=foo'
-    )
+      'host/api/project_badges/quality_gate?branch=branch-6.7&project=my-project&token=foo',
+    ),
   );
 
   expect(screen.getByAltText(`overview.badges.${BadgeType.measure}.alt`)).toHaveAttribute(
     'src',
-    'host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=foo'
+    'host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=foo',
   );
 
   await user.click(screen.getByText('overview.badges.renew'));
 
   expect(
-    await screen.findByAltText(`overview.badges.${BadgeType.qualityGate}.alt`)
+    await screen.findByAltText(`overview.badges.${BadgeType.qualityGate}.alt`),
   ).toHaveAttribute(
     'src',
-    'host/api/project_badges/quality_gate?branch=branch-6.7&project=my-project&token=bar'
+    'host/api/project_badges/quality_gate?branch=branch-6.7&project=my-project&token=bar',
   );
 
   expect(screen.getByAltText(`overview.badges.${BadgeType.measure}.alt`)).toHaveAttribute(
     'src',
-    'host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=bar'
+    'host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=bar',
   );
 });
 
@@ -99,8 +99,8 @@ it('should update params', async () => {
 
   expect(
     await screen.findByText(
-      '[![alert_status](host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=foo)](/dashboard)'
-    )
+      '[![alert_status](host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=foo)](/dashboard)',
+    ),
   ).toBeInTheDocument();
 
   await selectEvent.select(screen.getByLabelText('overview.badges.format'), [
@@ -109,16 +109,16 @@ it('should update params', async () => {
 
   expect(
     screen.getByText(
-      'host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=foo'
-    )
+      'host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=alert_status&token=foo',
+    ),
   ).toBeInTheDocument();
 
   await selectEvent.select(screen.getByLabelText('overview.badges.metric'), MetricKey.coverage);
 
   expect(
     screen.getByText(
-      `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.coverage}&token=foo`
-    )
+      `host/api/project_badges/measure?branch=branch-6.7&project=my-project&metric=${MetricKey.coverage}&token=foo`,
+    ),
   ).toBeInTheDocument();
 });
 
@@ -128,6 +128,6 @@ function renderProjectBadges(props: Partial<ProjectBadgesProps> = {}) {
       branchLike={mockBranch()}
       component={mockComponent({ key: 'foo', qualifier: ComponentQualifier.Project })}
       {...props}
-    />
+    />,
   );
 }

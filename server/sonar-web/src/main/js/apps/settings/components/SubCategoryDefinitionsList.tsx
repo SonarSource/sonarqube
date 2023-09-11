@@ -72,7 +72,7 @@ class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefiniti
       description: getSubCategoryDescription(bySubCategory[key][0].definition.category, key),
     }));
     const sortedSubCategories = sortBy(subCategories, (subCategory) =>
-      subCategory.name.toLowerCase()
+      subCategory.name.toLowerCase(),
     );
     const filteredSubCategories = subCategory
       ? sortedSubCategories.filter((c) => c.key === subCategory)

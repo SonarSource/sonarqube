@@ -19,7 +19,7 @@
  */
 export function getWrappedDisplayName<P>(
   WrappedComponent: React.ComponentType<P>,
-  hocName: string
+  hocName: string,
 ) {
   const wrappedDisplayName = WrappedComponent.displayName ?? WrappedComponent.name ?? 'Component';
   return `${hocName}(${wrappedDisplayName})`;

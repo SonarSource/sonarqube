@@ -61,6 +61,6 @@ function renderCoverageFilter(props: Partial<ComponentPropsType<typeof CoverageF
         NO_DATA: 4,
       }}
       {...props}
-    />
+    />,
   );
 }

@@ -90,7 +90,7 @@ describe('RegulatoryReport tests', () => {
     expect(ui.downloadButton.get()).toBeInTheDocument();
     expect(ui.downloadButton.get()).toHaveAttribute(
       'href',
-      `/api/regulatory_reports/download?project=&branch=${compatibleBranch.name}`
+      `/api/regulatory_reports/download?project=&branch=${compatibleBranch.name}`,
     );
   });
 
@@ -109,7 +109,7 @@ describe('RegulatoryReport tests', () => {
     expect(ui.downloadButton.get()).toBeInTheDocument();
     expect(ui.downloadButton.get()).toHaveAttribute(
       'href',
-      `/api/regulatory_reports/download?project=&branch=${mainBranch.name}`
+      `/api/regulatory_reports/download?project=&branch=${mainBranch.name}`,
     );
   });
 });

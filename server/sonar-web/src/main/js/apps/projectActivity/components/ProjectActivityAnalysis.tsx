@@ -120,11 +120,11 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
             'it__project-activity-analysis sw-flex sw-cursor-pointer sw-p-1 sw-relative',
             {
               active: selected,
-            }
+            },
           )}
           aria-label={translateWithParameters(
             'project_activity.show_analysis_X_on_graph',
-            analysis.buildString || formatDate(parsedDate, formatterOption)
+            analysis.buildString || formatDate(parsedDate, formatterOption),
           )}
           onClick={() => props.onUpdateSelectedDate(analysis.date)}
           ref={(ref) => (node = ref)}
@@ -145,7 +145,7 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
                 <ActionsDropdown
                   ariaLabel={translateWithParameters(
                     'project_activity.analysis_X_actions',
-                    analysis.buildString || formatDate(parsedDate, formatterOption)
+                    analysis.buildString || formatDate(parsedDate, formatterOption),
                   )}
                   buttonSize="small"
                   id="it__analysis-actions"

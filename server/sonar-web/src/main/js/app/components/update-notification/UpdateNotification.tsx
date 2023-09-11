@@ -96,7 +96,7 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
   isPreviousLTSUpdate(
     parsedVersion: number[],
     latestLTS: string,
-    systemUpgrades: GroupedSystemUpdate
+    systemUpgrades: GroupedSystemUpdate,
   ) {
     const [ltsMajor, ltsMinor] = latestLTS.split('.').map(Number);
     let ltsOlderThan6Month = false;
@@ -172,7 +172,7 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
         groupBy(upgrades, (upgrade) => {
           const [, minor] = upgrade.version.split('.');
           return minor;
-        })
+        }),
     );
 
     let useCase = UpdateUseCase.NewMinorVersion;
@@ -190,7 +190,7 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
     const latest = [...upgrades].sort(
       (upgrade1, upgrade2) =>
         new Date(upgrade2.releaseDate || '').getTime() -
-        new Date(upgrade1.releaseDate || '').getTime()
+        new Date(upgrade1.releaseDate || '').getTime(),
     )[0];
 
     const dismissKey = useCase + latest.version;

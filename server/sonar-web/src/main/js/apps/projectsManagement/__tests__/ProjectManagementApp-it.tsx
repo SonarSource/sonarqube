@@ -63,7 +63,7 @@ jest.mock('../../../api/navigation', () => ({
           canBrowseProject: canBrowseProjectResponse.users.length > 0,
           showPermissions: showPermissionsResponse.users.length > 0,
         },
-      })
+      }),
     );
   }),
 }));
@@ -230,7 +230,7 @@ it('should delete projects, but not Portfolios or Applications', async () => {
   await user.click(ui.deleteProjects.get());
   expect(ui.deleteDialog.get()).toBeInTheDocument();
   expect(
-    within(ui.deleteDialog.get()).getByText('projects_management.delete_selected_warning.2')
+    within(ui.deleteDialog.get()).getByText('projects_management.delete_selected_warning.2'),
   ).toBeInTheDocument();
   await user.click(ui.delete.get(ui.deleteDialog.get()));
   expect(ui.row.getAll()).toHaveLength(3);
@@ -239,7 +239,7 @@ it('should delete projects, but not Portfolios or Applications', async () => {
 it('should bulk apply permission templates to projects', async () => {
   const user = userEvent.setup();
   handler.setProjects(
-    Array.from({ length: 11 }, (_, i) => mockProject({ key: i.toString(), name: `Test ${i}` }))
+    Array.from({ length: 11 }, (_, i) => mockProject({ key: i.toString(), name: `Test ${i}` })),
   );
   renderProjectManagementApp();
 
@@ -253,13 +253,13 @@ it('should bulk apply permission templates to projects', async () => {
   expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
   expect(
     within(ui.bulkApplyDialog.get()).getByText(
-      'permission_templates.bulk_apply_permission_template.apply_to_selected.11'
-    )
+      'permission_templates.bulk_apply_permission_template.apply_to_selected.11',
+    ),
   ).toBeInTheDocument();
 
   await user.click(ui.apply.get(ui.bulkApplyDialog.get()));
   expect(
-    await screen.findByText('bulk apply permission template error message')
+    await screen.findByText('bulk apply permission template error message'),
   ).toBeInTheDocument();
   expect(ui.bulkApplyDialog.get()).toBeInTheDocument();
 
@@ -275,17 +275,17 @@ it('should bulk apply permission templates to projects', async () => {
   expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
   expect(
     within(ui.bulkApplyDialog.get()).getByText(
-      'permission_templates.bulk_apply_permission_template.apply_to_selected.2'
-    )
+      'permission_templates.bulk_apply_permission_template.apply_to_selected.2',
+    ),
   ).toBeInTheDocument();
   await selectEvent.select(
     ui.selectTemplate.get(ui.bulkApplyDialog.get()),
-    'Permission Template 2'
+    'Permission Template 2',
   );
   await user.click(ui.apply.get(ui.bulkApplyDialog.get()));
 
   expect(
-    await within(ui.bulkApplyDialog.get()).findByText('projects_role.apply_template.success')
+    await within(ui.bulkApplyDialog.get()).findByText('projects_role.apply_template.success'),
   ).toBeInTheDocument();
 });
 
@@ -297,21 +297,21 @@ it('should load more and change the filter without caching old pages', async () 
         key: ComponentQualifier.Project + i.toString(),
         name: `Project ${i}`,
         qualifier: ComponentQualifier.Project,
-      })
+      }),
     ),
     ...Array.from({ length: 60 }, (_, i) =>
       mockProject({
         key: ComponentQualifier.Portfolio + i.toString(),
         name: `Portfolio ${i}`,
         qualifier: ComponentQualifier.Portfolio,
-      })
+      }),
     ),
     ...Array.from({ length: 60 }, (_, i) =>
       mockProject({
         key: ComponentQualifier.Application + i.toString(),
         name: `Application ${i}`,
         qualifier: ComponentQualifier.Application,
-      })
+      }),
     ),
   ]);
   renderProjectManagementApp();
@@ -390,12 +390,12 @@ it('should apply template for single object', async () => {
   expect(ui.applyTemplateDialog.get()).toBeInTheDocument();
   await selectEvent.select(
     ui.selectTemplate.get(ui.applyTemplateDialog.get()),
-    'Permission Template 2'
+    'Permission Template 2',
   );
   await user.click(ui.apply.get(ui.applyTemplateDialog.get()));
 
   expect(
-    await within(ui.applyTemplateDialog.get()).findByText('projects_role.apply_template.success')
+    await within(ui.applyTemplateDialog.get()).findByText('projects_role.apply_template.success'),
   ).toBeInTheDocument();
 });
 
@@ -420,7 +420,7 @@ it('should restore access for github project', async () => {
   renderProjectManagementApp(
     {},
     { login: 'gooduser2', local: true },
-    { featureList: [Feature.GithubProvisioning] }
+    { featureList: [Feature.GithubProvisioning] },
   );
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
   const rows = ui.row.getAll();
@@ -442,7 +442,7 @@ it('should not allow to restore access on github project for GH user', async () 
   renderProjectManagementApp(
     {},
     { login: 'gooduser2', local: false },
-    { featureList: [Feature.GithubProvisioning] }
+    { featureList: [Feature.GithubProvisioning] },
   );
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
   const rows = ui.row.getAll();
@@ -502,7 +502,7 @@ it('should not show local badge if provisioning is not enabled', async () => {
 function renderProjectManagementApp(
   overrides: Partial<AppState> = {},
   user: Partial<LoggedInUser> = {},
-  context: Partial<RenderContext> = {}
+  context: Partial<RenderContext> = {},
 ) {
   login = user?.login ?? 'gooduser1';
   renderAppWithAdminContext('admin/projects_management', routes, {

@@ -125,7 +125,7 @@ export default class IssueLocationsCrossFile extends PureComponent<Props, State>
   renderGroup = (
     group: LocationGroup,
     groupIndex: number,
-    { onlyFirst = false, onlyLast = false } = {}
+    { onlyFirst = false, onlyLast = false } = {},
   ) => {
     const { firstLocationIndex } = group;
     const lastLocationIndex = group.locations.length - 1;
@@ -142,13 +142,13 @@ export default class IssueLocationsCrossFile extends PureComponent<Props, State>
             {onlyLast &&
               this.renderLocation(
                 firstLocationIndex + lastLocationIndex,
-                group.locations[lastLocationIndex].msg
+                group.locations[lastLocationIndex].msg,
               )}
 
             {!onlyFirst &&
               !onlyLast &&
               group.locations.map((location, index) =>
-                this.renderLocation(firstLocationIndex + index, location.msg)
+                this.renderLocation(firstLocationIndex + index, location.msg),
               )}
           </GroupBody>
         )}
@@ -179,7 +179,7 @@ export default class IssueLocationsCrossFile extends PureComponent<Props, State>
             >
               {translateWithParameters(
                 'issues.show_x_more_locations',
-                locations.length - VISIBLE_LOCATIONS_COLLAPSE
+                locations.length - VISIBLE_LOCATIONS_COLLAPSE,
               )}
             </ExpandLink>
           </div>

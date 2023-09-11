@@ -34,7 +34,7 @@ jest.mock(
     // eslint-disable-next-line
     function AllProjects() {
       return <div>All Projects</div>;
-    }
+    },
 );
 
 jest.mock('../../../../helpers/storage', () => ({
@@ -128,6 +128,6 @@ function renderDefaultPageSelector({
           <Route path="*" element={<RouteDisplayer />} />
         </Route>
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }

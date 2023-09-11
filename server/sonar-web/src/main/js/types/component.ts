@@ -57,7 +57,7 @@ export interface TreeComponentWithPath extends TreeComponent {
 }
 
 export function isPortfolioLike(
-  componentQualifier?: string | ComponentQualifier
+  componentQualifier?: string | ComponentQualifier,
 ): componentQualifier is ComponentQualifier.Portfolio | ComponentQualifier.SubPortfolio {
   return (
     componentQualifier === ComponentQualifier.Portfolio ||
@@ -66,27 +66,27 @@ export function isPortfolioLike(
 }
 
 export function isApplication(
-  componentQualifier?: string | ComponentQualifier
+  componentQualifier?: string | ComponentQualifier,
 ): componentQualifier is ComponentQualifier.Application {
   return componentQualifier === ComponentQualifier.Application;
 }
 
 export function isProject(
-  componentQualifier?: string | ComponentQualifier
+  componentQualifier?: string | ComponentQualifier,
 ): componentQualifier is ComponentQualifier.Project {
   return componentQualifier === ComponentQualifier.Project;
 }
 
 export function isFile(
-  componentQualifier?: string | ComponentQualifier
+  componentQualifier?: string | ComponentQualifier,
 ): componentQualifier is ComponentQualifier.File {
   return [ComponentQualifier.File, ComponentQualifier.TestFile].includes(
-    componentQualifier as ComponentQualifier
+    componentQualifier as ComponentQualifier,
   );
 }
 
 export function isView(
-  componentQualifier?: string | ComponentQualifier
+  componentQualifier?: string | ComponentQualifier,
 ): componentQualifier is
   | ComponentQualifier.Application
   | ComponentQualifier.Portfolio

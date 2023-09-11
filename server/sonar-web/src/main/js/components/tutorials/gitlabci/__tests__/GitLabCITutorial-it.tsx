@@ -62,7 +62,7 @@ it('should follow and complete all steps', async () => {
   expect(getCopyToClipboardValue(0, 'Copy to clipboard')).toMatchSnapshot('sonar token key');
   expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toMatchSnapshot('sonarqube host url key');
   expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
-    'sonarqube host url value'
+    'sonarqube host url value',
   );
 
   // Create/update configuration file step
@@ -113,7 +113,7 @@ it('should generate/delete a new token or use existing one', async () => {
 
 function renderGitLabTutorial(
   overrides: Partial<GitLabCITutorialProps> = {},
-  { languages = { c: mockLanguage({ key: 'c' }) } }: RenderContext = {}
+  { languages = { c: mockLanguage({ key: 'c' }) } }: RenderContext = {},
 ) {
   return renderApp(
     '/',
@@ -123,6 +123,6 @@ function renderGitLabTutorial(
       currentUser={mockLoggedInUser()}
       {...overrides}
     />,
-    { languages }
+    { languages },
   );
 }

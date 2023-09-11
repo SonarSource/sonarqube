@@ -65,7 +65,7 @@ export default function Gradle(props: GradleProps) {
           mainBranchName,
           !!branchesEnabled,
           GITHUB_ACTIONS_RUNS_ON_LINUX,
-          GRADLE_YAML_STEPS
+          GRADLE_YAML_STEPS,
         )}
       />
     </>

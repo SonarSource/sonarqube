@@ -147,7 +147,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
       if (this.mounted) {
         this.updateGraphData(
           this.state.query.graph || DEFAULT_GRAPH,
-          this.state.query.customMetrics
+          this.state.query.customMetrics,
         );
         this.setState(actions.deleteAnalysis(analysis));
       }
@@ -167,7 +167,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
     statuses: ProjectActivityStatuses[],
     p: number,
     ps: number,
-    additional?: RawQuery
+    additional?: RawQuery,
   ) => {
     const parameters = {
       project,
@@ -200,7 +200,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
           date: parseDate(analysis.date),
           value: analysis.value,
         })),
-      }))
+      })),
     );
   };
 
@@ -219,13 +219,13 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ analysesLoading: false });
         }
-      }
+      },
     );
   };
 
   loadAllActivities = (
     project: string,
-    prevResult?: { analyses: ParsedAnalysis[]; paging: Paging }
+    prevResult?: { analyses: ParsedAnalysis[]; paging: Paging },
   ): Promise<{ analyses: ParsedAnalysis[]; paging: Paging }> => {
     if (
       prevResult &&
@@ -241,7 +241,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
         ProjectActivityStatuses.STATUS_LIVE_MEASURE_COMPUTE,
       ],
       nextPage,
-      ACTIVITY_PAGE_SIZE
+      ACTIVITY_PAGE_SIZE,
     ).then((result) => {
       if (!prevResult) {
         return this.loadAllActivities(project, result);
@@ -278,12 +278,12 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
 
     if (isPortfolioLike(qualifier)) {
       return Object.values(metrics).filter(
-        (metric) => metric.key !== MetricKey.security_hotspots_reviewed
+        (metric) => metric.key !== MetricKey.security_hotspots_reviewed,
       );
     }
 
     return Object.values(metrics).filter(
-      (metric) => metric.key !== MetricKey.security_review_rating
+      (metric) => metric.key !== MetricKey.security_review_rating,
     );
   };
 
@@ -299,7 +299,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
         ],
         1,
         ACTIVITY_PAGE_SIZE_FIRST_BATCH,
-        serializeQuery(query)
+        serializeQuery(query),
       ),
       this.fetchMeasuresHistory(graphMetrics),
     ]).then(
@@ -319,7 +319,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ initialized: true, graphLoading: false });
         }
-      }
+      },
     );
   }
 
@@ -336,7 +336,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ graphLoading: false, measuresHistory: [] });
         }
-      }
+      },
     );
   };
 
@@ -416,5 +416,5 @@ function RedirectWrapper(props: Props) {
 }
 
 export default withComponentContext(
-  withRouter(withMetricsContext(withBranchLikes(RedirectWrapper)))
+  withRouter(withMetricsContext(withBranchLikes(RedirectWrapper))),
 );

@@ -75,6 +75,6 @@ function renderLanguagesFilter(props: Partial<ComponentPropsType<typeof Language
       facet={{ js: 12, ts: 7, java: 4, xml: 1, '<null>': 1 }}
       value={['js', 'ts']}
       {...props}
-    />
+    />,
   );
 }

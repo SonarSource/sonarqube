@@ -39,6 +39,6 @@ function shallowRender(props: Partial<SelectListListContainer['props']> = {}) {
       renderElement={(foo: string) => foo}
       selectedElements={['foo']}
       {...props}
-    />
+    />,
   );
 }

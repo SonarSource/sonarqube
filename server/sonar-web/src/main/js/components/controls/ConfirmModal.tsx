@@ -62,7 +62,7 @@ export default class ConfirmModal<T = string> extends React.PureComponent<Props<
         },
         () => {
           /* noop */
-        }
+        },
       );
     }
     this.props.onClose();

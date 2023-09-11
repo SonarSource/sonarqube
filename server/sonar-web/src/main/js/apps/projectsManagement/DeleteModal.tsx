@@ -75,7 +75,7 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 
@@ -84,7 +84,7 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
       {this.props.selection.length
         ? translateWithParameters(
             'projects_management.delete_selected_warning',
-            this.props.selection.length
+            this.props.selection.length,
           )
         : translateWithParameters('projects_management.delete_all_warning', this.props.total)}
     </Alert>

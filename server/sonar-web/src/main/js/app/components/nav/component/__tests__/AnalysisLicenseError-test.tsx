@@ -36,8 +36,8 @@ it('should handle a valid license', async () => {
 
   expect(
     await screen.findByText(
-      'component_navigation.status.last_blocked_due_to_bad_license_X.qualifier.TRK'
-    )
+      'component_navigation.status.last_blocked_due_to_bad_license_X.qualifier.TRK',
+    ),
   ).toBeInTheDocument();
 });
 
@@ -59,18 +59,18 @@ it('should send provide a link to the admin', async () => {
     {
       currentTask: mockTask({ errorMessage, errorType: 'error-type' }),
     },
-    true
+    true,
   );
 
   expect(
-    await screen.findByText('license.component_navigation.button.error-type.')
+    await screen.findByText('license.component_navigation.button.error-type.'),
   ).toBeInTheDocument();
   expect(screen.getByText(errorMessage)).toBeInTheDocument();
 });
 
 function renderAnalysisLicenseError(
   overrides: Partial<Parameters<typeof AnalysisLicenseError>[0]> = {},
-  canAdmin = false
+  canAdmin = false,
 ) {
   return renderApp('/', <AnalysisLicenseError currentTask={mockTask()} {...overrides} />, {
     appState: mockAppState({ canAdmin }),

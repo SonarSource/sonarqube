@@ -236,10 +236,10 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                     <RadioCard
                       className="spacer-top"
                       label={translate(
-                        'settings.authentication.github.form.provisioning_with_github'
+                        'settings.authentication.github.form.provisioning_with_github',
                       )}
                       title={translate(
-                        'settings.authentication.github.form.provisioning_with_github'
+                        'settings.authentication.github.form.provisioning_with_github',
                       )}
                       selected={newGithubProvisioningStatus ?? githubProvisioningStatus}
                       onClick={() => setNewGithubProvisioningStatus(true)}
@@ -254,7 +254,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                           )}
                           <p className="spacer-bottom">
                             {translate(
-                              'settings.authentication.github.form.provisioning_with_github.description'
+                              'settings.authentication.github.form.provisioning_with_github.description',
                             )}
                           </p>
                           <p className="spacer-bottom">
@@ -291,7 +291,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                           <FormattedMessage
                             id="settings.authentication.github.form.provisioning.disabled"
                             defaultMessage={translate(
-                              'settings.authentication.github.form.provisioning.disabled'
+                              'settings.authentication.github.form.provisioning.disabled',
                             )}
                             values={{
                               documentation: (
@@ -334,7 +334,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                   onConfirm={() => changeProvisioning()}
                   header={translate(
                     'settings.authentication.github.confirm',
-                    newGithubProvisioningStatus ? 'auto' : 'jit'
+                    newGithubProvisioningStatus ? 'auto' : 'jit',
                   )}
                   onClose={() => setShowConfirmProvisioningModal(false)}
                   isDestructive={!newGithubProvisioningStatus}
@@ -343,7 +343,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                   {translate(
                     'settings.authentication.github.confirm',
                     newGithubProvisioningStatus ? 'auto' : 'jit',
-                    'description'
+                    'description',
                   )}
                 </ConfirmModal>
               )}

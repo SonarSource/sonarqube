@@ -65,7 +65,7 @@ export function ProjectNotifications(props: WithNotificationsProps & Props) {
       (notification) =>
         notification.type === type &&
         notification.channel === channel &&
-        notification.project === component.key
+        notification.project === component.key,
     );
   };
 
@@ -91,7 +91,7 @@ export function ProjectNotifications(props: WithNotificationsProps & Props) {
                 className="sw-flex sw-justify-between"
                 label={translateWithParameters(
                   'notification.dispatcher.descrption_x',
-                  getDispatcherLabel(type)
+                  getDispatcherLabel(type),
                 )}
                 checked={isEnabled(type, emailChannel)}
                 id={getCheckboxId(type, emailChannel)}

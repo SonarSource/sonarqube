@@ -57,7 +57,7 @@ export default function HotspotListItem(props: HotspotListItemProps) {
         });
       }
     },
-    [selected]
+    [selected],
   );
 
   const handleClick = () => {

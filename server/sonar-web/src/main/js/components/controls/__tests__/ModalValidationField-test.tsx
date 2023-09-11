@@ -45,6 +45,6 @@ function getWrapper(props = {}) {
       {...props}
     >
       {({ className }) => <input className={className} type="text" />}
-    </ModalValidationField>
+    </ModalValidationField>,
   );
 }

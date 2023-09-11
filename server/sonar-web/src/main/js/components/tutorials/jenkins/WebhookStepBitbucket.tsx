@@ -42,7 +42,7 @@ export interface WebhookStepBitbucketProps {
 function buildUrlSnippet(
   branchesEnabled: boolean,
   isBitbucketcloud: boolean,
-  ownUrl = '***BITBUCKET_URL***'
+  ownUrl = '***BITBUCKET_URL***',
 ) {
   if (!branchesEnabled) {
     return '***JENKINS_SERVER_URL***/job/***JENKINS_JOB_NAME***/build?token=***JENKINS_BUILD_TRIGGER_TOKEN***';
@@ -62,7 +62,7 @@ export default function WebhookStepBitbucket(props: WebhookStepBitbucketProps) {
     if (isBitbucketCloud && projectBinding?.repository) {
       linkUrl = `${buildBitbucketCloudLink(
         almBinding,
-        projectBinding
+        projectBinding,
       )}/admin/addon/admin/bitbucket-webhooks/bb-webhooks-repo-admin`;
     } else if (projectBinding.slug) {
       linkUrl = `${stripTrailingSlash(almBinding.url)}/plugins/servlet/webhooks/projects/${

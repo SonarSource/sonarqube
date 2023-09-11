@@ -74,13 +74,13 @@ it('should allow the user to accept the binding request', async () => {
   renderSonarLintConnection();
 
   expect(
-    await screen.findByRole('heading', { name: 'sonarlint-connection.request.title' })
+    await screen.findByRole('heading', { name: 'sonarlint-connection.request.title' }),
   ).toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: 'sonarlint-connection.request.action' }));
 
   expect(
-    await screen.findByText('sonarlint-connection.success.description', { exact: false })
+    await screen.findByText('sonarlint-connection.success.description', { exact: false }),
   ).toBeInTheDocument();
 });
 
@@ -91,11 +91,11 @@ it('should handle token generation errors', async () => {
   renderSonarLintConnection();
 
   await user.click(
-    await screen.findByRole('button', { name: 'sonarlint-connection.request.action' })
+    await screen.findByRole('button', { name: 'sonarlint-connection.request.action' }),
   );
 
   expect(
-    await screen.findByText('sonarlint-connection.token-error.description')
+    await screen.findByText('sonarlint-connection.token-error.description'),
   ).toBeInTheDocument();
 });
 
@@ -106,11 +106,11 @@ it('should handle connection errors', async () => {
   renderSonarLintConnection();
 
   await user.click(
-    await screen.findByRole('button', { name: 'sonarlint-connection.request.action' })
+    await screen.findByRole('button', { name: 'sonarlint-connection.request.action' }),
   );
 
   expect(
-    await screen.findByText('sonarlint-connection.connection-error.description')
+    await screen.findByText('sonarlint-connection.connection-error.description'),
   ).toBeInTheDocument();
 
   const tokenValue = tokenMock.getLastToken()?.token ?? '';
@@ -129,11 +129,11 @@ it('should let the user copy the token if the port is not valid', async () => {
   renderSonarLintConnection({ port: '' });
 
   await user.click(
-    await screen.findByRole('button', { name: 'sonarlint-connection.request.action' })
+    await screen.findByRole('button', { name: 'sonarlint-connection.request.action' }),
   );
 
   expect(
-    await screen.findByText('sonarlint-connection.connection-error.description')
+    await screen.findByText('sonarlint-connection.connection-error.description'),
   ).toBeInTheDocument();
 });
 

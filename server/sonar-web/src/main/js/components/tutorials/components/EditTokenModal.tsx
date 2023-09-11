@@ -231,7 +231,7 @@ export default class EditTokenModal extends React.PureComponent<Props, State> {
                       }
                       options={tokenExpirationOptions}
                       value={tokenExpirationOptions.find(
-                        (option) => option.value === tokenExpiration
+                        (option) => option.value === tokenExpiration,
                       )}
                     />
                     <ButtonSecondary

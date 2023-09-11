@@ -123,7 +123,7 @@ const defaultTemplates: PermissionTemplate[] = [
         groupsCount: defaultGroups.filter((g) => g.permissions.includes(key)).length,
         usersCount: defaultUsers.filter((g) => g.permissions.includes(key)).length,
         withProjectCreator: false,
-      })
+      }),
     ),
   }),
   mockPermissionTemplate({
@@ -135,7 +135,7 @@ const defaultTemplates: PermissionTemplate[] = [
         groupsCount: 0,
         usersCount: 0,
         withProjectCreator: [Permissions.Browse, Permissions.CodeViewer].includes(key),
-      })
+      }),
     ),
   }),
 ];
@@ -157,7 +157,7 @@ export default class PermissionsServiceMock {
   constructor() {
     this.#permissionTemplates = cloneDeep(defaultTemplates);
     this.#permissions = PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE.map((key) =>
-      mockPermission({ key, name: key })
+      mockPermission({ key, name: key }),
     );
     this.#groups = cloneDeep(defaultGroups);
     this.#users = cloneDeep(defaultUsers);
@@ -217,7 +217,7 @@ export default class PermissionsServiceMock {
       params.projects.split(',').length > MAX_PROJECTS_TO_APPLY_PERMISSION_TEMPLATE
     ) {
       const response = new Response(
-        JSON.stringify({ errors: [{ msg: 'bulk apply permission template error message' }] })
+        JSON.stringify({ errors: [{ msg: 'bulk apply permission template error message' }] }),
       );
       return Promise.reject(response);
     }
@@ -262,13 +262,13 @@ export default class PermissionsServiceMock {
         ? this.#users.filter(
             (user) =>
               user.name.toLowerCase().includes(q.toLowerCase()) ||
-              user.login.toLowerCase().includes(q.toLowerCase())
+              user.login.toLowerCase().includes(q.toLowerCase()),
           )
         : this.#users;
 
     const usersChunked = chunk(
       permission ? users.filter((u) => u.permissions.includes(permission)) : users,
-      ps
+      ps,
     );
 
     return this.reply({
@@ -292,7 +292,7 @@ export default class PermissionsServiceMock {
 
     const groupsChunked = chunk(
       permission ? groups.filter((g) => g.permissions.includes(permission)) : groups,
-      ps
+      ps,
     );
 
     return this.reply({

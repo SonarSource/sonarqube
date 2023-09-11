@@ -47,7 +47,7 @@ export function getPageObject(user: UserEvent) {
     }),
     nonGHProjectWarning: byText('project_permission.local_project_with_github_provisioning'),
     makePublicDisclaimer: byText(
-      'projects_role.are_you_sure_to_turn_project_to_public.warning.TRK'
+      'projects_role.are_you_sure_to_turn_project_to_public.warning.TRK',
     ),
     confirmPublicBtn: byRole('button', { name: 'projects_role.turn_project_to_public.TRK' }),
     applyTemplateBtn: byRole('button', { name: 'projects_role.apply_template' }),
@@ -127,7 +127,7 @@ export function flattenPermissionsList(
         category: string;
         permissions: Permissions[];
       }
-  >
+  >,
 ) {
   function isPermissions(
     p:
@@ -135,7 +135,7 @@ export function flattenPermissionsList(
       | {
           category: string;
           permissions: Permissions[];
-        }
+        },
   ): p is Permissions {
     return typeof p === 'string';
   }

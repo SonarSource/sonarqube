@@ -37,7 +37,7 @@ export default function Menu(props: Props) {
   const filteredDomains = (domains || [])
     .map((domain) => {
       const filteredActions = domain.actions.filter((action) =>
-        actionsFilter(query, domain, action)
+        actionsFilter(query, domain, action),
       );
       return { ...domain, filteredActions };
     })

@@ -56,7 +56,7 @@ export function MetaQualityProfiles({ headerClassName, profiles }: Props) {
         });
         setDeprecatedByKey(deprecatedByKey);
       },
-      () => {}
+      () => {},
     );
   }, [profiles]);
 
@@ -111,7 +111,7 @@ function ProfileItem({
                   aria-label={translateWithParameters(
                     'overview.link_to_x_profile_y',
                     languageName,
-                    profile.name
+                    profile.name,
                   )}
                 >
                   {profile.name}

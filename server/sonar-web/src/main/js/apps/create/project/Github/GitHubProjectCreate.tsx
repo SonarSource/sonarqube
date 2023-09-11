@@ -104,7 +104,7 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
       almInstances,
     } = this.props;
     const selectedAlmInstance = almInstances.find(
-      (instance) => instance.key === selectedAlmInstanceKey
+      (instance) => instance.key === selectedAlmInstanceKey,
     );
     if (selectedAlmInstance) {
       return selectedAlmInstance;
@@ -155,7 +155,7 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
         value: encodeURIComponent(
           `${getHostUrl()}/projects/create?mode=${AlmKeys.GitHub}&almInstance=${
             selectedAlmInstance.key
-          }`
+          }`,
         ),
       },
     ]
@@ -268,7 +268,7 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
           almSetting: selectedAlmInstance.key,
           organization: selectedOrganization.key,
           repositoryKey: repoKey,
-        })
+        }),
       );
     }
   };
@@ -280,7 +280,7 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
         this.initialize().catch(() => {
           /* noop */
         });
-      }
+      },
     );
   };
 

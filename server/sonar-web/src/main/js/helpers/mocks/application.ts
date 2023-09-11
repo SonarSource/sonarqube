@@ -20,7 +20,7 @@
 import { ApplicationPeriod } from '../../types/application';
 
 export function mockApplicationPeriod(
-  overrides: Partial<ApplicationPeriod> = {}
+  overrides: Partial<ApplicationPeriod> = {},
 ): ApplicationPeriod {
   return {
     date: '2017-10-01',

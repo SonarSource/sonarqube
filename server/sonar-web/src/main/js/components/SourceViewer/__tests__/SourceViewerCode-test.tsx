@@ -81,6 +81,6 @@ function shallowRender(props: Partial<SourceViewerCode['props']> = {}) {
       sources={[mockSourceLine(), mockSourceLine(), mockSourceLine()]}
       symbolsByLine={{}}
       {...props}
-    />
+    />,
   );
 }

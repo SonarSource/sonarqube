@@ -181,7 +181,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
           </div>
           <TextMuted text={`${operator} ${formatMeasure(threshold, metric.type)}`} />
         </div>
-      </div>
+      </div>,
     );
   }
 }

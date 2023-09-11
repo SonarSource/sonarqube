@@ -64,7 +64,7 @@ it.each([
       diff: mockIssueChangelogDiff({ key, newValue: 'newValue', oldValue: 'oldValue', ...diff }),
     });
     expect(screen.getByText(expected)).toBeInTheDocument();
-  }
+  },
 );
 
 function renderIssueChangelogDiff(props: Partial<IssueChangelogDiffProps> = {}) {

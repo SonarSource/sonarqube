@@ -93,7 +93,7 @@ function renderAction(props: Partial<Action['props']> = {}) {
       showDeprecated={false}
       showInternal={false}
       {...props}
-    />
+    />,
   );
 }
 

@@ -65,7 +65,7 @@ export default function DoneNextSteps({ component }: DoneNextStepsProps) {
         <p className="sw-mt-4">
           {isProjectAdmin
             ? translate(
-                'onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci.admin'
+                'onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci.admin',
               )
             : translate('onboarding.analysis.auto_refresh_after_analysis.set_up_pr_deco_and_ci')}
         </p>
@@ -77,7 +77,7 @@ export default function DoneNextSteps({ component }: DoneNextStepsProps) {
             <li>
               <Link to={docUrl('/analyzing-source-code/branches/branch-analysis/')}>
                 {translate(
-                  'onboarding.analysis.auto_refresh_after_analysis.check_these_links.branches'
+                  'onboarding.analysis.auto_refresh_after_analysis.check_these_links.branches',
                 )}
               </Link>
             </li>
@@ -85,7 +85,7 @@ export default function DoneNextSteps({ component }: DoneNextStepsProps) {
             <li>
               <Link to={docUrl('/analyzing-source-code/pull-request-analysis')}>
                 {translate(
-                  'onboarding.analysis.auto_refresh_after_analysis.check_these_links.pr_analysis'
+                  'onboarding.analysis.auto_refresh_after_analysis.check_these_links.pr_analysis',
                 )}
               </Link>
             </li>

@@ -84,7 +84,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
             <th>
               {translateWithParameters(
                 'quality_profiles.x_rules_only_in',
-                this.props.inLeft.length
+                this.props.inLeft.length,
               )}{' '}
               {this.props.left.name}
             </th>
@@ -133,7 +133,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
             <th>
               {translateWithParameters(
                 'quality_profiles.x_rules_only_in',
-                this.props.inRight.length
+                this.props.inRight.length,
               )}{' '}
               {this.props.right.name}
             </th>
@@ -171,7 +171,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
         <caption>
           {translateWithParameters(
             'quality_profiles.x_rules_have_different_configuration',
-            this.props.modified.length
+            this.props.modified.length,
           )}
         </caption>
         <thead>

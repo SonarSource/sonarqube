@@ -64,6 +64,6 @@ function renderSourceViewerWrapper(props: Partial<SourceViewerWrapperProps> = {}
       componentMeasures={[]}
       location={mockLocation({ query: { line: '2' } })}
       {...props}
-    />
+    />,
   );
 }

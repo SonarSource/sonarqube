@@ -89,7 +89,7 @@ export default class BubbleChartView extends React.PureComponent<Props, State> {
   getTooltip(
     component: ComponentMeasureEnhanced,
     values: { x: number; y: number; size: number; colors?: Array<number | undefined> },
-    metrics: { x: Metric; y: Metric; size: Metric; colors?: Metric[] }
+    metrics: { x: Metric; y: Metric; size: Metric; colors?: Metric[] },
   ) {
     const inner = [
       [component.name, isProject(component.qualifier) ? component.branch : undefined]
@@ -204,7 +204,7 @@ export default class BubbleChartView extends React.PureComponent<Props, State> {
       ? translate('component_measures.overview', domain, 'title')
       : translateWithParameters(
           'component_measures.domain_x_overview',
-          getLocalizedMetricDomain(domain)
+          getLocalizedMetricDomain(domain),
         );
 
     return (
@@ -248,7 +248,7 @@ export default class BubbleChartView extends React.PureComponent<Props, State> {
                 {colorsMetric.length > 1
                   ? translateWithParameters(
                       'component_measures.legend.worse_of_x_y',
-                      ...colorsMetric.map((metric) => getLocalizedMetricName(metric))
+                      ...colorsMetric.map((metric) => getLocalizedMetricName(metric)),
                     )
                   : getLocalizedMetricName(colorsMetric[0])}
               </span>

@@ -31,5 +31,5 @@ export enum CreateProjectModes {
 
 export type CreateProjectApiCallback = (
   newCodeDefinitionType?: NewCodeDefinitionType,
-  newCodeDefinitionValue?: string
+  newCodeDefinitionValue?: string,
 ) => Promise<{ project: ProjectBase }>;

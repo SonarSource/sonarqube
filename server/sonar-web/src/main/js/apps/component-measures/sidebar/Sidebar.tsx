@@ -64,7 +64,7 @@ export default function Sidebar(props: Props) {
     (metric: string) => {
       updateQuery({ metric });
     },
-    [updateQuery]
+    [updateQuery],
   );
 
   const handleProjectOverviewClick = () => {

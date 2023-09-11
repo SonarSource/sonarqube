@@ -29,7 +29,7 @@ it('should sort issues correctly by type', () => {
   const securityHotspot = mockIssue(false, { type: 'SECURITY_HOTSPOT', key: 'security_hotspot' });
 
   expect(
-    sortByType([bug1, codeSmell, bug2, securityHotspot, vulnerability1, vulnerability2])
+    sortByType([bug1, codeSmell, bug2, securityHotspot, vulnerability1, vulnerability2]),
   ).toEqual([bug1, bug2, vulnerability1, vulnerability2, codeSmell, securityHotspot]);
 });
 

@@ -56,7 +56,7 @@ export default function QualityGateFacet(props: Props) {
         });
       }
     },
-    [onQueryChange, value]
+    [onQueryChange, value],
   );
 
   return (

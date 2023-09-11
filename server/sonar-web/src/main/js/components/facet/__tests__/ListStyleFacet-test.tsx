@@ -204,7 +204,7 @@ function shallowRender(props: Partial<Props<string>> = {}) {
       stats={{ a: 10, b: 8, c: 1 }}
       values={[]}
       {...props}
-    />
+    />,
   );
 }
 

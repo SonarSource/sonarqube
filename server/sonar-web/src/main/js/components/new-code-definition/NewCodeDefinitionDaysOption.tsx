@@ -79,7 +79,7 @@ export default function NewCodeDefinitionDaysOption(props: Props) {
             }
           : {
               messageType: MessageTypes.GlobalNcdPage90,
-            }
+            },
       );
       setNcdAutoUpdateBannerDismissed(messageStatus.dismissed);
     }
@@ -141,7 +141,7 @@ export default function NewCodeDefinitionDaysOption(props: Props) {
               {translateWithParameters(
                 'new_code_definition.number_days.invalid',
                 NUMBER_OF_DAYS_MIN_VALUE,
-                NUMBER_OF_DAYS_MAX_VALUE
+                NUMBER_OF_DAYS_MAX_VALUE,
               )}
             </Note>
 

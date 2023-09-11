@@ -60,7 +60,7 @@ interface CommonFieldProps extends LabelProps {
 function renderFieldWrapper(
   label: React.ReactNode,
   input: React.ReactNode,
-  help?: React.ReactNode
+  help?: React.ReactNode,
 ) {
   return (
     <div className="settings-definition">
@@ -106,7 +106,7 @@ function renderBooleanField(
   props: Omit<CommonFieldProps, 'optional'> & {
     value: boolean;
     inputExtra?: React.ReactNode;
-  }
+  },
 ) {
   const { id, value, onFieldChange, propKey, inputExtra } = props;
   return renderFieldWrapper(
@@ -118,14 +118,14 @@ function renderBooleanField(
       </div>
       {inputExtra}
     </div>,
-    renderHelp(props)
+    renderHelp(props),
   );
 }
 
 function renderField(
   props: CommonFieldProps & {
     value: string;
-  }
+  },
 ) {
   const { id, propKey, value, onFieldChange } = props;
   return renderFieldWrapper(
@@ -139,7 +139,7 @@ function renderField(
       type="text"
       value={value}
     />,
-    renderHelp(props)
+    renderHelp(props),
   );
 }
 

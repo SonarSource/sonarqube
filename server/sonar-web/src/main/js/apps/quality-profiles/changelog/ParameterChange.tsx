@@ -31,7 +31,7 @@ export default function ParameterChange({ name, value }: Props) {
       {value == null
         ? translateWithParameters(
             'quality_profiles.changelog.parameter_reset_to_default_value',
-            name
+            name,
           )
         : translateWithParameters('quality_profiles.parameter_set_to', name, value)}
     </div>

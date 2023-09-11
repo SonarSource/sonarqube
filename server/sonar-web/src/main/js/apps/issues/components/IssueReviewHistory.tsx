@@ -59,7 +59,7 @@ export default function IssueReviewHistory(props: HotspotReviewHistoryProps) {
       ({ changelog }) => {
         setChangeLog(changelog);
       },
-      () => {}
+      () => {},
     );
   }, [issue]);
 

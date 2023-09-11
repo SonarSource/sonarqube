@@ -50,7 +50,7 @@ it('should not render when no component is passed', () => {
 it('should render correctly when the extension is found', async () => {
   renderProjectPageExtension(
     mockComponent({ extensions: [{ key: 'pluginId/extensionId', name: 'name' }] }),
-    { params: { pluginKey: 'pluginId', extensionKey: 'extensionId' } }
+    { params: { pluginKey: 'pluginId', extensionKey: 'extensionId' } },
   );
   await waitFor(() => expect(getExtensionStart).toHaveBeenCalledWith('pluginId/extensionId'));
 });
@@ -58,14 +58,14 @@ it('should render correctly when the extension is found', async () => {
 it('should render correctly when the extension is not found', async () => {
   renderProjectPageExtension(
     mockComponent({ extensions: [{ key: 'pluginId/extensionId', name: 'name' }] }),
-    { params: { pluginKey: 'not-found-plugin', extensionKey: 'not-found-extension' } }
+    { params: { pluginKey: 'not-found-plugin', extensionKey: 'not-found-extension' } },
   );
   expect(await screen.findByText('page_not_found')).toBeInTheDocument();
 });
 
 function renderProjectPageExtension(
   component?: Component,
-  props?: Partial<ProjectPageExtensionProps>
+  props?: Partial<ProjectPageExtensionProps>,
 ) {
   const queryClient = new QueryClient();
   return render(
@@ -89,6 +89,6 @@ function renderProjectPageExtension(
           </ComponentContext.Provider>
         </IntlProvider>
       </HelmetProvider>
-    </QueryClientProvider>
+    </QueryClientProvider>,
   );
 }

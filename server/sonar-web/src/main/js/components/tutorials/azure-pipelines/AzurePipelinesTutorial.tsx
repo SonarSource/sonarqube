@@ -53,7 +53,7 @@ export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProp
       <TutorialStepList className="sw-mb-10">
         <TutorialStep
           title={translate(
-            `onboarding.tutorial.with.azure_pipelines.${Steps.ExtensionInstallation}.title`
+            `onboarding.tutorial.with.azure_pipelines.${Steps.ExtensionInstallation}.title`,
           )}
         >
           <ExtensionInstallationStepContent />
@@ -61,7 +61,7 @@ export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProp
 
         <TutorialStep
           title={translate(
-            `onboarding.tutorial.with.azure_pipelines.${Steps.ServiceEndpoint}.title`
+            `onboarding.tutorial.with.azure_pipelines.${Steps.ServiceEndpoint}.title`,
           )}
         >
           <ServiceEndpointStepContent
@@ -73,7 +73,7 @@ export default function AzurePipelinesTutorial(props: AzurePipelinesTutorialProp
 
         <TutorialStep
           title={translate(
-            `onboarding.tutorial.with.azure_pipelines.${Steps.BranchAnalysis}.title`
+            `onboarding.tutorial.with.azure_pipelines.${Steps.BranchAnalysis}.title`,
           )}
         >
           <BranchAnalysisStepContent component={component} onDone={setDone} />

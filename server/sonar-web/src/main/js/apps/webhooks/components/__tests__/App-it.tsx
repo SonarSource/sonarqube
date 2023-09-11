@@ -92,14 +92,14 @@ describe('webhook CRUD', () => {
   it('should not allow webhook creation when too many', async () => {
     const { ui } = getPageObject();
     webhookService.addWebhook(
-      ...Array.from({ length: 8 }).map((_, i) => mockWebhook({ key: `newwebhook${i}` }))
+      ...Array.from({ length: 8 }).map((_, i) => mockWebhook({ key: `newwebhook${i}` })),
     );
     renderWebhooksApp();
     await ui.waitForWebhooksLoaded();
 
     expect(ui.webhookCreateButton.get()).toBeDisabled();
     await expect(ui.webhookCreateButton.get()).toHaveATooltipWithContent(
-      `webhooks.maximum_reached.${WEBHOOKS_LIMIT}`
+      `webhooks.maximum_reached.${WEBHOOKS_LIMIT}`,
     );
   });
 
@@ -216,7 +216,7 @@ describe('should properly show deliveries', () => {
       await ui.toggleDeliveryRow(2);
     });
     expect(
-      screen.getByText('webhooks.delivery.response_x.webhooks.delivery.server_unreachable')
+      screen.getByText('webhooks.delivery.response_x.webhooks.delivery.server_unreachable'),
     ).toBeInTheDocument();
     expect(screen.getByText('webhooks.delivery.duration_x.1s')).toBeInTheDocument();
     expect(screen.getByText('{ "id": "global-webhook-1-delivery-1" }')).toBeInTheDocument();
@@ -287,7 +287,7 @@ function getPageObject() {
       const row = ui.getWebhookRow(rowIndex);
       await act(async () => {
         await user.click(
-          within(row).getByRole('button', { name: `webhooks.show_actions.${webhookName}` })
+          within(row).getByRole('button', { name: `webhooks.show_actions.${webhookName}` }),
         );
         await user.click(within(row).getByRole('button', { name: actionName }));
       });
@@ -298,13 +298,13 @@ function getPageObject() {
         await user.click(
           within(row).getByRole('button', {
             name: `webhooks.last_execution.open_for_x.${webhookName}`,
-          })
+          }),
         );
       });
     },
     checkWebhookRow: (
       index: number,
-      expected: { name: string; url: string; secret: boolean; lastDeliveryDate?: string }
+      expected: { name: string; url: string; secret: boolean; lastDeliveryDate?: string },
     ) => {
       const row = ui.getWebhookRow(index);
       const [name, url, secret, lastDelivery] = within(row).getAllByRole('cell');
@@ -314,7 +314,7 @@ function getPageObject() {
       expect(lastDelivery).toHaveTextContent(
         expected.lastDeliveryDate
           ? new RegExp(expected.lastDeliveryDate)
-          : 'webhooks.last_execution.none'
+          : 'webhooks.last_execution.none',
       );
     },
 

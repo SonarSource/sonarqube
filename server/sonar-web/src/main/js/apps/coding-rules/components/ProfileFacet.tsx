@@ -160,7 +160,7 @@ export default class ProfileFacet extends React.PureComponent<Props> {
     profiles = sortBy(
       profiles,
       (profile) => profile.name.toLowerCase(),
-      (profile) => profile.languageName
+      (profile) => profile.languageName,
     );
 
     const property = 'profile';

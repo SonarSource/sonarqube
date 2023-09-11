@@ -120,21 +120,21 @@ function ProjectNewCodeDefinitionApp(props: ProjectNewCodeDefinitionAppProps) {
 
   const resetStatesFromProjectNewCodeDefinition = useCallback(() => {
     setIsSpecificNewCodeDefinition(
-      projectNewCodeDefinition === undefined ? undefined : !projectNewCodeDefinition.inherited
+      projectNewCodeDefinition === undefined ? undefined : !projectNewCodeDefinition.inherited,
     );
     setSelectedNewCodeDefinitionType(
-      projectNewCodeDefinition?.type ?? DEFAULT_NEW_CODE_DEFINITION_TYPE
+      projectNewCodeDefinition?.type ?? DEFAULT_NEW_CODE_DEFINITION_TYPE,
     );
     setNumberOfDays(getNumberOfDaysDefaultValue(globalNewCodeDefinition, projectNewCodeDefinition));
     setReferenceBranch(
       projectNewCodeDefinition?.type === NewCodeDefinitionType.ReferenceBranch
         ? projectNewCodeDefinition.value
-        : defaultReferenceBranch
+        : defaultReferenceBranch,
     );
     setSpecificAnalysis(
       projectNewCodeDefinition?.type === NewCodeDefinitionType.SpecificAnalysis
         ? projectNewCodeDefinition.value
-        : undefined
+        : undefined,
     );
   }, [defaultReferenceBranch, globalNewCodeDefinition, projectNewCodeDefinition]);
 
@@ -237,5 +237,5 @@ function ProjectNewCodeDefinitionApp(props: ProjectNewCodeDefinitionAppProps) {
 }
 
 export default withComponentContext(
-  withAvailableFeatures(withAppStateContext(withBranchLikes(ProjectNewCodeDefinitionApp)))
+  withAvailableFeatures(withAppStateContext(withBranchLikes(ProjectNewCodeDefinitionApp))),
 );

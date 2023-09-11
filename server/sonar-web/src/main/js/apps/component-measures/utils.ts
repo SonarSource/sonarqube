@@ -78,7 +78,7 @@ export function filterMeasures(measures: MeasureEnhanced[]): MeasureEnhanced[] {
 
 export function sortMeasures(
   domainName: string,
-  measures: Array<MeasureEnhanced | string>
+  measures: Array<MeasureEnhanced | string>,
 ): Array<MeasureEnhanced | string> {
   const config = domains[domainName] || {};
   const configOrder = config.order || [];
@@ -106,7 +106,7 @@ export function addMeasureCategories(domainName: string, measures: MeasureEnhanc
 export function enhanceComponent(
   component: ComponentMeasure,
   metric: Pick<Metric, 'key'> | undefined,
-  metrics: Dict<Metric>
+  metrics: Dict<Metric>,
 ): ComponentMeasureEnhanced {
   if (!component.measures) {
     return { ...component, measures: [] };
@@ -158,7 +158,7 @@ export const groupByDomains = memoize((measures: MeasureEnhanced[]) => {
 
 export function hasList(metric: string): boolean {
   return ![MetricKey.releasability_rating, MetricKey.releasability_effort].includes(
-    metric as MetricKey
+    metric as MetricKey,
   );
 }
 

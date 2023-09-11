@@ -42,7 +42,7 @@ export default function PluginChangeLog({ release, update }: Props) {
                   release={previousUpdate.release}
                   update={previousUpdate}
                 />
-              ) : null
+              ) : null,
           )}
         <PluginChangeLogItem release={release} update={update} />
       </ul>

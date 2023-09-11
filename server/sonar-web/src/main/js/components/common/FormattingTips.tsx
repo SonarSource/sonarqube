@@ -33,7 +33,7 @@ export default function FormattingTips({ className }: FormattingTipsProps) {
     window.open(
       `${getBaseUrl()}${getFormattingHelpUrl()}`,
       'Formatting',
-      'height=300,width=600,scrollbars=1,resizable=1'
+      'height=300,width=600,scrollbars=1,resizable=1',
     );
   }, []);
 

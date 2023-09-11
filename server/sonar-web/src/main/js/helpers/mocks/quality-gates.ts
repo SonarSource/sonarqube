@@ -36,7 +36,7 @@ export function mockQualityGate(overrides: Partial<QualityGate> = {}): QualityGa
 }
 
 export function mockQualityGateStatus(
-  overrides: Partial<QualityGateStatus> = {}
+  overrides: Partial<QualityGateStatus> = {},
 ): QualityGateStatus {
   return {
     ignoredConditions: false,
@@ -50,7 +50,7 @@ export function mockQualityGateStatus(
 }
 
 export function mockQualityGateProjectCondition(
-  overrides: Partial<QualityGateProjectStatusCondition> = {}
+  overrides: Partial<QualityGateProjectStatusCondition> = {},
 ): QualityGateProjectStatusCondition {
   return {
     actualValue: '10',
@@ -64,7 +64,7 @@ export function mockQualityGateProjectCondition(
 }
 
 export function mockQualityGateStatusCondition(
-  overrides: Partial<QualityGateStatusCondition> = {}
+  overrides: Partial<QualityGateStatusCondition> = {},
 ): QualityGateStatusCondition {
   return {
     actual: '10',
@@ -77,7 +77,7 @@ export function mockQualityGateStatusCondition(
 }
 
 export function mockQualityGateStatusConditionEnhanced(
-  overrides: Partial<QualityGateStatusConditionEnhanced> = {}
+  overrides: Partial<QualityGateStatusConditionEnhanced> = {},
 ): QualityGateStatusConditionEnhanced {
   return {
     actual: '10',
@@ -91,7 +91,7 @@ export function mockQualityGateStatusConditionEnhanced(
 }
 
 export function mockQualityGateProjectStatus(
-  overrides: Partial<QualityGateProjectStatus> = {}
+  overrides: Partial<QualityGateProjectStatus> = {},
 ): QualityGateProjectStatus {
   return {
     conditions: [
@@ -112,7 +112,7 @@ export function mockQualityGateProjectStatus(
 }
 
 export function mockQualityGateApplicationStatus(
-  overrides: Partial<QualityGateApplicationStatus> = {}
+  overrides: Partial<QualityGateApplicationStatus> = {},
 ): QualityGateApplicationStatus {
   return {
     metrics: [mockMetric(), mockMetric({ name: 'new_bugs', key: 'new_bugs', type: 'INT' })],

@@ -46,7 +46,7 @@ it('should not refresh the page once the indexation is complete if there were fa
       indexationContext={{
         status: { hasFailures: true, isCompleted: true },
       }}
-    />
+    />,
   );
 
   expect(reload).not.toHaveBeenCalled();
@@ -69,7 +69,7 @@ it('should refresh the page once the indexation is complete if there were NO fai
       indexationContext={{
         status: { hasFailures: false, isCompleted: true },
       }}
-    />
+    />,
   );
 
   expect(reload).toHaveBeenCalled();
@@ -81,6 +81,6 @@ function renderPageUnavailableToIndexation() {
       indexationContext={{
         status: { completedCount: 23, hasFailures: false, isCompleted: false, total: 42 },
       }}
-    />
+    />,
   );
 }

@@ -48,6 +48,6 @@ function shallowRender(props: Partial<SelectList['props']> = {}, children?: Reac
       {...props}
     >
       {children}
-    </SelectList>
+    </SelectList>,
   );
 }

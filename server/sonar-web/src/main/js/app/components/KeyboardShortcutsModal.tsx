@@ -115,7 +115,7 @@ function renderShortcuts(list: Shortcuts) {
                         <code key={k} className="little-spacer-right">
                           {k}
                         </code>
-                      )
+                      ),
                     )}
                   </td>
                   <td>{translate('keyboard_shortcuts', category, action)}</td>

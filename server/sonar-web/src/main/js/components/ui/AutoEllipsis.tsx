@@ -22,7 +22,7 @@ import * as React from 'react';
 
 type EllipsisPredicate = (
   node: HTMLElement,
-  props: Omit<AutoEllipsisProps, 'customShouldEllipsis'>
+  props: Omit<AutoEllipsisProps, 'customShouldEllipsis'>,
 ) => boolean;
 
 interface AutoEllipsisProps {
@@ -67,7 +67,7 @@ export function useAutoEllipsis(props: AutoEllipsisProps): [boolean, (node: HTML
     },
     // We don't want to apply this effect when ellipsis state change, only this effect can change it
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [props.customShouldEllipsis, props.maxHeight, props.maxWidth, props.useParent]
+    [props.customShouldEllipsis, props.maxHeight, props.maxWidth, props.useParent],
   );
 
   return [autoEllipsis, ref];
@@ -75,7 +75,7 @@ export function useAutoEllipsis(props: AutoEllipsisProps): [boolean, (node: HTML
 
 export const defaultShouldEllipsis: EllipsisPredicate = (
   node,
-  { useParent = true, maxWidth, maxHeight }
+  { useParent = true, maxWidth, maxHeight },
 ) => {
   if (node.parentElement && useParent) {
     maxWidth = maxWidth ?? node.parentElement.clientWidth;

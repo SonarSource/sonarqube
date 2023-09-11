@@ -75,7 +75,7 @@ export default function ProfileInheritanceBox(props: Props) {
           <p>
             {translateWithParameters(
               'quality_profiles.x_overridden_rules',
-              profile.overridingRuleCount
+              profile.overridingRuleCount,
             )}
           </p>
         )}

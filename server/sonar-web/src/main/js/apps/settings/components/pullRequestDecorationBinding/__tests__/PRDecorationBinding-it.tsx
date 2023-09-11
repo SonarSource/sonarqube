@@ -99,7 +99,7 @@ it.each([
 
     // Set form data
     await selectEvent.select(ui.input('name', 'combobox').get(), (content) =>
-      content.includes(key)
+      content.includes(key),
     );
 
     const list = inputsList[alm];
@@ -119,24 +119,24 @@ it.each([
     almSettings.setProjectBindingConfigurationErrors(undefined);
     await ui.setInput(
       Object.keys(list).find((key) => key.endsWith('.repository')) as string,
-      'Anything'
+      'Anything',
     );
     await act(() => user.click(ui.saveButton.get()));
     expect(
-      await ui.validationMsg('settings.pr_decoration.binding.check_configuration.success').find()
+      await ui.validationMsg('settings.pr_decoration.binding.check_configuration.success').find(),
     ).toBeInTheDocument();
 
     await act(() => user.click(ui.validateButton.get()));
     expect(
-      ui.validationMsg('settings.pr_decoration.binding.check_configuration.success').get()
+      ui.validationMsg('settings.pr_decoration.binding.check_configuration.success').get(),
     ).toBeInTheDocument();
 
     // Rerender and verify that validation is done for binding
     rerender(
-      <MockedPRDecorationBinding component={mockComponent()} currentUser={mockCurrentUser()} />
+      <MockedPRDecorationBinding component={mockComponent()} currentUser={mockCurrentUser()} />,
     );
     expect(
-      await ui.validationMsg('settings.pr_decoration.binding.check_configuration.success').find()
+      await ui.validationMsg('settings.pr_decoration.binding.check_configuration.success').find(),
     ).toBeInTheDocument();
     expect(ui.saveButton.query()).not.toBeInTheDocument();
 
@@ -144,7 +144,7 @@ it.each([
     await act(() => user.click(ui.resetButton.get()));
     expect(ui.input('', 'textbox').query()).not.toBeInTheDocument();
     expect(ui.input('', 'switch').query()).not.toBeInTheDocument();
-  }
+  },
 );
 
 function getPageObjects() {
@@ -197,9 +197,9 @@ function MockedPRDecorationBinding({
 
 function renderPRDecorationBinding(
   component: Component = mockComponent(),
-  currentUser: CurrentUser = mockCurrentUser()
+  currentUser: CurrentUser = mockCurrentUser(),
 ) {
   return renderComponent(
-    <MockedPRDecorationBinding component={component} currentUser={currentUser} />
+    <MockedPRDecorationBinding component={component} currentUser={currentUser} />,
   );
 }

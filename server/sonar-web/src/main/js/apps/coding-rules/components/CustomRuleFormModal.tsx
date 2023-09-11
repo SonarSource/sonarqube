@@ -126,7 +126,7 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
         if (this.mounted) {
           this.setState({ reactivating: response.status === 409, submitting: false });
         }
-      }
+      },
     );
   };
 

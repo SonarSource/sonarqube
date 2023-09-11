@@ -52,7 +52,7 @@ class LanguageFacetClass extends React.PureComponent<Props> {
     const options = this.getAllPossibleOptions();
 
     const results = options.filter((language) =>
-      language.name.toLowerCase().includes(query.toLowerCase())
+      language.name.toLowerCase().includes(query.toLowerCase()),
     );
 
     const paging = { pageIndex: 1, pageSize: results.length, total: results.length };
@@ -68,7 +68,7 @@ class LanguageFacetClass extends React.PureComponent<Props> {
     // and make sure we reference each language only once
     return uniqBy(
       [...Object.values(languages), ...Object.keys(stats).map((key) => ({ key, name: key }))],
-      (language) => language.key
+      (language) => language.key,
     );
   };
 

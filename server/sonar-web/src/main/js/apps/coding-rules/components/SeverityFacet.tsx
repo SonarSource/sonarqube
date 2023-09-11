@@ -32,12 +32,12 @@ export default function SeverityFacet(props: BasicProps) {
         <span className="sw-ml-1">{translate('severity', severity)}</span>
       </div>
     ),
-    []
+    [],
   );
 
   const renderTextName = React.useCallback(
     (severity: string) => translate('severity', severity),
-    []
+    [],
   );
 
   return (

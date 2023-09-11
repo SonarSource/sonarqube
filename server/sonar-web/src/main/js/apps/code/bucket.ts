@@ -39,7 +39,7 @@ export function addComponentChildren(
   componentKey: string,
   children: ComponentMeasure[],
   total: number,
-  page: number
+  page: number,
 ): void {
   const previous = getComponentChildren(componentKey);
   if (previous) {

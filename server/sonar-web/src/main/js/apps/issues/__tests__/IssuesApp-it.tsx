@@ -100,7 +100,7 @@ describe('issues app', () => {
         await user.keyboard('{ArrowRight}');
       });
       expect(
-        screen.getByRole('heading', { name: issuesHandler.list[1].issue.message })
+        screen.getByRole('heading', { name: issuesHandler.list[1].issue.message }),
       ).toBeInTheDocument();
 
       // Go back
@@ -108,7 +108,7 @@ describe('issues app', () => {
         await user.keyboard('{ArrowLeft}');
       });
       expect(
-        screen.queryByRole('heading', { name: issuesHandler.list[1].issue.message })
+        screen.queryByRole('heading', { name: issuesHandler.list[1].issue.message }),
       ).not.toBeInTheDocument();
 
       // Navigate to 1st issue and select it
@@ -118,7 +118,7 @@ describe('issues app', () => {
         await user.keyboard('{ArrowRight}');
       });
       expect(
-        screen.getByRole('heading', { name: issuesHandler.list[0].issue.message })
+        screen.getByRole('heading', { name: issuesHandler.list[0].issue.message }),
       ).toBeInTheDocument();
     });
 
@@ -139,7 +139,7 @@ describe('issues app', () => {
       // Select the "why is this an issue" tab and check its content
       await act(async () => {
         await user.click(
-          screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` })
+          screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` }),
         );
       });
       expect(screen.getByRole('heading', { name: 'Because' })).toBeInTheDocument();
@@ -147,7 +147,7 @@ describe('issues app', () => {
       // Select the "how to fix it" tab
       await act(async () => {
         await user.click(
-          screen.getByRole('tab', { name: `coding_rules.description_section.title.how_to_fix` })
+          screen.getByRole('tab', { name: `coding_rules.description_section.title.how_to_fix` }),
         );
       });
 
@@ -156,7 +156,7 @@ describe('issues app', () => {
       expect(screen.getByRole('radio', { name: 'Context 3' })).toBeInTheDocument();
       expect(screen.getByRole('radio', { name: 'Spring' })).toBeInTheDocument();
       expect(
-        screen.getByRole('radio', { name: 'coding_rules.description_context.other' })
+        screen.getByRole('radio', { name: 'coding_rules.description_context.other' }),
       ).toBeInTheDocument();
       expect(screen.getByRole('radio', { name: 'Spring', current: true })).toBeInTheDocument();
 
@@ -169,19 +169,19 @@ describe('issues app', () => {
       // Select the "other" context and check tab content
       await act(async () => {
         await user.click(
-          screen.getByRole('radio', { name: 'coding_rules.description_context.other' })
+          screen.getByRole('radio', { name: 'coding_rules.description_context.other' }),
         );
       });
       expect(screen.getByText('coding_rules.context.others.title')).toBeInTheDocument();
       expect(screen.getByText('coding_rules.context.others.description.first')).toBeInTheDocument();
       expect(
-        screen.getByText('coding_rules.context.others.description.second')
+        screen.getByText('coding_rules.context.others.description.second'),
       ).toBeInTheDocument();
 
       // Select the main info tab and check its content
       await act(async () => {
         await user.click(
-          screen.getByRole('tab', { name: `coding_rules.description_section.title.more_info` })
+          screen.getByRole('tab', { name: `coding_rules.description_section.title.more_info` }),
         );
       });
       expect(screen.getByRole('heading', { name: 'Link' })).toBeInTheDocument();
@@ -202,7 +202,7 @@ describe('issues app', () => {
       // Select the "why is this an issue tab" and check its content
       await act(async () => {
         await user.click(
-          screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` })
+          screen.getByRole('tab', { name: `coding_rules.description_section.title.root_cause` }),
         );
       });
       expect(screen.getByRole('heading', { name: 'Default' })).toBeInTheDocument();
@@ -218,12 +218,12 @@ describe('issues app', () => {
 
       // The "Where is the issue" tab should be selected by default. Check its content
       expect(screen.getAllByRole('button', { name: 'Issue on file', exact: false })).toHaveLength(
-        2
+        2,
       ); // there will be 2 buttons one in concise issue and other in code viewer
       expect(
         screen.getByRole('row', {
           name: '2 * SonarQube',
-        })
+        }),
       ).toBeInTheDocument();
     });
 
@@ -275,7 +275,7 @@ describe('issues app', () => {
       });
 
       expect(
-        screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' })
+        screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' }),
       ).toBeInTheDocument();
       await user.click(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' }));
       await user.click(screen.getByRole('button', { name: 'cancel' }));
@@ -286,7 +286,7 @@ describe('issues app', () => {
       const issueBoxFixThat = within(screen.getByRole('region', { name: 'Fix that' }));
 
       await user.click(
-        screen.getByRole('checkbox', { name: 'issues.action_select.label.Fix that' })
+        screen.getByRole('checkbox', { name: 'issues.action_select.label.Fix that' }),
       );
       await user.click(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.1' }));
 
@@ -299,8 +299,8 @@ describe('issues app', () => {
 
       expect(
         issueBoxFixThat.queryByLabelText(
-          'issue.transition.status_x_click_to_change.issue.status.falsepositive'
-        )
+          'issue.transition.status_x_click_to_change.issue.status.falsepositive',
+        ),
       ).not.toBeInTheDocument();
     });
   });
@@ -313,7 +313,7 @@ describe('issues item', () => {
     expect(
       await screen.findByRole('tab', {
         name: `coding_rules.description_section.title.root_cause`,
-      })
+      }),
     ).toHaveAttribute('aria-current', 'true');
   });
 
@@ -371,12 +371,12 @@ describe('issues item', () => {
     await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
     expect(screen.getByRole('link', { name: '1 Execution location 1' })).toHaveAttribute(
       'aria-current',
-      'true'
+      'true',
     );
     await user.keyboard('{Alt>}{ArrowLeft}{/Alt}');
     expect(screen.getByRole('link', { name: '1 Data location 1' })).toHaveAttribute(
       'aria-current',
-      'true'
+      'true',
     );
   });
 
@@ -384,7 +384,7 @@ describe('issues item', () => {
     const user = userEvent.setup();
     renderProjectIssuesApp('project/issues?issues=issue2&open=issue2&id=myproject');
     await user.click(
-      await screen.findByRole('tab', { name: `coding_rules.description_section.title.more_info` })
+      await screen.findByRole('tab', { name: `coding_rules.description_section.title.more_info` }),
     );
     expect(screen.getByRole('heading', { name: 'Defense-In-Depth', level: 3 })).toBeInTheDocument();
   });
@@ -410,7 +410,7 @@ describe('issues item', () => {
       await user.click(listItem.getByText('issue.transition.confirm'));
     });
     expect(
-      listItem.getByLabelText('issue.transition.status_x_click_to_change.issue.status.CONFIRMED')
+      listItem.getByLabelText('issue.transition.status_x_click_to_change.issue.status.CONFIRMED'),
     ).toBeInTheDocument();
 
     // As won't fix
@@ -425,13 +425,13 @@ describe('issues item', () => {
       await user.click(listItem.getByRole('button', { name: 'issue.comment.formlink' }));
     });
     expect(
-      listItem.queryByRole('button', { name: 'issue.comment.submit' })
+      listItem.queryByRole('button', { name: 'issue.comment.submit' }),
     ).not.toBeInTheDocument();
 
     // Assign issue to a different user
     await act(async () => {
       await user.click(
-        listItem.getByRole('combobox', { name: 'issue.assign.unassigned_click_to_assign' })
+        listItem.getByRole('combobox', { name: 'issue.assign.unassigned_click_to_assign' }),
       );
       await user.click(screen.getByLabelText('search.search_for_users'));
       await user.keyboard('luke');
@@ -447,7 +447,7 @@ describe('issues item', () => {
     expect(
       listItem.getByRole('combobox', {
         name: 'issue.assign.assigned_to_x_click_to_change.luke',
-      })
+      }),
     ).toBeInTheDocument();
 
     // Change tags
@@ -466,7 +466,7 @@ describe('issues item', () => {
 
     await user.keyboard('{Escape}');
     await expect(
-      byRole('button', { name: 'accessibility android +' }).byText('accessibility').get()
+      byRole('button', { name: 'accessibility android +' }).byText('accessibility').get(),
     ).toHaveATooltipWithContent('accessibility, android');
 
     await act(async () => {
@@ -480,7 +480,7 @@ describe('issues item', () => {
 
     await user.keyboard('{Escape}');
     await expect(
-      byRole('button', { name: 'android +' }).byText('android').get()
+      byRole('button', { name: 'android +' }).byText('android').get(),
     ).toHaveATooltipWithContent('android');
 
     await act(async () => {
@@ -492,7 +492,7 @@ describe('issues item', () => {
       await user.keyboard('addNewTag');
     });
     expect(
-      screen.getByRole('checkbox', { name: 'issue.create_tag: addnewtag' })
+      screen.getByRole('checkbox', { name: 'issue.create_tag: addnewtag' }),
     ).toBeInTheDocument();
   });
 
@@ -507,23 +507,23 @@ describe('issues item', () => {
     expect(
       screen.queryByRole('button', {
         name: `issue.assign.unassigned_click_to_assign`,
-      })
+      }),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', {
         name: `issue.type.type_x_click_to_change.issue.type.CODE_SMELL`,
-      })
+      }),
     ).not.toBeInTheDocument();
 
     expect(
       screen.queryByRole('button', {
         name: `issue.transition.status_x_click_to_change.issue.status.OPEN`,
-      })
+      }),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', {
         name: `issue.severity.severity_x_click_to_change.severity.MAJOR`,
-      })
+      }),
     ).not.toBeInTheDocument();
   });
 
@@ -604,13 +604,13 @@ describe('issues item', () => {
     // Select the "why is this an issue" tab
     await act(async () => {
       await user.click(
-        screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' })
+        screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' }),
       );
     });
     expect(
       screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
-      })
+      }),
     ).toHaveAttribute('aria-current', 'false');
 
     await act(async () => {
@@ -619,19 +619,19 @@ describe('issues item', () => {
     expect(
       screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
-      })
+      }),
     ).toHaveAttribute('aria-current', 'true');
 
     // Select the same selected hotspot location should also navigate back to code page
     await act(async () => {
       await user.click(
-        screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' })
+        screen.getByRole('tab', { name: 'coding_rules.description_section.title.root_cause' }),
       );
     });
     expect(
       screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
-      })
+      }),
     ).toHaveAttribute('aria-current', 'false');
 
     await act(async () => {
@@ -640,7 +640,7 @@ describe('issues item', () => {
     expect(
       screen.queryByRole('tab', {
         name: `issue.tabs.${TabKeys.Code}`,
-      })
+      }),
     ).toHaveAttribute('aria-current', 'true');
   });
 
@@ -655,7 +655,7 @@ describe('issues item', () => {
     });
 
     await expect(
-      screen.getByText('issue.quick_fix_available_with_sonarlint_no_link')
+      screen.getByText('issue.quick_fix_available_with_sonarlint_no_link'),
     ).toHaveATooltipWithContent('issue.quick_fix_available_with_sonarlint');
   });
 });

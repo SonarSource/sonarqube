@@ -298,7 +298,7 @@ export class QualityGatesServiceMock {
   showHandler = ({ name }: { name: string }) => {
     const qualityGate = omit(
       this.list.find((q) => q.name === name),
-      'isDefault'
+      'isDefault',
     );
     return this.reply({ ...qualityGate, actions: this.computeActions(qualityGate) });
   };
@@ -332,7 +332,7 @@ export class QualityGatesServiceMock {
         isDefault: false,
         isBuiltIn: false,
         caycStatus: CaycStatus.Compliant,
-      })
+      }),
     );
     return this.reply({
       name,
@@ -393,7 +393,7 @@ export class QualityGatesServiceMock {
   createConditionHandler = (
     data: {
       gateName: string;
-    } & Omit<Condition, 'id'>
+    } & Omit<Condition, 'id'>,
   ) => {
     const { metric, gateName, op, error } = data;
     const qg = this.list.find((q) => q.name === gateName);

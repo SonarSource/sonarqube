@@ -58,7 +58,7 @@ describe('rendering', () => {
     expect(ui.effort('2 days').get()).toBeInTheDocument();
     expect(ui.issueMessageLink.get()).toHaveAttribute(
       'href',
-      '/issues?scopes=MAIN&impactSeverities=LOW&types=VULNERABILITY&open=AVsae-CQS-9G3txfbFN2'
+      '/issues?scopes=MAIN&impactSeverities=LOW&types=VULNERABILITY&open=AVsae-CQS-9G3txfbFN2',
     );
 
     await ui.clickIssueMessage();
@@ -73,7 +73,7 @@ describe('rendering', () => {
   it('should render the SonarLint icon correctly', async () => {
     renderIssue({ issue: mockIssue(false, { quickFixAvailable: true }) });
     await expect(
-      screen.getByText('issue.quick_fix_available_with_sonarlint_no_link')
+      screen.getByText('issue.quick_fix_available_with_sonarlint_no_link'),
     ).toHaveATooltipWithContent('issue.quick_fix_available_with_sonarlint');
   });
 
@@ -199,7 +199,7 @@ function getPageObject() {
     changelogRow: (key: string, oldValue: string, newValue: string) =>
       byRole('row', {
         name: new RegExp(
-          `issue\\.changelog\\.changed_to\\.issue\\.changelog\\.field\\.${key}\\.${newValue} \\(issue\\.changelog\\.was\\.${oldValue}\\)`
+          `issue\\.changelog\\.changed_to\\.issue\\.changelog\\.field\\.${key}\\.${newValue} \\(issue\\.changelog\\.was\\.${oldValue}\\)`,
         ),
       }),
 
@@ -377,10 +377,10 @@ function getPageObject() {
 }
 
 function renderIssue(
-  props: Partial<Omit<ComponentPropsType<typeof Issue>, 'onChange' | 'onPopupToggle'>> = {}
+  props: Partial<Omit<ComponentPropsType<typeof Issue>, 'onChange' | 'onPopupToggle'>> = {},
 ) {
   function Wrapper(
-    wrapperProps: Omit<ComponentPropsType<typeof Issue>, 'onChange' | 'onPopupToggle'>
+    wrapperProps: Omit<ComponentPropsType<typeof Issue>, 'onChange' | 'onPopupToggle'>,
   ) {
     const [issue, setIssue] = React.useState(wrapperProps.issue);
     const [openPopup, setOpenPopup] = React.useState<string | undefined>();
@@ -409,6 +409,6 @@ function renderIssue(
     ),
     {
       currentUser: mockLoggedInUser({ login: 'leia', name: 'Organa' }),
-    }
+    },
   );
 }

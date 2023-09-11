@@ -27,7 +27,7 @@ import {
 } from '../../types/settings';
 
 export function mockDefinition(
-  overrides: Partial<ExtendedSettingDefinition> = {}
+  overrides: Partial<ExtendedSettingDefinition> = {},
 ): ExtendedSettingDefinition {
   return {
     key: 'foo',
@@ -40,7 +40,7 @@ export function mockDefinition(
 }
 
 export function mockSettingFieldDefinition(
-  overrides: Partial<SettingFieldDefinition> = {}
+  overrides: Partial<SettingFieldDefinition> = {},
 ): SettingFieldDefinition {
   return { key: 'name', name: 'Name', options: [], ...overrides };
 }
@@ -70,7 +70,7 @@ export function mockSettingValue(overrides: Partial<SettingValue> = {}) {
 }
 
 export function mockSettingWithCategory(
-  overrides: Partial<SettingWithCategory> = {}
+  overrides: Partial<SettingWithCategory> = {},
 ): SettingWithCategory {
   return {
     key: 'foo',

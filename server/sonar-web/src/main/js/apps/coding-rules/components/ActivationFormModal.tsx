@@ -94,8 +94,8 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
           !profile.isBuiltIn &&
           profile.actions &&
           profile.actions.edit &&
-          profile.language === this.props.rule.lang
-      )
+          profile.language === this.props.rule.lang,
+      ),
     ).map((profile) => ({
       ...profile,
       // Decrease depth by 1, so the top level starts at 0
@@ -126,7 +126,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
           if (this.mounted) {
             this.setState({ submitting: false });
           }
-        }
+        },
       );
   };
 

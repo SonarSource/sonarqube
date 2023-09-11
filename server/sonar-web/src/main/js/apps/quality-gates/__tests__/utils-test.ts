@@ -41,16 +41,19 @@ describe('getLocalizedMetricNameNoDiffMetric', () => {
   it('should return the correct corresponding metric', () => {
     expect(getLocalizedMetricNameNoDiffMetric(mockMetric(), {})).toBe('coverage');
     expect(getLocalizedMetricNameNoDiffMetric(mockMetric({ key: 'new_bugs' }), METRICS)).toBe(
-      'Bugs'
+      'Bugs',
     );
     expect(
       getLocalizedMetricNameNoDiffMetric(
         mockMetric({ key: 'new_custom_metric', name: 'Custom Metric on New Code' }),
-        METRICS
-      )
+        METRICS,
+      ),
     ).toBe('Custom Metric on New Code');
     expect(
-      getLocalizedMetricNameNoDiffMetric(mockMetric({ key: 'new_maintainability_rating' }), METRICS)
+      getLocalizedMetricNameNoDiffMetric(
+        mockMetric({ key: 'new_maintainability_rating' }),
+        METRICS,
+      ),
     ).toBe('Maintainability Rating');
   });
 });
@@ -83,7 +86,7 @@ describe('groupAndSortByPriorityConditions', () => {
 
     expect(result.newCodeConditions.map(conditionsMap)).toEqual(expectedConditionsOrderNewCode);
     expect(result.overallCodeConditions.map(conditionsMap)).toEqual(
-      expectConditionsOrderOverallCode
+      expectConditionsOrderOverallCode,
     );
   });
 });

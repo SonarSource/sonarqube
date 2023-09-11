@@ -47,7 +47,7 @@ describe('renderCWECategory', () => {
   };
   it('should render cwe categories correctly', () => {
     expect(renderCWECategory(standards, '1004')).toEqual(
-      "CWE-1004 - Sensitive Cookie Without 'HttpOnly' Flag"
+      "CWE-1004 - Sensitive Cookie Without 'HttpOnly' Flag",
     );
     expect(renderCWECategory(standards, '124')).toEqual('CWE-124');
     expect(renderCWECategory(standards, 'unknown')).toEqual('No CWE associated');
@@ -114,7 +114,7 @@ describe('renderPciDss32Category', () => {
   };
   it('should render Pci Dss 3.2 correctly', () => {
     expect(renderPciDss32Category(standards, '1')).toEqual(
-      '1 - Install and maintain a firewall configuration to protect cardholder data'
+      '1 - Install and maintain a firewall configuration to protect cardholder data',
     );
     expect(renderPciDss32Category(standards, '1.1')).toEqual('1.1');
   });
@@ -136,7 +136,7 @@ describe('renderPciDss40Category', () => {
   };
   it('should render Pci Dss 4.0 correctly', () => {
     expect(renderPciDss40Category(standards, '1')).toEqual(
-      '1 - Install and maintain a firewall configuration to protect cardholder data'
+      '1 - Install and maintain a firewall configuration to protect cardholder data',
     );
     expect(renderPciDss40Category(standards, '1.1')).toEqual('1.1');
   });
@@ -185,10 +185,10 @@ describe('renderSonarSourceSecurityCategory', () => {
   };
   it('should render sonarsource categories correctly', () => {
     expect(renderSonarSourceSecurityCategory(standards, 'xss')).toEqual(
-      'Cross-Site Scripting (XSS)'
+      'Cross-Site Scripting (XSS)',
     );
     expect(renderSonarSourceSecurityCategory(standards, 'xss', true)).toEqual(
-      'SONAR Cross-Site Scripting (XSS)'
+      'SONAR Cross-Site Scripting (XSS)',
     );
     expect(renderSonarSourceSecurityCategory(standards, 'others')).toEqual('Others');
     expect(renderSonarSourceSecurityCategory(standards, 'others', true)).toEqual('Others');

@@ -41,7 +41,7 @@ export interface EnvironmentVariablesStepProps {
 }
 
 const pipelineDescriptionLinkLabel = translate(
-  'onboarding.tutorial.with.gitlab_ci.variables.description.link'
+  'onboarding.tutorial.with.gitlab_ci.variables.description.link',
 );
 
 export default function EnvironmentVariablesStep(props: EnvironmentVariablesStepProps) {
@@ -56,7 +56,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
 
         <FormattedMessage
           defaultMessage={translate(
-            'onboarding.tutorial.with.gitlab_ci.variables.section.description'
+            'onboarding.tutorial.with.gitlab_ci.variables.section.description',
           )}
           id="onboarding.tutorial.with.gitlab_ci.variables.section.description"
           values={{
@@ -102,7 +102,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
           <ListItem>
             <FormattedMessage
               defaultMessage={translate(
-                'onboarding.tutorial.with.gitlab_ci.variables.section.step4'
+                'onboarding.tutorial.with.gitlab_ci.variables.section.step4',
               )}
               id="onboarding.tutorial.with.gitlab_ci.variables.section.step4"
               values={{
@@ -122,7 +122,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
 
         <FormattedMessage
           defaultMessage={translate(
-            'onboarding.tutorial.with.gitlab_ci.variables.section2.description'
+            'onboarding.tutorial.with.gitlab_ci.variables.section2.description',
           )}
           id="onboarding.tutorial.with.gitlab_ci.variables.section2.description"
           values={{
@@ -183,7 +183,7 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
           <ListItem>
             <FormattedMessage
               defaultMessage={translate(
-                'onboarding.tutorial.with.gitlab_ci.variables.section2.step4'
+                'onboarding.tutorial.with.gitlab_ci.variables.section2.step4',
               )}
               id="onboarding.tutorial.with.gitlab_ci.variables.section2.step4"
               values={{

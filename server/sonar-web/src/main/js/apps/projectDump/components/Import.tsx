@@ -122,7 +122,7 @@ export default class Import extends React.Component<Props> {
     const detailsUrl = getComponentBackgroundTaskUrl(
       componentKey,
       TaskStatuses.Failed,
-      TaskTypes.ProjectImport
+      TaskTypes.ProjectImport,
     );
 
     return (

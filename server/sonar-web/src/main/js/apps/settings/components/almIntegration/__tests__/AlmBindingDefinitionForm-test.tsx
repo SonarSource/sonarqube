@@ -75,6 +75,6 @@ function renderAlmBindingDefinitionForm(props: Partial<AlmBindingDefinitionFormP
       enforceValidation
       alm={AlmKeys.GitLab}
       {...props}
-    />
+    />,
   );
 }

@@ -66,7 +66,7 @@ export class AuditApp extends React.PureComponent<Props, State> {
 
   hasGovernanceExtension = () => {
     return Boolean(
-      this.props.adminPages?.find((e) => e.key === AdminPageExtension.GovernanceConsole)
+      this.props.adminPages?.find((e) => e.key === AdminPageExtension.GovernanceConsole),
     );
   };
 

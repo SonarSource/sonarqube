@@ -58,7 +58,7 @@ function MetricRedirect() {
           id: searchParams.get('id') ?? undefined,
           graph: 'custom',
           custom_metrics: params.metricKey,
-        })
+        }),
       ).toString(),
     };
     return <Navigate to={to} replace />;
@@ -70,7 +70,7 @@ function MetricRedirect() {
         ...searchParamsToQuery(searchParams),
         metric: params.metricKey,
         view: params.view,
-      })
+      }),
     ).toString(),
   };
   return <Navigate to={to} replace />;

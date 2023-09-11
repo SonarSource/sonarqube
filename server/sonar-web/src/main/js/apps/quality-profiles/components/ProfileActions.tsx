@@ -166,7 +166,7 @@ class ProfileActions extends React.PureComponent<Props, State> {
         },
         () => {
           /* noop */
-        }
+        },
       );
     }
   };
@@ -206,7 +206,7 @@ class ProfileActions extends React.PureComponent<Props, State> {
           label={translateWithParameters(
             'quality_profiles.actions',
             profile.name,
-            profile.languageName
+            profile.languageName,
           )}
           disabled={!hasAnyAction}
         >
@@ -244,7 +244,7 @@ class ProfileActions extends React.PureComponent<Props, State> {
                 tooltipPlacement="left"
                 tooltipOverlay={translateWithParameters(
                   'quality_profiles.extend_help',
-                  profile.name
+                  profile.name,
                 )}
                 className="it__quality-profiles__extend"
                 onClick={this.handleExtendClick}

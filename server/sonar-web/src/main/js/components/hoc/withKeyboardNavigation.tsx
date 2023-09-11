@@ -36,7 +36,7 @@ export interface WithKeyboardNavigationProps {
 }
 
 export default function withKeyboardNavigation<P>(
-  WrappedComponent: React.ComponentType<P & Partial<WithKeyboardNavigationProps>>
+  WrappedComponent: React.ComponentType<P & Partial<WithKeyboardNavigationProps>>,
 ) {
   return class Wrapper extends React.Component<P & WithKeyboardNavigationProps> {
     static displayName = getWrappedDisplayName(WrappedComponent, 'withKeyboardNavigation');
@@ -70,7 +70,7 @@ export default function withKeyboardNavigation<P>(
       return selected
         ? components.findIndex(
             (component) =>
-              getComponentMeasureUniqueKey(component) === getComponentMeasureUniqueKey(selected)
+              getComponentMeasureUniqueKey(component) === getComponentMeasureUniqueKey(selected),
           )
         : -1;
     };
@@ -93,7 +93,7 @@ export default function withKeyboardNavigation<P>(
       const first = cycle ? 0 : index;
 
       this.props.onHighlight(
-        index < components.length - 1 ? components[index + 1] : components[first]
+        index < components.length - 1 ? components[index + 1] : components[first],
       );
 
       if (index + 1 === components.length - 1 && this.props.onEndOfList) {

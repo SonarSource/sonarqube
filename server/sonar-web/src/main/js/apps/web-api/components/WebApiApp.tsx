@@ -80,7 +80,7 @@ export class WebApiApp extends React.PureComponent<Props, State> {
           this.setState({ domains: this.parseDomains(domains) });
         }
       },
-      () => {}
+      () => {},
     );
   }
 
@@ -113,11 +113,11 @@ export class WebApiApp extends React.PureComponent<Props, State> {
     const domain = domains.find((domain) => splat.startsWith(domain.path));
     if (domain) {
       const action = domain.actions.find(
-        (action) => getActionKey(domain.path, action.key) === splat
+        (action) => getActionKey(domain.path, action.key) === splat,
       );
       const internal = Boolean(!query.internal && (domain.internal || (action && action.internal)));
       const deprecated = Boolean(
-        !query.deprecated && (domain.deprecatedSince || (action && action.deprecatedSince))
+        !query.deprecated && (domain.deprecatedSince || (action && action.deprecatedSince)),
       );
       if (internal || deprecated) {
         this.updateQuery({ internal, deprecated });
@@ -214,7 +214,7 @@ export default withRouter(WebApiAppWithParams);
 function getLatestDeprecatedAction(domain: Pick<WebApi.Domain, 'actions'>) {
   const noVersion = { major: 0, minor: 0 };
   const allActionsDeprecated = domain.actions.every(
-    ({ deprecatedSince }) => deprecatedSince !== undefined
+    ({ deprecatedSince }) => deprecatedSince !== undefined,
   );
   const latestDeprecation =
     allActionsDeprecated &&

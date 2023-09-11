@@ -87,7 +87,7 @@ it('should render the component nav correctly for portfolio', async () => {
   expect(await ui.portfolioTitle.find()).toHaveAttribute('href', '/portfolio?id=portfolioKey');
   expect(ui.issuesPageLink.get()).toHaveAttribute(
     'href',
-    '/project/issues?id=portfolioKey&resolved=false'
+    '/project/issues?id=portfolioKey&resolved=false',
   );
   expect(ui.measuresPageLink.get()).toHaveAttribute('href', '/component_measures?id=portfolioKey');
   expect(ui.activityPageLink.get()).toHaveAttribute('href', '/project/activity?id=portfolioKey');
@@ -119,7 +119,7 @@ it('should render the component nav correctly for projects', async () => {
   expect(ui.overviewPageLink.get()).toHaveAttribute('href', '/dashboard?id=project-key');
   expect(ui.issuesPageLink.get()).toHaveAttribute(
     'href',
-    '/project/issues?id=project-key&resolved=false'
+    '/project/issues?id=project-key&resolved=false',
   );
   expect(ui.hotspotsPageLink.get()).toHaveAttribute('href', '/security_hotspots?id=project-key');
   expect(ui.measuresPageLink.get()).toHaveAttribute('href', '/component_measures?id=project-key');
@@ -359,7 +359,7 @@ describe('should correctly validate the project binding depending on the context
 
     renderComponentContainerAsComponent({ hasFeature: jest.fn().mockReturnValue(true) });
     expect(
-      await screen.findByText('component_navigation.pr_deco.error_detected_X', { exact: false })
+      await screen.findByText('component_navigation.pr_deco.error_detected_X', { exact: false }),
     ).toBeInTheDocument();
   });
 });
@@ -389,7 +389,7 @@ it.each([
     await waitFor(() => {
       expect(validateProjectAlmBinding).not.toHaveBeenCalled();
     });
-  }
+  },
 );
 
 function renderComponentContainerAsComponent(props: Partial<Props> = {}) {
@@ -402,7 +402,7 @@ function renderComponentContainerAsComponent(props: Partial<Props> = {}) {
         router={mockRouter()}
         {...props}
       />
-    </>
+    </>,
   );
 }
 
@@ -438,7 +438,7 @@ function TestComponent() {
               breadcrumbs: [
                 { key: 'portfolioKey', name: 'portfolio', qualifier: ComponentQualifier.Portfolio },
               ],
-            })
+            }),
           )
         }
         type="button"

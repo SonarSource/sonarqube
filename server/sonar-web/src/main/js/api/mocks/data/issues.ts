@@ -111,15 +111,15 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
           mockSnippetsByComponent(
             ISSUE_TO_FILES[ISSUE_101][0],
             baseComponentKey,
-            times(40, (i) => i + 1)
+            times(40, (i) => i + 1),
           ),
           mockSnippetsByComponent(
             ISSUE_TO_FILES[ISSUE_101][1],
             baseComponentKey,
-            times(40, (i) => i + 1)
+            times(40, (i) => i + 1),
           ),
         ],
-        'component.key'
+        'component.key',
       ),
     },
     {
@@ -207,15 +207,15 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
           mockSnippetsByComponent(
             ISSUE_TO_FILES[ISSUE_11][0],
             baseComponentKey,
-            times(40, (i) => i + 1)
+            times(40, (i) => i + 1),
           ),
           mockSnippetsByComponent(
             ISSUE_TO_FILES[ISSUE_11][1],
             baseComponentKey,
-            times(40, (i) => i + 1)
+            times(40, (i) => i + 1),
           ),
         ],
-        'component.key'
+        'component.key',
       ),
     },
     {
@@ -281,15 +281,15 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
           mockSnippetsByComponent(
             ISSUE_TO_FILES[ISSUE_1][0],
             baseComponentKey,
-            times(80, (i) => i + 1)
+            times(80, (i) => i + 1),
           ),
           mockSnippetsByComponent(
             ISSUE_TO_FILES[ISSUE_1][0],
             baseComponentKey,
-            times(80, (i) => i + 1)
+            times(80, (i) => i + 1),
           ),
         ],
-        'component.key'
+        'component.key',
       ),
     },
     {
@@ -318,10 +318,10 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
           mockSnippetsByComponent(
             ISSUE_TO_FILES[ISSUE_2][0],
             baseComponentKey,
-            times(40, (i) => i + 20)
+            times(40, (i) => i + 20),
           ),
         ],
-        'component.key'
+        'component.key',
       ),
     },
     {
@@ -344,10 +344,10 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
           mockSnippetsByComponent(
             ISSUE_TO_FILES[ISSUE_3][0],
             baseComponentKey,
-            times(40, (i) => i + 20)
+            times(40, (i) => i + 20),
           ),
         ],
-        'component.key'
+        'component.key',
       ),
     },
     {
@@ -378,10 +378,10 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
           mockSnippetsByComponent(
             ISSUE_TO_FILES[ISSUE_4][0],
             baseComponentKey,
-            times(40, (i) => i + 20)
+            times(40, (i) => i + 20),
           ),
         ],
-        'component.key'
+        'component.key',
       ),
     },
     {

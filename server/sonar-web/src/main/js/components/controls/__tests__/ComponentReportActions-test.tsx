@@ -38,7 +38,7 @@ jest.mock('../../../api/component-report', () => ({
   getReportStatus: jest
     .fn()
     .mockResolvedValue(
-      jest.requireActual('../../../helpers/mocks/component-report').mockComponentReportStatus()
+      jest.requireActual('../../../helpers/mocks/component-report').mockComponentReportStatus(),
     ),
   subscribeToEmailReport: jest.fn().mockResolvedValue(undefined),
   unsubscribeFromEmailReport: jest.fn().mockResolvedValue(undefined),
@@ -88,7 +88,7 @@ it('should allow user to (un)subscribe', async () => {
     .mocked(getReportStatus)
     .mockResolvedValueOnce(mockComponentReportStatus({ globalFrequency: 'monthly' }))
     .mockResolvedValueOnce(
-      mockComponentReportStatus({ subscribed: true, globalFrequency: 'monthly' })
+      mockComponentReportStatus({ subscribed: true, globalFrequency: 'monthly' }),
     );
 
   const user = userEvent.setup();
@@ -126,7 +126,7 @@ it('should allow user to (un)subscribe', async () => {
   await user.click(button);
 
   const unsubscribeButton = screen.getByText(
-    'component_report.unsubscribe_x.report.frequency.monthly'
+    'component_report.unsubscribe_x.report.frequency.monthly',
   );
   expect(unsubscribeButton).toBeInTheDocument();
 
@@ -134,7 +134,7 @@ it('should allow user to (un)subscribe', async () => {
 
   expect(unsubscribeFromEmailReport).toHaveBeenCalledWith(component.key, branch.name);
   expect(screen.getByRole('status')).toHaveTextContent(
-    'component_report.subscribe_x_s...component_report.unsubscribe_x...'
+    'component_report.subscribe_x_s...component_report.unsubscribe_x...',
   );
 });
 
@@ -148,7 +148,7 @@ it('should prevent user to subscribe if no email', async () => {
   await user.click(
     await screen.findByRole('button', {
       name: 'component_report.report.qualifier.TRK',
-    })
+    }),
   );
 
   const subscribeButton = screen.getByText('component_report.no_email_to_subscribe');
@@ -164,6 +164,6 @@ function renderComponentReportActions(props: Partial<ComponentReportActions['pro
       component={mockComponent()}
       currentUser={mockCurrentUser()}
       {...props}
-    />
+    />,
   );
 }

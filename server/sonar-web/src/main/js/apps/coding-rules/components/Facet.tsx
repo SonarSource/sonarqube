@@ -59,7 +59,7 @@ export default class Facet extends React.PureComponent<Props> {
       newValue = itemValue === value ? undefined : itemValue;
     } else if (multiple) {
       newValue = orderBy(
-        values.includes(itemValue) ? without(values, itemValue) : [...values, itemValue]
+        values.includes(itemValue) ? without(values, itemValue) : [...values, itemValue],
       );
     } else {
       newValue = values.includes(itemValue) && values.length < 2 ? [] : [itemValue];
@@ -109,7 +109,7 @@ export default class Facet extends React.PureComponent<Props> {
         sortBy(
           Object.keys(stats),
           (key) => -stats[key],
-          (key) => renderTextName(key).toLowerCase()
+          (key) => renderTextName(key).toLowerCase(),
         ));
     const headerId = `facet_${property}`;
 

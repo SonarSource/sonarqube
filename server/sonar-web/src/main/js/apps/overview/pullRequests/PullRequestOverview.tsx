@@ -87,7 +87,7 @@ export default function PullRequestOverview(props: Props) {
       },
       () => {
         setLoadingMeasure(false);
-      }
+      },
     );
   }, [branchLike, component.key, conditions]);
 
@@ -202,7 +202,7 @@ export default function PullRequestOverview(props: Props) {
                       useDiffMetric
                     />
                   </Card>
-                )
+                ),
               )}
             </div>
           </div>

@@ -143,7 +143,7 @@ it('should correctly fetch the instance URL', async () => {
 
   await startLocalTutorial(user);
   expect(
-    screen.getByText('-Dsonar.host.url=http://sq.example.com', { exact: false })
+    screen.getByText('-Dsonar.host.url=http://sq.example.com', { exact: false }),
   ).toBeInTheDocument();
 });
 
@@ -154,7 +154,7 @@ it('should fallback on the host URL', async () => {
 
   await startLocalTutorial(user);
   expect(
-    screen.getByText('-Dsonar.host.url=http://host.url', { exact: false })
+    screen.getByText('-Dsonar.host.url=http://host.url', { exact: false }),
   ).toBeInTheDocument();
 });
 
@@ -190,7 +190,7 @@ async function startLocalTutorial(user: UserEvent) {
 
 function renderTutorialSelection(
   props: Partial<ComponentPropsType<typeof TutorialSelection>> = {},
-  navigateTo: string = 'tutorials?id=bar'
+  navigateTo: string = 'tutorials?id=bar',
 ) {
   return renderApp(
     '/tutorials',
@@ -199,6 +199,6 @@ function renderTutorialSelection(
       currentUser={mockLoggedInUser({ permissions: { global: [Permissions.Scan] } })}
       {...props}
     />,
-    { featureList: [Feature.BranchSupport], navigateTo }
+    { featureList: [Feature.BranchSupport], navigateTo },
   );
 }

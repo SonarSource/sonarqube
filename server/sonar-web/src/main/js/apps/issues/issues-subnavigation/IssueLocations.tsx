@@ -34,7 +34,7 @@ export default function IssueLocations(props: Props) {
   const { concealed, issue, locations, onLocationSelect, selectedLocationIndex } = props;
   const isCrossFile = useMemo(
     () => locations.some((location) => location.component !== issue.component),
-    [locations, issue.component]
+    [locations, issue.component],
   );
 
   return isCrossFile ? (

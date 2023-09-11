@@ -57,10 +57,10 @@ describe('getCodeMetrics', () => {
     expect(getCodeMetrics('VW')).toMatchSnapshot();
     expect(getCodeMetrics('VW', undefined, { includeQGStatus: true })).toMatchSnapshot();
     expect(
-      getCodeMetrics('VW', undefined, { includeQGStatus: true, newCode: true })
+      getCodeMetrics('VW', undefined, { includeQGStatus: true, newCode: true }),
     ).toMatchSnapshot();
     expect(
-      getCodeMetrics('VW', undefined, { includeQGStatus: true, newCode: false })
+      getCodeMetrics('VW', undefined, { includeQGStatus: true, newCode: false }),
     ).toMatchSnapshot();
   });
 

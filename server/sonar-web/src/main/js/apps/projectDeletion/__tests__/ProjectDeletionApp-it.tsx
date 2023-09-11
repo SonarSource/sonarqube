@@ -47,7 +47,7 @@ it('should be able to delete project', async () => {
   });
 
   renderProjectDeletionApp(
-    mockComponent({ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project })
+    mockComponent({ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project }),
   );
 
   expect(byText('deletion.page').get()).toBeInTheDocument();
@@ -55,7 +55,7 @@ it('should be able to delete project', async () => {
   user.click(byRole('button', { name: 'delete' }).get());
   expect(await byRole('dialog', { name: 'qualifier.delete.TRK' }).find()).toBeInTheDocument();
   user.click(
-    byRole('dialog', { name: 'qualifier.delete.TRK' }).byRole('button', { name: 'delete' }).get()
+    byRole('dialog', { name: 'qualifier.delete.TRK' }).byRole('button', { name: 'delete' }).get(),
   );
 
   expect(await byText(/project_deletion.resource_dele/).find()).toBeInTheDocument();
@@ -73,7 +73,7 @@ it('should be able to delete Portfolio', async () => {
   });
 
   renderProjectDeletionApp(
-    mockComponent({ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Portfolio })
+    mockComponent({ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Portfolio }),
   );
 
   expect(byText('deletion.page').get()).toBeInTheDocument();
@@ -83,7 +83,7 @@ it('should be able to delete Portfolio', async () => {
 
   expect(await byRole('dialog', { name: 'qualifier.delete.VW' }).find()).toBeInTheDocument();
   user.click(
-    byRole('dialog', { name: 'qualifier.delete.VW' }).byRole('button', { name: 'delete' }).get()
+    byRole('dialog', { name: 'qualifier.delete.VW' }).byRole('button', { name: 'delete' }).get(),
   );
 
   expect(await byText(/project_deletion.resource_dele/).find()).toBeInTheDocument();
@@ -101,7 +101,7 @@ it('should be able to delete Application', async () => {
   });
 
   renderProjectDeletionApp(
-    mockComponent({ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Application })
+    mockComponent({ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Application }),
   );
 
   expect(byText('deletion.page').get()).toBeInTheDocument();
@@ -110,7 +110,7 @@ it('should be able to delete Application', async () => {
   user.click(byRole('button', { name: 'delete' }).get());
   expect(await byRole('dialog', { name: 'qualifier.delete.APP' }).find()).toBeInTheDocument();
   user.click(
-    byRole('dialog', { name: 'qualifier.delete.APP' }).byRole('button', { name: 'delete' }).get()
+    byRole('dialog', { name: 'qualifier.delete.APP' }).byRole('button', { name: 'delete' }).get(),
   );
 
   expect(await byText(/project_deletion.resource_dele/).find()).toBeInTheDocument();
@@ -128,6 +128,6 @@ function renderProjectDeletionApp(component?: Component) {
     'project-delete',
     <ComponentContext.Provider value={{ component } as ComponentContextShape}>
       <App />
-    </ComponentContext.Provider>
+    </ComponentContext.Provider>,
   );
 }

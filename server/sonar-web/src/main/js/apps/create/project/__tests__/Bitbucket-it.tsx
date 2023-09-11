@@ -81,7 +81,7 @@ it('should ask for PAT when it is not set yet and show the import project featur
   await user.click(
     screen.getByRole('textbox', {
       name: /onboarding.create_project.enter_pat/,
-    })
+    }),
   );
 
   await user.keyboard('password');
@@ -109,13 +109,13 @@ it('should show import project feature when PAT is already set', async () => {
   const projectItem = screen.getByRole('region', { name: /Bitbucket Project 1/ });
 
   expect(
-    within(projectItem).getByText('onboarding.create_project.repository_imported')
+    within(projectItem).getByText('onboarding.create_project.repository_imported'),
   ).toBeInTheDocument();
 
   expect(within(projectItem).getByRole('link', { name: /Bitbucket Repo 1/ })).toBeInTheDocument();
   expect(within(projectItem).getByRole('link', { name: /Bitbucket Repo 1/ })).toHaveAttribute(
     'href',
-    '/dashboard?id=key'
+    '/dashboard?id=key',
   );
 
   await user.click(projectItem);
@@ -123,27 +123,27 @@ it('should show import project feature when PAT is already set', async () => {
   expect(
     screen.getByRole('row', {
       name: 'Bitbucket Repo 1 onboarding.create_project.repository_imported',
-    })
+    }),
   ).toBeInTheDocument();
 
   expect(
     screen.getByRole('row', {
       name: 'Bitbucket Repo 2 onboarding.create_project.import',
-    })
+    }),
   ).toBeInTheDocument();
 
   const importButton = screen.getByText('onboarding.create_project.import');
   await user.click(importButton);
 
   expect(
-    screen.getByRole('heading', { name: 'onboarding.create_project.new_code_definition.title' })
+    screen.getByRole('heading', { name: 'onboarding.create_project.new_code_definition.title' }),
   ).toBeInTheDocument();
 
   await user.click(screen.getByRole('radio', { name: 'new_code_definition.global_setting' }));
   await user.click(
     screen.getByRole('button', {
       name: 'onboarding.create_project.new_code_definition.create_project',
-    })
+    }),
   );
 
   expect(await screen.findByText('/dashboard?id=key')).toBeInTheDocument();
@@ -168,7 +168,7 @@ it('should show search filter when PAT is already set', async () => {
 
   expect(searchForBitbucketServerRepositories).toHaveBeenLastCalledWith(
     'conf-bitbucketserver-2',
-    'search'
+    'search',
   );
 });
 

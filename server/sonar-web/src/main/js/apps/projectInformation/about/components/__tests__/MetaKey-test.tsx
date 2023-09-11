@@ -26,13 +26,13 @@ import MetaKey from '../MetaKey';
 it('should render correctly', () => {
   renderMetaKey();
   expect(
-    screen.getByText(`overview.project_key.${ComponentQualifier.Project}`)
+    screen.getByText(`overview.project_key.${ComponentQualifier.Project}`),
   ).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Copy to clipboard' })).toBeInTheDocument();
 });
 
 function renderMetaKey(props: Partial<Parameters<typeof MetaKey>[0]> = {}) {
   return renderComponent(
-    <MetaKey componentKey="foo" qualifier={ComponentQualifier.Project} {...props} />
+    <MetaKey componentKey="foo" qualifier={ComponentQualifier.Project} {...props} />,
   );
 }

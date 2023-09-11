@@ -505,7 +505,7 @@ export function mockCompareResult(overrides: Partial<CompareResponse> = {}): Com
 }
 
 export function mockQualityProfileInheritance(
-  overrides: Partial<ProfileInheritanceDetails> = {}
+  overrides: Partial<ProfileInheritanceDetails> = {},
 ): ProfileInheritanceDetails {
   return {
     activeRuleCount: 4,
@@ -518,7 +518,7 @@ export function mockQualityProfileInheritance(
 }
 
 export function mockQualityProfileChangelogEvent(
-  eventOverride?: Partial<ProfileChangelogEvent>
+  eventOverride?: Partial<ProfileChangelogEvent>,
 ): ProfileChangelogEvent {
   return {
     action: 'ACTIVATED',
@@ -545,7 +545,7 @@ export function mockRouter(
   overrides: {
     push?: (loc: To) => void;
     replace?: (loc: To) => void;
-  } = {}
+  } = {},
 ) {
   return {
     createHref: jest.fn(),
@@ -741,7 +741,7 @@ export function mockUserGroupMember(overrides: Partial<UserGroupMember> = {}): U
 }
 
 export function mockDocumentationMarkdown(
-  overrides: Partial<{ content: string; title: string; key: string }> = {}
+  overrides: Partial<{ content: string; title: string; key: string }> = {},
 ): string {
   const content =
     overrides.content ||
@@ -794,7 +794,7 @@ export function mockIdentityProvider(overrides: Partial<IdentityProvider> = {}):
 }
 
 export function mockRef(
-  overrides: Partial<React.RefObject<Partial<HTMLElement>>> = {}
+  overrides: Partial<React.RefObject<Partial<HTMLElement>>> = {},
 ): React.RefObject<HTMLElement> {
   return {
     current: {

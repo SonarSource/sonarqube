@@ -100,7 +100,7 @@ export default class Export extends React.Component<Props> {
   renderWhenExportFailed() {
     const { componentKey } = this.props;
     const detailsUrl = `/project/background_tasks?id=${encodeURIComponent(
-      componentKey
+      componentKey,
     )}&status=FAILED&taskType=PROJECT_EXPORT`;
 
     return (

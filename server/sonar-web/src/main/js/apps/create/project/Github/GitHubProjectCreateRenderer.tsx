@@ -199,7 +199,7 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
                           link: (
                             <Link to="/admin/settings?category=almintegration">
                               {translate(
-                                'onboarding.create_project.github.warning.message_admin.link'
+                                'onboarding.create_project.github.warning.message_admin.link',
                               )}
                             </Link>
                           ),

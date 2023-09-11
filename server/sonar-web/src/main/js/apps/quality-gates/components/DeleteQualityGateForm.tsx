@@ -51,7 +51,7 @@ export class DeleteQualityGateForm extends React.PureComponent<Props> {
         isDestructive
         modalBody={translateWithParameters(
           'quality_gates.delete.confirm.message',
-          qualityGate.name
+          qualityGate.name,
         )}
         modalHeader={translate('quality_gates.delete')}
         onConfirm={this.onDelete}

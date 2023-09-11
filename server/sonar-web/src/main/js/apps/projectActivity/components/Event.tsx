@@ -105,7 +105,7 @@ function Event(props: EventProps) {
           onClose={() => setDeleting(false)}
           onConfirm={props.onDelete}
           removeEventQuestion={translate(
-            `project_activity.${isVersion ? 'remove_version' : 'remove_custom_event'}.question`
+            `project_activity.${isVersion ? 'remove_version' : 'remove_custom_event'}.question`,
           )}
         />
       )}

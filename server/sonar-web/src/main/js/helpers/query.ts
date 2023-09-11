@@ -90,14 +90,14 @@ export function parseAsArray<T>(value: string | undefined, itemParser: (x: strin
 
 export function parseAsOptionalArray<T>(
   value: string | undefined,
-  itemParser: (x: string) => T
+  itemParser: (x: string) => T,
 ): T[] | undefined {
   return value ? parseAsArray(value, itemParser) : undefined;
 }
 
 export function serializeDate(
   value?: Date,
-  serializer = toISO8601WithOffsetString
+  serializer = toISO8601WithOffsetString,
 ): string | undefined {
   if (value != null) {
     return serializer(value);

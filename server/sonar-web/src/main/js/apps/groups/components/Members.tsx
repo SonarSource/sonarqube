@@ -68,7 +68,7 @@ export default class Members extends React.PureComponent<Props, State> {
         <ButtonIcon
           aria-label={translateWithParameters(
             isManaged || group.default ? 'groups.users.view' : 'groups.users.edit',
-            group.name
+            group.name,
           )}
           className="button-small little-spacer-left little-padded"
           onClick={this.handleMembersClick}

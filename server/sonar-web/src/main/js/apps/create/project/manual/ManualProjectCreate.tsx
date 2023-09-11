@@ -125,7 +125,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
         projectNameError === undefined &&
         !isEmpty(projectKey) &&
         !isEmpty(projectName) &&
-        !isEmpty(mainBranchName)
+        !isEmpty(mainBranchName),
     );
   }
 
@@ -138,7 +138,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
           project: projectKey,
           name: (projectName || projectKey).trim(),
           mainBranch: mainBranchName,
-        })
+        }),
       );
     }
   };
@@ -171,7 +171,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
             .replace(PROJECT_KEY_INVALID_CHARACTERS, '-');
           this.handleProjectKeyChange(sanitizedProjectKey);
         }
-      }
+      },
     );
   };
 

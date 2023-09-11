@@ -39,7 +39,7 @@ it('should render correctly when the extension is found', () => {
     mockComponent({
       configuration: { extensions: [{ key: 'pluginId/extensionId', name: 'name' }] },
     }),
-    { pluginKey: 'pluginId', extensionKey: 'extensionId' }
+    { pluginKey: 'pluginId', extensionKey: 'extensionId' },
   );
   expect(getExtensionStart).toHaveBeenCalledWith('pluginId/extensionId');
 });
@@ -47,7 +47,7 @@ it('should render correctly when the extension is found', () => {
 it('should render correctly when the extension is not found', () => {
   renderProjectAdminPageExtension(
     mockComponent({ extensions: [{ key: 'pluginId/extensionId', name: 'name' }] }),
-    { pluginKey: 'not-found-plugin', extensionKey: 'not-found-extension' }
+    { pluginKey: 'not-found-plugin', extensionKey: 'not-found-extension' },
   );
   expect(screen.getByText('page_not_found')).toBeInTheDocument();
 });
@@ -57,7 +57,7 @@ function renderProjectAdminPageExtension(
   params: {
     extensionKey: string;
     pluginKey: string;
-  }
+  },
 ) {
   const { pluginKey, extensionKey } = params;
   const queryClient = new QueryClient();
@@ -74,6 +74,6 @@ function renderProjectAdminPageExtension(
           </ComponentContext.Provider>
         </IntlProvider>
       </HelmetProvider>
-    </QueryClientProvider>
+    </QueryClientProvider>,
   );
 }

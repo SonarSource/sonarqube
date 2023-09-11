@@ -64,7 +64,7 @@ export default function Issue(props: Props) {
     (popupName: string, open?: boolean) => {
       onPopupToggle(issue.key, popupName, open);
     },
-    [issue.key, onPopupToggle]
+    [issue.key, onPopupToggle],
   );
 
   const handleAssignement = useCallback(
@@ -74,7 +74,7 @@ export default function Issue(props: Props) {
       }
       togglePopup('assign', false);
     },
-    [issue.assignee, issue.key, onChange, togglePopup]
+    [issue.assignee, issue.key, onChange, togglePopup],
   );
 
   const handleKeyDown = useCallback(
@@ -107,7 +107,7 @@ export default function Issue(props: Props) {
       }
       return true;
     },
-    [issue.actions, issue.key, togglePopup, handleAssignement, onCheck]
+    [issue.actions, issue.key, togglePopup, handleAssignement, onCheck],
   );
 
   React.useEffect(() => {

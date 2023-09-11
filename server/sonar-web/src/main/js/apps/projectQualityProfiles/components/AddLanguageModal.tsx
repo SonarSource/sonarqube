@@ -49,7 +49,7 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
 
   const languageOptions: LabelValueSelectOption[] = difference(
     Object.keys(profilesByLanguage),
-    unavailableLanguages
+    unavailableLanguages,
   ).map((l) => ({ value: l, label: languages[l].name }));
 
   const profileOptions: ProfileOption[] =
@@ -91,7 +91,7 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
                   isDisabled={submitting}
                   id="language"
                   aria-label={translate(
-                    'project_quality_profile.add_language_modal.choose_language'
+                    'project_quality_profile.add_language_modal.choose_language',
                   )}
                   onChange={({ value }: LabelValueSelectOption) => {
                     setSelected({ language: value, key: undefined });
@@ -111,7 +111,7 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
                   isDisabled={submitting || !language}
                   id="profiles"
                   aria-label={translate(
-                    'project_quality_profile.add_language_modal.choose_profile'
+                    'project_quality_profile.add_language_modal.choose_profile',
                   )}
                   onChange={({ value }: ProfileOption) => setSelected({ language, key: value })}
                   options={profileOptions}

@@ -72,7 +72,7 @@ export default function DotNet(props: DotNetProps) {
         mainBranchName,
         !!branchesEnabled,
         GITHUB_ACTIONS_RUNS_ON_WINDOWS,
-        dotnetYamlSteps(component.key)
+        dotnetYamlSteps(component.key),
       )}
     />
   );

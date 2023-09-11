@@ -31,7 +31,7 @@ export interface ComponentNavProjectBindingErrorNotifProps {
 }
 
 export default function ComponentNavProjectBindingErrorNotif(
-  props: ComponentNavProjectBindingErrorNotifProps
+  props: ComponentNavProjectBindingErrorNotifProps,
 ) {
   const { component } = props;
   let action;

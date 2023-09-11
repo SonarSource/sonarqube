@@ -45,7 +45,7 @@ describe('ActionsDropdown', () => {
         {...props}
       >
         <span>Hello world</span>
-      </ActionsDropdown>
+      </ActionsDropdown>,
     );
   }
 });

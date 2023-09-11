@@ -30,6 +30,6 @@ function renderIcon(props: Partial<IconProps> = {}) {
   return render(
     <Icon {...props}>
       <path d="test-path" />
-    </Icon>
+    </Icon>,
   );
 }

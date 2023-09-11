@@ -54,7 +54,7 @@ export function mockTreeComponent(overrides: Partial<TreeComponent>): TreeCompon
 
 export function mockComponentMeasure(
   file = false,
-  overrides: Partial<ComponentMeasure> = {}
+  overrides: Partial<ComponentMeasure> = {},
 ): ComponentMeasure {
   if (file) {
     return {
@@ -76,7 +76,7 @@ export function mockComponentMeasure(
 }
 
 export function mockComponentMeasureEnhanced(
-  overrides: Partial<ComponentMeasureEnhanced> = {}
+  overrides: Partial<ComponentMeasureEnhanced> = {},
 ): ComponentMeasureEnhanced {
   return {
     ...mockComponentMeasure(false, overrides as ComponentMeasure),

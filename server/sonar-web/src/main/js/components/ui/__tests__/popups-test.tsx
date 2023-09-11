@@ -37,8 +37,8 @@ describe('Popup', () => {
           className="foo"
           placement={PopupPlacement.LeftTop}
           style={{ left: -5 }}
-        />
-      )
+        />,
+      ),
     ).toMatchSnapshot();
   });
 
@@ -106,13 +106,15 @@ describe('PortalPopup', () => {
     const wrapper = shallowRender({ arrowOffset: -2 });
 
     expect(
-      wrapper.instance().adjustArrowPosition(PopupPlacement.BottomLeft, { leftFix: 10, topFix: 10 })
+      wrapper
+        .instance()
+        .adjustArrowPosition(PopupPlacement.BottomLeft, { leftFix: 10, topFix: 10 }),
     ).toEqual({ marginLeft: -12 });
 
     expect(
       wrapper
         .instance()
-        .adjustArrowPosition(PopupPlacement.RightBottom, { leftFix: 10, topFix: 10 })
+        .adjustArrowPosition(PopupPlacement.RightBottom, { leftFix: 10, topFix: 10 }),
     ).toEqual({ marginTop: -12 });
   });
 
@@ -120,7 +122,7 @@ describe('PortalPopup', () => {
     return shallow<PortalPopup>(
       <PortalPopup overlay={<span id="overlay" />} {...props}>
         <div id="popup-trigger" />
-      </PortalPopup>
+      </PortalPopup>,
     );
   }
 });

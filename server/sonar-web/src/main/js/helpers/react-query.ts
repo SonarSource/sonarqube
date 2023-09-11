@@ -23,7 +23,7 @@ const notUndefined = <T>(x: T | undefined): x is T => x !== undefined;
 
 export const mapReactQueryResult = <T, R>(
   res: UseQueryResult<T>,
-  mapper: (data: T) => R
+  mapper: (data: T) => R,
 ): UseQueryResult<R> => {
   return {
     ...res,

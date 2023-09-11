@@ -78,7 +78,7 @@ export default class HotspotList extends React.Component<Props, State> {
     ) {
       const groupedHotspots = this.groupHotspots(
         this.props.hotspots,
-        this.props.securityCategories
+        this.props.securityCategories,
       );
       this.setState({ groupedHotspots });
     }

@@ -47,7 +47,7 @@ export interface AlmBindingDefinitionFormFieldProps<B extends AlmBindingDefiniti
 }
 
 export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase>(
-  props: AlmBindingDefinitionFormFieldProps<B>
+  props: AlmBindingDefinitionFormFieldProps<B>,
 ) {
   const {
     autoFocus,
@@ -81,7 +81,7 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
             <ButtonLink
               aria-label={translateWithParameters(
                 'settings.almintegration.form.secret.update_field_x',
-                translate('settings.almintegration.form', id)
+                translate('settings.almintegration.form', id),
               )}
               onClick={() => {
                 props.onFieldChange(propKey, '');

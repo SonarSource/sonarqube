@@ -39,7 +39,10 @@ it('should open the default quality gates', async () => {
 
   const defaultQualityGate = handler.getDefaultQualityGate();
   expect(
-    await screen.findByRole('link', { current: 'page', name: `${defaultQualityGate.name} default` })
+    await screen.findByRole('link', {
+      current: 'page',
+      name: `${defaultQualityGate.name} default`,
+    }),
   ).toBeInTheDocument();
 });
 
@@ -49,13 +52,13 @@ it('should list all quality gates', async () => {
   expect(
     await screen.findByRole('link', {
       name: `${handler.getDefaultQualityGate().name} default`,
-    })
+    }),
   ).toBeInTheDocument();
 
   expect(
     screen.getByRole('link', {
       name: `${handler.getBuiltInQualityGate().name} quality_gates.built_in`,
-    })
+    }),
   ).toBeInTheDocument();
 });
 
@@ -223,7 +226,7 @@ it('should be able to add a condition', async () => {
   await user.click(dialog.getByRole('button', { name: 'quality_gates.add_condition' }));
 
   expect(
-    await overallConditions.findByRole('cell', { name: 'Maintainability Rating' })
+    await overallConditions.findByRole('cell', { name: 'Maintainability Rating' }),
   ).toBeInTheDocument();
   expect(await overallConditions.findByRole('cell', { name: 'B' })).toBeInTheDocument();
 });
@@ -236,7 +239,7 @@ it('should be able to edit a condition', async () => {
   const newConditions = within(await screen.findByTestId('quality-gates__conditions-new'));
 
   await user.click(
-    newConditions.getByLabelText('quality_gates.condition.edit.Coverage on New Code')
+    newConditions.getByLabelText('quality_gates.condition.edit.Coverage on New Code'),
   );
   const dialog = within(screen.getByRole('dialog'));
   await user.click(dialog.getByRole('textbox', { name: 'quality_gates.conditions.value' }));
@@ -253,12 +256,12 @@ it('should be able to handle duplicate or deprecated condition', async () => {
 
   await user.click(
     // make it a regexp to ignore badges:
-    await screen.findByRole('link', { name: new RegExp(handler.getCorruptedQualityGateName()) })
+    await screen.findByRole('link', { name: new RegExp(handler.getCorruptedQualityGateName()) }),
   );
 
   expect(await screen.findByText('quality_gates.duplicated_conditions')).toBeInTheDocument();
   expect(
-    await screen.findByRole('cell', { name: 'Complexity / Function deprecated' })
+    await screen.findByRole('cell', { name: 'Complexity / Function deprecated' }),
   ).toBeInTheDocument();
 });
 
@@ -271,7 +274,7 @@ it('should be able to handle delete condition', async () => {
   const newConditions = within(await screen.findByTestId('quality-gates__conditions-new'));
 
   await user.click(
-    newConditions.getByLabelText('quality_gates.condition.delete.Coverage on New Code')
+    newConditions.getByLabelText('quality_gates.condition.delete.Coverage on New Code'),
   );
 
   const dialog = within(screen.getByRole('dialog'));
@@ -286,10 +289,10 @@ it('should explain condition on branch', async () => {
   renderQualityGateApp({ featureList: [Feature.BranchSupport] });
 
   expect(
-    await screen.findByText('quality_gates.conditions.new_code.description')
+    await screen.findByText('quality_gates.conditions.new_code.description'),
   ).toBeInTheDocument();
   expect(
-    await screen.findByText('quality_gates.conditions.overall_code.description')
+    await screen.findByText('quality_gates.conditions.overall_code.description'),
   ).toBeInTheDocument();
 });
 
@@ -305,29 +308,29 @@ it('should show warning banner when CAYC condition is not properly set and shoul
   expect(screen.getByText('quality_gates.cayc_missing.banner.title')).toBeInTheDocument();
   expect(screen.getByText('quality_gates.cayc_missing.banner.description')).toBeInTheDocument();
   expect(
-    screen.getByRole('button', { name: 'quality_gates.cayc_condition.review_update' })
+    screen.getByRole('button', { name: 'quality_gates.cayc_condition.review_update' }),
   ).toBeInTheDocument();
 
   await user.click(
-    screen.getByRole('button', { name: 'quality_gates.cayc_condition.review_update' })
+    screen.getByRole('button', { name: 'quality_gates.cayc_condition.review_update' }),
   );
   expect(
     screen.getByRole('dialog', {
       name: 'quality_gates.cayc.review_update_modal.header.SonarSource way - CFamily',
-    })
+    }),
   ).toBeInTheDocument();
   expect(
-    screen.getByText('quality_gates.cayc.review_update_modal.description1')
+    screen.getByText('quality_gates.cayc.review_update_modal.description1'),
   ).toBeInTheDocument();
   expect(
-    screen.getByText('quality_gates.cayc.review_update_modal.description2')
+    screen.getByText('quality_gates.cayc.review_update_modal.description2'),
   ).toBeInTheDocument();
   expect(
-    screen.getByRole('button', { name: 'quality_gates.cayc.review_update_modal.confirm_text' })
+    screen.getByRole('button', { name: 'quality_gates.cayc.review_update_modal.confirm_text' }),
   ).toBeInTheDocument();
 
   await user.click(
-    screen.getByRole('button', { name: 'quality_gates.cayc.review_update_modal.confirm_text' })
+    screen.getByRole('button', { name: 'quality_gates.cayc.review_update_modal.confirm_text' }),
   );
 
   const conditionsWrapper = within(await screen.findByTestId('quality-gates__conditions-new'));
@@ -339,7 +342,7 @@ it('should show warning banner when CAYC condition is not properly set and shoul
   expect(conditionsWrapper.getByText('Duplicated Lines (%)')).toBeInTheDocument();
 
   const overallConditionsWrapper = within(
-    await screen.findByTestId('quality-gates__conditions-overall')
+    await screen.findByTestId('quality-gates__conditions-overall'),
   );
   expect(overallConditionsWrapper.getByText('Complexity / Function')).toBeInTheDocument();
 });
@@ -366,7 +369,7 @@ it('should warn user when quality gate is not CAYC compliant and user has permis
   await user.click(nonCompliantQualityGate);
 
   expect(await screen.findByRole('alert')).toHaveTextContent(
-    /quality_gates.cayc_missing.banner.title/
+    /quality_gates.cayc_missing.banner.title/,
   );
   expect(screen.getAllByText('quality_gates.cayc.tooltip.message').length).toBeGreaterThan(0);
 });
@@ -382,13 +385,13 @@ it('should show success banner when quality gate is CAYC compliant', async () =>
 
   expect(screen.getByText('quality_gates.cayc.banner.title')).toBeInTheDocument();
   expect(
-    screen.getByText('quality_gates.cayc.banner.description1', { exact: false })
+    screen.getByText('quality_gates.cayc.banner.description1', { exact: false }),
   ).toBeInTheDocument();
   expect(
-    screen.queryByText('quality_gates.cayc_condition.missing_warning.title')
+    screen.queryByText('quality_gates.cayc_condition.missing_warning.title'),
   ).not.toBeInTheDocument();
   expect(
-    screen.queryByRole('button', { name: 'quality_gates.cayc_condition.review_update' })
+    screen.queryByRole('button', { name: 'quality_gates.cayc_condition.review_update' }),
   ).not.toBeInTheDocument();
 
   const conditionsWrapper = within(await screen.findByTestId('quality-gates__conditions-new'));
@@ -412,22 +415,24 @@ it('should unlock editing option for CAYC conditions', async () => {
   expect(
     screen.queryByRole('button', {
       name: 'quality_gates.condition.edit.Security Rating on New Code',
-    })
+    }),
   ).not.toBeInTheDocument();
   expect(
     screen.queryByRole('button', {
       name: 'quality_gates.condition.delete.Security Rating on New Code',
-    })
+    }),
   ).not.toBeInTheDocument();
 
   await user.click(screen.getByText('quality_gates.cayc.unlock_edit'));
   expect(
-    screen.getByRole('button', { name: 'quality_gates.condition.edit.Security Rating on New Code' })
+    screen.getByRole('button', {
+      name: 'quality_gates.condition.edit.Security Rating on New Code',
+    }),
   ).toBeInTheDocument();
   expect(
     screen.getByRole('button', {
       name: 'quality_gates.condition.delete.Security Rating on New Code',
-    })
+    }),
   ).toBeInTheDocument();
 });
 
@@ -528,7 +533,7 @@ describe('The Permissions section', () => {
     expect(
       await screen.findByRole('link', {
         name: `${handler.getDefaultQualityGate().name} default`,
-      })
+      }),
     ).toBeInTheDocument();
 
     expect(screen.queryByText('quality_gates.permissions')).not.toBeInTheDocument();

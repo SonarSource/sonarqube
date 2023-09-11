@@ -148,7 +148,7 @@ export default class CodingRulesServiceMock {
         'cleanCodeAttributeCategory',
         'cleanCodeAttribute',
         'impacts',
-      ])
+      ]),
     );
   }
 
@@ -175,19 +175,21 @@ export default class CodingRulesServiceMock {
       filteredRules = filteredRules.filter(
         (r) =>
           r.cleanCodeAttributeCategory &&
-          cleanCodeAttributeCategories.includes(r.cleanCodeAttributeCategory)
+          cleanCodeAttributeCategories.includes(r.cleanCodeAttributeCategory),
       );
     }
     if (impactSoftwareQualities) {
       filteredRules = filteredRules.filter(
         (r) =>
           r.impacts &&
-          r.impacts.some(({ softwareQuality }) => impactSoftwareQualities.includes(softwareQuality))
+          r.impacts.some(({ softwareQuality }) =>
+            impactSoftwareQualities.includes(softwareQuality),
+          ),
       );
     }
     if (impactSeverities) {
       filteredRules = filteredRules.filter(
-        (r) => r.impacts && r.impacts.some(({ severity }) => impactSeverities.includes(severity))
+        (r) => r.impacts && r.impacts.some(({ severity }) => impactSeverities.includes(severity)),
       );
     }
     if (types) {
@@ -208,7 +210,7 @@ export default class CodingRulesServiceMock {
     }
     if (available_since) {
       filteredRules = filteredRules.filter(
-        (r) => r.createdAt && new Date(r.createdAt) > new Date(available_since)
+        (r) => r.createdAt && new Date(r.createdAt) > new Date(available_since),
       );
     }
     if (is_template !== undefined) {
@@ -526,7 +528,7 @@ export default class CodingRulesServiceMock {
 
   handleDeactivateRule = (data: { key: string; rule: string }) => {
     this.rulesActivations[data.rule] = this.rulesActivations[data.rule]?.filter(
-      (activation) => activation.qProfile !== data.key
+      (activation) => activation.qProfile !== data.key,
     );
     return this.reply(undefined);
   };
@@ -557,7 +559,7 @@ export default class CodingRulesServiceMock {
         dismissedNotices: {
           educationPrinciples: this.dismissedNoticesEP,
         },
-      })
+      }),
     );
   };
 

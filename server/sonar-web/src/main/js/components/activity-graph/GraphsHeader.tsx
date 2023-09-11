@@ -61,7 +61,7 @@ export default function GraphsHeader(props: Props) {
         onUpdateGraph(value);
       }
     },
-    [graph, onUpdateGraph]
+    [graph, onUpdateGraph],
   );
 
   const noCustomGraph =

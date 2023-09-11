@@ -108,13 +108,13 @@ it('should show import project feature when the authentication is successfull', 
   });
 
   expect(
-    within(repoItem).getByText('onboarding.create_project.repository_imported')
+    within(repoItem).getByText('onboarding.create_project.repository_imported'),
   ).toBeInTheDocument();
 
   expect(within(repoItem).getByRole('link', { name: /Github repo 1/ })).toBeInTheDocument();
   expect(within(repoItem).getByRole('link', { name: /Github repo 1/ })).toHaveAttribute(
     'href',
-    '/dashboard?id=key123'
+    '/dashboard?id=key123',
   );
 
   repoItem = screen.getByRole('row', {
@@ -125,14 +125,14 @@ it('should show import project feature when the authentication is successfull', 
   await user.click(importButton);
 
   expect(
-    screen.getByRole('heading', { name: 'onboarding.create_project.new_code_definition.title' })
+    screen.getByRole('heading', { name: 'onboarding.create_project.new_code_definition.title' }),
   ).toBeInTheDocument();
 
   await user.click(screen.getByRole('radio', { name: 'new_code_definition.global_setting' }));
   await user.click(
     screen.getByRole('button', {
       name: 'onboarding.create_project.new_code_definition.create_project',
-    })
+    }),
   );
 
   expect(await screen.findByText('/dashboard?id=key')).toBeInTheDocument();

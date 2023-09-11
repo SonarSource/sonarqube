@@ -32,7 +32,7 @@ it('should render correctly', () => {
       onConfirm={jest.fn()}
     >
       <p>My confirm message</p>
-    </ConfirmModal>
+    </ConfirmModal>,
   );
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('SimpleModal').dive()).toMatchSnapshot();
@@ -50,7 +50,7 @@ it('should confirm and close after confirm', async () => {
       onConfirm={onConfirm}
     >
       <p>My confirm message</p>
-    </ConfirmModal>
+    </ConfirmModal>,
   );
   const modalContent = wrapper.find('SimpleModal').dive();
   submit(modalContent.find('form'));

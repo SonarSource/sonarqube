@@ -33,18 +33,18 @@ import {
 export function getDefinitions(component?: string): Promise<ExtendedSettingDefinition[]> {
   return getJSON('/api/settings/list_definitions', { component }).then(
     (r) => r.definitions,
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
 export function getValue(
-  data: { key: string; component?: string } & BranchParameters
+  data: { key: string; component?: string } & BranchParameters,
 ): Promise<SettingValue> {
   return getValues({ keys: [data.key], component: data.component }).then(([result]) => result);
 }
 
 export function getValues(
-  data: { keys: string[]; component?: string } & BranchParameters
+  data: { keys: string[]; component?: string } & BranchParameters,
 ): Promise<SettingValue[]> {
   return getJSON('/api/settings/values', {
     keys: data.keys.join(','),
@@ -56,7 +56,7 @@ export function getValues(
 }
 
 export function getAllValues(
-  data: { component?: string } & BranchParameters = {}
+  data: { component?: string } & BranchParameters = {},
 ): Promise<SettingValue[]> {
   return getJSON('/api/settings/values', data).then((r: SettingValueResponse) => [
     ...r.settings,
@@ -67,7 +67,7 @@ export function getAllValues(
 export function setSettingValue(
   definition: SettingDefinition,
   value: any,
-  component?: string
+  component?: string,
 ): Promise<void> {
   const { key } = definition;
   const data: RequestData = { key, component };
@@ -86,13 +86,13 @@ export function setSettingValue(
 }
 
 export function setSimpleSettingValue(
-  data: { component?: string; value: string; key: string } & BranchParameters
+  data: { component?: string; value: string; key: string } & BranchParameters,
 ): Promise<void | Response> {
   return post('/api/settings/set', data).catch(throwGlobalError);
 }
 
 export function resetSettingValue(
-  data: { keys: string; component?: string } & BranchParameters
+  data: { keys: string; component?: string } & BranchParameters,
 ): Promise<void> {
   return post('/api/settings/reset', data);
 }

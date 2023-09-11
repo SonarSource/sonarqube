@@ -45,7 +45,7 @@ export default function LanguageProfileSelectOption(props: LanguageProfileSelect
             <>
               <p>
                 {translate(
-                  'project_quality_profile.add_language_modal.profile_unavailable_no_active_rules'
+                  'project_quality_profile.add_language_modal.profile_unavailable_no_active_rules',
                 )}
               </p>
               {option.label && option.language && (

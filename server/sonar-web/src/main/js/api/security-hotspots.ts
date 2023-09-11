@@ -37,23 +37,23 @@ const HOTSPOTS_SEARCH_URL = '/api/hotspots/search';
 
 export function assignSecurityHotspot(
   hotspotKey: string,
-  data: HotspotAssignRequest
+  data: HotspotAssignRequest,
 ): Promise<void> {
   return post('/api/hotspots/assign', { hotspot: hotspotKey, ...data }).catch(throwGlobalError);
 }
 
 export function setSecurityHotspotStatus(
   hotspotKey: string,
-  data: HotspotSetStatusRequest
+  data: HotspotSetStatusRequest,
 ): Promise<void> {
   return post('/api/hotspots/change_status', { hotspot: hotspotKey, ...data }).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
 export function commentSecurityHotspot(hotspotKey: string, comment: string): Promise<void> {
   return post('/api/hotspots/add_comment', { hotspot: hotspotKey, comment }).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
@@ -63,10 +63,10 @@ export function deleteSecurityHotspotComment(commentKey: string): Promise<void> 
 
 export function editSecurityHotspotComment(
   commentKey: string,
-  comment: string
+  comment: string,
 ): Promise<HotspotComment> {
   return post('/api/hotspots/edit_comment', { comment: commentKey, text: comment }).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
@@ -80,11 +80,11 @@ export function getSecurityHotspots(
     resolution?: HotspotResolution;
     status?: HotspotStatus;
   } & BranchParameters,
-  projectIsIndexing = false
+  projectIsIndexing = false,
 ): Promise<HotspotSearchResponse> {
   return getJSON(
     projectIsIndexing ? HOTSPOTS_LIST_URL : HOTSPOTS_SEARCH_URL,
-    projectIsIndexing ? { ...data, project: data.projectKey } : data
+    projectIsIndexing ? { ...data, project: data.projectKey } : data,
   ).catch(throwGlobalError);
 }
 
@@ -93,7 +93,7 @@ export function getSecurityHotspotList(
   data: {
     projectKey: string;
   } & BranchParameters,
-  projectIsIndexing = false
+  projectIsIndexing = false,
 ): Promise<HotspotSearchResponse> {
   return getJSON(projectIsIndexing ? HOTSPOTS_LIST_URL : HOTSPOTS_SEARCH_URL, {
     ...data,

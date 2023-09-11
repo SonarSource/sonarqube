@@ -24,7 +24,7 @@ import { ComponentClass, VFC } from 'react';
 export function withQueryClient<P>(
   Component:
     | ComponentClass<P & { queryClient: QueryClient }>
-    | VFC<P & { queryClient: QueryClient }>
+    | VFC<P & { queryClient: QueryClient }>,
 ): VFC<Omit<P, 'queryClient'>> {
   return function WithQueryClient(props: P) {
     const queryClient = useQueryClient();

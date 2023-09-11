@@ -29,8 +29,8 @@ it('should render', () => {
           metric: { id: '1', key: 'coverage', name: 'Coverage', type: 'PERCENT' },
           value: '72',
         }}
-      />
-    )
+      />,
+    ),
   ).toMatchSnapshot();
 });
 
@@ -42,7 +42,7 @@ it('should render issues icon', () => {
           metric: { id: '1', key: 'bugs', name: 'Bugs', type: 'INT' },
           value: '2',
         }}
-      />
-    )
+      />,
+    ),
   ).toMatchSnapshot();
 });

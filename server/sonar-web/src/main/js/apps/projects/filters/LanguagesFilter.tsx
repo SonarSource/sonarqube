@@ -45,7 +45,7 @@ export function LanguagesFilter(props: Props) {
     // and make sure we reference each language only once
     return uniqBy(
       [...Object.values(languages), ...Object.keys(facet ?? {}).map((key) => ({ key, name: key }))],
-      (language) => language.key
+      (language) => language.key,
     );
   }, [languages, facet]);
 
@@ -54,13 +54,13 @@ export function LanguagesFilter(props: Props) {
       const { languages } = newValue;
       onQueryChange({ languages: languages.join(',') });
     },
-    [onQueryChange]
+    [onQueryChange],
   );
 
   const handleSearch = React.useCallback(
     (query: string) => {
       const results = searchOptions.filter((lang) =>
-        lang.name.toLowerCase().includes(query.toLowerCase())
+        lang.name.toLowerCase().includes(query.toLowerCase()),
       );
 
       const paging = { pageIndex: 1, pageSize: results.length, total: results.length };
@@ -70,22 +70,22 @@ export function LanguagesFilter(props: Props) {
         results,
       });
     },
-    [searchOptions]
+    [searchOptions],
   );
 
   const handleSearchResultCount = React.useCallback(
     (languages: Language[]) => {
       return loadSearchResultCount(
         'languages',
-        languages.map((l) => l.key)
+        languages.map((l) => l.key),
       );
     },
-    [loadSearchResultCount]
+    [loadSearchResultCount],
   );
 
   const renderSearchResults = React.useCallback(
     (lang: Language, term: string) => highlightTerm(lang.name, term),
-    []
+    [],
   );
 
   const renderLanguageName = React.useCallback(
@@ -96,7 +96,7 @@ export function LanguagesFilter(props: Props) {
 
       return languages[key]?.name || key;
     },
-    [languages]
+    [languages],
   );
 
   return (

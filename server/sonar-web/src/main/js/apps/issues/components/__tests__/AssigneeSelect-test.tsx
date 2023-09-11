@@ -64,7 +64,7 @@ it('should show correct suggestions when there is assignable issue for the curre
     {
       issues: [mockIssue(false, { assignee: 'someone' })],
     },
-    mockLoggedInUser({ name: 'Skywalker' })
+    mockLoggedInUser({ name: 'Skywalker' }),
   );
 
   await user.click(ui.combobox.get());
@@ -77,7 +77,7 @@ it('should show correct suggestions when all issues are already assigned to curr
     {
       issues: [mockIssue(false, { assignee: 'luke' })],
     },
-    mockLoggedInUser({ login: 'luke', name: 'Skywalker' })
+    mockLoggedInUser({ login: 'luke', name: 'Skywalker' }),
   );
 
   await user.click(ui.combobox.get());
@@ -133,11 +133,11 @@ it('should handle assignee selection', async () => {
 
 function renderAssigneeSelect(
   overrides: Partial<AssigneeSelectProps> = {},
-  currentUser: CurrentUser = mockCurrentUser()
+  currentUser: CurrentUser = mockCurrentUser(),
 ) {
   return renderComponent(
     <CurrentUserContextProvider currentUser={currentUser}>
       <AssigneeSelect inputId="id" issues={[]} onAssigneeSelect={jest.fn()} {...overrides} />
-    </CurrentUserContextProvider>
+    </CurrentUserContextProvider>,
   );
 }

@@ -63,7 +63,7 @@ function renderProjectLinksApp() {
     'project/links',
     () => <Route path="project/links" element={<ProjectLinksApp />} />,
     {},
-    { component: mockComponent() }
+    { component: mockComponent() },
   );
 }
 

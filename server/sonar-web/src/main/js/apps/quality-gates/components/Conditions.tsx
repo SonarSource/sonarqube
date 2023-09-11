@@ -96,10 +96,10 @@ export class Conditions extends React.PureComponent<Props, State> {
         (metric) =>
           !metric.hidden &&
           !FORBIDDEN_METRIC_TYPES.includes(metric.type) &&
-          !FORBIDDEN_METRICS.includes(metric.key)
+          !FORBIDDEN_METRICS.includes(metric.key),
       ),
       conditions,
-      (metric, condition) => metric.key === condition.metric
+      (metric, condition) => metric.key === condition.metric,
     );
     return (
       <ConditionModal
@@ -142,14 +142,14 @@ export class Conditions extends React.PureComponent<Props, State> {
     const existingConditions = conditions.filter((condition) => metrics[condition.metric]);
     const { overallCodeConditions, newCodeConditions } = groupAndSortByPriorityConditions(
       existingConditions,
-      metrics
+      metrics,
     );
 
     const duplicates: ConditionType[] = [];
     const savedConditions = existingConditions.filter((condition) => condition.id != null);
     savedConditions.forEach((condition) => {
       const sameCount = savedConditions.filter(
-        (sample) => sample.metric === condition.metric
+        (sample) => sample.metric === condition.metric,
       ).length;
       if (sameCount > 1) {
         duplicates.push(condition);

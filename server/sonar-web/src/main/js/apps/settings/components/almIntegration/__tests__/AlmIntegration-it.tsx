@@ -126,7 +126,7 @@ describe.each([AlmKeys.GitLab, AlmKeys.Azure])(
       await ui.deleteConfiguration('New Name');
       expect(ui.emptyIntro(almKey).get()).toBeInTheDocument();
     });
-  }
+  },
 );
 
 describe('bitbucket tab', () => {
@@ -146,7 +146,7 @@ describe('bitbucket tab', () => {
         'url.bitbucket': 'https://api.bitbucket.com',
         personal_access_token: 'Access Token',
       },
-      AlmKeys.BitbucketServer
+      AlmKeys.BitbucketServer,
     );
 
     // Create new Bitbucket Cloud configuration
@@ -158,7 +158,7 @@ describe('bitbucket tab', () => {
         'client_id.bitbucketcloud': 'Client ID',
         'client_secret.bitbucketcloud': 'Client Secret',
       },
-      AlmKeys.BitbucketCloud
+      AlmKeys.BitbucketCloud,
     );
 
     // Edit, check delete Bitbucket Server configuration
@@ -166,7 +166,7 @@ describe('bitbucket tab', () => {
       'New Name',
       'Name',
       'personal_access_token',
-      AlmKeys.BitbucketServer
+      AlmKeys.BitbucketServer,
     );
 
     await ui.checkConfiguration('New Name');
@@ -211,7 +211,7 @@ function getPageObjects() {
   async function createConfiguration(
     name: string,
     params: { [key: string]: string },
-    almKey?: AlmKeys.BitbucketCloud | AlmKeys.BitbucketServer
+    almKey?: AlmKeys.BitbucketCloud | AlmKeys.BitbucketServer,
   ) {
     await userEvent.click(ui.createConfigurationButton.get());
     expect(ui.saveConfigurationButton.get()).toBeDisabled();
@@ -235,7 +235,7 @@ function getPageObjects() {
     newName: string,
     currentName: string,
     secretId: string,
-    almKey: AlmKeys
+    almKey: AlmKeys,
   ) {
     almSettings.setDefinitionErrorMessage('Something is wrong');
     await userEvent.click(ui.editConfigurationButton(currentName).get());
@@ -256,7 +256,7 @@ function getPageObjects() {
     almSettings.setDefinitionErrorMessage('');
     await userEvent.click(ui.checkConfigurationButton(name).get());
     expect(
-      ui.validationMessage('settings.almintegration.configuration_valid').getAll()[0]
+      ui.validationMessage('settings.almintegration.configuration_valid').getAll()[0],
     ).toBeInTheDocument();
   }
 
@@ -286,6 +286,6 @@ function renderAlmIntegration(features: Feature[] = []) {
   return renderComponent(
     <AvailableFeaturesContext.Provider value={features}>
       <AlmIntegration />
-    </AvailableFeaturesContext.Provider>
+    </AvailableFeaturesContext.Provider>,
   );
 }

@@ -40,23 +40,23 @@ it('renders correctly', async () => {
         externalRuleEngine: 'eslint',
       },
     },
-    { eslint: 'eslint' }
+    { eslint: 'eslint' },
   );
 
   // Title
   expect(byRole('heading', { name: issue.message }).get()).toBeInTheDocument();
   expect(byRole('button', { name: 'permalink' }).get()).toHaveAttribute(
     'data-clipboard-text',
-    'http://localhost/project/issues?issues=AVsae-CQS-9G3txfbFN2&open=AVsae-CQS-9G3txfbFN2&id=myproject'
+    'http://localhost/project/issues?issues=AVsae-CQS-9G3txfbFN2&open=AVsae-CQS-9G3txfbFN2&id=myproject',
   );
 
   // CCT attribute
   const cctBadge = byText(
-    `issue.clean_code_attribute_category.${issue.cleanCodeAttributeCategory}.title_short`
+    `issue.clean_code_attribute_category.${issue.cleanCodeAttributeCategory}.title_short`,
   ).get();
   expect(cctBadge).toBeInTheDocument();
   await expect(cctBadge).toHaveATooltipWithContent(
-    `issue.clean_code_attribute.${issue.cleanCodeAttribute}`
+    `issue.clean_code_attribute.${issue.cleanCodeAttribute}`,
   );
   jest.runOnlyPendingTimers();
 
@@ -104,7 +104,7 @@ it('renders correctly when some data is not provided', () => {
 
   // SonarLint badge
   expect(
-    byText('issue.quick_fix_available_with_sonarlint_no_link').query()
+    byText('issue.quick_fix_available_with_sonarlint_no_link').query(),
   ).not.toBeInTheDocument();
 
   // Rule external engine
@@ -113,7 +113,7 @@ it('renders correctly when some data is not provided', () => {
 
 function renderIssueHeader(
   props: Partial<IssueHeader['props']> = {},
-  externalRules: Dict<string> = {}
+  externalRules: Dict<string> = {},
 ) {
   return renderComponent(
     <WorkspaceContext.Provider
@@ -125,6 +125,6 @@ function renderIssueHeader(
         onIssueChange={jest.fn()}
         {...props}
       />
-    </WorkspaceContext.Provider>
+    </WorkspaceContext.Provider>,
   );
 }

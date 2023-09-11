@@ -105,14 +105,14 @@ describe('changeEvent', () => {
         key: 'E1',
         name: 'changed',
         category: ProjectAnalysisEventCategory.Version,
-      })(state).analyses[0]
+      })(state).analyses[0],
     ).toMatchSnapshot();
     expect(
       actions.changeEvent('A2', {
         key: 'E2',
         name: 'foo',
         category: ProjectAnalysisEventCategory.Version,
-      })(state).analyses[1].events
+      })(state).analyses[1].events,
     ).toHaveLength(0);
   });
 });

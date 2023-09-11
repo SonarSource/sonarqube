@@ -35,7 +35,7 @@ export default function ProjectAdminPageExtension() {
     component &&
     component.configuration &&
     (component.configuration.extensions || []).find(
-      (p) => p.key === `${pluginKey}/${extensionKey}`
+      (p) => p.key === `${pluginKey}/${extensionKey}`,
     );
 
   return extension ? (

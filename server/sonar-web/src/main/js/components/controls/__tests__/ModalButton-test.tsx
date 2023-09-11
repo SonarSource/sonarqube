@@ -28,7 +28,7 @@ it('should open/close modal', () => {
   const wrapper = shallow(
     <ModalButton modal={({ onClose }) => <button id="js-close" onClick={onClose} type="button" />}>
       {({ onClick }) => <button id="js-open" onClick={onClick} type="button" />}
-    </ModalButton>
+    </ModalButton>,
   );
 
   expect(wrapper.find('#js-open').exists()).toBe(true);

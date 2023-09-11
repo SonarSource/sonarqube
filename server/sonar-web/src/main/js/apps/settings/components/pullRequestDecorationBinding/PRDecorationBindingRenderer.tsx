@@ -194,13 +194,13 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
                   <FormattedMessage
                     id="settings.pr_decoration.binding.check_configuration.failure.check_global_settings"
                     defaultMessage={translate(
-                      'settings.pr_decoration.binding.check_configuration.failure.check_global_settings'
+                      'settings.pr_decoration.binding.check_configuration.failure.check_global_settings',
                     )}
                     values={{
                       link: (
                         <Link to={getGlobalSettingsUrl(ALM_INTEGRATION_CATEGORY, { alm })}>
                           {translate(
-                            'settings.pr_decoration.binding.check_configuration.failure.check_global_settings.link'
+                            'settings.pr_decoration.binding.check_configuration.failure.check_global_settings.link',
                           )}
                         </Link>
                       ),

@@ -44,7 +44,7 @@ function renderLanguagesContextProvider() {
   return renderComponent(
     <LanguagesContextProvider>
       <Consumer />
-    </LanguagesContextProvider>
+    </LanguagesContextProvider>,
   );
 }
 

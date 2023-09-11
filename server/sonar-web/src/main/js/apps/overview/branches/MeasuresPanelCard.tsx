@@ -25,7 +25,7 @@ interface Props {
 }
 
 export default function MeasuresPanelCard(
-  props: React.PropsWithChildren<Props & React.HTMLAttributes<HTMLDivElement>>
+  props: React.PropsWithChildren<Props & React.HTMLAttributes<HTMLDivElement>>,
 ) {
   const { category, children, rating, ...attributes } = props;
 

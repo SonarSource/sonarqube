@@ -87,7 +87,7 @@ function renderCompletedWithFailureBanner() {
         values={{
           link: renderBackgroundTasksPageLink(
             true,
-            translate('indexation.completed_with_error.link')
+            translate('indexation.completed_with_error.link'),
           ),
         }}
       />
@@ -113,7 +113,7 @@ function renderInProgressBanner(completedCount: number, total: number) {
         {translateWithParameters(
           'indexation.progression',
           completedCount.toString(),
-          total.toString()
+          total.toString(),
         )}
       </span>
 
@@ -150,12 +150,12 @@ function renderInProgressWithFailureBanner(completedCount: number, total: number
           defaultMessage={translateWithParameters(
             'indexation.progression_with_error',
             completedCount.toString(),
-            total.toString()
+            total.toString(),
           )}
           values={{
             link: renderBackgroundTasksPageLink(
               true,
-              translate('indexation.progression_with_error.link')
+              translate('indexation.progression_with_error.link'),
             ),
           }}
         />

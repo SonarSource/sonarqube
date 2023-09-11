@@ -40,7 +40,7 @@ export function CurrentBranchLikeMergeInformation(props: CurrentBranchLikeMergeI
       title={translateWithParameters(
         'branch_like_navigation.for_merge_into_x_from_y.title',
         currentBranchLike.target,
-        currentBranchLike.branch
+        currentBranchLike.branch,
       )}
     >
       <FormattedMessage

@@ -65,7 +65,7 @@ export default function Others(props: OthersProps) {
           mainBranchName,
           !!branchesEnabled,
           GITHUB_ACTIONS_RUNS_ON_LINUX,
-          otherYamlSteps(!!branchesEnabled)
+          otherYamlSteps(!!branchesEnabled),
         )}
       />
     </>

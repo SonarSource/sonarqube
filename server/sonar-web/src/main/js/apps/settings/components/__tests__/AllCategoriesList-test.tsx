@@ -97,6 +97,6 @@ function renderCategoriesList(props?: Partial<CategoriesListProps>) {
       defaultCategory="general"
       selectedCategory=""
       {...props}
-    />
+    />,
   );
 }

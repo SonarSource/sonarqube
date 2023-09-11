@@ -95,7 +95,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
       let projectRepositories;
       if (projects && projects.length > 0) {
         projectRepositories = await this.fetchBitbucketRepositories(projects).catch(
-          () => undefined
+          () => undefined,
         );
       }
 
@@ -120,7 +120,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
   };
 
   fetchBitbucketRepositories = (
-    projects: BitbucketProject[]
+    projects: BitbucketProject[],
   ): Promise<BitbucketProjectRepositories | undefined> => {
     const { selectedAlmInstance } = this.state;
 
@@ -155,15 +155,15 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
               isLastPage: realIsLastPage,
               projectKey: p.key,
             };
-          }
+          },
         );
-      })
+      }),
     ).then((results) => {
       return results.reduce(
         (acc: BitbucketProjectRepositories, { isLastPage, projectKey, repositories }) => {
           return { ...acc, [projectKey]: { allShown: isLastPage, repositories } };
         },
-        {}
+        {},
       );
     });
   };
@@ -189,7 +189,7 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
           almSetting: selectedAlmInstance.key,
           projectKey: selectedRepository.projectKey,
           repositorySlug: selectedRepository.slug,
-        })
+        }),
       );
     }
   };

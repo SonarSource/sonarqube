@@ -98,7 +98,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
           AlmKeys.GitLab,
         ].forEach((alm) => {
           definitions[alm].forEach((def: AlmBindingDefinitionBase) =>
-            this.handleCheck(def.key, false)
+            this.handleCheck(def.key, false),
           );
         });
       }
@@ -196,7 +196,7 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
 
           return { type, failureMessage };
         },
-        () => ({ type: AlmSettingsBindingStatusType.Warning, failureMessage: '' })
+        () => ({ type: AlmSettingsBindingStatusType.Warning, failureMessage: '' }),
       )
       .then(({ type, failureMessage }) => {
         if (this.mounted) {

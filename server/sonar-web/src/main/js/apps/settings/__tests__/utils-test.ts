@@ -153,7 +153,7 @@ describe('#getDefaultValue()', () => {
         key: 'test',
       };
       expect(getDefaultValue(setting)).toEqual(expected);
-    }
+    },
   );
 });
 

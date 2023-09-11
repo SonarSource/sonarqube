@@ -96,7 +96,7 @@ export default function ComponentReportActionsRenderer(props: ComponentReportAct
       <ButtonSecondary>
         {translateWithParameters(
           'component_report.report',
-          translate('qualifier', component.qualifier)
+          translate('qualifier', component.qualifier),
         )}
         <ChevronDownIcon className="sw-ml-1" />
       </ButtonSecondary>
@@ -105,7 +105,7 @@ export default function ComponentReportActionsRenderer(props: ComponentReportAct
     <a download={downloadName} href={reportUrl} target="_blank" rel="noopener noreferrer">
       {translateWithParameters(
         'component_report.download',
-        translate('qualifier', component.qualifier).toLowerCase()
+        translate('qualifier', component.qualifier).toLowerCase(),
       )}
     </a>
   );

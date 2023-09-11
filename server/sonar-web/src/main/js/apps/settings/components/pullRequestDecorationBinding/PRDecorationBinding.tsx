@@ -81,7 +81,7 @@ export function PRDecorationBinding(props: Props) {
   const [checkingConfiguration, setCheckingConfiguration] = React.useState(false);
   const { data: originalData } = useProjectBindingQuery(component.key);
   const { mutateAsync: deleteMutation, isLoading: isDeleting } = useDeleteProjectAlmBindingMutation(
-    component.key
+    component.key,
   );
   const { mutateAsync: updateMutation, isLoading: isUpdating } = useSetProjectBindingMutation();
 
@@ -96,7 +96,7 @@ export function PRDecorationBinding(props: Props) {
       }
       return REQUIRED_FIELDS_BY_ALM[selected.alm].reduce(
         (result: boolean, field) => result && Boolean(additionalFields[field]),
-        true
+        true,
       );
     };
 
@@ -111,7 +111,7 @@ export function PRDecorationBinding(props: Props) {
       slug: oSlug = '',
       summaryCommentEnabled: osummaryCommentEnabled = false,
       monorepo: omonorepo = false,
-    }: FormData
+    }: FormData,
   ) => {
     return (
       key === oKey &&
@@ -168,7 +168,7 @@ export function PRDecorationBinding(props: Props) {
   const submitProjectAlmBinding = (
     alm: AlmKeys,
     key: string,
-    almSpecificFields: Omit<FormData, 'key'>
+    almSpecificFields: Omit<FormData, 'key'>,
   ): Promise<void> => {
     const almSetting = key;
     const { repository, slug = '', monorepo = false } = almSpecificFields;

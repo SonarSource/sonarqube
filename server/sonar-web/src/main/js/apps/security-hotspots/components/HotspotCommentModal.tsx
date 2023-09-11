@@ -34,7 +34,7 @@ export default function HotspotCommentModal(props: HotspotCommentPopupProps) {
   return (
     <Modal
       headerTitle={translate(
-        props.value !== undefined ? 'issue.comment.edit' : 'hotspots.status.add_comment'
+        props.value !== undefined ? 'issue.comment.edit' : 'hotspots.status.add_comment',
       )}
       onClose={props.onCancel}
       body={

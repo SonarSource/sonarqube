@@ -140,7 +140,7 @@ export function addProjectCreatorToTemplate(templateId: string, permission: stri
 
 export function removeProjectCreatorFromTemplate(
   templateId: string,
-  permission: string
+  permission: string,
 ): Promise<void> {
   return post('/api/permissions/remove_project_creator_from_template', { templateId, permission });
 }
@@ -223,7 +223,7 @@ export function getPermissionTemplateGroups(data: {
 
 export function changeProjectVisibility(
   project: string,
-  visibility: Visibility
+  visibility: Visibility,
 ): Promise<void | Response> {
   return post('/api/projects/update_visibility', { project, visibility }).catch(throwGlobalError);
 }

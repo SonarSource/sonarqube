@@ -56,7 +56,7 @@ export default function JavaMaven(props: JavaMavenProps) {
         <NumberedListItem>
           {translateWithParameters(
             'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java',
-            translate('onboarding.build', BuildTools.Maven)
+            translate('onboarding.build', BuildTools.Maven),
           )}
           <UnorderedList ticks className="sw-ml-12 sw-mb-4">
             <ListItem>

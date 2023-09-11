@@ -39,7 +39,7 @@ export function filterDuplicationBlocksByLine(blocks: DuplicationBlock[], line: 
 
 export function getDuplicationBlocksForIndex(
   duplications: Duplication[] | undefined,
-  index: number
+  index: number,
 ) {
   return (duplications && duplications[index] && duplications[index].blocks) || [];
 }

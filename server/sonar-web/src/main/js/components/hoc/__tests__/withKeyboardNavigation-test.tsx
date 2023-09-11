@@ -61,7 +61,7 @@ it('should correctly bind key events for component navigation', () => {
       onHighlight,
       onSelect,
       selected: COMPONENTS[1],
-    })
+    }),
   );
 
   keydown({ key: KeyboardKeys.DownArrow });
@@ -103,7 +103,7 @@ it('should support not cycling through elements, and triggering a callback on re
     applyProps({
       onEndOfList,
       onHighlight,
-    })
+    }),
   );
 
   keydown({ key: KeyboardKeys.DownArrow });
@@ -133,7 +133,7 @@ it('should correctly bind key events for codeview navigation', () => {
       onHighlight,
       onSelect,
       selected: COMPONENTS[1],
-    })
+    }),
   );
 
   expect(onHighlight).not.toHaveBeenCalled();

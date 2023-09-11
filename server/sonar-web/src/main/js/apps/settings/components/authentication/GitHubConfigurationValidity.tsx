@@ -76,7 +76,7 @@ export default function GitHubConfigurationValidity({
     const invalidOrgs =
       isValidApp && data
         ? data.installations.filter(
-            (org) => org[applicationField].status === GitHubProvisioningStatus.Failed
+            (org) => org[applicationField].status === GitHubProvisioningStatus.Failed,
           )
         : [];
 
@@ -84,8 +84,8 @@ export default function GitHubConfigurationValidity({
       translateWithParameters(
         `${intlPrefix}.invalid_org`,
         org.organization,
-        org[applicationField].errorMessage ?? ''
-      )
+        org[applicationField].errorMessage ?? '',
+      ),
     );
 
     if (isValidApp && invalidOrgs.length === 0) {
@@ -93,11 +93,11 @@ export default function GitHubConfigurationValidity({
         translateWithParameters(
           `${intlPrefix}.valid${data.installations.length === 1 ? '_one' : ''}`,
           translate(
-            `settings.authentication.github.form.provisioning_with_github_short.${applicationField}`
+            `settings.authentication.github.form.provisioning_with_github_short.${applicationField}`,
           ),
           data.installations.length === 1
             ? data.installations[0].organization
-            : data.installations.length
+            : data.installations.length,
         ),
       ]);
       setAlertVariant('success');
@@ -108,7 +108,7 @@ export default function GitHubConfigurationValidity({
       setMessages([
         translateWithParameters(
           `${intlPrefix}.invalid`,
-          data?.application[applicationField].errorMessage ?? ''
+          data?.application[applicationField].errorMessage ?? '',
         ),
         ...invalidOrgsMessages,
       ]);

@@ -74,7 +74,7 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 

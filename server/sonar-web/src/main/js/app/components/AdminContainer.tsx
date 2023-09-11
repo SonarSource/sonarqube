@@ -69,7 +69,7 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
   fetchNavigationSettings = () => {
     getSettingsNavigation().then(
       (r) => this.setState({ adminPages: r.extensions }),
-      () => {}
+      () => {},
     );
   };
 
@@ -80,7 +80,7 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
           this.setState({ pendingPlugins });
         }
       },
-      () => {}
+      () => {},
     );
   };
 
@@ -94,7 +94,7 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
           }
         }
       },
-      () => {}
+      () => {},
     );
   };
 
@@ -106,7 +106,7 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
           window.location.reload();
         }
       },
-      () => {}
+      () => {},
     );
   };
 
@@ -127,7 +127,7 @@ export class AdminContainer extends React.PureComponent<AdminContainerProps, Sta
           defer={false}
           titleTemplate={translateWithParameters(
             'page_title.template.with_category',
-            translate('layout.settings')
+            translate('layout.settings'),
           )}
         />
         <SettingsNav

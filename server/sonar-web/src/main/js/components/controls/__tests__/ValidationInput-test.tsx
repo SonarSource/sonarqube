@@ -34,7 +34,7 @@ it('should render correctly', () => {
       isInvalid: true,
       isValid: false,
       required: false,
-    })
+    }),
   ).toMatchSnapshot('with error');
   expect(
     shallowRender({
@@ -42,7 +42,7 @@ it('should render correctly', () => {
       errorPlacement: ValidationInputErrorPlacement.Bottom,
       isInvalid: true,
       isValid: false,
-    })
+    }),
   ).toMatchSnapshot('error under the input');
   expect(shallowRender({ labelHtmlFor: undefined, label: undefined })).toMatchSnapshot('no label');
 });
@@ -60,6 +60,6 @@ function shallowRender(props: Partial<ValidationInputProps> = {}) {
       {...props}
     >
       <div />
-    </ValidationInput>
+    </ValidationInput>,
   );
 }

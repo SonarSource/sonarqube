@@ -54,7 +54,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
 
   const overallFailedConditionsCount = qgStatuses.reduce(
     (acc, qgStatus) => acc + qgStatus.failedConditions.length,
-    0
+    0,
   );
 
   const isApp = isApplication(component.qualifier);

@@ -98,7 +98,7 @@ export default function CodeAppRenderer(props: Props) {
 
   const metricKeys = intersection(
     getCodeMetrics(component.qualifier, branchLike, { newCode: newCodeSelected }),
-    Object.keys(metrics)
+    Object.keys(metrics),
   );
   const filteredMetrics = metricKeys.map((metric) => metrics[metric]);
 
@@ -149,7 +149,7 @@ export default function CodeAppRenderer(props: Props) {
               <LightLabel>
                 {translate(
                   'code_viewer.no_source_code_displayed_due_to_empty_analysis',
-                  component.qualifier
+                  component.qualifier,
                 )}
               </LightLabel>
             </div>

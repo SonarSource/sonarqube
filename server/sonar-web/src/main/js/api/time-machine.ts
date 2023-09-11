@@ -38,7 +38,7 @@ export function getTimeMachineData(
     p?: number;
     ps?: number;
     to?: string;
-  } & BranchParameters
+  } & BranchParameters,
 ): Promise<TimeMachineResponse> {
   return getJSON('/api/measures/search_history', data).catch(throwGlobalError);
 }
@@ -51,7 +51,7 @@ export function getAllTimeMachineData(
     p?: number;
     to?: string;
   } & BranchParameters,
-  prev?: TimeMachineResponse
+  prev?: TimeMachineResponse,
 ): Promise<TimeMachineResponse> {
   return getTimeMachineData({ ...data, ps: 1000 }).then((r) => {
     const result = prev

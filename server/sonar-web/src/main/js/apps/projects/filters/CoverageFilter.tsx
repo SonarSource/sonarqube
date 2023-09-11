@@ -67,7 +67,7 @@ function renderAccessibleLabel(option: number) {
     ? translate('projects.facets.coverage.label', option.toString())
     : translateWithParameters(
         'projects.facets.label_no_data_x',
-        translate('metric_domain.Coverage')
+        translate('metric_domain.Coverage'),
       );
 }
 

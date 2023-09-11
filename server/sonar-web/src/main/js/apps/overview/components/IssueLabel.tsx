@@ -76,7 +76,7 @@ export function IssueLabel(props: IssueLabelProps) {
         'aria-label': translateWithParameters(
           'overview.see_list_of_x_y_issues',
           value as string,
-          localizeMetric(metricKey)
+          localizeMetric(metricKey),
         ),
         to: url,
       };

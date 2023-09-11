@@ -60,6 +60,6 @@ function shallowRender({ children = () => <div />, ...props }: Partial<SimpleMod
   return shallow<SimpleModal>(
     <SimpleModal header="" onClose={jest.fn()} onSubmit={jest.fn()} {...props}>
       {children}
-    </SimpleModal>
+    </SimpleModal>,
   );
 }

@@ -53,7 +53,7 @@ export default class ResponseExample extends React.PureComponent<Props, State> {
     const { domain, action } = this.props;
     fetchResponseExampleApi(domain.path, action.key).then(
       (responseExample) => this.setState({ responseExample }),
-      () => {}
+      () => {},
     );
   }
 

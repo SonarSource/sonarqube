@@ -54,7 +54,7 @@ export class StatusFacet extends React.PureComponent<Props> {
 
     if (multiple) {
       const newValue = orderBy(
-        statuses.includes(itemValue) ? without(statuses, itemValue) : [...statuses, itemValue]
+        statuses.includes(itemValue) ? without(statuses, itemValue) : [...statuses, itemValue],
       );
 
       this.props.onChange({ [this.property]: newValue });

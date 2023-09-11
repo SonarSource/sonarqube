@@ -227,7 +227,7 @@ describe('profile page', () => {
     renderAccountApp(loggedInUser);
 
     expect(
-      await screen.findByText(`${loggedInUser.externalProvider}: ${loggedInUser.externalIdentity}`)
+      await screen.findByText(`${loggedInUser.externalProvider}: ${loggedInUser.externalIdentity}`),
     ).toBeInTheDocument();
   });
 
@@ -270,7 +270,7 @@ describe('security page', () => {
 
       renderAccountApp(
         mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
-        securityPagePath
+        securityPagePath,
       );
 
       expect(await screen.findByText('users.tokens')).toBeInTheDocument();
@@ -316,7 +316,7 @@ describe('security page', () => {
       await user.click(generateButton);
 
       expect(
-        await screen.findByText(`users.tokens.new_token_created.${newTokenName}`)
+        await screen.findByText(`users.tokens.new_token_created.${newTokenName}`),
       ).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'copy_to_clipboard' })).toBeInTheDocument();
 
@@ -328,7 +328,7 @@ describe('security page', () => {
       // eslint-disable-next-line jest/no-conditional-in-test
       expect(screen.getByLabelText('users.new_token')).toHaveTextContent(
         // eslint-disable-next-line jest/no-conditional-in-test
-        lastTokenCreated.token ?? ''
+        lastTokenCreated.token ?? '',
       );
 
       expect(screen.getAllByRole('row')).toHaveLength(4); // 3 tokens + header
@@ -351,13 +351,13 @@ describe('security page', () => {
       await user.click(revokeButtons);
 
       expect(
-        screen.getByRole('heading', { name: 'users.tokens.revoke_label.importantToken' })
+        screen.getByRole('heading', { name: 'users.tokens.revoke_label.importantToken' }),
       ).toBeInTheDocument();
 
       await user.click(screen.getByRole('button', { name: 'yes' }));
 
       await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(3)); // 2 tokens + header
-    }
+    },
   );
 
   it('should flag expired tokens as such', async () => {
@@ -366,12 +366,12 @@ describe('security page', () => {
         name: 'expired token',
         isExpired: true,
         expirationDate: '2021-01-23T19:25:19+0000',
-      })
+      }),
     );
 
     renderAccountApp(
       mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
-      securityPagePath
+      securityPagePath,
     );
 
     expect(await screen.findByText('users.tokens')).toBeInTheDocument();
@@ -383,7 +383,7 @@ describe('security page', () => {
     // unexpired token is not flagged
     const unexpiredTokenRow = screen.getAllByRole('row')[0];
     expect(
-      within(unexpiredTokenRow).queryByText('my_account.tokens.expired')
+      within(unexpiredTokenRow).queryByText('my_account.tokens.expired'),
     ).not.toBeInTheDocument();
   });
 
@@ -393,7 +393,7 @@ describe('security page', () => {
     });
     renderAccountApp(
       mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
-      securityPagePath
+      securityPagePath,
     );
 
     selectEvent.openMenu(screen.getByRole('combobox', { name: 'users.tokens.type' }));
@@ -421,7 +421,7 @@ describe('security page', () => {
     });
     renderAccountApp(
       mockLoggedInUser({ permissions: { global: [Permissions.Scan] } }),
-      securityPagePath
+      securityPagePath,
     );
 
     await selectEvent.select(screen.getByRole('combobox', { name: 'users.tokens.type' }), [
@@ -436,7 +436,7 @@ describe('security page', () => {
     renderAccountApp(mockLoggedInUser({ local: true }), securityPagePath);
 
     expect(
-      await screen.findByRole('heading', { name: 'my_profile.password.title' })
+      await screen.findByRole('heading', { name: 'my_profile.password.title' }),
     ).toBeInTheDocument();
 
     const oldPasswordField = screen.getByLabelText('my_profile.password.old', {
@@ -543,7 +543,7 @@ describe('notifications page', () => {
 
     expect(projectUI.sonarQubeProject.get()).toBeInTheDocument();
     expect(
-      projectUI.checkbox(NotificationProjectType.NewFalsePositiveIssue).get()
+      projectUI.checkbox(NotificationProjectType.NewFalsePositiveIssue).get(),
     ).toBeInTheDocument();
 
     await user.click(projectUI.checkbox(NotificationProjectType.NewAlerts).get());
@@ -559,7 +559,7 @@ describe('notifications page', () => {
     renderAccountApp(mockLoggedInUser(), notificationsPagePath);
 
     await user.click(
-      await screen.findByRole('button', { name: 'my_profile.per_project_notifications.add' })
+      await screen.findByRole('button', { name: 'my_profile.per_project_notifications.add' }),
     );
     expect(screen.getByLabelText('search.placeholder', { selector: 'input' })).toBeInTheDocument();
     await user.keyboard('sonarqube');

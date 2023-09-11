@@ -88,8 +88,8 @@ export default class MultiSelect extends React.PureComponent<PropsWithDefault, S
       !isEmpty(
         xor(
           [...prevProps.selectedElements, ...prevProps.elements],
-          [...this.props.selectedElements, ...this.props.elements]
-        )
+          [...this.props.selectedElements, ...this.props.elements],
+        ),
       )
     ) {
       this.computeElements();
@@ -142,7 +142,7 @@ export default class MultiSelect extends React.PureComponent<PropsWithDefault, S
   handleSelectChange = (selected: boolean, item: string) => {
     this.setState(({ elements }) => {
       const newElements = elements.map((e) =>
-        e.value === item ? { value: e.value, selected } : e
+        e.value === item ? { value: e.value, selected } : e,
       );
       return { elements: newElements };
     });

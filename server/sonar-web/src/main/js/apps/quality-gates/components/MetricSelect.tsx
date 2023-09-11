@@ -58,7 +58,7 @@ export class MetricSelect extends React.PureComponent<Props> {
         label: getLocalizedMetricNameNoDiffMetric(m, metrics),
         domain: m.domain,
       })),
-      'domain'
+      'domain',
     );
 
     // Use "disabled" property to emulate optgroups.

@@ -150,7 +150,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
                     'sw-sticky sw-top-0 sw-left-0 sw-pb-1 -sw-ml-4 sw-z-normal',
                     {
                       'sw-top-0 sw-pt-0': idx === 0,
-                    }
+                    },
                   )}
                 >
                   <Tooltip

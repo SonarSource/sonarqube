@@ -58,7 +58,7 @@ it('should render and function correctly', () => {
 it('should correctly render a header with helper text', async () => {
   renderFacet(undefined, { helper: 'Help text' });
   await expect(screen.getByRole('img', { description: 'Help text' })).toHaveATooltipWithContent(
-    'Help text'
+    'Help text',
   );
 });
 
@@ -77,7 +77,7 @@ it('should correctly render a disabled header', () => {
 function renderFacet(
   facetBoxProps: Partial<FacetBoxProps> = {},
   facetHeaderProps: Partial<FacetHeader['props']> = {},
-  facetItemProps: Partial<FacetItem['props']> = {}
+  facetItemProps: Partial<FacetItem['props']> = {},
 ) {
   function Facet() {
     const [open, setOpen] = React.useState(facetHeaderProps.open ?? false);

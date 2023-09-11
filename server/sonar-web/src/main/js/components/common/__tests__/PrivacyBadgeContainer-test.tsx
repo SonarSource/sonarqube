@@ -36,6 +36,6 @@ function getWrapper(props = {}) {
       qualifier={ComponentQualifier.Project}
       visibility={Visibility.Private}
       {...props}
-    />
+    />,
   );
 }

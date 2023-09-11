@@ -88,12 +88,12 @@ export default function AzureProjectsList(props: AzureProjectsListProps) {
             name: r.projectName,
             description: translateWithParameters(
               'onboarding.create_project.azure.search_results_for_project_X',
-              r.projectName
+              r.projectName,
             ),
           }
         );
       }),
-      'name'
+      'name',
     );
   } else {
     filteredProjects = projects;

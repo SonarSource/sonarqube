@@ -80,7 +80,7 @@ export function getComponentOverviewUrl(
   componentKey: string,
   componentQualifier: ComponentQualifier | string,
   branchParameters?: BranchParameters,
-  codeScope?: CodeScopeType
+  codeScope?: CodeScopeType,
 ) {
   return isPortfolioLike(componentQualifier)
     ? getPortfolioUrl(componentKey)
@@ -89,7 +89,7 @@ export function getComponentOverviewUrl(
 
 export function getComponentAdminUrl(
   componentKey: string,
-  componentQualifier: ComponentQualifier | string
+  componentQualifier: ComponentQualifier | string,
 ) {
   if (isPortfolioLike(componentQualifier)) {
     return getPortfolioAdminUrl(componentKey);
@@ -102,7 +102,7 @@ export function getComponentAdminUrl(
 export function getProjectUrl(
   project: string,
   branch?: string,
-  codeScope?: CodeScopeType
+  codeScope?: CodeScopeType,
 ): Partial<Path> {
   return {
     pathname: PROJECT_BASE_URL,
@@ -120,7 +120,7 @@ export function getProjectSecurityHotspots(project: string): To {
 export function getProjectQueryUrl(
   project: string,
   branchParameters?: BranchParameters,
-  codeScope?: CodeScopeType
+  codeScope?: CodeScopeType,
 ): To {
   return {
     pathname: PROJECT_BASE_URL,
@@ -153,7 +153,7 @@ export function getApplicationAdminUrl(key: string): To {
 export function getComponentBackgroundTaskUrl(
   componentKey: string,
   status?: string,
-  taskType?: string
+  taskType?: string,
 ): Path {
   return {
     pathname: '/project/background_tasks',
@@ -260,7 +260,7 @@ export function getComponentDrilldownUrlWithSelection(
   selectionKey: string,
   metric: string,
   branchLike?: BranchLike,
-  view?: MeasurePageView
+  view?: MeasurePageView,
 ): To {
   return getComponentDrilldownUrl({
     componentKey,
@@ -323,7 +323,7 @@ export function getQualityGateUrl(name: string): To {
  */
 export function getProjectTutorialLocation(
   project: string,
-  selectedTutorial?: string
+  selectedTutorial?: string,
 ): Partial<Path> {
   return {
     pathname: '/tutorials',
@@ -348,7 +348,7 @@ export function getQualityGatesUrl(): To {
 
 export function getGlobalSettingsUrl(
   category?: string,
-  query?: Dict<string | undefined | number>
+  query?: Dict<string | undefined | number>,
 ): Partial<Path> {
   return {
     pathname: '/admin/settings',
@@ -390,7 +390,7 @@ export function getCodeUrl(
   project: string,
   branchLike?: BranchLike,
   selected?: string,
-  line?: number
+  line?: number,
 ): Partial<Path> {
   return {
     pathname: '/code',

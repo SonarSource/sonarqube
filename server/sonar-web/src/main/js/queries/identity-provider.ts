@@ -87,7 +87,7 @@ interface GithubSyncStatusOptions {
 
 export function useGitHubSyncStatusQuery(options: GithubSyncStatusOptions = {}) {
   const hasGithubProvisioning = useContext(AvailableFeaturesContext).includes(
-    Feature.GithubProvisioning
+    Feature.GithubProvisioning,
   );
   return useQuery(['identity_provider', 'github_sync', 'status'], fetchGithubProvisioningStatus, {
     enabled: hasGithubProvisioning,

@@ -62,13 +62,13 @@ sonar.projectName=${projectName}
         <FormattedMessage
           id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis"
           defaultMessage={translate(
-            'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis'
+            'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis',
           )}
           values={{
             section: (
               <b className="sw-font-semibold">
                 {translate(
-                  'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis.section'
+                  'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis.section',
                 )}
               </b>
             ),
@@ -76,7 +76,7 @@ sonar.projectName=${projectName}
               <b className="sw-font-semibold">
                 {translate(
                   'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare.run_analysis.values',
-                  buildTool
+                  buildTool,
                 )}
               </b>
             ),
@@ -98,13 +98,13 @@ sonar.projectName=${projectName}
               <FormattedMessage
                 id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence"
                 defaultMessage={translate(
-                  'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence'
+                  'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence',
                 )}
                 values={{
                   project_key: (
                     <b className="sw-font-semibold sw-mx-1">
                       {translate(
-                        'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence.project_key'
+                        'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence.project_key',
                       )}
                     </b>
                   ),
@@ -124,20 +124,20 @@ sonar.projectName=${projectName}
                 <FormattedMessage
                   id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp"
                   defaultMessage={translate(
-                    'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp'
+                    'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp',
                   )}
                   values={{
                     advanced: (
                       <b className="sw-font-semibold sw-mx-1">
                         {translate(
-                          'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp.advanced'
+                          'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp.advanced',
                         )}
                       </b>
                     ),
                     additional: (
                       <b className="sw-font-semibold sw-mx-1">
                         {translate(
-                          'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp.additional'
+                          'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.prepare_additional.ccpp.additional',
                         )}
                       </b>
                     ),
@@ -177,13 +177,13 @@ sonar.projectName=${projectName}
             <FormattedMessage
               id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence"
               defaultMessage={translate(
-                'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence'
+                'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence',
               )}
               values={{
                 project_key: (
                   <b className="sw-font-semibold sw-mx-1">
                     {translate(
-                      'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence.project_key'
+                      'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.run.key.sentence.project_key',
                     )}
                   </b>
                 ),

@@ -38,7 +38,7 @@ it('should render correctly for bugs', async () => {
   expect(
     await screen.findByRole('link', {
       name: 'overview.see_list_of_x_y_issues.1.0.metric.bugs.name',
-    })
+    }),
   ).toBeInTheDocument();
 
   rtl.unmount();
@@ -48,7 +48,7 @@ it('should render correctly for bugs', async () => {
   expect(
     await screen.findByRole('link', {
       name: 'overview.see_list_of_x_y_issues.1.0.metric.new_bugs.name',
-    })
+    }),
   ).toBeInTheDocument();
 });
 
@@ -69,7 +69,7 @@ it('should render correctly for hotspots with tooltip', async () => {
   expect(
     await screen.findByRole('link', {
       name: 'overview.see_list_of_x_y_issues.1.0.metric.security_hotspots.name',
-    })
+    }),
   ).toBeInTheDocument();
 
   expect(screen.getByText('tooltip text')).toBeInTheDocument();
@@ -91,7 +91,7 @@ it('should render correctly for a re-indexing Application', () => {
   expect(
     screen.queryByRole('link', {
       name: 'overview.see_list_of_x_y_issues.1.0.metric.security_hotspots.name',
-    })
+    }),
   ).not.toBeInTheDocument();
 });
 
@@ -103,6 +103,6 @@ function renderIssueLabel(props: Partial<IssueLabelProps> = {}) {
       measures={[]}
       type={IssueType.Bug}
       {...props}
-    />
+    />,
   );
 }

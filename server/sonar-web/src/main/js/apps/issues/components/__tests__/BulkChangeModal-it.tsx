@@ -55,7 +55,7 @@ it('should display warning when too many issues are passed', async () => {
   renderBulkChangeModal(issues, { needIssueSync: true });
 
   expect(
-    await screen.findByText(`issue_bulk_change.form.title.${MAX_PAGE_SIZE}`)
+    await screen.findByText(`issue_bulk_change.form.title.${MAX_PAGE_SIZE}`),
   ).toBeInTheDocument();
 
   expect(await screen.findByText('issue_bulk_change.max_issues_reached')).toBeInTheDocument();
@@ -122,7 +122,7 @@ it('should properly submit', async () => {
     mockLoggedInUser({
       login: 'toto',
       name: 'Toto',
-    })
+    }),
   );
 
   expect(bulkChangeIssues).toHaveBeenCalledTimes(0);
@@ -130,7 +130,7 @@ it('should properly submit', async () => {
 
   // Assign
   await user.click(
-    await screen.findByRole('combobox', { name: 'issue_bulk_change.assignee.change' })
+    await screen.findByRole('combobox', { name: 'issue_bulk_change.assignee.change' }),
   );
 
   await user.click(await screen.findByText('Toto'));
@@ -169,7 +169,7 @@ it('should properly submit', async () => {
 function renderBulkChangeModal(
   issues: Issue[],
   props: Partial<ComponentPropsType<typeof BulkChangeModal>> = {},
-  currentUser: CurrentUser = mockLoggedInUser()
+  currentUser: CurrentUser = mockLoggedInUser(),
 ) {
   return renderComponent(
     <CurrentUserContextProvider currentUser={currentUser}>
@@ -189,6 +189,6 @@ function renderBulkChangeModal(
         {...props}
       />
     </CurrentUserContextProvider>,
-    ''
+    '',
   );
 }

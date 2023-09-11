@@ -65,7 +65,7 @@ describe('#loadL10nBundle', () => {
     const bundle = await loadL10nBundle();
 
     expect(bundle).toEqual(
-      expect.objectContaining({ locale: cachedBundle.locale, messages: cachedBundle.messages })
+      expect.objectContaining({ locale: cachedBundle.locale, messages: cachedBundle.messages }),
     );
   });
 });

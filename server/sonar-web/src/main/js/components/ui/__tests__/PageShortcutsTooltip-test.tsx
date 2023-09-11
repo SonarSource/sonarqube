@@ -40,8 +40,8 @@ it('should render all the labels', async () => {
 
   await user.hover(
     screen.getByLabelText(
-      'shortcuts.on_page.intro shortcuts.on_page.up_down_x.up & down shortcuts.on_page.left_right_x.left & right shortcuts.on_page.left_x.left shortcuts.on_page.meta_x.meta'
-    )
+      'shortcuts.on_page.intro shortcuts.on_page.up_down_x.up & down shortcuts.on_page.left_right_x.left & right shortcuts.on_page.left_x.left shortcuts.on_page.meta_x.meta',
+    ),
   );
 
   expect(await screen.findByText(leftAndRightLabel)).toBeInTheDocument();
@@ -60,8 +60,8 @@ it('should render left & right labels without up&down', async () => {
 
   await user.hover(
     screen.getByLabelText(
-      'shortcuts.on_page.intro shortcuts.on_page.left_right_x.left & right shortcuts.on_page.left_x.left'
-    )
+      'shortcuts.on_page.intro shortcuts.on_page.left_right_x.left & right shortcuts.on_page.left_x.left',
+    ),
   );
 
   expect(await screen.findByText(leftAndRightLabel)).toBeInTheDocument();

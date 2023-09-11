@@ -48,7 +48,7 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
       if (parentProfile) {
         const parentRules = this.getDeprecatedRulesInheritanceChain(
           parentProfile,
-          profilesWithDeprecations
+          profilesWithDeprecations,
         );
         if (parentRules.length) {
           count -= parentRules.reduce((n, rule) => n + rule.count, 0);
@@ -83,7 +83,7 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
                 {translateWithParameters(
                   'coding_rules.filters.inheritance.x_inherited_from_y',
                   rule.count,
-                  rule.from.name
+                  rule.from.name,
                 )}
               </div>
             );
@@ -96,7 +96,7 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
 
   render() {
     const profilesWithDeprecations = this.props.profiles.filter(
-      (profile) => profile.activeDeprecatedRuleCount > 0
+      (profile) => profile.activeDeprecatedRuleCount > 0,
     );
 
     if (profilesWithDeprecations.length === 0) {
@@ -114,7 +114,7 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
         <div className="spacer-bottom">
           {translateWithParameters(
             'quality_profiles.deprecated_rules_are_still_activated',
-            profilesWithDeprecations.length
+            profilesWithDeprecations.length,
           )}
         </div>
         <ul>
@@ -134,12 +134,12 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
                   aria-label={translateWithParameters(
                     'quality_profile.lang_deprecated_x_rules',
                     profile.languageName,
-                    profile.activeDeprecatedRuleCount
+                    profile.activeDeprecatedRuleCount,
                   )}
                 >
                   {translateWithParameters(
                     'quality_profile.x_rules',
-                    profile.activeDeprecatedRuleCount
+                    profile.activeDeprecatedRuleCount,
                   )}
                 </Link>
                 {this.renderInheritedInfo(profile, profilesWithDeprecations)}

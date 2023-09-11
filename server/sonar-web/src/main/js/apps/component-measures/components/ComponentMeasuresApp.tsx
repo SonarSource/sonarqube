@@ -100,7 +100,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
         this.setState({ metrics: byKey });
         this.fetchMeasures(byKey);
       },
-      () => {}
+      () => {},
     );
   }
 
@@ -132,7 +132,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
       ({ component, period }) => {
         if (this.mounted) {
           const measures = banQualityGateMeasure(component).map((measure) =>
-            enhanceMeasure(measure, metrics)
+            enhanceMeasure(measure, metrics),
           );
 
           const leakPeriod =
@@ -142,7 +142,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
             loading: false,
             leakPeriod,
             measures: measures.filter(
-              (measure) => measure.value !== undefined || measure.leak !== undefined
+              (measure) => measure.value !== undefined || measure.leak !== undefined,
             ),
           });
         }
@@ -151,7 +151,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   }
 

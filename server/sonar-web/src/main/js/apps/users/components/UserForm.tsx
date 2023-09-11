@@ -69,7 +69,7 @@ export default function UserForm(props: Props) {
         password,
         scmAccounts,
       },
-      { onSuccess: props.onClose, onError: handleError }
+      { onSuccess: props.onClose, onError: handleError },
     );
   };
 
@@ -85,7 +85,7 @@ export default function UserForm(props: Props) {
             name: user?.local ? name : undefined,
             scmAccount: scmAccounts,
           },
-      { onSuccess: props.onClose, onError: handleError }
+      { onSuccess: props.onClose, onError: handleError },
     );
   };
 

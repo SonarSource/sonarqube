@@ -41,13 +41,13 @@ export type PreviouslyNonCompliantNCD = NewCodeDefinition &
 export type PreviouslyNonCompliantBranchNCD = PreviouslyNonCompliantNCD & NewCodeDefinitionBranch;
 
 export function isPreviouslyNonCompliantDaysNCD(
-  newCodeDefinition: NewCodeDefinition
+  newCodeDefinition: NewCodeDefinition,
 ): newCodeDefinition is PreviouslyNonCompliantNCD;
 export function isPreviouslyNonCompliantDaysNCD(
-  newCodeDefinition: NewCodeDefinitionBranch
+  newCodeDefinition: NewCodeDefinitionBranch,
 ): newCodeDefinition is PreviouslyNonCompliantBranchNCD;
 export function isPreviouslyNonCompliantDaysNCD(
-  newCodeDefinition: NewCodeDefinition | NewCodeDefinitionBranch
+  newCodeDefinition: NewCodeDefinition | NewCodeDefinitionBranch,
 ): newCodeDefinition is PreviouslyNonCompliantNCD | PreviouslyNonCompliantBranchNCD {
   return (
     newCodeDefinition.type === NewCodeDefinitionType.NumberOfDays &&

@@ -223,19 +223,19 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
                           )}
                           <p className="spacer-bottom ">
                             {translate(
-                              'settings.authentication.saml.form.provisioning_with_scim.sub'
+                              'settings.authentication.saml.form.provisioning_with_scim.sub',
                             )}
                           </p>
                           <p className="spacer-bottom ">
                             {translate(
-                              'settings.authentication.saml.form.provisioning_with_scim.description'
+                              'settings.authentication.saml.form.provisioning_with_scim.description',
                             )}
                           </p>
                           <p>
                             <FormattedMessage
                               id="settings.authentication.saml.form.provisioning_with_scim.description.doc"
                               defaultMessage={translate(
-                                'settings.authentication.saml.form.provisioning_with_scim.description.doc'
+                                'settings.authentication.saml.form.provisioning_with_scim.description.doc',
                               )}
                               values={{
                                 documentation: (
@@ -276,7 +276,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
                   onConfirm={() => handleConfirmChangeProvisioning()}
                   header={translate(
                     'settings.authentication.saml.confirm',
-                    newScimStatus ? 'scim' : 'jit'
+                    newScimStatus ? 'scim' : 'jit',
                   )}
                   onClose={() => setShowConfirmProvisioningModal(false)}
                   isDestructive={!newScimStatus}
@@ -285,7 +285,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
                   {translate(
                     'settings.authentication.saml.confirm',
                     newScimStatus ? 'scim' : 'jit',
-                    'description'
+                    'description',
                   )}
                 </ConfirmModal>
               )}

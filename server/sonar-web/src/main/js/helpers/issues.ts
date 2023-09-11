@@ -40,7 +40,7 @@ function injectRelational(
   issue: Dict<any>,
   source: any[] | undefined,
   baseField: string,
-  lookupField: string
+  lookupField: string,
 ) {
   const newFields: Dict<any> = {};
   const baseValue = issue[baseField];
@@ -102,7 +102,7 @@ const FLOW_ORDER_MAP = {
 
 function splitFlows(
   issue: RawIssue,
-  components: Component[] = []
+  components: Component[] = [],
 ): { secondaryLocations: FlowLocation[]; flows: FlowLocation[][]; flowsWithType: Flow[] } {
   if (issue.flows?.some((flow) => flow.type !== undefined)) {
     const flowsWithType = issue.flows.filter((flow) => flow.type !== undefined) as Flow[];
@@ -122,7 +122,7 @@ function splitFlows(
       flow.map((location) => {
         const component = components.find((component) => component.key === location.component);
         return { ...location, componentName: component && component.name };
-      })
+      }),
     );
 
   const onlySecondaryLocations = parsedFlows.every((flow) => flow.length === 1);
@@ -140,7 +140,7 @@ function orderLocations(locations: FlowLocation[]) {
   return sortBy(
     locations,
     (location) => location.textRange && location.textRange.startLine,
-    (location) => location.textRange && location.textRange.startOffset
+    (location) => location.textRange && location.textRange.startOffset,
   );
 }
 
@@ -148,7 +148,7 @@ export function parseIssueFromResponse(
   issue: RawIssue,
   components?: Component[],
   users?: UserBase[],
-  rules?: Rule[]
+  rules?: Rule[],
 ): Issue {
   return {
     ...issue,

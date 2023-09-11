@@ -71,7 +71,7 @@ describe('ButtonIcon', () => {
     return shallow(
       <ButtonIcon tooltip="my tooltip" tooltipProps={{ visible: true }} {...props}>
         <i />
-      </ButtonIcon>
+      </ButtonIcon>,
     );
   }
 });

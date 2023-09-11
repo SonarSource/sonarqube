@@ -65,7 +65,7 @@ export function NoCodeWarning({ branchLike, component, measures }: Props) {
       } else if (branchLike !== undefined) {
         title = translateWithParameters(
           'overview.project.branch_X_empty',
-          getBranchLikeDisplayName(branchLike)
+          getBranchLikeDisplayName(branchLike),
         );
       } else {
         title = translate('overview.project.empty');
@@ -76,7 +76,7 @@ export function NoCodeWarning({ branchLike, component, measures }: Props) {
       } else if (branchLike !== undefined) {
         title = translateWithParameters(
           'overview.project.branch_X_no_lines_of_code',
-          getBranchLikeDisplayName(branchLike)
+          getBranchLikeDisplayName(branchLike),
         );
       }
     }

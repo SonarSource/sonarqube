@@ -21,7 +21,7 @@ export function generateGitHubActionsYaml(
   mainBranchName: string,
   branchesEnabled: boolean,
   runsOn: string,
-  steps: string
+  steps: string,
 ) {
   return `name: Build
 

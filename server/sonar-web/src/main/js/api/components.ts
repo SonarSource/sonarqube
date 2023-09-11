@@ -82,7 +82,7 @@ export function getComponentTree(
   strategy: string,
   component: string,
   metrics: string[] = [],
-  additional: RequestData = {}
+  additional: RequestData = {},
 ): Promise<{
   baseComponent: ComponentMeasure;
   components: ComponentMeasure[];
@@ -97,7 +97,7 @@ export function getComponentTree(
 export function getChildren(
   component: string,
   metrics: string[] = [],
-  additional: RequestData = {}
+  additional: RequestData = {},
 ) {
   return getComponentTree('children', component, metrics, additional);
 }
@@ -105,13 +105,13 @@ export function getChildren(
 export function getComponentLeaves(
   component: string,
   metrics: string[] = [],
-  additional: RequestData = {}
+  additional: RequestData = {},
 ) {
   return getComponentTree('leaves', component, metrics, additional);
 }
 
 export function getComponent(
-  data: { component: string; metricKeys: string } & BranchParameters
+  data: { component: string; metricKeys: string } & BranchParameters,
 ): Promise<{ component: ComponentMeasure }> {
   return getJSON('/api/measures/component', data);
 }
@@ -127,7 +127,7 @@ export type GetTreeParams = {
 } & BranchParameters;
 
 export function getTree<T = TreeComponent>(
-  data: GetTreeParams & { qualifiers?: string }
+  data: GetTreeParams & { qualifiers?: string },
 ): Promise<{ baseComponent: TreeComponent; components: T[]; paging: Paging }> {
   return getJSON('/api/components/tree', data).catch(throwGlobalError);
 }
@@ -148,11 +148,11 @@ export function getComponentData(data: { component: string } & BranchParameters)
 }
 
 export function doesComponentExists(
-  data: { component: string } & BranchParameters
+  data: { component: string } & BranchParameters,
 ): Promise<boolean> {
   return getComponentData(data).then(
     ({ component }) => component !== undefined,
-    () => false
+    () => false,
   );
 }
 
@@ -161,7 +161,7 @@ export function getComponentShow(data: { component: string } & BranchParameters)
 }
 
 export function getBreadcrumbs(
-  data: { component: string } & BranchParameters
+  data: { component: string } & BranchParameters,
 ): Promise<Array<Omit<ComponentRaw, 'tags'>>> {
   return getComponentShow(data).then((r) => {
     const reversedAncestors = [...r.ancestors].reverse();
@@ -222,7 +222,7 @@ export interface SuggestionsResponse {
 export function getSuggestions(
   query?: string,
   recentlyBrowsed?: string[],
-  more?: string
+  more?: string,
 ): Promise<SuggestionsResponse> {
   const data: RequestData = {};
   if (query) {
@@ -238,25 +238,25 @@ export function getSuggestions(
 }
 
 export function getComponentForSourceViewer(
-  data: { component: string } & BranchParameters
+  data: { component: string } & BranchParameters,
 ): Promise<SourceViewerFile> {
   return getJSON('/api/components/app', data);
 }
 
 export function getSources(
-  data: { key: string; from?: number; to?: number } & BranchParameters
+  data: { key: string; from?: number; to?: number } & BranchParameters,
 ): Promise<SourceLine[]> {
   return getJSON('/api/sources/lines', data).then((r) => r.sources);
 }
 
 export function getDuplications(
-  data: { key: string } & BranchParameters
+  data: { key: string } & BranchParameters,
 ): Promise<{ duplications: Duplication[]; files: Dict<DuplicatedFile> }> {
   return getJSON('/api/duplications/show', data).catch(throwGlobalError);
 }
 
 export function getTests(
-  data: { sourceFileKey: string; sourceFileLineNumber: number | string } & BranchParameters
+  data: { sourceFileKey: string; sourceFileLineNumber: number | string } & BranchParameters,
 ): Promise<any> {
   return getJSON('/api/tests/list', data).then((r) => r.tests);
 }

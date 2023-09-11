@@ -42,10 +42,10 @@ export default function WebApiApp() {
       (acc, [name, methods]) => [
         ...acc,
         ...Object.entries(
-          omit(methods, 'summary', '$ref', 'description', 'servers', 'parameters') ?? {}
+          omit(methods, 'summary', '$ref', 'description', 'servers', 'parameters') ?? {},
         ).map(([method, info]) => ({ name, method, info })),
       ],
-      []
+      [],
     );
   }, [data]);
 

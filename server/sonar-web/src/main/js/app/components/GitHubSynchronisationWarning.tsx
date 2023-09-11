@@ -62,7 +62,7 @@ function LastSyncAlert({ info, short }: LastSyncProps) {
             <FormattedMessage
               id="settings.authentication.github.synchronization_successful.with_warning"
               defaultMessage={translate(
-                'settings.authentication.github.synchronization_successful.with_warning'
+                'settings.authentication.github.synchronization_successful.with_warning',
               )}
               values={{
                 date: formattedDate,
@@ -76,7 +76,7 @@ function LastSyncAlert({ info, short }: LastSyncProps) {
           ) : (
             translateWithParameters(
               'settings.authentication.github.synchronization_successful',
-              formattedDate
+              formattedDate,
             )
           )}
         </i>
@@ -109,7 +109,7 @@ function LastSyncAlert({ info, short }: LastSyncProps) {
           <>
             {translateWithParameters(
               'settings.authentication.github.synchronization_successful',
-              formattedDate
+              formattedDate,
             )}
             <br />
             {summary ?? ''}
@@ -119,7 +119,7 @@ function LastSyncAlert({ info, short }: LastSyncProps) {
             <div>
               {translateWithParameters(
                 'settings.authentication.github.synchronization_failed',
-                formattedDate
+                formattedDate,
               )}
             </div>
             <br />
@@ -160,7 +160,7 @@ function GitHubSynchronisationWarning({ short }: GitHubSynchronisationWarningPro
           translate(
             data.nextSync.status === TaskStatuses.Pending
               ? 'settings.authentication.github.synchronization_pending'
-              : 'settings.authentication.github.synchronization_in_progress'
+              : 'settings.authentication.github.synchronization_in_progress',
           )}
       </Alert>
 

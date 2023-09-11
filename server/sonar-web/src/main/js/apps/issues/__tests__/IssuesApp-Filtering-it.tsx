@@ -272,13 +272,13 @@ describe('issues app filtering', () => {
     expect(
       within(ui.ruleFacetList.get()).getByRole('checkbox', {
         name: /Advanced rule/,
-      })
+      }),
     ).toBeInTheDocument();
 
     expect(
       within(ui.ruleFacetList.get()).getByRole('checkbox', {
         name: /Simple rule/,
-      })
+      }),
     ).toBeInTheDocument();
   });
 
@@ -290,10 +290,10 @@ describe('issues app filtering', () => {
     await user.click(await ui.languageFacet.find());
     expect(await ui.languageFacetList.find()).toBeInTheDocument();
     expect(
-      within(ui.languageFacetList.get()).getByRole('checkbox', { name: 'java' })
+      within(ui.languageFacetList.get()).getByRole('checkbox', { name: 'java' }),
     ).toHaveTextContent('java25short_number_suffix.k');
     expect(
-      within(ui.languageFacetList.get()).getByRole('checkbox', { name: 'ts' })
+      within(ui.languageFacetList.get()).getByRole('checkbox', { name: 'ts' }),
     ).toHaveTextContent('ts3.4short_number_suffix.k');
 
     await user.click(ui.languageFacet.get());
@@ -303,10 +303,10 @@ describe('issues app filtering', () => {
     await user.click(ui.languageFacet.get());
     expect(await ui.languageFacetList.find()).toBeInTheDocument();
     expect(
-      within(ui.languageFacetList.get()).getByRole('checkbox', { name: 'java' })
+      within(ui.languageFacetList.get()).getByRole('checkbox', { name: 'java' }),
     ).toHaveTextContent('java111');
     expect(
-      within(ui.languageFacetList.get()).getByRole('checkbox', { name: 'ts' })
+      within(ui.languageFacetList.get()).getByRole('checkbox', { name: 'ts' }),
     ).toHaveTextContent('ts674');
   });
 
@@ -334,7 +334,7 @@ describe('issues app filtering', () => {
         /* eslint-disable-next-line testing-library/render-result-naming-convention */
         const linkName = renderOwaspTop102021Category(standard, val);
         expect(screen.getByRole('checkbox', { name: linkName })).toBeInTheDocument();
-      })
+      }),
     );
   });
 });

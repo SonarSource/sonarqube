@@ -155,7 +155,7 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
             <FlagMessage className="sw-mt-4" variant="info">
               <span>
                 {`${translate('indexation.in_progress')} ${translate(
-                  'indexation.details_unavailable'
+                  'indexation.details_unavailable',
                 )}`}
                 <DocLink
                   className="sw-ml-1 sw-whitespace-nowrap"

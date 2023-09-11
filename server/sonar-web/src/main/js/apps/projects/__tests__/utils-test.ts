@@ -67,7 +67,7 @@ describe('formatDuration', () => {
 
   it('render years and months only', () => {
     expect(utils.formatDuration(ONE_YEAR * 4 + ONE_MONTH * 2 + ONE_DAY * 10)).toEqual(
-      'duration.years.4 duration.months.2 '
+      'duration.years.4 duration.months.2 ',
     );
   });
 
@@ -77,7 +77,7 @@ describe('formatDuration', () => {
 
   it('render hours and minutes', () => {
     expect(utils.formatDuration(ONE_HOUR * 4 + ONE_MINUTE * 10)).toEqual(
-      'duration.hours.4 duration.minutes.10 '
+      'duration.hours.4 duration.minutes.10 ',
     );
   });
 
@@ -141,7 +141,7 @@ describe('fetchProjects', () => {
             component: Component & {
               measures: { languages?: string; new_coverage?: string };
               isScannable: boolean;
-            }
+            },
           ) => {
             // eslint-disable-next-line jest/no-conditional-in-test
             if (component.key === 'foo') {
@@ -151,7 +151,7 @@ describe('fetchProjects', () => {
             }
             component.isScannable = false;
             return component;
-          }
+          },
         ),
 
         total: 2,

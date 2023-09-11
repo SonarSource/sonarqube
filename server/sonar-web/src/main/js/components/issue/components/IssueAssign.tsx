@@ -83,7 +83,7 @@ export default function IssueAssignee(props: Props) {
 
   const handleSearchAssignees = (
     query: string,
-    cb: (options: Options<LabelValueSelectOption<string>>) => void
+    cb: (options: Options<LabelValueSelectOption<string>>) => void,
   ) => {
     getUsers<RestUser>({ q: query })
       .then((result) => {

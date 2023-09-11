@@ -151,14 +151,14 @@ describe('assigning/revoking permissions', () => {
 
     expect(ui.visibilityRadio(Visibility.Public).get()).toBeChecked();
     expect(
-      ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).query()
+      ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).query(),
     ).not.toBeInTheDocument();
     await act(async () => {
       await ui.turnProjectPrivate();
     });
     expect(ui.visibilityRadio(Visibility.Private).get()).toBeChecked();
     expect(
-      ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()
+      ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get(),
     ).toBeInTheDocument();
 
     await ui.turnProjectPublic();
@@ -318,13 +318,13 @@ it('should have disabled permissions for GH Project', async () => {
     { featureList: [Feature.GithubProvisioning] },
     {
       component: mockComponent({ visibility: Visibility.Private }),
-    }
+    },
   );
   await ui.appLoaded();
 
   expect(ui.pageTitle.get()).toBeInTheDocument();
   await waitFor(() =>
-    expect(ui.pageTitle.get()).toHaveAccessibleName(/project_permission.github_managed/)
+    expect(ui.pageTitle.get()).toHaveAccessibleName(/project_permission.github_managed/),
   );
   expect(ui.pageTitle.byRole('img').get()).toBeInTheDocument();
   expect(ui.githubExplanations.get()).toBeInTheDocument();
@@ -332,41 +332,41 @@ it('should have disabled permissions for GH Project', async () => {
   expect(ui.projectPermissionCheckbox('John', Permissions.Admin).get()).toBeChecked();
   expect(ui.projectPermissionCheckbox('John', Permissions.Admin).get()).toHaveAttribute(
     'aria-disabled',
-    'true'
+    'true',
   );
   expect(ui.projectPermissionCheckbox('Alexa', Permissions.IssueAdmin).get()).toBeChecked();
   expect(ui.projectPermissionCheckbox('Alexa', Permissions.IssueAdmin).get()).toHaveAttribute(
     'aria-disabled',
-    'false'
+    'false',
   );
   await ui.toggleProjectPermission('Alexa', Permissions.IssueAdmin);
   expect(ui.confirmRemovePermissionDialog.get()).toBeInTheDocument();
   expect(ui.confirmRemovePermissionDialog.get()).toHaveTextContent(
-    `${Permissions.IssueAdmin}Alexa`
+    `${Permissions.IssueAdmin}Alexa`,
   );
   await act(() =>
-    user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get())
+    user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get()),
   );
   expect(ui.projectPermissionCheckbox('Alexa', Permissions.IssueAdmin).get()).not.toBeChecked();
 
   expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).toBeChecked();
   expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).toHaveAttribute(
     'aria-disabled',
-    'false'
+    'false',
   );
   await ui.toggleProjectPermission('sonar-users', Permissions.Browse);
   expect(ui.confirmRemovePermissionDialog.get()).toBeInTheDocument();
   expect(ui.confirmRemovePermissionDialog.get()).toHaveTextContent(
-    `${Permissions.Browse}sonar-users`
+    `${Permissions.Browse}sonar-users`,
   );
   await act(() =>
-    user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get())
+    user.click(ui.confirmRemovePermissionDialog.byRole('button', { name: 'confirm' }).get()),
   );
   expect(ui.projectPermissionCheckbox('sonar-users', Permissions.Browse).get()).not.toBeChecked();
   expect(ui.projectPermissionCheckbox('sonar-admins', Permissions.Admin).get()).toBeChecked();
   expect(ui.projectPermissionCheckbox('sonar-admins', Permissions.Admin).get()).toHaveAttribute(
     'aria-disabled',
-    'true'
+    'true',
   );
 
   const johnRow = screen.getAllByRole('row')[4];
@@ -388,7 +388,7 @@ it('should have disabled permissions for GH Project', async () => {
   expect(
     screen
       .getAllByRole('checkbox', { checked: false })
-      .every((item) => item.getAttribute('aria-disabled') === 'true')
+      .every((item) => item.getAttribute('aria-disabled') === 'true'),
   ).toBe(true);
 });
 
@@ -404,7 +404,7 @@ it('should allow to change permissions for GH Project without auto-provisioning'
   });
   renderPermissionsProjectApp(
     { visibility: Visibility.Private },
-    { featureList: [Feature.GithubProvisioning] }
+    { featureList: [Feature.GithubProvisioning] },
   );
   await ui.appLoaded();
 
@@ -415,7 +415,7 @@ it('should allow to change permissions for GH Project without auto-provisioning'
 
   // no restrictions
   expect(
-    screen.getAllByRole('checkbox').every((item) => item.getAttribute('aria-disabled') !== 'true')
+    screen.getAllByRole('checkbox').every((item) => item.getAttribute('aria-disabled') !== 'true'),
   ).toBe(true);
 });
 
@@ -434,14 +434,14 @@ it('should allow to change permissions for non-GH Project', async () => {
 
   // no restrictions
   expect(
-    screen.getAllByRole('checkbox').every((item) => item.getAttribute('aria-disabled') !== 'true')
+    screen.getAllByRole('checkbox').every((item) => item.getAttribute('aria-disabled') !== 'true'),
   ).toBe(true);
 });
 
 function renderPermissionsProjectApp(
   override: Partial<Component> = {},
   contextOverride: Partial<RenderContext> = {},
-  componentContextOverride: Partial<ComponentContextShape> = {}
+  componentContextOverride: Partial<ComponentContextShape> = {},
 ) {
   return renderAppWithComponentContext(
     'project_roles?id=my-project',
@@ -457,6 +457,6 @@ function renderPermissionsProjectApp(
         ...override,
       }),
       ...componentContextOverride,
-    }
+    },
   );
 }

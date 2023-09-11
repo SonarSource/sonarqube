@@ -51,7 +51,7 @@ export class LeakPeriodLegend extends React.PureComponent<Props & WrappedCompone
     const { period } = this.props;
     const leakPeriodLabel = getNewCodePeriodLabel(
       period,
-      MODE_INCLUDES_TIME[period.mode] ? this.formatDateTime : this.formatDate
+      MODE_INCLUDES_TIME[period.mode] ? this.formatDateTime : this.formatDate,
     );
     if (!leakPeriodLabel) {
       return null;
@@ -76,7 +76,7 @@ export class LeakPeriodLegend extends React.PureComponent<Props & WrappedCompone
           period.mode === 'previous_analysis'
             ? 'overview.previous_analysis_on_x'
             : 'overview.started_on_x',
-          formattedLeakPeriodDate
+          formattedLeakPeriodDate,
         )}
       </span>
     );
@@ -102,7 +102,7 @@ export class LeakPeriodLegend extends React.PureComponent<Props & WrappedCompone
                   period.mode === 'previous_analysis'
                     ? 'overview.previous_analysis_x'
                     : 'overview.started_x',
-                  fromNow
+                  fromNow,
                 )}
               </span>
             )}

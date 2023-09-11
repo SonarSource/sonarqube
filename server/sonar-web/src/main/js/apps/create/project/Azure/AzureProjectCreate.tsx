@@ -192,7 +192,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
 
     const searchResults: AzureRepository[] = await searchAzureRepositories(
       selectedAlmInstance.key,
-      searchQuery
+      searchQuery,
     )
       .then(({ repositories }) => repositories)
       .catch(() => []);
@@ -215,7 +215,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
           almSetting: selectedAlmInstance.key,
           projectName: selectedRepository.projectName,
           repositoryName: selectedRepository.name,
-        })
+        }),
       );
     }
   };
@@ -238,7 +238,7 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
         this.fetchData().catch(() => {
           /* noop */
         });
-      }
+      },
     );
   };
 

@@ -55,14 +55,14 @@ export default function SetAsMainBranchModal(props: SetAsMainBranchModalProps) {
           <p className="sw-mb-4">
             {translateWithParameters(
               'project_branch_pull_request.branch.main_branch.are_you_sure',
-              branch.name
+              branch.name,
             )}
           </p>
           <p className="sw-mb-4">
             <FormattedMessage
               id="project_branch_pull_request.branch.main_branch.learn_more"
               defaultMessage={translate(
-                'project_branch_pull_request.branch.main_branch.learn_more'
+                'project_branch_pull_request.branch.main_branch.learn_more',
               )}
               values={{
                 documentation: (

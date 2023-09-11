@@ -71,14 +71,14 @@ function NCDAutoUpdateMessage(props: NCDAutoUpdateMessageProps) {
               id: component.key,
             }),
           },
-    [component, isGlobalBanner]
+    [component, isGlobalBanner],
   );
 
   const handleBannerDismiss = useCallback(async () => {
     await setMessageDismissed(
       isGlobalBanner
         ? { messageType: MessageTypes.GlobalNcd90 }
-        : { messageType: MessageTypes.ProjectNcd90, projectKey: component.key }
+        : { messageType: MessageTypes.ProjectNcd90, projectKey: component.key },
     );
     setDismissed(true);
   }, [component, isGlobalBanner]);
@@ -93,7 +93,7 @@ function NCDAutoUpdateMessage(props: NCDAutoUpdateMessageProps) {
           : {
               messageType: MessageTypes.ProjectNcd90,
               projectKey: component.key,
-            }
+            },
       );
 
       setDismissed(messageStatus.dismissed);

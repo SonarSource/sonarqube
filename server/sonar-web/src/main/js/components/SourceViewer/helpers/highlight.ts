@@ -58,7 +58,7 @@ export function highlightSymbol(tokens: Token[], symbol: string): Token[] {
   return tokens.map((token) =>
     symbolRegExp.test(token.className)
       ? { ...token, className: `${token.className} highlighted` }
-      : token
+      : token,
   );
 }
 
@@ -92,7 +92,7 @@ export function highlightIssueLocations(
   tokens: Token[],
   issueLocations: LinearIssueLocation[],
   modifier: keyof TokenModifiers,
-  rootClassName: string = ISSUE_LOCATION_CLASS
+  rootClassName: string = ISSUE_LOCATION_CLASS,
 ): Token[] {
   issueLocations.forEach((location) => {
     const nextTokens: Token[] = [];
@@ -169,12 +169,12 @@ export const getHighlightedTokens = (params: {
       tokens,
       secondaryIssueLocations,
       'isLocation',
-      'issue-location'
+      'issue-location',
     );
 
     if (highlightedLocationMessage) {
       const location = secondaryIssueLocations.find(
-        (location) => location.index === highlightedLocationMessage.index
+        (location) => location.index === highlightedLocationMessage.index,
       );
       if (location) {
         tokens = highlightIssueLocations(tokens, [location], 'isSelected', 'selected');

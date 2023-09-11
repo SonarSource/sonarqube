@@ -162,7 +162,7 @@ it('should be able to add and change profile for languages', async () => {
   expect(ui.pageDescription.get()).toBeInTheDocument();
   expect(ui.addLanguageButton.get()).toBeInTheDocument();
   await expect(ui.helpTooltip.get()).toHaveATooltipWithContent(
-    'quality_profiles.list.projects.help'
+    'quality_profiles.list.projects.help',
   );
   expect(ui.profileRows.getAll()).toHaveLength(5);
   expect(ui.cssLanguage.get()).toBeInTheDocument();
@@ -182,10 +182,10 @@ it('should be able to add and change profile for languages', async () => {
   await user.click(ui.buttonSave.get());
   expect(associateProject).toHaveBeenLastCalledWith(
     expect.objectContaining({ key: 'html', name: 'html profile' }),
-    'my-project'
+    'my-project',
   );
   expect(addGlobalSuccessMessage).toHaveBeenCalledWith(
-    'project_quality_profile.successfully_updated.HTML'
+    'project_quality_profile.successfully_updated.HTML',
   );
 
   // Updates the page after API call
@@ -199,12 +199,12 @@ it('should be able to add and change profile for languages', async () => {
   expect(htmlRow.get()).toBeInTheDocument();
   expect(htmlRow.byRole('link', { name: '10' }).get()).toHaveAttribute(
     'href',
-    '/coding_rules?activation=true&qprofile=html'
+    '/coding_rules?activation=true&qprofile=html',
   );
   expect(ui.builtInTag.query()).not.toBeInTheDocument();
 
   await user.click(
-    htmlRow.byRole('button', { name: 'project_quality_profile.change_profile' }).get()
+    htmlRow.byRole('button', { name: 'project_quality_profile.change_profile' }).get(),
   );
 
   //Opens modal to change profile
@@ -217,7 +217,7 @@ it('should be able to add and change profile for languages', async () => {
   await user.click(ui.buttonSave.get());
 
   expect(addGlobalSuccessMessage).toHaveBeenCalledWith(
-    'project_quality_profile.successfully_updated.HTML'
+    'project_quality_profile.successfully_updated.HTML',
   );
 
   // Updates the page after API call
@@ -244,7 +244,7 @@ it('should still show page with add language button when api fails', () => {
 
 function renderProjectQualityProfilesApp(
   context?: RenderContext,
-  componentOverrides: Partial<Component> = { configuration: { showQualityProfiles: true } }
+  componentOverrides: Partial<Component> = { configuration: { showQualityProfiles: true } },
 ) {
   return renderAppWithComponentContext('project/quality_profiles', routes, context, {
     component: mockComponent(componentOverrides),

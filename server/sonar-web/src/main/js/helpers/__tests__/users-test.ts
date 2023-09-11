@@ -32,8 +32,8 @@ describe('isSameHomePage', () => {
           type: 'APPLICATION',
           branch: 'test-branch',
           component: 'test-component',
-        }
-      )
+        },
+      ),
     ).toBe(true);
 
     expect(
@@ -45,8 +45,8 @@ describe('isSameHomePage', () => {
         },
         {
           type: 'ISSUES',
-        }
-      )
+        },
+      ),
     ).toBe(false);
 
     expect(
@@ -60,8 +60,8 @@ describe('isSameHomePage', () => {
           type: 'APPLICATION',
           branch: 'test-branch-1',
           component: 'test-component',
-        }
-      )
+        },
+      ),
     ).toBe(false);
 
     expect(
@@ -75,8 +75,8 @@ describe('isSameHomePage', () => {
           type: 'APPLICATION',
           branch: 'test-branch',
           component: 'test-component-1',
-        }
-      )
+        },
+      ),
     ).toBe(false);
   });
 });

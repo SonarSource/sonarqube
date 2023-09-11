@@ -78,7 +78,7 @@ jest.mock('../../../../api/measures', () => {
 
 jest.mock('../../../../api/quality-gates', () => {
   const { mockQualityGateProjectStatus, mockQualityGateApplicationStatus } = jest.requireActual(
-    '../../../../helpers/mocks/quality-gates'
+    '../../../../helpers/mocks/quality-gates',
   );
   const { MetricKey } = jest.requireActual('../../../../types/metrics');
   return {
@@ -111,7 +111,7 @@ jest.mock('../../../../api/quality-gates', () => {
             status: 'ERROR',
           },
         ],
-      })
+      }),
     ),
     getApplicationQualityGate: jest.fn().mockResolvedValue(mockQualityGateApplicationStatus()),
   };
@@ -139,7 +139,7 @@ it('should render correctly if conditions are ignored', async () => {
   renderPullRequestOverview();
 
   await waitFor(async () =>
-    expect(await screen.findByText('overview.quality_gate.ignored_conditions')).toBeInTheDocument()
+    expect(await screen.findByText('overview.quality_gate.ignored_conditions')).toBeInTheDocument(),
   );
 });
 
@@ -169,14 +169,14 @@ it('should render correctly for a failed QG', async () => {
   renderPullRequestOverview();
 
   await waitFor(async () =>
-    expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument()
+    expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument(),
   );
 
   expect(await screen.findByText('metric.new_coverage.name')).toBeInTheDocument();
   expect(await screen.findByText('quality_gates.operator.GT 2.0%')).toBeInTheDocument();
 
   expect(
-    await screen.findByText('metric.duplicated_lines.name quality_gates.conditions.new_code')
+    await screen.findByText('metric.duplicated_lines.name quality_gates.conditions.new_code'),
   ).toBeInTheDocument();
   expect(await screen.findByText('quality_gates.operator.GT 1.0%')).toBeInTheDocument();
 
@@ -184,7 +184,7 @@ it('should render correctly for a failed QG', async () => {
 });
 
 function renderPullRequestOverview(
-  props: Partial<ComponentPropsType<typeof PullRequestOverview>> = {}
+  props: Partial<ComponentPropsType<typeof PullRequestOverview>> = {},
 ) {
   renderComponent(
     <CurrentUserContextProvider currentUser={mockLoggedInUser()}>
@@ -197,6 +197,6 @@ function renderPullRequestOverview(
         })}
         {...props}
       />
-    </CurrentUserContextProvider>
+    </CurrentUserContextProvider>,
   );
 }

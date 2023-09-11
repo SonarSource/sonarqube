@@ -88,7 +88,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
 
     this.checkIfEducationPrinciplesAreVisible = debounce(
       this.checkIfEducationPrinciplesAreVisible,
-      DEBOUNCE_FOR_SCROLL
+      DEBOUNCE_FOR_SCROLL,
     );
   }
 
@@ -133,8 +133,8 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
           prevProps.ruleDetails !== ruleDetails ||
             (prevProps.issue && issue && prevProps.issue.key !== issue.key) ||
             prevProps.selectedFlowIndex !== selectedFlowIndex ||
-            prevProps.selectedLocationIndex !== selectedLocationIndex
-        )
+            prevProps.selectedLocationIndex !== selectedLocationIndex,
+        ),
       );
     }
 
@@ -187,7 +187,7 @@ export class RuleTabViewer extends React.PureComponent<RuleTabViewerProps, State
 
     // As we might tamper with the description later on, we clone to avoid any side effect
     const descriptionSectionsByKey = cloneDeep(
-      groupBy(descriptionSections, (section) => section.key)
+      groupBy(descriptionSections, (section) => section.key),
     );
 
     if (extendedDescription) {

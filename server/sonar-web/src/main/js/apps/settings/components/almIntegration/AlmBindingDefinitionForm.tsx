@@ -232,7 +232,7 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<
   };
 
   handleBitbucketVariantChange = (
-    bitbucketVariant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud
+    bitbucketVariant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud,
   ) => {
     this.setState({
       bitbucketVariant,

@@ -92,6 +92,6 @@ it('should display 3 aplication', () => {
 
 function renderProjectCard(project: Project, user: CurrentUser = USER_LOGGED_OUT, type?: string) {
   renderComponent(
-    <ProjectCard currentUser={user} handleFavorite={jest.fn()} project={project} type={type} />
+    <ProjectCard currentUser={user} handleFavorite={jest.fn()} project={project} type={type} />,
   );
 }

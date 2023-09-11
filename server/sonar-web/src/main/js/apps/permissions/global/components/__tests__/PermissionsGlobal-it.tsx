@@ -52,7 +52,7 @@ describe('rendering', () => {
     without(
       flattenPermissionsList(PERMISSIONS_ORDER_GLOBAL),
       Permissions.ApplicationCreation,
-      Permissions.PortfolioCreation
+      Permissions.PortfolioCreation,
     ).forEach((permission) => {
       expect(ui.globalPermissionCheckbox('johndoe', permission).get()).toBeInTheDocument();
     });

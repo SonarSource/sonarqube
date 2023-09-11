@@ -49,7 +49,7 @@ it('should render Empty Overview on main branch with no analysis', async () => {
   renderApp({}, mockCurrentUser());
 
   expect(
-    await screen.findByText('provisioning.no_analysis_on_main_branch.main')
+    await screen.findByText('provisioning.no_analysis_on_main_branch.main'),
   ).toBeInTheDocument();
 });
 
@@ -58,8 +58,8 @@ it('should render Empty Overview on main branch with multiple branches with bad 
 
   expect(
     await screen.findByText(
-      'provisioning.no_analysis_on_main_branch.bad_configuration.main.branches.main_branch'
-    )
+      'provisioning.no_analysis_on_main_branch.bad_configuration.main.branches.main_branch',
+    ),
   ).toBeInTheDocument();
 });
 
@@ -91,14 +91,14 @@ describe('Permission provisioning', () => {
         componentKey: 'my-project',
         type: TaskTypes.GithubProjectPermissionsProvisioning,
         status: TaskStatuses.InProgress,
-      })
+      }),
     );
 
     renderApp();
     await jest.runOnlyPendingTimersAsync();
 
     expect(
-      await screen.findByText('provisioning.permission_synch_in_progress')
+      await screen.findByText('provisioning.permission_synch_in_progress'),
     ).toBeInTheDocument();
 
     handlerCe.clearTasks();
@@ -107,7 +107,7 @@ describe('Permission provisioning', () => {
         componentKey: 'my-project',
         type: TaskTypes.GithubProjectPermissionsProvisioning,
         status: TaskStatuses.Success,
-      })
+      }),
     );
 
     await jest.runOnlyPendingTimersAsync();
@@ -121,6 +121,6 @@ function renderApp(props = {}, userProps = {}) {
     <CurrentUserContextProvider currentUser={mockCurrentUser({ isLoggedIn: true, ...userProps })}>
       <App hasFeature={jest.fn().mockReturnValue(false)} component={mockComponent()} {...props} />
     </CurrentUserContextProvider>,
-    '/?id=my-project'
+    '/?id=my-project',
   );
 }

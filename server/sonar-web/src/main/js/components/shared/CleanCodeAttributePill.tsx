@@ -43,7 +43,7 @@ export function CleanCodeAttributePill(props: Props) {
               type,
               cleanCodeAttribute ? 'clean_code_attribute' : 'clean_code_attribute_category',
               cleanCodeAttribute ?? cleanCodeAttributeCategory,
-              'title'
+              'title',
             )}
           </p>
           <p>
@@ -51,7 +51,7 @@ export function CleanCodeAttributePill(props: Props) {
               'issue',
               cleanCodeAttribute ? 'clean_code_attribute' : 'clean_code_attribute_category',
               cleanCodeAttribute ?? cleanCodeAttributeCategory,
-              'advice'
+              'advice',
             )}
           </p>
         </>
@@ -69,7 +69,7 @@ export function CleanCodeAttributePill(props: Props) {
             type,
             'clean_code_attribute_category',
             cleanCodeAttributeCategory,
-            'title_short'
+            'title_short',
           )}
         </span>
         {cleanCodeAttribute && (

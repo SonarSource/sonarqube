@@ -110,6 +110,6 @@ function renderMetaTags(overrides: Partial<Parameters<typeof MetaTags>[0]> = {})
   });
 
   return renderComponent(
-    <MetaTags component={component} onComponentChange={jest.fn()} {...overrides} />
+    <MetaTags component={component} onComponentChange={jest.fn()} {...overrides} />,
   );
 }

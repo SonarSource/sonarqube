@@ -25,7 +25,7 @@ import Facet, { BasicProps } from './Facet';
 export default function AttributeCategoryFacet(props: BasicProps) {
   const renderName = React.useCallback(
     (attribute: string) => translate('issue.clean_code_attribute_category', attribute),
-    []
+    [],
   );
 
   return (

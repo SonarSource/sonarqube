@@ -36,6 +36,6 @@ it('renders undefined value', () => {
 it('renders with a custom aria-label', () => {
   expect(shallow(<Rating aria-label="custom" aria-hidden={false} value="2.0" />)).toMatchSnapshot();
   expect(
-    shallow(<Rating aria-label="custom" aria-hidden={false} value={undefined} />)
+    shallow(<Rating aria-label="custom" aria-hidden={false} value={undefined} />),
   ).toMatchSnapshot();
 });

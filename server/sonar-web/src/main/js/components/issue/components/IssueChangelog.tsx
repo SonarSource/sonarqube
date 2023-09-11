@@ -55,7 +55,7 @@ function IssueChangelog(props: IssueChangelogProps) {
           aria-expanded={isOpen}
           aria-label={translateWithParameters(
             'issue.changelog.found_on_x_show_more',
-            formatDate(creationDate, formatterOption)
+            formatDate(creationDate, formatterOption),
           )}
           className="issue-action issue-action-with-options js-issue-show-changelog"
           onClick={() => {

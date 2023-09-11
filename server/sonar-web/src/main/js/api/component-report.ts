@@ -24,16 +24,16 @@ import { ComponentReportStatus } from '../types/component-report';
 
 export function getReportStatus(
   componentKey: string,
-  branchKey?: string
+  branchKey?: string,
 ): Promise<ComponentReportStatus> {
   return getJSON('/api/governance_reports/status', { componentKey, branchKey }).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
 export function getReportUrl(componentKey: string, branchKey?: string): string {
   let url = `${getBaseUrl()}/api/governance_reports/download?componentKey=${encodeURIComponent(
-    componentKey
+    componentKey,
   )}`;
 
   if (branchKey) {
@@ -45,18 +45,18 @@ export function getReportUrl(componentKey: string, branchKey?: string): string {
 
 export function subscribeToEmailReport(
   componentKey: string,
-  branchKey?: string
+  branchKey?: string,
 ): Promise<void | Response> {
   return post('/api/governance_reports/subscribe', { componentKey, branchKey }).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
 export function unsubscribeFromEmailReport(
   componentKey: string,
-  branchKey?: string
+  branchKey?: string,
 ): Promise<void | Response> {
   return post('/api/governance_reports/unsubscribe', { componentKey, branchKey }).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }

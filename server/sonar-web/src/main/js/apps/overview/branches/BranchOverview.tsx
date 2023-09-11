@@ -157,7 +157,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ appLeak: undefined });
         }
-      }
+      },
     );
 
     // We need to load the measures for each project in an application
@@ -176,13 +176,13 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
           projectBranchLike,
           // Only load metrics that apply to failing QG conditions; we don't
           // need the others anyway.
-          project.conditions.filter((c) => c.status !== 'OK').map((c) => c.metric)
+          project.conditions.filter((c) => c.status !== 'OK').map((c) => c.metric),
         ).then(({ measures }) => ({
           measures,
           project,
           projectBranchLike,
         }));
-      })
+      }),
     ).then(
       (results) => {
         if (this.mounted) {
@@ -216,7 +216,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ loadingStatus: false, qgStatuses: undefined });
         }
-      }
+      },
     );
   };
 
@@ -271,7 +271,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ loadingStatus: false, qgStatuses: undefined });
         }
-      }
+      },
     );
   };
 
@@ -285,12 +285,12 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   loadMeasuresAndMeta = (
     componentKey: string,
     branchLike?: BranchLike,
-    metricKeys: string[] = []
+    metricKeys: string[] = [],
   ) => {
     return getMeasuresWithPeriodAndMetrics(
       componentKey,
       metricKeys.length > 0 ? metricKeys : METRICS,
-      getBranchLikeQuery(branchLike)
+      getBranchLikeQuery(branchLike),
     ).then(({ component: { measures }, metrics, period }) => {
       return {
         measures: enhanceMeasuresWithMetrics(measures || [], metrics || []),
@@ -305,7 +305,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
 
     return Promise.all([this.loadHistoryMeasures(), this.loadAnalyses()]).then(
       this.doneLoadingHistory,
-      this.doneLoadingHistory
+      this.doneLoadingHistory,
     );
   };
 
@@ -335,7 +335,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
           });
         }
       },
-      () => {}
+      () => {},
     );
   };
 
@@ -358,7 +358,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
           });
         }
       },
-      () => {}
+      () => {},
     );
   };
 
@@ -430,7 +430,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
       loadingStatus === false &&
       (measures === undefined ||
         measures.find((measure) =>
-          ([MetricKey.lines, MetricKey.new_lines] as string[]).includes(measure.metric.key)
+          ([MetricKey.lines, MetricKey.new_lines] as string[]).includes(measure.metric.key),
         ) === undefined);
 
     return (

@@ -50,7 +50,7 @@ beforeEach(() => {
 it('should show branch information', async () => {
   renderManualProjectCreate({ branchesEnabled: true });
   expect(
-    await screen.findByText('onboarding.create_project.pr_decoration.information')
+    await screen.findByText('onboarding.create_project.pr_decoration.information'),
   ).toBeInTheDocument();
 });
 
@@ -62,11 +62,11 @@ it('should validate form input', async () => {
   await user.click(
     await screen.findByRole('textbox', {
       name: /onboarding.create_project.display_name/,
-    })
+    }),
   );
   await user.keyboard('test');
   expect(
-    screen.getByRole('textbox', { name: /onboarding.create_project.project_key/ })
+    screen.getByRole('textbox', { name: /onboarding.create_project.project_key/ }),
   ).toHaveValue('test');
   expect(ui.nextButton.get()).toBeEnabled();
 
@@ -74,21 +74,21 @@ it('should validate form input', async () => {
   await user.click(
     await screen.findByRole('textbox', {
       name: /onboarding.create_project.display_name/,
-    })
+    }),
   );
   await user.keyboard('{Control>}a{/Control}This is not a key%^$');
   expect(
-    screen.getByRole('textbox', { name: /onboarding.create_project.project_key/ })
+    screen.getByRole('textbox', { name: /onboarding.create_project.project_key/ }),
   ).toHaveValue('This-is-not-a-key-');
 
   // Clear name
   await user.clear(
     screen.getByRole('textbox', {
       name: /onboarding.create_project.display_name/,
-    })
+    }),
   );
   expect(
-    screen.getByRole('textbox', { name: /onboarding.create_project.project_key/ })
+    screen.getByRole('textbox', { name: /onboarding.create_project.project_key/ }),
   ).toHaveValue('');
 
   expect(ui.nextButton.get()).toBeDisabled();
@@ -97,11 +97,11 @@ it('should validate form input', async () => {
   await user.click(
     await screen.findByRole('textbox', {
       name: /onboarding.create_project.project_key/,
-    })
+    }),
   );
   await user.keyboard('awsome-key');
   expect(
-    screen.getByRole('textbox', { name: /onboarding.create_project.display_name/ })
+    screen.getByRole('textbox', { name: /onboarding.create_project.display_name/ }),
   ).toHaveValue('');
   expect(ui.nextButton.get()).toBeDisabled();
 
@@ -109,7 +109,7 @@ it('should validate form input', async () => {
   await user.click(
     await screen.findByRole('textbox', {
       name: /onboarding.create_project.project_key/,
-    })
+    }),
   );
   await user.keyboard('{Control>}a{/Control}123');
   expect(ui.nextButton.get()).toBeDisabled();
@@ -124,7 +124,7 @@ it('should validate form input', async () => {
   await user.clear(
     screen.getByRole('textbox', {
       name: /onboarding.create_project.main_branch_name/,
-    })
+    }),
   );
   expect(ui.nextButton.get()).toBeDisabled();
 });
@@ -138,7 +138,7 @@ it('should submit form input', async () => {
   await user.click(
     await screen.findByRole('textbox', {
       name: /onboarding.create_project.display_name/,
-    })
+    }),
   );
   await user.keyboard('test');
   await user.click(ui.nextButton.get());
@@ -154,16 +154,16 @@ it('should handle component exists failure', async () => {
   await user.click(
     await screen.findByRole('textbox', {
       name: /onboarding.create_project.display_name/,
-    })
+    }),
   );
   await user.keyboard('test');
   expect(
-    screen.getByRole('textbox', { name: /onboarding.create_project.display_name/ })
+    screen.getByRole('textbox', { name: /onboarding.create_project.display_name/ }),
   ).toHaveValue('test');
 });
 
 function renderManualProjectCreate(props: Partial<ManualProjectCreate['props']> = {}) {
   renderComponent(
-    <ManualProjectCreate branchesEnabled={false} onProjectSetupDone={jest.fn()} {...props} />
+    <ManualProjectCreate branchesEnabled={false} onProjectSetupDone={jest.fn()} {...props} />,
   );
 }

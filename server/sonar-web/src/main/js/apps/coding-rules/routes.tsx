@@ -52,7 +52,7 @@ function HashEditWrapper() {
       };
       navigate(
         { pathname: location.pathname, search: new URLSearchParams(normalizedQuery).toString() },
-        { replace: true }
+        { replace: true },
       );
     }
   }, [location, navigate]);

@@ -43,7 +43,7 @@ function mountRender(indexationContext?: Partial<IndexationContextInterface>) {
       }}
     >
       <TestComponentWithIndexationContext />
-    </IndexationContext.Provider>
+    </IndexationContext.Provider>,
   );
 }
 

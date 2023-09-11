@@ -47,10 +47,10 @@ function IssuesNavigate() {
                 branch: searchParams.get('branch'),
                 pullRequest: searchParams.get('pullRequest'),
                 assignedToMe: 'false',
-              })
+              }),
             ).toString(),
           },
-          { replace: true }
+          { replace: true },
         );
       } else {
         const filteredTypes = types

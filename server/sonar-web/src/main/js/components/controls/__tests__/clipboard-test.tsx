@@ -63,7 +63,7 @@ describe('ClipboardBase', () => {
             {copySuccess ? 'copied' : 'click to copy'}
           </span>
         )}
-      </ClipboardBase>
+      </ClipboardBase>,
     );
   }
 });

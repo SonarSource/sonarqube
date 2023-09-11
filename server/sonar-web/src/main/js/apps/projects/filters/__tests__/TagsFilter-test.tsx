@@ -88,6 +88,6 @@ function renderTagsFacet(props: Partial<TagsFacet['props']> = {}) {
       facet={{ cheese: 5, style: 3, custom1: 1 }}
       value={['custom1']}
       {...props}
-    />
+    />,
   );
 }

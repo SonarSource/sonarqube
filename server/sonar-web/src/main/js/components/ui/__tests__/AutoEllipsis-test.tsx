@@ -25,7 +25,7 @@ it('should render', () => {
   const wrapper = shallow(
     <AutoEllipsis maxWidth={5} useParent={false}>
       <span className="medium">my test text</span>
-    </AutoEllipsis>
+    </AutoEllipsis>,
   );
 
   expect(wrapper).toMatchSnapshot();
@@ -35,7 +35,7 @@ it('should render with text-ellipsis class', () => {
   const wrapper = mount(
     <AutoEllipsis customShouldEllipsis={() => true} maxWidth={5} useParent={false}>
       <span className="medium">my test text</span>
-    </AutoEllipsis>
+    </AutoEllipsis>,
   );
 
   expect(wrapper.find('span').hasClass('medium')).toBe(true);
@@ -52,10 +52,10 @@ it('should correctly compute the auto-ellipsis', () => {
   expect(defaultShouldEllipsis(node10, { maxHeight: 5, useParent: false })).toBe(true);
   expect(defaultShouldEllipsis(node10, { maxWidth: 5, maxHeight: 5, useParent: false })).toBe(true);
   expect(defaultShouldEllipsis(node10, { maxWidth: 5, maxHeight: 10, useParent: false })).toBe(
-    true
+    true,
   );
   expect(defaultShouldEllipsis(node10, { maxWidth: 10, maxHeight: 5, useParent: false })).toBe(
-    true
+    true,
   );
   expect(defaultShouldEllipsis(node10, { maxWidth: 10, useParent: false })).toBe(false);
   expect(defaultShouldEllipsis(node10, { maxHeight: 10, useParent: false })).toBe(false);

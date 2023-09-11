@@ -135,7 +135,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
                   confirmData={profile.key}
                   modalBody={translateWithParameters(
                     'coding_rules.revert_to_parent_definition.confirm',
-                    profile.parentName
+                    profile.parentName,
                   )}
                   modalHeader={translate('coding_rules.revert_to_parent_definition')}
                   onConfirm={this.handleRevert}
@@ -163,7 +163,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
                     className="coding-rules-detail-quality-profile-deactivate button-red spacer-left"
                     aria-label={translateWithParameters(
                       'coding_rules.deactivate_in_quality_profile_x',
-                      profile.name
+                      profile.name,
                     )}
                     onClick={onClick}
                   >
@@ -204,7 +204,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
   render() {
     const { activations = [], referencedProfiles, ruleDetails } = this.props;
     const canActivate = Object.values(referencedProfiles).some((profile) =>
-      Boolean(profile.actions && profile.actions.edit && profile.language === ruleDetails.lang)
+      Boolean(profile.actions && profile.actions.edit && profile.language === ruleDetails.lang),
     );
 
     return (
@@ -222,7 +222,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
               onDone={this.handleActivate}
               profiles={filter(
                 this.props.referencedProfiles,
-                (profile) => !activations.find((activation) => activation.qProfile === profile.key)
+                (profile) => !activations.find((activation) => activation.qProfile === profile.key),
               )}
               rule={ruleDetails}
             />

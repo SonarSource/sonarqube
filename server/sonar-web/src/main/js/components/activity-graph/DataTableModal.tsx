@@ -50,46 +50,49 @@ export default function DataTableModal(props: DataTableModalProps) {
       props,
       <FlagMessage variant="warning">
         {translate('project_activity.graphs.data_table.no_data_warning')}
-      </FlagMessage>
+      </FlagMessage>,
     );
   }
 
-  const tableData = series.reduce((acc, serie) => {
-    const data = filter(
-      serie.data,
-      // Make sure we respect the date filtering. On the graph, this is done by dynamically
-      // "zooming" on the series. Here, we actually have to "cut off" part of the serie's
-      // data points.
-      ({ x }) => {
-        if (graphEndDate && x > graphEndDate) {
-          return false;
+  const tableData = series.reduce(
+    (acc, serie) => {
+      const data = filter(
+        serie.data,
+        // Make sure we respect the date filtering. On the graph, this is done by dynamically
+        // "zooming" on the series. Here, we actually have to "cut off" part of the serie's
+        // data points.
+        ({ x }) => {
+          if (graphEndDate && x > graphEndDate) {
+            return false;
+          }
+          if (graphStartDate && x < graphStartDate) {
+            return false;
+          }
+          return true;
+        },
+      );
+
+      data.forEach(({ x, y }) => {
+        const key = x.getTime();
+        if (acc[key] === undefined) {
+          acc[key] = { date: x } as DataTableEntry;
         }
-        if (graphStartDate && x < graphStartDate) {
-          return false;
+
+        if (y !== undefined && !(typeof y === 'number' && isNaN(y))) {
+          acc[key][serie.name] = formatMeasure(y, serie.type);
         }
-        return true;
-      }
-    );
+      });
 
-    data.forEach(({ x, y }) => {
-      const key = x.getTime();
-      if (acc[key] === undefined) {
-        acc[key] = { date: x } as DataTableEntry;
-      }
-
-      if (y !== undefined && !(typeof y === 'number' && isNaN(y))) {
-        acc[key][serie.name] = formatMeasure(y, serie.type);
-      }
-    });
-
-    return acc;
-  }, {} as { [x: number]: DataTableEntry });
+      return acc;
+    },
+    {} as { [x: number]: DataTableEntry },
+  );
 
   const metrics = series.map(({ name }) => name);
   const rows = slice(
     sortBy(Object.values(tableData), ({ date }) => -date),
     0,
-    MAX_DATA_TABLE_ROWS
+    MAX_DATA_TABLE_ROWS,
   ).map(({ date, ...values }) => (
     <tr key={date.getTime()}>
       <td className="sw-whitespace-nowrap">
@@ -133,12 +136,12 @@ export default function DataTableModal(props: DataTableModalProps) {
       <FlagMessage variant="warning">
         <FormattedMessage
           defaultMessage={translate(
-            `project_activity.graphs.data_table.no_data_warning_check_dates${suffix}`
+            `project_activity.graphs.data_table.no_data_warning_check_dates${suffix}`,
           )}
           id={`project_activity.graphs.data_table.no_data_warning_check_dates${suffix}`}
           values={{ start, end }}
         />
-      </FlagMessage>
+      </FlagMessage>,
     );
   }
 
@@ -149,7 +152,7 @@ export default function DataTableModal(props: DataTableModalProps) {
         <FlagMessage variant="warning">
           {translateWithParameters(
             'project_activity.graphs.data_table.max_lines_warning',
-            MAX_DATA_TABLE_ROWS
+            MAX_DATA_TABLE_ROWS,
           )}
         </FlagMessage>
       )}
@@ -167,7 +170,7 @@ export default function DataTableModal(props: DataTableModalProps) {
         </thead>
         <tbody>{rows}</tbody>
       </StyledTable>
-    </>
+    </>,
   );
 }
 

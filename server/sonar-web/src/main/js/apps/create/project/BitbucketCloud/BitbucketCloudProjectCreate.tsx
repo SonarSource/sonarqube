@@ -112,7 +112,7 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
         selectedAlmInstance.key,
         searchQuery,
         pageSize,
-        pageIndex
+        pageIndex,
       ).catch(() => {
         this.handleError();
         return { isLastPage: undefined, repositories: undefined };
@@ -159,9 +159,9 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
           },
           () => {
             /* noop */
-          }
+          },
         );
-      }
+      },
     );
   };
 
@@ -183,9 +183,9 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
           },
           () => {
             /* noop */
-          }
+          },
         );
-      }
+      },
     );
   };
 
@@ -197,7 +197,7 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
         setupBitbucketCloudProjectCreation({
           almSetting: selectedAlmInstance.key,
           repositorySlug,
-        })
+        }),
       );
     }
   };

@@ -41,7 +41,7 @@ export function ProjectLeakPeriodInfo(props: ProjectLeakPeriodInfoProps) {
     leakPeriod,
     ['manual_baseline', NewCodeDefinitionType.SpecificAnalysis].includes(leakPeriod.mode)
       ? (date: string) => formatTime(date, formatterOption)
-      : (date: string) => formatDate(date, longFormatterOption)
+      : (date: string) => formatDate(date, longFormatterOption),
   );
 
   if (!leakPeriodLabel) {
@@ -74,7 +74,7 @@ export function ProjectLeakPeriodInfo(props: ProjectLeakPeriodInfoProps) {
             leakPeriod.mode === 'previous_analysis'
               ? 'overview.previous_analysis_x'
               : 'overview.started_x',
-            fromNow
+            fromNow,
           )
         }
       </DateFromNow>

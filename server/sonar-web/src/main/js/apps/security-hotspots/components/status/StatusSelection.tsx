@@ -36,7 +36,7 @@ export default function StatusSelection(props: Props) {
   const { hotspot } = props;
   const initialStatus = React.useMemo(
     () => getStatusOptionFromStatusAndResolution(hotspot.status, hotspot.resolution),
-    [hotspot]
+    [hotspot],
   );
 
   const [loading, setLoading] = React.useState(false);

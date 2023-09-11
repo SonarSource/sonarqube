@@ -196,6 +196,6 @@ function renderProjectKeyApp(featureList: Feature[] = []) {
     'import_export',
     routes,
     { featureList },
-    { component: mockComponent({ key: COMPONENT_KEY }) }
+    { component: mockComponent({ key: COMPONENT_KEY }) },
   );
 }

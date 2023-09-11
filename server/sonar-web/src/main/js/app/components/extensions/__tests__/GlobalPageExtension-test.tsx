@@ -56,7 +56,7 @@ it('should find the extension from props', () => {
 function renderGlobalPageExtension(
   navigateTo: string,
   globalPages: Extension[] = [],
-  params?: GlobalPageExtensionProps['params']
+  params?: GlobalPageExtensionProps['params'],
 ) {
   renderApp(`extension/:pluginKey/:extensionKey`, <GlobalPageExtension params={params} />, {
     appState: mockAppState({ globalPages }),

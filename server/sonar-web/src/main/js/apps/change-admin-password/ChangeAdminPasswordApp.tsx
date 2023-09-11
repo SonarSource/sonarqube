@@ -77,7 +77,7 @@ export class ChangeAdminPasswordApp extends React.PureComponent<Props, State> {
         password: passwordValue,
       }).then(
         () => true,
-        () => false
+        () => false,
       );
       if (this.mounted) {
         this.setState({ submitting: false, success });

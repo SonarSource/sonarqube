@@ -40,7 +40,10 @@ a.icon-checkbox {
   height: 10px;
   border: 1px solid var(--darkBlue);
   border-radius: 2px;
-  transition: border-color 0.2s ease, background-color 0.2s ease, background-image 0.2s ease,
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    background-image 0.2s ease,
     box-shadow 0.4s ease;
 }
 

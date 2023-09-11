@@ -107,7 +107,7 @@ describe('Admin or user with permission', () => {
       await user.click(
         ui.permissionSection
           .byRole('button', { name: 'quality_profiles.permissions.remove.user_x.Buzz' })
-          .get()
+          .get(),
       );
       expect(ui.dialog.get()).toBeInTheDocument();
       await user.click(ui.removeButton.get());
@@ -133,7 +133,7 @@ describe('Admin or user with permission', () => {
       await user.click(
         ui.permissionSection
           .byRole('button', { name: 'quality_profiles.permissions.remove.group_x.ACDC' })
-          .get()
+          .get(),
       );
       expect(ui.dialog.get()).toBeInTheDocument();
       await user.click(ui.removeButton.get());
@@ -188,7 +188,7 @@ describe('Admin or user with permission', () => {
       renderQualityProfile('sonar');
       expect(await ui.projectSection.find()).toBeInTheDocument();
       expect(
-        await ui.projectSection.byText('quality_profiles.projects_for_default').get()
+        await ui.projectSection.byText('quality_profiles.projects_for_default').get(),
       ).toBeInTheDocument();
     });
   });
@@ -202,7 +202,7 @@ describe('Admin or user with permission', () => {
       expect(ui.activateMoreLink.get()).toBeInTheDocument();
       expect(ui.activateMoreLink.get()).toHaveAttribute(
         'href',
-        '/coding_rules?qprofile=old-php-qp&activation=false'
+        '/coding_rules?qprofile=old-php-qp&activation=false',
       );
     });
 
@@ -257,7 +257,7 @@ describe('Admin or user with permission', () => {
       expect(ui.activateMoreRulesLink.get()).toBeInTheDocument();
       expect(ui.activateMoreRulesLink.get()).toHaveAttribute(
         'href',
-        '/coding_rules?qprofile=old-php-qp&activation=false'
+        '/coding_rules?qprofile=old-php-qp&activation=false',
       );
     });
 
@@ -356,7 +356,7 @@ describe('Admin or user with permission', () => {
       expect(
         ui.dialog
           .byText(/quality_profiles.are_you_sure_want_delete_profile_x_and_descendants/)
-          .get()
+          .get(),
       ).toBeInTheDocument();
       await act(async () => {
         await user.click(ui.dialog.byRole('button', { name: 'delete' }).get());
@@ -430,7 +430,7 @@ describe('Every Users', () => {
     expect(ui.rulesMissingSonarWayLink.get()).toBeInTheDocument();
     expect(ui.rulesMissingSonarWayLink.get()).toHaveAttribute(
       'href',
-      '/coding_rules?qprofile=old-php-qp&activation=false&languages=php'
+      '/coding_rules?qprofile=old-php-qp&activation=false&languages=php',
     );
   });
 
@@ -441,7 +441,7 @@ describe('Every Users', () => {
     expect(ui.rulesDeprecatedLink.get()).toBeInTheDocument();
     expect(ui.rulesDeprecatedLink.get()).toHaveAttribute(
       'href',
-      '/coding_rules?qprofile=old-php-qp&activation=true&statuses=DEPRECATED'
+      '/coding_rules?qprofile=old-php-qp&activation=true&statuses=DEPRECATED',
     );
   });
 
@@ -467,7 +467,7 @@ describe('Every Users', () => {
     await user.click(await ui.qualityProfileActions.find());
     expect(ui.backUpLink.get()).toHaveAttribute(
       'href',
-      '/api/qualityprofiles/backup?language=php&qualityProfile=Good%20old%20PHP%20quality%20profile'
+      '/api/qualityprofiles/backup?language=php&qualityProfile=Good%20old%20PHP%20quality%20profile',
     );
     expect(ui.backUpLink.get()).toHaveAttribute('download', 'old-php-qp.xml');
   });
@@ -489,7 +489,7 @@ describe('Every Users', () => {
     expect(ui.compareLink.get()).toBeInTheDocument();
     expect(ui.compareLink.get()).toHaveAttribute(
       'href',
-      '/profiles/compare?language=php&name=Good+old+PHP+quality+profile'
+      '/profiles/compare?language=php&name=Good+old+PHP+quality+profile',
     );
   });
 });

@@ -45,7 +45,7 @@ function renderMetricsContextProvider() {
   return renderComponent(
     <MetricsContextProvider>
       <Consumer />
-    </MetricsContextProvider>
+    </MetricsContextProvider>,
   );
 }
 

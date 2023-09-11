@@ -92,7 +92,7 @@ export class Menu extends React.PureComponent<Props, State> {
 
   highlightSiblingBranchlike = (indexDelta: number) => {
     const selectBranchLikeIndex = this.state.branchLikesToDisplay.findIndex((b) =>
-      isSameBranchLike(b, this.state.selectedBranchLike)
+      isSameBranchLike(b, this.state.selectedBranchLike),
     );
     const newIndex = selectBranchLikeIndex + indexDelta;
 
@@ -133,7 +133,7 @@ export class Menu extends React.PureComponent<Props, State> {
       isPullRequest(pr) && (pr.title.toLowerCase().includes(q) || pr.key.toLowerCase().includes(q));
 
     const filteredBranchLikes = this.props.branchLikes.filter(
-      (bl) => filterBranch(bl) || filterPullRequest(bl)
+      (bl) => filterBranch(bl) || filterPullRequest(bl),
     );
 
     this.setState({

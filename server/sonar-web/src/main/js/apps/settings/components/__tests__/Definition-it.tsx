@@ -85,7 +85,7 @@ it.each([
     renderDefinition({ type: settingType });
 
     expect(
-      await ui.nameHeading('property.sonar.announcement.message.name').find()
+      await ui.nameHeading('property.sonar.announcement.message.name').find(),
     ).toBeInTheDocument();
 
     // Should see no empty validation message
@@ -111,11 +111,11 @@ it.each([
 
     // Clicking reset opens dialog and reset to default on confirm
     await user.click(
-      ui.resetButton('settings.definition.reset.property.sonar.announcement.message.name').get()
+      ui.resetButton('settings.definition.reset.property.sonar.announcement.message.name').get(),
     );
     await user.click(ui.resetButton().get());
     expect(ui.announcementInput.get()).toHaveValue('');
-  }
+  },
 );
 
 it('renders definition for SettingType = JSON and can do operations', async () => {
@@ -123,7 +123,7 @@ it('renders definition for SettingType = JSON and can do operations', async () =
   renderDefinition({ type: SettingType.JSON });
 
   expect(
-    await ui.nameHeading('property.sonar.announcement.message.name').find()
+    await ui.nameHeading('property.sonar.announcement.message.name').find(),
   ).toBeInTheDocument();
 
   // Should show error message if JSON format is not valid
@@ -149,7 +149,7 @@ it('renders definition for SettingType = BOOLEAN and can do operations', async (
   });
 
   expect(
-    await ui.nameHeading('property.sonar.announcement.message.name').find()
+    await ui.nameHeading('property.sonar.announcement.message.name').find(),
   ).toBeInTheDocument();
 
   // Can toggle
@@ -168,7 +168,7 @@ it('renders definition for SettingType = BOOLEAN and can do operations', async (
 
   // Can reset toggle
   await user.click(
-    ui.resetButton('settings.definition.reset.property.sonar.announcement.message.name').get()
+    ui.resetButton('settings.definition.reset.property.sonar.announcement.message.name').get(),
   );
   await user.click(ui.resetButton().get());
   expect(ui.toggleButton.get()).not.toBeChecked();
@@ -182,7 +182,7 @@ it('renders definition for SettingType = SINGLE_SELECT_LIST and can do operation
   });
 
   expect(
-    await ui.nameHeading('property.sonar.announcement.message.name').find()
+    await ui.nameHeading('property.sonar.announcement.message.name').find(),
   ).toBeInTheDocument();
 
   // Can select option
@@ -201,7 +201,7 @@ it('renders definition for SettingType = SINGLE_SELECT_LIST and can do operation
 
   // Can reset
   await user.click(
-    ui.resetButton('settings.definition.reset.property.sonar.announcement.message.name').get()
+    ui.resetButton('settings.definition.reset.property.sonar.announcement.message.name').get(),
   );
   await user.click(ui.resetButton().get());
   expect(ui.selectOption('Select...').get()).toBeInTheDocument();
@@ -214,7 +214,7 @@ it('renders definition for SettingType = FORMATTED_TEXT and can do operations', 
   });
 
   expect(
-    await ui.nameHeading('property.sonar.announcement.message.name').find()
+    await ui.nameHeading('property.sonar.announcement.message.name').find(),
   ).toBeInTheDocument();
 
   // Should see no empty validation message
@@ -243,7 +243,7 @@ it('renders definition for multiValues type and can do operations', async () => 
       key: DEFAULT_DEFINITIONS_MOCK[2].key,
       values: DEFAULT_DEFINITIONS_MOCK[2].defaultValue?.split(','),
     },
-    mockComponent()
+    mockComponent(),
   );
 
   expect(await ui.nameHeading('property.sonar.javascript.globals.name').find()).toBeInTheDocument();
@@ -269,7 +269,7 @@ it('renders definition for multiValues type and can do operations', async () => 
 
   // Can reset to default
   await user.click(
-    ui.resetButton('settings.definition.reset.property.sonar.javascript.globals.name').get()
+    ui.resetButton('settings.definition.reset.property.sonar.javascript.globals.name').get(),
   );
   await user.click(ui.resetButton().get());
   expect(ui.multiValuesInput.getAll()).toHaveLength(4);
@@ -280,7 +280,7 @@ it('renders definition for SettingType = PROPERTY_SET and can do operations', as
   renderDefinition(DEFAULT_DEFINITIONS_MOCK[5]);
 
   expect(
-    await ui.nameHeading('property.sonar.cobol.compilationConstants.name').find()
+    await ui.nameHeading('property.sonar.cobol.compilationConstants.name').find(),
   ).toBeInTheDocument();
   expect(screen.getByRole('columnheader', { name: 'Name' })).toBeInTheDocument();
   expect(screen.getByRole('columnheader', { name: 'Value' })).toBeInTheDocument();
@@ -323,14 +323,14 @@ it('renders secured definition and can do operations', async () => {
     mockDefinition({
       ...DEFAULT_DEFINITIONS_MOCK[0],
       key,
-    })
+    }),
   );
   renderDefinition({
     key,
   });
 
   expect(
-    await ui.nameHeading('property.sonar.announcement.message.secured.name').find()
+    await ui.nameHeading('property.sonar.announcement.message.secured.name').find(),
   ).toBeInTheDocument();
 
   // Can type new value and cancel change
@@ -380,13 +380,13 @@ it('renders correctly for URL kind definition', async () => {
 function renderDefinition(
   definition: Partial<ExtendedSettingDefinition> = {},
   initialSetting?: SettingValue,
-  component?: Component
+  component?: Component,
 ) {
   return renderComponent(
     <Definition
       definition={{ ...DEFAULT_DEFINITIONS_MOCK[0], ...definition }}
       initialSettingValue={initialSetting}
       component={component}
-    />
+    />,
   );
 }

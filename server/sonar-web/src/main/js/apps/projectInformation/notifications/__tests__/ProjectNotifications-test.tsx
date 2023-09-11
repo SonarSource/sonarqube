@@ -50,49 +50,49 @@ it('should render correctly', async () => {
   renderProjectNotifications();
 
   expect(
-    await screen.findByText('project_information.project_notifications.title')
+    await screen.findByText('project_information.project_notifications.title'),
   ).toBeInTheDocument();
   expect(
     screen.getByLabelText(
-      'notification.dispatcher.descrption_x.notification.dispatcher.NewAlerts.project'
-    )
+      'notification.dispatcher.descrption_x.notification.dispatcher.NewAlerts.project',
+    ),
   ).toBeChecked();
 
   expect(
     screen.getByLabelText(
-      'notification.dispatcher.descrption_x.notification.dispatcher.NewIssues.project'
-    )
+      'notification.dispatcher.descrption_x.notification.dispatcher.NewIssues.project',
+    ),
   ).not.toBeChecked();
 
   // Toggle New Alerts
   await user.click(
     screen.getByLabelText(
-      'notification.dispatcher.descrption_x.notification.dispatcher.NewAlerts.project'
-    )
+      'notification.dispatcher.descrption_x.notification.dispatcher.NewAlerts.project',
+    ),
   );
 
   expect(
     screen.getByLabelText(
-      'notification.dispatcher.descrption_x.notification.dispatcher.NewAlerts.project'
-    )
+      'notification.dispatcher.descrption_x.notification.dispatcher.NewAlerts.project',
+    ),
   ).not.toBeChecked();
 
   // Toggle New Issues
   await user.click(
     screen.getByLabelText(
-      'notification.dispatcher.descrption_x.notification.dispatcher.NewIssues.project'
-    )
+      'notification.dispatcher.descrption_x.notification.dispatcher.NewIssues.project',
+    ),
   );
 
   expect(
     screen.getByLabelText(
-      'notification.dispatcher.descrption_x.notification.dispatcher.NewIssues.project'
-    )
+      'notification.dispatcher.descrption_x.notification.dispatcher.NewIssues.project',
+    ),
   ).toBeChecked();
 });
 
 function renderProjectNotifications() {
   return renderComponent(
-    <ProjectNotifications component={mockComponent({ key: 'foo', name: 'Foo' })} />
+    <ProjectNotifications component={mockComponent({ key: 'foo', name: 'Foo' })} />,
   );
 }

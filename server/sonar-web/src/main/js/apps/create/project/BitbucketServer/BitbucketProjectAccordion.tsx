@@ -103,7 +103,7 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
             <FlagMessage variant="warning">
               {translateWithParameters(
                 'onboarding.create_project.only_showing_X_first_repos',
-                repositoryCount
+                repositoryCount,
               )}
             </FlagMessage>
           )}

@@ -139,7 +139,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
 
     if (selectedAlmInstance) {
       this.props.onProjectSetupDone(
-        setupGitlabProjectCreation({ almSetting: selectedAlmInstance.key, gitlabProjectId })
+        setupGitlabProjectCreation({ almSetting: selectedAlmInstance.key, gitlabProjectId }),
       );
     }
   };

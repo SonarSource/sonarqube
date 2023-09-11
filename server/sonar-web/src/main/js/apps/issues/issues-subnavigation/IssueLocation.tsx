@@ -51,7 +51,7 @@ export default function IssueLocation(props: Props) {
       event.preventDefault();
       onClick(index);
     },
-    [index, onClick]
+    [index, onClick],
   );
 
   return (

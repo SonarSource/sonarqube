@@ -66,7 +66,7 @@ function PopupBase(props: PopupProps, ref: React.Ref<HTMLDivElement>) {
         'popup',
         `is-${placement}`,
         { 'no-padding': props.noPadding },
-        props.className
+        props.className,
       )}
       ref={ref || React.createRef()}
       style={props.style}
@@ -157,7 +157,7 @@ export class PortalPopup extends React.Component<PortalPopupProps, State> {
 
   adjustArrowPosition = (
     placement: PopupPlacement,
-    { leftFix, topFix }: { leftFix: number; topFix: number }
+    { leftFix, topFix }: { leftFix: number; topFix: number },
   ) => {
     const { arrowOffset = 0 } = this.props;
     switch (placement) {

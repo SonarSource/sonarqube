@@ -25,13 +25,13 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ option: { value: 'baz' } })).toMatchSnapshot('no label');
   expect(
-    shallowRender({ option: { label: 'Bar', value: 'bar', isDisabled: true } })
+    shallowRender({ option: { label: 'Bar', value: 'bar', isDisabled: true } }),
   ).toMatchSnapshot('disabled');
   expect(
     shallowRender({
       option: { label: 'Bar', value: 'bar', isDisabled: true },
       disabledReason: 'bar baz',
-    })
+    }),
   ).toMatchSnapshot('disabled, with explanation');
 });
 
@@ -41,6 +41,6 @@ function shallowRender(props: Partial<DisableableSelectOptionProps> = {}) {
       option={{ label: 'Foo', value: 'foo' }}
       disableTooltipOverlay={() => 'foo bar'}
       {...props}
-    />
+    />,
   );
 }

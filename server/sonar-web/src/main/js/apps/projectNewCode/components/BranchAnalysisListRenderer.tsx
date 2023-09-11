@@ -80,8 +80,8 @@ function renderAnalysis(args: {
           ariaLabel={translateWithParameters(
             'baseline.branch_analyses.analysis_for_x',
             `${intl.formatDate(analysis.date, longFormatterOption)}, ${intl.formatTime(
-              analysis.date
-            )}`
+              analysis.date,
+            )}`,
           )}
           onCheck={() => {}}
           value=""
@@ -93,7 +93,7 @@ function renderAnalysis(args: {
 }
 
 function BranchAnalysisListRenderer(
-  props: BranchAnalysisListRendererProps & WrappedComponentProps
+  props: BranchAnalysisListRendererProps & WrappedComponentProps,
 ) {
   const { analyses, loading, range, selectedAnalysisKey, intl } = props;
 
@@ -102,7 +102,7 @@ function BranchAnalysisListRenderer(
       getAnalysesByVersionByDay(analyses, {
         category: '',
       }),
-    [analyses]
+    [analyses],
   );
 
   const hasFilteredData =
@@ -187,7 +187,7 @@ function BranchAnalysisListRenderer(
                                 isFirst: analyses[0].key === analysis.key,
                                 onSelectAnalysis: props.onSelectAnalysis,
                                 intl,
-                              })
+                              }),
                             )}
                           </ul>
                         </li>

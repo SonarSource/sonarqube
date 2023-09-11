@@ -99,7 +99,7 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
         },
         () => {
           this.scrollToSelected();
-        }
+        },
       );
     });
   }

@@ -126,7 +126,7 @@ export function useBranchesQuery(component?: Component) {
         prOrBranch === 'pull-request'
           ? branchLikes.find((b) => isPullRequest(b) && b.key === name)
           : branchLikes.find(
-              (b) => isBranch(b) && (prOrBranch === 'branch' ? b.name === name : b.isMain)
+              (b) => isBranch(b) && (prOrBranch === 'branch' ? b.name === name : b.isMain),
             );
       return { branchLikes, branchLike };
     },
@@ -311,7 +311,7 @@ export function useRefreshBranchStatus(): () => void {
         queryKey: invalidateDetailsKey,
       });
     }, DELAY_REFRECH),
-    [invalidateDetailsKey, invalidateStatusKey]
+    [invalidateDetailsKey, invalidateStatusKey],
   );
 }
 
@@ -327,7 +327,7 @@ export function useRefreshBranches() {
 export function withBranchLikes<P extends { component?: Component }>(
   WrappedComponent: React.ComponentType<
     P & { branchLikes?: BranchLike[]; branchLike?: BranchLike; isFetchingBranch?: boolean }
-  >
+  >,
 ): React.ComponentType<Omit<P, 'branchLike' | 'branchLikes'>> {
   return function WithBranchLike(p: P) {
     const { data, isFetching } = useBranchesQuery(p.component);
@@ -343,7 +343,7 @@ export function withBranchLikes<P extends { component?: Component }>(
 }
 
 export function withBranchStatusRefresh<
-  P extends { refreshBranchStatus: ReturnType<typeof useRefreshBranchStatus> }
+  P extends { refreshBranchStatus: ReturnType<typeof useRefreshBranchStatus> },
 >(WrappedComponent: React.ComponentType<P>): React.ComponentType<Omit<P, 'refreshBranchStatus'>> {
   return function WithBranchStatusRefresh(props: P) {
     const refresh = useRefreshBranchStatus();

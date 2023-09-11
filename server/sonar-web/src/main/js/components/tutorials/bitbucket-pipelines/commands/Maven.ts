@@ -21,7 +21,7 @@ export default function mavenExample(
   branchesEnabled: boolean,
   mainBranchName: string,
   projectKey: string,
-  projectName: string
+  projectName: string,
 ) {
   return `image: maven:3-eclipse-temurin-17
 

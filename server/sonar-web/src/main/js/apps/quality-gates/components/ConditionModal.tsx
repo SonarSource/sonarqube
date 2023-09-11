@@ -146,7 +146,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
             <MetricSelect
               metric={metric}
               metricsArray={metrics.filter((m) =>
-                scope === 'new' ? isDiffMetric(m.key) : !isDiffMetric(m.key)
+                scope === 'new' ? isDiffMetric(m.key) : !isDiffMetric(m.key),
               )}
               onMetricChange={this.handleMetricChange}
             />

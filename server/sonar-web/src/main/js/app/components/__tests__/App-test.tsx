@@ -51,6 +51,6 @@ function renderApp(props: Partial<App['props']> = {}) {
         },
       })}
       {...props}
-    />
+    />,
   );
 }

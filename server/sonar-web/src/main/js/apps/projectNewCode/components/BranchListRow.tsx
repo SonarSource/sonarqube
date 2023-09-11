@@ -62,7 +62,7 @@ function renderNewCodePeriodSetting(newCodePeriod: NewCodeDefinition) {
 
 function branchInheritsItselfAsReference(
   branch: BranchWithNewCodePeriod,
-  inheritedSetting: NewCodeDefinition
+  inheritedSetting: NewCodeDefinition,
 ) {
   return (
     !branch.newCodePeriod &&
@@ -73,7 +73,7 @@ function branchInheritsItselfAsReference(
 
 function referenceBranchDoesNotExist(
   branch: BranchWithNewCodePeriod,
-  existingBranches: Array<string>
+  existingBranches: Array<string>,
 ) {
   return (
     branch.newCodePeriod &&
@@ -90,12 +90,12 @@ export default function BranchListRow(props: BranchListRowProps) {
   if (branchInheritsItselfAsReference(branch, inheritedSetting)) {
     settingWarning = translateWithParameters(
       'baseline.reference_branch.invalid_branch_setting',
-      branch.name
+      branch.name,
     );
   } else if (referenceBranchDoesNotExist(branch, existingBranches)) {
     settingWarning = translateWithParameters(
       'baseline.reference_branch.does_not_exist',
-      branch.newCodePeriod?.value || ''
+      branch.newCodePeriod?.value || '',
     );
   }
 

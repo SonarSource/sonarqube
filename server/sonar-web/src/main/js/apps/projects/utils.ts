@@ -198,7 +198,7 @@ export function fetchProjects({
         fetchProjectMeasures(response.components, query),
         Promise.resolve(response),
         fetchScannableProjects(),
-      ])
+      ]),
     )
     .then(([measures, { components, facets, paging }, { scannableProjects }]) => {
       return {

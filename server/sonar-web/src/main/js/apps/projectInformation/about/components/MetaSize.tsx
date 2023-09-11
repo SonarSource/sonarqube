@@ -56,7 +56,7 @@ export default function MetaSize({ component, measures }: MetaSizeProps) {
               <span
                 aria-label={translateWithParameters(
                   'project.info.see_more_info_on_x_locs',
-                  ncloc.value
+                  ncloc.value,
                 )}
               >
                 {formatMeasure(ncloc.value, 'SHORT_INT')}

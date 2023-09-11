@@ -77,7 +77,7 @@ export default function UsersApp() {
       managed,
       ...usersActivityParams,
     },
-    numberOfPages
+    numberOfPages,
   );
 
   const manageProvider = useManageProvider();

@@ -91,7 +91,7 @@ export async function loadL10nBundle() {
       locale: effectiveLocale,
       messages,
     },
-    cache
+    cache,
   );
 
   return intl;

@@ -70,7 +70,7 @@ it('should follow and complete all steps', async () => {
   expect(getCopyToClipboardValue(0, 'Copy to clipboard')).toMatchSnapshot('sonar token key');
   expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toMatchSnapshot('sonarqube host url key');
   expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
-    'sonarqube host url value'
+    'sonarqube host url value',
   );
 
   // Create/update configuration file step
@@ -152,7 +152,7 @@ it('navigates between steps', async () => {
 
 function renderBitbucketPipelinesTutorial(
   overrides: Partial<BitbucketPipelinesTutorialProps> = {},
-  { languages = { c: mockLanguage({ key: 'c' }) } }: RenderContext = {}
+  { languages = { c: mockLanguage({ key: 'c' }) } }: RenderContext = {},
 ) {
   return renderApp(
     '/',
@@ -163,6 +163,6 @@ function renderBitbucketPipelinesTutorial(
       currentUser={mockLoggedInUser()}
       {...overrides}
     />,
-    { languages, featureList: [Feature.BranchSupport] }
+    { languages, featureList: [Feature.BranchSupport] },
   );
 }

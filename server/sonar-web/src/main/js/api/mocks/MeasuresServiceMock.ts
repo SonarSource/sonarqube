@@ -85,7 +85,7 @@ export class MeasuresServiceMock {
   filterMeasures = (componentKey: string, metricKeys: string[]) => {
     return this.#measures[componentKey]
       ? Object.values(this.#measures[componentKey]).filter(({ metric }) =>
-          metricKeys.includes(metric)
+          metricKeys.includes(metric),
         )
       : [];
   };
@@ -103,7 +103,7 @@ export class MeasuresServiceMock {
   handleGetMeasuresWithPeriod = (
     component: string,
     metrics: string[],
-    _branchParameters?: BranchParameters
+    _branchParameters?: BranchParameters,
   ) => {
     const entry = this.findComponentTree(component);
     const measures = this.filterMeasures(entry.component.key, metrics);

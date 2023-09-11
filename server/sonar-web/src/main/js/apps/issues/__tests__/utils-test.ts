@@ -73,7 +73,7 @@ describe('serialize/deserialize', () => {
         statuses: ['a', 'b'],
         tags: ['a', 'b'],
         types: ['a', 'b'],
-      })
+      }),
     ).toStrictEqual({
       assignees: 'a,b',
       author: ['a', 'b'],
@@ -120,7 +120,7 @@ describe('serialize/deserialize', () => {
         impactSeverities: 'LOW',
         severities: 'CRITICAL,MAJOR',
         impactSoftwareQualities: 'MAINTAINABILITY',
-      })
+      }),
     ).toStrictEqual({
       assigned: true,
       assignees: ['first', 'second'],
@@ -180,50 +180,50 @@ describe('shouldOpenStandardsFacet', () => {
 describe('shouldOpenStandardsChildFacet', () => {
   it('should open standard child facet', () => {
     expect(
-      shouldOpenStandardsChildFacet({ owaspTop10: true }, {}, SecurityStandard.OWASP_TOP10)
+      shouldOpenStandardsChildFacet({ owaspTop10: true }, {}, SecurityStandard.OWASP_TOP10),
     ).toBe(true);
     expect(
       shouldOpenStandardsChildFacet(
         { cwe: true },
         { owaspTop10: ['A1'] },
-        SecurityStandard.OWASP_TOP10
-      )
+        SecurityStandard.OWASP_TOP10,
+      ),
     ).toBe(true);
     expect(
       shouldOpenStandardsChildFacet(
         { owaspTop10: false },
         { owaspTop10: ['A1'] },
-        SecurityStandard.OWASP_TOP10
-      )
+        SecurityStandard.OWASP_TOP10,
+      ),
     ).toBe(true);
     expect(
-      shouldOpenStandardsChildFacet({}, { owaspTop10: ['A1'] }, SecurityStandard.OWASP_TOP10)
+      shouldOpenStandardsChildFacet({}, { owaspTop10: ['A1'] }, SecurityStandard.OWASP_TOP10),
     ).toBe(true);
     expect(
       shouldOpenStandardsChildFacet(
         {},
         { owaspTop10: ['A1'], sonarsourceSecurity: ['sql-injection'] },
-        SecurityStandard.SONARSOURCE
-      )
+        SecurityStandard.SONARSOURCE,
+      ),
     ).toBe(true);
   });
 
   it('should NOT open standard child facet', () => {
     expect(
-      shouldOpenStandardsChildFacet({ standards: true }, {}, SecurityStandard.OWASP_TOP10)
+      shouldOpenStandardsChildFacet({ standards: true }, {}, SecurityStandard.OWASP_TOP10),
     ).toBe(false);
     expect(shouldOpenStandardsChildFacet({ cwe: true }, {}, SecurityStandard.OWASP_TOP10)).toBe(
-      false
+      false,
     );
     expect(
-      shouldOpenStandardsChildFacet({}, { types: ['VULNERABILITY'] }, SecurityStandard.OWASP_TOP10)
+      shouldOpenStandardsChildFacet({}, { types: ['VULNERABILITY'] }, SecurityStandard.OWASP_TOP10),
     ).toBe(false);
     expect(
       shouldOpenStandardsChildFacet(
         {},
         { owaspTop10: ['A1'], sonarsourceSecurity: ['sql-injection'] },
-        SecurityStandard.OWASP_TOP10_2021
-      )
+        SecurityStandard.OWASP_TOP10_2021,
+      ),
     ).toBe(false);
   });
 });
@@ -237,8 +237,8 @@ describe('shouldOpenSonarSourceSecurityFacet', () => {
     expect(
       shouldOpenSonarSourceSecurityFacet(
         { sonarsourceSecurity: false },
-        { sonarsourceSecurity: ['xss'] }
-      )
+        { sonarsourceSecurity: ['xss'] },
+      ),
     ).toBe(true);
   });
 

@@ -180,7 +180,7 @@ export default function startReactApp(
   l10nBundle: IntlShape,
   currentUser?: CurrentUser,
   appState?: AppState,
-  availableFeatures?: Feature[]
+  availableFeatures?: Feature[],
 ) {
   exportModulesAsGlobals();
 
@@ -271,6 +271,6 @@ export default function startReactApp(
         </AvailableFeaturesContext.Provider>
       </AppStateContextProvider>
     </HelmetProvider>,
-    el
+    el,
   );
 }

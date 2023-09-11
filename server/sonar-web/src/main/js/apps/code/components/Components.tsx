@@ -109,7 +109,7 @@ function Components(props: ComponentsProps) {
             components,
             (c) => c.qualifier,
             (c) => c.name.toLowerCase(),
-            (c) => (c.branch ? c.branch.toLowerCase() : '')
+            (c) => (c.branch ? c.branch.toLowerCase() : ''),
           ).map((component, index, list) => (
             <Component
               branchLike={branchLike}

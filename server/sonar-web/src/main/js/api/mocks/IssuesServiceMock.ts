@@ -282,22 +282,25 @@ export default class IssuesServiceMock {
       if (name === 'codeVariants') {
         return {
           property: 'codeVariants',
-          values: this.list.reduce((acc, { issue }) => {
-            if (issue.codeVariants?.length) {
-              issue.codeVariants.forEach((codeVariant) => {
-                const item = acc.find(({ val }) => val === codeVariant);
-                if (item) {
-                  item.count++;
-                } else {
-                  acc.push({
-                    val: codeVariant,
-                    count: 1,
-                  });
-                }
-              });
-            }
-            return acc;
-          }, [] as RawFacet['values']),
+          values: this.list.reduce(
+            (acc, { issue }) => {
+              if (issue.codeVariants?.length) {
+                issue.codeVariants.forEach((codeVariant) => {
+                  const item = acc.find(({ val }) => val === codeVariant);
+                  if (item) {
+                    item.count++;
+                  } else {
+                    acc.push({
+                      val: codeVariant,
+                      count: 1,
+                    });
+                  }
+                });
+              }
+              return acc;
+            },
+            [] as RawFacet['values'],
+          ),
         };
       }
 
@@ -315,14 +318,14 @@ export default class IssuesServiceMock {
               val: 'java',
               count: cleanCodeCategories.reduce<number>(
                 (acc, category) => acc + counters[category].java,
-                0
+                0,
               ),
             },
             {
               val: 'ts',
               count: cleanCodeCategories.reduce<number>(
                 (acc, category) => acc + counters[category].ts,
-                0
+                0,
               ),
             },
           ],
@@ -360,7 +363,7 @@ export default class IssuesServiceMock {
       .filter((item) => !query.types || query.types.split(',').includes(item.issue.type))
       .filter(
         (item) =>
-          !query.inNewCodePeriod || new Date(item.issue.creationDate) > new Date('2023-01-10')
+          !query.inNewCodePeriod || new Date(item.issue.creationDate) > new Date('2023-01-10'),
       );
 
     // Splice list items according to paging using a fixed page size
@@ -401,7 +404,7 @@ export default class IssuesServiceMock {
         }
 
         return item.issue.impacts.some(({ softwareQuality }) =>
-          query.impactSoftwareQualities.split(',').includes(softwareQuality)
+          query.impactSoftwareQualities.split(',').includes(softwareQuality),
         );
       })
       .filter((item) => {
@@ -410,7 +413,7 @@ export default class IssuesServiceMock {
         }
 
         return item.issue.impacts.some(({ severity }) =>
-          query.impactSeverities.split(',').includes(severity)
+          query.impactSeverities.split(',').includes(severity),
         );
       })
       .filter((item) => {
@@ -433,26 +436,28 @@ export default class IssuesServiceMock {
       })
       .filter(
         (item) =>
-          !query.createdBefore || new Date(item.issue.creationDate) <= new Date(query.createdBefore)
+          !query.createdBefore ||
+          new Date(item.issue.creationDate) <= new Date(query.createdBefore),
       )
       .filter(
         (item) =>
-          !query.createdAfter || new Date(item.issue.creationDate) >= new Date(query.createdAfter)
+          !query.createdAfter || new Date(item.issue.creationDate) >= new Date(query.createdAfter),
       )
       .filter((item) => !query.types || query.types.split(',').includes(item.issue.type))
       .filter(
-        (item) => !query.severities || query.severities.split(',').includes(item.issue.severity)
+        (item) => !query.severities || query.severities.split(',').includes(item.issue.severity),
       )
       .filter((item) => !query.scopes || query.scopes.split(',').includes(item.issue.scope))
       .filter((item) => !query.statuses || query.statuses.split(',').includes(item.issue.status))
       .filter((item) => !query.projects || query.projects.split(',').includes(item.issue.project))
       .filter((item) => !query.rules || query.rules.split(',').includes(item.issue.rule))
       .filter(
-        (item) => !query.resolutions || query.resolutions.split(',').includes(item.issue.resolution)
+        (item) =>
+          !query.resolutions || query.resolutions.split(',').includes(item.issue.resolution),
       )
       .filter(
         (item) =>
-          !query.inNewCodePeriod || new Date(item.issue.creationDate) > new Date('2023-01-10')
+          !query.inNewCodePeriod || new Date(item.issue.creationDate) > new Date('2023-01-10'),
       )
       .filter((item) => {
         if (!query.codeVariants) {
@@ -461,8 +466,8 @@ export default class IssuesServiceMock {
         if (!item.issue.codeVariants) {
           return false;
         }
-        return item.issue.codeVariants.some((codeVariant) =>
-          query.codeVariants?.split(',').includes(codeVariant)
+        return item.issue.codeVariants.some(
+          (codeVariant) => query.codeVariants?.split(',').includes(codeVariant),
         );
       });
 
@@ -515,7 +520,7 @@ export default class IssuesServiceMock {
   handleSetIssueAssignee = (data: { issue: string; assignee?: string }) => {
     return this.getActionsResponse(
       { assignee: data.assignee === '_me' ? this.currentUser.login : data.assignee },
-      data.issue
+      data.issue,
     );
   };
 
@@ -560,7 +565,7 @@ export default class IssuesServiceMock {
         transitions: transitionMap[statusMap[data.transition]],
         resolution: resolutionMap[data.transition],
       },
-      data.issue
+      data.issue,
     );
   };
 
@@ -583,7 +588,7 @@ export default class IssuesServiceMock {
           },
         ],
       },
-      data.issue
+      data.issue,
     );
   };
 
@@ -606,14 +611,13 @@ export default class IssuesServiceMock {
           },
         ],
       },
-      issueKey
+      issueKey,
     );
   };
 
   handleDeleteComment = (data: { comment: string }) => {
-    const issue = this.list.find((i) =>
-      i.issue.comments?.some((c) => c.key === data.comment)
-    )?.issue;
+    const issue = this.list.find((i) => i.issue.comments?.some((c) => c.key === data.comment))
+      ?.issue;
     if (!issue) {
       throw new Error(`Couldn't find issue for comment ${data.comment}`);
     }
@@ -621,7 +625,7 @@ export default class IssuesServiceMock {
       {
         comments: issue.comments?.filter((c) => c.key !== data.comment),
       },
-      issue.key
+      issue.key,
     );
   };
 

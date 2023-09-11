@@ -56,7 +56,7 @@ describe('#getBrancheLikesAsTree', () => {
         branch2Pr1,
         branch1Pr2,
         branch1Pr1,
-      ])
+      ]),
     ).toEqual({
       mainBranchTree: {
         branch: main,
@@ -107,10 +107,10 @@ describe('#isSameBranchLike', () => {
 
   it('compares pull requests', () => {
     expect(
-      isSameBranchLike(mockPullRequest({ key: '1234' }), mockPullRequest({ key: '1234' }))
+      isSameBranchLike(mockPullRequest({ key: '1234' }), mockPullRequest({ key: '1234' })),
     ).toBe(true);
     expect(
-      isSameBranchLike(mockPullRequest({ key: '1234' }), mockPullRequest({ key: '5678' }))
+      isSameBranchLike(mockPullRequest({ key: '1234' }), mockPullRequest({ key: '5678' })),
     ).toBe(false);
   });
 

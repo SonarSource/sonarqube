@@ -190,6 +190,6 @@ function shallowRender(props: Partial<UpdateNotification['props']> = {}) {
       appState={mockAppState()}
       currentUser={mockCurrentUser()}
       {...props}
-    />
+    />,
   );
 }

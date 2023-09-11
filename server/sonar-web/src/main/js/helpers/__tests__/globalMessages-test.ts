@@ -31,7 +31,7 @@ it('should work as expected', () => {
   addGlobalErrorMessage('test');
 
   expect(listener1).toHaveBeenCalledWith(
-    expect.objectContaining({ text: 'test', level: MessageLevel.Error })
+    expect.objectContaining({ text: 'test', level: MessageLevel.Error }),
   );
 
   listener1.mockClear();
@@ -41,9 +41,9 @@ it('should work as expected', () => {
   addGlobalSuccessMessage('test');
 
   expect(listener1).toHaveBeenCalledWith(
-    expect.objectContaining({ text: 'test', level: MessageLevel.Success })
+    expect.objectContaining({ text: 'test', level: MessageLevel.Success }),
   );
   expect(listener2).toHaveBeenCalledWith(
-    expect.objectContaining({ text: 'test', level: MessageLevel.Success })
+    expect.objectContaining({ text: 'test', level: MessageLevel.Success }),
   );
 });

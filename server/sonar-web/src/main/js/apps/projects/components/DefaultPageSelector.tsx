@@ -86,7 +86,7 @@ export function DefaultPageSelector(props: DefaultPageSelectorProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       /* run only once on mount*/
-    ]
+    ],
   );
 
   if (checking) {

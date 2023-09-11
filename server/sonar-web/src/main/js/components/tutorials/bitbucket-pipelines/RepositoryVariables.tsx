@@ -57,7 +57,7 @@ export default function RepositoryVariables(props: RepositoryVariablesProps) {
               <StandoutLink
                 to={`${buildBitbucketCloudLink(
                   almBinding,
-                  projectBinding
+                  projectBinding,
                 )}/admin/addon/admin/pipelines/repository-variables`}
                 target="_blank"
                 rel="noopener noreferrer"

@@ -25,7 +25,7 @@ const THROTTLE_LONG_DELAY = 100;
 export default function useScrollDownCompress(compressThreshold: number, scrollThreshold: number) {
   const [isCompressed, setIsCompressed] = useState(false);
   const [isScrolled, setIsScrolled] = useState(
-    () => document?.documentElement?.scrollTop > scrollThreshold
+    () => document?.documentElement?.scrollTop > scrollThreshold,
   );
 
   const initialScrollHeightRef = useRef<number | undefined>(undefined);
@@ -54,7 +54,7 @@ export default function useScrollDownCompress(compressThreshold: number, scrollT
       } else if (relativeScrollTop !== scrollTopRef.current) {
         // Compress when scrolling in down direction and we are scrolled more than a threshold
         setIsCompressed(
-          relativeScrollTop > scrollTopRef.current && relativeScrollTop > scrollThreshold
+          relativeScrollTop > scrollTopRef.current && relativeScrollTop > scrollThreshold,
         );
       }
 

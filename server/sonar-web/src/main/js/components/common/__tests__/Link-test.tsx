@@ -37,7 +37,7 @@ it('should correctly render an external link', () => {
   renderLink({ target: '_blank', to: 'http://example.com' });
   expect(screen.getByRole('link', { name: 'opens_in_new_window click me' })).toHaveAttribute(
     'rel',
-    'noopener noreferrer'
+    'noopener noreferrer',
   );
 });
 
@@ -45,6 +45,6 @@ function renderLink(props: Partial<LinkProps> = {}) {
   return renderComponent(
     <Link to={{ pathname: 'to' }} {...props}>
       click me
-    </Link>
+    </Link>,
   );
 }

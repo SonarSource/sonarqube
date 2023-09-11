@@ -129,7 +129,7 @@ export default class App extends React.PureComponent<Props, State> {
           this.setState({ message, startedAt, state });
         }
       },
-      () => {}
+      () => {},
     );
   };
 

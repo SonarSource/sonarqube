@@ -41,7 +41,7 @@ export function getProjectActivity(
     from?: string;
     p?: number;
     ps?: number;
-  } & BranchParameters
+  } & BranchParameters,
 ): Promise<{ analyses: Analysis[]; paging: Paging }> {
   return getJSON('/api/project_analyses/search', data).catch(throwGlobalError);
 }
@@ -58,7 +58,7 @@ export function createEvent(
   analysis: string,
   name: string,
   category?: string,
-  description?: string
+  description?: string,
 ): Promise<CreateEventResponse> {
   const data: RequestData = { analysis, name };
   if (category) {
@@ -69,7 +69,7 @@ export function createEvent(
   }
   return postJSON('/api/project_analyses/create_event', data).then(
     (r) => r.event,
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
@@ -80,7 +80,7 @@ export function deleteEvent(event: string): Promise<void | Response> {
 export function changeEvent(
   event: string,
   name?: string,
-  description?: string
+  description?: string,
 ): Promise<CreateEventResponse> {
   const data: RequestData = { event };
   if (name) {
@@ -91,7 +91,7 @@ export function changeEvent(
   }
   return postJSON('/api/project_analyses/update_event', data).then(
     (r) => r.event,
-    throwGlobalError
+    throwGlobalError,
   );
 }
 

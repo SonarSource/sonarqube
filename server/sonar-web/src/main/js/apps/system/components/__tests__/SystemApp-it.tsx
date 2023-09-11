@@ -42,7 +42,7 @@ describe('System Info Standalone', () => {
 
     expect(ui.copyIdInformation.get()).toHaveAttribute(
       'data-clipboard-text',
-      expect.stringContaining(`Server ID: asd564-asd54a-5dsfg45`)
+      expect.stringContaining(`Server ID: asd564-asd54a-5dsfg45`),
     );
 
     expect(ui.sectionButton('System').get()).toBeInTheDocument();
@@ -74,7 +74,7 @@ describe('System Info Standalone', () => {
     ['Main Process', 'Compute Engine', 'Search Engine', 'Web Server', 'Access Logs'].forEach(
       (link) => {
         expect(screen.getByRole('link', { name: link })).toBeInTheDocument();
-      }
+      },
     );
     expect(ui.downloadSystemInfoButton.get()).toBeInTheDocument();
   });
@@ -94,7 +94,7 @@ describe('System Info Cluster', () => {
 
     expect(ui.copyIdInformation.get()).toHaveAttribute(
       'data-clipboard-text',
-      expect.stringContaining(`Server ID: asd564-asd54a-5dsfg45`)
+      expect.stringContaining(`Server ID: asd564-asd54a-5dsfg45`),
     );
 
     // Renders health checks

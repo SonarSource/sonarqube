@@ -59,13 +59,13 @@ describe('The Global background task page', () => {
     const modal = screen.getByRole('dialog');
 
     expect(
-      within(modal).getByRole('heading', { name: 'background_tasks.change_number_of_workers' })
+      within(modal).getByRole('heading', { name: 'background_tasks.change_number_of_workers' }),
     ).toBeInTheDocument();
 
     await user.click(
       within(modal).getByLabelText('background_tasks.change_number_of_workers', {
         selector: 'input',
-      })
+      }),
     );
 
     await user.keyboard('[ArrowDown][ArrowDown][Enter]');
@@ -161,7 +161,7 @@ describe('The Global background task page', () => {
 
       expect(screen.queryByText('background_tasks.table.nodeName')).not.toBeInTheDocument();
       expect(screen.queryByText('best_node_ever')).not.toBeInTheDocument();
-    }
+    },
   );
 
   it('DCE edition should display node name', async () => {

@@ -29,7 +29,7 @@ function optionRenderer(props: OptionProps<LabelValueSelectOption<AlmSettingsIns
 }
 
 function singleValueRenderer(
-  props: SingleValueProps<LabelValueSelectOption<AlmSettingsInstance>, false>
+  props: SingleValueProps<LabelValueSelectOption<AlmSettingsInstance>, false>,
 ) {
   return (
     <components.SingleValue {...props}>{customOptions(props.data.value)}</components.SingleValue>

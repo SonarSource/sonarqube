@@ -20,7 +20,7 @@
 import { ComponentMeasure, ComponentMeasureEnhanced } from '../types/types';
 
 export function getComponentMeasureUniqueKey(
-  component?: ComponentMeasure | ComponentMeasureEnhanced
+  component?: ComponentMeasure | ComponentMeasureEnhanced,
 ) {
   return component ? [component.key, component.branch].filter((s) => !!s).join('/') : undefined;
 }

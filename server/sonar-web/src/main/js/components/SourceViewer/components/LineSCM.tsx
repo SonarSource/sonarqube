@@ -58,7 +58,7 @@ function LineSCM({ line, previousLine }: Props) {
   if (line.scmAuthor) {
     ariaLabel = `${translateWithParameters(
       'source_viewer.author_X',
-      line.scmAuthor
+      line.scmAuthor,
     )}, ${ariaLabel}`;
   }
 

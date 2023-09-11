@@ -76,7 +76,7 @@ export function submit(element: ShallowWrapper | ReactWrapper): void {
 export function change(
   element: ShallowWrapper | ReactWrapper,
   value: string | object,
-  event = {}
+  event = {},
 ): void {
   // `type()` returns a component constructor for a composite element and string for DOM nodes
   if (typeof element.type() === 'function') {

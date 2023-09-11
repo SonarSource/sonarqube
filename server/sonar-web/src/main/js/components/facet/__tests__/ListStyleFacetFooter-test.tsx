@@ -25,14 +25,14 @@ import ListStyleFacetFooter from '../ListStyleFacetFooter';
 
 it('should not render "show more"', () => {
   expect(
-    shallow(<ListStyleFacetFooter count={3} showLess={undefined} showMore={jest.fn()} total={3} />)
+    shallow(<ListStyleFacetFooter count={3} showLess={undefined} showMore={jest.fn()} total={3} />),
   ).toMatchSnapshot();
 });
 
 it('should show more', () => {
   const showMore = jest.fn();
   const wrapper = shallow(
-    <ListStyleFacetFooter count={3} showLess={undefined} showMore={showMore} total={15} />
+    <ListStyleFacetFooter count={3} showLess={undefined} showMore={showMore} total={15} />,
   );
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find(ButtonLink));
@@ -42,7 +42,7 @@ it('should show more', () => {
 it('should show less', () => {
   const showLess = jest.fn();
   const wrapper = shallow(
-    <ListStyleFacetFooter count={15} showLess={showLess} showMore={jest.fn()} total={15} />
+    <ListStyleFacetFooter count={15} showLess={showLess} showMore={jest.fn()} total={15} />,
   );
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find(ButtonLink));
@@ -51,7 +51,7 @@ it('should show less', () => {
 
 it('should not render "show less"', () => {
   const wrapper = shallow(
-    <ListStyleFacetFooter count={15} showLess={undefined} showMore={jest.fn()} total={15} />
+    <ListStyleFacetFooter count={15} showLess={undefined} showMore={jest.fn()} total={15} />,
   );
   expect(wrapper).toMatchSnapshot();
 });

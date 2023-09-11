@@ -68,7 +68,7 @@ export default function AzureForm(props: AzureFormProps) {
         help={
           <FormattedMessage
             defaultMessage={translate(
-              'settings.almintegration.form.personal_access_token.azure.help'
+              'settings.almintegration.form.personal_access_token.azure.help',
             )}
             id="settings.almintegration.form.personal_access_token.azure.help"
             values={{

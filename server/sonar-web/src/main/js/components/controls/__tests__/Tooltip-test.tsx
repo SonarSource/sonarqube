@@ -52,8 +52,8 @@ it('should render', () => {
       <TooltipInner overlay={<span id="overlay" />} visible>
         <div id="tooltip" />
       </TooltipInner>,
-      { disableLifecycleMethods: true }
-    )
+      { disableLifecycleMethods: true },
+    ),
   ).toMatchSnapshot();
 });
 
@@ -113,7 +113,7 @@ function shallowRenderTooltip() {
   return shallow<TooltipProps>(
     <Tooltip overlay={undefined}>
       <div id="tooltip" />
-    </Tooltip>
+    </Tooltip>,
   );
 }
 
@@ -121,6 +121,6 @@ function shallowRenderTooltipInner(props?: Partial<TooltipProps>) {
   return shallow<TooltipInner>(
     <TooltipInner overlay={<span id="overlay" />} {...props}>
       <div id="tooltip" />
-    </TooltipInner>
+    </TooltipInner>,
   );
 }

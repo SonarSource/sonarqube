@@ -77,7 +77,7 @@ export default class BulkChange extends React.PureComponent<Props, State> {
   render() {
     // show "Bulk Change" button only if user is admin of at least one QP
     const canBulkChange = Object.values(this.props.referencedProfiles).some((profile) =>
-      Boolean(profile.actions && profile.actions.edit)
+      Boolean(profile.actions && profile.actions.edit),
     );
     if (!canBulkChange) {
       return (
@@ -92,7 +92,7 @@ export default class BulkChange extends React.PureComponent<Props, State> {
     const { activation } = this.props.query;
     const profile = this.getSelectedProfile();
     const canChangeProfile = Boolean(
-      profile && !profile.isBuiltIn && profile.actions && profile.actions.edit
+      profile && !profile.isBuiltIn && profile.actions && profile.actions.edit,
     );
     const allowActivateOnProfile = canChangeProfile && activation === false;
     const allowDeactivateOnProfile = canChangeProfile && activation === true;

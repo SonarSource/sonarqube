@@ -112,7 +112,7 @@ export default class TaskActions extends React.PureComponent<Props, State> {
             <ActionsDropdownItem className="js-task-filter" onClick={this.handleFilterClick}>
               {translateWithParameters(
                 'background_tasks.filter_by_component_x',
-                task.componentName
+                task.componentName,
               )}
             </ActionsDropdownItem>
           )}

@@ -29,7 +29,7 @@ describe('validateProjectKey', () => {
     expect(validateProjectKey('123')).toBe(ProjectKeyValidationResult.OnlyDigits);
     // Cannot be more than 400 chars long.
     expect(validateProjectKey(new Array(PROJECT_KEY_MAX_LEN + 1).fill('a').join(''))).toBe(
-      ProjectKeyValidationResult.TooLong
+      ProjectKeyValidationResult.TooLong,
     );
     // Cannot be empty.
     expect(validateProjectKey('')).toBe(ProjectKeyValidationResult.Empty);

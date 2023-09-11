@@ -54,7 +54,7 @@ export default function ApiSidebar({ apisList, docInfo }: Props) {
           (api) =>
             api.name.toLowerCase().includes(lowerCaseSearch) ||
             api.method.toLowerCase().includes(lowerCaseSearch) ||
-            api.info.summary?.toLowerCase().includes(lowerCaseSearch)
+            api.info.summary?.toLowerCase().includes(lowerCaseSearch),
         )
         .reduce<Record<string, Api[]>>((acc, api) => {
           const subgroup = api.name.split('/')[1];
@@ -63,7 +63,7 @@ export default function ApiSidebar({ apisList, docInfo }: Props) {
             [subgroup]: [...(acc[subgroup] ?? []), api],
           };
         }, {}),
-    [lowerCaseSearch, apisList]
+    [lowerCaseSearch, apisList],
   );
 
   return (
@@ -85,7 +85,7 @@ export default function ApiSidebar({ apisList, docInfo }: Props) {
       {Object.entries(groupedList).map(([group, apis]) => (
         <SubnavigationAccordion
           initExpanded={apis.some(
-            ({ name, method }) => name === activeApi[0] && method === activeApi[1]
+            ({ name, method }) => name === activeApi[0] && method === activeApi[1],
           )}
           className="sw-mt-2"
           header={group}

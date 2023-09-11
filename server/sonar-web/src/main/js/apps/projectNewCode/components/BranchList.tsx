@@ -100,7 +100,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
         });
 
         const previouslyNonCompliantBranchNCDs = newCodePeriods.filter(
-          isPreviouslyNonCompliantDaysNCD
+          isPreviouslyNonCompliantDaysNCD,
         );
 
         this.setState({
@@ -111,7 +111,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
       },
       () => {
         this.setState({ loading: false });
-      }
+      },
     );
   }
 
@@ -134,7 +134,7 @@ export default class BranchList extends React.PureComponent<Props, State> {
       this.setState(({ previouslyNonCompliantBranchNCDs }) => ({
         branches: this.updateBranchNewCodePeriod(branch, newSetting),
         previouslyNonCompliantBranchNCDs: previouslyNonCompliantBranchNCDs?.filter(
-          ({ branchKey }) => branchKey !== branch
+          ({ branchKey }) => branchKey !== branch,
         ),
         editedBranch: undefined,
       }));

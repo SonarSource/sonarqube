@@ -138,7 +138,7 @@ export class CreationDateFacetClass extends React.PureComponent<Props & WrappedC
         'issues.facet.createdAt.bar_description',
         formatMeasure(stats[start], MetricType.ShortInteger),
         formatDate(startDate, longFormatterOption),
-        formatDate(tooltipEndDate, longFormatterOption)
+        formatDate(tooltipEndDate, longFormatterOption),
       );
 
       return {
@@ -156,7 +156,7 @@ export class CreationDateFacetClass extends React.PureComponent<Props & WrappedC
 
     const maxValue = max(data.map((d) => d.y));
     const xValues = data.map((d) =>
-      d.y === maxValue ? formatMeasure(maxValue, MetricType.ShortInteger) : ''
+      d.y === maxValue ? formatMeasure(maxValue, MetricType.ShortInteger) : '',
     );
 
     return (

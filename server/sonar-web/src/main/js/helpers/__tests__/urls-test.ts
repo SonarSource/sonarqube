@@ -58,7 +58,7 @@ describe('#convertGithubApiUrlToLink', () => {
   it('should correctly convert a GitHub API URL to a Web URL', () => {
     expect(convertGithubApiUrlToLink('https://api.github.com')).toBe('https://github.com');
     expect(convertGithubApiUrlToLink('https://company.github.com/api/v3')).toBe(
-      'https://company.github.com'
+      'https://company.github.com',
     );
   });
 });
@@ -97,7 +97,7 @@ describe('#getComponentIssuesUrl', () => {
       expect.objectContaining({
         pathname: '/project/issues',
         search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      })
+      }),
     );
   });
 
@@ -106,7 +106,7 @@ describe('#getComponentIssuesUrl', () => {
       expect.objectContaining({
         pathname: '/project/issues',
         search: queryToSearch({ resolved: 'false', id: SIMPLE_COMPONENT_KEY }),
-      })
+      }),
     );
   });
 });
@@ -117,7 +117,7 @@ describe('#getComponentSecurityHotspotsUrl', () => {
       expect.objectContaining({
         pathname: '/security_hotspots',
         search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      })
+      }),
     );
   });
 
@@ -132,7 +132,7 @@ describe('#getComponentSecurityHotspotsUrl', () => {
         [SecurityStandard.PCI_DSS_3_2]: '4.2',
         [SecurityStandard.PCI_DSS_4_0]: '4.1',
         ignoredParam: '1234',
-      })
+      }),
     ).toEqual(
       expect.objectContaining({
         pathname: '/security_hotspots',
@@ -146,7 +146,7 @@ describe('#getComponentSecurityHotspotsUrl', () => {
           [SecurityStandard.PCI_DSS_3_2]: '4.2',
           [SecurityStandard.PCI_DSS_4_0]: '4.1',
         }),
-      })
+      }),
     );
   });
 });
@@ -157,7 +157,7 @@ describe('#getComponentOverviewUrl', () => {
       expect.objectContaining({
         pathname: '/portfolio',
         search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      })
+      }),
     );
   });
   it('should return a portfolio url for a subportfolio', () => {
@@ -165,7 +165,7 @@ describe('#getComponentOverviewUrl', () => {
       expect.objectContaining({
         pathname: '/portfolio',
         search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      })
+      }),
     );
   });
   it('should return a dashboard url for a project', () => {
@@ -173,7 +173,7 @@ describe('#getComponentOverviewUrl', () => {
       expect.objectContaining({
         pathname: '/dashboard',
         search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      })
+      }),
     );
   });
   it('should return correct dashboard url for a project when navigating from new code', () => {
@@ -182,13 +182,13 @@ describe('#getComponentOverviewUrl', () => {
         SIMPLE_COMPONENT_KEY,
         ComponentQualifier.Project,
         undefined,
-        CodeScope.New
-      )
+        CodeScope.New,
+      ),
     ).toEqual(
       expect.objectContaining({
         pathname: '/dashboard',
         search: queryToSearch({ id: SIMPLE_COMPONENT_KEY, code_scope: 'new' }),
-      })
+      }),
     );
   });
   it('should return correct dashboard url for a project when navigating from overall code', () => {
@@ -197,13 +197,13 @@ describe('#getComponentOverviewUrl', () => {
         SIMPLE_COMPONENT_KEY,
         ComponentQualifier.Project,
         undefined,
-        CodeScope.Overall
-      )
+        CodeScope.Overall,
+      ),
     ).toEqual(
       expect.objectContaining({
         pathname: '/dashboard',
         search: queryToSearch({ id: SIMPLE_COMPONENT_KEY, code_scope: 'overall' }),
-      })
+      }),
     );
   });
   it('should return a dashboard url for an app', () => {
@@ -211,7 +211,7 @@ describe('#getComponentOverviewUrl', () => {
       expect.objectContaining({
         pathname: '/dashboard',
         search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      })
+      }),
     );
   });
 });
@@ -219,34 +219,34 @@ describe('#getComponentOverviewUrl', () => {
 describe('#getComponentDrilldownUrl', () => {
   it('should return component drilldown url', () => {
     expect(
-      getComponentDrilldownUrl({ componentKey: SIMPLE_COMPONENT_KEY, metric: METRIC })
+      getComponentDrilldownUrl({ componentKey: SIMPLE_COMPONENT_KEY, metric: METRIC }),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
         search: queryToSearch({ id: SIMPLE_COMPONENT_KEY, metric: METRIC }),
-      })
+      }),
     );
   });
 
   it('should not encode component key', () => {
     expect(
-      getComponentDrilldownUrl({ componentKey: COMPLEX_COMPONENT_KEY, metric: METRIC })
+      getComponentDrilldownUrl({ componentKey: COMPLEX_COMPONENT_KEY, metric: METRIC }),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
         search: queryToSearch({ id: COMPLEX_COMPONENT_KEY, metric: METRIC }),
-      })
+      }),
     );
   });
 
   it('should add asc param only when its list view', () => {
     expect(
-      getComponentDrilldownUrl({ componentKey: SIMPLE_COMPONENT_KEY, metric: METRIC, asc: false })
+      getComponentDrilldownUrl({ componentKey: SIMPLE_COMPONENT_KEY, metric: METRIC, asc: false }),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
         search: queryToSearch({ id: SIMPLE_COMPONENT_KEY, metric: METRIC }),
-      })
+      }),
     );
 
     expect(
@@ -255,7 +255,7 @@ describe('#getComponentDrilldownUrl', () => {
         metric: METRIC,
         listView: true,
         asc: false,
-      })
+      }),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
@@ -265,7 +265,7 @@ describe('#getComponentDrilldownUrl', () => {
           view: 'list',
           asc: 'false',
         }),
-      })
+      }),
     );
   });
 });
@@ -273,7 +273,7 @@ describe('#getComponentDrilldownUrl', () => {
 describe('#getComponentDrilldownUrlWithSelection', () => {
   it('should return component drilldown url with selection', () => {
     expect(
-      getComponentDrilldownUrlWithSelection(SIMPLE_COMPONENT_KEY, COMPLEX_COMPONENT_KEY, METRIC)
+      getComponentDrilldownUrlWithSelection(SIMPLE_COMPONENT_KEY, COMPLEX_COMPONENT_KEY, METRIC),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
@@ -282,7 +282,7 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
           metric: METRIC,
           selected: COMPLEX_COMPONENT_KEY,
         }),
-      })
+      }),
     );
   });
 
@@ -292,8 +292,8 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
         SIMPLE_COMPONENT_KEY,
         COMPLEX_COMPONENT_KEY,
         METRIC,
-        mockBranch({ name: 'foo' })
-      )
+        mockBranch({ name: 'foo' }),
+      ),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
@@ -303,7 +303,7 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
           branch: 'foo',
           selected: COMPLEX_COMPONENT_KEY,
         }),
-      })
+      }),
     );
   });
 
@@ -314,8 +314,8 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
         COMPLEX_COMPONENT_KEY,
         METRIC,
         undefined,
-        MeasurePageView.list
-      )
+        MeasurePageView.list,
+      ),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
@@ -325,7 +325,7 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
           view: MeasurePageView.list,
           selected: COMPLEX_COMPONENT_KEY,
         }),
-      })
+      }),
     );
 
     expect(
@@ -334,8 +334,8 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
         COMPLEX_COMPONENT_KEY,
         METRIC,
         mockMainBranch(),
-        MeasurePageView.treemap
-      )
+        MeasurePageView.treemap,
+      ),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
@@ -345,7 +345,7 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
           view: MeasurePageView.treemap,
           selected: COMPLEX_COMPONENT_KEY,
         }),
-      })
+      }),
     );
 
     expect(
@@ -354,8 +354,8 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
         COMPLEX_COMPONENT_KEY,
         METRIC,
         mockPullRequest({ key: '1' }),
-        MeasurePageView.tree
-      )
+        MeasurePageView.tree,
+      ),
     ).toEqual(
       expect.objectContaining({
         pathname: '/component_measures',
@@ -365,7 +365,7 @@ describe('#getComponentDrilldownUrlWithSelection', () => {
           pullRequest: '1',
           selected: COMPLEX_COMPONENT_KEY,
         }),
-      })
+      }),
     );
   });
 });
@@ -434,7 +434,7 @@ describe('#getPathUrlAsString', () => {
       getPathUrlAsString({
         pathname: '/dashboard',
         search: queryToSearch({ id: SIMPLE_COMPONENT_KEY }),
-      })
+      }),
     ).toBe('/dashboard?id=' + SIMPLE_COMPONENT_KEY);
   });
 
@@ -443,7 +443,7 @@ describe('#getPathUrlAsString', () => {
       getPathUrlAsString({
         pathname: '/dashboard',
         search: queryToSearch({ id: COMPLEX_COMPONENT_KEY }),
-      })
+      }),
     ).toBe('/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
   });
 
@@ -510,7 +510,7 @@ describe('queryToSearch', () => {
     };
 
     expect(queryToSearch(query)).toBe(
-      '?b1=true&b2=false&normalString=hello&author=GRRM&author=JKR&author=Stross'
+      '?b1=true&b2=false&normalString=hello&author=GRRM&author=JKR&author=Stross',
     );
   });
 

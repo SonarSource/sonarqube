@@ -222,8 +222,8 @@ export default class GroupsServiceMock {
                 'External Users and Groups Provisioning': this.provider,
               },
             }
-          : {}
-      )
+          : {},
+      ),
     );
   };
 

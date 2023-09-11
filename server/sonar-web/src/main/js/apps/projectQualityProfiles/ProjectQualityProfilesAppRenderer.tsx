@@ -51,7 +51,7 @@ export interface ProjectQualityProfilesAppRendererProps {
 }
 
 export default function ProjectQualityProfilesAppRenderer(
-  props: ProjectQualityProfilesAppRendererProps
+  props: ProjectQualityProfilesAppRendererProps,
 ) {
   const {
     allProfiles,

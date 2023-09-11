@@ -55,13 +55,13 @@ function BranchLikeTable(props: BranchLikeTableProps) {
                 <div className="display-flex-center">
                   <span>
                     {translate(
-                      'project_branch_pull_request.branch.auto_deletion.keep_when_inactive'
+                      'project_branch_pull_request.branch.auto_deletion.keep_when_inactive',
                     )}
                   </span>
                   <HelpTooltip
                     className="little-spacer-left"
                     overlay={translate(
-                      'project_branch_pull_request.branch.auto_deletion.keep_when_inactive.tooltip'
+                      'project_branch_pull_request.branch.auto_deletion.keep_when_inactive.tooltip',
                     )}
                   />
                 </div>

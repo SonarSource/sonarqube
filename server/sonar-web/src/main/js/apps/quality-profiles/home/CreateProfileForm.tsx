@@ -94,7 +94,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
         if (this.mounted) {
           this.setState({ preloading: false });
         }
-      }
+      },
     );
   }
 
@@ -279,7 +279,7 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                   label={translate(
                     action === ProfileActionModals.Copy
                       ? 'quality_profiles.creation.choose_copy_quality_profile'
-                      : 'quality_profiles.creation.choose_parent_quality_profile'
+                      : 'quality_profiles.creation.choose_parent_quality_profile',
                   )}
                   required
                   isInvalid={isValidProflie !== undefined && !isValidProflie}

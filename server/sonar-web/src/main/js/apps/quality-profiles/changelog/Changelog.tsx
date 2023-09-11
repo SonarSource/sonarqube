@@ -38,7 +38,7 @@ export default function Changelog(props: Props) {
     props.events,
     // sort events by date, rounded to a minute, recent events first
     (e) => -Number(parseDate(e.date)),
-    (e) => e.action
+    (e) => e.action,
   );
 
   const rows = sortedRows.map((event, index) => {

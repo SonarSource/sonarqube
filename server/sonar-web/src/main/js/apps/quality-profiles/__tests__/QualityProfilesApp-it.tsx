@@ -128,10 +128,10 @@ describe('Evolution', () => {
 
     expect(await ui.deprecatedRulesRegion.find()).toBeInTheDocument();
     expect(
-      ui.deprecatedRulesRegion.byRole('link', { name: 'Good old PHP quality profile' }).get()
+      ui.deprecatedRulesRegion.byRole('link', { name: 'Good old PHP quality profile' }).get(),
     ).toBeInTheDocument();
     expect(
-      ui.deprecatedRulesRegion.byRole('link', { name: 'java quality profile #2' }).get()
+      ui.deprecatedRulesRegion.byRole('link', { name: 'java quality profile #2' }).get(),
     ).toBeInTheDocument();
   });
 
@@ -141,7 +141,7 @@ describe('Evolution', () => {
 
     expect(await ui.stagnantProfilesRegion.find()).toBeInTheDocument();
     expect(
-      ui.stagnantProfilesRegion.byRole('link', { name: 'Good old PHP quality profile' }).get()
+      ui.stagnantProfilesRegion.byRole('link', { name: 'Good old PHP quality profile' }).get(),
     ).toBeInTheDocument();
   });
 

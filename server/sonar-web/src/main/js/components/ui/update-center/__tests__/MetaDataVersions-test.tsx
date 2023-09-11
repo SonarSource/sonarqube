@@ -46,6 +46,6 @@ function shallowRender(props?: Partial<MetaDataVersions['props']>) {
         mockMetaDataVersionInformation({ version: '1.0', archived: true }),
       ]}
       {...props}
-    />
+    />,
   );
 }

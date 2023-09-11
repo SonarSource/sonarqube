@@ -127,7 +127,7 @@ it.each([AlmKeys.BitbucketCloud, AlmKeys.BitbucketServer, AlmKeys.GitHub, AlmKey
 
     await user.click(ui.windowsDotnetFrameworkButton.get());
     expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(
-      `windows dotnet framework jenkinsfile`
+      `windows dotnet framework jenkinsfile`,
     );
 
     await user.click(ui.linuxDotnetCoreButton.get());
@@ -149,12 +149,12 @@ it.each([AlmKeys.BitbucketCloud, AlmKeys.BitbucketServer, AlmKeys.GitHub, AlmKey
     // Other
     await user.click(ui.otherBuildButton.get());
     expect(getCopyToClipboardValue(2, 'Copy')).toMatchSnapshot(
-      `other build tools sonar-project.properties code`
+      `other build tools sonar-project.properties code`,
     );
     expect(getCopyToClipboardValue(3, 'Copy')).toMatchSnapshot(`other build tools jenkinsfile`);
 
     expect(ui.allSetSentence.get()).toBeInTheDocument();
-  }
+  },
 );
 
 it.each([AlmKeys.GitHub, AlmKeys.GitLab, AlmKeys.BitbucketCloud])(
@@ -166,7 +166,7 @@ it.each([AlmKeys.GitHub, AlmKeys.GitLab, AlmKeys.BitbucketCloud])(
     expect(await ui.devopsPlatformTitle.find()).toBeInTheDocument();
     await user.click(ui.devopsPlatformButton(alm).get());
     expect(ui.pipelineIntroText.get()).toBeInTheDocument();
-  }
+  },
 );
 
 it.each([AlmKeys.GitHub, AlmKeys.BitbucketCloud])(
@@ -192,7 +192,7 @@ it.each([AlmKeys.GitHub, AlmKeys.BitbucketCloud])(
     expect(ui.webhookAlmLink(alm).get()).toBeInTheDocument();
     await user.click(ui.mavenBuildButton.get());
     expect(ui.allSetSentence.get()).toBeInTheDocument();
-  }
+  },
 );
 
 it('navigates between steps', async () => {
@@ -224,11 +224,11 @@ function renderJenkinsTutorial(
   {
     featureList = [Feature.BranchSupport],
     languages = { c: mockLanguage({ key: 'c' }) },
-  }: RenderContext = {}
+  }: RenderContext = {},
 ) {
   return renderApp(
     '/',
     <JenkinsTutorial baseUrl="http://localhost:9000" component={mockComponent()} {...overrides} />,
-    { featureList, languages }
+    { featureList, languages },
   );
 }

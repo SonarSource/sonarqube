@@ -93,7 +93,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
 
     this.checkIfEducationPrinciplesAreVisible = debounce(
       this.checkIfEducationPrinciplesAreVisible,
-      DEBOUNCE_FOR_SCROLL
+      DEBOUNCE_FOR_SCROLL,
     );
   }
 
@@ -138,8 +138,8 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
           prevProps.ruleDetails !== ruleDetails ||
             (prevProps.issue && issue && prevProps.issue.key !== issue.key) ||
             prevProps.selectedFlowIndex !== selectedFlowIndex ||
-            prevProps.selectedLocationIndex !== selectedLocationIndex
-        )
+            prevProps.selectedLocationIndex !== selectedLocationIndex,
+        ),
       );
     }
 
@@ -193,7 +193,7 @@ export class IssueTabViewer extends React.PureComponent<IssueTabViewerProps, Sta
 
     // As we might tamper with the description later on, we clone to avoid any side effect
     const descriptionSectionsByKey = cloneDeep(
-      groupBy(descriptionSections, (section) => section.key)
+      groupBy(descriptionSections, (section) => section.key),
     );
 
     if (extendedDescription) {

@@ -92,7 +92,7 @@ export default class MeasuresBreadcrumbs extends React.PureComponent<Props, Stat
           this.setState({ breadcrumbs });
         }
       },
-      () => {}
+      () => {},
     );
   };
 

@@ -64,7 +64,7 @@ function renderKeyboardShortcutsModal() {
     <>
       <KeyboardShortcutsModal />
       <input type="text" />
-    </>
+    </>,
   );
 }
 

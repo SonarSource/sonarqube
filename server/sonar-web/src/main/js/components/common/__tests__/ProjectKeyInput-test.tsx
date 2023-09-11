@@ -26,7 +26,7 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ projectKey: 'foo' })).toMatchSnapshot('with value');
   expect(
-    shallowRender({ help: 'foo.help', label: 'foo.label', placeholder: 'foo.placeholder' })
+    shallowRender({ help: 'foo.help', label: 'foo.label', placeholder: 'foo.placeholder' }),
   ).toMatchSnapshot('with label, help, and placeholder');
   expect(shallowRender({ touched: true })).toMatchSnapshot('valid');
   expect(shallowRender({ touched: true, error: 'bar.baz' })).toMatchSnapshot('invalid');
@@ -43,6 +43,6 @@ it('should not display any status when the key is not defined', () => {
 
 function shallowRender(props: Partial<ProjectKeyInputProps> = {}) {
   return shallow<ProjectKeyInputProps>(
-    <ProjectKeyInput onProjectKeyChange={jest.fn()} touched={false} {...props} />
+    <ProjectKeyInput onProjectKeyChange={jest.fn()} touched={false} {...props} />,
   );
 }

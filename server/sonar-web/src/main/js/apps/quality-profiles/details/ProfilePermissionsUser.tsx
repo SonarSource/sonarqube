@@ -109,7 +109,7 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
         <DeleteButton
           aria-label={translateWithParameters(
             'quality_profiles.permissions.remove.user_x',
-            user.name
+            user.name,
           )}
           className="pull-right spacer-top spacer-left spacer-right button-small"
           onClick={this.handleDeleteClick}

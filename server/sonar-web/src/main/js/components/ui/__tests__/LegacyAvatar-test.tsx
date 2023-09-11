@@ -37,21 +37,21 @@ it('should be able to render with hash only', () => {
       hash="7daf6c79d4802916d83f6266e24850af"
       name="Foo"
       size={30}
-    />
+    />,
   );
   expect(avatar).toMatchSnapshot();
 });
 
 it('falls back to dummy avatar', () => {
   const avatar = shallow(
-    <LegacyAvatar appState={mockAppState({ settings: {} })} name="Foo Bar" size={30} />
+    <LegacyAvatar appState={mockAppState({ settings: {} })} name="Foo Bar" size={30} />,
   );
   expect(avatar).toMatchSnapshot();
 });
 
 it('do not fail when name is missing', () => {
   const avatar = shallow(
-    <LegacyAvatar appState={mockAppState({ settings: {} })} name={undefined} size={30} />
+    <LegacyAvatar appState={mockAppState({ settings: {} })} name={undefined} size={30} />,
   );
   expect(avatar.getElement()).toBeNull();
 });

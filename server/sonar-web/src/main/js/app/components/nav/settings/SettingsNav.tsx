@@ -95,7 +95,7 @@ export class SettingsNav extends React.PureComponent<Props> {
 
   renderConfigurationTab() {
     const extensionsWithoutSupport = this.props.extensions.filter(
-      (extension) => extension.key !== 'license/support'
+      (extension) => extension.key !== 'license/support',
     );
     return (
       <Dropdown
@@ -234,7 +234,7 @@ export class SettingsNav extends React.PureComponent<Props> {
     const { extensions, pendingPlugins } = this.props;
     const hasSupportExtension = extensions.find((extension) => extension.key === 'license/support');
     const hasGovernanceExtension = extensions.find(
-      (e) => e.key === AdminPageExtension.GovernanceConsole
+      (e) => e.key === AdminPageExtension.GovernanceConsole,
     );
     const totalPendingPlugins =
       pendingPlugins.installing.length +

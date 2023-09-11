@@ -31,8 +31,8 @@ it('should render correctly', () => {
 
   expect(
     screen.getByLabelText(
-      'overview.see_more_details_on_x_of_y.work_duration.x_minutes.1.sqale_index'
-    )
+      'overview.see_more_details_on_x_of_y.work_duration.x_minutes.1.sqale_index',
+    ),
   ).toBeInTheDocument();
 
   expect(screen.getByText('sqale_index')).toBeInTheDocument();
@@ -43,8 +43,8 @@ it('should render diff metric correctly', () => {
 
   expect(
     screen.getByLabelText(
-      'overview.see_more_details_on_x_of_y.work_duration.x_minutes.1.new_technical_debt'
-    )
+      'overview.see_more_details_on_x_of_y.work_duration.x_minutes.1.new_technical_debt',
+    ),
   ).toBeInTheDocument();
 
   expect(screen.getByText('new_technical_debt')).toBeInTheDocument();
@@ -67,6 +67,6 @@ function renderDebtValue(props: Partial<DebtValueProps> = {}) {
         mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_technical_debt }) }),
       ]}
       {...props}
-    />
+    />,
   );
 }

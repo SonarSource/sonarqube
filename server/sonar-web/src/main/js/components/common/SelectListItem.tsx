@@ -69,7 +69,7 @@ export default class SelectListItem extends React.PureComponent<Props, State> {
               active: this.props.active === this.props.item,
               hover: selected,
             },
-            this.props.className
+            this.props.className,
           )}
           onClick={this.handleSelect}
           onFocus={this.handleHover}

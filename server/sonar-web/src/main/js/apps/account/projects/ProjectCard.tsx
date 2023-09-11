@@ -44,7 +44,7 @@ export default function ProjectCard({ project }: Props) {
         type,
         url: href,
       };
-    })
+    }),
   );
 
   const { lastAnalysisDate } = project;

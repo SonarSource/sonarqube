@@ -88,7 +88,7 @@ export default function MeasuresPanelPercentMeasure(props: Props) {
               aria-label={translateWithParameters(
                 'overview.see_more_details_on_x_of_y',
                 value,
-                localizeMetric(metricKey)
+                localizeMetric(metricKey),
               )}
               to={url}
             >

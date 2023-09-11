@@ -50,20 +50,20 @@ export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
   if (issueTypes.length > 1) {
     tooltipContent = translateWithParameters(
       'source_viewer.issues_on_line.multiple_issues',
-      tooltipShowHide
+      tooltipShowHide,
     );
   } else if (issues.length === 1) {
     tooltipContent = translateWithParameters(
       'source_viewer.issues_on_line.issue_of_type_X',
       tooltipShowHide,
-      translate('issue.type', mostImportantIssue.type)
+      translate('issue.type', mostImportantIssue.type),
     );
   } else {
     tooltipContent = translateWithParameters(
       'source_viewer.issues_on_line.X_issues_of_type_Y',
       tooltipShowHide,
       issues.length,
-      translate('issue.type', mostImportantIssue.type, 'plural')
+      translate('issue.type', mostImportantIssue.type, 'plural'),
     );
   }
 

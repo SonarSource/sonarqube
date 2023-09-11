@@ -98,7 +98,7 @@ export default class ProfilesList extends React.PureComponent<Props> {
 
     const profilesIndex: Dict<Profile[]> = groupBy<Profile>(
       profiles,
-      (profile) => profile.language
+      (profile) => profile.language,
     );
 
     const profilesToShow = language ? pick(profilesIndex, language) : profilesIndex;
@@ -121,7 +121,7 @@ export default class ProfilesList extends React.PureComponent<Props> {
         )}
 
         {languagesToShow.map((languageKey) =>
-          this.renderLanguage(languageKey, profilesToShow[languageKey])
+          this.renderLanguage(languageKey, profilesToShow[languageKey]),
         )}
       </div>
     );

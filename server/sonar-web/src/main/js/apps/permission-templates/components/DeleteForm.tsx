@@ -44,7 +44,7 @@ export default function DeleteForm({ onClose, onSubmit, permissionTemplate: t }:
           <div className="modal-body">
             {translateWithParameters(
               'permission_template.do_you_want_to_delete_template_xxx',
-              t.name
+              t.name,
             )}
           </div>
 

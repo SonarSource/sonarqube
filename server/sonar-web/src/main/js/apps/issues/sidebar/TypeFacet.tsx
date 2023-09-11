@@ -51,7 +51,7 @@ export class TypeFacet extends React.PureComponent<Props> {
     const { types } = this.props;
     if (multiple) {
       const newValue = orderBy(
-        types.includes(itemValue) ? without(types, itemValue) : [...types, itemValue]
+        types.includes(itemValue) ? without(types, itemValue) : [...types, itemValue],
       );
       this.props.onChange({ [this.property]: newValue });
     } else {

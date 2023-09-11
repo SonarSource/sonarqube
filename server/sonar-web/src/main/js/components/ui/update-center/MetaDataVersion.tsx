@@ -76,7 +76,7 @@ export default function MetaDataVersion(props: MetaDataVersionProps) {
                       {advancedDownloadUrl.label}
                     </a>
                   </span>
-                )
+                ),
             )}
 
           {changeLogUrl && (
@@ -93,7 +93,7 @@ export default function MetaDataVersion(props: MetaDataVersionProps) {
 }
 
 function isAdvancedDownloadUrlArray(
-  downloadUrl: string | AdvancedDownloadUrl[] | undefined
+  downloadUrl: string | AdvancedDownloadUrl[] | undefined,
 ): downloadUrl is AdvancedDownloadUrl[] {
   return !!downloadUrl && typeof downloadUrl !== 'string';
 }

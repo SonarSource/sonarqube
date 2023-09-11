@@ -65,11 +65,11 @@ export class SystemUpgradeForm extends React.PureComponent<Props, State> {
       const [, major, minor] = parsedVersion;
       const majoMinorVersion = `${major}.${minor}`;
       patches = flatMap(systemUpgrades, (upgrades) =>
-        filter(upgrades, (upgrade) => upgrade.version.startsWith(majoMinorVersion))
+        filter(upgrades, (upgrade) => upgrade.version.startsWith(majoMinorVersion)),
       );
       systemUpgradesWithPatch = systemUpgrades
         .map((upgrades) =>
-          upgrades.filter((upgrade) => !upgrade.version.startsWith(majoMinorVersion))
+          upgrades.filter((upgrade) => !upgrade.version.startsWith(majoMinorVersion)),
         )
         .filter(negate(isEmpty));
       systemUpgradesWithPatch.push(patches);

@@ -69,7 +69,7 @@ interface Props {
   renderDuplicationPopup: (
     component: SourceViewerFile,
     index: number,
-    line: number
+    line: number,
   ) => React.ReactNode;
   snippetGroup: SnippetGroup;
 }
@@ -152,7 +152,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
           line.coverageStatus = getCoverageStatus(line);
           lineMap[line.line] = line;
           return lineMap;
-        }, {})
+        }, {}),
       )
       .then((newLinesMapped) => {
         const newSnippets = expandSnippet({
@@ -194,14 +194,14 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 
   handleSymbolClick = (clickedSymbols: string[]) => {
     this.setState(({ highlightedSymbols }) => {
       const newHighlightedSymbols = clickedSymbols.filter(
-        (symb) => !highlightedSymbols.includes(symb)
+        (symb) => !highlightedSymbols.includes(symb),
       );
       return { highlightedSymbols: newHighlightedSymbols };
     });
@@ -228,7 +228,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     const issuesForLine = (issuesByLine[line.line] || []).filter(
       (issueForline) =>
         issue.key !== issueForline.key ||
-        (issue.key === issueForline.key && issueLocations.length > 0)
+        (issue.key === issueForline.key && issueLocations.length > 0),
     );
 
     return (
@@ -348,7 +348,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
             locationsByLine={getLocationsByLine(
               issue,
               snippetGroup,
-              isLastOccurenceOfPrimaryComponent
+              isLastOccurenceOfPrimaryComponent,
             )}
             onLocationSelect={this.props.onLocationSelect}
             renderDuplicationPopup={this.renderDuplicationPopup}
@@ -366,7 +366,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
 function getLocationsByLine(
   issue: TypeIssue,
   snippetGroup: SnippetGroup,
-  isLastOccurenceOfPrimaryComponent: boolean
+  isLastOccurenceOfPrimaryComponent: boolean,
 ) {
   const isFlow = issue.secondaryLocations.length === 0;
   const includeIssueLocation = isFlow ? isLastOccurenceOfPrimaryComponent : true;

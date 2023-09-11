@@ -57,7 +57,7 @@ export default function JavaGradle(props: JavaGradleProps) {
         <NumberedListItem>
           {translateWithParameters(
             'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.java',
-            translate('onboarding.build', BuildTools.Gradle)
+            translate('onboarding.build', BuildTools.Gradle),
           )}
           <UnorderedList ticks className="sw-ml-12 sw-mb-4">
             <ListItem>

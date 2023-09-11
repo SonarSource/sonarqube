@@ -68,7 +68,7 @@ export const parseQuery = memoize(
     search: parseAsString(urlQuery['query']),
     deprecated: parseAsOptionalBoolean(urlQuery['deprecated']) || false,
     internal: parseAsOptionalBoolean(urlQuery['internal']) || false,
-  })
+  }),
 );
 
 export const serializeQuery = memoize(
@@ -77,7 +77,7 @@ export const serializeQuery = memoize(
       query: query.search ? serializeString(query.search) : undefined,
       deprecated: query.deprecated || undefined,
       internal: query.internal || undefined,
-    })
+    }),
 );
 
 export function parseVersion(version: string) {

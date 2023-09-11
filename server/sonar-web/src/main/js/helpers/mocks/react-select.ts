@@ -29,10 +29,10 @@ import {
 export function mockReactSelectOptionProps<
   OptionType = unknown,
   IsMulti extends boolean = boolean,
-  GroupType extends GroupBase<OptionType> = GroupBase<OptionType>
+  GroupType extends GroupBase<OptionType> = GroupBase<OptionType>,
 >(
   data: OptionType,
-  overrides?: OptionProps<OptionType, IsMulti, GroupType>
+  overrides?: OptionProps<OptionType, IsMulti, GroupType>,
 ): OptionProps<OptionType, IsMulti, GroupType> {
   return {
     ...overrides,
@@ -47,7 +47,7 @@ export function mockReactSelectInputProps(): InputProps {
 export function mockReactSelectControlProps<
   OptionType = unknown,
   IsMulti extends boolean = boolean,
-  GroupType extends GroupBase<OptionType> = GroupBase<OptionType>
+  GroupType extends GroupBase<OptionType> = GroupBase<OptionType>,
 >(): ControlProps<OptionType, IsMulti, GroupType> {
   return {} as ControlProps<OptionType, IsMulti, GroupType>;
 }
@@ -55,7 +55,7 @@ export function mockReactSelectControlProps<
 export function mockReactSelectClearIndicatorProps<
   OptionType = unknown,
   IsMulti extends boolean = boolean,
-  GroupType extends GroupBase<OptionType> = GroupBase<OptionType>
+  GroupType extends GroupBase<OptionType> = GroupBase<OptionType>,
 >(_option: OptionType): ClearIndicatorProps<OptionType, IsMulti, GroupType> {
   return { getStyles: () => {} } as unknown as ClearIndicatorProps<OptionType, IsMulti, GroupType>;
 }
@@ -63,7 +63,7 @@ export function mockReactSelectClearIndicatorProps<
 export function mockReactSelectDropdownIndicatorProps<
   OptionType = unknown,
   IsMulti extends boolean = boolean,
-  GroupType extends GroupBase<OptionType> = GroupBase<OptionType>
+  GroupType extends GroupBase<OptionType> = GroupBase<OptionType>,
 >(_option: OptionType): DropdownIndicatorProps<OptionType, IsMulti, GroupType> {
   return {} as DropdownIndicatorProps<OptionType, IsMulti, GroupType>;
 }

@@ -100,6 +100,6 @@ function renderComponent(props?: Partial<PropsWithoutTheme>) {
       width={100}
       zoomSpeed={1}
       {...props}
-    />
+    />,
   );
 }

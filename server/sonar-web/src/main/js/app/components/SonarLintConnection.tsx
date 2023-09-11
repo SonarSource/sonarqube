@@ -77,7 +77,7 @@ export function SonarLintConnection({ currentUser }: Props) {
     const newTokenName = await getNextAvailableTokenName(login, `${TOKEN_PREFIX}-${ideName}`);
     const expirationDate = await computeExpirationDate();
     const token = await generateToken({ name: newTokenName, login, expirationDate }).catch(
-      () => undefined
+      () => undefined,
     );
 
     if (!token) {

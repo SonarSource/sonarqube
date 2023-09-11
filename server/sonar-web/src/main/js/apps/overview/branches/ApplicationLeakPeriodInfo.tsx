@@ -38,7 +38,7 @@ export function ApplicationLeakPeriodInfo({ leakPeriod }: ApplicationLeakPeriodI
         className="sw-ml-1"
         overlay={translateWithParameters(
           'overview.max_new_code_period_from_x',
-          leakPeriod.projectName
+          leakPeriod.projectName,
         )}
       >
         <HelperHintIcon />

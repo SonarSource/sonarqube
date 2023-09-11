@@ -32,7 +32,7 @@ export default function GlobalNewCodeDefinitionDescription({ globalNcd }: Props)
   if (globalNcd.type === NewCodeDefinitionType.NumberOfDays) {
     setting = `${translate('new_code_definition.number_days')} (${translateWithParameters(
       'duration.days',
-      globalNcd.value ?? '?'
+      globalNcd.value ?? '?',
     )})`;
     description = translate('new_code_definition.number_days.description');
     useCase = translate('new_code_definition.number_days.usecase');

@@ -53,7 +53,7 @@ export function mockBitbucketProject(overrides: Partial<BitbucketProject> = {}):
 }
 
 export function mockBitbucketRepository(
-  overrides: Partial<BitbucketRepository> = {}
+  overrides: Partial<BitbucketRepository> = {},
 ): BitbucketRepository {
   return {
     id: 1,
@@ -65,7 +65,7 @@ export function mockBitbucketRepository(
 }
 
 export function mockBitbucketCloudRepository(
-  overrides: Partial<BitbucketCloudRepository> = {}
+  overrides: Partial<BitbucketCloudRepository> = {},
 ): BitbucketCloudRepository {
   return {
     uuid: 1,

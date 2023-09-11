@@ -59,7 +59,7 @@ export default function PermissionCell(props: PermissionCellProps) {
                 label={translateWithParameters(
                   'permission.assign_x_to_y',
                   permissionDefinition.name,
-                  permissionItem.name
+                  permissionItem.name,
                 )}
                 onCheck={onCheck}
               >
@@ -88,7 +88,7 @@ export default function PermissionCell(props: PermissionCellProps) {
         label={translateWithParameters(
           'permission.assign_x_to_y',
           permission.name,
-          permissionItem.name
+          permissionItem.name,
         )}
         onCheck={onCheck}
       />

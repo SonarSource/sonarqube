@@ -66,7 +66,7 @@ export default class UserExternalIdentity extends React.PureComponent<
       .then((providers) => {
         if (this.mounted) {
           const identityProvider = providers.find(
-            (provider) => provider.key === this.props.user.externalProvider
+            (provider) => provider.key === this.props.user.externalProvider,
           );
           this.setState({ loading: false, identityProvider });
         }

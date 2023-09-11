@@ -53,7 +53,7 @@ export default function ProjectActivityPageFilters(props: ProjectActivityPageFil
     (option: { value: string } | null) => {
       updateQuery({ category: option ? option.value : '' });
     },
-    [updateQuery]
+    [updateQuery],
   );
 
   return (

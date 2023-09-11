@@ -26,7 +26,7 @@ it('should apply diff view correctly', () => {
   applyCodeDifferences(container);
   // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
   expect(container.getElementsByClassName('code-difference-scrollable')).toMatchSnapshot(
-    'differenciatedCode'
+    'differenciatedCode',
   );
 });
 
@@ -152,6 +152,6 @@ function renderDom(codeSnippet: string) {
       dangerouslySetInnerHTML={{
         __html: codeSnippet,
       }}
-    />
+    />,
   );
 }

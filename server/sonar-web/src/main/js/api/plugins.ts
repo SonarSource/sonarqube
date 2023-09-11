@@ -40,7 +40,7 @@ export function getPendingPlugins(): Promise<PendingPluginResult> {
 export function getInstalledPlugins(type = PluginType.External): Promise<InstalledPlugin[]> {
   return getJSON('/api/plugins/installed', { f: 'category', type }).then(
     ({ plugins }) => plugins,
-    throwGlobalError
+    throwGlobalError,
   );
 }
 

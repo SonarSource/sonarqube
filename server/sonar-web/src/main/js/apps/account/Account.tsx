@@ -40,7 +40,7 @@ export default function Account() {
         defer={false}
         titleTemplate={translateWithParameters(
           'page_title.template.with_category',
-          translate('my_account.page')
+          translate('my_account.page'),
         )}
       />
       <A11ySkipTarget anchor="account_main" />

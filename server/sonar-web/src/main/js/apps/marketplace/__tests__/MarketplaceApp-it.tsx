@@ -193,7 +193,7 @@ it('should show details on the row', async () => {
 
   const rowWithMultipleUpdates = rows[1];
   expect(rowWithMultipleUpdates).toHaveTextContent(
-    '1.2.0marketplace._installedmarketplace.updates:1.3.0'
+    '1.2.0marketplace._installedmarketplace.updates:1.3.0',
   );
   await user.click(ui.releaseDetailsButton.get(rowWithMultipleUpdates));
   expect(ui.releaseNotesLink.getAll(rowWithMultipleUpdates)).toHaveLength(2);
@@ -223,11 +223,11 @@ it.each([
           // eslint-disable-next-line jest/no-conditional-expect
           expect(ui[`${key}Title`].query()).not.toBeInTheDocument();
         }
-      }
+      },
     );
 
     expect(ui.riskConsentMessage.query()).not.toBeInTheDocument();
-  }
+  },
 );
 
 describe('accessibility', () => {

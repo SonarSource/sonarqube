@@ -186,9 +186,9 @@ export default class FilesView extends React.PureComponent<Props, State> {
               'component_measures.hidden_best_score_metrics',
               formatMeasure(
                 this.props.paging.total - filteredComponents.length,
-                MetricType.Integer
+                MetricType.Integer,
               ),
-              formatMeasure(this.props.metric.bestValue, this.props.metric.type)
+              formatMeasure(this.props.metric.bestValue, this.props.metric.type),
             )}
             <ButtonSecondary
               onClick={this.handleShowBestMeasures}

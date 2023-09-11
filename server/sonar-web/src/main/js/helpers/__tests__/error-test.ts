@@ -68,7 +68,7 @@ it('should handle weird response types', async () => {
   await expect(
     throwGlobalError(response).then(() => {
       throw new Error('Should throw');
-    })
+    }),
   ).rejects.toBe(response);
 });
 

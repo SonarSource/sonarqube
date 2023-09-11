@@ -42,7 +42,7 @@ function SingleValueFactory(issue: Props['issue']) {
     V,
     Option extends LabelValueSelectOption<V>,
     IsMulti extends boolean = false,
-    Group extends GroupBase<Option> = GroupBase<Option>
+    Group extends GroupBase<Option> = GroupBase<Option>,
   >(props: OptionProps<Option, IsMulti, Group>) {
     return (
       <components.SingleValue {...props}>
@@ -60,7 +60,7 @@ export default class IssueTransition extends React.PureComponent<Props> {
   setTransition = ({ value }: { value: string }) => {
     updateIssue(
       this.props.onChange,
-      setIssueTransition({ issue: this.props.issue.key, transition: value })
+      setIssueTransition({ issue: this.props.issue.key, transition: value }),
     );
 
     this.toggleSetTransition(false);
@@ -88,7 +88,7 @@ export default class IssueTransition extends React.PureComponent<Props> {
         <DiscreetSelect
           aria-label={translateWithParameters(
             'issue.transition.status_x_click_to_change',
-            translate('issue.status', issue.status)
+            translate('issue.status', issue.status),
           )}
           size="medium"
           className="it__issue-transition"

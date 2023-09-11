@@ -160,13 +160,13 @@ export default function BitbucketCloudPersonalAccessTokenForm({
             <FormattedMessage
               id="onboarding.create_project.enter_password.instructions.bitbucket_cloud"
               defaultMessage={translate(
-                'onboarding.create_project.enter_password.instructions.bitbucket_cloud'
+                'onboarding.create_project.enter_password.instructions.bitbucket_cloud',
               )}
               values={{
                 link: (
                   <Link to="https://bitbucket.org/account/settings/app-passwords/new">
                     {translate(
-                      'onboarding.create_project.enter_password.instructions.bitbucket_cloud.link'
+                      'onboarding.create_project.enter_password.instructions.bitbucket_cloud.link',
                     )}
                   </Link>
                 ),

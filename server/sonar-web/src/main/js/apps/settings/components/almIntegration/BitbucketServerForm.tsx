@@ -64,7 +64,7 @@ export default function BitbucketServerForm(props: BitbucketServerFormProps) {
         help={
           <FormattedMessage
             defaultMessage={translate(
-              'settings.almintegration.form.personal_access_token.bitbucket.help'
+              'settings.almintegration.form.personal_access_token.bitbucket.help',
             )}
             id="settings.almintegration.form.personal_access_token.bitbucket.help"
             values={{
@@ -74,7 +74,7 @@ export default function BitbucketServerForm(props: BitbucketServerFormProps) {
                   target="_blank"
                 >
                   {translate(
-                    'settings.almintegration.form.personal_access_token.bitbucket.help.url'
+                    'settings.almintegration.form.personal_access_token.bitbucket.help.url',
                   )}
                 </Link>
               ),

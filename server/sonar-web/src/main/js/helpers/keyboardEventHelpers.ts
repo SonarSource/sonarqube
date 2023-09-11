@@ -22,13 +22,13 @@ export function isShortcut(event: KeyboardEvent): boolean {
 }
 
 export function isTextarea(
-  event: KeyboardEvent
+  event: KeyboardEvent,
 ): event is KeyboardEvent & { target: HTMLTextAreaElement } {
   return event.target instanceof HTMLTextAreaElement;
 }
 
 export function isInput(
-  event: KeyboardEvent
+  event: KeyboardEvent,
 ): event is KeyboardEvent & { target: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement } {
   return (
     event.target instanceof HTMLInputElement ||

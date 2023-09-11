@@ -123,7 +123,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 
@@ -144,7 +144,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
               <Alert variant="success">
                 <FormattedMessage
                   defaultMessage={translate(
-                    'projects_management.project_has_been_successfully_created'
+                    'projects_management.project_has_been_successfully_created',
                   )}
                   id="projects_management.project_has_been_successfully_created"
                   values={{

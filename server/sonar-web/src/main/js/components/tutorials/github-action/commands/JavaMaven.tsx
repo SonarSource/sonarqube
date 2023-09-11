@@ -63,7 +63,7 @@ export default function JavaMaven(props: JavaMavenProps) {
         mainBranchName,
         !!branchesEnabled,
         GITHUB_ACTIONS_RUNS_ON_LINUX,
-        mavenYamlSteps(component.key, component.name)
+        mavenYamlSteps(component.key, component.name),
       )}
     />
   );

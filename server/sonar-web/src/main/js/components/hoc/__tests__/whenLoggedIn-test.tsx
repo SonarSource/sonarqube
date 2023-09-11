@@ -57,6 +57,6 @@ function shallowRender(isLoggedIn = true) {
       }}
     >
       <UnderTest />
-    </CurrentUserContext.Provider>
+    </CurrentUserContext.Provider>,
   );
 }

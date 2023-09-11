@@ -106,7 +106,7 @@ export default class DuplicationPopup extends PureComponent<Props> {
     duplications = sortBy(
       duplications,
       (d) => d.file.projectName !== sourceViewerFile.projectName,
-      (d) => d.file.key !== sourceViewerFile.key
+      (d) => d.file.key !== sourceViewerFile.key,
     );
 
     return (
@@ -146,7 +146,7 @@ export default class DuplicationPopup extends PureComponent<Props> {
                         >
                           <span>{collapsedDirFromPath(duplication.file.name)}</span>
                           <span>{fileFromPath(duplication.file.name)}</span>
-                        </span>
+                        </span>,
                       )}
                     </div>
                   )}
@@ -162,7 +162,7 @@ export default class DuplicationPopup extends PureComponent<Props> {
                             {' – '}
                             {block.from + block.size - 1}
                           </>,
-                          block.from
+                          block.from,
                         )}
                         {index < duplication.blocks.length - 1 && ', '}
                       </Fragment>

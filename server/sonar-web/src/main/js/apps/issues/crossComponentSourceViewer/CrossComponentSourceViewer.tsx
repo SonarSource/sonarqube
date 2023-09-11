@@ -114,7 +114,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
       },
       () => {
         /* No error hanlding here  */
-      }
+      },
     );
   };
 
@@ -211,7 +211,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
     const locationsByComponent = groupLocationsByComponent(issue, locations, components);
 
     const lastOccurenceOfPrimaryComponent = findLastIndex(locationsByComponent, ({ component }) =>
-      component ? component.key === issue.component : true
+      component ? component.key === issue.component : true,
     );
 
     if (components[issue.component] === undefined) {

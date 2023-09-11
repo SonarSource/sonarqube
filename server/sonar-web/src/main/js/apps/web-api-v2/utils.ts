@@ -27,7 +27,7 @@ export const URL_DIVIDER = '-';
 type ConvertedSchema = string | { [Key: string]: ConvertedSchema } | ConvertedSchema[];
 
 export const mapOpenAPISchema = (
-  schema: ExcludeReferences<OpenAPIV3.SchemaObject>
+  schema: ExcludeReferences<OpenAPIV3.SchemaObject>,
 ): ConvertedSchema => {
   if (schema.type === 'object') {
     const result = { ...schema.properties };
@@ -46,7 +46,7 @@ export const mapOpenAPISchema = (
 };
 
 export const dereferenceSchema = (
-  document: OpenAPIV3.Document
+  document: OpenAPIV3.Document,
 ): ExcludeReferences<OpenAPIV3.Document> => {
   const dereference = (ref: string) => {
     const path = ref.replace('#/', '').split('/');

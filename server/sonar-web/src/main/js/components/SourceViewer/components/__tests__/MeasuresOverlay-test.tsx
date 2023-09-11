@@ -177,6 +177,6 @@ function shallowRender(props: Partial<MeasuresOverlay['props']> = {}) {
       onClose={jest.fn()}
       sourceViewerFile={sourceViewerFile}
       {...props}
-    />
+    />,
   );
 }

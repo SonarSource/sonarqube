@@ -118,7 +118,7 @@ export default class SelectList extends React.PureComponent<Props, State> {
           })
           .then(this.stopLoading)
           .catch(this.stopLoading);
-      }
+      },
     );
 
   changeFilter = (filter: SelectListFilter) => this.search({ filter, page: 1 });

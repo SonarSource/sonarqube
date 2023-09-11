@@ -37,7 +37,7 @@ let messagesMock: MessagesServiceMock;
 
 describe('Global NCD update notification banner', () => {
   function renderGlobalMessage(
-    currentUser = mockLoggedInUser({ permissions: { global: ['admin'] } })
+    currentUser = mockLoggedInUser({ permissions: { global: ['admin'] } }),
   ) {
     return renderAppRoutes(
       '/',
@@ -49,7 +49,7 @@ describe('Global NCD update notification banner', () => {
       ),
       {
         currentUser,
-      }
+      },
     );
   }
 
@@ -138,7 +138,7 @@ describe('Project NCD update notification banner', () => {
       ),
       {
         currentUser,
-      }
+      },
     );
   }
 
@@ -173,7 +173,7 @@ describe('Project NCD update notification banner', () => {
 
   it('renders no project banner if user is not project admin', () => {
     const { container } = renderProjectMessage(
-      mockComponent({ configuration: { showSettings: false } })
+      mockComponent({ configuration: { showSettings: false } }),
     );
     expect(container).toBeEmptyDOMElement();
   });

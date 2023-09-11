@@ -110,7 +110,7 @@ export default function ConfigurationForm(props: Props) {
                 defaultMessage={translate(
                   `settings.authentication.${
                     hasLegacyConfiguration ? `legacy_help.${tab}` : 'help'
-                  }`
+                  }`,
                 )}
                 values={{
                   link: (

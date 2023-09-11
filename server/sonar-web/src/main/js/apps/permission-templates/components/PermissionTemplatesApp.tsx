@@ -65,7 +65,7 @@ class PermissionTemplatesApp extends React.PureComponent<Props, State> {
       const sortedPerm = sortPermissions(permissions);
       const permissionTemplatesMerged = mergeDefaultsToTemplates(
         mergePermissionsToTemplates(permissionTemplates, sortedPerm),
-        defaultTemplates
+        defaultTemplates,
       );
       this.setState({
         ready: true,

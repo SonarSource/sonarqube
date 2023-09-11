@@ -32,7 +32,7 @@ it('should not show a link if use is not allowed', () => {
   expect(
     screen.queryByRole('link', {
       name: 'component_navigation.pr_deco.action.check_project_settings',
-    })
+    }),
   ).not.toBeInTheDocument();
 });
 
@@ -41,14 +41,16 @@ it('should show a link if use is allowed', () => {
     component: mockComponent({ configuration: { showSettings: true } }),
   });
   expect(
-    screen.getByRole('link', { name: 'component_navigation.pr_deco.action.check_project_settings' })
+    screen.getByRole('link', {
+      name: 'component_navigation.pr_deco.action.check_project_settings',
+    }),
   ).toBeInTheDocument();
 });
 
 function renderComponentNavProjectBindingErrorNotif(
-  props: Partial<ComponentNavProjectBindingErrorNotifProps> = {}
+  props: Partial<ComponentNavProjectBindingErrorNotifProps> = {},
 ) {
   return renderComponent(
-    <ComponentNavProjectBindingErrorNotif component={mockComponent()} {...props} />
+    <ComponentNavProjectBindingErrorNotif component={mockComponent()} {...props} />,
   );
 }

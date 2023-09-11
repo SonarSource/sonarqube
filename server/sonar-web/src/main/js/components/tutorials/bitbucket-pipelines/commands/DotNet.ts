@@ -20,7 +20,7 @@
 export default function dotNetExample(
   branchesEnabled: boolean,
   mainBranchName: string,
-  projectKey: string
+  projectKey: string,
 ) {
   return `image: mcr.microsoft.com/dotnet/sdk:7.0
 

@@ -57,7 +57,7 @@ export default function BranchPurgeSetting(props: Props) {
       {isTheMainBranch && (
         <HelpTooltip
           overlay={translate(
-            'project_branch_pull_request.branch.auto_deletion.main_branch_tooltip'
+            'project_branch_pull_request.branch.auto_deletion.main_branch_tooltip',
           )}
         />
       )}

@@ -250,7 +250,7 @@ it('should render tabs and allow navigation', async () => {
   expect(screen.getByRole('tab', { name: 'SAML' })).toHaveAttribute('aria-selected', 'false');
   expect(screen.getByRole('tab', { name: 'github GitHub' })).toHaveAttribute(
     'aria-selected',
-    'true'
+    'true',
   );
 });
 
@@ -558,13 +558,13 @@ describe('Github tab', () => {
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
       expect(github.getConfigDetailsTitle()).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_label'
+        'settings.authentication.github.configuration.validation.details.valid_label',
       );
       expect(github.getOrgs()[0]).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_labelorg1'
+        'settings.authentication.github.configuration.validation.details.valid_labelorg1',
       );
       expect(github.getOrgs()[1]).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_labelorg2'
+        'settings.authentication.github.configuration.validation.details.valid_labelorg2',
       );
     });
 
@@ -594,14 +594,14 @@ describe('Github tab', () => {
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
       expect(github.getConfigDetailsTitle()).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_label'
+        'settings.authentication.github.configuration.validation.details.valid_label',
       );
       expect(github.getOrgs()[0]).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.invalid_labelorg1 - Installation suspended'
+        'settings.authentication.github.configuration.validation.details.invalid_labelorg1 - Installation suspended',
       );
 
       await act(() =>
-        user.click(within(github.configDetailsDialog.get()).getByRole('button', { name: 'close' }))
+        user.click(within(github.configDetailsDialog.get()).getByRole('button', { name: 'close' })),
       );
 
       await user.click(github.githubProvisioningButton.get());
@@ -628,13 +628,13 @@ describe('Github tab', () => {
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
       expect(github.getConfigDetailsTitle()).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_label'
+        'settings.authentication.github.configuration.validation.details.valid_label',
       );
       expect(github.getOrgs()[0]).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_labelorg1'
+        'settings.authentication.github.configuration.validation.details.valid_labelorg1',
       );
       expect(github.getOrgs()[1]).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.org_not_found.organization1'
+        'settings.authentication.github.configuration.validation.details.org_not_found.organization1',
       );
     });
 
@@ -660,7 +660,7 @@ describe('Github tab', () => {
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
       expect(github.getConfigDetailsTitle()).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.invalid_label'
+        'settings.authentication.github.configuration.validation.details.invalid_label',
       );
       expect(github.configDetailsDialog.get()).toHaveTextContent(errorMessage);
     });
@@ -686,10 +686,10 @@ describe('Github tab', () => {
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
       expect(github.getConfigDetailsTitle()).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_label'
+        'settings.authentication.github.configuration.validation.details.valid_label',
       );
       await act(() =>
-        user.click(within(github.configDetailsDialog.get()).getByRole('button', { name: 'close' }))
+        user.click(within(github.configDetailsDialog.get()).getByRole('button', { name: 'close' })),
       );
 
       await act(() => user.click(github.githubProvisioningButton.get()));
@@ -699,7 +699,7 @@ describe('Github tab', () => {
 
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
       expect(github.getConfigDetailsTitle()).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.invalid_label'
+        'settings.authentication.github.configuration.validation.details.invalid_label',
       );
     });
 
@@ -727,25 +727,25 @@ describe('Github tab', () => {
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
 
       expect(github.getOrgs()[0]).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.valid_labelorg1'
+        'settings.authentication.github.configuration.validation.details.valid_labelorg1',
       );
       expect(github.getOrgs()[1]).toHaveTextContent(
-        'settings.authentication.github.configuration.validation.details.invalid_labelorg2 - Test error'
+        'settings.authentication.github.configuration.validation.details.invalid_labelorg2 - Test error',
       );
 
       await act(() =>
-        user.click(within(github.configDetailsDialog.get()).getByRole('button', { name: 'close' }))
+        user.click(within(github.configDetailsDialog.get()).getByRole('button', { name: 'close' })),
       );
 
       await act(() => user.click(github.githubProvisioningButton.get()));
 
       expect(github.configurationValidityError.get()).toBeInTheDocument();
       expect(github.configurationValidityError.get()).toHaveTextContent(
-        `settings.authentication.github.configuration.validation.invalid_org.org2.${errorMessage}`
+        `settings.authentication.github.configuration.validation.invalid_org.org2.${errorMessage}`,
       );
       await act(() => user.click(github.viewConfigValidityDetailsButton.get()));
       expect(github.getOrgs()[1]).toHaveTextContent(
-        `settings.authentication.github.configuration.validation.details.invalid_labelorg2 - ${errorMessage}`
+        `settings.authentication.github.configuration.validation.details.invalid_labelorg2 - ${errorMessage}`,
       );
     });
 
@@ -834,6 +834,6 @@ function renderAuthentication(features: Feature[] = []) {
   renderComponent(
     <AvailableFeaturesContext.Provider value={features}>
       <Authentication definitions={definitions} />
-    </AvailableFeaturesContext.Provider>
+    </AvailableFeaturesContext.Provider>,
   );
 }

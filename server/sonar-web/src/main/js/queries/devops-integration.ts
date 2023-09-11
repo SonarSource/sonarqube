@@ -46,7 +46,7 @@ export function useProjectBindingQuery<T = ProjectAlmBindingResponse>(
     unknown,
     T,
     ['devops_integration', string, 'binding']
-  >
+  >,
 ) {
   const keyFromUrl = useProjectKeyFromLocation();
 
@@ -65,7 +65,7 @@ export function useProjectBindingQuery<T = ProjectAlmBindingResponse>(
       staleTime: 60_000,
       retry: false,
       ...options,
-    }
+    },
   );
 }
 

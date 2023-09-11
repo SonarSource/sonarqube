@@ -73,7 +73,7 @@ class ComparisonContainer extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 
@@ -81,7 +81,7 @@ class ComparisonContainer extends React.PureComponent<Props, State> {
     const path = getProfileComparePath(
       this.props.profile.name,
       this.props.profile.language,
-      withKey
+      withKey,
     );
     this.props.router.push(path);
   };

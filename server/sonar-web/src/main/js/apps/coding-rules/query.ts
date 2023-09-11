@@ -88,14 +88,14 @@ export function parseQuery(query: RawQuery): Query {
     availableSince: parseAsDate(query.available_since),
     cleanCodeAttributeCategories: parseAsArray<CleanCodeAttributeCategory>(
       query.cleanCodeAttributeCategories,
-      parseAsString
+      parseAsString,
     ),
     compareToProfile: parseAsOptionalString(query.compareToProfile),
     cwe: parseAsArray(query.cwe, parseAsString),
     impactSeverities: parseAsArray<SoftwareImpactSeverity>(query.impactSeverities, parseAsString),
     impactSoftwareQualities: parseAsArray<SoftwareQuality>(
       query.impactSoftwareQualities,
-      parseAsString
+      parseAsString,
     ),
     inheritance: parseAsInheritance(query.inheritance),
     languages: parseAsArray(query.languages, parseAsString),

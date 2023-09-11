@@ -55,11 +55,11 @@ it('should render correctly when the date is less than one hour in the past', ()
 
 function renderDateFromNow(
   overrides: Partial<DateFromNowProps> = {},
-  children: jest.Mock = jest.fn((d) => <>{d}</>)
+  children: jest.Mock = jest.fn((d) => <>{d}</>),
 ) {
   return renderComponent(
     <DateFromNow date={date} {...overrides}>
       {children}
-    </DateFromNow>
+    </DateFromNow>,
   );
 }

@@ -69,17 +69,17 @@ export function getBadgeSnippet(type: BadgeType, options: BadgeOptions, token: s
 export function getBadgeUrl(
   type: BadgeType,
   { branch, project, metric = 'alert_status', pullRequest }: BadgeOptions,
-  token: string
+  token: string,
 ) {
   switch (type) {
     case BadgeType.qualityGate:
       return `${getHostUrl()}/api/project_badges/quality_gate?${new URLSearchParams(
-        omitNil({ branch, project, pullRequest, token })
+        omitNil({ branch, project, pullRequest, token }),
       ).toString()}`;
     case BadgeType.measure:
     default:
       return `${getHostUrl()}/api/project_badges/measure?${new URLSearchParams(
-        omitNil({ branch, project, metric, pullRequest, token })
+        omitNil({ branch, project, metric, pullRequest, token }),
       ).toString()}`;
   }
 }

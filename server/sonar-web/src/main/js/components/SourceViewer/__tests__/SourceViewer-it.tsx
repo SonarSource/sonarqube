@@ -69,7 +69,7 @@ it('should show a permalink on line number', async () => {
   await user.click(
     rowScreen.getByRole('button', {
       name: 'source_viewer.line_X.1',
-    })
+    }),
   );
 
   expect(
@@ -77,8 +77,8 @@ it('should show a permalink on line number', async () => {
     queryHelpers.queryByAttribute(
       'data-clipboard-text',
       row,
-      'http://localhost/code?id=foo&selected=foo%3Atest1.js&line=1'
-    )
+      'http://localhost/code?id=foo&selected=foo%3Atest1.js&line=1',
+    ),
   ).toBeInTheDocument();
 
   await act(async () => {
@@ -90,8 +90,8 @@ it('should show a permalink on line number', async () => {
     queryHelpers.queryByAttribute(
       'data-clipboard-text',
       row,
-      'http://localhost/code?id=foo&selected=foo%3Atest1.js&line=1'
-    )
+      'http://localhost/code?id=foo&selected=foo%3Atest1.js&line=1',
+    ),
   ).not.toBeInTheDocument();
 
   row = await screen.findByRole('row', { name: / \* 6$/ });
@@ -102,14 +102,14 @@ it('should show a permalink on line number', async () => {
     await user.click(
       lowerRowScreen.getByRole('button', {
         name: 'source_viewer.line_X.6',
-      })
+      }),
     );
   });
 
   expect(
     lowerRowScreen.getByRole('menuitem', {
       name: 'source_viewer.copy_permalink',
-    })
+    }),
   ).toBeInTheDocument();
 });
 
@@ -148,7 +148,7 @@ it('should be able to interact with issue action', async () => {
   // Assign issue to a different user
   await act(async () => {
     await user.click(
-      await screen.findByRole('combobox', { name: 'issue.assign.unassigned_click_to_assign' })
+      await screen.findByRole('combobox', { name: 'issue.assign.unassigned_click_to_assign' }),
     );
     await user.click(screen.getByLabelText('search.search_for_users'));
     await user.keyboard('luke');
@@ -176,13 +176,13 @@ it('should show SCM information', async () => {
   const firstRowScreen = within(row);
 
   expect(
-    firstRowScreen.getByRole('cell', { name: 'stas.vilchik@sonarsource.com' })
+    firstRowScreen.getByRole('cell', { name: 'stas.vilchik@sonarsource.com' }),
   ).toBeInTheDocument();
 
   await user.click(
     firstRowScreen.getByRole('button', {
       name: 'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info.1',
-    })
+    }),
   );
 
   // After using miui component the tooltip is appearing outside of the row
@@ -195,7 +195,7 @@ it('should show SCM information', async () => {
   const secondRowScreen = within(row);
 
   expect(
-    secondRowScreen.queryByRole('cell', { name: 'stas.vilchik@sonarsource.com' })
+    secondRowScreen.queryByRole('cell', { name: 'stas.vilchik@sonarsource.com' }),
   ).not.toBeInTheDocument();
 
   // SCM with no date
@@ -207,7 +207,7 @@ it('should show SCM information', async () => {
     await user.click(
       fourthRowScreen.getByRole('button', {
         name: 'source_viewer.author_X.stas.vilchik@sonarsource.com, source_viewer.click_for_scm_info.4',
-      })
+      }),
     );
   });
 
@@ -221,7 +221,7 @@ it('should show SCM information', async () => {
     await user.click(
       fithRowScreen.getByRole('button', {
         name: 'source_viewer.click_for_scm_info.5',
-      })
+      }),
     );
   });
 
@@ -265,7 +265,7 @@ it('should show issue indicator', async () => {
   await user.click(
     issueRow.getByRole('button', {
       name: 'source_viewer.issues_on_line.X_issues_of_type_Y.source_viewer.issues_on_line.show.2.issue.type.BUG.plural',
-    })
+    }),
   );
 });
 
@@ -273,44 +273,44 @@ it('should show coverage information', async () => {
   renderSourceViewer();
 
   const coverdLine = within(
-    await screen.findByRole('row', { name: /\* mailto:info AT sonarsource DOT com$/ })
+    await screen.findByRole('row', { name: /\* mailto:info AT sonarsource DOT com$/ }),
   );
 
   expect(
-    coverdLine.getByLabelText('source_viewer.tooltip.covered.conditions.1')
+    coverdLine.getByLabelText('source_viewer.tooltip.covered.conditions.1'),
   ).toBeInTheDocument();
 
   const partialyCoveredWithConditionLine = within(
-    await screen.findByRole('row', { name: / \* 5$/ })
+    await screen.findByRole('row', { name: / \* 5$/ }),
   );
 
   expect(
     partialyCoveredWithConditionLine.getByLabelText(
-      'source_viewer.tooltip.partially-covered.conditions.1.2'
-    )
+      'source_viewer.tooltip.partially-covered.conditions.1.2',
+    ),
   ).toBeInTheDocument();
 
   const partialyCoveredLine = within(await screen.findByRole('row', { name: /\/\*$/ }));
 
   expect(
-    partialyCoveredLine.getByLabelText('source_viewer.tooltip.partially-covered')
+    partialyCoveredLine.getByLabelText('source_viewer.tooltip.partially-covered'),
   ).toBeInTheDocument();
 
   const uncoveredLine = within(await screen.findByRole('row', { name: / \* 6$/ }));
   expect(uncoveredLine.getByLabelText('source_viewer.tooltip.uncovered')).toBeInTheDocument();
 
   const uncoveredWithConditionLine = within(
-    await screen.findByRole('row', { name: / \* SonarQube$/ })
+    await screen.findByRole('row', { name: / \* SonarQube$/ }),
   );
 
   expect(
-    uncoveredWithConditionLine.getByLabelText('source_viewer.tooltip.uncovered.conditions.1')
+    uncoveredWithConditionLine.getByLabelText('source_viewer.tooltip.uncovered.conditions.1'),
   ).toBeInTheDocument();
 
   const coveredWithNoCondition = within(await screen.findByRole('row', { name: /\* Copyright$/ }));
 
   expect(
-    coveredWithNoCondition.getByLabelText('source_viewer.tooltip.covered')
+    coveredWithNoCondition.getByLabelText('source_viewer.tooltip.covered'),
   ).toBeInTheDocument();
 });
 
@@ -320,12 +320,12 @@ it('should show duplication block', async () => {
   const duplicateLine = within(await screen.findByRole('row', { name: /\* 7$/ }));
 
   expect(
-    duplicateLine.getByLabelText('source_viewer.tooltip.duplicated_block')
+    duplicateLine.getByLabelText('source_viewer.tooltip.duplicated_block'),
   ).toBeInTheDocument();
 
   await act(async () => {
     await user.click(
-      duplicateLine.getByRole('button', { name: 'source_viewer.tooltip.duplicated_block' })
+      duplicateLine.getByRole('button', { name: 'source_viewer.tooltip.duplicated_block' }),
     );
   });
 
@@ -355,7 +355,7 @@ it('should show correct message when component is not asscessible', async () => 
   renderSourceViewer();
 
   expect(
-    await screen.findByText('code_viewer.no_source_code_displayed_due_to_security')
+    await screen.findByText('code_viewer.no_source_code_displayed_due_to_security'),
   ).toBeInTheDocument();
 });
 
@@ -377,7 +377,7 @@ function renderSourceViewer(override?: Partial<Props>) {
       onLoaded={jest.fn()}
       onLocationSelect={jest.fn()}
       {...override}
-    />
+    />,
   );
 
   return function (reoverride?: Partial<Props>) {
@@ -393,7 +393,7 @@ function renderSourceViewer(override?: Partial<Props>) {
         onLocationSelect={jest.fn()}
         {...override}
         {...reoverride}
-      />
+      />,
     );
   };
 }

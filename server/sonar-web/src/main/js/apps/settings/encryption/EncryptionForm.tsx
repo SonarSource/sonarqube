@@ -66,7 +66,7 @@ export default class EncryptionForm extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ encrypting: false });
         }
-      }
+      },
     );
   };
 

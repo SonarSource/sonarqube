@@ -39,11 +39,11 @@ it.each([
 ])('should render correclty', async (condition) => {
   renderQualityGateCondition({ condition });
   expect(
-    await screen.findByText(`metric.${condition.measure.metric.name}.name`)
+    await screen.findByText(`metric.${condition.measure.metric.name}.name`),
   ).toBeInTheDocument();
 
   expect(
-    await screen.findByText(`quality_gates.operator.${condition.op}`, { exact: false })
+    await screen.findByText(`quality_gates.operator.${condition.op}`, { exact: false }),
   ).toBeInTheDocument();
   // if (condition.measure.metric.type === 'RATING') {
   //   expect(await screen.findByText('.rating', { exact: false })).toBeInTheDocument();
@@ -61,7 +61,7 @@ it('should work with branch', async () => {
 
   expect(await screen.findByText('metric.new_maintainability_rating.name')).toBeInTheDocument();
   expect(
-    await screen.findByText('quality_gates.operator.GT.rating', { exact: false })
+    await screen.findByText('quality_gates.operator.GT.rating', { exact: false }),
   ).toBeInTheDocument();
 });
 
@@ -71,14 +71,14 @@ function renderQualityGateCondition(props: Partial<QualityGateCondition['props']
       component={{ key: 'abcd-key' }}
       condition={mockQualityGateStatusConditionEnhanced()}
       {...props}
-    />
+    />,
   );
 }
 
 function quickMock(
   metric: MetricKey,
   type = 'RATING',
-  addPeriod = false
+  addPeriod = false,
 ): QualityGateStatusConditionEnhanced {
   return mockQualityGateStatusConditionEnhanced({
     error: '1',

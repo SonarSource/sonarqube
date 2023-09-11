@@ -76,7 +76,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
     return components
       .map((component) => {
         const colorMeasure = component.measures.find(
-          (measure) => measure.metric.key === metric.key
+          (measure) => measure.metric.key === metric.key,
         );
         const sizeMeasure = component.measures.find((measure) => measure.metric.key !== metric.key);
         if (!sizeMeasure) {
@@ -216,7 +216,7 @@ export default class TreeMapView extends React.PureComponent<Props, State> {
             {translate(
               'metric',
               sizeMeasure && sizeMeasure.metric ? sizeMeasure.metric.key : MetricKey.ncloc,
-              'name'
+              'name',
             )}
           </span>
           <span>{this.renderLegend()}</span>

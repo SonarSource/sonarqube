@@ -95,7 +95,7 @@ function renderStartupModal(props: Partial<StartupModal['props']> = {}) {
       {...props}
     >
       <div />
-    </StartupModal>
+    </StartupModal>,
   );
 }
 

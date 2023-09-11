@@ -52,7 +52,7 @@ interface SearchedProject {
 export class ProjectFacet extends React.PureComponent<Props> {
   handleSearch = (
     query: string,
-    page = 1
+    page = 1,
   ): Promise<{ results: SearchedProject[]; paging: Paging }> => {
     const { component } = this.props;
 

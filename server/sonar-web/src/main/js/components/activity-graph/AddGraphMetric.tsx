@@ -49,13 +49,13 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
 
   filterSelected = (query: string, selectedElements: string[]) => {
     return selectedElements.filter((element) =>
-      this.getLocalizedMetricNameFromKey(element).toLowerCase().includes(query.toLowerCase())
+      this.getLocalizedMetricNameFromKey(element).toLowerCase().includes(query.toLowerCase()),
     );
   };
 
   filterMetricsElements = (
     { metricsTypeFilter, metrics, selectedMetrics }: Props,
-    query: string
+    query: string,
   ) => {
     return metrics
       .filter((metric) => {
@@ -117,7 +117,7 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
     const filteredMetrics = this.filterMetricsElements(this.props, query);
     const selectedMetrics = this.getSelectedMetricsElements(
       this.props.metrics,
-      this.props.selectedMetrics
+      this.props.selectedMetrics,
     );
 
     return (

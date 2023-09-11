@@ -93,7 +93,7 @@ export function symbolsByLine(sources: SourceLine[]) {
       tokens.map((token) => {
         const keys = token.className.match(/sym-\d+/g);
         return keys != null ? keys : [];
-      })
+      }),
     );
     index[line.line] = symbols.filter((key) => key);
   });

@@ -63,7 +63,7 @@ export default class NotificationsMock {
 
   handleRemoveNotification = (params: AddRemoveNotificationParameters) => {
     const index = this.notifications.findIndex(
-      (n) => n.project === params.project && n.type === params.type && n.channel === params.channel
+      (n) => n.project === params.project && n.type === params.type && n.channel === params.channel,
     );
 
     if (index < 0) {

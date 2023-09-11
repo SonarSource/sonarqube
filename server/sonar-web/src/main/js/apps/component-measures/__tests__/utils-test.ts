@@ -75,7 +75,7 @@ describe('filterMeasures', () => {
             type: 'INT',
           },
         },
-      ])
+      ]),
     ).toHaveLength(1);
   });
 });
@@ -103,7 +103,7 @@ describe('sortMeasures', () => {
         { metric: { id: '3', key: MetricKey.new_bugs, name: 'new_bugs', type: 'INT' } },
         { metric: { id: '4', key: MetricKey.bugs, name: 'bugs', type: 'INT' } },
         'overall_category',
-      ])
+      ]),
     ).toMatchSnapshot();
   });
 });
@@ -126,7 +126,7 @@ describe('parseQuery', () => {
       view: utils.DEFAULT_VIEW,
     });
     expect(
-      utils.parseQuery({ metric: 'foo', selected: 'bar', view: 'tree', asc: 'false' })
+      utils.parseQuery({ metric: 'foo', selected: 'bar', view: 'tree', asc: 'false' }),
     ).toEqual({
       metric: 'foo',
       selected: 'bar',
@@ -147,7 +147,7 @@ describe('serializeQuery', () => {
       view: 'list',
     });
     expect(
-      utils.serializeQuery({ metric: 'foo', selected: 'bar', view: MeasurePageView.tree })
+      utils.serializeQuery({ metric: 'foo', selected: 'bar', view: MeasurePageView.tree }),
     ).toEqual({
       metric: 'foo',
       selected: 'bar',

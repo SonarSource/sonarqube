@@ -47,7 +47,7 @@ export interface BitbucketCloudProjectCreateRendererProps {
 }
 
 export default function BitbucketCloudProjectCreateRenderer(
-  props: BitbucketCloudProjectCreateRendererProps
+  props: BitbucketCloudProjectCreateRendererProps,
 ) {
   const {
     almInstances,

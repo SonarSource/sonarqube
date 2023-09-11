@@ -63,7 +63,7 @@ it('should render correctly if system is starting', () => {
   renderMigrationContainer();
 
   expect(
-    byText('/maintenance?return_to=%2Fprojects%3Fquery%3Dtoto%23hash').get()
+    byText('/maintenance?return_to=%2Fprojects%3Fquery%3Dtoto%23hash').get(),
   ).toBeInTheDocument();
 });
 

@@ -50,7 +50,7 @@ jest.mock('../../../api/notifications', () => ({
         },
       ],
       perProjectTypes: ['type-common'],
-    })
+    }),
   ),
   removeNotification: jest.fn().mockResolvedValue({}),
 }));

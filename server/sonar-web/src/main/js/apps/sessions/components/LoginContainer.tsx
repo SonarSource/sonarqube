@@ -68,7 +68,7 @@ export class LoginContainer extends React.PureComponent<Props, State> {
       },
       () => {
         /* already handled */
-      }
+      },
     );
   }
 

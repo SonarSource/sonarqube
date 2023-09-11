@@ -35,7 +35,7 @@ export function mockFullMeasureData(tree: ComponentTree, issueList: IssueData[])
   listAllComponentTrees(tree).forEach((tree) => {
     measures[tree.component.key] = keyBy(
       Object.values(MetricKey).map((metricKey) => mockComponentMeasure(tree, issueList, metricKey)),
-      'metric'
+      'metric',
     );
   });
   return measures;
@@ -63,8 +63,8 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
     .filter(({ component }) => componentKeys.includes(component))
     .filter(({ status }) =>
       [IssueStatus.Open, IssueStatus.Reopened, IssueStatus.Confirmed].includes(
-        status as IssueStatus
-      )
+        status as IssueStatus,
+      ),
     );
 
   if (isIssueType(metricKey)) {

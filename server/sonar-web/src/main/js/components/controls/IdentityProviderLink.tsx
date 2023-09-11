@@ -52,7 +52,7 @@ export default function IdentityProviderLink({
       className={classNames(
         'identity-provider-link',
         { 'dark-text': !isDarkColor(backgroundColor), small },
-        className
+        className,
       )}
       href={url}
       onClick={onClick}

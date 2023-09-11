@@ -69,7 +69,7 @@ it('should add item to history', () => {
   RecentHistory.add('bar', 'Bar', 'VW');
   expect(save).toHaveBeenCalledWith(
     'sonar_recent_history',
-    JSON.stringify([{ key: 'bar', name: 'Bar', icon: 'VW' }, ...history])
+    JSON.stringify([{ key: 'bar', name: 'Bar', icon: 'VW' }, ...history]),
   );
 });
 
@@ -82,7 +82,7 @@ it('should keep 10 items maximum', () => {
   RecentHistory.add('bar', 'Bar', 'VW');
   expect(save).toHaveBeenCalledWith(
     'sonar_recent_history',
-    JSON.stringify([{ key: 'bar', name: 'Bar', icon: 'VW' }, ...history.slice(0, 9)])
+    JSON.stringify([{ key: 'bar', name: 'Bar', icon: 'VW' }, ...history.slice(0, 9)]),
   );
 });
 
@@ -95,6 +95,6 @@ it('should remove component from history', () => {
   RecentHistory.remove('key-5');
   expect(save).toHaveBeenCalledWith(
     'sonar_recent_history',
-    JSON.stringify([...history.slice(0, 5), ...history.slice(6)])
+    JSON.stringify([...history.slice(0, 5), ...history.slice(6)]),
   );
 });

@@ -32,7 +32,7 @@ export function sortProfiles(profiles: BaseProfile[]): Profile[] {
   function retrieveChildren(parent: BaseProfile | null) {
     return sorted.filter(
       (p) =>
-        (parent == null && p.parentKey == null) || (parent != null && p.parentKey === parent.key)
+        (parent == null && p.parentKey == null) || (parent != null && p.parentKey === parent.key),
     );
   }
 
@@ -49,7 +49,7 @@ export function sortProfiles(profiles: BaseProfile[]): Profile[] {
   sorted
     .filter(
       (profile) =>
-        profile.parentKey == null || sorted.find((p) => p.key === profile.parentKey) == null
+        profile.parentKey == null || sorted.find((p) => p.key === profile.parentKey) == null,
     )
     .forEach((profile) => putProfile(profile));
 
@@ -90,7 +90,7 @@ export const getProfileComparePath = (name: string, language: string, withKey?: 
 export const getProfileChangelogPath = (
   name: string,
   language: string,
-  filter?: { since?: string; to?: string }
+  filter?: { since?: string; to?: string },
 ) => {
   const query = { language, name };
   if (filter) {

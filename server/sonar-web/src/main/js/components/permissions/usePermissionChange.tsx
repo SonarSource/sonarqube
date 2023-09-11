@@ -38,12 +38,12 @@ interface Props<T extends PermissionGroup | PermissionUser> {
 }
 
 export default function usePermissionChange<T extends PermissionGroup | PermissionUser>(
-  props: Props<T>
+  props: Props<T>,
 ) {
   const { holder, removeOnly, permissions } = props;
   const [loading, setLoading] = React.useState<string[]>([]);
   const [confirmPermission, setConfirmPermission] = React.useState<PermissionDefinition | null>(
-    null
+    null,
   );
 
   const stopLoading = (permission: string) => {
@@ -55,7 +55,7 @@ export default function usePermissionChange<T extends PermissionGroup | Permissi
       if (removeOnly) {
         const flatPermissions = permissions.reduce<PermissionDefinition[]>(
           (acc, p) => (isPermissionDefinitionGroup(p) ? [...acc, ...p.permissions] : [...acc, p]),
-          []
+          [],
         );
         setConfirmPermission(flatPermissions.find((p) => p.key === permissionKey) ?? null);
       } else {
@@ -68,7 +68,7 @@ export default function usePermissionChange<T extends PermissionGroup | Permissi
     setLoading((prevState) => [...prevState, permission]);
     return props.onToggle(holder, permission).then(
       () => stopLoading(permission),
-      () => stopLoading(permission)
+      () => stopLoading(permission),
     );
   };
 

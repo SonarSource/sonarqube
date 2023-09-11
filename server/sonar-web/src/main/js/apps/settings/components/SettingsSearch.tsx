@@ -62,7 +62,7 @@ export class SettingsSearch extends React.Component<Props, State> {
     this.handleFocus = debounce(this.handleFocus, DEBOUNCE_DELAY);
 
     const definitions = props.definitions.concat(
-      props.component ? ADDITIONAL_PROJECT_SETTING_DEFINITIONS : ADDITIONAL_SETTING_DEFINITIONS
+      props.component ? ADDITIONAL_PROJECT_SETTING_DEFINITIONS : ADDITIONAL_SETTING_DEFINITIONS,
     );
     this.index = this.buildSearchIndex(definitions);
     this.definitionsByKey = keyBy(definitions, 'key');
@@ -95,7 +95,7 @@ export class SettingsSearch extends React.Component<Props, State> {
         cleanQuery
           .split(/\s+/)
           .map((s) => `${s} *${s}*`)
-          .join(' ')
+          .join(' '),
       )
       .map((match) => this.definitionsByKey[match.ref]);
 

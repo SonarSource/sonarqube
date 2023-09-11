@@ -24,7 +24,7 @@ import { ProjectLink } from '../types/types';
 export function getProjectLinks(projectKey: string): Promise<ProjectLink[]> {
   return getJSON('/api/project_links/search', { projectKey }).then(
     (r) => r.links,
-    throwGlobalError
+    throwGlobalError,
   );
 }
 

@@ -44,7 +44,7 @@ export interface PATType {
 export const usePersonalAccessToken = (
   almSetting: AlmSettingsInstance,
   resetPat: boolean,
-  onPersonalAccessTokenCreated: () => void
+  onPersonalAccessTokenCreated: () => void,
 ): PATType => {
   const [checkingPat, setCheckingPat] = useState(false);
   const [touched, setTouched] = useState(false);

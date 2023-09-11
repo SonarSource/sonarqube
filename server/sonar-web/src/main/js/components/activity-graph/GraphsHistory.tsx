@@ -86,7 +86,7 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
             {translate(
               isCustom
                 ? 'project_activity.graphs.custom.no_history'
-                : 'component_measures.no_history'
+                : 'component_measures.no_history',
             )}
           </LightLabel>
         </div>
@@ -117,7 +117,7 @@ export default class GraphsHistory extends React.PureComponent<Props, State> {
                   'project_activity.graphs.explanation_x',
                   uniqBy(graphSeries, 'name')
                     .map(({ translatedName }) => translatedName)
-                    .join(', ')
+                    .join(', '),
                 )
               }
               showAreas={showAreas}

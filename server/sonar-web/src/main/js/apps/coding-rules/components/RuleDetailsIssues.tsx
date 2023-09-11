@@ -77,7 +77,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
         resolved: 'false',
         rules: key,
       },
-      'projects'
+      'projects',
     ).then(
       ({ facet, response }) => {
         if (this.mounted) {
@@ -96,7 +96,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 

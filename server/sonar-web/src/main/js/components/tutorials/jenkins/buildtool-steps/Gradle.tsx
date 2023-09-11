@@ -49,7 +49,7 @@ export default function Gradle(props: LanguageProps) {
           <FormattedMessage
             defaultMessage={translate(
               'onboarding.tutorial.with.jenkins.jenkinsfile.gradle.step2',
-              'sentence'
+              'sentence',
             )}
             id="onboarding.tutorial.with.jenkins.jenkinsfile.gradle.step2.sentence"
             values={{

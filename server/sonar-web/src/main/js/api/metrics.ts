@@ -45,7 +45,7 @@ export function getAllMetrics(data?: {
 
   function inner(
     data: { p?: number; ps?: number } = { ps: 500 },
-    prev?: MetricsResponse
+    prev?: MetricsResponse,
   ): Promise<Metric[]> {
     return getMetrics(data).then((r) => {
       const result = prev ? prev.metrics.concat(r.metrics) : r.metrics;

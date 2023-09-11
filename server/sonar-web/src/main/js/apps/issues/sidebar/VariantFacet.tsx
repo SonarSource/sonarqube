@@ -55,7 +55,7 @@ export function VariantFacet(props: VariantFacetProps) {
         onChange({ [FACET_NAME]: undefined });
       } else if (multiple) {
         const newValues = orderBy(
-          values.includes(value) ? without(values, value) : [...values, value]
+          values.includes(value) ? without(values, value) : [...values, value],
         );
 
         onChange({ [FACET_NAME]: newValues });
@@ -66,7 +66,7 @@ export function VariantFacet(props: VariantFacetProps) {
       }
     },
 
-    [values, onChange]
+    [values, onChange],
   );
 
   const id = `facet_${FACET_NAME}`;
@@ -96,7 +96,7 @@ export function VariantFacet(props: VariantFacetProps) {
         {sortBy(
           Object.keys(stats),
           (key) => -stats[key],
-          (key) => key
+          (key) => key,
         ).map((codeVariant) => (
           <FacetItem
             active={values.includes(codeVariant)}

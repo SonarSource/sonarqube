@@ -34,7 +34,7 @@ it('should render properly', () => {
       showColorNA
       height={20}
       width={200}
-    />
+    />,
   );
   expect(wrapper).toMatchSnapshot();
 });

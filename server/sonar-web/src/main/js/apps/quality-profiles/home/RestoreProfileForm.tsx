@@ -73,7 +73,7 @@ export default class RestoreProfileForm extends React.PureComponent<Props, State
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 
@@ -84,7 +84,7 @@ export default class RestoreProfileForm extends React.PureComponent<Props, State
           'quality_profiles.restore_profile.warning',
           profile.name,
           ruleSuccesses,
-          ruleFailures
+          ruleFailures,
         )}
       </Alert>
     ) : (
@@ -92,7 +92,7 @@ export default class RestoreProfileForm extends React.PureComponent<Props, State
         {translateWithParameters(
           'quality_profiles.restore_profile.success',
           profile.name,
-          ruleSuccesses
+          ruleSuccesses,
         )}
       </Alert>
     );

@@ -57,7 +57,7 @@ export function DebtValue(props: DebtValueProps) {
           ariaLabel={translateWithParameters(
             'overview.see_more_details_on_x_of_y',
             formattedValue,
-            metricName
+            metricName,
           )}
           branchLike={branchLike}
           className="overview-measures-value text-light"

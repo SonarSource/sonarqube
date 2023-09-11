@@ -58,7 +58,7 @@ export class PageHeader extends React.PureComponent<Props, State> {
       () => {
         this.props.router.push(getProfilePath(profile.name, profile.language));
       },
-      () => {}
+      () => {},
     );
   };
 

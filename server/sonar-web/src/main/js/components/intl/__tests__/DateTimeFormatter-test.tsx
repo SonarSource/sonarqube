@@ -34,6 +34,6 @@ function renderDateTimeFormatter(children?: (d: string) => React.ReactNode) {
   return renderComponent(
     <DateTimeFormatter date={new Date('2020-02-20T20:20:20Z')} timeZone="UTC">
       {children}
-    </DateTimeFormatter>
+    </DateTimeFormatter>,
   );
 }

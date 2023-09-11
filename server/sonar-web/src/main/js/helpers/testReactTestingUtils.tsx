@@ -57,7 +57,7 @@ export function renderAppWithAdminContext(
   indexPath: string,
   routes: () => JSX.Element,
   context: RenderContext = {},
-  overrides: { systemStatus?: SysStatus; adminPages?: Extension[] } = {}
+  overrides: { systemStatus?: SysStatus; adminPages?: Extension[] } = {},
 ): RenderResult {
   function MockAdminContainer() {
     return (
@@ -87,14 +87,14 @@ export function renderAppWithAdminContext(
       {routes()}
     </Route>,
     indexPath,
-    context
+    context,
   );
 }
 
 export function renderComponent(
   component: React.ReactElement,
   pathname = '/',
-  { appState = mockAppState(), featureList = [] }: RenderContext = {}
+  { appState = mockAppState(), featureList = [] }: RenderContext = {},
 ) {
   function Wrapper({ children }: { children: React.ReactElement }) {
     const queryClient = new QueryClient();
@@ -125,11 +125,11 @@ export function renderAppWithComponentContext(
   indexPath: string,
   routes: () => JSX.Element,
   context: RenderContext = {},
-  componentContext: Partial<ComponentContextShape> = {}
+  componentContext: Partial<ComponentContextShape> = {},
 ) {
   function MockComponentContainer() {
     const [realComponent, setRealComponent] = React.useState(
-      componentContext?.component ?? mockComponent()
+      componentContext?.component ?? mockComponent(),
     );
     return (
       <ComponentContext.Provider
@@ -150,14 +150,14 @@ export function renderAppWithComponentContext(
   return renderRoutedApp(
     <Route element={<MockComponentContainer />}>{routes()}</Route>,
     indexPath,
-    context
+    context,
   );
 }
 
 export function renderApp(
   indexPath: string,
   component: JSX.Element,
-  context: RenderContext = {}
+  context: RenderContext = {},
 ): RenderResult {
   return renderRoutedApp(<Route path={indexPath} element={component} />, indexPath, context);
 }
@@ -165,7 +165,7 @@ export function renderApp(
 export function renderAppRoutes(
   indexPath: string,
   routes: () => JSX.Element,
-  context?: RenderContext
+  context?: RenderContext,
 ): RenderResult {
   return renderRoutedApp(routes(), indexPath, context);
 }
@@ -186,7 +186,7 @@ function renderRoutedApp(
     appState = mockAppState(),
     featureList = [],
     languages = {},
-  }: RenderContext = {}
+  }: RenderContext = {},
 ): RenderResult {
   const path = parsePath(navigateTo);
   path.pathname = `/${path.pathname}`;
@@ -217,7 +217,7 @@ function renderRoutedApp(
           </LanguagesContext.Provider>
         </MetricsContext.Provider>
       </IntlWrapper>
-    </HelmetProvider>
+    </HelmetProvider>,
   );
 }
 
@@ -230,11 +230,11 @@ export function dateInputEvent(user: UserEvent) {
 
       await user.selectOptions(
         await screen.findByRole('combobox', { name: 'Month:' }),
-        formatter.format(date)
+        formatter.format(date),
       );
       await user.selectOptions(
         screen.getByRole('combobox', { name: 'Year:' }),
-        String(date.getFullYear())
+        String(date.getFullYear()),
       );
 
       await user.click(screen.getByRole('gridcell', { name: String(date.getDate()) }));
@@ -249,7 +249,7 @@ export function dateInputEvent(user: UserEvent) {
 export function findTooltipWithContent(
   text: Matcher,
   target?: HTMLElement,
-  selector = 'svg > desc'
+  selector = 'svg > desc',
 ) {
   // eslint-disable-next-line no-console
   console.warn(`The usage of findTooltipWithContent() is deprecated; use expect.toHaveATooltipWithContent() instead.

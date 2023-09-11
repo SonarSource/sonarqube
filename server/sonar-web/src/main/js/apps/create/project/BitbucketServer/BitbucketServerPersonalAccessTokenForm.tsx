@@ -122,13 +122,13 @@ export default function BitbucketServerPersonalAccessTokenForm({
             <FormattedMessage
               id="onboarding.create_project.pat_help.instructions.bitbucket_server"
               defaultMessage={translate(
-                'onboarding.create_project.pat_help.instructions.bitbucket_server'
+                'onboarding.create_project.pat_help.instructions.bitbucket_server',
               )}
               values={{
                 link: url ? (
                   <Link to={`${url.replace(/\/$/, '')}/account`}>
                     {translate(
-                      'onboarding.create_project.pat_help.instructions.bitbucket_server.link'
+                      'onboarding.create_project.pat_help.instructions.bitbucket_server.link',
                     )}
                   </Link>
                 ) : (

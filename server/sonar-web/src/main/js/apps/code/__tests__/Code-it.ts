@@ -198,7 +198,7 @@ it.each([ComponentQualifier.Portfolio, ComponentQualifier.SubPortfolio])(
     });
 
     expect(await ui.notAccessToAllChildrenTxt.find()).toBeInTheDocument();
-  }
+  },
 );
 
 it('should correctly show measures for a project', async () => {
@@ -387,8 +387,8 @@ function getPageObject(user: UserEvent) {
     overallCodeBtn: byRole('radio', { name: 'projects.view.overall_code' }),
     measureRow: (name: string | RegExp) => byRole('row', { name, exact: false }),
     measureValueCell: (row: ReactTestingQuery, name: string, value: string) => {
-      const i = Array.from(screen.getAllByRole('columnheader')).findIndex((c) =>
-        c.textContent?.includes(name)
+      const i = Array.from(screen.getAllByRole('columnheader')).findIndex(
+        (c) => c.textContent?.includes(name),
       );
       if (i < 0) {
         // eslint-disable-next-line testing-library/no-debugging-utils
@@ -473,7 +473,7 @@ function generateMeasures(overallValue = '1.0', newValue = '2.0') {
       ].map((metric) =>
         isDiffMetric(metric)
           ? mockMeasure({ metric, period: { index: 1, value: newValue } })
-          : mockMeasure({ metric, value: overallValue, period: undefined })
+          : mockMeasure({ metric, value: overallValue, period: undefined }),
       ),
       mockMeasure({
         metric: MetricKey.alert_status,
@@ -481,7 +481,7 @@ function generateMeasures(overallValue = '1.0', newValue = '2.0') {
         period: undefined,
       }),
     ],
-    'metric'
+    'metric',
   );
 }
 

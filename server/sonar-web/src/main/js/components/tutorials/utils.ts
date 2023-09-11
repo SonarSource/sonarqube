@@ -69,7 +69,7 @@ export function getUniqueTokenName(tokens: UserToken[], initialTokenName: string
 
 export function buildGithubLink(
   almBinding: AlmSettingsInstance,
-  projectBinding: ProjectAlmBindingResponse
+  projectBinding: ProjectAlmBindingResponse,
 ) {
   if (almBinding.url === undefined) {
     return null;
@@ -83,7 +83,7 @@ export function buildGithubLink(
 
 export function buildBitbucketCloudLink(
   almBinding: AlmSettingsInstance,
-  projectBinding: ProjectAlmBindingResponse
+  projectBinding: ProjectAlmBindingResponse,
 ) {
   if (almBinding.url === undefined || projectBinding.repository === undefined) {
     return null;

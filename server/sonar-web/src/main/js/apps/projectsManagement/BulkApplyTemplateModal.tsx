@@ -78,7 +78,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   }
 
@@ -111,7 +111,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
           if (this.mounted) {
             this.setState({ submitting: false });
           }
-        }
+        },
       );
     }
   };
@@ -125,11 +125,11 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
       {this.props.selection.length
         ? translateWithParameters(
             'permission_templates.bulk_apply_permission_template.apply_to_selected',
-            this.props.selection.length
+            this.props.selection.length,
           )
         : translateWithParameters(
             'permission_templates.bulk_apply_permission_template.apply_to_all',
-            this.props.total
+            this.props.total,
           )}
     </Alert>
   );

@@ -78,7 +78,7 @@ export default class ComponentsServiceMock {
       measures ||
       this.defaultComponents.reduce(
         (acc, tree) => ({ ...acc, ...mockFullMeasureData(tree, issueList) }),
-        {}
+        {},
       );
 
     this.components = cloneDeep(this.defaultComponents);
@@ -163,7 +163,7 @@ export default class ComponentsServiceMock {
         }
         return acc;
       },
-      { sourceFile: undefined, size: -Infinity }
+      { sourceFile: undefined, size: -Infinity },
     );
     if (sourceFile) {
       return sourceFile.component.key;
@@ -213,7 +213,7 @@ export default class ComponentsServiceMock {
   handleGetChildren = (
     component: string,
     metrics: string[] = [],
-    data: RequestData = {}
+    data: RequestData = {},
   ): Promise<{
     baseComponent: ComponentMeasure;
     components: ComponentMeasure[];
@@ -227,7 +227,7 @@ export default class ComponentsServiceMock {
     strategy: string,
     key: string,
     metricKeys: string[] = [],
-    { p = 1, ps = 100 }: RequestData = {}
+    { p = 1, ps = 100 }: RequestData = {},
   ): Promise<{
     baseComponent: ComponentMeasure;
     components: ComponentMeasure[];
@@ -353,7 +353,7 @@ export default class ComponentsServiceMock {
   handleGetComponentLeaves = (
     component: string,
     metrics: string[] = [],
-    data: RequestData = {}
+    data: RequestData = {},
   ): Promise<{
     baseComponent: ComponentMeasure;
     components: ComponentMeasure[];

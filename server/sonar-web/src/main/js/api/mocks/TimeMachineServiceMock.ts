@@ -71,7 +71,7 @@ export class TimeMachineServiceMock {
       p?: number;
       ps?: number;
       to?: string;
-    } & BranchParameters
+    } & BranchParameters,
   ) => {
     const { ps = PAGE_SIZE, p = DEFAULT_PAGE } = data;
 
@@ -91,7 +91,7 @@ export class TimeMachineServiceMock {
       p?: number;
       to?: string;
     } & BranchParameters,
-    _prev?: TimeMachineResponse
+    _prev?: TimeMachineResponse,
   ) => {
     const { p = DEFAULT_PAGE } = data;
     return this.reply({

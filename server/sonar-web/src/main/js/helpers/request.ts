@@ -79,7 +79,10 @@ class Request {
   private isJSON = false;
 
   // eslint-disable-next-line no-useless-constructor
-  constructor(private readonly url: string, private readonly options: { method?: string } = {}) {}
+  constructor(
+    private readonly url: string,
+    private readonly options: { method?: string } = {},
+  ) {}
 
   getSubmitData(customHeaders: any = {}): { url: string; options: RequestInit } {
     let { url } = this;
@@ -210,7 +213,7 @@ export function getJSON(url: string, data?: RequestData, bypassRedirect?: boolea
 export function getText(
   url: string,
   data?: RequestData,
-  bypassRedirect?: boolean
+  bypassRedirect?: boolean,
 ): Promise<string> {
   return get(url, data, bypassRedirect).then(parseText);
 }
@@ -248,7 +251,7 @@ export function postJSON(url: string, data?: RequestData, bypassRedirect?: boole
 export function postJSONBody(
   url: string,
   data?: RequestData,
-  bypassRedirect?: boolean
+  bypassRedirect?: boolean,
 ): Promise<any> {
   return request(url)
     .setMethod('POST')
@@ -288,14 +291,14 @@ function tryRequestAgain<T>(
   tries: { max: number; slowThreshold: number },
   stopRepeat: (response: T) => boolean,
   repeatErrors: number[] = [],
-  lastError?: Response
+  lastError?: Response,
 ) {
   tries.max--;
   if (tries.max !== 0) {
     return new Promise<T>((resolve) => {
       setTimeout(
         () => resolve(requestTryAndRepeatUntil(repeatAPICall, tries, stopRepeat, repeatErrors)),
-        tries.max > tries.slowThreshold ? 500 : 3000
+        tries.max > tries.slowThreshold ? 500 : 3000,
       );
     });
   }
@@ -306,7 +309,7 @@ export function requestTryAndRepeatUntil<T>(
   repeatAPICall: () => Promise<T>,
   tries: { max: number; slowThreshold: number },
   stopRepeat: (response: T) => boolean,
-  repeatErrors: number[] = []
+  repeatErrors: number[] = [],
 ) {
   return repeatAPICall().then(
     (r) => {
@@ -320,7 +323,7 @@ export function requestTryAndRepeatUntil<T>(
         return tryRequestAgain(repeatAPICall, tries, stopRepeat, repeatErrors, error);
       }
       return Promise.reject(error);
-    }
+    },
   );
 }
 

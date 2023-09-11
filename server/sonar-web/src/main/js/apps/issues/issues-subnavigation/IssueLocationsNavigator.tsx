@@ -57,7 +57,7 @@ export default function IssueLocationsNavigator(props: Props) {
         }
       }
     },
-    [selectedFlowIndex, onFlowSelect]
+    [selectedFlowIndex, onFlowSelect],
   );
 
   if (!hasSecondaryLocations && !hasFlows) {

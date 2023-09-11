@@ -102,16 +102,16 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
       1,
       Math.min(
         ...[textRange, ...secondaryLocations.map((l) => l.textRange)].map(
-          (t) => t.startLine - BUFFER_LINES
-        )
-      )
+          (t) => t.startLine - BUFFER_LINES,
+        ),
+      ),
     );
     // Search for the max endLine within primary and secondary locations
     const to = Math.max(
       ...[textRange, ...secondaryLocations.map((l) => l.textRange)].map(
         // Add 1 to check for end-of-file
-        (t) => t.endLine + BUFFER_LINES + 1
-      )
+        (t) => t.endLine + BUFFER_LINES + 1,
+      ),
     );
 
     this.setState({ loading: true });
@@ -144,7 +144,7 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
             text: location.msg,
           })),
         },
-        () => resolve(undefined)
+        () => resolve(undefined),
       );
     });
   }
@@ -181,7 +181,7 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
       } else {
         // remove extra sourceline if we didn't reach the end:
         concatSourceLines = sourceLines.concat(
-          lastLine ? additionalLines : additionalLines.slice(0, -1)
+          lastLine ? additionalLines : additionalLines.slice(0, -1),
         );
       }
 

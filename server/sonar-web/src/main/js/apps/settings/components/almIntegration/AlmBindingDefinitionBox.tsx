@@ -62,7 +62,7 @@ const STATUS_ICON = {
 
 function getPRDecorationFeatureStatus(
   branchesEnabled: boolean,
-  type: AlmSettingsBindingStatusType.Success | AlmSettingsBindingStatusType.Failure
+  type: AlmSettingsBindingStatusType.Success | AlmSettingsBindingStatusType.Failure,
 ) {
   if (branchesEnabled) {
     return STATUS_ICON[type];
@@ -79,7 +79,7 @@ function getPRDecorationFeatureStatus(
           <FormattedMessage
             id="settings.almintegration.feature.pr_decoration.disabled.no_branches"
             defaultMessage={translate(
-              'settings.almintegration.feature.pr_decoration.disabled.no_branches'
+              'settings.almintegration.feature.pr_decoration.disabled.no_branches',
             )}
             values={{
               link: (
@@ -91,7 +91,7 @@ function getPRDecorationFeatureStatus(
                   target="_blank"
                 >
                   {translate(
-                    'settings.almintegration.feature.pr_decoration.disabled.no_branches.link'
+                    'settings.almintegration.feature.pr_decoration.disabled.no_branches.link',
                   )}
                 </a>
               ),
@@ -106,7 +106,7 @@ function getPRDecorationFeatureStatus(
 function getImportFeatureStatus(
   alm: AlmKeys,
   definition: AlmBindingDefinitionBase,
-  type: AlmSettingsBindingStatusType.Success | AlmSettingsBindingStatusType.Failure
+  type: AlmSettingsBindingStatusType.Success | AlmSettingsBindingStatusType.Failure,
 ) {
   if (!definition.url && alm !== AlmKeys.BitbucketCloud) {
     return (
@@ -131,7 +131,7 @@ function getPrDecoFeatureDescription(alm: AlmKeys) {
       return translate('settings.almintegration.feature.status_reporting.description_mr');
     case AlmKeys.GitHub:
       return translate(
-        'settings.almintegration.feature.status_reporting.description_pr_and_commits'
+        'settings.almintegration.feature.status_reporting.description_pr_and_commits',
       );
     default:
       return translate('settings.almintegration.feature.status_reporting.description_pr');
@@ -147,7 +147,7 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
         <Button
           aria-label={translateWithParameters(
             'settings.almintegration.edit_configuration',
-            definition.key
+            definition.key,
           )}
           onClick={() => {
             props.onEdit(definition.key);
@@ -159,7 +159,7 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
         <Button
           aria-label={translateWithParameters(
             'settings.almintegration.delete_configuration',
-            definition.key
+            definition.key,
           )}
           className="button-red spacer-left"
           onClick={() => {
@@ -195,7 +195,7 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
                 <div>
                   <Tooltip
                     overlay={translate(
-                      'settings.almintegration.feature.alm_repo_import.description'
+                      'settings.almintegration.feature.alm_repo_import.description',
                     )}
                   >
                     <span>
@@ -229,7 +229,7 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
                     <FormattedMessage
                       id="settings.almintegration.github.additional_permission"
                       defaultMessage={translate(
-                        'settings.almintegration.github.additional_permission'
+                        'settings.almintegration.github.additional_permission',
                       )}
                       values={{
                         link: (
@@ -248,7 +248,7 @@ export default function AlmBindingDefinitionBox(props: AlmBindingDefinitionBoxPr
           <Button
             aria-label={translateWithParameters(
               'settings.almintegration.check_configuration_x',
-              definition.key
+              definition.key,
             )}
             className="big-spacer-top"
             onClick={() => props.onCheck(definition.key)}

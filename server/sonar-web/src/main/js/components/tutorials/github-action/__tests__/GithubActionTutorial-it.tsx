@@ -68,7 +68,7 @@ it('should follow and complete all steps', async () => {
   expect(getCopyToClipboardValue(0, 'Copy to clipboard')).toMatchSnapshot('sonar token key');
   expect(getCopyToClipboardValue(1, 'Copy to clipboard')).toMatchSnapshot('sonarqube host url key');
   expect(getCopyToClipboardValue(2, 'Copy to clipboard')).toMatchSnapshot(
-    'sonarqube host url value'
+    'sonarqube host url value',
   );
 
   // Create/update configuration file step
@@ -92,15 +92,15 @@ it('should follow and complete all steps', async () => {
   expect(getCopyToClipboardValue(0, 'Copy')).toMatchSnapshot('CFamily: sonar-project.properties');
   await user.click(ui.linuxButton.get());
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
-    'CFamily Linux: .github/workflows/build.yml'
+    'CFamily Linux: .github/workflows/build.yml',
   );
   await user.click(ui.windowsButton.get());
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
-    'CFamily Windows: .github/workflows/build.yml'
+    'CFamily Windows: .github/workflows/build.yml',
   );
   await user.click(ui.macosButton.get());
   expect(getCopyToClipboardValue(1, 'Copy')).toMatchSnapshot(
-    'CFamily MacOS: .github/workflows/build.yml'
+    'CFamily MacOS: .github/workflows/build.yml',
   );
 
   // Other
@@ -161,7 +161,7 @@ it('navigates between steps', async () => {
 
 function renderGithubActionTutorial(
   overrides: Partial<GitHubActionTutorialProps> = {},
-  { languages = { c: mockLanguage({ key: 'c' }) } }: RenderContext = {}
+  { languages = { c: mockLanguage({ key: 'c' }) } }: RenderContext = {},
 ) {
   return renderApp(
     '/',
@@ -172,6 +172,6 @@ function renderGithubActionTutorial(
       currentUser={mockLoggedInUser()}
       {...overrides}
     />,
-    { languages, featureList: [Feature.BranchSupport] }
+    { languages, featureList: [Feature.BranchSupport] },
   );
 }

@@ -67,7 +67,7 @@ class SettingsApp extends React.PureComponent<Props, State> {
     const { component } = this.props;
 
     const definitions: ExtendedSettingDefinition[] = await getDefinitions(component?.key).catch(
-      () => []
+      () => [],
     );
 
     if (this.mounted) {

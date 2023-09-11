@@ -55,7 +55,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
       };
       deactivateRule(data).then(
         () => this.props.onDeactivate(data.key, data.rule),
-        () => {}
+        () => {},
       );
     }
   };
@@ -98,7 +98,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
                 overlay={translateWithParameters(
                   'coding_rules.overrides',
                   selectedProfile.name,
-                  selectedProfile.parentName
+                  selectedProfile.parentName,
                 )}
               >
                 <RuleInheritanceIcon
@@ -112,7 +112,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
                 overlay={translateWithParameters(
                   'coding_rules.inherits',
                   selectedProfile.name,
-                  selectedProfile.parentName
+                  selectedProfile.parentName,
                 )}
               >
                 <RuleInheritanceIcon

@@ -35,7 +35,7 @@ it('should render correctly', async () => {
   expect(await screen.findAllByText(/.*metric..+.name.*/)).toHaveLength(ALL_CONDITIONS);
 
   expect(await screen.findAllByText('quality_gates.operator', { exact: false })).toHaveLength(
-    ALL_CONDITIONS
+    ALL_CONDITIONS,
   );
 });
 
@@ -45,14 +45,14 @@ it('should be collapsible', async () => {
 
   expect(await screen.findAllByText(/.*metric..+.name.*/)).toHaveLength(HALF_CONDITIONS);
   expect(await screen.findAllByText('quality_gates.operator', { exact: false })).toHaveLength(
-    HALF_CONDITIONS
+    HALF_CONDITIONS,
   );
 
   await user.click(screen.getByRole('link', { name: 'show_more' }));
 
   expect(await screen.findAllByText(/.*metric..+.name.*/)).toHaveLength(ALL_CONDITIONS);
   expect(await screen.findAllByText('quality_gates.operator', { exact: false })).toHaveLength(
-    ALL_CONDITIONS
+    ALL_CONDITIONS,
   );
 });
 
@@ -62,11 +62,11 @@ function renderQualityGateConditions(props: Partial<QualityGateConditionsProps> 
     conditions.push(
       mockQualityGateStatusConditionEnhanced({
         measure: mockMeasureEnhanced({ metric: mockMetric({ key: i.toString() }) }),
-      })
+      }),
     );
   }
 
   return renderComponent(
-    <QualityGateConditions component={mockComponent()} failedConditions={conditions} {...props} />
+    <QualityGateConditions component={mockComponent()} failedConditions={conditions} {...props} />,
   );
 }

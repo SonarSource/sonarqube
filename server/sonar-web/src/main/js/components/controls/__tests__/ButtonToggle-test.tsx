@@ -60,6 +60,6 @@ function render(props?: Partial<ButtonToggleProps>) {
       ]}
       value="two"
       {...props}
-    />
+    />,
   );
 }

@@ -99,7 +99,7 @@ export default class MeasureOverviewContainer extends React.PureComponent<Props,
           this.updateLoading({ component: false });
         }
       },
-      () => this.updateLoading({ component: false })
+      () => this.updateLoading({ component: false }),
     );
   };
 

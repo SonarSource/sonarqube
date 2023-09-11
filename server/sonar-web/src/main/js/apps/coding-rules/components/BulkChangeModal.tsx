@@ -134,7 +134,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
           method({
             ...data,
             targetKey: profile,
-          })
+          }),
         )
         .then((response) => this.processResponse(profile, response));
     }
@@ -154,7 +154,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ submitting: false });
         }
-      }
+      },
     );
   };
 
@@ -174,13 +174,13 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
               profile.name,
               language,
               result.succeeded,
-              result.failed
+              result.failed,
             )
           : translateWithParameters(
               'coding_rules.bulk_change.success',
               profile.name,
               language,
-              result.succeeded
+              result.succeeded,
             )}
       </Alert>
     );
@@ -213,11 +213,11 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
       action === 'activate'
         ? `${translate('coding_rules.activate_in_quality_profile')} (${formatMeasure(
             total,
-            'INT'
+            'INT',
           )} ${translate('coding_rules._rules')})`
         : `${translate('coding_rules.deactivate_in_quality_profile')} (${formatMeasure(
             total,
-            'INT'
+            'INT',
           )} ${translate('coding_rules._rules')})`;
 
     return (

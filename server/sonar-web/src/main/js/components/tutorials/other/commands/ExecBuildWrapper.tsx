@@ -49,7 +49,7 @@ export default function ExecBuildWrapper(props: ExecBuildWrapperProps) {
         className="sw-px-4"
         isOneLine
         snippet={`${executables[os]} --out-dir bw-output ${translate(
-          'onboarding.analysis.build_wrapper.execute_build_command'
+          'onboarding.analysis.build_wrapper.execute_build_command',
         )}`}
       />
       <p className="sw-mt-4">

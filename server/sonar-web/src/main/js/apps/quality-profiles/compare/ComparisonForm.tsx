@@ -43,7 +43,7 @@ export default class ComparisonForm extends React.PureComponent<Props> {
 
   optionRenderer(
     options: Option[],
-    props: OptionProps<Omit<Option, 'label' | 'isDefault'>, false>
+    props: OptionProps<Omit<Option, 'label' | 'isDefault'>, false>,
   ) {
     const { data } = props;
     return <components.Option {...props}>{renderValue(data, options)}</components.Option>;
@@ -51,7 +51,7 @@ export default class ComparisonForm extends React.PureComponent<Props> {
 
   singleValueRenderer = (
     options: Option[],
-    props: SingleValueProps<Omit<Option, 'label' | 'isDefault'>, false>
+    props: SingleValueProps<Omit<Option, 'label' | 'isDefault'>, false>,
   ) => (
     <components.SingleValue {...props}>{renderValue(props.data, options)}</components.SingleValue>
   );

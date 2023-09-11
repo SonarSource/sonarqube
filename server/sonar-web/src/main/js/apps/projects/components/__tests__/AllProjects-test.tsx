@@ -84,7 +84,7 @@ it('changes sort and perspective', async () => {
   const projects = ui.projects.getAll();
 
   expect(await within(projects[0]).findByRole('link')).toHaveTextContent(
-    'sonarlint-omnisharp-dotnet'
+    'sonarlint-omnisharp-dotnet',
   );
 
   // Change perspective

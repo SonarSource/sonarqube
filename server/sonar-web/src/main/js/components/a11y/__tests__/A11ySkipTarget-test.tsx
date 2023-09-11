@@ -31,7 +31,7 @@ it('should render correctly, and (un)register the link when (un)mounted', () => 
       anchor={link.key}
       label={link.label}
       removeA11ySkipLink={removeA11ySkipLink}
-    />
+    />,
   );
 
   expect(wrapper).toMatchSnapshot();

@@ -29,7 +29,7 @@ export function getNewCodePeriodDate(period?: { date?: string }): Date | undefin
 
 export function getNewCodePeriodLabel(
   period: Period | undefined,
-  dateFormatter: (date: string) => string
+  dateFormatter: (date: string) => string,
 ) {
   if (!period) {
     return undefined;
@@ -65,7 +65,7 @@ export function getNewCodePeriodLabel(
 }
 
 export function isApplicationNewCodePeriod(
-  period: Period | ApplicationPeriod
+  period: Period | ApplicationPeriod,
 ): period is ApplicationPeriod {
   return (period as ApplicationPeriod).project !== undefined;
 }

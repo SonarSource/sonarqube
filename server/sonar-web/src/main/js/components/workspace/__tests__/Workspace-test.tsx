@@ -101,13 +101,13 @@ it('should load data from local storage and allow to open another component', as
 
   expect(byText('previously opened file').get()).toBeInTheDocument();
   expect(
-    byRole('heading', { name: 'qualifier.FIL path/to/component/k1' }).query()
+    byRole('heading', { name: 'qualifier.FIL path/to/component/k1' }).query(),
   ).not.toBeInTheDocument();
 
   await user.click(ui.componentOpenButton.get());
 
   expect(
-    byRole('heading', { name: 'qualifier.FIL path/to/component/k1' }).get()
+    byRole('heading', { name: 'qualifier.FIL path/to/component/k1' }).get(),
   ).toBeInTheDocument();
   expect(save).toHaveBeenCalled();
 });
@@ -148,7 +148,7 @@ function renderWorkspace(componentKey = 'k1', branchLike?: BranchLike) {
   return renderComponent(
     <Workspace>
       <TestComponent componentKey={componentKey} branchLike={branchLike} />
-    </Workspace>
+    </Workspace>,
   );
 }
 

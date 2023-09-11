@@ -55,7 +55,7 @@ export class ResolutionFacet extends React.PureComponent<Props> {
       const newValue = orderBy(
         resolutions.includes(itemValue)
           ? without(resolutions, itemValue)
-          : [...resolutions, itemValue]
+          : [...resolutions, itemValue],
       );
 
       this.props.onChange({ resolved: true, [this.property]: newValue });

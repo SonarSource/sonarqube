@@ -82,7 +82,7 @@ export default class WebhooksMock {
   handleSearchWebhooks = ({ project }: { project?: string }) => {
     if (project !== this.project) {
       throw new Error(
-        'You are asking for webhooks of a project that is not mocked. Reset first the mock with the correct project'
+        'You are asking for webhooks of a project that is not mocked. Reset first the mock with the correct project',
       );
     }
     return this.response({

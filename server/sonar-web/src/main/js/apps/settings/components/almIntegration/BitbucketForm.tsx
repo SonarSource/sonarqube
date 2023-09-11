@@ -33,7 +33,7 @@ export interface BitbucketFormProps {
   isUpdate: boolean;
   onFieldChange: (
     fieldId: keyof (BitbucketServerBindingDefinition & BitbucketCloudBindingDefinition),
-    value: string
+    value: string,
   ) => void;
   variant?: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud;
   onVariantChange: (variant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud) => void;

@@ -134,7 +134,7 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
         this.props.updateTooltip(
           selectedDatePos.selectedDate,
           selectedDatePos.selectedDateXPos,
-          selectedDatePos.selectedDateIdx
+          selectedDatePos.selectedDateIdx,
         );
       }
     }
@@ -151,7 +151,7 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
   getYScale = (
     props: PropsWithDefaults,
     availableHeight: number,
-    flatData: Chart.Point[]
+    flatData: Chart.Point[],
   ): YScale => {
     if (props.metricType === MetricType.Rating) {
       return this.getRatingScale(availableHeight);
@@ -172,7 +172,7 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
   getXScale = (
     { startDate, endDate }: PropsWithDefaults,
     availableWidth: number,
-    flatData: Chart.Point[]
+    flatData: Chart.Point[],
   ) => {
     const dateRange = extent(flatData, (d) => d.x) as [Date, Date];
     const start = startDate && startDate > dateRange[0] ? startDate : dateRange[0];
@@ -484,7 +484,7 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
                     cx={xScale(point.x)}
                     cy={yScale(point.y as YPoint)}
                     fill={themeColor(
-                      `graphLineColor.${serieIdx}` as Parameters<typeof themeColor>[0]
+                      `graphLineColor.${serieIdx}` as Parameters<typeof themeColor>[0],
                     )({
                       theme,
                     })}
@@ -495,7 +495,7 @@ export class AdvancedTimelineClass extends React.PureComponent<Props, State> {
                   />
                 );
               })
-              .filter(isDefined)
+              .filter(isDefined),
           )
           .filter((dots) => dots.length > 0)}
       </g>

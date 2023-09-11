@@ -88,7 +88,7 @@ describe('Global Settings', () => {
 
     // Visible only for project
     expect(
-      ui.categoryLink('settings.pr_decoration.binding.category').query()
+      ui.categoryLink('settings.pr_decoration.binding.category').query(),
     ).not.toBeInTheDocument();
 
     expect(await ui.announcementHeading.find()).toBeInTheDocument();

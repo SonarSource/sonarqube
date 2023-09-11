@@ -29,25 +29,25 @@ describe('getSettingValue', () => {
 
   it('should work for Days', () => {
     expect(getSettingValue({ ...state, type: NewCodeDefinitionType.NumberOfDays })).toBe(
-      state.numberOfDays
+      state.numberOfDays,
     );
   });
 
   it('should work for Analysis', () => {
     expect(getSettingValue({ ...state, type: NewCodeDefinitionType.SpecificAnalysis })).toBe(
-      state.analysis
+      state.analysis,
     );
   });
 
   it('should work for Previous version', () => {
     expect(
-      getSettingValue({ ...state, type: NewCodeDefinitionType.PreviousVersion })
+      getSettingValue({ ...state, type: NewCodeDefinitionType.PreviousVersion }),
     ).toBeUndefined();
   });
 
   it('should work for Reference branch', () => {
     expect(getSettingValue({ ...state, type: NewCodeDefinitionType.ReferenceBranch })).toBe(
-      state.referenceBranch
+      state.referenceBranch,
     );
   });
 });
@@ -59,60 +59,60 @@ describe('validateSettings', () => {
       validateSetting({
         numberOfDays: '12',
         selectedNewCodeDefinitionType: NewCodeDefinitionType.NumberOfDays,
-      })
+      }),
     ).toEqual(true);
     expect(
       validateSetting({
         numberOfDays: 'nope',
         selectedNewCodeDefinitionType: NewCodeDefinitionType.NumberOfDays,
-      })
+      }),
     ).toEqual(false);
     expect(
       validateSetting({
         numberOfDays: '',
         selectedNewCodeDefinitionType: NewCodeDefinitionType.SpecificAnalysis,
-      })
+      }),
     ).toEqual(false);
     expect(
       validateSetting({
         numberOfDays: '',
         referenceBranch: 'master',
         selectedNewCodeDefinitionType: NewCodeDefinitionType.ReferenceBranch,
-      })
+      }),
     ).toEqual(true);
     expect(
       validateSetting({
         numberOfDays: '',
         referenceBranch: '',
         selectedNewCodeDefinitionType: NewCodeDefinitionType.ReferenceBranch,
-      })
+      }),
     ).toEqual(false);
   });
 
   it('should validate at project level', () => {
     expect(validateSetting({ numberOfDays: '', overrideGlobalNewCodeDefinition: false })).toEqual(
-      true
+      true,
     );
     expect(
       validateSetting({
         selectedNewCodeDefinitionType: NewCodeDefinitionType.PreviousVersion,
         numberOfDays: '',
         overrideGlobalNewCodeDefinition: true,
-      })
+      }),
     ).toEqual(true);
     expect(
       validateSetting({
         selectedNewCodeDefinitionType: NewCodeDefinitionType.NumberOfDays,
         numberOfDays: '',
         overrideGlobalNewCodeDefinition: true,
-      })
+      }),
     ).toEqual(false);
     expect(
       validateSetting({
         selectedNewCodeDefinitionType: NewCodeDefinitionType.NumberOfDays,
         numberOfDays: '12',
         overrideGlobalNewCodeDefinition: true,
-      })
+      }),
     ).toEqual(true);
   });
 });

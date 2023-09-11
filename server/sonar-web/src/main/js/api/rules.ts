@@ -48,7 +48,7 @@ export function getRuleRepositories(parameters: {
 }): Promise<Array<{ key: string; language: string; name: string }>> {
   return getJSON('/api/rules/repositories', parameters).then(
     ({ repositories }) => repositories,
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
@@ -74,7 +74,7 @@ export function createRule(data: CreateRuleData): Promise<RuleDetails> {
       } else {
         return throwGlobalError(response);
       }
-    }
+    },
   );
 }
 

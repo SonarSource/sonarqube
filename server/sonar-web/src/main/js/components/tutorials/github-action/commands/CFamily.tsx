@@ -147,7 +147,7 @@ export default function CFamily(props: CFamilyProps) {
               mainBranchName,
               !!branchesEnabled,
               '<image ready for your build toolchain>',
-              STEPS[os]
+              STEPS[os],
             )}
           />
           <CompilationInfo />

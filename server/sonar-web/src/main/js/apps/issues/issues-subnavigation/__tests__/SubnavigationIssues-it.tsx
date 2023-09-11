@@ -129,7 +129,7 @@ describe('rendering', () => {
       ],
       {
         selected: 'custom',
-      }
+      },
     );
 
     expect(ui.expandBadgesButton.query()).not.toBeInTheDocument();
@@ -157,7 +157,7 @@ describe('interacting', () => {
         component: `component-${i}`,
         index: i,
         msg: `loc ${i}`,
-      })
+      }),
     );
 
     renderConciseIssues(
@@ -172,7 +172,7 @@ describe('interacting', () => {
       {
         selected: 'custom',
         selectedFlowIndex: 0,
-      }
+      },
     );
 
     expect(ui.expandBadgesButton.get()).toBeInTheDocument();
@@ -214,7 +214,7 @@ describe('interacting', () => {
       {
         onFlowSelect,
         selected: 'custom',
-      }
+      },
     );
 
     expect(onFlowSelect).not.toHaveBeenCalled();
@@ -245,7 +245,7 @@ function getPageObject() {
 
 function renderConciseIssues(
   issues: Issue[],
-  listProps: Partial<ComponentPropsType<typeof SubnavigationIssuesList>> = {}
+  listProps: Partial<ComponentPropsType<typeof SubnavigationIssuesList>> = {},
 ) {
   const wrapper = renderComponent(
     <SubnavigationIssuesList
@@ -261,12 +261,12 @@ function renderConciseIssues(
       selectedFlowIndex={undefined}
       selectedLocationIndex={undefined}
       {...listProps}
-    />
+    />,
   );
 
   function override(
     issues: Issue[],
-    listProps: Partial<ComponentPropsType<typeof SubnavigationIssuesList>> = {}
+    listProps: Partial<ComponentPropsType<typeof SubnavigationIssuesList>> = {},
   ) {
     wrapper.rerender(
       <SubnavigationIssuesList
@@ -282,7 +282,7 @@ function renderConciseIssues(
         selectedFlowIndex={undefined}
         selectedLocationIndex={undefined}
         {...listProps}
-      />
+      />,
     );
   }
 

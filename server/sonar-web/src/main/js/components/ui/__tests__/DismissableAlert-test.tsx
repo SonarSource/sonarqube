@@ -66,6 +66,6 @@ function shallowRender(props: Partial<DismissableAlertProps> = {}) {
   return shallow<DismissableAlertProps>(
     <DismissableAlert alertKey="foo" variant="info" {...props}>
       <div>My content</div>
-    </DismissableAlert>
+    </DismissableAlert>,
   );
 }

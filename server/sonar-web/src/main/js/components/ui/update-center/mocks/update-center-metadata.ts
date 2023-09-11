@@ -20,7 +20,7 @@
 import { MetaDataInformation, MetaDataVersionInformation } from '../update-center-metadata';
 
 export function mockMetaDataVersionInformation(
-  overrides?: Partial<MetaDataVersionInformation>
+  overrides?: Partial<MetaDataVersionInformation>,
 ): MetaDataVersionInformation {
   return {
     version: '5.13',
@@ -34,7 +34,7 @@ export function mockMetaDataVersionInformation(
 }
 
 export function mockMetaDataInformation(
-  overrides?: Partial<MetaDataInformation>
+  overrides?: Partial<MetaDataInformation>,
 ): MetaDataInformation {
   return {
     name: 'SonarJava',

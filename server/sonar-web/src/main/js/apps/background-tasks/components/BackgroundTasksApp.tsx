@@ -85,7 +85,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
         this.setState({ types });
         this.loadTasks();
       },
-      () => {}
+      () => {},
     );
   }
 
@@ -147,7 +147,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
           }));
         }
       },
-      this.stopLoading
+      this.stopLoading,
     );
   };
 

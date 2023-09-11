@@ -71,7 +71,7 @@ function renderProjectKeyApp() {
     'project/key',
     () => <Route path="project/key" element={<ProjectKeyApp />} />,
     {},
-    { component: componentsMock.components[0].component }
+    { component: componentsMock.components[0].component },
   );
 }
 

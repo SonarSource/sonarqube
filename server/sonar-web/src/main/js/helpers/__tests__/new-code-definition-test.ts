@@ -40,7 +40,7 @@ describe('isNewCodeDefinitionCompliant', () => {
     'should test for new code definition compliance properly %s',
     (newCodePeriod: NewCodeDefinition, result: boolean) => {
       expect(isNewCodeDefinitionCompliant(newCodePeriod)).toEqual(result);
-    }
+    },
   );
 });
 
@@ -74,11 +74,11 @@ describe('getNumberOfDaysDefaultValue', () => {
     (
       globalNewCodeDefinition: NewCodeDefinition | null,
       inheritedNewCodeDefinition: NewCodeDefinition | null,
-      result: string
+      result: string,
     ) => {
       expect(
-        getNumberOfDaysDefaultValue(globalNewCodeDefinition, inheritedNewCodeDefinition)
+        getNumberOfDaysDefaultValue(globalNewCodeDefinition, inheritedNewCodeDefinition),
       ).toEqual(result);
-    }
+    },
   );
 });

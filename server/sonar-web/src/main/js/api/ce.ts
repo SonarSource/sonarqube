@@ -40,13 +40,13 @@ export function getAnalysisStatus(data: {
 }
 
 export function getActivity(
-  data: ActivityRequestParameters
+  data: ActivityRequestParameters,
 ): Promise<{ tasks: Task[]; paging: Paging }> {
   return getJSON('/api/ce/activity', data);
 }
 
 export function getStatus(
-  component?: string
+  component?: string,
 ): Promise<{ failing: number; inProgress: number; pending: number; pendingTime?: number }> {
   return getJSON('/api/ce/activity_status', { component });
 }
@@ -58,7 +58,7 @@ export function getTask(id: string, additionalFields?: string[]): Promise<Task> 
 export function cancelTask(id: string): Promise<any> {
   return post('/api/ce/cancel', { id }).then(
     () => getTask(id),
-    () => getTask(id)
+    () => getTask(id),
   );
 }
 
@@ -67,7 +67,7 @@ export function cancelAllTasks(): Promise<any> {
 }
 
 export function getTasksForComponent(
-  component: string
+  component: string,
 ): Promise<{ queue: Task[]; current?: Task }> {
   return getJSON('/api/ce/component', { component }).catch(throwGlobalError);
 }

@@ -66,7 +66,7 @@ export default function GlobalSearchResults(props: Props): React.ReactElement<Pr
             )}
             <ItemDivider />
           </ul>
-        </li>
+        </li>,
       );
     }
   });

@@ -75,7 +75,7 @@ export default function ChangeDefaultVisibilityForm(props: Props) {
           {translate(
             `settings.projects.change_visibility_form.warning${
               githubProbivisioningEnabled ? '.github' : ''
-            }`
+            }`,
           )}
         </Alert>
       </div>

@@ -40,7 +40,7 @@ export default function MultipleSelectionHint({ options, values }: MultipleSelec
         {translate(
           isOnMac()
             ? 'shortcuts.section.global.facets.multiselection.mac'
-            : 'shortcuts.section.global.facets.multiselection'
+            : 'shortcuts.section.global.facets.multiselection',
         )}
       </div>
     </div>

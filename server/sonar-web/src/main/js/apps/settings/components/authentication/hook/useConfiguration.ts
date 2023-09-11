@@ -46,7 +46,7 @@ export type SettingValue =
 
 export default function useConfiguration(
   definitions: ExtendedSettingDefinition[],
-  optionalFields: string[]
+  optionalFields: string[],
 ) {
   const keys = definitions.map((definition) => definition.key);
   const [values, setValues] = useState<Dict<SettingValue>>({});
@@ -79,8 +79,8 @@ export default function useConfiguration(
               definition,
             };
           }),
-          'key'
-        )
+          'key',
+        ),
       );
     }
   }, [data, definitions]);
@@ -102,18 +102,18 @@ export default function useConfiguration(
     Object.values(values).filter((v) => v.mandatory),
     (v) =>
       (v.newValue !== undefined && !isEmpty(v.newValue)) ||
-      (!v.isNotSet && v.newValue === undefined)
+      (!v.isNotSet && v.newValue === undefined),
   );
 
   const hasConfiguration = every(
     Object.values(values).filter((v) => v.mandatory),
-    (v) => !v.isNotSet
+    (v) => !v.isNotSet,
   );
 
   const deleteMutation = update(
     useResetSettingsMutation(),
     'mutate',
-    (mutate) => () => mutate(Object.keys(values))
+    (mutate) => () => mutate(Object.keys(values)),
   ) as Omit<UseMutationResult<void, unknown, void, unknown>, 'mutateAsync'>;
 
   const isValueChange = useCallback(
@@ -121,7 +121,7 @@ export default function useConfiguration(
       const value = values[setting];
       return value && value.newValue !== undefined && (value.value ?? '') !== value.newValue;
     },
-    [values]
+    [values],
   );
 
   return {

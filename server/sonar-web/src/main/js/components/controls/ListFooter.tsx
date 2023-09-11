@@ -84,7 +84,7 @@ export default function ListFooter(props: ListFooterProps) {
         disabled: loading,
         onClick: props.reload,
       } as Button['props'],
-      translate('reload')
+      translate('reload'),
     );
   } else if (hasMore && props.loadMore) {
     button = React.createElement(
@@ -96,7 +96,7 @@ export default function ListFooter(props: ListFooterProps) {
         disabled: loading,
         onClick: onLoadMore,
       } as Button['props'],
-      translate('show_more')
+      translate('show_more'),
     );
   }
 
@@ -108,7 +108,7 @@ export default function ListFooter(props: ListFooterProps) {
         'list-footer', // .list-footer is only used by Selenium tests; we should find a way to remove it.
         'sw-body-sm sw-mt-4 sw-flex sw-items-center sw-justify-center',
         { 'sw-opacity-50 sw-duration-500 sw-ease-in-out': !ready },
-        className
+        className,
       )}
     >
       <span aria-live="polite" aria-busy={loading}>
@@ -116,7 +116,7 @@ export default function ListFooter(props: ListFooterProps) {
           ? translateWithParameters(
               'x_of_y_shown',
               formatMeasure(count, MetricType.Integer, null),
-              formatMeasure(total, MetricType.Integer, null)
+              formatMeasure(total, MetricType.Integer, null),
             )
           : translateWithParameters('x_show', formatMeasure(count, MetricType.Integer, null))}
       </span>

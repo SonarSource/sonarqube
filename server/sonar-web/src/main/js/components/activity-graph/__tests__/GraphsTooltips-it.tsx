@@ -66,10 +66,10 @@ it.each([
         screen.getByRole('row', {
           // eslint-disable-next-line jest/no-conditional-in-test
           name: rating ? `${n} ${key} ${rating}` : `${n} ${key}`,
-        })
+        }),
       ).toBeInTheDocument();
     });
-  }
+  },
 );
 
 function renderGraphsTooltips(props: Partial<Props> = {}) {
@@ -94,14 +94,14 @@ function renderGraphsTooltips(props: Partial<Props> = {}) {
       mockMeasureHistory({
         metric,
         history: [mockHistoryItem({ date, value })],
-      })
+      }),
     );
 
     metrics.push(
       mockMetric({
         key: metric,
         type: metric.includes('_density') || metric === MetricKey.coverage ? 'PERCENT' : 'INT',
-      })
+      }),
     );
   });
 
@@ -109,7 +109,7 @@ function renderGraphsTooltips(props: Partial<Props> = {}) {
     measuresHistory,
     graph,
     metrics,
-    getDisplayedHistoryMetrics(graph, graph === GraphType.custom ? [MetricKey.bugs] : [])
+    getDisplayedHistoryMetrics(graph, graph === GraphType.custom ? [MetricKey.bugs] : []),
   );
 
   return renderComponent(
@@ -124,6 +124,6 @@ function renderGraphsTooltips(props: Partial<Props> = {}) {
       tooltipPos={0}
       formatValue={(n: number | string) => String(n)}
       {...props}
-    />
+    />,
   );
 }

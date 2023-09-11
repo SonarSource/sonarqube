@@ -37,7 +37,7 @@ export function getLinearLocations(textRange: TextRange | undefined): LinearIssu
 
 export function getSecondaryIssueLocationsForLine(
   line: SourceLine,
-  highlightedLocations: (FlowLocation | undefined)[] | undefined
+  highlightedLocations: (FlowLocation | undefined)[] | undefined,
 ): LinearIssueLocation[] {
   if (!highlightedLocations) {
     return [];

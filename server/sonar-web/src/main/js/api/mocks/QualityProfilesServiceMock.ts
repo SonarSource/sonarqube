@@ -324,7 +324,7 @@ export default class QualityProfilesServiceMock {
   };
 
   handleGetProfileProjects = (
-    data: RequestData
+    data: RequestData,
   ): Promise<{
     more: boolean;
     paging: Paging;
@@ -333,7 +333,7 @@ export default class QualityProfilesServiceMock {
     const results = (this.profileProjects[data.key] ?? []).filter(
       (project) =>
         project.selected ===
-        (data.selected !== undefined ? Boolean(data.selected === 'selected') : true)
+        (data.selected !== undefined ? Boolean(data.selected === 'selected') : true),
     );
 
     return this.reply({
@@ -363,10 +363,10 @@ export default class QualityProfilesServiceMock {
     }
 
     const ancestors = this.listQualityProfile.filter(
-      (p) => p.key === profile.parentKey
+      (p) => p.key === profile.parentKey,
     ) as ProfileInheritanceDetails[];
     const children = this.listQualityProfile.filter(
-      (p) => p.parentKey === profile.key
+      (p) => p.parentKey === profile.key,
     ) as ProfileInheritanceDetails[];
 
     return this.reply({
@@ -470,7 +470,7 @@ export default class QualityProfilesServiceMock {
   };
 
   handleSearchQualityProfiles = (
-    parameters: SearchQualityProfilesParameters = {}
+    parameters: SearchQualityProfilesParameters = {},
   ): Promise<SearchQualityProfilesResponse> => {
     const { language } = parameters;
     let profiles = this.listQualityProfile;
@@ -498,7 +498,7 @@ export default class QualityProfilesServiceMock {
     const keyFilter = profile.name === this.comparisonResult.left.name ? 'inRight' : 'inLeft';
 
     this.comparisonResult[keyFilter] = this.comparisonResult[keyFilter].filter(
-      ({ key }) => key !== data.rule
+      ({ key }) => key !== data.rule,
     );
 
     return this.reply(undefined);
@@ -652,7 +652,7 @@ export default class QualityProfilesServiceMock {
     // delete Children
     const qualityProfileToDelete = this.listQualityProfile.find((profile) => profile.name === name);
     this.listQualityProfile = this.listQualityProfile.filter(
-      (profile) => profile.parentKey !== qualityProfileToDelete?.key
+      (profile) => profile.parentKey !== qualityProfileToDelete?.key,
     );
 
     // delete profile

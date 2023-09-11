@@ -94,7 +94,7 @@ function shallowRender(props?: Partial<DateInput['props']>) {
       onChange={jest.fn()}
       placeholder="placeholder"
       {...props}
-    />
+    />,
   );
   const instance = wrapper.instance();
   return { wrapper, instance };

@@ -86,6 +86,6 @@ function getWrapper(props = {}) {
       refreshPending={() => {}}
       systemStatus="UP"
       {...props}
-    />
+    />,
   );
 }

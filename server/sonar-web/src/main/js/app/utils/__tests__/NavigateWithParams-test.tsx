@@ -45,6 +45,6 @@ function renderNavigateWithParams(transformParams: (params: Params) => Dict<stri
         />
         <Route path="*" element={<CatchAll />} />
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }

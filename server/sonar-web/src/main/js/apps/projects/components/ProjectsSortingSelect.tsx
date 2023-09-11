@@ -63,7 +63,7 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
         value: option.value,
         label: translate('projects.sorting', option.value),
         className: option.class,
-      })
+      }),
     );
   };
 

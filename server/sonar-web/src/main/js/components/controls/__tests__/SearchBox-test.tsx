@@ -40,14 +40,14 @@ it('renders', () => {
       onChange={jest.fn()}
       placeholder="placeholder"
       value="foo"
-    />
+    />,
   );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('warns when input is too short', () => {
   const wrapper = shallow(
-    <SearchBox minLength={2} onChange={jest.fn()} placeholder="placeholder" value="f" />
+    <SearchBox minLength={2} onChange={jest.fn()} placeholder="placeholder" value="f" />,
   );
   expect(wrapper.find('.search-box-note').exists()).toBe(true);
 });
@@ -83,7 +83,7 @@ it('changes', () => {
 it('does not change when value is too short', () => {
   const onChange = jest.fn();
   const wrapper = shallow(
-    <SearchBox minLength={3} onChange={onChange} placeholder="placeholder" value="" />
+    <SearchBox minLength={3} onChange={onChange} placeholder="placeholder" value="" />,
   );
   change(wrapper.find('.search-box-input'), 'fo');
   expect(onChange).not.toHaveBeenCalled();

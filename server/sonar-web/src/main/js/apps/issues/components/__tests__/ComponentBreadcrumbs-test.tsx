@@ -61,6 +61,6 @@ describe('renders properly', () => {
 
 function renderComponentBreadcrumbs(component?: Component, issue: Partial<Issue> = {}) {
   return renderComponent(
-    <ComponentBreadcrumbs component={component} issue={{ ...baseIssue, ...issue }} />
+    <ComponentBreadcrumbs component={component} issue={{ ...baseIssue, ...issue }} />,
   );
 }

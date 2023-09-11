@@ -106,7 +106,7 @@ export default function BranchLikeTabs(props: Props) {
   const title = translate(
     isBranchMode
       ? 'project_branch_pull_request.table.branch'
-      : 'project_branch_pull_request.table.pull_request'
+      : 'project_branch_pull_request.table.pull_request',
   );
 
   return (

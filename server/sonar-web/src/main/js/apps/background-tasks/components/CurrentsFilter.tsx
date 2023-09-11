@@ -37,7 +37,7 @@ export default function CurrentsFilter(props: CurrentsFilterProps) {
       const newValue = value ? CURRENTS.ONLY_CURRENTS : CURRENTS.ALL;
       onChange(newValue);
     },
-    [onChange]
+    [onChange],
   );
 
   return (

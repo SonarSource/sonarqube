@@ -40,7 +40,7 @@ let newCodePeriodHandler: NewCodeDefinitionServiceMock;
 
 const ui = {
   bitbucketCloudCreateProjectButton: byText(
-    'onboarding.create_project.select_method.bitbucketcloud'
+    'onboarding.create_project.select_method.bitbucketcloud',
   ),
   personalAccessTokenInput: byRole('textbox', {
     name: /onboarding.create_project.enter_pat/,
@@ -79,16 +79,16 @@ it('should ask for PAT when it is not set yet and show the import project featur
   expect(await ui.instanceSelector.find()).toBeInTheDocument();
 
   expect(
-    screen.getByText('onboarding.create_project.bitbucket_cloud.enter_password')
+    screen.getByText('onboarding.create_project.bitbucket_cloud.enter_password'),
   ).toBeInTheDocument();
   expect(
-    screen.getByText('onboarding.create_project.enter_password.instructions.bitbucket_cloud')
+    screen.getByText('onboarding.create_project.enter_password.instructions.bitbucket_cloud'),
   ).toBeInTheDocument();
 
   expect(
     screen.getByText(
-      'onboarding.create_project.pat.expired.info_message onboarding.create_project.pat.expired.info_message_contact'
-    )
+      'onboarding.create_project.pat.expired.info_message onboarding.create_project.pat.expired.info_message_contact',
+    ),
   ).toBeInTheDocument();
 
   expect(screen.getByRole('button', { name: 'save' })).toBeDisabled();
@@ -96,7 +96,7 @@ it('should ask for PAT when it is not set yet and show the import project featur
   await user.click(
     screen.getByRole('textbox', {
       name: /onboarding.create_project.bitbucket_cloud.enter_username/,
-    })
+    }),
   );
 
   await user.keyboard('username');
@@ -104,7 +104,7 @@ it('should ask for PAT when it is not set yet and show the import project featur
   await user.click(
     screen.getByRole('textbox', {
       name: /onboarding.create_project.bitbucket_cloud.enter_password/,
-    })
+    }),
   );
 
   await user.keyboard('password');
@@ -133,15 +133,15 @@ it('should show import project feature when PAT is already set', async () => {
 
   projectItem = screen.getByRole('row', { name: /BitbucketCloud Repo 1/ });
   expect(
-    within(projectItem).getByText('onboarding.create_project.repository_imported')
+    within(projectItem).getByText('onboarding.create_project.repository_imported'),
   ).toBeInTheDocument();
 
   expect(
-    within(projectItem).getByRole('link', { name: /BitbucketCloud Repo 1/ })
+    within(projectItem).getByRole('link', { name: /BitbucketCloud Repo 1/ }),
   ).toBeInTheDocument();
   expect(within(projectItem).getByRole('link', { name: /BitbucketCloud Repo 1/ })).toHaveAttribute(
     'href',
-    '/dashboard?id=key'
+    '/dashboard?id=key',
   );
 
   projectItem = screen.getByRole('row', { name: /BitbucketCloud Repo 2/ });
@@ -152,14 +152,14 @@ it('should show import project feature when PAT is already set', async () => {
   await user.click(setupButton);
 
   expect(
-    screen.getByRole('heading', { name: 'onboarding.create_project.new_code_definition.title' })
+    screen.getByRole('heading', { name: 'onboarding.create_project.new_code_definition.title' }),
   ).toBeInTheDocument();
 
   await user.click(screen.getByRole('radio', { name: 'new_code_definition.global_setting' }));
   await user.click(
     screen.getByRole('button', {
       name: 'onboarding.create_project.new_code_definition.create_project',
-    })
+    }),
   );
 
   expect(await screen.findByText('/dashboard?id=key')).toBeInTheDocument();
@@ -180,7 +180,7 @@ it('should show search filter when PAT is already set', async () => {
     'conf-bitbucketcloud-2',
     '',
     BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
-    1
+    1,
   );
 
   const inputSearch = screen.getByRole('searchbox', {
@@ -193,7 +193,7 @@ it('should show search filter when PAT is already set', async () => {
     'conf-bitbucketcloud-2',
     'search',
     BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
-    1
+    1,
   );
 });
 
@@ -209,7 +209,7 @@ it('should show no result message when there are no projects', async () => {
   });
 
   expect(
-    screen.getByText('onboarding.create_project.bitbucketcloud.no_projects')
+    screen.getByText('onboarding.create_project.bitbucketcloud.no_projects'),
   ).toBeInTheDocument();
 });
 
@@ -217,7 +217,7 @@ it('should have load more', async () => {
   const user = userEvent.setup();
   almIntegrationHandler.createRandomBitbucketCloudProjectsWithLoadMore(
     BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
-    BITBUCKET_CLOUD_PROJECTS_PAGESIZE + 1
+    BITBUCKET_CLOUD_PROJECTS_PAGESIZE + 1,
   );
   renderCreateProject();
 
@@ -236,7 +236,7 @@ it('should have load more', async () => {
    */
   almIntegrationHandler.createRandomBitbucketCloudProjectsWithLoadMore(
     BITBUCKET_CLOUD_PROJECTS_PAGESIZE + 1,
-    BITBUCKET_CLOUD_PROJECTS_PAGESIZE + 1
+    BITBUCKET_CLOUD_PROJECTS_PAGESIZE + 1,
   );
   await user.click(screen.getByRole('button', { name: 'show_more' }));
 
@@ -244,7 +244,7 @@ it('should have load more', async () => {
     'conf-bitbucketcloud-2',
     '',
     BITBUCKET_CLOUD_PROJECTS_PAGESIZE,
-    2
+    2,
   );
 
   await waitFor(() => {

@@ -44,7 +44,7 @@ export function QualityGateConditions(props: QualityGateConditionsProps) {
   const handleToggleCollapsed = React.useCallback(() => toggleCollapsed(!collapsed), [collapsed]);
 
   const sortedConditions = sortBy(failedConditions, (condition) =>
-    LEVEL_ORDER.indexOf(condition.level)
+    LEVEL_ORDER.indexOf(condition.level),
   );
 
   let renderConditions;

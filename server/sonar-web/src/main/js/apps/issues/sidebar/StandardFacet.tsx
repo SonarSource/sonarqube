@@ -146,20 +146,20 @@ export class StandardFacet extends React.PureComponent<Props, State> {
           });
         }
       },
-      () => {}
+      () => {},
     );
   };
 
   getValues = () => {
     return [
       ...this.props.sonarsourceSecurity.map((item) =>
-        renderSonarSourceSecurityCategory(this.state.standards, item, true)
+        renderSonarSourceSecurityCategory(this.state.standards, item, true),
       ),
       ...this.props.owaspTop10.map((item) =>
-        renderOwaspTop10Category(this.state.standards, item, true)
+        renderOwaspTop10Category(this.state.standards, item, true),
       ),
       ...this.props['owaspTop10-2021'].map((item) =>
-        renderOwaspTop102021Category(this.state.standards, item, true)
+        renderOwaspTop102021Category(this.state.standards, item, true),
       ),
       ...this.props.cwe.map((item) => renderCWECategory(this.state.standards, item)),
     ];
@@ -200,7 +200,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
 
     if (multiple) {
       const newValue = sortBy(
-        items.includes(itemValue) ? without(items, itemValue) : [...items, itemValue]
+        items.includes(itemValue) ? without(items, itemValue) : [...items, itemValue],
       );
 
       this.props.onChange({ [prop]: newValue });
@@ -226,7 +226,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
   handleCWESearch = (query: string) => {
     return Promise.resolve({
       results: Object.keys(this.state.standards.cwe).filter((cwe) =>
-        renderCWECategory(this.state.standards, cwe).toLowerCase().includes(query.toLowerCase())
+        renderCWECategory(this.state.standards, cwe).toLowerCase().includes(query.toLowerCase()),
       ),
     });
   };
@@ -243,7 +243,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
     statsProp: StatsProp,
     valuesProp: ValuesProp,
     renderName: (standards: Standards, category: string) => string,
-    onClick: (x: string, multiple?: boolean) => void
+    onClick: (x: string, multiple?: boolean) => void,
   ) => {
     const stats = this.props[statsProp];
     const values = this.props[valuesProp];
@@ -264,7 +264,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
     categories: string[],
     renderName: (standards: Standards, category: string) => React.ReactNode,
     renderTooltip: (standards: Standards, category: string) => string,
-    onClick: (x: string, multiple?: boolean) => void
+    onClick: (x: string, multiple?: boolean) => void,
   ) => {
     if (!categories.length) {
       return <TextMuted className="sw-ml-2 sw-mt-1" text={translate('no_results')} />;
@@ -305,7 +305,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
       'owaspTop10Stats',
       SecurityStandard.OWASP_TOP10,
       renderOwaspTop10Category,
-      this.handleOwaspTop10ItemClick
+      this.handleOwaspTop10ItemClick,
     );
   }
 
@@ -314,7 +314,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
       'owaspTop10-2021Stats',
       SecurityStandard.OWASP_TOP10_2021,
       renderOwaspTop102021Category,
-      this.handleOwaspTop102021ItemClick
+      this.handleOwaspTop102021ItemClick,
     );
   }
 
@@ -329,7 +329,7 @@ export class StandardFacet extends React.PureComponent<Props, State> {
     const sortedItems = sortBy(
       Object.keys(stats),
       (key) => -stats[key],
-      (key) => renderSonarSourceSecurityCategory(this.state.standards, key)
+      (key) => renderSonarSourceSecurityCategory(this.state.standards, key),
     );
 
     const limitedList = this.state.showFullSonarSourceList

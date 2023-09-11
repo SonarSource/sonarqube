@@ -247,7 +247,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
 
               <PageSidebar
                 applicationsEnabled={this.props.appState.qualifiers.includes(
-                  ComponentQualifier.Application
+                  ComponentQualifier.Application,
                 )}
                 facets={this.state.facets}
                 loadSearchResultCount={this.loadSearchResultCount}
@@ -365,7 +365,7 @@ function SetSearchParamsWrapper(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       /* Run once on mount only */
-    ]
+    ],
   );
 
   return <AllProjects {...props} />;

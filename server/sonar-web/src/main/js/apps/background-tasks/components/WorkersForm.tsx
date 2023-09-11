@@ -77,7 +77,7 @@ export default class WorkersForm extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ submitting: false });
         }
-      }
+      },
     );
   };
 

@@ -75,7 +75,7 @@ class ActionsCell extends React.PureComponent<Props, State> {
     projectKeyPattern: string;
   }) => {
     return updatePermissionTemplate({ id: this.props.permissionTemplate.id, ...data }).then(
-      this.props.refresh
+      this.props.refresh,
     );
   };
 
@@ -99,7 +99,7 @@ class ActionsCell extends React.PureComponent<Props, State> {
   setDefault = (qualifier: string) => () => {
     setDefaultPermissionTemplate(this.props.permissionTemplate.id, qualifier).then(
       this.props.refresh,
-      () => {}
+      () => {},
     );
   };
 
@@ -136,8 +136,8 @@ class ActionsCell extends React.PureComponent<Props, State> {
     return availableQualifiers.map((qualifier) =>
       this.renderSetDefaultLink(
         qualifier,
-        <span>{translate('permission_templates.set_default')}</span>
-      )
+        <span>{translate('permission_templates.set_default')}</span>,
+      ),
     );
   }
 
@@ -148,8 +148,8 @@ class ActionsCell extends React.PureComponent<Props, State> {
         <span>
           {translate('permission_templates.set_default_for')}{' '}
           <QualifierIcon qualifier={qualifier} /> {translate('qualifiers', qualifier)}
-        </span>
-      )
+        </span>,
+      ),
     );
   }
 

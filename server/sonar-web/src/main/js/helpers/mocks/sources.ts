@@ -30,7 +30,7 @@ import {
 export function mockSourceViewerFile(
   name = 'foo/bar.ts',
   project = 'project',
-  override?: Partial<SourceViewerFile>
+  override?: Partial<SourceViewerFile>,
 ): SourceViewerFile {
   return {
     measures: {
@@ -71,7 +71,7 @@ export function mockSourceLine(overrides: Partial<SourceLine> = {}): SourceLine 
 export function mockSnippetsByComponent(
   file = 'main.js',
   project = 'project',
-  lines: number[] = [16]
+  lines: number[] = [16],
 ): SnippetsByComponent {
   const sources = lines.reduce((lines: { [key: number]: SourceLine }, line) => {
     lines[line] = mockSourceLine({ line });

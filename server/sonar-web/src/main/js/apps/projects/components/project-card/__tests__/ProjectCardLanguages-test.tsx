@@ -45,12 +45,12 @@ it('should handle unknown languages', () => {
 it('should handle more then 3 languages', async () => {
   renderProjectCardLanguages('java=137;js=18;cpp=10;c=8;php=4');
   await expect(screen.getByText('Java, JavaScript, ...')).toHaveATooltipWithContent(
-    'JavaJavaScriptcppcphp'
+    'JavaJavaScriptcppcphp',
   );
 });
 
 function renderProjectCardLanguages(distribution?: string) {
   return renderComponent(
-    <ProjectCardLanguages languages={languages} distribution={distribution} />
+    <ProjectCardLanguages languages={languages} distribution={distribution} />,
   );
 }

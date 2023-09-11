@@ -62,7 +62,7 @@ it('should render correctly for duplications', async () => {
   expect(
     screen.getByRole('link', {
       name: 'overview.see_more_details_on_x_of_y.1.0%.metric.duplicated_lines_density.name',
-    })
+    }),
   ).toBeInTheDocument();
   expect(await screen.findByText('metric.duplicated_lines_density.short_name')).toBeInTheDocument();
 
@@ -90,7 +90,7 @@ it('should render correctly for duplications', async () => {
   expect(
     screen.getByRole('link', {
       name: 'overview.see_more_details_on_x_of_y.1.0%.metric.new_duplicated_lines_density.name',
-    })
+    }),
   ).toBeInTheDocument();
   expect(await screen.findByText('overview.duplications_on_X_new_lines')).toBeInTheDocument();
 });
@@ -108,6 +108,6 @@ function renderMeasurementLabel(props: Partial<MeasurementLabel['props']> = {}) 
       measures={[mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.coverage }) })]}
       type={MeasurementType.Coverage}
       {...props}
-    />
+    />,
   );
 }

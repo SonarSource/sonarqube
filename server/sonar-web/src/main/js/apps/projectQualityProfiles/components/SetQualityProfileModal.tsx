@@ -42,7 +42,7 @@ export interface SetQualityProfileModalProps {
 export default function SetQualityProfileModal(props: SetQualityProfileModalProps) {
   const { availableProfiles, component, currentProfile, usesDefault } = props;
   const [selected, setSelected] = React.useState(
-    usesDefault ? USE_SYSTEM_DEFAULT : currentProfile.key
+    usesDefault ? USE_SYSTEM_DEFAULT : currentProfile.key,
   );
 
   const defaultProfile = availableProfiles.find((p) => p.isDefault);
@@ -54,7 +54,7 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
 
   const header = translateWithParameters(
     'project_quality_profile.change_lang_X_profile',
-    currentProfile.languageName
+    currentProfile.languageName,
   );
   const profileOptions: ProfileOption[] = availableProfiles.map((p) => ({
     value: p.key,
@@ -65,7 +65,7 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
   const hasSelectedSysDefault = selected === USE_SYSTEM_DEFAULT;
   const hasChanged = usesDefault ? !hasSelectedSysDefault : selected !== currentProfile.key;
   const needsReanalysis = !component.qualityProfiles?.some((p) =>
-    hasSelectedSysDefault ? p.key === defaultProfile.key : p.key === selected
+    hasSelectedSysDefault ? p.key === defaultProfile.key : p.key === selected,
   );
 
   return (
@@ -136,7 +136,7 @@ export default function SetQualityProfileModal(props: SetQualityProfileModalProp
                         value={profileOptions.find(
                           (option) =>
                             option.value ===
-                            (!hasSelectedSysDefault ? selected : currentProfile.key)
+                            (!hasSelectedSysDefault ? selected : currentProfile.key),
                         )}
                       />
                     </div>

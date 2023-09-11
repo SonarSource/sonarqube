@@ -27,7 +27,7 @@ export interface ProjectCardMeasureProps {
 }
 
 export default function ProjectCardMeasure(
-  props: React.PropsWithChildren<ProjectCardMeasureProps>
+  props: React.PropsWithChildren<ProjectCardMeasureProps>,
 ) {
   const { label, metricKey, children, className } = props;
 

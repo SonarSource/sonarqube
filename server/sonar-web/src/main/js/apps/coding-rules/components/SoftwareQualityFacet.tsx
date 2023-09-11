@@ -26,7 +26,7 @@ import Facet, { BasicProps } from './Facet';
 export default function SoftwareQualityFacet(props: BasicProps) {
   const renderName = React.useCallback(
     (quality: string) => translate('issue.software_quality', quality),
-    []
+    [],
   );
 
   return (

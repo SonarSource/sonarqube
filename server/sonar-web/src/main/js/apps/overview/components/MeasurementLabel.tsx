@@ -105,7 +105,7 @@ export default class MeasurementLabel extends React.Component<Props> {
         ariaLabel={translateWithParameters(
           'overview.see_more_details_on_x_of_y',
           formattedValue,
-          localizeMetric(metricKey)
+          localizeMetric(metricKey),
         )}
         branchLike={branchLike}
         className="overview-measures-value text-light"

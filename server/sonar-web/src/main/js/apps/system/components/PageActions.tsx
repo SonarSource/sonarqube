@@ -164,7 +164,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
         {this.state.openLogsLevelForm && (
           <ChangeLogLevelForm
             infoMsg={translate(
-              this.props.cluster ? 'system.cluster_log_level.info' : 'system.log_level.info'
+              this.props.cluster ? 'system.cluster_log_level.info' : 'system.log_level.info',
             )}
             logLevel={this.props.logLevel}
             onChange={this.handleLogsLevelChange}

@@ -104,7 +104,7 @@ export default class DefinitionActions extends React.PureComponent<Props, State>
               className="spacer-right"
               aria-label={translateWithParameters(
                 'settings.definition.reset',
-                getPropertyName(setting.definition)
+                getPropertyName(setting.definition),
               )}
               onClick={this.handleReset}
             >

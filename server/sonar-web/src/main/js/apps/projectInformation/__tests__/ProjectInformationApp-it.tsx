@@ -86,7 +86,7 @@ it('should show fields for project', async () => {
       description: 'Test description',
       tags: ['bar'],
     },
-    mockLoggedInUser()
+    mockLoggedInUser(),
   );
   expect(await ui.projectPageTitle.find()).toBeInTheDocument();
   expect(ui.qualityGateList.get()).toBeInTheDocument();
@@ -114,7 +114,7 @@ it('should show application fields', async () => {
       description: 'Test description',
       tags: ['bar'],
     },
-    mockLoggedInUser()
+    mockLoggedInUser(),
   );
   expect(await ui.applicationPageTitle.find()).toBeInTheDocument();
   expect(ui.qualityGateList.query()).not.toBeInTheDocument();
@@ -167,7 +167,7 @@ it('should hide visibility if public', async () => {
 
 function renderProjectInformationApp(
   overrides: Partial<Component> = {},
-  currentUser: CurrentUser = mockCurrentUser()
+  currentUser: CurrentUser = mockCurrentUser(),
 ) {
   const component = mockComponent(overrides);
   componentsMock.registerComponent(component, [componentsMock.components[0].component]);
@@ -176,6 +176,6 @@ function renderProjectInformationApp(
     'project/information',
     routes,
     { currentUser },
-    { component }
+    { component },
   );
 }

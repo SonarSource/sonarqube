@@ -49,7 +49,7 @@ const globalWebhook1Deliveries = [
       httpStatus: i % 2 === 0 ? 200 : undefined,
       success: i % 2 === 0,
       durationMs: 1000 + i * 100,
-    })
+    }),
   ),
 ];
 

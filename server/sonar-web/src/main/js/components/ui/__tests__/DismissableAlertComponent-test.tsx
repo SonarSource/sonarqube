@@ -42,6 +42,6 @@ function render(props: Partial<DismissableAlertComponentProps> = {}) {
   return renderComponent(
     <DismissableAlertComponent onDismiss={jest.fn()} variant="info" {...props}>
       testing
-    </DismissableAlertComponent>
+    </DismissableAlertComponent>,
   );
 }

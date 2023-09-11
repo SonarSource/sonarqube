@@ -56,7 +56,7 @@ it('should render correctly when governance is active', () => {
   expect(
     shallowRender({
       extensions: [{ key: AdminPageExtension.GovernanceConsole, name: 'governance' }],
-    })
+    }),
   ).toMatchSnapshot();
 });
 
@@ -70,6 +70,6 @@ function shallowRender(props: Partial<SettingsNav['props']> = {}) {
       pendingPlugins={{ installing: [], removing: [], updating: [] }}
       systemStatus="UP"
       {...props}
-    />
+    />,
   );
 }

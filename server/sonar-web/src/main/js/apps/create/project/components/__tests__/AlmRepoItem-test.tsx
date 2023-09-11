@@ -29,7 +29,7 @@ it('render the component correctly when sqProjectKey is not present', () => {
   expect(screen.getByText('test1')).toBeInTheDocument();
   expect(screen.getByText('url text')).toHaveAttribute('href', '/url');
   expect(
-    screen.getByRole('button', { name: 'onboarding.create_project.import' })
+    screen.getByRole('button', { name: 'onboarding.create_project.import' }),
   ).toBeInTheDocument();
 });
 
@@ -39,7 +39,7 @@ it('render the component correctly when sqProjectKey is present', () => {
   expect(screen.getByText('url text')).toHaveAttribute('href', '/url');
   expect(screen.getByText('onboarding.create_project.repository_imported')).toBeInTheDocument();
   expect(
-    screen.queryByRole('button', { name: 'onboarding.create_project.import' })
+    screen.queryByRole('button', { name: 'onboarding.create_project.import' }),
   ).not.toBeInTheDocument();
 });
 
@@ -53,6 +53,6 @@ function renderAlmRepoItem(props?: Partial<FCProps<typeof AlmRepoItem>>) {
       almIconSrc="src"
       onImport={jest.fn()}
       {...props}
-    />
+    />,
   );
 }

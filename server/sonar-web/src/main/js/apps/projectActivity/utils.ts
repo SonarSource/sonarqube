@@ -67,7 +67,7 @@ interface AnalysesByDay {
 
 export function getAnalysesByVersionByDay(
   analyses: ParsedAnalysis[],
-  query: Pick<Query, 'category' | 'from' | 'to'>
+  query: Pick<Query, 'category' | 'from' | 'to'>,
 ) {
   return analyses.reduce<AnalysesByDay[]>((acc, analysis) => {
     let currentVersion = acc[acc.length - 1];

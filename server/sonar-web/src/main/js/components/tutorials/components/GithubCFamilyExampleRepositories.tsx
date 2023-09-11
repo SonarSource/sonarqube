@@ -47,7 +47,7 @@ const CI_SEARCH_MAP = {
 };
 
 export default function GithubCFamilyExampleRepositories(
-  props: GithubCFamilyExampleRepositoriesProps
+  props: GithubCFamilyExampleRepositoriesProps,
 ) {
   const { className, os, ci } = props;
   const queryParams = ['sq', os ? OS_SEARCH_MAP[os] : undefined, ci ? CI_SEARCH_MAP[ci] : undefined]

@@ -43,7 +43,7 @@ export default function MeasuresOverlayMeasure({ measure }: Props) {
       <span className="measure-name">
         {isMetricKey(measure.metric.key) &&
           [MetricKey.bugs, MetricKey.vulnerabilities, MetricKey.code_smells].includes(
-            measure.metric.key
+            measure.metric.key,
           ) && <IssueTypeIcon className="little-spacer-right" query={measure.metric.key} />}
         {getLocalizedMetricName(measure.metric)}
       </span>

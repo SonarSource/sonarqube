@@ -43,7 +43,7 @@ export function AnalysisLicenseError(props: Props) {
       <>
         {translateWithParameters(
           'component_navigation.status.last_blocked_due_to_bad_license_X',
-          translate('qualifier', currentTask.componentQualifier ?? ComponentQualifier.Project)
+          translate('qualifier', currentTask.componentQualifier ?? ComponentQualifier.Project),
         )}
       </>
     );

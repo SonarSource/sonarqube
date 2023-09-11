@@ -46,7 +46,7 @@ export function PublishSteps(props: PublishStepsProps) {
         />
         <FlagMessage variant="info" className="sw-mt-2">
           {translate(
-            'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.publish_qg.info.sentence1'
+            'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.publish_qg.info.sentence1',
           )}
         </FlagMessage>
       </NumberedListItem>
@@ -67,13 +67,13 @@ export function PublishSteps(props: PublishStepsProps) {
             <FormattedMessage
               id="onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection"
               defaultMessage={translate(
-                'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection'
+                'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection',
               )}
               values={{
                 link: (
                   <Link to={docUrl(ALM_DOCUMENTATION_PATHS[AlmKeys.Azure])}>
                     {translate(
-                      'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection.link'
+                      'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.branch_protection.link',
                     )}
                   </Link>
                 ),

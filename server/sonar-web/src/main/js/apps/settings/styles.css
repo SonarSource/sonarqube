@@ -172,7 +172,9 @@
   border-right: none;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: color 0.3s ease, background-color 0.3s ease;
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease;
 }
 
 .side-tabs-menu > li > a:hover,

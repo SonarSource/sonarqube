@@ -32,7 +32,7 @@ function Child() {
 
 it('should render correctly for an user that does not have access to all children', () => {
   renderNonAdminPagesContainer(
-    mockComponent({ qualifier: ComponentQualifier.Application, canBrowseAllChildProjects: false })
+    mockComponent({ qualifier: ComponentQualifier.Application, canBrowseAllChildProjects: false }),
   );
   expect(screen.getByText('application.cannot_access_all_child_projects1')).toBeInTheDocument();
 });
@@ -52,6 +52,6 @@ function renderNonAdminPagesContainer(component: Component) {
           </Route>
         </Routes>
       </MemoryRouter>
-    </ComponentContext.Provider>
+    </ComponentContext.Provider>,
   );
 }

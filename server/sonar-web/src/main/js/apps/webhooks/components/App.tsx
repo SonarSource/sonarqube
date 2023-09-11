@@ -42,7 +42,7 @@ export function App({ component }: AppProps) {
     () => ({
       project: component?.key,
     }),
-    [component?.key]
+    [component?.key],
   );
 
   const fetchWebhooks = useCallback(async () => {
@@ -91,8 +91,8 @@ export function App({ component }: AppProps) {
               hasSecret: data.secret === undefined ? webhook.hasSecret : Boolean(data.secret),
               url: data.url,
             }
-          : webhook
-      )
+          : webhook,
+      ),
     );
   }
 

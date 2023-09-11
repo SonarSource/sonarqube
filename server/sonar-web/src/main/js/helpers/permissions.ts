@@ -70,7 +70,7 @@ function convertToPermissionDefinition(permission: string, l10nPrefix: string) {
 export function filterPermissions(
   permissions: Array<Permissions | { category: string; permissions: Permissions[] }>,
   hasApplicationsEnabled: boolean,
-  hasPortfoliosEnabled: boolean
+  hasPortfoliosEnabled: boolean,
 ) {
   return permissions.map((permission) => {
     if (typeof permission === 'object' && permission.category === 'creator') {
@@ -91,14 +91,14 @@ export function filterPermissions(
 
 export function convertToPermissionDefinitions(
   permissions: Array<string | { category: string; permissions: string[] }>,
-  l10nPrefix: string
+  l10nPrefix: string,
 ): Array<PermissionDefinition | PermissionDefinitionGroup> {
   return permissions.map((permission) => {
     if (typeof permission === 'object') {
       return {
         category: permission.category,
         permissions: permission.permissions.map((permission) =>
-          convertToPermissionDefinition(permission, l10nPrefix)
+          convertToPermissionDefinition(permission, l10nPrefix),
         ),
       };
     }
@@ -107,7 +107,7 @@ export function convertToPermissionDefinitions(
 }
 
 export function isPermissionDefinitionGroup(
-  permission?: PermissionDefinition | PermissionDefinitionGroup
+  permission?: PermissionDefinition | PermissionDefinitionGroup,
 ): permission is PermissionDefinitionGroup {
   return Boolean(permission && (permission as PermissionDefinitionGroup).category);
 }

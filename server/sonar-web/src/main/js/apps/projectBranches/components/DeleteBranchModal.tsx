@@ -42,14 +42,14 @@ export default function DeleteBranchModal(props: Props) {
       { component, branchLike },
       {
         onSuccess: props.onClose,
-      }
+      },
     );
   };
 
   const header = translate(
     isPullRequest(branchLike)
       ? 'project_branch_pull_request.pull_request.delete'
-      : 'project_branch_pull_request.branch.delete'
+      : 'project_branch_pull_request.branch.delete',
   );
 
   return (
@@ -63,7 +63,7 @@ export default function DeleteBranchModal(props: Props) {
             isPullRequest(branchLike)
               ? 'project_branch_pull_request.pull_request.delete.are_you_sure'
               : 'project_branch_pull_request.branch.delete.are_you_sure',
-            getBranchLikeDisplayName(branchLike)
+            getBranchLikeDisplayName(branchLike),
           )}
         </div>
         <footer className="modal-foot">

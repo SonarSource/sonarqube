@@ -62,7 +62,7 @@ export default class ComparisonResultActivation extends React.PureComponent<Prop
         if (this.mounted) {
           this.setState({ state: 'closed' });
         }
-      }
+      },
     );
   };
 
@@ -83,14 +83,14 @@ export default class ComparisonResultActivation extends React.PureComponent<Prop
           placement="bottom"
           overlay={translateWithParameters(
             'quality_profiles.comparison.activate_rule',
-            profile.name
+            profile.name,
           )}
         >
           <Button
             disabled={this.state.state !== 'closed'}
             aria-label={translateWithParameters(
               'quality_profiles.comparison.activate_rule',
-              profile.name
+              profile.name,
             )}
             onClick={this.handleButtonClick}
           >

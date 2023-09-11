@@ -84,7 +84,7 @@ function IssueSourceViewerHeader(props: Props & ThemeProp) {
     <IssueSourceViewerStyle
       className={classNames(
         'sw-flex sw-justify-space-between sw-items-center sw-px-4 sw-py-3 sw-text-sm',
-        className
+        className,
       )}
       role="separator"
       aria-label={sourceViewerFile.path}

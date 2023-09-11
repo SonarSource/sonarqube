@@ -63,12 +63,12 @@ it('should be able to add or update comment', async () => {
   });
 
   expect(
-    screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` })
+    screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` }),
   ).toBeInTheDocument();
 
   await act(async () => {
     await user.click(
-      screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` })
+      screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` }),
     );
   });
 
@@ -77,7 +77,7 @@ it('should be able to add or update comment', async () => {
     await user.click(
       screen.getByRole('button', {
         name: `issue.activity.add_comment`,
-      })
+      }),
     );
     await user.click(screen.getByRole('textbox'));
     await user.keyboard('activity comment');
@@ -120,19 +120,19 @@ it('should be able to show changelog', async () => {
     await user.click(await screen.findByRole('link', { name: 'Fix that' }));
 
     await user.click(
-      screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` })
+      screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` }),
     );
   });
 
   expect(screen.getByText('issue.activity.review_history.created')).toBeInTheDocument();
   expect(
     screen.getByText(
-      'issue.changelog.changed_to.issue.changelog.field.assign.darth.vader (issue.changelog.was.luke.skywalker)'
-    )
+      'issue.changelog.changed_to.issue.changelog.field.assign.darth.vader (issue.changelog.was.luke.skywalker)',
+    ),
   ).toBeInTheDocument();
   expect(
     screen.getByText(
-      'issue.changelog.changed_to.issue.changelog.field.status.REOPENED (issue.changelog.was.CONFIRMED)'
-    )
+      'issue.changelog.changed_to.issue.changelog.field.status.REOPENED (issue.changelog.was.CONFIRMED)',
+    ),
   ).toBeInTheDocument();
 });

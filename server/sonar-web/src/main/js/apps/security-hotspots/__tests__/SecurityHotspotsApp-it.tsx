@@ -159,7 +159,7 @@ afterEach(() => {
 describe('rendering', () => {
   it('should render code variants correctly', async () => {
     renderSecurityHotspotsApp(
-      'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=test-2'
+      'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=test-2',
     );
 
     expect(await screen.findAllByText('variant 1, variant 2')).toHaveLength(2);
@@ -169,7 +169,7 @@ describe('rendering', () => {
     const user = userEvent.setup();
 
     renderSecurityHotspotsApp(
-      `security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&files=src%2Findex.js&cwe=foo&inNewCodePeriod=true`
+      `security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&files=src%2Findex.js&cwe=foo&inNewCodePeriod=true`,
     );
 
     await waitFor(() => {
@@ -360,14 +360,14 @@ describe('navigation', () => {
   it('should navigate when coming from SonarLint', async () => {
     // On main branch
     const rtl = renderSecurityHotspotsApp(
-      'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=test-1'
+      'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=test-1',
     );
     expect(await ui.hotspotTitle(/'3' is a magic number./).find()).toBeInTheDocument();
 
     // On specific branch
     rtl.unmount();
     renderSecurityHotspotsApp(
-      'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=b1-test-1&branch=normal-branch'
+      'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed&hotspots=b1-test-1&branch=normal-branch',
     );
     expect(await ui.hotspotTitle(/'F' is a magic number./).find()).toBeInTheDocument();
   });
@@ -456,7 +456,7 @@ it('should be able to filter the hotspot list', async () => {
       resolution: undefined,
       status: 'TO_REVIEW',
     },
-    undefined
+    undefined,
   );
 
   await user.click(ui.filterDropdown.get());
@@ -472,7 +472,7 @@ it('should be able to filter the hotspot list', async () => {
       resolution: undefined,
       status: 'TO_REVIEW',
     },
-    undefined
+    undefined,
   );
 
   await user.click(ui.filterDropdown.get());
@@ -486,7 +486,7 @@ it('should disable the "assigned to me" filter if the project is indexing', asyn
 
   renderSecurityHotspotsApp(
     'security_hotspots?id=guillaume-peoch-sonarsource_benflix_AYGpXq2bd8qy4i0eO9ed',
-    { component: { ...mockComponentInstance, needIssueSync: true } }
+    { component: { ...mockComponentInstance, needIssueSync: true } },
   );
 
   await user.click(ui.filterDropdown.get());
@@ -496,7 +496,7 @@ it('should disable the "assigned to me" filter if the project is indexing', asyn
 
 function renderSecurityHotspotsApp(
   navigateTo?: string,
-  component?: Partial<ComponentContextShape>
+  component?: Partial<ComponentContextShape>,
 ) {
   return renderAppWithComponentContext(
     MetricKey.security_hotspots,
@@ -514,6 +514,6 @@ function renderSecurityHotspotsApp(
       onComponentChange: jest.fn(),
       component: mockComponentInstance,
       ...component,
-    }
+    },
   );
 }

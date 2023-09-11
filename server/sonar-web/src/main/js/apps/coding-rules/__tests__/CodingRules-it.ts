@@ -51,24 +51,24 @@ describe('Rules app list', () => {
 
     // Render clean code attributes.
     expect(
-      ui.ruleCleanCodeAttributeCategory(CleanCodeAttributeCategory.Adaptable).getAll().length
+      ui.ruleCleanCodeAttributeCategory(CleanCodeAttributeCategory.Adaptable).getAll().length,
     ).toBeGreaterThan(1);
     expect(ui.ruleSoftwareQuality(SoftwareQuality.Maintainability).getAll().length).toBeGreaterThan(
-      1
+      1,
     );
 
     // Renders clean code categories and software qualities facets
     CLEAN_CODE_CATEGORIES.map(
-      (category) => `issue.clean_code_attribute_category.${category}`
+      (category) => `issue.clean_code_attribute_category.${category}`,
     ).forEach((name) => expect(ui.facetItem(name).get()).toBeInTheDocument());
 
     SOFTWARE_QUALITIES.map((quality) => `issue.software_quality.${quality}`).forEach((name) =>
-      expect(ui.facetItem(name).get()).toBeInTheDocument()
+      expect(ui.facetItem(name).get()).toBeInTheDocument(),
     );
 
     // Renders language facets
     ['JavaScript', 'Java', 'C'].forEach((name) =>
-      expect(ui.facetItem(name).get()).toBeInTheDocument()
+      expect(ui.facetItem(name).get()).toBeInTheDocument(),
     );
 
     // Other facets are collapsed
@@ -225,7 +225,7 @@ describe('Rules app list', () => {
       await act(async () => {
         await user.type(ui.facetSearchInput('search.search_for_cwe').get(), 'Certificate');
         await user.click(
-          ui.facetItem('CWE-297 - Improper Validation of Certificate with Host Mismatch').get()
+          ui.facetItem('CWE-297 - Improper Validation of Certificate with Host Mismatch').get(),
         );
       });
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(2);
@@ -287,7 +287,7 @@ describe('Rules app list', () => {
       await ui.bulkActivate(rulesCount, selectQPSuccess);
 
       expect(
-        ui.bulkSuccessMessage(selectQPSuccess.name, selectQPSuccess.languageName, rulesCount).get()
+        ui.bulkSuccessMessage(selectQPSuccess.name, selectQPSuccess.languageName, rulesCount).get(),
       ).toBeInTheDocument();
 
       await user.click(ui.bulkClose.get());
@@ -299,7 +299,7 @@ describe('Rules app list', () => {
       expect(
         ui
           .bulkWarningMessage(selectQPWarning.name, selectQPWarning.languageName, rulesCount - 1)
-          .get()
+          .get(),
       ).toBeInTheDocument();
     });
 
@@ -315,7 +315,7 @@ describe('Rules app list', () => {
       await ui.bulkDeactivate(rulesCount, selectQP);
 
       expect(
-        ui.bulkSuccessMessage(selectQP.name, selectQP.languageName, rulesCount).get()
+        ui.bulkSuccessMessage(selectQP.name, selectQP.languageName, rulesCount).get(),
       ).toBeInTheDocument();
     });
   });
@@ -358,7 +358,7 @@ describe('Rules app list', () => {
     await ui.appLoaded();
 
     expect(
-      ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get())
+      ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get()),
     ).toBeInTheDocument();
 
     await act(async () => {
@@ -370,7 +370,7 @@ describe('Rules app list', () => {
       await user.keyboard('{ArrowUp}');
     });
     expect(
-      ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get())
+      ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get()),
     ).toBeInTheDocument();
 
     await act(async () => {
@@ -382,7 +382,7 @@ describe('Rules app list', () => {
       await user.keyboard('{ArrowLeft}');
     });
     expect(
-      ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get())
+      ui.ruleListItemLink('Awsome java rule').get(ui.currentListItem.get()),
     ).toBeInTheDocument();
   });
 });
@@ -395,7 +395,7 @@ describe('Rule app details', () => {
       await ui.appLoaded();
       expect(ui.ruleTitle('Awsome java rule').get()).toBeInTheDocument();
       expect(
-        ui.ruleCleanCodeAttributeCategory(CleanCodeAttributeCategory.Adaptable).get()
+        ui.ruleCleanCodeAttributeCategory(CleanCodeAttributeCategory.Adaptable).get(),
       ).toBeInTheDocument();
       expect(ui.ruleCleanCodeAttribute(CleanCodeAttribute.Clear).get()).toBeInTheDocument();
       // 1 In Rule details + 1 in facet
@@ -718,7 +718,7 @@ describe('redirects', () => {
 
     renderCodingRulesApp(
       mockLoggedInUser(),
-      'coding_rules#languages=c,js|types=BUG|cleanCodeAttributeCategories=ADAPTABLE'
+      'coding_rules#languages=c,js|types=BUG|cleanCodeAttributeCategories=ADAPTABLE',
     );
     expect(await screen.findByText('x_selected.2')).toBeInTheDocument();
     expect(screen.getByTitle('issue.type.BUG')).toBeInTheDocument();

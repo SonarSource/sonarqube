@@ -51,7 +51,7 @@ it('should render correctly for a branch with warnings', async () => {
   expect(await screen.findByText('version_x.0.0.1')).toBeInTheDocument();
 
   expect(
-    await screen.findByText('project_navigation.analysis_status.warnings')
+    await screen.findByText('project_navigation.analysis_status.warnings'),
   ).toBeInTheDocument();
 
   await user.click(screen.getByText('project_navigation.analysis_status.details_link'));
@@ -94,7 +94,7 @@ it('should render correctly for a pull request', async () => {
   renderHeaderMeta({}, undefined, 'pullRequest=01&id=my-project');
 
   expect(
-    await screen.findByText('branch_like_navigation.for_merge_into_x_from_y')
+    await screen.findByText('branch_like_navigation.for_merge_into_x_from_y'),
   ).toBeInTheDocument();
   expect(screen.queryByText('version_x.0.0.1')).not.toBeInTheDocument();
 });
@@ -109,7 +109,7 @@ it('should render correctly when the user is not logged in', () => {
 function renderHeaderMeta(
   props: Partial<HeaderMetaProps> = {},
   currentUser: CurrentUser = mockLoggedInUser(),
-  params?: string
+  params?: string,
 ) {
   return renderApp('/', <HeaderMeta component={mockComponent({ version: '0.0.1' })} {...props} />, {
     currentUser,

@@ -35,15 +35,15 @@ import { ProjectBase } from './components';
 export function setAlmPersonalAccessToken(
   almSetting: string,
   pat: string,
-  username?: string
+  username?: string,
 ): Promise<void> {
   return post('/api/alm_integrations/set_pat', { almSetting, pat, username }).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
 export function checkPersonalAccessTokenIsValid(
-  almSetting: string
+  almSetting: string,
 ): Promise<{ status: boolean; error?: string }> {
   return get('/api/alm_integrations/check_pat', { almSetting })
     .then(() => ({ status: true }))
@@ -58,25 +58,25 @@ export function checkPersonalAccessTokenIsValid(
 
 export function getAzureProjects(almSetting: string): Promise<{ projects: AzureProject[] }> {
   return getJSON('/api/alm_integrations/list_azure_projects', { almSetting }).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
 export function getAzureRepositories(
   almSetting: string,
-  projectName: string
+  projectName: string,
 ): Promise<{ repositories: AzureRepository[] }> {
   return getJSON('/api/alm_integrations/search_azure_repos', { almSetting, projectName }).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
 export function searchAzureRepositories(
   almSetting: string,
-  searchQuery: string
+  searchQuery: string,
 ): Promise<{ repositories: AzureRepository[] }> {
   return getJSON('/api/alm_integrations/search_azure_repos', { almSetting, searchQuery }).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
@@ -100,14 +100,14 @@ export function importAzureRepository(data: {
 }
 
 export function getBitbucketServerProjects(
-  almSetting: string
+  almSetting: string,
 ): Promise<{ projects: BitbucketProject[] }> {
   return getJSON('/api/alm_integrations/list_bitbucketserver_projects', { almSetting });
 }
 
 export function getBitbucketServerRepositories(
   almSetting: string,
-  projectName: string
+  projectName: string,
 ): Promise<{
   isLastPage: boolean;
   repositories: BitbucketRepository[];
@@ -135,13 +135,13 @@ export function importBitbucketServerProject(data: {
   newCodeDefinitionValue?: string;
 }): Promise<{ project: ProjectBase }> {
   return postJSON('/api/alm_integrations/import_bitbucketserver_project', data).catch(
-    throwGlobalError
+    throwGlobalError,
   );
 }
 
 export function searchForBitbucketServerRepositories(
   almSetting: string,
-  repositoryName: string
+  repositoryName: string,
 ): Promise<{
   isLastPage: boolean;
   repositories: BitbucketRepository[];
@@ -156,7 +156,7 @@ export function searchForBitbucketCloudRepositories(
   almSetting: string,
   repositoryName: string,
   pageSize: number,
-  page?: number
+  page?: number,
 ): Promise<{
   isLastPage: boolean;
   repositories: BitbucketCloudRepository[];
@@ -211,7 +211,7 @@ export function importGithubRepository(data: {
 
 export function getGithubOrganizations(
   almSetting: string,
-  token: string
+  token: string,
 ): Promise<{ organizations: GithubOrganization[] }> {
   return getJSON('/api/alm_integrations/list_github_organizations', {
     almSetting,

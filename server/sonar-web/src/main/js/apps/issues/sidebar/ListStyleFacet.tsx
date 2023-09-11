@@ -145,7 +145,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
 
       if (multiple) {
         const newValue = sortBy(
-          values.includes(itemValue) ? without(values, itemValue) : [...values, itemValue]
+          values.includes(itemValue) ? without(values, itemValue) : [...values, itemValue],
         );
 
         this.props.onChange({ [this.props.property]: newValue });
@@ -295,7 +295,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
       : sortBy(
           Object.keys(stats),
           (key) => -stats[key],
-          (key) => this.props.getFacetItemText(key)
+          (key) => this.props.getFacetItemText(key),
         );
 
     const limitedList = this.state.showFullList

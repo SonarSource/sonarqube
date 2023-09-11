@@ -52,7 +52,7 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
           this.setState({ ...formData });
         }
       },
-      () => {}
+      () => {},
     );
   };
 

@@ -70,6 +70,6 @@ export function waitSystemUPStatus(): Promise<{
   return requestTryAndRepeatUntil(
     getSystemStatus,
     { max: -1, slowThreshold: -15 },
-    ({ status }) => status === 'UP'
+    ({ status }) => status === 'UP',
   );
 }

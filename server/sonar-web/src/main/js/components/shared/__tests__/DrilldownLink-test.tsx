@@ -34,6 +34,6 @@ const shallowRender = (props: Partial<DrilldownLink['props']> = {}, label = 'lab
   return shallow<DrilldownLink>(
     <DrilldownLink component="project123" metric="other" {...props}>
       {label}
-    </DrilldownLink>
+    </DrilldownLink>,
   );
 };

@@ -394,7 +394,7 @@ describe('in manage mode', () => {
       });
 
       expect(
-        within(ui.githubManagedGroupRow.get()).getByRole('img', { name: 'github' })
+        within(ui.githubManagedGroupRow.get()).getByRole('img', { name: 'github' }),
       ).toBeInTheDocument();
     });
   });

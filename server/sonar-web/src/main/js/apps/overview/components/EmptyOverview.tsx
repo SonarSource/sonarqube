@@ -93,12 +93,12 @@ export function EmptyOverview(props: EmptyOverviewProps) {
     warning = translateWithParameters(
       'provisioning.no_analysis_on_main_branch.bad_configuration',
       getBranchLikeDisplayName(branchLike),
-      translate('branches.main_branch')
+      translate('branches.main_branch'),
     );
   } else {
     warning = translateWithParameters(
       'provisioning.no_analysis_on_main_branch',
-      getBranchLikeDisplayName(branchLike)
+      getBranchLikeDisplayName(branchLike),
     );
   }
 

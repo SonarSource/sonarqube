@@ -35,6 +35,6 @@ function shallowRender(props: Partial<NavBarProps> = {}) {
   return shallow(
     <NavBar height={42} {...props}>
       <div className="my-navbar-content" />
-    </NavBar>
+    </NavBar>,
   );
 }

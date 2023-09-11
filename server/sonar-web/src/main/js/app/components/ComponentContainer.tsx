@@ -134,7 +134,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
           if (shouldRedirectToDashboard && this.props.location.pathname.includes('tutorials')) {
             this.props.router.replace(getProjectUrl(key));
           }
-        }
+        },
       );
 
       this.fetchStatus(componentWithQualifier.key);
@@ -159,7 +159,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
                 newTasksInProgress,
                 currentTask,
                 newCurrentTask,
-                component
+                component,
               );
 
               shouldRedirectToDashboard =
@@ -171,7 +171,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
                 this.watchStatusTimer = window.setTimeout(
                   () => this.fetchStatus(componentKey),
-                  FETCH_STATUS_WAIT_TIME
+                  FETCH_STATUS_WAIT_TIME,
                 );
               }
 
@@ -187,11 +187,11 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               if (shouldFetchComponent) {
                 this.fetchComponent(shouldRedirectToDashboard);
               }
-            }
+            },
           );
         }
       },
-      () => {}
+      () => {},
     );
   };
 
@@ -202,7 +202,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       this.props.hasFeature(Feature.BranchSupport)
     ) {
       const projectBindingErrors = await validateProjectAlmBinding(component.key).catch(
-        () => undefined
+        () => undefined,
       );
 
       if (this.mounted) {
@@ -243,17 +243,17 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     newTasksInProgress: Task[],
     currentTask: Task | undefined,
     newCurrentTask: Task | undefined,
-    component: Component | undefined
+    component: Component | undefined,
   ) => {
     const progressHasChanged = Boolean(
       tasksInProgress &&
         (newTasksInProgress.length !== tasksInProgress.length ||
-          differenceBy(newTasksInProgress, tasksInProgress, 'id').length > 0)
+          differenceBy(newTasksInProgress, tasksInProgress, 'id').length > 0),
     );
 
     const currentTaskHasChanged = Boolean(
       (!currentTask && newCurrentTask) ||
-        (currentTask && newCurrentTask && currentTask.id !== newCurrentTask.id)
+        (currentTask && newCurrentTask && currentTask.id !== newCurrentTask.id),
     );
 
     if (progressHasChanged) {
@@ -275,7 +275,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   needsAnotherCheck = (
     shouldFetchComponent: boolean,
     component: Component | undefined,
-    newTasksInProgress: Task[]
+    newTasksInProgress: Task[],
   ) => {
     return (
       !shouldFetchComponent &&
@@ -336,7 +336,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
           defer={false}
           titleTemplate={translateWithParameters(
             'page_title.template.with_instance',
-            component?.name ?? ''
+            component?.name ?? '',
           )}
         />
         {component &&
@@ -351,7 +351,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               isPending={isPending}
               projectBindingErrors={projectBindingErrors}
             />,
-            this.portalAnchor
+            this.portalAnchor,
           )}
         {loading ? (
           <div className="page page-limited">

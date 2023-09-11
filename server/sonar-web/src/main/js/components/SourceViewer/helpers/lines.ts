@@ -24,7 +24,7 @@ export const LINES_TO_LOAD = 1000;
 
 export function optimizeHighlightedSymbols(
   symbolsForLine: string[] = [],
-  highlightedSymbols: string[] = []
+  highlightedSymbols: string[] = [],
 ): string[] | undefined {
   const symbols = intersection(symbolsForLine, highlightedSymbols);
 
@@ -33,11 +33,11 @@ export function optimizeHighlightedSymbols(
 
 export function optimizeLocationMessage(
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined,
-  optimizedSecondaryIssueLocations: LinearIssueLocation[]
+  optimizedSecondaryIssueLocations: LinearIssueLocation[],
 ) {
   return highlightedLocationMessage != null &&
     optimizedSecondaryIssueLocations.some(
-      (location) => location.index === highlightedLocationMessage.index
+      (location) => location.index === highlightedLocationMessage.index,
     )
     ? highlightedLocationMessage
     : undefined;

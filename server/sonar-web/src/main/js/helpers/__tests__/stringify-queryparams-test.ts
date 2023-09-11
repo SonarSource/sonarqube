@@ -31,7 +31,7 @@ describe('stringify', () => {
     };
 
     expect(stringify(obj)).toEqual(
-      'prop1=a%20string&prop2=123&prop3=true&prop4=&prop5=9&prop5=8&prop5=7&prop6='
+      'prop1=a%20string&prop2=123&prop3=true&prop4=&prop5=9&prop5=8&prop5=7&prop6=',
     );
   });
 

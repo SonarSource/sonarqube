@@ -41,13 +41,13 @@ describe('#collapsedDirFromPath()', () => {
 
   it('should cut long path', () => {
     expect(collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')).toBe(
-      'src/.../js/components/navigator/app/models/'
+      'src/.../js/components/navigator/app/models/',
     );
   });
 
   it('should cut very long path', () => {
     expect(
-      collapsedDirFromPath('src/main/another/js/components/navigator/app/models/state.js')
+      collapsedDirFromPath('src/main/another/js/components/navigator/app/models/state.js'),
     ).toBe('src/.../js/components/navigator/app/models/');
   });
 });
@@ -77,7 +77,7 @@ describe('#fileFromPath()', () => {
 describe('#cutLongWords', () => {
   it('should cut the long work in the middle', () => {
     expect(cutLongWords('This is a reallylongwordthatdontexistforthe test')).toBe(
-      'This is a reallylongwordthatdontexistfor... test'
+      'This is a reallylongwordthatdontexistfor... test',
     );
   });
 

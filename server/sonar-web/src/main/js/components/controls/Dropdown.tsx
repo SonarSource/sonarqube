@@ -110,7 +110,7 @@ export default class Dropdown extends React.PureComponent<Props, State> {
     return React.createElement(
       this.props.tagName || 'div',
       { className: classNames('dropdown', this.props.className) },
-      toggler
+      toggler,
     );
   }
 }

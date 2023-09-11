@@ -92,8 +92,8 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
             selected: Boolean(results.find((p) => p.key === component.key)?.selected),
             profile,
           }))
-          .catch(() => ({ selected: false, profile }))
-      )
+          .catch(() => ({ selected: false, profile })),
+      ),
     );
 
     const selectedProjectProfiles = projectProfiles
@@ -109,11 +109,11 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
     const componentProfiles = differenceBy(
       component.qualityProfiles,
       selectedProjectProfiles.map((p) => p.profile),
-      'key'
+      'key',
     )
       // Discard languages we already have up-to-date info for.
       .filter(
-        ({ language }) => !selectedProjectProfiles.some((p) => p.profile.language === language)
+        ({ language }) => !selectedProjectProfiles.some((p) => p.profile.language === language),
       )
       .map(({ key }) => {
         const profile = allProfiles.find((p) => p.key === key);
@@ -128,7 +128,7 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
             // be taken into account after a new analysis. Fetch the
             // default profile.
             const defaultProfile = allProfiles.find(
-              (p) => p.isDefault && p.language === profile.language
+              (p) => p.isDefault && p.language === profile.language,
             );
             return (
               defaultProfile && {
@@ -189,8 +189,8 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
           addGlobalSuccessMessage(
             translateWithParameters(
               'project_quality_profile.successfully_updated',
-              newProfile.languageName
-            )
+              newProfile.languageName,
+            ),
           );
         }
       } catch (e) {
@@ -208,7 +208,7 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
     const newProfile = newKey && allProfiles.find((p) => p.key === newKey);
     const oldProjectProfile = projectProfiles.find((p) => p.profile.key === oldKey);
     const defaultProfile = allProfiles.find(
-      (p) => p.isDefault && p.language === oldProjectProfile?.profile.language
+      (p) => p.isDefault && p.language === oldProjectProfile?.profile.language,
     );
 
     if (defaultProfile === undefined || oldProjectProfile === undefined) {
@@ -258,8 +258,8 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
       addGlobalSuccessMessage(
         translateWithParameters(
           'project_quality_profile.successfully_updated',
-          defaultProfile.languageName
-        )
+          defaultProfile.languageName,
+        ),
       );
     }
   };

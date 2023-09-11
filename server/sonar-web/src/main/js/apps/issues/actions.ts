@@ -42,7 +42,7 @@ export function disableLocationsNavigator() {
 }
 
 export function selectNextLocation(
-  state: Pick<State, 'selectedFlowIndex' | 'selectedLocationIndex' | 'openIssue'>
+  state: Pick<State, 'selectedFlowIndex' | 'selectedLocationIndex' | 'openIssue'>,
 ) {
   const { selectedFlowIndex, selectedLocationIndex: index = -1, openIssue } = state;
   if (openIssue) {

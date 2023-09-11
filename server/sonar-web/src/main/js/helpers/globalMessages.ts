@@ -41,7 +41,7 @@ function addMessage(text: string, level: MessageLevel) {
       id: uniqueId('global-message-'),
       level,
       text,
-    })
+    }),
   );
 }
 

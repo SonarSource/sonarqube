@@ -50,7 +50,7 @@ export default class Radio extends React.PureComponent<Props> {
           alignLabel ? 'display-inline-flex-start' : 'display-inline-flex-center',
           'link-radio',
           className,
-          { disabled }
+          { disabled },
         )}
         href="#"
         onClick={this.handleClick}

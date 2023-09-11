@@ -55,6 +55,6 @@ function renderIssueRating(props: Partial<IssueRatingProps> = {}) {
       ]}
       type={IssueType.Bug}
       {...props}
-    />
+    />,
   );
 }

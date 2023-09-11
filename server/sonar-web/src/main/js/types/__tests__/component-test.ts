@@ -31,8 +31,8 @@ it.each([[isFile], [isView], [isProject], [isApplication], [isPortfolioLike]])(
   (utilityMethod: (componentQualifier: ComponentQualifier) => void) => {
     const results = Object.values(ComponentQualifier).reduce(
       (prev, qualifier) => ({ ...prev, [qualifier]: utilityMethod(qualifier) }),
-      {}
+      {},
     );
     expect(results).toMatchSnapshot();
-  }
+  },
 );

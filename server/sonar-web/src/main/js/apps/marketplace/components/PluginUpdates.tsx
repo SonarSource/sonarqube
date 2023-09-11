@@ -43,7 +43,7 @@ export default function PluginUpdates({ pluginName, updates }: PluginUpdatesProp
               release={update.release}
               update={update}
             />
-          ) : null
+          ) : null,
         )}
       </ul>
     </li>

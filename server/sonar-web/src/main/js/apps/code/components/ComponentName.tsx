@@ -69,10 +69,10 @@ export default function ComponentName({
 
   if (
     [ComponentQualifier.Application, ComponentQualifier.Portfolio].includes(
-      rootComponent.qualifier as ComponentQualifier
+      rootComponent.qualifier as ComponentQualifier,
     ) &&
     [ComponentQualifier.Application, ComponentQualifier.Project].includes(
-      component.qualifier as ComponentQualifier
+      component.qualifier as ComponentQualifier,
     )
   ) {
     return (
@@ -86,7 +86,7 @@ export default function ComponentName({
             showIcon,
             unclickable,
             canBrowse,
-            newCodeSelected
+            newCodeSelected,
           )}
         </div>
         {component.branch ? (
@@ -111,7 +111,7 @@ export default function ComponentName({
         rootComponent,
         showIcon,
         unclickable,
-        canBrowse
+        canBrowse,
       )}
     </span>
   );
@@ -125,7 +125,7 @@ function renderNameWithIcon(
   showIcon: boolean,
   unclickable = false,
   canBrowse = false,
-  newCodeSelected = true
+  newCodeSelected = true,
 ) {
   const name = renderName(component, previous);
   const codeType = newCodeSelected ? CodeScope.New : CodeScope.Overall;
@@ -136,7 +136,7 @@ function renderNameWithIcon(
       isProject(component.qualifier))
   ) {
     const branch = [ComponentQualifier.Application, ComponentQualifier.Portfolio].includes(
-      rootComponent.qualifier as ComponentQualifier
+      rootComponent.qualifier as ComponentQualifier,
     )
       ? component.branch
       : undefined;
@@ -147,7 +147,7 @@ function renderNameWithIcon(
           component.refKey ?? component.key,
           component.qualifier,
           { branch },
-          codeType
+          codeType,
         )}
       >
         {name}

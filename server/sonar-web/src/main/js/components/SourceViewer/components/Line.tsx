@@ -118,18 +118,18 @@ export default function Line(props: LineProps) {
 
   const handleLineMouseEnter = React.useCallback(
     () => onLineMouseEnter(line.line),
-    [line.line, onLineMouseEnter]
+    [line.line, onLineMouseEnter],
   );
 
   const handleLineMouseLeave = React.useCallback(
     () => onLineMouseLeave(line.line),
-    [line.line, onLineMouseLeave]
+    [line.line, onLineMouseLeave],
   );
 
   const { branchLike, file } = useSourceViewerContext();
   const permalink = getPathUrlAsString(
     getCodeUrl(file.project, branchLike, file.key, line.line),
-    false
+    false,
   );
 
   const getStatusTooltip = (line: SourceLine) => {
@@ -147,7 +147,7 @@ export default function Line(props: LineProps) {
           ? translateWithParameters(
               'source_viewer.tooltip.partially-covered.conditions',
               line.coveredConditions ?? 0,
-              line.conditions
+              line.conditions,
             )
           : translate('source_viewer.tooltip.partially-covered');
       default:

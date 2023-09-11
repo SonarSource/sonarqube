@@ -199,7 +199,7 @@ describe('getHotspotReviewHistory', () => {
         type: ReviewHistoryType.Creation,
         date: hotspot.creationDate,
         user: hotspot.authorUser,
-      })
+      }),
     );
     expect(reviewHistory[2]).toEqual(
       expect.objectContaining({
@@ -207,7 +207,7 @@ describe('getHotspotReviewHistory', () => {
         date: commentElement.createdAt,
         user: commentElement.user,
         html: commentElement.htmlText,
-      })
+      }),
     );
     expect(reviewHistory[1]).toEqual(
       expect.objectContaining({
@@ -215,7 +215,7 @@ describe('getHotspotReviewHistory', () => {
         date: commentElement1.createdAt,
         user: commentElement1.user,
         html: commentElement1.htmlText,
-      })
+      }),
     );
     expect(reviewHistory[0]).toEqual(
       expect.objectContaining({
@@ -227,7 +227,7 @@ describe('getHotspotReviewHistory', () => {
           active: changelogElement.isUserActive,
         },
         diffs: changelogElement.diffs,
-      })
+      }),
     );
   });
 });
@@ -235,16 +235,16 @@ describe('getHotspotReviewHistory', () => {
 describe('getStatusOptionFromStatusAndResolution', () => {
   it('should return the correct values', () => {
     expect(
-      getStatusOptionFromStatusAndResolution(HotspotStatus.REVIEWED, HotspotResolution.FIXED)
+      getStatusOptionFromStatusAndResolution(HotspotStatus.REVIEWED, HotspotResolution.FIXED),
     ).toBe(HotspotStatusOption.FIXED);
     expect(
-      getStatusOptionFromStatusAndResolution(HotspotStatus.REVIEWED, HotspotResolution.SAFE)
+      getStatusOptionFromStatusAndResolution(HotspotStatus.REVIEWED, HotspotResolution.SAFE),
     ).toBe(HotspotStatusOption.SAFE);
     expect(getStatusOptionFromStatusAndResolution(HotspotStatus.REVIEWED)).toBe(
-      HotspotStatusOption.FIXED
+      HotspotStatusOption.FIXED,
     );
     expect(getStatusOptionFromStatusAndResolution(HotspotStatus.TO_REVIEW)).toBe(
-      HotspotStatusOption.TO_REVIEW
+      HotspotStatusOption.TO_REVIEW,
     );
   });
 });
@@ -269,13 +269,13 @@ describe('getStatusAndResolutionFromStatusOption', () => {
 describe('getStatusFilterFromStatusOption', () => {
   it('should return the correct values', () => {
     expect(getStatusFilterFromStatusOption(HotspotStatusOption.TO_REVIEW)).toEqual(
-      HotspotStatusFilter.TO_REVIEW
+      HotspotStatusFilter.TO_REVIEW,
     );
     expect(getStatusFilterFromStatusOption(HotspotStatusOption.SAFE)).toEqual(
-      HotspotStatusFilter.SAFE
+      HotspotStatusFilter.SAFE,
     );
     expect(getStatusFilterFromStatusOption(HotspotStatusOption.FIXED)).toEqual(
-      HotspotStatusFilter.FIXED
+      HotspotStatusFilter.FIXED,
     );
   });
 });

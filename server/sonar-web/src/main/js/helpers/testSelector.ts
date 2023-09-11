@@ -35,11 +35,11 @@ function maybeScreen(container?: HTMLElement) {
 export interface ReactTestingQuery {
   find<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ): Promise<T>;
   findAll<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ): Promise<T[]>;
   get<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T;
   getAll<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T[];
@@ -57,7 +57,7 @@ export interface ReactTestingQuery {
   findAt<T extends HTMLElement = HTMLElement>(
     index: number,
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ): Promise<T>;
 
   queryAt<T extends HTMLElement = HTMLElement>(index: number, container?: HTMLElement): T | null;
@@ -66,12 +66,12 @@ export interface ReactTestingQuery {
 abstract class ChainingQuery implements ReactTestingQuery {
   abstract find<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ): Promise<T>;
 
   abstract findAll<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ): Promise<T[]>;
 
   abstract get<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T;
@@ -89,7 +89,7 @@ abstract class ChainingQuery implements ReactTestingQuery {
   async findAt<T extends HTMLElement = HTMLElement>(
     index: number,
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ): Promise<T> {
     return (await this.findAll<T>(container, waitForOptions))[index];
   }
@@ -139,14 +139,14 @@ class ChainDispatch extends ChainingQuery {
 
   async find<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ) {
     return this.elementQuery.find<T>(await this.insideQuery.find(container, waitForOptions));
   }
 
   async findAll<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ) {
     return this.elementQuery.findAll<T>(await this.insideQuery.find(container, waitForOptions));
   }
@@ -159,7 +159,7 @@ class ChainDispatch extends ChainingQuery {
     const containers = this.insideQuery.getAll(container);
     return containers.reduce(
       (acc, item) => [...acc, ...(this.elementQuery.queryAll<T>(item) ?? [])],
-      []
+      [],
     );
   }
 
@@ -190,14 +190,14 @@ class DispatchByText extends ChainingQuery {
 
   find<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ) {
     return maybeScreen(container).findByText<T>(...this.args, waitForOptions);
   }
 
   findAll<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ) {
     return maybeScreen(container).findAllByText<T>(...this.args, waitForOptions);
   }
@@ -229,14 +229,14 @@ class DispatchByLabelText extends ChainingQuery {
 
   find<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ) {
     return maybeScreen(container).findByLabelText<T>(...this.args, waitForOptions);
   }
 
   findAll<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ) {
     return maybeScreen(container).findAllByLabelText<T>(...this.args, waitForOptions);
   }
@@ -268,14 +268,14 @@ class DispatchByRole extends ChainingQuery {
 
   find<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ) {
     return maybeScreen(container).findByRole<T>(...this.args, waitForOptions);
   }
 
   findAll<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ) {
     return maybeScreen(container).findAllByRole<T>(...this.args, waitForOptions);
   }
@@ -307,14 +307,14 @@ class DispatchByTestId extends ChainingQuery {
 
   find<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ) {
     return maybeScreen(container).findByTestId<T>(...this.args, waitForOptions);
   }
 
   findAll<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ) {
     return maybeScreen(container).findAllByTestId<T>(...this.args, waitForOptions);
   }
@@ -346,14 +346,14 @@ class DispatchByDisplayValue extends ChainingQuery {
 
   find<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ) {
     return maybeScreen(container).findByDisplayValue<T>(...this.args, waitForOptions);
   }
 
   findAll<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ) {
     return maybeScreen(container).findAllByDisplayValue<T>(...this.args, waitForOptions);
   }
@@ -385,14 +385,14 @@ class DispatchByPlaceholderText extends ChainingQuery {
 
   find<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ) {
     return maybeScreen(container).findByPlaceholderText<T>(...this.args, waitForOptions);
   }
 
   findAll<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
-    waitForOptions?: waitForOptions
+    waitForOptions?: waitForOptions,
   ) {
     return maybeScreen(container).findAllByPlaceholderText<T>(...this.args, waitForOptions);
   }

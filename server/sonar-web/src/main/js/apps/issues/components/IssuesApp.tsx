@@ -178,7 +178,7 @@ export class App extends React.PureComponent<Props, State> {
         'owaspTop10-2021': shouldOpenStandardsChildFacet(
           {},
           query,
-          SecurityStandard.OWASP_TOP10_2021
+          SecurityStandard.OWASP_TOP10_2021,
         ),
         cleanCodeAttributeCategories: true,
         impactSoftwareQualities: true,
@@ -472,7 +472,7 @@ export class App extends React.PureComponent<Props, State> {
         const { components, issues, rules } = response;
 
         const parsedIssues = issues.map((issue) =>
-          parseIssueFromResponse(issue, components, undefined, rules)
+          parseIssueFromResponse(issue, components, undefined, rules),
         );
 
         return { ...response, issues: parsedIssues } as FetchIssuesPromise;
@@ -485,7 +485,7 @@ export class App extends React.PureComponent<Props, State> {
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     }).then((response) => {
       const parsedIssues = response.issues.map((issue) =>
-        parseIssueFromResponse(issue, response.components, response.users, response.rules)
+        parseIssueFromResponse(issue, response.components, response.users, response.rules),
       );
 
       return { ...response, issues: parsedIssues } as FetchIssuesPromise;
@@ -495,7 +495,7 @@ export class App extends React.PureComponent<Props, State> {
   fetchIssues = (
     additional: RawQuery,
     requestFacets = false,
-    firstRequest = false
+    firstRequest = false,
   ): Promise<FetchIssuesPromise> => {
     const { component } = this.props;
     const { myIssues, openFacets, query } = this.state;
@@ -618,7 +618,7 @@ export class App extends React.PureComponent<Props, State> {
 
   fetchIssuesUntil = (
     page: number,
-    done: (pageIssues: Issue[], paging: Paging) => boolean
+    done: (pageIssues: Issue[], paging: Paging) => boolean,
   ): Promise<FetchIssuesPromise> => {
     const recursiveFetch = (p: number, prevIssues: Issue[]): Promise<FetchIssuesPromise> => {
       return this.fetchIssuesPage(p).then(({ issues: pageIssues, paging, ...other }) => {
@@ -659,7 +659,7 @@ export class App extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({ loadingMore: false });
         }
-      }
+      },
     );
   };
 
@@ -689,7 +689,7 @@ export class App extends React.PureComponent<Props, State> {
       },
       () => {
         /* Do nothing */
-      }
+      },
     );
   };
 
@@ -802,7 +802,7 @@ export class App extends React.PureComponent<Props, State> {
       if (willOpenProperty && property === STANDARDS) {
         newState.openFacets.sonarsourceSecurity = shouldOpenSonarSourceSecurityFacet(
           newState.openFacets,
-          state.query
+          state.query,
         );
 
         // Force loading of sonarsource security facet data
@@ -1286,7 +1286,7 @@ export class App extends React.PureComponent<Props, State> {
                       <FlagMessage className="sw-mb-4" variant="warning">
                         {translateWithParameters(
                           'issues.cannot_open_issue_max_initial_X_fetched',
-                          MAX_INITAL_FETCH
+                          MAX_INITAL_FETCH,
                         )}
                       </FlagMessage>
                     )}
@@ -1320,7 +1320,7 @@ export class App extends React.PureComponent<Props, State> {
                   title={openIssue.message}
                   titleTemplate={translateWithParameters(
                     'page_title.template.with_category',
-                    translate('issues.page')
+                    translate('issues.page'),
                   )}
                 />
               ) : (
@@ -1362,11 +1362,11 @@ export default withRouter(
                 (isCompleted === false || hasFailures === true || completedCount !== total)) ||
               (component?.qualifier !== ComponentQualifier.Project &&
                 component?.needIssueSync === true),
-          })
-        )
-      )
-    )
-  )
+          }),
+        ),
+      ),
+    ),
+  ),
 );
 
 const PageWrapperStyle = styled.div`

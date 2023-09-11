@@ -63,6 +63,6 @@ function shallowRender(props: Partial<ValidationModal<{ field: string }>['props'
           value={props.values.field}
         />
       )}
-    </ValidationModal>
+    </ValidationModal>,
   );
 }

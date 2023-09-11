@@ -49,6 +49,6 @@ function shallowRender(props: Partial<LineIssuesListProps> = {}) {
       issuePopup={undefined}
       issuesForLine={[]}
       {...props}
-    />
+    />,
   );
 }

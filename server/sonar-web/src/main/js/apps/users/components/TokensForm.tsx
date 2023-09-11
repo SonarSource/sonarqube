@@ -54,7 +54,7 @@ export function TokensForm(props: Props) {
   const [projects, setProjects] = React.useState<LabelValueSelectOption[]>([]);
   const [selectedProject, setSelectedProject] = React.useState<LabelValueSelectOption>();
   const [newTokenExpiration, setNewTokenExpiration] = React.useState<TokenExpiration>(
-    TokenExpiration.OneMonth
+    TokenExpiration.OneMonth,
   );
   const [tokenExpirationOptions, setTokenExpirationOptions] =
     React.useState<{ value: TokenExpiration; label: string }[]>(EXPIRATION_OPTIONS);

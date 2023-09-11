@@ -26,7 +26,7 @@ export const updateIssue = (
   onChange: (issue: Issue) => void,
   resultPromise: Promise<IssueResponse>,
   oldIssue?: Issue,
-  newIssue?: Issue
+  newIssue?: Issue,
 ) => {
   const optimisticUpdate = oldIssue !== undefined && newIssue !== undefined;
   if (optimisticUpdate) {
@@ -40,7 +40,7 @@ export const updateIssue = (
           response.issue,
           response.components,
           response.users,
-          response.rules
+          response.rules,
         );
         onChange(issue);
       }
@@ -50,6 +50,6 @@ export const updateIssue = (
         onChange(oldIssue!);
       }
       throwGlobalError(param);
-    }
+    },
   );
 };

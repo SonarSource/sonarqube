@@ -38,15 +38,15 @@ it.each([
     renderGithubCFamilyExampleRepositories({ os, ci });
     expect(await ui.cfamilyExamplesLink.find()).toHaveAttribute(
       'href',
-      `https://github.com/orgs/sonarsource-cfamily-examples/repositories?q=sq+${formattedOS}+${formattedCI}`
+      `https://github.com/orgs/sonarsource-cfamily-examples/repositories?q=sq+${formattedOS}+${formattedCI}`,
     );
-  }
+  },
 );
 
 function renderGithubCFamilyExampleRepositories(
-  overrides: Partial<GithubCFamilyExampleRepositoriesProps> = {}
+  overrides: Partial<GithubCFamilyExampleRepositoriesProps> = {},
 ) {
   return renderComponent(
-    <GithubCFamilyExampleRepositories className="test-class" {...overrides} />
+    <GithubCFamilyExampleRepositories className="test-class" {...overrides} />,
   );
 }

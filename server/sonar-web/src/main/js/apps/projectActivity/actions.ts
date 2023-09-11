@@ -51,7 +51,7 @@ export function changeEvent(analysis: string, event: AnalysisEvent) {
       return {
         ...item,
         events: item.events.map((eventItem) =>
-          eventItem.key === event.key ? { ...eventItem, ...event } : eventItem
+          eventItem.key === event.key ? { ...eventItem, ...event } : eventItem,
         ),
       };
     }),

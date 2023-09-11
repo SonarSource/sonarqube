@@ -51,7 +51,7 @@ export class IssueTags extends React.PureComponent<Props> {
       this.props.onChange,
       setIssueTags({ issue: issue.key, tags: tags.join(',') }),
       issue as Issue,
-      newIssue as Issue
+      newIssue as Issue,
     );
   };
 

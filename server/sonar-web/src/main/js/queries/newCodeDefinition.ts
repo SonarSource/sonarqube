@@ -39,7 +39,7 @@ export function useNewCodeDefinitionQuery(params?: {
   return useQuery(
     getNewCodeDefinitionQueryKey(params?.projectKey, params?.branchName),
     () => getNewCodeDefinition({ branch: params?.branchName, project: params?.projectKey }),
-    { enabled: params?.enabled ?? true, refetchOnWindowFocus: false }
+    { enabled: params?.enabled ?? true, refetchOnWindowFocus: false },
   );
 }
 

@@ -68,7 +68,7 @@ export interface SearchQualityProfilesResponse {
 }
 
 export function searchQualityProfiles(
-  parameters?: SearchQualityProfilesParameters
+  parameters?: SearchQualityProfilesParameters,
 ): Promise<SearchQualityProfilesResponse> {
   return getJSON('/api/qualityprofiles/search', parameters).catch(throwGlobalError);
 }
@@ -98,7 +98,7 @@ export interface ProfileProject {
 }
 
 export function getProfileProjects(
-  data: RequestData
+  data: RequestData,
 ): Promise<{ more: boolean; paging: Paging; results: ProfileProject[] }> {
   return getJSON('/api/qualityprofiles/projects', data).catch(throwGlobalError);
 }
@@ -135,7 +135,7 @@ export function deleteProfile({ language, name: qualityProfile }: Profile) {
 
 export function changeProfileParent(
   { language, name: qualityProfile }: Profile,
-  parentProfile?: Profile
+  parentProfile?: Profile,
 ) {
   return post('/api/qualityprofiles/change_parent', {
     language,
@@ -146,7 +146,7 @@ export function changeProfileParent(
 
 export function getQualityProfileExporterUrl(
   { key: exporterKey }: Exporter,
-  { language, name: qualityProfile }: Profile
+  { language, name: qualityProfile }: Profile,
 ) {
   const queryParams = Object.entries({ exporterKey, language, qualityProfile })
     .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
@@ -173,7 +173,7 @@ export function getProfileChangelog(
   since: any,
   to: any,
   { language, name: qualityProfile }: Profile,
-  page?: number
+  page?: number,
 ): Promise<ChangelogResponse> {
   return getJSON('/api/qualityprofiles/changelog', {
     since,
@@ -239,7 +239,7 @@ export interface SearchGroupsResponse {
 }
 
 export function searchGroups(
-  parameters: SearchUsersGroupsParameters
+  parameters: SearchUsersGroupsParameters,
 ): Promise<SearchGroupsResponse> {
   return getJSON('/api/qualityprofiles/search_groups', parameters).catch(throwGlobalError);
 }

@@ -96,14 +96,14 @@ describe('getAnalysesByVersionByDay', () => {
     expect(
       utils.getAnalysesByVersionByDay(ANALYSES, {
         category: '',
-      })
+      }),
     ).toMatchSnapshot();
   });
   it('should also filter analysis based on the query', () => {
     expect(
       utils.getAnalysesByVersionByDay(ANALYSES, {
         category: 'QUALITY_PROFILE',
-      })
+      }),
     ).toMatchSnapshot();
     expect(
       utils.getAnalysesByVersionByDay(ANALYSES, {
@@ -111,7 +111,7 @@ describe('getAnalysesByVersionByDay', () => {
 
         to: dates.parseDate('2017-06-09T11:12:27.000Z'),
         from: dates.parseDate('2017-05-18T14:13:07.000Z'),
-      })
+      }),
     ).toMatchSnapshot();
   });
   it('should create fake version', () => {
@@ -141,8 +141,8 @@ describe('getAnalysesByVersionByDay', () => {
         ],
         {
           category: '',
-        }
-      )
+        },
+      ),
     ).toMatchSnapshot();
   });
 });
@@ -154,7 +154,7 @@ describe('parseQuery', () => {
         from: '2017-04-27T08:21:32.000Z',
         custom_metrics: 'foo,bar,baz',
         id: 'foo',
-      })
+      }),
     ).toEqual(QUERY);
   });
 });
@@ -170,7 +170,7 @@ describe('serializeQuery', () => {
         from: '2017-04-27T08:21:32+0000',
         project: 'foo',
         category: 'test',
-      }
+      },
     );
   });
 });
@@ -188,7 +188,7 @@ describe('serializeUrlQuery', () => {
         graph: GraphType.coverage,
         category: 'test',
         customMetrics: [],
-      })
+      }),
     ).toEqual({
       from: '2017-04-27T08:21:32+0000',
       id: 'foo',

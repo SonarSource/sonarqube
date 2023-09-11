@@ -144,7 +144,7 @@ export default class Action extends React.PureComponent<Props, State> {
                 serializeQuery({
                   deprecated: Boolean(action.deprecatedSince),
                   internal: Boolean(action.internal),
-                })
+                }),
               ),
             }}
           >

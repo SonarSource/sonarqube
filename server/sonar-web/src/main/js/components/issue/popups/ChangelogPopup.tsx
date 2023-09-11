@@ -55,7 +55,7 @@ export default class ChangelogPopup extends React.PureComponent<Props, State> {
           this.setState({ changelog });
         }
       },
-      () => {}
+      () => {},
     );
   }
 
@@ -102,7 +102,7 @@ export default class ChangelogPopup extends React.PureComponent<Props, State> {
                         {item.webhookSource &&
                           translateWithParameters(
                             'issue.changelog.webhook_source',
-                            item.webhookSource
+                            item.webhookSource,
                           )}
                       </div>
                       {item.diffs.map((diff) => (

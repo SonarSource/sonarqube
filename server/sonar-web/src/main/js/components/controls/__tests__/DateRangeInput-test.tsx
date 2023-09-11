@@ -27,11 +27,11 @@ const dateB = parseDate('2018-02-05T00:00:00.000Z');
 
 it('should render', () => {
   expect(
-    shallow(<DateRangeInput onChange={jest.fn()} value={{ from: dateA, to: dateB }} />)
+    shallow(<DateRangeInput onChange={jest.fn()} value={{ from: dateA, to: dateB }} />),
   ).toMatchSnapshot();
 
   expect(
-    shallow(<DateRangeInput onChange={jest.fn()} minDate={dateA} maxDate={dateB} />)
+    shallow(<DateRangeInput onChange={jest.fn()} minDate={dateA} maxDate={dateB} />),
   ).toMatchSnapshot('with min/max');
 
   expect(
@@ -41,8 +41,8 @@ it('should render', () => {
         minDate={dateA}
         maxDate={dateB}
         value={{ from: dateA, to: dateB }}
-      />
-    )
+      />,
+    ),
   ).toMatchSnapshot('with min/max and value');
 });
 

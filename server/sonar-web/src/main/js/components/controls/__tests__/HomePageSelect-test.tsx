@@ -63,6 +63,6 @@ function renderHomePageSelect(props: Partial<HomePageSelect['props']> = {}) {
       currentUser={mockLoggedInUser()}
       updateCurrentUserHomepage={jest.fn()}
       {...props}
-    />
+    />,
   );
 }

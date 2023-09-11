@@ -34,7 +34,7 @@ export async function probeSonarLintServers(): Promise<Array<Ide>> {
         const { ideName, description } = json;
         return { port: p, ideName, description } as Ide;
       })
-      .catch(() => undefined)
+      .catch(() => undefined),
   );
   const results = await Promise.all(probeRequests);
   return results.filter((r) => r !== undefined) as Ide[];

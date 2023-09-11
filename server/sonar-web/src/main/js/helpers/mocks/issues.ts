@@ -52,7 +52,7 @@ export function mockIssueChangelog(overrides: Partial<IssueChangelog> = {}): Iss
 }
 
 export function mockIssueChangelogDiff(
-  overrides: Partial<IssueChangelogDiff> = {}
+  overrides: Partial<IssueChangelogDiff> = {},
 ): IssueChangelogDiff {
   return {
     key: 'assign',

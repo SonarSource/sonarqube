@@ -108,6 +108,6 @@ function renderSnippetViewer(props: Partial<SnippetViewerProps> = {}) {
       renderDuplicationPopup={jest.fn()}
       snippet={[]}
       {...props}
-    />
+    />,
   );
 }

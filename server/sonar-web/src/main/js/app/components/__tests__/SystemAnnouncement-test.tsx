@@ -97,6 +97,6 @@ function renderSystemAnnouncement() {
   return renderComponent(
     <AvailableFeaturesContext.Provider value={[Feature.Announcement]}>
       <SystemAnnouncement />
-    </AvailableFeaturesContext.Provider>
+    </AvailableFeaturesContext.Provider>,
   );
 }

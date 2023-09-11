@@ -91,7 +91,7 @@ function renderPluginRiskConsent(props: Partial<PluginRiskConsentProps> = {}) {
       currentUser={mockLoggedInUser({ permissions: { global: ['admin'] } })}
       router={mockRouter()}
       {...props}
-    />
+    />,
   );
 }
 

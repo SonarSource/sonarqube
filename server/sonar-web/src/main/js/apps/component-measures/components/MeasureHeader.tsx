@@ -69,7 +69,7 @@ export default function MeasureHeader(props: Props) {
                   measureValue
                     ? translateWithParameters(
                         'metric.has_rating_X',
-                        formatMeasure(measureValue, MetricType.Rating)
+                        formatMeasure(measureValue, MetricType.Rating),
                       )
                     : translate('metric.no_rating')
                 }

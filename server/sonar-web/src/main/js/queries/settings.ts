@@ -52,7 +52,7 @@ export function useSaveValuesMutation() {
       values: {
         newValue?: SettingValue;
         definition: ExtendedSettingDefinition;
-      }[]
+      }[],
     ) => {
       return Promise.all(
         values
@@ -68,7 +68,7 @@ export function useSaveValuesMutation() {
             } catch (error) {
               return { key: definition.key, success: false };
             }
-          })
+          }),
       );
     },
     onSuccess: () => {

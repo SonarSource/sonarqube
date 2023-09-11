@@ -29,7 +29,7 @@ it('should redirect to static doc for specific version', async () => {
 
   expect(await screen.findByRole('link')).toHaveAttribute(
     'href',
-    'https://docs.sonarsource.com/sonarqube/10.0/land'
+    'https://docs.sonarsource.com/sonarqube/10.0/land',
   );
 });
 
@@ -38,7 +38,7 @@ it('should redirect to static doc for latest version', async () => {
 
   expect(await screen.findByRole('link')).toHaveAttribute(
     'href',
-    'https://docs.sonarsource.com/sonarqube/latest/land'
+    'https://docs.sonarsource.com/sonarqube/latest/land',
   );
 });
 
@@ -46,6 +46,6 @@ function renderDocumentationRedirect(navigate: string, version?: string) {
   renderAppRoutes(
     `documentation/${navigate}`,
     () => <Route path="/documentation/*" element={<DocumentationRedirect />} />,
-    { appState: mockAppState({ version }) }
+    { appState: mockAppState({ version }) },
   );
 }

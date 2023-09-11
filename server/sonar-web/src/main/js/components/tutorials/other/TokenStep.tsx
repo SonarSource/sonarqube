@@ -259,7 +259,7 @@ export default class TokenStep extends React.PureComponent<Props, State> {
                     options={tokenExpirationOptions}
                     size="full"
                     value={tokenExpirationOptions.find(
-                      (option) => option.value === tokenExpiration
+                      (option) => option.value === tokenExpiration,
                     )}
                   />
 

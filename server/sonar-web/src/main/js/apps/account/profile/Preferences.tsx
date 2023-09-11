@@ -28,7 +28,7 @@ import {
 
 export function Preferences() {
   const [shortcutsPreferenceValue, setShortcutsPreferenceValue] = React.useState(
-    getKeyboardShortcutEnabled()
+    getKeyboardShortcutEnabled(),
   );
 
   const handleToggleKeyboardShortcut = React.useCallback(
@@ -36,7 +36,7 @@ export function Preferences() {
       setKeyboardShortcutEnabled(value);
       setShortcutsPreferenceValue(value);
     },
-    [setShortcutsPreferenceValue]
+    [setShortcutsPreferenceValue],
   );
 
   return (
@@ -53,7 +53,7 @@ export function Preferences() {
                 <FormattedMessage
                   id="my_account.preferences.keyboard_shortcuts.description"
                   defaultMessage={translate(
-                    'my_account.preferences.keyboard_shortcuts.description'
+                    'my_account.preferences.keyboard_shortcuts.description',
                   )}
                   values={{
                     questionMark: (

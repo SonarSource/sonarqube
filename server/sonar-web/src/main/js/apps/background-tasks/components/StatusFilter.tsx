@@ -49,7 +49,7 @@ export default function StatusFilter(props: StatusFilterProps) {
     ({ value }: LabelValueSelectOption) => {
       onChange(value);
     },
-    [onChange]
+    [onChange],
   );
 
   return (

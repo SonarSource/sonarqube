@@ -48,7 +48,7 @@ export interface Props {
   submitting: boolean;
   bitbucketVariant?: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud;
   onBitbucketVariantChange: (
-    bitbucketVariant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud
+    bitbucketVariant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud,
   ) => void;
   validationError?: string;
 }

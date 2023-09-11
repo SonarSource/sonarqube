@@ -36,7 +36,7 @@ export function renderCWECategory(standards: Standards, category: string): strin
 export function renderOwaspTop10Category(
   standards: Standards,
   category: string,
-  withPrefix = false
+  withPrefix = false,
 ): string {
   return renderOwaspCategory('owaspTop10', standards, category, withPrefix);
 }
@@ -44,7 +44,7 @@ export function renderOwaspTop10Category(
 export function renderOwaspTop102021Category(
   standards: Standards,
   category: string,
-  withPrefix = false
+  withPrefix = false,
 ): string {
   return renderOwaspCategory('owaspTop10-2021', standards, category, withPrefix);
 }
@@ -53,7 +53,7 @@ function renderOwaspCategory(
   type: 'owaspTop10' | 'owaspTop10-2021',
   standards: Standards,
   category: string,
-  withPrefix: boolean
+  withPrefix: boolean,
 ) {
   const record = standards[type][category];
   if (!record) {
@@ -65,7 +65,7 @@ function renderOwaspCategory(
 export function renderSonarSourceSecurityCategory(
   standards: Standards,
   category: string,
-  withPrefix = false
+  withPrefix = false,
 ): string {
   const record = standards.sonarsourceSecurity[category];
   if (!record) {

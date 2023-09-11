@@ -55,7 +55,7 @@ export default class EncryptionApp extends React.PureComponent<{}, State> {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-      }
+      },
     );
   };
 

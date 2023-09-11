@@ -106,7 +106,7 @@ it('should display guide', async () => {
 
 it('should not show guide for those who dismissed it', async () => {
   renderIssueApp(
-    mockCurrentUser({ isLoggedIn: true, dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true } })
+    mockCurrentUser({ isLoggedIn: true, dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true } }),
   );
 
   expect((await ui.issueItems.findAll()).length).toBeGreaterThan(0);
@@ -153,7 +153,7 @@ it('should show guide on issue page', async () => {
   renderProjectIssuesApp(
     'project/issues?issues=issue11&open=issue11&id=myproject',
     undefined,
-    mockCurrentUser({ isLoggedIn: true })
+    mockCurrentUser({ isLoggedIn: true }),
   );
 
   expect(await ui.guidePopup.find()).toBeInTheDocument();

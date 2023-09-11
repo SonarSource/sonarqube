@@ -76,7 +76,7 @@ export default function HotspotViewerTabs(props: Props) {
 
   const { isScrolled, isCompressed, resetScrollDownCompress } = useScrollDownCompress(
     STICKY_HEADER_COMPRESS_THRESHOLD,
-    STICKY_HEADER_SHADOW_OFFSET
+    STICKY_HEADER_SHADOW_OFFSET,
   );
 
   const tabs = React.useMemo(() => {

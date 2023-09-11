@@ -44,21 +44,21 @@ export default function TagsSelect(props: Props) {
       const results = await onSearch(query);
       setSearchResults(results);
     },
-    [onSearch, setSearchResults]
+    [onSearch, setSearchResults],
   );
 
   const onSelect = React.useCallback(
     (newTag: string) => {
       onChange([...selectedTags, newTag]);
     },
-    [onChange, selectedTags]
+    [onChange, selectedTags],
   );
 
   const onUnselect = React.useCallback(
     (toRemove: string) => {
       onChange(selectedTags.filter((tag) => tag !== toRemove));
     },
-    [onChange, selectedTags]
+    [onChange, selectedTags],
   );
 
   return (

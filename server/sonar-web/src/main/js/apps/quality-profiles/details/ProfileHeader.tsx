@@ -61,7 +61,7 @@ export default function ProfileHeader(props: Props) {
             isChangeLogPage
               ? 'quality_profiles.page_title_changelog_x'
               : 'quality_profiles.page_title_compare_x',
-            profile.name
+            profile.name,
           )}
         />
       )}
@@ -137,7 +137,7 @@ export default function ProfileHeader(props: Props) {
                     className="little-spacer-left"
                     overlay={translateWithParameters(
                       'quality_profiles.extend_description_help',
-                      profile.parentName
+                      profile.parentName,
                     )}
                   />
                 </>
