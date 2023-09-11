@@ -39,19 +39,32 @@ const ui = {
   cQualityProfileName: 'c quality profile',
   newCQualityProfileName: 'New c quality profile',
   newCQualityProfileNameFromCreateButton: 'New c quality profile from create',
-  profileActions: (name: string, language: string) =>
+  listProfileActions: (name: string, language: string) =>
     byRole('button', {
       name: `quality_profiles.actions.${name}.${language}`,
     }),
-  extendButton: byRole('button', {
+  profileActions: (name: string, language: string) =>
+    byRole('menuitem', {
+      name: `quality_profiles.actions.${name}.${language}`,
+    }),
+  modalExtendButton: byRole('button', {
     name: 'extend',
   }),
-  copyButton: byRole('button', {
+  qualityProfileActions: byRole('button', {
+    name: /quality_profiles.actions/,
+  }),
+  extendButton: byRole('menuitem', {
+    name: 'extend',
+  }),
+  modalCopyButton: byRole('button', {
+    name: 'copy',
+  }),
+  copyButton: byRole('menuitem', {
     name: 'copy',
   }),
   createButton: byRole('button', { name: 'create' }),
   restoreButton: byRole('button', { name: 'restore' }),
-  compareButton: byRole('link', { name: 'compare' }),
+  compareButton: byRole('menuitem', { name: 'compare' }),
   cancelButton: byRole('button', { name: 'cancel' }),
   compareDropdown: byRole('combobox', { name: 'quality_profiles.compare_with' }),
   changelogLink: byRole('link', { name: 'changelog' }),
@@ -71,8 +84,8 @@ const ui = {
   namePropupInput: byRole('textbox', { name: 'quality_profiles.new_name required' }),
   filterByLang: byRole('combobox', { name: 'quality_profiles.filter_by:' }),
   listLinkCQualityProfile: byRole('link', { name: 'c quality profile' }),
-  listLinkNewCQualityProfile: byRole('link', { name: 'New c quality profile' }),
-  listLinkNewCQualityProfileFromCreateButton: byRole('link', {
+  headingNewCQualityProfile: byRole('heading', { name: 'New c quality profile' }),
+  headingNewCQualityProfileFromCreateButton: byRole('heading', {
     name: 'New c quality profile from create',
   }),
   listLinkJavaQualityProfile: byRole('link', { name: 'java quality profile' }),
@@ -167,15 +180,15 @@ describe('Create', () => {
     serviceMock.setAdmin();
     renderQualityProfiles();
 
-    await user.click(await ui.profileActions('c quality profile', 'C').find());
+    await user.click(await ui.listProfileActions('c quality profile', 'C').find());
     await user.click(ui.extendButton.get());
     await user.clear(ui.namePropupInput.get());
     await user.type(ui.namePropupInput.get(), ui.newCQualityProfileName);
     await act(async () => {
-      await user.click(ui.extendButton.get());
+      await user.click(ui.modalExtendButton.get());
     });
 
-    expect(await ui.listLinkNewCQualityProfile.find()).toBeInTheDocument();
+    expect(await ui.headingNewCQualityProfile.find()).toBeInTheDocument();
 
     await user.click(ui.returnToList.get());
     await user.click(ui.createButton.get());
@@ -186,7 +199,7 @@ describe('Create', () => {
       await user.click(ui.createButton.get(ui.popup.get()));
     });
 
-    expect(await ui.listLinkNewCQualityProfileFromCreateButton.find()).toBeInTheDocument();
+    expect(await ui.headingNewCQualityProfileFromCreateButton.find()).toBeInTheDocument();
   });
 
   it('should be able to copy an existing Quality Profile', async () => {
@@ -194,15 +207,15 @@ describe('Create', () => {
     serviceMock.setAdmin();
     renderQualityProfiles();
 
-    await user.click(await ui.profileActions('c quality profile', 'C').find());
+    await user.click(await ui.listProfileActions('c quality profile', 'C').find());
     await user.click(ui.copyButton.get());
     await user.clear(ui.namePropupInput.get());
     await user.type(ui.namePropupInput.get(), ui.newCQualityProfileName);
     await act(async () => {
-      await user.click(ui.copyButton.get(ui.popup.get()));
+      await user.click(ui.modalCopyButton.get(ui.popup.get()));
     });
 
-    expect(await ui.listLinkNewCQualityProfile.find()).toBeInTheDocument();
+    expect(await ui.headingNewCQualityProfile.find()).toBeInTheDocument();
 
     await user.click(ui.returnToList.get());
     await user.click(ui.createButton.get());
@@ -214,7 +227,7 @@ describe('Create', () => {
       await user.click(ui.createButton.get(ui.popup.get()));
     });
 
-    expect(await ui.listLinkNewCQualityProfileFromCreateButton.find()).toBeInTheDocument();
+    expect(await ui.headingNewCQualityProfileFromCreateButton.find()).toBeInTheDocument();
   });
 
   it('should be able to create blank Quality Profile', async () => {
@@ -229,7 +242,7 @@ describe('Create', () => {
       await user.click(ui.createButton.get(ui.popup.get()));
     });
 
-    expect(await ui.listLinkNewCQualityProfile.find()).toBeInTheDocument();
+    expect(await ui.headingNewCQualityProfile.find()).toBeInTheDocument();
   });
 });
 
@@ -263,10 +276,10 @@ it('should be able to compare profiles', async () => {
   renderQualityProfiles();
 
   // For language with 1 profle we should not see compare action
-  await user.click(await ui.profileActions('c quality profile', 'C').find());
+  await user.click(await ui.listProfileActions('c quality profile', 'C').find());
   expect(ui.compareButton.query()).not.toBeInTheDocument();
 
-  await user.click(ui.profileActions('java quality profile', 'Java').get());
+  await user.click(ui.listProfileActions('java quality profile', 'Java').get());
   expect(ui.compareButton.get()).toBeInTheDocument();
   await user.click(ui.compareButton.get());
   expect(ui.compareDropdown.get()).toBeInTheDocument();

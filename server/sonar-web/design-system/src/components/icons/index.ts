@@ -89,4 +89,5 @@ export { TriangleUpIcon } from './TriangleUpIcon';
 export { UnfoldDownIcon } from './UnfoldDownIcon';
 export { UnfoldIcon } from './UnfoldIcon';
 export { UnfoldUpIcon } from './UnfoldUpIcon';
+export { UserGroupIcon } from './UserGroupIcon';
 export { VulnerabilityIcon } from './VulnerabilityIcon';

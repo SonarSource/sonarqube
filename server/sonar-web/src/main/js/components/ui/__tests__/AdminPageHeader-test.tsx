@@ -17,21 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { StandoutLink } from 'design-system';
-import * as React from 'react';
-import { getProfilePath } from '../utils';
+import { screen } from '@testing-library/react';
+import React from 'react';
+import { renderComponent } from '../../../helpers/testReactTestingUtils';
+import { AdminPageHeader } from '../AdminPageHeader';
 
-interface Props {
-  className?: string;
-  children?: React.ReactElement<any> | string;
-  language: string;
-  name: string;
-}
+it('render correctly', () => {
+  renderAdminPageHeader();
 
-export default function ProfileLink({ name, language, children, ...other }: Props) {
-  return (
-    <StandoutLink to={getProfilePath(name, language)} {...other}>
-      {children}
-    </StandoutLink>
+  expect(screen.getByRole('heading', { name: 'Page title' })).toBeInTheDocument();
+  expect(screen.getByText('Page description')).toBeInTheDocument();
+  expect(screen.getByText('Actions')).toBeInTheDocument();
+});
+
+function renderAdminPageHeader() {
+  return renderComponent(
+    <AdminPageHeader description="Page description" title="Page title">
+      Actions
+    </AdminPageHeader>,
   );
 }

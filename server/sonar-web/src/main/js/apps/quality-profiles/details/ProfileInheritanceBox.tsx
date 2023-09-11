@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { ContentCell, HelperHintIcon, TableRow } from 'design-system';
 import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -48,29 +49,30 @@ export default function ProfileInheritanceBox(props: Props) {
   const offset = 25 * depth;
 
   return (
-    <tr className={classNames(`it__quality-profiles__inheritance-${type}`, className)}>
-      <td>
-        <div style={{ paddingLeft: offset }}>
+    <TableRow className={classNames(`it__quality-profiles__inheritance-${type}`, className)}>
+      <ContentCell>
+        <div className="sw-flex sw-items-center sw-gap-2" style={{ paddingLeft: offset }}>
           {displayLink ? (
-            <ProfileLink className="text-middle" language={language} name={profile.name}>
+            <ProfileLink language={language} name={profile.name}>
               {profile.name}
             </ProfileLink>
           ) : (
-            <span className="text-middle">{profile.name}</span>
+            <span>{profile.name}</span>
           )}
-          {profile.isBuiltIn && <BuiltInQualityProfileBadge className="spacer-left" />}
+          {profile.isBuiltIn && <BuiltInQualityProfileBadge />}
           {extendsBuiltIn && (
-            <HelpTooltip
-              className="spacer-left"
-              overlay={translate('quality_profiles.extends_built_in')}
-            />
+            <HelpTooltip overlay={translate('quality_profiles.extends_built_in')}>
+              <HelperHintIcon aria-label="help-tooltip" />
+            </HelpTooltip>
           )}
         </div>
-      </td>
+      </ContentCell>
 
-      <td>{translateWithParameters('quality_profile.x_active_rules', profile.activeRuleCount)}</td>
+      <ContentCell>
+        {translateWithParameters('quality_profile.x_active_rules', profile.activeRuleCount)}
+      </ContentCell>
 
-      <td>
+      <ContentCell>
         {profile.overridingRuleCount != null && (
           <p>
             {translateWithParameters(
@@ -79,7 +81,7 @@ export default function ProfileInheritanceBox(props: Props) {
             )}
           </p>
         )}
-      </td>
-    </tr>
+      </ContentCell>
+    </TableRow>
   );
 }

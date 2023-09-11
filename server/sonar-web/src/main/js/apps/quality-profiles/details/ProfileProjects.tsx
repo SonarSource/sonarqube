@@ -17,13 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  Badge,
+  ButtonSecondary,
+  ContentCell,
+  Link,
+  Spinner,
+  SubTitle,
+  Table,
+  TableRow,
+  Tooltip,
+} from 'design-system';
 import * as React from 'react';
 import { getProfileProjects } from '../../../api/quality-profiles';
-import Link from '../../../components/common/Link';
 import ListFooter from '../../../components/controls/ListFooter';
-import Tooltip from '../../../components/controls/Tooltip';
-import { Button } from '../../../components/controls/buttons';
-import QualifierIcon from '../../../components/icons/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import { Profile } from '../types';
@@ -121,46 +128,54 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
 
   renderDefault() {
     return (
-      <div>
-        <span className="badge spacer-right">{translate('default')}</span>
+      <>
+        <Badge className="sw-mr-2">{translate('default')}</Badge>
         {translate('quality_profiles.projects_for_default')}
-      </div>
+      </>
     );
   }
 
   renderProjects() {
     if (this.state.loading) {
-      return <i className="spinner" />;
+      return <Spinner />;
     }
 
     const { projects } = this.state;
     const { profile } = this.props;
 
     if (profile.activeRuleCount === 0 && projects.length === 0) {
-      return <div>{translate('quality_profiles.cannot_associate_projects_no_rules')}</div>;
+      return translate('quality_profiles.cannot_associate_projects_no_rules');
     }
 
     if (projects.length === 0) {
-      return <div>{translate('quality_profiles.no_projects_associated_to_profile')}</div>;
+      return translate('quality_profiles.no_projects_associated_to_profile');
     }
 
     return (
       <>
-        <ul>
+        <Table columnCount={1} noSidePadding>
           {projects.map((project) => (
-            <li className="spacer-top js-profile-project" data-key={project.key} key={project.key}>
-              <Link to={getProjectUrl(project.key)}>
-                <QualifierIcon qualifier="TRK" /> <span>{project.name}</span>
-              </Link>
-            </li>
+            <TableRow key={project.key}>
+              <ContentCell>
+                <Link
+                  className="it__quality-profiles__project fs-mask"
+                  to={getProjectUrl(project.key)}
+                >
+                  {project.name}
+                </Link>
+              </ContentCell>
+            </TableRow>
           ))}
-        </ul>
-        <ListFooter
-          count={projects.length}
-          loadMore={this.loadMore}
-          ready={!this.state.loadingMore}
-          total={this.state.total}
-        />
+        </Table>
+        {projects.length > 0 && (
+          <ListFooter
+            useMIUIButtons
+            count={projects.length}
+            loadMore={this.loadMore}
+            loading={this.state.loadingMore}
+            total={this.state.total}
+          />
+        )}
       </>
     );
   }
@@ -169,9 +184,14 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     const { profile } = this.props;
     const hasNoActiveRules = profile.activeRuleCount === 0;
     return (
-      <section className="boxed-group quality-profile-projects" aria-label={translate('projects')}>
-        {profile.actions && profile.actions.associateProjects && (
-          <div className="boxed-group-actions">
+      // eslint-disable-next-line local-rules/use-metrickey-enum
+      <section className="it__quality-profiles__projects" aria-label={translate('projects')}>
+        <div className="sw-flex sw-items-center sw-gap-3 sw-mb-6">
+          {
+            // eslint-disable-next-line local-rules/use-metrickey-enum
+            <SubTitle className="sw-mb-0">{translate('projects')}</SubTitle>
+          }
+          {profile.actions?.associateProjects && (
             <Tooltip
               overlay={
                 hasNoActiveRules
@@ -179,24 +199,18 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
                   : null
               }
             >
-              <Button
-                className="js-change-projects"
+              <ButtonSecondary
+                className="it__quality-profiles__change-projects"
                 onClick={this.handleChangeClick}
                 disabled={hasNoActiveRules}
               >
                 {translate('quality_profiles.change_projects')}
-              </Button>
+              </ButtonSecondary>
             </Tooltip>
-          </div>
-        )}
-
-        <header className="boxed-group-header">
-          <h2>{translate('projects')}</h2>
-        </header>
-
-        <div className="boxed-group-inner">
-          {profile.isDefault ? this.renderDefault() : this.renderProjects()}
+          )}
         </div>
+
+        {profile.isDefault ? this.renderDefault() : this.renderProjects()}
 
         {this.state.formOpen && <ChangeProjectsForm onClose={this.closeForm} profile={profile} />}
       </section>

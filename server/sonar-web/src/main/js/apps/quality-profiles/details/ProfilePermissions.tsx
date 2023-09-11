@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary, Note, Spinner, SubTitle } from 'design-system';
 import { sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
 import {
@@ -24,7 +25,6 @@ import {
   searchGroups,
   searchUsers,
 } from '../../../api/quality-profiles';
-import { Button } from '../../../components/controls/buttons';
 import { translate } from '../../../helpers/l10n';
 import { UserSelected } from '../../../types/types';
 import { Profile } from '../types';
@@ -137,44 +137,42 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
   };
 
   render() {
-    return (
-      <section aria-label={translate('permissions.page')} className="boxed-group">
-        <h2>{translate('permissions.page')}</h2>
-        <div className="boxed-group-inner">
-          <p className="note">{translate('quality_profiles.default_permissions')}</p>
+    const { loading } = this.state;
 
-          {this.state.loading ? (
-            <div className="big-spacer-top">
-              <i className="spinner" />
-            </div>
-          ) : (
-            <div className="big-spacer-top">
-              {this.state.users &&
-                sortBy(this.state.users, 'name').map((user) => (
-                  <ProfilePermissionsUser
-                    key={user.login}
-                    onDelete={this.handleUserDelete}
-                    profile={this.props.profile}
-                    user={user}
-                  />
-                ))}
-              {this.state.groups &&
-                sortBy(this.state.groups, 'name').map((group) => (
-                  <ProfilePermissionsGroup
-                    group={group}
-                    key={group.name}
-                    onDelete={this.handleGroupDelete}
-                    profile={this.props.profile}
-                  />
-                ))}
-              <div className="text-right">
-                <Button onClick={this.handleAddUserButtonClick}>
-                  {translate('quality_profiles.grant_permissions_to_more_users')}
-                </Button>
-              </div>
-            </div>
-          )}
+    return (
+      <section aria-label={translate('permissions.page')}>
+        <div className="sw-mb-6">
+          <SubTitle className="sw-mb-0">{translate('permissions.page')}</SubTitle>
+          <Note as="p">{translate('quality_profiles.default_permissions')}</Note>
         </div>
+
+        <Spinner loading={loading}>
+          <ul className="sw-flex sw-flex-col sw-gap-4 sw-max-w-[238px]">
+            {this.state.users &&
+              sortBy(this.state.users, 'name').map((user) => (
+                <ProfilePermissionsUser
+                  key={user.login}
+                  onDelete={this.handleUserDelete}
+                  profile={this.props.profile}
+                  user={user}
+                />
+              ))}
+            {this.state.groups &&
+              sortBy(this.state.groups, 'name').map((group) => (
+                <ProfilePermissionsGroup
+                  group={group}
+                  key={group.name}
+                  onDelete={this.handleGroupDelete}
+                  profile={this.props.profile}
+                />
+              ))}
+          </ul>
+          <div className="sw-mt-6">
+            <ButtonSecondary onClick={this.handleAddUserButtonClick}>
+              {translate('quality_profiles.grant_permissions_to_more_users')}
+            </ButtonSecondary>
+          </div>
+        </Spinner>
 
         {this.state.addUserForm && (
           <ProfilePermissionsForm

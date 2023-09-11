@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link, SubTitle } from 'design-system';
 import * as React from 'react';
 import { getQualityProfileExporterUrl } from '../../../api/quality-profiles';
-import Link from '../../../components/common/Link';
-import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { Exporter, Profile } from '../types';
 
@@ -37,29 +36,17 @@ export default function ProfileExporters({ exporters, profile }: Props) {
   }
 
   return (
-    <section
-      aria-label={translate('quality_profiles.exporters')}
-      className="boxed-group quality-profile-exporters"
-    >
-      <h2>{translate('quality_profiles.exporters')}</h2>
-      <div className="boxed-group-inner">
-        <Alert className="big-spacer-bottom" variant="warning">
-          {translate('quality_profiles.exporters.deprecated')}
-        </Alert>
-        <ul>
-          {exportersForLanguage.map((exporter, index) => (
-            <li
-              className={index > 0 ? 'spacer-top' : undefined}
-              data-key={exporter.key}
-              key={exporter.key}
-            >
-              <Link to={getQualityProfileExporterUrl(exporter, profile)} target="_blank">
-                {exporter.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
+    <section aria-label={translate('quality_profiles.exporters')}>
+      <div>
+        <SubTitle>{translate('quality_profiles.exporters')}</SubTitle>
       </div>
+      <ul className="sw-flex sw-flex-col sw-gap-2">
+        {exportersForLanguage.map((exporter) => (
+          <li data-key={exporter.key} key={exporter.key}>
+            <Link to={getQualityProfileExporterUrl(exporter, profile)}>{exporter.name}</Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

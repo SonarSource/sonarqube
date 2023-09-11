@@ -45,6 +45,7 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND = [
   '/project/issues',
   '/project/activity',
   '/code',
+  '/profiles/show',
   '/project/extension/securityreport/securityreport',
   '/projects',
   '/project/information',

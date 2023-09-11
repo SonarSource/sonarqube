@@ -17,48 +17,65 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, Link, Note, NumericalCell, TableRow } from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
+import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import { isDefined } from '../../../helpers/types';
 import { getRulesUrl } from '../../../helpers/urls';
+import { MetricType } from '../../../types/metrics';
 
 interface Props {
   count: number | null;
   qprofile: string;
   total: number | null;
+  type?: string;
 }
 
-export default function ProfileRulesRowTotal(props: Props) {
-  const activeRulesUrl = getRulesUrl({ qprofile: props.qprofile, activation: 'true' });
-  const inactiveRulesUrl = getRulesUrl({ qprofile: props.qprofile, activation: 'false' });
+export default function ProfileRulesRowOfType(props: Props) {
+  const activeRulesUrl = getRulesUrl({
+    qprofile: props.qprofile,
+    activation: 'true',
+    types: props.type,
+  });
+  const inactiveRulesUrl = getRulesUrl({
+    qprofile: props.qprofile,
+    activation: 'false',
+    types: props.type,
+  });
   let inactiveCount = null;
   if (props.count != null && props.total != null) {
     inactiveCount = props.total - props.count;
   }
 
   return (
-    <tr>
-      <td>
-        <strong>{translate('total')}</strong>
-      </td>
-      <td className="thin nowrap text-right">
-        {props.count != null && (
-          <Link to={activeRulesUrl}>
-            <strong>{formatMeasure(props.count, 'SHORT_INT', null)}</strong>
-          </Link>
+    <TableRow>
+      <ContentCell>
+        {props.type ? (
+          <>
+            <IssueTypeIcon className="sw-mr-1" query={props.type} />
+            {translate('issue.type', props.type, 'plural')}
+          </>
+        ) : (
+          translate('total')
         )}
-      </td>
-      <td className="thin nowrap text-right">
-        {inactiveCount != null &&
+      </ContentCell>
+      <NumericalCell>
+        {isDefined(props.count) && (
+          <Link to={activeRulesUrl}>{formatMeasure(props.count, MetricType.ShortInteger)}</Link>
+        )}
+      </NumericalCell>
+      <NumericalCell>
+        {isDefined(inactiveCount) &&
           (inactiveCount > 0 ? (
-            <Link className="small" to={inactiveRulesUrl}>
-              <strong>{formatMeasure(inactiveCount, 'SHORT_INT', null)}</strong>
+            <Link to={inactiveRulesUrl}>
+              {formatMeasure(inactiveCount, MetricType.ShortInteger)}
             </Link>
           ) : (
-            <span className="note">0</span>
+            <Note>0</Note>
           ))}
-      </td>
-    </tr>
+      </NumericalCell>
+    </TableRow>
   );
 }

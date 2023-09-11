@@ -143,10 +143,11 @@ interface ActionsDropdownProps extends Omit<Props, 'children' | 'overlay'> {
   ariaLabel?: string;
   buttonSize?: 'small' | 'medium';
   children: React.ReactNode;
+  toggleClassName?: string;
 }
 
 export function ActionsDropdown(props: ActionsDropdownProps) {
-  const { children, buttonSize, ariaLabel, ...dropdownProps } = props;
+  const { children, buttonSize, ariaLabel, toggleClassName, ...dropdownProps } = props;
 
   const intl = useIntl();
 
@@ -155,6 +156,7 @@ export function ActionsDropdown(props: ActionsDropdownProps) {
       <InteractiveIcon
         Icon={MenuIcon}
         aria-label={ariaLabel ?? intl.formatMessage({ id: 'menu' })}
+        className={toggleClassName}
         size={buttonSize}
         stopPropagation={false}
       />

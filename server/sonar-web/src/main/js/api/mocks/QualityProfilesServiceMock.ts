@@ -54,6 +54,7 @@ import {
   getProfileInheritance,
   getProfileProjects,
   getQualityProfile,
+  getQualityProfileExporterUrl,
   removeGroup,
   removeUser,
   renameProfile,
@@ -119,6 +120,9 @@ export default class QualityProfilesServiceMock {
     jest.mocked(deleteProfile).mockImplementation(this.handleDeleteProfile);
     jest.mocked(renameProfile).mockImplementation(this.handleRenameProfile);
     jest.mocked(setDefaultProfile).mockImplementation(this.handleSetDefaultProfile);
+    jest
+      .mocked(getQualityProfileExporterUrl)
+      .mockImplementation(() => '/api/qualityprofiles/export');
   }
 
   resetQualityProfile() {

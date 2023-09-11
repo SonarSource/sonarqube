@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
+import { FlagMessage, themeColor } from 'design-system';
 import * as React from 'react';
-import { Alert } from '../../../components/ui/Alert';
 import { translate } from '../../../helpers/l10n';
 import { withQualityProfilesContext } from '../qualityProfilesContext';
 import { Exporter, Profile } from '../types';
@@ -39,23 +40,18 @@ function ProfileDetails(props: ProfileDetailsProps) {
   const { profile, profiles, exporters } = props;
 
   return (
-    <div>
-      <div className="quality-profile-grid">
-        <div className="quality-profile-grid-left">
-          <ProfileRules profile={profile} />
-          <ProfileExporters exporters={exporters} profile={profile} />
-          {profile.actions?.edit && !profile.isBuiltIn && <ProfilePermissions profile={profile} />}
-        </div>
-        <div className="quality-profile-grid-right">
+    <ContentWrapper>
+      <div className="sw-grid sw-grid-cols-3 sw-gap-12">
+        <div className="sw-col-span-2 sw-flex sw-flex-col sw-gap-12">
           {profile.activeRuleCount === 0 && (profile.projectCount || profile.isDefault) && (
-            <Alert className="big-spacer-bottom" variant="warning">
+            <FlagMessage variant="warning">
               {profile.projectCount !== undefined &&
                 profile.projectCount > 0 &&
                 translate('quality_profiles.warning.used_by_projects_no_rules')}
               {!profile.projectCount &&
                 profile.isDefault &&
                 translate('quality_profiles.warning.is_default_no_rules')}
-            </Alert>
+            </FlagMessage>
           )}
 
           <ProfileInheritance
@@ -64,10 +60,19 @@ function ProfileDetails(props: ProfileDetailsProps) {
             updateProfiles={props.updateProfiles}
           />
           <ProfileProjects profile={profile} />
+          {profile.actions?.edit && !profile.isBuiltIn && <ProfilePermissions profile={profile} />}
+        </div>
+        <div className="sw-flex sw-flex-col sw-gap-12">
+          <ProfileRules profile={profile} />
+          <ProfileExporters exporters={exporters} profile={profile} />
         </div>
       </div>
-    </div>
+    </ContentWrapper>
   );
 }
+
+const ContentWrapper = styled.div`
+  color: ${themeColor('pageContent')};
+`;
 
 export default withQualityProfilesContext(ProfileDetails);

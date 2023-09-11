@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, Spinner } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Outlet } from 'react-router-dom';
@@ -91,15 +92,15 @@ export class QualityProfilesApp extends React.PureComponent<Props, State> {
     const { actions, loading, profiles, exporters } = this.state;
 
     if (loading) {
-      return <i className="spinner" />;
+      return <Spinner />;
     }
     const finalLanguages = Object.values(this.props.languages);
 
     const context: QualityProfilesContextProps = {
-      actions: actions || {},
-      profiles: profiles || [],
+      actions: actions ?? {},
+      profiles: profiles ?? [],
       languages: finalLanguages,
-      exporters: exporters || [],
+      exporters: exporters ?? [],
       updateProfiles: this.updateProfiles,
     };
 
@@ -108,12 +109,12 @@ export class QualityProfilesApp extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <div className="page page-limited">
+      <LargeCenteredLayout className="sw-my-8">
         <Suggestions suggestions="quality_profiles" />
         <Helmet defer={false} title={translate('quality_profiles.page')} />
 
         {this.renderChild()}
-      </div>
+      </LargeCenteredLayout>
     );
   }
 }

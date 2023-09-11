@@ -65,12 +65,6 @@
   background-color: var(--alertBackgroundError);
 }
 
-.quality-profile-rules-sonarway-missing {
-  margin-top: 20px;
-  padding: 15px 20px;
-  background-color: var(--alertBackgroundWarning);
-}
-
 .quality-profile-not-found {
   padding-top: 100px;
   text-align: center;

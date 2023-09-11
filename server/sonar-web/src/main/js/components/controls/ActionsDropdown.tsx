@@ -24,9 +24,9 @@ import Link from '../common/Link';
 import DropdownIcon from '../icons/DropdownIcon';
 import SettingsIcon from '../icons/SettingsIcon';
 import { PopupPlacement } from '../ui/popups';
-import { Button, ButtonPlain } from './buttons';
 import Dropdown from './Dropdown';
 import Tooltip, { Placement } from './Tooltip';
+import { Button, ButtonPlain } from './buttons';
 
 export interface ActionsDropdownProps {
   className?: string;

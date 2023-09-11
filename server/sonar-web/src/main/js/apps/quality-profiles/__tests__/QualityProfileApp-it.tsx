@@ -29,6 +29,10 @@ import routes from '../routes';
 jest.mock('../../../api/quality-profiles');
 jest.mock('../../../api/rules');
 
+beforeEach(() => {
+  serviceMock.reset();
+});
+
 const serviceMock = new QualityProfilesServiceMock();
 const ui = {
   permissionSection: byRole('region', { name: 'permissions.page' }),
@@ -55,16 +59,16 @@ const ui = {
     name: /quality_profiles.actions/,
   }),
   qualityProfilesHeader: byRole('heading', { name: 'quality_profiles.page' }),
-  deleteQualityProfileButton: byRole('button', { name: 'delete' }),
+  deleteQualityProfileButton: byRole('menuitem', { name: 'delete' }),
   activateMoreRulesButton: byRole('button', { name: 'quality_profiles.activate_more' }),
   activateMoreLink: byRole('link', { name: 'quality_profiles.activate_more' }),
-  activateMoreRulesLink: byRole('link', { name: 'quality_profiles.activate_more_rules' }),
-  backUpLink: byRole('link', { name: 'backup_verb' }),
-  compareLink: byRole('link', { name: 'compare' }),
-  extendButton: byRole('button', { name: 'extend' }),
-  copyButton: byRole('button', { name: 'copy' }),
-  renameButton: byRole('button', { name: 'rename' }),
-  setAsDefaultButton: byRole('button', { name: 'set_as_default' }),
+  activateMoreRulesLink: byRole('menuitem', { name: 'quality_profiles.activate_more_rules' }),
+  backUpLink: byRole('menuitem', { name: 'backup_verb' }),
+  compareLink: byRole('menuitem', { name: 'compare' }),
+  extendButton: byRole('menuitem', { name: 'extend' }),
+  copyButton: byRole('menuitem', { name: 'copy' }),
+  renameButton: byRole('menuitem', { name: 'rename' }),
+  setAsDefaultButton: byRole('menuitem', { name: 'set_as_default' }),
   newNameInput: byRole('textbox', { name: /quality_profiles.new_name/ }),
   qualityProfilePageLink: byRole('link', { name: 'quality_profiles.page' }),
   rulesTotalRow: byRole('row', { name: /total/ }),
@@ -77,10 +81,6 @@ const ui = {
   rulesDeprecatedWarning: byText('quality_profiles.deprecated_rules_description'),
   rulesDeprecatedLink: byRole('link', { name: '8' }),
 };
-
-beforeEach(() => {
-  serviceMock.reset();
-});
 
 describe('Admin or user with permission', () => {
   beforeEach(() => {
@@ -210,7 +210,7 @@ describe('Admin or user with permission', () => {
       renderQualityProfile('sonar');
       expect(await ui.rulesSection.find()).toBeInTheDocument();
       expect(ui.activateMoreRulesButton.get()).toBeInTheDocument();
-      expect(ui.activateMoreRulesButton.get()).toHaveClass('disabled');
+      expect(ui.activateMoreRulesButton.get()).toBeDisabled();
     });
   });
 
@@ -282,7 +282,7 @@ describe('Admin or user with permission', () => {
       expect(ui.dialog.query()).not.toBeInTheDocument();
 
       expect(screen.getAllByText('Bad new PHP quality profile')).toHaveLength(2);
-      expect(screen.getAllByText('Good old PHP quality profile')).toHaveLength(2);
+      expect(screen.getByText('Good old PHP quality profile')).toBeInTheDocument();
     });
 
     it('should be able to copy a quality profile', async () => {
@@ -437,7 +437,7 @@ describe('Every Users', () => {
   it('should be able to see a warning when some rules are deprecated', async () => {
     renderQualityProfile();
 
-    expect(await ui.rulesDeprecatedWarning.findAll()).toHaveLength(2);
+    expect(await ui.rulesDeprecatedWarning.findAll()).toHaveLength(1);
     expect(ui.rulesDeprecatedLink.get()).toBeInTheDocument();
     expect(ui.rulesDeprecatedLink.get()).toHaveAttribute(
       'href',

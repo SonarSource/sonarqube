@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Avatar, DestructiveIcon, Note, TrashIcon } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { removeUser } from '../../../api/quality-profiles';
 import SimpleModal, { ChildrenProps } from '../../../components/controls/SimpleModal';
-import { DeleteButton, ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import LegacyAvatar from '../../../components/ui/LegacyAvatar';
+import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { UserSelected } from '../../../types/types';
 
@@ -105,25 +105,22 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
     const { user } = this.props;
 
     return (
-      <div className="clearfix big-spacer-bottom">
-        <DeleteButton
+      <li className="sw-flex sw-items-center sw-justify-between sw-mb-4">
+        <div className="sw-flex sw-items-center sw-truncate">
+          <Avatar className="sw-mr-3 sw-grow-0 sw-shrink-0" hash={user.avatar} name={user.name} />
+          <div className="sw-truncate fs-mask">
+            <strong className="sw-body-sm-highlight">{user.name}</strong>
+            <Note className="sw-block">{user.login}</Note>
+          </div>
+        </div>
+        <DestructiveIcon
+          Icon={TrashIcon}
           aria-label={translateWithParameters(
             'quality_profiles.permissions.remove.user_x',
             user.name,
           )}
-          className="pull-right spacer-top spacer-left spacer-right button-small"
           onClick={this.handleDeleteClick}
         />
-        <LegacyAvatar
-          className="pull-left spacer-right"
-          hash={user.avatar}
-          name={user.name}
-          size={32}
-        />
-        <div className="overflow-hidden">
-          <strong>{user.name}</strong>
-          <div className="note">{user.login}</div>
-        </div>
 
         {this.state.deleteModal && (
           <SimpleModal
@@ -134,7 +131,7 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
             {this.renderDeleteModal}
           </SimpleModal>
         )}
-      </div>
+      </li>
     );
   }
 }

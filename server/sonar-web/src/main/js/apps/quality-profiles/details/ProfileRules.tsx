@@ -17,21 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonPrimary,
+  ContentCell,
+  NumericalCell,
+  SubTitle,
+  Table,
+  TableRow,
+} from 'design-system/lib';
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { getQualityProfile } from '../../../api/quality-profiles';
 import { searchRules } from '../../../api/rules';
-import Link from '../../../components/common/Link';
-import Tooltip from '../../../components/controls/Tooltip';
-import { Button } from '../../../components/controls/buttons';
+import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import { translate } from '../../../helpers/l10n';
+import { isDefined } from '../../../helpers/types';
 import { getRulesUrl } from '../../../helpers/urls';
 import { SearchRulesResponse } from '../../../types/coding-rules';
 import { Dict } from '../../../types/types';
 import { Profile } from '../types';
 import ProfileRulesDeprecatedWarning from './ProfileRulesDeprecatedWarning';
-import ProfileRulesRowOfType from './ProfileRulesRowOfType';
-import ProfileRulesRowTotal from './ProfileRulesRowTotal';
+import ProfileRulesRow from './ProfileRulesRow';
 import ProfileRulesSonarWayComparison from './ProfileRulesSonarWayComparison';
 
 const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
@@ -153,71 +159,74 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
     const { actions = {} } = profile;
 
     return (
-      <section aria-label={translate('rules')} className="boxed-group quality-profile-rules">
-        <div className="quality-profile-rules-distribution">
-          <table className="data condensed">
-            <thead>
-              <tr>
-                <th>
-                  <h2>{translate('rules')}</h2>
-                </th>
-                <th>{translate('active')}</th>
-                <th>{translate('inactive')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <ProfileRulesRowTotal
-                count={this.state.activatedTotal}
-                qprofile={profile.key}
-                total={this.state.total}
-              />
-              {TYPES.map((type) => (
-                <ProfileRulesRowOfType
-                  count={this.getRulesCountForType(type)}
-                  key={type}
-                  qprofile={profile.key}
-                  total={this.getRulesTotalForType(type)}
-                  type={type}
-                />
-              ))}
-            </tbody>
-          </table>
+      <section aria-label={translate('rules')} className="it__quality-profiles__rules">
+        <Table
+          columnCount={3}
+          columnWidths={['50%', '25%', '25%']}
+          header={
+            <TableRow>
+              <ContentCell>
+                <SubTitle className="sw-mb-0">{translate('rules')}</SubTitle>
+              </ContentCell>
+              <NumericalCell>{translate('active')}</NumericalCell>
+              <NumericalCell>{translate('inactive')}</NumericalCell>
+            </TableRow>
+          }
+          noHeaderTopBorder
+          noSidePadding
+        >
+          <ProfileRulesRow
+            count={this.state.activatedTotal}
+            qprofile={profile.key}
+            total={this.state.total}
+          />
+          {TYPES.map((type) => (
+            <ProfileRulesRow
+              count={this.state.activatedByType[type]?.count}
+              key={type}
+              qprofile={profile.key}
+              total={this.state.allByType[type]?.count}
+              type={type}
+            />
+          ))}
+        </Table>
+
+        <div className="sw-mt-6 sw-flex sw-flex-col sw-gap-4 sw-items-start">
+          {profile.activeDeprecatedRuleCount > 0 && (
+            <ProfileRulesDeprecatedWarning
+              activeDeprecatedRules={profile.activeDeprecatedRuleCount}
+              profile={profile.key}
+            />
+          )}
+
+          {isDefined(compareToSonarWay) && compareToSonarWay.missingRuleCount > 0 && (
+            <ProfileRulesSonarWayComparison
+              language={profile.language}
+              profile={profile.key}
+              sonarWayMissingRules={compareToSonarWay.missingRuleCount}
+              sonarway={compareToSonarWay.profile}
+            />
+          )}
 
           {actions.edit && !profile.isBuiltIn && (
-            <div className="text-right big-spacer-top">
-              <Link className="button js-activate-rules" to={activateMoreUrl}>
-                {translate('quality_profiles.activate_more')}
-              </Link>
-            </div>
+            <ButtonPrimary className="it__quality-profiles__activate-rules" to={activateMoreUrl}>
+              {translate('quality_profiles.activate_more')}
+            </ButtonPrimary>
           )}
 
           {/* if a user is allowed to `copy` a profile if they are a global admin */}
-          {/* this user could potentially active more rules if the profile was not built-in */}
+          {/* this user could potentially activate more rules if the profile was not built-in */}
           {/* in such cases it's better to show the button but disable it with a tooltip */}
           {actions.copy && profile.isBuiltIn && (
-            <div className="text-right big-spacer-top">
-              <Tooltip overlay={translate('quality_profiles.activate_more.help.built_in')}>
-                <Button className="disabled js-activate-rules">
-                  {translate('quality_profiles.activate_more')}
-                </Button>
-              </Tooltip>
-            </div>
+            <DocumentationTooltip
+              content={translate('quality_profiles.activate_more.help.built_in')}
+            >
+              <ButtonPrimary className="it__quality-profiles__activate-rules" disabled>
+                {translate('quality_profiles.activate_more')}
+              </ButtonPrimary>
+            </DocumentationTooltip>
           )}
         </div>
-        {profile.activeDeprecatedRuleCount > 0 && (
-          <ProfileRulesDeprecatedWarning
-            activeDeprecatedRules={profile.activeDeprecatedRuleCount}
-            profile={profile.key}
-          />
-        )}
-        {compareToSonarWay != null && compareToSonarWay.missingRuleCount > 0 && (
-          <ProfileRulesSonarWayComparison
-            language={profile.language}
-            profile={profile.key}
-            sonarWayMissingRules={compareToSonarWay.missingRuleCount}
-            sonarway={compareToSonarWay.profile}
-          />
-        )}
       </section>
     );
   }

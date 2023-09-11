@@ -17,21 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { StandoutLink } from 'design-system';
-import * as React from 'react';
-import { getProfilePath } from '../utils';
+import { PeopleIcon } from '@primer/octicons-react';
+import { OcticonHoc } from './Icon';
 
-interface Props {
-  className?: string;
-  children?: React.ReactElement<any> | string;
-  language: string;
-  name: string;
-}
-
-export default function ProfileLink({ name, language, children, ...other }: Props) {
-  return (
-    <StandoutLink to={getProfilePath(name, language)} {...other}>
-      {children}
-    </StandoutLink>
-  );
-}
+export const UserGroupIcon = OcticonHoc(PeopleIcon, 'UserGroupIcon');

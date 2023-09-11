@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, HelperHintIcon, Link } from 'design-system';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
+import { FormattedMessage } from 'react-intl';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
@@ -30,17 +31,24 @@ interface Props {
 
 export default function ProfileRulesDeprecatedWarning(props: Props) {
   return (
-    <div className="quality-profile-rules-deprecated clearfix">
-      <span className="pull-left">
-        <span className="text-middle">{translate('quality_profiles.deprecated_rules')}</span>
-        <HelpTooltip
-          className="spacer-left"
-          overlay={translate('quality_profiles.deprecated_rules_description')}
+    <FlagMessage variant="warning">
+      <div className="sw-flex sw-gap-1">
+        <FormattedMessage
+          defaultMessage={translate('quality_profiles.x_deprecated_rules')}
+          id="quality_profiles.x_deprecated_rules"
+          values={{
+            count: props.activeDeprecatedRules,
+            linkCount: (
+              <Link to={getDeprecatedActiveRulesUrl({ qprofile: props.profile })}>
+                {props.activeDeprecatedRules}
+              </Link>
+            ),
+          }}
         />
-      </span>
-      <Link className="pull-right" to={getDeprecatedActiveRulesUrl({ qprofile: props.profile })}>
-        {props.activeDeprecatedRules}
-      </Link>
-    </div>
+        <HelpTooltip overlay={translate('quality_profiles.deprecated_rules_description')}>
+          <HelperHintIcon aria-label="help-tooltip" />
+        </HelpTooltip>
+      </div>
+    </FlagMessage>
   );
 }

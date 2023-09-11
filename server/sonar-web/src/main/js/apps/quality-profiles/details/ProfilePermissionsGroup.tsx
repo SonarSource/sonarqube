@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DestructiveIcon, GenericAvatar, TrashIcon, UserGroupIcon } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { removeGroup } from '../../../api/quality-profiles';
 import SimpleModal, { ChildrenProps } from '../../../components/controls/SimpleModal';
-import { Button, DeleteButton, ResetButtonLink } from '../../../components/controls/buttons';
-import GroupIcon from '../../../components/icons/GroupIcon';
+import { Button, ResetButtonLink } from '../../../components/controls/buttons';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Group } from './ProfilePermissions';
 
@@ -101,19 +101,23 @@ export default class ProfilePermissionsGroup extends React.PureComponent<Props, 
     const { group } = this.props;
 
     return (
-      <div className="clearfix big-spacer-bottom">
-        <DeleteButton
+      <li className="sw-flex sw-items-center sw-justify-between sw-mb-4">
+        <div className="sw-flex sw-items-center sw-truncate">
+          <GenericAvatar
+            Icon={UserGroupIcon}
+            className="sw-mr-3 sw-grow-0 sw-shrink-0"
+            name={group.name}
+          />
+          <strong className="sw-body-sm-highlight sw-truncate fs-mask">{group.name}</strong>
+        </div>
+        <DestructiveIcon
+          Icon={TrashIcon}
           aria-label={translateWithParameters(
             'quality_profiles.permissions.remove.group_x',
             group.name,
           )}
-          className="pull-right spacer-top spacer-left spacer-right button-small"
           onClick={this.handleDeleteClick}
         />
-        <GroupIcon className="pull-left spacer-right" size={32} />
-        <div className="overflow-hidden" style={{ lineHeight: '32px' }}>
-          <strong>{group.name}</strong>
-        </div>
 
         {this.state.deleteModal && (
           <SimpleModal
@@ -124,7 +128,7 @@ export default class ProfilePermissionsGroup extends React.PureComponent<Props, 
             {this.renderDeleteModal}
           </SimpleModal>
         )}
-      </div>
+      </li>
     );
   }
 }
