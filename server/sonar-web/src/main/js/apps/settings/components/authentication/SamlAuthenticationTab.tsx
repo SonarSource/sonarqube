@@ -182,8 +182,19 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
                   {translate('settings.authentication.form.provisioning')}
                 </label>
                 {samlEnabled ? (
-                  <div className="display-flex-row spacer-top">
+                  <div className="display-flex-column spacer-top">
                     <RadioCard
+                      label={translate('settings.authentication.saml.form.provisioning_at_login')}
+                      title={translate('settings.authentication.saml.form.provisioning_at_login')}
+                      selected={!(newScimStatus ?? scimStatus)}
+                      onClick={() => setNewScimStatus(false)}
+                    >
+                      <p>
+                        {translate('settings.authentication.saml.form.provisioning_at_login.sub')}
+                      </p>
+                    </RadioCard>
+                    <RadioCard
+                      className="spacer-top"
                       label={translate('settings.authentication.saml.form.provisioning_with_scim')}
                       title={translate('settings.authentication.saml.form.provisioning_with_scim')}
                       selected={newScimStatus ?? scimStatus}
@@ -194,9 +205,6 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
                         <p>
                           <FormattedMessage
                             id="settings.authentication.saml.form.provisioning.disabled"
-                            defaultMessage={translate(
-                              'settings.authentication.saml.form.provisioning.disabled'
-                            )}
                             values={{
                               documentation: (
                                 <DocLink to="/instance-administration/authentication/saml/scim/overview">
@@ -213,12 +221,12 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
                               {translate('settings.authentication.form.other_provisioning_enabled')}
                             </p>
                           )}
-                          <p className="spacer-bottom">
+                          <p className="spacer-bottom ">
                             {translate(
                               'settings.authentication.saml.form.provisioning_with_scim.sub'
                             )}
                           </p>
-                          <p className="spacer-bottom">
+                          <p className="spacer-bottom ">
                             {translate(
                               'settings.authentication.saml.form.provisioning_with_scim.description'
                             )}
@@ -240,16 +248,6 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
                           </p>
                         </>
                       )}
-                    </RadioCard>
-                    <RadioCard
-                      label={translate('settings.authentication.saml.form.provisioning_at_login')}
-                      title={translate('settings.authentication.saml.form.provisioning_at_login')}
-                      selected={!(newScimStatus ?? scimStatus)}
-                      onClick={() => setNewScimStatus(false)}
-                    >
-                      <p>
-                        {translate('settings.authentication.saml.form.provisioning_at_login.sub')}
-                      </p>
                     </RadioCard>
                   </div>
                 ) : (

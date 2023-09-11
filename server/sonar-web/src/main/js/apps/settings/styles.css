@@ -248,7 +248,8 @@
 }
 
 .authentication-configuration .radio-card {
-  width: 50%;
+  width: 100%;
+  min-height: 250px;
   background-color: var(--neutral50);
   border: 1px solid var(--neutral200);
 }
@@ -266,10 +267,6 @@
   justify-content: space-between;
 }
 
-.authentication-configuration .radio-card-header {
-  justify-content: space-around;
-}
-
 .authentication-configuration .radio-card-body {
   justify-content: flex-start;
 }
@@ -279,7 +276,6 @@
 }
 
 .authentication-configuration .settings-definition-right {
-  display: flex;
-  align-items: center;
-  width: 50%;
+  align-items: end;
+  width: 20%;
 }

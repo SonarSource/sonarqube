@@ -48,11 +48,7 @@ interface GithubAuthenticationProps {
   currentTab: AuthenticationTabs;
 }
 
-const GITHUB_EXCLUDED_FIELD = [
-  'sonar.auth.github.enabled',
-  'sonar.auth.github.groupsSync',
-  'sonar.auth.github.allowUsersToSignUp',
-];
+const GITHUB_EXCLUDED_FIELD = ['sonar.auth.github.enabled', 'sonar.auth.github.allowUsersToSignUp'];
 
 export default function GithubAuthenticationTab(props: GithubAuthenticationProps) {
   const { definitions, currentTab } = props;
@@ -187,8 +183,58 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                 </label>
 
                 {enabled ? (
-                  <div className="display-flex-row spacer-top">
+                  <div className="display-flex-column spacer-top">
                     <RadioCard
+                      label={translate('settings.authentication.form.provisioning_at_login')}
+                      title={translate('settings.authentication.form.provisioning_at_login')}
+                      selected={!(newGithubProvisioningStatus ?? githubProvisioningStatus)}
+                      onClick={() => setNewGithubProvisioningStatus(false)}
+                    >
+                      <p className="spacer-bottom">
+                        <FormattedMessage id="settings.authentication.github.form.provisioning_at_login.description" />
+                      </p>
+                      <p className="spacer-bottom">
+                        <FormattedMessage
+                          id="settings.authentication.github.form.description.doc"
+                          tagName="p"
+                          values={{
+                            documentation: (
+                              <DocLink
+                                to={`/instance-administration/authentication/${
+                                  DOCUMENTATION_LINK_SUFFIXES[AlmKeys.GitHub]
+                                }/`}
+                              >
+                                {translate('documentation')}
+                              </DocLink>
+                            ),
+                          }}
+                        />
+                      </p>
+
+                      {!(newGithubProvisioningStatus ?? githubProvisioningStatus) && (
+                        <>
+                          <hr />
+                          {Object.values(values).map((val) => {
+                            if (!GITHUB_JIT_FIELDS.includes(val.key)) {
+                              return null;
+                            }
+                            return (
+                              <div key={val.key}>
+                                <AuthenticationFormField
+                                  settingValue={values[val.key]?.newValue ?? values[val.key]?.value}
+                                  definition={val.definition}
+                                  mandatory={val.mandatory}
+                                  onFieldChange={setNewValue}
+                                  isNotSet={val.isNotSet}
+                                />
+                              </div>
+                            );
+                          })}
+                        </>
+                      )}
+                    </RadioCard>
+                    <RadioCard
+                      className="spacer-top"
                       label={translate(
                         'settings.authentication.github.form.provisioning_with_github'
                       )}
@@ -202,7 +248,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                       {hasGithubProvisioning ? (
                         <>
                           {hasDifferentProvider && (
-                            <p className="spacer-bottom text-bold">
+                            <p className="spacer-bottom text-bold ">
                               {translate('settings.authentication.form.other_provisioning_enabled')}
                             </p>
                           )}
@@ -213,10 +259,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                           </p>
                           <p className="spacer-bottom">
                             <FormattedMessage
-                              id="settings.authentication.github.form.provisioning_with_github.description.doc"
-                              defaultMessage={translate(
-                                'settings.authentication.github.form.provisioning_with_github.description.doc'
-                              )}
+                              id="settings.authentication.github.form.description.doc"
                               values={{
                                 documentation: (
                                   <DocLink
@@ -230,8 +273,10 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                               }}
                             />
                           </p>
+
                           {githubProvisioningStatus && <GitHubSynchronisationWarning />}
-                          <div className="sw-flex sw-flex-1 sw-items-end">
+
+                          <div className="sw-flex sw-flex-1">
                             <Button
                               className="spacer-top width-30"
                               onClick={synchronizeNow}
@@ -259,29 +304,6 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                           />
                         </p>
                       )}
-                    </RadioCard>
-                    <RadioCard
-                      label={translate('settings.authentication.form.provisioning_at_login')}
-                      title={translate('settings.authentication.form.provisioning_at_login')}
-                      selected={!(newGithubProvisioningStatus ?? githubProvisioningStatus)}
-                      onClick={() => setNewGithubProvisioningStatus(false)}
-                    >
-                      {Object.values(values).map((val) => {
-                        if (!GITHUB_JIT_FIELDS.includes(val.key)) {
-                          return null;
-                        }
-                        return (
-                          <div key={val.key}>
-                            <AuthenticationFormField
-                              settingValue={values[val.key]?.newValue ?? values[val.key]?.value}
-                              definition={val.definition}
-                              mandatory={val.mandatory}
-                              onFieldChange={setNewValue}
-                              isNotSet={val.isNotSet}
-                            />
-                          </div>
-                        );
-                      })}
                     </RadioCard>
                   </div>
                 ) : (

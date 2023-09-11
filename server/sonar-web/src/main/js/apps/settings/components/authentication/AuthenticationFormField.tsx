@@ -23,7 +23,7 @@ import ValidationInput, {
 } from '../../../../components/controls/ValidationInput';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import { ExtendedSettingDefinition, SettingType } from '../../../../types/settings';
-import { isSecuredDefinition } from '../../utils';
+import { getPropertyDescription, getPropertyName, isSecuredDefinition } from '../../utils';
 import AuthenticationMultiValueField from './AuthenticationMultiValuesField';
 import AuthenticationSecuredField from './AuthenticationSecuredField';
 import AuthenticationToggleField from './AuthenticationToggleField';
@@ -40,16 +40,17 @@ interface SamlToggleFieldProps {
 export default function AuthenticationFormField(props: SamlToggleFieldProps) {
   const { mandatory = false, definition, settingValue, isNotSet, error } = props;
 
+  const name = getPropertyName(definition);
+  const description = getPropertyDescription(definition);
+
   return (
     <div className="settings-definition">
       <div className="settings-definition-left">
         <label className="h3" htmlFor={definition.key}>
-          {definition.name}
+          {name}
         </label>
         {mandatory && <MandatoryFieldMarker />}
-        {definition.description && (
-          <div className="markdown small spacer-top">{definition.description}</div>
-        )}
+        {definition.description && <div className="markdown small spacer-top">{description}</div>}
       </div>
       <div className="settings-definition-right big-padded-top display-flex-column">
         {definition.multiValues && (

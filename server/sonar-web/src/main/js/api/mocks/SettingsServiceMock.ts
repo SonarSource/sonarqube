@@ -20,6 +20,7 @@
 import { cloneDeep, isArray, isObject, isString } from 'lodash';
 import { HousekeepingPolicy } from '../../apps/audit-logs/utils';
 import { mockDefinition, mockSettingFieldDefinition } from '../../helpers/mocks/settings';
+import { isDefined } from '../../helpers/types';
 import { BranchParameters } from '../../types/branch-like';
 import {
   ExtendedSettingDefinition,
@@ -101,6 +102,15 @@ export const DEFAULT_DEFINITIONS_MOCK = [
       mockSettingFieldDefinition({ key: 'value', name: 'Value' }),
     ],
   }),
+  mockDefinition({
+    category: 'authentication',
+    defaultValue: 'true',
+    key: 'sonar.auth.github.allowUsersToSignUp',
+    subCategory: 'github',
+    name: 'Compilation Constants',
+    description: 'Lets do it',
+    type: SettingType.BOOLEAN,
+  }),
 ];
 
 export default class SettingsServiceMock {
@@ -140,7 +150,17 @@ export default class SettingsServiceMock {
   };
 
   handleGetValues = (data: { keys: string[]; component?: string } & BranchParameters) => {
-    const settings = this.#settingValues.filter((s) => data.keys.includes(s.key));
+    const settings = data.keys
+      .map((k) => {
+        const def = this.#definitions.find((d) => d.key === k);
+        const v = this.#settingValues.find((s) => s.key === k);
+        if (v === undefined && def?.type === SettingType.BOOLEAN) {
+          return { key: k, value: def.defaultValue, inherited: true };
+        }
+        return v;
+      })
+      .filter(isDefined);
+
     return this.reply(settings);
   };
 
@@ -185,7 +205,7 @@ export default class SettingsServiceMock {
       setting.fieldValues = [];
     } else if (definition.multiValues === true) {
       setting.values = definition.defaultValue?.split(',') ?? [];
-    } else {
+    } else if (setting) {
       setting.value = definition.defaultValue ?? '';
     }
 

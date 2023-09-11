@@ -83,12 +83,14 @@ const ui = {
   saml: {
     noSamlConfiguration: byText('settings.authentication.saml.form.not_configured'),
     createConfigButton: byRole('button', { name: 'settings.authentication.form.create' }),
-    providerName: byRole('textbox', { name: 'Provider Name' }),
-    providerId: byRole('textbox', { name: 'Provider ID' }),
-    providerCertificate: byRole('textbox', { name: 'Identity provider certificate' }),
-    loginUrl: byRole('textbox', { name: 'SAML login url' }),
-    userLoginAttribute: byRole('textbox', { name: 'SAML user login attribute' }),
-    userNameAttribute: byRole('textbox', { name: 'SAML user name attribute' }),
+    providerName: byRole('textbox', { name: 'property.sonar.auth.saml.providerName.name' }),
+    providerId: byRole('textbox', { name: 'property.sonar.auth.saml.providerId.name' }),
+    providerCertificate: byRole('textbox', {
+      name: 'property.sonar.auth.saml.certificate.secured.name',
+    }),
+    loginUrl: byRole('textbox', { name: 'property.sonar.auth.saml.loginUrl.name' }),
+    userLoginAttribute: byRole('textbox', { name: 'property.sonar.auth.saml.user.login.name' }),
+    userNameAttribute: byRole('textbox', { name: 'property.sonar.auth.saml.user.name.name' }),
     saveConfigButton: byRole('button', { name: 'settings.almintegration.form.save' }),
     confirmProvisioningButton: byRole('button', { name: 'yes' }),
     saveScim: byRole('button', { name: 'save' }),
@@ -129,17 +131,16 @@ const ui = {
     tab: byRole('tab', { name: 'github GitHub' }),
     noGithubConfiguration: byText('settings.authentication.github.form.not_configured'),
     createConfigButton: byRole('button', { name: 'settings.authentication.form.create' }),
-    clientId: byRole('textbox', { name: 'Client ID' }),
-    clientSecret: byRole('textbox', { name: 'Client Secret' }),
-    githubAppId: byRole('textbox', { name: 'GitHub App ID' }), // not working
-    privateKey: byRole('textarea', { name: 'Private Key' }), // not working
-    githubApiUrl: byRole('textbox', { name: 'The API url for a GitHub instance.' }),
-    githubWebUrl: byRole('textbox', { name: 'The WEB url for a GitHub instance.' }),
+    clientId: byRole('textbox', { name: 'property.sonar.auth.github.clientId.secured.name' }),
+    clientSecret: byRole('textbox', {
+      name: 'property.sonar.auth.github.clientSecret.secured.name',
+    }),
+    githubApiUrl: byRole('textbox', { name: 'property.sonar.auth.github.apiUrl.name' }),
+    githubWebUrl: byRole('textbox', { name: 'property.sonar.auth.github.webUrl.name' }),
     allowUserToSignUp: byRole('switch', {
       name: 'sonar.auth.github.allowUsersToSignUp',
     }),
-    syncGroupsAsTeams: byRole('switch', { name: 'sonar.auth.github.groupsSync' }),
-    organizations: byRole('textbox', { name: 'Organizations' }),
+    organizations: byRole('textbox', { name: 'property.sonar.auth.github.organizations.name' }),
     saveConfigButton: byRole('button', { name: 'settings.almintegration.form.save' }),
     confirmProvisioningButton: byRole('button', { name: 'yes' }),
     saveGithubProvisioning: byRole('button', { name: 'save' }),
@@ -436,7 +437,6 @@ describe('Github tab', () => {
 
     expect(github.saveGithubProvisioning.get()).toBeDisabled();
     await user.click(github.allowUserToSignUp.get());
-    await user.click(github.syncGroupsAsTeams.get());
 
     expect(github.saveGithubProvisioning.get()).toBeEnabled();
     await user.click(github.saveGithubProvisioning.get());
