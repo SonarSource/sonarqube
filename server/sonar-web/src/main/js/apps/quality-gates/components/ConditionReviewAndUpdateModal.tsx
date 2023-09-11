@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, Link, Modal, SubHeading, Title } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { createCondition, updateCondition } from '../../../api/quality-gates';
-import DocLink from '../../../components/common/DocLink';
-import ConfirmModal from '../../../components/controls/ConfirmModal';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Condition, Dict, Metric, QualityGate } from '../../../types/types';
 import { getCorrectCaycCondition, getWeakMissingAndNonCaycConditions } from '../utils';
@@ -42,9 +42,31 @@ interface Props {
   qualityGate: QualityGate;
 }
 
-export default class CaycReviewUpdateConditionsModal extends React.PureComponent<Props> {
-  updateCaycQualityGate = () => {
-    const { conditions, qualityGate } = this.props;
+export default function CaycReviewUpdateConditionsModal(props: Props) {
+  const {
+    conditions,
+    qualityGate,
+    metrics,
+    onSaveCondition,
+    onAddCondition,
+    lockEditing,
+    onClose,
+  } = props;
+
+  const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
+  const sortedWeakConditions = sortBy(
+    weakConditions,
+    (condition) => metrics[condition.metric] && metrics[condition.metric].name
+  );
+
+  const sortedMissingConditions = sortBy(
+    missingConditions,
+    (condition) => metrics[condition.metric] && metrics[condition.metric].name
+  );
+
+  const getDocUrl = useDocUrl();
+
+  const updateCaycQualityGate = React.useCallback(() => {
     const promiseArr: Promise<Condition | undefined | void>[] = [];
     const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
 
@@ -57,10 +79,10 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
           .then((resultCondition) => {
             const currentCondition = conditions.find((con) => con.metric === condition.metric);
             if (currentCondition) {
-              this.props.onSaveCondition(resultCondition, currentCondition);
+              onSaveCondition(resultCondition, currentCondition);
             }
           })
-          .catch(() => undefined),
+          .catch(() => undefined)
       );
     });
 
@@ -70,95 +92,92 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
           ...getCorrectCaycCondition(condition),
           gateName: qualityGate.name,
         })
-          .then((resultCondition) => this.props.onAddCondition(resultCondition))
-          .catch(() => undefined),
+          .then((resultCondition) => onAddCondition(resultCondition))
+          .catch(() => undefined)
       );
     });
 
     return Promise.all(promiseArr).then(() => {
-      this.props.lockEditing();
+      lockEditing();
     });
-  };
+  }, [conditions, qualityGate, lockEditing, onAddCondition, onSaveCondition]);
 
-  render() {
-    const { conditions, qualityGate, metrics } = this.props;
+  const body = (
+    <div className="sw-mb-10">
+      <SubHeading as="p" className="sw-body-sm">
+        <FormattedMessage
+          id="quality_gates.cayc.review_update_modal.description1"
+          defaultMessage={translate('quality_gates.cayc.review_update_modal.description1')}
+          values={{
+            cayc_link: (
+              <Link to={getDocUrl('/user-guide/clean-as-you-code/')}>
+                {translate('quality_gates.cayc')}
+              </Link>
+            ),
+          }}
+        />
+      </SubHeading>
 
-    const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
-    const sortedWeakConditions = sortBy(
-      weakConditions,
-      (condition) => metrics[condition.metric]?.name,
-    );
+      {sortedMissingConditions.length > 0 && (
+        <>
+          <Title as="h4" className="sw-mb-2 sw-mt-4 sw-body-sm-highlight">
+            {translateWithParameters(
+              'quality_gates.cayc.review_update_modal.add_condition.header',
+              sortedMissingConditions.length
+            )}
+          </Title>
+          <ConditionsTable
+            {...props}
+            conditions={sortedMissingConditions}
+            showEdit={false}
+            isCaycModal
+          />
+        </>
+      )}
 
-    const sortedMissingConditions = sortBy(
-      missingConditions,
-      (condition) => metrics[condition.metric]?.name,
-    );
+      {sortedWeakConditions.length > 0 && (
+        <>
+          <Title as="h4" className="sw-mb-2 sw-mt-4 sw-body-sm-highlight">
+            {translateWithParameters(
+              'quality_gates.cayc.review_update_modal.modify_condition.header',
+              sortedWeakConditions.length
+            )}
+          </Title>
+          <ConditionsTable
+            {...props}
+            conditions={sortedWeakConditions}
+            showEdit={false}
+            isCaycModal
+          />
+        </>
+      )}
 
-    return (
-      <ConfirmModal
-        header={translateWithParameters(
-          'quality_gates.cayc.review_update_modal.header',
-          qualityGate.name,
-        )}
-        confirmButtonText={translate('quality_gates.cayc.review_update_modal.confirm_text')}
-        onClose={this.props.onClose}
-        onConfirm={this.updateCaycQualityGate}
-        size="medium"
-      >
-        <div className="quality-gate-section huge-spacer-bottom">
-          <p>
-            <FormattedMessage
-              id="quality_gates.cayc.review_update_modal.description1"
-              defaultMessage={translate('quality_gates.cayc.review_update_modal.description1')}
-              values={{
-                cayc_link: (
-                  <DocLink to="/user-guide/clean-as-you-code/">
-                    {translate('quality_gates.cayc')}
-                  </DocLink>
-                ),
-              }}
-            />
-          </p>
+      <Title as="h4" className="sw-mb-2 sw-mt-4 sw-body-sm-highlight">
+        {translate('quality_gates.cayc.review_update_modal.description2')}
+      </Title>
+    </div>
+  );
 
-          {sortedMissingConditions.length > 0 && (
-            <>
-              <h4 className="big-spacer-top spacer-bottom">
-                {translateWithParameters(
-                  'quality_gates.cayc.review_update_modal.add_condition.header',
-                  sortedMissingConditions.length,
-                )}
-              </h4>
-              <ConditionsTable
-                {...this.props}
-                conditions={sortedMissingConditions}
-                showEdit={false}
-                isCaycModal
-              />
-            </>
-          )}
-
-          {sortedWeakConditions.length > 0 && (
-            <>
-              <h4 className="big-spacer-top spacer-bottom">
-                {translateWithParameters(
-                  'quality_gates.cayc.review_update_modal.modify_condition.header',
-                  sortedWeakConditions.length,
-                )}
-              </h4>
-              <ConditionsTable
-                {...this.props}
-                conditions={sortedWeakConditions}
-                showEdit={false}
-                isCaycModal
-              />
-            </>
-          )}
-
-          <h4 className="big-spacer-top spacer-bottom">
-            {translate('quality_gates.cayc.review_update_modal.description2')}
-          </h4>
-        </div>
-      </ConfirmModal>
-    );
-  }
+  return (
+    <Modal
+      isLarge
+      headerTitle={translateWithParameters(
+        'quality_gates.cayc.review_update_modal.header',
+        qualityGate.name
+      )}
+      onClose={onClose}
+      body={body}
+      primaryButton={
+        <ButtonPrimary
+          autoFocus
+          id="fix-quality-gate"
+          type="submit"
+          onClick={updateCaycQualityGate}
+        >
+          {translate('quality_gates.cayc.review_update_modal.confirm_text')}
+        </ButtonPrimary>
+      }
+      secondaryButtonLabel={translate('close')}
+    />
+  );
 }

@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FlagMessage, FormField, Modal, RadioButton } from 'design-system';
 import * as React from 'react';
 import { createCondition, updateCondition } from '../../../api/quality-gates';
-import ConfirmModal from '../../../components/controls/ConfirmModal';
-import Radio from '../../../components/controls/Radio';
-import { Alert } from '../../../components/ui/Alert';
 import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 import { isDiffMetric } from '../../../helpers/measures';
 import { Condition, Metric, QualityGate } from '../../../types/types';
@@ -48,6 +46,8 @@ interface State {
   scope: 'new' | 'overall';
 }
 
+const ADD_CONDITION_MODAL_ID = 'add-condition-modal';
+
 export default class ConditionModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -64,7 +64,9 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     return Array.isArray(operators) ? undefined : operators;
   }
 
-  handleFormSubmit = () => {
+  handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     const { condition, qualityGate } = this.props;
     const newCondition: Omit<Condition, 'id'> = {
       metric: this.state.metric!.key,
@@ -74,7 +76,7 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     const submitPromise = condition
       ? updateCondition({ id: condition.id, ...newCondition })
       : createCondition({ gateName: qualityGate.name, ...newCondition });
-    return submitPromise.then(this.props.onAddCondition);
+    return submitPromise.then(this.props.onAddCondition).then(this.props.onClose);
   };
 
   handleScopeChange = (scope: 'new' | 'overall') => {
@@ -104,44 +106,43 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
     this.setState({ error });
   };
 
-  render() {
-    const { header, metrics, onClose } = this.props;
-    const { op, error, scope, metric } = this.state;
-    return (
-      <ConfirmModal
-        confirmButtonText={header}
-        confirmDisable={metric === undefined}
-        header={header}
-        onClose={onClose}
-        onConfirm={this.handleFormSubmit}
-        size="small"
-      >
-        {this.state.errorMessage && <Alert variant="error">{this.state.errorMessage}</Alert>}
+  renderBody = () => {
+    const { metrics } = this.props;
+    const { op, error, scope, metric, errorMessage } = this.state;
 
+    return (
+      <form id={ADD_CONDITION_MODAL_ID} onSubmit={this.handleFormSubmit}>
+        {errorMessage && (
+          <FlagMessage className="sw-mb-2" variant="error">
+            {errorMessage}
+          </FlagMessage>
+        )}
         {this.props.metric === undefined && (
-          <div className="modal-field display-flex-center">
-            <Radio checked={scope === 'new'} onCheck={this.handleScopeChange} value="new">
-              <span data-test="quality-gates__condition-scope-new">
-                {translate('quality_gates.conditions.new_code')}
-              </span>
-            </Radio>
-            <Radio
-              checked={scope === 'overall'}
-              className="big-spacer-left"
-              onCheck={this.handleScopeChange}
-              value="overall"
-            >
-              <span data-test="quality-gates__condition-scope-overall">
-                {translate('quality_gates.conditions.overall_code')}
-              </span>
-            </Radio>
-          </div>
+          <FormField label={translate('quality_gates.conditions.where')}>
+            <div className="sw-flex sw-gap-4">
+              <RadioButton checked={scope === 'new'} onCheck={this.handleScopeChange} value="new">
+                <span data-test="quality-gates__condition-scope-new">
+                  {translate('quality_gates.conditions.new_code')}
+                </span>
+              </RadioButton>
+              <RadioButton
+                checked={scope === 'overall'}
+                onCheck={this.handleScopeChange}
+                value="overall"
+              >
+                <span data-test="quality-gates__condition-scope-overall">
+                  {translate('quality_gates.conditions.overall_code')}
+                </span>
+              </RadioButton>
+            </div>
+          </FormField>
         )}
 
-        <div className="modal-field">
-          <label htmlFor="condition-metric">
-            {translate('quality_gates.conditions.fails_when')}
-          </label>
+        <FormField
+          description={this.props.metric && getLocalizedMetricName(this.props.metric)}
+          htmlFor="condition-metric"
+          label={translate('quality_gates.conditions.fails_when')}
+        >
           {metrics && (
             <MetricSelect
               metric={metric}
@@ -151,37 +152,61 @@ export default class ConditionModal extends React.PureComponent<Props, State> {
               onMetricChange={this.handleMetricChange}
             />
           )}
-          {this.props.metric && (
-            <span className="note">{getLocalizedMetricName(this.props.metric)}</span>
-          )}
-        </div>
+        </FormField>
 
         {metric && (
-          <>
-            <div className="modal-field display-inline-block">
-              <label id="condition-operator-label">
-                {translate('quality_gates.conditions.operator')}
-              </label>
+          <div className="sw-flex sw-gap-2">
+            <FormField
+              className="sw-mb-0"
+              htmlFor="condition-operator"
+              label={translate('quality_gates.conditions.operator')}
+            >
               <ConditionOperator
                 metric={metric}
                 onOperatorChange={this.handleOperatorChange}
                 op={op}
               />
-            </div>
-            <div className="modal-field display-inline-block spacer-left">
-              <label id="condition-threshold-label">
-                {translate('quality_gates.conditions.value')}
-              </label>
+            </FormField>
+            <FormField
+              htmlFor="condition-threshold"
+              label={translate('quality_gates.conditions.value')}
+            >
               <ThresholdInput
                 metric={metric}
                 name="error"
                 onChange={this.handleErrorChange}
                 value={error}
               />
-            </div>
-          </>
+            </FormField>
+          </div>
         )}
-      </ConfirmModal>
+      </form>
+    );
+  };
+
+  render() {
+    const { header } = this.props;
+    const { metric } = this.state;
+    return (
+      <Modal
+        isScrollable={false}
+        isOverflowVisible
+        headerTitle={header}
+        onClose={this.props.onClose}
+        body={this.renderBody()}
+        primaryButton={
+          <ButtonPrimary
+            autoFocus
+            disabled={metric === undefined}
+            id="add-condition-button"
+            form={ADD_CONDITION_MODAL_ID}
+            type="submit"
+          >
+            {header}
+          </ButtonPrimary>
+        }
+        secondaryButtonLabel={translate('close')}
+      />
     );
   }
 }

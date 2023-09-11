@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LabelValueSelectOption, SearchSelectDropdown } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
+import { Options } from 'react-select';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
-import Select from '../../../components/controls/Select';
 import { getLocalizedMetricDomain, translate } from '../../../helpers/l10n';
 import { Dict, Metric } from '../../../types/types';
 import { getLocalizedMetricNameNoDiffMetric } from '../utils';
@@ -38,54 +39,62 @@ interface Option {
   value: string;
 }
 
-export class MetricSelect extends React.PureComponent<Props> {
-  handleChange = (option: Option | null) => {
+export function MetricSelect({ metric, metricsArray, metrics, onMetricChange }: Props) {
+  const handleChange = (option: Option | null) => {
     if (option) {
-      const { metricsArray: metrics } = this.props;
-      const selectedMetric = metrics.find((metric) => metric.key === option.value);
+      const selectedMetric = metricsArray.find((metric) => metric.key === option.value);
       if (selectedMetric) {
-        this.props.onMetricChange(selectedMetric);
+        onMetricChange(selectedMetric);
       }
     }
   };
 
-  render() {
-    const { metric, metricsArray, metrics } = this.props;
+  const options: Array<Option & { domain?: string }> = sortBy(
+    metricsArray.map((m) => ({
+      value: m.key,
+      label: getLocalizedMetricNameNoDiffMetric(m, metrics),
+      domain: m.domain,
+    })),
+    'domain'
+  );
 
-    const options: Array<Option & { domain?: string }> = sortBy(
-      metricsArray.map((m) => ({
-        value: m.key,
-        label: getLocalizedMetricNameNoDiffMetric(m, metrics),
-        domain: m.domain,
-      })),
-      'domain',
-    );
+  // Use "disabled" property to emulate optgroups.
+  const optionsWithDomains: Option[] = [];
+  options.forEach((option, index, options) => {
+    const previous = index > 0 ? options[index - 1] : null;
+    if (option.domain && (!previous || previous.domain !== option.domain)) {
+      optionsWithDomains.push({
+        value: '<domain>',
+        label: getLocalizedMetricDomain(option.domain),
+        isDisabled: true,
+      });
+    }
+    optionsWithDomains.push(option);
+  });
 
-    // Use "disabled" property to emulate optgroups.
-    const optionsWithDomains: Option[] = [];
-    options.forEach((option, index, options) => {
-      const previous = index > 0 ? options[index - 1] : null;
-      if (option.domain && (!previous || previous.domain !== option.domain)) {
-        optionsWithDomains.push({
-          value: '<domain>',
-          label: getLocalizedMetricDomain(option.domain),
-          isDisabled: true,
-        });
+  const handleAssigneeSearch = React.useCallback(
+    (query: string, resolve: (options: Options<LabelValueSelectOption<string>>) => void) => {
+      resolve(options.filter((opt) => opt.label.toLowerCase().includes(query.toLowerCase())));
+    },
+    [options]
+  );
+
+  return (
+    <SearchSelectDropdown
+      aria-label={translate('search.search_for_metrics')}
+      size="large"
+      controlSize="full"
+      inputId="condition-metric"
+      isClearable
+      defaultOptions={optionsWithDomains}
+      loadOptions={handleAssigneeSearch}
+      onChange={handleChange}
+      placeholder={translate('search.search_for_metrics')}
+      controlLabel={
+        optionsWithDomains.find((o) => o.value === metric?.key)?.label ?? translate('select_verb')
       }
-      optionsWithDomains.push(option);
-    });
-
-    return (
-      <Select
-        className="text-middle quality-gate-metric-select"
-        id="condition-metric"
-        onChange={this.handleChange}
-        options={optionsWithDomains}
-        placeholder={translate('search.search_for_metrics')}
-        value={optionsWithDomains.find((o) => o.value === metric?.key)}
-      />
-    );
-  }
+    />
+  );
 }
 
 export default withMetricsContext(MetricSelect);

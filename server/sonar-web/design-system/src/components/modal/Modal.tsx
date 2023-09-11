@@ -90,7 +90,7 @@ export function Modal({
       <Global styles={globalStyles({ theme })} />
 
       <ReactModal
-        aria={{ labelledby: '#modal_header_title' }}
+        aria={{ labelledby: 'modal_header_title' }}
         className={classNames('design-system-modal-contents modal', { large: isLarge })}
         isOpen={isOpen}
         onRequestClose={onClose}
@@ -147,6 +147,8 @@ const globalStyles = ({ theme }: { theme: Theme }) => css`
     &.large {
       max-width: 1280px;
       min-width: 1040px;
+      transform: translateX(-50%);
+      margin-left: 0px;
     }
   }
 

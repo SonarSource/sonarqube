@@ -21,8 +21,10 @@ import classNames from 'classnames';
 import {
   ActionCell,
   ContentCell,
+  DangerButtonPrimary,
   DestructiveIcon,
   InteractiveIcon,
+  Modal,
   NumericalCell,
   PencilIcon,
   TableRow,
@@ -32,7 +34,6 @@ import {
 import * as React from 'react';
 import { deleteCondition } from '../../../api/quality-gates';
 import withMetricsContext from '../../../app/components/metrics/withMetricsContext';
-import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { getLocalizedMetricName, translate, translateWithParameters } from '../../../helpers/l10n';
 import {
   CaycStatus,
@@ -187,19 +188,24 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
                     size="small"
                   />
                   {this.state.deleteFormOpen && (
-                    <ConfirmModal
-                      confirmButtonText={translate('delete')}
-                      confirmData={condition}
-                      header={translate('quality_gates.delete_condition')}
-                      isDestructive
+                    <Modal
+                      headerTitle={translate('quality_gates.delete_condition')}
                       onClose={this.closeDeleteForm}
-                      onConfirm={this.removeCondition}
-                    >
-                      {translateWithParameters(
+                      body={translateWithParameters(
                         'quality_gates.delete_condition.confirm.message',
                         getLocalizedMetricName(this.props.metric),
                       )}
-                    </ConfirmModal>
+                      primaryButton={
+                        <DangerButtonPrimary
+                          autoFocus
+                          type="submit"
+                          onClick={() => this.removeCondition(condition)}
+                        >
+                          {translate('delete')}
+                        </DangerButtonPrimary>
+                      }
+                      secondaryButtonLabel={translate('close')}
+                    />
                   )}
                 </>
               )}

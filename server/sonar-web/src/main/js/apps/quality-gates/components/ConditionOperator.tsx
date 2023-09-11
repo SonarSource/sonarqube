@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { InputSelect, Note } from 'design-system';
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 import { Metric } from '../../../types/types';
 import { getPossibleOperators } from '../utils';
@@ -50,12 +51,11 @@ export default class ConditionOperator extends React.PureComponent<Props> {
       });
 
       return (
-        <Select
+        <InputSelect
           autoFocus
-          aria-labelledby="condition-operator-label"
-          className="input-medium"
+          size="small"
           isClearable={false}
-          id="condition-operator"
+          inputId="condition-operator"
           name="operator"
           onChange={this.handleChange}
           options={operatorOptions}
@@ -63,12 +63,8 @@ export default class ConditionOperator extends React.PureComponent<Props> {
           value={operatorOptions.filter((o) => o.value === this.props.op)}
         />
       );
-    } else {
-      return (
-        <span className="display-inline-block note abs-width-150">
-          {this.getLabel(operators, this.props.metric)}
-        </span>
-      );
     }
+
+    return <Note className="sw-w-abs-150">{this.getLabel(operators, this.props.metric)}</Note>;
   }
 }

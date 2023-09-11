@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputField, InputSelect } from 'design-system';
 import * as React from 'react';
-import Select from '../../../components/controls/Select';
+import { LabelValueSelectOption } from '../../../components/controls/Select';
 import { Metric } from '../../../types/types';
 
 interface Props {
@@ -33,8 +34,12 @@ export default class ThresholdInput extends React.PureComponent<Props> {
     this.props.onChange(e.currentTarget.value);
   };
 
-  handleSelectChange = (option: { value: string }) => {
-    this.props.onChange(option.value);
+  handleSelectChange = (option: LabelValueSelectOption) => {
+    if (option) {
+      this.props.onChange(option.value);
+    } else {
+      this.props.onChange('');
+    }
   };
 
   renderRatingInput() {
@@ -48,16 +53,14 @@ export default class ThresholdInput extends React.PureComponent<Props> {
     ];
 
     return (
-      <Select
-        className="input-tiny text-middle"
-        aria-labelledby="condition-threshold-label"
-        isClearable={false}
-        id="condition-threshold"
+      <InputSelect
+        className="sw-w-abs-150"
+        inputId="condition-threshold"
         name={name}
         onChange={this.handleSelectChange}
         options={options}
         placeholder=""
-        isSearchable={false}
+        size="small"
         value={options.find((o) => o.value === value)}
       />
     );
@@ -71,9 +74,8 @@ export default class ThresholdInput extends React.PureComponent<Props> {
     }
 
     return (
-      <input
-        className="input-tiny text-middle"
-        aria-labelledby="condition-threshold-label"
+      <InputField
+        size="small"
         data-type={metric.type}
         id="condition-threshold"
         name={name}

@@ -193,8 +193,8 @@ it('should be able to add a condition', async () => {
   await user.click(dialog.getByRole('radio', { name: 'quality_gates.conditions.new_code' }));
   await selectEvent.select(dialog.getByRole('combobox'), ['Issues']);
   await user.click(dialog.getByRole('textbox', { name: 'quality_gates.conditions.value' }));
-  await user.keyboard('12{Enter}');
-
+  await user.keyboard('12');
+  await user.click(dialog.getByRole('button', { name: 'quality_gates.add_condition' }));
   const newConditions = within(await screen.findByTestId('quality-gates__conditions-new'));
   expect(await newConditions.findByRole('cell', { name: 'Issues' })).toBeInTheDocument();
   expect(await newConditions.findByRole('cell', { name: '12' })).toBeInTheDocument();
@@ -209,7 +209,8 @@ it('should be able to add a condition', async () => {
 
   await user.click(dialog.getByText('quality_gates.operator.LT'));
   await user.click(dialog.getByRole('textbox', { name: 'quality_gates.conditions.value' }));
-  await user.keyboard('42{Enter}');
+  await user.keyboard('42');
+  await user.click(dialog.getByRole('button', { name: 'quality_gates.add_condition' }));
 
   const overallConditions = within(await screen.findByTestId('quality-gates__conditions-overall'));
 
