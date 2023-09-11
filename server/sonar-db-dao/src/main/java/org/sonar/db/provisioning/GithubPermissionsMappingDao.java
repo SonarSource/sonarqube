@@ -22,8 +22,16 @@ package org.sonar.db.provisioning;
 import java.util.Set;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.GithubPermissionsMappingNewValue;
 
 public class GithubPermissionsMappingDao implements Dao {
+
+  private final AuditPersister auditPersister;
+
+  public GithubPermissionsMappingDao(AuditPersister auditPersister) {
+    this.auditPersister = auditPersister;
+  }
 
   public Set<GithubPermissionsMappingDto> findAll(DbSession dbSession) {
     return mapper(dbSession).selectAll();
@@ -31,6 +39,17 @@ public class GithubPermissionsMappingDao implements Dao {
 
   public void insert(DbSession dbSession, GithubPermissionsMappingDto githubPermissionsMappingDto) {
     mapper(dbSession).insert(githubPermissionsMappingDto);
+    auditPersister.addGithubPermissionsMapping(dbSession, toNewValueForAuditLogs(githubPermissionsMappingDto));
+  }
+
+  public void delete(DbSession dbSession, GithubPermissionsMappingDto githubPermissionsMappingDto) {
+    // TODO SONAR-20397
+    auditPersister.deleteGithubPermissionsMapping(dbSession, toNewValueForAuditLogs(githubPermissionsMappingDto));
+  }
+
+  private static GithubPermissionsMappingNewValue toNewValueForAuditLogs(GithubPermissionsMappingDto githubPermissionsMappingDto) {
+    return new GithubPermissionsMappingNewValue(githubPermissionsMappingDto.githubRole(),
+      githubPermissionsMappingDto.sonarqubePermission());
   }
 
   private static GithubPermissionsMappingMapper mapper(DbSession session) {

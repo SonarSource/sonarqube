@@ -25,6 +25,7 @@ import org.sonar.db.audit.model.AbstractEditorNewValue;
 import org.sonar.db.audit.model.ComponentKeyNewValue;
 import org.sonar.db.audit.model.ComponentNewValue;
 import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
+import org.sonar.db.audit.model.GithubPermissionsMappingNewValue;
 import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.audit.model.LicenseNewValue;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
@@ -101,6 +102,10 @@ public interface AuditPersister {
   void addGroupToPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
 
   void deleteGroupFromPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue);
+
+  void addGithubPermissionsMapping(DbSession dbSession, GithubPermissionsMappingNewValue newValue);
+
+  void deleteGithubPermissionsMapping(DbSession dbSession, GithubPermissionsMappingNewValue deletedValue);
 
   void addQualityGateEditor(DbSession dbSession, AbstractEditorNewValue newValue);
 

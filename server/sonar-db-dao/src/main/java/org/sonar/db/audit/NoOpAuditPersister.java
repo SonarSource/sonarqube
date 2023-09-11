@@ -25,6 +25,7 @@ import org.sonar.db.audit.model.ComponentKeyNewValue;
 import org.sonar.db.audit.model.ComponentNewValue;
 import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
 import org.sonar.db.audit.model.AbstractEditorNewValue;
+import org.sonar.db.audit.model.GithubPermissionsMappingNewValue;
 import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.audit.model.LicenseNewValue;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
@@ -188,6 +189,16 @@ public class NoOpAuditPersister implements AuditPersister {
 
   @Override
   public void deleteGroupFromPermissionTemplate(DbSession dbSession, PermissionTemplateNewValue newValue) {
+    // no op
+  }
+
+  @Override
+  public void addGithubPermissionsMapping(DbSession dbSession, GithubPermissionsMappingNewValue newValue) {
+    // no op
+  }
+
+  @Override
+  public void deleteGithubPermissionsMapping(DbSession dbSession, GithubPermissionsMappingNewValue deletedValue) {
     // no op
   }
 

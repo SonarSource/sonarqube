@@ -22,17 +22,27 @@ package org.sonar.db.provisioning;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.AuditPersister;
+import org.sonar.db.audit.model.GithubPermissionsMappingNewValue;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class GithubPermissionsMappingDaoIT {
 
   private static final String MAPPING_UUID = "uuid";
 
+  private final AuditPersister auditPersister = mock();
+
   @Rule
-  public final DbTester db = DbTester.create();
+  public final DbTester db = DbTester.create(auditPersister);
+
+  private final ArgumentCaptor<GithubPermissionsMappingNewValue> newValueCaptor = ArgumentCaptor.forClass(GithubPermissionsMappingNewValue.class);
 
   private final DbSession dbSession = db.getSession();
 
@@ -50,6 +60,10 @@ public class GithubPermissionsMappingDaoIT {
     assertThat(savedMapping.uuid()).isEqualTo(githubPermissionsMappingDto.uuid());
     assertThat(savedMapping.githubRole()).isEqualTo(githubPermissionsMappingDto.githubRole());
     assertThat(savedMapping.sonarqubePermission()).isEqualTo(githubPermissionsMappingDto.sonarqubePermission());
+
+    verify(auditPersister).addGithubPermissionsMapping(eq(dbSession), newValueCaptor.capture());
+    assertThat(newValueCaptor.getValue().getGithubRole()).isEqualTo(githubPermissionsMappingDto.githubRole());
+    assertThat(newValueCaptor.getValue().getSonarqubePermission()).isEqualTo(githubPermissionsMappingDto.sonarqubePermission());
   }
 
   @Test
