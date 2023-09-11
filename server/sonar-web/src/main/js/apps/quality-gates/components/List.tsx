@@ -62,7 +62,7 @@ export default function List({ qualityGates, currentQualityGate }: Props) {
               redirectQualityGate(qualityGate.name);
             }}
           >
-            <div className="sw-flex sw-flex-col">
+            <div className="sw-flex sw-flex-col sw-min-w-0">
               <BareButton
                 aria-current={currentQualityGate === qualityGate.name && 'page'}
                 title={`${qualityGate.name}${isDefaultTitle}${isBuiltInTitle}`}

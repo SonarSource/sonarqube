@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, HelperHintIcon, SubTitle } from 'design-system';
 import * as React from 'react';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
-import { Alert } from '../../../components/ui/Alert';
+import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import { translate } from '../../../helpers/l10n';
 import { Condition, QualityGate } from '../../../types/types';
 import Conditions from './Conditions';
@@ -40,12 +40,12 @@ export function DetailsContent(props: DetailsContentProps) {
   const actions = qualityGate.actions || {};
 
   return (
-    <div className="layout-page-main-inner">
+    <div>
       {isDefault &&
         (qualityGate.conditions === undefined || qualityGate.conditions.length === 0) && (
-          <Alert className="big-spacer-bottom" variant="warning">
+          <FlagMessage className="sw-mb-4" variant="warning">
             {translate('quality_gates.is_default_no_conditions')}
-          </Alert>
+          </FlagMessage>
         )}
 
       <Conditions
@@ -56,21 +56,20 @@ export function DetailsContent(props: DetailsContentProps) {
         updatedConditionId={updatedConditionId}
       />
 
-      <div className="display-flex-row huge-spacer-top">
-        <div className="quality-gate-section width-50 big-padded-right" id="quality-gate-projects">
-          <header className="display-flex-center spacer-bottom">
-            <h3>{translate('quality_gates.projects')}</h3>
-            <HelpTooltip
-              className="spacer-left"
-              overlay={
-                <div className="big-padded-top big-padded-bottom">
-                  {translate('quality_gates.projects.help')}
-                </div>
-              }
-            />
-          </header>
+      <div>
+        <div className="sw-flex sw-flex-col">
+          <SubTitle as="h3" className="sw-body-md-highlight">
+            {translate('quality_gates.projects')}
+            <DocumentationTooltip
+              className="sw-ml-2"
+              content={translate('quality_gates.projects.help')}
+            >
+              <HelperHintIcon />
+            </DocumentationTooltip>
+          </SubTitle>
+
           {isDefault ? (
-            translate('quality_gates.projects_for_default')
+            <p className="sw-body-sm sw-mb-2">{translate('quality_gates.projects_for_default')}</p>
           ) : (
             <Projects
               canEdit={actions.associateProjects}
@@ -80,8 +79,9 @@ export function DetailsContent(props: DetailsContentProps) {
             />
           )}
         </div>
+
         {actions.delegate && (
-          <div className="width-50 big-padded-left">
+          <div className="sw-mt-10">
             <QualityGatePermissions qualityGate={qualityGate} />
           </div>
         )}
