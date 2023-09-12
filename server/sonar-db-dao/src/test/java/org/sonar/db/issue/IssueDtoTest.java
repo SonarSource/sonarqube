@@ -43,6 +43,12 @@ import org.sonar.db.rule.RuleDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.Severity.MEDIUM;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 
 public class IssueDtoTest {
 
@@ -84,7 +90,7 @@ public class IssueDtoTest {
       .setIssueUpdateDate(updatedAt)
       .setIssueCloseDate(closedAt)
       .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
-      .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(Severity.HIGH));
+      .addImpact(new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(HIGH));
 
     DefaultIssue expected = new DefaultIssue()
       .setKey("100")
@@ -114,7 +120,7 @@ public class IssueDtoTest {
       .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
       .setCodeVariants(Set.of())
       .setTags(Set.of())
-      .addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+      .addImpact(MAINTAINABILITY, HIGH);
 
     DefaultIssue issue = dto.toDefaultIssue();
 
@@ -147,7 +153,7 @@ public class IssueDtoTest {
     assertThat(dto.getTags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(dto.getTagsString()).isEqualTo("tag1,tag2,tag3");
 
-    dto.setTags(Arrays.asList());
+    dto.setTags(List.of());
     assertThat(dto.getTags()).isEmpty();
 
     dto.setTagsString("tag1, tag2 ,,tag3");
@@ -163,38 +169,39 @@ public class IssueDtoTest {
   @Test
   public void getEffectiveImpacts_whenNoIssueImpactsOverridden_shouldReturnRuleImpacts() {
     IssueDto dto = new IssueDto();
-    dto.getRuleDefaultImpacts().add(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
-    dto.getRuleDefaultImpacts().add(newImpactDto(SoftwareQuality.SECURITY, Severity.MEDIUM));
-    dto.getRuleDefaultImpacts().add(newImpactDto(SoftwareQuality.RELIABILITY, Severity.LOW));
+    dto.getRuleDefaultImpacts().add(newImpactDto(MAINTAINABILITY, HIGH));
+    dto.getRuleDefaultImpacts().add(newImpactDto(SECURITY, MEDIUM));
+    dto.getRuleDefaultImpacts().add(newImpactDto(RELIABILITY, LOW));
 
     assertThat(dto.getEffectiveImpacts())
-      .containsEntry(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
-      .containsEntry(SoftwareQuality.SECURITY, Severity.MEDIUM)
-      .containsEntry(SoftwareQuality.RELIABILITY, Severity.LOW);
+      .hasSize(3)
+      .containsEntry(MAINTAINABILITY, HIGH)
+      .containsEntry(SECURITY, MEDIUM)
+      .containsEntry(RELIABILITY, LOW);
   }
 
   @Test
-  public void getEffectiveImpacts_whenIssueImpactsOverridden_shouldReturnRuleImpactsOverriddenByIssueImpacts() {
+  public void getEffectiveImpacts_whenIssueImpactsOverridden_shouldReturnIssueImpacts() {
     IssueDto dto = new IssueDto();
-    dto.getRuleDefaultImpacts().add(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
-    dto.getRuleDefaultImpacts().add(newImpactDto(SoftwareQuality.SECURITY, Severity.MEDIUM));
-    dto.getRuleDefaultImpacts().add(newImpactDto(SoftwareQuality.RELIABILITY, Severity.LOW));
+    dto.getRuleDefaultImpacts().add(newImpactDto(MAINTAINABILITY, HIGH));
+    dto.getRuleDefaultImpacts().add(newImpactDto(SECURITY, MEDIUM));
+    dto.getRuleDefaultImpacts().add(newImpactDto(RELIABILITY, LOW));
 
-    dto.addImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
-    dto.addImpact(newImpactDto(SoftwareQuality.RELIABILITY, Severity.HIGH));
+    dto.addImpact(newImpactDto(MAINTAINABILITY, LOW));
+    dto.addImpact(newImpactDto(RELIABILITY, HIGH));
 
     assertThat(dto.getEffectiveImpacts())
-      .containsEntry(SoftwareQuality.MAINTAINABILITY, Severity.LOW)
-      .containsEntry(SoftwareQuality.SECURITY, Severity.MEDIUM)
-      .containsEntry(SoftwareQuality.RELIABILITY, Severity.HIGH);
+      .hasSize(2)
+      .containsEntry(MAINTAINABILITY, LOW)
+      .containsEntry(RELIABILITY, HIGH);
   }
 
   @Test
   public void addImpact_whenSoftwareQualityAlreadyDefined_shouldThrowISE() {
     IssueDto dto = new IssueDto();
-    dto.addImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+    dto.addImpact(newImpactDto(MAINTAINABILITY, LOW));
 
-    ImpactDto duplicatedImpact = newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+    ImpactDto duplicatedImpact = newImpactDto(MAINTAINABILITY, HIGH);
 
     assertThatThrownBy(() -> dto.addImpact(duplicatedImpact))
       .isInstanceOf(IllegalStateException.class)
@@ -204,13 +211,13 @@ public class IssueDtoTest {
   @Test
   public void replaceAllImpacts_whenSoftwareQualityAlreadyDuplicated_shouldThrowISE() {
     IssueDto dto = new IssueDto();
-    dto.addImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
-    dto.addImpact(newImpactDto(SoftwareQuality.SECURITY, Severity.HIGH));
-    dto.addImpact(newImpactDto(SoftwareQuality.RELIABILITY, Severity.LOW));
+    dto.addImpact(newImpactDto(MAINTAINABILITY, MEDIUM));
+    dto.addImpact(newImpactDto(SECURITY, HIGH));
+    dto.addImpact(newImpactDto(RELIABILITY, LOW));
 
     Set<ImpactDto> duplicatedImpacts = Set.of(
-      newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH),
-      newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.LOW));
+      newImpactDto(MAINTAINABILITY, HIGH),
+      newImpactDto(MAINTAINABILITY, LOW));
     assertThatThrownBy(() -> dto.replaceAllImpacts(duplicatedImpacts))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Impacts must have unique Software Quality values");
@@ -219,21 +226,21 @@ public class IssueDtoTest {
   @Test
   public void replaceAllImpacts_shouldReplaceExistingImpacts() {
     IssueDto dto = new IssueDto();
-    dto.addImpact(newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
-    dto.addImpact(newImpactDto(SoftwareQuality.SECURITY, Severity.HIGH));
-    dto.addImpact(newImpactDto(SoftwareQuality.RELIABILITY, Severity.LOW));
+    dto.addImpact(newImpactDto(MAINTAINABILITY, MEDIUM));
+    dto.addImpact(newImpactDto(SECURITY, HIGH));
+    dto.addImpact(newImpactDto(RELIABILITY, LOW));
 
     Set<ImpactDto> duplicatedImpacts = Set.of(
-      newImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.HIGH),
-      newImpactDto(SoftwareQuality.SECURITY, Severity.LOW));
+      newImpactDto(MAINTAINABILITY, HIGH),
+      newImpactDto(SECURITY, LOW));
 
     dto.replaceAllImpacts(duplicatedImpacts);
 
     assertThat(dto.getImpacts())
       .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
       .containsExactlyInAnyOrder(
-        tuple(SoftwareQuality.MAINTAINABILITY, Severity.HIGH),
-        tuple(SoftwareQuality.SECURITY, Severity.LOW));
+        tuple(MAINTAINABILITY, HIGH),
+        tuple(SECURITY, LOW));
 
   }
 
@@ -300,7 +307,7 @@ public class IssueDtoTest {
     assertThat(issueDto.isNewCodeReferenceIssue()).isTrue();
     assertThat(issueDto.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
     assertThat(issueDto.getImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
-      .containsExactlyInAnyOrder(tuple(SoftwareQuality.MAINTAINABILITY, Severity.HIGH), tuple(SoftwareQuality.RELIABILITY, Severity.LOW));
+      .containsExactlyInAnyOrder(tuple(MAINTAINABILITY, HIGH), tuple(RELIABILITY, LOW));
   }
 
   @Test
@@ -332,7 +339,7 @@ public class IssueDtoTest {
     assertThat(issueDto.isNewCodeReferenceIssue()).isTrue();
     assertThat(issueDto.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
     assertThat(issueDto.getImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
-      .containsExactlyInAnyOrder(tuple(SoftwareQuality.MAINTAINABILITY, Severity.HIGH), tuple(SoftwareQuality.RELIABILITY, Severity.LOW));
+      .containsExactlyInAnyOrder(tuple(MAINTAINABILITY, HIGH), tuple(RELIABILITY, LOW));
   }
 
   private DefaultIssue createExampleDefaultIssue(Date dateNow) {
@@ -365,8 +372,8 @@ public class IssueDtoTest {
       .setIsNewCodeReferenceIssue(true)
       .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
       .setCodeVariants(List.of("variant1", "variant2"))
-      .addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
-      .addImpact(SoftwareQuality.RELIABILITY, Severity.LOW);
+      .addImpact(MAINTAINABILITY, HIGH)
+      .addImpact(RELIABILITY, LOW);
     return defaultIssue;
   }
 

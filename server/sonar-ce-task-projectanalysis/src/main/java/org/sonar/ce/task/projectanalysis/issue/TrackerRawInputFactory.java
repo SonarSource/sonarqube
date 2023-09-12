@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
@@ -50,9 +49,11 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Impact;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
 import org.sonar.server.rule.CommonRuleKeys;
 
+import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
@@ -197,18 +198,24 @@ public class TrackerRawInputFactory {
       issue.setRuleDescriptionContextKey(reportIssue.hasRuleDescriptionContextKey() ? reportIssue.getRuleDescriptionContextKey() : null);
       issue.setCodeVariants(reportIssue.getCodeVariantsList());
 
-      issue.replaceImpacts(convertImpacts(issue.ruleKey(), reportIssue.getOverridenImpactsList()));
+      issue.replaceImpacts(replaceDefaultWithOverridenImpacts(issue.ruleKey(), reportIssue.getOverridenImpactsList()));
       return issue;
     }
 
-    private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> convertImpacts(RuleKey ruleKey, List<ScannerReport.Impact> overridenImpactsList) {
-      if (overridenImpactsList.isEmpty()) {
-        return Collections.emptyMap();
-      }
-      Rule rule = ruleRepository.getByKey(ruleKey);
+    private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> replaceDefaultWithOverridenImpacts(RuleKey ruleKey, List<Impact> overridenImpactsList) {
+      Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> overridenImpactMap = getOverridenImpactMap(overridenImpactsList);
+      return ruleRepository.getByKey(ruleKey).getDefaultImpacts().entrySet()
+        .stream()
+        .collect(toMap(
+          Map.Entry::getKey,
+          entry -> overridenImpactMap.containsKey(entry.getKey()) ? overridenImpactMap.get(entry.getKey()) : entry.getValue()));
+    }
+
+    private static Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> getOverridenImpactMap(List<Impact> overridenImpactsList) {
       return overridenImpactsList.stream()
-        .filter(i -> rule.getDefaultImpacts().containsKey(SoftwareQuality.valueOf(i.getSoftwareQuality())))
-        .collect(Collectors.toMap(i -> SoftwareQuality.valueOf(i.getSoftwareQuality()), i -> org.sonar.api.issue.impact.Severity.valueOf(i.getSeverity())));
+        .collect(toMap(
+          impact -> SoftwareQuality.valueOf(impact.getSoftwareQuality()),
+          impact -> org.sonar.api.issue.impact.Severity.valueOf(impact.getSeverity())));
     }
 
     private DbIssues.Flow.Builder convertLocations(ScannerReport.Flow flow) {
@@ -233,7 +240,7 @@ public class TrackerRawInputFactory {
       Rule existingRule = ruleRepository.getByKey(ruleKey);
       issue.setSeverity(determineDeprecatedSeverity(reportExternalIssue, existingRule));
       issue.setType(determineDeprecatedType(reportExternalIssue, existingRule));
-      issue.replaceImpacts(convertImpacts(issue.ruleKey(), reportExternalIssue.getImpactsList()));
+      issue.replaceImpacts(replaceDefaultWithOverridenImpacts(issue.ruleKey(), reportExternalIssue.getImpactsList()));
 
       init(issue, issue.type() == RuleType.SECURITY_HOTSPOT ? STATUS_TO_REVIEW : STATUS_OPEN);
 

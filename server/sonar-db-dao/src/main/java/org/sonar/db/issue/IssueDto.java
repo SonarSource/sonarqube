@@ -26,9 +26,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
-import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -53,6 +51,7 @@ import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toUnmodifiableMap;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.longToDate;
 
@@ -840,10 +839,12 @@ public final class IssueDto implements Serializable {
    * @return Unmodifiable Map of impacts
    */
   public Map<SoftwareQuality, Severity> getEffectiveImpacts() {
-    EnumMap<SoftwareQuality, Severity> effectiveImpacts = new EnumMap<>(SoftwareQuality.class);
-    ruleDefaultImpacts.forEach(impact -> effectiveImpacts.put(impact.getSoftwareQuality(), impact.getSeverity()));
-    impacts.forEach(impact -> effectiveImpacts.put(impact.getSoftwareQuality(), impact.getSeverity()));
-    return Collections.unmodifiableMap(effectiveImpacts);
+    return impacts.isEmpty() ? toImpactMap(ruleDefaultImpacts) : toImpactMap(impacts);
+  }
+
+  private static Map<SoftwareQuality, Severity> toImpactMap(Collection<ImpactDto> impacts) {
+    return impacts.stream()
+      .collect(toUnmodifiableMap(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity));
   }
 
   @Override

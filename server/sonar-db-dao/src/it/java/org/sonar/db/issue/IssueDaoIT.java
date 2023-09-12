@@ -68,6 +68,12 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.Severity.MEDIUM;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -163,15 +169,11 @@ public class IssueDaoIT {
     assertThat(issue.getImpacts())
       .extracting(ImpactDto::getSeverity, ImpactDto::getSoftwareQuality)
       .containsExactlyInAnyOrder(
-        tuple(Severity.MEDIUM, SoftwareQuality.RELIABILITY),
-        tuple(Severity.LOW, SoftwareQuality.SECURITY));
-
-    assertThat(issue.getEffectiveImpacts())
-      // impacts from rule
-      .containsEntry(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
-      // impacts from issue
-      .containsEntry(SoftwareQuality.RELIABILITY, Severity.MEDIUM)
-      .containsEntry(SoftwareQuality.SECURITY, Severity.LOW);
+        tuple(MEDIUM, RELIABILITY),
+        tuple(LOW, SECURITY));
+    assertThat(issue.getRuleDefaultImpacts())
+      .extracting(ImpactDto::getSeverity, ImpactDto::getSoftwareQuality)
+      .containsExactlyInAnyOrder(tuple(HIGH, MAINTAINABILITY));
   }
 
   @Test
@@ -196,8 +198,8 @@ public class IssueDaoIT {
       .flatMap(issueImpactDtos -> issueImpactDtos)
       .extracting(ImpactDto::getSeverity, ImpactDto::getSoftwareQuality)
       .containsExactlyInAnyOrder(
-        tuple(Severity.MEDIUM, SoftwareQuality.RELIABILITY),
-        tuple(Severity.LOW, SoftwareQuality.SECURITY));
+        tuple(MEDIUM, RELIABILITY),
+        tuple(LOW, SECURITY));
   }
 
   @Test
@@ -206,8 +208,8 @@ public class IssueDaoIT {
     RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setLanguage("java")
       .addDefaultImpact(new ImpactDto()
         .setUuid(UuidFactoryFast.getInstance().create())
-        .setSoftwareQuality(SoftwareQuality.RELIABILITY)
-        .setSeverity(Severity.MEDIUM)));
+        .setSoftwareQuality(RELIABILITY)
+        .setSeverity(MEDIUM)));
 
     ComponentDto branchA = db.components().insertProjectBranch(project, b -> b.setKey("branchA"));
     ComponentDto fileA = db.components().insertComponent(newFileDto(branchA));
@@ -223,12 +225,12 @@ public class IssueDaoIT {
       assertThat(next.getRuleDefaultImpacts()).hasSize(2)
         .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
         .containsExactlyInAnyOrder(
-          tuple(SoftwareQuality.RELIABILITY, Severity.MEDIUM),
-          tuple(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
+          tuple(RELIABILITY, MEDIUM),
+          tuple(MAINTAINABILITY, HIGH));
       assertThat(next.getImpacts())
         .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
         .containsExactlyInAnyOrder(
-          tuple(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
+          tuple(MAINTAINABILITY, HIGH));
       issueCount++;
     }
     assertThat(issueCount).isEqualTo(100);
@@ -602,12 +604,12 @@ public class IssueDaoIT {
   public void insert_shouldInsertBatchIssuesWithImpacts() {
     ImpactDto impact1 = new ImpactDto()
       .setUuid(UuidFactoryFast.getInstance().create())
-      .setSoftwareQuality(SoftwareQuality.MAINTAINABILITY)
-      .setSeverity(Severity.HIGH);
+      .setSoftwareQuality(MAINTAINABILITY)
+      .setSeverity(HIGH);
     ImpactDto impact2 = new ImpactDto()
       .setUuid(UuidFactoryFast.getInstance().create())
-      .setSoftwareQuality(SoftwareQuality.SECURITY)
-      .setSeverity(Severity.LOW);
+      .setSoftwareQuality(SECURITY)
+      .setSeverity(LOW);
     IssueDto issue1 = createIssueWithKey(ISSUE_KEY1)
       .addImpact(impact1)
       .addImpact(impact2);
@@ -828,12 +830,12 @@ public class IssueDaoIT {
     prepareTables();
     IssueDto issueDto = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)
       .setSelectedAt(1_440_000_000_000L)
-      .replaceAllImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.LOW)));
+      .replaceAllImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(RELIABILITY).setSeverity(LOW)));
 
     underTest.updateIfBeforeSelectedDate(db.getSession(), issueDto);
 
     assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).getImpacts()).extracting(i -> i.getSoftwareQuality(), i -> i.getSeverity())
-      .containsExactly(tuple(SoftwareQuality.RELIABILITY, Severity.LOW));
+      .containsExactly(tuple(RELIABILITY, LOW));
 
   }
 
@@ -842,12 +844,12 @@ public class IssueDaoIT {
     prepareTables();
     IssueDto issueDto = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)
       .setSelectedAt(1_400_000_000_000L)
-      .replaceAllImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(Severity.LOW)));
+      .replaceAllImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(RELIABILITY).setSeverity(LOW)));
 
     underTest.updateIfBeforeSelectedDate(db.getSession(), issueDto);
 
     assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).getImpacts()).extracting(i -> i.getSoftwareQuality(), i -> i.getSeverity())
-      .containsExactlyInAnyOrder(tuple(SoftwareQuality.RELIABILITY, Severity.MEDIUM), tuple(SoftwareQuality.SECURITY, Severity.LOW));
+      .containsExactlyInAnyOrder(tuple(RELIABILITY, MEDIUM), tuple(SECURITY, LOW));
   }
 
   private static IssueDto createIssueWithKey(String issueKey) {
@@ -898,8 +900,8 @@ public class IssueDaoIT {
       .setRuleUuid(RULE.getUuid())
       .setComponentUuid(FILE_UUID)
       .setProjectUuid(PROJECT_UUID)
-      .addImpact(newIssueImpact(SoftwareQuality.RELIABILITY, Severity.MEDIUM))
-      .addImpact(newIssueImpact(SoftwareQuality.SECURITY, Severity.LOW)));
+      .addImpact(newIssueImpact(RELIABILITY, MEDIUM))
+      .addImpact(newIssueImpact(SECURITY, LOW)));
     underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY2)
       .setRuleUuid(RULE.getUuid())
       .setComponentUuid(FILE_UUID)

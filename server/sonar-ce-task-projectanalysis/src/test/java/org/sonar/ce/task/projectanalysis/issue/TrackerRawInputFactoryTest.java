@@ -34,7 +34,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -66,6 +65,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
+import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.scanner.protocol.output.ScannerReport.MessageFormattingType.CODE;
 
 @RunWith(DataProviderRunner.class)
@@ -128,13 +130,13 @@ public class TrackerRawInputFactoryTest {
   public void load_issues_from_report() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
-    registerRule(ruleKey, "name", r -> r.addDefaultImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
+    registerRule(ruleKey, "name", r -> r.addDefaultImpact(MAINTAINABILITY, LOW));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
       .addMsgFormatting(ScannerReport.MessageFormatting.newBuilder().setStart(0).setEnd(3).setType(CODE).build())
       .addOverridenImpacts(ScannerReport.Impact.newBuilder()
-        .setSoftwareQuality(SoftwareQuality.MAINTAINABILITY.name())
+        .setSoftwareQuality(MAINTAINABILITY.name())
         .setSeverity(org.sonar.api.issue.impact.Severity.HIGH.name())
         .build())
       .setRuleRepository(ruleKey.repository())
@@ -171,13 +173,14 @@ public class TrackerRawInputFactoryTest {
     assertInitializedIssue(issue);
     assertThat(issue.effort()).isNull();
     assertThat(issue.getRuleDescriptionContextKey()).isEmpty();
-    assertThat(issue.impacts()).containsExactlyEntriesOf(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
+    assertThat(issue.impacts()).containsExactlyEntriesOf(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH));
   }
 
   @Test
   public void load_issues_from_report_with_locations() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
+    registerRule(ruleKey, "name");
 
     ScannerReport.MessageFormatting messageFormatting = ScannerReport.MessageFormatting.newBuilder().setStart(0).setEnd(4).setType(CODE).build();
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
@@ -223,6 +226,7 @@ public class TrackerRawInputFactoryTest {
   public void load_issues_from_report_with_rule_description_context_key() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
+    registerRule(ruleKey, "name");
 
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(newTextRange(2))
@@ -245,31 +249,30 @@ public class TrackerRawInputFactoryTest {
   public void create_whenImpactIsNotDefinedAtRuleLevel_shouldDiscardImpacts() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
-    registerRule(ruleKey, "name", r -> r.addDefaultImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW));
+    registerRule(ruleKey, "name", r -> r.addDefaultImpact(MAINTAINABILITY, LOW));
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
       .setRuleRepository(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
       .addOverridenImpacts(ScannerReport.Impact.newBuilder()
-        .setSoftwareQuality(SoftwareQuality.SECURITY.name())
-        .setSeverity(org.sonar.api.issue.impact.Severity.LOW.name()).build())
+        .setSoftwareQuality(SECURITY.name())
+        .setSeverity(LOW.name()).build())
       .build();
     reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
+
     Input<DefaultIssue> input = underTest.create(FILE);
 
     Collection<DefaultIssue> issues = input.getIssues();
-    assertThat(issues)
-      .hasSize(1);
-    assertThat(issues.iterator().next().impacts()).isEmpty();
+    assertThat(issues).hasSize(1);
+    assertThat(issues.iterator().next().impacts()).hasSize(1).containsEntry(MAINTAINABILITY, LOW);
   }
 
   @Test
   public void set_rule_name_as_message_when_issue_message_from_report_is_empty() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
-    registerRule(ruleKey, "Rule 1", r -> {
-    });
+    registerRule(ruleKey, "Rule 1");
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setRuleRepository(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
@@ -295,6 +298,7 @@ public class TrackerRawInputFactoryTest {
   public void load_issues_from_report_missing_secondary_location_component() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
+    registerRule(ruleKey, "name");
 
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(newTextRange(2))
@@ -337,9 +341,7 @@ public class TrackerRawInputFactoryTest {
   @Test
   @UseDataProvider("ruleTypeAndStatusByIssueType")
   public void load_external_issues_from_report(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
-    registerRule(RuleKey.of("external_eslint", "S001"), "rule", r -> {
-      r.addDefaultImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.LOW);
-    });
+    registerRule(RuleKey.of("external_eslint", "S001"), "rule", r -> r.addDefaultImpact(MAINTAINABILITY, LOW));
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
@@ -350,7 +352,7 @@ public class TrackerRawInputFactoryTest {
       .setEffort(20L)
       .setType(issueType)
       .addFlow(ScannerReport.Flow.newBuilder().setType(FlowType.DATA).addLocation(ScannerReport.IssueLocation.newBuilder().build()).build())
-      .addImpacts(ScannerReport.Impact.newBuilder().setSoftwareQuality(SoftwareQuality.MAINTAINABILITY.name())
+      .addImpacts(ScannerReport.Impact.newBuilder().setSoftwareQuality(MAINTAINABILITY.name())
         .setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM.name()).build())
       .build();
     reportReader.putExternalIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
@@ -386,7 +388,7 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.tags()).isEmpty();
     assertInitializedExternalIssue(issue, expectedStatus);
 
-    assertThat(issue.impacts()).containsExactlyEntriesOf(Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM));
+    assertThat(issue.impacts()).containsExactlyEntriesOf(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM));
   }
 
   @DataProvider
@@ -402,8 +404,7 @@ public class TrackerRawInputFactoryTest {
   @Test
   @UseDataProvider("ruleTypeAndStatusByIssueType")
   public void load_external_issues_from_report_with_default_effort(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
-    registerRule(RuleKey.of("external_eslint", "S001"), "rule", r -> {
-    });
+    registerRule(RuleKey.of("external_eslint", "S001"), "rule");
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(newTextRange(2))
       .setMsg("the message")
@@ -453,9 +454,8 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void create_whenSeverityAndTypeNotProvidedByIssueAndRule_shouldTakeFromTheRuleImpact() {
-    registerRule(RuleKey.of("external_eslint", "S001"), "rule", r -> {
-      r.addDefaultImpact(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM);
-    });
+    registerRule(RuleKey.of("external_eslint", "S001"), "rule",
+      r -> r.addDefaultImpact(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM));
     ScannerReport.ExternalIssue reportIssue = createIssue(null, null);
     reportReader.putExternalIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
     Input<DefaultIssue> input = underTest.create(FILE);
@@ -508,6 +508,7 @@ public class TrackerRawInputFactoryTest {
   public void filter_excludes_issues_from_report() {
     RuleKey ruleKey = RuleKey.of("java", "S001");
     markRuleAsActive(ruleKey);
+    registerRule(ruleKey, "name");
     when(issueFilter.accept(any(), eq(FILE))).thenReturn(false);
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(newTextRange(2))
@@ -568,6 +569,10 @@ public class TrackerRawInputFactoryTest {
 
   private void markRuleAsActive(RuleKey ruleKey) {
     activeRulesHolder.put(new ActiveRule(ruleKey, Severity.CRITICAL, emptyMap(), 1_000L, null, "qp1"));
+  }
+
+  private void registerRule(RuleKey ruleKey, String name) {
+    registerRule(ruleKey, name, r -> {});
   }
 
   private void registerRule(RuleKey ruleKey, String name, Consumer<DumbRule> dumbRulePopulator) {
