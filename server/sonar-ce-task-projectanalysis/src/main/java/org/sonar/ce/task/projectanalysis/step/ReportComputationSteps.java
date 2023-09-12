@@ -26,6 +26,7 @@ import org.sonar.ce.task.projectanalysis.filemove.FileMoveDetectionStep;
 import org.sonar.ce.task.projectanalysis.filemove.PullRequestFileMoveDetectionStep;
 import org.sonar.ce.task.projectanalysis.language.HandleUnanalyzedLanguagesStep;
 import org.sonar.ce.task.projectanalysis.measure.PostMeasuresComputationChecksStep;
+import org.sonar.ce.task.projectanalysis.measure.PreMeasuresComputationChecksStep;
 import org.sonar.ce.task.projectanalysis.purge.PurgeDatastoresStep;
 import org.sonar.ce.task.projectanalysis.qualityprofile.RegisterQualityProfileStatusStep;
 import org.sonar.ce.task.projectanalysis.source.PersistFileSourcesStep;
@@ -49,6 +50,9 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     BuildComponentTreeStep.class,
     ValidateProjectStep.class,
     LoadQualityProfilesStep.class,
+
+    // Pre analysis operations
+    PreMeasuresComputationChecksStep.class,
 
     // load project related stuffs
     LoadFileHashesAndStatusStep.class,
