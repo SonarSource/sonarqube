@@ -23,18 +23,18 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.sql.Date;
-import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kohsuke.github.GHRateLimit;
-import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
 
 import static java.lang.String.format;
+import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.alm.client.github.RatioBasedRateLimitChecker.RATE_RATIO_EXCEEDED_MESSAGE;
 
@@ -63,18 +63,19 @@ public class RatioBasedRateLimitCheckerTest {
   @Test
   @UseDataProvider("rates")
   public void checkRateLimit(int limit, int remaining, boolean rateLimitShouldBeExceeded) throws InterruptedException {
-    GHRateLimit.Record record = Mockito.mock(GHRateLimit.Record.class);
+    GHRateLimit.Record record = mock();
     when(record.getLimit()).thenReturn(limit);
     when(record.getRemaining()).thenReturn(remaining);
-    when(record.getResetDate()).thenReturn(Date.from(Instant.now().plus(100, ChronoUnit.MILLIS)));
+    when(record.getResetDate()).thenReturn(Date.from(now().plus(100, ChronoUnit.MILLIS)));
 
     long start = System.currentTimeMillis();
     boolean result = ratioBasedRateLimitChecker.checkRateLimit(record, 10);
     long stop = System.currentTimeMillis();
     long totalTime = stop - start;
+
     if (rateLimitShouldBeExceeded) {
       assertThat(result).isTrue();
-      assertThat(totalTime).isGreaterThanOrEqualTo(MILLIS_BEFORE_RESET - 10);
+      assertThat(stop).isGreaterThanOrEqualTo(record.getResetDate().getTime());
       assertThat(logTester.logs(Level.WARN)).contains(
         format(RATE_RATIO_EXCEEDED_MESSAGE.replaceAll("\\{\\}", "%s"), limit - remaining, limit));
     } else {
