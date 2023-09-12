@@ -63,7 +63,7 @@ exports[`should display the edition 1`] = `
             Project aggregation
           </li>
           <li>
-            Additional languages: C, C++, Obj-C, PS/SQL, ABAP, TSQL & Swift
+            Additional languages: C, C++, Obj-C, PL/SQL, ABAP, TSQL & Swift
           </li>
         </ul>
       </div>

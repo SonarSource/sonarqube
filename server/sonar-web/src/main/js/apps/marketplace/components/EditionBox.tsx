@@ -103,7 +103,7 @@ export default function EditionBox({ edition, ncloc, serverId, currentEdition }:
                 </li>
                 <li>Branch analysis</li>
                 <li>Project aggregation</li>
-                <li>Additional languages: C, C++, Obj-C, PS/SQL, ABAP, TSQL &amp; Swift</li>
+                <li>Additional languages: C, C++, Obj-C, PL/SQL, ABAP, TSQL &amp; Swift</li>
               </ul>
             </div>
           </div>
