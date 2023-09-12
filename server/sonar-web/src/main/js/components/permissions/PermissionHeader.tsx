@@ -81,6 +81,7 @@ export default class PermissionHeader extends React.PureComponent<Props> {
     }
     return (
       <th
+        scope="col"
         className={classNames('permission-column text-center text-middle', {
           selected:
             !isPermissionDefinitionGroup(permission) &&

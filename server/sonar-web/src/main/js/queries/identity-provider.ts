@@ -19,6 +19,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { isEqual, omit } from 'lodash';
 import { useContext } from 'react';
 import {
   activateGithubProvisioning,
@@ -27,14 +28,19 @@ import {
   deactivateGithubProvisioning,
   deactivateScim,
   fetchGithubProvisioningStatus,
+  fetchGithubRolesMapping,
   fetchIsScimEnabled,
   syncNowGithubProvisioning,
+  updateGithubRolesMapping,
 } from '../api/provisioning';
 import { getSystemInfo } from '../api/system';
 import { AvailableFeaturesContext } from '../app/components/available-features/AvailableFeaturesContext';
 import { mapReactQueryResult } from '../helpers/react-query';
 import { Feature } from '../types/features';
+import { GitHubMapping } from '../types/provisioning';
 import { SysInfoCluster } from '../types/types';
+
+const MAPPING_STALE_TIME = 60_000;
 
 export function useIdentityProviderQuery() {
   return useQuery(['identity_provider'], async () => {
@@ -114,4 +120,52 @@ export function useSyncWithGitHubNow() {
     synchronizeNow: mutation.mutate,
     canSyncNow: data?.enabled && !data.nextSync && !mutation.isLoading,
   };
+}
+
+export function useGithubRolesMappingQuery() {
+  return useQuery(['identity_provider', 'github_mapping'], fetchGithubRolesMapping, {
+    staleTime: MAPPING_STALE_TIME,
+    select: (data) =>
+      data.sort((a, b) => {
+        const hardcodedValues = ['admin', 'maintain', 'write', 'triage', 'read'];
+        if (hardcodedValues.includes(a.id) || hardcodedValues.includes(b.id)) {
+          return hardcodedValues.indexOf(b.id) - hardcodedValues.indexOf(a.id);
+        }
+        return a.roleName.localeCompare(b.roleName);
+      }),
+  });
+}
+
+export function useGithubRolesMappingMutation() {
+  const client = useQueryClient();
+  const queryKey = ['identity_provider', 'github_mapping'];
+  return useMutation({
+    mutationFn: (mapping: GitHubMapping[]) => {
+      const state = client.getQueryData<GitHubMapping[]>(queryKey);
+      const changedRoles = state
+        ? mapping.filter(
+            (item) =>
+              !isEqual(
+                item,
+                state.find((el) => el.id === item.id)
+              )
+          )
+        : mapping;
+      return Promise.all(
+        changedRoles.map((data) => updateGithubRolesMapping(data.id, omit(data, 'id', 'roleName')))
+      );
+    },
+    onSuccess: (data) => {
+      const state = client.getQueryData<GitHubMapping[]>(queryKey);
+      if (state) {
+        client.setQueryData(
+          queryKey,
+          state.map((item) => {
+            const changed = data.find((el) => el.id === item.id);
+            return changed ?? item;
+          })
+        );
+      }
+    },
+  });
 }

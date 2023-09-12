@@ -75,3 +75,16 @@ export interface GitHubConfigurationStatus {
     autoProvisioning: GitHubProvisioning;
   }[];
 }
+
+export interface GitHubMapping {
+  id: string;
+  roleName: string;
+  permissions: {
+    user: boolean;
+    codeviewer: boolean;
+    issueadmin: boolean;
+    securityhotspotadmin: boolean;
+    admin: boolean;
+    scan: boolean;
+  };
+}

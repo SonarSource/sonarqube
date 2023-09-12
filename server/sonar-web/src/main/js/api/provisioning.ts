@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import axios from 'axios';
 import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, postJSON } from '../helpers/request';
-import { GitHubConfigurationStatus, GithubStatus } from '../types/provisioning';
+import { GitHubConfigurationStatus, GitHubMapping, GithubStatus } from '../types/provisioning';
 
 export function fetchIsScimEnabled(): Promise<boolean> {
   return getJSON('/api/scim_management/status')
@@ -53,4 +54,15 @@ export function checkConfigurationValidity(): Promise<GitHubConfigurationStatus>
 
 export function syncNowGithubProvisioning(): Promise<void> {
   return post('/api/github_provisioning/sync').catch(throwGlobalError);
+}
+
+export function fetchGithubRolesMapping(): Promise<GitHubMapping[]> {
+  return axios.get('/api/v2/github-permissions-mapping');
+}
+
+export function updateGithubRolesMapping(
+  role: string,
+  data: Partial<Pick<GitHubMapping, 'permissions'>>
+): Promise<GitHubMapping> {
+  return axios.patch(`/api/v2/github-permissions-mapping/${role}`, data);
 }

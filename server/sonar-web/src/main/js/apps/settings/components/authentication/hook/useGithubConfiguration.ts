@@ -22,10 +22,12 @@ import { useContext, useState } from 'react';
 import { AvailableFeaturesContext } from '../../../../../app/components/available-features/AvailableFeaturesContext';
 import {
   useGithubProvisioningEnabledQuery,
+  useGithubRolesMappingMutation,
   useToggleGithubProvisioningMutation,
 } from '../../../../../queries/identity-provider';
 import { useSaveValueMutation, useSaveValuesMutation } from '../../../../../queries/settings';
 import { Feature } from '../../../../../types/features';
+import { GitHubMapping } from '../../../../../types/provisioning';
 import { ExtendedSettingDefinition } from '../../../../../types/settings';
 import useConfiguration from './useConfiguration';
 
@@ -63,11 +65,12 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
   const { data: githubProvisioningStatus } = useGithubProvisioningEnabledQuery();
   const toggleGithubProvisioning = useToggleGithubProvisioningMutation();
   const [newGithubProvisioningStatus, setNewGithubProvisioningStatus] = useState<boolean>();
+  const [rolesMapping, setRolesMapping] = useState<GitHubMapping[] | null>(null);
   const hasGithubProvisioningTypeChange =
     newGithubProvisioningStatus !== undefined &&
     newGithubProvisioningStatus !== githubProvisioningStatus;
   const hasGithubProvisioningConfigChange =
-    some(GITHUB_ADDITIONAL_FIELDS, isValueChange) || hasGithubProvisioningTypeChange;
+    some(GITHUB_ADDITIONAL_FIELDS, isValueChange) || hasGithubProvisioningTypeChange || rolesMapping;
 
   const resetJitSetting = () => {
     GITHUB_ADDITIONAL_FIELDS.forEach((s) => setNewValue(s));
@@ -75,6 +78,7 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
 
   const { mutate: saveSetting } = useSaveValueMutation();
   const { mutate: saveSettings } = useSaveValuesMutation();
+  const { mutate: updateMapping } = useGithubRolesMappingMutation();
 
   const enabled = values[GITHUB_ENABLED_FIELD]?.value === 'true';
   const appId = values[GITHUB_APP_ID_FIELD]?.value as string;
@@ -88,11 +92,20 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
     if (!newGithubProvisioningStatus || !githubProvisioningStatus) {
       saveGroup();
     }
+    if (newGithubProvisioningStatus ?? githubProvisioningStatus) {
+      saveMapping();
+    }
   };
 
   const saveGroup = () => {
     const newValues = GITHUB_ADDITIONAL_FIELDS.map((settingKey) => values[settingKey]);
     saveSettings(newValues);
+  };
+
+  const saveMapping = () => {
+    if (rolesMapping) {
+      updateMapping(rolesMapping);
+    }
   };
 
   const toggleEnable = () => {
@@ -102,6 +115,11 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
 
   const hasLegacyConfiguration = appId === undefined && !clientIdIsNotSet;
 
+  const setProvisioningType = (value: boolean | undefined) => {
+    setRolesMapping(null);
+    setNewGithubProvisioningStatus(value);
+  };
+
   return {
     ...config,
     url,
@@ -110,13 +128,16 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
     hasGithubProvisioning,
     githubProvisioningStatus,
     newGithubProvisioningStatus,
-    setNewGithubProvisioningStatus,
+    setProvisioningType,
     hasGithubProvisioningTypeChange,
     hasGithubProvisioningConfigChange,
     changeProvisioning,
     saveGroup,
     resetJitSetting,
     toggleEnable,
+    rolesMapping,
+    setRolesMapping,
+    saveMapping,
     hasLegacyConfiguration,
   };
 }

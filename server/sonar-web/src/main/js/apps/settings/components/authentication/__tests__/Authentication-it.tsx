@@ -148,6 +148,18 @@ const ui = {
     enableConfigButton: byRole('button', { name: 'settings.authentication.form.enable' }),
     disableConfigButton: byRole('button', { name: 'settings.authentication.form.disable' }),
     editConfigButton: byRole('button', { name: 'settings.authentication.form.edit' }),
+    editMappingButton: byRole('button', {
+      name: 'settings.authentication.github.configuration.roles_mapping.button_label',
+    }),
+    mappingRow: byRole('dialog', {
+      name: 'settings.authentication.github.configuration.roles_mapping.dialog.title',
+    }).byRole('row'),
+    mappingCheckbox: byRole('checkbox'),
+    mappingDialogClose: byRole('dialog', {
+      name: 'settings.authentication.github.configuration.roles_mapping.dialog.title',
+    }).byRole('button', {
+      name: 'close',
+    }),
     deleteOrg: (org: string) =>
       byRole('button', {
         name: `settings.definition.delete_value.property.sonar.auth.github.organizations.name.${org}`,
@@ -826,6 +838,103 @@ describe('Github tab', () => {
 
       expect(await github.jitProvisioningButton.find()).toBeChecked();
       expect(github.consentDialog.query()).not.toBeInTheDocument();
+    });
+
+    it('should sort mapping rows', async () => {
+      const user = userEvent.setup();
+      settingsHandler.presetGithubAutoProvisioning();
+      handler.enableGithubProvisioning();
+      renderAuthentication([Feature.GithubProvisioning]);
+      await user.click(await github.tab.find());
+
+      expect(await github.editMappingButton.find()).toBeInTheDocument();
+      await user.click(github.editMappingButton.get());
+
+      expect(await github.mappingRow.findAll()).toHaveLength(6);
+      expect(github.mappingRow.getAt(1)).toHaveTextContent('read');
+      expect(github.mappingRow.getAt(2)).toHaveTextContent('triage');
+      expect(github.mappingRow.getAt(3)).toHaveTextContent('write');
+      expect(github.mappingRow.getAt(4)).toHaveTextContent('maintain');
+      expect(github.mappingRow.getAt(5)).toHaveTextContent('admin');
+    });
+
+    it('should apply new mapping and new provisioning type at the same time', async () => {
+      const user = userEvent.setup();
+      renderAuthentication([Feature.GithubProvisioning]);
+      await user.click(await github.tab.find());
+
+      await github.createConfiguration(user);
+      await user.click(await github.enableConfigButton.find());
+
+      expect(await github.jitProvisioningButton.find()).toBeChecked();
+      expect(github.editMappingButton.query()).not.toBeInTheDocument();
+      await user.click(github.githubProvisioningButton.get());
+      expect(await github.editMappingButton.find()).toBeInTheDocument();
+      await user.click(github.editMappingButton.get());
+
+      expect(await github.mappingRow.findAll()).toHaveLength(6);
+
+      let rowOneCheckboxes = github.mappingCheckbox.getAll(github.mappingRow.getAt(1));
+      let rowFiveCheckboxes = github.mappingCheckbox.getAll(github.mappingRow.getAt(5));
+
+      expect(rowOneCheckboxes[0]).toBeChecked();
+      expect(rowOneCheckboxes[5]).not.toBeChecked();
+      expect(rowFiveCheckboxes[5]).toBeChecked();
+
+      await user.click(rowOneCheckboxes[0]);
+      await user.click(rowOneCheckboxes[5]);
+      await user.click(rowFiveCheckboxes[5]);
+      await user.click(github.mappingDialogClose.get());
+
+      await user.click(github.saveGithubProvisioning.get());
+      await act(() => user.click(github.confirmProvisioningButton.get()));
+
+      // Clean local mapping state
+      await user.click(github.jitProvisioningButton.get());
+      await user.click(github.githubProvisioningButton.get());
+
+      await user.click(github.editMappingButton.get());
+      rowOneCheckboxes = github.mappingCheckbox.getAll(github.mappingRow.getAt(1));
+      rowFiveCheckboxes = github.mappingCheckbox.getAll(github.mappingRow.getAt(5));
+
+      expect(rowOneCheckboxes[0]).not.toBeChecked();
+      expect(rowOneCheckboxes[5]).toBeChecked();
+      expect(rowFiveCheckboxes[5]).not.toBeChecked();
+      await user.click(github.mappingDialogClose.get());
+    });
+
+    it('should apply new mapping on auto-provisioning', async () => {
+      const user = userEvent.setup();
+      settingsHandler.presetGithubAutoProvisioning();
+      handler.enableGithubProvisioning();
+      renderAuthentication([Feature.GithubProvisioning]);
+      await user.click(await github.tab.find());
+
+      expect(await github.saveGithubProvisioning.find()).toBeDisabled();
+      await user.click(github.editMappingButton.get());
+
+      expect(await github.mappingRow.findAll()).toHaveLength(6);
+
+      let rowOneCheckbox = github.mappingCheckbox.getAll(github.mappingRow.getAt(1))[0];
+
+      expect(rowOneCheckbox).toBeChecked();
+
+      await user.click(rowOneCheckbox);
+      await user.click(github.mappingDialogClose.get());
+
+      expect(await github.saveGithubProvisioning.find()).toBeEnabled();
+
+      await act(() => user.click(github.saveGithubProvisioning.get()));
+
+      // Clean local mapping state
+      await user.click(github.jitProvisioningButton.get());
+      await user.click(github.githubProvisioningButton.get());
+
+      await user.click(github.editMappingButton.get());
+      rowOneCheckbox = github.mappingCheckbox.getAll(github.mappingRow.getAt(1))[0];
+
+      expect(rowOneCheckbox).not.toBeChecked();
+      await user.click(github.mappingDialogClose.get());
     });
   });
 });

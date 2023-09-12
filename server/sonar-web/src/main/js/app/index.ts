@@ -22,11 +22,14 @@
 /* String.prototype.replaceAll. This is why we also import core-js.                             */
 import 'core-js/stable';
 /*                                                                                              */
+import axios from 'axios';
 import { getAvailableFeatures } from '../api/features';
 import { getGlobalNavigation } from '../api/navigation';
 import { getCurrentUser } from '../api/users';
 import { installExtensionsHandler, installWebAnalyticsHandler } from '../helpers/extensionsHandler';
+import { addGlobalErrorMessage } from '../helpers/globalMessages';
 import { loadL10nBundle } from '../helpers/l10nBundle';
+import { axiosToCatch, parseErrorResponse } from '../helpers/request';
 import { getBaseUrl, getSystemStatus, initAppVariables } from '../helpers/system';
 import './styles/sonar.ts';
 
@@ -36,6 +39,15 @@ initAppVariables();
 initApplication();
 
 async function initApplication() {
+  axiosToCatch.interceptors.response.use((response) => response.data);
+  axios.interceptors.response.use(
+    (response) => response.data,
+    (error) => {
+      const { response } = error;
+      addGlobalErrorMessage(parseErrorResponse(response));
+      return Promise.reject(response);
+    }
+  );
   const [l10nBundle, currentUser, appState, availableFeatures] = await Promise.all([
     loadL10nBundle(),
     isMainApp() ? getCurrentUser() : undefined,

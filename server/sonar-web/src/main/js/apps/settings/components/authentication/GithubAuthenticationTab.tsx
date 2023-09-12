@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React, { useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynchronisationWarning';
 import DocLink from '../../../../components/common/DocLink';
@@ -41,6 +41,7 @@ import AuthenticationFormField from './AuthenticationFormField';
 import AutoProvisioningConsent from './AutoProvisionningConsent';
 import ConfigurationForm from './ConfigurationForm';
 import GitHubConfigurationValidity from './GitHubConfigurationValidity';
+import GitHubMappingModal from './GitHubMappingModal';
 import useGithubConfiguration, {
   GITHUB_ADDITIONAL_FIELDS,
   GITHUB_JIT_FIELDS,
@@ -58,6 +59,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
   const { definitions, currentTab } = props;
   const { data } = useIdentityProviderQuery();
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showMappingModal, setShowMappingModal] = useState(false);
   const [showConfirmProvisioningModal, setShowConfirmProvisioningModal] = useState(false);
 
   const {
@@ -72,13 +74,16 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
     appId,
     enabled,
     newGithubProvisioningStatus,
-    setNewGithubProvisioningStatus,
+    setProvisioningType,
     hasGithubProvisioningTypeChange,
     hasGithubProvisioningConfigChange,
     resetJitSetting,
     saveGroup,
     changeProvisioning,
     toggleEnable,
+    rolesMapping,
+    setRolesMapping,
+    saveMapping,
     hasLegacyConfiguration,
     deleteMutation: { isLoading: isDeleting, mutate: deleteConfiguration },
   } = useGithubConfiguration(definitions);
@@ -94,6 +99,18 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
   const handleCloseConfiguration = () => {
     refetch();
     setShowEditModal(false);
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (hasGithubProvisioningTypeChange) {
+      setShowConfirmProvisioningModal(true);
+    } else {
+      saveGroup();
+      if (newGithubProvisioningStatus ?? githubProvisioningStatus) {
+        saveMapping();
+      }
+    }
   };
 
   return (
@@ -171,16 +188,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
             </div>
           </div>
           <div className="spacer-bottom big-padded bordered display-flex-space-between">
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                if (hasGithubProvisioningTypeChange) {
-                  setShowConfirmProvisioningModal(true);
-                } else {
-                  await saveGroup();
-                }
-              }}
-            >
+            <form onSubmit={handleSubmit}>
               <fieldset className="display-flex-column big-spacer-bottom">
                 <label className="h5">
                   {translate('settings.authentication.form.provisioning')}
@@ -192,7 +200,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                       label={translate('settings.authentication.form.provisioning_at_login')}
                       title={translate('settings.authentication.form.provisioning_at_login')}
                       selected={!(newGithubProvisioningStatus ?? githubProvisioningStatus)}
-                      onClick={() => setNewGithubProvisioningStatus(false)}
+                      onClick={() => setProvisioningType(false)}
                     >
                       <p className="spacer-bottom">
                         <FormattedMessage id="settings.authentication.github.form.provisioning_at_login.description" />
@@ -246,7 +254,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                         'settings.authentication.github.form.provisioning_with_github',
                       )}
                       selected={newGithubProvisioningStatus ?? githubProvisioningStatus}
-                      onClick={() => setNewGithubProvisioningStatus(true)}
+                      onClick={() => setProvisioningType(true)}
                       disabled={!hasGithubProvisioning || hasDifferentProvider}
                     >
                       {hasGithubProvisioning ? (
@@ -347,7 +355,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                   <ResetButtonLink
                     className="spacer-left"
                     onClick={() => {
-                      setNewGithubProvisioningStatus(undefined);
+                      setProvisioningType(undefined);
                       resetJitSetting();
                     }}
                     disabled={!hasGithubProvisioningConfigChange}
@@ -373,6 +381,13 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                     'description',
                   )}
                 </ConfirmModal>
+              )}
+              {showMappingModal && (
+                <GitHubMappingModal
+                  mapping={rolesMapping}
+                  setMapping={setRolesMapping}
+                  onClose={() => setShowMappingModal(false)}
+                />
               )}
             </form>
           </div>

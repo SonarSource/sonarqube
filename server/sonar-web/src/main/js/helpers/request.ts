@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import axios, { AxiosResponse } from 'axios';
 import { isNil, omitBy } from 'lodash';
 import { Dict } from '../types/types';
 import { getCookie } from './cookies';
@@ -189,8 +190,25 @@ export function parseText(response: Response): Promise<string> {
 export function parseError(response: Response): Promise<string> {
   const DEFAULT_MESSAGE = translate('default_error_message');
   return parseJSON(response)
-    .then(({ errors, message }) => message ?? errors.map((error: any) => error.msg).join('. '))
+    .then(parseErrorResponse)
     .catch(() => DEFAULT_MESSAGE);
+}
+
+export function parseErrorResponse(response?: AxiosResponse | Response): string {
+  const DEFAULT_MESSAGE = translate('default_error_message');
+  let data;
+  if (!response) {
+    return DEFAULT_MESSAGE;
+  }
+  if ('data' in response) {
+    ({ data } = response);
+  } else {
+    data = response;
+  }
+  const { message, errors } = data;
+  return (
+    message ?? errors?.map((error: { msg: string }) => error.msg).join('. ') ?? DEFAULT_MESSAGE
+  );
 }
 
 /**
@@ -348,3 +366,5 @@ export enum HttpStatus {
   ServiceUnavailable = 503,
   GatewayTimeout = 504,
 }
+
+export const axiosToCatch = axios.create();

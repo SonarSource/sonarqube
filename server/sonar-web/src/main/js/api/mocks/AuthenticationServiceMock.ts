@@ -19,7 +19,11 @@
  */
 import { cloneDeep } from 'lodash';
 import { mockTask } from '../../helpers/mocks/tasks';
-import { GitHubConfigurationStatus, GitHubProvisioningStatus } from '../../types/provisioning';
+import {
+  GitHubConfigurationStatus,
+  GitHubMapping,
+  GitHubProvisioningStatus,
+} from '../../types/provisioning';
 import { Task, TaskStatuses, TaskTypes } from '../../types/tasks';
 import {
   activateGithubProvisioning,
@@ -28,7 +32,9 @@ import {
   deactivateGithubProvisioning,
   deactivateScim,
   fetchGithubProvisioningStatus,
+  fetchGithubRolesMapping,
   fetchIsScimEnabled,
+  updateGithubRolesMapping,
 } from '../provisioning';
 
 jest.mock('../provisioning');
@@ -55,16 +61,81 @@ const defaultConfigurationStatus: GitHubConfigurationStatus = {
   ],
 };
 
+const defaultMapping: GitHubMapping[] = [
+  {
+    id: 'read',
+    roleName: 'read',
+    permissions: {
+      user: true,
+      codeviewer: true,
+      issueadmin: false,
+      securityhotspotadmin: false,
+      admin: false,
+      scan: false,
+    },
+  },
+  {
+    id: 'write',
+    roleName: 'write',
+    permissions: {
+      user: true,
+      codeviewer: true,
+      issueadmin: true,
+      securityhotspotadmin: true,
+      admin: false,
+      scan: true,
+    },
+  },
+  {
+    id: 'triage',
+    roleName: 'triage',
+    permissions: {
+      user: true,
+      codeviewer: true,
+      issueadmin: false,
+      securityhotspotadmin: false,
+      admin: false,
+      scan: false,
+    },
+  },
+  {
+    id: 'maintain',
+    roleName: 'maintain',
+    permissions: {
+      user: true,
+      codeviewer: true,
+      issueadmin: true,
+      securityhotspotadmin: true,
+      admin: false,
+      scan: true,
+    },
+  },
+  {
+    id: 'admin',
+    roleName: 'admin',
+    permissions: {
+      user: true,
+      codeviewer: true,
+      issueadmin: true,
+      securityhotspotadmin: true,
+      admin: true,
+      scan: true,
+    },
+  },
+];
+
 export default class AuthenticationServiceMock {
   scimStatus: boolean;
   githubProvisioningStatus: boolean;
   githubConfigurationStatus: GitHubConfigurationStatus;
+  githubMapping: GitHubMapping[];
   tasks: Task[];
 
   constructor() {
     this.scimStatus = false;
     this.githubProvisioningStatus = false;
     this.githubConfigurationStatus = cloneDeep(defaultConfigurationStatus);
+    this.githubMapping = cloneDeep(defaultMapping);
     this.tasks = [];
     jest.mocked(activateScim).mockImplementation(this.handleActivateScim);
     jest.mocked(deactivateScim).mockImplementation(this.handleDeactivateScim);
@@ -81,6 +152,8 @@ export default class AuthenticationServiceMock {
     jest
       .mocked(checkConfigurationValidity)
       .mockImplementation(this.handleCheckConfigurationValidity);
+    jest.mocked(fetchGithubRolesMapping).mockImplementation(this.handleFetchGithubRolesMapping);
+    jest.mocked(updateGithubRolesMapping).mockImplementation(this.handleUpdateGithubRolesMapping);
   }
 
   addProvisioningTask = (overrides: Partial<Omit<Task, 'type'>> = {}) => {
@@ -162,10 +235,25 @@ export default class AuthenticationServiceMock {
     return Promise.resolve(this.githubConfigurationStatus);
   };
 
+  handleFetchGithubRolesMapping: typeof fetchGithubRolesMapping = () => {
+    return Promise.resolve(this.githubMapping);
+  };
+
+  handleUpdateGithubRolesMapping: typeof updateGithubRolesMapping = (id, data) => {
+    this.githubMapping = this.githubMapping.map((mapping) =>
+      mapping.id === id ? { ...mapping, ...data } : mapping
+    );
+
+    return Promise.resolve(
+      this.githubMapping.find((mapping) => mapping.id === id) as GitHubMapping
+    );
+  };
+
   reset = () => {
     this.scimStatus = false;
     this.githubProvisioningStatus = false;
     this.githubConfigurationStatus = cloneDeep(defaultConfigurationStatus);
+    this.githubMapping = cloneDeep(defaultMapping);
     this.tasks = [];
   };
 }
