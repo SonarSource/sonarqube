@@ -464,6 +464,7 @@ export default class CodingRulesServiceMock {
     }
     const responseRules = filteredRules.slice((currentP - 1) * currentPs, currentP * currentPs);
     return this.reply({
+      actives: qprofile ? this.rulesActivations : undefined,
       rules: responseRules,
       facets: facetCounts,
       paging: mockPaging({

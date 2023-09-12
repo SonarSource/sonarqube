@@ -20,6 +20,8 @@
 import { act, fireEvent, screen } from '@testing-library/react';
 import selectEvent from 'react-select-event';
 import CodingRulesServiceMock, { RULE_TAGS_MOCK } from '../../../api/mocks/CodingRulesServiceMock';
+import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
+import { QP_2 } from '../../../api/mocks/data/ids';
 import { CLEAN_CODE_CATEGORIES, SOFTWARE_QUALITIES } from '../../../helpers/constants';
 import { parseDate } from '../../../helpers/dates';
 import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
@@ -29,13 +31,18 @@ import {
   CleanCodeAttributeCategory,
   SoftwareQuality,
 } from '../../../types/clean-code-taxonomy';
+import { SettingsKey } from '../../../types/settings';
 import { CurrentUser } from '../../../types/users';
 import routes from '../routes';
 import { getPageObjects } from '../utils-tests';
 
-const handler: CodingRulesServiceMock = new CodingRulesServiceMock();
+const rulesHandler = new CodingRulesServiceMock();
+const settingsHandler = new SettingsServiceMock();
 
-afterEach(() => handler.reset());
+afterEach(() => {
+  rulesHandler.reset();
+  settingsHandler.reset();
+});
 
 describe('Rules app list', () => {
   it('renders correctly', async () => {
@@ -45,7 +52,7 @@ describe('Rules app list', () => {
     await ui.appLoaded();
 
     // Renders list
-    handler
+    rulesHandler
       .allRulesName()
       .forEach((name) => expect(ui.ruleListItemLink(name).get()).toBeInTheDocument());
 
@@ -257,7 +264,7 @@ describe('Rules app list', () => {
   describe('bulk change', () => {
     it('no quality profile for bulk change based on language search', async () => {
       const { ui, user } = getPageObjects();
-      handler.setIsAdmin();
+      rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser());
       await ui.appLoaded();
 
@@ -276,13 +283,13 @@ describe('Rules app list', () => {
 
     it('should be able to bulk activate quality profile', async () => {
       const { ui, user } = getPageObjects();
-      handler.setIsAdmin();
+      rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser());
       await ui.appLoaded();
 
-      const [selectQPSuccess, selectQPWarning] = handler.allQualityProfile('java');
+      const [selectQPSuccess, selectQPWarning] = rulesHandler.allQualityProfile('java');
 
-      const rulesCount = handler.allRulesCount();
+      const rulesCount = rulesHandler.allRulesCount();
 
       await ui.bulkActivate(rulesCount, selectQPSuccess);
 
@@ -293,7 +300,7 @@ describe('Rules app list', () => {
       await user.click(ui.bulkClose.get());
 
       // Try bulk change when quality profile has warnning.
-      handler.activateWithWarning();
+      rulesHandler.activateWithWarning();
 
       await ui.bulkActivate(rulesCount, selectQPWarning);
       expect(
@@ -305,12 +312,12 @@ describe('Rules app list', () => {
 
     it('should be able to bulk deactivate quality profile', async () => {
       const { ui } = getPageObjects();
-      handler.setIsAdmin();
+      rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser());
       await ui.appLoaded();
 
-      const [selectQP] = handler.allQualityProfile('java');
-      const rulesCount = handler.allRulesCount();
+      const [selectQP] = rulesHandler.allQualityProfile('java');
+      const rulesCount = rulesHandler.allRulesCount();
 
       await ui.bulkDeactivate(rulesCount, selectQP);
 
@@ -322,34 +329,51 @@ describe('Rules app list', () => {
 
   it('can activate/deactivate specific rule for quality profile', async () => {
     const { ui, user } = getPageObjects();
+    rulesHandler.setIsAdmin();
     renderCodingRulesApp(mockLoggedInUser());
     await ui.appLoaded();
 
     await act(async () => {
       await user.click(ui.qpFacet.get());
-      await user.click(ui.facetItem('QP Foo Java').get());
+      await user.click(ui.facetItem('QP Bar Python').get());
     });
 
-    // Only one rule is activated in selected QP
-    expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
+    // Only 4 rules are activated in selected QP
+    expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(4);
 
     // Switch to inactive rules
     await act(async () => {
-      await user.click(ui.qpInactiveRadio.get(ui.facetItem('QP Foo Java').get()));
+      await user.click(ui.qpInactiveRadio.get(ui.facetItem('QP Bar Python').get()));
     });
-    expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
+    expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(2);
+    expect(ui.activateButton.getAll()).toHaveLength(2);
 
     // Activate Rule for qp
-    await user.click(ui.activateButton.get());
+    await user.click(ui.activateButton.getAll()[0]);
     await user.click(ui.activateButton.get(ui.activateQPDialog.get()));
-    expect(ui.activateButton.query()).not.toBeInTheDocument();
-    expect(ui.deactivateButton.get()).toBeInTheDocument();
+    expect(ui.activateButton.getAll()).toHaveLength(1);
+    expect(ui.deactivateButton.getAll()).toHaveLength(1);
 
     // Deactivate activated rule
     await user.click(ui.deactivateButton.get());
     await user.click(ui.yesButton.get());
     expect(ui.deactivateButton.query()).not.toBeInTheDocument();
-    expect(ui.activateButton.get()).toBeInTheDocument();
+    expect(ui.activateButton.getAll()).toHaveLength(2);
+  });
+
+  it('can not deactivate rules for quality profile if setting is false', async () => {
+    const { ui } = getPageObjects();
+    rulesHandler.setIsAdmin();
+    settingsHandler.set(SettingsKey.QPAdminCanDisableInheritedRules, 'false');
+    renderCodingRulesApp(
+      mockLoggedInUser(),
+      'coding_rules?activation=true&tags=cute&qprofile=' + QP_2,
+    );
+    await ui.appLoaded();
+
+    // Only rule 9 is shown (inherited, activated)
+    expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(1);
+    expect(ui.deactivateButton.get()).toBeDisabled();
   });
 
   it('navigates by keyboard', async () => {
@@ -508,7 +532,7 @@ describe('Rule app details', () => {
 
   it('can activate/change/deactivate rule in quality profile', async () => {
     const { ui, user } = getPageObjects();
-    handler.setIsAdmin();
+    rulesHandler.setIsAdmin();
     renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule1');
     await ui.appLoaded();
     expect(ui.qpLink('QP Foo').get()).toBeInTheDocument();
@@ -552,7 +576,7 @@ describe('Rule app details', () => {
 
   it('can extend the rule description', async () => {
     const { ui, user } = getPageObjects();
-    handler.setIsAdmin();
+    rulesHandler.setIsAdmin();
     renderCodingRulesApp(undefined, 'coding_rules?open=rule5');
     await ui.appLoaded();
     expect(ui.ruleTitle('Awsome Python rule').get()).toBeInTheDocument();
@@ -585,7 +609,7 @@ describe('Rule app details', () => {
 
   it('can set tags', async () => {
     const { ui, user } = getPageObjects();
-    handler.setIsAdmin();
+    rulesHandler.setIsAdmin();
     renderCodingRulesApp(undefined, 'coding_rules?open=rule10');
     await ui.appLoaded();
 
@@ -613,7 +637,7 @@ describe('Rule app details', () => {
   describe('custom rule', () => {
     it('can create custom rule', async () => {
       const { ui, user } = getPageObjects();
-      handler.setIsAdmin();
+      rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser());
       await ui.appLoaded();
 
@@ -655,7 +679,7 @@ describe('Rule app details', () => {
 
     it('can edit custom rule', async () => {
       const { ui, user } = getPageObjects();
-      handler.setIsAdmin();
+      rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule9');
       await ui.appLoaded();
 
@@ -675,7 +699,7 @@ describe('Rule app details', () => {
 
     it('can delete custom rule', async () => {
       const { ui, user } = getPageObjects();
-      handler.setIsAdmin();
+      rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule9');
       await ui.appLoaded();
 
@@ -690,7 +714,7 @@ describe('Rule app details', () => {
 
     it('can delete custom rule from template page', async () => {
       const { ui, user } = getPageObjects();
-      handler.setIsAdmin();
+      rulesHandler.setIsAdmin();
       renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule8');
       await ui.appLoaded();
 

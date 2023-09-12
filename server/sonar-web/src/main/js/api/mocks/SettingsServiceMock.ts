@@ -132,6 +132,10 @@ export default class SettingsServiceMock {
       key: 'sonar.javascript.globals',
       values: ['angular', 'google', 'd3'],
     },
+    {
+      key: SettingsKey.QPAdminCanDisableInheritedRules,
+      value: 'true',
+    },
   ];
 
   #settingValues: SettingValue[] = cloneDeep(this.#defaultValues);

@@ -38,6 +38,7 @@ import RuleInheritanceIcon from './RuleInheritanceIcon';
 interface Props {
   activation?: Activation;
   isLoggedIn: boolean;
+  canDeactivateInherited?: boolean;
   onActivate: (profile: string, rule: string, activation: Activation) => void;
   onDeactivate: (profile: string, rule: string) => void;
   onOpen: (ruleKey: string) => void;
@@ -128,7 +129,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
   };
 
   renderActions = () => {
-    const { activation, isLoggedIn, rule, selectedProfile } = this.props;
+    const { activation, isLoggedIn, canDeactivateInherited, rule, selectedProfile } = this.props;
 
     if (!selectedProfile || !isLoggedIn) {
       return null;
@@ -155,7 +156,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
     if (activation) {
       return (
         <td className="coding-rule-table-meta-cell coding-rule-activation-actions">
-          {activation.inherit === 'NONE' ? (
+          {activation.inherit === 'NONE' || canDeactivateInherited ? (
             <ConfirmButton
               confirmButtonText={translate('yes')}
               modalBody={translate('coding_rules.deactivate.confirm')}
@@ -173,7 +174,10 @@ export default class RuleListItem extends React.PureComponent<Props> {
             </ConfirmButton>
           ) : (
             <Tooltip overlay={translate('coding_rules.can_not_deactivate')}>
-              <Button className="coding-rules-detail-quality-profile-deactivate button-red disabled">
+              <Button
+                className="coding-rules-detail-quality-profile-deactivate button-red"
+                disabled
+              >
                 {translate('coding_rules.deactivate')}
               </Button>
             </Tooltip>

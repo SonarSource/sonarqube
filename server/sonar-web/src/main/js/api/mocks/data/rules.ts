@@ -27,6 +27,8 @@ import {
 } from '../../../types/clean-code-taxonomy';
 import {
   ADVANCED_RULE,
+  QP_1,
+  QP_2,
   RULE_1,
   RULE_10,
   RULE_11,
@@ -243,6 +245,10 @@ export function mockRuleDetailsList() {
 
 export function mockRulesActivationsInQP() {
   return {
-    [RULE_1]: [mockRuleActivation({ qProfile: 'p1' })],
+    [RULE_1]: [mockRuleActivation({ qProfile: QP_1 })],
+    [RULE_7]: [mockRuleActivation({ qProfile: QP_2 })],
+    [RULE_8]: [mockRuleActivation({ qProfile: QP_2 })],
+    [RULE_9]: [mockRuleActivation({ qProfile: QP_2, inherit: 'INHERITED' })],
+    [RULE_10]: [mockRuleActivation({ qProfile: QP_2, inherit: 'OVERRIDES' })],
   };
 }

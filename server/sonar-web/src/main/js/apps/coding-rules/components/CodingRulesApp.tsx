@@ -22,6 +22,7 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Profile, searchQualityProfiles } from '../../../api/quality-profiles';
 import { getRulesApp, searchRules } from '../../../api/rules';
+import { getValue } from '../../../api/settings';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
 import FiltersHeader from '../../../components/common/FiltersHeader';
@@ -42,6 +43,7 @@ import {
   removeWhitePageClass,
 } from '../../../helpers/pages';
 import { SecurityStandard } from '../../../types/security';
+import { SettingsKey } from '../../../types/settings';
 import { Dict, Paging, RawQuery, Rule, RuleActivation } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
 import {
@@ -85,6 +87,7 @@ interface Props {
 interface State {
   actives?: Actives;
   canWrite?: boolean;
+  canDeactivateInherited?: boolean;
   facets?: Facets;
   loading: boolean;
   openFacets: OpenFacets;
@@ -236,17 +239,20 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
 
   fetchInitialData = () => {
     this.setState({ loading: true });
-    Promise.all([getRulesApp(), searchQualityProfiles()]).then(
-      ([{ canWrite, repositories }, { profiles }]) => {
-        this.setState({
-          canWrite,
-          referencedProfiles: keyBy(profiles, 'key'),
-          referencedRepositories: keyBy(repositories, 'key'),
-        });
-        this.fetchFirstRules();
-      },
-      this.stopLoading,
-    );
+
+    Promise.all([
+      getRulesApp(),
+      searchQualityProfiles(),
+      getValue({ key: SettingsKey.QPAdminCanDisableInheritedRules }),
+    ]).then(([{ canWrite, repositories }, { profiles }, setting]) => {
+      this.setState({
+        canWrite,
+        canDeactivateInherited: setting?.value === 'true',
+        referencedProfiles: keyBy(profiles, 'key'),
+        referencedRepositories: keyBy(repositories, 'key'),
+      });
+      this.fetchFirstRules();
+    }, this.stopLoading);
   };
 
   makeFetchRequest = (query?: RawQuery) =>
@@ -664,6 +670,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
                       <RuleListItem
                         activation={this.getRuleActivation(rule.key)}
                         isLoggedIn={isLoggedIn(this.props.currentUser)}
+                        canDeactivateInherited={this.state.canDeactivateInherited}
                         key={rule.key}
                         onActivate={this.handleRuleActivate}
                         onDeactivate={this.handleRuleDeactivate}
