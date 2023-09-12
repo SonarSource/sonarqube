@@ -34,12 +34,14 @@ export const GITHUB_APP_ID_FIELD = 'sonar.auth.github.appId';
 export const GITHUB_API_URL_FIELD = 'sonar.auth.github.apiUrl';
 export const GITHUB_CLIENT_ID_FIELD = 'sonar.auth.github.clientId.secured';
 export const GITHUB_JIT_FIELDS = ['sonar.auth.github.allowUsersToSignUp'];
+export const GITHUB_PROVISIONING_FIELDS = ['provisioning.github.project.visibility.enabled'];
+
+export const GITHUB_ADDITIONAL_FIELDS = [...GITHUB_JIT_FIELDS, ...GITHUB_PROVISIONING_FIELDS];
 export const OPTIONAL_FIELDS = [
   GITHUB_ENABLED_FIELD,
-  ...GITHUB_JIT_FIELDS,
+  ...GITHUB_ADDITIONAL_FIELDS,
   'sonar.auth.github.organizations',
   'sonar.auth.github.groupsSync',
-  'provisioning.github.project.visibility.enabled',
 ];
 
 export interface SamlSettingValue {
@@ -65,10 +67,10 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
     newGithubProvisioningStatus !== undefined &&
     newGithubProvisioningStatus !== githubProvisioningStatus;
   const hasGithubProvisioningConfigChange =
-    some(GITHUB_JIT_FIELDS, isValueChange) || hasGithubProvisioningTypeChange;
+    some(GITHUB_ADDITIONAL_FIELDS, isValueChange) || hasGithubProvisioningTypeChange;
 
   const resetJitSetting = () => {
-    GITHUB_JIT_FIELDS.forEach((s) => setNewValue(s));
+    GITHUB_ADDITIONAL_FIELDS.forEach((s) => setNewValue(s));
   };
 
   const { mutate: saveSetting } = useSaveValueMutation();
@@ -89,7 +91,7 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
   };
 
   const saveGroup = () => {
-    const newValues = GITHUB_JIT_FIELDS.map((settingKey) => values[settingKey]);
+    const newValues = GITHUB_ADDITIONAL_FIELDS.map((settingKey) => values[settingKey]);
     saveSettings(newValues);
   };
 

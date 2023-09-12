@@ -41,14 +41,18 @@ import AuthenticationFormField from './AuthenticationFormField';
 import AutoProvisioningConsent from './AutoProvisionningConsent';
 import ConfigurationForm from './ConfigurationForm';
 import GitHubConfigurationValidity from './GitHubConfigurationValidity';
-import useGithubConfiguration, { GITHUB_JIT_FIELDS } from './hook/useGithubConfiguration';
+import useGithubConfiguration, {
+  GITHUB_ADDITIONAL_FIELDS,
+  GITHUB_JIT_FIELDS,
+  GITHUB_PROVISIONING_FIELDS,
+} from './hook/useGithubConfiguration';
 
 interface GithubAuthenticationProps {
   definitions: ExtendedSettingDefinition[];
   currentTab: AuthenticationTabs;
 }
 
-const GITHUB_EXCLUDED_FIELD = ['sonar.auth.github.enabled', 'sonar.auth.github.allowUsersToSignUp'];
+const GITHUB_EXCLUDED_FIELD = ['sonar.auth.github.enabled', ...GITHUB_ADDITIONAL_FIELDS];
 
 export default function GithubAuthenticationTab(props: GithubAuthenticationProps) {
   const { definitions, currentTab } = props;
@@ -276,7 +280,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
 
                           {githubProvisioningStatus && <GitHubSynchronisationWarning />}
 
-                          <div className="sw-flex sw-flex-1">
+                          <div className="sw-flex sw-flex-1 spacer-bottom">
                             <Button
                               className="spacer-top width-30"
                               onClick={synchronizeNow}
@@ -285,6 +289,29 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                               {translate('settings.authentication.github.synchronize_now')}
                             </Button>
                           </div>
+                          {(newGithubProvisioningStatus ?? githubProvisioningStatus) && (
+                            <>
+                              <hr />
+                              {Object.values(values).map((val) => {
+                                if (!GITHUB_PROVISIONING_FIELDS.includes(val.key)) {
+                                  return null;
+                                }
+                                return (
+                                  <div key={val.key}>
+                                    <AuthenticationFormField
+                                      settingValue={
+                                        values[val.key]?.newValue ?? values[val.key]?.value
+                                      }
+                                      definition={val.definition}
+                                      mandatory={val.mandatory}
+                                      onFieldChange={setNewValue}
+                                      isNotSet={val.isNotSet}
+                                    />
+                                  </div>
+                                );
+                              })}
+                            </>
+                          )}
                         </>
                       ) : (
                         <p>

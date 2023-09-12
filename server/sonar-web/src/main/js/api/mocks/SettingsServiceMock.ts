@@ -111,6 +111,15 @@ export const DEFAULT_DEFINITIONS_MOCK = [
     description: 'Lets do it',
     type: SettingType.BOOLEAN,
   }),
+  mockDefinition({
+    category: 'authentication',
+    defaultValue: 'false',
+    key: 'provisioning.github.project.visibility.enabled',
+    subCategory: 'github',
+    name: 'Compilation Constants',
+    description: 'Lets do it',
+    type: SettingType.BOOLEAN,
+  }),
 ];
 
 export default class SettingsServiceMock {

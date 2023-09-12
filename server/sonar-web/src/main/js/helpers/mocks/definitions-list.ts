@@ -2527,4 +2527,16 @@ export const definitions: ExtendedSettingDefinition[] = [
     options: [],
     fields: [],
   },
+  {
+    name: 'Provision project visibility',
+    key: 'provisioning.github.project.visibility.enabled',
+    description:
+      'Change project visibility based on GitHub repository visibility. If disabled, every provisioned project will be private and will be seen only for those users that have explicit GitHub permissions for the according repository.',
+    type: SettingType.BOOLEAN,
+    category: 'authentication',
+    subCategory: 'github',
+    defaultValue: 'true',
+    options: [],
+    fields: [],
+  },
 ];
