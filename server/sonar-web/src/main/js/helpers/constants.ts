@@ -99,3 +99,5 @@ export const IMPORT_COMPATIBLE_ALMS = [
 ];
 
 export const GRADLE_SCANNER_VERSION = '4.3.1.3277';
+
+export const ONE_SECOND = 1000;

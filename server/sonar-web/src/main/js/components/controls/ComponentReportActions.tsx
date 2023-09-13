@@ -82,7 +82,7 @@ export class ComponentReportActions extends React.PureComponent<Props, State> {
       : 'component_report.unsubscribe_x_success';
     const frequencyTranslation = translate(
       'report.frequency',
-      status?.componentFrequency || status?.globalFrequency || '',
+      status?.componentFrequency ?? status?.globalFrequency ?? '',
     ).toLowerCase();
     const qualifierTranslation = translate('qualifier', component.qualifier).toLowerCase();
 

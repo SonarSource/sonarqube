@@ -70,7 +70,7 @@ export default class IndexationNotificationHelper {
 
   static shouldDisplayCompletedNotification() {
     return JSON.parse(
-      get(LS_INDEXATION_COMPLETED_NOTIFICATION_SHOULD_BE_DISPLAYED) || false.toString(),
+      get(LS_INDEXATION_COMPLETED_NOTIFICATION_SHOULD_BE_DISPLAYED) ?? false.toString(),
     );
   }
 }

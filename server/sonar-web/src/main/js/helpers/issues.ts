@@ -115,13 +115,13 @@ function splitFlows(
     };
   }
 
-  const parsedFlows: FlowLocation[][] = (issue.flows || [])
+  const parsedFlows: FlowLocation[][] = (issue.flows ?? [])
     .filter((flow) => flow.locations !== undefined)
     .map((flow) => flow.locations!.filter((location) => location.textRange != null))
     .map((flow) =>
       flow.map((location) => {
         const component = components.find((component) => component.key === location.component);
-        return { ...location, componentName: component && component.name };
+        return { ...location, componentName: component?.name };
       }),
     );
 
@@ -139,8 +139,8 @@ function splitFlows(
 function orderLocations(locations: FlowLocation[]) {
   return sortBy(
     locations,
-    (location) => location.textRange && location.textRange.startLine,
-    (location) => location.textRange && location.textRange.startOffset,
+    (location) => location.textRange?.startLine,
+    (location) => location.textRange?.startOffset,
   );
 }
 

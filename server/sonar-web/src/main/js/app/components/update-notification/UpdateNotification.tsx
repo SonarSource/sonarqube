@@ -23,7 +23,7 @@ import { getSystemUpgrades } from '../../../api/system';
 import { Alert, AlertVariant } from '../../../components/ui/Alert';
 import DismissableAlert from '../../../components/ui/DismissableAlert';
 import SystemUpgradeButton from '../../../components/upgrade/SystemUpgradeButton';
-import { sortUpgrades, UpdateUseCase } from '../../../components/upgrade/utils';
+import { UpdateUseCase, sortUpgrades } from '../../../components/upgrade/utils';
 import { translate } from '../../../helpers/l10n';
 import { hasGlobalPermission } from '../../../helpers/users';
 import { AppState } from '../../../types/appstate';
@@ -189,8 +189,8 @@ export class UpdateNotification extends React.PureComponent<Props, State> {
 
     const latest = [...upgrades].sort(
       (upgrade1, upgrade2) =>
-        new Date(upgrade2.releaseDate || '').getTime() -
-        new Date(upgrade1.releaseDate || '').getTime(),
+        new Date(upgrade2.releaseDate ?? '').getTime() -
+        new Date(upgrade1.releaseDate ?? '').getTime(),
     )[0];
 
     const dismissKey = useCase + latest.version;

@@ -38,7 +38,7 @@ export default function DeliveryItem({ className, delivery, loading, payload }: 
       <p className="spacer-bottom">
         {translateWithParameters(
           'webhooks.delivery.response_x',
-          delivery.httpStatus || translate('webhooks.delivery.server_unreachable'),
+          delivery.httpStatus ?? translate('webhooks.delivery.server_unreachable'),
         )}
       </p>
       <p className="spacer-bottom">
@@ -49,7 +49,7 @@ export default function DeliveryItem({ className, delivery, loading, payload }: 
       </p>
       <p className="spacer-bottom">{translate('webhooks.delivery.payload')}</p>
       <Spinner className="spacer-left spacer-top" loading={loading}>
-        {payload && <CodeSnippet noCopy snippet={formatPayload(payload)} />}
+        {payload !== undefined && <CodeSnippet noCopy snippet={formatPayload(payload)} />}
       </Spinner>
     </div>
   );

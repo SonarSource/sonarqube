@@ -66,7 +66,7 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
 
   checkPermissions() {
     const { configuration } = this.props.component;
-    const hasPermission = configuration && configuration.showQualityProfiles;
+    const hasPermission = configuration?.showQualityProfiles;
     return !!hasPermission;
   }
 
@@ -121,25 +121,26 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
           // If the profile is the default profile, all is good.
           if (profile.isDefault) {
             return { profile, selected: false };
-          } else {
-            // If it is neither the default, nor explicitly selected, it
-            // means this is outdated information. This can only mean the
-            // user wants to use the default profile, but it will only
-            // be taken into account after a new analysis. Fetch the
-            // default profile.
-            const defaultProfile = allProfiles.find(
-              (p) => p.isDefault && p.language === profile.language,
-            );
-            return (
-              defaultProfile && {
-                profile: defaultProfile,
-                selected: false,
-              }
-            );
           }
-        } else {
-          return undefined;
+
+          // If it is neither the default, nor explicitly selected, it
+          // means this is outdated information. This can only mean the
+          // user wants to use the default profile, but it will only
+          // be taken into account after a new analysis. Fetch the
+          // default profile.
+          const defaultProfile = allProfiles.find(
+            (p) => p.isDefault && p.language === profile.language,
+          );
+
+          return (
+            defaultProfile && {
+              profile: defaultProfile,
+              selected: false,
+            }
+          );
         }
+
+        return undefined;
       })
       .filter(isDefined);
 
@@ -205,7 +206,7 @@ export class ProjectQualityProfilesApp extends React.PureComponent<Props, State>
     const { component } = this.props;
     const { allProfiles = [], projectProfiles = [] } = this.state;
 
-    const newProfile = newKey && allProfiles.find((p) => p.key === newKey);
+    const newProfile = newKey !== undefined && allProfiles.find((p) => p.key === newKey);
     const oldProjectProfile = projectProfiles.find((p) => p.profile.key === oldKey);
     const defaultProfile = allProfiles.find(
       (p) => p.isDefault && p.language === oldProjectProfile?.profile.language,

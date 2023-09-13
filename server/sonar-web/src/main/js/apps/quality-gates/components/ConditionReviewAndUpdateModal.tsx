@@ -86,12 +86,12 @@ export default class CaycReviewUpdateConditionsModal extends React.PureComponent
     const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
     const sortedWeakConditions = sortBy(
       weakConditions,
-      (condition) => metrics[condition.metric] && metrics[condition.metric].name,
+      (condition) => metrics[condition.metric]?.name,
     );
 
     const sortedMissingConditions = sortBy(
       missingConditions,
-      (condition) => metrics[condition.metric] && metrics[condition.metric].name,
+      (condition) => metrics[condition.metric]?.name,
     );
 
     return (

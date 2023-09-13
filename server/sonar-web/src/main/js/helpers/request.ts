@@ -24,6 +24,9 @@ import { translate } from './l10n';
 import { stringify } from './stringify-queryparams';
 import { getBaseUrl } from './system';
 
+const FAST_RETRY_TIMEOUT = 500;
+const SLOW_RETRY_TIMEOUT = 3000;
+
 export function getCSRFTokenName(): string {
   return 'X-XSRF-TOKEN';
 }
@@ -117,12 +120,12 @@ class Request {
     return window.fetch(getBaseUrl() + url, options);
   }
 
-  setMethod(method: string): Request {
+  setMethod(method: string): this {
     this.options.method = method;
     return this;
   }
 
-  setData(data?: RequestData, isJSON = false): Request {
+  setData(data?: RequestData, isJSON = false): this {
     if (data) {
       this.data = data;
       this.isJSON = isJSON;
@@ -154,7 +157,7 @@ export function corsRequest(url: string, mode: RequestMode = 'cors'): Request {
 /**
  * Check that response status is ok
  */
-export function checkStatus(response: Response, bypassRedirect?: boolean): Promise<Response> {
+export function checkStatus(response: Response, bypassRedirect = false): Promise<Response> {
   return new Promise((resolve, reject) => {
     if (response.status === HttpStatus.Unauthorized && !bypassRedirect) {
       import('./handleRequiredAuthentication').then((i) => i.default()).then(reject, reject);
@@ -193,7 +196,7 @@ export function parseError(response: Response): Promise<string> {
 /**
  * Shortcut to do a GET request and return a Response
  */
-export function get(url: string, data?: RequestData, bypassRedirect?: boolean): Promise<Response> {
+export function get(url: string, data?: RequestData, bypassRedirect = false): Promise<Response> {
   return request(url)
     .setData(data)
     .submit()
@@ -203,18 +206,14 @@ export function get(url: string, data?: RequestData, bypassRedirect?: boolean): 
 /**
  * Shortcut to do a GET request and return response json
  */
-export function getJSON(url: string, data?: RequestData, bypassRedirect?: boolean): Promise<any> {
+export function getJSON(url: string, data?: RequestData, bypassRedirect = false): Promise<any> {
   return get(url, data, bypassRedirect).then(parseJSON);
 }
 
 /**
  * Shortcut to do a GET request and return response text
  */
-export function getText(
-  url: string,
-  data?: RequestData,
-  bypassRedirect?: boolean,
-): Promise<string> {
+export function getText(url: string, data?: RequestData, bypassRedirect = false): Promise<string> {
   return get(url, data, bypassRedirect).then(parseText);
 }
 
@@ -236,7 +235,7 @@ export function getCorsJSON(url: string, data?: RequestData): Promise<any> {
 /**
  * Shortcut to do a POST request and return response json
  */
-export function postJSON(url: string, data?: RequestData, bypassRedirect?: boolean): Promise<any> {
+export function postJSON(url: string, data?: RequestData, bypassRedirect = false): Promise<any> {
   return request(url)
     .setMethod('POST')
     .setData(data)
@@ -251,7 +250,7 @@ export function postJSON(url: string, data?: RequestData, bypassRedirect?: boole
 export function postJSONBody(
   url: string,
   data?: RequestData,
-  bypassRedirect?: boolean,
+  bypassRedirect = false,
 ): Promise<any> {
   return request(url)
     .setMethod('POST')
@@ -264,7 +263,7 @@ export function postJSONBody(
 /**
  * Shortcut to do a POST request
  */
-export function post(url: string, data?: RequestData, bypassRedirect?: boolean): Promise<void> {
+export function post(url: string, data?: RequestData, bypassRedirect = false): Promise<void> {
   return new Promise((resolve, reject) => {
     request(url)
       .setMethod('POST')
@@ -298,7 +297,7 @@ function tryRequestAgain<T>(
     return new Promise<T>((resolve) => {
       setTimeout(
         () => resolve(requestTryAndRepeatUntil(repeatAPICall, tries, stopRepeat, repeatErrors)),
-        tries.max > tries.slowThreshold ? 500 : 3000,
+        tries.max > tries.slowThreshold ? FAST_RETRY_TIMEOUT : SLOW_RETRY_TIMEOUT,
       );
     });
   }

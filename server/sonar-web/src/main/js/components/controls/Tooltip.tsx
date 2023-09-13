@@ -22,6 +22,7 @@ import { throttle, uniqueId } from 'lodash';
 import * as React from 'react';
 import { createPortal, findDOMNode } from 'react-dom';
 import { rawSizes } from '../../app/theme';
+import { ONE_SECOND } from '../../helpers/constants';
 import { translate } from '../../helpers/l10n';
 import EscKeydownHandler from './EscKeydownHandler';
 import FocusOutHandler from './FocusOutHandler';
@@ -101,7 +102,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
     this.state = {
       flipped: false,
       placement: props.placement,
-      visible: props.visible !== undefined ? props.visible : false,
+      visible: props.visible ?? false,
     };
     this.id = uniqueId('tooltip-');
     this.throttledPositionTooltip = throttle(this.positionTooltip, 10);
@@ -163,11 +164,11 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
   };
 
   isVisible = () => {
-    return this.props.visible !== undefined ? this.props.visible : this.state.visible;
+    return this.props.visible ?? this.state.visible;
   };
 
   getPlacement = (): Placement => {
-    return this.state.placement || 'bottom';
+    return this.state.placement ?? 'bottom';
   };
 
   tooltipNodeRef = (node: HTMLElement | null) => {
@@ -259,7 +260,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
           this.setState({ visible: true });
         }
       },
-      (this.props.mouseEnterDelay || 0) * 1000,
+      (this.props.mouseEnterDelay ?? 0) * ONE_SECOND,
     );
 
     if (this.props.onShow) {
@@ -283,7 +284,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
             this.props.onHide();
           }
         },
-        (this.props.mouseLeaveDelay || 0) * 1000,
+        (this.props.mouseLeaveDelay ?? 0) * ONE_SECOND,
       );
     }
   };

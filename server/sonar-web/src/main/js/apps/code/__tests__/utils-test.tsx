@@ -19,6 +19,7 @@
  */
 import { getBreadcrumbs, getChildren, getComponent } from '../../../api/components';
 import { mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
+import { ComponentQualifier } from '../../../types/component';
 import {
   addComponent,
   addComponentBreadcrumbs,
@@ -54,23 +55,31 @@ beforeEach(() => {
 
 describe('getCodeMetrics', () => {
   it('should return the right metrics for portfolios', () => {
-    expect(getCodeMetrics('VW')).toMatchSnapshot();
-    expect(getCodeMetrics('VW', undefined, { includeQGStatus: true })).toMatchSnapshot();
+    expect(getCodeMetrics(ComponentQualifier.Portfolio)).toMatchSnapshot();
     expect(
-      getCodeMetrics('VW', undefined, { includeQGStatus: true, newCode: true }),
+      getCodeMetrics(ComponentQualifier.Portfolio, undefined, { includeQGStatus: true }),
     ).toMatchSnapshot();
     expect(
-      getCodeMetrics('VW', undefined, { includeQGStatus: true, newCode: false }),
+      getCodeMetrics(ComponentQualifier.Portfolio, undefined, {
+        includeQGStatus: true,
+        newCode: true,
+      }),
+    ).toMatchSnapshot();
+    expect(
+      getCodeMetrics(ComponentQualifier.Portfolio, undefined, {
+        includeQGStatus: true,
+        newCode: false,
+      }),
     ).toMatchSnapshot();
   });
 
   it('should return the right metrics for apps', () => {
-    expect(getCodeMetrics('APP')).toMatchSnapshot();
+    expect(getCodeMetrics(ComponentQualifier.Application)).toMatchSnapshot();
   });
 
   it('should return the right metrics for projects', () => {
-    expect(getCodeMetrics('TRK', mockMainBranch())).toMatchSnapshot();
-    expect(getCodeMetrics('TRK', mockPullRequest())).toMatchSnapshot();
+    expect(getCodeMetrics(ComponentQualifier.Project, mockMainBranch())).toMatchSnapshot();
+    expect(getCodeMetrics(ComponentQualifier.Project, mockPullRequest())).toMatchSnapshot();
   });
 });
 
@@ -82,7 +91,12 @@ describe('retrieveComponentChildren', () => {
       paging: { total: 2, pageIndex: 0 },
     });
 
-    await retrieveComponentChildren('key', 'TRK', { mounted: true }, mockMainBranch());
+    await retrieveComponentChildren(
+      'key',
+      ComponentQualifier.Project,
+      { mounted: true },
+      mockMainBranch(),
+    );
 
     expect(addComponentChildren).toHaveBeenCalledWith('key', components, 2, 0);
     expect(addComponent).toHaveBeenCalledTimes(2);
@@ -102,7 +116,7 @@ describe('retrieveComponent', () => {
     });
     (getBreadcrumbs as jest.Mock).mockResolvedValueOnce([]);
 
-    await retrieveComponent('key', 'TRK', { mounted: true }, mockMainBranch());
+    await retrieveComponent('key', ComponentQualifier.Project, { mounted: true }, mockMainBranch());
 
     expect(addComponentChildren).toHaveBeenCalled();
     expect(addComponent).toHaveBeenCalledTimes(3);
@@ -120,7 +134,12 @@ describe('retrieveComponent', () => {
     });
     (getBreadcrumbs as jest.Mock).mockResolvedValueOnce([]);
 
-    await retrieveComponent('key', 'TRK', { mounted: false }, mockMainBranch());
+    await retrieveComponent(
+      'key',
+      ComponentQualifier.Project,
+      { mounted: false },
+      mockMainBranch(),
+    );
 
     expect(addComponentChildren).not.toHaveBeenCalled();
     expect(addComponent).not.toHaveBeenCalled();
@@ -136,7 +155,13 @@ describe('loadMoreChildren', () => {
       paging: { total: 6, pageIndex: 1 },
     });
 
-    await loadMoreChildren('key', 1, 'TRK', { mounted: true }, mockMainBranch());
+    await loadMoreChildren(
+      'key',
+      1,
+      ComponentQualifier.Project,
+      { mounted: true },
+      mockMainBranch(),
+    );
 
     expect(addComponentChildren).toHaveBeenCalledWith('key', components, 6, 1);
     expect(addComponent).toHaveBeenCalledTimes(3);

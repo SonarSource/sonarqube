@@ -253,8 +253,8 @@ export function getLocations(rawFlows: RawHotspot['flows'], selectedFlowIndex: n
 function orderLocations(locations: FlowLocation[]) {
   return sortBy(
     locations,
-    (location) => location.textRange && location.textRange.startLine,
-    (location) => location.textRange && location.textRange.startOffset,
+    (location) => location.textRange?.startLine,
+    (location) => location.textRange?.startOffset,
   );
 }
 

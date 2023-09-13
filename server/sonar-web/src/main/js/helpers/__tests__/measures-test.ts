@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { MetricKey, MetricType } from '../../types/metrics';
 import { Dict } from '../../types/types';
 import { getMessages } from '../l10nBundle';
 import { enhanceConditionWithMeasure, formatMeasure, isPeriodBestValue } from '../measures';
@@ -56,21 +57,29 @@ const ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
 describe('enhanceConditionWithMeasure', () => {
   it('should correctly map enhance conditions with measure data', () => {
     const measures = [
-      mockMeasureEnhanced({ metric: mockMetric({ key: 'bugs' }), period: undefined }),
-      mockMeasureEnhanced({ metric: mockMetric({ key: 'new_bugs' }) }),
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.bugs }), period: undefined }),
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.new_bugs }) }),
     ];
 
     expect(
-      enhanceConditionWithMeasure(mockQualityGateStatusCondition({ metric: 'bugs' }), measures),
+      enhanceConditionWithMeasure(
+        mockQualityGateStatusCondition({ metric: MetricKey.bugs }),
+        measures,
+      ),
     ).toMatchObject({
-      measure: expect.objectContaining({ metric: expect.objectContaining({ key: 'bugs' }) }),
+      measure: expect.objectContaining({
+        metric: expect.objectContaining({ key: MetricKey.bugs }),
+      }),
     });
 
     expect(
-      enhanceConditionWithMeasure(mockQualityGateStatusCondition({ metric: 'new_bugs' }), measures),
+      enhanceConditionWithMeasure(
+        mockQualityGateStatusCondition({ metric: MetricKey.new_bugs }),
+        measures,
+      ),
     ).toMatchObject({
       measure: expect.objectContaining({
-        metric: expect.objectContaining({ key: 'new_bugs' }),
+        metric: expect.objectContaining({ key: MetricKey.new_bugs }),
       }),
       period: 1,
     });
@@ -99,30 +108,30 @@ describe('isPeriodBestValue', () => {
 
 describe('#formatMeasure()', () => {
   it('should format INT', () => {
-    expect(formatMeasure(0, 'INT')).toBe('0');
-    expect(formatMeasure(1, 'INT')).toBe('1');
-    expect(formatMeasure(-5, 'INT')).toBe('-5');
-    expect(formatMeasure(999, 'INT')).toBe('999');
-    expect(formatMeasure(1000, 'INT')).toBe('1,000');
-    expect(formatMeasure(1529, 'INT')).toBe('1,529');
-    expect(formatMeasure(10000, 'INT')).toBe('10,000');
-    expect(formatMeasure(1234567890, 'INT')).toBe('1,234,567,890');
+    expect(formatMeasure(0, MetricType.Integer)).toBe('0');
+    expect(formatMeasure(1, MetricType.Integer)).toBe('1');
+    expect(formatMeasure(-5, MetricType.Integer)).toBe('-5');
+    expect(formatMeasure(999, MetricType.Integer)).toBe('999');
+    expect(formatMeasure(1000, MetricType.Integer)).toBe('1,000');
+    expect(formatMeasure(1529, MetricType.Integer)).toBe('1,529');
+    expect(formatMeasure(10000, MetricType.Integer)).toBe('10,000');
+    expect(formatMeasure(1234567890, MetricType.Integer)).toBe('1,234,567,890');
   });
 
   it('should format SHORT_INT', () => {
-    expect(formatMeasure(0, 'SHORT_INT')).toBe('0');
-    expect(formatMeasure(1, 'SHORT_INT')).toBe('1');
-    expect(formatMeasure(999, 'SHORT_INT')).toBe('999');
-    expect(formatMeasure(1000, 'SHORT_INT')).toBe('1k');
-    expect(formatMeasure(1529, 'SHORT_INT')).toBe('1.5k');
-    expect(formatMeasure(10000, 'SHORT_INT')).toBe('10k');
-    expect(formatMeasure(10678, 'SHORT_INT')).toBe('11k');
-    expect(formatMeasure(9467890, 'SHORT_INT')).toBe('9.5M');
-    expect(formatMeasure(994567890, 'SHORT_INT')).toBe('995M');
-    expect(formatMeasure(999000001, 'SHORT_INT')).toBe('999M');
-    expect(formatMeasure(999567890, 'SHORT_INT')).toBe('1G');
-    expect(formatMeasure(1234567890, 'SHORT_INT')).toBe('1.2G');
-    expect(formatMeasure(11234567890, 'SHORT_INT')).toBe('11G');
+    expect(formatMeasure(0, MetricType.ShortInteger)).toBe('0');
+    expect(formatMeasure(1, MetricType.ShortInteger)).toBe('1');
+    expect(formatMeasure(999, MetricType.ShortInteger)).toBe('999');
+    expect(formatMeasure(1000, MetricType.ShortInteger)).toBe('1k');
+    expect(formatMeasure(1529, MetricType.ShortInteger)).toBe('1.5k');
+    expect(formatMeasure(10000, MetricType.ShortInteger)).toBe('10k');
+    expect(formatMeasure(10678, MetricType.ShortInteger)).toBe('11k');
+    expect(formatMeasure(9467890, MetricType.ShortInteger)).toBe('9.5M');
+    expect(formatMeasure(994567890, MetricType.ShortInteger)).toBe('995M');
+    expect(formatMeasure(999000001, MetricType.ShortInteger)).toBe('999M');
+    expect(formatMeasure(999567890, MetricType.ShortInteger)).toBe('1G');
+    expect(formatMeasure(1234567890, MetricType.ShortInteger)).toBe('1.2G');
+    expect(formatMeasure(11234567890, MetricType.ShortInteger)).toBe('11G');
   });
 
   it('should format FLOAT', () => {
@@ -145,28 +154,28 @@ describe('#formatMeasure()', () => {
   });
 
   it('should format PERCENT', () => {
-    expect(formatMeasure(0.0, 'PERCENT')).toBe('0.0%');
-    expect(formatMeasure(1.0, 'PERCENT')).toBe('1.0%');
-    expect(formatMeasure(1.3, 'PERCENT')).toBe('1.3%');
-    expect(formatMeasure(1.34, 'PERCENT')).toBe('1.3%');
-    expect(formatMeasure(50.89, 'PERCENT')).toBe('50.9%');
-    expect(formatMeasure(100.0, 'PERCENT')).toBe('100%');
-    expect(formatMeasure(50.89, 'PERCENT', { decimals: 0 })).toBe('50.9%');
-    expect(formatMeasure(50.89, 'PERCENT', { decimals: 1 })).toBe('50.9%');
-    expect(formatMeasure(50.89, 'PERCENT', { decimals: 2 })).toBe('50.89%');
-    expect(formatMeasure(50.89, 'PERCENT', { decimals: 3 })).toBe('50.890%');
-    expect(formatMeasure(50, 'PERCENT', { decimals: 0, omitExtraDecimalZeros: true })).toBe(
-      '50.0%',
-    );
-    expect(formatMeasure(50, 'PERCENT', { decimals: 1, omitExtraDecimalZeros: true })).toBe(
-      '50.0%',
-    );
-    expect(formatMeasure(50, 'PERCENT', { decimals: 3, omitExtraDecimalZeros: true })).toBe(
-      '50.0%',
-    );
-    expect(formatMeasure(50.89, 'PERCENT', { decimals: 3, omitExtraDecimalZeros: true })).toBe(
-      '50.89%',
-    );
+    expect(formatMeasure(0.0, MetricType.Percent)).toBe('0.0%');
+    expect(formatMeasure(1.0, MetricType.Percent)).toBe('1.0%');
+    expect(formatMeasure(1.3, MetricType.Percent)).toBe('1.3%');
+    expect(formatMeasure(1.34, MetricType.Percent)).toBe('1.3%');
+    expect(formatMeasure(50.89, MetricType.Percent)).toBe('50.9%');
+    expect(formatMeasure(100.0, MetricType.Percent)).toBe('100%');
+    expect(formatMeasure(50.89, MetricType.Percent, { decimals: 0 })).toBe('50.9%');
+    expect(formatMeasure(50.89, MetricType.Percent, { decimals: 1 })).toBe('50.9%');
+    expect(formatMeasure(50.89, MetricType.Percent, { decimals: 2 })).toBe('50.89%');
+    expect(formatMeasure(50.89, MetricType.Percent, { decimals: 3 })).toBe('50.890%');
+    expect(
+      formatMeasure(50, MetricType.Percent, { decimals: 0, omitExtraDecimalZeros: true }),
+    ).toBe('50.0%');
+    expect(
+      formatMeasure(50, MetricType.Percent, { decimals: 1, omitExtraDecimalZeros: true }),
+    ).toBe('50.0%');
+    expect(
+      formatMeasure(50, MetricType.Percent, { decimals: 3, omitExtraDecimalZeros: true }),
+    ).toBe('50.0%');
+    expect(
+      formatMeasure(50.89, MetricType.Percent, { decimals: 3, omitExtraDecimalZeros: true }),
+    ).toBe('50.89%');
   });
 
   it('should format WORK_DUR', () => {
@@ -185,42 +194,48 @@ describe('#formatMeasure()', () => {
   });
 
   it('should format SHORT_WORK_DUR', () => {
-    expect(formatMeasure(0, 'SHORT_WORK_DUR')).toBe('0');
-    expect(formatMeasure(5 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('5d');
-    expect(formatMeasure(2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('2h');
-    expect(formatMeasure(ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('1min');
-    expect(formatMeasure(40 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('40min');
-    expect(formatMeasure(58 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('1h');
-    expect(formatMeasure(5 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('5d');
-    expect(formatMeasure(2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('2h');
-    expect(formatMeasure(ONE_HOUR + 55 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('2h');
-    expect(formatMeasure(3 * ONE_DAY + 6 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('4d');
-    expect(formatMeasure(7 * ONE_HOUR + 59 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('1d');
-    expect(formatMeasure(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('5d');
-    expect(formatMeasure(15 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('15d');
-    expect(formatMeasure(7 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('7min');
-    expect(formatMeasure(-5 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('-5d');
-    expect(formatMeasure(-2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('-2h');
-    expect(formatMeasure(-1 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('-1min');
+    expect(formatMeasure(0, MetricType.ShortWorkDuration)).toBe('0');
+    expect(formatMeasure(5 * ONE_DAY, MetricType.ShortWorkDuration)).toBe('5d');
+    expect(formatMeasure(2 * ONE_HOUR, MetricType.ShortWorkDuration)).toBe('2h');
+    expect(formatMeasure(ONE_MINUTE, MetricType.ShortWorkDuration)).toBe('1min');
+    expect(formatMeasure(40 * ONE_MINUTE, MetricType.ShortWorkDuration)).toBe('40min');
+    expect(formatMeasure(58 * ONE_MINUTE, MetricType.ShortWorkDuration)).toBe('1h');
+    expect(formatMeasure(5 * ONE_DAY + 2 * ONE_HOUR, MetricType.ShortWorkDuration)).toBe('5d');
+    expect(formatMeasure(2 * ONE_HOUR + ONE_MINUTE, MetricType.ShortWorkDuration)).toBe('2h');
+    expect(formatMeasure(ONE_HOUR + 55 * ONE_MINUTE, MetricType.ShortWorkDuration)).toBe('2h');
+    expect(formatMeasure(3 * ONE_DAY + 6 * ONE_HOUR, MetricType.ShortWorkDuration)).toBe('4d');
+    expect(formatMeasure(7 * ONE_HOUR + 59 * ONE_MINUTE, MetricType.ShortWorkDuration)).toBe('1d');
+    expect(
+      formatMeasure(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, MetricType.ShortWorkDuration),
+    ).toBe('5d');
+    expect(
+      formatMeasure(15 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, MetricType.ShortWorkDuration),
+    ).toBe('15d');
+    expect(formatMeasure(7 * ONE_MINUTE, MetricType.ShortWorkDuration)).toBe('7min');
+    expect(formatMeasure(-5 * ONE_DAY, MetricType.ShortWorkDuration)).toBe('-5d');
+    expect(formatMeasure(-2 * ONE_HOUR, MetricType.ShortWorkDuration)).toBe('-2h');
+    expect(formatMeasure(-1 * ONE_MINUTE, MetricType.ShortWorkDuration)).toBe('-1min');
 
-    expect(formatMeasure(1529 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('1.5kd');
-    expect(formatMeasure(1234567 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('1.2Md');
-    expect(formatMeasure(12345670 * ONE_DAY + 4 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('12Md');
+    expect(formatMeasure(1529 * ONE_DAY, MetricType.ShortWorkDuration)).toBe('1.5kd');
+    expect(formatMeasure(1234567 * ONE_DAY, MetricType.ShortWorkDuration)).toBe('1.2Md');
+    expect(formatMeasure(12345670 * ONE_DAY + 4 * ONE_HOUR, MetricType.ShortWorkDuration)).toBe(
+      '12Md',
+    );
   });
 
   it('should format RATING', () => {
-    expect(formatMeasure(1, 'RATING')).toBe('A');
-    expect(formatMeasure(2, 'RATING')).toBe('B');
-    expect(formatMeasure(3, 'RATING')).toBe('C');
-    expect(formatMeasure(4, 'RATING')).toBe('D');
-    expect(formatMeasure(5, 'RATING')).toBe('E');
+    expect(formatMeasure(1, MetricType.Rating)).toBe('A');
+    expect(formatMeasure(2, MetricType.Rating)).toBe('B');
+    expect(formatMeasure(3, MetricType.Rating)).toBe('C');
+    expect(formatMeasure(4, MetricType.Rating)).toBe('D');
+    expect(formatMeasure(5, MetricType.Rating)).toBe('E');
   });
 
   it('should format LEVEL', () => {
-    expect(formatMeasure('ERROR', 'LEVEL')).toBe('Error');
-    expect(formatMeasure('WARN', 'LEVEL')).toBe('Warning');
-    expect(formatMeasure('OK', 'LEVEL')).toBe('Ok');
-    expect(formatMeasure('UNKNOWN', 'LEVEL')).toBe('UNKNOWN');
+    expect(formatMeasure('ERROR', MetricType.Level)).toBe('Error');
+    expect(formatMeasure('WARN', MetricType.Level)).toBe('Warning');
+    expect(formatMeasure('OK', MetricType.Level)).toBe('Ok');
+    expect(formatMeasure('UNKNOWN', MetricType.Level)).toBe('UNKNOWN');
   });
 
   it('should format MILLISEC', () => {
@@ -237,10 +252,10 @@ describe('#formatMeasure()', () => {
   });
 
   it('should return null if value is empty string', () => {
-    expect(formatMeasure('', 'PERCENT')).toBe('');
+    expect(formatMeasure('', MetricType.Percent)).toBe('');
   });
 
   it('should not fail with undefined', () => {
-    expect(formatMeasure(undefined, 'INT')).toBe('');
+    expect(formatMeasure(undefined, MetricType.Integer)).toBe('');
   });
 });

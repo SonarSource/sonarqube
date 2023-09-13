@@ -115,10 +115,10 @@ export default function ListFooter(props: ListFooterProps) {
         {total !== undefined
           ? translateWithParameters(
               'x_of_y_shown',
-              formatMeasure(count, MetricType.Integer, null),
-              formatMeasure(total, MetricType.Integer, null),
+              formatMeasure(count, MetricType.Integer),
+              formatMeasure(total, MetricType.Integer),
             )
-          : translateWithParameters('x_show', formatMeasure(count, MetricType.Integer, null))}
+          : translateWithParameters('x_show', formatMeasure(count, MetricType.Integer))}
       </span>
       {button}
       {/* eslint-disable local-rules/no-conditional-rendering-of-deferredspinner */}

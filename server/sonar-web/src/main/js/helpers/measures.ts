@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { MetricKey } from '../types/metrics';
+import { MetricKey, MetricType } from '../types/metrics';
 import {
   QualityGateStatusCondition,
   QualityGateStatusConditionEnhanced,
 } from '../types/quality-gates';
 import { Dict, Measure, MeasureEnhanced, Metric } from '../types/types';
+import { ONE_SECOND } from './constants';
 import { translate, translateWithParameters } from './l10n';
 import { getCurrentLocale } from './l10nBundle';
 import { isDefined } from './types';
@@ -48,7 +49,7 @@ export function enhanceConditionWithMeasure(
   // Make sure we have a period index. This is necessary when dealing with
   // applications.
   let { period } = condition;
-  if (measure && measure.period && !period) {
+  if (measure?.period && !period) {
     period = measure.period.index;
   }
 
@@ -56,12 +57,12 @@ export function enhanceConditionWithMeasure(
 }
 
 export function isPeriodBestValue(measure: Measure | MeasureEnhanced): boolean {
-  return measure.period?.bestValue || false;
+  return measure.period?.bestValue ?? false;
 }
 
 /** Check if metric is differential */
 export function isDiffMetric(metricKey: MetricKey | string): boolean {
-  return metricKey.indexOf('new_') === 0;
+  return metricKey.startsWith('new_');
 }
 
 export function getDisplayMetrics(metrics: Metric[]) {
@@ -74,9 +75,7 @@ export function findMeasure(measures: MeasureEnhanced[], metric: MetricKey | str
 
 const HOURS_IN_DAY = 8;
 
-interface Formatter {
-  (value: string | number, options?: any): string;
-}
+type Formatter = (value: string | number, options?: Dict<unknown>) => string;
 
 /**
  * Format a measure value for a given type
@@ -85,7 +84,7 @@ interface Formatter {
 export function formatMeasure(
   value: string | number | undefined,
   type: string,
-  options?: any,
+  options?: Dict<unknown>,
 ): string {
   const formatter = getFormatter(type);
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -114,10 +113,10 @@ export function localizeMetric(metricKey: string): string {
 
 /** Return corresponding "short" for better display in UI */
 export function getShortType(type: string): string {
-  if (type === 'INT') {
-    return 'SHORT_INT';
+  if (type === MetricType.Integer) {
+    return MetricType.ShortInteger;
   } else if (type === 'WORK_DUR') {
-    return 'SHORT_WORK_DUR';
+    return MetricType.ShortWorkDuration;
   }
   return type;
 }
@@ -125,7 +124,7 @@ export function getShortType(type: string): string {
 function useFormatter(
   value: string | number | undefined,
   formatter: Formatter,
-  options?: any,
+  options?: Dict<unknown>,
 ): string {
   return value !== undefined && value !== '' ? formatter(value, options) : '';
 }
@@ -181,7 +180,7 @@ function shortIntFormatter(
   value: string | number,
   option?: { roundingFunc?: (x: number) => number },
 ): string {
-  const roundingFunc = (option && option.roundingFunc) || undefined;
+  const roundingFunc = option?.roundingFunc;
   if (typeof value === 'string') {
     value = parseFloat(value);
   }
@@ -259,7 +258,6 @@ function millisecondsFormatter(value: string | number): string {
   if (typeof value === 'string') {
     value = parseInt(value, 10);
   }
-  const ONE_SECOND = 1000;
   const ONE_MINUTE = 60 * ONE_SECOND;
   if (value >= ONE_MINUTE) {
     const minutes = Math.round(value / ONE_MINUTE);
@@ -329,7 +327,10 @@ function formatDurationShort(
 ): string {
   if (shouldDisplayDaysInShortFormat(days)) {
     const roundedDays = Math.round(days);
-    const formattedDays = formatMeasure(isNegative ? -1 * roundedDays : roundedDays, 'SHORT_INT');
+    const formattedDays = formatMeasure(
+      isNegative ? -1 * roundedDays : roundedDays,
+      MetricType.ShortInteger,
+    );
     return translateWithParameters('work_duration.x_days', formattedDays);
   }
 
@@ -337,12 +338,15 @@ function formatDurationShort(
     const roundedHours = Math.round(hours);
     const formattedHours = formatMeasure(
       isNegative ? -1 * roundedHours : roundedHours,
-      'SHORT_INT',
+      MetricType.ShortInteger,
     );
     return translateWithParameters('work_duration.x_hours', formattedHours);
   }
 
-  const formattedMinutes = formatMeasure(isNegative ? -1 * minutes : minutes, 'SHORT_INT');
+  const formattedMinutes = formatMeasure(
+    isNegative ? -1 * minutes : minutes,
+    MetricType.ShortInteger,
+  );
   return translateWithParameters('work_duration.x_minutes', formattedMinutes);
 }
 

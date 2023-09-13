@@ -76,8 +76,7 @@ function referenceBranchDoesNotExist(
   existingBranches: Array<string>,
 ) {
   return (
-    branch.newCodePeriod &&
-    branch.newCodePeriod.value &&
+    branch.newCodePeriod?.value &&
     branch.newCodePeriod.type === NewCodeDefinitionType.ReferenceBranch &&
     !existingBranches.includes(branch.newCodePeriod.value)
   );
@@ -95,7 +94,7 @@ export default function BranchListRow(props: BranchListRowProps) {
   } else if (referenceBranchDoesNotExist(branch, existingBranches)) {
     settingWarning = translateWithParameters(
       'baseline.reference_branch.does_not_exist',
-      branch.newCodePeriod?.value || '',
+      branch.newCodePeriod?.value ?? '',
     );
   }
 
@@ -113,7 +112,7 @@ export default function BranchListRow(props: BranchListRowProps) {
       <td className="huge-spacer-right nowrap">
         <Tooltip overlay={settingWarning}>
           <span>
-            {settingWarning && <WarningIcon className="little-spacer-right" />}
+            {settingWarning !== undefined && <WarningIcon className="little-spacer-right" />}
             {branch.newCodePeriod
               ? renderNewCodePeriodSetting(branch.newCodePeriod)
               : translate('branch_list.default_setting')}

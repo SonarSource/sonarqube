@@ -93,28 +93,25 @@ export function multiValueRemove<
   return <components.MultiValueRemove {...props}>&times;</components.MultiValueRemove>;
 }
 
-/* Keeping it as a class to simplify a dozen tests */
-export default class Select<
+export default function Select<
   Option = LabelValueSelectOption,
   IsMulti extends boolean = boolean,
   Group extends GroupBase<Option> = GroupBase<Option>,
-> extends React.Component<NamedProps<Option, IsMulti, Group> & StyleExtensionProps> {
-  render() {
-    return (
-      <ReactSelect<Option, IsMulti, Group>
-        {...omit(this.props, 'className', 'large')}
-        styles={selectStyle<Option, IsMulti, Group>(this.props)}
-        className={classNames('react-select', this.props.className)}
-        classNamePrefix="react-select"
-        components={{
-          ...this.props.components,
-          DropdownIndicator: dropdownIndicator,
-          ClearIndicator: clearIndicator,
-          MultiValueRemove: multiValueRemove,
-        }}
-      />
-    );
-  }
+>(props: NamedProps<Option, IsMulti, Group> & StyleExtensionProps) {
+  return (
+    <ReactSelect<Option, IsMulti, Group>
+      {...omit(props, 'className', 'large')}
+      styles={selectStyle<Option, IsMulti, Group>(props)}
+      className={classNames('react-select', props.className)}
+      classNamePrefix="react-select"
+      components={{
+        ...props.components,
+        DropdownIndicator: dropdownIndicator,
+        ClearIndicator: clearIndicator,
+        MultiValueRemove: multiValueRemove,
+      }}
+    />
+  );
 }
 
 export function CreatableSelect<

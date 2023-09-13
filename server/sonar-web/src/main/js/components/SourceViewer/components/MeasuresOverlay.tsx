@@ -23,8 +23,8 @@ import { getFacets } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
 import Link from '../../../components/common/Link';
-import { ResetButtonLink } from '../../../components/controls/buttons';
 import Modal from '../../../components/controls/Modal';
+import { ResetButtonLink } from '../../../components/controls/buttons';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import QualifierIcon from '../../../components/icons/QualifierIcon';
 import TagsIcon from '../../../components/icons/TagsIcon';
@@ -39,7 +39,8 @@ import {
 } from '../../../helpers/measures';
 import { getBranchLikeUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { IssueSeverity, IssueType as IssueTypeEnum } from '../../../types/issues';
+import { ComponentQualifier } from '../../../types/component';
+import { FacetName, IssueSeverity, IssueType as IssueTypeEnum } from '../../../types/issues';
 import { MetricType } from '../../../types/metrics';
 import { FacetValue, IssueType, MeasureEnhanced, SourceViewerFile } from '../../../types/types';
 import Measure from '../../measure/Measure';
@@ -119,14 +120,14 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
         resolved: 'false',
         ...getBranchLikeQuery(this.props.branchLike),
       },
-      ['types', 'severities', 'tags'],
+      [FacetName.Types, FacetName.Severities, FacetName.Tags],
     ).then(({ facets }) => {
       const severitiesFacet = facets.find((f) => f.property === 'severities');
       const tagsFacet = facets.find((f) => f.property === 'tags');
       const typesFacet = facets.find((f) => f.property === 'types');
       return {
-        severitiesFacet: severitiesFacet && severitiesFacet.values,
-        tagsFacet: tagsFacet && tagsFacet.values,
+        severitiesFacet: severitiesFacet?.values,
+        tagsFacet: tagsFacet?.values,
         typesFacet: typesFacet && (typesFacet.values as FacetValue<IssueType>[]),
       };
     });
@@ -386,7 +387,10 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
         <div className="modal-body modal-container">
           <div className="measures-viewer-header big-spacer-bottom">
             <div>
-              <QualifierIcon className="little-spacer-right" qualifier="TRK" />
+              <QualifierIcon
+                className="little-spacer-right"
+                qualifier={ComponentQualifier.Project}
+              />
               <Link to={getBranchLikeUrl(sourceViewerFile.project, branchLike)}>
                 {sourceViewerFile.projectName}
               </Link>
@@ -402,7 +406,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
             <i className="spinner" />
           ) : (
             <>
-              {sourceViewerFile.q === 'UTS' ? (
+              {sourceViewerFile.q === ComponentQualifier.TestFile ? (
                 this.renderTests()
               ) : (
                 <div className="measures-viewer">

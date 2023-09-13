@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
-import { Button } from '../../../components/controls/buttons';
 import Dropdown from '../../../components/controls/Dropdown';
 import Tooltip from '../../../components/controls/Tooltip';
+import { Button } from '../../../components/controls/buttons';
 import { PopupPlacement } from '../../../components/ui/popups';
 import { translate } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
@@ -77,7 +77,7 @@ export default class BulkChange extends React.PureComponent<Props, State> {
   render() {
     // show "Bulk Change" button only if user is admin of at least one QP
     const canBulkChange = Object.values(this.props.referencedProfiles).some((profile) =>
-      Boolean(profile.actions && profile.actions.edit),
+      Boolean(profile.actions?.edit),
     );
     if (!canBulkChange) {
       return (

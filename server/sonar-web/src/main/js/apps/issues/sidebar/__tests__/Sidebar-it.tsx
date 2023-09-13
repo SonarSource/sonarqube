@@ -22,11 +22,25 @@ import { screen } from '@testing-library/react';
 import * as React from 'react';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockQuery } from '../../../../helpers/mocks/issues';
+import {
+  renderOwaspTop102021Category,
+  renderOwaspTop10Category,
+  renderSonarSourceSecurityCategory,
+} from '../../../../helpers/security-standard';
 import { mockAppState } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { GlobalSettingKeys } from '../../../../types/settings';
 import { SidebarClass as Sidebar } from '../Sidebar';
+
+jest.mock('../../../../helpers/security-standard', () => {
+  return {
+    ...jest.requireActual('../../../../helpers/security-standard'),
+    renderOwaspTop10Category: jest.fn(),
+    renderOwaspTop102021Category: jest.fn(),
+    renderSonarSourceSecurityCategory: jest.fn(),
+  };
+});
 
 it('should render correct facets for Application', () => {
   renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Application }) });
@@ -111,6 +125,22 @@ it.each([
   }[name] as string;
 
   expect(screen.getByText(text)).toBeInTheDocument();
+});
+
+it('should call functions from security-standard', () => {
+  renderSidebar({
+    component: mockComponent({ qualifier: ComponentQualifier.Application }),
+    query: {
+      ...mockQuery(),
+      owaspTop10: ['foo'],
+      'owaspTop10-2021': ['bar'],
+      sonarsourceSecurity: ['baz'],
+    },
+  });
+
+  expect(renderOwaspTop10Category).toHaveBeenCalledTimes(1);
+  expect(renderOwaspTop102021Category).toHaveBeenCalledTimes(1);
+  expect(renderSonarSourceSecurityCategory).toHaveBeenCalledTimes(1);
 });
 
 function renderSidebar(props: Partial<Sidebar['props']> = {}) {

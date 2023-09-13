@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
+import { MetricType } from '../../types/metrics';
 import { ButtonLink } from '../controls/buttons';
 
 interface Props {
@@ -49,7 +50,7 @@ export default class ListStyleFacetFooter extends React.PureComponent<Props> {
 
     return (
       <div className="note spacer-top spacer-bottom text-center">
-        {translateWithParameters('x_show', formatMeasure(count, 'INT', null))}
+        {translateWithParameters('x_show', formatMeasure(count, MetricType.Integer))}
 
         {hasMore && (
           <ButtonLink

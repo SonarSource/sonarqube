@@ -19,34 +19,43 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { MetricKey, MetricType } from '../../../types/metrics';
 import Measure from '../Measure';
 
 it('renders trivial measure', () => {
   expect(
-    shallow(<Measure metricKey="coverage" metricType="PERCENT" value="73.0" />),
+    shallow(
+      <Measure metricKey={MetricKey.coverage} metricType={MetricType.Percent} value="73.0" />,
+    ),
   ).toMatchSnapshot();
 });
 
 it('renders leak measure', () => {
   expect(
-    shallow(<Measure metricKey="new_coverage" metricType="PERCENT" value="36.0" />),
+    shallow(
+      <Measure metricKey={MetricKey.new_coverage} metricType={MetricType.Percent} value="36.0" />,
+    ),
   ).toMatchSnapshot();
 });
 
 it('renders LEVEL', () => {
   expect(
-    shallow(<Measure metricKey="quality_gate_status" metricType="LEVEL" value="ERROR" />),
+    shallow(
+      <Measure metricKey="quality_gate_status" metricType={MetricType.Level} value="ERROR" />,
+    ),
   ).toMatchSnapshot();
 });
 
 it('renders RATING', () => {
   expect(
-    shallow(<Measure metricKey="sqale_rating" metricType="RATING" value="3" />),
+    shallow(
+      <Measure metricKey={MetricKey.sqale_rating} metricType={MetricType.Rating} value="3" />,
+    ),
   ).toMatchSnapshot();
 });
 
 it('renders undefined measure', () => {
   expect(
-    shallow(<Measure metricKey="foo" metricType="PERCENT" value={undefined} />),
+    shallow(<Measure metricKey="foo" metricType={MetricType.Percent} value={undefined} />),
   ).toMatchSnapshot();
 });

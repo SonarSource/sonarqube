@@ -216,3 +216,24 @@ export interface RawFacet {
 export interface Facet {
   [value: string]: number;
 }
+
+export enum FacetName {
+  AssignedToMe = 'assigned_to_me',
+  Assignees = 'assignees',
+  Author = 'author',
+  CodeVariants = 'codeVariants',
+  CreatedAt = 'createdAt',
+  Cwe = 'cwe',
+  Directories = 'directories',
+  Files = 'files',
+  Languages = 'languages',
+  OwaspTop10 = 'owaspTop10',
+  Projects = 'projects',
+  Reporters = 'reporters',
+  Resolutions = 'resolutions',
+  Rules = 'rules',
+  Severities = 'severities',
+  Statuses = 'statuses',
+  Tags = 'tags',
+  Types = 'types',
+}

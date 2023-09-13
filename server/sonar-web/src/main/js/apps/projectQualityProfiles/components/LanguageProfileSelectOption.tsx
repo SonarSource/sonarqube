@@ -35,26 +35,31 @@ export type LanguageProfileSelectOptionProps = OptionProps<ProfileOption, false>
 export default function LanguageProfileSelectOption(props: LanguageProfileSelectOptionProps) {
   const option = props.data;
 
+  const SelectOptionDisableTooltipOverlay = React.useCallback(
+    () => (
+      <>
+        <p>
+          {translate(
+            'project_quality_profile.add_language_modal.profile_unavailable_no_active_rules',
+          )}
+        </p>
+        {option.label && option.language && (
+          <Link to={getQualityProfileUrl(option.label, option.language)}>
+            {translate('project_quality_profile.add_language_modal.go_to_profile')}
+          </Link>
+        )}
+      </>
+    ),
+    [option.label, option.language],
+  );
+
   return (
     <components.Option {...props}>
       <div>
         <DisableableSelectOption
           option={option}
           disabledReason={translate('project_quality_profile.add_language_modal.no_active_rules')}
-          disableTooltipOverlay={() => (
-            <>
-              <p>
-                {translate(
-                  'project_quality_profile.add_language_modal.profile_unavailable_no_active_rules',
-                )}
-              </p>
-              {option.label && option.language && (
-                <Link to={getQualityProfileUrl(option.label, option.language)}>
-                  {translate('project_quality_profile.add_language_modal.go_to_profile')}
-                </Link>
-              )}
-            </>
-          )}
+          disableTooltipOverlay={SelectOptionDisableTooltipOverlay}
         />
       </div>
     </components.Option>

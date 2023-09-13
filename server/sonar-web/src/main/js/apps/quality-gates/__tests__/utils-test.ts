@@ -39,10 +39,10 @@ const METRICS = {
 
 describe('getLocalizedMetricNameNoDiffMetric', () => {
   it('should return the correct corresponding metric', () => {
-    expect(getLocalizedMetricNameNoDiffMetric(mockMetric(), {})).toBe('coverage');
-    expect(getLocalizedMetricNameNoDiffMetric(mockMetric({ key: 'new_bugs' }), METRICS)).toBe(
-      'Bugs',
-    );
+    expect(getLocalizedMetricNameNoDiffMetric(mockMetric(), {})).toBe(MetricKey.coverage);
+    expect(
+      getLocalizedMetricNameNoDiffMetric(mockMetric({ key: MetricKey.new_bugs }), METRICS),
+    ).toBe('Bugs');
     expect(
       getLocalizedMetricNameNoDiffMetric(
         mockMetric({ key: 'new_custom_metric', name: 'Custom Metric on New Code' }),
@@ -51,7 +51,7 @@ describe('getLocalizedMetricNameNoDiffMetric', () => {
     ).toBe('Custom Metric on New Code');
     expect(
       getLocalizedMetricNameNoDiffMetric(
-        mockMetric({ key: 'new_maintainability_rating' }),
+        mockMetric({ key: MetricKey.new_maintainability_rating }),
         METRICS,
       ),
     ).toBe('Maintainability Rating');

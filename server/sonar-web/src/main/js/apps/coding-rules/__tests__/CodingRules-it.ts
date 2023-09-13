@@ -516,27 +516,33 @@ describe('Rule app details', () => {
     // Activate rule in quality profile
     await user.click(ui.activateButton.get());
     await selectEvent.select(ui.qualityProfileSelect.get(), 'QP FooBar');
-    await user.type(ui.paramInput('1').get(), 'paramInput');
 
     await act(() => user.click(ui.activateButton.get(ui.activateQPDialog.get())));
     expect(ui.qpLink('QP FooBar').get()).toBeInTheDocument();
 
-    // Change rule details in quality profile
-    await user.click(ui.changeButton('QP FooBar').get());
-    await user.type(ui.paramInput('1').get(), 'New');
-    await act(() => user.click(ui.saveButton.get(ui.changeQPDialog.get())));
-    expect(screen.getByText('paramInputNew')).toBeInTheDocument();
-
     // activate last java rule
     await user.click(ui.activateButton.get());
+    await user.type(ui.paramInput('1').get(), 'paramInput');
     await act(() => user.click(ui.activateButton.get(ui.activateQPDialog.get())));
-    expect(ui.qpLink('QP FooBarBaz').get()).toBeInTheDocument();
+    expect(ui.qpLink('QP FooBarBaz').getAll()).toHaveLength(2);
+    expect(ui.qpLink('QP FooBaz').get()).toBeInTheDocument();
 
     // Rule is activated in all quality profiles - show notification in dialog
     await user.click(ui.activateButton.get());
     expect(ui.activaInAllQPs.get()).toBeInTheDocument();
     expect(ui.activateButton.get(ui.activateQPDialog.get())).toBeDisabled();
     await user.click(ui.cancelButton.get());
+
+    // Change rule details in quality profile
+    await user.click(ui.changeButton('QP FooBaz').get());
+    await user.type(ui.paramInput('1').get(), 'New');
+    await act(() => user.click(ui.saveButton.get(ui.changeQPDialog.get())));
+    expect(screen.getByText('paramInputNew')).toBeInTheDocument();
+
+    // Revert rule details in quality profile
+    await user.click(ui.revertToParentDefinitionButton.get());
+    await act(() => user.click(ui.yesButton.get()));
+    expect(screen.queryByText('paramInputNew')).not.toBeInTheDocument();
 
     // Deactivate rule in quality profile
     await user.click(ui.deactivateInQPButton('QP FooBar').get());

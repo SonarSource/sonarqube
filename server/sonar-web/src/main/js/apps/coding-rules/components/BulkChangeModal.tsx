@@ -27,6 +27,7 @@ import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { Languages } from '../../../types/languages';
+import { MetricType } from '../../../types/metrics';
 import { Dict } from '../../../types/types';
 import { Query, serializeQuery } from '../query';
 
@@ -98,7 +99,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
       profiles = profiles.filter((profile) => query.languages.includes(profile.language));
     }
     return profiles
-      .filter((profile) => profile.actions && profile.actions.edit)
+      .filter((profile) => profile.actions?.edit)
       .filter((profile) => !profile.isBuiltIn);
   };
 
@@ -213,11 +214,11 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
       action === 'activate'
         ? `${translate('coding_rules.activate_in_quality_profile')} (${formatMeasure(
             total,
-            'INT',
+            MetricType.Integer,
           )} ${translate('coding_rules._rules')})`
         : `${translate('coding_rules.deactivate_in_quality_profile')} (${formatMeasure(
             total,
-            'INT',
+            MetricType.Integer,
           )} ${translate('coding_rules._rules')})`;
 
     return (

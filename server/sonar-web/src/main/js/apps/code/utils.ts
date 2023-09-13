@@ -94,7 +94,7 @@ export function showLeakMeasure(branchLike?: BranchLike) {
 
 function skipRootDir(breadcrumbs: ComponentMeasure[]) {
   return breadcrumbs.filter((component) => {
-    return !(component.qualifier === 'DIR' && component.name === '/');
+    return !(component.qualifier === ComponentQualifier.Directory && component.name === '/');
   });
 }
 
@@ -189,7 +189,7 @@ export async function retrieveComponentChildren(
 
   if (instance.mounted && isPortfolioLike(qualifier)) {
     await Promise.all(
-      result.components.map((c) => getComponentData({ component: c.refKey || c.key })),
+      result.components.map((c) => getComponentData({ component: c.refKey ?? c.key })),
     ).then(
       (data) => {
         data.forEach(({ component: { analysisDate } }, i) => {

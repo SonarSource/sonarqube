@@ -142,6 +142,9 @@ const selectors = {
   changeQPDialog: byRole('dialog', { name: 'coding_rules.change_details' }),
   deactivateInQPButton: (profile: string) =>
     byRole('button', { name: `coding_rules.deactivate_in_quality_profile_x.${profile}` }),
+  revertToParentDefinitionButton: byRole('button', {
+    name: 'coding_rules.revert_to_parent_definition',
+  }),
   activaInAllQPs: byText('coding_rules.active_in_all_profiles'),
   yesButton: byRole('button', { name: 'yes' }),
   paramInput: (param: string) => byRole('textbox', { name: param }),

@@ -29,6 +29,8 @@ import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { getIssuesUrl } from '../../../helpers/urls';
 import { Feature } from '../../../types/features';
+import { FacetName } from '../../../types/issues';
+import { MetricType } from '../../../types/metrics';
 import { RuleDetails } from '../../../types/types';
 
 interface Props extends WithAvailableFeaturesProps {
@@ -77,7 +79,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
         resolved: 'false',
         rules: key,
       },
-      'projects',
+      FacetName.Projects,
     ).then(
       ({ facet, response }) => {
         if (this.mounted) {
@@ -138,7 +140,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
       <tr key={project.key}>
         <td className="coding-rules-detail-list-name">{project.name}</td>
         <td className="coding-rules-detail-list-parameters">
-          <Link to={path}>{formatMeasure(project.count, 'INT')}</Link>
+          <Link to={path}>{formatMeasure(project.count, MetricType.Integer)}</Link>
         </td>
       </tr>
     );

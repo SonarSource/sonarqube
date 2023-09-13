@@ -43,7 +43,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
   handleActivate = () => this.props.onActivate();
 
   handleDeactivate = (key?: string) => {
-    if (key) {
+    if (key !== undefined) {
       deactivateRule({
         key,
         rule: this.props.ruleDetails.key,
@@ -52,7 +52,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
   };
 
   handleRevert = (key?: string) => {
-    if (key) {
+    if (key !== undefined) {
       activateRule({
         key,
         rule: this.props.ruleDetails.key,
@@ -81,9 +81,8 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
   };
 
   renderParameter = (param: { key: string; value: string }, parentActivation?: RuleActivation) => {
-    const originalParam =
-      parentActivation && parentActivation.params.find((p) => p.key === param.key);
-    const originalValue = originalParam && originalParam.value;
+    const originalParam = parentActivation?.params.find((p) => p.key === param.key);
+    const originalValue = originalParam?.value;
 
     return (
       <div className="coding-rules-detail-quality-profile-parameter" key={param.key}>
@@ -108,7 +107,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
   );
 
   renderActions = (activation: RuleActivation, profile: Profile) => {
-    const canEdit = profile.actions && profile.actions.edit && !profile.isBuiltIn;
+    const canEdit = profile.actions?.edit && !profile.isBuiltIn;
     const { ruleDetails } = this.props;
     const hasParent = activation.inherit !== 'NONE' && profile.parentKey;
     return (
@@ -204,7 +203,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
   render() {
     const { activations = [], referencedProfiles, ruleDetails } = this.props;
     const canActivate = Object.values(referencedProfiles).some((profile) =>
-      Boolean(profile.actions && profile.actions.edit && profile.language === ruleDetails.lang),
+      Boolean(profile.actions?.edit && profile.language === ruleDetails.lang),
     );
 
     return (

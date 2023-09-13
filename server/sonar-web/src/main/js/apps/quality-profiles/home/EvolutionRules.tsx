@@ -25,13 +25,14 @@ import { toShortISO8601String } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { getRulesUrl } from '../../../helpers/urls';
+import { MetricType } from '../../../types/metrics';
 import { Dict, Rule, RuleActivation } from '../../../types/types';
 
 const RULES_LIMIT = 10;
 
 function parseRules(rules: Rule[], actives?: Dict<RuleActivation[]>): ExtendedRule[] {
   return rules.map((rule) => {
-    const activations = actives && actives[rule.key];
+    const activations = actives?.[rule.key];
     return { ...rule, activations: activations ? activations.length : 0 };
   });
 }
@@ -101,8 +102,7 @@ export default class EvolutionRules extends React.PureComponent<{}, State> {
     const newRulesUrl = getRulesUrl({ available_since: this.periodStartDate });
     const seeAllRulesText = `${translate('see_all')} ${formatMeasure(
       latestRulesTotal,
-      'SHORT_INT',
-      null,
+      MetricType.ShortInteger,
     )}`;
 
     return (

@@ -503,26 +503,63 @@ export default class CodingRulesServiceMock {
     rule: string;
     severity?: string;
   }) => {
-    const nextActivation = mockRuleActivation({
-      qProfile: data.key,
-      severity: data.severity,
-      params: Object.entries(data.params ?? {}).map(([key, value]) => ({ key, value })),
-    });
+    if (data.reset) {
+      const parentQP = this.qualityProfile.find((p) => p.key === data.key)?.parentKey!;
+      const parentActivation = this.rulesActivations[data.rule]?.find(
+        (activation) => activation.qProfile === parentQP,
+      )!;
+      const parentParams = parentActivation?.params ?? [];
+      const activation = this.rulesActivations[data.rule]?.find(
+        ({ qProfile }) => qProfile === data.key,
+      )!;
+      activation.inherit = 'INHERITED';
+      activation.params = parentParams;
 
-    if (!this.rulesActivations[data.rule]) {
-      this.rulesActivations[data.rule] = [nextActivation];
       return this.reply(undefined);
     }
 
-    const activationIndex = this.rulesActivations[data.rule]?.findIndex((activation) => {
-      return activation.qProfile === data.key;
+    const nextActivations = [
+      mockRuleActivation({
+        qProfile: data.key,
+        severity: data.severity,
+        params: Object.entries(data.params ?? {}).map(([key, value]) => ({ key, value })),
+      }),
+    ];
+
+    const inheritingProfiles = this.qualityProfile.filter(
+      (p) => p.isInherited && p.parentKey === data.key,
+    );
+    nextActivations.push(
+      ...inheritingProfiles.map((profile) =>
+        mockRuleActivation({
+          qProfile: profile.key,
+          severity: data.severity,
+          inherit: 'INHERITED',
+          params: Object.entries(data.params ?? {}).map(([key, value]) => ({ key, value })),
+        }),
+      ),
+    );
+
+    if (!this.rulesActivations[data.rule]) {
+      this.rulesActivations[data.rule] = nextActivations;
+      return this.reply(undefined);
+    }
+
+    nextActivations.forEach((nextActivation) => {
+      const activationIndex = this.rulesActivations[data.rule]?.findIndex(
+        ({ qProfile }) => qProfile === nextActivation.qProfile,
+      );
+
+      if (activationIndex !== -1) {
+        this.rulesActivations[data.rule][activationIndex] = {
+          ...nextActivation,
+          inherit: 'OVERRIDES',
+        };
+      } else {
+        this.rulesActivations[data.rule].push(nextActivation);
+      }
     });
 
-    if (activationIndex !== -1) {
-      this.rulesActivations[data.rule][activationIndex] = nextActivation;
-    } else {
-      this.rulesActivations[data.rule].push(nextActivation);
-    }
     return this.reply(undefined);
   };
 

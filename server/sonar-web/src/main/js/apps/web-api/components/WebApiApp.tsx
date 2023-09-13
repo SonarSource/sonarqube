@@ -88,7 +88,7 @@ export class WebApiApp extends React.PureComponent<Props, State> {
     return domains.map((domain) => {
       const deprecated = getLatestDeprecatedAction(domain);
       const internal = !domain.actions.find((action: any) => !action.internal);
-      return { ...domain, deprecatedSince: deprecated && deprecated.deprecatedSince, internal };
+      return { ...domain, deprecatedSince: deprecated?.deprecatedSince, internal };
     });
   }
 
@@ -115,9 +115,9 @@ export class WebApiApp extends React.PureComponent<Props, State> {
       const action = domain.actions.find(
         (action) => getActionKey(domain.path, action.key) === splat,
       );
-      const internal = Boolean(!query.internal && (domain.internal || (action && action.internal)));
+      const internal = Boolean(!query.internal && (domain.internal || action?.internal));
       const deprecated = Boolean(
-        !query.deprecated && (domain.deprecatedSince || (action && action.deprecatedSince)),
+        !query.deprecated && (domain.deprecatedSince || action?.deprecatedSince),
       );
       if (internal || deprecated) {
         this.updateQuery({ internal, deprecated });
@@ -136,7 +136,7 @@ export class WebApiApp extends React.PureComponent<Props, State> {
     const query = parseQuery(this.props.location.query);
     const value = !query[flag];
 
-    if (domain && domain[domainFlag] && !value) {
+    if (domain?.[domainFlag] && !value) {
       this.props.router.push({
         pathname: '/web_api',
         query: serializeQuery({ ...query, [flag]: false }),

@@ -28,7 +28,7 @@ import {
   getMaintainabilityGrid,
 } from '../../helpers/ratings';
 import { AppState } from '../../types/appstate';
-import { MetricKey } from '../../types/metrics';
+import { MetricKey, MetricType } from '../../types/metrics';
 import { GlobalSettingKeys } from '../../types/settings';
 import { KNOWN_RATINGS } from './utils';
 
@@ -54,7 +54,7 @@ export function RatingTooltipContent(props: RatingTooltipContentProps) {
   }
 
   const rating = Number(value);
-  const ratingLetter = formatMeasure(value, 'RATING');
+  const ratingLetter = formatMeasure(value, MetricType.Rating);
 
   if (finalMetricKey !== 'sqale_rating' && finalMetricKey !== 'maintainability_rating') {
     return <>{translate('metric', finalMetricKey, 'tooltip', ratingLetter)}</>;
@@ -71,12 +71,12 @@ export function RatingTooltipContent(props: RatingTooltipContentProps) {
       {rating === 1
         ? translateWithParameters(
             'metric.sqale_rating.tooltip.A',
-            formatMeasure(maintainabilityGrid[0] * PERCENT_MULTIPLIER, 'PERCENT'),
+            formatMeasure(maintainabilityGrid[0] * PERCENT_MULTIPLIER, MetricType.Percent),
           )
         : translateWithParameters(
             'metric.sqale_rating.tooltip',
             ratingLetter,
-            formatMeasure(maintainabilityRatingThreshold * PERCENT_MULTIPLIER, 'PERCENT'),
+            formatMeasure(maintainabilityRatingThreshold * PERCENT_MULTIPLIER, MetricType.Percent),
           )}
     </>
   );

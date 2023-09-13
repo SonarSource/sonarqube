@@ -148,14 +148,14 @@ function getAsLevel(value: any): Level | undefined {
 }
 
 function getAsString(value: any): string | undefined {
-  if (typeof value !== 'string' || !value) {
+  if (typeof value !== 'string' || value === '') {
     return undefined;
   }
   return value;
 }
 
 function getAsStringArray(value: any): string[] | undefined {
-  if (typeof value !== 'string' || !value) {
+  if (typeof value !== 'string' || value === '') {
     return undefined;
   }
   return value.split(',');
@@ -172,9 +172,9 @@ function getView(value: any): string | undefined {
 function convertIssuesRating(metric: string, rating: number): string {
   if (rating > 1 && rating < 5) {
     return `${metric} >= ${rating}`;
-  } else {
-    return `${metric} = ${rating}`;
   }
+
+  return `${metric} = ${rating}`;
 }
 
 function convertCoverage(metric: string, coverage: number): string {
@@ -262,10 +262,10 @@ function pushMetricToArray(
   query: Query,
   property: string,
   conditionsArray: string[],
-  convertFunction: (metric: string, value: any) => string,
+  convertFunction: (metric: string, value: Query[string]) => string,
 ): void {
   const metric = mapPropertyToMetric(property);
-  if (query[property] != null && metric) {
+  if (query[property] !== undefined && metric !== undefined) {
     conditionsArray.push(convertFunction(metric, query[property]));
   }
 }

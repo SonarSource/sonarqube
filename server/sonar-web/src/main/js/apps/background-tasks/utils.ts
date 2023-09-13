@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ONE_SECOND } from '../../helpers/constants';
 import { toShortISO8601String } from '../../helpers/dates';
 import { ActivityRequestParameters, Task, TaskStatuses } from '../../types/tasks';
 import { ALL_TYPES, CURRENTS, STATUSES } from './constants';
@@ -79,7 +80,6 @@ export function mapFiltersToParameters(filters: Partial<Query> = {}) {
   return parameters;
 }
 
-const ONE_SECOND = 1000;
 const ONE_MINUTE = 60 * ONE_SECOND;
 const ONE_HOUR = 60 * ONE_MINUTE;
 

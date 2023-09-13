@@ -19,6 +19,7 @@
  */
 
 import { searchProjects } from '../../../api/components';
+import { ONE_SECOND } from '../../../helpers/constants';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { Component } from '../../../types/types';
 import * as utils from '../utils';
@@ -58,7 +59,6 @@ describe('parseSorting', () => {
 });
 
 describe('formatDuration', () => {
-  const ONE_SECOND = 1000;
   const ONE_MINUTE = 60 * ONE_SECOND;
   const ONE_HOUR = 60 * ONE_MINUTE;
   const ONE_DAY = 24 * ONE_HOUR;
@@ -102,11 +102,21 @@ describe('fetchProjects', () => {
       ps: 50,
     });
 
-    await utils.fetchProjects({ isFavorite: false, pageIndex: 3, query: { view: 'leak' } });
+    await utils.fetchProjects({
+      isFavorite: false,
+      pageIndex: 3,
+      query: {
+        view: 'leak',
+        new_reliability: 6,
+        incorrect_property: 'should not appear in post data',
+        search: 'foo',
+      },
+    });
 
     expect(searchProjects).toHaveBeenCalledWith({
       f: 'analysisDate,leakPeriodDate',
       facets: utils.LEAK_FACETS.join(),
+      filter: 'new_reliability_rating = 6 and query = "foo"',
       p: 3,
       ps: 50,
     });

@@ -27,6 +27,8 @@ export enum UpdateUseCase {
   PreviousLTS = 'previous_lts',
 }
 
+export const SYSTEM_VERSION_REGEXP = /^(\d+)\.(\d+)(\.(\d+))?/;
+
 export function sortUpgrades(upgrades: SystemUpgrade[]): SystemUpgrade[] {
   return sortBy(upgrades, [
     (upgrade: SystemUpgrade) => -Number(upgrade.version.split('.')[0]),

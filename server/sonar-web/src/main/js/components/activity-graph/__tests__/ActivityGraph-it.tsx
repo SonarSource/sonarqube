@@ -27,7 +27,7 @@ import { mockMetric } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import { byLabelText, byPlaceholderText, byRole, byText } from '../../../helpers/testSelector';
 import { ComponentPropsType } from '../../../helpers/testUtils';
-import { MetricKey } from '../../../types/metrics';
+import { MetricKey, MetricType } from '../../../types/metrics';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import { Metric } from '../../../types/types';
 import GraphsHeader from '../GraphsHeader';
@@ -271,19 +271,22 @@ function renderActivityGraph(
       metrics.push(
         mockMetric({
           key: metric,
-          type: metric.includes('_density') || metric === MetricKey.coverage ? 'PERCENT' : 'INT',
+          type:
+            metric.includes('_density') || metric === MetricKey.coverage
+              ? MetricType.Percent
+              : MetricType.Integer,
         }),
       );
     });
 
     // The following should be filtered out, and not be suggested as options.
     metrics.push(
-      mockMetric({ key: MetricKey.new_bugs, type: 'INT' }),
-      mockMetric({ key: MetricKey.burned_budget, type: 'DATA' }),
+      mockMetric({ key: MetricKey.new_bugs, type: MetricType.Integer }),
+      mockMetric({ key: MetricKey.burned_budget, type: MetricType.Data }),
     );
 
     // The following will not be filtered out, but has no values.
-    metrics.push(mockMetric({ key: MetricKey.test_failures, type: 'INT' }));
+    metrics.push(mockMetric({ key: MetricKey.test_failures, type: MetricType.Integer }));
     measuresHistory.push(
       mockMeasureHistory({
         metric: MetricKey.test_failures,
