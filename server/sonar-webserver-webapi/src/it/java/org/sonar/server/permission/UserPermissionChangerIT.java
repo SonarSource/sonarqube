@@ -42,8 +42,8 @@ import org.sonar.server.exceptions.BadRequestException;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.server.permission.PermissionChange.Operation.ADD;
-import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
+import static org.sonar.server.common.permission.Operation.ADD;
+import static org.sonar.server.common.permission.Operation.REMOVE;
 import static org.sonar.server.permission.PermissionServiceImpl.ALL_PROJECT_PERMISSIONS;
 
 public class UserPermissionChangerIT {

@@ -42,7 +42,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Indexers;
 import org.sonar.server.favorite.FavoriteUpdater;
-import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.common.permission.Operation;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.PermissionUpdater;
@@ -173,7 +173,7 @@ public class ComponentUpdater {
   }
 
   private UserPermissionChange toUserPermissionChange(String permission, ProjectDto projectDto, UserDto userDto) {
-    return new UserPermissionChange(PermissionChange.Operation.ADD, permission, projectDto, userDto, permissionService);
+    return new UserPermissionChange(Operation.ADD, permission, projectDto, userDto, permissionService);
   }
 
   private void addToFavourites(DbSession dbSession, ProjectDto projectDto, @Nullable String userUuid, @Nullable String userLogin) {

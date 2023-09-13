@@ -34,7 +34,7 @@ public class UserUpdateRestRequest {
 
   @Size(max = 200)
   @Schema(description = "User first name and last name", implementation = String.class)
-  public UpdateField< String> getName() {
+  public UpdateField<String> getName() {
     return name;
   }
 

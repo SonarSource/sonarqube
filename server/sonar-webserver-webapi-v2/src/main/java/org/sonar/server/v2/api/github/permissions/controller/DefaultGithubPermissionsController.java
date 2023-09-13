@@ -19,14 +19,30 @@
  */
 package org.sonar.server.v2.api.github.permissions.controller;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import javax.validation.Valid;
 import org.sonar.server.common.github.permissions.GithubPermissionsMapping;
 import org.sonar.server.common.github.permissions.GithubPermissionsMappingService;
+import org.sonar.server.common.github.permissions.PermissionMappingChange;
+import org.sonar.server.common.permission.Operation;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.github.permissions.model.RestGithubPermissionsMapping;
+import org.sonar.server.v2.api.github.permissions.request.GithubPermissionMappingUpdateRequest;
+import org.sonar.server.v2.api.github.permissions.request.PermissionMappingUpdate;
 import org.sonar.server.v2.api.github.permissions.response.GithubPermissionsMappingRestResponse;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
-public class DefaultGithubPermissionsController implements GithubPermissionsController{
+import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.SCAN;
+import static org.sonar.api.web.UserRole.SECURITYHOTSPOT_ADMIN;
+import static org.sonar.api.web.UserRole.USER;
+
+public class DefaultGithubPermissionsController implements GithubPermissionsController {
 
   private UserSession userSession;
   private GithubPermissionsMappingService githubPermissionsMappingService;
@@ -38,15 +54,42 @@ public class DefaultGithubPermissionsController implements GithubPermissionsCont
 
   @Override
   public GithubPermissionsMappingRestResponse fetchAll() {
-    userSession.checkLoggedIn().checkIsSystemAdministrator();
+    userSession.checkIsSystemAdministrator();
     List<GithubPermissionsMapping> permissionsMapping = githubPermissionsMappingService.getPermissionsMapping();
     return new GithubPermissionsMappingRestResponse(toRestResources(permissionsMapping));
   }
 
+  @Override
+  public RestGithubPermissionsMapping updateMapping(@PathVariable("githubRole") String githubRole, @Valid @RequestBody GithubPermissionMappingUpdateRequest request) {
+    userSession.checkIsSystemAdministrator();
+    PermissionMappingUpdate update = request.permissions();
+    Set<PermissionMappingChange> changes = new HashSet<>();
+
+    update.getUser().map(shouldAddPermission -> toPermissionMappingChange(githubRole, USER, shouldAddPermission)).applyIfDefined(changes::add);
+    update.getCodeViewer().map(shouldAddPermission -> toPermissionMappingChange(githubRole, CODEVIEWER, shouldAddPermission)).applyIfDefined(changes::add);
+    update.getIssueAdmin().map(shouldAddPermission -> toPermissionMappingChange(githubRole, ISSUE_ADMIN, shouldAddPermission)).applyIfDefined(changes::add);
+    update.getSecurityHotspotAdmin().map(shouldAddPermission -> toPermissionMappingChange(githubRole, SECURITYHOTSPOT_ADMIN, shouldAddPermission)).applyIfDefined(changes::add);
+    update.getAdmin().map(shouldAddPermission -> toPermissionMappingChange(githubRole, ADMIN, shouldAddPermission)).applyIfDefined(changes::add);
+    update.getScan().map(shouldAddPermission -> toPermissionMappingChange(githubRole, SCAN, shouldAddPermission)).applyIfDefined(changes::add);
+
+    githubPermissionsMappingService.updatePermissionsMappings(changes);
+
+    return toRestGithubPermissionMapping(githubPermissionsMappingService.getPermissionsMappingForGithubRole(githubRole));
+
+  }
+
+  private static PermissionMappingChange toPermissionMappingChange(String githubRole, String sonarqubePermission, boolean shouldAddPermission) {
+    return new PermissionMappingChange(githubRole, sonarqubePermission, shouldAddPermission ? Operation.ADD : Operation.REMOVE);
+  }
+
   private static List<RestGithubPermissionsMapping> toRestResources(List<GithubPermissionsMapping> permissionsMapping) {
     return permissionsMapping.stream()
-      .map(e -> new RestGithubPermissionsMapping(e.roleName(), e.roleName(), e.permissions()))
+      .map(DefaultGithubPermissionsController::toRestGithubPermissionMapping)
       .toList();
+  }
+
+  private static RestGithubPermissionsMapping toRestGithubPermissionMapping(GithubPermissionsMapping githubPermissionsMapping) {
+    return new RestGithubPermissionsMapping(githubPermissionsMapping.roleName(), githubPermissionsMapping.roleName(), githubPermissionsMapping.permissions());
   }
 
 }

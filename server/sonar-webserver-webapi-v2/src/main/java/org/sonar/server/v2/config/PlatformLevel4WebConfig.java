@@ -20,6 +20,7 @@
 package org.sonar.server.v2.config;
 
 import javax.annotation.Nullable;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.provisioning.GithubPermissionsMappingDao;
 import org.sonar.server.common.github.permissions.GithubPermissionsMappingService;
@@ -80,8 +81,8 @@ public class PlatformLevel4WebConfig {
   }
 
   @Bean
-  public GithubPermissionsMappingService githubPermissionsMappingService(DbClient dbClient, GithubPermissionsMappingDao githubPermissionsMappingDao) {
-    return new GithubPermissionsMappingService(dbClient, githubPermissionsMappingDao);
+  public GithubPermissionsMappingService githubPermissionsMappingService(DbClient dbClient, GithubPermissionsMappingDao githubPermissionsMappingDao, UuidFactory uuidFactory) {
+    return new GithubPermissionsMappingService(dbClient, githubPermissionsMappingDao, uuidFactory);
   }
 
   @Bean

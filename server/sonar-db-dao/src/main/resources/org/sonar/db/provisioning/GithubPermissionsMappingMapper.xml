@@ -22,10 +22,22 @@
     )
   </insert>
 
+  <delete id="delete" parameterType="GithubPermissionsMapping">
+    delete from github_perms_mapping
+    where github_role = #{githubRole,jdbcType=VARCHAR} AND sonarqube_permission = #{sonarqubePermission,jdbcType=VARCHAR}
+  </delete>
+
   <select id="selectAll" resultType="GithubPermissionsMapping">
     SELECT
       <include refid="githubPermissionsMappingColumns"/>
     FROM github_perms_mapping gpm
+  </select>
+
+  <select id="selectAllForGithubRole" resultType="GithubPermissionsMapping">
+    SELECT
+      <include refid="githubPermissionsMappingColumns"/>
+    FROM github_perms_mapping gpm
+    WHERE gpm.github_role =  #{githubRole,jdbcType=VARCHAR}
   </select>
 
 </mapper>

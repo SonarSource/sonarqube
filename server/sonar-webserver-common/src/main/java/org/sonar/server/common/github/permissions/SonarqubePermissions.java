@@ -22,7 +22,7 @@ package org.sonar.server.common.github.permissions;
 public record SonarqubePermissions(
   boolean user,
   boolean codeViewer,
-  boolean issueadmin,
+  boolean issueAdmin,
   boolean securityHotspotAdmin,
   boolean admin,
   boolean scan) {

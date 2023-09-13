@@ -20,6 +20,7 @@
 package org.sonar.server.v2.common.model;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.validation.valueextraction.UnwrapByDefault;
@@ -55,6 +56,13 @@ public class UpdateField<T> {
     if (isDefined) {
       consumer.accept(value);
     }
+  }
+
+  public <U> UpdateField<U> map(Function<T, U> mappingFunction) {
+    if (isDefined) {
+      return withValue(mappingFunction.apply(value));
+    }
+    return undefined();
   }
 
   @Override

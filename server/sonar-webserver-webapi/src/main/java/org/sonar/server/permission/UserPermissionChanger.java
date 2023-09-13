@@ -31,8 +31,8 @@ import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.UserPermissionDto;
 
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
-import static org.sonar.server.permission.PermissionChange.Operation.ADD;
-import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
+import static org.sonar.server.common.permission.Operation.ADD;
+import static org.sonar.server.common.permission.Operation.REMOVE;
 
 /**
  * Adds and removes user permissions. Both global and project scopes are supported.

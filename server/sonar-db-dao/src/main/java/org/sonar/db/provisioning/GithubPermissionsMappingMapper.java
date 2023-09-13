@@ -20,11 +20,15 @@
 package org.sonar.db.provisioning;
 
 import java.util.Set;
+import org.apache.ibatis.annotations.Param;
 
 public interface GithubPermissionsMappingMapper {
 
   Set<GithubPermissionsMappingDto> selectAll();
 
+  Set<GithubPermissionsMappingDto> selectAllForGithubRole(String githubRole);
+
   void insert(GithubPermissionsMappingDto githubPermissionsMappingDto);
 
+  void delete(@Param("githubRole") String githubRole, @Param("sonarqubePermission") String sonarqubePermission);
 }

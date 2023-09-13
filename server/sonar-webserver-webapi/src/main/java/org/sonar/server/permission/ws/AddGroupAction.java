@@ -30,7 +30,7 @@ import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.permission.GroupPermissionChange;
-import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.common.permission.Operation;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.user.UserSession;
@@ -94,7 +94,7 @@ public class AddGroupAction implements PermissionsWsAction {
       }
       wsSupport.checkPermissionManagementAccess(userSession, entityDto);
       GroupPermissionChange change = new GroupPermissionChange(
-        PermissionChange.Operation.ADD,
+        Operation.ADD,
         request.mandatoryParam(PARAM_PERMISSION),
         entityDto,
         groupDto,

@@ -17,31 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission;
+@ParametersAreNonnullByDefault
+package org.sonar.server.common.permission;
 
-import javax.annotation.Nullable;
-import org.sonar.db.entity.EntityDto;
-import org.sonar.db.user.UserId;
-import org.sonar.server.common.permission.Operation;
-
-import static java.util.Objects.requireNonNull;
-
-public class UserPermissionChange extends PermissionChange {
-
-  private final UserId userId;
-
-  public UserPermissionChange(Operation operation, String permission, @Nullable EntityDto entity, UserId userId,
-    PermissionService permissionService) {
-    super(operation, permission, entity, permissionService);
-    this.userId = requireNonNull(userId);
-  }
-
-  public UserId getUserId() {
-    return userId;
-  }
-
-  @Override
-  public String getUuidOfGrantee() {
-    return userId.getUuid();
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

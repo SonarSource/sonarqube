@@ -23,6 +23,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.common.permission.Operation;
 
 public class GroupPermissionChange extends PermissionChange {
 

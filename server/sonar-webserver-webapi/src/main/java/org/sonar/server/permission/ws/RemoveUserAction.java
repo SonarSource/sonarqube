@@ -27,7 +27,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.UserId;
 import org.sonar.server.common.management.ManagedInstanceChecker;
-import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.common.permission.Operation;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChange;
@@ -95,7 +95,7 @@ public class RemoveUserAction implements PermissionsWsAction {
         managedInstanceChecker.throwIfUserAndProjectAreManaged(dbSession, userIdDto.getUuid(), entityDto.getUuid());
       }
       UserPermissionChange change = new UserPermissionChange(
-        PermissionChange.Operation.REMOVE,
+        Operation.REMOVE,
         permission,
         entityDto,
         userIdDto,

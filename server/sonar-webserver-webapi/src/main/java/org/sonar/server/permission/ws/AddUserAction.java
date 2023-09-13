@@ -28,7 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.UserId;
 import org.sonar.server.common.management.ManagedInstanceChecker;
-import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.common.permission.Operation;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChange;
@@ -97,7 +97,7 @@ public class AddUserAction implements PermissionsWsAction {
       UserId user = wsSupport.findUser(dbSession, userLogin);
 
       UserPermissionChange change = new UserPermissionChange(
-        PermissionChange.Operation.ADD,
+        Operation.ADD,
         request.mandatoryParam(PARAM_PERMISSION),
         entityDto,
         user,

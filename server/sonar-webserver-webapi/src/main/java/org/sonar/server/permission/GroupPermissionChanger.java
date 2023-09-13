@@ -33,8 +33,8 @@ import org.sonar.db.permission.GroupPermissionDto;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
-import static org.sonar.server.permission.PermissionChange.Operation.ADD;
-import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
+import static org.sonar.server.common.permission.Operation.ADD;
+import static org.sonar.server.common.permission.Operation.REMOVE;
 
 public class GroupPermissionChanger implements GranteeTypeSpecificPermissionUpdater<GroupPermissionChange> {
 

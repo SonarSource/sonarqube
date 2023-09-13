@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.provisioning.GithubPermissionsMappingDao;
@@ -31,6 +32,8 @@ import org.sonar.db.provisioning.GithubPermissionsMappingDto;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toSet;
+import static org.sonar.server.common.permission.Operation.ADD;
+import static org.sonar.server.common.permission.Operation.REMOVE;
 
 public class GithubPermissionsMappingService {
   public static final String READ_GITHUB_ROLE = "read";
@@ -44,8 +47,7 @@ public class GithubPermissionsMappingService {
     TRIAGE_GITHUB_ROLE,
     WRITE_GITHUB_ROLE,
     MAINTAIN_GITHUB_ROLE,
-    ADMIN_GITHUB_ROLE
-  );
+    ADMIN_GITHUB_ROLE);
 
   private static final Map<String, Consumer<SonarqubePermissions.Builder>> permissionAsStringToSonarqubePermission = Map.of(
     UserRole.USER, builder -> builder.user(true),
@@ -58,10 +60,18 @@ public class GithubPermissionsMappingService {
 
   private final DbClient dbClient;
   private final GithubPermissionsMappingDao githubPermissionsMappingDao;
+  private final UuidFactory uuidFactory;
 
-  public GithubPermissionsMappingService(DbClient dbClient, GithubPermissionsMappingDao githubPermissionsMappingDao) {
+  public GithubPermissionsMappingService(DbClient dbClient, GithubPermissionsMappingDao githubPermissionsMappingDao, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.githubPermissionsMappingDao = githubPermissionsMappingDao;
+    this.uuidFactory = uuidFactory;
+  }
+
+  public GithubPermissionsMapping getPermissionsMappingForGithubRole(String githubRole) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return toGithubPermissionsMapping(getPermissionsMappingForGithubRole(dbSession, githubRole), githubRole);
+    }
   }
 
   public List<GithubPermissionsMapping> getPermissionsMapping() {
@@ -70,27 +80,65 @@ public class GithubPermissionsMappingService {
     }
   }
 
-  private static List<GithubPermissionsMapping> toGithubPermissionsMappings(Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos) {
-    Map<String, Set<GithubPermissionsMappingDto>> githubRoleToGithubPermissionsMappingDto = githubPermissionsMappingDtos.stream()
-      .collect(groupingBy(GithubPermissionsMappingDto::githubRole, toSet()));
-    return GITHUB_BASE_ROLE.stream()
-      .map(githubRole -> toGithubPermissionsMapping(githubRoleToGithubPermissionsMappingDto.get(githubRole), githubRole))
-      .toList();
-  }
-
   private static GithubPermissionsMapping toGithubPermissionsMapping(Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos, String githubRole) {
     return new GithubPermissionsMapping(githubRole, getSonarqubePermissions(githubPermissionsMappingDtos));
   }
 
-  private static SonarqubePermissions getSonarqubePermissions(Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos) {
-    SonarqubePermissions.Builder builder = SonarqubePermissions.Builder.builder();
-    if (githubPermissionsMappingDtos != null) {
-      githubPermissionsMappingDtos.stream()
-        .map(GithubPermissionsMappingDto::sonarqubePermission)
-        .map(permissionAsStringToSonarqubePermission::get)
-        .forEach(builderConsumer -> builderConsumer.accept(builder));
-    }
-    return builder.build();
+  private static List<GithubPermissionsMapping> toGithubPermissionsMappings(Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos) {
+    Map<String, Set<GithubPermissionsMappingDto>> githubRoleToGithubPermissionsMappingDto = githubPermissionsMappingDtos.stream()
+      .collect(groupingBy(GithubPermissionsMappingDto::githubRole, toSet()));
+    return GITHUB_BASE_ROLE.stream()
+      .map(githubRole -> toGithubPermissionsMapping(githubRoleToGithubPermissionsMappingDto.getOrDefault(githubRole, Set.of()), githubRole))
+      .toList();
   }
 
+  public void updatePermissionsMappings(Set<PermissionMappingChange> permissionChanges) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Map<String, List<PermissionMappingChange>> githubRolesToChanges = permissionChanges.stream()
+        .collect(groupingBy(PermissionMappingChange::githubRole));
+      githubRolesToChanges.forEach((githubRole, changes) -> updatePermissionsMappings(dbSession, githubRole, changes));
+      dbSession.commit();
+    }
+  }
+
+  private void updatePermissionsMappings(DbSession dbSession, String githubRole, List<PermissionMappingChange> permissionChanges) {
+    Set<String> currentPermissionsForRole = getSqPermissionsForGithubRole(dbSession, githubRole);
+    removePermissions(dbSession, permissionChanges, currentPermissionsForRole);
+    addPermissions(dbSession, permissionChanges, currentPermissionsForRole);
+  }
+
+  private Set<String> getSqPermissionsForGithubRole(DbSession dbSession, String githubRole) {
+    return getPermissionsMappingForGithubRole(dbSession, githubRole).stream()
+      .map(GithubPermissionsMappingDto::sonarqubePermission)
+      .collect(toSet());
+  }
+
+  private Set<GithubPermissionsMappingDto> getPermissionsMappingForGithubRole(DbSession dbSession, String githubRole) {
+    return githubPermissionsMappingDao.findAllForGithubRole(dbSession, githubRole);
+  }
+
+  private void removePermissions(DbSession dbSession, List<PermissionMappingChange> permissionChanges, Set<String> currentPermissionsForRole) {
+    permissionChanges.stream()
+      .filter(permissionMappingChange -> REMOVE.equals(permissionMappingChange.operation()))
+      .filter(permissionMappingChange -> currentPermissionsForRole.contains(permissionMappingChange.sonarqubePermission()))
+      .forEach(mapping -> githubPermissionsMappingDao.delete(dbSession, mapping.githubRole(), mapping.sonarqubePermission()));
+  }
+
+  private void addPermissions(DbSession dbSession, List<PermissionMappingChange> permissionChanges, Set<String> currentPermissionsForRole) {
+    permissionChanges.stream()
+      .filter(permissionMappingChange -> ADD.equals(permissionMappingChange.operation()))
+      .filter(permissionMappingChange -> !currentPermissionsForRole.contains(permissionMappingChange.sonarqubePermission()))
+      .forEach(
+        mapping -> githubPermissionsMappingDao.insert(dbSession, new GithubPermissionsMappingDto(uuidFactory.create(), mapping.githubRole(), mapping.sonarqubePermission()))
+      );
+  }
+
+  private static SonarqubePermissions getSonarqubePermissions(Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos) {
+    SonarqubePermissions.Builder builder = SonarqubePermissions.Builder.builder();
+    githubPermissionsMappingDtos.stream()
+      .map(GithubPermissionsMappingDto::sonarqubePermission)
+      .map(permissionAsStringToSonarqubePermission::get)
+      .forEach(builderConsumer -> builderConsumer.accept(builder));
+    return builder.build();
+  }
 }

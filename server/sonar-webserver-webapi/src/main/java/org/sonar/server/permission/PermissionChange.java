@@ -23,15 +23,12 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.server.common.permission.Operation;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public abstract class PermissionChange {
-
-  public enum Operation {
-    ADD, REMOVE
-  }
 
   private final Operation operation;
   private final String permission;

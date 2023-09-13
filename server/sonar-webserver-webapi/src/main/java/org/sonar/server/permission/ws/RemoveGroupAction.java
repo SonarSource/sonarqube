@@ -30,7 +30,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.GroupUuidOrAnyone;
-import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.common.permission.Operation;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.user.UserSession;
@@ -100,7 +100,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
       wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(dbSession, userSession, entityDto, permission, GroupUuidOrAnyone.from(groupDto));
 
       GroupPermissionChange change = new GroupPermissionChange(
-        PermissionChange.Operation.REMOVE,
+        Operation.REMOVE,
         permission,
         entityDto,
         groupDto,

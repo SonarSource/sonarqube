@@ -67,6 +67,21 @@ public class GithubPermissionsMappingDaoIT {
   }
 
   @Test
+  public void delete_deletesGithubPermissionsMappingDto() {
+    GithubPermissionsMappingDto githubPermissionsMappingDto = new GithubPermissionsMappingDto(MAPPING_UUID, "GH_role", "SQ_role");
+
+    underTest.insert(dbSession, githubPermissionsMappingDto);
+    underTest.delete(dbSession, "GH_role", "SQ_role");
+
+    Set<GithubPermissionsMappingDto> savedGithubPermissionsMappings = underTest.findAll(dbSession);
+    assertThat(savedGithubPermissionsMappings).isEmpty();
+
+    verify(auditPersister).deleteGithubPermissionsMapping(eq(dbSession), newValueCaptor.capture());
+    assertThat(newValueCaptor.getValue().getGithubRole()).isEqualTo("GH_role");
+    assertThat(newValueCaptor.getValue().getSonarqubePermission()).isEqualTo("SQ_role");
+  }
+
+  @Test
   public void findAll_shouldReturnAllGithubOrganizationGroup() {
     GithubPermissionsMappingDto mapping1 = new GithubPermissionsMappingDto(MAPPING_UUID, "GH_role", "SQ_role");
     GithubPermissionsMappingDto mapping2 = new GithubPermissionsMappingDto(MAPPING_UUID + "2", "GH_role2", "SQ_role");
@@ -79,8 +94,22 @@ public class GithubPermissionsMappingDaoIT {
     assertThat(all).hasSize(2)
       .containsExactlyInAnyOrder(
         mapping1,
-        mapping2
-      );
+        mapping2);
+  }
+
+  @Test
+  public void findAllForGithubRole_shouldReturnPermissionsForTheRole() {
+    GithubPermissionsMappingDto mapping1 = new GithubPermissionsMappingDto(MAPPING_UUID, "GH_role", "SQ_role");
+    GithubPermissionsMappingDto mapping2 = new GithubPermissionsMappingDto(MAPPING_UUID + "2", "GH_role2", "SQ_role");
+    GithubPermissionsMappingDto mapping3 = new GithubPermissionsMappingDto(MAPPING_UUID + "3", "GH_role2", "SQ_role2");
+    underTest.insert(dbSession, mapping1);
+    underTest.insert(dbSession, mapping2);
+    underTest.insert(dbSession, mapping3);
+
+    Set<GithubPermissionsMappingDto> forRole2 = underTest.findAllForGithubRole(dbSession, "GH_role2");
+    assertThat(forRole2).hasSize(2)
+      .containsExactlyInAnyOrder(mapping2, mapping3);
+
   }
 
 }

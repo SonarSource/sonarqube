@@ -37,19 +37,22 @@ public class GithubPermissionsMappingDao implements Dao {
     return mapper(dbSession).selectAll();
   }
 
+  public Set<GithubPermissionsMappingDto> findAllForGithubRole(DbSession dbSession, String githubRole) {
+    return mapper(dbSession).selectAllForGithubRole(githubRole);
+  }
+
   public void insert(DbSession dbSession, GithubPermissionsMappingDto githubPermissionsMappingDto) {
     mapper(dbSession).insert(githubPermissionsMappingDto);
-    auditPersister.addGithubPermissionsMapping(dbSession, toNewValueForAuditLogs(githubPermissionsMappingDto));
+    auditPersister.addGithubPermissionsMapping(dbSession, toNewValueForAuditLogs(githubPermissionsMappingDto.githubRole(), githubPermissionsMappingDto.sonarqubePermission()));
   }
 
-  public void delete(DbSession dbSession, GithubPermissionsMappingDto githubPermissionsMappingDto) {
-    // TODO SONAR-20397
-    auditPersister.deleteGithubPermissionsMapping(dbSession, toNewValueForAuditLogs(githubPermissionsMappingDto));
+  public void delete(DbSession dbSession, String githubRole, String sonarqubePermission) {
+    mapper(dbSession).delete(githubRole, sonarqubePermission);
+    auditPersister.deleteGithubPermissionsMapping(dbSession, toNewValueForAuditLogs(githubRole, sonarqubePermission));
   }
 
-  private static GithubPermissionsMappingNewValue toNewValueForAuditLogs(GithubPermissionsMappingDto githubPermissionsMappingDto) {
-    return new GithubPermissionsMappingNewValue(githubPermissionsMappingDto.githubRole(),
-      githubPermissionsMappingDto.sonarqubePermission());
+  private static GithubPermissionsMappingNewValue toNewValueForAuditLogs(String githubRole, String sonarqubePermission) {
+    return new GithubPermissionsMappingNewValue(githubRole, sonarqubePermission);
   }
 
   private static GithubPermissionsMappingMapper mapper(DbSession session) {
