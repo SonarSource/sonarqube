@@ -40,13 +40,15 @@ initApplication();
 
 async function initApplication() {
   axiosToCatch.interceptors.response.use((response) => response.data);
+  axiosToCatch.defaults.headers.patch['Content-Type'] = 'application/merge-patch+json';
+  axios.defaults.headers.patch['Content-Type'] = 'application/merge-patch+json';
   axios.interceptors.response.use(
     (response) => response.data,
     (error) => {
       const { response } = error;
       addGlobalErrorMessage(parseErrorResponse(response));
       return Promise.reject(response);
-    }
+    },
   );
   const [l10nBundle, currentUser, appState, availableFeatures] = await Promise.all([
     loadL10nBundle(),

@@ -71,8 +71,10 @@ export function useSaveValuesMutation() {
           }),
       );
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['settings']);
+    onSuccess: (data) => {
+      if (data.length > 0) {
+        queryClient.invalidateQueries(['settings']);
+      }
     },
   });
 }

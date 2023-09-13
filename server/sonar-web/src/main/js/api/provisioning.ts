@@ -56,13 +56,17 @@ export function syncNowGithubProvisioning(): Promise<void> {
   return post('/api/github_provisioning/sync').catch(throwGlobalError);
 }
 
-export function fetchGithubRolesMapping(): Promise<GitHubMapping[]> {
-  return axios.get('/api/v2/github-permissions-mapping');
+export function fetchGithubRolesMapping() {
+  return axios
+    .get<unknown, { githubPermissionsMappings: GitHubMapping[] }>(
+      '/api/v2/github-permission-mappings',
+    )
+    .then((data) => data.githubPermissionsMappings);
 }
 
 export function updateGithubRolesMapping(
   role: string,
-  data: Partial<Pick<GitHubMapping, 'permissions'>>
+  data: Partial<Pick<GitHubMapping, 'permissions'>>,
 ): Promise<GitHubMapping> {
-  return axios.patch(`/api/v2/github-permissions-mapping/${role}`, data);
+  return axios.patch(`/api/v2/github-permission-mappings/${role}`, data);
 }

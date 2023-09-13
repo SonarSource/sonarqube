@@ -21,9 +21,9 @@ import React from 'react';
 import ValidationInput, {
   ValidationInputErrorPlacement,
 } from '../../../../components/controls/ValidationInput';
-import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import { ExtendedSettingDefinition, SettingType } from '../../../../types/settings';
 import { getPropertyDescription, getPropertyName, isSecuredDefinition } from '../../utils';
+import AuthenticationFormFieldWrapper from './AuthenticationFormFieldWrapper';
 import AuthenticationMultiValueField from './AuthenticationMultiValuesField';
 import AuthenticationSecuredField from './AuthenticationSecuredField';
 import AuthenticationToggleField from './AuthenticationToggleField';
@@ -44,58 +44,54 @@ export default function AuthenticationFormField(props: SamlToggleFieldProps) {
   const description = getPropertyDescription(definition);
 
   return (
-    <div className="settings-definition">
-      <div className="settings-definition-left">
-        <label className="h3" htmlFor={definition.key}>
-          {name}
-        </label>
-        {mandatory && <MandatoryFieldMarker />}
-        {definition.description && <div className="markdown small spacer-top">{description}</div>}
-      </div>
-      <div className="settings-definition-right big-padded-top display-flex-column">
-        {definition.multiValues && (
-          <AuthenticationMultiValueField
-            definition={definition}
-            settingValue={settingValue as string[]}
-            onFieldChange={(value) => props.onFieldChange(definition.key, value)}
-          />
+    <AuthenticationFormFieldWrapper
+      title={name}
+      defKey={definition.key}
+      mandatory={mandatory}
+      description={description}
+    >
+      {definition.multiValues && (
+        <AuthenticationMultiValueField
+          definition={definition}
+          settingValue={settingValue as string[]}
+          onFieldChange={(value) => props.onFieldChange(definition.key, value)}
+        />
+      )}
+      {isSecuredDefinition(definition) && (
+        <AuthenticationSecuredField
+          definition={definition}
+          settingValue={String(settingValue ?? '')}
+          onFieldChange={props.onFieldChange}
+          isNotSet={isNotSet}
+        />
+      )}
+      {!isSecuredDefinition(definition) && definition.type === SettingType.BOOLEAN && (
+        <AuthenticationToggleField
+          definition={definition}
+          settingValue={settingValue as string | boolean}
+          onChange={(value) => props.onFieldChange(definition.key, value)}
+        />
+      )}
+      {!isSecuredDefinition(definition) &&
+        definition.type === undefined &&
+        !definition.multiValues && (
+          <ValidationInput
+            error={error}
+            errorPlacement={ValidationInputErrorPlacement.Bottom}
+            isValid={false}
+            isInvalid={Boolean(error)}
+          >
+            <input
+              className="width-100"
+              id={definition.key}
+              maxLength={4000}
+              name={definition.key}
+              onChange={(e) => props.onFieldChange(definition.key, e.currentTarget.value)}
+              type="text"
+              value={String(settingValue ?? '')}
+            />
+          </ValidationInput>
         )}
-        {isSecuredDefinition(definition) && (
-          <AuthenticationSecuredField
-            definition={definition}
-            settingValue={String(settingValue ?? '')}
-            onFieldChange={props.onFieldChange}
-            isNotSet={isNotSet}
-          />
-        )}
-        {!isSecuredDefinition(definition) && definition.type === SettingType.BOOLEAN && (
-          <AuthenticationToggleField
-            definition={definition}
-            settingValue={settingValue as string | boolean}
-            onChange={(value) => props.onFieldChange(definition.key, value)}
-          />
-        )}
-        {!isSecuredDefinition(definition) &&
-          definition.type === undefined &&
-          !definition.multiValues && (
-            <ValidationInput
-              error={error}
-              errorPlacement={ValidationInputErrorPlacement.Bottom}
-              isValid={false}
-              isInvalid={Boolean(error)}
-            >
-              <input
-                className="width-100"
-                id={definition.key}
-                maxLength={4000}
-                name={definition.key}
-                onChange={(e) => props.onFieldChange(definition.key, e.currentTarget.value)}
-                type="text"
-                value={String(settingValue ?? '')}
-              />
-            </ValidationInput>
-          )}
-      </div>
-    </div>
+    </AuthenticationFormFieldWrapper>
   );
 }

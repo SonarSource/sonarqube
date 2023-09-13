@@ -38,6 +38,7 @@ import { AlmKeys } from '../../../../types/alm-settings';
 import { ExtendedSettingDefinition } from '../../../../types/settings';
 import { AuthenticationTabs, DOCUMENTATION_LINK_SUFFIXES } from './Authentication';
 import AuthenticationFormField from './AuthenticationFormField';
+import AuthenticationFormFieldWrapper from './AuthenticationFormFieldWrapper';
 import AutoProvisioningConsent from './AutoProvisionningConsent';
 import ConfigurationForm from './ConfigurationForm';
 import GitHubConfigurationValidity from './GitHubConfigurationValidity';
@@ -78,12 +79,11 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
     hasGithubProvisioningTypeChange,
     hasGithubProvisioningConfigChange,
     resetJitSetting,
-    saveGroup,
     changeProvisioning,
     toggleEnable,
     rolesMapping,
     setRolesMapping,
-    saveMapping,
+    applyAdditionalOptions,
     hasLegacyConfiguration,
     deleteMutation: { isLoading: isDeleting, mutate: deleteConfiguration },
   } = useGithubConfiguration(definitions);
@@ -106,10 +106,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
     if (hasGithubProvisioningTypeChange) {
       setShowConfirmProvisioningModal(true);
     } else {
-      saveGroup();
-      if (newGithubProvisioningStatus ?? githubProvisioningStatus) {
-        saveMapping();
-      }
+      applyAdditionalOptions();
     }
   };
 
@@ -197,6 +194,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                 {enabled ? (
                   <div className="display-flex-column spacer-top">
                     <RadioCard
+                      className="sw-min-h-0"
                       label={translate('settings.authentication.form.provisioning_at_login')}
                       title={translate('settings.authentication.form.provisioning_at_login')}
                       selected={!(newGithubProvisioningStatus ?? githubProvisioningStatus)}
@@ -246,7 +244,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                       )}
                     </RadioCard>
                     <RadioCard
-                      className="spacer-top"
+                      className="spacer-top sw-min-h-0"
                       label={translate(
                         'settings.authentication.github.form.provisioning_with_github',
                       )}
@@ -287,18 +285,17 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                           </p>
 
                           {githubProvisioningStatus && <GitHubSynchronisationWarning />}
-
-                          <div className="sw-flex sw-flex-1 spacer-bottom">
-                            <Button
-                              className="spacer-top width-30"
-                              onClick={synchronizeNow}
-                              disabled={!canSyncNow}
-                            >
-                              {translate('settings.authentication.github.synchronize_now')}
-                            </Button>
-                          </div>
                           {(newGithubProvisioningStatus ?? githubProvisioningStatus) && (
                             <>
+                              <div className="sw-flex sw-flex-1 spacer-bottom">
+                                <Button
+                                  className="spacer-top width-30"
+                                  onClick={synchronizeNow}
+                                  disabled={!canSyncNow}
+                                >
+                                  {translate('settings.authentication.github.synchronize_now')}
+                                </Button>
+                              </div>
                               <hr />
                               {Object.values(values).map((val) => {
                                 if (!GITHUB_PROVISIONING_FIELDS.includes(val.key)) {
@@ -318,6 +315,23 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                                   </div>
                                 );
                               })}
+                              <AuthenticationFormFieldWrapper
+                                title={translate(
+                                  'settings.authentication.github.configuration.roles_mapping.title',
+                                )}
+                                description={translate(
+                                  'settings.authentication.github.configuration.roles_mapping.description',
+                                )}
+                              >
+                                <Button
+                                  className="spacer-top"
+                                  onClick={() => setShowMappingModal(true)}
+                                >
+                                  {translate(
+                                    'settings.authentication.github.configuration.roles_mapping.button_label',
+                                  )}
+                                </Button>
+                              </AuthenticationFormFieldWrapper>
                             </>
                           )}
                         </>
@@ -348,12 +362,11 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                 )}
               </fieldset>
               {enabled && (
-                <>
+                <div className="sw-flex sw-gap-2 sw-h-8 sw-items-center">
                   <SubmitButton disabled={!hasGithubProvisioningConfigChange}>
                     {translate('save')}
                   </SubmitButton>
                   <ResetButtonLink
-                    className="spacer-left"
                     onClick={() => {
                       setProvisioningType(undefined);
                       resetJitSetting();
@@ -362,7 +375,11 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                   >
                     {translate('cancel')}
                   </ResetButtonLink>
-                </>
+                  <Alert variant="warning" className="sw-w-[300px] sw-mb-0">
+                    {hasGithubProvisioningConfigChange &&
+                      translate('settings.authentication.github.configuration.unsaved_changes')}
+                  </Alert>
+                </div>
               )}
               {showConfirmProvisioningModal && (
                 <ConfirmModal

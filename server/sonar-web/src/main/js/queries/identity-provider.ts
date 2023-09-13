@@ -126,10 +126,11 @@ export function useGithubRolesMappingQuery() {
   return useQuery(['identity_provider', 'github_mapping'], fetchGithubRolesMapping, {
     staleTime: MAPPING_STALE_TIME,
     select: (data) =>
-      data.sort((a, b) => {
-        const hardcodedValues = ['admin', 'maintain', 'write', 'triage', 'read'];
-        if (hardcodedValues.includes(a.id) || hardcodedValues.includes(b.id)) {
-          return hardcodedValues.indexOf(b.id) - hardcodedValues.indexOf(a.id);
+      [...data].sort((a, b) => {
+        // Order is reversed to put non-existing roles at the end (their index is -1)
+        const defaultRoleOrder = ['admin', 'maintain', 'write', 'triage', 'read'];
+        if (defaultRoleOrder.includes(a.id) || defaultRoleOrder.includes(b.id)) {
+          return defaultRoleOrder.indexOf(b.id) - defaultRoleOrder.indexOf(a.id);
         }
         return a.roleName.localeCompare(b.roleName);
       }),
@@ -147,12 +148,12 @@ export function useGithubRolesMappingMutation() {
             (item) =>
               !isEqual(
                 item,
-                state.find((el) => el.id === item.id)
-              )
+                state.find((el) => el.id === item.id),
+              ),
           )
         : mapping;
       return Promise.all(
-        changedRoles.map((data) => updateGithubRolesMapping(data.id, omit(data, 'id', 'roleName')))
+        changedRoles.map((data) => updateGithubRolesMapping(data.id, omit(data, 'id', 'roleName'))),
       );
     },
     onSuccess: (data) => {
@@ -163,7 +164,7 @@ export function useGithubRolesMappingMutation() {
           state.map((item) => {
             const changed = data.find((el) => el.id === item.id);
             return changed ?? item;
-          })
+          }),
         );
       }
     },

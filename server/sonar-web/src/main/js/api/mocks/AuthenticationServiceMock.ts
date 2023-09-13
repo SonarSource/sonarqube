@@ -241,11 +241,11 @@ export default class AuthenticationServiceMock {
 
   handleUpdateGithubRolesMapping: typeof updateGithubRolesMapping = (id, data) => {
     this.githubMapping = this.githubMapping.map((mapping) =>
-      mapping.id === id ? { ...mapping, ...data } : mapping
+      mapping.id === id ? { ...mapping, ...data } : mapping,
     );
 
     return Promise.resolve(
-      this.githubMapping.find((mapping) => mapping.id === id) as GitHubMapping
+      this.githubMapping.find((mapping) => mapping.id === id) as GitHubMapping,
     );
   };
 

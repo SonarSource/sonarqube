@@ -184,6 +184,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
                 {samlEnabled ? (
                   <div className="display-flex-column spacer-top">
                     <RadioCard
+                      className="sw-min-h-0"
                       label={translate('settings.authentication.saml.form.provisioning_at_login')}
                       title={translate('settings.authentication.saml.form.provisioning_at_login')}
                       selected={!(newScimStatus ?? scimStatus)}
@@ -194,7 +195,7 @@ export default function SamlAuthenticationTab(props: SamlAuthenticationProps) {
                       </p>
                     </RadioCard>
                     <RadioCard
-                      className="spacer-top"
+                      className="spacer-top sw-min-h-0"
                       label={translate('settings.authentication.saml.form.provisioning_with_scim')}
                       title={translate('settings.authentication.saml.form.provisioning_with_scim')}
                       selected={newScimStatus ?? scimStatus}

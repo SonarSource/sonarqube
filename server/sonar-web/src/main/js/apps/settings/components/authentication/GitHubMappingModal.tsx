@@ -34,26 +34,20 @@ import { useGithubRolesMappingQuery } from '../../../../queries/identity-provide
 import { GitHubMapping } from '../../../../types/provisioning';
 
 interface Props {
-  mapping: GitHubMapping[] | null;
-  setMapping: React.Dispatch<React.SetStateAction<GitHubMapping[] | null>>;
-  onClose: () => void;
+  readonly mapping: GitHubMapping[] | null;
+  readonly setMapping: React.Dispatch<React.SetStateAction<GitHubMapping[] | null>>;
+  readonly onClose: () => void;
 }
 
 export default function GitHubMappingModal({ mapping, setMapping, onClose }: Props) {
   const { data: roles, isLoading } = useGithubRolesMappingQuery();
   const permissions = convertToPermissionDefinitions(
     PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
-    'projects_role'
+    'projects_role',
   );
 
-  React.useEffect(() => {
-    if (!mapping && roles) {
-      setMapping(roles);
-    }
-  }, [roles, mapping, setMapping]);
-
   const header = translate(
-    'settings.authentication.github.configuration.roles_mapping.dialog.title'
+    'settings.authentication.github.configuration.roles_mapping.dialog.title',
   );
 
   return (
@@ -68,7 +62,7 @@ export default function GitHubMappingModal({ mapping, setMapping, onClose }: Pro
               <th scope="col" className="nowrap bordered-bottom sw-pl-[10px] sw-align-middle">
                 <b>
                   {translate(
-                    'settings.authentication.github.configuration.roles_mapping.dialog.roles_column'
+                    'settings.authentication.github.configuration.roles_mapping.dialog.roles_column',
                   )}
                 </b>
               </th>
@@ -77,14 +71,13 @@ export default function GitHubMappingModal({ mapping, setMapping, onClose }: Pro
                   key={
                     isPermissionDefinitionGroup(permission) ? permission.category : permission.key
                   }
-                  onSelectPermission={() => {}}
                   permission={permission}
                 />
               ))}
             </tr>
           </thead>
           <tbody>
-            {mapping?.map(({ id, roleName, permissions }) => (
+            {(mapping ?? roles)?.map(({ id, roleName, permissions }) => (
               <tr key={id}>
                 <th scope="row" className="nowrap text-middle sw-pl-[10px]">
                   <b>{roleName}</b>
@@ -95,11 +88,11 @@ export default function GitHubMappingModal({ mapping, setMapping, onClose }: Pro
                       checked={value}
                       onCheck={(newValue) =>
                         setMapping(
-                          mapping.map((item) =>
+                          (mapping ?? roles)?.map((item) =>
                             item.id === id
                               ? { ...item, permissions: { ...item.permissions, [key]: newValue } }
-                              : item
-                          )
+                              : item,
+                          ) ?? null,
                         )
                       }
                     />
