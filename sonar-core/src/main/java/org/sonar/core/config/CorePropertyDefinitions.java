@@ -47,11 +47,14 @@ public class CorePropertyDefinitions {
 
   public static final String DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES = "sonar.builtInQualityProfiles.disableNotificationOnUpdate";
 
+  public static final String ALLOW_DISABLE_INHERITED_RULES = "sonar.qualityProfiles.allowDisableInheritedRules";
+
   public static final String PLUGINS_RISK_CONSENT = "sonar.plugins.risk.consent";
 
   public static final String DOCUMENTATION_BASE_URL = "sonar.documentation.baseUrl";
 
   public static final String SUBCATEGORY_PROJECT_CREATION = "subProjectCreation";
+  public static final String SUBCATEGORY_QUALITY_PROFILE = "qualityProfile";
 
   private CorePropertyDefinitions() {
     // only static stuff
@@ -112,6 +115,15 @@ public class CorePropertyDefinitions {
         .description("Avoid sending email notification on each update of built-in quality profiles to quality profile administrators.")
         .defaultValue(Boolean.toString(false))
         .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(SUBCATEGORY_QUALITY_PROFILE)
+        .type(BOOLEAN)
+        .build(),
+      PropertyDefinition.builder(ALLOW_DISABLE_INHERITED_RULES)
+        .name("Enable deactivation of inherited rules")
+        .description("Set if users with 'Administer Quality Profiles' permission are allowed to deactivate inherited rules in quality profiles.")
+        .defaultValue(Boolean.toString(true))
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(SUBCATEGORY_QUALITY_PROFILE)
         .type(BOOLEAN)
         .build(),
       PropertyDefinition.builder(PLUGINS_RISK_CONSENT)

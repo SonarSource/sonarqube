@@ -179,10 +179,11 @@ public class PopulateInitialSchemaTest {
       "text_value as \"VAL\"," +
       "created_at as \"CREATED_AT\" " +
       " from properties");
-    assertThat(rows).hasSize(3);
+    assertThat(rows).hasSize(4);
 
     Map<String, Map<String, Object>> rowsByKey = rows.stream().collect(Collectors.toMap(t -> (String) t.get("PROP_KEY"), Function.identity()));
     verifyProperty(rowsByKey, "sonar.forceAuthentication", "true");
+    verifyProperty(rowsByKey, "sonar.qualityProfiles.allowDisableInheritedRules", "true");
     verifyProperty(rowsByKey, "projects.default.visibility", "public");
     verifyProperty(rowsByKey, "qualitygate.default", qualityGateUuid);
   }

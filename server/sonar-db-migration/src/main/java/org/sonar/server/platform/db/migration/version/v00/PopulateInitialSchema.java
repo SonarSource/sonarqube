@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.sonar.api.utils.System2;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Database;
@@ -129,12 +130,19 @@ public class PopulateInitialSchema extends DataChange {
       .setLong(5, now)
       .addBatch();
 
+    upsert.setString(1, uuidFactory.create())
+      .setString(2, CorePropertyDefinitions.ALLOW_DISABLE_INHERITED_RULES)
+      .setBoolean(3, false)
+      .setString(4, "true")
+      .setLong(5, now)
+      .addBatch();
+
     upsert
       .setString(1, uuidFactory.create())
       .setString(2, "projects.default.visibility")
       .setBoolean(3, false)
       .setString(4, "public")
-      .setLong(5, system2.now())
+      .setLong(5, now)
       .addBatch();
 
     upsert
@@ -207,7 +215,7 @@ public class PopulateInitialSchema extends DataChange {
   private void insertGroupRoles(Context context, Groups groups) throws SQLException {
     truncateTable(context, "group_roles");
 
-    Upsert upsert = context.prepareUpsert(createInsertStatement("group_roles", "uuid","group_uuid", "role"));
+    Upsert upsert = context.prepareUpsert(createInsertStatement("group_roles", "uuid", "group_uuid", "role"));
     for (String adminRole : ADMIN_ROLES) {
       upsert
         .setString(1, uuidFactory.create())
