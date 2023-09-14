@@ -27,7 +27,7 @@ export const enum SettingsKey {
   PluginRiskConsent = 'sonar.plugins.risk.consent',
   LicenceRemainingLocNotificationThreshold = 'sonar.license.notifications.remainingLocThreshold',
   TokenMaxAllowedLifetime = 'sonar.auth.token.max.allowed.lifetime',
-  QPAdminCanDisableInheritedRules = 'sonar.allowQualityProfileAdminsDisableInheritedRules',
+  QPAdminCanDisableInheritedRules = 'sonar.qualityProfiles.allowDisableInheritedRules',
 }
 
 export enum GlobalSettingKeys {

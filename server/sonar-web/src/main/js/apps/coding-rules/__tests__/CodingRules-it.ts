@@ -544,7 +544,7 @@ describe('Rule app details', () => {
     await act(() => user.click(ui.activateButton.get(ui.activateQPDialog.get())));
     expect(ui.qpLink('QP FooBar').get()).toBeInTheDocument();
 
-    // activate last java rule
+    // Activate last java rule
     await user.click(ui.activateButton.get());
     await user.type(ui.paramInput('1').get(), 'paramInput');
     await act(() => user.click(ui.activateButton.get(ui.activateQPDialog.get())));
@@ -552,7 +552,7 @@ describe('Rule app details', () => {
     expect(ui.qpLink('QP FooBaz').get()).toBeInTheDocument();
 
     // Rule is activated in all quality profiles - show notification in dialog
-    await user.click(ui.activateButton.get());
+    await user.click(ui.activateButton.get(screen.getByRole('main')));
     expect(ui.activaInAllQPs.get()).toBeInTheDocument();
     expect(ui.activateButton.get(ui.activateQPDialog.get())).toBeDisabled();
     await user.click(ui.cancelButton.get());
@@ -560,18 +560,50 @@ describe('Rule app details', () => {
     // Change rule details in quality profile
     await user.click(ui.changeButton('QP FooBaz').get());
     await user.type(ui.paramInput('1').get(), 'New');
-    await act(() => user.click(ui.saveButton.get(ui.changeQPDialog.get())));
-    expect(screen.getByText('paramInputNew')).toBeInTheDocument();
+    await act(async () => {
+      await user.click(ui.saveButton.get(ui.changeQPDialog.get()));
+    });
+    expect(screen.getByText('New')).toBeInTheDocument();
 
     // Revert rule details in quality profile
     await user.click(ui.revertToParentDefinitionButton.get());
     await act(() => user.click(ui.yesButton.get()));
-    expect(screen.queryByText('paramInputNew')).not.toBeInTheDocument();
+    expect(screen.queryByText('New')).not.toBeInTheDocument();
 
     // Deactivate rule in quality profile
     await user.click(ui.deactivateInQPButton('QP FooBar').get());
     await act(() => user.click(ui.yesButton.get()));
     expect(ui.qpLink('QP FooBar').query()).not.toBeInTheDocument();
+  });
+
+  it('can deactivate an inherrited rule', async () => {
+    const { ui, user } = getPageObjects();
+    rulesHandler.setIsAdmin();
+    renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule1');
+    await ui.appLoaded();
+
+    // Should show 2 deactivate buttons: one for the parent, one for the child profile.
+    expect(ui.deactivateInQPButton('QP FooBarBaz').get()).toBeInTheDocument();
+    expect(ui.deactivateInQPButton('QP FooBaz').get()).toBeInTheDocument();
+
+    // Deactivate rule in inherited quality profile
+    await user.click(ui.deactivateInQPButton('QP FooBaz').get());
+    await act(async () => {
+      await user.click(ui.yesButton.get());
+    });
+    expect(ui.qpLink('QP FooBaz').query()).not.toBeInTheDocument();
+  });
+
+  it('cannot deactivate an inherrited rule if the setting is false', async () => {
+    const { ui } = getPageObjects();
+    rulesHandler.setIsAdmin();
+    settingsHandler.set(SettingsKey.QPAdminCanDisableInheritedRules, 'false');
+    renderCodingRulesApp(mockLoggedInUser(), 'coding_rules?open=rule1');
+    await ui.appLoaded();
+
+    // Should show 1 deactivate button: one for the parent, none for the child profile.
+    expect(ui.deactivateInQPButton('QP FooBarBaz').get()).toBeInTheDocument();
+    expect(ui.deactivateInQPButton('QP FooBaz').query()).not.toBeInTheDocument();
   });
 
   it('can extend the rule description', async () => {

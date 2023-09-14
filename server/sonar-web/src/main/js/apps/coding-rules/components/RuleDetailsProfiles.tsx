@@ -33,6 +33,7 @@ import RuleInheritanceIcon from './RuleInheritanceIcon';
 
 interface Props {
   activations: RuleActivation[] | undefined;
+  canDeactivateInherited?: boolean;
   onActivate: () => Promise<void>;
   onDeactivate: () => Promise<void>;
   referencedProfiles: Dict<Profile>;
@@ -126,30 +127,30 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
                 rule={ruleDetails}
               />
             )}
-            {hasParent ? (
-              activation.inherit === 'OVERRIDES' &&
-              profile.parentName && (
-                <ConfirmButton
-                  confirmButtonText={translate('yes')}
-                  confirmData={profile.key}
-                  modalBody={translateWithParameters(
-                    'coding_rules.revert_to_parent_definition.confirm',
-                    profile.parentName,
-                  )}
-                  modalHeader={translate('coding_rules.revert_to_parent_definition')}
-                  onConfirm={this.handleRevert}
-                >
-                  {({ onClick }) => (
-                    <Button
-                      className="coding-rules-detail-quality-profile-revert button-red spacer-left"
-                      onClick={onClick}
-                    >
-                      {translate('coding_rules.revert_to_parent_definition')}
-                    </Button>
-                  )}
-                </ConfirmButton>
-              )
-            ) : (
+
+            {hasParent && activation.inherit === 'OVERRIDES' && profile.parentName && (
+              <ConfirmButton
+                confirmButtonText={translate('yes')}
+                confirmData={profile.key}
+                modalBody={translateWithParameters(
+                  'coding_rules.revert_to_parent_definition.confirm',
+                  profile.parentName,
+                )}
+                modalHeader={translate('coding_rules.revert_to_parent_definition')}
+                onConfirm={this.handleRevert}
+              >
+                {({ onClick }) => (
+                  <Button
+                    className="coding-rules-detail-quality-profile-revert button-red spacer-left"
+                    onClick={onClick}
+                  >
+                    {translate('coding_rules.revert_to_parent_definition')}
+                  </Button>
+                )}
+              </ConfirmButton>
+            )}
+
+            {(!hasParent || this.props.canDeactivateInherited) && (
               <ConfirmButton
                 confirmButtonText={translate('yes')}
                 confirmData={profile.key}

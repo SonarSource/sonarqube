@@ -29,6 +29,8 @@ import {
   ADVANCED_RULE,
   QP_1,
   QP_2,
+  QP_4,
+  QP_5,
   RULE_1,
   RULE_10,
   RULE_11,
@@ -245,7 +247,11 @@ export function mockRuleDetailsList() {
 
 export function mockRulesActivationsInQP() {
   return {
-    [RULE_1]: [mockRuleActivation({ qProfile: QP_1 })],
+    [RULE_1]: [
+      mockRuleActivation({ qProfile: QP_1 }),
+      mockRuleActivation({ qProfile: QP_4 }),
+      mockRuleActivation({ qProfile: QP_5, inherit: 'INHERITED' }),
+    ],
     [RULE_7]: [mockRuleActivation({ qProfile: QP_2 })],
     [RULE_8]: [mockRuleActivation({ qProfile: QP_2 })],
     [RULE_9]: [mockRuleActivation({ qProfile: QP_2, inherit: 'INHERITED' })],

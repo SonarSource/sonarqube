@@ -655,6 +655,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
                 <RuleDetails
                   allowCustomRules
                   canWrite={this.state.canWrite}
+                  canDeactivateInherited={this.state.canDeactivateInherited}
                   onActivate={this.handleRuleActivate}
                   onDeactivate={this.handleRuleDeactivate}
                   onDelete={this.handleRuleDelete}

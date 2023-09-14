@@ -38,6 +38,7 @@ import RuleDetailsProfiles from './RuleDetailsProfiles';
 interface Props {
   allowCustomRules?: boolean;
   canWrite?: boolean;
+  canDeactivateInherited?: boolean;
   onActivate: (profile: string, rule: string, activation: Activation) => void;
   onDeactivate: (profile: string, rule: string) => void;
   onDelete: (rule: string) => void;
@@ -154,7 +155,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
       return <div className="coding-rule-details" />;
     }
 
-    const { allowCustomRules, canWrite, referencedProfiles } = this.props;
+    const { allowCustomRules, canWrite, referencedProfiles, canDeactivateInherited } = this.props;
     const { params = [] } = ruleDetails;
 
     const isCustom = !!ruleDetails.templateKey;
@@ -240,6 +241,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
           {!ruleDetails.isTemplate && (
             <RuleDetailsProfiles
               activations={this.state.actives}
+              canDeactivateInherited={canDeactivateInherited}
               onActivate={this.handleActivate}
               onDeactivate={this.handleDeactivate}
               referencedProfiles={referencedProfiles}
