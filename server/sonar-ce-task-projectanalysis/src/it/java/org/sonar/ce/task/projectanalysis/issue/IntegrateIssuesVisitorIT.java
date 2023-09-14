@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
@@ -33,8 +34,10 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
+import org.sonar.ce.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileStatuses;
@@ -49,7 +52,6 @@ import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.AlwaysActiveRulesHolderImpl;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
-import org.sonar.ce.task.projectanalysis.source.SourceLinesRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
@@ -71,10 +73,12 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -126,16 +130,12 @@ public class IntegrateIssuesVisitorIT {
   private final SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
   private final NewLinesRepository newLinesRepository = mock(NewLinesRepository.class);
   private final TargetBranchComponentUuids targetBranchComponentUuids = mock(TargetBranchComponentUuids.class);
-  private final SourceLinesRepository sourceLinesRepository = mock(SourceLinesRepository.class);
   private final FileStatuses fileStatuses = mock(FileStatuses.class);
+  private TrackerRawInputFactory rawInputFactory;
   private ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
 
   private final ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule, new MapSettings().asConfig(),
     System2.INSTANCE, mock(IssueChangesToDeleteRepository.class));
-  private IssueTrackingDelegator trackingDelegator;
-  private TrackerExecution tracker;
-  private PullRequestTrackerExecution prBranchTracker;
-  private ReferenceBranchTrackerExecution mergeBranchTracker;
   private final ActiveRulesHolder activeRulesHolder = new AlwaysActiveRulesHolderImpl();
   private ProtoIssueCache protoIssueCache;
 
@@ -149,22 +149,22 @@ public class IntegrateIssuesVisitorIT {
     when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.empty());
 
     DbClient dbClient = dbTester.getDbClient();
-    TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, issueFilter,
-      ruleRepositoryRule, activeRulesHolder);
+    rawInputFactory = spy(new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, issueFilter,
+      ruleRepositoryRule, activeRulesHolder));
     TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbClient, movedFilesRepository);
     TrackerTargetBranchInputFactory targetInputFactory = new TrackerTargetBranchInputFactory(issuesLoader, targetBranchComponentUuids, dbClient, movedFilesRepository);
     TrackerReferenceBranchInputFactory mergeInputFactory = new TrackerReferenceBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbClient);
     ClosedIssuesInputFactory closedIssuesInputFactory = new ClosedIssuesInputFactory(issuesLoader, dbClient, movedFilesRepository);
-    tracker = new TrackerExecution(baseInputFactory, closedIssuesInputFactory, new Tracker<>(), issuesLoader, analysisMetadataHolder);
-    mergeBranchTracker = new ReferenceBranchTrackerExecution(mergeInputFactory, new Tracker<>());
-    prBranchTracker = new PullRequestTrackerExecution(baseInputFactory, targetInputFactory, new Tracker<>(), newLinesRepository);
-    trackingDelegator = new IssueTrackingDelegator(prBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
+    TrackerExecution tracker = new TrackerExecution(baseInputFactory, closedIssuesInputFactory, new Tracker<>(), issuesLoader, analysisMetadataHolder);
+    ReferenceBranchTrackerExecution mergeBranchTracker = new ReferenceBranchTrackerExecution(mergeInputFactory, new Tracker<>());
+    PullRequestTrackerExecution prBranchTracker = new PullRequestTrackerExecution(baseInputFactory, targetInputFactory, new Tracker<>(), newLinesRepository);
+    IssueTrackingDelegator trackingDelegator = new IssueTrackingDelegator(prBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
     treeRootHolder.setRoot(PROJECT);
     protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
     when(issueChangeContext.date()).thenReturn(new Date());
     underTest = new IntegrateIssuesVisitor(protoIssueCache, rawInputFactory, baseInputFactory, issueLifecycle, issueVisitors, trackingDelegator, issueStatusCopier,
-      referenceBranchComponentUuids, mock(PullRequestSourceBranchMerger.class), fileStatuses);
+      referenceBranchComponentUuids, mock(PullRequestSourceBranchMerger.class), fileStatuses, analysisMetadataHolder);
   }
 
   @Test
@@ -242,15 +242,6 @@ public class IntegrateIssuesVisitorIT {
   }
 
   @Test
-  public void remove_uuid_of_original_file_from_componentsWithUnprocessedIssues_if_component_has_one() {
-    String originalFileUuid = "original file uuid";
-    when(movedFilesRepository.getOriginalFile(FILE))
-      .thenReturn(Optional.of(new MovedFilesRepository.OriginalFile(originalFileUuid, "original file key")));
-
-    underTest.visitAny(FILE);
-  }
-
-  @Test
   public void reuse_issues_when_data_unchanged() {
     RuleKey ruleKey = RuleTesting.XOO_X1;
     // Issue from db has severity major
@@ -301,6 +292,30 @@ public class IntegrateIssuesVisitorIT {
     assertThat(issues.get(0).isCopied()).isTrue();
     assertThat(issues.get(0).changes()).hasSize(1);
     assertThat(issues.get(0).changes().get(0).diffs()).contains(entry(IssueFieldsSetter.FROM_BRANCH, new FieldDiffs.Diff<>("master", null)));
+  }
+
+  @Test
+  public void visitAny_whenCacheFileNotFound_shouldThrowException() {
+    temp.delete();
+
+    assertThatThrownBy(() -> underTest.visitAny(FILE))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fail to process issues of component 'FILE_KEY'");
+  }
+
+  @Test
+  public void visitAny_whenPluginChangedSinceLastAnalysis_shouldNotExecuteIncrementalAnalysis() {
+    RuleKey ruleKey = RuleTesting.XOO_X1;
+    addBaseIssue(ruleKey);
+    when(fileStatuses.isDataUnchanged(FILE)).thenReturn(true);
+    Analysis analysis = mock(Analysis.class);
+    when(analysis.getCreatedAt()).thenReturn(1L);
+    when(analysisMetadataHolder.getBaseAnalysis()).thenReturn(analysis);
+    when(analysisMetadataHolder.getScannerPluginsByKey()).thenReturn(Map.of("xoo", new ScannerPlugin("xoo", "base", 2L)));
+
+    underTest.visitAny(FILE);
+
+    verify(rawInputFactory).create(FILE);
   }
 
   private void addBaseIssue(RuleKey ruleKey) {
