@@ -138,7 +138,7 @@ public class IssueDtoTest {
     assertThat(dto.getRuleRepo()).isEqualTo("java");
     assertThat(dto.getRule()).isEqualTo("AvoidCycle");
     assertThat(dto.getRuleKey()).hasToString("java:AvoidCycle");
-    assertThat(dto.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
+    assertThat(dto.getEffectiveCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
     assertThat(dto.getLanguage()).isEqualTo("xoo");
     assertThat(dto.isExternal()).isTrue();
   }

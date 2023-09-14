@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 
@@ -68,6 +69,17 @@ public class ProtobufIssueDiskCacheTest {
   }
 
   @Test
+  public void toDefaultIssue_whenCleanCodeAttributeIsSet_shouldSetItInDefaultIssue() {
+    IssueCache.Issue issue = prepareIssueWithCompulsoryFields()
+      .setCleanCodeAttribute(CleanCodeAttribute.FOCUSED.name())
+      .build();
+
+    DefaultIssue defaultIssue = ProtobufIssueDiskCache.toDefaultIssue(issue);
+
+    assertThat(defaultIssue.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.FOCUSED);
+  }
+
+  @Test
   public void toProto_whenRuleDescriptionContextKeySet_shouldCopyToIssueProto() {
     DefaultIssue defaultIssue = createDefaultIssueWithMandatoryFields();
     defaultIssue.setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
@@ -100,6 +112,16 @@ public class ProtobufIssueDiskCacheTest {
       toImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH),
       toImpact(SoftwareQuality.RELIABILITY, Severity.LOW)
     );
+  }
+
+  @Test
+  public void toProto_whenCleanCodeAttributeIsSet_shouldCopyToIssueProto() {
+    DefaultIssue defaultIssue = createDefaultIssueWithMandatoryFields();
+    defaultIssue.setCleanCodeAttribute(CleanCodeAttribute.FOCUSED);
+
+    IssueCache.Issue issue = ProtobufIssueDiskCache.toProto(IssueCache.Issue.newBuilder(), defaultIssue);
+
+    assertThat(issue.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.FOCUSED.name());
   }
 
   private IssueCache.Impact toImpact(SoftwareQuality softwareQuality, Severity severity) {

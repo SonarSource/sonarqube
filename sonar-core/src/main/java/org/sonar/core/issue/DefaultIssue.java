@@ -45,6 +45,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.tracking.Trackable;
@@ -94,7 +95,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   // all changes
   // -- contains only current change (if any) on CE side unless reopening a closed issue or copying issue from base branch
-  //    when analyzing a branch from the first time
+  // when analyzing a branch from the first time
   private List<FieldDiffs> changes = null;
 
   // true if the issue did not exist in the previous scan.
@@ -135,6 +136,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private String anticipatedTransitionUuid = null;
 
   private Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = new EnumMap<>(SoftwareQuality.class);
+  private CleanCodeAttribute cleanCodeAttribute = null;
 
   @Override
   public String key() {
@@ -443,7 +445,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
-
   public DefaultIssue setNew(boolean b) {
     isNew = b;
     return this;
@@ -713,6 +714,16 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
+  public DefaultIssue setCleanCodeAttribute(@Nullable CleanCodeAttribute cleanCodeAttribute) {
+    this.cleanCodeAttribute = cleanCodeAttribute;
+    return this;
+  }
+
+  @Nullable
+  public CleanCodeAttribute getCleanCodeAttribute() {
+    return cleanCodeAttribute;
+  }
+
   @Override
   public Integer getLine() {
     return line;
@@ -742,5 +753,4 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   public Date getUpdateDate() {
     return updateDate;
   }
-
 }

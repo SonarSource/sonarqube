@@ -134,6 +134,7 @@ public class IssueDaoIT {
       .setManualSeverity(false)
       .setMessage("the message")
       .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
+      .setRuleCleanCodeAttribute(RULE.getCleanCodeAttribute())
       .setLine(500)
       .setEffort(10L)
       .setGap(3.14)
@@ -164,7 +165,7 @@ public class IssueDaoIT {
     assertThat(issue.getIssueCloseDate()).isNotNull();
     assertThat(issue.getRuleRepo()).isEqualTo(RULE.getRepositoryKey());
     assertThat(issue.getRule()).isEqualTo(RULE.getRuleKey());
-    assertThat(issue.getCleanCodeAttribute()).isEqualTo(RULE.getCleanCodeAttribute());
+    assertThat(issue.getEffectiveCleanCodeAttribute()).isEqualTo(RULE.getCleanCodeAttribute());
     assertThat(issue.parseLocations()).isNull();
     assertThat(issue.getImpacts())
       .extracting(ImpactDto::getSeverity, ImpactDto::getSoftwareQuality)

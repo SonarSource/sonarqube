@@ -124,8 +124,8 @@ public class SearchResponseFormatFormatOperationTest {
 
   private void assertIssueEqualsIssueDto(Issue issue, IssueDto issueDto) {
     assertThat(issue.getKey()).isEqualTo(issueDto.getKey());
-    assertThat(issue.getCleanCodeAttribute()).isEqualTo(Common.CleanCodeAttribute.valueOf(issueDto.getCleanCodeAttribute().name()));
-    assertThat(issue.getCleanCodeAttributeCategory()).isEqualTo(Common.CleanCodeAttributeCategory.valueOf(issueDto.getCleanCodeAttribute().getAttributeCategory().name()));
+    assertThat(issue.getCleanCodeAttribute()).isEqualTo(Common.CleanCodeAttribute.valueOf(issueDto.getEffectiveCleanCodeAttribute().name()));
+    assertThat(issue.getCleanCodeAttributeCategory()).isEqualTo(Common.CleanCodeAttributeCategory.valueOf(issueDto.getEffectiveCleanCodeAttribute().getAttributeCategory().name()));
     assertThat(issue.getType().getNumber()).isEqualTo(issueDto.getType());
     assertThat(issue.getComponent()).isEqualTo(issueDto.getComponentKey());
     assertThat(issue.getRule()).isEqualTo(issueDto.getRuleKey().toString());

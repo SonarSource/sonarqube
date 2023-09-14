@@ -256,9 +256,9 @@ public class PullTaintActionIT {
     assertThat(taintLite.getType()).isEqualTo(Common.RuleType.forNumber(issueDto.getType()));
     assertThat(taintLite.getAssignedToSubscribedUser()).isTrue();
     assertThat(taintLite.getCleanCodeAttribute())
-      .isEqualTo(Common.CleanCodeAttribute.valueOf(issueDto.getCleanCodeAttribute().name()));
+      .isEqualTo(Common.CleanCodeAttribute.valueOf(issueDto.getEffectiveCleanCodeAttribute().name()));
     assertThat(taintLite.getCleanCodeAttributeCategory())
-      .isEqualTo(Common.CleanCodeAttributeCategory.valueOf(issueDto.getCleanCodeAttribute().getAttributeCategory().name()));
+      .isEqualTo(Common.CleanCodeAttributeCategory.valueOf(issueDto.getEffectiveCleanCodeAttribute().getAttributeCategory().name()));
 
     assertThat(taintLite.getImpactsList())
       .extracting(Common.Impact::getSoftwareQuality, Common.Impact::getSeverity)

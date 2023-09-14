@@ -96,7 +96,7 @@ public class PullTaintActionProtobufObjectGenerator implements ProtobufObjectGen
       taintBuilder.setSeverity(Common.Severity.valueOf(issueDto.getSeverity()));
     }
     taintBuilder.setType(Common.RuleType.forNumber(issueDto.getType()));
-    CleanCodeAttribute cleanCodeAttribute = issueDto.getCleanCodeAttribute();
+    CleanCodeAttribute cleanCodeAttribute = issueDto.getEffectiveCleanCodeAttribute();
     String cleanCodeAttributeString = cleanCodeAttribute != null ? cleanCodeAttribute.name() : null;
     String cleanCodeAttributeCategoryString = cleanCodeAttribute != null ? cleanCodeAttribute.getAttributeCategory().name() : null;
     if (cleanCodeAttributeString != null) {

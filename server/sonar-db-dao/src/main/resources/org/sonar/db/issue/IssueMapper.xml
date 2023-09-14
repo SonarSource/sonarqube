@@ -32,7 +32,8 @@
     r.plugin_name as ruleRepo,
     r.language as language,
     r.security_standards as securityStandards,
-    r.clean_code_attribute as cleanCodeAttribute,
+    i.clean_code_attribute as cleanCodeAttribute,
+    r.clean_code_attribute as ruleCleanCodeAttribute,
     p.kee as componentKey,
     i.component_uuid as componentUuid,
     p.path as filePath,
@@ -73,7 +74,8 @@
     i.project_uuid,
     i.issue_type,
     i.quick_fix_available,
-    i.code_variants
+    i.code_variants,
+    i.clean_code_attribute
   </sql>
 
   <sql id="isNewCodeReferenceIssue" databaseId="mssql">
@@ -143,7 +145,8 @@
     INSERT INTO issues (kee, rule_uuid, severity, manual_severity,
     message, message_formattings, line, locations, gap, effort, status, tags, rule_description_context_key,
     resolution, checksum, assignee, author_login, issue_creation_date, issue_update_date,
-    issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type, quick_fix_available, code_variants)
+    issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type, quick_fix_available, code_variants,
+    clean_code_attribute)
     VALUES (
     #{kee,jdbcType=VARCHAR},
     #{ruleUuid,jdbcType=VARCHAR},
@@ -164,7 +167,8 @@
     #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT},
     #{componentUuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER},
     #{quickFixAvailable, jdbcType=BOOLEAN},
-    #{codeVariantsString,jdbcType=VARCHAR})
+    #{codeVariantsString,jdbcType=VARCHAR},
+    #{effectiveCleanCodeAttribute,jdbcType=VARCHAR})
   </insert>
 
   <insert id="insertAsNewCodeOnReferenceBranch" parameterType="NewCodeReferenceIssue" useGeneratedKeys="false">
@@ -220,7 +224,8 @@
     issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
     updated_at=#{updatedAt,jdbcType=BIGINT},
     issue_type=#{type,jdbcType=INTEGER},
-    code_variants=#{codeVariantsString,jdbcType=VARCHAR}
+    code_variants=#{codeVariantsString,jdbcType=VARCHAR},
+    clean_code_attribute=#{effectiveCleanCodeAttribute,jdbcType=VARCHAR}
     where kee = #{kee}
   </update>
 
@@ -251,7 +256,8 @@
     issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
     updated_at=#{updatedAt,jdbcType=BIGINT},
     issue_type=#{type,jdbcType=INTEGER},
-    code_variants=#{codeVariantsString,jdbcType=VARCHAR}
+    code_variants=#{codeVariantsString,jdbcType=VARCHAR},
+    clean_code_attribute=#{effectiveCleanCodeAttribute,jdbcType=VARCHAR}
     where kee = #{kee} and updated_at &lt;= #{selectedAt}
   </update>
 
@@ -350,7 +356,8 @@
       i.issue_update_date as issueUpdateDate,
       r.uuid as ruleUuid,
       r.language as language,
-      r.clean_code_attribute as cleanCodeAttribute,
+      i.clean_code_attribute as cleanCodeAttribute,
+      r.clean_code_attribute as ruleCleanCodeAttribute,
       c.uuid as componentUuid,
       c.path,
       c.scope,
@@ -791,7 +798,6 @@
     r.rule_type as ruleType,
     r.plugin_name as ruleRepo,
     r.plugin_rule_key as ruleKey,
-    r.clean_code_attribute as cleanCodeAttribute,
     i.message as message,
     i.message_formattings as messageFormattings,
     i.severity as severity,
@@ -804,7 +810,8 @@
     i.rule_description_context_key as ruleDescriptionContextKey,
     <include refid="issueImpactsColumns"/>
     <include refid="ruleDefaultImpactsColumns"/>
-    r.clean_code_attribute as cleanCodeAttribute
+    i.clean_code_attribute as cleanCodeAttribute,
+    r.clean_code_attribute as ruleCleanCodeAttribute
   </sql>
 
   <select id="selectByBranch" parameterType="map" resultMap="issueResultMap" resultOrdered="true">

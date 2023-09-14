@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -93,6 +94,7 @@ public class IssueLifecycleTest {
     assertThat(issue.effort()).isEqualTo(DEFAULT_DURATION);
     assertThat(issue.isNew()).isTrue();
     assertThat(issue.isCopied()).isFalse();
+    assertThat(issue.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL);
   }
 
   @Test
@@ -123,6 +125,7 @@ public class IssueLifecycleTest {
       .setIsNewCodeReferenceIssue(true);
     fromShort.setResolution("resolution");
     fromShort.setStatus("status");
+    fromShort.setCleanCodeAttribute(CleanCodeAttribute.COMPLETE);
 
     Date commentDate = new Date();
     fromShort.addComment(new DefaultIssueComment()
@@ -154,6 +157,7 @@ public class IssueLifecycleTest {
 
     assertThat(raw.resolution()).isEqualTo("resolution");
     assertThat(raw.status()).isEqualTo("status");
+    assertThat(raw.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.COMPLETE);
     assertThat(raw.defaultIssueComments())
       .extracting(DefaultIssueComment::issueKey, DefaultIssueComment::createdAt, DefaultIssueComment::userUuid, DefaultIssueComment::markdownText)
       .containsOnly(tuple("raw", commentDate, "user_uuid", "A comment"));
@@ -184,6 +188,7 @@ public class IssueLifecycleTest {
       .setKey("short");
     fromShort.setResolution("resolution");
     fromShort.setStatus("status");
+    fromShort.setCleanCodeAttribute(CleanCodeAttribute.DISTINCT);
 
     Date commentDate = new Date();
     fromShort.addComment(new DefaultIssueComment()
@@ -211,6 +216,7 @@ public class IssueLifecycleTest {
 
     assertThat(raw.resolution()).isEqualTo("resolution");
     assertThat(raw.status()).isEqualTo("status");
+    assertThat(raw.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.DISTINCT);
     assertThat(raw.defaultIssueComments())
       .extracting(DefaultIssueComment::issueKey, DefaultIssueComment::createdAt, DefaultIssueComment::userUuid, DefaultIssueComment::markdownText)
       .containsOnly(tuple("raw", commentDate, "user_uuid", "A comment"));
@@ -295,6 +301,7 @@ public class IssueLifecycleTest {
       .setCreationDate(parseDate("2015-01-01"))
       .setUpdateDate(parseDate("2015-01-02"))
       .setCloseDate(parseDate("2015-01-03"))
+      .setCleanCodeAttribute(CleanCodeAttribute.FOCUSED)
       .setResolution(RESOLUTION_FIXED)
       .setStatus(STATUS_CLOSED)
       .setSeverity(BLOCKER)
@@ -321,6 +328,7 @@ public class IssueLifecycleTest {
 
     assertThat(raw.isNew()).isFalse();
     assertThat(raw.isCopied()).isTrue();
+    assertThat(raw.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.FOCUSED);
     assertThat(raw.key()).isNotNull();
     assertThat(raw.key()).isNotEqualTo(base.key());
     assertThat(raw.creationDate()).isEqualTo(base.creationDate());
@@ -387,6 +395,7 @@ public class IssueLifecycleTest {
       .setKey("RAW_KEY")
       .setRuleKey(XOO_X1)
       .setRuleDescriptionContextKey("spring")
+      .setCleanCodeAttribute(CleanCodeAttribute.IDENTIFIABLE)
       .setCodeVariants(Set.of("foo", "bar"))
       .addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
       .setCreationDate(parseDate("2015-10-01"))
@@ -413,6 +422,7 @@ public class IssueLifecycleTest {
       .setKey("BASE_KEY")
       .setCreationDate(parseDate("2015-01-01"))
       .setUpdateDate(parseDate("2015-01-02"))
+      .setCleanCodeAttribute(CleanCodeAttribute.FOCUSED)
       .setResolution(RESOLUTION_FALSE_POSITIVE)
       .setStatus(STATUS_RESOLVED)
       .setSeverity(BLOCKER)
@@ -468,6 +478,7 @@ public class IssueLifecycleTest {
     verify(updater).setPastMessage(raw, "message with code", messageFormattings, issueChangeContext);
     verify(updater).setPastEffort(raw, Duration.create(15L), issueChangeContext);
     verify(updater).setPastLocations(raw, issueLocations);
+    verify(updater).setCleanCodeAttribute(raw, CleanCodeAttribute.FOCUSED, issueChangeContext);
   }
 
   @Test

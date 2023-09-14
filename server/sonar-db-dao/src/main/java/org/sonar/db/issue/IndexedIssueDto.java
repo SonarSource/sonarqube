@@ -33,6 +33,7 @@ public final class IndexedIssueDto {
   private Integer line = null;
   private String resolution = null;
   private String cleanCodeAttribute = null;
+  private String ruleCleanCodeAttribute = null;
   private String severity = null;
   private String status = null;
   private Long effort = null;
@@ -312,11 +313,23 @@ public final class IndexedIssueDto {
   }
 
   public String getCleanCodeAttribute() {
-    return cleanCodeAttribute;
+    if (cleanCodeAttribute != null) {
+      return cleanCodeAttribute;
+    }
+    return ruleCleanCodeAttribute;
   }
 
   public IndexedIssueDto setCleanCodeAttribute(String cleanCodeAttribute) {
     this.cleanCodeAttribute = cleanCodeAttribute;
+    return this;
+  }
+
+  public String getRuleCleanCodeAttribute() {
+    return ruleCleanCodeAttribute;
+  }
+
+  public IndexedIssueDto setRuleCleanCodeAttribute(String ruleCleanCodeAttribute) {
+    this.ruleCleanCodeAttribute = ruleCleanCodeAttribute;
     return this;
   }
 }

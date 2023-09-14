@@ -37,6 +37,7 @@ public class IndexedIssueDtoTest {
       .setStatus("status")
       .setNewCodeReferenceIssue(true)
       .setCleanCodeAttribute("cleanCodeAttribute")
+      .setRuleCleanCodeAttribute("ruleCleanCodeAttribute")
       .setCodeVariants("codeVariants")
       .setSecurityStandards("securityStandards")
       .setComponentUuid("componentUuid")
@@ -63,13 +64,13 @@ public class IndexedIssueDtoTest {
 
     assertThat(indexedIssueDto)
       .extracting(IndexedIssueDto::getIssueKey, IndexedIssueDto::getAssignee, IndexedIssueDto::getAuthorLogin, IndexedIssueDto::getStatus,
-        IndexedIssueDto::isNewCodeReferenceIssue, IndexedIssueDto::getCleanCodeAttribute, IndexedIssueDto::getCodeVariants,
+        IndexedIssueDto::isNewCodeReferenceIssue, IndexedIssueDto::getCleanCodeAttribute, IndexedIssueDto::getRuleCleanCodeAttribute, IndexedIssueDto::getCodeVariants,
         IndexedIssueDto::getSecurityStandards, IndexedIssueDto::getComponentUuid, IndexedIssueDto::getIssueCloseDate, IndexedIssueDto::getIssueCreationDate,
         IndexedIssueDto::getIssueUpdateDate, IndexedIssueDto::getEffort, IndexedIssueDto::isMain, IndexedIssueDto::getLanguage, IndexedIssueDto::getLine,
         IndexedIssueDto::getPath, IndexedIssueDto::getProjectUuid, IndexedIssueDto::getQualifier, IndexedIssueDto::getResolution,
         IndexedIssueDto::getRuleUuid, IndexedIssueDto::getScope, IndexedIssueDto::getSeverity, IndexedIssueDto::getTags, IndexedIssueDto::getIssueType,
         IndexedIssueDto::getBranchUuid)
-      .containsExactly("issueKey", "assignee", "authorLogin", "status", true, "cleanCodeAttribute", "codeVariants", "securityStandards",
+      .containsExactly("issueKey", "assignee", "authorLogin", "status", true, "cleanCodeAttribute", "ruleCleanCodeAttribute", "codeVariants", "securityStandards",
         "componentUuid", 1L, 2L, 3L, 4L, true, "language", 5, "path", "projectUuid", "qualifier", "resolution", "ruleUuid",
         "scope", "severity", "tags", 6, "branchUuid");
 

@@ -85,6 +85,7 @@ message Issue {
   optional string assigneeLogin = 47;
   optional string anticipatedTransitionUuid = 48;
   repeated Impact impacts = 49;
+  optional string cleanCodeAttribute = 50;
 }
 
 message Comment {

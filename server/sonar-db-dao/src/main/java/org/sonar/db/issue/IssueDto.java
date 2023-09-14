@@ -116,6 +116,7 @@ public final class IssueDto implements Serializable {
   //non-persisted fields
   private Set<ImpactDto> ruleDefaultImpacts = new HashSet<>();
   private CleanCodeAttribute cleanCodeAttribute;
+  private CleanCodeAttribute ruleCleanCodeAttribute;
 
   public IssueDto() {
     // nothing to do
@@ -158,6 +159,7 @@ public final class IssueDto implements Serializable {
       .setIsNewCodeReferenceIssue(issue.isNewCodeReferenceIssue())
       .setCodeVariants(issue.codeVariants())
       .replaceAllImpacts(mapToImpactDto(issue.impacts()))
+      .setCleanCodeAttribute(issue.getCleanCodeAttribute())
       // technical dates
       .setCreatedAt(now)
       .setUpdatedAt(now);
@@ -215,6 +217,7 @@ public final class IssueDto implements Serializable {
       .setIsNewCodeReferenceIssue(issue.isNewCodeReferenceIssue())
       .setCodeVariants(issue.codeVariants())
       .replaceAllImpacts(mapToImpactDto(issue.impacts()))
+      .setCleanCodeAttribute(issue.getCleanCodeAttribute())
       // technical date
       .setUpdatedAt(now);
   }
@@ -771,12 +774,20 @@ public final class IssueDto implements Serializable {
   }
 
   @CheckForNull
-  public CleanCodeAttribute getCleanCodeAttribute() {
-    return cleanCodeAttribute;
+  public CleanCodeAttribute getEffectiveCleanCodeAttribute() {
+    if (cleanCodeAttribute != null) {
+      return cleanCodeAttribute;
+    }
+    return ruleCleanCodeAttribute;
   }
 
   public IssueDto setCleanCodeAttribute(CleanCodeAttribute cleanCodeAttribute) {
     this.cleanCodeAttribute = cleanCodeAttribute;
+    return this;
+  }
+
+  public IssueDto setRuleCleanCodeAttribute(CleanCodeAttribute ruleCleanCodeAttribute) {
+    this.ruleCleanCodeAttribute = ruleCleanCodeAttribute;
     return this;
   }
 
@@ -887,6 +898,7 @@ public final class IssueDto implements Serializable {
     issue.setQuickFixAvailable(quickFixAvailable);
     issue.setIsNewCodeReferenceIssue(isNewCodeReferenceIssue);
     issue.setCodeVariants(getCodeVariants());
+    issue.setCleanCodeAttribute(cleanCodeAttribute);
     impacts.forEach(i -> issue.addImpact(i.getSoftwareQuality(), i.getSeverity()));
     return issue;
   }

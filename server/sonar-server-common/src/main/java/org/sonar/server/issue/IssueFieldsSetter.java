@@ -33,6 +33,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
@@ -46,6 +47,7 @@ import org.sonar.db.user.UserIdDto;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Updates issue fields and chooses if changes must be kept in history.
@@ -57,6 +59,7 @@ public class IssueFieldsSetter {
   public static final String UNUSED = "";
   public static final String SEVERITY = "severity";
   public static final String TYPE = "type";
+  public static final String CLEAN_CODE_ATTRIBUTE = "cleanCodeAttribute";
   public static final String ASSIGNEE = "assignee";
   public static final String RESOLUTION = "resolution";
   public static final String STATUS = "status";
@@ -323,8 +326,8 @@ public class IssueFieldsSetter {
 
     for (int i = 0; i < l1c.getMessageFormattingCount(); i++) {
       if (l1c.getMessageFormatting(i).getStart() != l2.getMessageFormatting(i).getStart()
-          || l1c.getMessageFormatting(i).getEnd() != l2.getMessageFormatting(i).getEnd()
-          || l1c.getMessageFormatting(i).getType() != l2.getMessageFormatting(i).getType()) {
+        || l1c.getMessageFormatting(i).getEnd() != l2.getMessageFormatting(i).getEnd()
+        || l1c.getMessageFormatting(i).getType() != l2.getMessageFormatting(i).getType()) {
         return false;
       }
     }
@@ -439,6 +442,19 @@ public class IssueFieldsSetter {
       return true;
     }
     return false;
+  }
+
+  public boolean setCleanCodeAttribute(DefaultIssue raw, @Nullable CleanCodeAttribute previousCleanCodeAttribute, IssueChangeContext changeContext) {
+    CleanCodeAttribute newCleanCodeAttribute = requireNonNull(raw.getCleanCodeAttribute());
+    if (Objects.equals(previousCleanCodeAttribute, newCleanCodeAttribute)) {
+      return false;
+    }
+    raw.setFieldChange(changeContext, CLEAN_CODE_ATTRIBUTE, previousCleanCodeAttribute, newCleanCodeAttribute.name());
+    raw.setCleanCodeAttribute(newCleanCodeAttribute);
+    raw.setUpdateDate(changeContext.date());
+    raw.setChanged(true);
+    return true;
+
   }
 
   private static Set<String> getNewCodeVariants(DefaultIssue issue) {

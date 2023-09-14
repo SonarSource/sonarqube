@@ -31,6 +31,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
@@ -749,5 +750,26 @@ public class IssueFieldsSetterTest {
 
     assertThat(updated).isTrue();
     assertThat(issue.getRuleDescriptionContextKey()).contains(DEFAULT_RULE_DESCRIPTION_CONTEXT_KEY);
+  }
+
+  @Test
+  public void setCleanCodeAttribute_whenCleanCodeAttributeChanged_shouldUpdateIssue() {
+    issue.setCleanCodeAttribute(CleanCodeAttribute.CLEAR);
+    boolean updated = underTest.setCleanCodeAttribute(issue, CleanCodeAttribute.COMPLETE, context);
+
+    assertThat(updated).isTrue();
+    assertThat(issue.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
+    assertThat(issue.currentChange().get("cleanCodeAttribute"))
+      .extracting(FieldDiffs.Diff::oldValue, FieldDiffs.Diff::newValue)
+      .containsExactly(CleanCodeAttribute.COMPLETE, CleanCodeAttribute.CLEAR.name());
+  }
+
+  @Test
+  public void setCleanCodeAttribute_whenCleanCodeAttributeNotChanged_shouldNotUpdateIssue() {
+    issue.setCleanCodeAttribute(CleanCodeAttribute.CLEAR);
+    boolean updated = underTest.setCleanCodeAttribute(issue, CleanCodeAttribute.CLEAR, context);
+
+    assertThat(updated).isFalse();
+    assertThat(issue.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
   }
 }

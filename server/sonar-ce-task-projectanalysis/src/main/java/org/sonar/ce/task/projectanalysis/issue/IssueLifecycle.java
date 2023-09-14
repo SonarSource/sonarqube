@@ -26,6 +26,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.core.issue.DefaultIssue;
@@ -38,6 +39,7 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByScanBuilder;
 
 /**
@@ -83,6 +85,11 @@ public class IssueLifecycle {
     issue.setEffort(debtCalculator.calculate(issue));
     setType(issue, rule);
     setStatus(issue, rule);
+    setCleanCodeAttribute(issue, rule);
+  }
+
+  private static void setCleanCodeAttribute(DefaultIssue issue, Rule rule) {
+    issue.setCleanCodeAttribute(ofNullable(rule.cleanCodeAttribute()).orElse(CleanCodeAttribute.defaultCleanCodeAttribute()));
   }
 
   private static void setType(DefaultIssue issue, Rule rule) {
@@ -129,6 +136,7 @@ public class IssueLifecycle {
       to.setManualSeverity(true);
       to.setSeverity(from.severity());
     }
+    to.setCleanCodeAttribute(from.getCleanCodeAttribute());
     copyChangesOfIssueFromOtherBranch(to, from);
   }
 
@@ -181,6 +189,7 @@ public class IssueLifecycle {
       raw.setChanged(true);
     }
     setType(raw, rule);
+    setCleanCodeAttribute(raw, rule);
     copyFields(raw, base);
     base.changes().forEach(raw::addChange);
 
@@ -204,6 +213,7 @@ public class IssueLifecycle {
     updater.setPastEffort(raw, base.effort(), changeContext);
     updater.setCodeVariants(raw, requireNonNull(base.codeVariants()), changeContext);
     updater.setImpacts(raw, base.impacts(), changeContext);
+    updater.setCleanCodeAttribute(raw, base.getCleanCodeAttribute(), changeContext);
   }
 
   public void doAutomaticTransition(DefaultIssue issue) {

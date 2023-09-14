@@ -91,10 +91,9 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     doc.setSeverity(indexedIssueDto.getSeverity());
     String cleanCodeAttributeCategory = Optional.ofNullable(indexedIssueDto.getCleanCodeAttribute())
       .map(CleanCodeAttribute::valueOf)
-      .map(cleanCodeAttribute -> cleanCodeAttribute.getAttributeCategory().name())
+      .map(CleanCodeAttribute::getAttributeCategory)
+      .map(Enum::name)
       .orElse(null);
-    //TODO SONAR-20073 uncomment once clean code attribute is set to not-null
-    //.orElseThrow(() -> new IllegalStateException("Clean Code Attribute is missing for issue " + key));
     doc.setCleanCodeAttributeCategory(cleanCodeAttributeCategory);
     doc.setStatus(indexedIssueDto.getStatus());
     doc.setEffort(indexedIssueDto.getEffort());

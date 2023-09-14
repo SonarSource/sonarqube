@@ -35,6 +35,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
@@ -138,6 +139,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setSelectedAt(next.hasSelectedAt() ? next.getSelectedAt() : null);
     defaultIssue.setQuickFixAvailable(next.getQuickFixAvailable());
     defaultIssue.setIsNoLongerNewCodeReferenceIssue(next.getIsNoLongerNewCodeReferenceIssue());
+    defaultIssue.setCleanCodeAttribute(next.hasCleanCodeAttribute() ? CleanCodeAttribute.valueOf(next.getCleanCodeAttribute()) : null);
     if (next.hasAnticipatedTransitionUuid()) {
       defaultIssue.setAnticipatedTransitionUuid(next.getAnticipatedTransitionUuid());
     }
@@ -156,6 +158,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     builder.clear();
     builder.setKey(defaultIssue.key());
     builder.setRuleType(defaultIssue.type().getDbConstant());
+    ofNullable(defaultIssue.getCleanCodeAttribute()).ifPresent(value -> builder.setCleanCodeAttribute(value.name()));
     ofNullable(defaultIssue.componentUuid()).ifPresent(builder::setComponentUuid);
     builder.setComponentKey(defaultIssue.componentKey());
     builder.setProjectUuid(defaultIssue.projectUuid());

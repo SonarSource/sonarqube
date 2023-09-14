@@ -174,7 +174,7 @@ public class SearchResponseFormat {
     issueBuilder.setKey(dto.getKey());
     issueBuilder.setType(Common.RuleType.forNumber(dto.getType()));
 
-    CleanCodeAttribute cleanCodeAttribute = dto.getCleanCodeAttribute();
+    CleanCodeAttribute cleanCodeAttribute = dto.getEffectiveCleanCodeAttribute();
     if (cleanCodeAttribute != null) {
       issueBuilder.setCleanCodeAttribute(Common.CleanCodeAttribute.valueOf(cleanCodeAttribute.name()));
       issueBuilder.setCleanCodeAttributeCategory(Common.CleanCodeAttributeCategory.valueOf(cleanCodeAttribute.getAttributeCategory().name()));

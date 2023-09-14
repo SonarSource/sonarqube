@@ -119,7 +119,7 @@ public class WebIssueStorageIT {
 
     assertThat(createdIssues).hasSize(1);
 
-    assertThat(createdIssues.iterator().next().getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
+    assertThat(createdIssues.iterator().next().getEffectiveCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
     assertThat(createdIssues.iterator().next().getEffectiveImpacts()).isEqualTo(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
 
     assertThat(db.countRowsOfTable("issues")).isOne();
@@ -166,7 +166,7 @@ public class WebIssueStorageIT {
     Collection<IssueDto> updatedIssues = underTest.save(db.getSession(), singletonList(issue));
     assertThat(updatedIssues).hasSize(1);
 
-    assertThat(updatedIssues.iterator().next().getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
+    assertThat(updatedIssues.iterator().next().getEffectiveCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
     assertThat(updatedIssues.iterator().next().getEffectiveImpacts()).isEqualTo(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.HIGH));
 
     assertThat(db.countRowsOfTable("issues")).isOne();
