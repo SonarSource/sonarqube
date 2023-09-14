@@ -25,7 +25,7 @@ public class WebApiEndpoints {
   public static final String HEALTH_ENDPOINT = SYSTEM_ENDPOINTS + "/health";
   public static final String USER_ENDPOINT = "/users";
   public static final String GITHUB_PERMISSIONS_ENDPOINT = "/github-permission-mappings";
-  public static final String JSON_MERGE_PATCH_CONTENT_TYPE = "application/json-merge-patch+json";
+  public static final String JSON_MERGE_PATCH_CONTENT_TYPE = "application/merge-patch+json";
 
   private WebApiEndpoints() {
   }
