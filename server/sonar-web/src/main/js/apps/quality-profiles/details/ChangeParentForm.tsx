@@ -19,6 +19,7 @@
  */
 import {
   ButtonPrimary,
+  FlagMessage,
   FormField,
   InputSelect,
   LabelValueSelectOption,
@@ -103,6 +104,12 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
         isOverflowVisible
         body={
           <>
+            {profile.parentKey !== undefined && (
+              <FlagMessage variant="info" className="sw-mb-8">
+                {translate('quality_profiles.change_parent_warning')}
+              </FlagMessage>
+            )}
+
             <MandatoryFieldsExplanation />
 
             <FormField
