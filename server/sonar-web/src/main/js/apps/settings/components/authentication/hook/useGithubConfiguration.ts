@@ -117,6 +117,7 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
 
   const setProvisioningType = (value: boolean | undefined) => {
     setRolesMapping(null);
+    GITHUB_ADDITIONAL_FIELDS.forEach((field) => setNewValue(field, undefined));
     setNewGithubProvisioningStatus(value);
   };
 
