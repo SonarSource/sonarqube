@@ -33,7 +33,7 @@ interface Props {
   type?: string;
 }
 
-export default function ProfileRulesRowOfType(props: Props) {
+export default function ProfileRulesRowOfType(props: Readonly<Props>) {
   const activeRulesUrl = getRulesUrl({
     qprofile: props.qprofile,
     activation: 'true',

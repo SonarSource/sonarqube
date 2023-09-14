@@ -59,7 +59,7 @@ interface State {
   total: number | null;
 }
 
-export default class ProfileRules extends React.PureComponent<Props, State> {
+export default class ProfileRules extends React.PureComponent<Readonly<Props>, State> {
   mounted = false;
 
   state: State = {
@@ -127,24 +127,12 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
             activatedTotal: activatedRules.paging.total,
             allByType: keyBy<ByType>(this.takeFacet(allRules, 'types'), 'val'),
             activatedByType: keyBy<ByType>(this.takeFacet(activatedRules, 'types'), 'val'),
-            compareToSonarWay: showProfile && showProfile.compareToSonarWay,
+            compareToSonarWay: showProfile?.compareToSonarWay,
             total: allRules.paging.total,
           });
         }
       },
     );
-  }
-
-  getRulesCountForType(type: string) {
-    return this.state.activatedByType && this.state.activatedByType[type]
-      ? this.state.activatedByType[type].count
-      : null;
-  }
-
-  getRulesTotalForType(type: string) {
-    return this.state.allByType && this.state.allByType[type]
-      ? this.state.allByType[type].count
-      : null;
   }
 
   takeFacet(response: SearchRulesResponse, property: string) {

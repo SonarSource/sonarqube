@@ -39,7 +39,7 @@ export interface BitbucketFormProps {
   onVariantChange: (variant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud) => void;
 }
 
-export default function BitbucketForm(props: BitbucketFormProps) {
+export default function BitbucketForm(props: Readonly<BitbucketFormProps>) {
   const { isUpdate, formData, variant } = props;
 
   return (

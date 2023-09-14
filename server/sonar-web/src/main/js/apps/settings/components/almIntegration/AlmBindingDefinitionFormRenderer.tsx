@@ -53,7 +53,7 @@ export interface Props {
   validationError?: string;
 }
 
-export default class AlmBindingDefinitionFormRenderer extends React.PureComponent<Props> {
+export default class AlmBindingDefinitionFormRenderer extends React.PureComponent<Readonly<Props>> {
   renderForm = () => {
     const { alm, formData, isUpdate, bitbucketVariant } = this.props;
 

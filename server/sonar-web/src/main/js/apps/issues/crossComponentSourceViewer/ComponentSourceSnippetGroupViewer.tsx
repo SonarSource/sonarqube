@@ -81,10 +81,13 @@ interface State {
   snippets: Snippet[];
 }
 
-export default class ComponentSourceSnippetGroupViewer extends React.PureComponent<Props, State> {
+export default class ComponentSourceSnippetGroupViewer extends React.PureComponent<
+  Readonly<Props>,
+  State
+> {
   mounted = false;
 
-  constructor(props: Props) {
+  constructor(props: Readonly<Props>) {
     super(props);
     this.state = {
       additionalLines: {},
@@ -383,7 +386,7 @@ function isExpandable(snippets: Snippet[], snippetGroup: SnippetGroup) {
     snippets.length === 1 &&
     snippetGroup.component.measures &&
     snippets[0].end - snippets[0].start ===
-      parseInt(snippetGroup.component.measures.lines || '', 10);
+      parseInt(snippetGroup.component.measures.lines ?? '', 10);
 
   return !fullyShown && isFile(snippetGroup.component.q);
 }

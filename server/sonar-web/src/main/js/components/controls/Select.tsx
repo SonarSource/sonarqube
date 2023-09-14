@@ -97,7 +97,7 @@ export default function Select<
   Option = LabelValueSelectOption,
   IsMulti extends boolean = boolean,
   Group extends GroupBase<Option> = GroupBase<Option>,
->(props: NamedProps<Option, IsMulti, Group> & StyleExtensionProps) {
+>(props: NamedProps<Option, IsMulti, Group> & Readonly<StyleExtensionProps>) {
   return (
     <ReactSelect<Option, IsMulti, Group>
       {...omit(props, 'className', 'large')}
@@ -141,7 +141,7 @@ export function SearchSelect<
 >(
   props: NamedProps<Option, IsMulti, Group> &
     AsyncProps<Option, IsMulti, Group> &
-    StyleExtensionProps,
+    Readonly<StyleExtensionProps>,
 ) {
   return (
     <AsyncReactSelect<Option, IsMulti, Group>
@@ -167,7 +167,7 @@ export function selectStyle<
 >(
   props?: NamedProps<Option, IsMulti, Group> &
     AsyncProps<Option, IsMulti, Group> &
-    StyleExtensionProps,
+    Readonly<StyleExtensionProps>,
 ): StylesConfig<Option, IsMulti, Group> {
   return {
     container: () => ({

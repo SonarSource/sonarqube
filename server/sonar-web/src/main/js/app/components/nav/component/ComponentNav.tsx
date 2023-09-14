@@ -46,7 +46,7 @@ export interface ComponentNavProps extends WithAvailableFeaturesProps {
   projectBindingErrors?: ProjectAlmBindingConfigurationErrors;
 }
 
-function ComponentNav(props: ComponentNavProps) {
+function ComponentNav(props: Readonly<ComponentNavProps>) {
   const {
     branchLike,
     component,

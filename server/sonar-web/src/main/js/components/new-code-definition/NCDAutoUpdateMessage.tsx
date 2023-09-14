@@ -39,7 +39,7 @@ interface NCDAutoUpdateMessageProps extends Pick<CurrentUserContextInterface, 'c
   component?: Component;
 }
 
-function NCDAutoUpdateMessage(props: NCDAutoUpdateMessageProps) {
+function NCDAutoUpdateMessage(props: Readonly<NCDAutoUpdateMessageProps>) {
   const { branchName, component, currentUser } = props;
   const isGlobalBanner = component === undefined;
   const intl = useIntl();

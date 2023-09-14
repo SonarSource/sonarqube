@@ -42,7 +42,7 @@ interface RenderProps {
 interface Props {
   allowResizing?: boolean;
   children:
-    | ((renderProps: RenderProps) => JSX.Element)
+    | ((renderProps: Readonly<RenderProps>) => JSX.Element)
     | React.ReactElement<{ onClick: OnClickCallback }>;
   className?: string;
   closeOnClick?: boolean;
@@ -61,10 +61,10 @@ interface State {
   open: boolean;
 }
 
-export class Dropdown extends React.PureComponent<Props, State> {
+export class Dropdown extends React.PureComponent<Readonly<Props>, State> {
   state: State = { open: false };
 
-  componentDidUpdate(props: Props, prevState: State) {
+  componentDidUpdate(props: Readonly<Props>, prevState: State) {
     if (!prevState.open && this.state.open && this.props.onOpen) {
       this.props.onOpen();
     }
@@ -146,7 +146,7 @@ interface ActionsDropdownProps extends Omit<Props, 'children' | 'overlay'> {
   toggleClassName?: string;
 }
 
-export function ActionsDropdown(props: ActionsDropdownProps) {
+export function ActionsDropdown(props: Readonly<ActionsDropdownProps>) {
   const { children, buttonSize, ariaLabel, toggleClassName, ...dropdownProps } = props;
 
   const intl = useIntl();

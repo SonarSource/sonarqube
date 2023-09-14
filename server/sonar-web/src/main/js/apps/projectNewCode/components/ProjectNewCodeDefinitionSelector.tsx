@@ -66,7 +66,9 @@ function branchToOption(b: Branch) {
   return { label: b.name, value: b.name, isMain: b.isMain };
 }
 
-export default function ProjectNewCodeDefinitionSelector(props: ProjectBaselineSelectorProps) {
+export default function ProjectNewCodeDefinitionSelector(
+  props: Readonly<ProjectBaselineSelectorProps>,
+) {
   const {
     analysis,
     branch,
