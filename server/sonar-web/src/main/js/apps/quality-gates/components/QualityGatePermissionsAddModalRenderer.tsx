@@ -37,7 +37,7 @@ export interface QualityGatePermissionsAddModalRendererProps {
   onClose: () => void;
   handleSearch: (
     q: string,
-    resolve: (options: Options<LabelValueSelectOption<UserBase | UserGroup>>) => void
+    resolve: (options: Options<LabelValueSelectOption<UserBase | UserGroup>>) => void,
   ) => void;
   onSelection: (selection: SingleValue<LabelValueSelectOption<UserBase | UserGroup>>) => void;
   selection?: UserBase | UserGroup;
@@ -139,7 +139,7 @@ function OptionRenderer({
 function Option<
   Option extends LabelValueSelectOption<UserBase | UserGroup>,
   IsMulti extends boolean = false,
-  Group extends GroupBase<Option> = GroupBase<Option>
+  Group extends GroupBase<Option> = GroupBase<Option>,
 >(props: OptionProps<Option, IsMulti, Group>) {
   const {
     data: { value },

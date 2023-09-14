@@ -68,7 +68,7 @@ export default function GlobalContainer() {
             <div
               className={classNames('page-wrapper', {
                 'new-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND.some((element) =>
-                  location.pathname.startsWith(element)
+                  location.pathname.startsWith(element),
                 ),
                 'white-background': TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE.includes(
                   location.pathname,

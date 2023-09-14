@@ -55,7 +55,7 @@ export function MetricSelect({ metric, metricsArray, metrics, onMetricChange }: 
       label: getLocalizedMetricNameNoDiffMetric(m, metrics),
       domain: m.domain,
     })),
-    'domain'
+    'domain',
   );
 
   // Use "disabled" property to emulate optgroups.
@@ -76,7 +76,7 @@ export function MetricSelect({ metric, metricsArray, metrics, onMetricChange }: 
     (query: string, resolve: (options: Options<LabelValueSelectOption<string>>) => void) => {
       resolve(options.filter((opt) => opt.label.toLowerCase().includes(query.toLowerCase())));
     },
-    [options]
+    [options],
   );
 
   return (

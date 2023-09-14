@@ -85,14 +85,14 @@ export function Conditions({
   updatedConditionId,
 }: Props) {
   const [editing, setEditing] = React.useState<boolean>(
-    qualityGate.caycStatus === CaycStatus.NonCompliant
+    qualityGate.caycStatus === CaycStatus.NonCompliant,
   );
   const canEdit = Boolean(qualityGate.actions?.manageConditions);
   const { conditions = [] } = qualityGate;
   const existingConditions = conditions.filter((condition) => metrics[condition.metric]);
   const { overallCodeConditions, newCodeConditions } = groupAndSortByPriorityConditions(
     existingConditions,
-    metrics
+    metrics,
   );
 
   const duplicates: ConditionType[] = [];
@@ -123,10 +123,10 @@ export function Conditions({
           (metric) =>
             !metric.hidden &&
             !FORBIDDEN_METRIC_TYPES.includes(metric.type) &&
-            !FORBIDDEN_METRICS.includes(metric.key)
+            !FORBIDDEN_METRICS.includes(metric.key),
         ),
         conditions,
-        (metric, condition) => metric.key === condition.metric
+        (metric, condition) => metric.key === condition.metric,
       );
       return (
         <ConditionModal
@@ -138,7 +138,7 @@ export function Conditions({
         />
       );
     },
-    [metrics, qualityGate, onAddCondition]
+    [metrics, qualityGate, onAddCondition],
   );
 
   const renderCaycModal = React.useCallback(
@@ -161,7 +161,7 @@ export function Conditions({
         />
       );
     },
-    [qualityGate, metrics, updatedConditionId, onAddCondition, onRemoveCondition, onSaveCondition]
+    [qualityGate, metrics, updatedConditionId, onAddCondition, onRemoveCondition, onSaveCondition],
   );
 
   return (

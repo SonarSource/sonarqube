@@ -56,12 +56,12 @@ export default function CaycReviewUpdateConditionsModal(props: Props) {
   const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
   const sortedWeakConditions = sortBy(
     weakConditions,
-    (condition) => metrics[condition.metric] && metrics[condition.metric].name
+    (condition) => metrics[condition.metric] && metrics[condition.metric].name,
   );
 
   const sortedMissingConditions = sortBy(
     missingConditions,
-    (condition) => metrics[condition.metric] && metrics[condition.metric].name
+    (condition) => metrics[condition.metric] && metrics[condition.metric].name,
   );
 
   const getDocUrl = useDocUrl();
@@ -82,7 +82,7 @@ export default function CaycReviewUpdateConditionsModal(props: Props) {
               onSaveCondition(resultCondition, currentCondition);
             }
           })
-          .catch(() => undefined)
+          .catch(() => undefined),
       );
     });
 
@@ -93,7 +93,7 @@ export default function CaycReviewUpdateConditionsModal(props: Props) {
           gateName: qualityGate.name,
         })
           .then((resultCondition) => onAddCondition(resultCondition))
-          .catch(() => undefined)
+          .catch(() => undefined),
       );
     });
 
@@ -123,7 +123,7 @@ export default function CaycReviewUpdateConditionsModal(props: Props) {
           <Title as="h4" className="sw-mb-2 sw-mt-4 sw-body-sm-highlight">
             {translateWithParameters(
               'quality_gates.cayc.review_update_modal.add_condition.header',
-              sortedMissingConditions.length
+              sortedMissingConditions.length,
             )}
           </Title>
           <ConditionsTable
@@ -140,7 +140,7 @@ export default function CaycReviewUpdateConditionsModal(props: Props) {
           <Title as="h4" className="sw-mb-2 sw-mt-4 sw-body-sm-highlight">
             {translateWithParameters(
               'quality_gates.cayc.review_update_modal.modify_condition.header',
-              sortedWeakConditions.length
+              sortedWeakConditions.length,
             )}
           </Title>
           <ConditionsTable
@@ -163,7 +163,7 @@ export default function CaycReviewUpdateConditionsModal(props: Props) {
       isLarge
       headerTitle={translateWithParameters(
         'quality_gates.cayc.review_update_modal.header',
-        qualityGate.name
+        qualityGate.name,
       )}
       onClose={onClose}
       body={body}

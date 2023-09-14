@@ -53,7 +53,7 @@ export default class QualityGatePermissionsAddModal extends React.Component<Prop
 
   handleSearch = (
     q: string,
-    resolve: (options: Options<LabelValueSelectOption<UserBase | Group>>) => void
+    resolve: (options: Options<LabelValueSelectOption<UserBase | Group>>) => void,
   ) => {
     const { qualityGate } = this.props;
 
@@ -68,7 +68,7 @@ export default class QualityGatePermissionsAddModal extends React.Component<Prop
         [...usersResponse.users, ...groupsResponse.groups].map((o) => ({
           value: o,
           label: isUser(o) ? `${o.name} ${o.login}` : o.name,
-        }))
+        })),
       )
       .then(resolve)
       .catch(() => resolve([]));
