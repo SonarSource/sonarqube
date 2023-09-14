@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { act, screen } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
@@ -35,6 +35,7 @@ beforeEach(() => {
 
 const serviceMock = new QualityProfilesServiceMock();
 const ui = {
+  loading: byRole('status', { name: 'loading' }),
   permissionSection: byRole('region', { name: 'permissions.page' }),
   projectSection: byRole('region', { name: 'projects' }),
   rulesSection: byRole('region', { name: 'rules' }),
@@ -80,6 +81,12 @@ const ui = {
   rulesMissingSonarWayLink: byRole('link', { name: '2' }),
   rulesDeprecatedWarning: byText('quality_profiles.deprecated_rules_description'),
   rulesDeprecatedLink: byRole('link', { name: '8' }),
+
+  waitForDataLoaded: async () => {
+    await waitFor(() => {
+      expect(ui.loading.query()).not.toBeInTheDocument();
+    });
+  },
 };
 
 describe('Admin or user with permission', () => {
@@ -91,6 +98,7 @@ describe('Admin or user with permission', () => {
     it('should be able to grant permission to a user and remove it', async () => {
       const user = userEvent.setup();
       renderQualityProfile();
+      await ui.waitForDataLoaded();
 
       expect(await ui.permissionSection.find()).toBeInTheDocument();
 
@@ -117,6 +125,7 @@ describe('Admin or user with permission', () => {
     it('should be able to grant permission to a group and remove it', async () => {
       const user = userEvent.setup();
       renderQualityProfile();
+      await ui.waitForDataLoaded();
 
       expect(await ui.permissionSection.find()).toBeInTheDocument();
 
@@ -142,6 +151,7 @@ describe('Admin or user with permission', () => {
 
     it('should not be able to grant permission if the profile is built-in', async () => {
       renderQualityProfile('sonar');
+      await ui.waitForDataLoaded();
       expect(await screen.findByText('Sonar way')).toBeInTheDocument();
       expect(ui.permissionSection.query()).not.toBeInTheDocument();
     });
@@ -151,14 +161,20 @@ describe('Admin or user with permission', () => {
     it('should be able to add a project to Quality Profile with active rules', async () => {
       const user = userEvent.setup();
       renderQualityProfile();
+      await ui.waitForDataLoaded();
 
       expect(await ui.projectSection.find()).toBeInTheDocument();
+
       expect(ui.projectSection.byText('Twitter').query()).not.toBeInTheDocument();
-      await user.click(ui.changeProjectsButton.get());
+      await act(async () => {
+        await user.click(ui.changeProjectsButton.get());
+      });
       expect(ui.dialog.get()).toBeInTheDocument();
 
-      await user.click(ui.withoutFilterButton.get());
-      await user.click(ui.twitterCheckbox.get());
+      await act(async () => {
+        await user.click(ui.withoutFilterButton.get());
+        await user.click(ui.twitterCheckbox.get());
+      });
       await user.click(ui.closeButton.get());
       expect(ui.projectSection.byText('Twitter').get()).toBeInTheDocument();
     });
@@ -166,27 +182,38 @@ describe('Admin or user with permission', () => {
     it('should be able to remove a project from a Quality Profile with active rules', async () => {
       const user = userEvent.setup();
       renderQualityProfile();
+      await ui.waitForDataLoaded();
 
       expect(await ui.projectSection.find()).toBeInTheDocument();
+
       expect(ui.projectSection.byText('Benflix').get()).toBeInTheDocument();
-      await user.click(ui.changeProjectsButton.get());
+      await act(async () => {
+        await user.click(ui.changeProjectsButton.get());
+      });
       expect(ui.dialog.get()).toBeInTheDocument();
 
-      await user.click(ui.benflixCheckbox.get());
+      await act(async () => {
+        await user.click(ui.benflixCheckbox.get());
+      });
       await user.click(ui.closeButton.get());
       expect(ui.projectSection.byText('Benflix').query()).not.toBeInTheDocument();
     });
 
     it('should not be able to change project for Quality Profile with no active rules', async () => {
       renderQualityProfile('no-rule-qp');
+      await ui.waitForDataLoaded();
 
       expect(await ui.projectSection.find()).toBeInTheDocument();
+
       expect(ui.changeProjectsButton.get()).toHaveAttribute('disabled');
     });
 
     it('should not be able to change projects for default profiles', async () => {
       renderQualityProfile('sonar');
+      await ui.waitForDataLoaded();
+
       expect(await ui.projectSection.find()).toBeInTheDocument();
+
       expect(
         await ui.projectSection.byText('quality_profiles.projects_for_default').get(),
       ).toBeInTheDocument();
@@ -196,6 +223,7 @@ describe('Admin or user with permission', () => {
   describe('Rules', () => {
     it('should be able to activate more rules', async () => {
       renderQualityProfile();
+      await ui.waitForDataLoaded();
 
       expect(await ui.rulesSection.find()).toBeInTheDocument();
 
@@ -208,6 +236,7 @@ describe('Admin or user with permission', () => {
 
     it("shouldn't be able to activate more rules for built in Quality Profile", async () => {
       renderQualityProfile('sonar');
+      await ui.waitForDataLoaded();
       expect(await ui.rulesSection.find()).toBeInTheDocument();
       expect(ui.activateMoreRulesButton.get()).toBeInTheDocument();
       expect(ui.activateMoreRulesButton.get()).toBeDisabled();
@@ -218,20 +247,28 @@ describe('Admin or user with permission', () => {
     it("should be able to change a quality profile's parents", async () => {
       const user = userEvent.setup();
       renderQualityProfile();
+      await ui.waitForDataLoaded();
 
       expect(await ui.inheritanceSection.find()).toBeInTheDocument();
+
       // Parents
       expect(ui.inheritanceSection.byText('PHP Sonar way 1').get()).toBeInTheDocument();
       expect(ui.inheritanceSection.byText('PHP Sonar way 2').query()).not.toBeInTheDocument();
       // Children
       expect(ui.inheritanceSection.byText('PHP way').get()).toBeInTheDocument();
 
-      await user.click(ui.changeParentButton.get());
+      await act(async () => {
+        await user.click(ui.changeParentButton.get());
+      });
       expect(await ui.dialog.find()).toBeInTheDocument();
       expect(ui.changeButton.get()).toBeDisabled();
       await selectEvent.select(ui.selectField.get(), 'PHP Sonar way 2');
-      await user.click(ui.changeButton.get());
+      await act(async () => {
+        await user.click(ui.changeButton.get());
+      });
       expect(ui.dialog.query()).not.toBeInTheDocument();
+
+      await ui.waitForDataLoaded();
 
       // Parents
       expect(ui.inheritanceSection.byText('PHP Sonar way 2').get()).toBeInTheDocument();
@@ -242,6 +279,7 @@ describe('Admin or user with permission', () => {
 
     it("should not be able to change a Built-in quality profile's parents", async () => {
       renderQualityProfile('php-sonar-way-1');
+      await ui.waitForDataLoaded();
 
       expect(await ui.inheritanceSection.find()).toBeInTheDocument();
       expect(ui.changeParentButton.query()).not.toBeInTheDocument();
@@ -252,6 +290,7 @@ describe('Admin or user with permission', () => {
     it('should be able to activate more rules', async () => {
       const user = userEvent.setup();
       renderQualityProfile();
+      await ui.waitForDataLoaded();
 
       await user.click(await ui.qualityProfileActions.find());
       expect(ui.activateMoreRulesLink.get()).toBeInTheDocument();
@@ -264,6 +303,7 @@ describe('Admin or user with permission', () => {
     it('should be able to extend a quality profile', async () => {
       const user = userEvent.setup();
       renderQualityProfile();
+      await ui.waitForDataLoaded();
 
       expect(await screen.findByText('Good old PHP quality profile')).toBeInTheDocument();
 
@@ -281,6 +321,8 @@ describe('Admin or user with permission', () => {
 
       expect(ui.dialog.query()).not.toBeInTheDocument();
 
+      await ui.waitForDataLoaded();
+
       expect(screen.getAllByText('Bad new PHP quality profile')).toHaveLength(2);
       expect(screen.getByText('Good old PHP quality profile')).toBeInTheDocument();
     });
@@ -288,6 +330,7 @@ describe('Admin or user with permission', () => {
     it('should be able to copy a quality profile', async () => {
       const user = userEvent.setup();
       renderQualityProfile();
+      await ui.waitForDataLoaded();
 
       await user.click(await ui.qualityProfileActions.find());
       await user.click(ui.copyButton.get());
@@ -303,12 +346,14 @@ describe('Admin or user with permission', () => {
 
       expect(ui.dialog.query()).not.toBeInTheDocument();
 
-      expect(screen.getAllByText('Good old PHP quality profile copy')).toHaveLength(2);
+      await ui.waitForDataLoaded();
+      expect(await screen.findAllByText('Good old PHP quality profile copy')).toHaveLength(2);
     });
 
     it('should be able to rename a quality profile', async () => {
       const user = userEvent.setup();
       renderQualityProfile();
+      await ui.waitForDataLoaded();
 
       await user.click(await ui.qualityProfileActions.find());
       await user.click(ui.renameButton.get());
@@ -324,12 +369,14 @@ describe('Admin or user with permission', () => {
 
       expect(ui.dialog.query()).not.toBeInTheDocument();
 
+      await ui.waitForDataLoaded();
       expect(screen.getAllByText('Fossil PHP quality profile')).toHaveLength(2);
     });
 
     it('should be able to set a quality profile as default', async () => {
       const user = userEvent.setup();
       renderQualityProfile();
+      await ui.waitForDataLoaded();
 
       await user.click(await ui.qualityProfileActions.find());
       await user.click(ui.setAsDefaultButton.get());
@@ -340,6 +387,7 @@ describe('Admin or user with permission', () => {
     it('should NOT be able to set a quality profile as default if it has no active rules', async () => {
       const user = userEvent.setup();
       renderQualityProfile('no-rule-qp');
+      await ui.waitForDataLoaded();
 
       await user.click(await ui.qualityProfileActions.find());
       expect(ui.setAsDefaultButton.query()).not.toBeInTheDocument();
@@ -348,6 +396,7 @@ describe('Admin or user with permission', () => {
     it("should be able to delete a Quality Profile and it's children", async () => {
       const user = userEvent.setup();
       renderQualityProfile();
+      await ui.waitForDataLoaded();
 
       await user.click(await ui.qualityProfileActions.find());
       await user.click(ui.deleteQualityProfileButton.get());
@@ -373,6 +422,7 @@ describe('Admin or user with permission', () => {
 describe('Users with no permission', () => {
   it('should not be able to activate more rules', async () => {
     renderQualityProfile();
+    await ui.waitForDataLoaded();
 
     expect(await ui.rulesSection.find()).toBeInTheDocument();
     expect(ui.activateMoreLink.query()).not.toBeInTheDocument();
@@ -386,6 +436,7 @@ describe('Users with no permission', () => {
 
   it("should not be able to change a quality profile's parents", async () => {
     renderQualityProfile();
+    await ui.waitForDataLoaded();
 
     expect(await ui.inheritanceSection.find()).toBeInTheDocument();
     expect(ui.inheritanceSection.byText('PHP Sonar way 1').get()).toBeInTheDocument();
@@ -396,6 +447,7 @@ describe('Users with no permission', () => {
 
   it('should not be able to change projects for Quality Profile', async () => {
     renderQualityProfile();
+    await ui.waitForDataLoaded();
 
     expect(await ui.projectSection.find()).toBeInTheDocument();
     expect(ui.changeProjectsButton.query()).not.toBeInTheDocument();
@@ -405,6 +457,7 @@ describe('Users with no permission', () => {
 describe('Every Users', () => {
   it('should be able to see active/inactive rules for a Quality Profile', async () => {
     renderQualityProfile();
+    await ui.waitForDataLoaded();
 
     expect(await ui.rulesSection.find()).toBeInTheDocument();
 
@@ -425,6 +478,7 @@ describe('Every Users', () => {
 
   it('should be able to see a warning when some rules are missing compare to Sonar way', async () => {
     renderQualityProfile();
+    await ui.waitForDataLoaded();
 
     expect(await ui.rulesMissingSonarWayWarning.findAll()).toHaveLength(2);
     expect(ui.rulesMissingSonarWayLink.get()).toBeInTheDocument();
@@ -436,6 +490,7 @@ describe('Every Users', () => {
 
   it('should be able to see a warning when some rules are deprecated', async () => {
     renderQualityProfile();
+    await ui.waitForDataLoaded();
 
     expect(await ui.rulesDeprecatedWarning.findAll()).toHaveLength(1);
     expect(ui.rulesDeprecatedLink.get()).toBeInTheDocument();
@@ -447,6 +502,7 @@ describe('Every Users', () => {
 
   it('should be able to see exporters links when there are exporters for the language', async () => {
     renderQualityProfile();
+    await ui.waitForDataLoaded();
 
     expect(await ui.exportersSection.find()).toBeInTheDocument();
     expect(ui.exportersSection.byText('SonarLint for Visual Studio').get()).toBeInTheDocument();
@@ -455,6 +511,7 @@ describe('Every Users', () => {
 
   it('should be informed when the quality profile has not been found', async () => {
     renderQualityProfile('i-dont-exist');
+    await ui.waitForDataLoaded();
 
     expect(await screen.findByText('quality_profiles.not_found')).toBeInTheDocument();
     expect(ui.qualityProfilePageLink.get()).toBeInTheDocument();
@@ -463,6 +520,7 @@ describe('Every Users', () => {
   it('should be able to backup quality profile', async () => {
     const user = userEvent.setup();
     renderQualityProfile();
+    await ui.waitForDataLoaded();
 
     await user.click(await ui.qualityProfileActions.find());
     expect(ui.backUpLink.get()).toHaveAttribute(
@@ -475,6 +533,7 @@ describe('Every Users', () => {
   it('should not be able to backup a built-in quality profile', async () => {
     const user = userEvent.setup();
     renderQualityProfile('sonar');
+    await ui.waitForDataLoaded();
 
     await user.click(await ui.qualityProfileActions.find());
     expect(ui.backUpLink.query()).not.toBeInTheDocument();
@@ -483,6 +542,7 @@ describe('Every Users', () => {
   it('should be able to compare quality profile', async () => {
     const user = userEvent.setup();
     renderQualityProfile();
+    await ui.waitForDataLoaded();
 
     await user.click(await ui.qualityProfileActions.find());
 

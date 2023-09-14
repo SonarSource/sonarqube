@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FormField, InputField, Modal } from 'design-system';
+import { ButtonPrimary, FlagMessage, FormField, InputField, Modal } from 'design-system';
 import * as React from 'react';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useProfileInheritanceQuery } from '../../../queries/quality-profiles';
 import { Dict } from '../../../types/types';
 import { Profile, ProfileActionModals } from '../types';
 
@@ -45,6 +46,13 @@ export default function ProfileModalForm(props: ProfileModalFormProps) {
   const submitDisabled = loading || !name || name === profile.name;
   const labels = LABELS_FOR_ACTION[action];
 
+  const { data: { ancestors } = {} } = useProfileInheritanceQuery(props.profile);
+
+  const extendsBuiltIn = ancestors?.some((profile) => profile.isBuiltIn);
+  const showBuiltInWarning =
+    (action === ProfileActionModals.Copy && !extendsBuiltIn) ||
+    (action === ProfileActionModals.Extend && !profile.isBuiltIn && !extendsBuiltIn);
+
   return (
     <Modal
       headerTitle={translateWithParameters(labels.header, profile.name, profile.languageName)}
@@ -52,6 +60,17 @@ export default function ProfileModalForm(props: ProfileModalFormProps) {
       loading={loading}
       body={
         <>
+          {showBuiltInWarning && (
+            <FlagMessage variant="info" className="sw-mb-4">
+              <div className="sw-flex sw-flex-col">
+                {translate('quality_profiles.no_built_in_updates_warning.new_profile')}
+                <span className="sw-mt-2">
+                  {translate('quality_profiles.no_built_in_updates_warning.new_profile.2')}
+                </span>
+              </div>
+            </FlagMessage>
+          )}
+
           {action === ProfileActionModals.Copy && (
             <p className="sw-mb-8">
               {translateWithParameters('quality_profiles.copy_help', profile.name)}

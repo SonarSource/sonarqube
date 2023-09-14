@@ -20,9 +20,8 @@
 import classNames from 'classnames';
 import { ButtonSecondary, FlagMessage, Spinner, SubTitle, Table } from 'design-system';
 import * as React from 'react';
-import { getProfileInheritance } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
-import { ProfileInheritanceDetails } from '../../../types/types';
+import { useProfileInheritanceQuery } from '../../../queries/quality-profiles';
 import { Profile } from '../types';
 import ChangeParentForm from './ChangeParentForm';
 import ProfileInheritanceBox from './ProfileInheritanceBox';
@@ -33,167 +32,115 @@ interface Props {
   updateProfiles: () => Promise<void>;
 }
 
-interface State {
-  ancestors?: ProfileInheritanceDetails[];
-  children?: ProfileInheritanceDetails[];
-  formOpen: boolean;
-  loading: boolean;
-  profile?: ProfileInheritanceDetails;
-}
+export default function ProfileInheritance(props: Props) {
+  const { profile, profiles, updateProfiles } = props;
+  const [formOpen, setFormOpen] = React.useState(false);
 
-export default class ProfileInheritance extends React.PureComponent<Props, State> {
-  mounted = false;
+  const { data: { ancestors, children, profile: profileInheritanceDetail } = {}, isLoading } =
+    useProfileInheritanceQuery(profile);
 
-  state: State = {
-    formOpen: false,
-    loading: true,
-  };
+  const handleChangeParentClick = React.useCallback(() => {
+    setFormOpen(true);
+  }, [setFormOpen]);
 
-  componentDidMount() {
-    this.mounted = true;
-    this.loadData();
-  }
+  const closeForm = React.useCallback(() => {
+    setFormOpen(false);
+  }, [setFormOpen]);
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.profile.key !== this.props.profile.key) {
-      this.loadData();
+  const handleParentChange = React.useCallback(async () => {
+    try {
+      await updateProfiles();
+    } catch (error) {
+      // ignore
+    } finally {
+      closeForm();
     }
-  }
+  }, [closeForm, updateProfiles]);
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+  const highlightCurrent =
+    !isLoading &&
+    ancestors != null &&
+    children != null &&
+    (ancestors.length > 0 || children.length > 0);
 
-  loadData() {
-    getProfileInheritance(this.props.profile).then(
-      (r) => {
-        if (this.mounted) {
-          const { ancestors, children } = r;
-          ancestors.reverse();
+  const extendsBuiltIn = ancestors?.some((p) => p.isBuiltIn);
 
-          this.setState({
-            children,
-            ancestors,
-            profile: r.profile,
-            loading: false,
-          });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      },
-    );
-  }
-
-  handleChangeParentClick = () => {
-    this.setState({ formOpen: true });
-  };
-
-  closeForm = () => {
-    this.setState({ formOpen: false });
-  };
-
-  handleParentChange = () => {
-    this.props.updateProfiles().then(
-      () => {
-        this.loadData();
-      },
-      () => {},
-    );
-    this.closeForm();
-  };
-
-  render() {
-    const { profile, profiles } = this.props;
-    const { ancestors, loading, formOpen, children } = this.state;
-
-    const highlightCurrent =
-      !this.state.loading &&
-      ancestors != null &&
-      this.state.children != null &&
-      (ancestors.length > 0 || this.state.children.length > 0);
-
-    const extendsBuiltIn = ancestors?.some((profile) => profile.isBuiltIn);
-
-    return (
-      <section
-        aria-label={translate('quality_profiles.profile_inheritance')}
-        className="it__quality-profiles__inheritance"
-      >
-        <div className="sw-flex sw-items-center sw-gap-3 sw-mb-6">
-          <SubTitle className="sw-mb-0">
-            {translate('quality_profiles.profile_inheritance')}
-          </SubTitle>
-          {profile.actions?.edit && !profile.isBuiltIn && (
-            <ButtonSecondary
-              className="it__quality-profiles__change-parent"
-              onClick={this.handleChangeParentClick}
-            >
-              {translate('quality_profiles.change_parent')}
-            </ButtonSecondary>
-          )}
-        </div>
-
-        {!extendsBuiltIn && (
-          <FlagMessage variant="info" className="sw-mb-4">
-            <div className="sw-flex sw-flex-col">
-              {translate('quality_profiles.no_built_in_updates_warning')}
-              {profile.actions?.edit && (
-                <span className="sw-mt-1">
-                  {translate('quality_profiles.no_built_in_updates_warning_admin')}
-                </span>
-              )}
-            </div>
-          </FlagMessage>
+  return (
+    <section
+      aria-label={translate('quality_profiles.profile_inheritance')}
+      className="it__quality-profiles__inheritance"
+    >
+      <div className="sw-flex sw-items-center sw-gap-3 sw-mb-6">
+        <SubTitle className="sw-mb-0">{translate('quality_profiles.profile_inheritance')}</SubTitle>
+        {profile.actions?.edit && !profile.isBuiltIn && (
+          <ButtonSecondary
+            className="it__quality-profiles__change-parent"
+            onClick={handleChangeParentClick}
+          >
+            {translate('quality_profiles.change_parent')}
+          </ButtonSecondary>
         )}
+      </div>
 
-        <Spinner loading={loading}>
-          <Table columnCount={3} noSidePadding>
-            {ancestors?.map((ancestor, index) => (
-              <ProfileInheritanceBox
-                depth={index}
-                key={ancestor.key}
-                language={profile.language}
-                profile={ancestor}
-                type="ancestor"
-              />
-            ))}
-
-            {this.state.profile && (
-              <ProfileInheritanceBox
-                className={classNames({
-                  selected: highlightCurrent,
-                })}
-                depth={ancestors ? ancestors.length : 0}
-                displayLink={false}
-                language={profile.language}
-                profile={this.state.profile}
-              />
+      {!extendsBuiltIn && !profile.isBuiltIn && (
+        <FlagMessage variant="info" className="sw-mb-4">
+          <div className="sw-flex sw-flex-col">
+            {translate('quality_profiles.no_built_in_updates_warning')}
+            {profile.actions?.edit && (
+              <span className="sw-mt-1">
+                {translate('quality_profiles.no_built_in_updates_warning_admin')}
+              </span>
             )}
+          </div>
+        </FlagMessage>
+      )}
 
-            {children?.map((child) => (
-              <ProfileInheritanceBox
-                depth={ancestors ? ancestors.length + 1 : 0}
-                key={child.key}
-                language={profile.language}
-                profile={child}
-                type="child"
-              />
-            ))}
-          </Table>
-        </Spinner>
+      <Spinner loading={isLoading}>
+        <Table columnCount={3} noSidePadding>
+          {ancestors?.map((ancestor, index) => (
+            <ProfileInheritanceBox
+              depth={index}
+              key={ancestor.key}
+              language={profile.language}
+              profile={ancestor}
+              type="ancestor"
+            />
+          ))}
 
-        {formOpen && (
-          <ChangeParentForm
-            onChange={this.handleParentChange}
-            onClose={this.closeForm}
-            profile={profile}
-            profiles={profiles.filter((p) => p !== profile && p.language === profile.language)}
-          />
-        )}
-      </section>
-    );
-  }
+          {profileInheritanceDetail && (
+            <ProfileInheritanceBox
+              className={classNames({
+                selected: highlightCurrent,
+              })}
+              depth={ancestors ? ancestors.length : 0}
+              displayLink={false}
+              language={profile.language}
+              profile={profileInheritanceDetail}
+            />
+          )}
+
+          {children?.map((child) => (
+            <ProfileInheritanceBox
+              depth={ancestors ? ancestors.length + 1 : 0}
+              key={child.key}
+              language={profile.language}
+              profile={child}
+              type="child"
+            />
+          ))}
+        </Table>
+      </Spinner>
+
+      {formOpen && (
+        <ChangeParentForm
+          onChange={handleParentChange}
+          onClose={closeForm}
+          profile={profile}
+          profiles={profiles.filter(
+            (p) => p !== profileInheritanceDetail && p.language === profile.language,
+          )}
+        />
+      )}
+    </section>
+  );
 }

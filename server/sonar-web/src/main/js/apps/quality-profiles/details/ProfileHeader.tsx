@@ -24,13 +24,16 @@ import { useLocation } from '../../../components/hoc/withRouter';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import { AdminPageHeader } from '../../../components/ui/AdminPageHeader';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getQualityProfileUrl } from '../../../helpers/urls';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import ProfileActions from '../components/ProfileActions';
 import { PROFILE_PATH } from '../constants';
 import { QualityProfilePath } from '../routes';
 import { Profile } from '../types';
-import { getProfileChangelogPath, isProfileComparePath } from '../utils';
+import {
+  getProfileChangelogPath,
+  getProfilesForLanguagePath,
+  isProfileComparePath,
+} from '../utils';
 
 interface Props {
   profile: Profile;
@@ -60,7 +63,7 @@ export default function ProfileHeader(props: Props) {
 
       <Breadcrumbs className="sw-mb-6">
         <HoverLink to={PROFILE_PATH}>{translate('quality_profiles.page')}</HoverLink>
-        <HoverLink to={getQualityProfileUrl(profile.name, profile.language)}>
+        <HoverLink to={getProfilesForLanguagePath(profile.language)}>
           {profile.languageName}
         </HoverLink>
       </Breadcrumbs>

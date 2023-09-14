@@ -73,6 +73,9 @@ const ui = {
   copyRadio: byRole('radio', {
     name: 'quality_profiles.creation_from_copy quality_profiles.creation_from_copy_description_1 quality_profiles.creation_from_copy_description_2',
   }),
+  extendRadio: byRole('radio', {
+    name: 'quality_profiles.creation_from_extend quality_profiles.creation_from_extend_description_1 quality_profiles.creation_from_extend_description_2',
+  }),
   blankRadio: byRole('radio', {
     name: 'quality_profiles.creation_from_blank quality_profiles.creation_from_blank_description',
   }),
@@ -125,13 +128,11 @@ it('should list Quality Profiles and filter by language', async () => {
   expect(ui.listLinkJavaQualityProfile.query()).not.toBeInTheDocument();
 
   // Creation form should have language pre-selected
-  await user.click(await ui.createButton.find());
+  await act(async () => {
+    await user.click(await ui.createButton.find());
+  });
   // eslint-disable-next-line testing-library/prefer-screen-queries
   expect(getByText(ui.popup.get(), 'C')).toBeInTheDocument();
-  await selectEvent.select(ui.profileExtendSelect.get(), ui.cQualityProfileName);
-  await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileName);
-
-  expect(ui.createButton.get(ui.popup.get())).toBeEnabled();
 });
 
 describe('Evolution', () => {
@@ -191,7 +192,10 @@ describe('Create', () => {
     expect(await ui.headingNewCQualityProfile.find()).toBeInTheDocument();
 
     await user.click(ui.returnToList.get());
-    await user.click(ui.createButton.get());
+    await act(async () => {
+      await user.click(ui.createButton.get());
+      await user.click(ui.extendRadio.get());
+    });
     await selectEvent.select(ui.languageSelect.get(), 'C');
     await selectEvent.select(ui.profileExtendSelect.get(), ui.newCQualityProfileName);
     await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileNameFromCreateButton);
@@ -218,7 +222,9 @@ describe('Create', () => {
     expect(await ui.headingNewCQualityProfile.find()).toBeInTheDocument();
 
     await user.click(ui.returnToList.get());
-    await user.click(ui.createButton.get());
+    await act(async () => {
+      await user.click(ui.createButton.get());
+    });
     await user.click(ui.copyRadio.get());
     await selectEvent.select(ui.languageSelect.get(), 'C');
     await selectEvent.select(ui.profileCopySelect.get(), ui.newCQualityProfileName);
@@ -234,7 +240,10 @@ describe('Create', () => {
     const user = userEvent.setup();
     serviceMock.setAdmin();
     renderQualityProfiles();
-    await user.click(await ui.createButton.find());
+
+    await act(async () => {
+      await user.click(await ui.createButton.find());
+    });
     await user.click(ui.blankRadio.get());
     await selectEvent.select(ui.languageSelect.get(), 'C');
     await user.type(ui.nameCreatePopupInput.get(), ui.newCQualityProfileName);
