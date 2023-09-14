@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FormField, InputField, Modal } from 'design-system';
 import * as React from 'react';
 import { copyQualityGate } from '../../../api/quality-gates';
-import ConfirmModal from '../../../components/controls/ConfirmModal';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
-import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
@@ -38,6 +37,8 @@ interface State {
   name: string;
 }
 
+const FORM_ID = 'rename-quality-gate';
+
 export class CopyQualityGateForm extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -48,7 +49,9 @@ export class CopyQualityGateForm extends React.PureComponent<Props, State> {
     this.setState({ name: event.currentTarget.value });
   };
 
-  handleCopy = () => {
+  handleCopy = (event: React.FormEvent) => {
+    event.preventDefault();
+
     const { qualityGate } = this.props;
     const { name } = this.state;
 
@@ -61,35 +64,40 @@ export class CopyQualityGateForm extends React.PureComponent<Props, State> {
   render() {
     const { qualityGate } = this.props;
     const { name } = this.state;
-    const confirmDisable = !name || (qualityGate && qualityGate.name === name);
+    const buttonDisabled = !name || (qualityGate && qualityGate.name === name);
 
     return (
-      <ConfirmModal
-        confirmButtonText={translate('copy')}
-        confirmDisable={confirmDisable}
-        header={translate('quality_gates.copy')}
+      <Modal
+        headerTitle={translate('quality_gates.copy')}
         onClose={this.props.onClose}
-        onConfirm={this.handleCopy}
-        size="small"
-      >
-        <MandatoryFieldsExplanation className="modal-field" />
-        <div className="modal-field">
-          <label htmlFor="quality-gate-form-name">
-            {translate('name')}
-            <MandatoryFieldMarker />
-          </label>
-          <input
-            autoFocus
-            id="quality-gate-form-name"
-            maxLength={100}
-            onChange={this.handleNameChange}
-            required
-            size={50}
-            type="text"
-            value={name}
-          />
-        </div>
-      </ConfirmModal>
+        body={
+          <form id={FORM_ID} onSubmit={this.handleCopy}>
+            <MandatoryFieldsExplanation />
+            <FormField
+              label={translate('name')}
+              htmlFor="quality-gate-form-name"
+              required
+              className="sw-my-2"
+            >
+              <InputField
+                autoFocus
+                id="quality-gate-form-name"
+                maxLength={100}
+                onChange={this.handleNameChange}
+                size="auto"
+                type="text"
+                value={name}
+              />
+            </FormField>
+          </form>
+        }
+        primaryButton={
+          <ButtonPrimary autoFocus type="submit" disabled={buttonDisabled} form={FORM_ID}>
+            {translate('copy')}
+          </ButtonPrimary>
+        }
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 }

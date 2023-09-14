@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DangerButtonPrimary, Modal } from 'design-system';
 import * as React from 'react';
 import { deleteQualityGate } from '../../../api/quality-gates';
-import { Button } from '../../../components/controls/buttons';
-import ConfirmButton from '../../../components/controls/ConfirmButton';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../helpers/urls';
 import { QualityGate } from '../../../types/types';
 
 interface Props {
+  readonly onClose: () => void;
   onDelete: () => Promise<void>;
   qualityGate: QualityGate;
   router: Router;
@@ -46,26 +46,17 @@ export class DeleteQualityGateForm extends React.PureComponent<Props> {
     const { qualityGate } = this.props;
 
     return (
-      <ConfirmButton
-        confirmButtonText={translate('delete')}
-        isDestructive
-        modalBody={translateWithParameters(
-          'quality_gates.delete.confirm.message',
-          qualityGate.name,
-        )}
-        modalHeader={translate('quality_gates.delete')}
-        onConfirm={this.onDelete}
-      >
-        {({ onClick }) => (
-          <Button
-            className="little-spacer-left button-red"
-            id="quality-gate-delete"
-            onClick={onClick}
-          >
+      <Modal
+        headerTitle={translate('quality_gates.delete')}
+        onClose={this.props.onClose}
+        body={translateWithParameters('quality_gates.delete.confirm.message', qualityGate.name)}
+        primaryButton={
+          <DangerButtonPrimary autoFocus type="submit" onClick={this.onDelete}>
             {translate('delete')}
-          </Button>
-        )}
-      </ConfirmButton>
+          </DangerButtonPrimary>
+        }
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 }
