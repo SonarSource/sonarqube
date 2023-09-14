@@ -65,7 +65,7 @@ allprojects {
   ext {
     release = project.hasProperty('release') && project.getProperty('release')
     official = project.hasProperty('official') && project.getProperty('official')
-    withTestMonitoring = project.hasProperty('withTestMonitoring')
+    testMonitoringEnabled = project.hasProperty('withTestMonitoring')
   }
 
   ext.enableBom = enableBom
@@ -681,7 +681,7 @@ subprojects {
     }
   }
 
-  if (ext.withTestMonitoring) {
+  if (ext.testMonitoringEnabled) {
     tasks.withType(Test) {
       doFirst {
         ext {
