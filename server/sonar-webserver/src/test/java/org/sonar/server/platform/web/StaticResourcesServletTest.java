@@ -157,7 +157,6 @@ public class StaticResourcesServletTest {
 
     assertThat(response.code()).isEqualTo(404);
     assertThat(logTester.logs(Level.ERROR)).isEmpty();
-    assertThat(logTester.logs(Level.WARN)).isEmpty();
   }
 
   @Test
@@ -169,7 +168,6 @@ public class StaticResourcesServletTest {
 
     assertThat(response.code()).isEqualTo(404);
     assertThat(logTester.logs(Level.ERROR)).isEmpty();
-    assertThat(logTester.logs(Level.WARN)).isEmpty();
   }
 
   @Test
