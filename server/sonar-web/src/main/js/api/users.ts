@@ -17,16 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import axios from 'axios';
 import { throwGlobalError } from '../helpers/error';
-import {
-  deleteJSON,
-  getJSON,
-  HttpStatus,
-  parseJSON,
-  post,
-  postJSON,
-  postJSONBody,
-} from '../helpers/request';
+import { HttpStatus, axiosToCatch, getJSON, parseJSON, post } from '../helpers/request';
 import { IdentityProvider, Paging } from '../types/types';
 import {
   ChangePasswordResults,
@@ -34,7 +27,7 @@ import {
   HomePage,
   NoticeType,
   RestUserBase,
-  User,
+  RestUserDetailed,
 } from '../types/users';
 
 export function getCurrentUser(): Promise<CurrentUser> {
@@ -92,8 +85,8 @@ export function getUsers<T extends RestUserBase>(data: {
   sonarLintLastConnectionDateTo?: string;
   pageSize?: number;
   pageIndex?: number;
-}): Promise<{ page: Paging; users: T[] }> {
-  return getJSON('/api/v2/users', data).catch(throwGlobalError);
+}) {
+  return axios.get<{ page: Paging; users: T[] }>(`/api/v2/users`, { params: data });
 }
 
 export function postUser(data: {
@@ -102,34 +95,19 @@ export function postUser(data: {
   name: string;
   password?: string;
   scmAccounts: string[];
-}): Promise<void | Response> {
-  return postJSONBody('/api/v2/users', data);
+}) {
+  return axiosToCatch.post<RestUserDetailed>('/api/v2/users', data);
 }
 
-type UpdateUserArg =
-  | {
-      email?: string;
-      login: string;
-      name?: string;
-      scmAccount: string[];
-    }
-  | { login: string; scmAccount: string[] };
-
-export function updateUser(data: UpdateUserArg): Promise<{ user: User }> {
-  return postJSON('/api/users/update', {
-    ...data,
-    scmAccount: data.scmAccount.length > 0 ? data.scmAccount : '',
-  });
+export function updateUser(
+  id: string,
+  data: Partial<Pick<RestUserDetailed, 'email' | 'name' | 'scmAccounts'>>,
+) {
+  return axiosToCatch.patch<RestUserDetailed>(`/api/v2/users/${id}`, data);
 }
 
-export function deleteUser({
-  login,
-  anonymize,
-}: {
-  login: string;
-  anonymize?: boolean;
-}): Promise<void | Response> {
-  return deleteJSON(`/api/v2/users/${login}`, { anonymize }).catch(throwGlobalError);
+export function deleteUser({ login, anonymize }: { login: string; anonymize?: boolean }) {
+  return axios.delete(`/api/v2/users/${login}`, { params: { anonymize } });
 }
 
 export function setHomePage(homepage: HomePage): Promise<void | Response> {

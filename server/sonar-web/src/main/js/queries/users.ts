@@ -94,7 +94,13 @@ export function useUpdateUserMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Parameters<typeof updateUser>[0]) => updateUser(data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: Parameters<typeof updateUser>[0];
+      data: Parameters<typeof updateUser>[1];
+    }) => updateUser(id, data),
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['user', 'list'] });
     },

@@ -87,7 +87,7 @@ export interface User extends UserBase {
 export interface UserBase {
   active?: boolean;
   avatar?: string;
-  email?: string;
+  email?: string | null;
   login: string;
   name?: string;
 }
@@ -99,7 +99,7 @@ export interface RestUserBase {
 }
 
 export interface RestUser extends RestUserBase {
-  email: string;
+  email: string | null;
   active: boolean;
   local: boolean;
   externalProvider: string;

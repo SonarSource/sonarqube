@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { AxiosError, AxiosResponse } from 'axios';
 import * as React from 'react';
 import SimpleModal from '../../../components/controls/SimpleModal';
 import { Button, ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import { Alert } from '../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
-import { throwGlobalError } from '../../../helpers/error';
+import { addGlobalErrorMessage } from '../../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { parseError } from '../../../helpers/request';
+import { parseErrorResponse } from '../../../helpers/request';
 import { usePostUserMutation, useUpdateUserMutation } from '../../../queries/users';
 import { RestUserDetailed } from '../../../types/users';
 import UserScmAccountInput from './UserScmAccountInput';
@@ -52,11 +53,14 @@ export default function UserForm(props: Props) {
   const [scmAccounts, setScmAccounts] = React.useState<string[]>(user?.scmAccounts ?? []);
   const [error, setError] = React.useState<string | undefined>(undefined);
 
-  const handleError = (response: Response) => {
-    if (![BAD_REQUEST, INTERNAL_SERVER_ERROR].includes(response.status)) {
-      throwGlobalError(response);
+  const handleError = (error: AxiosError<AxiosResponse>) => {
+    const { response } = error;
+    const message = parseErrorResponse(response);
+
+    if (!response || ![BAD_REQUEST, INTERNAL_SERVER_ERROR].includes(response.status)) {
+      addGlobalErrorMessage(message);
     } else {
-      parseError(response).then((errorMsg) => setError(errorMsg), throwGlobalError);
+      setError(message);
     }
   };
 
@@ -77,14 +81,17 @@ export default function UserForm(props: Props) {
     const { user } = props;
 
     updateUser(
-      isInstanceManaged
-        ? { scmAccount: scmAccounts, login }
-        : {
-            email: user?.local ? email : undefined,
-            login,
-            name: user?.local ? name : undefined,
-            scmAccount: scmAccounts,
-          },
+      {
+        id: login,
+        data:
+          isInstanceManaged || !user?.local
+            ? { scmAccounts }
+            : {
+                email: email !== '' ? email : null,
+                name,
+                scmAccounts,
+              },
+      },
       { onSuccess: props.onClose, onError: handleError },
     );
   };

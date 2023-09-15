@@ -51,6 +51,7 @@ const ui = {
   showMore: byRole('button', { name: 'show_more' }),
   aliceUpdateGroupButton: byRole('button', { name: 'users.update_users_groups.alice.merveille' }),
   aliceUpdateButton: byRole('button', { name: 'users.manage_user.alice.merveille' }),
+  denisUpdateButton: byRole('button', { name: 'users.manage_user.denis.villeneuve' }),
   alicedDeactivateButton: byRole('button', { name: 'users.deactivate' }),
   bobUpdateGroupButton: byRole('button', { name: 'users.update_users_groups.bob.marley' }),
   bobUpdateButton: byRole('button', { name: 'users.manage_user.bob.marley' }),
@@ -420,6 +421,50 @@ describe('in non managed mode', () => {
     await act(() => user.click(ui.changeButton.get()));
 
     expect(ui.dialogPasswords.query()).not.toBeInTheDocument();
+  });
+
+  it('should not allow to update non-local user', async () => {
+    const user = userEvent.setup();
+    const currentUser = mockLoggedInUser({ login: 'denis.villeneuve' });
+    renderUsersApp([], currentUser);
+
+    await act(async () => user.click(await ui.denisUpdateButton.find()));
+    await user.click(
+      await within(ui.denisRow.get()).findByRole('button', { name: 'update_details' }),
+    );
+    expect(await ui.dialogUpdateUser.find()).toBeInTheDocument();
+
+    expect(ui.userNameInput.get()).toHaveValue('Denis Villeneuve');
+    expect(ui.userNameInput.get()).toBeDisabled();
+    expect(ui.emailInput.get()).toBeDisabled();
+    await user.click(ui.scmAddButton.get());
+    await user.type(ui.dialogSCMInput().get(), 'SCM');
+    await act(() => user.click(ui.updateButton.get()));
+    expect(ui.dialogUpdateUser.query()).not.toBeInTheDocument();
+    expect(await within(ui.denisRow.get()).findByText('SCM')).toBeInTheDocument();
+  });
+
+  it('should be able to remove email', async () => {
+    const user = userEvent.setup();
+    const currentUser = mockLoggedInUser({ login: 'alice.merveille' });
+    renderUsersApp([], currentUser);
+
+    expect(
+      within(await ui.aliceRow.find()).getByText('alice.merveille@wonderland.com'),
+    ).toBeInTheDocument();
+    await act(async () => user.click(await ui.aliceUpdateButton.find()));
+    await user.click(
+      await within(ui.aliceRow.get()).findByRole('button', { name: 'update_details' }),
+    );
+    expect(await ui.dialogUpdateUser.find()).toBeInTheDocument();
+
+    expect(ui.emailInput.get()).toHaveValue('alice.merveille@wonderland.com');
+    await user.clear(ui.emailInput.get());
+    await act(() => user.click(ui.updateButton.get()));
+    expect(ui.dialogUpdateUser.query()).not.toBeInTheDocument();
+    expect(
+      within(ui.aliceRow.get()).queryByText('alice.merveille@wonderland.com'),
+    ).not.toBeInTheDocument();
   });
 });
 

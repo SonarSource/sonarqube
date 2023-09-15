@@ -20,9 +20,10 @@
 
 import { isAfter, isBefore } from 'date-fns';
 import { cloneDeep, isEmpty, isUndefined, omitBy } from 'lodash';
+import { HttpStatus } from '../../helpers/request';
 import { mockClusterSysInfo, mockIdentityProvider, mockRestUser } from '../../helpers/testMocks';
 import { IdentityProvider, SysInfoCluster } from '../../types/types';
-import { ChangePasswordResults, RestUserDetailed, User } from '../../types/users';
+import { ChangePasswordResults, RestUserDetailed } from '../../types/users';
 import { getSystemInfo } from '../system';
 import { addUserToGroup, removeUserFromGroup } from '../user_groups';
 import {
@@ -130,7 +131,7 @@ export default class UsersServiceMock {
   constructor() {
     jest.mocked(getSystemInfo).mockImplementation(this.handleGetSystemInfo);
     jest.mocked(getIdentityProviders).mockImplementation(this.handleGetIdentityProviders);
-    jest.mocked(getUsers).mockImplementation((p) => this.handleGetUsers(p));
+    jest.mocked(getUsers).mockImplementation(this.handleGetUsers);
     jest.mocked(postUser).mockImplementation(this.handlePostUser);
     jest.mocked(updateUser).mockImplementation(this.handleUpdateUser);
     jest.mocked(getUserGroups).mockImplementation(this.handleGetUserGroups);
@@ -265,8 +266,10 @@ export default class UsersServiceMock {
     const { email, local, login, name, scmAccounts } = data;
     if (scmAccounts.some((a) => isEmpty(a.trim()))) {
       return Promise.reject({
-        status: 400,
-        json: () => Promise.resolve({ message: 'Error: Empty SCM' }),
+        response: {
+          status: HttpStatus.BadRequest,
+          data: { message: 'Error: Empty SCM' },
+        },
       });
     }
     const newUser = mockRestUser({
@@ -277,24 +280,19 @@ export default class UsersServiceMock {
       scmAccounts,
     });
     this.users.push(newUser);
-    return this.reply(undefined);
+    return this.reply(newUser);
   };
 
-  handleUpdateUser = (data: {
-    email?: string;
-    login: string;
-    name: string;
-    scmAccount: string[];
-  }) => {
-    const { email, login, name, scmAccount } = data;
-    const user = this.users.find((u) => u.login === login) as User;
+  handleUpdateUser: typeof updateUser = (id, data) => {
+    const { email, name, scmAccounts } = data;
+    const user = this.users.find((u) => u.login === id);
     if (!user) {
       return Promise.reject('No such user');
     }
     Object.assign(user, {
-      ...omitBy({ name, email, scmAccounts: scmAccount }, isUndefined),
+      ...omitBy({ name, email, scmAccounts }, isUndefined),
     });
-    return this.reply({ user });
+    return this.reply(user);
   };
 
   handleGetIdentityProviders = (): Promise<{ identityProviders: IdentityProvider[] }> => {
