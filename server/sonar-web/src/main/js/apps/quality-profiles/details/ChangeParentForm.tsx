@@ -88,7 +88,7 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
           : profile.name,
         value: profile.key,
       })),
-    ];
+    ].filter((o) => o.value !== profile.key);
 
     const submitDisabled = loading || selected == null || selected.value === profile.parentKey;
 
