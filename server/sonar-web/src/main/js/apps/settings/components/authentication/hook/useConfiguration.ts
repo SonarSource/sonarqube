@@ -21,7 +21,7 @@ import { UseMutationResult } from '@tanstack/react-query';
 import { every, isEmpty, keyBy, update } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import { useGetValuesQuery, useResetSettingsMutation } from '../../../../../queries/settings';
-import { ExtendedSettingDefinition } from '../../../../../types/settings';
+import { ExtendedSettingDefinition, SettingType } from '../../../../../types/settings';
 import { Dict } from '../../../../../types/types';
 
 export type SettingValue =
@@ -119,7 +119,13 @@ export default function useConfiguration(
   const isValueChange = useCallback(
     (setting: string) => {
       const value = values[setting];
-      return value && value.newValue !== undefined && (value.value ?? '') !== value.newValue;
+      if (!value) {
+        return false;
+      }
+      if (value.definition.type === SettingType.BOOLEAN) {
+        return value.newValue !== undefined && (value.value === 'true') !== value.newValue;
+      }
+      return value.newValue !== undefined && (value.value ?? '') !== value.newValue;
     },
     [values],
   );
