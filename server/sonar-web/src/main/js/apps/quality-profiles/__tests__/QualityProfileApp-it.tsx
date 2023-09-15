@@ -390,7 +390,7 @@ describe('Admin or user with permission', () => {
       await ui.waitForDataLoaded();
 
       await user.click(await ui.qualityProfileActions.find());
-      expect(ui.setAsDefaultButton.query()).not.toBeInTheDocument();
+      expect(ui.setAsDefaultButton.get()).toBeDisabled();
     });
 
     it("should be able to delete a Quality Profile and it's children", async () => {

@@ -283,9 +283,13 @@ class ProfileActions extends React.PureComponent<Props, State> {
                   placement={PopupPlacement.Left}
                   overlay={translate('quality_profiles.cannot_set_default_no_rules')}
                 >
-                  <span className="it__quality-profiles__set-as-default">
+                  <ItemButton
+                    className="it__quality-profiles__set-as-default"
+                    onClick={this.handleSetDefaultClick}
+                    disabled
+                  >
                     {translate('set_as_default')}
-                  </span>
+                  </ItemButton>
                 </Tooltip>
               </li>
             ) : (
