@@ -2,7 +2,7 @@
 
 ## Continuous Inspection
 
-SonarQube provides the capability to not only show health of an application but also to highlight issues newly introduced. With a Quality Gate in place, you can [Clean as You Code](https://www.sonarsource.com/blog/clean-as-you-code/) and therefore improve code quality systematically.
+SonarQube provides the capability to not only show the health of an application but also to highlight issues newly introduced. With a Quality Gate in place, you can [achieve Clean Code](https://www.sonarsource.com/solutions/clean-code/) and therefore improve code quality systematically.
 
 ## Links
 
@@ -15,7 +15,7 @@ SonarQube provides the capability to not only show health of an application but 
 - [Responsible Disclosure](https://community.sonarsource.com/t/responsible-vulnerability-disclosure/9317)
 - [Next](https://next.sonarqube.com/sonarqube) instance of the next SonarQube version
 
-## Have Question or Feedback?
+## Have Questions or Feedback?
 
 For support questions ("How do I?", "I got this error, why?", ...), please first read the [documentation](https://docs.sonarsource.com/sonarqube) and then head to the [SonarSource Community](https://community.sonarsource.com/c/help/sq/10). The answer to your question has likely already been answered! 🤓
 
@@ -31,7 +31,7 @@ With that in mind, if you would like to submit a code contribution, please creat
 
 Make sure that you follow our [code style](https://github.com/SonarSource/sonar-developer-toolset#code-style) and all tests are passing (Travis build is executed for each pull request).
 
-Willing to contribute to SonarSource products? We are looking for smart, passionate, and skilled people to help us build world-class code quality solutions. Have a look at our current [job offers here](https://www.sonarsource.com/company/jobs/)!
+Willing to contribute to SonarSource products? We are looking for smart, passionate, and skilled people to help us build world-class code-quality solutions. Have a look at our current [job offers here](https://www.sonarsource.com/company/jobs/)!
 
 ## Building
 
@@ -39,13 +39,13 @@ To build sources locally follow these instructions.
 
 ### Build and Run Unit Tests
 
-Execute from project base directory:
+Execute from the project base directory:
 
     ./gradlew build
 
-The zip distribution file is generated in `sonar-application/build/distributions/`. Unzip it and start server by executing:
+The zip distribution file is generated in `sonar-application/build/distributions/`. Unzip it and start the server by executing:
 
-    # on linux
+    # on Linux
     bin/linux-x86-64/sonar.sh start
     # or on MacOS
     bin/macosx-universal-64/sonar.sh start
@@ -58,7 +58,7 @@ If the project has never been built, then build it as usual (see previous sectio
 
     ./gradlew ide
 
-Then open the root file `build.gradle` as a project in Intellij or Eclipse.
+Then open the root file `build.gradle` as a project in IntelliJ or Eclipse.
 
 ### Gradle Hints
 
