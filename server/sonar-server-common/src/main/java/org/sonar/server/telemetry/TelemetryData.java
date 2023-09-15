@@ -356,7 +356,7 @@ public class TelemetryData {
   record Branch(String projectUuid, String branchUuid, int ncdId, int greenQualityGateCount, int analysisCount, boolean excludeFromPurge) {
   }
 
-  record Project(String projectUuid, Long lastAnalysis, String language, Long loc) {
+  record Project(String projectUuid, Long lastAnalysis, String language, String qualityProfile, Long loc) {
   }
 
   record QualityGate(String uuid, String caycStatus) {

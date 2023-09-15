@@ -109,6 +109,7 @@ public interface QualityProfileMapper {
     @Param("oldProfileUuid") String oldProfileUuid);
 
   void deleteProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileUuid") String profileUuid);
+
   void deleteProjectAssociationByProfileUuids(@Param("profileUuids") Collection<String> profileUuids);
 
   List<ProjectQprofileAssociationDto> selectSelectedProjects(
@@ -123,7 +124,7 @@ public interface QualityProfileMapper {
     @Param("profileUuid") String profileUuid,
     @Param("nameOrKeyQuery") String nameOrKeyQuery);
 
-  List<ProjectQprofileAssociationDto> selectAllProjectAssociations();
+  List<ProjectQProfileLanguageAssociationDto> selectAllProjectAssociations();
 
   List<String> selectUuidsOfCustomRuleProfiles(@Param("language") String language, @Param("name") String name);
 

@@ -219,6 +219,12 @@ public class TelemetryDataLoaderImplTest {
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG2"));
 
     //quality profiles
+    QProfileDto javaQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("java"));
+    QProfileDto kotlinQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("kotlin"));
+    QProfileDto jsQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("js"));
+    db.qualityProfiles().associateWithProject(projectData1.getProjectDto(), javaQP, kotlinQP, jsQP);
+    db.qualityProfiles().associateWithProject(projectData2.getProjectDto(), javaQP, jsQP);
+
     QProfileDto qualityProfile1 = db.qualityProfiles().insert(qp -> qp.setIsBuiltIn(true));
     QProfileDto qualityProfile2 = db.qualityProfiles().insert();
     db.qualityProfiles().setAsDefault(qualityProfile1, qualityProfile2);
@@ -296,7 +302,13 @@ public class TelemetryDataLoaderImplTest {
 
     assertThat(data.getQualityProfiles())
       .extracting(TelemetryData.QualityProfile::uuid, TelemetryData.QualityProfile::isBuiltIn)
-      .containsExactlyInAnyOrder(tuple(qualityProfile1.getKee(), qualityProfile1.isBuiltIn()), tuple(qualityProfile2.getKee(), qualityProfile2.isBuiltIn()));
+      .containsExactlyInAnyOrder(
+        tuple(qualityProfile1.getKee(), qualityProfile1.isBuiltIn()),
+        tuple(qualityProfile2.getKee(), qualityProfile2.isBuiltIn()),
+        tuple(jsQP.getKee(), jsQP.isBuiltIn()),
+        tuple(javaQP.getKee(), javaQP.isBuiltIn()),
+        tuple(kotlinQP.getKee(), kotlinQP.isBuiltIn())
+        );
 
   }
 
@@ -372,6 +384,12 @@ public class TelemetryDataLoaderImplTest {
     MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
 
     ProjectData projectData = db.components().insertPublicProject();
+
+    QProfileDto javaQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("java"));
+    QProfileDto kotlinQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("kotlin"));
+    QProfileDto jsQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("js"));
+    db.qualityProfiles().associateWithProject(projectData.getProjectDto(), javaQP, kotlinQP, jsQP);
+
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     db.measures().insertLiveMeasure(mainBranch, lines, m -> m.setValue(110d));
     db.measures().insertLiveMeasure(mainBranch, ncloc, m -> m.setValue(110d));
@@ -401,6 +419,45 @@ public class TelemetryDataLoaderImplTest {
         ProjectStatistics::getScm, ProjectStatistics::getCi)
       .containsExactlyInAnyOrder(
         tuple(2L, 0L, "undetected", "undetected"));
+  }
+
+  @Test
+  public void load_shouldProvideQualityProfileInProjectSection() {
+    server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
+    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
+    MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
+
+    ProjectData projectData = db.components().insertPublicProject();
+
+    // default quality profile
+    QProfileDto javaQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("java"));
+    QProfileDto kotlinQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("kotlin"));
+    db.qualityProfiles().setAsDefault(javaQP,kotlinQP);
+    // selected quality profile
+    QProfileDto jsQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("js"));
+    db.qualityProfiles().associateWithProject(projectData.getProjectDto(), jsQP);
+
+
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    db.measures().insertLiveMeasure(mainBranch, ncloc, m -> m.setValue(110d));
+    db.measures().insertLiveMeasure(mainBranch, nclocDistrib, m -> m.setValue(null).setData("java=70;js=30;kotlin=10"));
+
+    ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(BRANCH));
+    db.measures().insertLiveMeasure(branch, ncloc, m -> m.setValue(180d));
+    db.measures().insertLiveMeasure(branch, nclocDistrib, m -> m.setValue(null).setData("java=100;js=50;kotlin=30"));
+
+    SnapshotDto project1Analysis = db.components().insertSnapshot(mainBranch, t -> t.setLast(true));
+    SnapshotDto project2Analysis = db.components().insertSnapshot(branch, t -> t.setLast(true));
+    db.measures().insertMeasure(mainBranch, project1Analysis, nclocDistrib, m -> m.setData("java=70;js=30;kotlin=10"));
+    db.measures().insertMeasure(branch, project2Analysis, nclocDistrib, m -> m.setData("java=100;js=50;kotlin=30"));
+
+    TelemetryData data = communityUnderTest.load();
+
+    assertThat(data.getProjects()).extracting(TelemetryData.Project::projectUuid, TelemetryData.Project::language, TelemetryData.Project::qualityProfile)
+      .containsExactlyInAnyOrder(
+        tuple(projectData.projectUuid(), "java", javaQP.getKee()),
+        tuple(projectData.projectUuid(), "js", jsQP.getKee()),
+        tuple(projectData.projectUuid(), "kotlin", kotlinQP.getKee()));
   }
 
   @Test

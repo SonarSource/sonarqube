@@ -146,6 +146,7 @@ public class TelemetryDataJsonWriter {
         }
         json.prop(LANGUAGE_PROPERTY, project.language());
         json.prop("loc", project.loc());
+        json.prop("qualityProfile", project.qualityProfile());
         json.endObject();
       });
       json.endArray();

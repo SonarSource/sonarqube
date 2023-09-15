@@ -116,6 +116,8 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private final Set<NewCodeDefinition> newCodeDefinitions = new HashSet<>();
   private final Map<String, NewCodeDefinition> ncdByProject = new HashMap<>();
   private final Map<String, NewCodeDefinition> ncdByBranch = new HashMap<>();
+  private final Map<String, String> defaultQualityProfileByLanguage = new HashMap<>();
+  private final Map<ProjectLanguageKey, String> qualityProfileByProjectAndLanguage = new HashMap<>();
   private NewCodeDefinition instanceNcd = NewCodeDefinition.getInstanceDefault();
 
   @Inject
@@ -160,6 +162,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     try (DbSession dbSession = dbClient.openSession(false)) {
       var branchMeasuresDtos = dbClient.branchDao().selectBranchMeasuresWithCaycMetric(dbSession);
       loadNewCodeDefinitions(dbSession, branchMeasuresDtos);
+      loadQualityProfiles(dbSession);
 
       data.setDatabase(loadDatabaseMetadata(dbSession));
       data.setNcdId(instanceNcd.hashCode());
@@ -211,6 +214,8 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     this.ncdByBranch.clear();
     this.ncdByProject.clear();
     this.instanceNcd = NewCodeDefinition.getInstanceDefault();
+    this.defaultQualityProfileByLanguage.clear();
+    this.qualityProfileByProjectAndLanguage.clear();
   }
 
   private void loadNewCodeDefinitions(DbSession dbSession, List<BranchMeasuresDto> branchMeasuresDtos) {
@@ -245,6 +250,16 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     }
   }
 
+  private void loadQualityProfiles(DbSession dbSession) {
+    dbClient.qualityProfileDao().selectAllDefaultProfiles(dbSession)
+      .forEach(defaultQualityProfile -> this.defaultQualityProfileByLanguage.put(defaultQualityProfile.getLanguage(), defaultQualityProfile.getKee()));
+
+    dbClient.qualityProfileDao().selectAllProjectAssociations(dbSession)
+      .forEach(projectAssociation -> qualityProfileByProjectAndLanguage.put(
+        new ProjectLanguageKey(projectAssociation.projectUuid(), projectAssociation.language()),
+        projectAssociation.profileKey()));
+  }
+
   private boolean isCommunityEdition() {
     var edition = editionProvider.get();
     return edition.isPresent() && edition.get() == COMMUNITY;
@@ -274,13 +289,12 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     Map<String, String> scmByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDSCM);
     Map<String, String> ciByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDCI);
     Map<String, ProjectAlmKeyAndProject> almAndUrlByProject = getAlmAndUrlByProject(dbSession);
-    Map<String, PrBranchAnalyzedLanguageCountByProjectDto> prAndBranchCountByProject =
-      dbClient.branchDao().countPrBranchAnalyzedLanguageByProjectUuid(dbSession)
-        .stream().collect(toMap(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, Function.identity()));
+    Map<String, PrBranchAnalyzedLanguageCountByProjectDto> prAndBranchCountByProject = dbClient.branchDao().countPrBranchAnalyzedLanguageByProjectUuid(dbSession)
+      .stream().collect(toMap(PrBranchAnalyzedLanguageCountByProjectDto::getProjectUuid, Function.identity()));
     Map<String, String> qgatesByProject = getProjectQgatesMap(dbSession);
-    Map<String, Map<String, Number>> metricsByProject =
-      getProjectMetricsByMetricKeys(dbSession, TECHNICAL_DEBT_KEY, DEVELOPMENT_COST_KEY, SECURITY_HOTSPOTS_KEY, VULNERABILITIES_KEY,
-        BUGS_KEY);
+    Map<String, Map<String, Number>> metricsByProject = getProjectMetricsByMetricKeys(dbSession, TECHNICAL_DEBT_KEY, DEVELOPMENT_COST_KEY, SECURITY_HOTSPOTS_KEY,
+      VULNERABILITIES_KEY,
+      BUGS_KEY);
     Map<String, Long> securityReportExportedAtByProjectUuid = getSecurityReportExportedAtDateByProjectUuid(dbSession);
 
     List<TelemetryData.ProjectStatistics> projectStatistics = new ArrayList<>();
@@ -336,7 +350,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     data.setProjects(buildProjectsList(branchesWithLargestNcloc, latestSnapshotMap));
   }
 
-  private static List<TelemetryData.Project> buildProjectsList(List<ProjectLocDistributionDto> branchesWithLargestNcloc,
+  private List<TelemetryData.Project> buildProjectsList(List<ProjectLocDistributionDto> branchesWithLargestNcloc,
     Map<String, Long> latestSnapshotMap) {
     return branchesWithLargestNcloc.stream()
       .flatMap(measure -> Arrays.stream(measure.locDistribution().split(";"))
@@ -345,9 +359,17 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
           measure.projectUuid(),
           latestSnapshotMap.get(measure.branchUuid()),
           languageAndLoc[0],
-          Long.parseLong(languageAndLoc[1])
-        ))
-      ).toList();
+          getQualityProfile(measure.projectUuid(), languageAndLoc[0]),
+          Long.parseLong(languageAndLoc[1]))))
+      .toList();
+  }
+
+  private String getQualityProfile(String projectUuid, String language) {
+    String qualityProfile = this.qualityProfileByProjectAndLanguage.get(new ProjectLanguageKey(projectUuid, language));
+    if (qualityProfile != null) {
+      return qualityProfile;
+    }
+    return this.defaultQualityProfileByLanguage.get(language);
   }
 
   private Map<String, String> getNclocMetricUuidMap(DbSession dbSession) {
@@ -362,14 +384,11 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     for (QualityGateDto qualityGateDto : qualityGateDtos) {
       qualityGates.add(
         new TelemetryData.QualityGate(qualityGateDto.getUuid(), qualityGateCaycChecker.checkCaycCompliant(dbSession,
-          qualityGateDto.getUuid()).toString())
-      );
+          qualityGateDto.getUuid()).toString()));
     }
 
     data.setQualityGates(qualityGates);
   }
-
-
 
   private void resolveUsers(TelemetryData.Builder data, DbSession dbSession) {
     data.setUsers(dbClient.userDao().selectUsersForTelemetry(dbSession));
@@ -464,5 +483,8 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
 
   private TelemetryData.CloudUsage buildCloudUsage() {
     return cloudUsageDataProvider.getCloudUsage();
+  }
+
+  private record ProjectLanguageKey(String projectKey, String language) {
   }
 }

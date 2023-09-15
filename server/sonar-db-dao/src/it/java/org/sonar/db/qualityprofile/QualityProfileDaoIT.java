@@ -817,11 +817,10 @@ public class QualityProfileDaoIT {
     QProfileDto profile3 = newQualityProfileDto();
 
     assertThat(underTest.selectAllProjectAssociations(dbSession))
-      .extracting("projectUuid", "projectKey", "projectName", "profileKey")
+      .extracting("projectUuid", "profileKey", "language")
       .containsExactlyInAnyOrder(
-        tuple(project1.getUuid(), project1.getKey(), project1.getName(), profile1.getKee()),
-        tuple(project2.getUuid(), project2.getKey(), project2.getName(), profile2.getKee())
-      );
+        tuple(project1.getUuid(), profile1.getKee(), profile1.getLanguage()),
+        tuple(project2.getUuid(), profile2.getKee(), profile2.getLanguage()));
   }
 
   @Test
@@ -842,8 +841,7 @@ public class QualityProfileDaoIT {
       .extracting("kee", "name", "language")
       .containsExactlyInAnyOrder(
         tuple(defaultProfile1.getKee(), defaultProfile1.getName(), defaultProfile1.getLanguage()),
-        tuple(defaultProfile2.getKee(), defaultProfile2.getName(), defaultProfile2.getLanguage())
-      );
+        tuple(defaultProfile2.getKee(), defaultProfile2.getName(), defaultProfile2.getLanguage()));
   }
 
   @Test

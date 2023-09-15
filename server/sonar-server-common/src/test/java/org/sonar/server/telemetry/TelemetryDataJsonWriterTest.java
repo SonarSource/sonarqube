@@ -400,18 +400,21 @@ public class TelemetryDataJsonWriterTest {
             "projectUuid": "uuid-0",
             "lastAnalysis": "1970-01-01T00:00:00+0000",
             "language": "lang-0",
+            "qualityProfile" : "qprofile-0",
             "loc": 2
           },
           {
             "projectUuid": "uuid-1",
             "lastAnalysis": "1970-01-01T00:00:00+0000",
             "language": "lang-1",
+            "qualityProfile" : "qprofile-1",
             "loc": 4
           },
           {
             "projectUuid": "uuid-2",
             "lastAnalysis": "1970-01-01T00:00:00+0000",
             "language": "lang-2",
+            "qualityProfile" : "qprofile-2",
             "loc": 6
           }
         ]
@@ -656,7 +659,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   private static List<TelemetryData.Project> attachProjects() {
-    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.Project("uuid-" + i, 1L, "lang-" + i, (i + 1L) * 2L)).toList();
+    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.Project("uuid-" + i, 1L, "lang-" + i, "qprofile-" + i, (i + 1L) * 2L)).toList();
   }
 
   private static List<TelemetryData.ProjectStatistics> attachProjectStatsWithMetrics() {
