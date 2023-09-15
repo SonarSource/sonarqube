@@ -27,6 +27,7 @@ import { getRulesUrl } from '../../../helpers/urls';
 import { MetricType } from '../../../types/metrics';
 
 interface Props {
+  className?: string;
   count: number | null;
   qprofile: string;
   total: number | null;
@@ -50,7 +51,7 @@ export default function ProfileRulesRowOfType(props: Readonly<Props>) {
   }
 
   return (
-    <TableRow>
+    <TableRow className={props.className}>
       <ContentCell>
         {props.type ? (
           <>

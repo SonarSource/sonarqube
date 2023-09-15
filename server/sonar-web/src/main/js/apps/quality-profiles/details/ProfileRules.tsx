@@ -164,6 +164,7 @@ export default class ProfileRules extends React.PureComponent<Readonly<Props>, S
           noSidePadding
         >
           <ProfileRulesRow
+            className="it__quality-profiles__rules__total"
             count={this.state.activatedTotal}
             qprofile={profile.key}
             total={this.state.total}
