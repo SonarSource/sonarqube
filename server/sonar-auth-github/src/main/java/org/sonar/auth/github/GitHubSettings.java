@@ -227,7 +227,8 @@ public class GitHubSettings {
         .build(),
       PropertyDefinition.builder(GROUPS_SYNC)
         .name("Synchronize teams as groups")
-        .description("For each team they belong to, the user will be associated to a group named 'Organization/Team' (if it exists) in SonarQube.")
+        .description("Synchronize GitHub team with SonarQube group memberships when users log in to SonarQube."
+          + " For each GitHub team they belong to, users will be associated to a group of the same name if it exists in SonarQube.")
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
         .type(BOOLEAN)
@@ -263,8 +264,8 @@ public class GitHubSettings {
         .build(),
       PropertyDefinition.builder(PROVISION_VISIBILITY)
         .name("Provision project visibility")
-        .description("Change project visibility based on GitHub repository visibility. If disabled, every provisioned project will be private and will be seen only for those users"
-                     + " that have explicit GitHub permissions for the according repository.")
+        .description("Change project visibility based on GitHub repository visibility. If disabled, every provisioned project will be private in SonarQube and visible only"
+          + " to users with explicit GitHub permissions for the corresponding repository. Changes take effect at the next synchronization.")
         .type(BOOLEAN)
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)

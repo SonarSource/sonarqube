@@ -268,7 +268,7 @@ export const definitions: ExtendedSettingDefinition[] = [
     key: 'sonar.auth.github.groupsSync',
     name: 'Synchronize teams as groups',
     description:
-      "For each team they belong to, the user will be associated to a group named 'Organization/Team' (if it exists) in SonarQube.",
+      'Synchronize GitHub team with SonarQube group memberships when users log in to SonarQube. For each GitHub team they belong to, users will be associated to a group of the same name if it exists in SonarQube.',
     type: SettingType.BOOLEAN,
     category: 'authentication',
     subCategory: 'github',
@@ -2531,7 +2531,7 @@ export const definitions: ExtendedSettingDefinition[] = [
     name: 'Provision project visibility',
     key: 'provisioning.github.project.visibility.enabled',
     description:
-      'Change project visibility based on GitHub repository visibility. If disabled, every provisioned project will be private and will be seen only for those users that have explicit GitHub permissions for the according repository.',
+      'Change project visibility based on GitHub repository visibility. If disabled, every provisioned project will be private in SonarQube and visible only to users with explicit GitHub permissions for the corresponding repository. Changes take effect at the next synchronization.',
     type: SettingType.BOOLEAN,
     category: 'authentication',
     subCategory: 'github',
