@@ -152,7 +152,7 @@ describe('Admin or user with permission', () => {
     it('should not be able to grant permission if the profile is built-in', async () => {
       renderQualityProfile('sonar');
       await ui.waitForDataLoaded();
-      expect(await screen.findByText('Sonar way')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /\bSonar way\b/ })).toBeInTheDocument();
       expect(ui.permissionSection.query()).not.toBeInTheDocument();
     });
   });
@@ -305,7 +305,9 @@ describe('Admin or user with permission', () => {
       renderQualityProfile();
       await ui.waitForDataLoaded();
 
-      expect(await screen.findByText('Good old PHP quality profile')).toBeInTheDocument();
+      expect(
+        await screen.findByRole('heading', { name: 'Good old PHP quality profile' }),
+      ).toBeInTheDocument();
 
       await user.click(ui.qualityProfileActions.get());
       await user.click(ui.extendButton.get());
