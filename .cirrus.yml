@@ -281,7 +281,7 @@ yarn_check_task:
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 3
-    memory: 4Gb
+    memory: 5Gb
   script: |
     ./private/cirrus/cirrus-env.sh YARN
     gradle yarn_check-ci --profile
