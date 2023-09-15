@@ -22,7 +22,7 @@ import { mapValues } from 'lodash';
 import { OpenAPIV3 } from 'openapi-types';
 import { DereferenceRecursive, ExcludeReferences } from './types';
 
-export const URL_DIVIDER = '-';
+export const URL_DIVIDER = '--';
 
 type ConvertedSchema = string | { [Key: string]: ConvertedSchema } | ConvertedSchema[];
 

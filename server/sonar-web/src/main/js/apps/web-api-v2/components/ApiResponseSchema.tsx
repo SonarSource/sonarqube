@@ -31,7 +31,10 @@ interface Props extends HtmlHTMLAttributes<HTMLDivElement> {
 
 export default function ApiResponseSchema(props: Props) {
   const { content, ...other } = props;
-  if (!content || !content['application/json']?.schema) {
+  const schema =
+    content &&
+    (content['application/json']?.schema || content['application/merge-patch+json']?.schema);
+  if (!schema) {
     return <TextMuted text={translate('no_data')} />;
   }
 
@@ -39,7 +42,7 @@ export default function ApiResponseSchema(props: Props) {
     <CodeSnippet
       language="json"
       className="sw-p-6"
-      snippet={JSON.stringify(mapOpenAPISchema(content['application/json'].schema), null, 2)}
+      snippet={JSON.stringify(mapOpenAPISchema(schema), null, 2)}
       wrap
       {...other}
     />

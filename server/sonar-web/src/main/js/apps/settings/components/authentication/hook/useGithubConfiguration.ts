@@ -97,14 +97,12 @@ export default function useGithubConfiguration(definitions: ExtendedSettingDefin
   const applyAdditionalOptions = () => {
     const newValues = GITHUB_ADDITIONAL_FIELDS.map((settingKey) => values[settingKey]);
     saveSettings(newValues);
-    if (newGithubProvisioningStatus ?? githubProvisioningStatus) {
-      if (rolesMapping) {
-        updateMapping(rolesMapping)
-          .then(() => {
-            setRolesMapping(null);
-          })
-          .catch(() => {});
-      }
+    if ((newGithubProvisioningStatus ?? githubProvisioningStatus) && rolesMapping) {
+      updateMapping(rolesMapping)
+        .then(() => {
+          setRolesMapping(null);
+        })
+        .catch(() => {});
     }
   };
 
