@@ -29,6 +29,7 @@ task fatJar(type: Jar) {
   from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
   with jar
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+  dependsOn (':sonar-core:jar', ':sonar-ws:jar', ':sonar-plugin-api-impl:jar')
 }
 
 build.dependsOn fatJar

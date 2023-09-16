@@ -1,7 +1,9 @@
 package org.sonar.build
 
 import org.gradle.api.tasks.testing.Test
+import groovy.transform.AutoImplement
 
+@AutoImplement
 class BlackBoxTest extends Test {
   BlackBoxTest() {
     def branch = System.getenv('GITHUB_BRANCH')
