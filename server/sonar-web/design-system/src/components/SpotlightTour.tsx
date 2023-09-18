@@ -117,7 +117,7 @@ function TooltipComponent({
 
   return (
     <StyledPopupWrapper
-      className="sw-p-3 sw-body-sm sw-w-[300px] sw-relative sw-border-0"
+      className="sw-p-3 sw-body-sm sw-w-[315px] sw-relative sw-border-0"
       placement={(step.placement as Placement | undefined) ?? DEFAULT_PLACEMENT}
       zLevel={PopupZLevel.Absolute}
       {...tooltipProps}
@@ -129,7 +129,7 @@ function TooltipComponent({
       )}
 
       <div className="sw-flex sw-justify-between" ref={setRef}>
-        <strong className="sw-mb-2">{step.title}</strong>
+        <strong className="sw-body-md-highlight sw-mb-2">{step.title}</strong>
         <WrapperButton
           className="sw-w-[30px] sw-h-[30px] sw--mt-2 sw--mr-2 sw-flex sw-justify-center"
           {...skipProps}
@@ -198,7 +198,7 @@ export function SpotlightTour(props: SpotlightTourProps) {
         },
       }))}
       tooltipComponent={(
-        tooltipProps: React.PropsWithChildren<TooltipRenderProps & { step: SpotlightTourStep }>
+        tooltipProps: React.PropsWithChildren<TooltipRenderProps & { step: SpotlightTourStep }>,
       ) => <TooltipComponent stepXofYLabel={stepXofYLabel} {...tooltipProps} />}
       {...otherProps}
     />
@@ -208,6 +208,7 @@ export function SpotlightTour(props: SpotlightTourProps) {
 const StyledPopupWrapper = styled(PopupWrapper)<{ placement: Placement }>`
   background-color: ${themeColor('spotlightBackgroundColor')};
   ${tw`sw-overflow-visible`};
+  ${tw`sw-rounded-1`};
   ${({ placement }) => getStyledPopupWrapperMargin(placement)};
 `;
 
@@ -273,7 +274,9 @@ const SpotlightArrow = styled.div<{ rotate: string }>`
     background-color: ${themeColor('spotlightPulseBackground')};
     left: 100%;
     top: calc(50% - calc(0.125rem / 2));
-    transition: margin 0.3s, left 0.3s;
+    transition:
+      margin 0.3s,
+      left 0.3s;
     content: '';
   }
 `;
