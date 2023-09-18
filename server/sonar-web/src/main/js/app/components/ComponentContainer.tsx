@@ -88,30 +88,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     window.clearTimeout(this.watchStatusTimer);
   }
 
-  fetchComponent = async (shouldRedirectToDashboard = false) => {
-    const { branch, id: key, pullRequest } = this.props.location.query;
-    this.setState({ loading: true });
-
-    let componentWithQualifier;
-    try {
-      const [nav, { component }] = await Promise.all([
-        getComponentNavigation({ component: key, branch, pullRequest }),
-        getComponentData({ component: key, branch, pullRequest }),
-      ]);
-
-      componentWithQualifier = this.addQualifier({ ...nav, ...component });
-    } catch (e) {
-      if (this.mounted) {
-        if (e && e instanceof Response && e.status === HttpStatus.Forbidden) {
-          handleRequiredAuthorization();
-        } else {
-          this.setState({ component: undefined, loading: false });
-        }
-      }
-
-      return;
-    }
-
+  redirectIfNeeded = (componentWithQualifier: { key: string; qualifier: string }) => {
     /*
      * There used to be a redirect from /dashboard to /portfolio which caused issues.
      * Links should be fixed to not rely on this redirect, but:
@@ -123,6 +100,35 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     ) {
       this.props.router.replace(getPortfolioUrl(componentWithQualifier.key));
     }
+  };
+
+  fetchComponent = async (shouldRedirectToDashboard = false, backgroundLoading = false) => {
+    const { branch, id: key, pullRequest } = this.props.location.query;
+    if (!backgroundLoading) {
+      this.setState({ loading: true });
+    }
+
+    let componentWithQualifier;
+    try {
+      const [nav, { component }] = await Promise.all([
+        getComponentNavigation({ component: key, branch, pullRequest }),
+        getComponentData({ component: key, branch, pullRequest }),
+      ]);
+
+      componentWithQualifier = this.addQualifier({ ...nav, ...component });
+    } catch (e) {
+      if (this.mounted) {
+        if (e instanceof Response && e.status === HttpStatus.Forbidden) {
+          handleRequiredAuthorization();
+        } else {
+          this.setState({ component: undefined, loading: false });
+        }
+      }
+
+      return;
+    }
+
+    this.redirectIfNeeded(componentWithQualifier);
 
     if (this.mounted) {
       this.setState(
@@ -185,7 +191,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             },
             () => {
               if (shouldFetchComponent) {
-                this.fetchComponent(shouldRedirectToDashboard);
+                this.fetchComponent(shouldRedirectToDashboard, true);
               }
             },
           );
