@@ -25,6 +25,7 @@ import {
   ItemDownload,
   ItemLink,
   PopupPlacement,
+  PopupZLevel,
   Tooltip,
 } from 'design-system';
 import { some } from 'lodash';
@@ -218,7 +219,7 @@ class ProfileActions extends React.PureComponent<Props, State> {
             profile.name,
             profile.languageName,
           )}
-          isPortal
+          zLevel={PopupZLevel.Global}
         >
           {actions.edit && (
             <ItemLink className="it__quality-profiles__activate-more-rules" to={activateMoreUrl}>

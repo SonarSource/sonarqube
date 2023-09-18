@@ -21,7 +21,7 @@ import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { throttle } from 'lodash';
 import React, { AriaRole } from 'react';
-import { createPortal, findDOMNode } from 'react-dom';
+import { findDOMNode } from 'react-dom';
 import tw from 'twin.macro';
 import { THROTTLE_SCROLL_DELAY } from '../helpers/constants';
 import { PopupPlacement, PopupZLevel, popupPositioning } from '../helpers/positioning';
@@ -69,7 +69,6 @@ PopupWithRef.displayName = 'Popup';
 interface PopupProps extends Omit<PopupBaseProps, 'style'> {
   allowResizing?: boolean;
   children: React.ReactNode;
-  isPortal?: boolean;
   overlay: React.ReactNode;
 }
 
@@ -143,7 +142,7 @@ export class Popup extends React.PureComponent<PopupProps, State> {
         const { height, left, top, width } = popupPositioning(
           toggleNode,
           this.popupNode.current,
-          placement
+          placement,
         );
 
         // save width and height (and later set in `render`) to avoid resizing the popup element,
@@ -178,23 +177,11 @@ export class Popup extends React.PureComponent<PopupProps, State> {
     return (
       <>
         {this.props.children}
-        {this.props.overlay &&
-          (this.props.isPortal ? (
-            <PortalWrapper>
-              <PopupWithRef
-                placement={placement}
-                ref={this.popupNode}
-                style={style}
-                {...popupProps}
-              >
-                {overlay}
-              </PopupWithRef>
-            </PortalWrapper>
-          ) : (
-            <PopupWithRef placement={placement} ref={this.popupNode} style={style} {...popupProps}>
-              {overlay}
-            </PopupWithRef>
-          ))}
+        {this.props.overlay && (
+          <PopupWithRef placement={placement} ref={this.popupNode} style={style} {...popupProps}>
+            {overlay}
+          </PopupWithRef>
+        )}
       </>
     );
   }
@@ -217,7 +204,7 @@ export const PopupWrapper = styled.div<{ zLevel: PopupZLevel }>`
       [PopupZLevel.Global]: tw`sw-z-global-popup`,
       [PopupZLevel.Content]: tw`sw-z-content-popup`,
       [PopupZLevel.Absolute]: tw`sw-z-global-popup`,
-    }[zLevel])};
+    })[zLevel]};
 
   &.is-bottom,
   &.is-bottom-left,
@@ -243,24 +230,3 @@ export const PopupWrapper = styled.div<{ zLevel: PopupZLevel }>`
     ${tw`sw-ml-2`};
   }
 `;
-
-class PortalWrapper extends React.Component {
-  el: HTMLElement;
-
-  constructor(props: object) {
-    super(props);
-    this.el = document.createElement('div');
-  }
-
-  componentDidMount() {
-    document.body.appendChild(this.el);
-  }
-
-  componentWillUnmount() {
-    document.body.removeChild(this.el);
-  }
-
-  render() {
-    return createPortal(this.props.children, this.el);
-  }
-}

@@ -23,6 +23,7 @@ import {
   DropdownToggler,
   ItemButton,
   PopupPlacement,
+  PopupZLevel,
 } from 'design-system';
 import * as React from 'react';
 import Spinner from '../../../components/ui/Spinner';
@@ -100,7 +101,7 @@ export default class HotspotOpenInIdeButton extends React.PureComponent<Props, S
           allowResizing
           open={ides.length > 1}
           placement={PopupPlacement.BottomLeft}
-          isPortal
+          zLevel={PopupZLevel.Global}
           overlay={
             <DropdownMenu size="auto">
               {ides.map((ide) => {

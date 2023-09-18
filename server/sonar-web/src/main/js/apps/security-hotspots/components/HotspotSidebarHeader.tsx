@@ -28,6 +28,7 @@ import {
   ItemDangerButton,
   ItemDivider,
   ItemHeader,
+  PopupZLevel,
 } from 'design-system';
 import * as React from 'react';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
@@ -107,7 +108,7 @@ function HotspotSidebarHeader(props: SecurityHotspotsAppRendererProps) {
             allowResizing
             closeOnClick={false}
             id="filter-hotspots-menu"
-            isPortal
+            zLevel={PopupZLevel.Global}
             overlay={
               <>
                 <ItemHeader>{translate('hotspot.filters.title')}</ItemHeader>
