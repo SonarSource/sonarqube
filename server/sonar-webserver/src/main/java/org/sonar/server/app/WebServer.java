@@ -43,7 +43,7 @@ public class WebServer implements Monitored {
       .checkWritableTempDir()
       .checkRequiredJavaOptions(ImmutableMap.of("file.encoding", "UTF-8"));
     this.sharedDir = getSharedDir(props);
-    this.tomcat = new EmbeddedTomcat(props);
+    this.tomcat = new EmbeddedTomcat(props, new TomcatHttpConnectorFactory());
   }
 
   private static File getSharedDir(Props props) {
