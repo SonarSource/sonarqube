@@ -23,6 +23,7 @@ import {
   GenericAvatar,
   LabelValueSelectOption,
   Modal,
+  Note,
   SearchSelectDropdown,
   UserGroupIcon,
 } from 'design-system';
@@ -49,7 +50,7 @@ const FORM_ID = 'quality-gate-permissions-add-modal';
 const USER_SELECT_INPUT_ID = 'quality-gate-permissions-add-modal-select-input';
 
 export default function QualityGatePermissionsAddModalRenderer(
-  props: QualityGatePermissionsAddModalRendererProps,
+  props: Readonly<QualityGatePermissionsAddModalRendererProps>,
 ) {
   const { selection, submitting } = props;
 
@@ -68,6 +69,7 @@ export default function QualityGatePermissionsAddModalRenderer(
             htmlFor={USER_SELECT_INPUT_ID}
           >
             <SearchSelectDropdown
+              className="sw-mb-2"
               controlAriaLabel={translate('quality_gates.permissions.search')}
               inputId={USER_SELECT_INPUT_ID}
               autoFocus
@@ -99,10 +101,10 @@ export default function QualityGatePermissionsAddModalRenderer(
 function OptionRenderer({
   option,
   small = false,
-}: {
+}: Readonly<{
   option?: UserBase | UserGroup;
   small?: boolean;
-}) {
+}>) {
   if (!option) {
     return null;
   }
@@ -118,7 +120,7 @@ function OptionRenderer({
           />
           <span className="sw-ml-2">
             <strong className="sw-body-sm-highlight sw-mr-1">{option.name}</strong>
-            {option.login}
+            <Note>{option.login}</Note>
           </span>
         </>
       ) : (

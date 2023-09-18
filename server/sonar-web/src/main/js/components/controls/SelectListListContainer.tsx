@@ -19,7 +19,6 @@
  */
 import styled from '@emotion/styled';
 import { Checkbox, ListItem, UnorderedList, themeBorder } from 'design-system';
-import { uniqueId } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { SelectListFilter } from './SelectList';
@@ -111,7 +110,7 @@ export default class SelectListListContainer extends React.PureComponent<Props, 
             <SelectListListElement
               disabled={this.isDisabled(element)}
               element={element}
-              key={uniqueId()}
+              key={element}
               onSelect={this.props.onSelect}
               onUnselect={this.props.onUnselect}
               renderElement={this.props.renderElement}

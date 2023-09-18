@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Note } from 'design-system';
 import { find, without } from 'lodash';
 import * as React from 'react';
 import {
@@ -131,14 +133,14 @@ export default class Projects extends React.PureComponent<Props, State> {
   renderElement = (key: string): React.ReactNode => {
     const project = find(this.state.projects, { key });
     return (
-      <div className="select-list-list-item">
+      <div>
         {project === undefined ? (
           key
         ) : (
           <>
             {project.name}
             <br />
-            <span className="note">{project.key}</span>
+            <Note>{project.key}</Note>
           </>
         )}
       </div>

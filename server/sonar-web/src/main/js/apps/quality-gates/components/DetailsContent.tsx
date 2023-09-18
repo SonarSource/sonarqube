@@ -56,7 +56,7 @@ export function DetailsContent(props: DetailsContentProps) {
         updatedConditionId={updatedConditionId}
       />
 
-      <div>
+      <div className="sw-mt-10">
         <div className="sw-flex sw-flex-col">
           <SubTitle as="h3" className="sw-body-md-highlight">
             {translate('quality_gates.projects')}

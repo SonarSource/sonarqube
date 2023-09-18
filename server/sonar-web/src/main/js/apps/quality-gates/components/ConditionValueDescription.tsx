@@ -51,7 +51,7 @@ function ConditionValueDescription({
   appState: { settings },
   metric,
   isToBeModified = false,
-}: Props) {
+}: Readonly<Props>) {
   if (condition.metric === MetricKey.new_maintainability_rating) {
     const maintainabilityGrid = getMaintainabilityGrid(
       settings[GlobalSettingKeys.RatingGrid] ?? '',

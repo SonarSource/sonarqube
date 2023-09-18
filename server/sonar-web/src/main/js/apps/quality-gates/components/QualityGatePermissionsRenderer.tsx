@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import classNames from 'classnames';
 import {
   ButtonSecondary,
   DangerButtonPrimary,
@@ -60,8 +61,8 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
       <SubTitle as="h3" className="sw-body-md-highlight">
         {translate('quality_gates.permissions')}
       </SubTitle>
-      <p className="sw-body-sm sw-mb-2">{translate('quality_gates.permissions.help')}</p>
-      <div>
+      <p className="sw-body-sm">{translate('quality_gates.permissions.help')}</p>
+      <div className={classNames({ 'sw-my-2': users.length + groups.length > 0 })}>
         <Spinner loading={loading}>
           <Table columnCount={3} columnWidths={['40px', 'auto', '1%']} width="100%">
             {users.map((user) => (
@@ -78,7 +79,7 @@ export default function QualityGatePermissionsRenderer(props: QualityGatePermiss
         </Spinner>
       </div>
 
-      <ButtonSecondary className="sw-mt-4" onClick={props.onClickAddPermission}>
+      <ButtonSecondary className="sw-mt-2" onClick={props.onClickAddPermission}>
         {translate('quality_gates.permissions.grant')}
       </ButtonSecondary>
 

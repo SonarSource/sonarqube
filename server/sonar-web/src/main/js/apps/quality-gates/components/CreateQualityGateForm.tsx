@@ -71,6 +71,7 @@ export class CreateQualityGateForm extends React.PureComponent<Props, State> {
           requiredAriaLabel={translate('field_required')}
         >
           <InputField
+            className="sw-mb-1"
             autoComplete="off"
             id="quality-gate-form-name"
             maxLength={256}

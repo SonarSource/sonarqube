@@ -42,7 +42,7 @@ interface Props {
   qualityGate: QualityGate;
 }
 
-export default function CaycReviewUpdateConditionsModal(props: Props) {
+export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) {
   const {
     conditions,
     qualityGate,
@@ -56,12 +56,12 @@ export default function CaycReviewUpdateConditionsModal(props: Props) {
   const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
   const sortedWeakConditions = sortBy(
     weakConditions,
-    (condition) => metrics[condition.metric] && metrics[condition.metric].name,
+    (condition) => metrics[condition.metric]?.name,
   );
 
   const sortedMissingConditions = sortBy(
     missingConditions,
-    (condition) => metrics[condition.metric] && metrics[condition.metric].name,
+    (condition) => metrics[condition.metric]?.name,
   );
 
   const getDocUrl = useDocUrl();

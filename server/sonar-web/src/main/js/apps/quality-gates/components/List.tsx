@@ -73,7 +73,9 @@ export default function List({ qualityGates, currentQualityGate }: Props) {
 
               {(qualityGate.isDefault || qualityGate.isBuiltIn) && (
                 <div className="sw-mt-2">
-                  {qualityGate.isDefault && <Badge>{translate('default')}</Badge>}
+                  {qualityGate.isDefault && (
+                    <Badge className="sw-mr-2">{translate('default')}</Badge>
+                  )}
                   {qualityGate.isBuiltIn && <BuiltInQualityGateBadge />}
                 </div>
               )}

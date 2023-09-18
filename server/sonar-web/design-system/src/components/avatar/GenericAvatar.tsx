@@ -32,7 +32,12 @@ export interface GenericAvatarProps {
   size?: Size;
 }
 
-export function GenericAvatar({ className, Icon, name, size = 'sm' }: GenericAvatarProps) {
+export function GenericAvatar({
+  className,
+  Icon,
+  name,
+  size = 'sm',
+}: Readonly<GenericAvatarProps>) {
   const theme = useTheme();
   const text = name.length > 0 ? name[0].toUpperCase() : '';
 

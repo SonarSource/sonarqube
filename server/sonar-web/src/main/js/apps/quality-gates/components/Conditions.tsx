@@ -87,6 +87,7 @@ export function Conditions({
   const [editing, setEditing] = React.useState<boolean>(
     qualityGate.caycStatus === CaycStatus.NonCompliant,
   );
+  const { name } = qualityGate;
   const canEdit = Boolean(qualityGate.actions?.manageConditions);
   const { conditions = [] } = qualityGate;
   const existingConditions = conditions.filter((condition) => metrics[condition.metric]);
@@ -111,9 +112,11 @@ export function Conditions({
 
   const getDocUrl = useDocUrl();
 
+  // set edit only when the name is change
+  // i.e when user changes the quality gate
   React.useEffect(() => {
     setEditing(qualityGate.caycStatus === CaycStatus.NonCompliant);
-  }, [qualityGate]);
+  }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const renderConditionModal = React.useCallback(
     ({ onClose }: ModalProps) => {
@@ -322,7 +325,7 @@ export function Conditions({
       )}
 
       {qualityGate.caycStatus !== CaycStatus.NonCompliant && !editing && canEdit && (
-        <div className="sw-mt-4 sw-mb-10 it__qg-unfollow-cayc">
+        <div className="sw-mt-4 it__qg-unfollow-cayc">
           <SubHeading as="p" className="sw-mb-2 sw-body-sm">
             <FormattedMessage
               id="quality_gates.cayc_unfollow.description"

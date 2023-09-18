@@ -23,7 +23,10 @@ import { CheckIcon, LightLabel } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default function CaycConditionsListItem({ index, last }: { index: number; last: boolean }) {
+export default function CaycConditionsListItem({
+  index,
+  last,
+}: Readonly<{ index: number; last: boolean }>) {
   return (
     <li className={classNames('sw-flex', { 'sw-mb-2': !last })}>
       <CheckIcon className="sw-mr-1 sw-pt-1/2" />

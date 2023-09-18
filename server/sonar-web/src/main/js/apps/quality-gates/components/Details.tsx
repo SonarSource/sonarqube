@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Spinner } from 'design-system';
 import { clone } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { fetchQualityGate } from '../../../api/quality-gates';
-import Spinner from '../../../components/ui/Spinner';
 import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { Condition, QualityGate } from '../../../types/types';

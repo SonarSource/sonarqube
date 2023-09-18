@@ -23,6 +23,8 @@ import {
   LAYOUT_FOOTER_HEIGHT,
   LAYOUT_GLOBAL_NAV_HEIGHT,
   LargeCenteredLayout,
+  PageContentFontWrapper,
+  Spinner,
   themeBorder,
   themeColor,
 } from 'design-system';
@@ -32,7 +34,6 @@ import { NavigateFunction, useNavigate, useParams } from 'react-router-dom';
 import { fetchQualityGates } from '../../../api/quality-gates';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import '../../../components/search-navigator.css';
-import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
   addSideBarClass,
@@ -126,46 +127,48 @@ class App extends React.PureComponent<Props, State> {
 
     return (
       <LargeCenteredLayout id="quality-gates-page">
-        <Helmet
-          defer={false}
-          titleTemplate={translateWithParameters(
-            'page_title.template.with_category',
-            translate('quality_gates.page'),
-          )}
-        />
-        <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12 sw-w-full">
-          <Suggestions suggestions="quality_gates" />
+        <PageContentFontWrapper className="sw-body-sm">
+          <Helmet
+            defer={false}
+            titleTemplate={translateWithParameters(
+              'page_title.template.with_category',
+              translate('quality_gates.page'),
+            )}
+          />
+          <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12 sw-w-full">
+            <Suggestions suggestions="quality_gates" />
 
-          <StyledContentWrapper
-            className="sw-col-span-3 sw-px-4 sw-py-6 sw-border-t-0 sw-rounded-0"
-            style={{
-              height: `calc(100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT}px)`,
-            }}
-          >
-            <ListHeader canCreate={canCreate} refreshQualityGates={this.fetchQualityGates} />
-            <Spinner loading={this.state.loading}>
-              <List qualityGates={qualityGates} currentQualityGate={name} />
-            </Spinner>
-          </StyledContentWrapper>
-
-          {name !== undefined && (
             <StyledContentWrapper
-              className="sw-col-span-9 sw-overflow-y-auto sw-mt-12"
+              className="sw-col-span-3 sw-px-4 sw-py-6 sw-border-t-0 sw-rounded-0"
               style={{
-                height: `calc(100vh - ${
-                  LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT
-                }px - ${MAIN_CONTENT_TOP_PADDING}px)`,
+                height: `calc(100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT}px)`,
               }}
             >
-              <Details
-                qualityGateName={name}
-                onSetDefault={this.handleSetDefault}
-                qualityGates={this.state.qualityGates}
-                refreshQualityGates={this.fetchQualityGates}
-              />
+              <ListHeader canCreate={canCreate} refreshQualityGates={this.fetchQualityGates} />
+              <Spinner loading={this.state.loading}>
+                <List qualityGates={qualityGates} currentQualityGate={name} />
+              </Spinner>
             </StyledContentWrapper>
-          )}
-        </div>
+
+            {name !== undefined && (
+              <StyledContentWrapper
+                className="sw-col-span-9 sw-overflow-y-auto sw-mt-12"
+                style={{
+                  height: `calc(100vh - ${
+                    LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT
+                  }px - ${MAIN_CONTENT_TOP_PADDING}px)`,
+                }}
+              >
+                <Details
+                  qualityGateName={name}
+                  onSetDefault={this.handleSetDefault}
+                  qualityGates={this.state.qualityGates}
+                  refreshQualityGates={this.fetchQualityGates}
+                />
+              </StyledContentWrapper>
+            )}
+          </div>
+        </PageContentFontWrapper>
       </LargeCenteredLayout>
     );
   }
