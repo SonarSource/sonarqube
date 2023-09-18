@@ -40,8 +40,8 @@ public class AddUserConsentRequiredIfGithubAutoProvisioningEnabled extends DataC
   static final String PROP_KEY = "sonar.auth.github.userConsentForPermissionProvisioningRequired";
 
   private static final String INSERT_QUERY = """
-    INSERT INTO PROPERTIES (UUID, PROP_KEY, IS_EMPTY, CREATED_AT)
-    VALUES (?, ?, ?, ?)
+    insert into properties (uuid, prop_key, is_empty, created_at)
+    values (?, ?, ?, ?)
     """;
 
   private final System2 system2;
