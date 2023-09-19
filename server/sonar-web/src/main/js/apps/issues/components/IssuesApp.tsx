@@ -155,6 +155,7 @@ const ISSUES_PAGE_SIZE = 100;
 
 export class App extends React.PureComponent<Props, State> {
   mounted = false;
+  requiresInitialFetch = false;
   bulkButtonRef: React.RefObject<HTMLButtonElement>;
 
   constructor(props: Props) {
@@ -222,6 +223,8 @@ export class App extends React.PureComponent<Props, State> {
 
     if (!this.props.isFetchingBranch) {
       this.fetchFirstIssues(true).catch(() => undefined);
+    } else {
+      this.requiresInitialFetch = true;
     }
   }
 
@@ -229,6 +232,12 @@ export class App extends React.PureComponent<Props, State> {
     const { query } = this.props.location;
     const { query: prevQuery } = prevProps.location;
     const { openIssue } = this.state;
+
+    if (this.requiresInitialFetch && !this.props.isFetchingBranch) {
+      this.requiresInitialFetch = false;
+      this.fetchFirstIssues(true).catch(() => undefined);
+      return;
+    }
 
     if (
       prevProps.component !== this.props.component ||
