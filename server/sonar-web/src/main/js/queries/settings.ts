@@ -18,15 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { isEqual } from 'lodash';
 import { getValue, getValues, resetSettingValue, setSettingValue } from '../api/settings';
 import { ExtendedSettingDefinition } from '../types/settings';
 
 type SettingValue = string | boolean | string[];
 
 export function useGetValuesQuery(keys: string[]) {
-  return useQuery(['settings', 'values', keys] as const, ({ queryKey: [_a, _b, keys] }) => {
-    return getValues({ keys });
-  });
+  return useQuery(
+    ['settings', 'values', keys] as const,
+    ({ queryKey: [_a, _b, keys] }) => {
+      return getValues({ keys });
+    },
+    { structuralSharing: (prev, next) => (isEqual(prev, next) ? prev : next) },
+  );
 }
 
 export function useGetValueQuery(key: string) {
