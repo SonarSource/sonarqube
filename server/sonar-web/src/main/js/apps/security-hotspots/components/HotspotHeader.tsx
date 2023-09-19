@@ -18,21 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { withTheme } from '@emotion/react';
-import styled from '@emotion/styled';
 import {
   ClipboardIconButton,
   IssueMessageHighlighting,
-  LAYOUT_GLOBAL_NAV_HEIGHT,
-  LAYOUT_PROJECT_NAV_HEIGHT,
   LightLabel,
   LightPrimary,
   Link,
   LinkIcon,
   StyledPageTitle,
-  Theme,
-  themeColor,
-  themeShadow,
 } from 'design-system';
 import React from 'react';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
@@ -48,30 +41,18 @@ import { SecurityStandard, Standards } from '../../../types/security';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
 import HotspotHeaderRightSection from './HotspotHeaderRightSection';
-import HotspotSnippetHeader from './HotspotSnippetHeader';
 import Status from './status/Status';
-import StatusReviewButton from './status/StatusReviewButton';
 
 export interface HotspotHeaderProps {
   hotspot: Hotspot;
   component: Component;
   branchLike?: BranchLike;
-  isCodeTab?: boolean;
   standards?: Standards;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
-  tabs: React.ReactNode;
-  isScrolled: boolean;
-  isCompressed: boolean;
-}
-
-interface StyledHeaderProps {
-  isScrolled: boolean;
-  theme: Theme;
 }
 
 export function HotspotHeader(props: HotspotHeaderProps) {
-  const { branchLike, component, hotspot, isCodeTab, isCompressed, isScrolled, standards, tabs } =
-    props;
+  const { branchLike, component, hotspot, standards } = props;
   const { message, messageFormattings, rule, key } = hotspot;
   const refrechBranchStatus = useRefreshBranchStatus();
 
@@ -89,21 +70,9 @@ export function HotspotHeader(props: HotspotHeaderProps) {
     refrechBranchStatus();
   };
 
-  const content = isCompressed ? (
-    <span>
-      <div className="sw-flex sw-justify-between">
-        {tabs}
-
-        <StatusReviewButton hotspot={hotspot} onStatusChange={handleStatusChange} />
-      </div>
-
-      {isCodeTab && (
-        <HotspotSnippetHeader hotspot={hotspot} component={component} branchLike={branchLike} />
-      )}
-    </span>
-  ) : (
-    <>
-      <div className="sw-flex sw-justify-between sw-gap-8 sw-mb-4">
+  return (
+    <div>
+      <div className="sw-flex sw-justify-between sw-gap-8 hotspot-header">
         <div className="sw-flex-1">
           <StyledPageTitle as="h2" className="sw-whitespace-normal sw-overflow-visible">
             <LightPrimary>
@@ -134,26 +103,6 @@ export function HotspotHeader(props: HotspotHeaderProps) {
           />
         </div>
       </div>
-      {tabs}
-
-      {isCodeTab && (
-        <HotspotSnippetHeader hotspot={hotspot} component={component} branchLike={branchLike} />
-      )}
-    </>
-  );
-
-  return (
-    <Header
-      className="sw-sticky sw--mx-6 sw--mt-6 sw-px-6 sw-pt-6 sw-pb-4 sw-z-filterbar-header"
-      isScrolled={isScrolled}
-    >
-      {content}
-    </Header>
+    </div>
   );
 }
-
-const Header = withTheme(styled.div<StyledHeaderProps>`
-  background-color: ${themeColor('pageBlock')};
-  box-shadow: ${({ isScrolled }: StyledHeaderProps) => (isScrolled ? themeShadow('sm') : 'none')};
-  top: ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT}px;
-`);

@@ -18,31 +18,40 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ToggleButton, getTabId, getTabPanelId } from 'design-system';
+import styled from '@emotion/styled';
+import {
+  LAYOUT_GLOBAL_NAV_HEIGHT,
+  LAYOUT_PROJECT_NAV_HEIGHT,
+  ToggleButton,
+  getTabId,
+  getTabPanelId,
+  themeColor,
+  themeShadow,
+} from 'design-system';
 import { groupBy, omit } from 'lodash';
 import * as React from 'react';
 import RuleDescription from '../../../components/rules/RuleDescription';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
+import { useRefreshBranchStatus } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
-import { Standards } from '../../../types/security';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
 import { RuleDescriptionSection, RuleDescriptionSections } from '../../coding-rules/rule';
-import useScrollDownCompress from '../hooks/useScrollDownCompress';
-import { HotspotHeader } from './HotspotHeader';
+import useStickyDetection from '../hooks/useStickyDetection';
+import HotspotSnippetHeader from './HotspotSnippetHeader';
+import StatusReviewButton from './status/StatusReviewButton';
 
 interface Props {
   activityTabContent: React.ReactNode;
-  branchLike?: BranchLike;
   codeTabContent: React.ReactNode;
-  component: Component;
   hotspot: Hotspot;
   onUpdateHotspot: (statusUpdate?: boolean, statusOption?: HotspotStatusOption) => Promise<void>;
   ruleDescriptionSections?: RuleDescriptionSection[];
   ruleLanguage?: string;
-  standards?: Standards;
+  component: Component;
+  branchLike?: BranchLike;
 }
 
 interface Tab {
@@ -59,29 +68,27 @@ export enum TabKeys {
   Activity = 'activity',
 }
 
-const STICKY_HEADER_SHADOW_OFFSET = 24;
-const STICKY_HEADER_COMPRESS_THRESHOLD = 200;
+const TABS_OFFSET = LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_PROJECT_NAV_HEIGHT;
 
 export default function HotspotViewerTabs(props: Props) {
   const {
     activityTabContent,
-    branchLike,
     codeTabContent,
-    component,
     hotspot,
     ruleDescriptionSections,
     ruleLanguage,
-    standards,
+    component,
+    branchLike,
   } = props;
 
-  const { isScrolled, isCompressed, resetScrollDownCompress } = useScrollDownCompress(
-    STICKY_HEADER_COMPRESS_THRESHOLD,
-    STICKY_HEADER_SHADOW_OFFSET,
-  );
+  const refrechBranchStatus = useRefreshBranchStatus();
+  const isSticky = useStickyDetection('.hotspot-tabs', {
+    offset: TABS_OFFSET,
+  });
 
   const tabs = React.useMemo(() => {
     const descriptionSectionsByKey = groupBy(ruleDescriptionSections, (section) => section.key);
-    const labelSuffix = isCompressed ? '.short' : '';
+    const labelSuffix = isSticky ? '.short' : '';
 
     return [
       {
@@ -115,7 +122,7 @@ export default function HotspotViewerTabs(props: Props) {
     ]
       .filter((tab) => tab.show)
       .map((tab) => omit(tab, 'show'));
-  }, [isCompressed, ruleDescriptionSections, hotspot.comment]);
+  }, [isSticky, ruleDescriptionSections, hotspot.comment]);
 
   const [currentTab, setCurrentTab] = React.useState<Tab>(tabs[0]);
 
@@ -154,6 +161,11 @@ export default function HotspotViewerTabs(props: Props) {
     }
   };
 
+  const handleStatusChange = async (statusOption: HotspotStatusOption) => {
+    await props.onUpdateHotspot(true, statusOption);
+    refrechBranchStatus();
+  };
+
   React.useEffect(() => {
     document.addEventListener('keydown', handleKeyboardNavigation);
 
@@ -170,7 +182,6 @@ export default function HotspotViewerTabs(props: Props) {
     if (currentTab.value !== TabKeys.Code) {
       window.scrollTo({ top: 0 });
     }
-    resetScrollDownCompress();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTab]);
 
@@ -182,24 +193,24 @@ export default function HotspotViewerTabs(props: Props) {
 
   return (
     <>
-      <HotspotHeader
-        branchLike={branchLike}
-        component={component}
-        hotspot={hotspot}
-        isCodeTab={currentTab.value === TabKeys.Code}
-        isCompressed={isCompressed}
-        isScrolled={isScrolled}
-        onUpdateHotspot={props.onUpdateHotspot}
-        standards={standards}
-        tabs={
+      <StickyTabs
+        isSticky={isSticky}
+        top={TABS_OFFSET}
+        className="sw-sticky sw-py-4 sw--mx-6 sw-px-6 sw-z-filterbar-header hotspot-tabs"
+      >
+        <div className="sw-flex sw-justify-between">
           <ToggleButton
             role="tablist"
             value={currentTab.value}
             options={tabs}
             onChange={handleSelectTabs}
           />
-        }
-      />
+          {isSticky && <StatusReviewButton hotspot={hotspot} onStatusChange={handleStatusChange} />}
+        </div>
+        {currentTab.value === TabKeys.Code && codeTabContent && (
+          <HotspotSnippetHeader hotspot={hotspot} component={component} branchLike={branchLike} />
+        )}
+      </StickyTabs>
       <div
         aria-labelledby={getTabId(currentTab.value)}
         className="sw-mt-2"
@@ -233,3 +244,9 @@ export default function HotspotViewerTabs(props: Props) {
     </>
   );
 }
+
+const StickyTabs = styled.div<{ top: number; isSticky: boolean }>`
+  background-color: ${themeColor('pageBlock')};
+  box-shadow: ${({ isSticky }) => (isSticky ? themeShadow('sm') : 'none')};
+  top: ${({ top }) => top}px;
+`;

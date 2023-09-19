@@ -36,7 +36,7 @@ import { byDisplayValue, byRole, byTestId, byText } from '../../../helpers/testS
 import { ComponentContextShape } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import SecurityHotspotsApp from '../SecurityHotspotsApp';
-import useScrollDownCompress from '../hooks/useScrollDownCompress';
+import useStickyDetection from '../hooks/useStickyDetection';
 
 jest.mock('../../../api/measures');
 jest.mock('../../../api/security-hotspots');
@@ -47,7 +47,7 @@ jest.mock('../../../api/users');
 jest.mock('../../../api/rules');
 jest.mock('../../../api/quality-profiles');
 jest.mock('../../../api/issues');
-jest.mock('../hooks/useScrollDownCompress');
+jest.mock('../hooks/useStickyDetection');
 jest.mock('../../../helpers/sonarlint', () => ({
   openHotspot: jest.fn().mockResolvedValue(null),
   probeSonarLintServers: jest.fn().mockResolvedValue([
@@ -143,11 +143,7 @@ afterAll(() => {
 });
 
 beforeEach(() => {
-  jest.mocked(useScrollDownCompress).mockImplementation(() => ({
-    isScrolled: false,
-    isCompressed: false,
-    resetScrollDownCompress: jest.fn(),
-  }));
+  jest.mocked(useStickyDetection).mockImplementation(() => false);
 });
 
 afterEach(() => {
@@ -186,16 +182,11 @@ describe('rendering', () => {
   });
 
   it('should render hotspot header in sticky mode', async () => {
-    jest.mocked(useScrollDownCompress).mockImplementation(() => ({
-      isScrolled: true,
-      isCompressed: true,
-      resetScrollDownCompress: jest.fn(),
-    }));
+    jest.mocked(useStickyDetection).mockImplementation(() => true);
 
     renderSecurityHotspotsApp();
 
-    expect(await ui.reviewButton.find()).toBeInTheDocument();
-    expect(ui.activeAssignee.query()).not.toBeInTheDocument();
+    expect(await ui.reviewButton.findAll()).toHaveLength(2);
   });
 });
 

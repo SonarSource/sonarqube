@@ -25,6 +25,8 @@ import { fillBranchLike } from '../../../helpers/branch-like';
 import { Standards } from '../../../types/security';
 import { Hotspot, HotspotStatusOption } from '../../../types/security-hotspots';
 import { Component } from '../../../types/types';
+import { HotspotHeader } from './HotspotHeader';
+
 import { CurrentUser } from '../../../types/users';
 import { RuleDescriptionSection } from '../../coding-rules/rule';
 import HotspotReviewHistoryAndComments from './HotspotReviewHistoryAndComments';
@@ -83,6 +85,13 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
 
       {hotspot && (
         <div className="sw-box-border sw-p-6">
+          <HotspotHeader
+            branchLike={branchLike}
+            component={component}
+            hotspot={hotspot}
+            onUpdateHotspot={props.onUpdateHotspot}
+            standards={standards}
+          />
           <HotspotViewerTabs
             activityTabContent={
               <HotspotReviewHistoryAndComments
@@ -92,6 +101,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
               />
             }
             branchLike={branchLike}
+            component={component}
             codeTabContent={
               <HotspotSnippetContainer
                 branchLike={branchLike}
@@ -101,12 +111,10 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
                 selectedHotspotLocation={selectedHotspotLocation}
               />
             }
-            component={component}
             hotspot={hotspot}
             onUpdateHotspot={props.onUpdateHotspot}
             ruleDescriptionSections={ruleDescriptionSections}
             ruleLanguage={ruleLanguage}
-            standards={standards}
           />
         </div>
       )}

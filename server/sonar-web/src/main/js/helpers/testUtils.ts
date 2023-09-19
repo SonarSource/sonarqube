@@ -158,3 +158,30 @@ export async function waitAndUpdate(wrapper: ShallowWrapper<any, any> | ReactWra
   await new Promise(setImmediate);
   wrapper.update();
 }
+
+export function mockIntersectionObserver(): Function {
+  let callback: Function;
+
+  // @ts-ignore
+  global.IntersectionObserver = jest.fn((cb: Function) => {
+    const instance = {
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+    };
+
+    callback = cb;
+
+    callback([
+      {
+        isIntersecting: true,
+        intersectionRatio: 1,
+        boundingClientRect: { top: 0 },
+        intersectionRect: { top: 0 },
+      },
+    ]);
+    return instance;
+  });
+
+  return (entry: IntersectionObserverEntry) => callback([entry]);
+}
