@@ -86,7 +86,7 @@ public class UserRegistrarImpl implements UserRegistrar {
       if (!userDto.isActive()) {
         return registerNewUser(dbSession, userDto, registration);
       }
-      return registerExistingUser(dbSession, userDto, registration);
+      return updateExistingUser(dbSession, userDto, registration);
     }
   }
 
@@ -184,7 +184,7 @@ public class UserRegistrarImpl implements UserRegistrar {
     }
   }
 
-  private UserDto registerExistingUser(DbSession dbSession, UserDto userDto, UserRegistration authenticatorParameters) {
+  private UserDto updateExistingUser(DbSession dbSession, UserDto userDto, UserRegistration authenticatorParameters) {
     UpdateUser update = new UpdateUser()
       .setEmail(authenticatorParameters.getUserIdentity().getEmail())
       .setName(authenticatorParameters.getUserIdentity().getName())
@@ -268,9 +268,9 @@ public class UserRegistrarImpl implements UserRegistrar {
     return Optional.of(defaultGroupFinder.findDefaultGroup(dbSession));
   }
 
-  private static NewUser createNewUser(UserRegistration authenticatorParameters) {
+  private NewUser createNewUser(UserRegistration authenticatorParameters) {
     String identityProviderKey = authenticatorParameters.getProvider().getKey();
-    if (!authenticatorParameters.getProvider().allowsUsersToSignUp()) {
+    if (!managedInstanceService.isInstanceExternallyManaged() && !authenticatorParameters.getProvider().allowsUsersToSignUp()) {
       throw AuthenticationException.newBuilder()
         .setSource(authenticatorParameters.getSource())
         .setLogin(authenticatorParameters.getUserIdentity().getProviderLogin())

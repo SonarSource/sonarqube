@@ -251,10 +251,19 @@ public class UserRegistrarImplIT {
   }
 
   @Test
-  public void register_whenNewManagedUserAndManagedInstance_shouldCreateAndReturnUser() {
+  public void register_whenNewManagedUserAndManagedInstanceAndSignupTrue_shouldCreateAndReturnUser() {
+    register_whenNewManagedUserAndManagedInstance_shouldCreateAndReturnUser(true);
+  }
+
+  @Test
+  public void register_whenNewManagedUserAndManagedInstanceAndSignupFalse_shouldCreateAndReturnUser() {
+    register_whenNewManagedUserAndManagedInstance_shouldCreateAndReturnUser(false);
+  }
+
+  private void register_whenNewManagedUserAndManagedInstance_shouldCreateAndReturnUser(boolean signup) {
     when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
 
-    TestIdentityProvider identityProvider = composeIdentityProvider("saml", "Okta", true, true);
+    TestIdentityProvider identityProvider = composeIdentityProvider("saml", "Okta", true, signup);
     Source source = realm(AuthenticationEvent.Method.FORM, identityProvider.getName());
     UserRegistration registration = composeUserRegistration(USER_IDENTITY, identityProvider, source, true);
 
