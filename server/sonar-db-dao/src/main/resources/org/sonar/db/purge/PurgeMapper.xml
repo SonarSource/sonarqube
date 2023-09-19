@@ -582,11 +582,16 @@
       or entity_uuid=#{rootUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteNewCodePeriodsByRootUuid">
+  <delete id="deleteNewCodePeriodsByProjectUuid">
     DELETE FROM new_code_periods
     WHERE
-      branch_uuid=#{rootUuid,jdbcType=VARCHAR}
-      OR project_uuid=#{rootUuid,jdbcType=VARCHAR}
+      project_uuid=#{projectUuid,jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteNewCodePeriodsByBranchUuid">
+    DELETE FROM new_code_periods
+    WHERE
+      branch_uuid=#{branchUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteWebhooksByProjectUuid">

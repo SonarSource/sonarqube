@@ -263,7 +263,7 @@ public class PurgeCommandsIT {
 
   @Test
   @UseDataProvider("projectsAndViews")
-  public void deleteAnalyses_by_rootUuid_deletes_event_component_changes(ComponentDto projectOrView) {
+  public void deleteEventComponentChanges_shouldDeleteEventComponentChanges(ComponentDto projectOrView) {
     dbTester.components().insertComponent(projectOrView);
     ComponentDto otherProject = dbTester.components().insertPrivateProject().getMainBranchComponent();
     int count = 5;
@@ -272,7 +272,7 @@ public class PurgeCommandsIT {
       insertRandomEventComponentChange(otherProject);
     });
 
-    underTest.deleteAnalyses(projectOrView.uuid());
+    underTest.deleteEventComponentChanges(projectOrView.uuid());
 
     assertThat(countEventComponentChangesOf(projectOrView)).isZero();
     assertThat(countEventComponentChangesOf(otherProject)).isEqualTo(count);
@@ -646,7 +646,7 @@ public class PurgeCommandsIT {
     dbTester.newCodePeriods().insert(project.uuid(), branch.getUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "1");
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
-    purgeCommands.deleteNewCodePeriods(branch.getUuid());
+    purgeCommands.deleteNewCodePeriodsForBranch(branch.getUuid());
 
     // should delete branch settings only
     assertThat(dbTester.countRowsOfTable("new_code_periods")).isEqualTo(2);
@@ -668,7 +668,7 @@ public class PurgeCommandsIT {
     dbTester.newCodePeriods().insert(project.uuid(), branch.getUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "1");
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
-    purgeCommands.deleteNewCodePeriods(project.uuid());
+    purgeCommands.deleteNewCodePeriodsForProject(project.uuid());
 
     // should delete branch and project settings only
     assertThat(dbTester.countRowsOfTable("new_code_periods")).isOne();
@@ -690,7 +690,7 @@ public class PurgeCommandsIT {
     dbTester.newCodePeriods().insert(project.uuid(), branch.getUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "1");
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
-    purgeCommands.deleteNewCodePeriods(null);
+    purgeCommands.deleteNewCodePeriodsForProject(null);
 
     // should delete branch and project settings only
     assertThat(dbTester.countRowsOfTable("new_code_periods")).isEqualTo(3);
