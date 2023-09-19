@@ -21,6 +21,7 @@ package org.sonar.server.platform.web;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -41,6 +42,8 @@ public class ApiV2Servlet implements Servlet {
   private ServletConfig config = null;
   private DispatcherServlet dispatcherLevel4 = null;
   private DispatcherServlet dispatcherSafeMode = null;
+
+  private final CountDownLatch safeModeInitializationCompletedLatch = new CountDownLatch(2);
 
   public ApiV2Servlet() {
     this.servletProvider = DispatcherServlet::new;
@@ -69,11 +72,13 @@ public class ApiV2Servlet implements Servlet {
     }
     if (dispatcherSafeMode != null) {
       dispatcherSafeMode.init(config);
+      safeModeInitializationCompletedLatch.countDown();
     }
   }
 
   public void initDispatcherSafeMode(PlatformLevel platformLevel) {
-    this.dispatcherSafeMode = initDispatcherServlet(platformLevel, SafeModeWebConfig.class);
+    dispatcherSafeMode = initDispatcherServlet(platformLevel, SafeModeWebConfig.class);
+    safeModeInitializationCompletedLatch.countDown();
   }
 
   public void initDispatcherLevel4(PlatformLevel platformLevel) {
@@ -116,6 +121,12 @@ public class ApiV2Servlet implements Servlet {
 
   private void destroyDispatcherSafeMode() {
     if (dispatcherSafeMode != null) {
+      try {
+        safeModeInitializationCompletedLatch.await();
+      } catch (InterruptedException ie) {
+        Thread.currentThread().interrupt();
+        throw new IllegalStateException(ie);
+      }
       DispatcherServlet dispatcherToDestroy = dispatcherSafeMode;
       dispatcherSafeMode = null;
       dispatcherToDestroy.destroy();

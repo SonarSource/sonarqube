@@ -97,8 +97,8 @@ public class ApiV2ServletTest {
     DispatcherServlet mockDispatcherServletLevel4 = mock(DispatcherServlet.class);
 
     underTest.setServletProvider(context -> mockDispatcherServletSafeMode);
-    underTest.init(mock(ServletConfig.class));
     underTest.initDispatcherSafeMode(mockPlatformLevel);
+    underTest.init(mock(ServletConfig.class));
     ServletRequest mockRequest1 = mock(ServletRequest.class);
     ServletResponse mockResponse1 = mock(ServletResponse.class);
     underTest.service(mockRequest1, mockResponse1);
@@ -141,13 +141,14 @@ public class ApiV2ServletTest {
   }
 
   @Test
-  public void initDispatcherServlet_initLevel4ShouldDestroySafeMode() {
+  public void initDispatcherServlet_initLevel4ShouldDestroySafeMode() throws ServletException {
     PlatformLevel mockPlatformLevel = getMockPlatformLevel();
     ApiV2Servlet underTest = new ApiV2Servlet();
 
     DispatcherServlet mockDispatcherServletSafeMode = mock(DispatcherServlet.class);
     underTest.setServletProvider(context -> mockDispatcherServletSafeMode);
     underTest.initDispatcherSafeMode(mockPlatformLevel);
+    underTest.init(mock(ServletConfig.class));
 
     underTest.setServletProvider(context -> mock(DispatcherServlet.class));
 
@@ -171,13 +172,14 @@ public class ApiV2ServletTest {
   }
 
   @Test
-  public void destroy_shouldDestroyDispatcherSafeMode() {
+  public void destroy_shouldDestroyDispatcherSafeMode() throws ServletException {
     PlatformLevel mockPlatformLevel = getMockPlatformLevel();
     ApiV2Servlet underTest = new ApiV2Servlet();
     DispatcherServlet mockDispatcherServletSafeMode = mock(DispatcherServlet.class);
 
     underTest.setServletProvider(context -> mockDispatcherServletSafeMode);
     underTest.initDispatcherSafeMode(mockPlatformLevel);
+    underTest.init(mock(ServletConfig.class));
 
     underTest.destroy();
 
