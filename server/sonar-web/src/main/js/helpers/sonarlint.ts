@@ -17,34 +17,51 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { getHostUrl } from '../helpers/urls';
 import { Ide } from '../types/sonarlint';
 import { NewUserToken } from '../types/token';
 import { checkStatus, isSuccessStatus } from './request';
 
-const SONARLINT_PORT_START = 64120;
-const SONARLINT_PORT_RANGE = 11;
+export const SONARLINT_PORT_START = 64120;
+export const SONARLINT_PORT_RANGE = 11;
 
 export async function probeSonarLintServers(): Promise<Array<Ide>> {
   const probedPorts = buildPortRange();
+
   const probeRequests = probedPorts.map((p) =>
     fetch(buildSonarLintEndpoint(p, '/status'))
       .then((r) => r.json())
       .then((json) => {
         const { ideName, description } = json;
+
         return { port: p, ideName, description } as Ide;
       })
       .catch(() => undefined),
   );
+
   const results = await Promise.all(probeRequests);
+
   return results.filter((r) => r !== undefined) as Ide[];
 }
 
 export function openHotspot(calledPort: number, projectKey: string, hotspotKey: string) {
   const showUrl = new URL(buildSonarLintEndpoint(calledPort, '/hotspots/show'));
+
   showUrl.searchParams.set('server', getHostUrl());
   showUrl.searchParams.set('project', projectKey);
   showUrl.searchParams.set('hotspot', hotspotKey);
+
+  return fetch(showUrl.toString()).then((response: Response) => checkStatus(response, true));
+}
+
+export function openIssue(calledPort: number, projectKey: string, issueKey: string) {
+  const showUrl = new URL(buildSonarLintEndpoint(calledPort, '/issues/show'));
+
+  showUrl.searchParams.set('server', getHostUrl());
+  showUrl.searchParams.set('project', projectKey);
+  showUrl.searchParams.set('issue', issueKey);
+
   return fetch(showUrl.toString()).then((response: Response) => checkStatus(response, true));
 }
 

@@ -34,6 +34,7 @@ import {
   withTheme,
 } from 'design-system';
 import * as React from 'react';
+import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import Tooltip from '../../../components/controls/Tooltip';
 import { ClipboardBase } from '../../../components/controls/clipboard';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
@@ -43,32 +44,39 @@ import { getBranchLikeUrl, getComponentIssuesUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { SourceViewerFile } from '../../../types/types';
+import { CurrentUser, isLoggedIn } from '../../../types/users';
+import { IssueOpenInIdeButton } from '../components/IssueOpenInIdeButton';
 
 export const INTERACTIVE_TOOLTIP_DELAY = 0.5;
 
 export interface Props {
   branchLike: BranchLike | undefined;
   className?: string;
-  expandable?: boolean;
+  currentUser: CurrentUser;
   displayProjectName?: boolean;
+  expandable?: boolean;
+  issueKey: string;
   linkToProject?: boolean;
   loading?: boolean;
   onExpand?: () => void;
   sourceViewerFile: SourceViewerFile;
 }
 
-function IssueSourceViewerHeader(props: Props & ThemeProp) {
+function IssueSourceViewerHeader(props: Readonly<Props> & ThemeProp) {
   const {
     branchLike,
     className,
-    expandable,
+    currentUser,
     displayProjectName = true,
+    expandable,
+    issueKey,
     linkToProject = true,
     loading,
     onExpand,
     sourceViewerFile,
     theme,
   } = props;
+
   const { measures, path, project, projectName, q } = sourceViewerFile;
 
   const isProjectRoot = q === ComponentQualifier.Project;
@@ -82,12 +90,12 @@ function IssueSourceViewerHeader(props: Props & ThemeProp) {
 
   return (
     <IssueSourceViewerStyle
+      aria-label={sourceViewerFile.path}
       className={classNames(
         'sw-flex sw-justify-space-between sw-items-center sw-px-4 sw-py-3 sw-text-sm',
         className,
       )}
       role="separator"
-      aria-label={sourceViewerFile.path}
     >
       <div className="sw-flex-1">
         {displayProjectName && (
@@ -138,6 +146,10 @@ function IssueSourceViewerHeader(props: Props & ThemeProp) {
         )}
       </div>
 
+      {!isProjectRoot && isLoggedIn(currentUser) && (
+        <IssueOpenInIdeButton issueKey={issueKey} projectKey={project} />
+      )}
+
       {!isProjectRoot && measures.issues !== undefined && (
         <div
           className={classNames('sw-ml-4', {
@@ -172,4 +184,4 @@ function IssueSourceViewerHeader(props: Props & ThemeProp) {
   );
 }
 
-export default withTheme(IssueSourceViewerHeader);
+export default withCurrentUserContext(withTheme(IssueSourceViewerHeader));

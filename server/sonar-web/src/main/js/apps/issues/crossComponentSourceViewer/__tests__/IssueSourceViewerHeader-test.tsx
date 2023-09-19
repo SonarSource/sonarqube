@@ -75,6 +75,7 @@ function renderIssueSourceViewerHeader(props: Partial<Props> = {}) {
     <IssueSourceViewerHeader
       branchLike={mockMainBranch()}
       expandable
+      issueKey="issue-key"
       onExpand={jest.fn()}
       sourceViewerFile={mockSourceViewerFile('foo/bar.ts', 'my-project')}
       {...props}

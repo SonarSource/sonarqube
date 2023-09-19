@@ -305,6 +305,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
           branchLike={branchLike}
           className={issueIsClosed && !issueIsFileLevel ? 'null-spacer-bottom' : ''}
           expandable={isExpandable(snippets, snippetGroup)}
+          issueKey={issue.key}
           loading={loading}
           onExpand={this.expandComponent}
           sourceViewerFile={snippetGroup.component}

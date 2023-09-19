@@ -92,7 +92,7 @@ const ui = {
   hotspotTitle: (name: string | RegExp) => byRole('heading', { name }),
   inputAssignee: byRole('combobox', { name: 'search.search_for_users' }),
   noHotspotForFilter: byText('hotspots.no_hotspots_for_filters.title'),
-  openInIDEButton: byRole('button', { name: 'hotspots.open_in_ide.open' }),
+  openInIDEButton: byRole('button', { name: 'open_in_ide' }),
   panel: byTestId('security-hotspot-test'),
   reviewButton: byRole('button', { name: 'hotspots.status.review' }),
   riskContent: byText('Root cause'),
