@@ -19,13 +19,14 @@
  */
 import * as React from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { getApplicationLeak } from '../../../api/application';
 import {
+  ProjectActivityStatuses,
   changeEvent,
   createEvent,
   deleteAnalysis,
   deleteEvent,
   getProjectActivity,
-  ProjectActivityStatuses,
 } from '../../../api/projectActivity';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
@@ -42,7 +43,12 @@ import { parseDate } from '../../../helpers/dates';
 import { serializeStringArray } from '../../../helpers/query';
 import { withBranchLikes } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
+import {
+  ComponentQualifier,
+  isApplication,
+  isPortfolioLike,
+  isProject,
+} from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import {
   GraphType,
@@ -53,9 +59,9 @@ import {
 import { Component, Dict, Metric, Paging, RawQuery } from '../../../types/types';
 import * as actions from '../actions';
 import {
+  Query,
   customMetricsChanged,
   parseQuery,
-  Query,
   serializeQuery,
   serializeUrlQuery,
 } from '../utils';
@@ -72,6 +78,7 @@ interface Props {
 export interface State {
   analyses: ParsedAnalysis[];
   analysesLoading: boolean;
+  leakPeriodDate?: Date;
   graphLoading: boolean;
   initialized: boolean;
   measuresHistory: MeasureHistory[];
@@ -287,40 +294,53 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
     );
   };
 
-  firstLoadData(query: Query, component: Component) {
+  async firstLoadData(query: Query, component: Component) {
     const graphMetrics = getHistoryMetrics(query.graph || DEFAULT_GRAPH, query.customMetrics);
     const topLevelComponent = this.getTopLevelComponent(component);
-    Promise.all([
-      this.fetchActivity(
-        topLevelComponent,
-        [
-          ProjectActivityStatuses.STATUS_PROCESSED,
-          ProjectActivityStatuses.STATUS_LIVE_MEASURE_COMPUTE,
-        ],
-        1,
-        ACTIVITY_PAGE_SIZE_FIRST_BATCH,
-        serializeQuery(query),
-      ),
-      this.fetchMeasuresHistory(graphMetrics),
-    ]).then(
-      ([{ analyses }, measuresHistory]) => {
-        if (this.mounted) {
-          this.setState({
-            analyses,
-            graphLoading: false,
-            initialized: true,
-            measuresHistory,
-          });
+    try {
+      const [{ analyses }, measuresHistory, leaks] = await Promise.all([
+        this.fetchActivity(
+          topLevelComponent,
+          [
+            ProjectActivityStatuses.STATUS_PROCESSED,
+            ProjectActivityStatuses.STATUS_LIVE_MEASURE_COMPUTE,
+          ],
+          1,
+          ACTIVITY_PAGE_SIZE_FIRST_BATCH,
+          serializeQuery(query),
+        ),
+        this.fetchMeasuresHistory(graphMetrics),
+        component.qualifier === ComponentQualifier.Application
+          ? // eslint-disable-next-line local-rules/no-api-imports
+            getApplicationLeak(component.key)
+          : undefined,
+      ]);
 
-          this.fetchAllActivities(topLevelComponent);
+      if (this.mounted) {
+        let leakPeriodDate;
+        if (isApplication(component.qualifier) && leaks?.length) {
+          [leakPeriodDate] = leaks
+            .map((leak) => parseDate(leak.date))
+            .sort((d1, d2) => d2.getTime() - d1.getTime());
+        } else if (isProject(component.qualifier) && component.leakPeriodDate) {
+          leakPeriodDate = parseDate(component.leakPeriodDate);
         }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ initialized: true, graphLoading: false });
-        }
-      },
-    );
+
+        this.setState({
+          analyses,
+          graphLoading: false,
+          initialized: true,
+          leakPeriodDate,
+          measuresHistory,
+        });
+
+        this.fetchAllActivities(topLevelComponent);
+      }
+    } catch (error) {
+      if (this.mounted) {
+        this.setState({ initialized: true, graphLoading: false });
+      }
+    }
   }
 
   updateGraphData = (graph: GraphType, customMetrics: string[]) => {
@@ -367,6 +387,7 @@ class ProjectActivityApp extends React.PureComponent<Props, State> {
         onDeleteAnalysis={this.handleDeleteAnalysis}
         onDeleteEvent={this.handleDeleteEvent}
         graphLoading={!this.state.initialized || this.state.graphLoading}
+        leakPeriodDate={this.state.leakPeriodDate}
         initializing={!this.state.initialized}
         measuresHistory={this.state.measuresHistory}
         metrics={metrics}

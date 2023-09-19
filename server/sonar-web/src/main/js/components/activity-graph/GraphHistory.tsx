@@ -106,9 +106,13 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
     return (
       <StyledGraphContainer className="sw-flex sw-flex-col sw-justify-center sw-items-stretch sw-grow sw-py-2">
         {isCustom && this.props.removeCustomMetric ? (
-          <GraphsLegendCustom removeMetric={this.props.removeCustomMetric} series={series} />
+          <GraphsLegendCustom
+            leakPeriodDate={leakPeriodDate}
+            removeMetric={this.props.removeCustomMetric}
+            series={series}
+          />
         ) : (
-          <GraphsLegendStatic series={series} />
+          <GraphsLegendStatic leakPeriodDate={leakPeriodDate} series={series} />
         )}
 
         <div className="sw-flex-1">

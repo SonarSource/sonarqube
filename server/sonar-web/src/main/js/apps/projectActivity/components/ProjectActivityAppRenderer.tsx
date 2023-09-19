@@ -47,6 +47,7 @@ interface Props {
   onDeleteAnalysis: (analysis: string) => Promise<void>;
   onDeleteEvent: (analysis: string, event: string) => Promise<void>;
   graphLoading: boolean;
+  leakPeriodDate?: Date;
   initializing: boolean;
   project: Pick<Component, 'configuration' | 'key' | 'leakPeriodDate' | 'qualifier'>;
   metrics: Metric[];
@@ -63,6 +64,7 @@ export default function ProjectActivityAppRenderer(props: Props) {
       props.project.qualifier === ComponentQualifier.Application) &&
     (configuration ? configuration.showHistory : false);
   const canDeleteAnalyses = configuration ? configuration.showHistory : false;
+  const leakPeriodDate = props.leakPeriodDate ? parseDate(props.leakPeriodDate) : undefined;
   return (
     <main className="sw-p-5" id="project-activity">
       <Suggestions suggestions="project_activity" />
@@ -92,9 +94,7 @@ export default function ProjectActivityAppRenderer(props: Props) {
                 onDeleteAnalysis={props.onDeleteAnalysis}
                 onDeleteEvent={props.onDeleteEvent}
                 initializing={props.initializing}
-                leakPeriodDate={
-                  props.project.leakPeriodDate ? parseDate(props.project.leakPeriodDate) : undefined
-                }
+                leakPeriodDate={leakPeriodDate}
                 project={props.project}
                 query={query}
                 onUpdateQuery={props.onUpdateQuery}
@@ -103,9 +103,7 @@ export default function ProjectActivityAppRenderer(props: Props) {
             <StyledWrapper className="sw-col-span-8 sw-rounded-1">
               <ProjectActivityGraphs
                 analyses={analyses}
-                leakPeriodDate={
-                  props.project.leakPeriodDate ? parseDate(props.project.leakPeriodDate) : undefined
-                }
+                leakPeriodDate={leakPeriodDate}
                 loading={props.graphLoading}
                 measuresHistory={measuresHistory}
                 metrics={props.metrics}

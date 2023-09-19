@@ -25,10 +25,11 @@ import { Serie } from '../../types/project-activity';
 import { GraphsLegendItem } from './GraphsLegendItem';
 
 export interface GraphsLegendStaticProps {
+  leakPeriodDate?: Date;
   series: Array<Pick<Serie, 'name' | 'translatedName'>>;
 }
 
-export default function GraphsLegendStatic({ series }: GraphsLegendStaticProps) {
+export default function GraphsLegendStatic({ series, leakPeriodDate }: GraphsLegendStaticProps) {
   return (
     <ul className="activity-graph-legends sw-flex sw-justify-center sw-items-center sw-pb-4">
       {series.map((serie, idx) => (
@@ -41,12 +42,14 @@ export default function GraphsLegendStatic({ series }: GraphsLegendStaticProps) 
           />
         </li>
       ))}
-      <li key={translate('hotspot.filters.period.since_leak_period')}>
-        <NewCodeLegend
-          className="sw-mr-2"
-          text={translate('hotspot.filters.period.since_leak_period')}
-        />
-      </li>
+      {leakPeriodDate && (
+        <li key={translate('hotspot.filters.period.since_leak_period')}>
+          <NewCodeLegend
+            className="sw-mr-2"
+            text={translate('hotspot.filters.period.since_leak_period')}
+          />
+        </li>
+      )}
     </ul>
   );
 }

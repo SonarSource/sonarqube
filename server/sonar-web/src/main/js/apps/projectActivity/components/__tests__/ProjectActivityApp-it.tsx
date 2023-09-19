@@ -24,6 +24,7 @@ import { keyBy, times } from 'lodash';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { Route } from 'react-router-dom';
+import ApplicationServiceMock from '../../../../api/mocks/ApplicationServiceMock';
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { TimeMachineServiceMock } from '../../../../api/mocks/TimeMachineServiceMock';
 import { parseDate } from '../../../../helpers/dates';
@@ -56,11 +57,13 @@ jest.mock('../../../../helpers/storage', () => ({
   save: jest.fn(),
 }));
 
+const applicationHandler = new ApplicationServiceMock();
 const projectActivityHandler = new ProjectActivityServiceMock();
 const timeMachineHandler = new TimeMachineServiceMock();
 
 beforeEach(() => {
   jest.clearAllMocks();
+  applicationHandler.reset();
   projectActivityHandler.reset();
   timeMachineHandler.reset();
 
@@ -92,6 +95,56 @@ describe('rendering', () => {
     expect(ui.graphTypeIssues.get()).toBeInTheDocument();
     expect(ui.graphs.getAll().length).toBe(1);
   });
+
+  it('should render new code legend for applications', async () => {
+    const { ui } = getPageObject();
+
+    renderProjectActivityAppContainer(
+      mockComponent({
+        qualifier: ComponentQualifier.Application,
+        breadcrumbs: [
+          { key: 'breadcrumb', name: 'breadcrumb', qualifier: ComponentQualifier.Application },
+        ],
+      }),
+    );
+    await ui.appLoaded();
+
+    expect(ui.newCodeLegend.get()).toBeInTheDocument();
+  });
+
+  it('should render new code legend for projects', async () => {
+    const { ui } = getPageObject();
+
+    renderProjectActivityAppContainer(
+      mockComponent({
+        qualifier: ComponentQualifier.Project,
+        breadcrumbs: [
+          { key: 'breadcrumb', name: 'breadcrumb', qualifier: ComponentQualifier.Project },
+        ],
+        leakPeriodDate: parseDate('2017-03-01T22:00:00.000Z').toDateString(),
+      }),
+    );
+    await ui.appLoaded();
+
+    expect(ui.newCodeLegend.get()).toBeInTheDocument();
+  });
+
+  it.each([ComponentQualifier.Portfolio, ComponentQualifier.SubPortfolio])(
+    'should not render new code legend for %s',
+    async (qualifier) => {
+      const { ui } = getPageObject();
+
+      renderProjectActivityAppContainer(
+        mockComponent({
+          qualifier,
+          breadcrumbs: [{ key: 'breadcrumb', name: 'breadcrumb', qualifier }],
+        }),
+      );
+      await ui.appLoaded();
+
+      expect(ui.newCodeLegend.query()).not.toBeInTheDocument();
+    },
+  );
 
   it('should correctly show the baseline marker', async () => {
     const { ui } = getPageObject();
@@ -416,6 +469,9 @@ function getPageObject() {
     // Add metrics.
     addMetricBtn: byRole('button', { name: 'project_activity.graphs.custom.add' }),
     metricCheckbox: (name: MetricKey) => byRole('checkbox', { name }),
+
+    // Graph legend.
+    newCodeLegend: byText('hotspot.filters.period.since_leak_period'),
 
     // Filtering.
     categorySelect: byLabelText('project_activity.filter_events'),
