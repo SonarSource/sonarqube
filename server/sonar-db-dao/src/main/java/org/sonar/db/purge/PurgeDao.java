@@ -91,7 +91,7 @@ public class PurgeDao implements Dao {
 
     for (String branchUuid : branchUuids) {
       if (!rootUuid.equals(branchUuid)) {
-        deleteRootComponent(branchUuid, mapper, commands);
+        deleteBranch(branchUuid, commands);
       }
     }
   }
@@ -225,9 +225,8 @@ public class PurgeDao implements Dao {
 
   public void deleteBranch(DbSession session, String uuid) {
     PurgeProfiler profiler = new PurgeProfiler();
-    PurgeMapper purgeMapper = mapper(session);
     PurgeCommands purgeCommands = new PurgeCommands(session, profiler, system2);
-    deleteRootComponent(uuid, purgeMapper, purgeCommands);
+    deleteBranch(uuid, purgeCommands);
   }
 
   public void deleteProject(DbSession session, String uuid, String qualifier, String name, String key) {
@@ -242,9 +241,9 @@ public class PurgeDao implements Dao {
       .map(BranchDto::getUuid)
       .toList();
 
-    branchUuids.forEach(id -> deleteRootComponent(id, purgeMapper, purgeCommands));
+    branchUuids.forEach(id -> deleteBranch(id, purgeCommands));
 
-    deleteRootComponent(uuid, purgeMapper, purgeCommands);
+    deleteProject(uuid, purgeMapper, purgeCommands);
     auditPersister.deleteComponent(session, new ComponentNewValue(uuid, name, key, qualifier));
     logProfiling(profiler, start);
   }
@@ -265,35 +264,52 @@ public class PurgeDao implements Dao {
     LOG.debug("");
   }
 
-  private static void deleteRootComponent(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {
-    List<String> rootAndSubviews = mapper.selectRootAndSubviewsByProjectUuid(rootUuid);
-    commands.deleteLinks(rootUuid);
-    commands.deleteScannerCache(rootUuid);
-    commands.deleteAnalyses(rootUuid);
+  private static void deleteBranch(String branchUuid, PurgeCommands commands) {
+    commands.deleteScannerCache(branchUuid);
+    commands.deleteAnalyses(branchUuid);
+    commands.deleteIssues(branchUuid);
+    commands.deleteFileSources(branchUuid);
+    commands.deleteCeActivity(branchUuid);
+    commands.deleteCeQueue(branchUuid);
+    commands.deleteLiveMeasures(branchUuid);
+    commands.deleteNewCodePeriodsForBranch(branchUuid);
+    commands.deleteBranch(branchUuid);
+    commands.deleteApplicationBranchProjects(branchUuid);
+    commands.deleteComponents(branchUuid);
+    commands.deleteReportSchedules(branchUuid);
+    commands.deleteReportSubscriptions(branchUuid);
+  }
+
+  private static void deleteProject(String projectUuid, PurgeMapper mapper, PurgeCommands commands) {
+    List<String> rootAndSubviews = mapper.selectRootAndSubviewsByProjectUuid(projectUuid);
+    commands.deleteLinks(projectUuid);
+    commands.deleteScannerCache(projectUuid);
+    commands.deleteEventComponentChanges(projectUuid);
+    commands.deleteAnalyses(projectUuid);
     commands.deleteByRootAndSubviews(rootAndSubviews);
-    commands.deleteIssues(rootUuid);
-    commands.deleteFileSources(rootUuid);
-    commands.deleteCeActivity(rootUuid);
-    commands.deleteCeQueue(rootUuid);
-    commands.deleteWebhooks(rootUuid);
-    commands.deleteWebhookDeliveries(rootUuid);
-    commands.deleteLiveMeasures(rootUuid);
-    commands.deleteProjectAlmSettings(rootUuid);
-    commands.deletePermissions(rootUuid);
-    commands.deleteNewCodePeriods(rootUuid);
-    commands.deleteBranch(rootUuid);
-    commands.deleteApplicationBranchProjects(rootUuid);
-    commands.deleteApplicationProjects(rootUuid);
-    commands.deleteApplicationProjectsByProject(rootUuid);
-    commands.deleteProjectInPortfolios(rootUuid);
-    commands.deleteComponents(rootUuid);
-    commands.deleteNonMainBranchComponentsByProjectUuid(rootUuid);
-    commands.deleteProjectBadgeToken(rootUuid);
-    commands.deleteProject(rootUuid);
-    commands.deleteUserDismissedMessages(rootUuid);
-    commands.deleteOutdatedProperties(rootUuid);
-    commands.deleteReportSchedules(rootUuid);
-    commands.deleteReportSubscriptions(rootUuid);
+    commands.deleteIssues(projectUuid);
+    commands.deleteFileSources(projectUuid);
+    commands.deleteCeActivity(projectUuid);
+    commands.deleteCeQueue(projectUuid);
+    commands.deleteWebhooks(projectUuid);
+    commands.deleteWebhookDeliveries(projectUuid);
+    commands.deleteLiveMeasures(projectUuid);
+    commands.deleteProjectAlmSettings(projectUuid);
+    commands.deletePermissions(projectUuid);
+    commands.deleteNewCodePeriodsForProject(projectUuid);
+    commands.deleteBranch(projectUuid);
+    commands.deleteApplicationBranchProjects(projectUuid);
+    commands.deleteApplicationProjects(projectUuid);
+    commands.deleteApplicationProjectsByProject(projectUuid);
+    commands.deleteProjectInPortfolios(projectUuid);
+    commands.deleteComponents(projectUuid);
+    commands.deleteNonMainBranchComponentsByProjectUuid(projectUuid);
+    commands.deleteProjectBadgeToken(projectUuid);
+    commands.deleteProject(projectUuid);
+    commands.deleteUserDismissedMessages(projectUuid);
+    commands.deleteOutdatedProperties(projectUuid);
+    commands.deleteReportSchedules(projectUuid);
+    commands.deleteReportSubscriptions(projectUuid);
   }
 
   /**

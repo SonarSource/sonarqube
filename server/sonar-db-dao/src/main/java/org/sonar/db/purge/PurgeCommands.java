@@ -55,12 +55,14 @@ class PurgeCommands {
     return purgeMapper.selectAnalysisUuids(query);
   }
 
-  void deleteAnalyses(String rootComponentUuid) {
+  void deleteEventComponentChanges(String rootComponentUuid) {
     profiler.start("deleteAnalyses (event_component_changes)");
     purgeMapper.deleteEventComponentChangesByComponentUuid(rootComponentUuid);
     session.commit();
     profiler.stop();
+  }
 
+  void deleteAnalyses(String rootComponentUuid) {
     profiler.start("deleteAnalyses (events)");
     purgeMapper.deleteEventsByComponentUuid(rootComponentUuid);
     session.commit();
@@ -255,9 +257,9 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void deleteOutdatedProperties(String branchUuid) {
+  void deleteOutdatedProperties(String entityUuid) {
     profiler.start("deleteOutdatedProperties (properties)");
-    purgeMapper.deletePropertiesByEntityUuids(List.of(branchUuid));
+    purgeMapper.deletePropertiesByEntityUuids(List.of(entityUuid));
     session.commit();
     profiler.stop();
   }
@@ -454,9 +456,16 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void deleteNewCodePeriods(String rootUuid) {
+  void deleteNewCodePeriodsForProject(String projectUuid) {
     profiler.start("deleteNewCodePeriods (new_code_periods)");
-    purgeMapper.deleteNewCodePeriodsByRootUuid(rootUuid);
+    purgeMapper.deleteNewCodePeriodsByProjectUuid(projectUuid);
+    session.commit();
+    profiler.stop();
+  }
+
+  void deleteNewCodePeriodsForBranch(String branchUuid) {
+    profiler.start("deleteNewCodePeriods (new_code_periods)");
+    purgeMapper.deleteNewCodePeriodsByBranchUuid(branchUuid);
     session.commit();
     profiler.stop();
   }
@@ -480,9 +489,9 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  public void deleteScannerCache(String rootUuid) {
+  public void deleteScannerCache(String branchUuid) {
     profiler.start("deleteScannerCache (scanner_analysis_cache)");
-    purgeMapper.deleteScannerAnalysisCacheByBranchUuid(rootUuid);
+    purgeMapper.deleteScannerAnalysisCacheByBranchUuid(branchUuid);
     session.commit();
     profiler.stop();
   }
@@ -494,9 +503,9 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  public void deleteReportSubscriptions(String rootUuid) {
+  public void deleteReportSubscriptions(String branchUuid) {
     profiler.start("deleteReportSubscriptions (report_subscriptions)");
-    purgeMapper.deleteReportSubscriptionsByBranchUuid(rootUuid);
+    purgeMapper.deleteReportSubscriptionsByBranchUuid(branchUuid);
     session.commit();
     profiler.stop();
   }

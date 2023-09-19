@@ -266,11 +266,6 @@ public class PurgeDaoIT {
     BranchDto branch3 = db.components().insertProjectBranch(project.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH));
     db.components().insertSnapshot(branch3, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
 
-    // properties exist or active and for inactive branch
-    ComponentDto branch1Component = db.components().getComponentDto(branch1);
-    ComponentDto branch3Component = db.components().getComponentDto(branch3);
-    insertPropertyFor(branch3Component, branch1Component);
-
     // analysing branch1
     underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, branch1.getUuid(), project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
@@ -278,7 +273,6 @@ public class PurgeDaoIT {
     // branch1 wasn't deleted since it was being analyzed!
     assertThat(uuidsIn("components")).containsOnly(project.getMainBranchDto().getUuid(), nonMainBranch.getUuid(), branch1.getUuid());
     assertThat(uuidsIn("projects")).containsOnly(project.getProjectDto().getUuid());
-    assertThat(componentUuidsIn("properties")).containsOnly(branch1.getUuid());
   }
 
   @Test
@@ -592,7 +586,7 @@ public class PurgeDaoIT {
     ProjectData project = db.components().insertPrivateProject();
     ComponentDto directory = db.components().insertComponent(newDirectory(project.getMainBranchComponent(), "a/b"));
     ComponentDto file = db.components().insertComponent(newFileDto(directory));
-    SnapshotDto analysis = db.components().insertSnapshot(project.getProjectDto());
+    SnapshotDto analysis = db.components().insertSnapshot(project.getMainBranchDto());
     IssueDto issue1 = db.issues().insert(rule, project.getMainBranchComponent(), file);
     IssueChangeDto issueChange1 = db.issues().insertChange(issue1);
     IssueDto issue2 = db.issues().insert(rule, project.getMainBranchComponent(), file);
@@ -602,7 +596,7 @@ public class PurgeDaoIT {
     ProjectData otherProject = db.components().insertPrivateProject();
     ComponentDto otherDirectory = db.components().insertComponent(newDirectory(otherProject.getMainBranchComponent(), "a/b"));
     ComponentDto otherFile = db.components().insertComponent(newFileDto(otherDirectory));
-    SnapshotDto otherAnalysis = db.components().insertSnapshot(otherProject.getProjectDto());
+    SnapshotDto otherAnalysis = db.components().insertSnapshot(otherProject.getMainBranchDto());
     IssueDto otherIssue1 = db.issues().insert(rule, otherProject.getMainBranchComponent(), otherFile);
     IssueChangeDto otherIssueChange1 = db.issues().insertChange(otherIssue1);
     IssueDto otherIssue2 = db.issues().insert(rule, otherProject.getMainBranchComponent(), otherFile);
@@ -693,8 +687,9 @@ public class PurgeDaoIT {
     db.components().addProjectBranchToApplicationBranch(dbClient.branchDao().selectByUuid(dbSession, appBranch.getUuid()).get(), projectBranch);
     db.components().addProjectBranchToApplicationBranch(dbClient.branchDao().selectByUuid(dbSession, otherAppBranch.getUuid()).get(), projectBranch);
 
-    // properties exist or active and for inactive branch
-    insertPropertyFor(appBranchComponent, otherAppBranchComponent);
+    // properties exist only for entities, not branches
+    insertPropertyFor(app.getProjectDto());
+    insertPropertyFor(otherApp.getProjectDto());
 
     insertReportScheduleAndSubscriptionForBranch(appBranch.getUuid(), dbSession);
 
@@ -710,7 +705,8 @@ public class PurgeDaoIT {
     assertThat(uuidsIn("project_measures")).containsOnly(appMeasure.getUuid(), otherAppMeasure.getUuid(), otherAppBranchMeasure.getUuid());
     assertThat(uuidsIn("app_projects", "application_uuid")).containsOnly(app.getProjectDto().getUuid(), otherApp.getProjectDto().getUuid());
     assertThat(uuidsIn("app_branch_project_branch", "application_branch_uuid")).containsOnly(otherAppBranch.getUuid());
-    assertThat(componentUuidsIn("properties")).containsOnly(otherAppBranch.getUuid());
+    //properties should not change as we are deleting a branch, not application
+    assertThat(componentUuidsIn("properties")).containsOnly(otherApp.projectUuid(), app.projectUuid());
     assertThat(uuidsIn("report_schedules", "branch_uuid")).isEmpty();
     assertThat(uuidsIn("report_subscriptions", "branch_uuid")).isEmpty();
 
@@ -1165,18 +1161,14 @@ public class PurgeDaoIT {
     int projectEntryCount = db.countRowsOfTable("components");
     int issueCount = db.countRowsOfTable("issues");
     int branchCount = db.countRowsOfTable("project_branches");
-    Collection<BranchDto> anotherLivingProjectBranches = db.getDbClient().branchDao()
-      .selectByProject(db.getSession(), anotherLivingProject);
-    insertPropertyFor(anotherLivingProjectBranches);
+    insertPropertyFor(anotherLivingProject);
 
-    assertThat(db.countRowsOfTable("properties")).isEqualTo(anotherLivingProjectBranches.size());
+    assertThat(db.countRowsOfTable("properties")).isEqualTo(1);
 
     ProjectDto projectToDelete = insertProjectWithBranchAndRelatedData();
-    Collection<BranchDto> projectToDeleteBranches = db.getDbClient().branchDao()
-      .selectByProject(db.getSession(), projectToDelete);
-    insertPropertyFor(projectToDeleteBranches);
+    insertPropertyFor(projectToDelete);
 
-    assertThat(db.countRowsOfTable("properties")).isEqualTo(anotherLivingProjectBranches.size() + projectToDeleteBranches.size());
+    assertThat(db.countRowsOfTable("properties")).isEqualTo(2);
     assertThat(db.countRowsOfTable("components")).isGreaterThan(projectEntryCount);
     assertThat(db.countRowsOfTable("issues")).isGreaterThan(issueCount);
     assertThat(db.countRowsOfTable("project_branches")).isGreaterThan(branchCount);
@@ -1187,7 +1179,7 @@ public class PurgeDaoIT {
     assertThat(db.countRowsOfTable("components")).isEqualTo(projectEntryCount);
     assertThat(db.countRowsOfTable("issues")).isEqualTo(issueCount);
     assertThat(db.countRowsOfTable("project_branches")).isEqualTo(branchCount);
-    assertThat(db.countRowsOfTable("properties")).isEqualTo(anotherLivingProjectBranches.size());
+    assertThat(db.countRowsOfTable("properties")).isEqualTo(1);
   }
 
   @Test
@@ -1856,6 +1848,22 @@ public class PurgeDaoIT {
     assertThat(anticipatedTransitionDtos).hasSize(1);
     assertThat(anticipatedTransitionDtos.get(0).getUuid()).isEqualTo("okTransition");
   }
+  
+  @Test
+  public void deleteBranch_shouldNotRemoveOldProjectWithSameUuidAsBranch() {
+    ComponentDto componentDto = ComponentTesting.newPrivateProjectDto().setUuid("uuid");
+    ProjectData projectData = db.components().insertPrivateProject("uuid", componentDto);
+    BranchDto branch = db.components().insertProjectBranch(projectData.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH));
+
+    insertPropertyFor(projectData.getProjectDto());
+
+    underTest.deleteBranch(dbSession, "uuid");
+
+    assertThat(componentUuidsIn("properties")).containsOnly("uuid");
+    assertThat(uuidsIn("project_branches")).containsOnly(branch.getUuid());
+    assertThat(uuidsIn("projects")).containsOnly("uuid");
+
+  }
 
   private AnticipatedTransitionDto getAnticipatedTransitionsDto(String uuid, String projectUuid, Date creationDate) {
     return new AnticipatedTransitionDto(uuid, projectUuid, "userUuid", "transition", null, null, null, null, "rule:key", "filepath", creationDate.getTime());
@@ -1910,12 +1918,12 @@ public class PurgeDaoIT {
       componentDto.getKey(), componentDto.name(), componentDto.qualifier(), null));
   }
 
-  private void insertPropertyFor(Collection<BranchDto> branches) {
-    branches.stream().forEach(branchDto -> db.properties().insertProperty(new PropertyDto()
+  private void insertPropertyFor(ProjectDto project) {
+    db.properties().insertProperty(new PropertyDto()
       .setKey(randomAlphabetic(3))
       .setValue(randomAlphabetic(3))
-      .setEntityUuid(branchDto.getUuid()),
-      null, branchDto.getKey(), null, null));
+      .setEntityUuid(project.getUuid()),
+      null, project.getKey(), null, null);
   }
 
   private Stream<String> getComponentUuidsOfMeasures() {
