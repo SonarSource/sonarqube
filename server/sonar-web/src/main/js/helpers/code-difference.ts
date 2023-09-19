@@ -71,10 +71,10 @@ function differentiateCode(compliant: string, nonCompliant: string) {
   let compliantCode = '';
 
   hunks.forEach((hunk) => {
-    const value = sanitizeString(hunk.value);
+    const { value } = hunk;
     if (!hunk.added && !hunk.removed) {
-      nonCompliantCode += `<div>${value}</div>`;
-      compliantCode += `<div>${value}</div>`;
+      nonCompliantCode += value;
+      compliantCode += value;
     }
 
     if (hunk.added) {
@@ -85,15 +85,15 @@ function differentiateCode(compliant: string, nonCompliant: string) {
       nonCompliantCode += `<div class='code-removed'>${value}</div>`;
     }
   });
-  return [nonCompliantCode, compliantCode];
+  return [sanitizeString(nonCompliantCode), sanitizeString(compliantCode)];
 }
 
 function replaceInDom(current: Element, code: string) {
   const markedCode = document.createElement('pre');
   markedCode.classList.add('code-difference-scrollable');
-  const flexDiv = document.createElement('div');
-  flexDiv.classList.add('code-difference-container');
-  flexDiv.innerHTML = code;
-  markedCode.appendChild(flexDiv);
+  const div = document.createElement('div');
+  div.classList.add('code-difference-container');
+  div.innerHTML = code;
+  markedCode.appendChild(div);
   current.parentNode?.replaceChild(markedCode, current);
 }

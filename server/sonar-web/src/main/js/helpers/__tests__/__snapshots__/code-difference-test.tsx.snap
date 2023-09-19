@@ -8,24 +8,20 @@ HTMLCollection [
     <div
       class="code-difference-container"
     >
-      <div>
-        public void endpoint(HttpServletRequest request, HttpServletResponse response) throws IOException
+      public void endpoint(HttpServletRequest request, HttpServletResponse response) throws IOException
 {
     String data        = request.getParameter("input");
     PrintWriter writer = response.getWriter();
 
 
-      </div>
       <div
         class="code-removed"
       >
             writer.print(data); // Noncompliant
 
       </div>
-      <div>
-        }
+      }
 
-      </div>
     </div>
   </pre>,
   <pre
@@ -41,24 +37,20 @@ HTMLCollection [
 
 
       </div>
-      <div>
-        public void endpoint(HttpServletRequest request, HttpServletResponse response) throws IOException
+      public void endpoint(HttpServletRequest request, HttpServletResponse response) throws IOException
 {
     String data        = request.getParameter("input");
     PrintWriter writer = response.getWriter();
 
 
-      </div>
       <div
         class="code-added"
       >
             writer.print(Encode.forHtml(data));
 
       </div>
-      <div>
-        }
+      }
 
-      </div>
     </div>
   </pre>,
 ]

@@ -198,7 +198,6 @@ const StyledHtmlFormatter = styled(HtmlFormatter)`
   margin-bottom: 1.5rem;
 
   .code-difference-container {
-    display: flex;
     flex-direction: column;
     width: fit-content;
     min-width: 100%;
