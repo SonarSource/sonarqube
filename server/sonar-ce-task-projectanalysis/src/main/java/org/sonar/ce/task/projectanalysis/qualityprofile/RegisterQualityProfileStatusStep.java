@@ -95,7 +95,7 @@ public class RegisterQualityProfileStatusStep implements ComputationStep {
       QualityProfile baseProfile = baseProfiles.get(profile.getQpKey());
       if (baseProfile == null) {
         register(profile, ADDED);
-      } else if  (profile.getRulesUpdatedAt().after(baseProfile.getRulesUpdatedAt())) {
+      } else if (profile.getRulesUpdatedAt().after(baseProfile.getRulesUpdatedAt())) {
         register(baseProfile, UPDATED);
       } else {
         register(baseProfile, UNCHANGED);

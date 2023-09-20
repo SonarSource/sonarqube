@@ -20,7 +20,12 @@
 package org.sonar.server.projectanalysis.ws;
 
 public enum EventCategory {
-  VERSION("Version"), OTHER("Other"), QUALITY_PROFILE("Profile"), QUALITY_GATE("Alert"), DEFINITION_CHANGE("Definition change");
+  VERSION("Version"),
+  OTHER("Other"),
+  QUALITY_PROFILE("Profile"),
+  QUALITY_GATE("Alert"),
+  DEFINITION_CHANGE("Definition change"),
+  ISSUE_DETECTION("Issue Detection");
 
   private final String label;
 

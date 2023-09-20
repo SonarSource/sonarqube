@@ -41,12 +41,23 @@ public class Event {
     this.description = description;
   }
 
+  private Event(String name, Category category) {
+    this.name = requireNonNull(name);
+    this.category = requireNonNull(category);
+    this.data = null;
+    this.description = null;
+  }
+
   public static Event createAlert(String name, @Nullable String data, @Nullable String description) {
     return new Event(name, Category.ALERT, data, description);
   }
 
   public static Event createProfile(String name, @Nullable String data, @Nullable String description) {
     return new Event(name, Category.PROFILE, data, description);
+  }
+
+  public static Event createIssueDetection(String name) {
+    return new Event(name, Category.ISSUE_DETECTION);
   }
 
   public String getName() {
@@ -85,7 +96,7 @@ public class Event {
   }
 
   public enum Category {
-    ALERT, PROFILE
+    ALERT, PROFILE, ISSUE_DETECTION
   }
 
 }

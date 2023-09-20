@@ -86,6 +86,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     // Must be executed after computation of quality gate measure
     QualityGateEventsStep.class,
+    IssueDetectionEventsStep.class,
 
     HandleUnanalyzedLanguagesStep.class,
 

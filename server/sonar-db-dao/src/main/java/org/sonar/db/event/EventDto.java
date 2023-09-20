@@ -32,7 +32,7 @@ public class EventDto {
   public static final String CATEGORY_ALERT = "Alert";
   public static final String CATEGORY_PROFILE = "Profile";
   public static final String CATEGORY_DEFINITION_CHANGE = "Definition change";
-
+  public static final String CATEGORY_ISSUE_DETECTION = "Issue Detection";
   private String uuid;
   private String analysisUuid;
   private String componentUuid;

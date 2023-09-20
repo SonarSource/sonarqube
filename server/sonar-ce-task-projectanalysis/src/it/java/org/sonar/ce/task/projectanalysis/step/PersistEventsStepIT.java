@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -42,6 +41,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.event.EventDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
@@ -49,6 +49,7 @@ import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.db.event.EventDto.CATEGORY_ALERT;
+import static org.sonar.db.event.EventDto.CATEGORY_ISSUE_DETECTION;
 import static org.sonar.db.event.EventDto.CATEGORY_PROFILE;
 import static org.sonar.db.event.EventDto.CATEGORY_VERSION;
 
@@ -82,10 +83,10 @@ public class PersistEventsStepIT extends BaseStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  private Date someDate = new Date(150000000L);
+  private final Date someDate = new Date(150000000L);
 
-  private EventRepository eventRepository = mock(EventRepository.class);
-  private UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
+  private final EventRepository eventRepository = mock(EventRepository.class);
+  private final UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
 
   private PersistEventsStep underTest;
 
@@ -142,7 +143,7 @@ public class PersistEventsStepIT extends BaseStepTest {
     when(system2.now()).thenReturn(NOW);
     treeRootHolder.setRoot(ROOT);
     Event alert = Event.createAlert("Failed", null, "Open issues > 0");
-    when(eventRepository.getEvents()).thenReturn(ImmutableList.of(alert));
+    when(eventRepository.getEvents()).thenReturn(List.of(alert));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -166,7 +167,7 @@ public class PersistEventsStepIT extends BaseStepTest {
     when(system2.now()).thenReturn(NOW);
     treeRootHolder.setRoot(ROOT);
     Event profile = Event.createProfile("foo", null, "bar");
-    when(eventRepository.getEvents()).thenReturn(ImmutableList.of(profile));
+    when(eventRepository.getEvents()).thenReturn(List.of(profile));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -180,6 +181,33 @@ public class PersistEventsStepIT extends BaseStepTest {
     assertThat(eventDto.getName()).isEqualTo(profile.getName());
     assertThat(eventDto.getDescription()).isEqualTo(profile.getDescription());
     assertThat(eventDto.getCategory()).isEqualTo(EventDto.CATEGORY_PROFILE);
+    assertThat(eventDto.getData()).isNull();
+    assertThat(eventDto.getDate()).isEqualTo(analysisMetadataHolder.getAnalysisDate());
+    assertThat(eventDto.getCreatedAt()).isEqualTo(NOW);
+  }
+
+  @Test
+  public void execute_whenIssueDetectionEventRaised_shouldPersist() {
+    when(system2.now()).thenReturn(NOW);
+    treeRootHolder.setRoot(ROOT);
+    Event issueDetection = Event.createIssueDetection("Capabilities have changed (Xoo)");
+    when(eventRepository.getEvents()).thenReturn(List.of(issueDetection));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "events")).isEqualTo(2);
+    List<EventDto> eventDtos = dbTester.getDbClient().eventDao().selectByComponentUuid(dbTester.getSession(), ROOT.getUuid());
+    assertThat(eventDtos)
+      .extracting(EventDto::getCategory)
+      .containsOnly(CATEGORY_ISSUE_DETECTION, CATEGORY_VERSION);
+    EventDto eventDto = eventDtos.stream()
+      .filter(t -> CATEGORY_ISSUE_DETECTION.equals(t.getCategory()))
+      .findAny()
+      .orElseGet(() -> fail("Issue detection event not found"));
+    assertThat(eventDto.getComponentUuid()).isEqualTo(ROOT.getUuid());
+    assertThat(eventDto.getName()).isEqualTo(issueDetection.getName());
+    assertThat(eventDto.getDescription()).isEqualTo(issueDetection.getDescription());
+    assertThat(eventDto.getCategory()).isEqualTo(CATEGORY_ISSUE_DETECTION);
     assertThat(eventDto.getData()).isNull();
     assertThat(eventDto.getDate()).isEqualTo(analysisMetadataHolder.getAnalysisDate());
     assertThat(eventDto.getCreatedAt()).isEqualTo(NOW);

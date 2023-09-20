@@ -119,14 +119,11 @@ public class PersistEventsStep implements ComputationStep {
     }
 
     private String convertCategory(Event.Category category) {
-      switch (category) {
-        case ALERT:
-          return EventDto.CATEGORY_ALERT;
-        case PROFILE:
-          return EventDto.CATEGORY_PROFILE;
-        default:
-          throw new IllegalArgumentException(String.format("Unsupported category %s", category.name()));
-      }
+      return switch (category) {
+        case ALERT -> EventDto.CATEGORY_ALERT;
+        case PROFILE -> EventDto.CATEGORY_PROFILE;
+        case ISSUE_DETECTION -> EventDto.CATEGORY_ISSUE_DETECTION;
+      };
     }
 
   }
