@@ -19,9 +19,9 @@
  */
 package org.sonar.server.platform;
 
-import java.util.Arrays;
 import java.util.Collection;
-import org.junit.Assert;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,78 +29,79 @@ import org.junit.runners.Parameterized;
 import org.sonar.api.utils.System2;
 import org.sonar.server.util.Paths2;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 @RunWith(Parameterized.class)
 public class ContainerSupportImplTest {
-  private static final String CONTAINER_FILE_PATH = "/run/.containerenv";
-  private static final String[] MOUNT_GREP_COMMAND = {"bash", "-c", "mount | grep 'overlay on /'"};
-  private static final String[] CAT_COMMAND = {"bash", "-c", "cat /run/.containerenv"};
-  private static final String DOCKER = "docker";
-  private static final String PODMAN = "podman";
-  private static final String BUILDAH = "buildah";
-  private static final String CONTAINER_D = "containerd";
-  private static final String GENERAL_CONTAINER = "general_container";
-
   private final Paths2 paths2 = mock(Paths2.class);
   private final System2 system2 = mock(System2.class);
   private ContainerSupportImpl underTest = new ContainerSupportImpl(paths2, system2);
 
-  private String containerContext;
+  private final ContainerEnvConfig containerContext;
 
-  public ContainerSupportImplTest(String containerContext) {
+  public ContainerSupportImplTest(ContainerEnvConfig containerContext) {
     this.containerContext = containerContext;
   }
 
   @Before
   public void setUp() {
-    if (containerContext == null) {
-      return;
-    }
-
-    switch (containerContext) {
-      case DOCKER -> {
-        underTest = spy(underTest);
-        when(underTest.executeCommand(MOUNT_GREP_COMMAND)).thenReturn("/docker");
-        when(paths2.exists("/.dockerenv")).thenReturn(true);
-      }
-      case PODMAN -> {
-        when(system2.envVariable("container")).thenReturn("podman");
-        when(paths2.exists(CONTAINER_FILE_PATH)).thenReturn(true);
-      }
-      case BUILDAH -> {
-        underTest = spy(underTest);
-        when(paths2.exists(CONTAINER_FILE_PATH)).thenReturn(true);
-        when(underTest.executeCommand(CAT_COMMAND)).thenReturn("XXX engine=\"buildah- XXX");
-      }
-      case CONTAINER_D -> {
-        underTest = spy(underTest);
-        when(underTest.executeCommand(MOUNT_GREP_COMMAND)).thenReturn("/containerd");
-      }
-      case GENERAL_CONTAINER -> when(paths2.exists(CONTAINER_FILE_PATH)).thenReturn(true);
-      default -> {
-      }
-    }
+    underTest = spy(underTest);
+    when(underTest.readContainerenvFile()).thenReturn(
+      containerContext.hasBuildahContainerenv ?
+        "engine=\"buildah-" : "");
+    when(paths2.exists("/run/.containerenv")).thenReturn(containerContext.hasContainerenvFile);
+    when(paths2.exists("/.dockerenv")).thenReturn(containerContext.hasDockerEnvFile);
+    when(system2.envVariable("container")).thenReturn(
+      containerContext.hasPodmanEnvVariable ?
+        "podman" : "");
+    when(underTest.getMountOverlays()).thenReturn(containerContext.mountOverlays);
     underTest.populateCache();
   }
 
   @Parameterized.Parameters
-  public static Collection<String> data() {
-    return Arrays.asList(DOCKER, PODMAN, BUILDAH, CONTAINER_D, GENERAL_CONTAINER, null);
+  public static Collection<ContainerEnvConfig> data() {
+    return List.of(ContainerEnvConfig.values());
   }
 
   @Test
   public void testGetContainerContext() {
-    Assert.assertEquals(containerContext, underTest.getContainerContext());
+    assertThat(underTest.getContainerContext())
+      .isEqualTo(containerContext.expectedContainerContext);
   }
 
   @Test
   public void testIsRunningInContainer() {
-    boolean expected = containerContext != null;
-    when(paths2.exists(CONTAINER_FILE_PATH)).thenReturn(expected);
-    Assert.assertEquals(expected, underTest.isRunningInContainer());
+    assertThat(underTest.isRunningInContainer())
+      .isEqualTo(containerContext.expectedContainerContext != null);
+  }
+
+  public enum ContainerEnvConfig {
+    DOCKER("docker", false, true, false, false, "/docker"),
+    PODMAN("podman", true, false, true, false, ""),
+    BUILDAH("buildah", true, false, false, true, ""),
+    CONTAINER_D("containerd", false, false, false, false, "/containerd"),
+    GENERAL_CONTAINER("general_container", true, false, false, false, ""),
+    NONE(null, false, false, false, false, "");
+    final String expectedContainerContext;
+    final boolean hasContainerenvFile;
+    final boolean hasDockerEnvFile;
+    final boolean hasPodmanEnvVariable;
+    final boolean hasBuildahContainerenv;
+    final String mountOverlays;
+
+
+    ContainerEnvConfig(@Nullable String expectedContainerContext, boolean hasContainerenvFile, boolean hasDockerEnvFile, boolean hasPodmanEnvVariable,
+      boolean hasBuildahContainerenv, String mountOverlays) {
+      this.expectedContainerContext = expectedContainerContext;
+      this.hasContainerenvFile = hasContainerenvFile;
+      this.hasDockerEnvFile = hasDockerEnvFile;
+      this.hasPodmanEnvVariable = hasPodmanEnvVariable;
+      this.hasBuildahContainerenv = hasBuildahContainerenv;
+      this.mountOverlays = mountOverlays;
+    }
   }
 
 }
