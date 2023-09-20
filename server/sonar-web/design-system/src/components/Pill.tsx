@@ -32,6 +32,13 @@ const variantThemeColors: Record<PillVariant, ThemeColors> = {
   neutral: 'pillNeutral',
 };
 
+const variantThemeBorderColors: Record<PillVariant, ThemeColors> = {
+  danger: 'pillDangerBorder',
+  warning: 'pillWarningBorder',
+  info: 'pillInfoBorder',
+  neutral: 'pillNeutralBorder',
+};
+
 interface PillProps {
   ['aria-label']?: string;
   children: ReactNode;
@@ -41,14 +48,14 @@ interface PillProps {
 
 export function Pill({ children, variant, ...rest }: PillProps) {
   return (
-    <StyledPill color={variantThemeColors[variant]} {...rest}>
+    <StyledPill variant={variant} {...rest}>
       {children}
     </StyledPill>
   );
 }
 
 const StyledPill = styled.span<{
-  color: ThemeColors;
+  variant: PillVariant;
 }>`
   ${tw`sw-body-sm`};
   ${tw`sw-w-fit`};
@@ -57,8 +64,12 @@ const StyledPill = styled.span<{
   ${tw`sw-px-[8px] sw-py-[2px]`};
   ${tw`sw-rounded-pill`};
 
-  color: ${({ color }) => themeContrast(color)};
-  background-color: ${({ color }) => themeColor(color)};
+  background-color: ${({ variant }) => themeContrast(variantThemeColors[variant])};
+  background-color: ${({ variant }) => themeColor(variantThemeColors[variant])};
+  color: ${({ variant }) => themeContrast(variantThemeColors[variant])};
+  border-style: ${({ variant }) => (variant === 'neutral' ? 'hidden' : 'solid')};
+  border-color: ${({ variant }) => themeColor(variantThemeBorderColors[variant])};
+  border-width: 1px;
 
   &:empty {
     ${tw`sw-hidden`}

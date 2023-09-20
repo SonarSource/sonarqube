@@ -282,10 +282,14 @@ export const lightTheme = {
     badgeCounter: COLORS.blueGrey[100],
 
     // pills
-    pillDanger: COLORS.red[100],
-    pillWarning: COLORS.yellow[100],
-    pillInfo: COLORS.blue[100],
+    pillDanger: COLORS.red[50],
+    pillDangerBorder: COLORS.red[300],
+    pillWarning: COLORS.yellow[50],
+    pillWarningBorder: COLORS.yellow[300],
+    pillInfo: COLORS.blue[50],
+    pillInfoBorder: COLORS.blue[300],
     pillNeutral: COLORS.blueGrey[50],
+    pillNeutralBorder: 'transparent',
 
     // input select
     selectOptionSelected: secondary.light,
@@ -328,8 +332,8 @@ export const lightTheme = {
     destructiveIconFocus: danger.default,
 
     // icons
-    iconSoftwareImpactSeverityHigh: COLORS.red[700],
-    iconSoftwareImpactSeverityMedium: COLORS.yellow[800],
+    iconSoftwareImpactSeverityHigh: COLORS.red[500],
+    iconSoftwareImpactSeverityMedium: COLORS.yellow[700],
     iconSoftwareImpactSeverityLow: COLORS.blue[700],
     iconSeverityMajor: danger.light,
     iconSeverityMinor: COLORS.yellowGreen[400],
@@ -656,9 +660,12 @@ export const lightTheme = {
 
     // pills
     pillDanger: COLORS.red[800],
+    pillDangerIcon: COLORS.red[700],
     pillWarning: COLORS.yellow[800],
+    pillWarningIcon: COLORS.yellow[700],
     pillInfo: COLORS.blue[800],
-    pillNeutral: COLORS.blueGrey[500],
+    pillInfoIcon: COLORS.blue[700],
+    pillNeutral: COLORS.blueGrey[800],
 
     // breadcrumbs
     breadcrumb: secondary.dark,
