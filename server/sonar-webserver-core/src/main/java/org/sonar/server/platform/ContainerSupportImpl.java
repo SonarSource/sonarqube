@@ -81,7 +81,7 @@ public class ContainerSupportImpl implements ContainerSupport {
   }
 
   private boolean isDocker() {
-    return executeCommand(MOUNT_GREP_COMMAND).contains("/docker") && paths2.exists("/.dockerenv");
+    return getMountOverlays().contains("/docker") && paths2.exists("/.dockerenv");
   }
 
   private boolean isPodman() {
@@ -89,11 +89,11 @@ public class ContainerSupportImpl implements ContainerSupport {
   }
 
   private boolean isBuildah() {
-    return paths2.exists(CONTAINER_FILE_PATH) && executeCommand(CAT_COMMAND).contains("engine=\"buildah-");
+    return paths2.exists(CONTAINER_FILE_PATH) && readContainerenvFile().contains("engine=\"buildah-");
   }
 
   private boolean isContainerd() {
-    return executeCommand(MOUNT_GREP_COMMAND).contains("/containerd");
+    return getMountOverlays().contains("/containerd");
   }
 
   private boolean isGeneralContainer() {
@@ -101,7 +101,16 @@ public class ContainerSupportImpl implements ContainerSupport {
   }
 
   @VisibleForTesting
-  String executeCommand(String[] command) {
+  String getMountOverlays() {
+    return executeCommand(MOUNT_GREP_COMMAND);
+  }
+
+  @VisibleForTesting
+  String readContainerenvFile() {
+    return executeCommand(CAT_COMMAND);
+  }
+
+  private static String executeCommand(String[] command) {
     try {
       Process process = new ProcessBuilder().command(command).start();
       try (Scanner scanner = new Scanner(process.getInputStream(), UTF_8)) {
