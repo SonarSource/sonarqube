@@ -20,7 +20,7 @@
 
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
-import { themeBorder, themeColor } from 'design-system';
+import { themeColor } from 'design-system';
 import * as React from 'react';
 import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
@@ -177,5 +177,4 @@ export default function HotspotSnippetContainerRenderer(
 
 const SourceFileWrapper = withTheme(styled.div`
   background-color: ${themeColor('codeLine')};
-  border: ${themeBorder('default', 'codeLineBorder')};
 `);
