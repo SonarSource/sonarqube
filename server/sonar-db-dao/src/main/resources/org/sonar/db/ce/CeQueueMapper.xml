@@ -106,7 +106,12 @@
     <include refid="columns"/>
     <include refid="sqlSelectByQuery"/>
     <include refid="orderByDescDateAndUuid"/>
+    <include refid="pagination"/>
   </select>
+
+  <sql id="pagination">
+    offset (#{pagination.startRowNumber,jdbcType=INTEGER}-1) rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+  </sql>
 
   <select id="countByQuery" resultType="int">
     select

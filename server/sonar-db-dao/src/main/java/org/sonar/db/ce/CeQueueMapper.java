@@ -24,7 +24,6 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.Pagination;
 
 public interface CeQueueMapper {
@@ -33,7 +32,7 @@ public interface CeQueueMapper {
 
   List<CeQueueDto> selectAllInAscOrder();
 
-  List<CeQueueDto> selectByQueryInDescOrder(@Param("query") CeTaskQuery query, RowBounds rowBounds);
+  List<CeQueueDto> selectByQueryInDescOrder(@Param("query") CeTaskQuery query, @Param("pagination") Pagination pagination);
 
   int countByQuery(@Param("query") CeTaskQuery query);
 

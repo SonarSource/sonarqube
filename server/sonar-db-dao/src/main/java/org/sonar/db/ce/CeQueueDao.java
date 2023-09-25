@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -65,10 +64,7 @@ public class CeQueueDao implements Dao {
       return emptyList();
     }
 
-    int offset = (page - 1) * pageSize;
-    int limit = page * pageSize;
-
-    return mapper(dbSession).selectByQueryInDescOrder(query, new RowBounds(offset, limit));
+    return mapper(dbSession).selectByQueryInDescOrder(query, Pagination.forPage(page).andSize(pageSize));
   }
 
   public int countByQuery(DbSession dbSession, CeTaskQuery query) {
