@@ -114,11 +114,11 @@ public class SearchAction implements UserGroupsWsAction {
       GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession);
 
       int limit = dbClient.groupDao().countByQuery(dbSession, query);
-      Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(limit);
-      List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, query, options.getOffset(), pageSize);
+      List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, query, page, pageSize);
       List<String> groupUuids = extractGroupUuids(groups);
       Map<String, Boolean> groupUuidToIsManaged = managedInstanceService.getGroupUuidToManaged(dbSession, new HashSet<>(groupUuids));
       Map<String, Integer> userCountByGroup = dbClient.groupMembershipDao().countUsersByGroups(dbSession, groupUuids);
+      Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(limit);
       writeProtobuf(buildResponse(groups, userCountByGroup, groupUuidToIsManaged, fields, paging, defaultGroup), request, response);
     }
   }

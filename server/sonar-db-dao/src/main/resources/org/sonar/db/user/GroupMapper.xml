@@ -89,13 +89,18 @@
     WHERE uuid=#{uuid}
   </update>
 
-  <select id="selectByQuery" parameterType="map" resultType="Group">
+  <select id="selectByQuery" resultType="Group">
     select
     <include refid="groupColumns"/>
     from groups g
     <include refid="searchByQueryWhereClause"/>
     order by upper(g.name)
+    <include refid="pagination"/>
   </select>
+
+  <sql id="pagination">
+    offset (#{pagination.startRowNumber,jdbcType=INTEGER}-1) rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+  </sql>
 
   <select id="countByQuery" parameterType="map" resultType="int">
     select count(1)

@@ -24,10 +24,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.UserGroupNewValue;
 
@@ -77,8 +77,8 @@ public class GroupDao implements Dao {
     return mapper(session).countByQuery(query);
   }
 
-  public List<GroupDto> selectByQuery(DbSession session, GroupQuery query, int offset, int limit) {
-    return mapper(session).selectByQuery(query, new RowBounds(offset, limit));
+  public List<GroupDto> selectByQuery(DbSession session, GroupQuery query, int page, int pageSize) {
+    return mapper(session).selectByQuery(query, Pagination.forPage(page).andSize(pageSize));
   }
 
   public GroupDto insert(DbSession session, GroupDto item) {

@@ -155,34 +155,31 @@ public class GroupDaoIT {
      */
 
     // Null query
-    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 1, 10))
       .hasSize(5)
       .extracting("name").containsOnly("customers-group1", "customers-group2", "customers-group3", "SONAR-ADMINS", "sonar-users");
 
     // Empty query
-    assertThat(underTest.selectByQuery(dbSession, textSearchQuery(""), 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, textSearchQuery(""), 1, 10))
       .hasSize(5)
       .extracting("name").containsOnly("customers-group1", "customers-group2", "customers-group3", "SONAR-ADMINS", "sonar-users");
 
     // Filter on name
-    assertThat(underTest.selectByQuery(dbSession, textSearchQuery("sonar"), 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, textSearchQuery("sonar"), 1, 10))
       .hasSize(2)
       .extracting("name").containsOnly("SONAR-ADMINS", "sonar-users");
 
     //Filter on name and additionalClause
-    assertThat(underTest.selectByQuery(dbSession, textSearchAndManagedClauseQuery("sonar", " name = 'SONAR-ADMINS'"), 0, 10))
+    assertThat(underTest.selectByQuery(dbSession, textSearchAndManagedClauseQuery("sonar", " name = 'SONAR-ADMINS'"), 1, 10))
       .hasSize(1)
       .extracting("name").containsOnly("SONAR-ADMINS");
 
     // Pagination
-    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 0, 3))
-      .hasSize(3);
-    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 3, 3))
-      .hasSize(2);
-    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 6, 3)).isEmpty();
-    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 0, 5))
-      .hasSize(5);
-    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 5, 5)).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 1, 3)).hasSize(3);
+    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 2, 3)).hasSize(2);
+    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 3, 3)).isEmpty();
+    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 1, 5)).hasSize(5);
+    assertThat(underTest.selectByQuery(dbSession, EMPTY_QUERY, 4, 5)).isEmpty();
   }
 
   private static GroupQuery textSearchQuery(String query) {
@@ -199,7 +196,7 @@ public class GroupDaoIT {
     underTest.insert(dbSession, newGroupDto().setName(groupNameWithSpecialCharacters));
     db.commit();
 
-    List<GroupDto> result = underTest.selectByQuery(dbSession, textSearchQuery("roup%_%/nam"), 0, 10);
+    List<GroupDto> result = underTest.selectByQuery(dbSession, textSearchQuery("roup%_%/nam"), 1, 10);
     int resultCount = underTest.countByQuery(dbSession, textSearchQuery("roup%_%/nam"));
 
     assertThat(result).hasSize(1);

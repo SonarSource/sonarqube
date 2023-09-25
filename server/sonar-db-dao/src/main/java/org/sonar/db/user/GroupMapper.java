@@ -22,7 +22,7 @@ package org.sonar.db.user;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.Pagination;
 
 public interface GroupMapper {
 
@@ -37,7 +37,7 @@ public interface GroupMapper {
 
   void update(GroupDto item);
 
-  List<GroupDto> selectByQuery(@Param("query") GroupQuery query, RowBounds rowBounds);
+  List<GroupDto> selectByQuery(@Param("query") GroupQuery query, @Param("pagination") Pagination pagination);
 
   int countByQuery(@Param("query") GroupQuery query);
 
