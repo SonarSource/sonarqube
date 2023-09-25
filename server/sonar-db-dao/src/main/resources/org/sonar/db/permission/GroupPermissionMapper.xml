@@ -70,12 +70,17 @@
     from group_roles gr where gr.group_uuid is null and gr.entity_uuid is not null
   </select>
 
-  <select id="selectGroupNamesByQuery" parameterType="map" resultType="string">
+  <select id="selectGroupNamesByQuery" resultType="string">
     select sub.name, lower(sub.name), sub.groupUuid
     <include refid="groupsByQuery"/>
     group by sub.name, lower(sub.name), sub.groupUuid
     order by case when (count(sub.permission) > 0) then 1 else 2 end asc, lower(sub.name), sub.name, sub.groupUuid
+    <include refid="pagination"/>
   </select>
+
+  <sql id="pagination">
+    offset (#{pagination.startRowNumber,jdbcType=INTEGER}-1) rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+  </sql>
 
   <select id="countGroupsByQuery" parameterType="map" resultType="int">
     select count(1)

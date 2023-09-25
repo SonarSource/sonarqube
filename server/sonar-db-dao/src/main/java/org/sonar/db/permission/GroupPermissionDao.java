@@ -25,10 +25,10 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.GroupPermissionNewValue;
 import org.sonar.db.entity.EntityDto;
@@ -54,7 +54,7 @@ public class GroupPermissionDao implements Dao {
    * @return group names, sorted in alphabetical order
    */
   public List<String> selectGroupNamesByQuery(DbSession dbSession, PermissionQuery query) {
-    return mapper(dbSession).selectGroupNamesByQuery(query, new RowBounds(query.getPageOffset(), query.getPageSize()));
+    return mapper(dbSession).selectGroupNamesByQuery(query, Pagination.forPage(query.getPageIndex()).andSize(query.getPageSize()));
   }
 
   /**

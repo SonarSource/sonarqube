@@ -25,11 +25,11 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.Pagination;
 
 public interface GroupPermissionMapper {
 
-  List<String> selectGroupNamesByQuery(@Param("query") PermissionQuery query, RowBounds rowBounds);
+  List<String> selectGroupNamesByQuery(@Param("query") PermissionQuery query, @Param("pagination") Pagination pagination);
 
   int countGroupsByQuery(@Param("query") PermissionQuery query);
 
