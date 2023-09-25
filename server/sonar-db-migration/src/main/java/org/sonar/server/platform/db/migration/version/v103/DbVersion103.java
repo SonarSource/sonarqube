@@ -46,6 +46,5 @@ public class DbVersion103 implements DbVersion {
       .add(10_3_002, "Create unique index on 'github_perms_mapping'", CreateUniqueIndexForGithubPermissionsMappingTable.class)
       .add(10_3_003, "Add default mappings to 'github_perms_mapping'", PopulateGithubPermissionsMapping.class)
       .add(10_3_004, "Add 'clean_code_attribute' column in 'issues' table", AddCleanCodeAttributeColumnInIssuesTable.class);
-    ;
   }
 }
