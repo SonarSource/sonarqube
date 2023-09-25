@@ -18,11 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { CodeSyntaxHighlighter } from 'design-system';
+import {
+  ButtonPrimary,
+  ButtonSecondary,
+  CodeSyntaxHighlighter,
+  DangerButtonSecondary,
+  InputTextArea,
+  Spinner,
+} from 'design-system';
 import * as React from 'react';
 import { updateRule } from '../../../api/rules';
 import FormattingTips from '../../../components/common/FormattingTips';
-import { Button, ResetButtonLink } from '../../../components/controls/buttons';
 import RuleTabViewer from '../../../components/rules/RuleTabViewer';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { sanitizeString, sanitizeUserInput } from '../../../helpers/sanitize';
@@ -67,7 +73,8 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     this.setState({ descriptionForm: false });
   };
 
-  handleSaveClick = () => {
+  handleSaveClick = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
     this.updateDescription(this.state.description);
   };
 
@@ -116,88 +123,82 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
     <div id="coding-rules-detail-description-extra">
       {this.props.ruleDetails.htmlNote !== undefined && (
         <CodeSyntaxHighlighter
-          className="rule-desc markdown sw-mb-2"
+          className="markdown sw-my-6"
           htmlAsString={sanitizeUserInput(this.props.ruleDetails.htmlNote)}
           language={this.props.ruleDetails.lang}
         />
       )}
 
-      {this.props.canWrite && (
-        <Button
-          id="coding-rules-detail-extend-description"
-          onClick={this.handleExtendDescriptionClick}
-        >
-          {translate('coding_rules.extend_description')}
-        </Button>
-      )}
+      <div className="sw-my-6">
+        {this.props.canWrite && (
+          <ButtonSecondary onClick={this.handleExtendDescriptionClick}>
+            {translate('coding_rules.extend_description')}
+          </ButtonSecondary>
+        )}
+      </div>
     </div>
   );
 
   renderForm = () => (
-    <div className="coding-rules-detail-extend-description-form">
-      <table className="width-100">
-        <tbody>
-          <tr>
-            <td colSpan={2}>
-              <textarea
-                autoFocus
-                aria-label={translate('coding_rules.extend_description')}
-                className="width-100 little-spacer-bottom"
-                id="coding-rules-detail-extend-description-text"
-                onChange={this.handleDescriptionChange}
-                rows={4}
-                value={this.state.description}
-              />
-            </td>
-          </tr>
+    <form
+      aria-label={translate('coding_rules.detail.extend_description.form')}
+      className="sw-my-6"
+      onSubmit={this.handleSaveClick}
+    >
+      <InputTextArea
+        aria-label={translate('coding_rules.extend_description')}
+        className="sw-mb-2 sw-resize-y"
+        id="coding-rules-detail-extend-description-text"
+        size="full"
+        onChange={this.handleDescriptionChange}
+        rows={4}
+        value={this.state.description}
+      />
 
-          <tr>
-            <td>
-              <Button
+      <div className="sw-flex sw-items-center sw-justify-between">
+        <div className="sw-flex sw-items-center">
+          <ButtonPrimary
+            id="coding-rules-detail-extend-description-submit"
+            disabled={this.state.submitting}
+            type="submit"
+          >
+            {translate('save')}
+          </ButtonPrimary>
+
+          {this.props.ruleDetails.mdNote !== undefined && (
+            <>
+              <DangerButtonSecondary
+                className="sw-ml-2"
                 disabled={this.state.submitting}
-                id="coding-rules-detail-extend-description-submit"
-                onClick={this.handleSaveClick}
+                id="coding-rules-detail-extend-description-remove"
+                onClick={this.handleRemoveDescriptionClick}
               >
-                {translate('save')}
-              </Button>
-
-              {this.props.ruleDetails.mdNote !== undefined && (
-                <>
-                  <Button
-                    className="button-red spacer-left"
-                    disabled={this.state.submitting}
-                    id="coding-rules-detail-extend-description-remove"
-                    onClick={this.handleRemoveDescriptionClick}
-                  >
-                    {translate('remove')}
-                  </Button>
-                  {this.state.removeDescriptionModal && (
-                    <RemoveExtendedDescriptionModal
-                      onCancel={this.handleCancelRemoving}
-                      onSubmit={this.handleConfirmRemoving}
-                    />
-                  )}
-                </>
+                {translate('remove')}
+              </DangerButtonSecondary>
+              {this.state.removeDescriptionModal && (
+                <RemoveExtendedDescriptionModal
+                  onCancel={this.handleCancelRemoving}
+                  onSubmit={this.handleConfirmRemoving}
+                />
               )}
+            </>
+          )}
 
-              <ResetButtonLink
-                className="spacer-left"
-                disabled={this.state.submitting}
-                id="coding-rules-detail-extend-description-cancel"
-                onClick={this.handleCancelClick}
-              >
-                {translate('cancel')}
-              </ResetButtonLink>
-              {this.state.submitting && <i className="spinner spacer-left" />}
-            </td>
+          <ButtonSecondary
+            className="sw-ml-2"
+            disabled={this.state.submitting}
+            id="coding-rules-detail-extend-description-cancel"
+            onClick={this.handleCancelClick}
+          >
+            {translate('cancel')}
+          </ButtonSecondary>
 
-            <td className="text-right">
-              <FormattingTips />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+          <Spinner className="sw-ml-2" loading={this.state.submitting} />
+        </div>
+
+        <FormattingTips />
+      </div>
+    </form>
   );
 
   render() {
@@ -252,7 +253,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
         )}
 
         {!ruleDetails.templateKey && (
-          <div className="coding-rules-detail-description coding-rules-detail-description-extra">
+          <div className="sw-mt-6">
             {!this.state.descriptionForm && this.renderExtendedDescription()}
             {this.state.descriptionForm && this.props.canWrite && this.renderForm()}
           </div>

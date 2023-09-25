@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ContentCell, Link, Spinner, SubHeadingHighlight, Table, TableRow } from 'design-system';
 import * as React from 'react';
 import { getFacet } from '../../../api/issues';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
-import Link from '../../../components/common/Link';
 import Tooltip from '../../../components/controls/Tooltip';
-import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { getIssuesUrl } from '../../../helpers/urls';
@@ -137,12 +136,12 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
 
     const path = getIssuesUrl({ resolved: 'false', rules: key, projects: project.key });
     return (
-      <tr key={project.key}>
-        <td className="coding-rules-detail-list-name">{project.name}</td>
-        <td className="coding-rules-detail-list-parameters">
+      <TableRow key={project.key}>
+        <ContentCell>{project.name}</ContentCell>
+        <ContentCell>
           <Link to={path}>{formatMeasure(project.count, MetricType.Integer)}</Link>
-        </td>
-      </tr>
+        </ContentCell>
+      </TableRow>
     );
   };
 
@@ -150,26 +149,29 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
     const { loading, projects = [] } = this.state;
 
     return (
-      <div className="js-rule-issues coding-rule-section">
+      <div className="sw-mb-8">
         <Spinner loading={loading}>
-          <h2 className="coding-rules-detail-title">
+          <SubHeadingHighlight as="h2">
             {translate('coding_rules.issues')}
             {this.renderTotal()}
-          </h2>
+          </SubHeadingHighlight>
 
           {projects.length > 0 ? (
-            <table className="coding-rules-detail-list coding-rules-most-violated-projects">
-              <tbody>
-                <tr>
-                  <td className="coding-rules-detail-list-name" colSpan={2}>
+            <Table
+              className="sw-mt-6"
+              columnCount={2}
+              header={
+                <TableRow>
+                  <ContentCell colSpan={2}>
                     {translate('coding_rules.most_violating_projects')}
-                  </td>
-                </tr>
-                {projects.map(this.renderProject)}
-              </tbody>
-            </table>
+                  </ContentCell>
+                </TableRow>
+              }
+            >
+              {projects.map(this.renderProject)}
+            </Table>
           ) : (
-            <div className="big-padded-bottom">
+            <div className="sw-mb-6">
               {translate('coding_rules.no_issue_detected_for_projects')}
             </div>
           )}

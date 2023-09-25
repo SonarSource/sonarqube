@@ -17,16 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonSecondary,
+  ContentCell,
+  DangerButtonSecondary,
+  HeadingDark,
+  Link,
+  Spinner,
+  Table,
+  TableRow,
+  UnorderedList,
+} from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { deleteRule, searchRules } from '../../../api/rules';
-import Link from '../../../components/common/Link';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
-import { Button } from '../../../components/controls/buttons';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
-import Spinner from '../../../components/ui/Spinner';
+import IssueSeverityIcon from '../../../components/icon-mappers/IssueSeverityIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
+import { IssueSeverity } from '../../../types/issues';
 import { Rule, RuleDetails } from '../../../types/types';
 import CustomRuleButton from './CustomRuleButton';
 
@@ -39,6 +48,9 @@ interface State {
   loading: boolean;
   rules?: Rule[];
 }
+
+const COLUMN_COUNT = 3;
+const COLUMN_COUNT_WITH_EDIT_PERMISSIONS = 4;
 
 export default class RuleDetailsCustomRules extends React.PureComponent<Props, State> {
   mounted = false;
@@ -97,32 +109,36 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
   };
 
   renderRule = (rule: Rule) => (
-    <tr data-rule={rule.key} key={rule.key}>
-      <td className="coding-rules-detail-list-name">
+    <TableRow data-rule={rule.key} key={rule.key}>
+      <ContentCell>
         <Link to={getRuleUrl(rule.key)}>{rule.name}</Link>
-      </td>
+      </ContentCell>
 
-      <td className="coding-rules-detail-list-severity">
-        <SeverityHelper className="display-flex-center" severity={rule.severity} />
-      </td>
+      <ContentCell>
+        <IssueSeverityIcon
+          className="sw-mr-1"
+          severity={rule.severity as IssueSeverity}
+          aria-hidden
+        />
+        {translate('severity', rule.severity)}
+      </ContentCell>
 
-      <td className="coding-rules-detail-list-parameters">
-        {rule.params &&
-          rule.params
-            .filter((param) => param.defaultValue)
+      <ContentCell>
+        <UnorderedList className="sw-mt-0">
+          {rule.params
+            ?.filter((param) => param.defaultValue)
             .map((param) => (
-              <div className="coding-rules-detail-list-parameter" key={param.key}>
-                <span className="key">{param.key}</span>
-                <span className="sep">:&nbsp;</span>
-                <span className="value" title={param.defaultValue}>
-                  {param.defaultValue}
-                </span>
-              </div>
+              <li key={param.key}>
+                <span className="sw-font-semibold">{param.key}</span>
+                <span>:&nbsp;</span>
+                <span title={param.defaultValue}>{param.defaultValue}</span>
+              </li>
             ))}
-      </td>
+        </UnorderedList>
+      </ContentCell>
 
       {this.props.canChange && (
-        <td className="coding-rules-detail-list-actions">
+        <ContentCell>
           <ConfirmButton
             confirmButtonText={translate('delete')}
             confirmData={rule.key}
@@ -132,43 +148,49 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
             onConfirm={this.handleRuleDelete}
           >
             {({ onClick }) => (
-              <Button
-                className="button-red js-delete-custom-rule"
+              <DangerButtonSecondary
+                className="js-delete-custom-rule"
                 aria-label={translateWithParameters('coding_rules.delete_rule_x', rule.name)}
                 onClick={onClick}
               >
                 {translate('delete')}
-              </Button>
+              </DangerButtonSecondary>
             )}
           </ConfirmButton>
-        </td>
+        </ContentCell>
       )}
-    </tr>
+    </TableRow>
   );
 
   render() {
     const { loading, rules = [] } = this.state;
 
     return (
-      <div className="js-rule-custom-rules coding-rule-section">
-        <div className="coding-rules-detail-custom-rules-section">
-          <h2 className="coding-rules-detail-title">{translate('coding_rules.custom_rules')}</h2>
+      <div className="js-rule-custom-rules">
+        <div>
+          <HeadingDark as="h2">{translate('coding_rules.custom_rules')}</HeadingDark>
 
           {this.props.canChange && (
             <CustomRuleButton onDone={this.handleRuleCreate} templateRule={this.props.ruleDetails}>
               {({ onClick }) => (
-                <Button className="js-create-custom-rule spacer-left" onClick={onClick}>
+                <ButtonSecondary className="js-create-custom-rule sw-mt-6" onClick={onClick}>
                   {translate('coding_rules.create')}
-                </Button>
+                </ButtonSecondary>
               )}
             </CustomRuleButton>
           )}
 
-          <Spinner className="spacer-left" loading={loading}>
+          <Spinner className="sw-my-6" loading={loading}>
             {rules.length > 0 && (
-              <table className="coding-rules-detail-list" id="coding-rules-detail-custom-rules">
-                <tbody>{sortBy(rules, (rule) => rule.name).map(this.renderRule)}</tbody>
-              </table>
+              <Table
+                className="sw-my-6"
+                id="coding-rules-detail-custom-rules"
+                columnCount={
+                  this.props.canChange ? COLUMN_COUNT_WITH_EDIT_PERMISSIONS : COLUMN_COUNT
+                }
+              >
+                {sortBy(rules, (rule) => rule.name).map(this.renderRule)}
+              </Table>
             )}
           </Spinner>
         </div>

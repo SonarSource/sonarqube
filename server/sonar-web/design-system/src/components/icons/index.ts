@@ -43,6 +43,7 @@ export { HelperHintIcon } from './HelperHintIcon';
 export { HomeFillIcon } from './HomeFillIcon';
 export { HomeIcon } from './HomeIcon';
 export * from './Icon';
+export { InheritanceIcon } from './InheritanceIcon';
 export { IssueLocationIcon } from './IssueLocationIcon';
 export { LinkIcon } from './LinkIcon';
 export { LockIcon } from './LockIcon';

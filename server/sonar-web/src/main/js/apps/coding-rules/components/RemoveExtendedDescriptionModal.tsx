@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DangerButtonPrimary, Modal } from 'design-system';
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import SimpleModal from '../../../components/controls/SimpleModal';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -28,28 +27,26 @@ interface Props {
 }
 
 export default function RemoveExtendedDescriptionModal({ onCancel, onSubmit }: Props) {
+  const [submitting, setSubmitting] = React.useState(false);
   const header = translate('coding_rules.remove_extended_description');
+
+  const handleClick = React.useCallback(() => {
+    setSubmitting(true);
+    onSubmit();
+  }, [onSubmit]);
+
   return (
-    <SimpleModal header={header} onClose={onCancel} onSubmit={onSubmit}>
-      {({ onCloseClick, onFormSubmit, submitting }) => (
-        <form onSubmit={onFormSubmit}>
-          <header className="modal-head">
-            <h2>{header}</h2>
-          </header>
-
-          <div className="modal-body">
-            {translate('coding_rules.remove_extended_description.confirm')}
-          </div>
-
-          <footer className="modal-foot">
-            {submitting && <i className="spinner spacer-right" />}
-            <SubmitButton className="button-red" disabled={submitting}>
-              {translate('remove')}
-            </SubmitButton>
-            <ResetButtonLink onClick={onCloseClick}>{translate('cancel')}</ResetButtonLink>
-          </footer>
-        </form>
-      )}
-    </SimpleModal>
+    <Modal
+      headerTitle={header}
+      body={translate('coding_rules.remove_extended_description.confirm')}
+      onClose={onCancel}
+      primaryButton={
+        <DangerButtonPrimary disabled={submitting} onClick={handleClick}>
+          {translate('remove')}
+        </DangerButtonPrimary>
+      }
+      loading={submitting}
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }

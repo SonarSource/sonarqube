@@ -22,12 +22,14 @@ import styled from '@emotion/styled';
 import classNames from 'classnames';
 import hljs, { HighlightResult } from 'highlight.js';
 import apex from 'highlightjs-apex';
+import cobol from 'highlightjs-cobol';
 import abap from 'highlightjs-sap-abap';
 import tw from 'twin.macro';
 import { themeColor, themeContrast } from '../helpers/theme';
 
 hljs.registerLanguage('abap', abap);
 hljs.registerLanguage('apex', apex);
+hljs.registerLanguage('cobol', cobol);
 
 hljs.registerAliases('azureresourcemanager', { languageName: 'json' });
 hljs.registerAliases('flex', { languageName: 'actionscript' });
@@ -67,9 +69,12 @@ export function CodeSyntaxHighlighter(props: Props) {
     let highlightedCode: HighlightResult;
 
     try {
+      const actualLanguage =
+        language !== undefined && hljs.getLanguage(language) ? language : 'plaintext';
+
       highlightedCode = hljs.highlight(unescapedCode, {
         ignoreIllegals: true,
-        language: language ?? 'plaintext',
+        language: actualLanguage,
       });
     } catch {
       highlightedCode = hljs.highlight(unescapedCode, {
@@ -82,7 +87,7 @@ export function CodeSyntaxHighlighter(props: Props) {
       codeBlock,
       // Use a function to avoid triggering special replacement patterns
       // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#specifying_a_string_as_the_replacement
-      () => `<${tag}${attributes}>${highlightedCode.value}</${tag}>`
+      () => `<${tag}${attributes}>${highlightedCode.value}</${tag}>`,
     );
   });
 

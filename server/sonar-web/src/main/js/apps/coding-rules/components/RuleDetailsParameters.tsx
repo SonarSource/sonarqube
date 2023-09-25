@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { CellComponent, Note, SubHeadingHighlight, Table, TableRow } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
@@ -29,33 +30,33 @@ interface Props {
 export default function RuleDetailsParameters({ params }: Props) {
   return (
     <div className="js-rule-parameters">
-      <h3 className="coding-rules-detail-title">{translate('coding_rules.parameters')}</h3>
-      <table className="coding-rules-detail-parameters">
-        <tbody>
-          {params.map((param) => (
-            <tr className="coding-rules-detail-parameter" key={param.key}>
-              <td className="coding-rules-detail-parameter-name">{param.key}</td>
-              <td className="coding-rules-detail-parameter-description">
+      <SubHeadingHighlight as="h3">{translate('coding_rules.parameters')}</SubHeadingHighlight>
+      <Table className="sw-my-4" columnCount={2} columnWidths={[0, 'auto']}>
+        {params.map((param) => (
+          <TableRow key={param.key}>
+            <CellComponent className="sw-align-top sw-font-semibold">{param.key}</CellComponent>
+            <CellComponent>
+              <div className="sw-flex sw-flex-col sw-gap-2">
                 {param.htmlDesc !== undefined && (
-                  <p
+                  <div
                     // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
                   />
                 )}
                 {param.defaultValue !== undefined && (
-                  <div className="note spacer-top">
+                  <Note as="div">
                     {translate('coding_rules.parameters.default_value')}
                     <br />
                     <span className="coding-rules-detail-parameter-value">
                       {param.defaultValue}
                     </span>
-                  </div>
+                  </Note>
                 )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </div>
+            </CellComponent>
+          </TableRow>
+        ))}
+      </Table>
     </div>
   );
 }

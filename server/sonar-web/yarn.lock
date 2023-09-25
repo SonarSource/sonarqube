@@ -6935,6 +6935,7 @@ __metadata:
     eslint-plugin-typescript-sort-keys: 2.3.0
     highlight.js: 11.8.0
     highlightjs-apex: 1.2.0
+    highlightjs-cobol: 0.3.3
     highlightjs-sap-abap: 0.3.0
     history: 5.3.0
     jest: 29.6.4
@@ -8870,6 +8871,16 @@ __metadata:
   version: 1.2.0
   resolution: "highlightjs-apex@npm:1.2.0"
   checksum: d0e1543dbdfa156c0bb6da74afcb7aaf315fe211024246917c8f967075d6c239bcd408d6a667c324ea75b928a2d8495cb1b8d160b403894aea8c9a16c293f33a
+  languageName: node
+  linkType: hard
+
+"highlightjs-cobol@npm:0.3.3":
+  version: 0.3.3
+  resolution: "highlightjs-cobol@npm:0.3.3"
+  dependencies:
+    minimist: ">=1.2.6"
+    mkdirp: ^1.0.4
+  checksum: f59a694703f883ead2fbdf262f36eab583c8bbf64649e59d5de1e13a43e43979ad9030eab69e1cb08f7558ce60ca5cfd1fe42c7a38e34fd8b0baebf06df9118d
   languageName: node
   linkType: hard
 
@@ -10950,6 +10961,13 @@ __metadata:
   dependencies:
     brace-expansion: ^2.0.1
   checksum: 253487976bf485b612f16bf57463520a14f512662e592e95c571afdab1442a6a6864b6c88f248ce6fc4ff0b6de04ac7aa6c8bb51e868e99d1d65eb0658a708b5
+  languageName: node
+  linkType: hard
+
+"minimist@npm:>=1.2.6":
+  version: 1.2.8
+  resolution: "minimist@npm:1.2.8"
+  checksum: 75a6d645fb122dad29c06a7597bddea977258957ed88d7a6df59b5cd3fe4a527e253e9bbf2e783e4b73657f9098b96a5fe96ab8a113655d4109108577ecf85b0
   languageName: node
   linkType: hard
 

@@ -124,7 +124,7 @@ const selectors = {
     name: 'coding_rules.description_section.title.assess_the_problem',
   }),
   moreInfoTab: byRole('tab', {
-    name: 'coding_rules.description_section.title.more_info',
+    name: /coding_rules.description_section.title.more_info/,
   }),
   howToFixTab: byRole('tab', {
     name: 'coding_rules.description_section.title.how_to_fix',

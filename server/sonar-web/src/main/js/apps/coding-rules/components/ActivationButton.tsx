@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary } from 'design-system';
 import * as React from 'react';
 import { Profile as BaseProfile } from '../../../api/quality-profiles';
-import { Button } from '../../../components/controls/buttons';
 import { Rule, RuleActivation, RuleDetails } from '../../../types/types';
 import ActivationFormModal from './ActivationFormModal';
 
@@ -40,14 +40,14 @@ export default function ActivationButton(props: Props) {
 
   return (
     <>
-      <Button
+      <ButtonSecondary
         aria-label={ariaLabel}
         className={className}
         id="coding-rules-quality-profile-activate"
         onClick={() => setModalOpen(true)}
       >
         {buttonText}
-      </Button>
+      </ButtonSecondary>
 
       {modalOpen && (
         <ActivationFormModal
