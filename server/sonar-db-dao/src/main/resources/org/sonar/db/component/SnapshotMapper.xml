@@ -184,7 +184,12 @@
       and s.status = #{status,jdbcType=VARCHAR}
     </where>
     ORDER BY s.created_at ASC
+    <include refid="pagination"/>
   </select>
+
+  <sql id="pagination">
+    offset (#{pagination.startRowNumber,jdbcType=INTEGER}-1) rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+  </sql>
 
   <select id="selectSnapshotBefore" resultType="ViewsSnapshot">
     SELECT

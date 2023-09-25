@@ -29,9 +29,9 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -89,7 +89,7 @@ public class SnapshotDao implements Dao {
   }
 
   public Optional<SnapshotDto> selectOldestAnalysis(DbSession session, String rootComponentUuid) {
-    return mapper(session).selectOldestSnapshots(rootComponentUuid, SnapshotDto.STATUS_PROCESSED, new RowBounds(0, 1))
+    return mapper(session).selectOldestSnapshots(rootComponentUuid, SnapshotDto.STATUS_PROCESSED, Pagination.first())
       .stream()
       .findFirst();
   }

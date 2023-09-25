@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.Pagination;
 import org.sonar.db.component.SnapshotDao.ProjectUuidFromDatePair;
 
 public interface SnapshotMapper {
@@ -42,7 +42,7 @@ public interface SnapshotMapper {
 
   List<SnapshotDto> selectSnapshotsByQuery(@Param("query") SnapshotQuery query);
 
-  List<SnapshotDto> selectOldestSnapshots(@Param("rootComponentUuid") String rootComponentUuid, @Param("status") String status, RowBounds rowBounds);
+  List<SnapshotDto> selectOldestSnapshots(@Param("rootComponentUuid") String rootComponentUuid, @Param("status") String status, @Param("pagination") Pagination pagination);
 
   List<ViewsSnapshotDto> selectSnapshotBefore(@Param("rootComponentUuid") String rootComponentUuid, @Param("date") long date);
 
