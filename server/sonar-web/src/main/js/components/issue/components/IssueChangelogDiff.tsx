@@ -27,7 +27,7 @@ export interface IssueChangelogDiffProps {
   diff: TypeIssueChangelogDiff;
 }
 
-export default function IssueChangelogDiff(props: IssueChangelogDiffProps) {
+export default function IssueChangelogDiff(props: Readonly<IssueChangelogDiffProps>) {
   const { diff } = props;
 
   const diffComputedValues = {
