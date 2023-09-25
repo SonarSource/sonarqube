@@ -1,0 +1,6 @@
+{
+  "extends": ".eslintrc",
+  "rules": {
+    "local-rules/no-api-imports": "off"
+  }
+}
