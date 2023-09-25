@@ -266,9 +266,9 @@ public class MetricDaoIT {
     underTest.insert(dbSession, newMetricDto().setEnabled(true));
     underTest.insert(dbSession, newMetricDto().setEnabled(false));
 
-    List<MetricDto> result = underTest.selectEnabled(dbSession, 0, 100);
+    List<MetricDto> result = underTest.selectEnabled(dbSession, 1, 2);
 
-    assertThat(result).hasSize(3);
+    assertThat(result).hasSize(2);
   }
 
   private void assertEquals(MetricDto expected, MetricDto result) {
