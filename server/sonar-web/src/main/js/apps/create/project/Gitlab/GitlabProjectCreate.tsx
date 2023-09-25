@@ -123,6 +123,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
     }
 
     try {
+      // eslint-disable-next-line local-rules/no-api-imports
       return await getGitlabProjects({
         almSetting: selectedAlmInstance.key,
         page: pageIndex,
@@ -139,6 +140,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
 
     if (selectedAlmInstance) {
       this.props.onProjectSetupDone(
+        // eslint-disable-next-line local-rules/no-api-imports
         setupGitlabProjectCreation({ almSetting: selectedAlmInstance.key, gitlabProjectId }),
       );
     }

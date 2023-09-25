@@ -25,7 +25,7 @@ interface Props {
   globalNcd: NewCodeDefinition;
 }
 
-export default function GlobalNewCodeDefinitionDescription({ globalNcd }: Props) {
+export default function GlobalNewCodeDefinitionDescription({ globalNcd }: Readonly<Props>) {
   let setting: string;
   let description: string;
   let useCase: string;

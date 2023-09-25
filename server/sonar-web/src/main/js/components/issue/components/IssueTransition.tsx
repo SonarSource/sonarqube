@@ -60,6 +60,7 @@ export default class IssueTransition extends React.PureComponent<Props> {
   setTransition = ({ value }: { value: string }) => {
     updateIssue(
       this.props.onChange,
+      // eslint-disable-next-line local-rules/no-api-imports
       setIssueTransition({ issue: this.props.issue.key, transition: value }),
     );
 

@@ -55,7 +55,7 @@ interface ProjectNewCodeDefinitionAppProps extends WithAvailableFeaturesProps {
   appState: AppState;
 }
 
-function ProjectNewCodeDefinitionApp(props: ProjectNewCodeDefinitionAppProps) {
+function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionAppProps>) {
   const { appState, component, branchLike, branchLikes, hasFeature } = props;
 
   const [isSpecificNewCodeDefinition, setIsSpecificNewCodeDefinition] = useState<boolean>();

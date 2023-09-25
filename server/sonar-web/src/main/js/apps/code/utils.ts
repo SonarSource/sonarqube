@@ -150,6 +150,7 @@ function retrieveComponentBase(
 
   const metrics = getCodeMetrics(qualifier, branchLike);
 
+  // eslint-disable-next-line local-rules/no-api-imports
   return getComponent({
     component: componentKey,
     metricKeys: metrics.join(),
@@ -181,6 +182,7 @@ export async function retrieveComponentChildren(
     includeQGStatus: true,
   });
 
+  // eslint-disable-next-line local-rules/no-api-imports
   const result = await getChildren(componentKey, metrics, {
     ps: PAGE_SIZE,
     s: 'qualifier,name',
@@ -189,6 +191,7 @@ export async function retrieveComponentChildren(
 
   if (instance.mounted && isPortfolioLike(qualifier)) {
     await Promise.all(
+      // eslint-disable-next-line local-rules/no-api-imports
       result.components.map((c) => getComponentData({ component: c.refKey ?? c.key })),
     ).then(
       (data) => {
@@ -221,6 +224,7 @@ function retrieveComponentBreadcrumbs(
     return Promise.resolve(existing);
   }
 
+  // eslint-disable-next-line local-rules/no-api-imports
   return getBreadcrumbs({ component, ...getBranchLikeQuery(branchLike) })
     .then(skipRootDir)
     .then((breadcrumbs) => {
@@ -269,6 +273,7 @@ export function loadMoreChildren(
     includeQGStatus: true,
   });
 
+  // eslint-disable-next-line local-rules/no-api-imports
   return getChildren(componentKey, metrics, {
     ps: PAGE_SIZE,
     p: page,

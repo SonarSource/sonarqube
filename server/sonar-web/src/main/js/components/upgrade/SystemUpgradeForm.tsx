@@ -45,7 +45,7 @@ const MAP_ALERT: { [key in UpdateUseCase]?: AlertVariant } = {
   [UpdateUseCase.PreviousLTS]: 'error',
 };
 
-export function SystemUpgradeForm(props: Props) {
+export function SystemUpgradeForm(props: Readonly<Props>) {
   const { appState, latestLTS, onClose, updateUseCase, systemUpgrades } = props;
 
   let systemUpgradesWithPatch: SystemUpgrade[][] = [];

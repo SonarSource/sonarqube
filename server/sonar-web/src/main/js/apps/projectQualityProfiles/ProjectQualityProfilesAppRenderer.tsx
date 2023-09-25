@@ -23,8 +23,8 @@ import { Helmet } from 'react-helmet-async';
 import { Profile } from '../../api/quality-profiles';
 import A11ySkipTarget from '../../components/a11y/A11ySkipTarget';
 import Link from '../../components/common/Link';
-import { Button } from '../../components/controls/buttons';
 import HelpTooltip from '../../components/controls/HelpTooltip';
+import { Button } from '../../components/controls/buttons';
 import Suggestions from '../../components/embed-docs-modal/Suggestions';
 import EditIcon from '../../components/icons/EditIcon';
 import PlusCircleIcon from '../../components/icons/PlusCircleIcon';
@@ -51,7 +51,7 @@ export interface ProjectQualityProfilesAppRendererProps {
 }
 
 export default function ProjectQualityProfilesAppRenderer(
-  props: ProjectQualityProfilesAppRendererProps,
+  props: Readonly<ProjectQualityProfilesAppRendererProps>,
 ) {
   const {
     allProfiles,

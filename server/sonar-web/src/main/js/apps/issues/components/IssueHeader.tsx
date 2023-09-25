@@ -90,6 +90,7 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
     if (issue.assignee !== login) {
       updateIssue(
         this.props.onIssueChange,
+        // eslint-disable-next-line local-rules/no-api-imports
         setIssueAssignee({ issue: issue.key, assignee: login }),
       );
     }

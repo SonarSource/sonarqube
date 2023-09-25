@@ -30,7 +30,7 @@ export interface GraphsTooltipsContentDuplicationProps {
 }
 
 export default function GraphsTooltipsContentDuplication(
-  props: GraphsTooltipsContentDuplicationProps,
+  props: Readonly<GraphsTooltipsContentDuplicationProps>,
 ) {
   const { addSeparator, measuresHistory, tooltipIdx } = props;
   const duplicationDensity = measuresHistory.find(

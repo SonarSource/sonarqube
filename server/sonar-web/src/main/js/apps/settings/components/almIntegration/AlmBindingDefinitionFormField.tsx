@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DocLink from '../../../../components/common/DocLink';
-import { ButtonLink } from '../../../../components/controls/buttons';
 import ValidationInput, {
   ValidationInputErrorPlacement,
 } from '../../../../components/controls/ValidationInput';
+import { ButtonLink } from '../../../../components/controls/buttons';
 import { Alert } from '../../../../components/ui/Alert';
 import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
@@ -47,7 +47,7 @@ export interface AlmBindingDefinitionFormFieldProps<B extends AlmBindingDefiniti
 }
 
 export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase>(
-  props: AlmBindingDefinitionFormFieldProps<B>,
+  props: Readonly<AlmBindingDefinitionFormFieldProps<B>>,
 ) {
   const {
     autoFocus,

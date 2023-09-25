@@ -47,15 +47,18 @@ export default class IssueReviewHistoryAndComments extends React.PureComponent<P
   handleSubmitComment = (comment: string) => {
     return updateIssue(
       this.props.onChange,
+      // eslint-disable-next-line local-rules/no-api-imports
       addIssueComment({ issue: this.props.issue.key, text: comment }),
     );
   };
 
   handleDeleteComment = (key: string) => {
+    // eslint-disable-next-line local-rules/no-api-imports
     return updateIssue(this.props.onChange, deleteIssueComment({ comment: key }));
   };
 
   handleEditComment = (key: string, text: string) => {
+    // eslint-disable-next-line local-rules/no-api-imports
     return updateIssue(this.props.onChange, editIssueComment({ comment: key, text }));
   };
 

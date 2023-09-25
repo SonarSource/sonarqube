@@ -104,7 +104,7 @@ export async function animateExpansion(
 }
 
 export default function HotspotSnippetContainerRenderer(
-  props: HotspotSnippetContainerRendererProps,
+  props: Readonly<HotspotSnippetContainerRendererProps>,
 ) {
   const {
     highlightedSymbols,
