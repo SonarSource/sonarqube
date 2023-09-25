@@ -108,7 +108,7 @@ public class GroupsAction implements UsersWsAction {
       UserDto user = checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, login), "Unknown user: %s", login);
       int total = dbClient.groupMembershipDao().countGroups(dbSession, query, user.getUuid());
       Paging paging = forPageIndex(query.pageIndex()).withPageSize(query.pageSize()).andTotal(total);
-      List<GroupMembershipDto> groups = dbClient.groupMembershipDao().selectGroups(dbSession, query, user.getUuid(), paging.offset(), query.pageSize());
+      List<GroupMembershipDto> groups = dbClient.groupMembershipDao().selectGroups(dbSession, query, user.getUuid());
       return buildResponse(groups, defaultGroupFinder.findDefaultGroup(dbSession), paging);
     }
   }

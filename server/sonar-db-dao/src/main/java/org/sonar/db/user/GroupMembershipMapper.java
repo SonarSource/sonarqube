@@ -22,15 +22,14 @@ package org.sonar.db.user;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
 
 public interface GroupMembershipMapper {
 
-  List<GroupMembershipDto> selectGroups(Map<String, Object> params, RowBounds rowBounds);
+  List<GroupMembershipDto> selectGroups(Map<String, Object> params);
 
   int countGroups(Map<String, Object> params);
 
-  List<UserMembershipDto> selectMembers(Map<String, Object> params, RowBounds rowBounds);
+  List<UserMembershipDto> selectMembers(Map<String, Object> params);
 
   int countMembers(Map<String, Object> params);
 

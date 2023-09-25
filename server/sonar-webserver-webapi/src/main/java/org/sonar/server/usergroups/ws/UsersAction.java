@@ -104,12 +104,12 @@ public class UsersAction implements UserGroupsWsAction {
         .pageSize(pageSize)
         .build();
       int total = dbClient.groupMembershipDao().countMembers(dbSession, query);
-      Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(total);
-      List<UserMembershipDto> users = dbClient.groupMembershipDao().selectMembers(dbSession, query, paging.offset(), paging.pageSize());
+      List<UserMembershipDto> users = dbClient.groupMembershipDao().selectMembers(dbSession, query);
       Map<String, Boolean> userUuidToIsManaged = managedInstanceService.getUserUuidToManaged(dbSession, getUserUuids(users));
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
         writeMembers(json, users, userUuidToIsManaged);
+        Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(total);
         writePaging(json, paging);
         json.name("paging").beginObject()
           .prop("pageIndex", page)

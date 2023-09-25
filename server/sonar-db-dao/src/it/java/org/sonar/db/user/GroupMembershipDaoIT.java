@@ -87,17 +87,17 @@ public class GroupMembershipDaoIT {
     db.users().insertMember(group2, user2);
 
     // user1 is member of 3 groups
-    assertThat(underTest.selectGroups(db.getSession(), builder().membership(IN).build(), user1.getUuid(), 0, 10)).hasSize(3);
-    assertThat(underTest.selectGroups(db.getSession(), builder().membership(OUT).build(), user1.getUuid(), 0, 10)).isEmpty();
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(IN).build(), user1.getUuid())).hasSize(3);
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(OUT).build(), user1.getUuid())).isEmpty();
     // user2 is member of 1 group on 3
-    assertThat(underTest.selectGroups(db.getSession(), builder().membership(IN).build(), user2.getUuid(), 0, 10)).hasSize(1);
-    assertThat(underTest.selectGroups(db.getSession(), builder().membership(OUT).build(), user2.getUuid(), 0, 10)).hasSize(2);
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(IN).build(), user2.getUuid())).hasSize(1);
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(OUT).build(), user2.getUuid())).hasSize(2);
     // user3 is member of 0 group
-    assertThat(underTest.selectGroups(db.getSession(), builder().membership(IN).build(), user3.getUuid(), 0, 10)).isEmpty();
-    assertThat(underTest.selectGroups(db.getSession(), builder().membership(OUT).build(), user3.getUuid(), 0, 10)).hasSize(3);
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(IN).build(), user3.getUuid())).isEmpty();
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(OUT).build(), user3.getUuid())).hasSize(3);
     // unknown user is member of 0 group
-    assertThat(underTest.selectGroups(db.getSession(), builder().membership(IN).build(), "999", 0, 10)).isEmpty();
-    assertThat(underTest.selectGroups(db.getSession(), builder().membership(OUT).build(), "999", 0, 10)).hasSize(3);
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(IN).build(), "999")).isEmpty();
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(OUT).build(), "999")).hasSize(3);
   }
 
   @Test
@@ -159,13 +159,13 @@ public class GroupMembershipDaoIT {
     db.users().insertMember(group2, user2);
 
     // 100 has 1 member
-    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).membership(UserMembershipQuery.IN).build(), 0, 10)).hasSize(1);
+    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).membership(UserMembershipQuery.IN).build())).hasSize(1);
     // 101 has 2 members
-    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(group2.getUuid()).membership(UserMembershipQuery.IN).build(), 0, 10)).hasSize(2);
+    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(group2.getUuid()).membership(UserMembershipQuery.IN).build())).hasSize(2);
     // 102 has 1 member
-    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(group3.getUuid()).membership(UserMembershipQuery.IN).build(), 0, 10)).hasSize(1);
+    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(group3.getUuid()).membership(UserMembershipQuery.IN).build())).hasSize(1);
     // 103 has no member
-    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(emptyGroup.getUuid()).membership(UserMembershipQuery.IN).build(), 0, 10)).isEmpty();
+    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(emptyGroup.getUuid()).membership(UserMembershipQuery.IN).build())).isEmpty();
   }
 
   @Test
@@ -177,13 +177,13 @@ public class GroupMembershipDaoIT {
     db.users().insertMember(group2, user2);
 
     // 100 has 1 member
-    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).membership(UserMembershipQuery.OUT).build(), 0, 10)).hasSize(1);
+    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).membership(UserMembershipQuery.OUT).build())).hasSize(1);
     // 101 has 2 members
-    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(group2.getUuid()).membership(UserMembershipQuery.OUT).build(), 0, 10)).isEmpty();
+    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(group2.getUuid()).membership(UserMembershipQuery.OUT).build())).isEmpty();
     // 102 has 1 member
-    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(group3.getUuid()).membership(UserMembershipQuery.OUT).build(), 0, 10)).hasSize(1);
+    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(group3.getUuid()).membership(UserMembershipQuery.OUT).build())).hasSize(1);
     // 103 has no member
-    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(emptyGroup.getUuid()).membership(UserMembershipQuery.OUT).build(), 0, 10)).hasSize(2);
+    assertThat(underTest.selectMembers(db.getSession(), newQuery().groupUuid(emptyGroup.getUuid()).membership(UserMembershipQuery.OUT).build())).hasSize(2);
   }
 
   @Test
@@ -193,13 +193,13 @@ public class GroupMembershipDaoIT {
     db.users().insertMember(group3, user1);
     db.users().insertMember(group2, user2);
 
-    List<UserMembershipDto> result = underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).memberSearch("admin").build(), 0, 10);
+    List<UserMembershipDto> result = underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).memberSearch("admin").build());
     assertThat(result).hasSize(2);
 
     assertThat(result.get(0).getName()).isEqualTo("Admin name");
     assertThat(result.get(1).getName()).isEqualTo("Not Admin");
 
-    result = underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).memberSearch("not").build(), 0, 10);
+    result = underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).memberSearch("not").build());
     assertThat(result).hasSize(1);
   }
 
@@ -211,13 +211,13 @@ public class GroupMembershipDaoIT {
     db.users().insertMember(group2, user2);
 
     // search is case insensitive only on name
-    List<UserMembershipDto> result = underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).memberSearch("NaMe").build(), 0, 10);
+    List<UserMembershipDto> result = underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).memberSearch("NaMe").build());
     assertThat(result).hasSize(1);
 
-    result = underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).memberSearch("login").build(), 0, 10);
+    result = underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).memberSearch("login").build());
     assertThat(result).hasSize(1);
 
-    result = underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).memberSearch("email").build(), 0, 10);
+    result = underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).memberSearch("email").build());
     assertThat(result).hasSize(1);
   }
 
@@ -228,7 +228,7 @@ public class GroupMembershipDaoIT {
     db.users().insertMember(group3, user1);
     db.users().insertMember(group2, user2);
 
-    List<UserMembershipDto> result = underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).build(), 0, 10);
+    List<UserMembershipDto> result = underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).build());
     assertThat(result).hasSize(2);
     assertThat(result.get(0).getName()).isEqualTo("Admin name");
     assertThat(result.get(1).getName()).isEqualTo("Not Admin");
@@ -241,16 +241,16 @@ public class GroupMembershipDaoIT {
     db.users().insertMember(group3, user1);
     db.users().insertMember(group2, user2);
 
-    List<UserMembershipDto> result = underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).build(), 0, 2);
+    List<UserMembershipDto> result = underTest.selectMembers(db.getSession(), newQuery().groupUuid(group1.getUuid()).pageSize(2).pageIndex(1).build());
     assertThat(result).hasSize(2);
     assertThat(result.get(0).getName()).isEqualTo("Admin name");
     assertThat(result.get(1).getName()).isEqualTo("Not Admin");
 
-    result = underTest.selectMembers(db.getSession(), newQuery().groupUuid("100").build(), 1, 2);
+    result = underTest.selectMembers(db.getSession(), newQuery().groupUuid("100").pageSize(1).pageIndex(2).build());
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getName()).isEqualTo("Not Admin");
 
-    result = underTest.selectMembers(db.getSession(), newQuery().groupUuid("100").build(), 2, 1);
+    result = underTest.selectMembers(db.getSession(), newQuery().groupUuid("100").pageSize(1).pageIndex(3).build());
     assertThat(result).isEmpty();
   }
 
