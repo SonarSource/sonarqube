@@ -27,7 +27,11 @@ import { LeakPeriodLegend } from '../LeakPeriodLegend';
 
 jest.mock('date-fns', () => {
   const actual = jest.requireActual('date-fns');
-  return { ...actual, differenceInDays: jest.fn().mockReturnValue(10) };
+  return {
+    ...actual,
+    differenceInDays: jest.fn().mockReturnValue(10),
+    differenceInYears: jest.fn().mockReturnValue(-9),
+  };
 });
 
 it('10 days', async () => {
