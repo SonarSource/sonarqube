@@ -58,6 +58,7 @@ public class PermissionQuery {
   private final boolean withAtLeastOnePermission;
 
   private final int pageSize;
+  private final int pageIndex;
   private final int pageOffset;
 
   private PermissionQuery(Builder builder) {
@@ -68,6 +69,7 @@ public class PermissionQuery {
     this.searchQueryToSql = builder.searchQuery == null ? null : buildLikeValue(builder.searchQuery, WildcardPosition.BEFORE_AND_AFTER);
     this.searchQueryToSqlLowercase = searchQueryToSql == null ? null : searchQueryToSql.toLowerCase(Locale.ENGLISH);
     this.pageSize = builder.pageSize;
+    this.pageIndex = builder.pageIndex;
     this.pageOffset = offset(builder.pageIndex, builder.pageSize);
   }
 
@@ -102,6 +104,10 @@ public class PermissionQuery {
 
   public int getPageSize() {
     return pageSize;
+  }
+
+  public int getPageIndex() {
+    return pageIndex;
   }
 
   public int getPageOffset() {
