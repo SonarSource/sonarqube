@@ -29,7 +29,7 @@ interface Props {
   selected: boolean;
 }
 
-export default function SelectListListElement(props: Props) {
+export default function SelectListListElement(props: Readonly<Props>) {
   const { disabled, element, onSelect, onUnselect, renderElement, selected } = props;
 
   const [loading, setLoading] = React.useState(false);
