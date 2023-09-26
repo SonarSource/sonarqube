@@ -19,6 +19,7 @@
  */
 package org.sonar.db.provisioning;
 
+import java.util.List;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.sonar.db.audit.model.GithubPermissionsMappingNewValue.ALL_PERMISSIONS;
 
 public class GithubPermissionsMappingDaoIT {
 
@@ -79,6 +81,30 @@ public class GithubPermissionsMappingDaoIT {
     verify(auditPersister).deleteGithubPermissionsMapping(eq(dbSession), newValueCaptor.capture());
     assertThat(newValueCaptor.getValue().getGithubRole()).isEqualTo("GH_role");
     assertThat(newValueCaptor.getValue().getSonarqubePermission()).isEqualTo("SQ_role");
+  }
+
+  @Test
+  public void deleteAllPermissionsForRole_deletesGithubPermissionsMappingDto() {
+    List<GithubPermissionsMappingDto> role1Mappings = List.of(
+      new GithubPermissionsMappingDto("1", "GH_role_1", "SQ_role_1"),
+      new GithubPermissionsMappingDto("2", "GH_role_1", "SQ_role_2"),
+      new GithubPermissionsMappingDto("3", "GH_role_1", "SQ_role_3"));
+
+    List<GithubPermissionsMappingDto> role2Mappings = List.of(
+      new GithubPermissionsMappingDto("4", "GH_role_2", "SQ_role_1"),
+      new GithubPermissionsMappingDto("5", "GH_role_2", "SQ_role_2"));
+
+    role1Mappings.forEach(mapping -> underTest.insert(dbSession, mapping));
+    role2Mappings.forEach(mapping -> underTest.insert(dbSession, mapping));
+
+    underTest.deleteAllPermissionsForRole(dbSession, "GH_role_1");
+
+    Set<GithubPermissionsMappingDto> savedGithubPermissionsMappings = underTest.findAll(dbSession);
+    assertThat(savedGithubPermissionsMappings).containsExactlyInAnyOrderElementsOf(role2Mappings);
+
+    verify(auditPersister).deleteGithubPermissionsMapping(eq(dbSession), newValueCaptor.capture());
+    assertThat(newValueCaptor.getValue().getGithubRole()).isEqualTo("GH_role_1");
+    assertThat(newValueCaptor.getValue().getSonarqubePermission()).isEqualTo(ALL_PERMISSIONS);
   }
 
   @Test

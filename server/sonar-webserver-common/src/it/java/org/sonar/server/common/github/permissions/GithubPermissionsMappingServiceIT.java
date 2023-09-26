@@ -32,8 +32,10 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.provisioning.GithubPermissionsMappingDao;
 import org.sonar.db.provisioning.GithubPermissionsMappingDto;
 import org.sonar.server.common.permission.Operation;
+import org.sonar.server.exceptions.NotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.sonar.server.common.github.permissions.GithubPermissionsMappingService.ADMIN_GITHUB_ROLE;
 import static org.sonar.server.common.github.permissions.GithubPermissionsMappingService.MAINTAIN_GITHUB_ROLE;
@@ -211,6 +213,43 @@ public class GithubPermissionsMappingServiceIT {
     GithubPermissionsMapping expectedPermissionsMapping = new GithubPermissionsMapping(CUSTOM_ROLE_NAME, false, expectedSqPermissions);
 
     assertThat(actualPermissionsMapping).isEqualTo(expectedPermissionsMapping);
+  }
+
+  @Test
+  public void deletePermissionMappings_whenTryingToDeleteForBaseRole_shouldThrow() {
+    assertThatThrownBy(() -> underTest.deletePermissionMappings(READ_GITHUB_ROLE))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Deleting permission mapping for GitHub base role '" + READ_GITHUB_ROLE + "' is not allowed.");
+  }
+
+  @Test
+  public void deletePermissionMappings_whenNoMappingsExistForGithubRole_shouldThrow() {
+    assertThatThrownBy(() -> underTest.deletePermissionMappings(CUSTOM_ROLE_NAME))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Role '" + CUSTOM_ROLE_NAME + "' not found.");
+  }
+
+  @Test
+  public void deletePermissionMappings_whenTryingToDeleteForCustomRole_shouldDeleteMapping() {
+    Map<String, Set<String>> githubRolesToSqPermissions = Map.of(
+      READ_GITHUB_ROLE, Set.of("user", "codeviewer"),
+      WRITE_GITHUB_ROLE, Set.of("user", "codeviewer", "issueadmin", "securityhotspotadmin", "admin", "scan"),
+      CUSTOM_ROLE_NAME, Set.of("user", "codeviewer", "scan"),
+      "customRole2", Set.of("user", "codeviewer"));
+
+    persistGithubPermissionsMapping(githubRolesToSqPermissions);
+    underTest.deletePermissionMappings("customRole2");
+
+    List<GithubPermissionsMapping> allPermissionMappings = underTest.getPermissionsMapping();
+
+    assertThat(allPermissionMappings)
+      .containsExactlyInAnyOrder(
+        new GithubPermissionsMapping(READ_GITHUB_ROLE, true, new SonarqubePermissions(true, true, false, false, false, false)),
+        new GithubPermissionsMapping(WRITE_GITHUB_ROLE, true, new SonarqubePermissions(true, true, true, true, true, true)),
+        new GithubPermissionsMapping(TRIAGE_GITHUB_ROLE, true, NO_SQ_PERMISSIONS),
+        new GithubPermissionsMapping(MAINTAIN_GITHUB_ROLE, true, NO_SQ_PERMISSIONS),
+        new GithubPermissionsMapping(ADMIN_GITHUB_ROLE, true, NO_SQ_PERMISSIONS),
+        new GithubPermissionsMapping(CUSTOM_ROLE_NAME, false, new SonarqubePermissions(true, true, false, false, false, true)));
   }
 
 }

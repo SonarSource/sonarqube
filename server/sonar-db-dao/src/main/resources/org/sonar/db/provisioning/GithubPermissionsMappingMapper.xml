@@ -27,6 +27,11 @@
     where github_role = #{githubRole,jdbcType=VARCHAR} AND sonarqube_permission = #{sonarqubePermission,jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteAllPermissionsForRole" parameterType="GithubPermissionsMapping">
+    delete from github_perms_mapping
+    where github_role = #{githubRole,jdbcType=VARCHAR}
+  </delete>
+
   <select id="selectAll" resultType="GithubPermissionsMapping">
     SELECT
       <include refid="githubPermissionsMappingColumns"/>

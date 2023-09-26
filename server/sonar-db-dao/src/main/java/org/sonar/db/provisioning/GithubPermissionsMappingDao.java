@@ -51,6 +51,11 @@ public class GithubPermissionsMappingDao implements Dao {
     auditPersister.deleteGithubPermissionsMapping(dbSession, toNewValueForAuditLogs(githubRole, sonarqubePermission));
   }
 
+  public void deleteAllPermissionsForRole(DbSession dbSession, String githubRole) {
+    mapper(dbSession).deleteAllPermissionsForRole(githubRole);
+    auditPersister.deleteGithubPermissionsMapping(dbSession, GithubPermissionsMappingNewValue.withAllPermissions(githubRole));
+  }
+
   private static GithubPermissionsMappingNewValue toNewValueForAuditLogs(String githubRole, String sonarqubePermission) {
     return new GithubPermissionsMappingNewValue(githubRole, sonarqubePermission);
   }

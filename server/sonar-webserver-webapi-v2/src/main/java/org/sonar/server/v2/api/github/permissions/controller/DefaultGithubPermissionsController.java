@@ -78,6 +78,12 @@ public class DefaultGithubPermissionsController implements GithubPermissionsCont
 
   }
 
+  @Override
+  public void deleteMapping(String githubRole) {
+    userSession.checkIsSystemAdministrator();
+    githubPermissionsMappingService.deletePermissionMappings(githubRole);
+  }
+
   private static PermissionMappingChange toPermissionMappingChange(String githubRole, String sonarqubePermission, boolean shouldAddPermission) {
     return new PermissionMappingChange(githubRole, sonarqubePermission, shouldAddPermission ? Operation.ADD : Operation.REMOVE);
   }
@@ -93,8 +99,7 @@ public class DefaultGithubPermissionsController implements GithubPermissionsCont
       githubPermissionsMapping.roleName(),
       githubPermissionsMapping.roleName(),
       githubPermissionsMapping.isBaseRole(),
-      githubPermissionsMapping.permissions()
-    );
+      githubPermissionsMapping.permissions());
   }
 
 }

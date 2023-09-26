@@ -31,4 +31,6 @@ public interface GithubPermissionsMappingMapper {
   void insert(GithubPermissionsMappingDto githubPermissionsMappingDto);
 
   void delete(@Param("githubRole") String githubRole, @Param("sonarqubePermission") String sonarqubePermission);
+
+  void deleteAllPermissionsForRole(String githubRole);
 }

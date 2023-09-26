@@ -30,9 +30,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.provisioning.GithubPermissionsMappingDao;
 import org.sonar.db.provisioning.GithubPermissionsMappingDto;
+import org.sonar.server.exceptions.NotFoundException;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toSet;
+import static org.sonar.api.utils.Preconditions.checkArgument;
 import static org.sonar.server.common.permission.Operation.ADD;
 import static org.sonar.server.common.permission.Operation.REMOVE;
 
@@ -56,8 +58,7 @@ public class GithubPermissionsMappingService {
     UserRole.ISSUE_ADMIN, builder -> builder.issueAdmin(true),
     UserRole.SECURITYHOTSPOT_ADMIN, builder -> builder.securityHotspotAdmin(true),
     UserRole.ADMIN, builder -> builder.admin(true),
-    UserRole.SCAN, builder -> builder.scan(true)
-  );
+    UserRole.SCAN, builder -> builder.scan(true));
 
   private final DbClient dbClient;
   private final GithubPermissionsMappingDao githubPermissionsMappingDao;
@@ -107,6 +108,18 @@ public class GithubPermissionsMappingService {
     }
   }
 
+  public void deletePermissionMappings(String githubRole) {
+    checkArgument(!GITHUB_BASE_ROLES.contains(githubRole), "Deleting permission mapping for GitHub base role '" + githubRole + "' is not allowed.");
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Set<GithubPermissionsMappingDto> existingPermissions = githubPermissionsMappingDao.findAllForGithubRole(dbSession, githubRole);
+      if (existingPermissions.isEmpty()) {
+        throw new NotFoundException("Role '" + githubRole + "' not found.");
+      }
+      githubPermissionsMappingDao.deleteAllPermissionsForRole(dbSession, githubRole);
+      dbSession.commit();
+    }
+  }
+
   private void updatePermissionsMappings(DbSession dbSession, String githubRole, List<PermissionMappingChange> permissionChanges) {
     Set<String> currentPermissionsForRole = getSqPermissionsForGithubRole(dbSession, githubRole);
     removePermissions(dbSession, permissionChanges, currentPermissionsForRole);
@@ -135,8 +148,7 @@ public class GithubPermissionsMappingService {
       .filter(permissionMappingChange -> ADD.equals(permissionMappingChange.operation()))
       .filter(permissionMappingChange -> !currentPermissionsForRole.contains(permissionMappingChange.sonarqubePermission()))
       .forEach(
-        mapping -> githubPermissionsMappingDao.insert(dbSession, new GithubPermissionsMappingDto(uuidFactory.create(), mapping.githubRole(), mapping.sonarqubePermission()))
-      );
+        mapping -> githubPermissionsMappingDao.insert(dbSession, new GithubPermissionsMappingDto(uuidFactory.create(), mapping.githubRole(), mapping.sonarqubePermission())));
   }
 
   private static SonarqubePermissions getSonarqubePermissions(Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos) {

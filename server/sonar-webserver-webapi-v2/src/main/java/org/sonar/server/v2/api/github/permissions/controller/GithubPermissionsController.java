@@ -27,6 +27,7 @@ import org.sonar.server.v2.api.github.permissions.request.GithubPermissionMappin
 import org.sonar.server.v2.api.github.permissions.response.GithubPermissionsMappingRestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,5 +51,10 @@ public interface GithubPermissionsController {
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Update a single Github permission mapping", description = "Update a single Github permission mapping")
   RestGithubPermissionsMapping updateMapping(@PathVariable("githubRole") String githubRole, @Valid @RequestBody GithubPermissionMappingUpdateRequest request);
+
+  @DeleteMapping(path = "/{githubRole}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Delete a single Github permission mapping", description = "Delete a single Github permission mapping")
+  void deleteMapping(@PathVariable("githubRole") String githubRole);
 
 }

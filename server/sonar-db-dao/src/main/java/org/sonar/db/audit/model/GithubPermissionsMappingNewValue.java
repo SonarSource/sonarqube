@@ -23,12 +23,18 @@ import com.google.common.annotations.VisibleForTesting;
 
 public class GithubPermissionsMappingNewValue extends NewValue {
 
+  @VisibleForTesting
+  public static final String ALL_PERMISSIONS = "all";
   private final String githubRole;
   private final String sonarqubePermission;
 
   public GithubPermissionsMappingNewValue(String githubRole, String sonarqubePermission) {
     this.githubRole = githubRole;
     this.sonarqubePermission = sonarqubePermission;
+  }
+
+  public static GithubPermissionsMappingNewValue withAllPermissions(String githubRole) {
+    return new GithubPermissionsMappingNewValue(githubRole, ALL_PERMISSIONS);
   }
 
   @VisibleForTesting

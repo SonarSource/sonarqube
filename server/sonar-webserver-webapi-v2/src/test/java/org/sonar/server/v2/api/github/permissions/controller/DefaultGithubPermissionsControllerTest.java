@@ -31,6 +31,7 @@ import org.sonar.server.common.github.permissions.GithubPermissionsMappingServic
 import org.sonar.server.common.github.permissions.PermissionMappingChange;
 import org.sonar.server.common.github.permissions.SonarqubePermissions;
 import org.sonar.server.common.permission.Operation;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.v2.api.ControllerTester;
 import org.sonar.server.v2.api.github.permissions.model.RestGithubPermissionsMapping;
@@ -39,11 +40,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.common.github.permissions.GithubPermissionsMappingService.READ_GITHUB_ROLE;
 import static org.sonar.server.v2.WebApiEndpoints.GITHUB_PERMISSIONS_ENDPOINT;
 import static org.sonar.server.v2.WebApiEndpoints.JSON_MERGE_PATCH_CONTENT_TYPE;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -101,15 +105,15 @@ public class DefaultGithubPermissionsControllerTest {
     userSession.logIn().setNonSystemAdministrator();
 
     mockMvc.perform(
-        patch(GITHUB_PERMISSIONS_ENDPOINT + "/" + GITHUB_ROLE)
-          .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
-          .content("""
-            {
-                "user": true,
-                "codeViewer": false,
-                "admin": true
-            }
-            """))
+      patch(GITHUB_PERMISSIONS_ENDPOINT + "/" + GITHUB_ROLE)
+        .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
+        .content("""
+          {
+              "user": true,
+              "codeViewer": false,
+              "admin": true
+          }
+          """))
       .andExpectAll(
         status().isForbidden(),
         content().json("{\"message\":\"Insufficient privileges\"}"));
@@ -123,23 +127,24 @@ public class DefaultGithubPermissionsControllerTest {
     when(githubPermissionsMappingService.getPermissionsMappingForGithubRole(GITHUB_ROLE)).thenReturn(updatedRolePermissions);
 
     MvcResult mvcResult = mockMvc.perform(
-        patch(GITHUB_PERMISSIONS_ENDPOINT + "/" + GITHUB_ROLE)
-          .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
-          .content("""
-            {
-              "permissions": {
-                "user": true,
-                "codeViewer": false,
-                "admin": true
-              }
+      patch(GITHUB_PERMISSIONS_ENDPOINT + "/" + GITHUB_ROLE)
+        .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
+        .content("""
+          {
+            "permissions": {
+              "user": true,
+              "codeViewer": false,
+              "admin": true
             }
-            """))
+          }
+          """))
       .andExpect(status().isOk())
       .andReturn();
 
     RestGithubPermissionsMapping response = gson.fromJson(mvcResult.getResponse().getContentAsString(), RestGithubPermissionsMapping.class);
 
-    RestGithubPermissionsMapping expectedResponse = new RestGithubPermissionsMapping(GITHUB_ROLE, GITHUB_ROLE, false, new SonarqubePermissions(true, false, false, true, true, false));
+    RestGithubPermissionsMapping expectedResponse = new RestGithubPermissionsMapping(GITHUB_ROLE, GITHUB_ROLE, false,
+      new SonarqubePermissions(true, false, false, true, true, false));
     assertThat(response).isEqualTo(expectedResponse);
 
     ArgumentCaptor<Set<PermissionMappingChange>> permissionMappingChangesCaptor = ArgumentCaptor.forClass(Set.class);
@@ -148,8 +153,50 @@ public class DefaultGithubPermissionsControllerTest {
       .containsExactlyInAnyOrder(
         new PermissionMappingChange(GITHUB_ROLE, "codeviewer", Operation.REMOVE),
         new PermissionMappingChange(GITHUB_ROLE, "user", Operation.ADD),
-        new PermissionMappingChange(GITHUB_ROLE, "admin", Operation.ADD)
-      );
+        new PermissionMappingChange(GITHUB_ROLE, "admin", Operation.ADD));
+  }
+
+  @Test
+  public void deleteMapping_whenUserIsNotAdministrator_shouldReturnForbidden() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
+    mockMvc
+      .perform(delete(GITHUB_PERMISSIONS_ENDPOINT + "/" + READ_GITHUB_ROLE))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+  }
+
+  @Test
+  public void deleteMapping_whenTryingToDeleteBaseRole_shouldReturnBadRequest() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+    doThrow(new IllegalArgumentException("Bad request")).when(githubPermissionsMappingService).deletePermissionMappings(READ_GITHUB_ROLE);
+    mockMvc
+      .perform(delete(GITHUB_PERMISSIONS_ENDPOINT + "/" + READ_GITHUB_ROLE))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"Bad request\"}"));
+  }
+
+  @Test
+  public void deleteMapping_whenNoMappingsExistForACustomRole_shouldReturnNotFound() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+    doThrow(new NotFoundException("Role not found")).when(githubPermissionsMappingService).deletePermissionMappings(READ_GITHUB_ROLE);
+    mockMvc
+      .perform(delete(GITHUB_PERMISSIONS_ENDPOINT + "/" + READ_GITHUB_ROLE))
+      .andExpectAll(
+        status().isNotFound(),
+        content().json("{\"message\":\"Role not found\"}"));
+  }
+
+  @Test
+  public void deleteMapping_whenTryingToDeleteCustomRole_shouldReturnNoContent() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+    mockMvc
+      .perform(delete(GITHUB_PERMISSIONS_ENDPOINT + "/" + GITHUB_ROLE))
+      .andExpect(
+        status().isNoContent());
+
+    verify(githubPermissionsMappingService).deletePermissionMappings(GITHUB_ROLE);
   }
 
 }
