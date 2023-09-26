@@ -39,7 +39,7 @@ interface Option {
   value: string;
 }
 
-export function MetricSelect({ metric, metricsArray, metrics, onMetricChange }: Props) {
+export function MetricSelect({ metric, metricsArray, metrics, onMetricChange }: Readonly<Props>) {
   const handleChange = (option: Option | null) => {
     if (option) {
       const selectedMetric = metricsArray.find((metric) => metric.key === option.value);

@@ -29,7 +29,9 @@ interface Props {
   refreshQualityGates: () => Promise<void>;
 }
 
-function CreateQualityGateModal({ refreshQualityGates }: Pick<Props, 'refreshQualityGates'>) {
+function CreateQualityGateModal({
+  refreshQualityGates,
+}: Readonly<Pick<Props, 'refreshQualityGates'>>) {
   return (
     <div>
       <ModalButton
@@ -47,7 +49,7 @@ function CreateQualityGateModal({ refreshQualityGates }: Pick<Props, 'refreshQua
   );
 }
 
-export default function ListHeader({ canCreate, refreshQualityGates }: Props) {
+export default function ListHeader({ canCreate, refreshQualityGates }: Readonly<Props>) {
   return (
     <div className="sw-flex sw-justify-between sw-pb-4">
       <div className="sw-flex sw-justify-between">

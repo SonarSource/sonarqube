@@ -83,7 +83,7 @@ export function Conditions({
   onAddCondition,
   hasFeature,
   updatedConditionId,
-}: Props) {
+}: Readonly<Props>) {
   const [editing, setEditing] = React.useState<boolean>(
     qualityGate.caycStatus === CaycStatus.NonCompliant,
   );

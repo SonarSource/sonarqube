@@ -55,7 +55,7 @@ export default function DetailsHeader({
   refreshList,
   onSetDefault,
   qualityGate,
-}: Props) {
+}: Readonly<Props>) {
   const [isRenameFormOpen, setIsRenameFormOpen] = React.useState(false);
   const [isCopyFormOpen, setIsCopyFormOpen] = React.useState(false);
   const [isRemoveFormOpen, setIsRemoveFormOpen] = React.useState(false);

@@ -70,7 +70,7 @@ export default function ConditionsTable({
   conditions,
   isCaycModal,
   showEdit,
-}: Props) {
+}: Readonly<Props>) {
   return (
     <Table
       columnCount={4}
