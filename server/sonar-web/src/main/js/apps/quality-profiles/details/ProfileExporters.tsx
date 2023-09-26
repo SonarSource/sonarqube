@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Link, SubTitle } from 'design-system';
+import { FlagMessage, Link, SubTitle } from 'design-system';
 import * as React from 'react';
 import { getQualityProfileExporterUrl } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
@@ -40,10 +40,15 @@ export default function ProfileExporters({ exporters, profile }: Props) {
       <div>
         <SubTitle>{translate('quality_profiles.exporters')}</SubTitle>
       </div>
+      <FlagMessage className="sw-mb-4" variant="warning">
+        {translate('quality_profiles.exporters.deprecated')}
+      </FlagMessage>
       <ul className="sw-flex sw-flex-col sw-gap-2">
         {exportersForLanguage.map((exporter) => (
           <li data-key={exporter.key} key={exporter.key}>
-            <Link to={getQualityProfileExporterUrl(exporter, profile)}>{exporter.name}</Link>
+            <Link isExternal showExternalIcon to={getQualityProfileExporterUrl(exporter, profile)}>
+              {exporter.name}
+            </Link>
           </li>
         ))}
       </ul>
