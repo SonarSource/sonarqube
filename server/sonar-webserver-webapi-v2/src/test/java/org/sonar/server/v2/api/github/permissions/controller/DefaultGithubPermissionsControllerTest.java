@@ -74,8 +74,8 @@ public class DefaultGithubPermissionsControllerTest {
     userSession.logIn().setSystemAdministrator();
 
     List<GithubPermissionsMapping> mapping = List.of(
-      new GithubPermissionsMapping(GITHUB_ROLE, new SonarqubePermissions(true, false, true, false, true, false)),
-      new GithubPermissionsMapping("role2", new SonarqubePermissions(false, true, false, true, false, true)));
+      new GithubPermissionsMapping(GITHUB_ROLE, false, new SonarqubePermissions(true, false, true, false, true, false)),
+      new GithubPermissionsMapping("role2", true, new SonarqubePermissions(false, true, false, true, false, true)));
     when(githubPermissionsMappingService.getPermissionsMapping()).thenReturn(mapping);
 
     MvcResult mvcResult = mockMvc.perform(get(GITHUB_PERMISSIONS_ENDPOINT))
@@ -88,8 +88,12 @@ public class DefaultGithubPermissionsControllerTest {
 
   private static List<RestGithubPermissionsMapping> toRestResources(List<GithubPermissionsMapping> permissionsMapping) {
     return permissionsMapping.stream()
-      .map(e -> new RestGithubPermissionsMapping(e.roleName(), e.roleName(), e.permissions()))
+      .map(DefaultGithubPermissionsControllerTest::toRestGithubPermissionMapping)
       .toList();
+  }
+
+  private static RestGithubPermissionsMapping toRestGithubPermissionMapping(GithubPermissionsMapping permissionMapping) {
+    return new RestGithubPermissionsMapping(permissionMapping.roleName(), permissionMapping.roleName(), permissionMapping.isBaseRole(), permissionMapping.permissions());
   }
 
   @Test
@@ -114,7 +118,7 @@ public class DefaultGithubPermissionsControllerTest {
   @Test
   public void updateMapping_shouldUpdateMapping() throws Exception {
     userSession.logIn().setSystemAdministrator();
-    GithubPermissionsMapping updatedRolePermissions = new GithubPermissionsMapping(GITHUB_ROLE, new SonarqubePermissions(true, false, false, true, true, false));
+    GithubPermissionsMapping updatedRolePermissions = new GithubPermissionsMapping(GITHUB_ROLE, false, new SonarqubePermissions(true, false, false, true, true, false));
 
     when(githubPermissionsMappingService.getPermissionsMappingForGithubRole(GITHUB_ROLE)).thenReturn(updatedRolePermissions);
 
@@ -135,7 +139,7 @@ public class DefaultGithubPermissionsControllerTest {
 
     RestGithubPermissionsMapping response = gson.fromJson(mvcResult.getResponse().getContentAsString(), RestGithubPermissionsMapping.class);
 
-    RestGithubPermissionsMapping expectedResponse = new RestGithubPermissionsMapping(GITHUB_ROLE, GITHUB_ROLE, new SonarqubePermissions(true, false, false, true, true, false));
+    RestGithubPermissionsMapping expectedResponse = new RestGithubPermissionsMapping(GITHUB_ROLE, GITHUB_ROLE, false, new SonarqubePermissions(true, false, false, true, true, false));
     assertThat(response).isEqualTo(expectedResponse);
 
     ArgumentCaptor<Set<PermissionMappingChange>> permissionMappingChangesCaptor = ArgumentCaptor.forClass(Set.class);

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.common.github.permissions;
 
+import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +43,7 @@ public class GithubPermissionsMappingService {
   public static final String MAINTAIN_GITHUB_ROLE = "maintain";
   public static final String ADMIN_GITHUB_ROLE = "admin";
 
-  private static final Set<String> GITHUB_BASE_ROLE = Set.of(
+  private static final Set<String> GITHUB_BASE_ROLES = Set.of(
     READ_GITHUB_ROLE,
     TRIAGE_GITHUB_ROLE,
     WRITE_GITHUB_ROLE,
@@ -70,7 +71,8 @@ public class GithubPermissionsMappingService {
 
   public GithubPermissionsMapping getPermissionsMappingForGithubRole(String githubRole) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return toGithubPermissionsMapping(getPermissionsMappingForGithubRole(dbSession, githubRole), githubRole);
+      Set<GithubPermissionsMappingDto> permissionsMappingForGithubRole = getPermissionsMappingForGithubRole(dbSession, githubRole);
+      return toGithubPermissionsMapping(permissionsMappingForGithubRole, githubRole);
     }
   }
 
@@ -80,16 +82,20 @@ public class GithubPermissionsMappingService {
     }
   }
 
-  private static GithubPermissionsMapping toGithubPermissionsMapping(Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos, String githubRole) {
-    return new GithubPermissionsMapping(githubRole, getSonarqubePermissions(githubPermissionsMappingDtos));
-  }
-
   private static List<GithubPermissionsMapping> toGithubPermissionsMappings(Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos) {
     Map<String, Set<GithubPermissionsMappingDto>> githubRoleToGithubPermissionsMappingDto = githubPermissionsMappingDtos.stream()
       .collect(groupingBy(GithubPermissionsMappingDto::githubRole, toSet()));
-    return GITHUB_BASE_ROLE.stream()
+
+    Set<String> allRoles = Sets.union(GITHUB_BASE_ROLES, githubRoleToGithubPermissionsMappingDto.keySet());
+    return allRoles.stream()
       .map(githubRole -> toGithubPermissionsMapping(githubRoleToGithubPermissionsMappingDto.getOrDefault(githubRole, Set.of()), githubRole))
       .toList();
+  }
+
+  private static GithubPermissionsMapping toGithubPermissionsMapping(Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos, String githubRole) {
+    boolean isBaseRole = GITHUB_BASE_ROLES.contains(githubRole);
+    SonarqubePermissions sonarqubePermissions = getSonarqubePermissions(githubPermissionsMappingDtos);
+    return new GithubPermissionsMapping(githubRole, isBaseRole, sonarqubePermissions);
   }
 
   public void updatePermissionsMappings(Set<PermissionMappingChange> permissionChanges) {

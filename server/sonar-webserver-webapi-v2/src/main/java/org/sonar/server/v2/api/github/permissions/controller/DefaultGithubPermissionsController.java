@@ -44,8 +44,8 @@ import static org.sonar.api.web.UserRole.USER;
 
 public class DefaultGithubPermissionsController implements GithubPermissionsController {
 
-  private UserSession userSession;
-  private GithubPermissionsMappingService githubPermissionsMappingService;
+  private final UserSession userSession;
+  private final GithubPermissionsMappingService githubPermissionsMappingService;
 
   public DefaultGithubPermissionsController(UserSession userSession, GithubPermissionsMappingService githubPermissionsMappingService) {
     this.userSession = userSession;
@@ -89,7 +89,12 @@ public class DefaultGithubPermissionsController implements GithubPermissionsCont
   }
 
   private static RestGithubPermissionsMapping toRestGithubPermissionMapping(GithubPermissionsMapping githubPermissionsMapping) {
-    return new RestGithubPermissionsMapping(githubPermissionsMapping.roleName(), githubPermissionsMapping.roleName(), githubPermissionsMapping.permissions());
+    return new RestGithubPermissionsMapping(
+      githubPermissionsMapping.roleName(),
+      githubPermissionsMapping.roleName(),
+      githubPermissionsMapping.isBaseRole(),
+      githubPermissionsMapping.permissions()
+    );
   }
 
 }

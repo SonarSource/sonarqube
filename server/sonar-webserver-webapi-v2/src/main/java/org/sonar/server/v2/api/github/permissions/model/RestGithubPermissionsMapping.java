@@ -21,5 +21,5 @@ package org.sonar.server.v2.api.github.permissions.model;
 
 import org.sonar.server.common.github.permissions.SonarqubePermissions;
 
-public record RestGithubPermissionsMapping(String id, String roleName, SonarqubePermissions permissions) {
+public record RestGithubPermissionsMapping(String id, String roleName, boolean isBaseRole, SonarqubePermissions permissions) {
 }

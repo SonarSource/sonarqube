@@ -43,7 +43,10 @@ import static org.sonar.server.common.github.permissions.GithubPermissionsMappin
 
 public class GithubPermissionsMappingServiceIT {
 
+  private static final String CUSTOM_ROLE_NAME = "customRole1";
+
   private static final SonarqubePermissions NO_SQ_PERMISSIONS = new SonarqubePermissions(false, false, false, false, false, false);
+
   @Rule
   public DbTester db = DbTester.create();
   private final DbSession dbSession = db.getSession();
@@ -60,11 +63,11 @@ public class GithubPermissionsMappingServiceIT {
     List<GithubPermissionsMapping> actualPermissionsMapping = underTest.getPermissionsMapping();
 
     List<GithubPermissionsMapping> expectedPermissionsMapping = List.of(
-      new GithubPermissionsMapping(READ_GITHUB_ROLE, NO_SQ_PERMISSIONS),
-      new GithubPermissionsMapping(TRIAGE_GITHUB_ROLE, NO_SQ_PERMISSIONS),
-      new GithubPermissionsMapping(WRITE_GITHUB_ROLE, NO_SQ_PERMISSIONS),
-      new GithubPermissionsMapping(MAINTAIN_GITHUB_ROLE, NO_SQ_PERMISSIONS),
-      new GithubPermissionsMapping(ADMIN_GITHUB_ROLE, NO_SQ_PERMISSIONS));
+      new GithubPermissionsMapping(READ_GITHUB_ROLE, true, NO_SQ_PERMISSIONS),
+      new GithubPermissionsMapping(TRIAGE_GITHUB_ROLE, true, NO_SQ_PERMISSIONS),
+      new GithubPermissionsMapping(WRITE_GITHUB_ROLE, true, NO_SQ_PERMISSIONS),
+      new GithubPermissionsMapping(MAINTAIN_GITHUB_ROLE, true, NO_SQ_PERMISSIONS),
+      new GithubPermissionsMapping(ADMIN_GITHUB_ROLE, true, NO_SQ_PERMISSIONS));
 
     assertThat(actualPermissionsMapping).containsAll(expectedPermissionsMapping);
   }
@@ -72,6 +75,7 @@ public class GithubPermissionsMappingServiceIT {
   @Test
   public void getPermissionsMapping_whenMappingDefined_returnMapping() {
     Map<String, Set<String>> githubRolesToSqPermissions = Map.of(
+      CUSTOM_ROLE_NAME, Set.of("user"),
       READ_GITHUB_ROLE, Set.of("user", "codeviewer"),
       WRITE_GITHUB_ROLE, Set.of("user", "codeviewer", "issueadmin", "securityhotspotadmin", "admin", "scan"));
     persistGithubPermissionsMapping(githubRolesToSqPermissions);
@@ -79,11 +83,12 @@ public class GithubPermissionsMappingServiceIT {
     List<GithubPermissionsMapping> actualPermissionsMapping = underTest.getPermissionsMapping();
 
     List<GithubPermissionsMapping> expectedPermissionsMapping = List.of(
-      new GithubPermissionsMapping(READ_GITHUB_ROLE, new SonarqubePermissions(true, true, false, false, false, false)),
-      new GithubPermissionsMapping(TRIAGE_GITHUB_ROLE, NO_SQ_PERMISSIONS),
-      new GithubPermissionsMapping(WRITE_GITHUB_ROLE, new SonarqubePermissions(true, true, true, true, true, true)),
-      new GithubPermissionsMapping(MAINTAIN_GITHUB_ROLE, NO_SQ_PERMISSIONS),
-      new GithubPermissionsMapping(ADMIN_GITHUB_ROLE, NO_SQ_PERMISSIONS));
+      new GithubPermissionsMapping(CUSTOM_ROLE_NAME, false, new SonarqubePermissions(true, false, false, false, false, false)),
+      new GithubPermissionsMapping(READ_GITHUB_ROLE, true, new SonarqubePermissions(true, true, false, false, false, false)),
+      new GithubPermissionsMapping(TRIAGE_GITHUB_ROLE, true, NO_SQ_PERMISSIONS),
+      new GithubPermissionsMapping(WRITE_GITHUB_ROLE, true, new SonarqubePermissions(true, true, true, true, true, true)),
+      new GithubPermissionsMapping(MAINTAIN_GITHUB_ROLE, true, NO_SQ_PERMISSIONS),
+      new GithubPermissionsMapping(ADMIN_GITHUB_ROLE, true, NO_SQ_PERMISSIONS));
 
     assertThat(actualPermissionsMapping).containsAll(expectedPermissionsMapping);
   }
@@ -100,7 +105,7 @@ public class GithubPermissionsMappingServiceIT {
   }
 
   @Test
-  public void updatePermissionsMappings_shouldAddAndRemovePermissions() {
+  public void updatePermissionsMappings_onBaseRole_shouldAddAndRemovePermissions() {
     Map<String, Set<String>> githubRolesToSqPermissions = Map.of(READ_GITHUB_ROLE, Set.of("user", "codeviewer"));
     persistGithubPermissionsMapping(githubRolesToSqPermissions);
 
@@ -113,7 +118,25 @@ public class GithubPermissionsMappingServiceIT {
 
     GithubPermissionsMapping updatedPermissionsMapping = underTest.getPermissionsMappingForGithubRole(READ_GITHUB_ROLE);
 
-    GithubPermissionsMapping expectedPermissionsMapping = new GithubPermissionsMapping(READ_GITHUB_ROLE, new SonarqubePermissions(false, false, true, false, false, true));
+    SonarqubePermissions expectedSqPermissions = new SonarqubePermissions(false, false, true, false, false, true);
+    GithubPermissionsMapping expectedPermissionsMapping = new GithubPermissionsMapping(READ_GITHUB_ROLE, true, expectedSqPermissions);
+    assertThat(updatedPermissionsMapping).isEqualTo(expectedPermissionsMapping);
+  }
+
+  @Test
+  public void updatePermissionsMappings_onCustomRole_shouldAddAndRemovePermissions() {
+    Map<String, Set<String>> githubRolesToSqPermissions = Map.of(CUSTOM_ROLE_NAME, Set.of("user", "codeviewer"));
+    persistGithubPermissionsMapping(githubRolesToSqPermissions);
+
+    PermissionMappingChange permToAdd1 = new PermissionMappingChange(CUSTOM_ROLE_NAME, "issueadmin", Operation.ADD);
+    PermissionMappingChange permToRemove1 = new PermissionMappingChange(CUSTOM_ROLE_NAME, "user", Operation.REMOVE);
+
+    underTest.updatePermissionsMappings(Set.of(permToAdd1, permToRemove1));
+
+    GithubPermissionsMapping updatedPermissionsMapping = underTest.getPermissionsMappingForGithubRole(CUSTOM_ROLE_NAME);
+
+    SonarqubePermissions expectedSqPermissions = new SonarqubePermissions(false, true, true, false, false, false);
+    GithubPermissionsMapping expectedPermissionsMapping = new GithubPermissionsMapping(CUSTOM_ROLE_NAME, false, expectedSqPermissions);
     assertThat(updatedPermissionsMapping).isEqualTo(expectedPermissionsMapping);
   }
 
@@ -125,7 +148,7 @@ public class GithubPermissionsMappingServiceIT {
 
     GithubPermissionsMapping updatedPermissionsMapping = underTest.getPermissionsMappingForGithubRole(READ_GITHUB_ROLE);
 
-    GithubPermissionsMapping expectedPermissionsMapping = new GithubPermissionsMapping(READ_GITHUB_ROLE, NO_SQ_PERMISSIONS);
+    GithubPermissionsMapping expectedPermissionsMapping = new GithubPermissionsMapping(READ_GITHUB_ROLE, true, NO_SQ_PERMISSIONS);
     assertThat(updatedPermissionsMapping).isEqualTo(expectedPermissionsMapping);
   }
 
@@ -139,7 +162,8 @@ public class GithubPermissionsMappingServiceIT {
 
     GithubPermissionsMapping updatedPermissionsMapping = underTest.getPermissionsMappingForGithubRole(READ_GITHUB_ROLE);
 
-    GithubPermissionsMapping expectedPermissionsMapping = new GithubPermissionsMapping(READ_GITHUB_ROLE, new SonarqubePermissions(true, true, false, false, false, false));
+    SonarqubePermissions expectedSqPermissions = new SonarqubePermissions(true, true, false, false, false, false);
+    GithubPermissionsMapping expectedPermissionsMapping = new GithubPermissionsMapping(READ_GITHUB_ROLE, true, expectedSqPermissions);
     assertThat(updatedPermissionsMapping).isEqualTo(expectedPermissionsMapping);
   }
 
@@ -153,14 +177,14 @@ public class GithubPermissionsMappingServiceIT {
     SonarqubePermissions userOnlySqPermission = new SonarqubePermissions(true, false, false, false, false, false);
 
     GithubPermissionsMapping updatedPermissionsMapping = underTest.getPermissionsMappingForGithubRole(READ_GITHUB_ROLE);
-    assertThat(updatedPermissionsMapping).isEqualTo(new GithubPermissionsMapping(READ_GITHUB_ROLE, userOnlySqPermission));
+    assertThat(updatedPermissionsMapping).isEqualTo(new GithubPermissionsMapping(READ_GITHUB_ROLE, true, userOnlySqPermission));
 
     updatedPermissionsMapping = underTest.getPermissionsMappingForGithubRole(WRITE_GITHUB_ROLE);
-    assertThat(updatedPermissionsMapping).isEqualTo(new GithubPermissionsMapping(WRITE_GITHUB_ROLE, userOnlySqPermission));
+    assertThat(updatedPermissionsMapping).isEqualTo(new GithubPermissionsMapping(WRITE_GITHUB_ROLE, true, userOnlySqPermission));
   }
 
   @Test
-  public void getPermissionsMappingForGithubRole_shouldReturnMappingOnlyForRole() {
+  public void getPermissionsMappingForGithubRole_onBaseRole_shouldReturnMappingOnlyForRole() {
     Map<String, Set<String>> githubRolesToSqPermissions = Map.of(
       READ_GITHUB_ROLE, Set.of("user", "codeviewer"),
       WRITE_GITHUB_ROLE, Set.of("user", "codeviewer", "issueadmin", "securityhotspotadmin", "admin", "scan"));
@@ -168,7 +192,23 @@ public class GithubPermissionsMappingServiceIT {
 
     GithubPermissionsMapping actualPermissionsMapping = underTest.getPermissionsMappingForGithubRole(READ_GITHUB_ROLE);
 
-    GithubPermissionsMapping expectedPermissionsMapping = new GithubPermissionsMapping(READ_GITHUB_ROLE, new SonarqubePermissions(true, true, false, false, false, false));
+    SonarqubePermissions expectedSqPermissions = new SonarqubePermissions(true, true, false, false, false, false);
+    GithubPermissionsMapping expectedPermissionsMapping = new GithubPermissionsMapping(READ_GITHUB_ROLE, true, expectedSqPermissions);
+
+    assertThat(actualPermissionsMapping).isEqualTo(expectedPermissionsMapping);
+  }
+
+  @Test
+  public void getPermissionsMappingForGithubRole_onCustomRole_shouldReturnMappingOnlyForRole() {
+    Map<String, Set<String>> githubRolesToSqPermissions = Map.of(
+      CUSTOM_ROLE_NAME, Set.of("admin"),
+      WRITE_GITHUB_ROLE, Set.of("user", "codeviewer", "issueadmin", "securityhotspotadmin", "admin", "scan"));
+    persistGithubPermissionsMapping(githubRolesToSqPermissions);
+
+    GithubPermissionsMapping actualPermissionsMapping = underTest.getPermissionsMappingForGithubRole(CUSTOM_ROLE_NAME);
+
+    SonarqubePermissions expectedSqPermissions = new SonarqubePermissions(false, false, false, false, true, false);
+    GithubPermissionsMapping expectedPermissionsMapping = new GithubPermissionsMapping(CUSTOM_ROLE_NAME, false, expectedSqPermissions);
 
     assertThat(actualPermissionsMapping).isEqualTo(expectedPermissionsMapping);
   }
