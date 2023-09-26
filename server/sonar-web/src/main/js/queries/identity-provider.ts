@@ -19,14 +19,16 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { isEqual, omit } from 'lodash';
+import { isEqual, keyBy, omit, partition } from 'lodash';
 import { useContext } from 'react';
 import {
   activateGithubProvisioning,
   activateScim,
+  addGithubRolesMapping,
   checkConfigurationValidity,
   deactivateGithubProvisioning,
   deactivateScim,
+  deleteGithubRolesMapping,
   fetchGithubProvisioningStatus,
   fetchGithubRolesMapping,
   fetchIsScimEnabled,
@@ -122,13 +124,14 @@ export function useSyncWithGitHubNow() {
   };
 }
 
+const defaultRoleOrder = ['admin', 'maintain', 'write', 'triage', 'read'];
+
 export function useGithubRolesMappingQuery() {
   return useQuery(['identity_provider', 'github_mapping'], fetchGithubRolesMapping, {
     staleTime: MAPPING_STALE_TIME,
     select: (data) =>
       [...data].sort((a, b) => {
         // Order is reversed to put non-existing roles at the end (their index is -1)
-        const defaultRoleOrder = ['admin', 'maintain', 'write', 'triage', 'read'];
         if (defaultRoleOrder.includes(a.id) || defaultRoleOrder.includes(b.id)) {
           return defaultRoleOrder.indexOf(b.id) - defaultRoleOrder.indexOf(a.id);
         }
@@ -141,32 +144,37 @@ export function useGithubRolesMappingMutation() {
   const client = useQueryClient();
   const queryKey = ['identity_provider', 'github_mapping'];
   return useMutation({
-    mutationFn: (mapping: GitHubMapping[]) => {
-      const state = client.getQueryData<GitHubMapping[]>(queryKey);
-      const changedRoles = state
-        ? mapping.filter(
-            (item) =>
-              !isEqual(
-                item,
-                state.find((el) => el.id === item.id),
-              ),
-          )
-        : mapping;
-      return Promise.all(
-        changedRoles.map((data) => updateGithubRolesMapping(data.id, omit(data, 'id', 'roleName'))),
+    mutationFn: async (mapping: GitHubMapping[]) => {
+      const [defaultMapping, customMapping] = partition(mapping, (m) =>
+        defaultRoleOrder.includes(m.roleName),
       );
+      const state = keyBy(client.getQueryData<GitHubMapping[]>(queryKey), (m) => m.id);
+
+      const [customMaybeChangedmRoles, customNewRoles] = partition(
+        customMapping,
+        (m) => state[m.id],
+      );
+
+      const changeRole = [...defaultMapping, ...customMaybeChangedmRoles].filter(
+        (item) => !isEqual(item, state[item.id]),
+      );
+
+      const customDeleteRole = Object.values(state).filter(
+        (m) => !defaultRoleOrder.includes(m.roleName) && !changeRole.some((cm) => m.id === cm.id),
+      );
+
+      return {
+        addedOrChange: await Promise.all([
+          ...changeRole.map((data) =>
+            updateGithubRolesMapping(data.id, omit(data, 'id', 'roleName')),
+          ),
+          ...customNewRoles.map((m) => addGithubRolesMapping(m)),
+        ]),
+        delete: await Promise.all([customDeleteRole.map((dm) => deleteGithubRolesMapping(dm.id))]),
+      };
     },
-    onSuccess: (data) => {
-      const state = client.getQueryData<GitHubMapping[]>(queryKey);
-      if (state) {
-        client.setQueryData(
-          queryKey,
-          state.map((item) => {
-            const changed = data.find((el) => el.id === item.id);
-            return changed ?? item;
-          }),
-        );
-      }
+    onSuccess: ({ addedOrChange }) => {
+      client.setQueryData(queryKey, addedOrChange);
     },
   });
 }

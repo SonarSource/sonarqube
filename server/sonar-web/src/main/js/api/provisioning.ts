@@ -68,3 +68,11 @@ export function updateGithubRolesMapping(
 ) {
   return axios.patch<GitHubMapping>(`/api/v2/github-permission-mappings/${role}`, data);
 }
+
+export function addGithubRolesMapping(data: Omit<GitHubMapping, 'id'>) {
+  return axios.post<GitHubMapping>(`/api/v2/github-permission-mappings/`, data);
+}
+
+export function deleteGithubRolesMapping(role: string) {
+  return axios.delete(`/api/v2/github-permission-mappings/${role}`);
+}
