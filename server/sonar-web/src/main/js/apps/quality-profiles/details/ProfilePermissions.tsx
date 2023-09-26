@@ -17,7 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonSecondary, Note, Spinner, SubTitle } from 'design-system';
+import {
+  ButtonSecondary,
+  CellComponent,
+  Note,
+  Spinner,
+  SubTitle,
+  Table,
+  TableRow,
+} from 'design-system';
 import { sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
 import {
@@ -143,30 +151,40 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
       <section aria-label={translate('permissions.page')}>
         <div className="sw-mb-6">
           <SubTitle className="sw-mb-0">{translate('permissions.page')}</SubTitle>
-          <Note as="p">{translate('quality_profiles.default_permissions')}</Note>
+          <Note className="sw-mt-6" as="p">
+            {translate('quality_profiles.default_permissions')}
+          </Note>
         </div>
 
         <Spinner loading={loading}>
-          <ul className="sw-flex sw-flex-col sw-gap-4 sw-max-w-[238px]">
+          <Table columnCount={2} columnWidths={['100%', '0%']}>
             {this.state.users &&
               sortBy(this.state.users, 'name').map((user) => (
-                <ProfilePermissionsUser
-                  key={user.login}
-                  onDelete={this.handleUserDelete}
-                  profile={this.props.profile}
-                  user={user}
-                />
+                <TableRow key={user.login}>
+                  <CellComponent>
+                    <ProfilePermissionsUser
+                      key={user.login}
+                      onDelete={this.handleUserDelete}
+                      profile={this.props.profile}
+                      user={user}
+                    />
+                  </CellComponent>
+                </TableRow>
               ))}
             {this.state.groups &&
               sortBy(this.state.groups, 'name').map((group) => (
-                <ProfilePermissionsGroup
-                  group={group}
-                  key={group.name}
-                  onDelete={this.handleGroupDelete}
-                  profile={this.props.profile}
-                />
+                <TableRow key={group.name}>
+                  <CellComponent>
+                    <ProfilePermissionsGroup
+                      group={group}
+                      key={group.name}
+                      onDelete={this.handleGroupDelete}
+                      profile={this.props.profile}
+                    />
+                  </CellComponent>
+                </TableRow>
               ))}
-          </ul>
+          </Table>
           <div className="sw-mt-6">
             <ButtonSecondary onClick={this.handleAddUserButtonClick}>
               {translate('quality_profiles.grant_permissions_to_more_users')}

@@ -101,12 +101,13 @@ export default class ProfilePermissionsGroup extends React.PureComponent<Props, 
     const { group } = this.props;
 
     return (
-      <li className="sw-flex sw-items-center sw-justify-between sw-mb-4">
-        <div className="sw-flex sw-items-center sw-truncate">
+      <div className="sw-flex sw-items-center sw-justify-between">
+        <div className="sw-flex sw-truncate">
           <GenericAvatar
             Icon={UserGroupIcon}
-            className="sw-mr-3 sw-grow-0 sw-shrink-0"
+            className="sw-mt-1/2 sw-mr-3 sw-grow-0 sw-shrink-0"
             name={group.name}
+            size="xs"
           />
           <strong className="sw-body-sm-highlight sw-truncate fs-mask">{group.name}</strong>
         </div>
@@ -128,7 +129,7 @@ export default class ProfilePermissionsGroup extends React.PureComponent<Props, 
             {this.renderDeleteModal}
           </SimpleModal>
         )}
-      </li>
+      </div>
     );
   }
 }

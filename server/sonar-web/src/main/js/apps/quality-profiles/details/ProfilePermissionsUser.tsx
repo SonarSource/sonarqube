@@ -105,9 +105,14 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
     const { user } = this.props;
 
     return (
-      <li className="sw-flex sw-items-center sw-justify-between sw-mb-4">
-        <div className="sw-flex sw-items-center sw-truncate">
-          <Avatar className="sw-mr-3 sw-grow-0 sw-shrink-0" hash={user.avatar} name={user.name} />
+      <div className="sw-flex sw-items-center sw-justify-between">
+        <div className="sw-flex sw-truncate">
+          <Avatar
+            className="sw-mt-1/2 sw-mr-3 sw-grow-0 sw-shrink-0"
+            hash={user.avatar}
+            name={user.name}
+            size="xs"
+          />
           <div className="sw-truncate fs-mask">
             <strong className="sw-body-sm-highlight">{user.name}</strong>
             <Note className="sw-block">{user.login}</Note>
@@ -131,7 +136,7 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
             {this.renderDeleteModal}
           </SimpleModal>
         )}
-      </li>
+      </div>
     );
   }
 }
