@@ -77,8 +77,9 @@ export interface GitHubConfigurationStatus {
 }
 
 export interface GitHubMapping {
-  id: string;
-  roleName: string;
+  readonly id: string;
+  readonly roleName: string;
+  readonly isBaseRole?: boolean;
   permissions: {
     user: boolean;
     codeviewer: boolean;

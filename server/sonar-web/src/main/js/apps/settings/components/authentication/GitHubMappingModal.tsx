@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
 import * as React from 'react';
 import Checkbox from '../../../../components/controls/Checkbox';
 import Modal from '../../../../components/controls/Modal';
-import { SubmitButton } from '../../../../components/controls/buttons';
+import { DeleteButton, SubmitButton } from '../../../../components/controls/buttons';
 import PermissionHeader from '../../../../components/permissions/PermissionHeader';
+import { Alert } from '../../../../components/ui/Alert';
 import Spinner from '../../../../components/ui/Spinner';
 import { translate } from '../../../../helpers/l10n';
 import {
@@ -34,21 +34,104 @@ import { useGithubRolesMappingQuery } from '../../../../queries/identity-provide
 import { GitHubMapping } from '../../../../types/provisioning';
 
 interface Props {
-  readonly mapping: GitHubMapping[] | null;
-  readonly setMapping: React.Dispatch<React.SetStateAction<GitHubMapping[] | null>>;
-  readonly onClose: () => void;
+  mapping: GitHubMapping[] | null;
+  setMapping: React.Dispatch<React.SetStateAction<GitHubMapping[] | null>>;
+  onClose: () => void;
 }
 
-export default function GitHubMappingModal({ mapping, setMapping, onClose }: Props) {
+interface PermissionCellProps {
+  mapping: GitHubMapping;
+  setMapping: React.Dispatch<React.SetStateAction<GitHubMapping[] | null>>;
+  list?: GitHubMapping[];
+}
+
+const DEFAULT_CUSTOM_ROLE_PERMISSIONS: GitHubMapping['permissions'] = {
+  user: false,
+  codeviewer: false,
+  issueadmin: false,
+  securityhotspotadmin: false,
+  admin: false,
+  scan: false,
+};
+
+function PermissionRow(props: Readonly<PermissionCellProps>) {
+  const { mapping, list } = props;
+
+  return (
+    <tr>
+      <th scope="row" className="nowrap text-middle sw-pl-[10px]">
+        <div className="sw-flex sw-max-w-[150px] sw-items-center">
+          <b
+            className={mapping.isBaseRole ? 'sw-capitalize' : 'sw-truncate'}
+            title={mapping.roleName}
+          >
+            {mapping.roleName}
+          </b>
+          {!mapping.isBaseRole && (
+            <DeleteButton
+              onClick={() => {
+                props.setMapping(list?.filter((r) => r.roleName !== mapping.roleName) ?? null);
+              }}
+            />
+          )}
+        </div>
+      </th>
+      {Object.entries(mapping.permissions).map(([key, value]) => (
+        <td key={key} className="permission-column text-center text-middle">
+          <Checkbox
+            checked={value}
+            onCheck={(newValue) =>
+              props.setMapping(
+                list?.map((item) =>
+                  item.id === mapping.id
+                    ? { ...item, permissions: { ...item.permissions, [key]: newValue } }
+                    : item,
+                ) ?? null,
+              )
+            }
+          />
+        </td>
+      ))}
+    </tr>
+  );
+}
+
+export default function GitHubMappingModal({ mapping, setMapping, onClose }: Readonly<Props>) {
   const { data: roles, isLoading } = useGithubRolesMappingQuery();
   const permissions = convertToPermissionDefinitions(
     PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
     'projects_role',
   );
+  const [customRoleInput, setCustomRoleInput] = React.useState('');
+  const [customRoleError, setCustomRoleError] = React.useState(false);
 
   const header = translate(
     'settings.authentication.github.configuration.roles_mapping.dialog.title',
   );
+
+  const list = mapping ?? roles;
+
+  const validateAndAddCustomRole = (e: React.FormEvent) => {
+    e.preventDefault();
+    const value = customRoleInput.trim();
+    if (
+      !list?.some((el) =>
+        el.isBaseRole ? el.roleName.toLowerCase() === value.toLowerCase() : el.roleName === value,
+      )
+    ) {
+      setMapping([
+        {
+          id: customRoleInput,
+          roleName: customRoleInput,
+          permissions: { ...DEFAULT_CUSTOM_ROLE_PERMISSIONS },
+        },
+        ...(list ?? []),
+      ]);
+      setCustomRoleInput('');
+    } else {
+      setCustomRoleError(true);
+    }
+  };
 
   return (
     <Modal contentLabel={header} onRequestClose={onClose} shouldCloseOnEsc size="medium">
@@ -58,8 +141,11 @@ export default function GitHubMappingModal({ mapping, setMapping, onClose }: Pro
       <div className="modal-body modal-container sw-p-0">
         <table className="data zebra permissions-table">
           <thead>
-            <tr>
-              <th scope="col" className="nowrap bordered-bottom sw-pl-[10px] sw-align-middle">
+            <tr className="sw-sticky sw-top-0 sw-bg-white sw-z-filterbar">
+              <th
+                scope="col"
+                className="nowrap bordered-bottom sw-pl-[10px] sw-align-middle sw-w-[150px]"
+              >
                 <b>
                   {translate(
                     'settings.authentication.github.configuration.roles_mapping.dialog.roles_column',
@@ -77,29 +163,65 @@ export default function GitHubMappingModal({ mapping, setMapping, onClose }: Pro
             </tr>
           </thead>
           <tbody>
-            {(mapping ?? roles)?.map(({ id, roleName, permissions }) => (
-              <tr key={id}>
-                <th scope="row" className="nowrap text-middle sw-pl-[10px]">
-                  <b>{roleName}</b>
-                </th>
-                {Object.entries(permissions).map(([key, value]) => (
-                  <td key={key} className={classNames('permission-column text-center text-middle')}>
-                    <Checkbox
-                      checked={value}
-                      onCheck={(newValue) =>
-                        setMapping(
-                          (mapping ?? roles)?.map((item) =>
-                            item.id === id
-                              ? { ...item, permissions: { ...item.permissions, [key]: newValue } }
-                              : item,
-                          ) ?? null,
-                        )
-                      }
-                    />
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {list
+              ?.filter((r) => r.isBaseRole)
+              .map((mapping) => (
+                <PermissionRow
+                  key={mapping.id}
+                  mapping={mapping}
+                  setMapping={setMapping}
+                  list={list}
+                />
+              ))}
+            <tr>
+              <td colSpan={7} className="sw-pt-5 sw-border-t">
+                <Alert variant="info">
+                  {translate(
+                    'settings.authentication.github.configuration.roles_mapping.dialog.custom_roles_description',
+                  )}
+                </Alert>
+                <form
+                  className="sw-flex sw-h-9 sw-items-center"
+                  onSubmit={validateAndAddCustomRole}
+                >
+                  <label htmlFor="custom-role-input">
+                    {translate(
+                      'settings.authentication.github.configuration.roles_mapping.dialog.add_custom_role',
+                    )}
+                  </label>
+                  <input
+                    className="sw-w-[300px] sw-mx-2"
+                    id="custom-role-input"
+                    maxLength={4000}
+                    value={customRoleInput}
+                    onChange={(event) => {
+                      setCustomRoleError(false);
+                      setCustomRoleInput(event.currentTarget.value);
+                    }}
+                    type="text"
+                  />
+                  <SubmitButton disabled={!customRoleInput.trim() || customRoleError}>
+                    {translate('add_verb')}
+                  </SubmitButton>
+                  <Alert variant="error" className="sw-inline-block sw-ml-2 sw-mb-0">
+                    {customRoleError &&
+                      translate(
+                        'settings.authentication.github.configuration.roles_mapping.role_exists',
+                      )}
+                  </Alert>
+                </form>
+              </td>
+            </tr>
+            {list
+              ?.filter((r) => !r.isBaseRole)
+              .map((mapping) => (
+                <PermissionRow
+                  key={mapping.id}
+                  mapping={mapping}
+                  setMapping={setMapping}
+                  list={list}
+                />
+              ))}
           </tbody>
         </table>
         <Spinner loading={isLoading} />

@@ -20,12 +20,28 @@
 
 import 'axios';
 
+type IfEquals<X, Y, A = X, B = never> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y
+  ? 1
+  : 2
+  ? A
+  : B;
+
+type WritableKeys<T> = {
+  [P in keyof T]-?: IfEquals<{ [Q in P]: T[P] }, { -readonly [Q in P]: T[P] }, P>;
+}[keyof T];
+
+type OmitReadonly<T> = Pick<T, WritableKeys<T>>;
+
 declare module 'axios' {
   export interface AxiosInstance {
     get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
     delete<T = void>(url: string, config?: AxiosRequestConfig): Promise<T>;
     post<T = any, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D>): Promise<T>;
-    patch<T = any, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D>): Promise<T>;
+    patch<T = any, D = Partial<OmitReadonly<T>>>(
+      url: string,
+      data?: D,
+      config?: AxiosRequestConfig<D>,
+    ): Promise<T>;
 
     defaults: Omit<AxiosDefaults, 'headers'> & {
       headers: HeadersDefaults & {

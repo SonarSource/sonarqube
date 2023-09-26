@@ -399,14 +399,14 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                   )}
                 </ConfirmModal>
               )}
-              {showMappingModal && (
-                <GitHubMappingModal
-                  mapping={rolesMapping}
-                  setMapping={setRolesMapping}
-                  onClose={() => setShowMappingModal(false)}
-                />
-              )}
             </form>
+            {showMappingModal && (
+              <GitHubMappingModal
+                mapping={rolesMapping}
+                setMapping={setRolesMapping}
+                onClose={() => setShowMappingModal(false)}
+              />
+            )}
           </div>
         </>
       )}

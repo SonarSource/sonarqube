@@ -154,6 +154,8 @@ const ui = {
     mappingRow: byRole('dialog', {
       name: 'settings.authentication.github.configuration.roles_mapping.dialog.title',
     }).byRole('row'),
+    getMappingRowByRole: (text: string) =>
+      ui.github.mappingRow.getAll().find((row) => within(row).queryByText(text) !== null),
     mappingCheckbox: byRole('checkbox'),
     mappingDialogClose: byRole('dialog', {
       name: 'settings.authentication.github.configuration.roles_mapping.dialog.title',
@@ -850,12 +852,17 @@ describe('Github tab', () => {
       expect(await github.editMappingButton.find()).toBeInTheDocument();
       await user.click(github.editMappingButton.get());
 
-      expect(await github.mappingRow.findAll()).toHaveLength(6);
-      expect(github.mappingRow.getAt(1)).toHaveTextContent('read');
-      expect(github.mappingRow.getAt(2)).toHaveTextContent('triage');
-      expect(github.mappingRow.getAt(3)).toHaveTextContent('write');
-      expect(github.mappingRow.getAt(4)).toHaveTextContent('maintain');
-      expect(github.mappingRow.getAt(5)).toHaveTextContent('admin');
+      const rows = (await github.mappingRow.findAll()).filter(
+        (row) => within(row).queryAllByRole('checkbox').length > 0,
+      );
+
+      expect(rows).toHaveLength(5);
+
+      expect(rows[0]).toHaveTextContent('read');
+      expect(rows[1]).toHaveTextContent('triage');
+      expect(rows[2]).toHaveTextContent('write');
+      expect(rows[3]).toHaveTextContent('maintain');
+      expect(rows[4]).toHaveTextContent('admin');
     });
 
     it('should apply new mapping and new provisioning type at the same time', async () => {
@@ -872,18 +879,18 @@ describe('Github tab', () => {
       expect(await github.editMappingButton.find()).toBeInTheDocument();
       await user.click(github.editMappingButton.get());
 
-      expect(await github.mappingRow.findAll()).toHaveLength(6);
+      expect(await github.mappingRow.findAll()).toHaveLength(7);
 
-      let rowOneCheckboxes = github.mappingCheckbox.getAll(github.mappingRow.getAt(1));
-      let rowFiveCheckboxes = github.mappingCheckbox.getAll(github.mappingRow.getAt(5));
+      let readCheckboxes = github.mappingCheckbox.getAll(github.getMappingRowByRole('read'));
+      let adminCheckboxes = github.mappingCheckbox.getAll(github.getMappingRowByRole('admin'));
 
-      expect(rowOneCheckboxes[0]).toBeChecked();
-      expect(rowOneCheckboxes[5]).not.toBeChecked();
-      expect(rowFiveCheckboxes[5]).toBeChecked();
+      expect(readCheckboxes[0]).toBeChecked();
+      expect(readCheckboxes[5]).not.toBeChecked();
+      expect(adminCheckboxes[5]).toBeChecked();
 
-      await user.click(rowOneCheckboxes[0]);
-      await user.click(rowOneCheckboxes[5]);
-      await user.click(rowFiveCheckboxes[5]);
+      await user.click(readCheckboxes[0]);
+      await user.click(readCheckboxes[5]);
+      await user.click(adminCheckboxes[5]);
       await user.click(github.mappingDialogClose.get());
 
       await user.click(github.saveGithubProvisioning.get());
@@ -894,12 +901,12 @@ describe('Github tab', () => {
       await user.click(github.githubProvisioningButton.get());
 
       await user.click(github.editMappingButton.get());
-      rowOneCheckboxes = github.mappingCheckbox.getAll(github.mappingRow.getAt(1));
-      rowFiveCheckboxes = github.mappingCheckbox.getAll(github.mappingRow.getAt(5));
+      readCheckboxes = github.mappingCheckbox.getAll(github.getMappingRowByRole('read'));
+      adminCheckboxes = github.mappingCheckbox.getAll(github.getMappingRowByRole('admin'));
 
-      expect(rowOneCheckboxes[0]).not.toBeChecked();
-      expect(rowOneCheckboxes[5]).toBeChecked();
-      expect(rowFiveCheckboxes[5]).not.toBeChecked();
+      expect(readCheckboxes[0]).not.toBeChecked();
+      expect(readCheckboxes[5]).toBeChecked();
+      expect(adminCheckboxes[5]).not.toBeChecked();
       await user.click(github.mappingDialogClose.get());
     });
 
@@ -913,13 +920,13 @@ describe('Github tab', () => {
       expect(await github.saveGithubProvisioning.find()).toBeDisabled();
       await user.click(github.editMappingButton.get());
 
-      expect(await github.mappingRow.findAll()).toHaveLength(6);
+      expect(await github.mappingRow.findAll()).toHaveLength(7);
 
-      let rowOneCheckbox = github.mappingCheckbox.getAll(github.mappingRow.getAt(1))[0];
+      let readCheckboxes = github.mappingCheckbox.getAll(github.getMappingRowByRole('read'))[0];
 
-      expect(rowOneCheckbox).toBeChecked();
+      expect(readCheckboxes).toBeChecked();
 
-      await user.click(rowOneCheckbox);
+      await user.click(readCheckboxes);
       await user.click(github.mappingDialogClose.get());
 
       expect(await github.saveGithubProvisioning.find()).toBeEnabled();
@@ -931,9 +938,9 @@ describe('Github tab', () => {
       await user.click(github.githubProvisioningButton.get());
 
       await user.click(github.editMappingButton.get());
-      rowOneCheckbox = github.mappingCheckbox.getAll(github.mappingRow.getAt(1))[0];
+      readCheckboxes = github.mappingCheckbox.getAll(github.getMappingRowByRole('read'))[0];
 
-      expect(rowOneCheckbox).not.toBeChecked();
+      expect(readCheckboxes).not.toBeChecked();
       await user.click(github.mappingDialogClose.get());
     });
   });
