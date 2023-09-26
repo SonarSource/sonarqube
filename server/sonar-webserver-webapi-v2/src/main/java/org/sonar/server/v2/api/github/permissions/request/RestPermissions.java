@@ -17,9 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.github.permissions.model;
+package org.sonar.server.v2.api.github.permissions.request;
 
-import org.sonar.server.v2.api.github.permissions.request.RestPermissions;
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.validation.constraints.NotNull;
 
-public record RestGithubPermissionsMapping(String id, String githubRole, boolean isBaseRole, RestPermissions permissions) {
+public record RestPermissions(
+  @NotNull
+  @Schema(description = "Browse")
+  Boolean user,
+
+  @NotNull
+  @Schema(description = "See Source Code")
+  Boolean codeViewer,
+
+  @NotNull
+  @Schema(description = "Administer Issues")
+  Boolean issueAdmin,
+
+  @NotNull
+  @Schema(description = "Administer Security Hotspots")
+  Boolean securityHotspotAdmin,
+
+  @NotNull
+  @Schema(description = "Administer")
+  Boolean admin,
+
+  @NotNull
+  @Schema(description = "Execute Analysis")
+  Boolean scan
+) {
 }

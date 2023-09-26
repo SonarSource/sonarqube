@@ -34,6 +34,7 @@ import org.sonar.db.provisioning.GithubPermissionsMappingDto;
 import org.sonar.server.common.permission.Operation;
 import org.sonar.server.exceptions.NotFoundException;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -250,6 +251,59 @@ public class GithubPermissionsMappingServiceIT {
         new GithubPermissionsMapping(MAINTAIN_GITHUB_ROLE, true, NO_SQ_PERMISSIONS),
         new GithubPermissionsMapping(ADMIN_GITHUB_ROLE, true, NO_SQ_PERMISSIONS),
         new GithubPermissionsMapping(CUSTOM_ROLE_NAME, false, new SonarqubePermissions(true, true, false, false, false, true)));
+  }
+
+  @Test
+  public void createPermissionMapping_whenRoleExists_shouldThrow() {
+    Map<String, Set<String>> githubRolesToSqPermissions = Map.of(CUSTOM_ROLE_NAME, Set.of("user", "codeviewer"));
+    persistGithubPermissionsMapping(githubRolesToSqPermissions);
+
+    GithubPermissionsMapping request = new GithubPermissionsMapping(CUSTOM_ROLE_NAME, false, new SonarqubePermissions(true, true, true, true, true, true));
+    assertThatThrownBy(() -> underTest.createPermissionMapping(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("Role %s already exists, it can't be created again.", CUSTOM_ROLE_NAME));
+  }
+
+  @Test
+  public void createPermissionMapping_whenRoleNameConflictsWithBaseRole_shouldThrow() {
+    assertBaseRoleConflict("read");
+    assertBaseRoleConflict("Read");
+    assertBaseRoleConflict("READ");
+  }
+
+  private void assertBaseRoleConflict(String role) {
+    GithubPermissionsMapping request = new GithubPermissionsMapping(role, false, new SonarqubePermissions(true, true, true, true, true, true));
+    assertThatThrownBy(() -> underTest.createPermissionMapping(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("Role %s can conflicts with a GitHub base role, please chose another name.", role));
+  }
+
+  @Test
+  public void createPermissionMapping_whenNoPermissions_shouldThrow() {
+    GithubPermissionsMapping request = new GithubPermissionsMapping(CUSTOM_ROLE_NAME, false, new SonarqubePermissions(false, false, false, false, false, false));
+    assertThatThrownBy(() -> underTest.createPermissionMapping(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("Role %s has no permission set, please set at least one permission.", CUSTOM_ROLE_NAME));
+  }
+
+  @Test
+  public void createPermissionMapping_whenValidRequests_shouldCreateMapping() {
+    GithubPermissionsMapping role1 = new GithubPermissionsMapping("role1", false, new SonarqubePermissions(false, false, false, false, false, true));
+    GithubPermissionsMapping role2 = new GithubPermissionsMapping("role2", false, new SonarqubePermissions(false, false, false, false, true, true));
+    GithubPermissionsMapping role3 = new GithubPermissionsMapping("role3", false, new SonarqubePermissions(false, false, false, true, true, true));
+    GithubPermissionsMapping role4 = new GithubPermissionsMapping("role4", false, new SonarqubePermissions(false, false, true, true, true, true));
+    GithubPermissionsMapping role5 = new GithubPermissionsMapping("role5", false, new SonarqubePermissions(false, true, true, true, true, true));
+    GithubPermissionsMapping role6 = new GithubPermissionsMapping("role6", false, new SonarqubePermissions(true, true, true, true, true, true));
+
+    underTest.createPermissionMapping(role1);
+    underTest.createPermissionMapping(role2);
+    underTest.createPermissionMapping(role3);
+    underTest.createPermissionMapping(role4);
+    underTest.createPermissionMapping(role5);
+    underTest.createPermissionMapping(role6);
+
+    assertThat(underTest.getPermissionsMapping())
+      .contains(role1, role2, role3, role4, role5, role6);
   }
 
 }

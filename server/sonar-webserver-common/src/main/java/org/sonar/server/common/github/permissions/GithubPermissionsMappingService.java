@@ -20,8 +20,11 @@
 package org.sonar.server.common.github.permissions;
 
 import com.google.common.collect.Sets;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.sonar.api.web.UserRole;
@@ -32,6 +35,7 @@ import org.sonar.db.provisioning.GithubPermissionsMappingDao;
 import org.sonar.db.provisioning.GithubPermissionsMappingDto;
 import org.sonar.server.exceptions.NotFoundException;
 
+import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.utils.Preconditions.checkArgument;
@@ -159,4 +163,61 @@ public class GithubPermissionsMappingService {
       .forEach(builderConsumer -> builderConsumer.accept(builder));
     return builder.build();
   }
+
+  public GithubPermissionsMapping createPermissionMapping(GithubPermissionsMapping request) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      validateCreatePermissionMappingRequest(request, dbSession);
+      toGithubPermissionsMappingDtos(request).forEach(dto -> githubPermissionsMappingDao.insert(dbSession, dto));
+      dbSession.commit();
+      return getPermissionsMappingForGithubRole(request.githubRole());
+    }
+  }
+
+  private void validateCreatePermissionMappingRequest(GithubPermissionsMapping request, DbSession dbSession) {
+    if (!getPermissionsMappingForGithubRole(dbSession, request.githubRole()).isEmpty()) {
+      throw new IllegalArgumentException(format("Role %s already exists, it can't be created again.", request.githubRole()));
+    }
+    if (conflictBaseRole(request.githubRole())) {
+      throw new IllegalArgumentException(format("Role %s can conflicts with a GitHub base role, please chose another name.", request.githubRole()));
+    }
+    if (noPermissionsGranted(request.permissions())) {
+      throw new IllegalArgumentException(format("Role %s has no permission set, please set at least one permission.", request.githubRole()));
+    }
+  }
+
+  private static boolean conflictBaseRole(String githubRole) {
+    return GITHUB_BASE_ROLES.stream()
+      .anyMatch(baseRole -> githubRole.toLowerCase(Locale.ROOT).equals(baseRole));
+  }
+
+  private static boolean noPermissionsGranted(SonarqubePermissions permissions) {
+    return !permissions.user() &&
+      !permissions.codeViewer() &&
+      !permissions.issueAdmin() &&
+      !permissions.securityHotspotAdmin() &&
+      !permissions.admin() &&
+      !permissions.scan();
+  }
+
+  private Set<GithubPermissionsMappingDto> toGithubPermissionsMappingDtos(GithubPermissionsMapping request) {
+    SonarqubePermissions permissions = request.permissions();
+    Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos = new HashSet<>();
+
+    toGithubPermissionsMappingDto(permissions.user(), UserRole.USER, request.githubRole()).ifPresent(githubPermissionsMappingDtos::add);
+    toGithubPermissionsMappingDto(permissions.codeViewer(), UserRole.CODEVIEWER, request.githubRole()).ifPresent(githubPermissionsMappingDtos::add);
+    toGithubPermissionsMappingDto(permissions.issueAdmin(), UserRole.ISSUE_ADMIN, request.githubRole()).ifPresent(githubPermissionsMappingDtos::add);
+    toGithubPermissionsMappingDto(permissions.securityHotspotAdmin(), UserRole.SECURITYHOTSPOT_ADMIN, request.githubRole()).ifPresent(githubPermissionsMappingDtos::add);
+    toGithubPermissionsMappingDto(permissions.admin(), UserRole.ADMIN, request.githubRole()).ifPresent(githubPermissionsMappingDtos::add);
+    toGithubPermissionsMappingDto(permissions.scan(), UserRole.SCAN, request.githubRole()).ifPresent(githubPermissionsMappingDtos::add);
+
+    return githubPermissionsMappingDtos;
+  }
+
+  private Optional<GithubPermissionsMappingDto> toGithubPermissionsMappingDto(boolean granted, String permission, String githubRole) {
+    if (granted) {
+      return Optional.of(new GithubPermissionsMappingDto(uuidFactory.create(), githubRole, permission));
+    }
+    return Optional.empty();
+  }
+
 }

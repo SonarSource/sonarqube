@@ -17,9 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.github.permissions.model;
+package org.sonar.server.v2.api.github.permissions.request;
 
-import org.sonar.server.v2.api.github.permissions.request.RestPermissions;
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
-public record RestGithubPermissionsMapping(String id, String githubRole, boolean isBaseRole, RestPermissions permissions) {
+public record GithubPermissionsMappingPostRequest(
+  @NotNull
+  @Schema(description = "Custom role name on GitHub (case-sensitive)")
+  String githubRole,
+
+  @NotNull
+  @Valid
+  @Schema(description = "Permissions")
+  RestPermissions permissions) {
 }

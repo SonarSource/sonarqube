@@ -24,37 +24,44 @@ import javax.validation.Valid;
 import org.sonar.server.v2.WebApiEndpoints;
 import org.sonar.server.v2.api.github.permissions.model.RestGithubPermissionsMapping;
 import org.sonar.server.v2.api.github.permissions.request.GithubPermissionMappingUpdateRequest;
+import org.sonar.server.v2.api.github.permissions.request.GithubPermissionsMappingPostRequest;
 import org.sonar.server.v2.api.github.permissions.response.GithubPermissionsMappingRestResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.sonar.server.v2.WebApiEndpoints.JSON_MERGE_PATCH_CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping(WebApiEndpoints.GITHUB_PERMISSIONS_ENDPOINT)
 @RestController
 public interface GithubPermissionsController {
 
-  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Fetch the GitHub permissions mapping", description = "Requires Administer System permission.")
   GithubPermissionsMappingRestResponse fetchAll();
 
-  @PatchMapping(path = "/{githubRole}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping(path = "/{githubRole}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "Update a single Github permission mapping", description = "Update a single Github permission mapping")
+  @Operation(summary = "Update a single GitHub permission mapping", description = "Requires Administer System permission.")
   RestGithubPermissionsMapping updateMapping(@PathVariable("githubRole") String githubRole, @Valid @RequestBody GithubPermissionMappingUpdateRequest request);
 
   @DeleteMapping(path = "/{githubRole}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Delete a single Github permission mapping", description = "Delete a single Github permission mapping")
+  @Operation(summary = "Delete a single GitHub permission mapping", description = "Requires Administer System permission.")
   void deleteMapping(@PathVariable("githubRole") String githubRole);
+
+  @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Create a permission mapping for a GitHub custom role", description = "Requires Administer System permission.")
+  RestGithubPermissionsMapping createMapping(@Valid @RequestBody GithubPermissionsMappingPostRequest request);
 
 }

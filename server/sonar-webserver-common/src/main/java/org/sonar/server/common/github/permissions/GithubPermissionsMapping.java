@@ -19,5 +19,5 @@
  */
 package org.sonar.server.common.github.permissions;
 
-public record GithubPermissionsMapping(String roleName, boolean isBaseRole, SonarqubePermissions permissions) {
+public record GithubPermissionsMapping(String githubRole, boolean isBaseRole, SonarqubePermissions permissions) {
 }

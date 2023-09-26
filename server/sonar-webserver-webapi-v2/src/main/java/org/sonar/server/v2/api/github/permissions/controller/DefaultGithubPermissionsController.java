@@ -22,18 +22,18 @@ package org.sonar.server.v2.api.github.permissions.controller;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.validation.Valid;
 import org.sonar.server.common.github.permissions.GithubPermissionsMapping;
 import org.sonar.server.common.github.permissions.GithubPermissionsMappingService;
 import org.sonar.server.common.github.permissions.PermissionMappingChange;
+import org.sonar.server.common.github.permissions.SonarqubePermissions;
 import org.sonar.server.common.permission.Operation;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.github.permissions.model.RestGithubPermissionsMapping;
 import org.sonar.server.v2.api.github.permissions.request.GithubPermissionMappingUpdateRequest;
+import org.sonar.server.v2.api.github.permissions.request.GithubPermissionsMappingPostRequest;
 import org.sonar.server.v2.api.github.permissions.request.PermissionMappingUpdate;
+import org.sonar.server.v2.api.github.permissions.request.RestPermissions;
 import org.sonar.server.v2.api.github.permissions.response.GithubPermissionsMappingRestResponse;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
@@ -60,7 +60,7 @@ public class DefaultGithubPermissionsController implements GithubPermissionsCont
   }
 
   @Override
-  public RestGithubPermissionsMapping updateMapping(@PathVariable("githubRole") String githubRole, @Valid @RequestBody GithubPermissionMappingUpdateRequest request) {
+  public RestGithubPermissionsMapping updateMapping(String githubRole, GithubPermissionMappingUpdateRequest request) {
     userSession.checkIsSystemAdministrator();
     PermissionMappingUpdate update = request.permissions();
     Set<PermissionMappingChange> changes = new HashSet<>();
@@ -94,12 +94,43 @@ public class DefaultGithubPermissionsController implements GithubPermissionsCont
       .toList();
   }
 
+  @Override
+  public RestGithubPermissionsMapping createMapping(GithubPermissionsMappingPostRequest request) {
+    userSession.checkIsSystemAdministrator();
+    GithubPermissionsMapping githubPermissionsMapping = new GithubPermissionsMapping(request.githubRole(), false, toSonarqubePermissions(request.permissions()));
+    return toRestGithubPermissionMapping(githubPermissionsMappingService.createPermissionMapping(githubPermissionsMapping));
+  }
+
+  private static SonarqubePermissions toSonarqubePermissions(RestPermissions restPermissions) {
+    SonarqubePermissions.Builder sonarqubePermissionsBuilder = SonarqubePermissions.Builder.builder();
+
+    sonarqubePermissionsBuilder.user(restPermissions.user());
+    sonarqubePermissionsBuilder.codeViewer(restPermissions.codeViewer());
+    sonarqubePermissionsBuilder.issueAdmin(restPermissions.issueAdmin());
+    sonarqubePermissionsBuilder.securityHotspotAdmin(restPermissions.securityHotspotAdmin());
+    sonarqubePermissionsBuilder.admin(restPermissions.admin());
+    sonarqubePermissionsBuilder.scan(restPermissions.scan());
+
+    return sonarqubePermissionsBuilder.build();
+  }
+
   private static RestGithubPermissionsMapping toRestGithubPermissionMapping(GithubPermissionsMapping githubPermissionsMapping) {
     return new RestGithubPermissionsMapping(
-      githubPermissionsMapping.roleName(),
-      githubPermissionsMapping.roleName(),
+      githubPermissionsMapping.githubRole(),
+      githubPermissionsMapping.githubRole(),
       githubPermissionsMapping.isBaseRole(),
-      githubPermissionsMapping.permissions());
+      toRestPermissions(githubPermissionsMapping.permissions()));
+  }
+
+  private static RestPermissions toRestPermissions(SonarqubePermissions permissions) {
+    return new RestPermissions(
+      permissions.user(),
+      permissions.codeViewer(),
+      permissions.issueAdmin(),
+      permissions.securityHotspotAdmin(),
+      permissions.admin(),
+      permissions.scan()
+    );
   }
 
 }
