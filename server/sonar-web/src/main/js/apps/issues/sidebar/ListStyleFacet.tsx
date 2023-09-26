@@ -22,6 +22,7 @@ import { FacetBox, FacetItem, FlagMessage, InputSearch } from 'design-system';
 import { max, sortBy, values, without } from 'lodash';
 import * as React from 'react';
 import ListFooter from '../../../components/controls/ListFooter';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { queriesEqual } from '../../../helpers/query';
@@ -40,6 +41,7 @@ interface SearchResponse<S> {
 
 export interface Props<S> {
   disabled?: boolean;
+  disabledHelper?: string;
   disableZero?: boolean;
   facetHeader: string;
   fetching: boolean;
@@ -65,6 +67,7 @@ export interface Props<S> {
   searchPlaceholder: string;
   showLessAriaLabel?: string;
   showMoreAriaLabel?: string;
+  searchInputAriaLabel?: string;
   showStatBar?: boolean;
   stats: Dict<number> | undefined;
   values: string[];
@@ -370,7 +373,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
   }
 
   renderSearch() {
-    const { minSearchLength } = this.props;
+    const { minSearchLength, searchInputAriaLabel } = this.props;
     return (
       <InputSearch
         className="it__search-box-input sw-mb-4 sw-w-full"
@@ -379,7 +382,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
         placeholder={this.props.searchPlaceholder}
         size="auto"
         value={this.state.query}
-        searchInputAriaLabel={translate('search_verb')}
+        searchInputAriaLabel={searchInputAriaLabel ?? translate('search_verb')}
         minLength={minSearchLength}
       />
     );
@@ -450,6 +453,7 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
   render() {
     const {
       disabled,
+      disabledHelper,
       facetHeader,
       fetching,
       inner,
@@ -480,6 +484,8 @@ export class ListStyleFacet<S> extends React.Component<Props<S>, State<S>> {
         countLabel={translateWithParameters('x_selected', nbSelectedItems)}
         data-property={property}
         disabled={disabled}
+        disabledHelper={disabledHelper}
+        tooltipComponent={Tooltip}
         id={this.getFacetHeaderId(property)}
         inner={inner}
         loading={fetching}

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { HelperHintIcon } from 'design-system';
 import * as React from 'react';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import SoftwareImpactSeverityIcon from '../../../components/icons/SoftwareImpactSeverityIcon';
@@ -55,7 +56,9 @@ export function SeverityFacet(props: Props) {
               label: translate('learn_more'),
             },
           ]}
-        />
+        >
+          <HelperHintIcon />
+        </DocumentationTooltip>
       }
       {...rest}
     />

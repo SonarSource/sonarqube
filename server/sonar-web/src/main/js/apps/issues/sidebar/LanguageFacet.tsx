@@ -30,22 +30,27 @@ import { Query } from '../utils';
 import { ListStyleFacet } from './ListStyleFacet';
 
 interface Props {
-  fetching: boolean;
+  fetching?: boolean;
   languages: Languages;
   selectedLanguages: string[];
-  loadSearchResultCount: (property: string, changes: Partial<Query>) => Promise<Facet>;
+  loadSearchResultCount?: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  query: Query;
-  referencedLanguages: Dict<ReferencedLanguage>;
+  query?: Query;
+  referencedLanguages?: Dict<ReferencedLanguage>;
   stats: Dict<number> | undefined;
+  disabled?: boolean;
+  disabledHelper?: string;
 }
 
 class LanguageFacetClass extends React.PureComponent<Props> {
-  getLanguageName = (language: string) => {
-    const { referencedLanguages } = this.props;
-    return referencedLanguages[language] ? referencedLanguages[language].name : language;
+  getLanguageName = (languageKey: string) => {
+    const { referencedLanguages, languages } = this.props;
+    const language = referencedLanguages
+      ? referencedLanguages[languageKey]
+      : languages[languageKey];
+    return language ? language.name : languageKey;
   };
 
   handleSearch = (query: string) => {
@@ -73,7 +78,8 @@ class LanguageFacetClass extends React.PureComponent<Props> {
   };
 
   loadSearchResultCount = (languages: Language[]) => {
-    return this.props.loadSearchResultCount('languages', {
+    const { loadSearchResultCount = () => Promise.resolve({}) } = this.props;
+    return loadSearchResultCount('languages', {
       languages: languages.map((language) => language.key),
     });
   };
@@ -85,8 +91,10 @@ class LanguageFacetClass extends React.PureComponent<Props> {
   render() {
     return (
       <ListStyleFacet<Language>
+        disabled={this.props.disabled}
+        disabledHelper={this.props.disabledHelper}
         facetHeader={translate('issues.facet.languages')}
-        fetching={this.props.fetching}
+        fetching={this.props.fetching ?? false}
         getFacetItemText={this.getLanguageName}
         getSearchResultKey={(language) => language.key}
         getSearchResultText={(language) => language.name}
@@ -97,10 +105,11 @@ class LanguageFacetClass extends React.PureComponent<Props> {
         onToggle={this.props.onToggle}
         open={this.props.open}
         property="languages"
-        query={omit(this.props.query, 'languages')}
+        query={this.props.query ? omit(this.props.query, 'languages') : undefined}
         renderFacetItem={this.getLanguageName}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_languages')}
+        searchInputAriaLabel={translate('search.search_for_languages')}
         stats={this.props.stats}
         values={this.props.selectedLanguages}
       />

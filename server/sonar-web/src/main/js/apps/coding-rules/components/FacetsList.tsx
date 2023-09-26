@@ -17,20 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BasicSeparator } from 'design-system';
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
+import { translate } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
+import { LanguageFacet } from '../../issues/sidebar/LanguageFacet';
+import { StandardFacet } from '../../issues/sidebar/StandardFacet';
 import { Facets, OpenFacets, Query } from '../query';
 import AttributeCategoryFacet from './AttributeCategoryFacet';
 import AvailableSinceFacet from './AvailableSinceFacet';
 import InheritanceFacet from './InheritanceFacet';
-import LanguageFacet from './LanguageFacet';
 import ProfileFacet from './ProfileFacet';
-import SoftwareQualityFacet from './SoftwareQualityFacet';
-
 import RepositoryFacet from './RepositoryFacet';
 import SeverityFacet from './SeverityFacet';
-import { StandardFacet } from './StandardFacet';
+import SoftwareQualityFacet from './SoftwareQualityFacet';
 import StatusFacet from './StatusFacet';
 import TagFacet from './TagFacet';
 import TemplateFacet from './TemplateFacet';
@@ -59,13 +60,16 @@ export default function FacetsList(props: FacetsListProps) {
   return (
     <>
       <LanguageFacet
-        disabled={languageDisabled}
         onChange={props.onFilterChange}
         onToggle={props.onFacetToggle}
         open={!!props.openFacets.languages}
+        selectedLanguages={props.query.languages}
         stats={props.facets && props.facets.languages}
-        values={props.query.languages}
+        disabled={languageDisabled}
+        disabledHelper={translate('coding_rules.filters.language.inactive')}
       />
+
+      <BasicSeparator className="sw-my-4" />
 
       <AttributeCategoryFacet
         onChange={props.onFilterChange}
@@ -75,6 +79,8 @@ export default function FacetsList(props: FacetsListProps) {
         values={props.query.cleanCodeAttributeCategories}
       />
 
+      <BasicSeparator className="sw-my-4" />
+
       <SoftwareQualityFacet
         onChange={props.onFilterChange}
         onToggle={props.onFacetToggle}
@@ -82,6 +88,8 @@ export default function FacetsList(props: FacetsListProps) {
         stats={props.facets?.impactSoftwareQualities}
         values={props.query.impactSoftwareQualities}
       />
+
+      <BasicSeparator className="sw-my-4" />
 
       <SeverityFacet
         onChange={props.onFilterChange}
@@ -91,6 +99,8 @@ export default function FacetsList(props: FacetsListProps) {
         values={props.query.impactSeverities}
       />
 
+      <BasicSeparator className="sw-my-4" />
+
       <TypeFacet
         onChange={props.onFilterChange}
         onToggle={props.onFacetToggle}
@@ -98,6 +108,9 @@ export default function FacetsList(props: FacetsListProps) {
         stats={props.facets?.types}
         values={props.query.types}
       />
+
+      <BasicSeparator className="sw-my-4" />
+
       <TagFacet
         onChange={props.onFilterChange}
         onToggle={props.onFacetToggle}
@@ -105,6 +118,9 @@ export default function FacetsList(props: FacetsListProps) {
         stats={props.facets?.tags}
         values={props.query.tags}
       />
+
+      <BasicSeparator className="sw-my-4" />
+
       <RepositoryFacet
         onChange={props.onFilterChange}
         onToggle={props.onFacetToggle}
@@ -114,6 +130,8 @@ export default function FacetsList(props: FacetsListProps) {
         values={props.query.repositories}
       />
 
+      <BasicSeparator className="sw-my-4" />
+
       <StatusFacet
         onChange={props.onFilterChange}
         onToggle={props.onFacetToggle}
@@ -121,6 +139,18 @@ export default function FacetsList(props: FacetsListProps) {
         stats={props.facets?.statuses}
         values={props.query.statuses}
       />
+
+      <BasicSeparator className="sw-my-4" />
+
+      <AvailableSinceFacet
+        onChange={props.onFilterChange}
+        onToggle={props.onFacetToggle}
+        open={!!props.openFacets.availableSince}
+        value={props.query.availableSince}
+      />
+
+      <BasicSeparator className="sw-my-4" />
+
       <StandardFacet
         cwe={props.query.cwe}
         cweOpen={!!props.openFacets.cwe}
@@ -143,12 +173,9 @@ export default function FacetsList(props: FacetsListProps) {
         sonarsourceSecurityOpen={!!props.openFacets.sonarsourceSecurity}
         sonarsourceSecurityStats={props.facets?.sonarsourceSecurity}
       />
-      <AvailableSinceFacet
-        onChange={props.onFilterChange}
-        onToggle={props.onFacetToggle}
-        open={!!props.openFacets.availableSince}
-        value={props.query.availableSince}
-      />
+
+      <BasicSeparator className="sw-my-4" />
+
       <TemplateFacet
         onChange={props.onFilterChange}
         onToggle={props.onFacetToggle}
@@ -157,6 +184,7 @@ export default function FacetsList(props: FacetsListProps) {
       />
       {!props.hideProfileFacet && (
         <>
+          <BasicSeparator className="sw-my-4" />
           <ProfileFacet
             activation={props.query.activation}
             compareToProfile={props.query.compareToProfile}
@@ -167,6 +195,7 @@ export default function FacetsList(props: FacetsListProps) {
             referencedProfiles={props.referencedProfiles}
             value={props.query.profile}
           />
+          <BasicSeparator className="sw-my-4" />
           <InheritanceFacet
             disabled={inheritanceDisabled}
             onChange={props.onFilterChange}

@@ -48,7 +48,7 @@ it('should render correct facets for Application', () => {
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
     'issues.facet.cleanCodeAttributeCategories',
     'issues.facet.impactSoftwareQualities',
-    'issues.facet.impactSeveritiestooltip_is_interactiveissues.facet.impactSeverities.help.line1issues.facet.impactSeverities.help.line2opens_in_new_windowlearn_more',
+    'issues.facet.impactSeverities',
     'issues.facet.types',
     'issues.facet.scopes',
     'issues.facet.resolutions',
@@ -71,7 +71,7 @@ it('should render correct facets for Portfolio', () => {
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
     'issues.facet.cleanCodeAttributeCategories',
     'issues.facet.impactSoftwareQualities',
-    'issues.facet.impactSeveritiestooltip_is_interactiveissues.facet.impactSeverities.help.line1issues.facet.impactSeverities.help.line2opens_in_new_windowlearn_more',
+    'issues.facet.impactSeverities',
     'issues.facet.types',
     'issues.facet.scopes',
     'issues.facet.resolutions',
@@ -94,7 +94,7 @@ it('should render correct facets for SubPortfolio', () => {
   expect(screen.getAllByRole('button').map((button) => button.textContent)).toStrictEqual([
     'issues.facet.cleanCodeAttributeCategories',
     'issues.facet.impactSoftwareQualities',
-    'issues.facet.impactSeveritiestooltip_is_interactiveissues.facet.impactSeverities.help.line1issues.facet.impactSeverities.help.line2opens_in_new_windowlearn_more',
+    'issues.facet.impactSeverities',
     'issues.facet.types',
     'issues.facet.scopes',
     'issues.facet.resolutions',

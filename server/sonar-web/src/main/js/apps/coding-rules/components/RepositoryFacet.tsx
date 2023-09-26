@@ -17,14 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Note } from 'design-system';
 import * as React from 'react';
 import { getRuleRepositories } from '../../../api/rules';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
-import ListStyleFacet from '../../../components/facet/ListStyleFacet';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
 import { Languages } from '../../../types/languages';
 import { Dict } from '../../../types/types';
+import { ListStyleFacet } from '../../issues/sidebar/ListStyleFacet';
 import { BasicProps } from './Facet';
 
 interface StateProps {
@@ -57,7 +59,7 @@ class RepositoryFacet extends React.PureComponent<Props> {
     return repository ? (
       <>
         {repository.name}
-        <span className="note little-spacer-left">{this.getLanguageName(repository.language)}</span>
+        <Note className="sw-ml-1">{this.getLanguageName(repository.language)}</Note>
       </>
     ) : (
       repositoryKey
@@ -77,7 +79,7 @@ class RepositoryFacet extends React.PureComponent<Props> {
     return repository ? (
       <>
         {highlightTerm(repository.name, query)}
-        <span className="note little-spacer-left">{this.getLanguageName(repository.language)}</span>
+        <Note className="sw-ml-1">{this.getLanguageName(repository.language)}</Note>
       </>
     ) : (
       repositoryKey
@@ -102,6 +104,7 @@ class RepositoryFacet extends React.PureComponent<Props> {
         renderFacetItem={this.renderName}
         renderSearchResult={this.renderSearchTextName}
         searchPlaceholder={translate('search.search_for_repositories')}
+        searchInputAriaLabel={translate('search.search_for_repositories')}
         stats={this.props.stats}
         values={this.props.values}
       />

@@ -20,7 +20,13 @@
 import { waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Profile } from '../../api/quality-profiles';
-import { byLabelText, byPlaceholderText, byRole, byText } from '../../helpers/testSelector';
+import {
+  byLabelText,
+  byPlaceholderText,
+  byRole,
+  byTestId,
+  byText,
+} from '../../helpers/testSelector';
 import {
   CleanCodeAttribute,
   CleanCodeAttributeCategory,
@@ -44,7 +50,7 @@ const selectors = {
   cleanCodeCategoriesFacet: byRole('button', {
     name: 'coding_rules.facet.cleanCodeAttributeCategories',
   }),
-  languagesFacet: byRole('button', { name: 'coding_rules.facet.languages' }),
+  languagesFacet: byRole('button', { name: 'issues.facet.languages' }),
   typeFacet: byRole('button', { name: 'coding_rules.facet.types' }),
   tagsFacet: byRole('button', { name: 'coding_rules.facet.tags' }),
   repositoriesFacet: byRole('button', { name: 'coding_rules.facet.repositories' }),
@@ -58,12 +64,14 @@ const selectors = {
   availableSinceFacet: byRole('button', { name: 'coding_rules.facet.available_since' }),
   templateFacet: byRole('button', { name: 'coding_rules.facet.template' }),
   qpFacet: byRole('button', { name: 'coding_rules.facet.qprofile' }),
-  facetClear: (name: string) => byRole('button', { name: `clear_x_filter.${name}` }),
+  facetClear: (name: string) => byTestId(name),
   facetSearchInput: (name: string) => byRole('searchbox', { name }),
-  facetItem: (name: string) => byRole('checkbox', { name }),
+  facetItem: (name: string | RegExp) => byRole('checkbox', { name }),
   availableSinceDateField: byPlaceholderText('date'),
   qpActiveRadio: byRole('radio', { name: `active` }),
   qpInactiveRadio: byRole('radio', { name: `inactive` }),
+  dateInputMonthSelect: byTestId('month-select'),
+  dateInputYearSelect: byTestId('year-select'),
 
   // Bulk change
   bulkChangeButton: byRole('button', { name: 'bulk_change' }),

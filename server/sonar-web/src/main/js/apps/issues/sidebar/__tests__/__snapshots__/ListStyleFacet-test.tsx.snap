@@ -13,6 +13,7 @@ exports[`should be disabled 1`] = `
   name="facet header"
   onClear={[Function]}
   open={false}
+  tooltipComponent={[Function]}
 />
 `;
 
@@ -29,6 +30,7 @@ exports[`should display all selected items 1`] = `
   onClear={[Function]}
   onClick={[Function]}
   open={true}
+  tooltipComponent={[Function]}
 >
   <span
     className="it__search-navigator-facet-list"
@@ -112,6 +114,7 @@ exports[`should render 1`] = `
   onClear={[Function]}
   onClick={[Function]}
   open={true}
+  tooltipComponent={[Function]}
 >
   <span
     className="it__search-navigator-facet-list"
@@ -186,6 +189,7 @@ exports[`should search 1`] = `
   onClear={[Function]}
   onClick={[Function]}
   open={true}
+  tooltipComponent={[Function]}
 >
   <span
     className="it__search-navigator-facet-list"
@@ -253,6 +257,7 @@ exports[`should search 2`] = `
   onClear={[Function]}
   onClick={[Function]}
   open={true}
+  tooltipComponent={[Function]}
 >
   <span
     className="it__search-navigator-facet-list"
@@ -330,6 +335,7 @@ exports[`should search 3`] = `
   onClear={[Function]}
   onClick={[Function]}
   open={true}
+  tooltipComponent={[Function]}
 >
   <span
     className="it__search-navigator-facet-list"
@@ -404,6 +410,7 @@ exports[`should search 4`] = `
   onClear={[Function]}
   onClick={[Function]}
   open={true}
+  tooltipComponent={[Function]}
 >
   <span
     className="it__search-navigator-facet-list"
@@ -444,6 +451,7 @@ exports[`should search 5`] = `
   onClear={[Function]}
   onClick={[Function]}
   open={true}
+  tooltipComponent={[Function]}
 >
   <span
     className="it__search-navigator-facet-list"

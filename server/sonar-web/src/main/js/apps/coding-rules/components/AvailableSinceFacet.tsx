@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { DatePicker, FacetBox } from 'design-system';
 import * as React from 'react';
-import { injectIntl, WrappedComponentProps } from 'react-intl';
-import DateInput from '../../../components/controls/DateInput';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import { longFormatterOption } from '../../../components/intl/DateFormatter';
-import { translate } from '../../../helpers/l10n';
+import { WrappedComponentProps, injectIntl } from 'react-intl';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Query } from '../query';
 
 interface Props {
@@ -48,32 +46,32 @@ class AvailableSinceFacet extends React.PureComponent<Props & WrappedComponentPr
     this.props.onChange({ availableSince: date });
   };
 
-  getValues = () =>
-    this.props.value
-      ? [this.props.intl.formatDate(this.props.value, longFormatterOption)]
-      : undefined;
-
   render() {
     const { open, value } = this.props;
     const headerId = `facet_${this.property}`;
-
+    const count = value ? 1 : undefined;
     return (
-      <FacetBox property={this.property}>
-        <FacetHeader
-          id={headerId}
-          name={translate('coding_rules.facet.available_since')}
-          onClear={this.handleClear}
-          onClick={this.handleHeaderClick}
-          open={open}
-          values={this.getValues()}
-        />
-
+      <FacetBox
+        className="it__search-navigator-facet-box"
+        clearIconLabel={translate('clear')}
+        data-property={this.property}
+        id={headerId}
+        name={translate('coding_rules.facet.available_since')}
+        onClear={this.handleClear}
+        onClick={this.handleHeaderClick}
+        open={open}
+        count={count}
+        countLabel={count ? translateWithParameters('x_selected', count) : undefined}
+      >
         {open && (
-          <DateInput
+          <DatePicker
             name="available-since"
+            clearButtonLabel={translate('clear')}
             onChange={this.handlePeriodChange}
             placeholder={translate('date')}
             value={value}
+            showClearButton
+            alignRight
           />
         )}
       </FacetBox>

@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
+import { FacetBox, FacetItem } from 'design-system';
 import { orderBy, sortBy, without } from 'lodash';
 import * as React from 'react';
-import FacetBox from '../../../components/facet/FacetBox';
-import FacetHeader from '../../../components/facet/FacetHeader';
-import FacetItem from '../../../components/facet/FacetItem';
-import FacetItemsList from '../../../components/facet/FacetItemsList';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import { MetricType } from '../../../types/metrics';
 import { Dict } from '../../../types/types';
+import { FacetItemsList } from '../../issues/sidebar/FacetItemsList';
 import { FacetKey } from '../query';
 
 export interface BasicProps {
@@ -35,13 +35,12 @@ export interface BasicProps {
   open: boolean;
   stats?: Dict<number>;
   values: string[];
+  help?: React.ReactNode;
 }
 
 interface Props extends BasicProps {
-  children?: React.ReactNode;
   disabled?: boolean;
   disabledHelper?: string;
-  halfWidth?: boolean;
   options?: string[];
   property: FacetKey;
   renderFooter?: () => React.ReactNode;
@@ -80,29 +79,29 @@ export default class Facet extends React.PureComponent<Props> {
 
     return (
       <FacetItem
+        className="it__search-navigator-facet"
         active={active}
-        halfWidth={this.props.halfWidth}
         key={value}
         name={renderName(value)}
         onClick={this.handleItemClick}
-        stat={stat && formatMeasure(stat, 'SHORT_INT')}
-        tooltip={renderTextName(value)}
+        stat={stat && formatMeasure(stat, MetricType.ShortInteger)}
         value={value}
+        tooltip={renderTextName(value)}
       />
     );
   };
 
   render() {
     const {
-      children,
       disabled,
       disabledHelper,
       open,
       property,
       renderTextName = defaultRenderName,
       stats,
+      help,
+      values,
     } = this.props;
-    const values = this.props.values.map(renderTextName);
     const items =
       this.props.options ||
       (stats &&
@@ -115,22 +114,22 @@ export default class Facet extends React.PureComponent<Props> {
 
     return (
       <FacetBox
-        className={classNames({ 'search-navigator-facet-box-forbidden': disabled })}
-        property={property}
+        className={classNames('it__search-navigator-facet-box', {
+          'it__search-navigator-facet-box-forbidden': disabled,
+        })}
+        data-property={property}
+        clearIconLabel={translate('clear')}
+        count={values.length}
+        id={headerId}
+        name={translate('coding_rules.facet', property)}
+        onClear={this.handleClear}
+        onClick={disabled ? undefined : this.handleHeaderClick}
+        open={open && !disabled}
+        disabled={disabled}
+        disabledHelper={disabledHelper}
+        tooltipComponent={Tooltip}
+        help={help}
       >
-        <FacetHeader
-          id={headerId}
-          name={translate('coding_rules.facet', property)}
-          disabled={disabled}
-          disabledHelper={disabledHelper}
-          onClear={this.handleClear}
-          onClick={disabled ? undefined : this.handleHeaderClick}
-          open={open && !disabled}
-          values={values}
-        >
-          {children}
-        </FacetHeader>
-
         {open && items !== undefined && (
           <FacetItemsList labelledby={headerId}>{items.map(this.renderItem)}</FacetItemsList>
         )}

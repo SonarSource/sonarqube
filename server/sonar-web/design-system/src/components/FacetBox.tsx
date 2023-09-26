@@ -27,7 +27,7 @@ import { themeColor } from '../helpers';
 import { Badge } from './Badge';
 import { DestructiveIcon } from './InteractiveIcon';
 import { Spinner } from './Spinner';
-import { Tooltip } from './Tooltip';
+import { Tooltip as SCTooltip } from './Tooltip';
 import { BareButton } from './buttons';
 import { OpenCloseIndicator } from './icons';
 import { CloseIcon } from './icons/CloseIcon';
@@ -41,6 +41,7 @@ export interface FacetBoxProps {
   countLabel?: string;
   'data-property'?: string;
   disabled?: boolean;
+  disabledHelper?: string;
   hasEmbeddedFacets?: boolean;
   help?: React.ReactNode;
   id?: string;
@@ -50,6 +51,7 @@ export interface FacetBoxProps {
   onClear?: () => void;
   onClick?: (isOpen: boolean) => void;
   open?: boolean;
+  tooltipComponent?: React.ComponentType<{ overlay: React.ReactNode }>;
 }
 
 export function FacetBox(props: FacetBoxProps) {
@@ -62,6 +64,7 @@ export function FacetBox(props: FacetBoxProps) {
     countLabel,
     'data-property': dataProperty,
     disabled = false,
+    disabledHelper,
     hasEmbeddedFacets = false,
     help,
     id: idProp,
@@ -71,13 +74,14 @@ export function FacetBox(props: FacetBoxProps) {
     onClear,
     onClick,
     open = false,
+    tooltipComponent,
   } = props;
 
   const clearable = !disabled && Boolean(onClear) && count !== undefined && count > 0;
   const counter = count ?? 0;
   const expandable = !disabled && Boolean(onClick);
   const id = React.useMemo(() => idProp ?? uniqueId('filter-facet-'), [idProp]);
-
+  const Tooltip = tooltipComponent ?? SCTooltip;
   return (
     <Accordion
       className={classNames(className, { open })}
@@ -101,7 +105,19 @@ export function FacetBox(props: FacetBoxProps) {
         >
           {expandable && <OpenCloseIndicator aria-hidden open={open} />}
 
-          <HeaderTitle disabled={disabled}>{name}</HeaderTitle>
+          {disabled ? (
+            <Tooltip overlay={disabledHelper}>
+              <HeaderTitle
+                aria-disabled
+                aria-label={`${name}, ${disabledHelper ?? ''}`}
+                disabled={disabled}
+              >
+                {name}
+              </HeaderTitle>
+            </Tooltip>
+          ) : (
+            <HeaderTitle>{name}</HeaderTitle>
+          )}
 
           {help && <span className="sw-ml-1">{help}</span>}
         </ChevronAndTitle>

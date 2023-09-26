@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { HelperHintIcon } from 'design-system';
 import * as React from 'react';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import SoftwareImpactSeverityIcon from '../../../components/icons/SoftwareImpactSeverityIcon';
@@ -47,23 +49,25 @@ export default function SeverityFacet(props: BasicProps) {
       property="impactSeverities"
       renderName={renderName}
       renderTextName={renderTextName}
-    >
-      <DocumentationTooltip
-        className="spacer-left"
-        placement="right"
-        content={
-          <>
-            <p>{translate('issues.facet.impactSeverities.help.line1')}</p>
-            <p className="sw-mt-2">{translate('issues.facet.impactSeverities.help.line2')}</p>
-          </>
-        }
-        links={[
-          {
-            href: '/user-guide/clean-code',
-            label: translate('learn_more'),
-          },
-        ]}
-      />
-    </Facet>
+      help={
+        <DocumentationTooltip
+          placement="right"
+          content={
+            <>
+              <p>{translate('issues.facet.impactSeverities.help.line1')}</p>
+              <p className="sw-mt-2">{translate('issues.facet.impactSeverities.help.line2')}</p>
+            </>
+          }
+          links={[
+            {
+              href: '/user-guide/clean-code',
+              label: translate('learn_more'),
+            },
+          ]}
+        >
+          <HelperHintIcon />
+        </DocumentationTooltip>
+      }
+    />
   );
 }

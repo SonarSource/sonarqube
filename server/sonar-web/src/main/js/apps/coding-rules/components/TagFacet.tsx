@@ -20,11 +20,9 @@
 import { uniq } from 'lodash';
 import * as React from 'react';
 import { getRuleTags } from '../../../api/rules';
-import { colors } from '../../../app/theme';
-import ListStyleFacet from '../../../components/facet/ListStyleFacet';
-import TagsIcon from '../../../components/icons/TagsIcon';
 import { translate } from '../../../helpers/l10n';
 import { highlightTerm } from '../../../helpers/search';
+import { ListStyleFacet } from '../../issues/sidebar/ListStyleFacet';
 import { BasicProps } from './Facet';
 
 export default class TagFacet extends React.PureComponent<BasicProps> {
@@ -43,19 +41,9 @@ export default class TagFacet extends React.PureComponent<BasicProps> {
     return tag;
   };
 
-  renderTag = (tag: string) => (
-    <>
-      <TagsIcon className="little-spacer-right" fill={colors.gray60} />
-      {tag}
-    </>
-  );
+  renderTag = (tag: string) => <>{tag}</>;
 
-  renderSearchResult = (tag: string, term: string) => (
-    <>
-      <TagsIcon className="little-spacer-right" fill={colors.gray60} />
-      {highlightTerm(tag, term)}
-    </>
-  );
+  renderSearchResult = (tag: string, term: string) => <>{highlightTerm(tag, term)}</>;
 
   render() {
     return (
@@ -75,6 +63,7 @@ export default class TagFacet extends React.PureComponent<BasicProps> {
         renderFacetItem={this.renderTag}
         renderSearchResult={this.renderSearchResult}
         searchPlaceholder={translate('search.search_for_tags')}
+        searchInputAriaLabel={translate('search.search_for_tags')}
         stats={this.props.stats}
         values={this.props.values}
       />

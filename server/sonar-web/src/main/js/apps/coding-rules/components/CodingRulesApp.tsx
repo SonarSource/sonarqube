@@ -25,10 +25,8 @@ import { getRulesApp, searchRules } from '../../../api/rules';
 import { getValue } from '../../../api/settings';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
-import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import ListFooter from '../../../components/controls/ListFooter';
-import SearchBox from '../../../components/controls/SearchBox';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import BackIcon from '../../../components/icons/BackIcon';
@@ -46,6 +44,7 @@ import { SecurityStandard } from '../../../types/security';
 import { SettingsKey } from '../../../types/settings';
 import { Dict, Paging, RawQuery, Rule, RuleActivation } from '../../../types/types';
 import { CurrentUser, isLoggedIn } from '../../../types/users';
+import { FiltersHeader } from '../../issues/sidebar/FiltersHeader';
 import {
   STANDARDS,
   shouldOpenSonarSourceSecurityFacet,
@@ -75,7 +74,6 @@ import RuleDetails from './RuleDetails';
 import RuleListItem from './RuleListItem';
 
 const PAGE_SIZE = 100;
-const MAX_SEARCH_LENGTH = 200;
 const LIMIT_BEFORE_LOAD_MORE = 5;
 
 interface Props {
@@ -597,15 +595,6 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
                       weight={10}
                     />
                     <FiltersHeader displayReset={this.isFiltered()} onReset={this.handleReset} />
-                    <SearchBox
-                      className="spacer-bottom"
-                      id="coding-rules-search"
-                      maxLength={MAX_SEARCH_LENGTH}
-                      minLength={2}
-                      onChange={this.handleSearch}
-                      placeholder={translate('search.search_for_rules')}
-                      value={query.searchQuery || ''}
-                    />
                     <FacetsList
                       facets={this.state.facets}
                       onFacetToggle={this.handleFacetToggle}

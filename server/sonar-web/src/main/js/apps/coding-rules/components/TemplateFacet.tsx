@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { HelperHintIcon } from 'design-system';
 import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
@@ -56,16 +57,14 @@ export default class TemplateFacet extends React.PureComponent<Props> {
         renderTextName={this.renderName}
         singleSelection
         values={value !== undefined ? [String(value)] : []}
-      >
-        <HelpTooltip
-          className="spacer-left"
-          overlay={
-            <div className="big-padded-top big-padded-bottom">
-              {translate('coding_rules.rule_template.help')}
-            </div>
-          }
-        />
-      </Facet>
+        help={
+          <HelpTooltip
+            overlay={<div className="sw-my-2">{translate('coding_rules.rule_template.help')}</div>}
+          >
+            <HelperHintIcon />
+          </HelpTooltip>
+        }
+      />
     );
   }
 }

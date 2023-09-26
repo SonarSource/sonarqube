@@ -89,9 +89,11 @@ export class TypeFacet extends React.PureComponent<Props> {
         active={active}
         className="it__search-navigator-facet"
         icon={
-          { BUG: <BugIcon />, CODE_SMELL: <CodeSmellIcon />, VULNERABILITY: <VulnerabilityIcon /> }[
-            type
-          ]
+          {
+            BUG: <BugIcon />,
+            CODE_SMELL: <CodeSmellIcon />,
+            VULNERABILITY: <VulnerabilityIcon />,
+          }[type]
         }
         key={type}
         name={translate('issue.type', type)}
