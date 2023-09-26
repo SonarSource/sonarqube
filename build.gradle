@@ -741,6 +741,9 @@ ext.osAdaptiveCommand = { commands ->
 }
 
 tasks.named('sonarqube') {
+  onlyIf {
+    System.getenv('CI') == "true"
+  }
   long taskStart
   doFirst {
     taskStart = System.currentTimeMillis()
