@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputSelect, LabelValueSelectOption } from 'design-system';
 import * as React from 'react';
-import { components, OptionProps, SingleValueProps } from 'react-select';
-import Select, { LabelValueSelectOption } from '../../../components/controls/Select';
+import { OptionProps, SingleValueProps, components } from 'react-select';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import { SEVERITIES } from '../../../helpers/constants';
 import { translate } from '../../../helpers/l10n';
+import { IssueSeverity } from '../../../types/issues';
 
 export interface SeveritySelectProps {
   isDisabled: boolean;
   severity: string;
-  ariaLabelledby: string;
-  onChange: (value: LabelValueSelectOption) => void;
+  onChange: (value: LabelValueSelectOption<IssueSeverity>) => void;
 }
 
-function Option(props: OptionProps<LabelValueSelectOption, false>) {
+function Option(props: Readonly<OptionProps<LabelValueSelectOption<IssueSeverity>, false>>) {
   return (
     <components.Option {...props}>
       <SeverityHelper className="display-flex-center" severity={props.data.value} />
@@ -39,7 +39,9 @@ function Option(props: OptionProps<LabelValueSelectOption, false>) {
   );
 }
 
-function SingleValue(props: SingleValueProps<LabelValueSelectOption, false>) {
+function SingleValue(
+  props: Readonly<SingleValueProps<LabelValueSelectOption<IssueSeverity>, false>>,
+) {
   return (
     <components.SingleValue {...props}>
       <SeverityHelper className="display-flex-center" severity={props.data.value} />
@@ -48,16 +50,16 @@ function SingleValue(props: SingleValueProps<LabelValueSelectOption, false>) {
 }
 
 export function SeveritySelect(props: SeveritySelectProps) {
-  const { isDisabled, severity, ariaLabelledby } = props;
+  const { isDisabled, severity } = props;
   const serverityOption = SEVERITIES.map((severity) => ({
     label: translate('severity', severity),
     value: severity,
   }));
 
   return (
-    <Select
-      id="coding-rules-severity-select"
-      aria-labelledby={ariaLabelledby}
+    <InputSelect
+      aria-label={translate('severity')}
+      inputId="coding-rules-severity-select"
       isDisabled={isDisabled}
       onChange={props.onChange}
       components={{ Option, SingleValue }}

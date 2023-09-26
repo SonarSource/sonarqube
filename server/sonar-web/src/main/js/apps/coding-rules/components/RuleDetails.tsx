@@ -17,13 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SubHeadingHighlight } from 'design-system/lib';
+import {
+  ButtonSecondary,
+  DangerButtonSecondary,
+  HelperHintIcon,
+  SubHeadingHighlight,
+} from 'design-system';
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
 import { deleteRule, getRuleDetails, updateRule } from '../../../api/rules';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
-import { Button } from '../../../components/controls/buttons';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -191,13 +195,13 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
                 templateRule={ruleDetails}
               >
                 {({ onClick }) => (
-                  <Button
+                  <ButtonSecondary
                     className="js-edit-custom"
                     id="coding-rules-detail-custom-rule-change"
                     onClick={onClick}
                   >
                     {translate('edit')}
-                  </Button>
+                  </ButtonSecondary>
                 )}
               </CustomRuleButton>
               <ConfirmButton
@@ -212,21 +216,23 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
               >
                 {({ onClick }) => (
                   <>
-                    <Button
-                      className="button-red spacer-left js-delete"
+                    <DangerButtonSecondary
+                      className="sw-ml-2 js-delete"
                       id="coding-rules-detail-rule-delete"
                       onClick={onClick}
                     >
                       {translate('delete')}
-                    </Button>
+                    </DangerButtonSecondary>
                     <HelpTooltip
-                      className="spacer-left"
+                      className="sw-ml-2"
                       overlay={
-                        <div className="big-padded-top big-padded-bottom">
+                        <div className="sw-py-4">
                           {translate('coding_rules.custom_rule.removal')}
                         </div>
                       }
-                    />
+                    >
+                      <HelperHintIcon />
+                    </HelpTooltip>
                   </>
                 )}
               </ConfirmButton>
@@ -255,7 +261,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
             <RuleDetailsIssues ruleDetails={ruleDetails} />
           )}
 
-          <div className="sw-mb-8" data-meta="available-since">
+          <div className="sw-my-8" data-meta="available-since">
             <SubHeadingHighlight as="h3">
               {translate('coding_rules.available_since')}
             </SubHeadingHighlight>

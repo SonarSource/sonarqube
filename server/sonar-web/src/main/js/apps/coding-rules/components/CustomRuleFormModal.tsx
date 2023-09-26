@@ -17,23 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { HttpStatusCode } from 'axios';
+import {
+  ButtonPrimary,
+  FlagMessage,
+  FormField,
+  InputField,
+  InputSelect,
+  InputTextArea,
+  LabelValueSelectOption,
+  LightLabel,
+  Modal,
+} from 'design-system';
 import * as React from 'react';
-import { components, OptionProps, SingleValueProps } from 'react-select';
+import { OptionProps, SingleValueProps, components } from 'react-select';
 import { createRule, updateRule } from '../../../api/rules';
 import FormattingTips from '../../../components/common/FormattingTips';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
-import Select, { LabelValueSelectOption } from '../../../components/controls/Select';
 import TypeHelper from '../../../components/shared/TypeHelper';
-import { Alert } from '../../../components/ui/Alert';
-import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { RULE_STATUSES, RULE_TYPES } from '../../../helpers/constants';
 import { csvEscape } from '../../../helpers/csv';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { latinize } from '../../../helpers/strings';
-import { Dict, RuleDetails, RuleParameter, RuleType } from '../../../types/types';
+import { Dict, RuleDetails, RuleParameter, RuleType, Status } from '../../../types/types';
 import { SeveritySelect } from './SeveritySelect';
 
 interface Props {
@@ -56,28 +63,30 @@ interface State {
   type: RuleType;
 }
 
+const FORM_ID = 'custom-rule-form';
+
 export default class CustomRuleFormModal extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
     super(props);
     const params: Dict<string> = {};
-    if (props.customRule && props.customRule.params) {
+    if (props.customRule?.params) {
       for (const param of props.customRule.params) {
-        params[param.key] = param.defaultValue || '';
+        params[param.key] = param.defaultValue ?? '';
       }
     }
     this.state = {
-      description: (props.customRule && props.customRule.mdDesc) || '',
+      description: props.customRule?.mdDesc ?? '',
       key: '',
       keyModifiedByUser: false,
-      name: (props.customRule && props.customRule.name) || '',
+      name: props.customRule?.name ?? '',
       params,
       reactivating: false,
-      severity: (props.customRule && props.customRule.severity) || props.templateRule.severity,
-      status: (props.customRule && props.customRule.status) || props.templateRule.status,
+      severity: props.customRule?.severity ?? props.templateRule.severity,
+      status: props.customRule?.status ?? props.templateRule.status,
       submitting: false,
-      type: (props.customRule && props.customRule.type) || props.templateRule.type,
+      type: props.customRule?.type ?? props.templateRule.type,
     };
   }
 
@@ -124,7 +133,10 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
       },
       (response: Response) => {
         if (this.mounted) {
-          this.setState({ reactivating: response.status === 409, submitting: false });
+          this.setState({
+            reactivating: response.status === HttpStatusCode.Conflict,
+            submitting: false,
+          });
         }
       },
     );
@@ -149,7 +161,8 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
 
   handleSeverityChange = ({ value }: { value: string }) => this.setState({ severity: value });
 
-  handleStatusChange = ({ value }: LabelValueSelectOption) => this.setState({ status: value });
+  handleStatusChange = ({ value }: LabelValueSelectOption<Status>) =>
+    this.setState({ status: value });
 
   handleParameterChange = (event: React.SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.currentTarget;
@@ -157,61 +170,66 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   };
 
   renderNameField = () => (
-    <div className="modal-field">
-      <label htmlFor="coding-rules-custom-rule-creation-name">
-        {translate('name')} <MandatoryFieldMarker />
-      </label>
-      <input
+    <FormField
+      ariaLabel={translate('name')}
+      label={translate('name')}
+      htmlFor="coding-rules-custom-rule-creation-name"
+      required
+    >
+      <InputField
         autoFocus
         disabled={this.state.submitting}
         id="coding-rules-custom-rule-creation-name"
         onChange={this.handleNameChange}
         required
+        size="full"
         type="text"
         value={this.state.name}
       />
-    </div>
+    </FormField>
   );
 
   renderKeyField = () => (
-    <div className="modal-field">
-      <label htmlFor="coding-rules-custom-rule-creation-key">
-        {translate('key')} {!this.props.customRule && <MandatoryFieldMarker />}
-      </label>
-
+    <FormField
+      ariaLabel={translate('key')}
+      label={translate('key')}
+      htmlFor="coding-rules-custom-rule-creation-key"
+      required
+    >
       {this.props.customRule ? (
-        <span className="coding-rules-detail-custom-rule-key" title={this.props.customRule.key}>
-          {this.props.customRule.key}
-        </span>
+        <span title={this.props.customRule.key}>{this.props.customRule.key}</span>
       ) : (
-        <input
+        <InputField
           disabled={this.state.submitting}
           id="coding-rules-custom-rule-creation-key"
           onChange={this.handleKeyChange}
           required
+          size="full"
           type="text"
           value={this.state.key}
         />
       )}
-    </div>
+    </FormField>
   );
 
   renderDescriptionField = () => (
-    <div className="modal-field">
-      <label htmlFor="coding-rules-custom-rule-creation-html-description">
-        {translate('description')}
-        <MandatoryFieldMarker />
-      </label>
-      <textarea
+    <FormField
+      ariaLabel={translate('description')}
+      label={translate('description')}
+      htmlFor="coding-rules-custom-rule-creation-html-description"
+      required
+    >
+      <InputTextArea
         disabled={this.state.submitting}
         id="coding-rules-custom-rule-creation-html-description"
         onChange={this.handleDescriptionChange}
         required
         rows={5}
+        size="full"
         value={this.state.description}
       />
-      <FormattingTips className="modal-field-descriptor text-right" />
-    </div>
+      <FormattingTips />
+    </FormField>
   );
 
   renderTypeOption = (props: OptionProps<LabelValueSelectOption<RuleType>, false>) => {
@@ -236,10 +254,13 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
       value: type,
     }));
     return (
-      <div className="modal-field flex-1 spacer-right">
-        <label id="coding-rules-custom-rule-type">{translate('type')}</label>
-        <Select
-          aria-labelledby="coding-rules-custom-rule-type"
+      <FormField
+        ariaLabel={translate('type')}
+        label={translate('type')}
+        htmlFor="coding-rules-custom-rule-type"
+      >
+        <InputSelect
+          inputId="coding-rules-custom-rule-type"
           isClearable={false}
           isDisabled={this.state.submitting}
           isSearchable={false}
@@ -251,20 +272,22 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
           options={ruleTypeOption}
           value={ruleTypeOption.find((t) => t.value === this.state.type)}
         />
-      </div>
+      </FormField>
     );
   };
 
   renderSeverityField = () => (
-    <div className="modal-field flex-1 spacer-right">
-      <label id="coding-rules-custom-rule-severity">{translate('severity')}</label>
+    <FormField
+      ariaLabel={translate('severity')}
+      label={translate('severity')}
+      htmlFor="coding-rules-severity-select"
+    >
       <SeveritySelect
-        ariaLabelledby="coding-rules-custom-rule-severity"
         isDisabled={this.state.submitting}
         onChange={this.handleSeverityChange}
         severity={this.state.severity}
       />
-    </div>
+    </FormField>
   );
 
   renderStatusField = () => {
@@ -273,11 +296,13 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
       value: status,
     }));
     return (
-      <div className="modal-field flex-1">
-        <label id="coding-rules-custom-rule-status">
-          {translate('coding_rules.filters.status')}
-        </label>
-        <Select
+      <FormField
+        ariaLabel={translate('coding_rules.filters.status')}
+        label={translate('coding_rules.filters.status')}
+        htmlFor="coding-rules-custom-rule-status"
+      >
+        <InputSelect
+          inputId="coding-rules-custom-rule-status"
           isClearable={false}
           isDisabled={this.state.submitting}
           aria-labelledby="coding-rules-custom-rule-status"
@@ -286,45 +311,48 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
           isSearchable={false}
           value={statusesOptions.find((s) => s.value === this.state.status)}
         />
-      </div>
+      </FormField>
     );
   };
 
   renderParameterField = (param: RuleParameter) => (
-    <div className="modal-field" key={param.key}>
-      <label className="capitalize" htmlFor={param.key}>
-        {param.key}
-      </label>
-
+    <FormField
+      ariaLabel={param.key}
+      className="sw-capitalize"
+      label={param.key}
+      htmlFor={`coding-rule-custom-rule-${param.key}`}
+      key={param.key}
+    >
       {param.type === 'TEXT' ? (
-        <textarea
+        <InputTextArea
           disabled={this.state.submitting}
-          id={param.key}
+          id={`coding-rule-custom-rule-${param.key}`}
           name={param.key}
           onChange={this.handleParameterChange}
           placeholder={param.defaultValue}
+          size="full"
           rows={3}
           value={this.state.params[param.key] || ''}
         />
       ) : (
-        <input
+        <InputField
           disabled={this.state.submitting}
-          id={param.key}
+          id={`coding-rule-custom-rule-${param.key}`}
           name={param.key}
           onChange={this.handleParameterChange}
           placeholder={param.defaultValue}
+          size="full"
           type="text"
-          value={this.state.params[param.key] || ''}
+          value={this.state.params[param.key] ?? ''}
         />
       )}
       {param.htmlDesc !== undefined && (
-        <div
-          className="modal-field-description"
+        <LightLabel
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
         />
       )}
-    </div>
+    </FormField>
   );
 
   render() {
@@ -339,44 +367,41 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
       submit = translate('coding_rules.reactivate');
     }
     return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
-        <form onSubmit={this.handleFormSubmit}>
-          <div className="modal-head">
-            <h2>{header}</h2>
-          </div>
-
-          <div className="modal-body modal-container">
+      <Modal
+        headerTitle={header}
+        onClose={this.props.onClose}
+        body={
+          <form
+            className="sw-flex sw-flex-col sw-justify-stretch sw-pb-4"
+            id={FORM_ID}
+            onSubmit={this.handleFormSubmit}
+          >
             {reactivating && (
-              <Alert variant="warning">{translate('coding_rules.reactivate.help')}</Alert>
+              <FlagMessage variant="warning" className="sw-mb-6">
+                {translate('coding_rules.reactivate.help')}
+              </FlagMessage>
             )}
 
-            <MandatoryFieldsExplanation className="spacer-bottom" />
+            <MandatoryFieldsExplanation className="sw-mb-4" />
 
             {this.renderNameField()}
             {this.renderKeyField()}
-            <div className="display-flex-space-between">
-              {/* do not allow to change the type of existing rule */}
-              {!customRule && this.renderTypeField()}
-              {this.renderSeverityField()}
-              {this.renderStatusField()}
-            </div>
+            {/* do not allow to change the type of existing rule */}
+            {!customRule && this.renderTypeField()}
+            {this.renderSeverityField()}
+            {this.renderStatusField()}
             {this.renderDescriptionField()}
             {params.map(this.renderParameterField)}
-          </div>
-
-          <div className="modal-foot">
-            {submitting && <i className="spinner spacer-right" />}
-            <SubmitButton disabled={this.state.submitting}>{submit}</SubmitButton>
-            <ResetButtonLink
-              disabled={submitting}
-              id="coding-rules-custom-rule-creation-cancel"
-              onClick={this.props.onClose}
-            >
-              {translate('cancel')}
-            </ResetButtonLink>
-          </div>
-        </form>
-      </Modal>
+          </form>
+        }
+        primaryButton={
+          <ButtonPrimary disabled={submitting} type="submit" form={FORM_ID}>
+            {submit}
+          </ButtonPrimary>
+        }
+        loading={submitting}
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 }

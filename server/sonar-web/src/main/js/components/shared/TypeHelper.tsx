@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import IssueTypeIcon from '../../components/icons/IssueTypeIcon';
 import { translate } from '../../helpers/l10n';
 import { IssueType, RuleType } from '../../types/types';
+import IssueTypeIcon from '../icon-mappers/IssueTypeIcon';
 
 interface Props {
   className?: string;
@@ -30,7 +30,7 @@ interface Props {
 export default function TypeHelper(props: Props) {
   return (
     <span className={props.className}>
-      <IssueTypeIcon className="little-spacer-right" query={props.type} />
+      <IssueTypeIcon className="sw-mr-1" type={props.type} />
       {translate('issue.type', props.type)}
     </span>
   );
