@@ -28,7 +28,7 @@ export interface ComponentContainerNotFoundProps {
 
 export default function ComponentContainerNotFound({
   isPortfolioLike,
-}: ComponentContainerNotFoundProps) {
+}: Readonly<ComponentContainerNotFoundProps>) {
   const componentType = isPortfolioLike ? 'portfolio' : 'project';
 
   return (

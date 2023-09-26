@@ -32,7 +32,7 @@ interface Props {
   updateProfiles: () => Promise<void>;
 }
 
-export default function ProfileInheritance(props: Props) {
+export default function ProfileInheritance(props: Readonly<Props>) {
   const { profile, profiles, updateProfiles } = props;
   const [formOpen, setFormOpen] = React.useState(false);
 

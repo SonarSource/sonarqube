@@ -50,7 +50,7 @@ interface Props {
   profiles: Profile[];
 }
 
-export default function CreateProfileForm(props: Props) {
+export default function CreateProfileForm(props: Readonly<Props>) {
   const { languages, profiles, onCreate } = props;
   const [importers, setImporters] = React.useState<
     Array<{ key: string; languages: string[]; name: string }>

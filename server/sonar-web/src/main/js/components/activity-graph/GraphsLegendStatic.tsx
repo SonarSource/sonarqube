@@ -29,7 +29,10 @@ export interface GraphsLegendStaticProps {
   series: Array<Pick<Serie, 'name' | 'translatedName'>>;
 }
 
-export default function GraphsLegendStatic({ series, leakPeriodDate }: GraphsLegendStaticProps) {
+export default function GraphsLegendStatic({
+  series,
+  leakPeriodDate,
+}: Readonly<GraphsLegendStaticProps>) {
   return (
     <ul className="activity-graph-legends sw-flex sw-justify-center sw-items-center sw-pb-4">
       {series.map((serie, idx) => (
