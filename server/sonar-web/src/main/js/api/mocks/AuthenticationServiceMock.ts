@@ -63,67 +63,42 @@ const defaultConfigurationStatus: GitHubConfigurationStatus = {
   ],
 };
 
+const githubMappingMock = (
+  id: string,
+  permissions: (keyof GitHubMapping['permissions'])[],
+  isBaseRole = false,
+) => ({
+  id,
+  githubRole: id,
+  isBaseRole,
+  permissions: {
+    user: permissions.includes('user'),
+    codeViewer: permissions.includes('codeViewer'),
+    issueAdmin: permissions.includes('issueAdmin'),
+    securityHotspotAdmin: permissions.includes('securityHotspotAdmin'),
+    admin: permissions.includes('admin'),
+    scan: permissions.includes('scan'),
+  },
+});
+
 const defaultMapping: GitHubMapping[] = [
-  {
-    id: 'read',
-    githubRole: 'read',
-    permissions: {
-      user: true,
-      codeViewer: true,
-      issueAdmin: false,
-      securityHotspotAdmin: false,
-      admin: false,
-      scan: false,
-    },
-  },
-  {
-    id: 'write',
-    githubRole: 'write',
-    permissions: {
-      user: true,
-      codeViewer: true,
-      issueAdmin: true,
-      securityHotspotAdmin: true,
-      admin: false,
-      scan: true,
-    },
-  },
-  {
-    id: 'triage',
-    githubRole: 'triage',
-    permissions: {
-      user: true,
-      codeViewer: true,
-      issueAdmin: false,
-      securityHotspotAdmin: false,
-      admin: false,
-      scan: false,
-    },
-  },
-  {
-    id: 'maintain',
-    githubRole: 'maintain',
-    permissions: {
-      user: true,
-      codeViewer: true,
-      issueAdmin: true,
-      securityHotspotAdmin: true,
-      admin: false,
-      scan: true,
-    },
-  },
-  {
-    id: 'admin',
-    githubRole: 'admin',
-    permissions: {
-      user: true,
-      codeViewer: true,
-      issueAdmin: true,
-      securityHotspotAdmin: true,
-      admin: true,
-      scan: true,
-    },
-  },
+  githubMappingMock('read', ['user', 'codeViewer'], true),
+  githubMappingMock(
+    'write',
+    ['user', 'codeViewer', 'issueAdmin', 'securityHotspotAdmin', 'scan'],
+    true,
+  ),
+  githubMappingMock('triage', ['user', 'codeViewer'], true),
+  githubMappingMock(
+    'maintain',
+    ['user', 'codeViewer', 'issueAdmin', 'securityHotspotAdmin', 'scan'],
+    true,
+  ),
+  githubMappingMock(
+    'admin',
+    ['user', 'codeViewer', 'issueAdmin', 'securityHotspotAdmin', 'admin', 'scan'],
+    true,
+  ),
 ];
 
 export default class AuthenticationServiceMock {
@@ -266,21 +241,7 @@ export default class AuthenticationServiceMock {
   };
 
   addGitHubCustomRole = (id: string, permissions: (keyof GitHubMapping['permissions'])[]) => {
-    this.githubMapping = [
-      ...this.githubMapping,
-      {
-        id,
-        githubRole: id,
-        permissions: {
-          user: permissions.includes('user'),
-          codeViewer: permissions.includes('codeViewer'),
-          issueAdmin: permissions.includes('issueAdmin'),
-          securityHotspotAdmin: permissions.includes('securityHotspotAdmin'),
-          admin: permissions.includes('admin'),
-          scan: permissions.includes('scan'),
-        },
-      },
-    ];
+    this.githubMapping = [...this.githubMapping, githubMappingMock(id, permissions)];
   };
 
   reset = () => {
