@@ -88,10 +88,6 @@ public final class SecurityStandards {
     SANS_TOP_25_RISKY_RESOURCE, RISKY_CWE,
     SANS_TOP_25_POROUS_DEFENSES, POROUS_CWE);
 
-  // https://cwe.mitre.org/top25/archive/2020/2020_cwe_top25.html
-  public static final List<String> CWE_TOP25_2020 = List.of("79", "787", "20", "125", "119", "89", "200", "416", "352", "78", "190", "22", "476", "287",
-    "434", "732", "94", "522", "611", "798", "502", "269", "400", "306", "862");
-
   // https://cwe.mitre.org/top25/archive/2021/2021_cwe_top25.html
   public static final List<String> CWE_TOP25_2021 = List.of("787", "79", "125", "20", "78", "89", "416", "22", "352", "434", "306", "190", "502", "287", "476",
     "798", "119", "862", "276", "200", "522", "732", "611", "918", "77");
@@ -100,14 +96,18 @@ public final class SecurityStandards {
   public static final List<String> CWE_TOP25_2022 = List.of("787", "79", "89", "20", "125", "78", "416", "22", "352", "434", "476", "502", "190", "287", "798",
     "862", "77", "306", "119", "276", "918", "362", "400", "611", "94");
 
-  public static final String CWE_YEAR_2020 = "2020";
+  // https://cwe.mitre.org/top25/archive/2023/2023_top25_list.html#tableView
+  public static final List<String> CWE_TOP25_2023 = List.of("787", "79", "89", "416", "78",  "20", "125", "22", "352", "434", "862", "476", "287", "190", "502",
+    "77", "119", "798", "918", "306", "362", "269", "94", "863", "276");
+
   public static final String CWE_YEAR_2021 = "2021";
   public static final String CWE_YEAR_2022 = "2022";
+  public static final String CWE_YEAR_2023 = "2023";
 
   public static final Map<String, List<String>> CWES_BY_CWE_TOP_25 = Map.of(
-    CWE_YEAR_2020, CWE_TOP25_2020,
     CWE_YEAR_2021, CWE_TOP25_2021,
-    CWE_YEAR_2022, CWE_TOP25_2022);
+    CWE_YEAR_2022, CWE_TOP25_2022,
+    CWE_YEAR_2023, CWE_TOP25_2023);
 
   private static final List<String> OWASP_ASVS_40_LEVEL_1 = List.of("2.1.1", "2.1.10", "2.1.11", "2.1.12", "2.1.2", "2.1.3", "2.1.4", "2.1.5", "2.1.6", "2.1.7", "2.1.8", "2.1.9",
     "2.10.1", "2.10.2", "2.10.3", "2.10.4", "2.2.1", "2.2.2", "2.2.3", "2.3.1", "2.5.1", "2.5.2", "2.5.3", "2.5.4", "2.5.5", "2.5.6", "2.7.1", "2.7.2", "2.7.3", "2.7.4", "2.8.1",
