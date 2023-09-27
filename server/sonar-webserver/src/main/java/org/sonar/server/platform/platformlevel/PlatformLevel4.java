@@ -75,7 +75,6 @@ import org.sonar.server.branch.ws.BranchWsModule;
 import org.sonar.server.ce.CeModule;
 import org.sonar.server.ce.projectdump.ProjectExportWsModule;
 import org.sonar.server.ce.ws.CeWsModule;
-import org.sonar.server.common.github.permissions.GithubPermissionsMappingService;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
@@ -549,7 +548,6 @@ public class PlatformLevel4 extends PlatformLevel {
       GithubApplicationHttpClientImpl.class,
       GithubProvisioningConfigValidator.class,
       GithubProvisioningWs.class,
-      GithubPermissionsMappingService.class,
       BitbucketCloudRestClientConfiguration.class,
       BitbucketServerRestClient.class,
       GitlabHttpClient.class,
