@@ -102,9 +102,12 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     }
   };
 
-  fetchComponent = async (shouldRedirectToDashboard = false, backgroundLoading = false) => {
+  fetchComponent = async (shouldRedirectToDashboard = false) => {
     const { branch, id: key, pullRequest } = this.props.location.query;
-    if (!backgroundLoading) {
+    const { component } = this.state;
+
+    // Only show loader if we're changing components
+    if (component?.key !== key) {
       this.setState({ loading: true });
     }
 
@@ -191,7 +194,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             },
             () => {
               if (shouldFetchComponent) {
-                this.fetchComponent(shouldRedirectToDashboard, true);
+                this.fetchComponent(shouldRedirectToDashboard);
               }
             },
           );
