@@ -23,6 +23,9 @@ import Link, { LinkProps } from './Link';
 
 type Props = Omit<LinkProps, 'to'> & { to: string; innerRef?: React.Ref<HTMLAnchorElement> };
 
+/**
+ * /!\ Deprecated: use DocumentationLink instead
+ */
 export default function DocLink({ to, innerRef, ...props }: Props) {
   const toStatic = useDocUrl(to);
   return <Link ref={innerRef} to={toStatic} target="_blank" {...props} />;

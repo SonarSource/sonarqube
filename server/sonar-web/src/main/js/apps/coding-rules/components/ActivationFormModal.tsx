@@ -17,14 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import {
+  ButtonPrimary,
+  FlagMessage,
+  FormField,
+  InputField,
+  InputSelect,
+  InputTextArea,
+  LabelValueSelectOption,
+  Modal,
+  Note,
+} from 'design-system';
 import * as React from 'react';
-import { activateRule, Profile } from '../../../api/quality-profiles';
-import DocLink from '../../../components/common/DocLink';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import Modal from '../../../components/controls/Modal';
-import Select from '../../../components/controls/Select';
-import { Alert } from '../../../components/ui/Alert';
+import { Profile, activateRule } from '../../../api/quality-profiles';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
 import { Dict, Rule, RuleActivation, RuleDetails } from '../../../types/types';
@@ -40,15 +46,18 @@ interface Props {
   rule: Rule | RuleDetails;
 }
 
-interface ProfileWithDeph extends Profile {
+interface ProfileWithDepth extends Profile {
   depth: number;
 }
 
 interface State {
   params: Dict<string>;
-  profile?: ProfileWithDeph;
+  profile?: ProfileWithDepth;
   submitting: boolean;
 }
+
+const MIN_PROFILES_TO_ENABLE_SELECT = 2;
+const FORM_ID = 'rule-activation-modal-form';
 
 export default class ActivationFormModal extends React.PureComponent<Props, State> {
   mounted = false;
@@ -73,11 +82,11 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
 
   getParams = ({ activation, rule } = this.props) => {
     const params: Dict<string> = {};
-    if (rule && rule.params) {
+    if (rule?.params) {
       for (const param of rule.params) {
         params[param.key] = param.defaultValue || '';
       }
-      if (activation && activation.params) {
+      if (activation?.params) {
         for (const param of activation.params) {
           params[param.key] = param.value;
         }
@@ -108,7 +117,7 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     event.preventDefault();
     this.setState({ submitting: true });
     const data = {
-      key: this.state.profile?.key || '',
+      key: this.state.profile?.key ?? '',
       params: this.state.params,
       rule: this.props.rule.key,
       severity: activation ? activation.severity : rule.severity,
@@ -135,8 +144,8 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     this.setState((state: State) => ({ params: { ...state.params, [name]: value } }));
   };
 
-  handleProfileChange = (profile: ProfileWithDeph) => {
-    this.setState({ profile });
+  handleProfileChange = (value: LabelValueSelectOption<ProfileWithDepth>) => {
+    this.setState({ profile: value.value });
   };
 
   render() {
@@ -144,98 +153,99 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     const { profile, submitting } = this.state;
     const { params = [] } = rule;
     const profilesWithDepth = this.getQualityProfilesWithDepth();
+    const profileOptions = profilesWithDepth.map((p) => ({ label: p.name, value: p }));
     const isCustomRule = !!(rule as RuleDetails).templateKey;
     const activeInAllProfiles = profilesWithDepth.length <= 0;
     const isUpdateMode = !!activation;
 
     return (
-      <Modal contentLabel={this.props.modalHeader} onRequestClose={this.props.onClose} size="small">
-        <form onSubmit={this.handleFormSubmit}>
-          <div className="modal-head">
-            <h2>{this.props.modalHeader}</h2>
-          </div>
-
-          <div className={classNames('modal-body', { 'modal-container': params.length > 0 })}>
+      <Modal
+        headerTitle={this.props.modalHeader}
+        onClose={this.props.onClose}
+        loading={submitting}
+        isOverflowVisible
+        primaryButton={
+          <ButtonPrimary disabled={submitting || activeInAllProfiles} form={FORM_ID} type="submit">
+            {isUpdateMode ? translate('save') : translate('coding_rules.activate')}
+          </ButtonPrimary>
+        }
+        secondaryButtonLabel={translate('cancel')}
+        body={
+          <form id={FORM_ID} onSubmit={this.handleFormSubmit}>
             {!isUpdateMode && activeInAllProfiles && (
-              <Alert variant="info">{translate('coding_rules.active_in_all_profiles')}</Alert>
+              <FlagMessage className="sw-mb-2" variant="info">
+                {translate('coding_rules.active_in_all_profiles')}
+              </FlagMessage>
             )}
 
-            <Alert variant="info">
+            <FlagMessage className="sw-mb-4" variant="info">
               {translate('coding_rules.severity_cannot_be_modified')}
-              <DocLink className="spacer-left" to="/user-guide/clean-code/">
+              <DocumentationLink className="sw-ml-2" to="/user-guide/clean-code/">
                 {translate('learn_more')}
-              </DocLink>
-            </Alert>
+              </DocumentationLink>
+            </FlagMessage>
 
-            <div className="modal-field">
-              <label id="coding-rules-quality-profile-select-label">
-                {translate('coding_rules.quality_profile')}
-              </label>
-              <Select
-                aria-labelledby="coding-rules-quality-profile-select-label"
+            <FormField
+              ariaLabel={translate('coding_rules.quality_profile')}
+              label={translate('coding_rules.quality_profile')}
+              htmlFor="coding-rules-quality-profile-select-input"
+            >
+              <InputSelect
                 id="coding-rules-quality-profile-select"
+                inputId="coding-rules-quality-profile-select-input"
                 isClearable={false}
-                isDisabled={submitting || profilesWithDepth.length === 1}
+                isDisabled={submitting || profilesWithDepth.length < MIN_PROFILES_TO_ENABLE_SELECT}
                 onChange={this.handleProfileChange}
-                getOptionLabel={(p: ProfileWithDeph) => '   '.repeat(p.depth) + p.name}
-                options={profilesWithDepth}
-                value={profile}
+                getOptionLabel={({ value }: LabelValueSelectOption<ProfileWithDepth>) =>
+                  '   '.repeat(value.depth) + value.name
+                }
+                options={profileOptions}
+                value={profileOptions.find(({ value }) => value.key === profile?.key)}
               />
-            </div>
+            </FormField>
             {isCustomRule ? (
-              <div className="modal-field">
-                <p className="note">{translate('coding_rules.custom_rule.activation_notice')}</p>
-              </div>
+              <Note as="p" className="sw-my-4">
+                {translate('coding_rules.custom_rule.activation_notice')}
+              </Note>
             ) : (
               params.map((param) => (
-                <div className="modal-field" key={param.key}>
-                  <label title={param.key} htmlFor={param.key}>
-                    {param.key}
-                  </label>
+                <FormField label={param.key} key={param.key} htmlFor={param.key}>
                   {param.type === 'TEXT' ? (
-                    <textarea
+                    <InputTextArea
                       id={param.key}
                       disabled={submitting}
                       name={param.key}
                       onChange={this.handleParameterChange}
                       placeholder={param.defaultValue}
                       rows={3}
-                      value={this.state.params[param.key] || ''}
+                      size="full"
+                      value={this.state.params[param.key] ?? ''}
                     />
                   ) : (
-                    <input
+                    <InputField
                       id={param.key}
                       disabled={submitting}
                       name={param.key}
                       onChange={this.handleParameterChange}
                       placeholder={param.defaultValue}
+                      size="full"
                       type="text"
-                      value={this.state.params[param.key] || ''}
+                      value={this.state.params[param.key] ?? ''}
                     />
                   )}
                   {param.htmlDesc !== undefined && (
-                    <div
-                      className="note"
+                    <Note
+                      as="div"
                       // eslint-disable-next-line react/no-danger
                       dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
                     />
                   )}
-                </div>
+                </FormField>
               ))
             )}
-          </div>
-
-          <footer className="modal-foot">
-            {submitting && <i className="spinner spacer-right" />}
-            <SubmitButton disabled={submitting || activeInAllProfiles}>
-              {isUpdateMode ? translate('save') : translate('coding_rules.activate')}
-            </SubmitButton>
-            <ResetButtonLink disabled={submitting} onClick={this.props.onClose}>
-              {translate('cancel')}
-            </ResetButtonLink>
-          </footer>
-        </form>
-      </Modal>
+          </form>
+        }
+      />
     );
   }
 }

@@ -17,24 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-
-import { shallow } from 'enzyme';
+import { Link, LinkProps } from 'design-system';
 import * as React from 'react';
-import { click } from '../../../helpers/testUtils';
-import ModalButton from '../ModalButton';
+import { useDocUrl } from '../../helpers/docs';
 
-it('should open/close modal', () => {
-  const wrapper = shallow(
-    <ModalButton modal={({ onClose }) => <button id="js-close" onClick={onClose} type="button" />}>
-      {({ onClick }) => <button id="js-open" onClick={onClick} type="button" />}
-    </ModalButton>,
-  );
+type Props = Omit<LinkProps, 'to'> & { to: string; innerRef?: React.Ref<HTMLAnchorElement> };
 
-  expect(wrapper.find('#js-open').exists()).toBe(true);
-  expect(wrapper.find('#js-close').exists()).toBe(false);
-  click(wrapper.find('#js-open'));
-  expect(wrapper.find('#js-close').exists()).toBe(true);
-  click(wrapper.find('#js-close'));
-  expect(wrapper.find('#js-close').exists()).toBe(false);
-});
+export default function DocumentationLink({ to, innerRef, ...props }: Props) {
+  const toStatic = useDocUrl(to);
+  return <Link ref={innerRef} to={toStatic} target="_blank" {...props} />;
+}

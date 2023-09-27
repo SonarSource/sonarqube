@@ -17,16 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
+import { ButtonPrimary, DangerButtonPrimary, Modal } from 'design-system';
+import React from 'react';
 import { translate } from '../../helpers/l10n';
-import Spinner from '../ui/Spinner';
 import ClickEventBoundary from './ClickEventBoundary';
-import { ModalProps } from './Modal';
-import SimpleModal, { ChildrenProps } from './SimpleModal';
-import { ResetButtonLink, SubmitButton } from './buttons';
 
-export interface ConfirmModalProps<T> extends ModalProps {
+export interface ConfirmModalProps<T> {
   cancelButtonText?: string;
+  children: React.ReactNode;
   confirmButtonText: string;
   confirmData?: T;
   confirmDisable?: boolean;
@@ -40,78 +38,60 @@ interface Props<T> extends ConfirmModalProps<T> {
   onClose: () => void;
 }
 
-export default class ConfirmModal<T = string> extends React.PureComponent<Props<T>> {
-  mounted = false;
+export default function ConfirmModal<T = string>(props: Readonly<Props<T>>) {
+  const {
+    header,
+    onClose,
+    onConfirm,
+    children,
+    confirmButtonText,
+    confirmData,
+    confirmDisable,
+    headerDescription,
+    isDestructive,
+    cancelButtonText = translate('cancel'),
+  } = props;
 
-  componentDidMount() {
-    this.mounted = true;
-  }
+  const [submitting, setSubmitting] = React.useState(false);
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+  const handleSubmit = React.useCallback(() => {
+    setSubmitting(true);
+    const result = onConfirm(confirmData);
 
-  handleSubmit = () => {
-    const result = this.props.onConfirm(this.props.confirmData);
     if (result) {
       return result.then(
         () => {
-          if (this.mounted) {
-            this.props.onClose();
-          }
+          onClose();
         },
         () => {
           /* noop */
         },
       );
     }
-    this.props.onClose();
+
+    onClose();
     return undefined;
-  };
+  }, [confirmData, onClose, onConfirm, setSubmitting]);
 
-  renderModalContent = ({ onCloseClick, onFormSubmit, submitting }: ChildrenProps) => {
-    const {
-      children,
-      confirmButtonText,
-      confirmDisable,
-      header,
-      headerDescription,
-      isDestructive,
-      cancelButtonText = translate('cancel'),
-    } = this.props;
-    return (
-      <ClickEventBoundary>
-        <form onSubmit={onFormSubmit}>
-          <header className="modal-head">
-            <h2>{header}</h2>
-            {headerDescription}
-          </header>
-          <div className="modal-body">{children}</div>
-          <footer className="modal-foot">
-            <Spinner className="spacer-right" loading={submitting} />
-            <SubmitButton
-              autoFocus
-              className={isDestructive ? 'button-red' : undefined}
-              disabled={submitting || confirmDisable}
-            >
-              {confirmButtonText}
-            </SubmitButton>
-            <ResetButtonLink disabled={submitting} onClick={onCloseClick}>
-              {cancelButtonText}
-            </ResetButtonLink>
-          </footer>
-        </form>
-      </ClickEventBoundary>
-    );
-  };
+  const Button = isDestructive ? DangerButtonPrimary : ButtonPrimary;
 
-  render() {
-    const { header, onClose, noBackdrop, size } = this.props;
-    const modalProps = { header, onClose, noBackdrop, size };
-    return (
-      <SimpleModal onSubmit={this.handleSubmit} {...modalProps}>
-        {this.renderModalContent}
-      </SimpleModal>
-    );
-  }
+  return (
+    <Modal
+      headerTitle={header}
+      headerDescription={headerDescription}
+      body={
+        <ClickEventBoundary>
+          <>{children}</>
+        </ClickEventBoundary>
+      }
+      primaryButton={
+        <Button autoFocus disabled={submitting || confirmDisable} onClick={handleSubmit}>
+          {confirmButtonText}
+        </Button>
+      }
+      secondaryButtonLabel={cancelButtonText}
+      loading={submitting}
+      onClose={onClose}
+    />
+  );
 }

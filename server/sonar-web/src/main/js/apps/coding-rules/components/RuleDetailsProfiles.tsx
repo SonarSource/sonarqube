@@ -154,6 +154,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
                   'coding_rules.revert_to_parent_definition.confirm',
                   profile.parentName,
                 )}
+                isDestructive
                 modalHeader={translate('coding_rules.revert_to_parent_definition')}
                 onConfirm={this.handleRevert}
               >

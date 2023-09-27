@@ -17,10 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import { Global, css, useTheme } from '@emotion/react';
 import classNames from 'classnames';
-import { ReactNode } from 'react';
+import { Fragment, ReactNode } from 'react';
 import { useIntl } from 'react-intl';
 import ReactModal from 'react-modal';
 import tw from 'twin.macro';
@@ -33,6 +32,8 @@ import { ModalFooter } from './ModalFooter';
 import { ModalHeader } from './ModalHeader';
 
 ReactModal.setAppElement(REACT_DOM_CONTAINER);
+
+/* eslint-disable react/jsx-fragments */
 
 interface CommonProps {
   closeOnOverlayClick?: boolean;
@@ -86,7 +87,7 @@ export function Modal({
   const theme = useTheme();
   const intl = useIntl();
   return (
-    <>
+    <Fragment>
       <Global styles={globalStyles({ theme })} />
 
       <ReactModal
@@ -101,7 +102,7 @@ export function Modal({
         shouldReturnFocusAfterClose
       >
         {hasNoChildren(props) ? (
-          <>
+          <Fragment>
             <ModalHeader description={props.headerDescription} title={props.headerTitle} />
 
             <ModalBody isOverflowVisible={isOverflowVisible} isScrollable={isScrollable}>
@@ -122,12 +123,12 @@ export function Modal({
                 </ButtonSecondary>
               }
             />
-          </>
+          </Fragment>
         ) : (
           (props as PropsWithChildren).children
         )}
       </ReactModal>
-    </>
+    </Fragment>
   );
 }
 
