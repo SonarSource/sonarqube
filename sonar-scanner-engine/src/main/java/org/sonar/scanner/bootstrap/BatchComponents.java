@@ -32,6 +32,7 @@ import org.sonar.scanner.externalissue.sarif.DefaultSarif210Importer;
 import org.sonar.scanner.externalissue.sarif.LocationMapper;
 import org.sonar.scanner.externalissue.sarif.RegionMapper;
 import org.sonar.scanner.externalissue.sarif.ResultMapper;
+import org.sonar.scanner.externalissue.sarif.RuleMapper;
 import org.sonar.scanner.externalissue.sarif.RunMapper;
 import org.sonar.scanner.externalissue.sarif.SarifIssuesImportSensor;
 import org.sonar.scanner.genericcoverage.GenericCoverageSensor;
@@ -70,6 +71,7 @@ public class BatchComponents {
     components.add(ResultMapper.class);
     components.add(LocationMapper.class);
     components.add(RegionMapper.class);
+    components.add(RuleMapper.class);
 
     return components;
   }

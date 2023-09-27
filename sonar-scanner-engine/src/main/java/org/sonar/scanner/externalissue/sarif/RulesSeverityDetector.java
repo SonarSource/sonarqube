@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.rule.Severity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.sarif.DefaultConfiguration;
@@ -36,15 +35,15 @@ import org.sonar.core.sarif.Rule;
 import org.sonar.core.sarif.Run;
 import org.sonar.core.sarif.Tool;
 
-import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toMap;
+import static org.sonar.scanner.externalissue.sarif.ResultMapper.DEFAULT_IMPACT_SEVERITY;
 import static org.sonar.scanner.externalissue.sarif.ResultMapper.DEFAULT_SEVERITY;
 
 public class RulesSeverityDetector {
   private static final Logger LOG = LoggerFactory.getLogger(RulesSeverityDetector.class);
-  public static final String UNSUPPORTED_RULE_SEVERITIES_WARNING = "Unable to detect rules severity for issue detected by tool %s, falling back to default rule severity: %s";
+  private static final String UNSUPPORTED_RULE_SEVERITIES_WARNING = "Unable to detect rules severity for issue detected by tool {}, falling back to default rule severity: {}";
 
   private RulesSeverityDetector() {}
 
@@ -67,7 +66,24 @@ public class RulesSeverityDetector {
       return extensionDefinedRuleSeverities;
     }
 
-    LOG.warn(composeUnsupportedRuleSeveritiesDefinitionWarningMessage(driverName, DEFAULT_SEVERITY));
+    LOG.warn(UNSUPPORTED_RULE_SEVERITIES_WARNING, driverName, DEFAULT_SEVERITY.name());
+    return emptyMap();
+  }
+
+  public static Map<String, String> detectRulesSeveritiesForNewTaxonomy(Run run, String driverName) {
+    Map<String, String> driverDefinedRuleSeverities = getDriverDefinedRuleSeverities(run);
+
+    if (!driverDefinedRuleSeverities.isEmpty()) {
+      return driverDefinedRuleSeverities;
+    }
+
+    Map<String, String> extensionDefinedRuleSeverities = getExtensionsDefinedRuleSeverities(run);
+
+    if (!extensionDefinedRuleSeverities.isEmpty()) {
+      return extensionDefinedRuleSeverities;
+    }
+
+    LOG.warn(UNSUPPORTED_RULE_SEVERITIES_WARNING, driverName, DEFAULT_IMPACT_SEVERITY.name());
     return emptyMap();
   }
 
@@ -111,7 +127,4 @@ public class RulesSeverityDetector {
       .isPresent();
   }
 
-  private static String composeUnsupportedRuleSeveritiesDefinitionWarningMessage(String driverName, Severity defaultSeverity) {
-    return format(UNSUPPORTED_RULE_SEVERITIES_WARNING, driverName, defaultSeverity);
-  }
 }

@@ -19,9 +19,9 @@
  */
 package org.sonar.scanner.externalissue.sarif;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,9 +32,12 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
+import org.sonar.api.batch.sensor.rule.NewAdHocRule;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.core.sarif.Extension;
 import org.sonar.core.sarif.Result;
 import org.sonar.core.sarif.Run;
+import org.sonar.scanner.externalissue.sarif.RunMapper.RunMapperResult;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,8 +55,14 @@ public class RunMapperTest {
   @Mock
   private ResultMapper resultMapper;
 
+  @Mock
+  private RuleMapper ruleMapper;
+
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private Run run;
+
+  @Mock
+  private org.sonar.core.sarif.Rule rule;
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -61,21 +70,63 @@ public class RunMapperTest {
   @InjectMocks
   private RunMapper runMapper;
 
-  @Test
-  public void mapRun_delegatesToMapResult() {
+  @Before
+  public void setUp() {
     when(run.getTool().getDriver().getName()).thenReturn(TEST_DRIVER);
+    when(run.getTool().getExtensions()).thenReturn(null);
+    when(rule.getId()).thenReturn(RULE_ID);
+  }
+
+  @Test
+  public void mapRun_shouldMapExternalIssues() {
     Result result1 = mock(Result.class);
     Result result2 = mock(Result.class);
     when(run.getResults()).thenReturn(Set.of(result1, result2));
-    NewExternalIssue externalIssue1 = mockMappedResult(result1);
-    NewExternalIssue externalIssue2 = mockMappedResult(result2);
+    NewExternalIssue externalIssue1 = mockMappedExternalIssue(result1);
+    NewExternalIssue externalIssue2 = mockMappedExternalIssue(result2);
 
     try (MockedStatic<RulesSeverityDetector> detector = mockStatic(RulesSeverityDetector.class)) {
       detector.when(() -> RulesSeverityDetector.detectRulesSeverities(run, TEST_DRIVER)).thenReturn(Map.of(RULE_ID, WARNING));
+      detector.when(() -> RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, TEST_DRIVER)).thenReturn(Map.of(RULE_ID, WARNING));
 
-      List<NewExternalIssue> newExternalIssues = runMapper.mapRun(run);
+      RunMapperResult runMapperResult = runMapper.mapRun(run);
 
-      assertThat(newExternalIssues).containsOnly(externalIssue1, externalIssue2);
+      assertThat(runMapperResult.getNewExternalIssues()).containsOnly(externalIssue1, externalIssue2);
+      assertThat(logTester.logs()).isEmpty();
+    }
+  }
+
+  @Test
+  public void mapRun_shouldMapExternalRules_whenDriverHasRulesAndNoExtensions() {
+    when(run.getTool().getDriver().getRules()).thenReturn(Set.of(rule));
+    NewAdHocRule externalRule = mockMappedExternalRule();
+
+    try (MockedStatic<RulesSeverityDetector> detector = mockStatic(RulesSeverityDetector.class)) {
+      detector.when(() -> RulesSeverityDetector.detectRulesSeverities(run, TEST_DRIVER)).thenReturn(Map.of(RULE_ID, WARNING));
+      detector.when(() -> RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, TEST_DRIVER)).thenReturn(Map.of(RULE_ID, WARNING));
+
+      RunMapperResult runMapperResult = runMapper.mapRun(run);
+
+      assertThat(runMapperResult.getNewAdHocRules()).containsOnly(externalRule);
+      assertThat(logTester.logs()).isEmpty();
+    }
+  }
+
+  @Test
+  public void mapRun_shouldMapExternalRules_whenRulesInExtensions() {
+    when(run.getTool().getDriver().getRules()).thenReturn(Set.of());
+    Extension extension = mock(Extension.class);
+    when(extension.getRules()).thenReturn(Set.of(rule));
+    when(run.getTool().getExtensions()).thenReturn(Set.of(extension));
+    NewAdHocRule externalRule = mockMappedExternalRule();
+
+    try (MockedStatic<RulesSeverityDetector> detector = mockStatic(RulesSeverityDetector.class)) {
+      detector.when(() -> RulesSeverityDetector.detectRulesSeverities(run, TEST_DRIVER)).thenReturn(Map.of(RULE_ID, WARNING));
+      detector.when(() -> RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, TEST_DRIVER)).thenReturn(Map.of(RULE_ID, WARNING));
+
+      RunMapperResult runMapperResult = runMapper.mapRun(run);
+
+      assertThat(runMapperResult.getNewAdHocRules()).containsOnly(externalRule);
       assertThat(logTester.logs()).isEmpty();
     }
   }
@@ -84,27 +135,27 @@ public class RunMapperTest {
   public void mapRun_ifRunIsEmpty_returnsEmptyList() {
     when(run.getResults()).thenReturn(emptySet());
 
-    List<NewExternalIssue> newExternalIssues = runMapper.mapRun(run);
+    RunMapperResult runMapperResult = runMapper.mapRun(run);
 
-    assertThat(newExternalIssues).isEmpty();
+    assertThat(runMapperResult.getNewExternalIssues()).isEmpty();
   }
 
   @Test
   public void mapRun_ifExceptionThrownByResultMapper_logsThemAndContinueProcessing() {
-    when(run.getTool().getDriver().getName()).thenReturn(TEST_DRIVER);
     Result result1 = mock(Result.class);
     Result result2 = mock(Result.class);
     when(run.getResults()).thenReturn(Set.of(result1, result2));
-    NewExternalIssue externalIssue2 = mockMappedResult(result2);
+    NewExternalIssue externalIssue2 = mockMappedExternalIssue(result2);
     when(result1.getRuleId()).thenReturn(RULE_ID);
-    when(resultMapper.mapResult(TEST_DRIVER, WARNING, result1)).thenThrow(new IllegalArgumentException("test"));
+    when(resultMapper.mapResult(TEST_DRIVER, WARNING, WARNING, result1)).thenThrow(new IllegalArgumentException("test"));
 
     try (MockedStatic<RulesSeverityDetector> detector = mockStatic(RulesSeverityDetector.class)) {
       detector.when(() -> RulesSeverityDetector.detectRulesSeverities(run, TEST_DRIVER)).thenReturn(Map.of(RULE_ID, WARNING));
+      detector.when(() -> RulesSeverityDetector.detectRulesSeveritiesForNewTaxonomy(run, TEST_DRIVER)).thenReturn(Map.of(RULE_ID, WARNING));
 
-      List<NewExternalIssue> newExternalIssues = runMapper.mapRun(run);
+      RunMapperResult runMapperResult = runMapper.mapRun(run);
 
-      assertThat(newExternalIssues)
+      assertThat(runMapperResult.getNewExternalIssues())
         .containsExactly(externalIssue2);
       assertThat(logTester.logs(Level.WARN)).containsOnly("Failed to import an issue raised by tool Test driver, error: test");
     }
@@ -137,11 +188,17 @@ public class RunMapperTest {
       .withMessage("The run does not have a tool driver name defined.");
   }
 
-  private NewExternalIssue mockMappedResult(Result result) {
+  private NewExternalIssue mockMappedExternalIssue(Result result) {
     NewExternalIssue externalIssue = mock(NewExternalIssue.class);
     when(result.getRuleId()).thenReturn(RULE_ID);
-    when(resultMapper.mapResult(TEST_DRIVER, WARNING, result)).thenReturn(externalIssue);
+    when(resultMapper.mapResult(TEST_DRIVER, WARNING, WARNING, result)).thenReturn(externalIssue);
     return externalIssue;
+  }
+
+  private NewAdHocRule mockMappedExternalRule() {
+    NewAdHocRule externalRule = mock(NewAdHocRule.class);
+    when(ruleMapper.mapRule(rule, TEST_DRIVER, WARNING, WARNING)).thenReturn(externalRule);
+    return externalRule;
   }
 
 }

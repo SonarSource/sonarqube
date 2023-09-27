@@ -21,13 +21,14 @@ package org.sonar.scanner.externalissue.sarif;
 
 import java.util.List;
 import java.util.Set;
-import javax.annotation.CheckForNull;
-import org.sonar.api.batch.sensor.issue.NewExternalIssue;
-import org.sonar.api.scanner.ScannerSide;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.sensor.issue.NewExternalIssue;
+import org.sonar.api.batch.sensor.rule.NewAdHocRule;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.core.sarif.Run;
 import org.sonar.core.sarif.Sarif210;
+import org.sonar.scanner.externalissue.sarif.RunMapper.RunMapperResult;
 
 import static java.util.Objects.requireNonNull;
 
@@ -49,13 +50,17 @@ public class DefaultSarif210Importer implements Sarif210Importer {
 
     Set<Run> runs = requireNonNull(sarif210.getRuns(), "The runs section of the Sarif report is null");
     for (Run run : runs) {
-      List<NewExternalIssue> newExternalIssues = toNewExternalIssues(run);
-      if (newExternalIssues == null) {
-        failedRuns += 1;
-      } else {
+      RunMapperResult runMapperResult = tryMapRun(run);
+      if (runMapperResult.isSuccess()) {
+        List<NewAdHocRule> newAdHocRules = runMapperResult.getNewAdHocRules();
+        newAdHocRules.forEach(NewAdHocRule::save);
+
+        List<NewExternalIssue> newExternalIssues = runMapperResult.getNewExternalIssues();
         successFullyImportedRuns += 1;
         successFullyImportedIssues += newExternalIssues.size();
         newExternalIssues.forEach(NewExternalIssue::save);
+      } else {
+        failedRuns += 1;
       }
     }
     return SarifImportResults.builder()
@@ -65,13 +70,13 @@ public class DefaultSarif210Importer implements Sarif210Importer {
       .build();
   }
 
-  @CheckForNull
-  private List<NewExternalIssue> toNewExternalIssues(Run run) {
+  private RunMapperResult tryMapRun(Run run) {
     try {
       return runMapper.mapRun(run);
     } catch (Exception exception) {
       LOG.warn("Failed to import a sarif run, error: {}", exception.getMessage());
-      return null;
+      return new RunMapperResult().success(false);
+
     }
   }
 

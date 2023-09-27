@@ -33,6 +33,7 @@ import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.sarif.Run;
 import org.sonar.core.sarif.Sarif210;
+import org.sonar.scanner.externalissue.sarif.RunMapper.RunMapperResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
@@ -64,8 +65,8 @@ public class DefaultSarif210ImporterTest extends TestCase {
     NewExternalIssue issue1run1 = mock(NewExternalIssue.class);
     NewExternalIssue issue2run1 = mock(NewExternalIssue.class);
     NewExternalIssue issue1run2 = mock(NewExternalIssue.class);
-    when(runMapper.mapRun(run1)).thenReturn(List.of(issue1run1, issue2run1));
-    when(runMapper.mapRun(run2)).thenReturn(List.of(issue1run2));
+    when(runMapper.mapRun(run1)).thenReturn(new RunMapperResult().newExternalIssues(List.of(issue1run1, issue2run1)));
+    when(runMapper.mapRun(run2)).thenReturn(new RunMapperResult().newExternalIssues(List.of(issue1run2)));
 
     SarifImportResults sarifImportResults = sarif210Importer.importSarif(sarif210);
 
@@ -88,7 +89,7 @@ public class DefaultSarif210ImporterTest extends TestCase {
     Exception testException = new RuntimeException("test");
     when(runMapper.mapRun(run1)).thenThrow(testException);
     NewExternalIssue issue1run2 = mock(NewExternalIssue.class);
-    when(runMapper.mapRun(run2)).thenReturn(List.of(issue1run2));
+    when(runMapper.mapRun(run2)).thenReturn(new RunMapperResult().newExternalIssues(List.of(issue1run2)));
 
     SarifImportResults sarifImportResults = sarif210Importer.importSarif(sarif210);
 

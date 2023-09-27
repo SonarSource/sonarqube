@@ -28,16 +28,22 @@ import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.core.sarif.Location;
 import org.sonar.core.sarif.Result;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.Severity.MEDIUM;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
+import static org.sonar.api.rules.CleanCodeAttribute.CONVENTIONAL;
 
 @ScannerSide
 public class ResultMapper {
-  public static final Severity DEFAULT_SEVERITY = Severity.MAJOR;
 
   private static final Map<String, Severity> SEVERITY_MAPPING = ImmutableMap.<String, Severity>builder()
     .put("error", Severity.CRITICAL)
@@ -46,7 +52,18 @@ public class ResultMapper {
     .put("none", Severity.INFO)
     .build();
 
-  private static final RuleType DEFAULT_TYPE = RuleType.VULNERABILITY;
+  private static final Map<String, org.sonar.api.issue.impact.Severity> IMPACT_SEVERITY_MAPPING = ImmutableMap.<String, org.sonar.api.issue.impact.Severity>builder()
+    .put("error", HIGH)
+    .put("warning", MEDIUM)
+    .put("note", LOW)
+    .put("none", LOW)
+    .build();
+
+  public static final Severity DEFAULT_SEVERITY = Severity.MAJOR;
+  public static final RuleType DEFAULT_TYPE = RuleType.VULNERABILITY;
+  public static final CleanCodeAttribute DEFAULT_CLEAN_CODE_ATTRIBUTE = CONVENTIONAL;
+  public static final SoftwareQuality DEFAULT_SOFTWARE_QUALITY = SECURITY;
+  public static final org.sonar.api.issue.impact.Severity DEFAULT_IMPACT_SEVERITY = MEDIUM;
 
   private final SensorContext sensorContext;
   private final LocationMapper locationMapper;
@@ -56,18 +73,24 @@ public class ResultMapper {
     this.locationMapper = locationMapper;
   }
 
-  NewExternalIssue mapResult(String driverName, @Nullable String ruleSeverity, Result result) {
+  NewExternalIssue mapResult(String driverName, @Nullable String ruleSeverity, @Nullable String ruleSeverityForNewTaxonomy, Result result) {
     NewExternalIssue newExternalIssue = sensorContext.newExternalIssue();
     newExternalIssue.type(DEFAULT_TYPE);
     newExternalIssue.engineId(driverName);
     newExternalIssue.severity(toSonarQubeSeverity(ruleSeverity));
     newExternalIssue.ruleId(requireNonNull(result.getRuleId(), "No ruleId found for issue thrown by driver " + driverName));
+    newExternalIssue.cleanCodeAttribute(DEFAULT_CLEAN_CODE_ATTRIBUTE);
+    newExternalIssue.addImpact(DEFAULT_SOFTWARE_QUALITY, toSonarQubeImpactSeverity(ruleSeverityForNewTaxonomy));
 
     mapLocations(result, newExternalIssue);
     return newExternalIssue;
   }
 
-  private static Severity toSonarQubeSeverity(@Nullable String ruleSeverity) {
+  protected static org.sonar.api.issue.impact.Severity toSonarQubeImpactSeverity(@Nullable String ruleSeverity) {
+    return IMPACT_SEVERITY_MAPPING.getOrDefault(ruleSeverity, DEFAULT_IMPACT_SEVERITY);
+  }
+
+  protected static Severity toSonarQubeSeverity(@Nullable String ruleSeverity) {
     return SEVERITY_MAPPING.getOrDefault(ruleSeverity, DEFAULT_SEVERITY);
   }
 
