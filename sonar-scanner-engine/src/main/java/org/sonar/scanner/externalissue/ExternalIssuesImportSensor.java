@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -32,18 +34,18 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.scanner.externalissue.ReportParser.Report;
+import org.sonar.api.scanner.ScannerSide;
 
+@ScannerSide
 public class ExternalIssuesImportSensor implements Sensor {
   private static final Logger LOG = LoggerFactory.getLogger(ExternalIssuesImportSensor.class);
-  static final String REPORT_PATHS_PROPERTY_KEY = "sonar.externalIssuesReportPaths";
-
+  private static final String REPORT_PATHS_PROPERTY_KEY = "sonar.externalIssuesReportPaths";
   private final Configuration config;
+  private final ExternalIssueReportParser externalIssueReportParser;
 
-  public ExternalIssuesImportSensor(Configuration config) {
+  public ExternalIssuesImportSensor(Configuration config, ExternalIssueReportParser externalIssueReportParser) {
     this.config = config;
+    this.externalIssueReportParser = externalIssueReportParser;
   }
 
   public static List<PropertyDefinition> properties() {
@@ -68,8 +70,7 @@ public class ExternalIssuesImportSensor implements Sensor {
     for (String reportPath : reportPaths) {
       LOG.debug("Importing issues from '{}'", reportPath);
       Path reportFilePath = context.fileSystem().resolvePath(reportPath).toPath();
-      ReportParser parser = new ReportParser(reportFilePath);
-      Report report = parser.parse();
+      ExternalIssueReport report = externalIssueReportParser.parse(reportFilePath);
       ExternalIssueImporter issueImporter = new ExternalIssueImporter(context, report);
       issueImporter.execute();
     }

@@ -76,6 +76,7 @@ public class XooRulesDefinition implements RulesDefinition {
     defineRulesXoo(context);
     defineRulesXoo2(context);
     defineRulesXooExternal(context);
+    defineRulesXooExternalWithCct(context);
   }
 
   private static void defineRulesXoo2(Context context) {
@@ -315,6 +316,18 @@ public class XooRulesDefinition implements RulesDefinition {
       .setType(RuleType.SECURITY_HOTSPOT)
       .setActivatedByDefault(false);
     addAllDescriptionSections(hotspotWithCodeVariants, "Search for a given variant in Xoo files");
+
+    repo.done();
+  }
+
+  private static void defineRulesXooExternalWithCct(Context context) {
+    NewRepository repo = context.createExternalRepository(OneExternalIssueCctPerLineSensor.ENGINE_ID, Xoo.KEY).setName(OneExternalIssueCctPerLineSensor.ENGINE_ID);
+
+    repo.createRule(OnePredefinedRuleExternalIssueCctPerLineSensor.RULE_ID)
+      .setScope(RuleScope.ALL)
+      .setHtmlDescription("Generates one external issue in each line")
+      .addDescriptionSection(descriptionSection(INTRODUCTION_SECTION_KEY, "Generates one external issue in each line"))
+      .setName("One external issue per line");
 
     repo.done();
   }

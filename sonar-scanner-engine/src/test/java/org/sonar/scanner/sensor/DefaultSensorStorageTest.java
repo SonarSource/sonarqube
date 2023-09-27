@@ -356,7 +356,7 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void store_whenAdhocRuleIsSpecified_shouldWriteAdhocRuleToReport() throws IOException {
+  public void store_whenAdhocRuleIsSpecified_shouldWriteAdhocRuleToReport() {
 
     underTest.store(new DefaultAdHocRule().ruleId("ruleId").engineId("engineId")
       .name("name")
@@ -369,9 +369,11 @@ public class DefaultSensorStorageTest {
 
     try (CloseableIterator<ScannerReport.AdHocRule> adhocRuleIt = reportReader.readAdHocRules()) {
       ScannerReport.AdHocRule adhocRule = adhocRuleIt.next();
-      assertThat(adhocRule).extracting(r -> r.getRuleId(), r -> r.getName(), r -> r.getSeverity(), r -> r.getType(), r -> r.getDescription())
+      assertThat(adhocRule)
+        .extracting(ScannerReport.AdHocRule::getRuleId, ScannerReport.AdHocRule::getName, ScannerReport.AdHocRule::getSeverity,
+          ScannerReport.AdHocRule::getType, ScannerReport.AdHocRule::getDescription)
         .containsExactlyInAnyOrder("ruleId", "name", Constants.Severity.MAJOR, ScannerReport.IssueType.CODE_SMELL, "description");
-      assertThat(adhocRule.getDefaultImpactsList()).hasSize(2).extracting(i -> i.getSoftwareQuality(), i -> i.getSeverity())
+      assertThat(adhocRule.getDefaultImpactsList()).hasSize(2).extracting(ScannerReport.Impact::getSoftwareQuality, ScannerReport.Impact::getSeverity)
         .containsExactlyInAnyOrder(
           Tuple.tuple(SoftwareQuality.MAINTAINABILITY.name(), Severity.HIGH.name()),
           Tuple.tuple(SoftwareQuality.RELIABILITY.name(), Severity.MEDIUM.name()));
@@ -381,16 +383,17 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void store_whenAdhocRuleIsSpecifiedWithOptionalFieldEmpty_shouldWriteAdhocRuleToReport() throws IOException {
+  public void store_whenAdhocRuleIsSpecifiedWithOptionalFieldEmpty_shouldWriteAdhocRuleWithDefaultImpactsToReport() {
     underTest.store(new DefaultAdHocRule().ruleId("ruleId").engineId("engineId")
       .name("name")
       .description("description"));
     try (CloseableIterator<ScannerReport.AdHocRule> adhocRuleIt = reportReader.readAdHocRules()) {
       ScannerReport.AdHocRule adhocRule = adhocRuleIt.next();
-      assertThat(adhocRule).extracting(r -> r.getSeverity(), r -> r.getType())
+      assertThat(adhocRule).extracting(ScannerReport.AdHocRule::getSeverity, ScannerReport.AdHocRule::getType)
         .containsExactlyInAnyOrder(Constants.Severity.UNSET_SEVERITY, ScannerReport.IssueType.UNSET);
-      assertThat(adhocRule.getDefaultImpactsList()).isEmpty();
-      assertThat(adhocRule.getCleanCodeAttribute()).isNullOrEmpty();
+      assertThat(adhocRule.getDefaultImpactsList()).extracting(ScannerReport.Impact::getSoftwareQuality, ScannerReport.Impact::getSeverity)
+        .containsExactlyInAnyOrder(Tuple.tuple(SoftwareQuality.MAINTAINABILITY.name(), Severity.MEDIUM.name()));
+      assertThat(adhocRule.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL.name());
     }
   }
 }
