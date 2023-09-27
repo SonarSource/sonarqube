@@ -163,6 +163,9 @@ const ui = {
     roleExistsError: byRole('dialog', {
       name: 'settings.authentication.github.configuration.roles_mapping.dialog.title',
     }).byText('settings.authentication.github.configuration.roles_mapping.role_exists'),
+    emptyRoleError: byRole('dialog', {
+      name: 'settings.authentication.github.configuration.roles_mapping.dialog.title',
+    }).byText('settings.authentication.github.configuration.roles_mapping.empty_custom_role'),
     deleteCustomRoleCustom2: byRole('button', {
       name: 'settings.authentication.github.configuration.roles_mapping.dialog.delete_custom_role.custom2',
     }),
@@ -1006,13 +1009,18 @@ describe('Github tab', () => {
       await user.click(github.customRoleAddBtn.get());
 
       let custom3Checkboxes = github.mappingCheckbox.getAll(github.getMappingRowByRole('custom3'));
-      expect(custom3Checkboxes[0]).not.toBeChecked();
+      expect(custom3Checkboxes[0]).toBeChecked();
       expect(custom3Checkboxes[1]).not.toBeChecked();
       expect(custom3Checkboxes[2]).not.toBeChecked();
       expect(custom3Checkboxes[3]).not.toBeChecked();
       expect(custom3Checkboxes[4]).not.toBeChecked();
       expect(custom3Checkboxes[5]).not.toBeChecked();
+      await user.click(custom3Checkboxes[0]);
+      expect(await github.emptyRoleError.find()).toBeInTheDocument();
+      expect(github.mappingDialogClose.get()).toBeDisabled();
       await user.click(custom3Checkboxes[1]);
+      expect(github.emptyRoleError.query()).not.toBeInTheDocument();
+      expect(github.mappingDialogClose.get()).toBeEnabled();
       await user.click(github.mappingDialogClose.get());
 
       expect(await github.saveGithubProvisioning.find()).toBeEnabled();

@@ -375,7 +375,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                   >
                     {translate('cancel')}
                   </ResetButtonLink>
-                  <Alert variant="warning" className="sw-w-[300px] sw-mb-0">
+                  <Alert variant="warning" className="sw-mb-0">
                     {hasGithubProvisioningConfigChange &&
                       translate('settings.authentication.github.configuration.unsaved_changes')}
                   </Alert>

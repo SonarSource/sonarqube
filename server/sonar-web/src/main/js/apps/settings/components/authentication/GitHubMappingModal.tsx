@@ -46,7 +46,7 @@ interface PermissionCellProps {
 }
 
 const DEFAULT_CUSTOM_ROLE_PERMISSIONS: GitHubMapping['permissions'] = {
-  user: false,
+  user: true,
   codeViewer: false,
   issueAdmin: false,
   securityHotspotAdmin: false,
@@ -140,8 +140,18 @@ export default function GitHubMappingModal({ mapping, setMapping, onClose }: Rea
     }
   };
 
+  const haveEmptyCustomRoles = !!mapping?.some(
+    (el) => !el.isBaseRole && !Object.values(el.permissions).some(Boolean),
+  );
+
   return (
-    <Modal contentLabel={header} onRequestClose={onClose} shouldCloseOnEsc size="medium">
+    <Modal
+      contentLabel={header}
+      onRequestClose={onClose}
+      shouldCloseOnOverlayClick={false}
+      shouldCloseOnEsc={false}
+      size="medium"
+    >
       <div className="modal-head">
         <h2>{header}</h2>
       </div>
@@ -234,7 +244,17 @@ export default function GitHubMappingModal({ mapping, setMapping, onClose }: Rea
         <Spinner loading={isLoading} />
       </div>
       <div className="modal-foot">
-        <SubmitButton onClick={onClose}>{translate('close')}</SubmitButton>
+        <div className="sw-flex sw-items-center sw-justify-end sw-h-8">
+          <Alert variant="error" className="sw-inline-block sw-mb-0 sw-mr-2">
+            {haveEmptyCustomRoles &&
+              translate(
+                'settings.authentication.github.configuration.roles_mapping.empty_custom_role',
+              )}
+          </Alert>
+          <SubmitButton disabled={haveEmptyCustomRoles} onClick={onClose}>
+            {translate('close')}
+          </SubmitButton>
+        </div>
       </div>
     </Modal>
   );
