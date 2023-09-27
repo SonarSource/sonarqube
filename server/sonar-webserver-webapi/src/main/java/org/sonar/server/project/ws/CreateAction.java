@@ -129,13 +129,12 @@ public class CreateAction implements ProjectsWsAction {
       if (visibility != null && "public".equals(visibility)) {
         throwBadRequestException("Users are not allowed to create project with public visibility");
       }
-      boolean changeToPrivate = visibility == null ? projectDefaultVisibility.get(dbSession).isPrivate() : "private".equals(visibility);
 
       ComponentDto componentDto = componentUpdater.create(dbSession, newComponentBuilder()
         .setOrganizationUuid(organization.getUuid())
         .setKey(request.getProjectKey())
         .setName(request.getName())
-        .setPrivate(changeToPrivate)
+        .setPrivate(true)
         .setQualifier(PROJECT)
         .build(),
         userSession.isLoggedIn() ? userSession.getUuid() : null,

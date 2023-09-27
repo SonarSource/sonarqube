@@ -78,7 +78,7 @@ public class OrganizationAction implements NavigationWsAction {
             JsonWriter json = response.newJsonWriter();
             json.beginObject();
             // writeOrganization data
-            writeOrganization(json, organization, false);
+            writeOrganization(json, organization, true);
             json.endObject().close();
         }
     }
