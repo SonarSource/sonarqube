@@ -26,10 +26,12 @@ public class DbVersion99 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(6800, "Add node_name column to ce_activity table", AddNodeNameColumnToCeActivityTable.class)
-      .add(6801, "Delete all analysis cache", DeleteAnalysisCache.class)
-      .add(6802, "Change user_uuid field size to 255 for audit table", UpdateUserUuidColumnSizeInAuditTable.class)
-      .add(6803, "Re-create table RULES_METADATA", CreateRulesMetadataTable.class)
-      .add(6804, "Add organization_uuid column to audits table", AddOrganizationUuidColumnToAuditsTable.class);
+            .add(6800, "Add node_name column to ce_activity table", AddNodeNameColumnToCeActivityTable.class)
+            .add(6801, "Delete all analysis cache", DeleteAnalysisCache.class)
+            .add(6802, "Change user_uuid field size to 255 for audit table", UpdateUserUuidColumnSizeInAuditTable.class)
+            .add(6803, "Re-create table RULES_METADATA", CreateRulesMetadataTable.class)
+            .add(6804, "Add organization_uuid column to audits table", AddOrganizationUuidColumnToAuditsTable.class)
+            .add(6805, "Add onboarded column to users table", AddOnboardedColumnToUsersTable.class)
+            .add(6806, "Upsert value of onboarded in 'users'", UpsertOnboardedValue.class);
   }
 }

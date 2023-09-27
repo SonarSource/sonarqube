@@ -29,6 +29,8 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.PermissionChange;
@@ -96,9 +98,11 @@ public class RemoveGroupAction implements PermissionsWsAction {
 
       wsSupport.checkPermissionManagementAccess(userSession, group.getOrganizationUuid(), project.orElse(null));
 
-      logger.info("Remove Permission for a Group :: permission {}, organizationUuid : {}, groupUuid: {}, user : {}",
-              request.mandatoryParam(PARAM_PERMISSION), group.getOrganizationUuid(), group.getUuid(),
-              userSession.getLogin());
+      Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid());
+      GroupDto groupDetails=  dbClient.groupDao().selectByUuid(dbSession, group.getUuid());
+      logger.info("Remove Permission for Group: {} :: permission type: {}, organization: {}, orgId: {}, groupId: {}, user: {}",
+              groupDetails.getName(), request.mandatoryParam(PARAM_PERMISSION), organization.get().getKey(),
+              organization.get().getUuid(), groupDetails.getUuid(), userSession.getLogin());
       PermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.REMOVE,
         request.mandatoryParam(PARAM_PERMISSION),

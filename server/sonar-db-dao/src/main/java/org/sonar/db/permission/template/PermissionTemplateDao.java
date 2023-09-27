@@ -190,6 +190,7 @@ public class PermissionTemplateDao implements Dao {
       .setUpdatedAt(now());
 
     mapper(session).insertUserPermission(permissionTemplateUser);
+    logger.info("Added user: {} to permission template: {} with permission: {}", userLogin, templateName, permission);
 
     auditPersister.addUserToPermissionTemplate(session, new PermissionTemplateNewValue(templateUuid, templateName, permission, userUuid, userLogin, null, null));
 
@@ -203,6 +204,7 @@ public class PermissionTemplateDao implements Dao {
       .setPermission(permission)
       .setUserUuid(userUuid);
     int deletedRows = mapper(session).deleteUserPermission(permissionTemplateUser);
+    logger.info("Removed user: {} from permission template: {} with permission: {}", userLogin, templateName, permission);
 
     if (deletedRows > 0) {
       auditPersister.deleteUserFromPermissionTemplate(session, new PermissionTemplateNewValue(templateUuid, templateName, permission, userUuid, userLogin, null, null));

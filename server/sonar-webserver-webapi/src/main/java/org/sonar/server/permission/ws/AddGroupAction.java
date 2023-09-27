@@ -30,16 +30,20 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.client.permission.PermissionsWsParameters;
 
 import static org.sonar.server.permission.ws.WsParameters.createGroupIdParameter;
 import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class AddGroupAction implements PermissionsWsAction {
@@ -93,9 +97,11 @@ public class AddGroupAction implements PermissionsWsAction {
       GroupUuidOrAnyone group = wsSupport.findGroup(dbSession, request);
       Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
       wsSupport.checkPermissionManagementAccess(userSession, group.getOrganizationUuid(), project.orElse(null));
-      logger.info("Grant Permission to a group:: permission {}, organizationUuid : {}, groupUuid: {}, user : {}",
-              request.mandatoryParam(PARAM_PERMISSION), group.getOrganizationUuid(), group.getUuid(),
-              userSession.getLogin());
+      Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid());
+      GroupDto groupDetails=  dbClient.groupDao().selectByUuid(dbSession, group.getUuid());
+      logger.info("Grant Permission to a group: {} :: permission type: {}, organization: {}, orgId: {}, groupId: {}, user: {}",
+              groupDetails.getName(), request.mandatoryParam(PARAM_PERMISSION), organization.get().getKey(), organization.get().getUuid(),
+              groupDetails.getUuid(), groupDetails.getName(), userSession.getLogin());
       PermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.ADD,
         request.mandatoryParam(PARAM_PERMISSION),

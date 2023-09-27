@@ -361,8 +361,6 @@ export class App extends React.PureComponent<Props, State> {
       usersPaging,
       groupsPaging,
     } = this.state;
-    const canTurnToPrivate =
-      component.configuration && component.configuration.canUpdateProjectVisibilityToPrivate;
 
     let order = PERMISSIONS_ORDER_BY_QUALIFIER[component.qualifier];
     if (component.visibility === 'public') {
@@ -376,12 +374,6 @@ export class App extends React.PureComponent<Props, State> {
 
         <PageHeader component={component} loadHolders={this.loadHolders} loading={loading} />
         <div>
-          <VisibilitySelector
-            canTurnToPrivate={canTurnToPrivate}
-            className="big-spacer-top big-spacer-bottom"
-            onChange={this.handleVisibilityChange}
-            visibility={component.visibility}
-          />
           {disclaimer && (
             <PublicProjectDisclaimer
               component={component}
