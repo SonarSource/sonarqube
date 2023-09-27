@@ -17,10 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.github.permissions.response;
+@ParametersAreNonnullByDefault
+package org.sonar.server.v2.api;
 
-import java.util.List;
-import org.sonar.server.v2.api.github.permissions.model.RestGithubPermissionsMapping;
-
-public record GithubPermissionsMappingRestResponse(List<RestGithubPermissionsMapping> githubPermissionsMappings) {
-}
+import javax.annotation.ParametersAreNonnullByDefault;
