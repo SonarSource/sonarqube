@@ -47,9 +47,9 @@ interface PermissionCellProps {
 
 const DEFAULT_CUSTOM_ROLE_PERMISSIONS: GitHubMapping['permissions'] = {
   user: false,
-  codeviewer: false,
-  issueadmin: false,
-  securityhotspotadmin: false,
+  codeViewer: false,
+  issueAdmin: false,
+  securityHotspotAdmin: false,
   admin: false,
   scan: false,
 };
@@ -63,14 +63,14 @@ function PermissionRow(props: Readonly<PermissionCellProps>) {
         <div className="sw-flex sw-max-w-[150px] sw-items-center">
           <b
             className={mapping.isBaseRole ? 'sw-capitalize' : 'sw-truncate'}
-            title={mapping.roleName}
+            title={mapping.githubRole}
           >
-            {mapping.roleName}
+            {mapping.githubRole}
           </b>
           {!mapping.isBaseRole && (
             <DeleteButton
               onClick={() => {
-                props.setMapping(list?.filter((r) => r.roleName !== mapping.roleName) ?? null);
+                props.setMapping(list?.filter((r) => r.githubRole !== mapping.githubRole) ?? null);
               }}
             />
           )}
@@ -116,13 +116,15 @@ export default function GitHubMappingModal({ mapping, setMapping, onClose }: Rea
     const value = customRoleInput.trim();
     if (
       !list?.some((el) =>
-        el.isBaseRole ? el.roleName.toLowerCase() === value.toLowerCase() : el.roleName === value,
+        el.isBaseRole
+          ? el.githubRole.toLowerCase() === value.toLowerCase()
+          : el.githubRole === value,
       )
     ) {
       setMapping([
         {
           id: customRoleInput,
-          roleName: customRoleInput,
+          githubRole: customRoleInput,
           permissions: { ...DEFAULT_CUSTOM_ROLE_PERMISSIONS },
         },
         ...(list ?? []),
