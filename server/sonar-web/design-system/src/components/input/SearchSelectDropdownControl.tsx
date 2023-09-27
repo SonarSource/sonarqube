@@ -33,11 +33,21 @@ interface SearchSelectDropdownControlProps {
   isDiscreet?: boolean;
   label?: React.ReactNode | string;
   onClick: VoidFunction;
+  placeholder?: string;
   size?: InputSizeKeys;
 }
 
 export function SearchSelectDropdownControl(props: SearchSelectDropdownControlProps) {
-  const { className, disabled, label, isDiscreet, onClick, size = 'full', ariaLabel = '' } = props;
+  const {
+    className,
+    disabled,
+    placeholder,
+    label,
+    isDiscreet,
+    onClick,
+    size = 'full',
+    ariaLabel = '',
+  } = props;
   return (
     <StyledControl
       aria-label={ariaLabel}
@@ -62,10 +72,10 @@ export function SearchSelectDropdownControl(props: SearchSelectDropdownControlPr
           {
             'is-disabled': disabled,
             'is-placeholder': !label,
-          }
+          },
         )}
       >
-        <span className="sw-truncate">{label}</span>
+        <span className="sw-truncate">{label ?? placeholder}</span>
         <ChevronDownIcon className="sw-ml-1" />
       </InputValue>
     </StyledControl>

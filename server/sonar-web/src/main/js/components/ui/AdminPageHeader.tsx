@@ -35,9 +35,11 @@ export function AdminPageHeader({ children, className, description, title }: Rea
     <div className={classNames('sw-flex sw-justify-between', className)}>
       <header className="sw-flex-1">
         <AdminPageTitle className="sw-heading-lg sw-pb-4">{title}</AdminPageTitle>
-        <AdminPageDescription className="sw-body-sm sw-pb-12 sw-max-w-9/12">
-          {description}
-        </AdminPageDescription>
+        {description && (
+          <AdminPageDescription className="sw-body-sm sw-pb-12 sw-max-w-9/12">
+            {description}
+          </AdminPageDescription>
+        )}
       </header>
       {children && <div className="sw-flex sw-gap-2">{children}</div>}
     </div>

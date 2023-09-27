@@ -21,6 +21,9 @@ import * as React from 'react';
 
 module.exports = {
   ...jest.requireActual('react-intl'),
+  useIntl: () => ({
+    formatMessage: ({ id }, values = {}) => [id, ...Object.values(values)].join('.'),
+  }),
   FormattedMessage: ({ id, values }: { id: string; values?: { [x: string]: React.ReactNode } }) => {
     return (
       <>

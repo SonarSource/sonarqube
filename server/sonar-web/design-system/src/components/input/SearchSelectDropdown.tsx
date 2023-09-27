@@ -48,12 +48,13 @@ export interface SearchSelectDropdownProps<
   V,
   Option extends LabelValueSelectOption<V>,
   IsMulti extends boolean = false,
-  Group extends GroupBase<Option> = GroupBase<Option>
+  Group extends GroupBase<Option> = GroupBase<Option>,
 > extends SelectProps<V, Option, IsMulti, Group>,
     AsyncProps<Option, IsMulti, Group> {
   className?: string;
   controlAriaLabel?: string;
   controlLabel?: React.ReactNode | string;
+  controlPlaceholder?: string;
   controlSize?: InputSizeKeys;
   isDiscreet?: boolean;
   zLevel?: PopupZLevel;
@@ -63,7 +64,7 @@ export function SearchSelectDropdown<
   V,
   Option extends LabelValueSelectOption<V>,
   IsMulti extends boolean = false,
-  Group extends GroupBase<Option> = GroupBase<Option>
+  Group extends GroupBase<Option> = GroupBase<Option>,
 >(props: SearchSelectDropdownProps<V, Option, IsMulti, Group>) {
   const {
     className,
@@ -71,6 +72,7 @@ export function SearchSelectDropdown<
     value,
     loadOptions,
     controlLabel,
+    controlPlaceholder,
     controlSize,
     isDisabled,
     minLength,
@@ -96,7 +98,7 @@ export function SearchSelectDropdown<
     (value?: boolean) => {
       setOpen(value === undefined ? !open : value);
     },
-    [open]
+    [open],
   );
 
   const handleChange = React.useCallback(
@@ -104,14 +106,14 @@ export function SearchSelectDropdown<
       toggleDropdown(false);
       onChange?.(newValue, actionMeta);
     },
-    [toggleDropdown, onChange]
+    [toggleDropdown, onChange],
   );
 
   const handleLoadOptions = React.useCallback(
     (query: string, callback: (options: OptionsOrGroups<Option, Group>) => void) => {
       return query.length >= (minLength ?? 0) ? loadOptions?.(query, callback) : undefined;
     },
-    [minLength, loadOptions]
+    [minLength, loadOptions],
   );
   const debouncedLoadOptions = React.useRef(debounce(handleLoadOptions, DEBOUNCE_DELAY));
 
@@ -126,7 +128,7 @@ export function SearchSelectDropdown<
       onInputChange?.(newValue, actionMeta);
       return newValue;
     },
-    [onInputChange]
+    [onInputChange],
   );
 
   React.useEffect(() => {
@@ -179,6 +181,7 @@ export function SearchSelectDropdown<
         onClick={() => {
           toggleDropdown(true);
         }}
+        placeholder={controlPlaceholder}
         size={controlSize}
       />
     </DropdownToggler>

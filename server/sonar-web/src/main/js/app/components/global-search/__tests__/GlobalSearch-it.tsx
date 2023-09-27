@@ -60,7 +60,7 @@ const ui = {
   searchItemListWrapper: byRole('menu'),
   searchItem: byRole('menuitem'),
   showMoreButton: byRole('menuitem', { name: 'show_more' }),
-  tooShortWarning: byText('select2.tooShort'),
+  tooShortWarning: byText('select2.tooShort.2'),
   noResultTextABCD: byText('no_results_for_x.abcd'),
 };
 

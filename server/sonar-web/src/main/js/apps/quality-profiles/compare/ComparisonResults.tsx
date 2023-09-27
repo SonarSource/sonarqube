@@ -17,14 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { ActionCell, ContentCell, Link, Table, TableRowInteractive } from 'design-system';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import { CompareResponse, Profile } from '../../../api/quality-profiles';
-import Link from '../../../components/common/Link';
-import ChevronLeftIcon from '../../../components/icons/ChevronLeftIcon';
-import ChevronRightIcon from '../../../components/icons/ChevronRightIcon';
-import SeverityIcon from '../../../components/icons/SeverityIcon';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { Dict } from '../../../types/types';
 import ComparisonResultActivation from './ComparisonResultActivation';
@@ -37,29 +33,35 @@ interface Props extends CompareResponse {
   rightProfile?: Profile;
 }
 
-export default class ComparisonResults extends React.PureComponent<Props> {
-  canActivate(profile: Profile) {
-    return !profile.isBuiltIn && profile.actions && profile.actions.edit;
-  }
+export default function ComparisonResults(props: Readonly<Props>) {
+  const { leftProfile, rightProfile, inLeft, left, right, inRight, modified } = props;
 
-  renderRule(rule: { key: string; name: string }, severity: string) {
+  const intl = useIntl();
+
+  const emptyComparison = !inLeft.length && !inRight.length && !modified.length;
+
+  const canActivate = (profile: Profile) =>
+    !profile.isBuiltIn && profile.actions && profile.actions.edit;
+
+  const renderRule = React.useCallback((rule: { key: string; name: string }) => {
     return (
       <div>
-        <SeverityIcon severity={severity} />{' '}
-        <Link to={getRulesUrl({ rule_key: rule.key, open: rule.key })}>{rule.name}</Link>
+        <Link className="sw-ml-1" to={getRulesUrl({ rule_key: rule.key, open: rule.key })}>
+          {rule.name}
+        </Link>
       </div>
     );
-  }
+  }, []);
 
-  renderParameters(params: Params) {
+  const renderParameters = React.useCallback((params: Params) => {
     if (!params) {
       return null;
     }
     return (
       <ul>
         {Object.keys(params).map((key) => (
-          <li className="spacer-top break-word" key={key}>
-            <code>
+          <li className="sw-mt-2 sw-break-all" key={key}>
+            <code className="sw-code">
               {key}
               {': '}
               {params[key]}
@@ -68,147 +70,158 @@ export default class ComparisonResults extends React.PureComponent<Props> {
         ))}
       </ul>
     );
-  }
+  }, []);
 
-  renderLeft() {
-    if (this.props.inLeft.length === 0) {
+  const renderLeft = () => {
+    if (inLeft.length === 0) {
       return null;
     }
 
-    const renderSecondColumn = this.props.rightProfile && this.canActivate(this.props.rightProfile);
+    const renderSecondColumn = rightProfile && canActivate(rightProfile);
 
     return (
-      <table className="data fixed zebra">
-        <thead>
-          <tr>
-            <th>
-              {translateWithParameters(
-                'quality_profiles.x_rules_only_in',
-                this.props.inLeft.length,
-              )}{' '}
-              {this.props.left.name}
-            </th>
-            {renderSecondColumn && <th aria-label={translate('actions')}>&nbsp;</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {this.props.inLeft.map((rule) => (
-            <tr key={`left-${rule.key}`}>
-              <td>{this.renderRule(rule, rule.severity)}</td>
-              {renderSecondColumn && (
-                <td>
-                  <ComparisonResultActivation
-                    key={rule.key}
-                    onDone={this.props.refresh}
-                    profile={this.props.rightProfile as Profile}
-                    ruleKey={rule.key}
-                  >
-                    <ChevronRightIcon />
-                  </ComparisonResultActivation>
-                </td>
+      <Table
+        columnCount={2}
+        columnWidths={['50%', 'auto']}
+        noSidePadding
+        header={
+          <TableRowInteractive>
+            <ContentCell>
+              {intl.formatMessage(
+                {
+                  id: 'quality_profiles.x_rules_only_in',
+                },
+                { count: inLeft.length, profile: left.name },
               )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  }
-
-  renderRight() {
-    if (this.props.inRight.length === 0) {
-      return null;
-    }
-
-    const renderFirstColumn = this.props.leftProfile && this.canActivate(this.props.leftProfile);
-
-    return (
-      <table
-        className={classNames('data fixed zebra quality-profile-compare-right-table', {
-          'has-first-column': renderFirstColumn,
-        })}
+            </ContentCell>
+            {renderSecondColumn && (
+              <ContentCell aria-label={intl.formatMessage({ id: 'actions' })}>&nbsp;</ContentCell>
+            )}
+          </TableRowInteractive>
+        }
       >
-        <thead>
-          <tr>
-            {renderFirstColumn && <th aria-label={translate('actions')}>&nbsp;</th>}
-            <th>
-              {translateWithParameters(
-                'quality_profiles.x_rules_only_in',
-                this.props.inRight.length,
-              )}{' '}
-              {this.props.right.name}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {this.props.inRight.map((rule) => (
-            <tr key={`right-${rule.key}`}>
-              {renderFirstColumn && (
-                <td className="text-right">
-                  <ComparisonResultActivation
-                    key={rule.key}
-                    onDone={this.props.refresh}
-                    profile={this.props.leftProfile}
-                    ruleKey={rule.key}
-                  >
-                    <ChevronLeftIcon />
-                  </ComparisonResultActivation>
-                </td>
-              )}
-              <td>{this.renderRule(rule, rule.severity)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        {inLeft.map((rule) => (
+          <TableRowInteractive key={`left-${rule.key}`}>
+            <ContentCell>{renderRule(rule)}</ContentCell>
+            {renderSecondColumn && (
+              <ContentCell className="sw-px-0">
+                <ComparisonResultActivation
+                  key={rule.key}
+                  onDone={props.refresh}
+                  profile={rightProfile}
+                  ruleKey={rule.key}
+                />
+              </ContentCell>
+            )}
+          </TableRowInteractive>
+        ))}
+      </Table>
     );
-  }
+  };
 
-  renderModified() {
-    if (this.props.modified.length === 0) {
+  const renderRight = () => {
+    if (inRight.length === 0) {
       return null;
     }
-    return (
-      <table className="data fixed zebra zebra-inversed">
-        <caption>
-          {translateWithParameters(
-            'quality_profiles.x_rules_have_different_configuration',
-            this.props.modified.length,
-          )}
-        </caption>
-        <thead>
-          <tr>
-            <th>{this.props.left.name}</th>
-            <th>{this.props.right.name}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {this.props.modified.map((rule) => (
-            <tr key={`modified-${rule.key}`}>
-              <td>
-                {this.renderRule(rule, rule.left.severity)}
-                {this.renderParameters(rule.left.params)}
-              </td>
-              <td>
-                {this.renderRule(rule, rule.right.severity)}
-                {this.renderParameters(rule.right.params)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  }
 
-  render() {
-    if (!this.props.inLeft.length && !this.props.inRight.length && !this.props.modified.length) {
-      return <div className="big-spacer-top">{translate('quality_profile.empty_comparison')}</div>;
+    const renderFirstColumn = leftProfile && canActivate(leftProfile);
+
+    return (
+      <Table
+        columnCount={2}
+        columnWidths={['50%', 'auto']}
+        noSidePadding
+        header={
+          <TableRowInteractive>
+            {renderFirstColumn && (
+              <ContentCell aria-label={intl.formatMessage({ id: 'actions' })}>&nbsp;</ContentCell>
+            )}
+            <ContentCell className="sw-pl-4">
+              {intl.formatMessage(
+                {
+                  id: 'quality_profiles.x_rules_only_in',
+                },
+                { count: inRight.length, profile: right.name },
+              )}
+            </ContentCell>
+          </TableRowInteractive>
+        }
+      >
+        {inRight.map((rule) => (
+          <TableRowInteractive key={`right-${rule.key}`}>
+            {renderFirstColumn && (
+              <ActionCell className="sw-px-0">
+                <ComparisonResultActivation
+                  key={rule.key}
+                  onDone={props.refresh}
+                  profile={leftProfile}
+                  ruleKey={rule.key}
+                />
+              </ActionCell>
+            )}
+            <ContentCell className="sw-pl-4">{renderRule(rule)}</ContentCell>
+          </TableRowInteractive>
+        ))}
+      </Table>
+    );
+  };
+
+  const renderModified = () => {
+    if (modified.length === 0) {
+      return null;
     }
 
     return (
-      <>
-        {this.renderLeft()}
-        {this.renderRight()}
-        {this.renderModified()}
-      </>
+      <Table
+        columnCount={2}
+        columnWidths={['50%', 'auto']}
+        noSidePadding
+        header={
+          <TableRowInteractive>
+            <ContentCell>{left.name}</ContentCell>
+            <ContentCell className="sw-pl-4">{right.name}</ContentCell>
+          </TableRowInteractive>
+        }
+        caption={
+          <>
+            {intl.formatMessage(
+              { id: 'quality_profiles.x_rules_have_different_configuration' },
+              { count: modified.length },
+            )}
+          </>
+        }
+      >
+        {modified.map((rule) => (
+          <TableRowInteractive key={`modified-${rule.key}`}>
+            <ContentCell>
+              <div>
+                {renderRule(rule)}
+                {renderParameters(rule.left.params)}
+              </div>
+            </ContentCell>
+            <ContentCell className="sw-pl-4">
+              <div>
+                {renderRule(rule)}
+                {renderParameters(rule.right.params)}
+              </div>
+            </ContentCell>
+          </TableRowInteractive>
+        ))}
+      </Table>
     );
-  }
+  };
+
+  return (
+    <div className="sw-mt-4">
+      {emptyComparison ? (
+        intl.formatMessage({ id: 'quality_profile.empty_comparison' })
+      ) : (
+        <>
+          {renderLeft()}
+          {renderRight()}
+          {renderModified()}
+        </>
+      )}
+    </div>
+  );
 }

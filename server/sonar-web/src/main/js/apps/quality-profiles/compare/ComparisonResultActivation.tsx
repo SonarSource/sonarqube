@@ -17,13 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary, Spinner } from 'design-system';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import { Profile } from '../../../api/quality-profiles';
 import { getRuleDetails } from '../../../api/rules';
 import Tooltip from '../../../components/controls/Tooltip';
-import { Button } from '../../../components/controls/buttons';
-import Spinner from '../../../components/ui/Spinner';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { RuleDetails } from '../../../types/types';
 import ActivationFormModal from '../../coding-rules/components/ActivationFormModal';
 
@@ -33,81 +32,55 @@ interface Props {
   ruleKey: string;
 }
 
-interface State {
-  rule?: RuleDetails;
-  state: 'closed' | 'opening' | 'open';
-}
+export default function ComparisonResultActivation(props: React.PropsWithChildren<Props>) {
+  const { profile, ruleKey } = props;
+  const [state, setState] = React.useState<'closed' | 'opening' | 'open'>('closed');
+  const [rule, setRule] = React.useState<RuleDetails>();
+  const intl = useIntl();
 
-export default class ComparisonResultActivation extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { state: 'closed' };
+  const isOpen = state === 'open' && rule;
 
-  componentDidMount() {
-    this.mounted = true;
-  }
+  const activateRuleMsg = intl.formatMessage(
+    { id: 'quality_profiles.comparison.activate_rule' },
+    { profile: profile.name },
+  );
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleButtonClick = () => {
-    this.setState({ state: 'opening' });
-    getRuleDetails({ key: this.props.ruleKey }).then(
+  const handleButtonClick = () => {
+    setState('opening');
+    getRuleDetails({ key: ruleKey }).then(
       ({ rule }) => {
-        if (this.mounted) {
-          this.setState({ rule, state: 'open' });
-        }
+        setState('open');
+        setRule(rule);
       },
       () => {
-        if (this.mounted) {
-          this.setState({ state: 'closed' });
-        }
+        setState('closed');
       },
     );
   };
 
-  handleCloseModal = () => {
-    this.setState({ state: 'closed' });
-  };
-
-  isOpen(state: State): state is { state: 'open'; rule: RuleDetails } {
-    return state.state === 'open';
-  }
-
-  render() {
-    const { profile } = this.props;
-
-    return (
-      <Spinner loading={this.state.state === 'opening'}>
-        <Tooltip
-          placement="bottom"
-          overlay={translateWithParameters(
-            'quality_profiles.comparison.activate_rule',
-            profile.name,
-          )}
+  return (
+    <Spinner loading={state === 'opening'}>
+      <Tooltip placement="bottom" overlay={activateRuleMsg}>
+        <ButtonSecondary
+          disabled={state !== 'closed'}
+          aria-label={activateRuleMsg}
+          onClick={handleButtonClick}
         >
-          <Button
-            disabled={this.state.state !== 'closed'}
-            aria-label={translateWithParameters(
-              'quality_profiles.comparison.activate_rule',
-              profile.name,
-            )}
-            onClick={this.handleButtonClick}
-          >
-            {this.props.children}
-          </Button>
-        </Tooltip>
+          {intl.formatMessage({ id: 'activate' })}
+        </ButtonSecondary>
+      </Tooltip>
 
-        {this.isOpen(this.state) && (
-          <ActivationFormModal
-            modalHeader={translate('coding_rules.activate_in_quality_profile')}
-            onClose={this.handleCloseModal}
-            onDone={this.props.onDone}
-            profiles={[profile]}
-            rule={this.state.rule}
-          />
-        )}
-      </Spinner>
-    );
-  }
+      {isOpen && (
+        <ActivationFormModal
+          modalHeader={intl.formatMessage({ id: 'coding_rules.activate_in_quality_profile' })}
+          onClose={() => {
+            setState('closed');
+          }}
+          onDone={props.onDone}
+          profiles={[profile]}
+          rule={rule}
+        />
+      )}
+    </Spinner>
+  );
 }

@@ -26,6 +26,7 @@ import { themeBorder, themeColor } from '../helpers';
 import { FCProps } from '../types/misc';
 
 export interface TableProps extends ComponentProps<'table'> {
+  caption?: ReactNode;
   columnCount: number;
   columnWidths?: Array<number | string>;
   header?: ReactNode;
@@ -39,6 +40,7 @@ export function Table(props: TableProps) {
     columnCount,
     columnWidths = [],
     header,
+    caption,
     children,
     noHeaderTopBorder,
     noSidePadding,
@@ -49,7 +51,7 @@ export function Table(props: TableProps) {
     <StyledTable
       className={classNames(
         { 'no-header-top-border': noHeaderTopBorder, 'no-side-padding': noSidePadding },
-        className
+        className,
       )}
       {...rest}
     >
@@ -58,11 +60,21 @@ export function Table(props: TableProps) {
           <col key={i} width={columnWidths[i] ?? 'auto'} />
         ))}
       </colgroup>
+
+      {caption && (
+        <caption>
+          <div className="sw-py-4 sw-text-middle sw-flex sw-justify-center sw-body-sm-highlight">
+            {caption}
+          </div>
+        </caption>
+      )}
+
       {header && (
         <thead>
           <CellTypeContext.Provider value="th">{header}</CellTypeContext.Provider>
         </thead>
       )}
+
       <tbody>{children}</tbody>
     </StyledTable>
   );

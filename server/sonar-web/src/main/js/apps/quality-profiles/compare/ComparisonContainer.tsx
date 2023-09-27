@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Spinner } from 'design-system';
 import * as React from 'react';
 import { compareProfiles, CompareResponse } from '../../../api/quality-profiles';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
@@ -95,29 +96,29 @@ class ComparisonContainer extends React.PureComponent<Props, State> {
     const { withKey } = location.query;
 
     return (
-      <div className="boxed-group boxed-group-inner js-profile-comparison">
-        <ComparisonForm
-          onCompare={this.handleCompare}
-          profile={profile}
-          profiles={profiles}
-          withKey={withKey}
-        />
+      <div className="sw-body-sm">
+        <div className="sw-flex sw-items-center">
+          <ComparisonForm
+            onCompare={this.handleCompare}
+            profile={profile}
+            profiles={profiles}
+            withKey={withKey}
+          />
 
-        {this.state.loading && <i className="spinner spacer-left" />}
+          <Spinner className="sw-ml-2" loading={this.state.loading} />
+        </div>
 
         {this.hasResults(this.state) && (
-          <div className="spacer-top">
-            <ComparisonResults
-              inLeft={this.state.inLeft}
-              inRight={this.state.inRight}
-              left={this.state.left}
-              leftProfile={profile}
-              modified={this.state.modified}
-              refresh={this.loadResults}
-              right={this.state.right}
-              rightProfile={profiles.find((p) => p.key === withKey)}
-            />
-          </div>
+          <ComparisonResults
+            inLeft={this.state.inLeft}
+            inRight={this.state.inRight}
+            left={this.state.left}
+            leftProfile={profile}
+            modified={this.state.modified}
+            refresh={this.loadResults}
+            right={this.state.right}
+            rightProfile={profiles.find((p) => p.key === withKey)}
+          />
         )}
       </div>
     );
