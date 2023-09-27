@@ -30,6 +30,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -68,6 +70,7 @@ public class CreateAction implements QProfileWsAction {
   private final UserSession userSession;
   private final ActiveRuleIndexer activeRuleIndexer;
   private final QProfileWsSupport wsSupport;
+  private final Logger logger = Loggers.get(CreateAction.class);
 
   @Autowired(required = false)
   public CreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages,
@@ -131,6 +134,8 @@ public class CreateAction implements QProfileWsAction {
       OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
       userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
       CreateRequest createRequest = toRequest(request, organization);
+      logger.info("Create QProfile Request:: organization: {}, qProfile: {}, language: {}, user: {}",
+              organization.getKey(), createRequest.getName(), createRequest.getLanguage(), userSession.getLogin());
       writeProtobuf(doHandle(dbSession, createRequest, request, organization), request, response);
     }
   }
@@ -146,6 +151,8 @@ public class CreateAction implements QProfileWsAction {
         result.add(exporters.importXml(profile, importerKey, contentToImport, dbSession));
       }
     }
+    logger.info("Created QProfile:: organization: {}, qProfile: {}, language: {}, user: {}",
+            organization.getKey(), profile.getName(), profile.getLanguage(), userSession.getLogin());
     activeRuleIndexer.commitAndIndex(dbSession, result.getChanges());
     return buildResponse(result, organization);
   }

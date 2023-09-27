@@ -23,6 +23,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -45,6 +47,7 @@ public class RenameAction implements QProfileWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final QProfileWsSupport wsSupport;
+  private final Logger logger = Loggers.get(RenameAction.class);
 
   public RenameAction(DbClient dbClient, UserSession userSession, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;
@@ -92,6 +95,7 @@ public class RenameAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto qualityProfile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
+      String renamedFrom = qualityProfile.getName();
       OrganizationDto organization = wsSupport.getOrganization(dbSession, qualityProfile);
       wsSupport.checkCanEdit(dbSession, organization, qualityProfile);
 
@@ -107,6 +111,8 @@ public class RenameAction implements QProfileWsAction {
 
       qualityProfile.setName(newName);
       dbClient.qualityProfileDao().update(dbSession, qualityProfile);
+      logger.info("QProfile renamed:: organization: {}, renamedFrom: {}, renamedTo: {}, language: {}, user: {}",
+              organization.getKey(), renamedFrom, newName, language, userSession.getLogin());
       dbSession.commit();
     }
   }

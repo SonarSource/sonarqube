@@ -29,6 +29,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -48,6 +50,7 @@ public class DeleteAction implements QProfileWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final QProfileWsSupport wsSupport;
+  private final Logger logger = Loggers.get(DeleteAction.class);
 
   public DeleteAction(Languages languages, QProfileFactory profileFactory, DbClient dbClient, UserSession userSession, QProfileWsSupport wsSupport) {
     this.languages = languages;
@@ -88,6 +91,8 @@ public class DeleteAction implements QProfileWsAction {
 
       profileFactory.delete(dbSession, merge(profile, descendants));
       dbSession.commit();
+      logger.info("Deleted qProfile:: organization: {}, qProfile: {}, language: {}, user: {}", organization.getKey(),
+              profile.getName(), profile.getLanguage(), userSession.getLogin());
     }
     response.noContent();
   }

@@ -23,6 +23,8 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -38,6 +40,7 @@ public class DestroyAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final QualityGatesWsSupport wsSupport;
   private final QualityGateFinder finder;
+  private final Logger logger = Loggers.get(DestroyAction.class);
 
   public DestroyAction(DbClient dbClient, QualityGatesWsSupport wsSupport, QualityGateFinder finder) {
     this.dbClient = dbClient;
@@ -94,11 +97,18 @@ public class DestroyAction implements QualityGatesWsAction {
       checkArgument(!defaultQualityGate.getUuid().equals(qualityGate.getUuid()), "The default quality gate cannot be removed");
       wsSupport.checkCanEdit(qualityGate);
 
+      logger.debug("Delete Project-qGate association:: organization: {}, qGate: {}", organization.getKey(),
+              qualityGate.getName());
       dbClient.projectQgateAssociationDao().deleteByQGateUuid(dbSession, qualityGate.getUuid());
+      logger.debug("Delete qGate group permissions:: organizattion: {}, qGate: {}", organization.getKey(),
+              qualityGate.getName());
       dbClient.qualityGateGroupPermissionsDao().deleteByQualityGate(dbSession, qualityGate);
+      logger.debug("Delete qGate user permissions:: organizattion: {}, qGate: {}", organization.getKey(),
+              qualityGate.getName());
       dbClient.qualityGateUserPermissionDao().deleteByQualityGate(dbSession, qualityGate);
       dbClient.qualityGateDao().delete(qualityGate, dbSession);
       dbSession.commit();
+      logger.info("Deleted Quality Gate:: organization: {}, qGate: {}", organization.getKey(), qualityGate.getName());
       response.noContent();
     }
   }

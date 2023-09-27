@@ -29,6 +29,8 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -48,6 +50,7 @@ public class QProfileFactoryImpl implements QProfileFactory {
   private final UuidFactory uuidFactory;
   private final System2 system2;
   private final ActiveRuleIndexer activeRuleIndexer;
+  private final Logger logger = Loggers.get(QProfileFactoryImpl.class);
 
   public QProfileFactoryImpl(DbClient db, UuidFactory uuidFactory, System2 system2, ActiveRuleIndexer activeRuleIndexer) {
     this.db = db;
@@ -101,6 +104,8 @@ public class QProfileFactoryImpl implements QProfileFactory {
     if (isDefault) {
       db.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(dto));
     }
+    logger.debug("Inserted/Updated QProfile:: organization:{}, QPName: {}, language: {}",
+            organization.getKey(), name.getName(), name.getLanguage());
     return dto;
   }
 

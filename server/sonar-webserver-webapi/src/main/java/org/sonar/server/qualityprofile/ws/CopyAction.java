@@ -19,14 +19,18 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.Optional;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.user.UserSession;
@@ -48,6 +52,7 @@ public class CopyAction implements QProfileWsAction {
   private final Languages languages;
   private final UserSession userSession;
   private final QProfileWsSupport wsSupport;
+  private final Logger logger = Loggers.get(CopyAction.class);
 
   public CopyAction(DbClient dbClient, QProfileCopier profileCopier, Languages languages, UserSession userSession, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;
@@ -88,8 +93,14 @@ public class CopyAction implements QProfileWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto sourceProfile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
       userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, sourceProfile.getOrganizationUuid());
+      Optional<OrganizationDto> organization = dbClient.organizationDao()
+              .selectByUuid(dbSession, sourceProfile.getOrganizationUuid());
+      logger.info("Copy QProfile Request:: organization: {}, qProfile: {}, language: {}, user: {}",
+              organization.get().getKey(), sourceProfile.getName(), sourceProfile.getLanguage(), userSession.getLogin());
 
       QProfileDto copiedProfile = profileCopier.copyToName(dbSession, sourceProfile, newName);
+      logger.info("Copied QProfile :: organization: {}, copiedFromQP: {}, language: {}, copiedToQP: {}, user: {}",
+              organization.get().getKey(), sourceProfile.getName(), sourceProfile.getLanguage(), newName, userSession.getLogin());
       boolean isDefault = dbClient.defaultQProfileDao().isDefault(dbSession, copiedProfile.getOrganizationUuid(), copiedProfile.getKee());
 
       CopyWsResponse wsResponse = buildResponse(copiedProfile, isDefault);

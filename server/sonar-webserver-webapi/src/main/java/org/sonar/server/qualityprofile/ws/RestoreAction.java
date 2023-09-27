@@ -27,6 +27,8 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -51,6 +53,7 @@ public class RestoreAction implements QProfileWsAction {
   private final Languages languages;
   private final UserSession userSession;
   private final QProfileWsSupport wsSupport;
+  private final Logger logger = Loggers.get(RestoreAction.class);
 
   public RestoreAction(DbClient dbClient, QProfileBackuper backuper, Languages languages, UserSession userSession, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;
@@ -94,6 +97,8 @@ public class RestoreAction implements QProfileWsAction {
       userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
 
       QProfileRestoreSummary summary = backuper.restore(dbSession, reader, organization, null);
+      logger.info("QProfile restored:: organization: {}, qProfile: {}, language: {}, user: {}",
+              organization.getKey(), summary.profile().getName(), summary.profile().getLanguage(), userSession.getLogin());
       writeResponse(response.newJsonWriter(), organization, summary);
     } finally {
       IOUtils.closeQuietly(reader);
