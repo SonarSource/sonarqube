@@ -24,7 +24,7 @@ import { DeleteButton, SubmitButton } from '../../../../components/controls/butt
 import PermissionHeader from '../../../../components/permissions/PermissionHeader';
 import { Alert } from '../../../../components/ui/Alert';
 import Spinner from '../../../../components/ui/Spinner';
-import { translate } from '../../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import {
   PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
   convertToPermissionDefinitions,
@@ -69,6 +69,11 @@ function PermissionRow(props: Readonly<PermissionCellProps>) {
           </b>
           {!mapping.isBaseRole && (
             <DeleteButton
+              className="sw-ml-1"
+              aria-label={translateWithParameters(
+                'settings.authentication.github.configuration.roles_mapping.dialog.delete_custom_role',
+                mapping.githubRole,
+              )}
               onClick={() => {
                 props.setMapping(list?.filter((r) => r.githubRole !== mapping.githubRole) ?? null);
               }}

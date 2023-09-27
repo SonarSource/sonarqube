@@ -154,6 +154,18 @@ const ui = {
     mappingRow: byRole('dialog', {
       name: 'settings.authentication.github.configuration.roles_mapping.dialog.title',
     }).byRole('row'),
+    customRoleInput: byRole('textbox', {
+      name: 'settings.authentication.github.configuration.roles_mapping.dialog.add_custom_role',
+    }),
+    customRoleAddBtn: byRole('dialog', {
+      name: 'settings.authentication.github.configuration.roles_mapping.dialog.title',
+    }).byRole('button', { name: 'add_verb' }),
+    roleExistsError: byRole('dialog', {
+      name: 'settings.authentication.github.configuration.roles_mapping.dialog.title',
+    }).byText('settings.authentication.github.configuration.roles_mapping.role_exists'),
+    deleteCustomRoleCustom2: byRole('button', {
+      name: 'settings.authentication.github.configuration.roles_mapping.dialog.delete_custom_role.custom2',
+    }),
     getMappingRowByRole: (text: string) =>
       ui.github.mappingRow.getAll().find((row) => within(row).queryByText(text) !== null),
     mappingCheckbox: byRole('checkbox'),
@@ -941,6 +953,97 @@ describe('Github tab', () => {
       readCheckboxes = github.mappingCheckbox.getAll(github.getMappingRowByRole('read'))[0];
 
       expect(readCheckboxes).not.toBeChecked();
+      await user.click(github.mappingDialogClose.get());
+    });
+
+    it('should add/remove/update custom roles', async () => {
+      const user = userEvent.setup();
+      settingsHandler.presetGithubAutoProvisioning();
+      handler.enableGithubProvisioning();
+      handler.addGitHubCustomRole('custom1', ['user', 'codeViewer', 'scan']);
+      handler.addGitHubCustomRole('custom2', ['user', 'codeViewer', 'issueAdmin', 'scan']);
+      renderAuthentication([Feature.GithubProvisioning]);
+      await user.click(await github.tab.find());
+
+      expect(await github.saveGithubProvisioning.find()).toBeDisabled();
+      await user.click(github.editMappingButton.get());
+
+      const rows = (await github.mappingRow.findAll()).filter(
+        (row) => within(row).queryAllByRole('checkbox').length > 0,
+      );
+
+      expect(rows).toHaveLength(7);
+
+      let custom1Checkboxes = github.mappingCheckbox.getAll(github.getMappingRowByRole('custom1'));
+
+      expect(custom1Checkboxes[0]).toBeChecked();
+      expect(custom1Checkboxes[1]).toBeChecked();
+      expect(custom1Checkboxes[2]).not.toBeChecked();
+      expect(custom1Checkboxes[3]).not.toBeChecked();
+      expect(custom1Checkboxes[4]).not.toBeChecked();
+      expect(custom1Checkboxes[5]).toBeChecked();
+
+      await user.click(custom1Checkboxes[1]);
+      await user.click(custom1Checkboxes[2]);
+
+      await user.click(github.deleteCustomRoleCustom2.get());
+
+      expect(github.customRoleInput.get()).toHaveValue('');
+      await user.type(github.customRoleInput.get(), 'read');
+      await user.click(github.customRoleAddBtn.get());
+      expect(await github.roleExistsError.find()).toBeInTheDocument();
+      expect(github.customRoleAddBtn.get()).toBeDisabled();
+      await user.clear(github.customRoleInput.get());
+      expect(github.roleExistsError.query()).not.toBeInTheDocument();
+      await user.type(github.customRoleInput.get(), 'custom1');
+      await user.click(github.customRoleAddBtn.get());
+      expect(await github.roleExistsError.find()).toBeInTheDocument();
+      expect(github.customRoleAddBtn.get()).toBeDisabled();
+      await user.clear(github.customRoleInput.get());
+      await user.type(github.customRoleInput.get(), 'custom3');
+      expect(github.roleExistsError.query()).not.toBeInTheDocument();
+      expect(github.customRoleAddBtn.get()).toBeEnabled();
+      await user.click(github.customRoleAddBtn.get());
+
+      let custom3Checkboxes = github.mappingCheckbox.getAll(github.getMappingRowByRole('custom3'));
+      expect(custom3Checkboxes[0]).not.toBeChecked();
+      expect(custom3Checkboxes[1]).not.toBeChecked();
+      expect(custom3Checkboxes[2]).not.toBeChecked();
+      expect(custom3Checkboxes[3]).not.toBeChecked();
+      expect(custom3Checkboxes[4]).not.toBeChecked();
+      expect(custom3Checkboxes[5]).not.toBeChecked();
+      await user.click(custom3Checkboxes[1]);
+      await user.click(github.mappingDialogClose.get());
+
+      expect(await github.saveGithubProvisioning.find()).toBeEnabled();
+      await act(() => user.click(github.saveGithubProvisioning.get()));
+
+      // Clean local mapping state
+      await user.click(github.jitProvisioningButton.get());
+      await user.click(github.githubProvisioningButton.get());
+
+      await user.click(github.editMappingButton.get());
+
+      expect(
+        (await github.mappingRow.findAll()).filter(
+          (row) => within(row).queryAllByRole('checkbox').length > 0,
+        ),
+      ).toHaveLength(7);
+      custom1Checkboxes = github.mappingCheckbox.getAll(github.getMappingRowByRole('custom1'));
+      custom3Checkboxes = github.mappingCheckbox.getAll(github.getMappingRowByRole('custom3'));
+      expect(github.getMappingRowByRole('custom2')).toBeUndefined();
+      expect(custom1Checkboxes[0]).toBeChecked();
+      expect(custom1Checkboxes[1]).not.toBeChecked();
+      expect(custom1Checkboxes[2]).toBeChecked();
+      expect(custom1Checkboxes[3]).not.toBeChecked();
+      expect(custom1Checkboxes[4]).not.toBeChecked();
+      expect(custom1Checkboxes[5]).toBeChecked();
+      expect(custom3Checkboxes[0]).not.toBeChecked();
+      expect(custom3Checkboxes[1]).toBeChecked();
+      expect(custom3Checkboxes[2]).not.toBeChecked();
+      expect(custom3Checkboxes[3]).not.toBeChecked();
+      expect(custom3Checkboxes[4]).not.toBeChecked();
+      expect(custom3Checkboxes[5]).not.toBeChecked();
       await user.click(github.mappingDialogClose.get());
     });
   });

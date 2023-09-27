@@ -28,9 +28,11 @@ import { Task, TaskStatuses, TaskTypes } from '../../types/tasks';
 import {
   activateGithubProvisioning,
   activateScim,
+  addGithubRolesMapping,
   checkConfigurationValidity,
   deactivateGithubProvisioning,
   deactivateScim,
+  deleteGithubRolesMapping,
   fetchGithubProvisioningStatus,
   fetchGithubRolesMapping,
   fetchIsScimEnabled,
@@ -154,6 +156,8 @@ export default class AuthenticationServiceMock {
       .mockImplementation(this.handleCheckConfigurationValidity);
     jest.mocked(fetchGithubRolesMapping).mockImplementation(this.handleFetchGithubRolesMapping);
     jest.mocked(updateGithubRolesMapping).mockImplementation(this.handleUpdateGithubRolesMapping);
+    jest.mocked(addGithubRolesMapping).mockImplementation(this.handleAddGithubRolesMapping);
+    jest.mocked(deleteGithubRolesMapping).mockImplementation(this.handleDeleteGithubRolesMapping);
   }
 
   addProvisioningTask = (overrides: Partial<Omit<Task, 'type'>> = {}) => {
@@ -247,6 +251,36 @@ export default class AuthenticationServiceMock {
     return Promise.resolve(
       this.githubMapping.find((mapping) => mapping.id === id) as GitHubMapping,
     );
+  };
+
+  handleAddGithubRolesMapping: typeof addGithubRolesMapping = (data) => {
+    const newRole = { ...data, id: data.githubRole };
+    this.githubMapping = [...this.githubMapping, newRole];
+
+    return Promise.resolve(newRole);
+  };
+
+  handleDeleteGithubRolesMapping: typeof deleteGithubRolesMapping = (id) => {
+    this.githubMapping = this.githubMapping.filter((el) => el.id !== id);
+    return Promise.resolve();
+  };
+
+  addGitHubCustomRole = (id: string, permissions: (keyof GitHubMapping['permissions'])[]) => {
+    this.githubMapping = [
+      ...this.githubMapping,
+      {
+        id,
+        githubRole: id,
+        permissions: {
+          user: permissions.includes('user'),
+          codeViewer: permissions.includes('codeViewer'),
+          issueAdmin: permissions.includes('issueAdmin'),
+          securityHotspotAdmin: permissions.includes('securityHotspotAdmin'),
+          admin: permissions.includes('admin'),
+          scan: permissions.includes('scan'),
+        },
+      },
+    ];
   };
 
   reset = () => {

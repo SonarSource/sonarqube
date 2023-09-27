@@ -124,7 +124,7 @@ export function useSyncWithGitHubNow() {
   };
 }
 
-// Order is reversed to put non-existing roles at the end (their index is -1)
+// Order is reversed to put custom roles at the end (their index is -1)
 const defaultRoleOrder = ['admin', 'maintain', 'write', 'triage', 'read'];
 
 export function useGithubRolesMappingQuery() {
