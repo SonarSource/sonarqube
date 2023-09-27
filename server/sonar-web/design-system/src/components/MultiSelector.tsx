@@ -21,50 +21,55 @@ import { MultiSelectMenu } from './input/MultiSelectMenu';
 
 interface Props {
   allowNewElements?: boolean;
+  allowSearch?: boolean;
   createElementLabel: string;
+  elements: string[];
   headerLabel: string;
+  listSize?: number;
   noResultsLabel: string;
-  onSearch: (query: string) => Promise<void>;
+  onSearch?: (query: string) => Promise<void>;
   onSelect: (item: string) => void;
   onUnselect: (item: string) => void;
   searchInputAriaLabel: string;
-  selectedTags: string[];
-  tags: string[];
+  selectedElements: string[];
 }
 
 const LIST_SIZE = 10;
 
-export function TagsSelector(props: Props) {
+export function MultiSelector(props: Readonly<Props>) {
   const {
     allowNewElements,
     createElementLabel,
     headerLabel,
     noResultsLabel,
     searchInputAriaLabel,
-    selectedTags,
-    tags,
+    selectedElements,
+    elements,
+    allowSearch = true,
+    listSize = LIST_SIZE,
   } = props;
 
   return (
     <MultiSelectMenu
       allowNewElements={allowNewElements}
+      allowSearch={allowSearch}
       createElementLabel={createElementLabel}
-      elements={tags}
+      elements={elements}
       headerNode={<div className="sw-mt-4 sw-font-semibold">{headerLabel}</div>}
-      listSize={LIST_SIZE}
+      listSize={listSize}
       noResultsLabel={noResultsLabel}
       onSearch={props.onSearch}
       onSelect={props.onSelect}
       onUnselect={props.onUnselect}
       placeholder={searchInputAriaLabel}
       searchInputAriaLabel={searchInputAriaLabel}
-      selectedElements={selectedTags}
-      validateSearchInput={validateTag}
+      selectedElements={selectedElements}
+      validateSearchInput={validateElement}
     />
   );
 }
 
-export function validateTag(value: string) {
+export function validateElement(value: string) {
   // Allow only a-z, 0-9, '+', '-', '#', '.'
   return value.toLowerCase().replace(/[^-a-z0-9+#.]/gi, '');
 }

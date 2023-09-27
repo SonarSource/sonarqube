@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Tags, TagsSelector } from 'design-system';
+import { MultiSelector, Tags } from 'design-system';
 import { difference, without } from 'lodash';
 import React, { useState } from 'react';
 import { searchProjectTags, setApplicationTags, setProjectTags } from '../../../../api/components';
@@ -116,7 +116,7 @@ function MetaTagsSelector({ selectedTags, setProjectTags }: MetaTagsSelectorProp
   };
 
   return (
-    <TagsSelector
+    <MultiSelector
       headerLabel={translate('tags')}
       searchInputAriaLabel={translate('search.search_for_tags')}
       createElementLabel={translate('issue.create_tag')}
@@ -124,8 +124,8 @@ function MetaTagsSelector({ selectedTags, setProjectTags }: MetaTagsSelectorProp
       onSearch={onSearch}
       onSelect={onSelect}
       onUnselect={onUnselect}
-      selectedTags={selectedTags}
-      tags={availableTags}
+      selectedElements={selectedTags}
+      elements={availableTags}
     />
   );
 }

@@ -1,11 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<div
-  className="display-inline-block"
->
+<div>
   <strong
-    className="little-spacer-right"
+    className="sw-ml-1"
   >
     124 / 
     <span

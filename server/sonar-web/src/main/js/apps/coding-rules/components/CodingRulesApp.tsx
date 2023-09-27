@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { InputSearch } from 'design-system';
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -74,6 +75,7 @@ import RuleDetails from './RuleDetails';
 import RuleListItem from './RuleListItem';
 
 const PAGE_SIZE = 100;
+const MAX_SEARCH_LENGTH = 200;
 const LIMIT_BEFORE_LOAD_MORE = 5;
 
 interface Props {
@@ -617,6 +619,17 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
                 <div className="layout-page-main-inner">
                   <A11ySkipTarget anchor="rules_main" />
                   <div className="display-flex-space-between">
+                    <InputSearch
+                      className="sw-min-w-abs-250 sw-max-w-abs-350 sw-mr-4"
+                      id="coding-rules-search"
+                      maxLength={MAX_SEARCH_LENGTH}
+                      minLength={2}
+                      onChange={this.handleSearch}
+                      placeholder={translate('search.search_for_rules')}
+                      value={query.searchQuery ?? ''}
+                      size="auto"
+                    />
+
                     {openRule ? (
                       <a
                         className="js-back display-inline-flex-center link-no-underline"

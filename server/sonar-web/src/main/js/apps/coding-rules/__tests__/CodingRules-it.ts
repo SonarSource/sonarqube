@@ -256,8 +256,7 @@ describe('Rules app list', () => {
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(11);
     });
 
-    // eslint-disable-next-line jest/no-disabled-tests
-    it.skip('filters by search', async () => {
+    it('filters by search', async () => {
       const { ui, user } = getPageObjects();
       renderCodingRulesApp(mockCurrentUser());
       await ui.appLoaded();
@@ -288,11 +287,12 @@ describe('Rules app list', () => {
       await user.click(ui.bulkChangeButton.get());
       await user.click(ui.activateIn.get());
 
-      const dialog = ui.bulkChangeDialog(1).get();
-      expect(dialog).toBeInTheDocument();
+      const dialog = ui.bulkChangeDialog(1);
+      expect(dialog.get()).toBeInTheDocument();
 
-      selectEvent.openMenu(ui.activateInSelect.get());
-      expect(ui.noQualityProfiles.get(dialog)).toBeInTheDocument();
+      await user.click(ui.activateInSelect.get());
+
+      expect(ui.noQualityProfiles.get(dialog.get())).toBeInTheDocument();
     });
 
     it('should be able to bulk activate quality profile', async () => {

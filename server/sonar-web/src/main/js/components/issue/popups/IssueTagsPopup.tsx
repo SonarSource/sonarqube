@@ -19,7 +19,7 @@ import { searchIssueTags } from '../../../api/issues';
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TagsSelector } from 'design-system';
+import { MultiSelector } from 'design-system';
 import { difference, noop, without } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
@@ -53,7 +53,7 @@ function IssueTagsPopup({ selectedTags, setTags }: IssueTagsPopupProps) {
   const availableTags = difference(searchResult, selectedTags);
 
   return (
-    <TagsSelector
+    <MultiSelector
       headerLabel={translate('issue.tags')}
       searchInputAriaLabel={translate('search.search_for_tags')}
       createElementLabel={translate('issue.create_tag')}
@@ -61,8 +61,8 @@ function IssueTagsPopup({ selectedTags, setTags }: IssueTagsPopupProps) {
       onSearch={onSearch}
       onSelect={onSelect}
       onUnselect={onUnselect}
-      selectedTags={selectedTags}
-      tags={availableTags}
+      selectedElements={selectedTags}
+      elements={availableTags}
     />
   );
 }

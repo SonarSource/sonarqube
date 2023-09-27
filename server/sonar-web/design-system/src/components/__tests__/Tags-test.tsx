@@ -25,8 +25,8 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { renderWithContext } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
+import { MultiSelector } from '../MultiSelector';
 import { Tags } from '../Tags';
-import { TagsSelector } from '../TagsSelector';
 
 it('should display "no tags"', () => {
   renderTags({ tags: [] });
@@ -83,8 +83,9 @@ function Wrapper(overrides: Partial<FCProps<typeof Tags>> = {}) {
   const [selectedTags, setSelectedTags] = useState<string[]>(overrides.tags ?? ['tag1']);
 
   const overlay = (
-    <TagsSelector
+    <MultiSelector
       createElementLabel="create new tag"
+      elements={['tag1', 'tag2', 'tag3']}
       headerLabel="edit tags"
       noResultsLabel="no results"
       onSearch={jest.fn().mockResolvedValue(undefined)}
@@ -98,8 +99,7 @@ function Wrapper(overrides: Partial<FCProps<typeof Tags>> = {}) {
         }
       }}
       searchInputAriaLabel="search"
-      selectedTags={selectedTags}
-      tags={['tag1', 'tag2', 'tag3']}
+      selectedElements={selectedTags}
     />
   );
 

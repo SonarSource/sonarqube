@@ -27,6 +27,7 @@ import { MultiSelectMenuOption } from './MultiSelectMenuOption';
 
 interface Props {
   allowNewElements?: boolean;
+  allowSearch?: boolean;
   allowSelection?: boolean;
   createElementLabel: string;
   elements: string[];
@@ -35,7 +36,7 @@ interface Props {
   inputId?: string;
   listSize: number;
   noResultsLabel: string;
-  onSearch: (query: string) => Promise<void>;
+  onSearch?: (query: string) => Promise<void>;
   onSelect: (item: string) => void;
   onUnselect: (item: string) => void;
   placeholder: string;
@@ -165,8 +166,10 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
   };
 
   onSearchQuery = (query: string) => {
-    this.setState({ activeIdx: 0, loading: true, query });
-    this.props.onSearch(query).then(this.stopLoading, this.stopLoading);
+    if (this.props.onSearch) {
+      this.setState({ activeIdx: 0, loading: true, query });
+      this.props.onSearch(query).then(this.stopLoading, this.stopLoading);
+    }
   };
 
   onSelectItem = (item: string) => {
@@ -205,7 +208,7 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
       return {
         unselectedElements: difference(this.props.elements, this.props.selectedElements).slice(
           0,
-          listSize - state.selectedElements.length
+          listSize - state.selectedElements.length,
         ),
       };
     });
@@ -255,6 +258,7 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
 
   render() {
     const {
+      allowSearch = true,
       allowSelection = true,
       allowNewElements = true,
       createElementLabel,
@@ -274,22 +278,27 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
 
     return (
       <div ref={(div) => (this.container = div)}>
-        <div className="sw-px-3">
-          <InputSearch
-            autoFocus
-            className="sw-mt-1"
-            id={inputId}
-            loading={this.state.loading}
-            onChange={this.handleSearchChange}
-            placeholder={this.props.placeholder}
-            searchInputAriaLabel={searchInputAriaLabel}
-            size="full"
-            value={query}
-          />
-        </div>
-        <ItemHeader>{headerNode}</ItemHeader>
+        {allowSearch && (
+          <>
+            <div className="sw-px-3">
+              <InputSearch
+                autoFocus
+                className="sw-mt-1"
+                id={inputId}
+                loading={this.state.loading}
+                onChange={this.handleSearchChange}
+                placeholder={this.props.placeholder}
+                searchInputAriaLabel={searchInputAriaLabel}
+                size="full"
+                value={query}
+              />
+            </div>
+            <ItemHeader>{headerNode}</ItemHeader>
+          </>
+        )}
         <ul
-          className={classNames('sw-mt-2', {
+          className={classNames({
+            'sw-mt-2': allowSearch,
             'sw-max-h-abs-200 sw-overflow-y-auto': isFixedHeight,
           })}
         >

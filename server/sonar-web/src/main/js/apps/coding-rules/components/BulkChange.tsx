@@ -17,12 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonPrimary,
+  ButtonSecondary,
+  ChevronDownIcon,
+  Dropdown,
+  ItemButton,
+  PopupPlacement,
+  PopupZLevel,
+} from 'design-system';
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
-import Dropdown from '../../../components/controls/Dropdown';
 import Tooltip from '../../../components/controls/Tooltip';
-import { Button } from '../../../components/controls/buttons';
-import { PopupPlacement } from '../../../components/ui/popups';
 import { translate } from '../../../helpers/l10n';
 import { Dict } from '../../../types/types';
 import { Query } from '../query';
@@ -50,27 +56,19 @@ export default class BulkChange extends React.PureComponent<Props, State> {
 
   closeModal = () => this.setState({ action: undefined, modal: false, profile: undefined });
 
-  handleActivateClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleActivateClick = () => {
     this.setState({ action: 'activate', modal: true, profile: undefined });
   };
 
-  handleActivateInProfileClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleActivateInProfileClick = () => {
     this.setState({ action: 'activate', modal: true, profile: this.getSelectedProfile() });
   };
 
-  handleDeactivateClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleDeactivateClick = () => {
     this.setState({ action: 'deactivate', modal: true, profile: undefined });
   };
 
-  handleDeactivateInProfileClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleDeactivateInProfileClick = () => {
     this.setState({ action: 'deactivate', modal: true, profile: this.getSelectedProfile() });
   };
 
@@ -82,9 +80,7 @@ export default class BulkChange extends React.PureComponent<Props, State> {
     if (!canBulkChange) {
       return (
         <Tooltip overlay={translate('coding_rules.can_not_bulk_change')}>
-          <Button className="js-bulk-change" disabled>
-            {translate('bulk_change')}
-          </Button>
+          <ButtonPrimary disabled>{translate('bulk_change')}</ButtonPrimary>
         </Tooltip>
       );
     }
@@ -100,37 +96,38 @@ export default class BulkChange extends React.PureComponent<Props, State> {
     return (
       <>
         <Dropdown
-          overlayPlacement={PopupPlacement.BottomLeft}
+          id="issue-bulkaction-menu"
+          size="auto"
+          placement={PopupPlacement.BottomRight}
+          zLevel={PopupZLevel.Global}
           overlay={
-            <ul className="menu">
-              <li>
-                <a href="#" onClick={this.handleActivateClick}>
-                  {translate('coding_rules.activate_in')}…
-                </a>
-              </li>
+            <>
+              <ItemButton onClick={this.handleActivateClick}>
+                {translate('coding_rules.activate_in')}
+              </ItemButton>
+
               {allowActivateOnProfile && profile && (
-                <li>
-                  <a href="#" onClick={this.handleActivateInProfileClick}>
-                    {translate('coding_rules.activate_in')} <strong>{profile.name}</strong>
-                  </a>
-                </li>
+                <ItemButton onClick={this.handleActivateInProfileClick}>
+                  {translate('coding_rules.activate_in')} <strong>{profile.name}</strong>
+                </ItemButton>
               )}
-              <li>
-                <a href="#" onClick={this.handleDeactivateClick}>
-                  {translate('coding_rules.deactivate_in')}…
-                </a>
-              </li>
+
+              <ItemButton onClick={this.handleDeactivateClick}>
+                {translate('coding_rules.deactivate_in')}
+              </ItemButton>
+
               {allowDeactivateOnProfile && profile && (
-                <li>
-                  <a href="#" onClick={this.handleDeactivateInProfileClick}>
-                    {translate('coding_rules.deactivate_in')} <strong>{profile.name}</strong>
-                  </a>
-                </li>
+                <ItemButton onClick={this.handleDeactivateInProfileClick}>
+                  {translate('coding_rules.deactivate_in')} <strong>{profile.name}</strong>
+                </ItemButton>
               )}
-            </ul>
+            </>
           }
         >
-          <Button className="js-bulk-change">{translate('bulk_change')}</Button>
+          <ButtonSecondary>
+            {translate('bulk_change')}
+            <ChevronDownIcon className="sw-ml-1" />
+          </ButtonSecondary>
         </Dropdown>
         {this.state.modal && this.state.action && (
           <BulkChangeModal

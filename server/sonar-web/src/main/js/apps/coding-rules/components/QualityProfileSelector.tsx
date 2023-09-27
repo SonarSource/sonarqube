@@ -25,75 +25,78 @@ import {
   PopupZLevel,
 } from 'design-system';
 import * as React from 'react';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { Profile } from '../../../api/quality-profiles';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  allowCreation: boolean;
   inputId?: string;
-  onChange: (selected: string[]) => void;
-  onSearch: (query: string) => Promise<string[]>;
-  selectedTags: string[];
+  profiles: Profile[];
+  onChange: (selected: Profile[]) => void;
+  selectedProfiles: Profile[];
 }
 
-export default function TagsSelect(props: Props) {
-  const { allowCreation, inputId, onSearch, onChange, selectedTags } = props;
-  const [searchResults, setSearchResults] = React.useState<string[]>([]);
+const LIST_SIZE = 0;
 
-  const doSearch = React.useCallback(
-    async (query: string) => {
-      const results = await onSearch(query);
-      setSearchResults(results);
-    },
-    [onSearch, setSearchResults],
-  );
+export function QualityProfileSelector(props: Readonly<Props>) {
+  const { inputId, onChange, selectedProfiles, profiles } = props;
 
   const onSelect = React.useCallback(
-    (newTag: string) => {
-      onChange([...selectedTags, newTag]);
+    (selected: string) => {
+      const profileFound = profiles.find(
+        (profile) => `${profile.name} - ${profile.languageName}` === selected,
+      );
+      if (profileFound) {
+        onChange([profileFound, ...selectedProfiles]);
+      }
     },
-    [onChange, selectedTags],
+    [profiles, onChange, selectedProfiles],
   );
 
   const onUnselect = React.useCallback(
-    (toRemove: string) => {
-      onChange(selectedTags.filter((tag) => tag !== toRemove));
+    (selected: string) => {
+      const selectedProfilesWithoutUnselected = selectedProfiles.filter(
+        (profile) => `${profile.name} - ${profile.languageName}` !== selected,
+      );
+      onChange(selectedProfilesWithoutUnselected);
     },
-    [onChange, selectedTags],
+    [onChange, selectedProfiles],
   );
 
   return (
     <Dropdown
       allowResizing
       closeOnClick={false}
-      id="tag-selector"
+      id="quality-profile-selector"
       overlay={
         // eslint-disable-next-line jsx-a11y/no-static-element-interactions
         <div onMouseDown={handleMousedown}>
           <MultiSelector
-            allowNewElements={allowCreation}
-            createElementLabel={translateWithParameters('issue.create_tag')}
-            headerLabel={translate('issue_bulk_change.select_tags')}
-            noResultsLabel={translate('no_results')}
+            allowSearch={false}
+            createElementLabel="" // Cannot create
+            headerLabel={translate('coding_rules.select_profile')}
+            noResultsLabel={translate('coding_rules.bulk_change.no_quality_profile')}
             onSelect={onSelect}
             onUnselect={onUnselect}
-            searchInputAriaLabel={translate('search.search_for_tags')}
-            selectedElements={selectedTags}
-            onSearch={doSearch}
-            elements={searchResults}
+            searchInputAriaLabel={translate('search.search_for_profiles')}
+            selectedElements={selectedProfiles.map(
+              (profile) => `${profile.name} - ${profile.languageName}`,
+            )}
+            elements={profiles.map((profile) => `${profile.name} - ${profile.languageName}`)}
+            listSize={LIST_SIZE}
           />
         </div>
       }
       placement={PopupPlacement.BottomLeft}
       zLevel={PopupZLevel.Global}
     >
-      {({ onToggleClick }) => (
+      {({ onToggleClick }): JSX.Element => (
         <InputMultiSelect
-          className="sw-w-abs-300"
+          className="sw-w-full sw-mb-2"
           id={inputId}
           onClick={onToggleClick}
           placeholder={translate('select_verb')}
-          selectedLabel={translate('issue_bulk_change.selected_tags')}
-          count={selectedTags.length}
+          selectedLabel={translate('coding_rules.selected_profiles')}
+          count={selectedProfiles.length}
         />
       )}
     </Dropdown>

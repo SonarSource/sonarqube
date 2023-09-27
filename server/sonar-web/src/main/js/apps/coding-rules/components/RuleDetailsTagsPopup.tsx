@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { TagsSelector } from 'design-system';
+import { MultiSelector } from 'design-system';
 import { difference, uniq, without } from 'lodash';
 import * as React from 'react';
 import { getRuleTags } from '../../../api/rules';
@@ -74,7 +74,7 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
   render() {
     const availableTags = difference(this.state.searchResult, this.props.tags);
     return (
-      <TagsSelector
+      <MultiSelector
         createElementLabel={translate('coding_rules.create_tag')}
         headerLabel={translate('tags')}
         searchInputAriaLabel={translate('search.search_for_tags')}
@@ -82,8 +82,8 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
         onSearch={this.onSearch}
         onSelect={this.onSelect}
         onUnselect={this.onUnselect}
-        selectedTags={this.props.tags}
-        tags={availableTags}
+        selectedElements={this.props.tags}
+        elements={availableTags}
       />
     );
   }

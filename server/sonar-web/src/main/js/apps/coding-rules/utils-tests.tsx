@@ -75,8 +75,8 @@ const selectors = {
 
   // Bulk change
   bulkChangeButton: byRole('button', { name: 'bulk_change' }),
-  activateIn: byRole('link', { name: 'coding_rules.activate_in…' }),
-  deactivateIn: byRole('link', { name: 'coding_rules.deactivate_in…' }),
+  activateIn: byRole('menuitem', { name: 'coding_rules.activate_in' }),
+  deactivateIn: byRole('menuitem', { name: 'coding_rules.deactivate_in' }),
   bulkChangeDialog: (count: number, activate = true) =>
     byRole('dialog', {
       name: `coding_rules.${
