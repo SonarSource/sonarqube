@@ -38,13 +38,11 @@ import org.sonar.server.v2.api.user.controller.DefaultUserController;
 import org.sonar.server.v2.api.user.controller.UserController;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import(CommonWebConfig.class)
-@ComponentScan("com.sonar.github.provisioning.permissions.web.config")
 public class PlatformLevel4WebConfig {
 
   @Bean

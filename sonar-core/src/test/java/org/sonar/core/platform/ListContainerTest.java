@@ -67,6 +67,13 @@ public class ListContainerTest {
     assertThatThrownBy(container::getParent).isInstanceOf(UnsupportedOperationException.class);
   }
 
+  @Test
+  public void addWebApiV2ConfigurationClass_whenClassIsAdded_isReturnedByGetWebApiV2ConfigurationClasses() {
+    ListContainer container = new ListContainer();
+    container.addWebApiV2ConfigurationClass(org.sonar.core.test.Test.class);
+    assertThat(container.getWebApiV2ConfigurationClasses()).containsOnly(org.sonar.core.test.Test.class);
+  }
+
   class A {
   }
 

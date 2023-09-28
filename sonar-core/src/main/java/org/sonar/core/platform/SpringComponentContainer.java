@@ -22,8 +22,10 @@ package org.sonar.core.platform;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -41,6 +43,7 @@ public class SpringComponentContainer implements StartableContainer {
   @Nullable
   protected final SpringComponentContainer parent;
   protected final List<SpringComponentContainer> children = new ArrayList<>();
+  private final Set<Class<?>> webConfigurationClasses = new HashSet<>();
 
   private final PropertyDefinitions propertyDefinitions;
   private final ComponentKeys componentKeys = new ComponentKeys();
@@ -105,6 +108,16 @@ public class SpringComponentContainer implements StartableContainer {
       }
     }
     return this;
+  }
+
+  @Override
+  public void addWebApiV2ConfigurationClass(Class<?> clazz) {
+    webConfigurationClasses.add(clazz);
+  }
+
+  @Override
+  public Set<Class<?>> getWebApiV2ConfigurationClasses() {
+    return Set.copyOf(webConfigurationClasses);
   }
 
   private <T> void registerInstance(T instance) {

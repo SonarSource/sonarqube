@@ -90,6 +90,10 @@ public class ApiV2Servlet implements Servlet {
     AnnotationConfigWebApplicationContext springMvcContext = new AnnotationConfigWebApplicationContext();
     springMvcContext.setParent(platformLevel.getContainer().context());
     springMvcContext.register(configClass);
+    if (PlatformLevel4WebConfig.class.equals(configClass)) {
+      platformLevel.getContainer().getWebApiV2ConfigurationClasses().forEach(springMvcContext::register);
+    }
+
     DispatcherServlet dispatcher = servletProvider.apply(springMvcContext);
     try {
       if (config != null) {

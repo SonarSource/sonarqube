@@ -21,8 +21,10 @@ package org.sonar.core.platform;
 
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 
 import static java.util.Collections.unmodifiableList;
@@ -32,6 +34,7 @@ import static java.util.Collections.unmodifiableList;
  */
 public class ListContainer implements ExtensionContainer {
   private final List<Object> objects = new ArrayList<>();
+  private final Set<Class<?>> webConfigurationClasses = new HashSet<>();
 
   @Override
   public Container add(Object... objects) {
@@ -86,6 +89,16 @@ public class ListContainer implements ExtensionContainer {
   @Override
   public ExtensionContainer declareExtension(@Nullable String defaultCategory, Object extension) {
     return this;
+  }
+
+  @Override
+  public void addWebApiV2ConfigurationClass(Class<?> clazz) {
+    webConfigurationClasses.add(clazz);
+  }
+
+  @Override
+  public Set<Class<?>> getWebApiV2ConfigurationClasses() {
+    return webConfigurationClasses;
   }
 
   @Override

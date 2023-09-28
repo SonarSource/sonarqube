@@ -79,6 +79,13 @@ public class SpringComponentContainerTest {
   }
 
   @Test
+  public void addWebConfigurationClass_addsClass() {
+    SpringComponentContainer container = new SpringComponentContainer();
+    container.addWebApiV2ConfigurationClass(org.sonar.core.test.Test.class);
+    assertThat(container.getWebApiV2ConfigurationClasses()).contains(org.sonar.core.test.Test.class);
+  }
+
+  @Test
   public void add_configures_module_instances() {
     SpringComponentContainer container = new SpringComponentContainer();
     container.add(new TestModule());

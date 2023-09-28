@@ -129,6 +129,11 @@ public abstract class CoreExtensionsInstaller {
     }
 
     @Override
+    public void addWebApiV2ConfigurationClass(Class<?> clazz) {
+      container.addWebApiV2ConfigurationClass(clazz);
+    }
+
+    @Override
     public <T> CoreExtension.Context addExtensions(Collection<T> components) {
       requireNonNull(components, "components can't be null");
       components.forEach(this::addExtension);

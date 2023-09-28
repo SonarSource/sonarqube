@@ -19,6 +19,7 @@
  */
 package org.sonar.core.platform;
 
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -30,6 +31,10 @@ public interface ExtensionContainer extends Container {
   ExtensionContainer declareExtension(@Nullable PluginInfo pluginInfo, Object extension);
 
   ExtensionContainer declareExtension(@Nullable String defaultCategory, Object extension);
+
+  void addWebApiV2ConfigurationClass(Class<?> clazz);
+
+  Set<Class<?>> getWebApiV2ConfigurationClasses();
 
   @CheckForNull
   ExtensionContainer getParent();

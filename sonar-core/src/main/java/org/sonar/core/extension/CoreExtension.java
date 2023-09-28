@@ -50,6 +50,8 @@ public interface CoreExtension {
       addExtensions(asList(otherComponents));
       return this;
     }
+
+    void addWebApiV2ConfigurationClass(Class<?> clazz);
   }
 
   void load(Context context);
