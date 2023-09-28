@@ -49,10 +49,10 @@ public class OffsetBasedPaginationTest {
   }
 
   @Test
-  public void forOffset_whenZeroOffset_shouldStartRowNumberAtOne() {
+  public void forOffset_whenZeroOffset_shouldStartOffsetAtZero() {
     assertThat(OffsetBasedPagination.forOffset(0, 100))
-      .extracting(p -> p.getStartRowNumber(), p -> p.getOffset(), p -> p.getPageSize())
-      .containsExactly(1, 0, 100);
+      .extracting(p -> p.getOffset(), p -> p.getPageSize())
+      .containsExactly(0, 100);
   }
 
   @Test
@@ -74,13 +74,6 @@ public class OffsetBasedPaginationTest {
     assertThatThrownBy(() -> OffsetBasedPagination.forStartRowNumber(1, -1))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("page size must be >= 1");
-  }
-
-  @Test
-  public void forStartRowNumber_whenZeroOffset_shouldStartRowNumberAtOne() {
-    assertThat(OffsetBasedPagination.forStartRowNumber(1, 100))
-      .extracting(p -> p.getStartRowNumber(), p -> p.getOffset(), p -> p.getPageSize())
-      .containsExactly(1, 0, 100);
   }
 
   @Test

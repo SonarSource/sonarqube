@@ -56,11 +56,6 @@ public class OffsetBasedPagination implements Pagineable {
   }
 
   @Override
-  public int getStartRowNumber() {
-    return offset + 1;
-  }
-
-  @Override
   public int getOffset() {
     return offset;
   }

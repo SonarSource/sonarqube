@@ -63,11 +63,6 @@ public final class Pagination implements Pagineable {
     return (page - 1) * pageSize;
   }
 
-  @Override
-  public int getStartRowNumber() {
-    return getOffset() + 1;
-  }
-
   public int getEndRowNumber() {
     return page * pageSize;
   }

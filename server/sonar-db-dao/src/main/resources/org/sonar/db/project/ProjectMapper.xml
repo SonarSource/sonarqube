@@ -50,7 +50,7 @@
         #{uuid,jdbcType=VARCHAR}
       </foreach>
       order by p.name, uuid desc
-      offset (#{pagination.startRowNumber,jdbcType=INTEGER}-1) rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+      offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
   </select>
 
   <select id="selectProjectsByKeys" resultType="Project">

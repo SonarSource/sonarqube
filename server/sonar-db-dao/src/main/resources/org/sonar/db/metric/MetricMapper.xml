@@ -45,7 +45,7 @@
       m.enabled=${_true}
     </where>
     ORDER BY UPPER(m.short_name), m.short_name
-    offset (#{pagination.startRowNumber,jdbcType=INTEGER}-1) rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
   </select>
 
   <select id="countEnabled" resultType="Integer">

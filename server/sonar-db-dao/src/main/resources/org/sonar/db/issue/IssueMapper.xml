@@ -547,77 +547,7 @@
           </foreach>
     </if>
     order by i.kee
-    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
-  </select>
-
-  <select id="selectIssueKeysByComponentUuidWithFilters" parameterType="map" resultType="string" databaseId="mssql">
-   	select
-      i.kee
-    from
-    (select
-        row_number() over(order by i.kee ASC) as row_number,
-          i.kee
-        from rules r
-        inner join issues i on i.rule_uuid = r.uuid
-        where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-        AND i.status &lt;&gt; 'CLOSED'
-        <if test="includingRepositories.size() > 0">
-            AND r.plugin_name IN
-              <foreach item="ruleRepository" index="index" collection="includingRepositories" open="(" separator="," close=")">
-                #{ruleRepository}
-              </foreach>
-        </if>
-        <if test="excludingRepositories.size() > 0">
-          AND r.plugin_name NOT IN
-            <foreach item="ruleRepository" index="index" collection="excludingRepositories" open="(" separator="," close=")">
-              #{ruleRepository}
-            </foreach>
-        </if>
-        <if test="languages.size() > 0">
-            AND r.language IN
-              <foreach item="language" index="index" collection="languages" open="(" separator="," close=")">
-                  #{language}
-              </foreach>
-        </if>
-      order by row_number asc
-      offset #{pagination.offset} rows
-      fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only)  i
-   </select>
-
-  <select id="selectIssueKeysByComponentUuidWithFilters" parameterType="map" resultType="string" databaseId="oracle">
-    select
-      i.kee
-    from (
-	      select rownum as rn, t.* from (
-	        select
-	         i.kee
-	        from rules r
-          inner join issues i on i.rule_uuid = r.uuid
-	        where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-          AND i.status &lt;&gt; 'CLOSED'
-          <if test="includingRepositories.size() > 0">
-              AND r.plugin_name IN
-                <foreach item="ruleRepository" index="index" collection="includingRepositories" open="(" separator="," close=")">
-                  #{ruleRepository}
-                </foreach>
-          </if>
-          <if test="excludingRepositories.size() > 0">
-            AND r.plugin_name NOT IN
-              <foreach item="ruleRepository" index="index" collection="excludingRepositories" open="(" separator="," close=")">
-                #{ruleRepository}
-              </foreach>
-          </if>
-          <if test="languages.size() > 0">
-              AND r.language IN
-                <foreach item="language" index="index" collection="languages" open="(" separator="," close=")">
-                    #{language}
-                </foreach>
-          </if>
-          order by i.kee ASC
-	      ) t ) i
-	    where
-	      i.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-	    order by i.rn asc
+    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
   </select>
 
   <select id="selectIssueKeysByComponentUuidAndChangedSinceDate" parameterType="map" resultType="string">
@@ -648,80 +578,7 @@
         </foreach>
    </if>
     order by i.kee
-    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
-  </select>
-
-  <select id="selectIssueKeysByComponentUuidAndChangedSinceDate" parameterType="map" resultType="string" databaseId="mssql">
-  	select
-      i.kee
-    from
-    (select
-        row_number() over(order by i.kee ASC) as row_number,
-         i.kee
-        from rules r
-        inner join issues i on i.rule_uuid = r.uuid
-        where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-        AND i.issue_update_date &gt;= #{changedSince,jdbcType=BIGINT}
-        AND i.status &lt;&gt; 'CLOSED'
-        <if test="includingRepositories.size() > 0">
-            AND r.plugin_name IN
-              <foreach item="ruleRepository" index="index" collection="includingRepositories" open="(" separator="," close=")">
-                #{ruleRepository}
-              </foreach>
-        </if>
-        <if test="excludingRepositories.size() > 0">
-          AND r.plugin_name NOT IN
-            <foreach item="ruleRepository" index="index" collection="excludingRepositories" open="(" separator="," close=")">
-              #{ruleRepository}
-            </foreach>
-        </if>
-        <if test="languages.size() > 0">
-            AND r.language IN
-              <foreach item="language" index="index" collection="languages" open="(" separator="," close=")">
-                  #{language}
-              </foreach>
-        </if>
-        order by row_number asc
-        offset #{pagination.offset} rows
-        fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only)  i
-  </select>
-
-  <select id="selectIssueKeysByComponentUuidAndChangedSinceDate" parameterType="map" resultType="string" databaseId="oracle">
-    select
-      i.kee
-    from
-	  (select rownum as rn, t.* from (
-	        select
-	         i.kee
-	        from rules r
-          inner join issues i on i.rule_uuid = r.uuid
-	        where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-          AND i.issue_update_date &gt;= #{changedSince,jdbcType=BIGINT}
-          AND i.status &lt;&gt; 'CLOSED'
-          <if test="includingRepositories.size() > 0">
-              AND r.plugin_name IN
-                <foreach item="ruleRepository" index="index" collection="includingRepositories" open="(" separator="," close=")">
-                  #{ruleRepository}
-                </foreach>
-          </if>
-          <if test="excludingRepositories.size() > 0">
-            AND r.plugin_name NOT IN
-              <foreach item="ruleRepository" index="index" collection="excludingRepositories" open="(" separator="," close=")">
-                #{ruleRepository}
-              </foreach>
-          </if>
-          <if test="languages.size() > 0">
-              AND r.language IN
-                <foreach item="language" index="index" collection="languages" open="(" separator="," close=")">
-                    #{language}
-                </foreach>
-          </if>
-          order by i.kee ASC
-	      ) t
-	    ) i
-	    where
-	      i.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-	    order by i.rn asc
+    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
   </select>
 
   <select id="selectByComponentUuidPaginated" parameterType="map" resultMap="issueResultMap">
@@ -738,55 +595,7 @@
     left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
     where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
     order by i.issue_creation_date ASC
-    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
-  </select>
-
-  <select id="selectByComponentUuidPaginated" parameterType="map" resultMap="issueResultMap" databaseId="mssql">
-  	select
-    <include refid="issueColumns"/>,
-    u.login as assigneeLogin
-    from
-    (select
-        row_number() over(order by i.issue_creation_date ASC) as row_number,
-          <include refid="issueColumnsInInnerQuery"/>
-        from issues i
-        where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-      order by row_number asc
-      offset #{pagination.offset} rows
-      fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only)  i
-    inner join rules r on r.uuid=i.rule_uuid
-    inner join components p on p.uuid=i.component_uuid
-    inner join components root on root.uuid=i.project_uuid
-    left join users u on i.assignee = u.uuid
-    left join new_code_reference_issues n on i.kee = n.issue_key
-    left outer join issues_impacts ii on i.kee = ii.issue_key
-    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
-  </select>
-
-   <select id="selectByComponentUuidPaginated" parameterType="map" resultMap="issueResultMap" databaseId="oracle">
-    select
-    <include refid="issueColumns"/>,
-    u.login as assigneeLogin
-    from
-	  (select <include refid="issueColumnsInInnerQuery"/> from (
-	      select rownum as rn, t.* from (
-	        select
-	        <include refid="issueColumnsInInnerQuery"/>
-	        from issues i
-	        where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-	        	order by i.issue_creation_date ASC
-	      ) t
-	    ) i
-	    where
-	      i.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-	    order by i.rn asc) i
-    inner join rules r on r.uuid=i.rule_uuid
-    inner join components p on p.uuid=i.component_uuid
-    inner join components root on root.uuid=i.project_uuid
-    left join users u on i.assignee = u.uuid
-    left join new_code_reference_issues n on i.kee = n.issue_key
-    left outer join issues_impacts ii on i.kee = ii.issue_key
-    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
   </select>
 
   <sql id="selectByBranchColumns">
@@ -918,6 +727,6 @@
         <!--  order by clause is required if using offset rows fetch next on MSSQL Database   -->
         order by (select null)
       </if>
-    offset (#{pagination.startRowNumber,jdbcType=INTEGER}-1) rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
   </select>
 </mapper>

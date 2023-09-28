@@ -21,8 +21,6 @@ package org.sonar.db;
 
 public interface Pagineable {
 
-  int getStartRowNumber();
-
   int getOffset();
 
   int getPageSize();

@@ -81,13 +81,6 @@ public class PaginationTest {
   }
 
   @Test
-  public void startRowNumber_is_computed_from_page_and_size() {
-    assertThat(forPage(2).andSize(3).getStartRowNumber()).isEqualTo(4);
-    assertThat(forPage(5).andSize(3).getStartRowNumber()).isEqualTo(13);
-    assertThat(forPage(5).andSize(1).getStartRowNumber()).isEqualTo(5);
-  }
-
-  @Test
   public void endRowNumber_is_computed_from_page_and_size() {
     assertThat(forPage(2).andSize(3).getEndRowNumber()).isEqualTo(6);
     assertThat(forPage(5).andSize(3).getEndRowNumber()).isEqualTo(15);

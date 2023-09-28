@@ -110,7 +110,7 @@
   </select>
 
   <sql id="pagination">
-    offset (#{pagination.startRowNumber,jdbcType=INTEGER}-1) rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
   </sql>
 
   <select id="countByQuery" resultType="int">
@@ -148,32 +148,7 @@
     select cq.uuid as ceTaskUuid, cq.created_at as createdAt
     <include refid="sqlSelectEligibleForPeek"/>
     <include refid="orderBySelectEligibleForPeek"/>
-    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
-  </select>
-
-  <select id="selectEligibleForPeek" parameterType="map" resultType="org.sonar.db.ce.CeTaskDtoLight" databaseId="mssql">
-    select query.uuid as ceTaskUuid, query.created_at as createdAt from (
-      select
-        row_number() over(<include refid="orderBySelectEligibleForPeek"/>) as number,
-        <include refid="columnsSelectEligibleForPeek"/>
-      <include refid="sqlSelectEligibleForPeek"/>
-    ) as query
-    where
-    query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-    order by number asc
-  </select>
-
-  <select id="selectEligibleForPeek" parameterType="map" resultType="org.sonar.db.ce.CeTaskDtoLight" databaseId="oracle">
-    select taskuuid as ceTaskUuid, createdat as createdAt from (
-      select rownum as rn, t."uuid" as taskuuid, t."created_at" as createdat from (
-        select
-          <include refid="columnsSelectEligibleForPeek"/>
-          <include refid="sqlSelectEligibleForPeek"/>
-          <include refid="orderBySelectEligibleForPeek"/>
-      ) t
-    ) t
-    where
-      t.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
   </select>
 
   <sql id="columnsSelectEligibleForPeek">

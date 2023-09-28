@@ -104,40 +104,7 @@
         <include refid="selectFromUsersAndJoinScmAccounts"/>
         <include refid="searchByQueryWhereClause"/>
         ORDER BY u.login
-        limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
-    </select>
-
-    <select id="selectUsers" parameterType="map" resultMap="userResultMap" databaseId="mssql">
-        SELECT
-            <include refid="usersAndScmAccountsColumns"/>
-        FROM
-            (SELECT
-                <include refid="searchByQueryInnerQueryColumns"/>
-            FROM users u
-            <include refid="searchByQueryWhereClause"/>
-            ORDER BY u.login
-            offset #{pagination.offset} rows
-            fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
-            ) u
-        <include refid="leftOuterJoinScmAccounts"/>
-    </select>
-
-    <select id="selectUsers" parameterType="map" resultMap="userResultMap" databaseId="oracle">
-        SELECT
-            <include refid="usersAndScmAccountsColumns"/>
-        FROM
-            (SELECT rownum as rn, t.* from (
-                SELECT
-                <include refid="searchByQueryInnerQueryColumns"/>
-                FROM users u
-                <include refid="searchByQueryWhereClause"/>
-                ORDER BY u.login ASC
-                ) t
-            ) u
-        <include refid="leftOuterJoinScmAccounts"/>
-        WHERE
-        u.rn BETWEEN #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-	      ORDER BY u.rn ASC
+        offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
     </select>
 
     <select id="countByQuery" parameterType="map" resultType="int">
