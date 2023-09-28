@@ -63,6 +63,8 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
+import static org.sonar.api.rule.RuleStatus.*;
+import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
 
 public class RuleDaoIT {
@@ -478,7 +480,7 @@ public class RuleDaoIT {
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
       .addRuleDescriptionSectionDto(sectionDto)
       .addDefaultImpact(ruleDefaultImpactDto)
-      .setStatus(RuleStatus.DEPRECATED)
+      .setStatus(DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
       .setIsTemplate(true)
@@ -503,7 +505,7 @@ public class RuleDaoIT {
     RuleDto ruleDto = underTest.selectOrFailByKey(db.getSession(), RuleKey.of("plugin", "NewRuleKey"));
     assertThat(ruleDto.getUuid()).isNotNull();
     assertThat(ruleDto.getName()).isEqualTo("new name");
-    assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.DEPRECATED);
+    assertThat(ruleDto.getStatus()).isEqualTo(DEPRECATED);
     assertThat(ruleDto.getRuleKey()).isEqualTo("NewRuleKey");
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("plugin");
     assertThat(ruleDto.getConfigKey()).isEqualTo("NewConfigKey");
@@ -526,7 +528,11 @@ public class RuleDaoIT {
     assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
     assertThat(ruleDto.getRuleDescriptionSectionDtos()).usingRecursiveFieldByFieldElementComparator()
       .containsOnly(sectionDto);
-    assertThat(ruleDto.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
+    assertCleanCodeInformation(ruleDto, CleanCodeAttribute.CLEAR, ruleDefaultImpactDto);
+  }
+
+  private static void assertCleanCodeInformation(RuleDto ruleDto, CleanCodeAttribute attribute, ImpactDto ruleDefaultImpactDto) {
+    assertThat(ruleDto.getCleanCodeAttribute()).isEqualTo(attribute);
     assertThat(ruleDto.getDefaultImpacts()).usingRecursiveFieldByFieldElementComparator()
       .containsOnly(ruleDefaultImpactDto);
   }
@@ -542,7 +548,7 @@ public class RuleDaoIT {
       .setName("new name")
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
       .addRuleDescriptionSectionDto(sectionDto)
-      .setStatus(RuleStatus.DEPRECATED)
+      .setStatus(DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
       .setIsTemplate(true)
@@ -566,7 +572,7 @@ public class RuleDaoIT {
 
     RuleDto ruleDto = underTest.selectOrFailByKey(db.getSession(), RuleKey.of("plugin", "NewRuleKey"));
     assertThat(ruleDto.getName()).isEqualTo("new name");
-    assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.DEPRECATED);
+    assertThat(ruleDto.getStatus()).isEqualTo(DEPRECATED);
     assertThat(ruleDto.getRuleKey()).isEqualTo("NewRuleKey");
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("plugin");
     assertThat(ruleDto.getConfigKey()).isEqualTo("NewConfigKey");
@@ -854,9 +860,10 @@ public class RuleDaoIT {
       .setDefaultValue("30")
       .setDescription("My Parameter");
 
-    underTest.insertRuleParam(db.getSession(), ruleDefinitionDto, param);
+    DbSession session = db.getSession();
+    underTest.insertRuleParam(session, ruleDefinitionDto, param);
 
-    assertThatThrownBy(() -> underTest.insertRuleParam(db.getSession(), ruleDefinitionDto, param))
+    assertThatThrownBy(() -> underTest.insertRuleParam(session, ruleDefinitionDto, param))
       .isInstanceOf(PersistenceException.class);
   }
 
@@ -1172,14 +1179,36 @@ public class RuleDaoIT {
   }
 
   @Test
+  public void countByLanguage_shouldReturnExpectedNumberOfRules() {
+    insertMultipleRules(10, "js", false, READY);
+    insertMultipleRules(5, "js", true, READY);
+    insertMultipleRules(3, "kotlin", false, DEPRECATED);
+    insertMultipleRules(3, "java", false, REMOVED);
+
+    db.getSession().commit();
+
+    assertThat(underTest.countByLanguage(db.getSession(), "js")).isEqualTo(10);
+    assertThat(underTest.countByLanguage(db.getSession(), "kotlin")).isEqualTo(3);
+    assertThat(underTest.countByLanguage(db.getSession(), "java")).isZero();
+
+  }
+
+  private void insertMultipleRules(int rulesCount, String language, boolean isExternal, RuleStatus ruleStatus) {
+    for (int i = 0; i < rulesCount; i++) {
+      db.rules().insert(rule -> rule.setLanguage(language).setIsExternal(isExternal).setStatus(ruleStatus));
+    }
+  }
+
+  @Test
   public void insertDeprecatedRuleKey_with_same_RuleKey_should_fail() {
     String repositoryKey = randomAlphanumeric(50);
     String ruleKey = randomAlphanumeric(50);
-    db.rules().insertDeprecatedKey(d -> d.setOldRepositoryKey(repositoryKey)
+    RuleDbTester ruleTester = db.rules();
+    ruleTester.insertDeprecatedKey(d -> d.setOldRepositoryKey(repositoryKey)
       .setOldRuleKey(ruleKey));
 
     assertThatThrownBy(() -> {
-      db.rules().insertDeprecatedKey(d -> d.setOldRepositoryKey(repositoryKey)
+      ruleTester.insertDeprecatedKey(d -> d.setOldRepositoryKey(repositoryKey)
         .setOldRuleKey(ruleKey));
     })
       .isInstanceOf(PersistenceException.class);

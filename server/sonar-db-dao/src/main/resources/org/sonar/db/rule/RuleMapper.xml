@@ -244,10 +244,22 @@
     from
       rules r
     where
-      r.status in ('READY', 'DEPRECATED')
-      and r.is_external=${_false}
-      and r.language=#{language, jdbcType=VARCHAR}
+      <include refid="conditionNotExternalRulesByLanguage" />
   </select>
+
+  <select id="countByLanguage" resultType="java.lang.Long">
+  select count(*)
+  from
+    rules r
+  where
+    <include refid="conditionNotExternalRulesByLanguage" />
+  </select>
+
+  <sql id="conditionNotExternalRulesByLanguage">
+    r.status in ('READY', 'DEPRECATED', 'BETA')
+    and r.is_external=${_false}
+    and r.language=#{language, jdbcType=VARCHAR}
+  </sql>
 
   <insert id="insertRuleDescriptionSection" parameterType="Map" useGeneratedKeys="false">
     insert into rule_desc_sections (

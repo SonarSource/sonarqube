@@ -246,4 +246,8 @@ public class RuleDao implements Dao {
   public void insert(DbSession dbSession, DeprecatedRuleKeyDto deprecatedRuleKey) {
     mapper(dbSession).insertDeprecatedRuleKey(deprecatedRuleKey);
   }
+
+  public long countByLanguage(DbSession dbSession, String language) {
+    return mapper(dbSession).countByLanguage(language);
+  }
 }

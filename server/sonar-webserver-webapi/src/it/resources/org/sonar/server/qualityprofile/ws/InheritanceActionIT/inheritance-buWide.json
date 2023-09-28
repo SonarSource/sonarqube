@@ -5,6 +5,7 @@
     "parent": "xoo-my-company-profile-12345",
     "activeRuleCount": 2,
     "overridingRuleCount": 1,
+    "inactiveRuleCount": 1,
     "isBuiltIn": false
   },
   "ancestors": [
@@ -13,12 +14,16 @@
       "name": "My Company Profile",
       "parent": "xoo-sonar-way",
       "activeRuleCount": 2,
+      "overridingRuleCount": 0,
+      "inactiveRuleCount": 1,
       "isBuiltIn": false
     },
     {
       "key": "xoo-sonar-way",
       "name": "Sonar way",
       "activeRuleCount": 2,
+      "overridingRuleCount": 0,
+      "inactiveRuleCount": 1,
       "isBuiltIn": true
     }
   ],
@@ -26,14 +31,19 @@
     {
       "key": "xoo-for-project-one-34567",
       "name": "For Project One",
+      "parent": "xoo-my-bu-profile-23456",
       "activeRuleCount": 3,
+      "overridingRuleCount": 0,
+      "inactiveRuleCount": 0,
       "isBuiltIn": false
     },
     {
       "key": "xoo-for-project-two-45678",
       "name": "For Project Two",
+      "parent": "xoo-my-bu-profile-23456",
       "activeRuleCount": 2,
       "overridingRuleCount": 1,
+      "inactiveRuleCount": 1,
       "isBuiltIn": false
     }
   ]

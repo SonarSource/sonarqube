@@ -49,6 +49,8 @@ public interface RuleMapper {
 
   List<RuleDto> selectByLanguage(@Param("language") String language);
 
+  Long countByLanguage(@Param("language") String language);
+
   void insertRule(RuleDto ruleDefinitionDto);
 
   void insertRuleDescriptionSection(@Param("ruleUuid") String ruleUuid, @Param("dto") RuleDescriptionSectionDto ruleDescriptionSectionDto);

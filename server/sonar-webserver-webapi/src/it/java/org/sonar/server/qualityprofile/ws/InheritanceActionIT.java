@@ -137,19 +137,18 @@ public class InheritanceActionIT {
 
   @Test
   public void inheritance_parent_child() throws Exception {
-    RuleDto rule1 = db.rules().insert();
-    RuleDto rule2 = db.rules().insert();
-    RuleDto rule3 = db.rules().insert();
+    String language = "java";
+    RuleDto rule1 = db.rules().insert(r -> r.setLanguage(language));
+    RuleDto rule2 = db.rules().insert(r -> r.setLanguage(language));
+    RuleDto rule3 = db.rules().insert(r -> r.setLanguage(language));
     ruleIndexer.commitAndIndex(db.getSession(), asList(rule1.getUuid(), rule2.getUuid(), rule3.getUuid()));
 
-    QProfileDto parent = db.qualityProfiles().insert();
+    QProfileDto parent = db.qualityProfiles().insert(p -> p.setLanguage(language));
     db.qualityProfiles().activateRule(parent, rule1);
     db.qualityProfiles().activateRule(parent, rule2);
-    long parentRules = 2;
 
-    QProfileDto child = db.qualityProfiles().insert(q -> q.setParentKee(parent.getKee()));
+    QProfileDto child = db.qualityProfiles().insert(q -> q.setParentKee(parent.getKee()).setLanguage(language));
     db.qualityProfiles().activateRule(child, rule3);
-    long childRules = 1;
 
     activeRuleIndexer.indexAll();
 
@@ -163,10 +162,11 @@ public class InheritanceActionIT {
     InheritanceWsResponse result = InheritanceWsResponse.parseFrom(response);
 
     assertThat(result.getProfile().getKey()).isEqualTo(child.getKee());
-    assertThat(result.getProfile().getActiveRuleCount()).isEqualTo(childRules);
+    assertThat(result.getProfile().getActiveRuleCount()).isEqualTo(1);
+    assertThat(result.getProfile().getInactiveRuleCount()).isEqualTo(2);
 
     assertThat(result.getAncestorsList()).extracting(InheritanceWsResponse.QualityProfile::getKey).containsExactly(parent.getKee());
-    assertThat(result.getAncestorsList()).extracting(InheritanceWsResponse.QualityProfile::getActiveRuleCount).containsExactly(parentRules);
+    assertThat(result.getAncestorsList()).extracting(InheritanceWsResponse.QualityProfile::getActiveRuleCount).containsExactly(2L);
   }
 
   @Test
