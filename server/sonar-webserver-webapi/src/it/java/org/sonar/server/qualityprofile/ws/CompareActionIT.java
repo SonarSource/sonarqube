@@ -22,16 +22,20 @@ package org.sonar.server.qualityprofile.ws;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -47,6 +51,7 @@ import org.sonar.server.ws.WsActionTester;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.api.issue.impact.Severity.HIGH;
 
 public class CompareActionIT {
 
@@ -57,10 +62,10 @@ public class CompareActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession session = db.getSession();
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession session = db.getSession();
 
-  private WsActionTester ws = new WsActionTester(
+  private final WsActionTester ws = new WsActionTester(
     new CompareAction(db.getDbClient(), new QProfileComparison(db.getDbClient()), new Languages(LanguageTesting.newLanguage("xoo", "Xoo"))));
 
   @Test
@@ -104,6 +109,26 @@ public class CompareActionIT {
       .setParam("leftKey", profile1.getKee())
       .setParam("rightKey", profile2.getKee())
       .execute().assertJson(this.getClass(), "compare_nominal.json");
+  }
+
+  @Test
+  public void compare_whenSecurityHotspot_shouldReturnEmptyCleanCodeInformation() {
+    createRepository("blah", "xoo", "Blah");
+
+    RuleDto rule1 = createSecurityHotspot("xoo", "rule1");
+    RuleDto rule2 = createSecurityHotspot("xoo", "rule2");
+
+    QProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
+    createActiveRule(rule1, profile1);
+
+    QProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
+    createActiveRule(rule2, profile2);
+    session.commit();
+
+    ws.newRequest()
+      .setParam("leftKey", profile1.getKee())
+      .setParam("rightKey", profile2.getKee())
+      .execute().assertJson(this.getClass(), "compare_hotspot.json");
   }
 
   @Test
@@ -206,10 +231,25 @@ public class CompareActionIT {
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
       .setScope(Scope.MAIN)
-      .setStatus(RuleStatus.READY);
+      .setStatus(RuleStatus.READY)
+      .setCleanCodeAttribute(CleanCodeAttribute.EFFICIENT)
+      .addDefaultImpact(new ImpactDto(Uuids.createFast(), SoftwareQuality.RELIABILITY, HIGH));
     RuleDto ruleDto = rule;
     dbClient.ruleDao().insert(session, ruleDto);
     return ruleDto;
+  }
+
+  private RuleDto createSecurityHotspot(String lang, String id) {
+    RuleDto rule = createFor(RuleKey.of("blah", id))
+      .setUuid(Uuids.createFast())
+      .setName(StringUtils.capitalize(id))
+      .setLanguage(lang)
+      .setSeverity(Severity.BLOCKER)
+      .setScope(Scope.MAIN)
+      .setStatus(RuleStatus.READY)
+      .setType(RuleType.SECURITY_HOTSPOT);
+    dbClient.ruleDao().insert(session, rule);
+    return rule;
   }
 
   private static RuleDto createFor(RuleKey key) {
