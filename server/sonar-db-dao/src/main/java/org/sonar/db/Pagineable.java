@@ -17,32 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.scim;
+package org.sonar.db;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
-import org.sonar.db.Pagineable;
+public interface Pagineable {
 
-public interface ScimUserMapper {
+  int getStartRowNumber();
 
-  List<ScimUserDto> findAll();
+  int getOffset();
 
-  @CheckForNull
-  ScimUserDto findByScimUuid(@Param("scimUserUuid") String scimUserUuid);
+  int getPageSize();
 
-  @CheckForNull
-  ScimUserDto findByUserUuid(@Param("userUuid") String userUuid);
-
-  void insert(@Param("scimUserDto") ScimUserDto scimUserDto);
-
-  List<ScimUserDto> findScimUsers(@Param("query") ScimUserQuery scimUserQuery, @Param("pagination") Pagineable pagination);
-
-  int countScimUsers(@Param("query") ScimUserQuery scimUserQuery);
-
-  void deleteByUserUuid(@Param("userUuid") String userUuid);
-
-  void deleteByScimUuid(@Param("scimUuid") String scimUuid);
-
-  void deleteAll();
 }

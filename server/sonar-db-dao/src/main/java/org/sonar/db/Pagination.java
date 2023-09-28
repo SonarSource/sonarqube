@@ -24,7 +24,7 @@ import javax.annotation.concurrent.Immutable;
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Immutable
-public final class Pagination {
+public final class Pagination implements Pagineable {
   private static final Pagination ALL = new Builder(1).andSize(Integer.MAX_VALUE);
 
   private static final Pagination FIRST = new Builder(1).andSize(1);
@@ -53,14 +53,17 @@ public final class Pagination {
     return page;
   }
 
+  @Override
   public int getPageSize() {
     return pageSize;
   }
 
+  @Override
   public int getOffset() {
     return (page - 1) * pageSize;
   }
 
+  @Override
   public int getStartRowNumber() {
     return getOffset() + 1;
   }

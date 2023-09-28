@@ -21,10 +21,10 @@ package org.sonar.db.scim;
 
 import java.util.List;
 import java.util.Optional;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagineable;
 
 public class ScimGroupDao implements Dao {
   private final UuidFactory uuidFactory;
@@ -37,8 +37,8 @@ public class ScimGroupDao implements Dao {
     return mapper(dbSession).findAll();
   }
 
-  public List<ScimGroupDto> findScimGroups(DbSession dbSession, ScimGroupQuery query, int offset, int limit) {
-    return mapper(dbSession).findScimGroups(query, new RowBounds(offset, limit));
+  public List<ScimGroupDto> findScimGroups(DbSession dbSession, ScimGroupQuery query, Pagineable pagination) {
+    return mapper(dbSession).findScimGroups(query, pagination);
   }
 
   public Optional<ScimGroupDto> findByScimUuid(DbSession dbSession, String scimGroupUuid) {

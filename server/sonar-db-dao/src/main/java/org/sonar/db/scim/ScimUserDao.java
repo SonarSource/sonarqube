@@ -23,10 +23,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagineable;
 
 import static org.sonar.api.utils.Preconditions.checkState;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -56,7 +56,7 @@ public class ScimUserDao implements Dao {
     return scimUserDto;
   }
 
-  public List<ScimUserDto> findScimUsers(DbSession dbSession, ScimUserQuery scimUserQuery, int offset, int limit) {
+  public List<ScimUserDto> findScimUsers(DbSession dbSession, ScimUserQuery scimUserQuery, Pagineable pagination) {
     checkState(scimUserQuery.getUserUuids() == null || scimUserQuery.getScimUserUuids() == null,
       "Only one of userUuids & scimUserUuids request parameter is supported.");
     if (scimUserQuery.getScimUserUuids() != null) {
@@ -64,7 +64,7 @@ public class ScimUserDao implements Dao {
         scimUserQuery.getScimUserUuids(),
         partialSetOfUsers -> createPartialQuery(scimUserQuery, partialSetOfUsers,
           (builder, scimUserUuids) -> builder.scimUserUuids(new HashSet<>(scimUserUuids)),
-          dbSession, offset, limit)
+          dbSession, pagination)
       );
     }
     if (scimUserQuery.getUserUuids() != null) {
@@ -72,20 +72,21 @@ public class ScimUserDao implements Dao {
         scimUserQuery.getUserUuids(),
         partialSetOfUsers -> createPartialQuery(scimUserQuery, partialSetOfUsers,
           (builder, userUuids) -> builder.userUuids(new HashSet<>(userUuids)),
-          dbSession, offset, limit)
+          dbSession, pagination)
       );
     }
-    return mapper(dbSession).findScimUsers(scimUserQuery, new RowBounds(offset, limit));
+
+    return mapper(dbSession).findScimUsers(scimUserQuery, pagination);
   }
 
   private static List<ScimUserDto> createPartialQuery(ScimUserQuery completeQuery, List<String> strings,
     BiFunction<ScimUserQuery.ScimUserQueryBuilder, List<String>, ScimUserQuery.ScimUserQueryBuilder> queryModifier,
-    DbSession dbSession, int offset, int limit) {
+    DbSession dbSession, Pagineable pagination) {
 
     ScimUserQuery.ScimUserQueryBuilder partialScimUserQuery = ScimUserQuery.builder()
       .userName(completeQuery.getUserName());
     partialScimUserQuery = queryModifier.apply(partialScimUserQuery, strings);
-    return mapper(dbSession).findScimUsers(partialScimUserQuery.build(), new RowBounds(offset, limit));
+    return mapper(dbSession).findScimUsers(partialScimUserQuery.build(), pagination);
   }
 
   public int countScimUsers(DbSession dbSession, ScimUserQuery scimUserQuery) {

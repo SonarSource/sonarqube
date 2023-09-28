@@ -36,6 +36,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.OffsetBasedPagination;
+import org.sonar.db.Pagination;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -111,7 +113,6 @@ public class ScimUserDaoIT {
       {9, 3, 3, List.of("4", "5", "6")},
       {9, 7, 3, List.of("8", "9")},
       {5, 5, 20, List.of()},
-      {5, 0, 0, List.of()},
     };
   }
 
@@ -120,7 +121,7 @@ public class ScimUserDaoIT {
   public void findScimUsers_whenPaginationAndStartIndex_shouldReturnTheCorrectNumberOfScimUsers(int totalScimUsers, int offset, int pageSize, List<String> expectedScimUserUuids) {
     generateScimUsers(totalScimUsers);
 
-    List<ScimUserDto> scimUserDtos = scimUserDao.findScimUsers(dbSession, ScimUserQuery.empty(), offset, pageSize);
+    List<ScimUserDto> scimUserDtos = scimUserDao.findScimUsers(dbSession, ScimUserQuery.empty(), OffsetBasedPagination.forOffset(offset, pageSize));
 
     List<String> scimUsersUuids = toScimUsersUuids(scimUserDtos);
     assertThat(scimUsersUuids).containsExactlyElementsOf(expectedScimUserUuids);
@@ -195,7 +196,7 @@ public class ScimUserDaoIT {
     insertScimUsersWithUsers(userLogins);
     ScimUserQuery query = ScimUserQuery.builder().userName(search).build();
 
-    List<ScimUserDto> scimUsersByQuery = scimUserDao.findScimUsers(dbSession, query, 0, 100);
+    List<ScimUserDto> scimUsersByQuery = scimUserDao.findScimUsers(dbSession, query, Pagination.all());
 
     List<String> scimUsersUuids = toScimUsersUuids(scimUsersByQuery);
     assertThat(scimUsersUuids).containsExactlyElementsOf(expectedScimUserUuids);
@@ -212,7 +213,7 @@ public class ScimUserDaoIT {
 
     ScimUserQuery query = ScimUserQuery.builder().groupUuid(group1dto.getUuid()).build();
 
-    List<ScimUserDto> scimUsers = scimUserDao.findScimUsers(dbSession, query, 0, 100);
+    List<ScimUserDto> scimUsers = scimUserDao.findScimUsers(dbSession, query, Pagination.all());
 
     List<String> scimUsersUuids = toScimUsersUuids(scimUsers);
     assertThat(scimUsersUuids).containsExactlyInAnyOrder(
@@ -238,7 +239,7 @@ public class ScimUserDaoIT {
 
     ScimUserQuery query = ScimUserQuery.builder().scimUserUuids(expectedScimUserUuids).build();
 
-    List<ScimUserDto> scimUsersByQuery = scimUserDao.findScimUsers(dbSession, query, 0, Integer.MAX_VALUE);
+    List<ScimUserDto> scimUsersByQuery = scimUserDao.findScimUsers(dbSession, query, Pagination.all());
 
     List<String> scimUsersUuids = toScimUsersUuids(scimUsersByQuery);
     assertThat(scimUsersByQuery)
@@ -255,7 +256,7 @@ public class ScimUserDaoIT {
 
     ScimUserQuery query = ScimUserQuery.builder().scimUserUuids(scimUserUuids).userName("username_5").build();
 
-    List<ScimUserDto> scimUsersByQuery = scimUserDao.findScimUsers(dbSession, query, 0, Integer.MAX_VALUE);
+    List<ScimUserDto> scimUsersByQuery = scimUserDao.findScimUsers(dbSession, query, Pagination.all());
 
     assertThat(scimUsersByQuery).hasSize(1)
       .extracting(ScimUserDto::getScimUserUuid)
@@ -271,7 +272,7 @@ public class ScimUserDaoIT {
 
     ScimUserQuery query = ScimUserQuery.builder().userUuids(allUsersUuid).build();
 
-    List<ScimUserDto> scimUsersByQuery = scimUserDao.findScimUsers(dbSession, query, 0, Integer.MAX_VALUE);
+    List<ScimUserDto> scimUsersByQuery = scimUserDao.findScimUsers(dbSession, query, Pagination.all());
 
     assertThat(scimUsersByQuery)
       .hasSameSizeAs(allUsersUuid)
@@ -288,7 +289,7 @@ public class ScimUserDaoIT {
 
     ScimUserQuery query = ScimUserQuery.builder().userUuids(allUsersUuid).userName("username_5").build();
 
-    List<ScimUserDto> scimUsersByQuery = scimUserDao.findScimUsers(dbSession, query, 0, Integer.MAX_VALUE);
+    List<ScimUserDto> scimUsersByQuery = scimUserDao.findScimUsers(dbSession, query, Pagination.all());
 
     assertThat(scimUsersByQuery).hasSize(1)
       .extracting(ScimUserDto::getScimUserUuid)

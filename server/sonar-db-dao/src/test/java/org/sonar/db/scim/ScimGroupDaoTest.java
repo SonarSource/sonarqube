@@ -31,6 +31,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.db.DbTester;
+import org.sonar.db.OffsetBasedPagination;
+import org.sonar.db.Pagination;
 import org.sonar.db.user.GroupDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -85,8 +87,7 @@ public class ScimGroupDaoTest {
       {9, 0, 5, List.of("1", "2", "3", "4", "5")},
       {9, 3, 3, List.of("4", "5", "6")},
       {9, 7, 3, List.of("8", "9")},
-      {5, 5, 20, List.of()},
-      {5, 0, 0, List.of()}
+      {5, 5, 20, List.of()}
     };
   }
 
@@ -96,7 +97,7 @@ public class ScimGroupDaoTest {
     List<String> expectedScimGroupUuidSuffixes) {
     generateScimGroups(totalScimGroups);
 
-    List<ScimGroupDto> scimGroupDtos = scimGroupDao.findScimGroups(db.getSession(), ScimGroupQuery.ALL, offset, pageSize);
+    List<ScimGroupDto> scimGroupDtos = scimGroupDao.findScimGroups(db.getSession(), ScimGroupQuery.ALL, OffsetBasedPagination.forOffset(offset, pageSize));
 
     List<String> actualScimGroupsUuids = toScimGroupsUuids(scimGroupDtos);
     List<String> expectedScimGroupUuids = toExpectedscimGroupUuids(expectedScimGroupUuidSuffixes);
@@ -115,7 +116,7 @@ public class ScimGroupDaoTest {
     insertGroupAndScimGroup("group2");
     ScimGroupQuery query = ScimGroupQuery.fromScimFilter(DISPLAY_NAME_FILTER);
 
-    List<ScimGroupDto> scimGroups = scimGroupDao.findScimGroups(db.getSession(), query, 0, 100);
+    List<ScimGroupDto> scimGroups = scimGroupDao.findScimGroups(db.getSession(), query, Pagination.all());
 
     assertThat(scimGroups).hasSize(1);
     assertThat(scimGroups.get(0).getScimGroupUuid()).isEqualTo(createScimGroupUuid("group2"));

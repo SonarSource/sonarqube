@@ -22,7 +22,7 @@ package org.sonar.db.scim;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
+import org.sonar.db.Pagineable;
 
 public interface ScimGroupMapper {
 
@@ -34,7 +34,7 @@ public interface ScimGroupMapper {
   @CheckForNull
   ScimGroupDto findByGroupUuid(@Param("groupUuid") String groupUuid);
 
-  List<ScimGroupDto> findScimGroups(@Param("query") ScimGroupQuery query, RowBounds rowBounds);
+  List<ScimGroupDto> findScimGroups(@Param("query") ScimGroupQuery query, @Param("pagination") Pagineable pagination);
 
   int countScimGroups(@Param("query") ScimGroupQuery query);
 

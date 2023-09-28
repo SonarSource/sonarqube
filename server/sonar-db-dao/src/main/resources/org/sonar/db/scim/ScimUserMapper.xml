@@ -51,12 +51,17 @@
     )
   </insert>
 
-  <select id="findScimUsers" parameterType="map" resultType="org.sonar.db.scim.ScimUserDto">
+  <select id="findScimUsers" resultType="org.sonar.db.scim.ScimUserDto">
     select
     <include refid="scimUsersColumns"/>
     <include refid="sqlSelectByQuery"/>
     order by s.scim_uuid asc
+    <include refid="pagination"/>
   </select>
+
+  <sql id="pagination">
+    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+  </sql>
 
   <select id="countScimUsers" parameterType="map" resultType="int">
     select count(1)
