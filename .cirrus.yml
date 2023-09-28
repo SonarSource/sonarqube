@@ -74,7 +74,9 @@ github_task_template: &GITHUB_TASK_TEMPLATE
 gitlab_task_template: &GITLAB_TASK_TEMPLATE
   only_if: >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
-    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/gitlab/**/*.java', 'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/gitlab/**/*.java')
+    changesInclude('private/core-extension-developer-server/src/main/java/com/sonarsource/branch/pr/gitlab/**/*.java', 
+    'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/gitlab/**/*.java',
+    'private/core-extension-gitlab-vulnerability-report/src/main/**/*.java')
 
 azure_task_template: &AZURE_TASK_TEMPLATE
   only_if: >-
