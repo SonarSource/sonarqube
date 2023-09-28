@@ -31,34 +31,8 @@
     from audits a
     where
       a.created_at &gt;= #{start} and a.created_at &lt; #{end}
+    order by created_at asc
     offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
-  </select>
-
-  <select id="selectByPeriodPaginated" parameterType="map" resultType="org.sonar.db.audit.AuditDto" databaseId="mssql">
-    select <include refid="sqlColumns"/> from (
-      select
-        row_number() over(order by created_at, uuid) as row_number,
-          <include refid="sqlColumnsInInnerQuery" />
-        from audits
-        where created_at &gt;= #{start} and created_at &lt; #{end}
-    ) as a
-    where
-    a.row_number between (#{pagination.offset,jdbcType=INTEGER}+1) and #{pagination.endRowNumber,jdbcType=INTEGER}
-    order by a.row_number asc
-  </select>
-
-  <select id="selectByPeriodPaginated" parameterType="map" resultType="org.sonar.db.audit.AuditDto" databaseId="oracle">
-    select <include refid="sqlColumns"/> from (
-      select rownum as rn, t.* from (
-        select
-        <include refid="sqlColumnsInInnerQuery"/>
-        from audits
-        where created_at &gt;= #{start} and created_at &lt; #{end}
-      ) t
-    ) a
-    where
-      a.rn between (#{pagination.offset,jdbcType=INTEGER}+1) and #{pagination.endRowNumber,jdbcType=INTEGER}
-    order by a.rn asc
   </select>
 
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">

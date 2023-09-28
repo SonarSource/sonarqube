@@ -19,7 +19,10 @@
  */
 package org.sonar.db.audit;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
@@ -134,6 +137,19 @@ public class AuditDaoIT {
     testAuditDao.insert(dbSession, auditDto);
 
     assertThat(auditDto.getNewValue()).isEqualTo(EXCEEDED_LENGTH);
+  }
+
+  @Test
+  public void selectByPeriodPaginated_whenRowsInAnyOrder_returnOrderedByCreatedAt(){
+    List<Long> createdAts = LongStream.range(1, 51).mapToObj(p -> p).collect(Collectors.toList());
+    Collections.shuffle(createdAts);
+    createdAts.stream().map(createdAt -> AuditTesting.newAuditDto(createdAt))
+      .forEach(auditDto -> testAuditDao.insert(dbSession, auditDto));
+
+    List<AuditDto> auditDtos = testAuditDao.selectByPeriodPaginated(dbSession, 1, 51, 1);
+
+    assertThat(auditDtos).hasSize(50);
+    assertThat(auditDtos).extracting(p -> p.getCreatedAt()).isSorted();
   }
 
   private void prepareRowsWithDeterministicCreatedAt(int size) {
