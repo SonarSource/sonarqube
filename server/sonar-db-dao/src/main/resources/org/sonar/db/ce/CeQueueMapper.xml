@@ -106,12 +106,8 @@
     <include refid="columns"/>
     <include refid="sqlSelectByQuery"/>
     <include refid="orderByDescDateAndUuid"/>
-    <include refid="pagination"/>
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
-
-  <sql id="pagination">
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
-  </sql>
 
   <select id="countByQuery" resultType="int">
     select
@@ -148,7 +144,7 @@
     select cq.uuid as ceTaskUuid, cq.created_at as createdAt
     <include refid="sqlSelectEligibleForPeek"/>
     <include refid="orderBySelectEligibleForPeek"/>
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <sql id="columnsSelectEligibleForPeek">

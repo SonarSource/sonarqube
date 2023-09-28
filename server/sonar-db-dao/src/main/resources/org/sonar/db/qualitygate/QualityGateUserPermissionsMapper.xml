@@ -41,7 +41,7 @@
     SELECT u.uuid as userUuid, u.name as name, qup.uuid as uuid
     <include refid="sqlSelectByQuery"/>
     ORDER BY u.name ASC
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <sql id="sqlSelectByQuery">

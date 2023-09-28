@@ -85,7 +85,7 @@
   <sql id="sqlSelectByQuery">
     <include refid="sqlSelectByQueryWithoutPagination"/>
     order by ca.created_at desc, uuid desc
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </sql>
 
   <select id="countByQuery" parameterType="map" resultType="int">

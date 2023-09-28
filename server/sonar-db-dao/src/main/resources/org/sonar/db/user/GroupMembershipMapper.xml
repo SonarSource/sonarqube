@@ -25,7 +25,7 @@
     SELECT g.uuid as uuid, g.name as name, g.description as description, gu.user_uuid as userUuid
     <include refid="commonClauses"/>
     ORDER BY g.name
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countGroups" parameterType="map" resultType="int">
@@ -99,7 +99,7 @@
     SELECT u.uuid as uuid, u.login as login, u.name as name, gu.group_uuid as groupUuid
     <include refid="userCommonClauses"/>
     ORDER BY u.name ASC
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countMembers" parameterType="map" resultType="int">

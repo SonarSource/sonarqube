@@ -45,7 +45,7 @@
       m.enabled=${_true}
     </where>
     ORDER BY UPPER(m.short_name), m.short_name
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countEnabled" resultType="Integer">

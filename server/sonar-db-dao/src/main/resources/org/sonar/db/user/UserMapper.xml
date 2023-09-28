@@ -104,7 +104,7 @@
         <include refid="selectFromUsersAndJoinScmAccounts"/>
         <include refid="searchByQueryWhereClause"/>
         ORDER BY u.login
-        offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+        <include refid="org.sonar.db.common.Common.pagination"/>
     </select>
 
     <select id="countByQuery" parameterType="map" resultType="int">

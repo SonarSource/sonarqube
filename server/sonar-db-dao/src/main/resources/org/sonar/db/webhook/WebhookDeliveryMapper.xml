@@ -38,7 +38,7 @@
     from webhook_deliveries
     where webhook_uuid = #{webhookUuid,jdbcType=VARCHAR}
     order by created_at desc
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countByProjectUuid" parameterType="String" resultType="int">
@@ -53,7 +53,7 @@
     from webhook_deliveries
     where project_uuid = #{projectUuid,jdbcType=VARCHAR}
     order by created_at desc
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="selectOrderedByCeTaskUuid" resultType="org.sonar.db.webhook.WebhookDeliveryLiteDto">
@@ -61,7 +61,7 @@
     from webhook_deliveries
     where ce_task_uuid = #{ceTaskUuid,jdbcType=VARCHAR}
     order by created_at desc
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countByCeTaskUuid" parameterType="String" resultType="int">

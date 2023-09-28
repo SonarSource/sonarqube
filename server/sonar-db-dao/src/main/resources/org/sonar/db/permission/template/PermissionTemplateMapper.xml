@@ -94,7 +94,7 @@
       <include refid="userLoginsByQueryAndTemplate"/>
     group by u.login, u.name
     order by case when (count(ptu.permission_reference) > 0) then 1 else 2 end asc, u.name
-    <include refid="pagination"/>
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countUserLoginsByQueryAndTemplate" parameterType="map" resultType="int">
@@ -128,7 +128,7 @@
     <include refid="groupNamesByQueryAndTemplate"/>
     group by groups.name, lower(groups.name), groups.group_uuid
     order by case when (count(groups.permission) > 0) then 1 else 2 end asc, lower(groups.name), groups.name, groups.group_uuid
-    <include refid="pagination"/>
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countGroupNamesByQueryAndTemplate" parameterType="map" resultType="int">
@@ -137,10 +137,6 @@
       SELECT DISTINCT group_uuid
       <include refid="groupNamesByQueryAndTemplate"/>) g
   </select>
-
-  <sql id="pagination">
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
-  </sql>
 
   <sql id="groupNamesByQueryAndTemplate">
     FROM

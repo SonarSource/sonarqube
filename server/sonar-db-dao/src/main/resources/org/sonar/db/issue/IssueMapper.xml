@@ -547,7 +547,7 @@
           </foreach>
     </if>
     order by i.kee
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="selectIssueKeysByComponentUuidAndChangedSinceDate" parameterType="map" resultType="string">
@@ -578,7 +578,7 @@
         </foreach>
    </if>
     order by i.kee
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="selectByComponentUuidPaginated" parameterType="map" resultMap="issueResultMap">
@@ -595,7 +595,7 @@
     left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
     where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
     order by i.issue_creation_date ASC
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <sql id="selectByBranchColumns">
@@ -727,6 +727,6 @@
         <!--  order by clause is required if using offset rows fetch next on MSSQL Database   -->
         order by (select null)
       </if>
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 </mapper>

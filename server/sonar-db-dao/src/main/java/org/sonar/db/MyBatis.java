@@ -45,6 +45,7 @@ import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskCharacteristicMapper;
 import org.sonar.db.ce.CeTaskInputMapper;
 import org.sonar.db.ce.CeTaskMessageMapper;
+import org.sonar.db.common.Common;
 import org.sonar.db.component.AnalysisPropertiesMapper;
 import org.sonar.db.component.AnalysisPropertyValuePerProject;
 import org.sonar.db.component.ApplicationProjectsMapper;
@@ -344,7 +345,8 @@ public class MyBatis {
       UserPermissionMapper.class,
       UserTokenMapper.class,
       WebhookMapper.class,
-      WebhookDeliveryMapper.class
+      WebhookDeliveryMapper.class,
+      Common.class
     };
     confBuilder.loadMappers(mappers);
     confExtensions.stream()

@@ -215,7 +215,7 @@
       <include refid="componentColumns"/>
     <include refid="sqlSelectByQuery"/>
     ORDER BY LOWER(p.name), p.name, p.created_at
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <select id="countByQuery" resultType="int">

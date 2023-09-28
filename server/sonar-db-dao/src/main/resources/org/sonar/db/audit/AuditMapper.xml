@@ -32,7 +32,7 @@
     where
       a.created_at &gt;= #{start} and a.created_at &lt; #{end}
     order by created_at asc
-    offset #{pagination.offset,jdbcType=INTEGER} rows fetch next #{pagination.pageSize,jdbcType=INTEGER} rows only
+    <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">
