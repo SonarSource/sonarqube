@@ -50,7 +50,6 @@ import {
   Metric,
   Paging,
   Period,
-  ProfileInheritanceDetails,
   Rule,
   RuleActivation,
   RuleDetails,
@@ -500,19 +499,6 @@ export function mockCompareResult(overrides: Partial<CompareResponse> = {}): Com
         right: { params: {}, severity: 'CRITICAL' },
       },
     ],
-    ...overrides,
-  };
-}
-
-export function mockQualityProfileInheritance(
-  overrides: Partial<ProfileInheritanceDetails> = {},
-): ProfileInheritanceDetails {
-  return {
-    activeRuleCount: 4,
-    isBuiltIn: false,
-    key: 'foo',
-    name: 'Foo',
-    overridingRuleCount: 0,
     ...overrides,
   };
 }

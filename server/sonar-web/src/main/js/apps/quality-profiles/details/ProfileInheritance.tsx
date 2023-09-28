@@ -24,7 +24,7 @@ import { translate } from '../../../helpers/l10n';
 import { useProfileInheritanceQuery } from '../../../queries/quality-profiles';
 import { Profile } from '../types';
 import ChangeParentForm from './ChangeParentForm';
-import ProfileInheritanceBox from './ProfileInheritanceBox';
+import ProfileInheritanceRow from './ProfileInheritanceRow';
 
 interface Props {
   profile: Profile;
@@ -50,8 +50,6 @@ export default function ProfileInheritance(props: Readonly<Props>) {
   const handleParentChange = React.useCallback(async () => {
     try {
       await updateProfiles();
-    } catch (error) {
-      // ignore
     } finally {
       closeForm();
     }
@@ -98,7 +96,7 @@ export default function ProfileInheritance(props: Readonly<Props>) {
       <Spinner loading={isLoading}>
         <Table columnCount={3} noSidePadding>
           {ancestors?.map((ancestor, index) => (
-            <ProfileInheritanceBox
+            <ProfileInheritanceRow
               depth={index}
               key={ancestor.key}
               language={profile.language}
@@ -108,7 +106,7 @@ export default function ProfileInheritance(props: Readonly<Props>) {
           ))}
 
           {profileInheritanceDetail && (
-            <ProfileInheritanceBox
+            <ProfileInheritanceRow
               className={classNames({
                 selected: highlightCurrent,
               })}
@@ -120,7 +118,7 @@ export default function ProfileInheritance(props: Readonly<Props>) {
           )}
 
           {children?.map((child) => (
-            <ProfileInheritanceBox
+            <ProfileInheritanceRow
               depth={ancestors ? ancestors.length + 1 : 0}
               key={child.key}
               language={profile.language}
@@ -137,7 +135,7 @@ export default function ProfileInheritance(props: Readonly<Props>) {
           onClose={closeForm}
           profile={profile}
           profiles={profiles.filter(
-            (p) => p !== profileInheritanceDetail && p.language === profile.language,
+            (p) => p.key !== profileInheritanceDetail?.key && p.language === profile.language,
           )}
         />
       )}

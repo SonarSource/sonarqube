@@ -169,8 +169,8 @@ describe('Evolution', () => {
         total: 20,
       }),
     });
-
     renderQualityProfiles();
+
     expect(await ui.recentlyAddedRulesRegion.find()).toBeInTheDocument();
     expect(ui.newRuleLink.get()).toBeInTheDocument();
     expect(ui.seeAllNewRulesLink.get()).toBeInTheDocument();

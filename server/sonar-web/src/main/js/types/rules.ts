@@ -54,3 +54,19 @@ export interface SearchRulesQuery {
   template_key?: string;
   types?: string;
 }
+
+export enum RulesFacetName {
+  AvailableSince = 'availableSince',
+  CleanCodeAttributeCategories = 'cleanCodeAttributeCategories',
+  Cwe = 'cwe',
+  Inheritance = 'inheritance',
+  ImpactSoftwareQualities = 'impactSoftwareQualities',
+  ImpactSeverities = 'impactSeverities',
+  Languages = 'languages',
+  Profile = 'profile',
+  Repositories = 'repositories',
+  Statuses = 'statuses',
+  Tags = 'tags',
+  Template = 'template',
+  Types = 'types',
+}

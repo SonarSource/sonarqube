@@ -29,6 +29,7 @@ import {
   mockRuleDetails,
   mockUserSelected,
 } from '../../helpers/testMocks';
+import { CleanCodeAttributeCategory, SoftwareQuality } from '../../types/clean-code-taxonomy';
 import { SearchRulesResponse } from '../../types/coding-rules';
 import { SearchRulesQuery } from '../../types/rules';
 import { Dict, Paging, ProfileInheritanceDetails, RuleDetails } from '../../types/types';
@@ -370,6 +371,12 @@ export default class QualityProfilesServiceMock {
     children: ProfileInheritanceDetails[];
     profile: ProfileInheritanceDetails;
   }> => {
+    const profileToProfileInheritanceDetails = (profile: Profile): ProfileInheritanceDetails => ({
+      ...profile,
+      inactiveRuleCount: 3,
+      isBuiltIn: false,
+    });
+
     const profile = this.listQualityProfile.find((p) => p.name === name && p.language === language);
     if (!profile) {
       return Promise.reject({
@@ -377,22 +384,17 @@ export default class QualityProfilesServiceMock {
       });
     }
 
-    const ancestors = this.listQualityProfile.filter(
-      (p) => p.key === profile.parentKey,
-    ) as ProfileInheritanceDetails[];
-    const children = this.listQualityProfile.filter(
-      (p) => p.parentKey === profile.key,
-    ) as ProfileInheritanceDetails[];
+    const ancestors = this.listQualityProfile
+      .filter((p) => p.key === profile.parentKey)
+      .map(profileToProfileInheritanceDetails);
+    const children = this.listQualityProfile
+      .filter((p) => p.parentKey === profile.key)
+      .map(profileToProfileInheritanceDetails);
 
     return this.reply({
       ancestors,
       children,
-      profile: {
-        name: profile.name,
-        activeRuleCount: 0,
-        isBuiltIn: false,
-        key: profile.key,
-      },
+      profile: profileToProfileInheritanceDetails(profile),
     });
   };
 
@@ -437,37 +439,52 @@ export default class QualityProfilesServiceMock {
   };
 
   handleSearchRules = (data: SearchRulesQuery): Promise<SearchRulesResponse> => {
-    if (data.activation) {
-      this.setRulesSearchResponse({
+    // Special case when we want rule breakdown
+    if (data.facets === 'cleanCodeAttributeCategories,impactSoftwareQualities') {
+      const activation = data.activation === 'true';
+      return this.reply({
         facets: [
           {
-            property: 'types',
+            property: 'cleanCodeAttributeCategories',
             values: [
               {
-                val: 'CODE_SMELL',
-                count: 200,
+                val: CleanCodeAttributeCategory.Intentional,
+                count: activation ? 23 : 27,
               },
               {
-                val: 'BUG',
-                count: 50,
+                val: CleanCodeAttributeCategory.Consistent,
+                count: activation ? 2 : 20,
               },
               {
-                val: 'VULNERABILITY',
-                count: 30,
+                val: CleanCodeAttributeCategory.Adaptable,
+                count: activation ? 1 : 12,
               },
               {
-                val: 'SECURITY_HOTSPOT',
-                count: 20,
+                val: CleanCodeAttributeCategory.Responsible,
+                count: 0,
+              },
+            ],
+          },
+          {
+            property: 'impactSoftwareQualities',
+            values: [
+              {
+                val: SoftwareQuality.Maintainability,
+                count: activation ? 9 : 53,
+              },
+              {
+                val: SoftwareQuality.Reliability,
+                count: activation ? 16 : 17,
+              },
+              {
+                val: SoftwareQuality.Security,
+                count: activation ? 0 : 14,
               },
             ],
           },
         ],
         rules: [],
-        paging: {
-          pageIndex: 1,
-          pageSize: 1,
-          total: 300,
-        },
+        paging: mockPaging(),
       });
     }
     return this.reply(this.searchRulesResponse);
@@ -479,7 +496,7 @@ export default class QualityProfilesServiceMock {
       compareToSonarWay: {
         profile: '',
         profileName: 'Sonar way',
-        missingRuleCount: 2,
+        missingRuleCount: 29,
       },
     });
   };

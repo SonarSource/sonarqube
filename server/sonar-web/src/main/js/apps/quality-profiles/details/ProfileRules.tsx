@@ -38,6 +38,7 @@ import { isDefined } from '../../../helpers/types';
 import { getRulesUrl } from '../../../helpers/urls';
 import { CleanCodeAttributeCategory, SoftwareQuality } from '../../../types/clean-code-taxonomy';
 import { SearchRulesResponse } from '../../../types/coding-rules';
+import { RulesFacetName } from '../../../types/rules';
 import { Dict } from '../../../types/types';
 import { Profile } from '../types';
 import ProfileRulesDeprecatedWarning from './ProfileRulesDeprecatedWarning';
@@ -68,53 +69,56 @@ export default function ProfileRules({ profile }: Readonly<Props>) {
     missingRuleCount: number;
   } | null>(null);
 
-  const loadRules = React.useCallback(async () => {
-    function findFacet(response: SearchRulesResponse, property: string) {
-      const facet = response.facets?.find((f) => f.property === property);
-      return facet ? facet.values : [];
-    }
-
-    try {
-      setLoading(true);
-      return await Promise.all([
-        searchRules({
-          languages: profile.language,
-          facets: 'cleanCodeAttributeCategories,impactSoftwareQualities',
-        }),
-        searchRules({
-          activation: 'true',
-          facets: 'cleanCodeAttributeCategories,impactSoftwareQualities',
-          qprofile: profile.key,
-        }),
-        !profile.isBuiltIn &&
-          getQualityProfile({
-            compareToSonarWay: true,
-            profile,
-          }),
-      ]).then((responses) => {
-        const [allRules, activatedRules, showProfile] = responses;
-        setTotalByCctCategory(
-          keyBy<ByType>(findFacet(allRules, 'cleanCodeAttributeCategories'), 'val'),
-        );
-        setCountsByCctCategory(
-          keyBy<ByType>(findFacet(activatedRules, 'cleanCodeAttributeCategories'), 'val'),
-        );
-        setTotalBySoftwareQuality(
-          keyBy<ByType>(findFacet(allRules, 'impactSoftwareQualities'), 'val'),
-        );
-        setCountsBySoftwareImpact(
-          keyBy<ByType>(findFacet(activatedRules, 'impactSoftwareQualities'), 'val'),
-        );
-        setSonarWayDiff(showProfile?.compareToSonarWay);
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [profile]);
-
   useEffect(() => {
+    async function loadRules() {
+      function findFacet(response: SearchRulesResponse, property: string) {
+        const facet = response.facets?.find((f) => f.property === property);
+        return facet ? facet.values : [];
+      }
+
+      try {
+        setLoading(true);
+        return await Promise.all([
+          searchRules({
+            languages: profile.language,
+            facets: `${RulesFacetName.CleanCodeAttributeCategories},${RulesFacetName.ImpactSoftwareQualities}`,
+          }),
+          searchRules({
+            activation: 'true',
+            facets: `${RulesFacetName.CleanCodeAttributeCategories},${RulesFacetName.ImpactSoftwareQualities}`,
+            qprofile: profile.key,
+          }),
+          !profile.isBuiltIn &&
+            getQualityProfile({
+              compareToSonarWay: true,
+              profile,
+            }),
+        ]).then((responses) => {
+          const [allRules, activatedRules, showProfile] = responses;
+          const extractFacetData = (facetName: string, response: SearchRulesResponse) => {
+            return keyBy<ByType>(findFacet(response, facetName), 'val');
+          };
+          setTotalByCctCategory(
+            extractFacetData(RulesFacetName.CleanCodeAttributeCategories, allRules),
+          );
+          setCountsByCctCategory(
+            extractFacetData(RulesFacetName.CleanCodeAttributeCategories, activatedRules),
+          );
+          setTotalBySoftwareQuality(
+            extractFacetData(RulesFacetName.ImpactSoftwareQualities, allRules),
+          );
+          setCountsBySoftwareImpact(
+            extractFacetData(RulesFacetName.ImpactSoftwareQualities, activatedRules),
+          );
+          setSonarWayDiff(showProfile?.compareToSonarWay);
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+
     loadRules();
-  }, [profile.key, loadRules]);
+  }, [profile]);
 
   if (loading) {
     return <Spinner />;
@@ -133,8 +137,10 @@ export default function ProfileRules({ profile }: Readonly<Props>) {
               <ContentCell className="sw-font-semibold sw-pl-4">
                 {translate('quality_profile.rules.cct_categories_title')}
               </ContentCell>
-              <NumericalCell>{translate('active')}</NumericalCell>
-              <NumericalCell className="sw-pr-4">{translate('inactive')}</NumericalCell>
+              <NumericalCell className="sw-font-regular">{translate('active')}</NumericalCell>
+              <NumericalCell className="sw-pr-4 sw-font-regular">
+                {translate('inactive')}
+              </NumericalCell>
             </StyledTableRowHeader>
           }
           noHeaderTopBorder
@@ -147,7 +153,7 @@ export default function ProfileRules({ profile }: Readonly<Props>) {
               count={countsByCctCategory[category]?.count}
               key={category}
               qprofile={profile.key}
-              propertyName="cleanCodeAttributeCategories"
+              propertyName={RulesFacetName.CleanCodeAttributeCategories}
               propertyValue={category}
             />
           ))}
@@ -163,8 +169,10 @@ export default function ProfileRules({ profile }: Readonly<Props>) {
               <ContentCell className="sw-font-semibold sw-pl-4">
                 {translate('quality_profile.rules.software_qualities_title')}
               </ContentCell>
-              <NumericalCell>{translate('active')}</NumericalCell>
-              <NumericalCell className="sw-pr-4">{translate('inactive')}</NumericalCell>
+              <NumericalCell className="sw-font-regular">{translate('active')}</NumericalCell>
+              <NumericalCell className="sw-pr-4 sw-font-regular">
+                {translate('inactive')}
+              </NumericalCell>
             </StyledTableRowHeader>
           }
           noHeaderTopBorder
@@ -177,7 +185,7 @@ export default function ProfileRules({ profile }: Readonly<Props>) {
               count={countsBySoftwareImpact[quality]?.count}
               key={quality}
               qprofile={profile.key}
-              propertyName="impactSoftwareQualities"
+              propertyName={RulesFacetName.ImpactSoftwareQualities}
               propertyValue={quality}
             />
           ))}

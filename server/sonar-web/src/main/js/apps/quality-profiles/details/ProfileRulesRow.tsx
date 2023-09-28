@@ -24,6 +24,7 @@ import { formatMeasure } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { getRulesUrl } from '../../../helpers/urls';
 import { MetricType } from '../../../types/metrics';
+import { RulesFacetName } from '../../../types/rules';
 
 interface Props {
   title: string;
@@ -31,11 +32,13 @@ interface Props {
   count: number | null;
   qprofile: string;
   total: number | null;
-  propertyName: 'cleanCodeAttributeCategories' | 'impactSoftwareQualities';
+  propertyName:
+    | RulesFacetName.CleanCodeAttributeCategories
+    | RulesFacetName.ImpactSoftwareQualities;
   propertyValue: string;
 }
 
-export default function ProfileRulesRowOfType(props: Readonly<Props>) {
+export default function ProfileRulesRow(props: Readonly<Props>) {
   const activeRulesUrl = getRulesUrl({
     qprofile: props.qprofile,
     activation: 'true',

@@ -494,6 +494,7 @@ export interface PermissionTemplate {
 
 export interface ProfileInheritanceDetails {
   activeRuleCount: number;
+  inactiveRuleCount: number;
   isBuiltIn: boolean;
   key: string;
   name: string;

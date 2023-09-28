@@ -18,12 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { ContentCell, TableRow } from 'design-system';
+import { ContentCell, DiscreetLink, TableRow } from 'design-system';
 import * as React from 'react';
 import { translateWithParameters } from '../../../helpers/l10n';
+import { getRulesUrl } from '../../../helpers/urls';
 import { ProfileInheritanceDetails } from '../../../types/types';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import ProfileLink from '../components/ProfileLink';
+
+const INDENT_PIXELS = 25;
 
 interface Props {
   className?: string;
@@ -34,9 +37,16 @@ interface Props {
   type?: string;
 }
 
-export default function ProfileInheritanceBox(props: Props) {
+export default function ProfileInheritanceRow(props: Readonly<Props>) {
   const { className, depth, language, profile, displayLink = true, type = 'current' } = props;
-  const offset = 25 * depth;
+  const activeRulesUrl = getRulesUrl({ qprofile: profile.key, activation: 'true' });
+  const inactiveRulesUrl = getRulesUrl({ qprofile: profile.key, activation: 'false' });
+  const overridingRulesUrl = getRulesUrl({
+    activation: 'true',
+    qprofile: profile.key,
+    inheritance: 'OVERRIDES',
+  });
+  const offset = INDENT_PIXELS * depth;
 
   return (
     <TableRow className={classNames(`it__quality-profiles__inheritance-${type}`, className)}>
@@ -54,17 +64,38 @@ export default function ProfileInheritanceBox(props: Props) {
       </ContentCell>
 
       <ContentCell>
-        {translateWithParameters('quality_profile.x_active_rules', profile.activeRuleCount)}
+        {profile.activeRuleCount > 0 ? (
+          <DiscreetLink to={activeRulesUrl}>
+            {translateWithParameters('quality_profile.x_active_rules', profile.activeRuleCount)}
+          </DiscreetLink>
+        ) : (
+          translateWithParameters('quality_profile.x_active_rules', 0)
+        )}
       </ContentCell>
 
       <ContentCell>
-        {profile.overridingRuleCount != null && (
-          <p>
+        {profile.inactiveRuleCount > 0 ? (
+          <DiscreetLink to={inactiveRulesUrl}>
+            {translateWithParameters(
+              'quality_profile.x_inactive_rules',
+              profile.inactiveRuleCount ?? 0,
+            )}
+          </DiscreetLink>
+        ) : (
+          translateWithParameters('quality_profile.x_inactive_rules', 0)
+        )}
+      </ContentCell>
+
+      <ContentCell>
+        {profile.overridingRuleCount != null && profile.overridingRuleCount > 0 ? (
+          <DiscreetLink to={overridingRulesUrl}>
             {translateWithParameters(
               'quality_profiles.x_overridden_rules',
               profile.overridingRuleCount,
             )}
-          </p>
+          </DiscreetLink>
+        ) : (
+          translateWithParameters('quality_profiles.x_overridden_rules', 0)
         )}
       </ContentCell>
     </TableRow>

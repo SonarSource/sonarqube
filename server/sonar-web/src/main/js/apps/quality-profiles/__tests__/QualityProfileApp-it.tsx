@@ -72,13 +72,12 @@ const ui = {
   setAsDefaultButton: byRole('menuitem', { name: 'set_as_default' }),
   newNameInput: byRole('textbox', { name: /quality_profiles.new_name/ }),
   qualityProfilePageLink: byRole('link', { name: 'quality_profiles.back_to_list' }),
-  rulesTotalRow: byRole('row', { name: /total/ }),
-  rulesBugsRow: byRole('row', { name: /issue.type.BUG.plural/ }),
-  rulesVulnerabilitiesRow: byRole('row', { name: /issue.type.VULNERABILITY/ }),
-  rulesCodeSmellsRow: byRole('row', { name: /issue.type.CODE_SMELL/ }),
-  rulesSecurityHotspotsRow: byRole('row', { name: /issue.type.SECURITY_HOTSPOT/ }),
+  rulesConsistencyRow: byRole('row', { name: /issue.clean_code_attribute_category.CONSISTENT/ }),
+  rulesSecurityRow: byRole('row', { name: /issue.clean_code_attribute_category.SECURITY/ }),
   rulesMissingSonarWayWarning: byText('quality_profiles.sonarway_missing_rules_description'),
-  rulesMissingSonarWayLink: byRole('link', { name: '2' }),
+  rulesMissingSonarWayLink: byRole('link', {
+    name: /quality_profiles.sonarway_see_x_missing_rules/,
+  }),
   rulesDeprecatedWarning: byText('quality_profiles.deprecated_rules_description'),
   rulesDeprecatedLink: byRole('link', { name: '8' }),
 
@@ -86,6 +85,12 @@ const ui = {
     await waitFor(() => {
       expect(ui.loading.query()).not.toBeInTheDocument();
     });
+  },
+
+  checkRuleRow: (name: string, active: number, inactive: number) => {
+    expect(
+      byRole('row', { name: new RegExp(`${name}.+${active}.+${inactive}`) }).get(),
+    ).toBeInTheDocument();
   },
 };
 
@@ -471,19 +476,13 @@ describe('Every Users', () => {
 
     expect(await ui.rulesSection.find()).toBeInTheDocument();
 
-    // Active rules
-    expect(ui.rulesTotalRow.byText('300').get()).toBeInTheDocument();
-    expect(ui.rulesBugsRow.byText('50').get()).toBeInTheDocument();
-    expect(ui.rulesVulnerabilitiesRow.byText('30').get()).toBeInTheDocument();
-    expect(ui.rulesCodeSmellsRow.byText('200').get()).toBeInTheDocument();
-    expect(ui.rulesSecurityHotspotsRow.byText('20').get()).toBeInTheDocument();
-
-    // Inactive rules
-    expect(ui.rulesTotalRow.byText('100').get()).toBeInTheDocument();
-    expect(ui.rulesBugsRow.byText('10').get()).toBeInTheDocument();
-    expect(ui.rulesVulnerabilitiesRow.byText('10').get()).toBeInTheDocument();
-    expect(ui.rulesCodeSmellsRow.byText('50').get()).toBeInTheDocument();
-    expect(ui.rulesSecurityHotspotsRow.byText('30').get()).toBeInTheDocument();
+    ui.checkRuleRow('issue.clean_code_attribute_category.INTENTIONAL', 23, 4);
+    ui.checkRuleRow('issue.clean_code_attribute_category.CONSISTENT', 2, 18);
+    ui.checkRuleRow('issue.clean_code_attribute_category.ADAPTABLE', 1, 11);
+    ui.checkRuleRow('issue.clean_code_attribute_category.RESPONSIBLE', 0, 0);
+    ui.checkRuleRow('issue.software_quality.MAINTAINABILITY', 9, 44);
+    ui.checkRuleRow('issue.software_quality.RELIABILITY', 16, 1);
+    ui.checkRuleRow('issue.software_quality.SECURITY', 0, 14);
   });
 
   it('should be able to see a warning when some rules are missing compare to Sonar way', async () => {
