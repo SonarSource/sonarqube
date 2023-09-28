@@ -19,31 +19,32 @@
  */
 import { ContentCell, Link, Note, NumericalCell, TableRow } from 'design-system';
 import * as React from 'react';
-import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
-import { translate } from '../../../helpers/l10n';
+import { translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { getRulesUrl } from '../../../helpers/urls';
 import { MetricType } from '../../../types/metrics';
 
 interface Props {
+  title: string;
   className?: string;
   count: number | null;
   qprofile: string;
   total: number | null;
-  type?: string;
+  propertyName: 'cleanCodeAttributeCategories' | 'impactSoftwareQualities';
+  propertyValue: string;
 }
 
 export default function ProfileRulesRowOfType(props: Readonly<Props>) {
   const activeRulesUrl = getRulesUrl({
     qprofile: props.qprofile,
     activation: 'true',
-    types: props.type,
+    [props.propertyName]: props.propertyValue,
   });
   const inactiveRulesUrl = getRulesUrl({
     qprofile: props.qprofile,
     activation: 'false',
-    types: props.type,
+    [props.propertyName]: props.propertyValue,
   });
   let inactiveCount = null;
   if (props.count != null && props.total != null) {
@@ -52,30 +53,38 @@ export default function ProfileRulesRowOfType(props: Readonly<Props>) {
 
   return (
     <TableRow className={props.className}>
-      <ContentCell>
-        {props.type ? (
-          <>
-            <IssueTypeIcon className="sw-mr-1" query={props.type} />
-            {translate('issue.type', props.type, 'plural')}
-          </>
-        ) : (
-          translate('total')
-        )}
-      </ContentCell>
+      <ContentCell className="sw-pl-4">{props.title}</ContentCell>
       <NumericalCell>
-        {isDefined(props.count) && (
-          <Link to={activeRulesUrl}>{formatMeasure(props.count, MetricType.ShortInteger)}</Link>
+        {isDefined(props.count) && props.count > 0 ? (
+          <Link
+            aria-label={translateWithParameters(
+              'quality_profile.rules.see_x_active_x_rules',
+              props.count,
+              props.title,
+            )}
+            to={activeRulesUrl}
+          >
+            {formatMeasure(props.count, MetricType.ShortInteger)}
+          </Link>
+        ) : (
+          <Note>0</Note>
         )}
       </NumericalCell>
-      <NumericalCell>
-        {isDefined(inactiveCount) &&
-          (inactiveCount > 0 ? (
-            <Link to={inactiveRulesUrl}>
-              {formatMeasure(inactiveCount, MetricType.ShortInteger)}
-            </Link>
-          ) : (
-            <Note>0</Note>
-          ))}
+      <NumericalCell className="sw-pr-4">
+        {isDefined(inactiveCount) && inactiveCount > 0 ? (
+          <Link
+            aria-label={translateWithParameters(
+              'quality_profile.rules.see_x_inactive_x_rules',
+              inactiveCount,
+              props.title,
+            )}
+            to={inactiveRulesUrl}
+          >
+            {formatMeasure(inactiveCount, MetricType.ShortInteger)}
+          </Link>
+        ) : (
+          <Note>0</Note>
+        )}
       </NumericalCell>
     </TableRow>
   );

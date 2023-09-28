@@ -21,7 +21,7 @@ import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 
 interface Props {
@@ -47,7 +47,17 @@ export default function ProfileRulesSonarWayComparison(props: Props) {
           id="quality_profiles.x_sonarway_missing_rules"
           values={{
             count: props.sonarWayMissingRules,
-            linkCount: <Link to={url}>{props.sonarWayMissingRules}</Link>,
+            linkCount: (
+              <Link
+                aria-label={translateWithParameters(
+                  'quality_profiles.sonarway_see_x_missing_rules',
+                  props.sonarWayMissingRules,
+                )}
+                to={url}
+              >
+                {props.sonarWayMissingRules}
+              </Link>
+            ),
           }}
         />
         <HelpTooltip
