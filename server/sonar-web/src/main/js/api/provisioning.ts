@@ -66,7 +66,10 @@ export function updateGithubRolesMapping(
   role: string,
   data: Partial<Pick<GitHubMapping, 'permissions'>>,
 ) {
-  return axios.patch<GitHubMapping>(`/api/v2/github-permission-mappings/${role}`, data);
+  return axios.patch<GitHubMapping>(
+    `/api/v2/github-permission-mappings/${encodeURIComponent(role)}`,
+    data,
+  );
 }
 
 export function addGithubRolesMapping(data: Omit<GitHubMapping, 'id'>) {
@@ -74,5 +77,5 @@ export function addGithubRolesMapping(data: Omit<GitHubMapping, 'id'>) {
 }
 
 export function deleteGithubRolesMapping(role: string) {
-  return axios.delete(`/api/v2/github-permission-mappings/${role}`);
+  return axios.delete(`/api/v2/github-permission-mappings/${encodeURIComponent(role)}`);
 }
