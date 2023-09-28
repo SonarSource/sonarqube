@@ -23,6 +23,8 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -42,6 +44,7 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final QualityGatesWsSupport wsSupport;
+  private final Logger logger = Loggers.get(SetAsDefaultAction.class);
 
   public SetAsDefaultAction(DbClient dbClient, UserSession userSession, QualityGatesWsSupport qualityGatesWsSupport) {
     this.dbClient = dbClient;
@@ -96,6 +99,8 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
       organization.setDefaultQualityGateUuid(qualityGate.getUuid());
       dbClient.organizationDao().update(dbSession, organization);
       dbSession.commit();
+      logger.info("Quality Gate set to default for:: organization: {}, qGate: {}, user: {}", organization.getKey(),
+              qualityGate.getName(), userSession.getLogin());
     }
 
     response.noContent();

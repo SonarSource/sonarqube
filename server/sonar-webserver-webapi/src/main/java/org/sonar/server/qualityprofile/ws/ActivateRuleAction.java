@@ -107,8 +107,9 @@ public class ActivateRuleAction implements QProfileWsAction {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       wsSupport.checkCanEdit(dbSession, organization, profile);
       RuleActivation activation = readActivation(dbSession, request);
-      logger.debug("Rule Activation for Custom QProfiles, ruleUuid: {}, severity: {} and organizationUuid : {}, user : {} ",
-              activation.getRuleUuid(), activation.getSeverity(), organization.getUuid(), userSession.getLogin());
+      logger.info("Rule Activation for Custom QProfile:: organization: {}, qProfile: {}, language: {}, rule: {}, severity: {}, user: {} ",
+              organization.getKey(), profile.getName(), profile.getLanguage(), activation.getRuleUuid(),
+              activation.getSeverity(), userSession.getLogin());
       ruleActivator.activateAndCommit(dbSession, profile, singletonList(activation));
     }
 

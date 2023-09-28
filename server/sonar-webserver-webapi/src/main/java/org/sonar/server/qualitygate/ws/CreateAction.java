@@ -27,6 +27,8 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -35,6 +37,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.qualitygate.QualityGateUpdater;
+import org.sonar.server.qualityprofile.ws.CopyAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates.CreateResponse;
 
@@ -68,6 +71,7 @@ public class CreateAction implements QualityGatesWsAction {
   private final QualityGateUpdater qualityGateUpdater;
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
   private final QualityGatesWsSupport wsSupport;
+  private final Logger logger = Loggers.get(CreateAction.class);
 
   public CreateAction(DbClient dbClient, UserSession userSession, QualityGateUpdater qualityGateUpdater, QualityGateConditionsUpdater qualityGateConditionsUpdater, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
@@ -107,6 +111,8 @@ public class CreateAction implements QualityGatesWsAction {
 
       String name = request.mandatoryParam(PARAM_NAME);
 
+      logger.info("Create Quality Gate:: organization: {}, qGate: {}, user: {}", organizationDto.getKey(), name,
+              userSession.getLogin());
       QualityGateDto newQualityGate = qualityGateUpdater.create(dbSession, organizationDto, name);
       addCaycConditions(dbSession, newQualityGate);
 
@@ -114,6 +120,8 @@ public class CreateAction implements QualityGatesWsAction {
         .setId(newQualityGate.getUuid())
         .setName(newQualityGate.getName());
       dbSession.commit();
+      logger.info("Created Quality Gate:: organization: {}, qGate: {}, user: {}", organizationDto.getKey(), name,
+              userSession.getLogin());
       writeProtobuf(createResponse.build(), request, response);
     }
   }

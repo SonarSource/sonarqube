@@ -65,7 +65,7 @@ public class AuthenticationEventImpl implements AuthenticationEvent {
     if (!LOGGER.isDebugEnabled()) {
       return;
     }
-    LOGGER.debug("logout success [IP|{}|{}][login|{}]",
+    LOGGER.info("logout success [IP|{}|{}][login|{}]",
       request.getRemoteAddr(), getAllIps(request),
       preventLogFlood(emptyIfNull(login)));
   }

@@ -23,6 +23,8 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -46,6 +48,7 @@ public class CopyAction implements QualityGatesWsAction {
   private final UserSession userSession;
   private final QualityGateUpdater qualityGateUpdater;
   private final QualityGatesWsSupport wsSupport;
+  private final Logger logger = Loggers.get(CopyAction.class);
 
   public CopyAction(DbClient dbClient, UserSession userSession, QualityGateUpdater qualityGateUpdater,
     QualityGatesWsSupport wsSupport) {
@@ -107,7 +110,11 @@ public class CopyAction implements QualityGatesWsAction {
       } else {
         qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, sourceName);
       }
+      logger.info("Copy Quality Gate:: organization: {}, qGate: {}, user: {}", organization.getKey(),
+              qualityGate.getName(), userSession.getLogin());
       QualityGateDto copy = qualityGateUpdater.copy(dbSession, organization, qualityGate, destinationName);
+      logger.info("Copied Quality Gate:: organization: {}, qGate: {}, copiedQGateTo: {}, user: {}",
+              organization.getKey(), qualityGate.getName(), destinationName, userSession.getLogin());
       dbSession.commit();
 
       writeProtobuf(newBuilder()
