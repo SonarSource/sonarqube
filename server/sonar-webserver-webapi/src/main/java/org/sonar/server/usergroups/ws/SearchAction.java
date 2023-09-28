@@ -37,7 +37,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupQuery;
-import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.UserSession;
@@ -103,8 +102,6 @@ public class SearchAction implements UserGroupsWsAction {
   public void handle(Request request, Response response) throws Exception {
     int page = request.mandatoryParamAsInt(Param.PAGE);
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
-    SearchOptions options = new SearchOptions()
-      .setPage(page, pageSize);
 
     GroupQuery query = buildGroupQuery(request);
     Set<String> fields = neededFields(request);
