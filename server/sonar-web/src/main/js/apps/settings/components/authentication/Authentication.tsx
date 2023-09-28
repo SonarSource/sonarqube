@@ -112,6 +112,14 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
     },
   ] as const;
 
+  const [samlDefinitions, githubDefinitions] = React.useMemo(
+    () => [
+      definitions.filter((def) => def.subCategory === SAML),
+      definitions.filter((def) => def.subCategory === AlmKeys.GitHub),
+    ],
+    [definitions],
+  );
+
   return (
     <>
       <header className="page-header">
@@ -166,16 +174,12 @@ export function Authentication(props: Props & WithAvailableFeaturesProps) {
                 id={getTabPanelId(tab.key)}
               >
                 <div className="big-padded-top big-padded-left big-padded-right">
-                  {tab.key === SAML && (
-                    <SamlAuthenticationTab
-                      definitions={definitions.filter((def) => def.subCategory === SAML)}
-                    />
-                  )}
+                  {tab.key === SAML && <SamlAuthenticationTab definitions={samlDefinitions} />}
 
                   {tab.key === AlmKeys.GitHub && (
                     <GithubAuthenticationTab
                       currentTab={currentTab}
-                      definitions={definitions.filter((def) => def.subCategory === AlmKeys.GitHub)}
+                      definitions={githubDefinitions}
                     />
                   )}
 
