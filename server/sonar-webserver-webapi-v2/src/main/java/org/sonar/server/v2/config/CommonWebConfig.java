@@ -31,12 +31,23 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.util.UrlPathHelper;
 
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = {"org.springdoc"})
 @PropertySource("classpath:springdoc.properties")
-public class CommonWebConfig {
+public class CommonWebConfig implements WebMvcConfigurer {
+
+  @Override
+  public void configurePathMatch(PathMatchConfigurer configurer) {
+    UrlPathHelper urlPathHelper = new UrlPathHelper();
+    urlPathHelper.setUrlDecode(false);
+    configurer.setUrlPathHelper(urlPathHelper);
+  }
+
   @Bean
   public LocalValidatorFactoryBean validator() {
     return new LocalValidatorFactoryBean();
