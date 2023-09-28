@@ -191,12 +191,7 @@ export default function GitHubMappingModal({ mapping, setMapping, onClose }: Rea
                 />
               ))}
             <tr>
-              <td colSpan={7} className="sw-pt-5 sw-border-t">
-                <Alert variant="info">
-                  {translate(
-                    'settings.authentication.github.configuration.roles_mapping.dialog.custom_roles_description',
-                  )}
-                </Alert>
+              <td colSpan={7} className="sw-pt-2 sw-border-t">
                 <form
                   className="sw-flex sw-h-9 sw-items-center"
                   onSubmit={validateAndAddCustomRole}
@@ -242,6 +237,13 @@ export default function GitHubMappingModal({ mapping, setMapping, onClose }: Rea
           </tbody>
         </table>
         <Spinner loading={isLoading} />
+        <div className="sw-bg-white sw-bottom-0 sw-sticky">
+          <Alert variant="info" className="sw-m-2">
+            {translate(
+              'settings.authentication.github.configuration.roles_mapping.dialog.custom_roles_description',
+            )}
+          </Alert>
+        </div>
       </div>
       <div className="modal-foot">
         <div className="sw-flex sw-items-center sw-justify-end sw-h-8">
