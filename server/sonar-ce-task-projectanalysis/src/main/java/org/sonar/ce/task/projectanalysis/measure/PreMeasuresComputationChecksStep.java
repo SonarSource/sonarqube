@@ -19,24 +19,30 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.utils.System2;
+import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.db.dismissmessage.MessageType;
+
+import static org.sonar.ce.task.projectanalysis.measure.PreMeasuresComputationCheck.PreMeasuresComputationCheckException;
 
 /**
  * Execute {@link PreMeasuresComputationCheck} instances in no specific order.
  * If an extension fails (throws an exception), consecutive extensions
  * won't be called.
  */
-@ComputeEngineSide
 public class PreMeasuresComputationChecksStep implements ComputationStep {
 
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final PreMeasuresComputationCheck[] extensions;
+  private final CeTaskMessages ceTaskMessages;
 
-  public PreMeasuresComputationChecksStep(AnalysisMetadataHolder analysisMetadataHolder, PreMeasuresComputationCheck... extensions) {
+
+  public PreMeasuresComputationChecksStep(AnalysisMetadataHolder analysisMetadataHolder, CeTaskMessages ceTaskMessages, PreMeasuresComputationCheck... extensions) {
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.ceTaskMessages = ceTaskMessages;
     this.extensions = extensions;
   }
 
@@ -44,7 +50,11 @@ public class PreMeasuresComputationChecksStep implements ComputationStep {
   public void execute(Context context) {
     PreMeasuresComputationCheck.Context extensionContext = new ContextImpl();
     for (PreMeasuresComputationCheck extension : extensions) {
-      extension.onCheck(extensionContext);
+      try {
+        extension.onCheck(extensionContext);
+      } catch (PreMeasuresComputationCheckException pmcce) {
+        ceTaskMessages.add(new CeTaskMessages.Message(pmcce.getMessage(), System2.INSTANCE.now(), MessageType.GENERIC));
+      }
     }
   }
 

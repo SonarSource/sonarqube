@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.measure;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
+import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.measure.PreMeasuresComputationCheck.Context;
@@ -31,18 +32,21 @@ import org.sonar.server.project.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.ce.task.projectanalysis.measure.PreMeasuresComputationCheck.PreMeasuresComputationCheckException;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
 public class PreMeasuresComputationChecksStepTest {
 
-  public AnalysisMetadataHolderRule analysisMetadataHolder = mock(AnalysisMetadataHolderRule.class);
+  public AnalysisMetadataHolderRule analysisMetadataHolder = mock();
+  public CeTaskMessages ceTaskMessages = mock();
 
   @Test
-  public void execute_extensions() {
+  public void execute_extensions() throws PreMeasuresComputationCheckException {
     PreMeasuresComputationCheck check1 = mock(PreMeasuresComputationCheck.class);
     PreMeasuresComputationCheck check2 = mock(PreMeasuresComputationCheck.class);
 
@@ -54,7 +58,7 @@ public class PreMeasuresComputationChecksStepTest {
   }
 
   @Test
-  public void context_contains_project_uuid_from_analysis_metadata_holder() {
+  public void context_contains_project_uuid_from_analysis_metadata_holder() throws PreMeasuresComputationCheckException {
     Project project = Project.from(newPrivateProjectDto());
     when(analysisMetadataHolder.getProject()).thenReturn(project);
     PreMeasuresComputationCheck check = mock(PreMeasuresComputationCheck.class);
@@ -67,7 +71,7 @@ public class PreMeasuresComputationChecksStepTest {
   }
 
   @Test
-  public void context_contains_pullRequest_key_from_analysis_metadata_holder() {
+  public void context_contains_pullRequest_key_from_analysis_metadata_holder() throws PreMeasuresComputationCheckException {
     mockPr("pr1");
     PreMeasuresComputationCheck check = mock(PreMeasuresComputationCheck.class);
 
@@ -79,7 +83,7 @@ public class PreMeasuresComputationChecksStepTest {
   }
 
   @Test
-  public void context_contains_branch_from_analysis_metadata_holder() {
+  public void context_contains_branch_from_analysis_metadata_holder() throws PreMeasuresComputationCheckException {
     mockBranch("branchName");
     PreMeasuresComputationCheck check = mock(PreMeasuresComputationCheck.class);
 
@@ -91,15 +95,28 @@ public class PreMeasuresComputationChecksStepTest {
   }
 
   @Test
+  public void whenCheckThrows_thenLogCeMessage() throws PreMeasuresComputationCheckException {
+    PreMeasuresComputationCheck check = mock(PreMeasuresComputationCheck.class);
+    doThrow(new PreMeasuresComputationCheckException("error"))
+      .when(check).onCheck(any());
+
+    newStep(check).execute(new TestComputationStepContext());
+
+    var messageCaptor = ArgumentCaptor.forClass(CeTaskMessages.Message.class);
+    verify(ceTaskMessages).add(messageCaptor.capture());
+    assertThat(messageCaptor.getValue().getText()).isEqualTo("error");
+  }
+
+  @Test
   public void test_getDescription() {
     assertThat(newStep().getDescription()).isNotEmpty();
   }
 
   private PreMeasuresComputationChecksStep newStep(PreMeasuresComputationCheck... preMeasuresComputationChecks) {
     if (preMeasuresComputationChecks.length == 0) {
-      return new PreMeasuresComputationChecksStep(analysisMetadataHolder);
+      return new PreMeasuresComputationChecksStep(analysisMetadataHolder, ceTaskMessages);
     }
-    return new PreMeasuresComputationChecksStep(analysisMetadataHolder, preMeasuresComputationChecks);
+    return new PreMeasuresComputationChecksStep(analysisMetadataHolder, ceTaskMessages, preMeasuresComputationChecks);
   }
 
   private void mockBranch(String branchName) {

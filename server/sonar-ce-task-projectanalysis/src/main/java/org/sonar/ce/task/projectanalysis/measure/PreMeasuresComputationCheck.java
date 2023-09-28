@@ -36,9 +36,10 @@ import org.sonar.ce.task.projectanalysis.analysis.Branch;
 public interface PreMeasuresComputationCheck {
 
   /**
-   * This method can make the task fail by throwing a {@link RuntimeException}
+   * Throwing a {@link PreMeasuresComputationCheckException} will only produce an analysis warning.
+   * Any other exception will fail the analysis.
    */
-  void onCheck(Context context);
+  void onCheck(Context context) throws PreMeasuresComputationCheckException;
 
   interface Context {
 
@@ -46,5 +47,15 @@ public interface PreMeasuresComputationCheck {
 
     Branch getBranch();
 
+  }
+
+  class PreMeasuresComputationCheckException extends Exception {
+    public PreMeasuresComputationCheckException(String message) {
+      super(message);
+    }
+
+    public PreMeasuresComputationCheckException(String message, Throwable cause) {
+      super(message, cause);
+    }
   }
 }
