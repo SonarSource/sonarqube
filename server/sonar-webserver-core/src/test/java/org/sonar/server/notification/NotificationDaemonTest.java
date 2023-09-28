@@ -94,7 +94,7 @@ public class NotificationDaemonTest {
       .thenReturn(null);
 
     underTest.start();
-    verify(notificationService, timeout(2000)).deliver(notification1);
+    verify(notificationService, timeout(2000)).deliver(notification4);
 
     inOrder.verify(notificationService).deliverEmails(singleton(notification1));
     inOrder.verify(notificationService).deliver(notification1);
