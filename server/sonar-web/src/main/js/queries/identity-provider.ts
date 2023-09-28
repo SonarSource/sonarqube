@@ -37,6 +37,8 @@ import {
 } from '../api/provisioning';
 import { getSystemInfo } from '../api/system';
 import { AvailableFeaturesContext } from '../app/components/available-features/AvailableFeaturesContext';
+import { addGlobalSuccessMessage } from '../helpers/globalMessages';
+import { translate } from '../helpers/l10n';
 import { mapReactQueryResult } from '../helpers/react-query';
 import { Feature } from '../types/features';
 import { GitHubMapping } from '../types/provisioning';
@@ -175,6 +177,9 @@ export function useGithubRolesMappingMutation() {
         );
         client.setQueryData(queryKey, newData);
       }
+      addGlobalSuccessMessage(
+        translate('settings.authentication.github.configuration.roles_mapping.save_success'),
+      );
     },
   });
 }

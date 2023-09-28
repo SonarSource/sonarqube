@@ -19,6 +19,8 @@
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getValue, getValues, resetSettingValue, setSettingValue } from '../api/settings';
+import { addGlobalSuccessMessage } from '../helpers/globalMessages';
+import { translate } from '../helpers/l10n';
 import { ExtendedSettingDefinition } from '../types/settings';
 
 type SettingValue = string | boolean | string[];
@@ -74,6 +76,7 @@ export function useSaveValuesMutation() {
     onSuccess: (data) => {
       if (data.length > 0) {
         queryClient.invalidateQueries(['settings']);
+        addGlobalSuccessMessage(translate('settings.authentication.form.settings.save_success'));
       }
     },
   });
@@ -97,6 +100,7 @@ export function useSaveValueMutation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['settings']);
+      addGlobalSuccessMessage(translate('settings.authentication.form.settings.save_success'));
     },
   });
 }
