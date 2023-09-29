@@ -143,13 +143,29 @@ public class AuditDaoIT {
   public void selectByPeriodPaginated_whenRowsInAnyOrder_returnOrderedByCreatedAt(){
     List<Long> createdAts = LongStream.range(1, 51).mapToObj(p -> p).collect(Collectors.toList());
     Collections.shuffle(createdAts);
-    createdAts.stream().map(createdAt -> AuditTesting.newAuditDto(createdAt))
+    createdAts.stream()
+      .map(createdAt -> AuditTesting.newAuditDto(createdAt))
       .forEach(auditDto -> testAuditDao.insert(dbSession, auditDto));
 
     List<AuditDto> auditDtos = testAuditDao.selectByPeriodPaginated(dbSession, 1, 51, 1);
 
     assertThat(auditDtos).hasSize(50);
     assertThat(auditDtos).extracting(p -> p.getCreatedAt()).isSorted();
+  }
+  @Test
+  public void selectByPeriodPaginated_whenRowsWithIdenticalCreatedAt_returnOrderedByCreatedAtAndUuids(){
+    AuditDto auditDto1 = AuditTesting.newAuditDto(100L);
+    auditDto1.setUuid("uuid1");
+    testAuditDao.insert(dbSession, auditDto1);
+    AuditDto auditDto2 = AuditTesting.newAuditDto(100L);
+    auditDto2.setUuid("uuid2");
+    testAuditDao.insert(dbSession, auditDto2);
+
+    List<AuditDto> auditDtos = testAuditDao.selectByPeriodPaginated(dbSession, 99, 101, 1);
+
+    assertThat(auditDtos).hasSize(2);
+    assertThat(auditDtos).extracting(p -> p.getCreatedAt()).isSorted();
+    assertThat(auditDtos).extracting(p -> p.getUuid()).isSorted();
   }
 
   private void prepareRowsWithDeterministicCreatedAt(int size) {

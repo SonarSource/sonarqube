@@ -31,7 +31,7 @@
     from audits a
     where
       a.created_at &gt;= #{start} and a.created_at &lt; #{end}
-    order by created_at asc
+    order by created_at asc, uuid asc
     <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
