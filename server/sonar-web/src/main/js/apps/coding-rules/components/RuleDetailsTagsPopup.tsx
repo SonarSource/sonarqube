@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { TagsSelector } from 'design-system';
 import { difference, uniq, without } from 'lodash';
 import * as React from 'react';
 import { getRuleTags } from '../../../api/rules';
-import TagsSelector from '../../../components/tags/TagsSelector';
+import { translate } from '../../../helpers/l10n';
 
 export interface Props {
   setTags: (tags: string[]) => void;
@@ -73,7 +75,10 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
     const availableTags = difference(this.state.searchResult, this.props.tags);
     return (
       <TagsSelector
-        listSize={LIST_SIZE}
+        createElementLabel={translate('coding_rules.create_tag')}
+        headerLabel={translate('tags')}
+        searchInputAriaLabel={translate('search.search_for_tags')}
+        noResultsLabel={translate('no_results')}
         onSearch={this.onSearch}
         onSelect={this.onSelect}
         onUnselect={this.onUnselect}

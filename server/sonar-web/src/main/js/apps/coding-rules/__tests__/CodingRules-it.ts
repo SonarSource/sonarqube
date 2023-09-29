@@ -660,7 +660,6 @@ describe('Rule app details', () => {
     await ui.appLoaded();
 
     await user.click(ui.tagsDropdown.get());
-    expect(ui.tagsMenu.get()).toBeInTheDocument();
 
     RULE_TAGS_MOCK.forEach((tag) => {
       expect(ui.tagCheckbox(tag).get()).toBeInTheDocument();

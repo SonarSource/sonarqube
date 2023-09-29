@@ -116,8 +116,7 @@ const selectors = {
   ruleSoftwareQuality: (quality: SoftwareQuality) => byText(`issue.software_quality.${quality}`),
 
   // Rule tags
-  tagsDropdown: byRole('button', { name: /tags_list_x/ }),
-  tagsMenu: byRole('group', { name: 'select_tags' }),
+  tagsDropdown: byLabelText(/tags_list_x/).byRole('button'),
   tagCheckbox: (tag: string) => byRole('checkbox', { name: tag }),
   tagSearch: byRole('searchbox', { name: 'search.search_for_tags' }),
 

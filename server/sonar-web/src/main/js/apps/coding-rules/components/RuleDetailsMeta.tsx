@@ -22,10 +22,8 @@ import * as React from 'react';
 import { colors } from '../../../app/theme';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import Link from '../../../components/common/Link';
-import Dropdown from '../../../components/controls/Dropdown';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Tooltip from '../../../components/controls/Tooltip';
-import { ButtonLink } from '../../../components/controls/buttons';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import LinkIcon from '../../../components/icons/LinkIcon';
 import DateFormatter from '../../../components/intl/DateFormatter';
@@ -33,7 +31,6 @@ import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttr
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
 import TagsList from '../../../components/tags/TagsList';
-import { PopupPlacement } from '../../../components/ui/popups';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
 import { Dict, RuleDetails } from '../../../types/types';
@@ -120,33 +117,19 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
 
     return (
       <div className="coding-rules-detail-property null-spacer-bottom" data-meta="tags">
-        {this.props.canWrite ? (
-          <Dropdown
-            closeOnClick={false}
-            closeOnClickOutside
-            overlay={
+        <TagsList
+          allowUpdate={canWrite}
+          tags={allTags.length > 0 ? allTags : [translate('coding_rules.no_tags')]}
+          overlay={
+            canWrite ? (
               <RuleDetailsTagsPopup
                 setTags={this.props.onTagsChange}
                 sysTags={sysTags}
                 tags={tags}
               />
-            }
-            overlayPlacement={PopupPlacement.BottomRight}
-          >
-            <ButtonLink>
-              <TagsList
-                allowUpdate={canWrite}
-                tags={allTags.length > 0 ? allTags : [translate('coding_rules.no_tags')]}
-              />
-            </ButtonLink>
-          </Dropdown>
-        ) : (
-          <TagsList
-            allowUpdate={canWrite}
-            className="display-flex-center"
-            tags={allTags.length > 0 ? allTags : [translate('coding_rules.no_tags')]}
-          />
-        )}
+            ) : undefined
+          }
+        />
       </div>
     );
   };
