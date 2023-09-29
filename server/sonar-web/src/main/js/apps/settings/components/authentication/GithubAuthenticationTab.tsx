@@ -23,6 +23,7 @@ import GitHubSynchronisationWarning from '../../../../app/components/GitHubSynch
 import DocLink from '../../../../components/common/DocLink';
 import ConfirmModal from '../../../../components/controls/ConfirmModal';
 import RadioCard from '../../../../components/controls/RadioCard';
+import Tooltip from '../../../../components/controls/Tooltip';
 import { Button, ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
 import { Provider } from '../../../../components/hooks/useManageProvider';
 import DeleteIcon from '../../../../components/icons/DeleteIcon';
@@ -159,29 +160,45 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
             <div>
               <h5>{translateWithParameters('settings.authentication.github.appid_x', appId)}</h5>
               <p>{url}</p>
-              <Button
-                className="spacer-top"
-                onClick={toggleEnable}
-                disabled={githubProvisioningStatus}
+              <Tooltip
+                overlay={
+                  githubProvisioningStatus
+                    ? translate('settings.authentication.form.disable.tooltip')
+                    : null
+                }
               >
-                {enabled
-                  ? translate('settings.authentication.form.disable')
-                  : translate('settings.authentication.form.enable')}
-              </Button>
+                <Button
+                  className="spacer-top"
+                  onClick={toggleEnable}
+                  disabled={githubProvisioningStatus}
+                >
+                  {enabled
+                    ? translate('settings.authentication.form.disable')
+                    : translate('settings.authentication.form.enable')}
+                </Button>
+              </Tooltip>
             </div>
             <div>
               <Button className="spacer-right" onClick={handleCreateConfiguration}>
                 <EditIcon />
                 {translate('settings.authentication.form.edit')}
               </Button>
-              <Button
-                className="button-red"
-                disabled={enabled || isDeleting}
-                onClick={deleteConfiguration}
+              <Tooltip
+                overlay={
+                  enabled || isDeleting
+                    ? translate('settings.authentication.form.delete.tooltip')
+                    : null
+                }
               >
-                <DeleteIcon />
-                {translate('settings.authentication.form.delete')}
-              </Button>
+                <Button
+                  className="button-red"
+                  disabled={enabled || isDeleting}
+                  onClick={deleteConfiguration}
+                >
+                  <DeleteIcon />
+                  {translate('settings.authentication.form.delete')}
+                </Button>
+              </Tooltip>
             </div>
           </div>
           <div className="spacer-bottom big-padded bordered display-flex-space-between">
