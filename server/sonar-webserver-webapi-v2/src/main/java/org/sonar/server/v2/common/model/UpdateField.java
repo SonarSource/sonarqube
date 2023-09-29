@@ -27,6 +27,7 @@ import javax.validation.valueextraction.UnwrapByDefault;
 
 @UnwrapByDefault
 public class UpdateField<T> {
+
   private final T value;
   private final boolean isDefined;
 
