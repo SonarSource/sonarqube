@@ -406,8 +406,9 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
                     newGithubProvisioningStatus ? 'auto' : 'jit',
                   )}
                   onClose={() => setShowConfirmProvisioningModal(false)}
-                  isDestructive={!newGithubProvisioningStatus}
-                  confirmButtonText={translate('yes')}
+                  confirmButtonText={translate(
+                    'settings.authentication.github.provisioning_change.confirm_changes',
+                  )}
                 >
                   {translate(
                     'settings.authentication.github.confirm',

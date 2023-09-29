@@ -92,7 +92,9 @@ const ui = {
     userLoginAttribute: byRole('textbox', { name: 'property.sonar.auth.saml.user.login.name' }),
     userNameAttribute: byRole('textbox', { name: 'property.sonar.auth.saml.user.name.name' }),
     saveConfigButton: byRole('button', { name: 'settings.almintegration.form.save' }),
-    confirmProvisioningButton: byRole('button', { name: 'yes' }),
+    confirmProvisioningButton: byRole('button', {
+      name: 'yes',
+    }),
     saveScim: byRole('button', { name: 'save' }),
     enableConfigButton: byRole('button', { name: 'settings.authentication.form.enable' }),
     disableConfigButton: byRole('button', { name: 'settings.authentication.form.disable' }),
@@ -142,7 +144,9 @@ const ui = {
     }),
     organizations: byRole('textbox', { name: 'property.sonar.auth.github.organizations.name' }),
     saveConfigButton: byRole('button', { name: 'settings.almintegration.form.save' }),
-    confirmProvisioningButton: byRole('button', { name: 'yes' }),
+    confirmProvisioningButton: byRole('button', {
+      name: 'settings.authentication.github.provisioning_change.confirm_changes',
+    }),
     saveGithubProvisioning: byRole('button', { name: 'save' }),
     groupAttribute: byRole('textbox', { name: 'property.sonar.auth.github.group.name.name' }),
     enableConfigButton: byRole('button', { name: 'settings.authentication.form.enable' }),
