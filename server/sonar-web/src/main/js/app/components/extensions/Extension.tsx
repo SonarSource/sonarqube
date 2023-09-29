@@ -64,7 +64,7 @@ class Extension extends React.PureComponent<ExtensionProps, State> {
   }
 
   componentDidUpdate(prevProps: ExtensionProps) {
-    if (prevProps.extension !== this.props.extension) {
+    if (prevProps.extension.key !== this.props.extension.key) {
       this.stopExtension();
       this.startExtension();
     } else if (prevProps.location !== this.props.location) {
