@@ -39,6 +39,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -71,7 +72,8 @@ public class ChangelogAction implements QProfileWsAction {
         "Events are ordered by date in descending order (most recent first).")
       .setChangelog(
         new org.sonar.api.server.ws.Change("9.8", "response fields 'total', 's', 'ps' have been deprecated, please use 'paging' object instead"),
-        new org.sonar.api.server.ws.Change("9.8", "The field 'paging' has been added to the response"))
+        new org.sonar.api.server.ws.Change("9.8", "The field 'paging' has been added to the response"),
+        new org.sonar.api.server.ws.Change("10.3", "Added fields 'cleanCodeAttributeCategory' and 'impacts' to response"))
       .setHandler(this)
       .setResponseExample(getClass().getResource("changelog-example.json"));
 
@@ -166,6 +168,23 @@ public class ChangelogAction implements QProfileWsAction {
         changeWriter
           .prop("ruleKey", rule.getKey().toString())
           .prop("ruleName", rule.getName());
+
+        if (rule.getCleanCodeAttribute() != null) {
+          changeWriter
+            .prop("cleanCodeAttributeCategory", rule.getCleanCodeAttribute().getAttributeCategory().toString());
+        }
+        changeWriter
+          .name("impacts")
+          .beginArray();
+        for (ImpactDto impact : rule.getDefaultImpacts()) {
+          changeWriter
+            .beginObject()
+            .prop("softwareQuality", impact.getSoftwareQuality().toString())
+            .prop("severity", impact.getSeverity().toString())
+            .endObject();
+        }
+
+        changeWriter.endArray();
       }
       writeParameters(json, change);
       json.endObject();

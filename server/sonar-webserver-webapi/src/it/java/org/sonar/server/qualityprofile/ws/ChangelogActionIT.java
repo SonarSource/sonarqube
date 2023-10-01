@@ -96,6 +96,13 @@ public class ChangelogActionIT {
       "      \"action\": \"ACTIVATED\",\n" +
       "      \"ruleKey\": \"" + rule.getKey() + "\",\n" +
       "      \"ruleName\": \"" + rule.getName() + "\",\n" +
+      "      \"cleanCodeAttributeCategory\": \"INTENTIONAL\",\n" +
+      "      \"impacts\": [\n" +
+      "        {\n" +
+      "          \"softwareQuality\": \"MAINTAINABILITY\",\n" +
+      "          \"severity\": \"HIGH\"\n" +
+      "        }\n" +
+      "      ]," +
       "      \"params\": {\n" +
       "        \"severity\": \"MINOR\",\n" +
       "        \"bar\": \"bar_value\",\n" +
@@ -345,7 +352,7 @@ public class ChangelogActionIT {
     insertChange(c -> c.setRulesProfileUuid(profileUuid)
       .setUserUuid(user3.getUuid())
       .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
-      .setData(ImmutableMap.of("severity", "MAJOR", "param_format", "^[A-Z][a-zA-Z0-9]*$", "ruleUuid", rule3.getUuid())));
+      .setData(ImmutableMap.of("severity", "MAJOR", "param_format", "^[A-Z][a-zA-Z0-9]*", "ruleUuid", rule3.getUuid())));
 
     ws.newRequest()
       .setMethod("GET")

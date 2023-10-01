@@ -15,6 +15,13 @@
       "authorName" : "Anakin Skywalker",
       "ruleKey" : "java:S2438",
       "ruleName" : "\"Threads\" should not be used where \"Runnables\" are expected",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "HIGH"
+        }
+      ],
       "params" : {
         "severity" : "CRITICAL"
       }
@@ -25,7 +32,15 @@
       "authorLogin" : "padme.amidala",
       "authorName" : "Padme Amidala",
       "ruleKey" : "java:S2162",
-      "ruleName" : "\"equals\" methods should be symmetric and work for subclasses"
+      "ruleName" : "\"equals\" methods should be symmetric and work for subclasses",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "HIGH"
+        }
+      ],
+      "params" : {}
     },
     {
       "action" : "ACTIVATED",
@@ -34,9 +49,16 @@
       "ruleKey" : "java:S00101",
       "ruleName" : "Class names should comply with a naming convention",
       "date" : "2014-09-12T15:20:46+0200",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "HIGH"
+        }
+      ],
       "params" : {
         "severity" : "MAJOR",
-        "format" : "^[A-Z][a-zA-Z0-9]*$"
+        "format" : "^[A-Z][a-zA-Z0-9]*"
       }
     }
   ]

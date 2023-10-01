@@ -12,6 +12,17 @@
       "authorName" : "Anakin Skywalker",
       "ruleKey" : "java:S2438",
       "ruleName" : "\"Threads\" should not be used where \"Runnables\" are expected",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "RELIABILITY",
+          "severity": "LOW"
+        },
+        {
+          "softwareQuality": "SECURITY",
+          "severity": "HIGH"
+        }
+      ],
       "params" : {
         "severity" : "CRITICAL"
       }
@@ -22,7 +33,18 @@
       "authorLogin" : "padme.amidala",
       "authorName" : "Padme Amidala",
       "ruleKey" : "java:S2162",
-      "ruleName" : "\"equals\" methods should be symmetric and work for subclasses"
+      "ruleName" : "\"equals\" methods should be symmetric and work for subclasses",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "RELIABILITY",
+          "severity": "LOW"
+        },
+        {
+          "softwareQuality": "SECURITY",
+          "severity": "HIGH"
+        }
+      ]
     },
     {
       "action" : "ACTIVATED",
@@ -30,6 +52,17 @@
       "authorName" : "Obiwan Kenobi",
       "ruleKey" : "java:S00101",
       "ruleName" : "Class names should comply with a naming convention",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "RELIABILITY",
+          "severity": "LOW"
+        },
+        {
+          "softwareQuality": "SECURITY",
+          "severity": "HIGH"
+        }
+      ],
       "date" : "2014-09-12T15:20:46+0200",
       "params" : {
         "severity" : "MAJOR",
