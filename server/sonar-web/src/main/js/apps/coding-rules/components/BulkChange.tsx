@@ -108,7 +108,8 @@ export default class BulkChange extends React.PureComponent<Props, State> {
 
               {allowActivateOnProfile && profile && (
                 <ItemButton onClick={this.handleActivateInProfileClick}>
-                  {translate('coding_rules.activate_in')} <strong>{profile.name}</strong>
+                  {translate('coding_rules.activate_in')}{' '}
+                  <strong className="sw-ml-1">{profile.name}</strong>
                 </ItemButton>
               )}
 
@@ -118,7 +119,8 @@ export default class BulkChange extends React.PureComponent<Props, State> {
 
               {allowDeactivateOnProfile && profile && (
                 <ItemButton onClick={this.handleDeactivateInProfileClick}>
-                  {translate('coding_rules.deactivate_in')} <strong>{profile.name}</strong>
+                  {translate('coding_rules.deactivate_in')}{' '}
+                  <strong className="sw-ml-1">{profile.name}</strong>
                 </ItemButton>
               )}
             </>

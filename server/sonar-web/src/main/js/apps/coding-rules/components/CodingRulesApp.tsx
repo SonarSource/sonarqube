@@ -17,7 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { InputSearch } from 'design-system';
+import styled from '@emotion/styled';
+import {
+  InputSearch,
+  LAYOUT_FOOTER_HEIGHT,
+  LAYOUT_GLOBAL_NAV_HEIGHT,
+  LargeCenteredLayout,
+  PageContentFontWrapper,
+  themeBorder,
+  themeColor,
+} from 'design-system';
 import { keyBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -26,11 +35,9 @@ import { getRulesApp, searchRules } from '../../../api/rules';
 import { getValue } from '../../../api/settings';
 import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
 import A11ySkipTarget from '../../../components/a11y/A11ySkipTarget';
-import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import BackIcon from '../../../components/icons/BackIcon';
 import '../../../components/search-navigator.css';
 import { isDatePicker, isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
@@ -96,6 +103,8 @@ interface State {
   referencedRepositories: Dict<{ key: string; language: string; name: string }>;
   rules: Rule[];
 }
+
+const RULE_LIST_HEADER_HEIGHT = 68;
 
 export class CodingRulesApp extends React.PureComponent<Props, State> {
   mounted = false;
@@ -585,119 +594,117 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
             <meta content="noindex" name="robots" />
           </Helmet>
         )}
-        <div className="layout-page" id="coding-rules-page">
-          <ScreenPositionHelper className="layout-page-side-outer">
-            {({ top }) => (
-              <nav aria-label={translate('filters')} className="layout-page-side" style={{ top }}>
-                <div className="layout-page-side-inner">
-                  <div className="layout-page-filters">
-                    <A11ySkipTarget
-                      anchor="rules_filters"
-                      label={translate('coding_rules.skip_to_filters')}
-                      weight={10}
-                    />
-                    <FiltersHeader displayReset={this.isFiltered()} onReset={this.handleReset} />
-                    <FacetsList
-                      facets={this.state.facets}
-                      onFacetToggle={this.handleFacetToggle}
-                      onFilterChange={this.handleFilterChange}
-                      openFacets={this.state.openFacets}
-                      query={query}
+        <LargeCenteredLayout id="coding-rules-page">
+          <PageContentFontWrapper className="sw-body-sm">
+            <div className="sw-grid sw-gap-x-12 sw-gap-y-6 sw-grid-cols-12 sw-w-full">
+              <StyledContentWrapper
+                as="nav"
+                className="sw-col-span-3 sw-p-4 sw-overflow-y-auto"
+                aria-label={translate('filters')}
+                style={{
+                  height: `calc(100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT}px)`,
+                }}
+              >
+                <div>
+                  <A11ySkipTarget
+                    anchor="rules_filters"
+                    label={translate('coding_rules.skip_to_filters')}
+                    weight={10}
+                  />
+                  <FiltersHeader displayReset={this.isFiltered()} onReset={this.handleReset} />
+                  <FacetsList
+                    facets={this.state.facets}
+                    onFacetToggle={this.handleFacetToggle}
+                    onFilterChange={this.handleFilterChange}
+                    openFacets={this.state.openFacets}
+                    query={query}
+                    referencedProfiles={this.state.referencedProfiles}
+                    referencedRepositories={this.state.referencedRepositories}
+                    selectedProfile={this.getSelectedProfile()}
+                  />
+                </div>
+              </StyledContentWrapper>
+
+              <main className="sw-col-span-9">
+                {!openRule && (
+                  <div>
+                    <A11ySkipTarget anchor="rules_main" />
+
+                    <div className="sw-flex sw-justify-between sw-py-4">
+                      <InputSearch
+                        className="sw-min-w-abs-250 sw-max-w-abs-350 sw-mr-4"
+                        id="coding-rules-search"
+                        maxLength={MAX_SEARCH_LENGTH}
+                        minLength={2}
+                        onChange={this.handleSearch}
+                        placeholder={translate('search.search_for_rules')}
+                        value={query.searchQuery ?? ''}
+                        size="auto"
+                      />
+                      {this.renderBulkButton()}
+                      {!usingPermalink && (
+                        <PageActions paging={paging} selectedIndex={selectedIndex} />
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div
+                  className="sw-overflow-y-auto"
+                  style={{
+                    height: `calc(100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT}px - ${
+                      !openRule ? RULE_LIST_HEADER_HEIGHT : 0
+                    }px)`,
+                  }}
+                >
+                  {openRule ? (
+                    <RuleDetails
+                      allowCustomRules
+                      canWrite={this.state.canWrite}
+                      canDeactivateInherited={this.state.canDeactivateInherited}
+                      onActivate={this.handleRuleActivate}
+                      onDeactivate={this.handleRuleDeactivate}
+                      onDelete={this.handleRuleDelete}
                       referencedProfiles={this.state.referencedProfiles}
                       referencedRepositories={this.state.referencedRepositories}
+                      ruleKey={openRule.key}
                       selectedProfile={this.getSelectedProfile()}
                     />
-                  </div>
-                </div>
-              </nav>
-            )}
-          </ScreenPositionHelper>
-
-          <main className="layout-page-main">
-            <div className="layout-page-header-panel layout-page-main-header">
-              <div className="layout-page-header-panel-inner layout-page-main-header-inner">
-                <div className="layout-page-main-inner">
-                  <A11ySkipTarget anchor="rules_main" />
-                  <div className="display-flex-space-between">
-                    <InputSearch
-                      className="sw-min-w-abs-250 sw-max-w-abs-350 sw-mr-4"
-                      id="coding-rules-search"
-                      maxLength={MAX_SEARCH_LENGTH}
-                      minLength={2}
-                      onChange={this.handleSearch}
-                      placeholder={translate('search.search_for_rules')}
-                      value={query.searchQuery ?? ''}
-                      size="auto"
-                    />
-
-                    {openRule ? (
-                      <a
-                        className="js-back display-inline-flex-center link-no-underline"
-                        href="#"
-                        onClick={this.handleBack}
-                      >
-                        <BackIcon className="spacer-right" />
-                        {usingPermalink
-                          ? translate('coding_rules.see_all')
-                          : translate('coding_rules.return_to_list')}
-                      </a>
-                    ) : (
-                      this.renderBulkButton()
-                    )}
-                    {!usingPermalink && (
-                      <PageActions paging={paging} selectedIndex={selectedIndex} />
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="layout-page-main-inner">
-              {openRule ? (
-                <RuleDetails
-                  allowCustomRules
-                  canWrite={this.state.canWrite}
-                  canDeactivateInherited={this.state.canDeactivateInherited}
-                  onActivate={this.handleRuleActivate}
-                  onDeactivate={this.handleRuleDeactivate}
-                  onDelete={this.handleRuleDelete}
-                  referencedProfiles={this.state.referencedProfiles}
-                  referencedRepositories={this.state.referencedRepositories}
-                  ruleKey={openRule.key}
-                  selectedProfile={this.getSelectedProfile()}
-                />
-              ) : (
-                <>
-                  <ul aria-label={translate('list_of_rules')}>
-                    {rules.map((rule) => (
-                      <RuleListItem
-                        activation={this.getRuleActivation(rule.key)}
-                        isLoggedIn={isLoggedIn(this.props.currentUser)}
-                        canDeactivateInherited={this.state.canDeactivateInherited}
-                        key={rule.key}
-                        onActivate={this.handleRuleActivate}
-                        onDeactivate={this.handleRuleDeactivate}
-                        onOpen={this.handleRuleOpen}
-                        rule={rule}
-                        selected={rule.key === selected}
-                        selectedProfile={this.getSelectedProfile()}
-                      />
-                    ))}
-                  </ul>
-                  {paging !== undefined && (
-                    <ListFooter
-                      count={rules.length}
-                      loadMore={this.fetchMoreRules}
-                      ready={!this.state.loading}
-                      total={paging.total}
-                      useMIUIButtons
-                    />
+                  ) : (
+                    <>
+                      <ul aria-label={translate('list_of_rules')}>
+                        {rules.map((rule) => (
+                          <RuleListItem
+                            activation={this.getRuleActivation(rule.key)}
+                            isLoggedIn={isLoggedIn(this.props.currentUser)}
+                            canDeactivateInherited={this.state.canDeactivateInherited}
+                            key={rule.key}
+                            onActivate={this.handleRuleActivate}
+                            onDeactivate={this.handleRuleDeactivate}
+                            onOpen={this.handleRuleOpen}
+                            rule={rule}
+                            selected={rule.key === selected}
+                            selectedProfile={this.getSelectedProfile()}
+                          />
+                        ))}
+                      </ul>
+                      {paging !== undefined && (
+                        <ListFooter
+                          className="sw-mb-4"
+                          count={rules.length}
+                          loadMore={this.fetchMoreRules}
+                          ready={!this.state.loading}
+                          total={paging.total}
+                          useMIUIButtons
+                        />
+                      )}
+                    </>
                   )}
-                </>
-              )}
+                </div>
+              </main>
             </div>
-          </main>
-        </div>
+          </PageContentFontWrapper>
+        </LargeCenteredLayout>
       </>
     );
   }
@@ -727,3 +734,11 @@ function parseFacets(rawFacets: { property: string; values: { count: number; val
 }
 
 export default withRouter(withCurrentUserContext(CodingRulesApp));
+
+const StyledContentWrapper = styled.div`
+  box-sizing: border-box;
+  background-color: ${themeColor('filterbar')};
+  border: ${themeBorder('default', 'filterbarBorder')};
+  border-bottom: none;
+  overflow-x: hidden;
+`;

@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import styled from '@emotion/styled';
 import {
   ButtonSecondary,
   DangerButtonSecondary,
   HelperHintIcon,
   SubHeadingHighlight,
+  themeBorder,
+  themeColor,
 } from 'design-system';
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
@@ -168,7 +171,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     const isEditable = canWrite && !!this.props.allowCustomRules && isCustom;
 
     return (
-      <div className="coding-rule-details">
+      <StyledRuleDetails className="it__coding-rule-details sw-p-6 sw-mt-6">
         <Spinner loading={this.state.loading}>
           <RuleDetailsMeta
             canWrite={canWrite}
@@ -268,7 +271,15 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
             <DateFormatter date={ruleDetails.createdAt} />
           </div>
         </Spinner>
-      </div>
+      </StyledRuleDetails>
     );
   }
 }
+
+const StyledRuleDetails = styled.div`
+  box-sizing: border-box;
+  border-radius: 4px;
+  background-color: ${themeColor('filterbar')};
+  border: ${themeBorder('default', 'filterbarBorder')};
+  overflow-x: hidden;
+`;

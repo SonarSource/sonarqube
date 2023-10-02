@@ -3,7 +3,7 @@
 exports[`should render correctly 1`] = `
 <div>
   <strong
-    className="sw-ml-1"
+    className="sw-mr-1"
   >
     124 / 
     <span

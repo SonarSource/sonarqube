@@ -96,7 +96,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
     }
 
     return (
-      <div className="sw-mr-2">
+      <div className="sw-mr-2 sw-shrink-0">
         <SeverityIcon severity={activation.severity} />
         {selectedProfile && selectedProfile.parentName && (
           <>
@@ -201,7 +201,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
     return (
       <ListItemStyled
         selected={selected}
-        className="it__coding-rule sw-p-3 sw-mb-4 sw-rounded-1"
+        className="it__coding-rule sw-p-3 sw-mb-4 sw-rounded-1 sw-bg-white"
         aria-current={selected}
         data-rule={rule.key}
       >

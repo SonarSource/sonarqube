@@ -51,6 +51,7 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND = [
   '/project/information',
   '/web_api_v2',
   '/quality_gates',
+  '/coding_rules',
 ];
 
 const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = ['/tutorials', '/projects/create'];
