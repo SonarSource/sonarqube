@@ -235,7 +235,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
         {({ top }) => (
           <section
             aria-label={translate('filters')}
-            className="sw-overflow-y-auto"
+            className="sw-overflow-y-auto project-filters-list"
             style={{ height: `calc((100vh - ${top}px) - 60px)` }} // 60 for the footer
           >
             <div className="sw-w-[300px] lg:sw-w-[390px]">
