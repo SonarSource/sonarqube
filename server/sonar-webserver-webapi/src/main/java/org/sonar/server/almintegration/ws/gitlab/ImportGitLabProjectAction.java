@@ -41,7 +41,7 @@ import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
-import org.sonar.server.component.ProjectCreationData;
+import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -51,6 +51,7 @@ import org.sonarqube.ws.Projects.CreateWsResponse;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
+import static org.sonar.db.project.CreationMethod.ALM_IMPORT_API;
 import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.checkNewCodeDefinitionParam;
@@ -186,8 +187,14 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
       .setPrivate(visibility)
       .setQualifier(PROJECT)
       .build();
-    ProjectCreationData projectCreationData = new ProjectCreationData(newProject, userSession.getUuid(), userSession.getLogin(), mainBranchName);
-    return componentUpdater.createWithoutCommit(dbSession, projectCreationData);
+    ComponentCreationParameters componentCreationParameters = ComponentCreationParameters.builder()
+      .newComponent(newProject)
+      .userUuid(userSession.getUuid())
+      .userLogin(userSession.getLogin())
+      .mainBranchName(mainBranchName)
+      .creationMethod(ALM_IMPORT_API)
+      .build();
+    return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);
   }
 
 }

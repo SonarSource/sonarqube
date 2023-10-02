@@ -39,8 +39,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentUpdater;
@@ -169,12 +169,13 @@ public class ReportSubmitterIT {
     underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
     ComponentDto createdProject = db.getDbClient().componentDao().selectByKey(db.getSession(), PROJECT_KEY).get();
-    EntityDto entityDto = db.getDbClient().entityDao().selectByKey(db.getSession(), PROJECT_KEY).get();
+    ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), PROJECT_KEY).orElseThrow();
 
     verifyReportIsPersisted(TASK_UUID);
     verify(queue).submit(argThat(submit -> submit.getType().equals(CeTaskTypes.REPORT)
-      && submit.getComponent().filter(cpt -> cpt.getUuid().equals(createdProject.uuid()) && cpt.getEntityUuid().equals(entityDto.getUuid())).isPresent()
+      && submit.getComponent().filter(cpt -> cpt.getUuid().equals(createdProject.uuid()) && cpt.getEntityUuid().equals(projectDto.getUuid())).isPresent()
       && submit.getUuid().equals(TASK_UUID)));
+    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.SCANNER);
   }
 
   @Test

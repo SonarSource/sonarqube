@@ -32,6 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.portfolio.PortfolioProjectDto;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -580,7 +581,8 @@ public class ComponentDbTester {
       .setUpdatedAt(createTime)
       .setPrivate(componentDto.isPrivate())
       .setDescription(componentDto.description())
-      .setName(componentDto.name());
+      .setName(componentDto.name())
+      .setCreationMethod(CreationMethod.LOCAL);
   }
 
   public static PortfolioDto toPortfolioDto(ComponentDto componentDto, long createTime) {

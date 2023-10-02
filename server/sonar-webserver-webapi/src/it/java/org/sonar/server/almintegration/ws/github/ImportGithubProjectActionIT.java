@@ -43,6 +43,7 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
@@ -366,6 +367,28 @@ public class ImportGithubProjectActionIT {
 
     verify(permissionTemplateService, never()).applyDefaultToNewComponent(any(), any(), any());
 
+  }
+
+  @Test
+  public void importProject_shouldSetCreationMethod() {
+    AlmSettingDto githubAlmSetting = setupAlm();
+    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+
+    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
+      "octocat/" + PROJECT_KEY_NAME,
+      "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "default-branch");
+    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
+    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
+      .setParam(PARAM_ORGANIZATION, "octocat")
+      .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), response.getProject().getKey());
+    assertThat(projectDto.orElseThrow().getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
   }
 
   @Test

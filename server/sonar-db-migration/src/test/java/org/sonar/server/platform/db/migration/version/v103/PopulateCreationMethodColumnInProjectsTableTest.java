@@ -50,7 +50,7 @@ public class PopulateCreationMethodColumnInProjectsTableTest {
 
     assertThat(db.select("select creation_method from projects"))
       .extracting(stringObjectMap -> stringObjectMap.get("CREATION_METHOD"))
-      .containsExactlyInAnyOrder("unknown", "unknown");
+      .containsExactlyInAnyOrder("UNKNOWN", "UNKNOWN");
   }
 
   @Test
@@ -62,7 +62,7 @@ public class PopulateCreationMethodColumnInProjectsTableTest {
 
     assertThat(db.select("select creation_method from projects"))
       .extracting(stringObjectMap -> stringObjectMap.get("CREATION_METHOD"))
-      .containsExactlyInAnyOrder("unknown");
+      .containsExactlyInAnyOrder("UNKNOWN");
   }
 
   private void insertProject(String uuid) {

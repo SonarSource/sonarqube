@@ -10,6 +10,7 @@
       p.description as description,
       p.tags as tagsString,
       p.private as isPrivate,
+      p.creation_method as creationMethod,
       p.created_at as createdAt,
       p.updated_at as updatedAt
     </sql>
@@ -162,6 +163,7 @@
       description,
       private,
       tags,
+      creation_method,
       created_at,
       updated_at
     )
@@ -173,6 +175,7 @@
     #{description,jdbcType=VARCHAR},
     #{isPrivate,jdbcType=BOOLEAN},
     #{tagsString, jdbcType=VARCHAR},
+    #{creationMethod, jdbcType=VARCHAR},
     #{createdAt,jdbcType=BIGINT},
     #{updatedAt,jdbcType=BIGINT}
     )

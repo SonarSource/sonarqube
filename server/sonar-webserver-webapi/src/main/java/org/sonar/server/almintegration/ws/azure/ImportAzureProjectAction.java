@@ -39,8 +39,9 @@ import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.server.component.NewComponent;
-import org.sonar.server.component.ProjectCreationData;
+import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -184,8 +185,14 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
       .setPrivate(visibility)
       .setQualifier(PROJECT)
       .build();
-    ProjectCreationData projectCreationData = new ProjectCreationData(newProject, userSession.getUuid(), userSession.getLogin(), repo.getDefaultBranchName());
-    return componentUpdater.createWithoutCommit(dbSession, projectCreationData);
+    ComponentCreationParameters componentCreationParameters = ComponentCreationParameters.builder()
+      .newComponent(newProject)
+      .userUuid(userSession.getUuid())
+      .userLogin(userSession.getLogin())
+      .mainBranchName(repo.getDefaultBranchName())
+      .creationMethod(CreationMethod.ALM_IMPORT_API)
+      .build();
+    return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);
   }
 
   private void populatePRSetting(DbSession dbSession, GsonAzureRepo repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {

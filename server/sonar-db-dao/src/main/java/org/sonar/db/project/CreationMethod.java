@@ -17,26 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v103;
+package org.sonar.db.project;
 
-import java.sql.SQLException;
-import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.DataChange;
-import org.sonar.server.platform.db.migration.step.Upsert;
-
-public class PopulateCreationMethodColumnInProjectsTable extends DataChange {
-
-  private static final String UPDATE_QUERY = """
-    update projects set creation_method='UNKNOWN'
-    """;
-
-  public PopulateCreationMethodColumnInProjectsTable(Database db) {
-    super(db);
-  }
-  @Override
-  protected void execute(Context context) throws SQLException {
-    Upsert upsert = context.prepareUpsert(UPDATE_QUERY);
-    upsert.execute().commit();
-  }
-
+public enum CreationMethod {
+  UNKNOWN,
+  LOCAL,
+  ALM_IMPORT_API,
+  ALM_IMPORT_UI,
+  SCANNER
 }

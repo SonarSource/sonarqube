@@ -28,6 +28,7 @@ import org.sonar.ce.task.projectexport.taskprocessor.ProjectDescriptor;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.project.CreationMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -58,6 +59,7 @@ public class LoadProjectStepIT {
       "qualifier", Qualifiers.APP,
       "uuid", "not_used",
       "private", false,
+      "creation_method", CreationMethod.LOCAL.name(),
       "created_at", 1L,
       "updated_at", 1L);
 

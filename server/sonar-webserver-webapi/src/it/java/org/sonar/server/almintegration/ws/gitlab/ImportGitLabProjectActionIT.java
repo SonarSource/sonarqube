@@ -19,6 +19,7 @@
  */
 package org.sonar.server.almintegration.ws.gitlab;
 
+import java.util.List;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -36,6 +37,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
@@ -111,16 +113,8 @@ public class ImportGitLabProjectActionIT {
 
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setUserUuid(user.getUuid());
-      dto.setPersonalAccessToken("PAT");
-    });
-    Project project = getGitlabProject();
-    when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
-    when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(singletonList(new GitLabBranch("master", true)));
-    when(projectKeyGenerator.generateUniqueProjectKey(project.getPathWithNamespace())).thenReturn(PROJECT_KEY_NAME);
+    AlmSettingDto almSetting = insertGitLabConfigurationAndPat(user);
+    Project project = mockGitlabProject(singletonList(new GitLabBranch("master", true)));
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -152,16 +146,8 @@ public class ImportGitLabProjectActionIT {
 
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setUserUuid(user.getUuid());
-      dto.setPersonalAccessToken("PAT");
-    });
-    Project project = getGitlabProject();
-    when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
-    when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(singletonList(new GitLabBranch("master", true)));
-    when(projectKeyGenerator.generateUniqueProjectKey(project.getPathWithNamespace())).thenReturn(PROJECT_KEY_NAME);
+    AlmSettingDto almSetting = insertGitLabConfigurationAndPat(user);
+    mockGitlabProject(singletonList(new GitLabBranch("master", true)));
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -181,22 +167,18 @@ public class ImportGitLabProjectActionIT {
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
       .containsExactly(NUMBER_OF_DAYS, "30", branchDto.getUuid());
+
+    assertThat(projectDto.orElseThrow().getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
   }
+
+
 
   @Test
   public void import_project_with_specific_different_default_branch() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setUserUuid(user.getUuid());
-      dto.setPersonalAccessToken("PAT");
-    });
-    Project project = getGitlabProject();
-    when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
-    when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(singletonList(new GitLabBranch("main", true)));
-    when(projectKeyGenerator.generateUniqueProjectKey(project.getPathWithNamespace())).thenReturn(PROJECT_KEY_NAME);
+    AlmSettingDto almSetting = insertGitLabConfigurationAndPat(user);
+    Project project = mockGitlabProject(singletonList(new GitLabBranch("main", true)));
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -223,16 +205,8 @@ public class ImportGitLabProjectActionIT {
   public void import_project_no_gitlab_default_branch() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setUserUuid(user.getUuid());
-      dto.setPersonalAccessToken("PAT");
-    });
-    Project project = getGitlabProject();
-    when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
-    when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(emptyList());
-    when(projectKeyGenerator.generateUniqueProjectKey(project.getPathWithNamespace())).thenReturn(PROJECT_KEY_NAME);
+    AlmSettingDto almSetting = insertGitLabConfigurationAndPat(user);
+    Project project = mockGitlabProject(emptyList());
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -259,16 +233,8 @@ public class ImportGitLabProjectActionIT {
   public void import_project_without_NCD() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setUserUuid(user.getUuid());
-      dto.setPersonalAccessToken("PAT");
-    });
-    Project project = getGitlabProject();
-    when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
-    when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(singletonList(new GitLabBranch("master", true)));
-    when(projectKeyGenerator.generateUniqueProjectKey(project.getPathWithNamespace())).thenReturn(PROJECT_KEY_NAME);
+    AlmSettingDto almSetting = insertGitLabConfigurationAndPat(user);
+    Project project = mockGitlabProject(singletonList(new GitLabBranch("master", true)));
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -286,7 +252,38 @@ public class ImportGitLabProjectActionIT {
     assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
   }
 
-  private Project getGitlabProject() {
-    return new Project(randomAlphanumeric(5), randomAlphanumeric(5));
+  @Test
+  public void import_project_setsCreationMethod() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = insertGitLabConfigurationAndPat(user);
+    mockGitlabProject(singletonList(new GitLabBranch("master", true)));
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("gitlabProjectId", "12345")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), response.getProject().getKey());
+    assertThat(projectDto.orElseThrow().getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
   }
+
+  private AlmSettingDto insertGitLabConfigurationAndPat(UserDto user) {
+    AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+      dto.setPersonalAccessToken("PAT");
+    });
+    return almSetting;
+  }
+
+  private Project mockGitlabProject(List<GitLabBranch> master) {
+    Project project = new Project(randomAlphanumeric(5), randomAlphanumeric(5));
+    when(gitlabHttpClient.getProject(any(), any(), any())).thenReturn(project);
+    when(gitlabHttpClient.getBranches(any(), any(), any())).thenReturn(master);
+    when(projectKeyGenerator.generateUniqueProjectKey(project.getPathWithNamespace())).thenReturn(PROJECT_KEY_NAME);
+    return project;
+  }
+
 }

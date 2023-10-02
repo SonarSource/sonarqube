@@ -21,6 +21,7 @@ package org.sonar.db.component;
 
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 
 public class ProjectTesting {
@@ -47,6 +48,7 @@ public class ProjectTesting {
       .setName("NAME_" + uuid)
       .setDescription("DESCRIPTION_" + uuid)
       .setQualifier(Qualifiers.PROJECT)
+      .setCreationMethod(CreationMethod.LOCAL)
       .setPrivate(isPrivate);
   }
 

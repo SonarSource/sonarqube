@@ -33,8 +33,9 @@ import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.server.component.NewComponent;
-import org.sonar.server.component.ProjectCreationData;
+import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -163,8 +164,14 @@ public class CreateAction implements ProjectsWsAction {
       .setPrivate(changeToPrivate)
       .setQualifier(PROJECT)
       .build();
-    ProjectCreationData projectCreationData = new ProjectCreationData(newProject, userSession.getUuid(), userSession.getLogin(), request.getMainBranchKey());
-    return componentUpdater.createWithoutCommit(dbSession, projectCreationData);
+    ComponentCreationParameters componentCreationParameters = ComponentCreationParameters.builder()
+      .newComponent(newProject)
+      .userUuid(userSession.getUuid())
+      .userLogin(userSession.getLogin())
+      .mainBranchName(request.getMainBranchKey())
+      .creationMethod(CreationMethod.LOCAL)
+      .build();
+    return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);
 
   }
 

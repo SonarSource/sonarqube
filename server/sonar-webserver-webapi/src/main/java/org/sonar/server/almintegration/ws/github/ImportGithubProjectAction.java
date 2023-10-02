@@ -45,7 +45,7 @@ import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
-import org.sonar.server.component.ProjectCreationData;
+import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
@@ -59,6 +59,7 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.ImportHelper.toCreateResponse;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
+import static org.sonar.db.project.CreationMethod.ALM_IMPORT_API;
 import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.checkNewCodeDefinitionParam;
@@ -204,11 +205,15 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       .setPrivate(visibility)
       .setQualifier(PROJECT)
       .build();
-    ProjectCreationData projectCreationData = new ProjectCreationData(projectComponent, userSession.getUuid(), userSession.getLogin(), mainBranchName,
-      gitHubSettings.isProvisioningEnabled());
-    return componentUpdater.createWithoutCommit(
-      dbSession,
-      projectCreationData);
+    ComponentCreationParameters componentCreationParameters = ComponentCreationParameters.builder()
+      .newComponent(projectComponent)
+      .userLogin(userSession.getLogin())
+      .userUuid(userSession.getUuid())
+      .mainBranchName(mainBranchName)
+      .isManaged(gitHubSettings.isProvisioningEnabled())
+      .creationMethod(ALM_IMPORT_API)
+      .build();
+    return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);
   }
 
   private void populatePRSetting(DbSession dbSession, Repository repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {

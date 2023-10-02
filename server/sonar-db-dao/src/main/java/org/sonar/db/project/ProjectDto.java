@@ -31,6 +31,7 @@ import static org.sonar.db.component.DbTagsReader.readDbTags;
 public class ProjectDto extends EntityDto {
   private static final String TAGS_SEPARATOR = ",";
   private String tags;
+  private CreationMethod creationMethod;
   private long createdAt;
   private long updatedAt;
 
@@ -111,6 +112,15 @@ public class ProjectDto extends EntityDto {
 
   public ProjectDto setQualifier(String qualifier) {
     this.qualifier = qualifier;
+    return this;
+  }
+
+  public CreationMethod getCreationMethod() {
+    return creationMethod;
+  }
+
+  public ProjectDto setCreationMethod(CreationMethod creationMethod) {
+    this.creationMethod = creationMethod;
     return this;
   }
 }

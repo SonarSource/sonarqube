@@ -25,6 +25,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.portfolio.PortfolioDto;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -268,7 +269,7 @@ public class ComponentTesting {
   }
 
   public static ProjectDto newProjectDto() {
-    return newProjectDto("uuid").setPrivate(true);
+    return newProjectDto("uuid").setPrivate(true).setCreationMethod(CreationMethod.LOCAL);
   }
 
   public static ProjectDto newProjectDto(String projectUuid) {
@@ -276,6 +277,7 @@ public class ComponentTesting {
       .setKey("projectKey")
       .setUuid(projectUuid)
       .setName("projectName")
+      .setCreationMethod(CreationMethod.LOCAL)
       .setQualifier(Qualifiers.PROJECT);
   }
 
@@ -284,6 +286,7 @@ public class ComponentTesting {
       .setKey("appKey")
       .setUuid("uuid")
       .setName("appName")
+      .setCreationMethod(CreationMethod.LOCAL)
       .setQualifier(Qualifiers.APP);
   }
 

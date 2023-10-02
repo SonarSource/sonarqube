@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -46,6 +47,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -120,6 +122,21 @@ public class ProjectDaoIT {
 
     List<ProjectDto> projects = projectDao.selectProjects(db.getSession());
     assertThat(projects).extracting(ProjectDto::getKey).containsExactlyInAnyOrder("projectKee_o1_p1", "projectKee_o1_p2");
+  }
+  @Test
+  public void selectProjects_returnsCreationMethod() {
+    ProjectDto dto1 = createProject("o1", "p1").setCreationMethod(CreationMethod.SCANNER);
+    ProjectDto dto2 = createProject("o1", "p2").setCreationMethod(CreationMethod.UNKNOWN);
+
+    projectDao.insert(db.getSession(), dto1);
+    projectDao.insert(db.getSession(), dto2);
+
+    List<ProjectDto> projects = projectDao.selectProjects(db.getSession());
+    Map<String, CreationMethod> projectToCreationMethod = projects.stream().collect(Collectors.toMap(EntityDto::getName, ProjectDto::getCreationMethod));
+    assertThat(projectToCreationMethod)
+      .hasSize(2)
+      .containsEntry("projectName_p1", CreationMethod.SCANNER)
+      .containsEntry("projectName_p2", CreationMethod.UNKNOWN);
   }
 
   @Test
@@ -452,6 +469,7 @@ public class ProjectDaoIT {
       .setUuid("uuid_" + org + "_" + name)
       .setTags(Arrays.asList("tag1", "tag2"))
       .setDescription("desc_" + name)
+      .setCreationMethod(CreationMethod.LOCAL)
       .setPrivate(false);
   }
 }

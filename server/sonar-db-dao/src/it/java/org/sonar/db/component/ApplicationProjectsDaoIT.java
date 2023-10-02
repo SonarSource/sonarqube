@@ -28,6 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -169,6 +170,7 @@ public class ApplicationProjectsDaoIT {
       "kee", appUuid,
       "qualifier", "APP",
       "private", true,
+      "creation_method", CreationMethod.LOCAL.name(),
       "updated_at", 1000L,
       "created_at", 1000L);
   }

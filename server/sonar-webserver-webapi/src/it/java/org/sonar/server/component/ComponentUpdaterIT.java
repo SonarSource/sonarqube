@@ -38,6 +38,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -77,6 +78,15 @@ public class ComponentUpdaterIT {
 
   private static final String DEFAULT_PROJECT_KEY = "project-key";
   private static final String DEFAULT_PROJECT_NAME = "project-name";
+  private static final NewComponent DEFAULT_COMPONENT = NewComponent.newComponentBuilder()
+    .setKey(DEFAULT_PROJECT_KEY)
+    .setName(DEFAULT_PROJECT_NAME)
+    .build();
+  private static final NewComponent PRIVATE_COMPONENT = NewComponent.newComponentBuilder()
+    .setKey(DEFAULT_PROJECT_KEY)
+    .setName(DEFAULT_PROJECT_NAME)
+    .setPrivate(true)
+    .build();
   private static final String DEFAULT_USER_UUID = "user-uuid";
   public static final String DEFAULT_USER_LOGIN = "user-login";
 
@@ -110,12 +120,11 @@ public class ComponentUpdaterIT {
 
   @Test
   public void persist_and_index_when_creating_project() {
-    NewComponent mainBranchComponent = NewComponent.newComponentBuilder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
-      .setPrivate(true)
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(PRIVATE_COMPONENT)
+      .creationMethod(CreationMethod.LOCAL)
       .build();
-    ComponentCreationData returned = underTest.create(db.getSession(), mainBranchComponent, null, null);
+    ComponentCreationData returned = underTest.create(db.getSession(), creationParameters);
 
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.mainBranchComponent().uuid());
     assertThat(loaded.getKey()).isEqualTo(DEFAULT_PROJECT_KEY);
@@ -125,7 +134,7 @@ public class ComponentUpdaterIT {
     assertThat(loaded.scope()).isEqualTo(Scopes.PROJECT);
     assertThat(loaded.uuid()).isNotNull();
     assertThat(loaded.branchUuid()).isEqualTo(loaded.uuid());
-    assertThat(loaded.isPrivate()).isEqualTo(mainBranchComponent.isPrivate());
+    assertThat(loaded.isPrivate()).isEqualTo(PRIVATE_COMPONENT.isPrivate());
     assertThat(loaded.getCreatedAt()).isNotNull();
     assertThat(db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY)).isPresent();
 
@@ -143,13 +152,12 @@ public class ComponentUpdaterIT {
   @Test
   public void create_project_with_main_branch_global_property() {
     when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn("main-branch-global");
-    NewComponent project = NewComponent.newComponentBuilder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
-      .setPrivate(true)
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(PRIVATE_COMPONENT)
+      .creationMethod(CreationMethod.LOCAL)
       .build();
 
-    ComponentDto returned = underTest.create(db.getSession(), project, null, null).mainBranchComponent();
+    ComponentDto returned = underTest.create(db.getSession(), creationParameters).mainBranchComponent();
 
     Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), returned.branchUuid());
     assertThat(branch).get().extracting(BranchDto::getBranchKey).isEqualTo("main-branch-global");
@@ -157,14 +165,13 @@ public class ComponentUpdaterIT {
 
   @Test
   public void persist_private_flag_true_when_creating_project() {
-    NewComponent project = NewComponent.newComponentBuilder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
-      .setPrivate(true)
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(PRIVATE_COMPONENT)
+      .creationMethod(CreationMethod.LOCAL)
       .build();
-    ComponentDto returned = underTest.create(db.getSession(), project, null, null).mainBranchComponent();
+    ComponentDto returned = underTest.create(db.getSession(), creationParameters).mainBranchComponent();
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
-    assertThat(loaded.isPrivate()).isEqualTo(project.isPrivate());
+    assertThat(loaded.isPrivate()).isEqualTo(PRIVATE_COMPONENT.isPrivate());
   }
 
   @Test
@@ -174,7 +181,11 @@ public class ComponentUpdaterIT {
       .setName(DEFAULT_PROJECT_NAME)
       .setPrivate(false)
       .build();
-    ComponentDto returned = underTest.create(db.getSession(), project, null, null).mainBranchComponent();
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(project)
+      .creationMethod(CreationMethod.LOCAL)
+      .build();
+    ComponentDto returned = underTest.create(db.getSession(), creationParameters).mainBranchComponent();
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
     assertThat(loaded.isPrivate()).isEqualTo(project.isPrivate());
   }
@@ -187,7 +198,11 @@ public class ComponentUpdaterIT {
       .setQualifier(VIEW)
       .build();
 
-    ComponentDto returned = underTest.create(db.getSession(), view, null, null).mainBranchComponent();
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(view)
+      .creationMethod(CreationMethod.LOCAL)
+      .build();
+    ComponentDto returned = underTest.create(db.getSession(), creationParameters).mainBranchComponent();
 
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
     assertThat(loaded.getKey()).isEqualTo("view-key");
@@ -205,8 +220,11 @@ public class ComponentUpdaterIT {
       .setName("app-name")
       .setQualifier(APP)
       .build();
-
-    ComponentCreationData returned = underTest.create(db.getSession(), application, null, null);
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(application)
+      .creationMethod(CreationMethod.LOCAL)
+      .build();
+    ComponentCreationData returned = underTest.create(db.getSession(), creationParameters);
 
     ProjectDto loaded = db.getDbClient().projectDao().selectByUuid(db.getSession(), returned.projectDto().getUuid()).get();
     assertThat(loaded.getKey()).isEqualTo("app-key");
@@ -224,11 +242,14 @@ public class ComponentUpdaterIT {
 
   @Test
   public void apply_default_permission_template() {
-    NewComponent project = NewComponent.newComponentBuilder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
+    ComponentCreationParameters componentCreationParameters = ComponentCreationParameters.builder()
+      .newComponent(DEFAULT_COMPONENT)
+      .userLogin(DEFAULT_USER_LOGIN)
+      .userUuid(DEFAULT_USER_UUID)
+      .creationMethod(CreationMethod.LOCAL)
       .build();
-    ProjectDto dto = underTest.create(db.getSession(), project, DEFAULT_USER_UUID, DEFAULT_USER_LOGIN).projectDto();
+
+    ProjectDto dto = underTest.create(db.getSession(), componentCreationParameters).projectDto();
 
     verify(permissionTemplateService).applyDefaultToNewComponent(db.getSession(), dto, DEFAULT_USER_UUID);
   }
@@ -236,14 +257,17 @@ public class ComponentUpdaterIT {
   @Test
   public void add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template() {
     UserDto userDto = db.users().insertUser();
-    NewComponent project = NewComponent.newComponentBuilder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(DEFAULT_COMPONENT)
+      .userLogin(userDto.getLogin())
+      .userUuid(userDto.getUuid())
+      .creationMethod(CreationMethod.LOCAL)
       .build();
+
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ProjectDto.class)))
       .thenReturn(true);
 
-    ProjectDto dto = underTest.create(db.getSession(), project, userDto.getUuid(), userDto.getLogin()).projectDto();
+    ProjectDto dto = underTest.create(db.getSession(), creationParameters).projectDto();
 
     assertThat(db.favorites().hasFavorite(dto, userDto.getUuid())).isTrue();
   }
@@ -252,55 +276,47 @@ public class ComponentUpdaterIT {
   public void do_not_add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template_and_already_100_favorites() {
     UserDto user = db.users().insertUser();
     rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject().getProjectDto(), user.getUuid(), user.getLogin()));
-    NewComponent project = NewComponent.newComponentBuilder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(DEFAULT_COMPONENT)
+      .userLogin(user.getLogin())
+      .userUuid(user.getUuid())
+      .creationMethod(CreationMethod.LOCAL)
       .build();
+
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(eq(db.getSession()), any(ProjectDto.class)))
       .thenReturn(true);
 
-    ProjectDto dto = underTest.create(db.getSession(),
-      project,
-      user.getUuid(),
-      user.getLogin()).projectDto();
+    ProjectDto dto = underTest.create(db.getSession(), creationParameters).projectDto();
 
     assertThat(db.favorites().hasFavorite(dto, user.getUuid())).isFalse();
   }
 
   @Test
   public void does_not_add_project_to_favorite_when_anonymously_created() {
-    ProjectDto project = underTest.create(db.getSession(),
-      NewComponent.newComponentBuilder()
-        .setKey(DEFAULT_PROJECT_KEY)
-        .setName(DEFAULT_PROJECT_NAME)
-        .build(),
-      null, null).projectDto();
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(DEFAULT_COMPONENT)
+      .creationMethod(CreationMethod.LOCAL)
+      .build();
+    ProjectDto projectDto = underTest.create(db.getSession(), creationParameters).projectDto();
 
-    assertThat(db.favorites().hasNoFavorite(project)).isTrue();
-  }
-
-  @Test
-  public void does_not_add_project_to_favorite_when_project_has_no_permission_on_template() {
-    ProjectDto project = underTest.create(db.getSession(),
-      NewComponent.newComponentBuilder()
-        .setKey(DEFAULT_PROJECT_KEY)
-        .setName(DEFAULT_PROJECT_NAME)
-        .build(),
-      null, null).projectDto();
-
-    assertThat(db.favorites().hasNoFavorite(project)).isTrue();
+    assertThat(db.favorites().hasNoFavorite(projectDto)).isTrue();
   }
 
   @Test
   public void fail_when_project_key_already_exists() {
     ComponentDto existing = db.components().insertPrivateProject().getMainBranchComponent();
-
     DbSession session = db.getSession();
-    NewComponent newComponent = NewComponent.newComponentBuilder()
+
+    NewComponent project = NewComponent.newComponentBuilder()
       .setKey(existing.getKey())
       .setName(DEFAULT_PROJECT_NAME)
       .build();
-    assertThatThrownBy(() -> underTest.create(session, newComponent, null, null))
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(project)
+      .creationMethod(CreationMethod.LOCAL)
+      .build();
+
+    assertThatThrownBy(() -> underTest.create(session, creationParameters))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s\"", existing.getKey(), existing.getKey());
   }
@@ -308,11 +324,16 @@ public class ComponentUpdaterIT {
   @Test
   public void fail_when_key_has_bad_format() {
     DbSession session = db.getSession();
-    NewComponent newComponent = NewComponent.newComponentBuilder()
+    NewComponent project = NewComponent.newComponentBuilder()
       .setKey("1234")
       .setName(DEFAULT_PROJECT_NAME)
       .build();
-    assertThatThrownBy(() -> underTest.create(session, newComponent, null, null))
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(project)
+      .creationMethod(CreationMethod.LOCAL)
+      .build();
+
+    assertThatThrownBy(() -> underTest.create(session, creationParameters))
       .isInstanceOf(BadRequestException.class)
       .hasMessageContaining("Malformed key for Project: '1234'");
   }
@@ -320,11 +341,16 @@ public class ComponentUpdaterIT {
   @Test
   public void fail_when_key_contains_percent_character() {
     DbSession session = db.getSession();
-    NewComponent newComponent = NewComponent.newComponentBuilder()
+    NewComponent project = NewComponent.newComponentBuilder()
       .setKey("roject%Key")
       .setName(DEFAULT_PROJECT_NAME)
       .build();
-    assertThatThrownBy(() -> underTest.create(session, newComponent, null, null))
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(project)
+      .creationMethod(CreationMethod.LOCAL)
+      .build();
+
+    assertThatThrownBy(() -> underTest.create(session, creationParameters))
       .isInstanceOf(BadRequestException.class)
       .hasMessageContaining("Malformed key for Project: 'roject%Key'");
   }
@@ -349,14 +375,18 @@ public class ComponentUpdaterIT {
     db.components().insertPrivateProject(component -> component.setKey(existingKey));
     String newKey = existingKey.toLowerCase();
 
-    NewComponent newComponent = NewComponent.newComponentBuilder()
+    NewComponent project = NewComponent.newComponentBuilder()
       .setKey(newKey)
       .setName(DEFAULT_PROJECT_NAME)
       .setQualifier(qualifier)
       .build();
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(project)
+      .creationMethod(CreationMethod.LOCAL)
+      .build();
 
     DbSession dbSession = db.getSession();
-    assertThatThrownBy(() -> underTest.create(dbSession, newComponent, null, null))
+    assertThatThrownBy(() -> underTest.create(dbSession, creationParameters))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s\"", newKey, existingKey);
   }
@@ -369,13 +399,17 @@ public class ComponentUpdaterIT {
     db.components().insertPrivateProject(component -> component.setKey(existingKeyLowerCase));
     String newKey = StringUtils.capitalize(existingKeyLowerCase);
 
-    NewComponent newComponent = NewComponent.newComponentBuilder()
+    NewComponent project = NewComponent.newComponentBuilder()
       .setKey(newKey)
       .setName(DEFAULT_PROJECT_NAME)
       .build();
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(project)
+      .creationMethod(CreationMethod.LOCAL)
+      .build();
 
     DbSession dbSession = db.getSession();
-    assertThatThrownBy(() -> underTest.create(dbSession, newComponent, null, null))
+    assertThatThrownBy(() -> underTest.create(dbSession, creationParameters))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s, %s\"", newKey, existingKey, existingKeyLowerCase);
   }
@@ -388,13 +422,17 @@ public class ComponentUpdaterIT {
     db.components().insertPrivatePortfolio(portfolio -> portfolio.setKey(existingKeyLowerCase));
     String newKey = StringUtils.capitalize(existingKeyLowerCase);
 
-    NewComponent newComponent = NewComponent.newComponentBuilder()
+    NewComponent project = NewComponent.newComponentBuilder()
       .setKey(newKey)
       .setName(DEFAULT_PROJECT_NAME)
       .build();
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(project)
+      .creationMethod(CreationMethod.LOCAL)
+      .build();
 
     DbSession dbSession = db.getSession();
-    assertThatThrownBy(() -> underTest.create(dbSession, newComponent, null, null))
+    assertThatThrownBy(() -> underTest.create(dbSession, creationParameters))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Could not create Project with key: \"%s\". A similar key already exists: \"%s, %s\"", newKey, existingKey, existingKeyLowerCase);
   }
@@ -402,10 +440,19 @@ public class ComponentUpdaterIT {
   @Test
   public void create_createsComponentWithMasterBranchName() {
     String componentNameAndKey = "createApplicationOrPortfolio";
-    ComponentDto app = underTest.create(db.getSession(), NewComponent.newComponentBuilder().setName(componentNameAndKey)
-      .setKey(componentNameAndKey).setQualifier("APP").build(), null, null).mainBranchComponent();
+    NewComponent app = NewComponent.newComponentBuilder()
+      .setKey(componentNameAndKey)
+      .setName(componentNameAndKey)
+      .setQualifier("APP")
+      .build();
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(app)
+      .creationMethod(CreationMethod.LOCAL)
+      .build();
 
-    Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), app.branchUuid());
+    ComponentDto appDto = underTest.create(db.getSession(), creationParameters).mainBranchComponent();
+
+    Optional<BranchDto> branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), appDto.branchUuid());
     assertThat(branch).isPresent();
     assertThat(branch.get().getBranchKey()).isEqualTo(DEFAULT_MAIN_BRANCH_NAME);
   }
@@ -413,11 +460,15 @@ public class ComponentUpdaterIT {
   @Test
   public void createWithoutCommit_whenProjectIsManaged_doesntApplyPermissionTemplate() {
     UserDto userDto = db.users().insertUser();
-    NewComponent project = NewComponent.newComponentBuilder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
+    ComponentCreationParameters componentCreationParameters = ComponentCreationParameters.builder()
+      .newComponent(DEFAULT_COMPONENT)
+      .userLogin(userDto.getLogin())
+      .userUuid(userDto.getUuid())
+      .mainBranchName(null)
+      .isManaged(true)
+      .creationMethod(CreationMethod.LOCAL)
       .build();
-    underTest.createWithoutCommit(db.getSession(), new ProjectCreationData(project, userDto.getUuid(), userDto.getLogin(), null, true));
+    underTest.createWithoutCommit(db.getSession(), componentCreationParameters);
 
     verify(permissionTemplateService, never()).applyDefaultToNewComponent(any(), any(), any());
   }
@@ -425,18 +476,41 @@ public class ComponentUpdaterIT {
   @Test
   public void createWithoutCommit_whenProjectIsManagedAndPrivate_applyPublicPermissionsToCreator() {
     UserDto userDto = db.users().insertUser();
-    NewComponent newComponent = NewComponent.newComponentBuilder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
-      .setPrivate(true)
-      .build();
 
     DbSession session = db.getSession();
-    ComponentCreationData componentCreationData = underTest.createWithoutCommit(session, new ProjectCreationData(newComponent, userDto.getUuid(), userDto.getLogin(), null, true));
+
+    ComponentCreationParameters componentCreationParameters = ComponentCreationParameters.builder()
+      .newComponent(PRIVATE_COMPONENT)
+      .userLogin(userDto.getLogin())
+      .userUuid(userDto.getUuid())
+      .mainBranchName(null)
+      .isManaged(true)
+      .creationMethod(CreationMethod.LOCAL)
+      .build();
+    ComponentCreationData componentCreationData = underTest.createWithoutCommit(session, componentCreationParameters);
 
     List<String> permissions = db.getDbClient().userPermissionDao().selectEntityPermissionsOfUser(session, userDto.getUuid(), componentCreationData.projectDto().getUuid());
     assertThat(permissions)
       .containsExactlyInAnyOrder(UserRole.USER, UserRole.CODEVIEWER);
   }
 
+  @Test
+  public void create_whenCreationMethodIsLocal_persistsIt() {
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(DEFAULT_COMPONENT)
+      .creationMethod(CreationMethod.LOCAL)
+      .build();
+    ProjectDto projectDto = underTest.create(db.getSession(), creationParameters).projectDto();
+    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.LOCAL);
+  }
+
+  @Test
+  public void create_whenCreationMethodIsAlmImportUi_persistsIt() {
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(DEFAULT_COMPONENT)
+      .creationMethod(CreationMethod.ALM_IMPORT_UI)
+      .build();
+    ProjectDto projectDto = underTest.create(db.getSession(), creationParameters).projectDto();
+    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_UI);
+  }
 }

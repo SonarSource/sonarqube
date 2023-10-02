@@ -46,11 +46,12 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentCreationData;
+import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.component.ComponentUpdater;
-import org.sonar.server.component.ProjectCreationData;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
@@ -146,6 +147,9 @@ public class BranchReportSubmitterIT {
     verify(branchSupportDelegate, times(0)).createBranchComponent(any(), any(), any(), any());
     verifyNoMoreInteractions(branchSupportDelegate);
     verifyQueueSubmit(mainBranch, branch, user, randomCharacteristics, taskUuid);
+
+    ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), componentKey.getKey()).orElseThrow();
+    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.LOCAL);
   }
 
   @Test
@@ -192,7 +196,7 @@ public class BranchReportSubmitterIT {
     ComponentCreationData componentCreationData = mock(ComponentCreationData.class);
     when(componentCreationData.mainBranchComponent())
       .thenAnswer((Answer<ComponentDto>) invocation -> db.components().insertPrivateProject(PROJECT_UUID, nonExistingBranch).getMainBranchComponent());
-    when(componentUpdater.createWithoutCommit(any(), new ProjectCreationData(any(), eq(user.getUuid()), eq(user.getLogin()))))
+    when(componentUpdater.createWithoutCommit(any(), any()))
       .thenReturn(componentCreationData);
     when(branchSupportDelegate.createBranchComponent(any(DbSession.class), same(componentKey), any(), any())).thenReturn(createdBranch);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(nonExistingBranch.getKey()))).thenReturn(true);
@@ -208,6 +212,14 @@ public class BranchReportSubmitterIT {
     verifyNoMoreInteractions(branchSupportDelegate);
     verifyQueueSubmit(nonExistingBranch, createdBranch, user, randomCharacteristics, taskUuid);
     verify(componentUpdater).commitAndIndex(any(DbSession.class), eq(componentCreationData));
+
+    assertProjectCreatedWithCreationMethodEqualsScanner();
+  }
+
+  private void assertProjectCreatedWithCreationMethodEqualsScanner() {
+    ArgumentCaptor<ComponentCreationParameters> componentCreationParametersCaptor = ArgumentCaptor.forClass(ComponentCreationParameters.class);
+    verify(componentUpdater).createWithoutCommit(any(), componentCreationParametersCaptor.capture());
+    assertThat(componentCreationParametersCaptor.getValue().creationMethod()).isEqualTo(CreationMethod.SCANNER);
   }
 
   @Test

@@ -38,6 +38,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.portfolio.PortfolioDto.SelectionMode;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Indexers;
@@ -95,8 +96,8 @@ public class ComponentUpdater {
    * - Add component to favorite if the component has the 'Project Creators' permission
    * - Index component in es indexes
    */
-  public ComponentCreationData create(DbSession dbSession, NewComponent newComponent, @Nullable String userUuid, @Nullable String userLogin) {
-    ComponentCreationData componentCreationData = createWithoutCommit(dbSession, new ProjectCreationData(newComponent, userUuid, userLogin));
+  public ComponentCreationData create(DbSession dbSession, ComponentCreationParameters componentCreationParameters) {
+    ComponentCreationData componentCreationData = createWithoutCommit(dbSession, componentCreationParameters);
     commitAndIndex(dbSession, componentCreationData);
     return componentCreationData;
   }
@@ -113,32 +114,32 @@ public class ComponentUpdater {
    * Create component without committing.
    * Don't forget to call commitAndIndex(...) when ready to commit.
    */
-  public ComponentCreationData createWithoutCommit(DbSession dbSession, ProjectCreationData projectCreationData) {
-    checkKeyFormat(projectCreationData.newComponent().qualifier(), projectCreationData.newComponent().key());
-    checkKeyAlreadyExists(dbSession, projectCreationData.newComponent());
+  public ComponentCreationData createWithoutCommit(DbSession dbSession, ComponentCreationParameters componentCreationParameters) {
+    checkKeyFormat(componentCreationParameters.newComponent().qualifier(), componentCreationParameters.newComponent().key());
+    checkKeyAlreadyExists(dbSession, componentCreationParameters.newComponent());
 
     long now = system2.now();
 
-    ComponentDto componentDto = createRootComponent(dbSession, projectCreationData.newComponent(), now);
+    ComponentDto componentDto = createRootComponent(dbSession, componentCreationParameters.newComponent(), now);
 
     BranchDto mainBranch = null;
     ProjectDto projectDto = null;
     PortfolioDto portfolioDto = null;
 
     if (isProjectOrApp(componentDto)) {
-      projectDto = toProjectDto(componentDto, now);
+      projectDto = toProjectDto(componentDto, now, componentCreationParameters.creationMethod());
       dbClient.projectDao().insert(dbSession, projectDto);
-      addToFavourites(dbSession, projectDto, projectCreationData.userUuid(), projectCreationData.userLogin());
-      mainBranch = createMainBranch(dbSession, componentDto.uuid(), projectDto.getUuid(), projectCreationData.mainBranchName());
-      if (projectCreationData.isManaged()) {
-        applyPublicPermissionsForCreator(dbSession, projectDto, projectCreationData.userUuid());
+      addToFavourites(dbSession, projectDto, componentCreationParameters.userUuid(), componentCreationParameters.userLogin());
+      mainBranch = createMainBranch(dbSession, componentDto.uuid(), projectDto.getUuid(), componentCreationParameters.mainBranchName());
+      if (componentCreationParameters.isManaged()) {
+        applyPublicPermissionsForCreator(dbSession, projectDto, componentCreationParameters.userUuid());
       } else {
-        permissionTemplateService.applyDefaultToNewComponent(dbSession, projectDto, projectCreationData.userUuid());
+        permissionTemplateService.applyDefaultToNewComponent(dbSession, projectDto, componentCreationParameters.userUuid());
       }
     } else if (isPortfolio(componentDto)) {
       portfolioDto = toPortfolioDto(componentDto, now);
       dbClient.portfolioDao().insert(dbSession, portfolioDto);
-      permissionTemplateService.applyDefaultToNewComponent(dbSession, portfolioDto, projectCreationData.userUuid());
+      permissionTemplateService.applyDefaultToNewComponent(dbSession, portfolioDto, componentCreationParameters.userUuid());
     } else {
       throw new IllegalArgumentException("Component " + componentDto + " is not a top level entity");
     }
@@ -203,7 +204,7 @@ public class ComponentUpdater {
     return component;
   }
 
-  private ProjectDto toProjectDto(ComponentDto component, long now) {
+  private ProjectDto toProjectDto(ComponentDto component, long now, CreationMethod creationMethod) {
     return new ProjectDto()
       .setUuid(uuidFactory.create())
       .setKey(component.getKey())
@@ -211,6 +212,7 @@ public class ComponentUpdater {
       .setName(component.name())
       .setPrivate(component.isPrivate())
       .setDescription(component.description())
+      .setCreationMethod(creationMethod)
       .setUpdatedAt(now)
       .setCreatedAt(now);
   }

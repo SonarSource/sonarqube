@@ -34,6 +34,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.AnticipatedTransitionDto;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -138,6 +139,7 @@ public class AnticipatedTransitionRepositoryImplTest {
     projectDto.setUuid(projectUuid);
     projectDto.setQualifier("TRK");
     projectDto.setName("project");
+    projectDto.setCreationMethod(CreationMethod.LOCAL);
     return projectDto;
   }
 

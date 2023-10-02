@@ -35,6 +35,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentUpdater;
@@ -131,12 +132,13 @@ public class CreateActionIT {
     assertThat(response.getProject())
       .extracting(Project::getKey, Project::getName, Project::getQualifier, Project::getVisibility)
       .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", "public");
-    ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
-    assertThat(component)
-      .extracting(ComponentDto::getKey, ComponentDto::name, ComponentDto::qualifier, ComponentDto::scope, ComponentDto::isPrivate)
-      .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", "PRJ", false);
+    ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), DEFAULT_PROJECT_KEY).orElseThrow();
+    assertThat(projectDto)
+      .extracting(ProjectDto::getKey, ProjectDto::getName, ProjectDto::getQualifier, ProjectDto::isPrivate, ProjectDto::getCreationMethod)
+      .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", false, CreationMethod.LOCAL);
 
-    BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), component.branchUuid()).get();
+    ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).orElseThrow();
+    BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), component.branchUuid()).orElseThrow();
     assertThat(branch)
       .extracting(BranchDto::getKey)
       .isEqualTo(MAIN_BRANCH);
