@@ -20,7 +20,6 @@
 package org.sonar.server.almintegration.ws;
 
 import com.google.common.base.Strings;
-import java.util.Arrays;
 import java.util.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -36,10 +35,7 @@ import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.db.alm.setting.ALM.AZURE_DEVOPS;
-import static org.sonar.db.alm.setting.ALM.BITBUCKET;
 import static org.sonar.db.alm.setting.ALM.BITBUCKET_CLOUD;
-import static org.sonar.db.alm.setting.ALM.GITLAB;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 
 public class SetPatAction implements AlmIntegrationsWsAction {
@@ -60,12 +56,13 @@ public class SetPatAction implements AlmIntegrationsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("set_pat")
       .setDescription("Set a Personal Access Token for the given DevOps Platform setting<br/>" +
-        "Only valid for Azure DevOps, Bitbucket Server, GitLab and Bitbucket Cloud Setting<br/>" +
         "Requires the 'Create Projects' permission")
       .setPost(true)
       .setSince("8.2")
       .setHandler(this)
-      .setChangelog(new Change("9.0", "Bitbucket Cloud support and optional Username parameter were added"));
+      .setChangelog(
+        new Change("9.0", "Bitbucket Cloud support and optional Username parameter were added"),
+        new Change("10.3", "Allow setting Personal Access Tokens for all DevOps platforms"));
 
     action.createParam(PARAM_ALM_SETTING)
       .setRequired(true)
@@ -98,10 +95,7 @@ public class SetPatAction implements AlmIntegrationsWsAction {
       AlmSettingDto almSetting = dbClient.almSettingDao().selectByKey(dbSession, almSettingKey)
         .orElseThrow(() -> new NotFoundException(format("DevOps Platform Setting '%s' not found", almSettingKey)));
 
-      Preconditions.checkArgument(Arrays.asList(AZURE_DEVOPS, BITBUCKET, GITLAB, BITBUCKET_CLOUD)
-        .contains(almSetting.getAlm()), "Only Azure DevOps, Bitbucket Server, GitLab and Bitbucket Cloud Settings are supported.");
-
-      if(almSetting.getAlm().equals(BITBUCKET_CLOUD)) {
+      if (almSetting.getAlm().equals(BITBUCKET_CLOUD)) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(username), "Username cannot be null for Bitbucket Cloud");
       }
 

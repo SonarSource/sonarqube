@@ -175,19 +175,21 @@ public class SetPatActionIT {
   }
 
   @Test
-  public void fail_when_alm_setting_not_bitbucket_server_nor_gitlab() {
+  public void set_new_github_pat() {
     UserDto user = db.users().insertUser();
     AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
 
-    assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam("almSetting", almSetting.getKey())
-        .setParam("pat", "12345678987654321")
-        .execute();
-    })
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Only Azure DevOps, Bitbucket Server, GitLab and Bitbucket Cloud Settings are supported.");
+    ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("pat", "12345678987654321")
+      .execute();
+
+    Optional<AlmPatDto> actualAlmPat = db.getDbClient().almPatDao().selectByUserAndAlmSetting(db.getSession(), user.getUuid(), almSetting);
+    assertThat(actualAlmPat).isPresent();
+    assertThat(actualAlmPat.get().getPersonalAccessToken()).isEqualTo("12345678987654321");
+    assertThat(actualAlmPat.get().getUserUuid()).isEqualTo(user.getUuid());
+    assertThat(actualAlmPat.get().getAlmSettingUuid()).isEqualTo(almSetting.getUuid());
   }
 
   @Test
