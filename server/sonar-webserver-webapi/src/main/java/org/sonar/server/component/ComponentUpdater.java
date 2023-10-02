@@ -96,7 +96,7 @@ public class ComponentUpdater {
    * - Index component in es indexes
    */
   public ComponentCreationData create(DbSession dbSession, NewComponent newComponent, @Nullable String userUuid, @Nullable String userLogin) {
-    ComponentCreationData componentCreationData = createWithoutCommit(dbSession, newComponent, userUuid, userLogin, null);
+    ComponentCreationData componentCreationData = createWithoutCommit(dbSession, new ProjectCreationData(newComponent, userUuid, userLogin));
     commitAndIndex(dbSession, componentCreationData);
     return componentCreationData;
   }
@@ -113,28 +113,13 @@ public class ComponentUpdater {
    * Create component without committing.
    * Don't forget to call commitAndIndex(...) when ready to commit.
    */
-  public ComponentCreationData createWithoutCommit(DbSession dbSession, NewComponent newComponent,
-    @Nullable String userUuid, @Nullable String userLogin) {
-    return createWithoutCommit(dbSession, newComponent, userUuid, userLogin, null, false);
-  }
-
-  public ComponentCreationData createWithoutCommit(DbSession dbSession, NewComponent newComponent,
-    @Nullable String userUuid, @Nullable String userLogin, @Nullable String mainBranchName) {
-    return createWithoutCommit(dbSession, newComponent, userUuid, userLogin, mainBranchName, false);
-  }
-
-  /**
-   * Create component without committing.
-   * Don't forget to call commitAndIndex(...) when ready to commit.
-   */
-  public ComponentCreationData createWithoutCommit(DbSession dbSession, NewComponent newComponent,
-    @Nullable String userUuid, @Nullable String userLogin, @Nullable String mainBranchName, boolean isManaged) {
-    checkKeyFormat(newComponent.qualifier(), newComponent.key());
-    checkKeyAlreadyExists(dbSession, newComponent);
+  public ComponentCreationData createWithoutCommit(DbSession dbSession, ProjectCreationData projectCreationData) {
+    checkKeyFormat(projectCreationData.newComponent().qualifier(), projectCreationData.newComponent().key());
+    checkKeyAlreadyExists(dbSession, projectCreationData.newComponent());
 
     long now = system2.now();
 
-    ComponentDto componentDto = createRootComponent(dbSession, newComponent, now);
+    ComponentDto componentDto = createRootComponent(dbSession, projectCreationData.newComponent(), now);
 
     BranchDto mainBranch = null;
     ProjectDto projectDto = null;
@@ -143,17 +128,17 @@ public class ComponentUpdater {
     if (isProjectOrApp(componentDto)) {
       projectDto = toProjectDto(componentDto, now);
       dbClient.projectDao().insert(dbSession, projectDto);
-      addToFavourites(dbSession, projectDto, userUuid, userLogin);
-      mainBranch = createMainBranch(dbSession, componentDto.uuid(), projectDto.getUuid(), mainBranchName);
-      if (isManaged) {
-        applyPublicPermissionsForCreator(dbSession, projectDto, userUuid);
+      addToFavourites(dbSession, projectDto, projectCreationData.userUuid(), projectCreationData.userLogin());
+      mainBranch = createMainBranch(dbSession, componentDto.uuid(), projectDto.getUuid(), projectCreationData.mainBranchName());
+      if (projectCreationData.isManaged()) {
+        applyPublicPermissionsForCreator(dbSession, projectDto, projectCreationData.userUuid());
       } else {
-        permissionTemplateService.applyDefaultToNewComponent(dbSession, projectDto, userUuid);
+        permissionTemplateService.applyDefaultToNewComponent(dbSession, projectDto, projectCreationData.userUuid());
       }
     } else if (isPortfolio(componentDto)) {
       portfolioDto = toPortfolioDto(componentDto, now);
       dbClient.portfolioDao().insert(dbSession, portfolioDto);
-      permissionTemplateService.applyDefaultToNewComponent(dbSession, portfolioDto, userUuid);
+      permissionTemplateService.applyDefaultToNewComponent(dbSession, portfolioDto, projectCreationData.userUuid());
     } else {
       throw new IllegalArgumentException("Component " + componentDto + " is not a top level entity");
     }

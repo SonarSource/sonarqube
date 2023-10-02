@@ -43,6 +43,7 @@ import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
+import org.sonar.server.component.ProjectCreationData;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -199,10 +200,8 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
       .setPrivate(visibility)
       .setQualifier(PROJECT)
       .build();
-    String userUuid = userSession.isLoggedIn() ? userSession.getUuid() : null;
-    String userLogin = userSession.isLoggedIn() ? userSession.getLogin() : null;
-
-    return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, userLogin, defaultBranchName);
+    ProjectCreationData projectCreationData = new ProjectCreationData(newProject, userSession.getUuid(), userSession.getLogin(), defaultBranchName);
+    return componentUpdater.createWithoutCommit(dbSession, projectCreationData);
   }
 
   private void populatePRSetting(DbSession dbSession, Repository repo, ProjectDto componentDto, AlmSettingDto almSettingDto) {

@@ -33,6 +33,8 @@ import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.component.NewComponent;
+import org.sonar.server.component.ProjectCreationData;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -155,15 +157,14 @@ public class CreateAction implements ProjectsWsAction {
     String visibility = request.getVisibility();
     boolean changeToPrivate = visibility == null ? projectDefaultVisibility.get(dbSession).isPrivate() : "private".equals(visibility);
 
-    return componentUpdater.createWithoutCommit(dbSession, newComponentBuilder()
-        .setKey(request.getProjectKey())
-        .setName(request.getName())
-        .setPrivate(changeToPrivate)
-        .setQualifier(PROJECT)
-        .build(),
-      userSession.isLoggedIn() ? userSession.getUuid() : null,
-      userSession.isLoggedIn() ? userSession.getLogin() : null,
-      request.getMainBranchKey());
+    NewComponent newProject = newComponentBuilder()
+      .setKey(request.getProjectKey())
+      .setName(request.getName())
+      .setPrivate(changeToPrivate)
+      .setQualifier(PROJECT)
+      .build();
+    ProjectCreationData projectCreationData = new ProjectCreationData(newProject, userSession.getUuid(), userSession.getLogin(), request.getMainBranchKey());
+    return componentUpdater.createWithoutCommit(dbSession, projectCreationData);
 
   }
 

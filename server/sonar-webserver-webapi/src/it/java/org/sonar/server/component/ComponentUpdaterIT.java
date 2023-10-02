@@ -417,7 +417,7 @@ public class ComponentUpdaterIT {
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
       .build();
-    underTest.createWithoutCommit(db.getSession(), project, userDto.getUuid(), userDto.getLogin(), null, true);
+    underTest.createWithoutCommit(db.getSession(), new ProjectCreationData(project, userDto.getUuid(), userDto.getLogin(), null, true));
 
     verify(permissionTemplateService, never()).applyDefaultToNewComponent(any(), any(), any());
   }
@@ -432,7 +432,7 @@ public class ComponentUpdaterIT {
       .build();
 
     DbSession session = db.getSession();
-    ComponentCreationData componentCreationData = underTest.createWithoutCommit(session, newComponent, userDto.getUuid(), userDto.getLogin(), null, true);
+    ComponentCreationData componentCreationData = underTest.createWithoutCommit(session, new ProjectCreationData(newComponent, userDto.getUuid(), userDto.getLogin(), null, true));
 
     List<String> permissions = db.getDbClient().userPermissionDao().selectEntityPermissionsOfUser(session, userDto.getUuid(), componentCreationData.projectDto().getUuid());
     assertThat(permissions)

@@ -40,6 +40,8 @@ import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.component.NewComponent;
+import org.sonar.server.component.ProjectCreationData;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -178,14 +180,14 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
   private ComponentCreationData createProject(DbSession dbSession, Project gitlabProject, @Nullable String mainBranchName) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
     String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(gitlabProject.getPathWithNamespace());
-
-    return componentUpdater.createWithoutCommit(dbSession, newComponentBuilder()
-        .setKey(uniqueProjectKey)
-        .setName(gitlabProject.getName())
-        .setPrivate(visibility)
-        .setQualifier(PROJECT)
-        .build(),
-      userSession.getUuid(), userSession.getLogin(), mainBranchName);
+    NewComponent newProject = newComponentBuilder()
+      .setKey(uniqueProjectKey)
+      .setName(gitlabProject.getName())
+      .setPrivate(visibility)
+      .setQualifier(PROJECT)
+      .build();
+    ProjectCreationData projectCreationData = new ProjectCreationData(newProject, userSession.getUuid(), userSession.getLogin(), mainBranchName);
+    return componentUpdater.createWithoutCommit(dbSession, projectCreationData);
   }
 
 }

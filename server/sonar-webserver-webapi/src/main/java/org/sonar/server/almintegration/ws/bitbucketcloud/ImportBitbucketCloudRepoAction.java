@@ -41,6 +41,7 @@ import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
+import org.sonar.server.component.ProjectCreationData;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -93,8 +94,8 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("import_bitbucketcloud_repo")
       .setDescription("Create a SonarQube project with the information from the provided Bitbucket Cloud repository.<br/>" +
-        "Autoconfigure pull request decoration mechanism.<br/>" +
-        "Requires the 'Create Projects' permission")
+                      "Autoconfigure pull request decoration mechanism.<br/>" +
+                      "Requires the 'Create Projects' permission")
       .setPost(true)
       .setSince("9.0")
       .setHandler(this)
@@ -175,16 +176,14 @@ public class ImportBitbucketCloudRepoAction implements AlmIntegrationsWsAction {
   private ComponentCreationData createProject(DbSession dbSession, String workspace, Repository repo, @Nullable String defaultBranchName) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
     String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(workspace, repo.getSlug());
-    NewComponent mainBranch = newComponentBuilder()
+    NewComponent newProject = newComponentBuilder()
       .setKey(uniqueProjectKey)
       .setName(repo.getName())
       .setPrivate(visibility)
       .setQualifier(PROJECT)
       .build();
-    String userUuid = userSession.isLoggedIn() ? userSession.getUuid() : null;
-    String userLogin = userSession.isLoggedIn() ? userSession.getLogin() : null;
-
-    return componentUpdater.createWithoutCommit(dbSession, mainBranch, userUuid, userLogin, defaultBranchName);
+    ProjectCreationData projectCreationData = new ProjectCreationData(newProject, userSession.getUuid(), userSession.getLogin(), defaultBranchName);
+    return componentUpdater.createWithoutCommit(dbSession, projectCreationData);
   }
 
   private void populatePRSetting(DbSession dbSession, Repository repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {

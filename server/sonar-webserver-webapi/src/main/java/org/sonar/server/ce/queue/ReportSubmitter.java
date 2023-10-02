@@ -41,6 +41,7 @@ import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
+import org.sonar.server.component.ProjectCreationData;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -168,7 +169,7 @@ public class ReportSubmitter {
       .setQualifier(Qualifiers.PROJECT)
       .setPrivate(getDefaultVisibility(dbSession).isPrivate())
       .build();
-    return componentUpdater.createWithoutCommit(dbSession, newProject, userUuid, userName);
+    return componentUpdater.createWithoutCommit(dbSession, new ProjectCreationData(newProject, userUuid, userName));
   }
 
   private Visibility getDefaultVisibility(DbSession dbSession) {

@@ -45,6 +45,7 @@ import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
+import org.sonar.server.component.ProjectCreationData;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
@@ -203,13 +204,11 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       .setPrivate(visibility)
       .setQualifier(PROJECT)
       .build();
+    ProjectCreationData projectCreationData = new ProjectCreationData(projectComponent, userSession.getUuid(), userSession.getLogin(), mainBranchName,
+      gitHubSettings.isProvisioningEnabled());
     return componentUpdater.createWithoutCommit(
       dbSession,
-      projectComponent,
-      userSession.getUuid(),
-      userSession.getLogin(),
-      mainBranchName,
-      gitHubSettings.isProvisioningEnabled());
+      projectCreationData);
   }
 
   private void populatePRSetting(DbSession dbSession, Repository repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {

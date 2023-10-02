@@ -39,6 +39,8 @@ import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.component.NewComponent;
+import org.sonar.server.component.ProjectCreationData;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -92,8 +94,8 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("import_azure_project")
       .setDescription("Create a SonarQube project with the information from the provided Azure DevOps project.<br/>" +
-        "Autoconfigure pull request decoration mechanism.<br/>" +
-        "Requires the 'Create Projects' permission")
+                      "Autoconfigure pull request decoration mechanism.<br/>" +
+                      "Requires the 'Create Projects' permission")
       .setPost(true)
       .setSince("8.6")
       .setHandler(this)
@@ -176,15 +178,14 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
   private ComponentCreationData createProject(DbSession dbSession, GsonAzureRepo repo) {
     boolean visibility = projectDefaultVisibility.get(dbSession).isPrivate();
     String uniqueProjectKey = projectKeyGenerator.generateUniqueProjectKey(repo.getProject().getName(), repo.getName());
-    return componentUpdater.createWithoutCommit(dbSession, newComponentBuilder()
+    NewComponent newProject = newComponentBuilder()
       .setKey(uniqueProjectKey)
       .setName(repo.getName())
       .setPrivate(visibility)
       .setQualifier(PROJECT)
-      .build(),
-      userSession.isLoggedIn() ? userSession.getUuid() : null,
-      userSession.isLoggedIn() ? userSession.getLogin() : null,
-      repo.getDefaultBranchName());
+      .build();
+    ProjectCreationData projectCreationData = new ProjectCreationData(newProject, userSession.getUuid(), userSession.getLogin(), repo.getDefaultBranchName());
+    return componentUpdater.createWithoutCommit(dbSession, projectCreationData);
   }
 
   private void populatePRSetting(DbSession dbSession, GsonAzureRepo repo, ProjectDto projectDto, AlmSettingDto almSettingDto) {
