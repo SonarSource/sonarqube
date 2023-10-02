@@ -298,7 +298,7 @@ it('should be able to compare profiles', async () => {
   await selectEvent.select(ui.compareDropdown.get(), 'java quality profile #2');
   expect(ui.comparisonDiffTableHeading(1, 'java quality profile').get()).toBeInTheDocument();
   expect(ui.comparisonDiffTableHeading(1, 'java quality profile #2').get()).toBeInTheDocument();
-  expect(ui.comparisonModifiedTableHeading(1).query()).toBeInTheDocument();
+  expect(ui.comparisonModifiedTableHeading(1).get()).toBeInTheDocument();
 
   // java quality profile is not editable
   expect(ui.activeRuleButton('java quality profile').query()).not.toBeInTheDocument();

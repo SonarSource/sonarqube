@@ -15,7 +15,6 @@ module.exports = {
   },
   setupFiles: [
     '<rootDir>/config/polyfills.ts',
-    '<rootDir>/config/jest/SetupEnzyme.ts',
     '<rootDir>/config/jest/SetupTestEnvironment.ts',
     '<rootDir>/config/jest/SetupTheme.js',
   ],
@@ -23,7 +22,7 @@ module.exports = {
     '<rootDir>/config/jest/SetupReactTestingLibrary.ts',
     '<rootDir>/config/jest/SetupJestAxe.ts',
   ],
-  snapshotSerializers: ['enzyme-to-json/serializer', '@emotion/jest/serializer'],
+  snapshotSerializers: ['@emotion/jest/serializer'],
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: [
     '<rootDir>/config',

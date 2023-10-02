@@ -22,7 +22,6 @@ import * as React from 'react';
 import withAppStateContext from '../../app/components/app-state/withAppStateContext';
 import { translate } from '../../helpers/l10n';
 import { AppState } from '../../types/appstate';
-import { EditionKey } from '../../types/editions';
 import { SystemUpgrade } from '../../types/system';
 import Link from '../common/Link';
 import Modal from '../controls/Modal';
@@ -93,9 +92,7 @@ export function SystemUpgradeForm(props: Readonly<Props>) {
         )}
         {systemUpgradesWithPatch.map((upgrades) => (
           <SystemUpgradeItem
-            edition={
-              appState.edition as EditionKey /* TODO: Fix once AppState is no longer ambiant. */
-            }
+            edition={appState.edition}
             key={upgrades[upgrades.length - 1].version}
             systemUpgrades={upgrades}
             isPatch={upgrades === patches}
