@@ -108,7 +108,7 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("import_github_project")
       .setDescription("Create a SonarQube project with the information from the provided GitHub repository.<br/>" +
-        "Autoconfigure pull request decoration mechanism.<br/>" +
+        "Autoconfigure pull request decoration mechanism. If Automatic Provisioning is enable for GitHub, it will also synchronize permissions from the repository.<br/>" +
         "Requires the 'Create Projects' permission")
       .setPost(true)
       .setSince("8.4")

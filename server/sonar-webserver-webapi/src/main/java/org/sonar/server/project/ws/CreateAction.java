@@ -84,7 +84,8 @@ public class CreateAction implements ProjectsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_CREATE)
       .setDescription("Create a project.<br/>" +
-        "Requires 'Create Projects' permission")
+        "If your project is hosted on a DevOps Platform, please use the import endpoint under api/alm_integrations, so it creates and properly configures the project." +
+        "Requires 'Create Projects' permission.<br/>")
       .setSince("4.0")
       .setPost(true)
       .setResponseExample(getClass().getResource("create-example.json"))
