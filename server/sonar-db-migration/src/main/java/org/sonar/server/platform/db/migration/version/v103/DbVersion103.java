@@ -45,6 +45,11 @@ public class DbVersion103 implements DbVersion {
       .add(10_3_001, "Add table 'github_perms_mapping'", CreateGithubPermissionsMappingTable.class)
       .add(10_3_002, "Create unique index on 'github_perms_mapping'", CreateUniqueIndexForGithubPermissionsMappingTable.class)
       .add(10_3_003, "Add default mappings to 'github_perms_mapping'", PopulateGithubPermissionsMapping.class)
-      .add(10_3_004, "Add 'clean_code_attribute' column in 'issues' table", AddCleanCodeAttributeColumnInIssuesTable.class);
+      .add(10_3_004, "Add 'clean_code_attribute' column in 'issues' table", AddCleanCodeAttributeColumnInIssuesTable.class)
+
+      .add(10_3_005, "Add 'creation_method' column in 'projects' table", AddCreationMethodColumnInProjectsTable.class)
+      .add(10_3_006, "Populate 'creation_method' column in 'projects' table", PopulateCreationMethodColumnInProjectsTable.class)
+      .add(10_3_007, "Make 'creation_method' column in 'projects' table non-nullable", MakeCreationMethodColumnInProjectsNotNullable.class)
+    ;
   }
 }
