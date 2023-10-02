@@ -23,6 +23,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import org.sonar.alm.client.azure.AzureDevOpsHttpClient;
 import org.sonar.alm.client.azure.GsonAzureRepo;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -94,9 +95,10 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
         "Autoconfigure pull request decoration mechanism.<br/>" +
         "Requires the 'Create Projects' permission")
       .setPost(true)
-      .setInternal(true)
       .setSince("8.6")
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(
+        new Change("10.3", "Endpoint visibility change from internal to public"));
 
     action.createParam(PARAM_ALM_SETTING)
       .setRequired(true)

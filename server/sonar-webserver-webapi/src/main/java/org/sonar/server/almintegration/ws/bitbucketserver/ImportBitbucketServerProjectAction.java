@@ -26,6 +26,7 @@ import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.alm.client.bitbucketserver.Branch;
 import org.sonar.alm.client.bitbucketserver.BranchesList;
 import org.sonar.alm.client.bitbucketserver.Repository;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -100,9 +101,10 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
                       "Autoconfigure pull request decoration mechanism.<br/>" +
                       "Requires the 'Create Projects' permission")
       .setPost(true)
-      .setInternal(true)
       .setSince("8.2")
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(
+        new Change("10.3", "Endpoint visibility change from internal to public"));
 
     action.createParam(PARAM_ALM_SETTING)
       .setRequired(true)
