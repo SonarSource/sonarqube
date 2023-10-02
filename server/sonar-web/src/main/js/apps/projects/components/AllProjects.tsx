@@ -309,7 +309,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
         <Suggestions suggestions="projects" />
         <Helmet defer={false} title={translate('projects.page')} />
 
-        <h1 className="a11y-hidden">{translate('projects.page')}</h1>
+        <h1 className="sw-sr-only">{translate('projects.page')}</h1>
 
         <LargeCenteredLayout>
           <PageContentFontWrapper className="sw-flex sw-w-full sw-body-md">
@@ -321,7 +321,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
             >
               <A11ySkipTarget anchor="projects_main" />
 
-              <h2 className="a11y-hidden">{translate('list_of_projects')}</h2>
+              <h2 className="sw-sr-only">{translate('list_of_projects')}</h2>
               {this.renderHeader()}
               {this.renderMain()}
             </div>

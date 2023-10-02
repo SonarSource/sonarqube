@@ -101,7 +101,7 @@ export default class IssueCommentLine extends React.PureComponent<Props, State> 
           dangerouslySetInnerHTML={{ __html: sanitizeUserInput(comment.htmlText) }}
         />
         <div className="issue-comment-age">
-          <span className="a11y-hidden">{translate('issue.comment.posted_on')}</span>
+          <span className="sw-sr-only">{translate('issue.comment.posted_on')}</span>
           <DateFromNow date={comment.createdAt} />
         </div>
         <div className="issue-comment-actions">

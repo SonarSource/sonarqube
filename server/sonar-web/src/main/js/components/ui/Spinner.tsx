@@ -50,11 +50,11 @@ export default function Spinner(props: Props) {
           aria-live="polite"
           data-testid="spinner"
           className={classNames('spinner', className, {
-            'a11y-hidden': !loading,
+            'sw-sr-only sw-left-[-10000px]': !loading,
             'is-loading': loading,
           })}
         >
-          {loading && <span className="a11y-hidden">{ariaLabel}</span>}
+          {loading && <span className="sw-sr-only sw-left-[-10000px]">{ariaLabel}</span>}
         </i>
       </div>
       {!loading && children}

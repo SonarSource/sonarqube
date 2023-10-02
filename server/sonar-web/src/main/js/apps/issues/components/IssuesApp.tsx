@@ -1145,7 +1145,7 @@ export class App extends React.PureComponent<Props, State> {
 
     return (
       <div>
-        <h2 className="a11y-hidden">{translate('list_of_issues')}</h2>
+        <h2 className="sw-sr-only">{translate('list_of_issues')}</h2>
 
         {issues.length > 0 && (
           <IssuesList
@@ -1339,7 +1339,7 @@ export class App extends React.PureComponent<Props, State> {
                 </>
               )}
 
-              <h1 className="a11y-hidden">{translate('issues.page')}</h1>
+              <h1 className="sw-sr-only">{translate('issues.page')}</h1>
 
               {this.renderSide(openIssue)}
 

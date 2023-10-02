@@ -412,9 +412,7 @@ export class TooltipInner extends React.Component<TooltipProps, State> {
         role="tooltip"
         aria-hidden={!isVisible}
       >
-        {isInteractive && (
-          <span className="a11y-hidden">{translate('tooltip_is_interactive')}</span>
-        )}
+        {isInteractive && <span className="sw-sr-only">{translate('tooltip_is_interactive')}</span>}
         {overlay}
       </div>
     );

@@ -50,9 +50,11 @@ export function Spinner(props: React.PropsWithChildren<Props>) {
 
   return (
     <>
-      <div className={classNames('sw-overflow-hidden', { 'a11y-hidden': !loading })}>
+      <div
+        className={classNames('sw-overflow-hidden', { 'sw-sr-only sw-left-[-10000px]': !loading })}
+      >
         <StyledSpinner aria-live="polite" className={className} role="status">
-          {loading && <span className="a11y-hidden">{ariaLabel}</span>}
+          {loading && <span className="sw-sr-only sw-left-[-10000px]">{ariaLabel}</span>}
         </StyledSpinner>
       </div>
       {!loading && (children ?? (placeholder && <Placeholder className={className} />) ?? null)}
@@ -72,9 +74,12 @@ const spinAnimation = keyframes`
 
 export const StyledSpinner = styled.div`
   border: 2px solid transparent;
-  background: linear-gradient(0deg, ${themeColor('primary')} 50%, transparent 50% 100%) border-box,
+  background:
+    linear-gradient(0deg, ${themeColor('primary')} 50%, transparent 50% 100%) border-box,
     linear-gradient(90deg, ${themeColor('primary')} 25%, transparent 75% 100%) border-box;
-  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) padding-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   animation: ${spinAnimation} 1s infinite linear;

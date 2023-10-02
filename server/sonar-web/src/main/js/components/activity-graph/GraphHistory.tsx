@@ -157,7 +157,7 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
         {canShowDataAsTable && (
           <ModalButton modal={modalProp}>
             {({ onClick }) => (
-              <ButtonSecondary className="a11y-hidden" onClick={onClick}>
+              <ButtonSecondary className="sw-sr-only" onClick={onClick}>
                 {translate('project_activity.graphs.open_in_table')}
               </ButtonSecondary>
             )}

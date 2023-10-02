@@ -39,15 +39,6 @@ th.hide-overflow {
   visibility: hidden !important;
 }
 
-.a11y-hidden {
-  position: absolute !important;
-  left: -10000px !important;
-  top: 0 !important;
-  width: 1px !important;
-  height: 1px !important;
-  overflow: hidden !important;
-}
-
 .invisible {
   visibility: hidden;
 }
