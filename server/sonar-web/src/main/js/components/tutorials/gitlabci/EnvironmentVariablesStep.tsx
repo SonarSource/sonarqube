@@ -68,17 +68,12 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
         <UnorderedList ticks className="sw-ml-10">
           <ListItem>
             <FormattedMessage
-              defaultMessage={fieldValueTranslation}
               id="onboarding.tutorial.with.gitlab_ci.variables.step1"
               values={{
                 extra: (
                   <ClipboardIconButton copyValue="SONAR_TOKEN" className="sw-ml-1 sw-align-sub" />
                 ),
-                field: (
-                  <span className="sw-body-sm-highlight">
-                    {translate('onboarding.tutorial.with.gitlab_ci.variables.step1')}
-                  </span>
-                ),
+
                 value: <InlineSnippet snippet="SONAR_TOKEN" />,
               }}
             />
@@ -142,11 +137,6 @@ export default function EnvironmentVariablesStep(props: EnvironmentVariablesStep
                     copyValue="SONAR_HOST_URL"
                     className="sw-ml-1 sw-align-sub"
                   />
-                ),
-                field: (
-                  <span className="sw-body-sm-highlight">
-                    {translate('onboarding.tutorial.with.gitlab_ci.variables.step1')}
-                  </span>
                 ),
                 value: <InlineSnippet snippet="SONAR_HOST_URL" />,
               }}
