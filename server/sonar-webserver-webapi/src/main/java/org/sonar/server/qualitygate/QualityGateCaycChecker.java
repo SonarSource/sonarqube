@@ -20,50 +20,45 @@
 package org.sonar.server.qualitygate;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 
-import static java.util.stream.Collectors.toUnmodifiableMap;
+import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING;
-import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
-import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING;
+import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.COMPLIANT;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.OVER_COMPLIANT;
 
 public class QualityGateCaycChecker {
 
-  public static final List<Metric<? extends Serializable>> CAYC_METRICS = List.of(
-    NEW_MAINTAINABILITY_RATING,
-    NEW_RELIABILITY_RATING,
-    NEW_SECURITY_HOTSPOTS_REVIEWED,
-    NEW_SECURITY_RATING,
-    NEW_DUPLICATED_LINES_DENSITY,
-    NEW_COVERAGE
-  );
-
-  private static final Set<String> EXISTENCY_REQUIREMENTS = Set.of(
+  static final Map<String, Double> BEST_VALUE_REQUIREMENTS = Stream.of(
+    NEW_VIOLATIONS,
+    NEW_SECURITY_HOTSPOTS_REVIEWED
+  ).collect(toMap(Metric::getKey, Metric::getBestValue));
+  static final Set<String> EXISTENCY_REQUIREMENTS = Set.of(
     NEW_DUPLICATED_LINES_DENSITY_KEY,
     NEW_COVERAGE_KEY
   );
-
-  private static final Map<String, Double> BEST_VALUE_REQUIREMENTS = CAYC_METRICS.stream()
-    .filter(metric -> !EXISTENCY_REQUIREMENTS.contains(metric.getKey()))
-    .collect(toUnmodifiableMap(Metric::getKey, Metric::getBestValue));
+  public static final Set<Metric<? extends Serializable>> CAYC_METRICS = Set.of(
+    NEW_VIOLATIONS,
+    NEW_SECURITY_HOTSPOTS_REVIEWED,
+    NEW_DUPLICATED_LINES_DENSITY,
+    NEW_COVERAGE
+  );
 
   private final DbClient dbClient;
 
@@ -103,6 +98,10 @@ public class QualityGateCaycChecker {
       .or(() -> Optional.ofNullable(dbClient.qualityGateDao().selectDefault(dbSession)))
       .map(qualityGate -> checkCaycCompliant(dbSession, qualityGate.getUuid()))
       .orElse(NON_COMPLIANT);
+  }
+
+  public boolean isCaycCondition(MetricDto metric) {
+    return CAYC_METRICS.stream().map(Metric::getKey).anyMatch(metric.getKey()::equals);
   }
 
   private static boolean checkMetricCaycCompliant(QualityGateConditionDto condition, MetricDto metric) {

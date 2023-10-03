@@ -20,7 +20,6 @@
 package org.sonar.server.qualitygate;
 
 import java.util.List;
-import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.Metric;
@@ -30,14 +29,17 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.sonar.api.measures.CoreMetrics.BLOCKER_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES;
+import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY;
 import static org.sonar.api.measures.CoreMetrics.LINE_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY;
-import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING;
-import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
-import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING;
+import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS;
+import static org.sonar.server.qualitygate.QualityGateCaycChecker.BEST_VALUE_REQUIREMENTS;
 import static org.sonar.server.qualitygate.QualityGateCaycChecker.CAYC_METRICS;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.COMPLIANT;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
@@ -50,41 +52,57 @@ public class QualityGateCaycCheckerIT {
   QualityGateCaycChecker underTest = new QualityGateCaycChecker(db.getDbClient());
 
   @Test
-  public void checkCaycCompliant() {
+  public void checkCaycCompliant_when_contains_all_and_only_complicant_conditions_should_return_compliant() {
     String qualityGateUuid = "abcd";
     CAYC_METRICS.forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
     assertEquals(COMPLIANT, underTest.checkCaycCompliant(db.getSession(), qualityGateUuid));
   }
 
   @Test
-  public void check_Cayc_non_compliant_with_extra_conditions() {
+  public void checkCaycCompliant_when_extra_conditions_should_return_over_compliant() {
     String qualityGateUuid = "abcd";
     CAYC_METRICS.forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
 
     // extra conditions outside of CAYC requirements
-    List.of(LINE_COVERAGE, DUPLICATED_LINES).forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
+    List.of(LINE_COVERAGE, DUPLICATED_LINES).forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid,
+      metric.getBestValue()));
 
     assertEquals(OVER_COMPLIANT, underTest.checkCaycCompliant(db.getSession(), qualityGateUuid));
   }
 
   @Test
-  public void check_Cayc_NonCompliant_with_lesser_threshold_value() {
+  public void checkCaycCompliant_when_conditions_have_lesser_threshold_value_should_return_non_compliant() {
     var metrics = CAYC_METRICS.stream().map(this::insertMetric).toList();
 
-    IntStream.range(0, 4).forEach(idx -> {
-      String qualityGateUuid = "abcd" + idx;
-      for (int i = 0; i < metrics.size(); i++) {
-        var metric = metrics.get(i);
-        insertCondition(metric, qualityGateUuid, idx == i ? metric.getWorstValue() : metric.getBestValue());
+    String qualityGateUuid = "abcd";
+    for (var metric : metrics) {
+      if (BEST_VALUE_REQUIREMENTS.keySet().contains(metric.getKey())) {
+        insertCondition(metric, qualityGateUuid, metric.getBestValue() - 1);
+      } else {
+        insertCondition(metric, qualityGateUuid, metric.getBestValue());
       }
-      assertEquals(NON_COMPLIANT, underTest.checkCaycCompliant(db.getSession(), qualityGateUuid));
-    });
+    }
+    assertEquals(NON_COMPLIANT, underTest.checkCaycCompliant(db.getSession(), qualityGateUuid));
   }
 
   @Test
-  public void check_Cayc_NonCompliant_with_missing_metric() {
+  public void isCaycCondition_when_check_compliant_condition_should_return_true() {
+    CAYC_METRICS.stream().map(this::toMetricDto)
+      .forEach(metricDto -> assertTrue(underTest.isCaycCondition(metricDto)));
+  }
+
+  @Test
+  public void isCaycCondition_when_check_non_compliant_condition_should_return_false() {
+    List.of(BLOCKER_VIOLATIONS, FUNCTION_COMPLEXITY)
+      .stream().map(this::toMetricDto)
+      .forEach(metricDto -> assertFalse(underTest.isCaycCondition(metricDto)));
+  }
+
+
+  @Test
+  public void checkCaycCompliant_when_missing_compliant_condition_should_return_non_compliant() {
     String qualityGateUuid = "abcd";
-    List.of(NEW_MAINTAINABILITY_RATING, NEW_RELIABILITY_RATING, NEW_SECURITY_HOTSPOTS_REVIEWED, NEW_DUPLICATED_LINES_DENSITY)
+    List.of(NEW_VIOLATIONS, NEW_SECURITY_HOTSPOTS_REVIEWED)
       .forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
     assertEquals(NON_COMPLIANT, underTest.checkCaycCompliant(db.getSession(), qualityGateUuid));
   }
@@ -92,7 +110,7 @@ public class QualityGateCaycCheckerIT {
   @Test
   public void existency_requirements_check_only_existency() {
     String qualityGateUuid = "abcd";
-    List.of(NEW_MAINTAINABILITY_RATING, NEW_RELIABILITY_RATING, NEW_SECURITY_HOTSPOTS_REVIEWED, NEW_SECURITY_RATING)
+    List.of(NEW_VIOLATIONS, NEW_SECURITY_HOTSPOTS_REVIEWED)
       .forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
     List.of(NEW_COVERAGE, NEW_DUPLICATED_LINES_DENSITY)
       .forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getWorstValue()));
@@ -115,7 +133,16 @@ public class QualityGateCaycCheckerIT {
       .setValueType(metric.getType().name())
       .setHidden(false)
       .setBestValue(metric.getBestValue())
-      .setBestValue(metric.getWorstValue())
+      .setWorstValue(metric.getWorstValue())
       .setDirection(metric.getDirection()));
+  }
+
+  private MetricDto toMetricDto(Metric metric) {
+    return new MetricDto()
+      .setKey(metric.key())
+      .setValueType(metric.getType().name())
+      .setBestValue(metric.getBestValue())
+      .setWorstValue(metric.getWorstValue())
+      .setDirection(metric.getDirection());
   }
 }

@@ -127,10 +127,11 @@ message ShowWsResponse {
   optional string caycStatus = 6;
 
   message Condition {
-    optional string id = 1;
-    optional string metric = 2;
-    optional string op = 4;
+    required string id = 1;
+    required string metric = 2;
+    required string op = 4;
     optional string error = 6;
+    required bool isCaycCondition = 7;
   }
 }
 

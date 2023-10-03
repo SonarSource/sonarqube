@@ -111,9 +111,9 @@ public class CreateAction implements QualityGatesWsAction {
   }
 
   private void addCaycConditions(DbSession dbSession, QualityGateDto newQualityGate) {
-    CAYC_METRICS.forEach(m ->
-      qualityGateConditionsUpdater.createCondition(dbSession, newQualityGate, m.getKey(), OPERATORS_BY_DIRECTION.get(m.getDirection()).getDbValue(),
-        String.valueOf(getDefaultCaycValue(m)))
+    CAYC_METRICS.forEach(metric ->
+      qualityGateConditionsUpdater.createCondition(dbSession, newQualityGate, metric.getKey(), OPERATORS_BY_DIRECTION.get(metric.getDirection()).getDbValue(),
+        String.valueOf(getDefaultCaycValue(metric)))
     );
   }
 

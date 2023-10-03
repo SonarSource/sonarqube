@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.UuidFactoryFast;
@@ -64,7 +65,8 @@ public class CreateActionIT {
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private final CreateAction underTest = new CreateAction(dbClient, userSession, new QualityGateUpdater(dbClient, UuidFactoryFast.getInstance()),
+  private final CreateAction underTest = new CreateAction(dbClient, userSession, new QualityGateUpdater(dbClient,
+    UuidFactoryFast.getInstance()),
     new QualityGateConditionsUpdater(dbClient));
   private final WsActionTester ws = new WsActionTester(underTest);
 
@@ -89,7 +91,7 @@ public class CreateActionIT {
     var conditions = getConditions(dbSession, qualityGateDto);
 
     CAYC_METRICS.stream()
-      .map(m -> dbClient.metricDao().selectByKey(dbSession, m.getKey()))
+      .map(metric -> dbClient.metricDao().selectByKey(dbSession, metric.getKey()))
       .forEach(metricDto -> assertThat(conditions)
         .anyMatch(c -> metricDto.getUuid().equals(c.getMetricUuid()) && c.getErrorThreshold().equals(String.valueOf(getDefaultCaycValue(metricDto)))));
   }
@@ -139,7 +141,7 @@ public class CreateActionIT {
 
   @DataProvider
   public static Object[][] nullOrEmpty() {
-    return new Object[][] {
+    return new Object[][]{
       {null},
       {""},
       {"  "}

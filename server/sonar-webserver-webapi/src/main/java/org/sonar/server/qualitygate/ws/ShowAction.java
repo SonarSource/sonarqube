@@ -105,8 +105,8 @@ public class ShowAction implements QualityGatesWsAction {
     return dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream().filter(MetricDto::isEnabled).collect(Collectors.toMap(MetricDto::getUuid, Function.identity()));
   }
 
-  private ShowWsResponse buildResponse(DbSession dbSession, QualityGateDto qualityGate, QualityGateDto defaultQualityGate, Collection<QualityGateConditionDto> conditions,
-    Map<String, MetricDto> metricsByUuid, QualityGateCaycStatus caycStatus) {
+  private ShowWsResponse buildResponse(DbSession dbSession, QualityGateDto qualityGate, QualityGateDto defaultQualityGate,
+    Collection<QualityGateConditionDto> conditions, Map<String, MetricDto> metricsByUuid, QualityGateCaycStatus caycStatus) {
     return ShowWsResponse.newBuilder()
       .setName(qualityGate.getName())
       .setIsBuiltIn(qualityGate.isBuiltIn())
@@ -118,7 +118,7 @@ public class ShowAction implements QualityGatesWsAction {
       .build();
   }
 
-  private static Function<QualityGateConditionDto, ShowWsResponse.Condition> toWsCondition(Map<String, MetricDto> metricsByUuid) {
+  private Function<QualityGateConditionDto, ShowWsResponse.Condition> toWsCondition(Map<String, MetricDto> metricsByUuid) {
     return condition -> {
       String metricUuid = condition.getMetricUuid();
       MetricDto metric = metricsByUuid.get(metricUuid);
@@ -126,6 +126,7 @@ public class ShowAction implements QualityGatesWsAction {
       ShowWsResponse.Condition.Builder builder = ShowWsResponse.Condition.newBuilder()
         .setId(condition.getUuid())
         .setMetric(metric.getKey())
+        .setIsCaycCondition(qualityGateCaycChecker.isCaycCondition(metric))
         .setOp(condition.getOperator());
       ofNullable(condition.getErrorThreshold()).ifPresent(builder::setError);
       return builder.build();
