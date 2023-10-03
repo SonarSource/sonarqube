@@ -66,8 +66,6 @@ public interface ProjectMapper {
   @CheckForNull
   ProjectDto selectByBranchUuid(String branchUuid);
 
-  List<String> selectAllProjectUuids();
-
   Set<String> selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(@Param("languageFilters") Set<String> languageFilters);
 
   void updateNcloc(@Param("projectUuid") String projectUuid, @Param("ncloc") long ncloc);

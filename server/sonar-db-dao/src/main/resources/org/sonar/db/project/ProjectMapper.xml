@@ -15,13 +15,6 @@
       p.updated_at as updatedAt
     </sql>
 
-  <select id="selectAllProjectUuids" resultType="String">
-    SELECT
-      p.uuid as uuid
-    FROM projects p
-    where p.qualifier = 'TRK'
-  </select>
-
   <select id="selectByUuid" parameterType="String" resultType="Project">
     SELECT
       <include refid="projectColumns"/>

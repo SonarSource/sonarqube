@@ -51,6 +51,7 @@ import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -101,8 +102,9 @@ import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
 import static org.sonar.server.telemetry.TelemetryDataLoaderImpl.EXTERNAL_SECURITY_REPORT_EXPORTED_AT;
 
 @RunWith(DataProviderRunner.class)
-public class TelemetryDataLoaderImplTest {
+public class TelemetryDataLoaderImplIT {
   private final static Long NOW = 100_000_000L;
+  public static final String SERVER_ID = "AU-TpxcB-iU5OvuD2FL7";
   private final TestSystem2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
@@ -149,12 +151,11 @@ public class TelemetryDataLoaderImplTest {
 
   @Test
   public void send_telemetry_data() {
-    String serverId = "AU-TpxcB-iU5OvuD2FL7";
     String version = "7.5.4";
     Long analysisDate = 1L;
     Long lastConnectionDate = 5L;
 
-    server.setId(serverId);
+    server.setId(SERVER_ID);
     server.setVersion(version);
     List<PluginInfo> plugins = asList(newPlugin("java", "4.12.0.11033"), newPlugin("scmgit", "1.2"), new PluginInfo("other"));
     when(pluginRepository.getPluginInfos()).thenReturn(plugins);
@@ -185,7 +186,7 @@ public class TelemetryDataLoaderImplTest {
     db.measures().insertLiveMeasure(mainBranch1, securityHotspotsDto, m -> m.setValue(1d).setData((String) null));
     db.measures().insertLiveMeasure(mainBranch1, developmentCostDto, m -> m.setData("50").setValue(null));
     db.measures().insertLiveMeasure(mainBranch1, technicalDebtDto, m -> m.setValue(5d).setData((String) null));
-    //Measures on other branches
+    // Measures on other branches
     db.measures().insertLiveMeasure(branch1, technicalDebtDto, m -> m.setValue(6d).setData((String) null));
     db.measures().insertLiveMeasure(branch2, technicalDebtDto, m -> m.setValue(7d).setData((String) null));
 
@@ -218,7 +219,7 @@ public class TelemetryDataLoaderImplTest {
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG1").setBuiltIn(true));
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG2"));
 
-    //quality profiles
+    // quality profiles
     QProfileDto javaQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("java"));
     QProfileDto kotlinQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("kotlin"));
     QProfileDto jsQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("js"));
@@ -240,7 +241,7 @@ public class TelemetryDataLoaderImplTest {
     var branchNcdId = new NewCodeDefinition(NewCodePeriodType.REFERENCE_BRANCH.name(), branch1.uuid(), "branch").hashCode();
 
     TelemetryData data = communityUnderTest.load();
-    assertThat(data.getServerId()).isEqualTo(serverId);
+    assertThat(data.getServerId()).isEqualTo(SERVER_ID);
     assertThat(data.getVersion()).isEqualTo(version);
     assertThat(data.getEdition()).contains(DEVELOPER);
     assertThat(data.getDefaultQualityGate()).isEqualTo(builtInDefaultQualityGate.getUuid());
@@ -297,8 +298,7 @@ public class TelemetryDataLoaderImplTest {
       .containsExactlyInAnyOrder(
         tuple(builtInDefaultQualityGate.getUuid(), "non-compliant"),
         tuple(qualityGate1.getUuid(), "non-compliant"),
-        tuple(qualityGate2.getUuid(), "non-compliant")
-      );
+        tuple(qualityGate2.getUuid(), "non-compliant"));
 
     assertThat(data.getQualityProfiles())
       .extracting(TelemetryData.QualityProfile::uuid, TelemetryData.QualityProfile::isBuiltIn)
@@ -307,8 +307,7 @@ public class TelemetryDataLoaderImplTest {
         tuple(qualityProfile2.getKee(), qualityProfile2.isBuiltIn()),
         tuple(jsQP.getKee(), jsQP.isBuiltIn()),
         tuple(javaQP.getKee(), javaQP.isBuiltIn()),
-        tuple(kotlinQP.getKee(), kotlinQP.isBuiltIn())
-        );
+        tuple(kotlinQP.getKee(), kotlinQP.isBuiltIn()));
 
   }
 
@@ -376,7 +375,7 @@ public class TelemetryDataLoaderImplTest {
 
   @Test
   public void take_largest_branch_snapshot_project_data() {
-    server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
+    server.setId(SERVER_ID).setVersion("7.5.4");
 
     MetricDto lines = db.measures().insertMetric(m -> m.setKey(LINES_KEY));
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
@@ -423,7 +422,7 @@ public class TelemetryDataLoaderImplTest {
 
   @Test
   public void load_shouldProvideQualityProfileInProjectSection() {
-    server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
+    server.setId(SERVER_ID).setVersion("7.5.4");
     MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
     MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
 
@@ -432,11 +431,10 @@ public class TelemetryDataLoaderImplTest {
     // default quality profile
     QProfileDto javaQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("java"));
     QProfileDto kotlinQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("kotlin"));
-    db.qualityProfiles().setAsDefault(javaQP,kotlinQP);
+    db.qualityProfiles().setAsDefault(javaQP, kotlinQP);
     // selected quality profile
     QProfileDto jsQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("js"));
     db.qualityProfiles().associateWithProject(projectData.getProjectDto(), jsQP);
-
 
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     db.measures().insertLiveMeasure(mainBranch, ncloc, m -> m.setValue(110d));
@@ -461,8 +459,31 @@ public class TelemetryDataLoaderImplTest {
   }
 
   @Test
+  public void load_shouldProvideCreationMethodInProjectStatisticsSection() {
+    server.setId(SERVER_ID).setVersion("7.5.4");
+
+    ProjectData projectData1 = db.components().insertPrivateProjectWithCreationMethod(CreationMethod.LOCAL_API);
+    ProjectData projectData2 = db.components().insertPrivateProjectWithCreationMethod(CreationMethod.LOCAL_BROWSER);
+    ProjectData projectData3 = db.components().insertPrivateProjectWithCreationMethod(CreationMethod.UNKNOWN);
+    ProjectData projectData4 = db.components().insertPrivateProjectWithCreationMethod(CreationMethod.SCANNER_API);
+    ProjectData projectData5 = db.components().insertPrivateProjectWithCreationMethod(CreationMethod.ALM_IMPORT_BROWSER);
+    ProjectData projectData6 = db.components().insertPrivateProjectWithCreationMethod(CreationMethod.ALM_IMPORT_API);
+
+    TelemetryData data = communityUnderTest.load();
+
+    assertThat(data.getProjectStatistics()).extracting(TelemetryData.ProjectStatistics::getProjectUuid, TelemetryData.ProjectStatistics::getCreationMethod)
+      .containsExactlyInAnyOrder(
+        tuple(projectData1.projectUuid(), CreationMethod.LOCAL_API),
+        tuple(projectData2.projectUuid(), CreationMethod.LOCAL_BROWSER),
+        tuple(projectData3.projectUuid(), CreationMethod.UNKNOWN),
+        tuple(projectData4.projectUuid(), CreationMethod.SCANNER_API),
+        tuple(projectData5.projectUuid(), CreationMethod.ALM_IMPORT_BROWSER),
+        tuple(projectData6.projectUuid(), CreationMethod.ALM_IMPORT_API));
+  }
+
+  @Test
   public void test_ncd_on_community_edition() {
-    server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
+    server.setId(SERVER_ID).setVersion("7.5.4");
     when(editionProvider.get()).thenReturn(Optional.of(COMMUNITY));
 
     ProjectData project = db.components().insertPublicProject();
@@ -613,7 +634,7 @@ public class TelemetryDataLoaderImplTest {
 
   @Test
   public void undetected_alm_ci_slm_data() {
-    server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
+    server.setId(SERVER_ID).setVersion("7.5.4");
     db.components().insertPublicProject().getMainBranchComponent();
     TelemetryData data = communityUnderTest.load();
     assertThat(data.getProjectStatistics())
@@ -623,7 +644,7 @@ public class TelemetryDataLoaderImplTest {
 
   @Test
   public void givenExistingExternalSecurityReport_whenTelemetryIsGenerated_payloadShouldContainLastUsageDate() {
-    server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
+    server.setId(SERVER_ID).setVersion("7.5.4");
     ProjectData projectData = db.components().insertPublicProject();
     db.getDbClient().propertiesDao().saveProperty(new PropertyDto().setKey(EXTERNAL_SECURITY_REPORT_EXPORTED_AT).setEntityUuid(projectData.projectUuid()).setValue("1"));
 
@@ -692,7 +713,7 @@ public class TelemetryDataLoaderImplTest {
 
   @DataProvider
   public static Object[][] getManagedInstanceData() {
-    return new Object[][]{
+    return new Object[][] {
       {true, "scim"},
       {true, "github"},
       {true, "gitlab"},

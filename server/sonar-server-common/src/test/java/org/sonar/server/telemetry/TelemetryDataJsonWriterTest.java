@@ -40,6 +40,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.telemetry.TelemetryExtension;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.user.UserTelemetryDto;
 
 import static java.util.stream.Collectors.joining;
@@ -64,10 +65,8 @@ public class TelemetryDataJsonWriterTest {
 
   private static final int NCD_ID = 12345;
 
-  private static final TelemetryData.NewCodeDefinition NCD_INSTANCE =
-    new TelemetryData.NewCodeDefinition(PREVIOUS_VERSION.name(), "", "instance");
-  private static final TelemetryData.NewCodeDefinition NCD_PROJECT =
-    new TelemetryData.NewCodeDefinition(NUMBER_OF_DAYS.name(), "30", "project");
+  private static final TelemetryData.NewCodeDefinition NCD_INSTANCE = new TelemetryData.NewCodeDefinition(PREVIOUS_VERSION.name(), "", "instance");
+  private static final TelemetryData.NewCodeDefinition NCD_PROJECT = new TelemetryData.NewCodeDefinition(NUMBER_OF_DAYS.name(), "30", "project");
 
   @Test
   public void write_server_id_version_and_sequence() {
@@ -149,7 +148,7 @@ public class TelemetryDataJsonWriterTest {
     String json = writeTelemetryData(data);
 
     assertJson(json).isSimilarTo("""
-      { 
+      {
         "plugins": []
       }
       """);
@@ -447,7 +446,8 @@ public class TelemetryDataJsonWriterTest {
             "technicalDebt": 60,
             "developmentCost": 30,
             "ncdId": 12345,
-            "externalSecurityReportExportedAt": 1500000
+            "externalSecurityReportExportedAt": 1500000,
+            "creationMethod": "LOCAL_API"
           },
           {
             "projectUuid": "uuid-1",
@@ -463,7 +463,8 @@ public class TelemetryDataJsonWriterTest {
             "technicalDebt": 120,
             "developmentCost": 60,
             "ncdId": 12345,
-            "externalSecurityReportExportedAt": 1500001
+            "externalSecurityReportExportedAt": 1500001,
+            "creationMethod": "LOCAL_API"
           },
           {
             "projectUuid": "uuid-2",
@@ -479,12 +480,12 @@ public class TelemetryDataJsonWriterTest {
             "technicalDebt": 180,
             "developmentCost": 90,
             "ncdId": 12345,
-            "externalSecurityReportExportedAt": 1500002
+            "externalSecurityReportExportedAt": 1500002,
+            "creationMethod": "LOCAL_API"
           }
         ]
       }
-      """
-    );
+      """);
   }
 
   @Test
@@ -530,8 +531,7 @@ public class TelemetryDataJsonWriterTest {
           }
         ]
       }
-      """
-    );
+      """);
   }
 
   @Test
@@ -564,8 +564,7 @@ public class TelemetryDataJsonWriterTest {
             "builtIn": true
           }
       ]}
-      """
-    );
+      """);
   }
 
   @Test
@@ -659,7 +658,7 @@ public class TelemetryDataJsonWriterTest {
   }
 
   private static List<TelemetryData.Project> attachProjects() {
-    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.Project("uuid-" + i, 1L, "lang-" + i, "qprofile-" + i, (i + 1L) * 2L)).toList();
+    return IntStream.range(0, 3).mapToObj(i -> new TelemetryData.Project("uuid-" + i, 1L, "lang-" + i, "qprofile-" + i, (i + 1L) * 2)).toList();
   }
 
   private static List<TelemetryData.ProjectStatistics> attachProjectStatsWithMetrics() {
@@ -678,7 +677,8 @@ public class TelemetryDataJsonWriterTest {
       .setQG("qg-" + i).setCi("ci-" + i)
       .setScm("scm-" + i)
       .setDevops("devops-" + i)
-      .setNcdId(NCD_ID);
+      .setNcdId(NCD_ID)
+      .setCreationMethod(CreationMethod.LOCAL_API);
   }
 
   private static TelemetryData.ProjectStatistics.Builder getProjectStatisticsWithMetricBuilder(int i) {
@@ -688,7 +688,8 @@ public class TelemetryDataJsonWriterTest {
       .setSecurityHotspots((i + 1L) * 4)
       .setDevelopmentCost((i + 1L) * 30d)
       .setTechnicalDebt((i + 1L) * 60d)
-      .setExternalSecurityReportExportedAt(1_500_000L + i);
+      .setExternalSecurityReportExportedAt(1_500_000L + i)
+      .setCreationMethod(CreationMethod.LOCAL_API);
   }
 
   private List<TelemetryData.QualityGate> attachQualityGates() {

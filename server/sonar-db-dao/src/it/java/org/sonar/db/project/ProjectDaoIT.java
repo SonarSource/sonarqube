@@ -353,19 +353,6 @@ public class ProjectDaoIT {
   }
 
   @Test
-  public void selectAllProjectUuids_shouldOnlyReturnProjectWithTRKQualifier() {
-    ProjectData application = db.components().insertPrivateApplication();
-    ProjectData project = db.components().insertPrivateProject();
-    ProjectData project2 = db.components().insertPrivateProject();
-    db.components().addApplicationProject(application, project, project2);
-
-    List<String> projectUuids = projectDao.selectAllProjectUuids(db.getSession());
-
-    assertThat(projectUuids).containsExactlyInAnyOrder(project.projectUuid(), project2.projectUuid());
-  }
-
-  // methodName_when<conditionInCamelCase>_should<assertionInCamelCase>
-  @Test
   public void selectByUuids_whenUuidsAreEmptyWithPagination_shouldReturnEmptyList() {
     db.components().insertPublicProject();
 

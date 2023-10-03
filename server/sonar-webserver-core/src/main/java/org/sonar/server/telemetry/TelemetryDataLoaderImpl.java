@@ -19,7 +19,6 @@
  */
 package org.sonar.server.telemetry;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -54,6 +53,7 @@ import org.sonar.db.measure.ProjectLocDistributionDto;
 import org.sonar.db.measure.ProjectMainBranchLiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
@@ -90,8 +90,6 @@ import static org.sonar.server.telemetry.TelemetryDaemon.I_PROP_MESSAGE_SEQUENCE
 
 @ServerSide
 public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
-  @VisibleForTesting
-  static final String SCIM_PROPERTY_ENABLED = "sonar.scim.enabled";
   private static final String UNDETECTED = "undetected";
   public static final String EXTERNAL_SECURITY_REPORT_EXPORTED_AT = "project.externalSecurityReportExportedAt";
 
@@ -169,10 +167,11 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       data.setNewCodeDefinitions(newCodeDefinitions);
 
       String defaultQualityGateUuid = qualityGateFinder.getDefault(dbSession).getUuid();
+      List<ProjectDto> projects = dbClient.projectDao().selectProjects(dbSession);
 
       data.setDefaultQualityGate(defaultQualityGateUuid);
       resolveUnanalyzedLanguageCode(data, dbSession);
-      resolveProjectStatistics(data, dbSession, defaultQualityGateUuid);
+      resolveProjectStatistics(data, dbSession, defaultQualityGateUuid, projects);
       resolveProjects(data, dbSession);
       resolveBranches(data, branchMeasuresDtos);
       resolveQualityGates(data, dbSession);
@@ -284,8 +283,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     return internalProperties.read(I_PROP_MESSAGE_SEQUENCE).map(Long::parseLong).orElse(0L);
   }
 
-  private void resolveProjectStatistics(TelemetryData.Builder data, DbSession dbSession, String defaultQualityGateUuid) {
-    List<String> projectUuids = dbClient.projectDao().selectAllProjectUuids(dbSession);
+  private void resolveProjectStatistics(TelemetryData.Builder data, DbSession dbSession, String defaultQualityGateUuid, List<ProjectDto> projects) {
     Map<String, String> scmByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDSCM);
     Map<String, String> ciByProject = getAnalysisPropertyByProject(dbSession, SONAR_ANALYSIS_DETECTEDCI);
     Map<String, ProjectAlmKeyAndProject> almAndUrlByProject = getAlmAndUrlByProject(dbSession);
@@ -298,7 +296,8 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     Map<String, Long> securityReportExportedAtByProjectUuid = getSecurityReportExportedAtDateByProjectUuid(dbSession);
 
     List<TelemetryData.ProjectStatistics> projectStatistics = new ArrayList<>();
-    for (String projectUuid : projectUuids) {
+    for (ProjectDto project : projects) {
+      String projectUuid = project.getUuid();
       Map<String, Number> metrics = metricsByProject.getOrDefault(projectUuid, Collections.emptyMap());
       Optional<PrBranchAnalyzedLanguageCountByProjectDto> counts = ofNullable(prAndBranchCountByProject.get(projectUuid));
 
@@ -317,6 +316,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
         .setTechnicalDebt(metrics.getOrDefault("sqale_index", null))
         .setNcdId(ncdByProject.getOrDefault(projectUuid, instanceNcd).hashCode())
         .setExternalSecurityReportExportedAt(securityReportExportedAtByProjectUuid.get(projectUuid))
+        .setCreationMethod(project.getCreationMethod())
         .build();
       projectStatistics.add(stats);
     }
@@ -350,8 +350,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     data.setProjects(buildProjectsList(branchesWithLargestNcloc, latestSnapshotMap));
   }
 
-  private List<TelemetryData.Project> buildProjectsList(List<ProjectLocDistributionDto> branchesWithLargestNcloc,
-    Map<String, Long> latestSnapshotMap) {
+  private List<TelemetryData.Project> buildProjectsList(List<ProjectLocDistributionDto> branchesWithLargestNcloc, Map<String, Long> latestSnapshotMap) {
     return branchesWithLargestNcloc.stream()
       .flatMap(measure -> Arrays.stream(measure.locDistribution().split(";"))
         .map(languageAndLoc -> languageAndLoc.split("="))

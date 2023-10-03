@@ -80,6 +80,11 @@ public class ComponentDbTester {
       defaults(), defaults(), defaults());
   }
 
+  public ProjectData insertPrivateProjectWithCreationMethod(CreationMethod creationMethod) {
+    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(), true,
+      defaults(), defaults(), projectDto -> projectDto.setCreationMethod(creationMethod));
+  }
+
   public BranchDto getBranchDto(ComponentDto branch) {
     return db.getDbClient().branchDao().selectByUuid(dbSession, branch.uuid())
       .orElseThrow(() -> new IllegalStateException("Project has invalid configuration"));

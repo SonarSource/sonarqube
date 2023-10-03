@@ -132,10 +132,6 @@ public class ProjectDao implements Dao {
     return session.getMapper(ProjectMapper.class);
   }
 
-  public List<String> selectAllProjectUuids(DbSession session) {
-    return mapper(session).selectAllProjectUuids();
-  }
-
   public Set<String> selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(DbSession session, String language) {
     Set<String> languageFilters = Set.of(language + "=%", "%;" + language + "=%");
     return mapper(session).selectProjectUuidsAssociatedToDefaultQualityProfileByLanguage(languageFilters);

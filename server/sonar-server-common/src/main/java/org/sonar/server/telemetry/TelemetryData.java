@@ -29,6 +29,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.EditionProvider.Edition;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.user.UserTelemetryDto;
 
 import static java.util.Objects.requireNonNullElse;
@@ -393,6 +394,8 @@ public class TelemetryData {
     private final int ncdId;
     private final Long externalSecurityReportExportedAt;
 
+    private final CreationMethod creationMethod;
+
     ProjectStatistics(Builder builder) {
       this.projectUuid = builder.projectUuid;
       this.branchCount = builder.branchCount;
@@ -408,6 +411,7 @@ public class TelemetryData {
       this.developmentCost = builder.developmentCost;
       this.ncdId = builder.ncdId;
       this.externalSecurityReportExportedAt = builder.externalSecurityReportExportedAt;
+      this.creationMethod = builder.creationMethod;
     }
 
     public int getNcdId() {
@@ -466,6 +470,10 @@ public class TelemetryData {
       return Optional.ofNullable(externalSecurityReportExportedAt);
     }
 
+    public CreationMethod getCreationMethod() {
+      return creationMethod;
+    }
+
     static class Builder {
       private String projectUuid;
       private Long branchCount;
@@ -481,6 +489,7 @@ public class TelemetryData {
       private Long developmentCost;
       private int ncdId;
       private Long externalSecurityReportExportedAt;
+      private CreationMethod creationMethod;
 
       public Builder setProjectUuid(String projectUuid) {
         this.projectUuid = projectUuid;
@@ -549,6 +558,11 @@ public class TelemetryData {
 
       public Builder setExternalSecurityReportExportedAt(@Nullable Number externalSecurityReportExportedAt) {
         this.externalSecurityReportExportedAt = externalSecurityReportExportedAt != null ? externalSecurityReportExportedAt.longValue() : null;
+        return this;
+      }
+
+      public Builder setCreationMethod(CreationMethod creationMethod) {
+        this.creationMethod = creationMethod;
         return this;
       }
 
