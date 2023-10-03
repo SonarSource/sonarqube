@@ -34,7 +34,7 @@ export default function GlobalFooterBranding() {
     <div>
       This application is based on{' '}
       <a
-        href="https://www.sonarqube.org/?referrer=sonarqube"
+        href="https://www.sonarsource.com/products/sonarqube/?referrer=sonarqube"
         rel="noopener noreferrer"
         target="_blank"
         title="SonarQube™"

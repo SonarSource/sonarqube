@@ -13,7 +13,7 @@ exports[`should display correctly 1`] = `
     <ForwardRef(Link)
       className="spacer-left medium"
       target="_blank"
-      to="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
+      to="https://www.sonarsource.com/products/sonarqube/whats-new/?referrer=sonarqube"
     >
       system.see_whats_new
     </ForwardRef(Link)>
@@ -112,7 +112,7 @@ exports[`should display correctly 2`] = `
     <ForwardRef(Link)
       className="spacer-left medium"
       target="_blank"
-      to="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
+      to="https://www.sonarsource.com/products/sonarqube/whats-new/?referrer=sonarqube"
     >
       system.see_whats_new
     </ForwardRef(Link)>
@@ -303,7 +303,7 @@ exports[`should display correctly 4`] = `
     <ForwardRef(Link)
       className="spacer-left medium"
       target="_blank"
-      to="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
+      to="https://www.sonarsource.com/products/sonarqube/whats-new/?referrer=sonarqube"
     >
       system.see_whats_new
     </ForwardRef(Link)>
@@ -402,7 +402,7 @@ exports[`should display correctly 5`] = `
     <ForwardRef(Link)
       className="spacer-left medium"
       target="_blank"
-      to="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
+      to="https://www.sonarsource.com/products/sonarqube/whats-new/?referrer=sonarqube"
     >
       system.see_whats_new
     </ForwardRef(Link)>
@@ -501,7 +501,7 @@ exports[`should display correctly 6`] = `
     <ForwardRef(Link)
       className="spacer-left medium"
       target="_blank"
-      to="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
+      to="https://www.sonarsource.com/products/sonarqube/whats-new/?referrer=sonarqube"
     >
       system.see_whats_new
     </ForwardRef(Link)>
@@ -600,7 +600,7 @@ exports[`should display correctly 7`] = `
     <ForwardRef(Link)
       className="spacer-left medium"
       target="_blank"
-      to="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
+      to="https://www.sonarsource.com/products/sonarqube/whats-new/?referrer=sonarqube"
     >
       system.see_whats_new
     </ForwardRef(Link)>

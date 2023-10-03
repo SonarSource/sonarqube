@@ -52,7 +52,7 @@ public class HandleUnanalyzedLanguagesStep implements ComputationStep {
   static final String DESCRIPTION = "Check upgrade possibility for not analyzed code files.";
 
   private static final String LANGUAGE_UPGRADE_MESSAGE = "%s detected in this project during the last analysis. %s cannot be analyzed with your" +
-    " current SonarQube edition. Please consider <a target=\"_blank\" href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to" +
+    " current SonarQube edition. Please consider <a target=\"_blank\" href=\"https://www.sonarsource.com/plans-and-pricing/developer/?referrer=sonarqube-cpp\">upgrading to" +
     " Developer Edition</a> to find Bugs, Code Smells, Vulnerabilities and Security Hotspots in %s.";
 
   private final BatchReportReader reportReader;

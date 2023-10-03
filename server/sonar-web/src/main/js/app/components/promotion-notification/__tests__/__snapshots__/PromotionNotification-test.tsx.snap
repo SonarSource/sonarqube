@@ -36,7 +36,7 @@ exports[`should render correctly: loggedIn 1`] = `
   >
     <a
       className="button button-primary big-spacer-bottom"
-      href="https://www.sonarqube.org/sonarlint/?referrer=sonarqube-welcome"
+      href="https://www.sonarsource.com/products/sonarlint/?referrer=sonarqube-welcome"
       onClick={[Function]}
       rel="noreferrer"
       target="_blank"

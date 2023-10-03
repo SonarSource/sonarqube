@@ -140,7 +140,7 @@ public class ProjectLinkDaoIT {
       .setProjectUuid(project2.uuid())
       .setType("homepage")
       .setName("Home")
-      .setHref("http://www.sonarqube.org"));
+      .setHref("https://www.sonarsource.com/products/sonarqube"));
     db.getSession().commit();
 
     ProjectLinkDto reloaded = underTest.selectByUuid(db.getSession(), link.getUuid());
@@ -148,7 +148,7 @@ public class ProjectLinkDaoIT {
     assertThat(reloaded.getProjectUuid()).isEqualTo(project2.uuid());
     assertThat(reloaded.getType()).isEqualTo("homepage");
     assertThat(reloaded.getName()).isEqualTo("Home");
-    assertThat(reloaded.getHref()).isEqualTo("http://www.sonarqube.org");
+    assertThat(reloaded.getHref()).isEqualTo("https://www.sonarsource.com/products/sonarqube");
     assertThat(reloaded.getCreatedAt()).isEqualTo(PAST);
     assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
   }

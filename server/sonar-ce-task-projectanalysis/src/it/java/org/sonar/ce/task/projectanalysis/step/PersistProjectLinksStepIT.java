@@ -104,7 +104,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
       .setRef(1)
       .setType(ComponentType.PROJECT)
       .addChildRef(2)
-      .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("http://www.sonarqube.org").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("https://www.sonarsource.com/products/sonarqube").build())
       .addLink(ScannerReport.ComponentLink.newBuilder().setType(SCM).setHref("https://github.com/SonarSource/sonar").build())
       .addLink(ScannerReport.ComponentLink.newBuilder().setType(ISSUE).setHref("http://jira.sonarsource.com/").build())
       .addLink(ScannerReport.ComponentLink.newBuilder().setType(CI).setHref("http://bamboo.ci.codehaus.org/browse/SONAR").build())
@@ -115,7 +115,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
     assertThat(db.getDbClient().projectLinkDao().selectByProjectUuid(db.getSession(), project.projectUuid()))
       .extracting(ProjectLinkDto::getType, ProjectLinkDto::getHref, ProjectLinkDto::getName)
       .containsExactlyInAnyOrder(
-        tuple("homepage", "http://www.sonarqube.org", null),
+        tuple("homepage", "https://www.sonarsource.com/products/sonarqube", null),
         tuple("scm", "https://github.com/SonarSource/sonar", null),
         tuple("issue", "http://jira.sonarsource.com/", null),
         tuple("ci", "http://bamboo.ci.codehaus.org/browse/SONAR", null));
@@ -124,21 +124,21 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
   @Test
   public void nothing_to_do_when_link_already_exists() {
     mockBranch(true);
-    db.projectLinks().insertProvidedLink(project.getProjectDto(), l -> l.setType("homepage").setName("Home").setHref("http://www.sonarqube.org"));
+    db.projectLinks().insertProvidedLink(project.getProjectDto(), l -> l.setType("homepage").setName("Home").setHref("https://www.sonarsource.com/products/sonarqube"));
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(project.getMainBranchComponent().uuid()).build());
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(ComponentType.PROJECT)
-      .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("http://www.sonarqube.org").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("https://www.sonarsource.com/products/sonarqube").build())
       .build());
 
     underTest.execute(new TestComputationStepContext());
 
     assertThat(db.getDbClient().projectLinkDao().selectByProjectUuid(db.getSession(), project.projectUuid()))
       .extracting(ProjectLinkDto::getType, ProjectLinkDto::getHref)
-      .containsExactlyInAnyOrder(tuple("homepage", "http://www.sonarqube.org"));
+      .containsExactlyInAnyOrder(tuple("homepage", "https://www.sonarsource.com/products/sonarqube"));
   }
 
   @Test
@@ -153,7 +153,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(2)
       .setType(ComponentType.MODULE)
-      .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("http://www.sonarqube.org").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("https://www.sonarsource.com/products/sonarqube").build())
       .build());
 
     underTest.execute(new TestComputationStepContext());
@@ -176,7 +176,7 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(2)
       .setType(ComponentType.FILE)
-      .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("http://www.sonarqube.org").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("https://www.sonarsource.com/products/sonarqube").build())
       .build());
 
     underTest.execute(new TestComputationStepContext());
@@ -193,14 +193,14 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(ComponentType.PROJECT)
-      .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("http://www.sonarqube.org").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("https://www.sonarsource.com/products/sonarqube").build())
       .build());
 
     underTest.execute(new TestComputationStepContext());
 
     assertThat(db.getDbClient().projectLinkDao().selectByProjectUuid(db.getSession(), project.getProjectDto().getUuid()))
       .extracting(ProjectLinkDto::getType, ProjectLinkDto::getHref)
-      .containsExactlyInAnyOrder(tuple("homepage", "http://www.sonarqube.org"));
+      .containsExactlyInAnyOrder(tuple("homepage", "https://www.sonarsource.com/products/sonarqube"));
   }
 
   @Test
@@ -245,8 +245,8 @@ public class PersistProjectLinksStepIT extends BaseStepTest {
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(ComponentType.PROJECT)
-      .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("http://www.sonarqube.org").build())
-      .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("http://www.sonarqube.org").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("https://www.sonarsource.com/products/sonarqube").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(HOME).setHref("https://www.sonarsource.com/products/sonarqube").build())
       .build());
 
     assertThatThrownBy(() -> underTest.execute(new TestComputationStepContext()))

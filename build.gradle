@@ -625,10 +625,10 @@ subprojects {
         pom {
           name = 'SonarQube'
           description = project.description
-          url = 'http://www.sonarqube.org/'
+          url = 'https://www.sonarsource.com/products/sonarqube'
           organization {
             name = 'SonarSource'
-            url = 'http://www.sonarsource.com'
+            url = 'https://www.sonarsource.com'
           }
           licenses {
             license {

@@ -99,11 +99,11 @@ export function EmbedDocsPopup() {
       <ItemDivider />
       <ItemHeader id="stay_connected">{translate('docs.stay_connected')}</ItemHeader>
       <IconLink
-        link="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
+        link="https://www.sonarsource.com/products/sonarqube/whats-new/?referrer=sonarqube"
         text={translate('docs.news')}
       />
       <IconLink
-        link="https://www.sonarqube.org/roadmap/?referrer=sonarqube"
+        link="https://www.sonarsource.com/products/sonarqube/roadmap/?referrer=sonarqube"
         text={translate('docs.roadmap')}
       />
       <IconLink

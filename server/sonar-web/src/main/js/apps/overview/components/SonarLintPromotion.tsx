@@ -64,7 +64,7 @@ export function SonarLintPromotion({ currentUser, qgConditions }: SonarLintPromo
           link: (
             <>
               <DiscreetLink
-                to="https://www.sonarqube.org/sonarlint/?referrer=sonarqube"
+                to="https://www.sonarsource.com/products/sonarlint/features/connected-mode/?referrer=sonarqube"
                 rel="noopener noreferrer"
                 target="_blank"
                 showExternalIcon={false}

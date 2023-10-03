@@ -6,8 +6,8 @@ SonarQube provides the capability to not only show the health of an application 
 
 ## Links
 
-- [Website](https://www.sonarqube.org)
-- [Download](https://www.sonarqube.org/downloads/)
+- [Website](https://www.sonarsource.com/products/sonarqube)
+- [Download](https://www.sonarsource.com/products/sonarqube/downloads)
 - [Documentation](https://docs.sonarsource.com/sonarqube)
 - [Twitter](https://twitter.com/SonarQube)
 - [SonarSource](https://www.sonarsource.com), author of SonarQube

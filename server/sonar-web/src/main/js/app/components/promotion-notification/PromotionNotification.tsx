@@ -58,7 +58,7 @@ export function PromotionNotification(props: CurrentUserContextInterface) {
       <div className="toaster-actions spacer-left padded-left display-flex-column display-flex-center">
         <a
           className="button button-primary big-spacer-bottom"
-          href="https://www.sonarqube.org/sonarlint/?referrer=sonarqube-welcome"
+          href="https://www.sonarsource.com/products/sonarlint/?referrer=sonarqube-welcome"
           rel="noreferrer"
           onClick={onClick}
           target="_blank"

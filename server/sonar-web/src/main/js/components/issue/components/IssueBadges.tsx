@@ -49,7 +49,7 @@ export function SonarLintBadge({ quickFixAvailable }: { quickFixAvailable?: bool
             values={{
               link: (
                 <Link
-                  to="https://www.sonarqube.org/sonarlint/?referrer=sonarqube-quick-fix"
+                  to="https://www.sonarsource.com/products/sonarlint/features/connected-mode/?referrer=sonarqube-quick-fix"
                   target="_blank"
                 >
                   SonarLint

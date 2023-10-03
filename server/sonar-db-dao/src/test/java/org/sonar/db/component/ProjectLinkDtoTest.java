@@ -32,7 +32,7 @@ public class ProjectLinkDtoTest {
       .setProjectUuid("EFGH")
       .setType("homepage")
       .setName("Home")
-      .setHref("http://www.sonarqube.org")
+      .setHref("https://www.sonarsource.com/products/sonarqube")
       .setCreatedAt(1_000_000_000L)
       .setUpdatedAt(5_000_000_000L);
 
@@ -40,7 +40,7 @@ public class ProjectLinkDtoTest {
     assertThat(dto.getProjectUuid()).isEqualTo("EFGH");
     assertThat(dto.getType()).isEqualTo("homepage");
     assertThat(dto.getName()).isEqualTo("Home");
-    assertThat(dto.getHref()).isEqualTo("http://www.sonarqube.org");
+    assertThat(dto.getHref()).isEqualTo("https://www.sonarsource.com/products/sonarqube");
     assertThat(dto.getCreatedAt()).isEqualTo(1_000_000_000L);
     assertThat(dto.getUpdatedAt()).isEqualTo(5_000_000_000L);
   }

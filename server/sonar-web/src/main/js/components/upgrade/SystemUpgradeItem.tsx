@@ -60,7 +60,7 @@ export default function SystemUpgradeItem(props: SystemUpgradeItemProps) {
         {!isPatch && (
           <Link
             className="spacer-left medium"
-            to="https://www.sonarqube.org/whats-new/?referrer=sonarqube"
+            to="https://www.sonarsource.com/products/sonarqube/whats-new/?referrer=sonarqube"
             target="_blank"
           >
             {translate('system.see_whats_new')}

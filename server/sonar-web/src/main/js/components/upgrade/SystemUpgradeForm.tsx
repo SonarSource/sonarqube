@@ -106,7 +106,7 @@ export function SystemUpgradeForm(props: Readonly<Props>) {
       <div className="modal-foot">
         <Link
           className="pull-left link-no-underline display-flex-center"
-          to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
+          to="https://www.sonarsource.com/products/sonarqube/downloads/?referrer=sonarqube"
           target="_blank"
         >
           {translate('system.see_sonarqube_downloads')}

@@ -82,7 +82,7 @@ exports[`should display correctly for new_minor_version 1`] = `
     <ForwardRef(Link)
       className="pull-left link-no-underline display-flex-center"
       target="_blank"
-      to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
+      to="https://www.sonarsource.com/products/sonarqube/downloads/?referrer=sonarqube"
     >
       system.see_sonarqube_downloads
     </ForwardRef(Link)>
@@ -183,7 +183,7 @@ exports[`should display correctly for new_patch 1`] = `
     <ForwardRef(Link)
       className="pull-left link-no-underline display-flex-center"
       target="_blank"
-      to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
+      to="https://www.sonarsource.com/products/sonarqube/downloads/?referrer=sonarqube"
     >
       system.see_sonarqube_downloads
     </ForwardRef(Link)>
@@ -284,7 +284,7 @@ exports[`should display correctly for pre_lts 1`] = `
     <ForwardRef(Link)
       className="pull-left link-no-underline display-flex-center"
       target="_blank"
-      to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
+      to="https://www.sonarsource.com/products/sonarqube/downloads/?referrer=sonarqube"
     >
       system.see_sonarqube_downloads
     </ForwardRef(Link)>
@@ -385,7 +385,7 @@ exports[`should display correctly for previous_lts 1`] = `
     <ForwardRef(Link)
       className="pull-left link-no-underline display-flex-center"
       target="_blank"
-      to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
+      to="https://www.sonarsource.com/products/sonarqube/downloads/?referrer=sonarqube"
     >
       system.see_sonarqube_downloads
     </ForwardRef(Link)>
@@ -480,7 +480,7 @@ exports[`should display correctly for undefined 1`] = `
     <ForwardRef(Link)
       className="pull-left link-no-underline display-flex-center"
       target="_blank"
-      to="https://www.sonarqube.org/downloads/?referrer=sonarqube"
+      to="https://www.sonarsource.com/products/sonarqube/downloads/?referrer=sonarqube"
     >
       system.see_sonarqube_downloads
     </ForwardRef(Link)>
