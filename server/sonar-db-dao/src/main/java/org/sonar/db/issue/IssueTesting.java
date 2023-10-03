@@ -60,7 +60,7 @@ public class IssueTesting {
     //checkArgument(file.branchUuid().equals(branchUuid), "The file doesn't belong to the project");
 
     return new IssueDto()
-      .setKee("uuid_" + randomAlphabetic(5))
+      .setKee(Uuids.createFast())
       .setRule(rule)
       .setType(rule.getType())
       .setProjectUuid(branchUuid)
