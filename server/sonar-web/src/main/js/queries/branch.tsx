@@ -104,7 +104,7 @@ function getContext(key: ReturnType<typeof useBranchesQueryKey>) {
   return { componentKey, query: {} };
 }
 
-export function useBranchesQuery(component?: Component) {
+export function useBranchesQuery(component?: Component, refetchInterval?: number) {
   const features = useContext(AvailableFeaturesContext);
   const key = useBranchesQueryKey(InnerState.Details);
   return useQuery({
@@ -132,7 +132,8 @@ export function useBranchesQuery(component?: Component) {
     },
     // The check of the key must desapear once component state is in react-query
     enabled: !!component && component.key === key[1],
-    staleTime: BRANCHES_STALE_TIME,
+    staleTime: refetchInterval ?? BRANCHES_STALE_TIME,
+    refetchInterval,
   });
 }
 

@@ -23,6 +23,7 @@ import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup';
 import * as React from 'react';
 import { getScannableProjects } from '../../../api/components';
 import AlmSettingsServiceMock from '../../../api/mocks/AlmSettingsServiceMock';
+import BranchesServiceMock from '../../../api/mocks/BranchesServiceMock';
 import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import UserTokensMock from '../../../api/mocks/UserTokensMock';
 import { mockComponent } from '../../../helpers/mocks/component';
@@ -39,8 +40,6 @@ import { TutorialModes } from '../types';
 
 jest.mock('../../../api/user-tokens');
 
-jest.mock('../../../api/branches');
-
 jest.mock('../../../helpers/urls', () => ({
   ...jest.requireActual('../../../helpers/urls'),
   getHostUrl: jest.fn().mockReturnValue('http://host.url'),
@@ -53,20 +52,26 @@ jest.mock('../../../api/components', () => ({
 let settingsMock: SettingsServiceMock;
 let tokenMock: UserTokensMock;
 let almMock: AlmSettingsServiceMock;
+let branchesMock: BranchesServiceMock;
 
 beforeAll(() => {
   settingsMock = new SettingsServiceMock();
   tokenMock = new UserTokensMock();
   almMock = new AlmSettingsServiceMock();
+  branchesMock = new BranchesServiceMock();
 });
 
 afterEach(() => {
   tokenMock.reset();
   settingsMock.reset();
   almMock.reset();
+  branchesMock.reset();
 });
 
-beforeEach(jest.clearAllMocks);
+beforeEach(() => {
+  branchesMock.emptyBranchesAndPullRequest();
+  jest.clearAllMocks();
+});
 
 const ui = {
   loading: byLabelText('loading'),
