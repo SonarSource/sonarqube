@@ -26,7 +26,7 @@ import SystemUpgradeButton from '../SystemUpgradeButton';
 import { UpdateUseCase } from '../utils';
 
 const ui = {
-  toggleButton: byRole('button', { name: 'learn_more' }),
+  learnMoreButton: byRole('button', { name: 'learn_more' }),
 
   header: byRole('heading', { name: 'system.system_upgrade' }),
   downloadLink: byRole('link', { name: /system.see_sonarqube_downloads/ }),
@@ -41,7 +41,7 @@ it('should render properly', async () => {
 
   renderSystemUpgradeButton();
 
-  await user.click(ui.toggleButton.get());
+  await user.click(ui.learnMoreButton.get());
 
   expect(ui.header.get()).toBeInTheDocument();
   expect(ui.ltsVersionHeader.get()).toBeInTheDocument();
@@ -60,7 +60,7 @@ it('should render properly for new patch', async () => {
     '9.9',
   );
 
-  await user.click(ui.toggleButton.get());
+  await user.click(ui.learnMoreButton.get());
 
   expect(ui.header.get()).toBeInTheDocument();
   expect(ui.newPatchWarning.get()).toBeInTheDocument();

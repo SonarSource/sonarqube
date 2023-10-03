@@ -17,32 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link, LinkProps } from 'design-system';
 import * as React from 'react';
-import Icon, { IconProps } from './Icon';
+import { useDocUrl } from '../../helpers/docs';
 
-export default function ExpandSnippetIcon({ fill = 'currentColor', ...iconProps }: IconProps) {
-  return (
-    <Icon {...iconProps}>
-      <g fill="none" fillRule="evenodd">
-        <path
-          d="M8 1v4H4"
-          stroke={fill}
-          strokeWidth="2"
-          transform="scale(-.83333 -.84583) rotate(45 7.66 -19.75)"
-        />
-        <path d="M3 5.78h10v1.7H3z" fill={fill} />
-        <path d="M7.17 2.4h1.66v5.07H7.17z" fill={fill} />
-        <g>
-          <path
-            d="M8.16 1.81V6.1H3.9"
-            stroke={fill}
-            strokeWidth="2"
-            transform="scale(.83333 .84583) rotate(45 -4.2 13.2)"
-          />
-          <path d="M13 10.01H3v-1.7h10z" fill={fill} />
-          <path d="M8.83 13.4H7.17V9.15h1.66z" fill={fill} />
-        </g>
-      </g>
-    </Icon>
-  );
+type Props = Omit<LinkProps, 'to'> & { to: string; innerRef?: React.Ref<HTMLAnchorElement> };
+
+export default function DocumentationLink({ to, innerRef, ...props }: Props) {
+  const toStatic = useDocUrl(to);
+  return <Link ref={innerRef} to={toStatic} target="_blank" {...props} />;
 }
