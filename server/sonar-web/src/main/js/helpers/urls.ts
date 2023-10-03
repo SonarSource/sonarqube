@@ -366,7 +366,7 @@ export function getProjectSettingsUrl(id: string, category?: string): Partial<Pa
 /**
  * Generate URL for the rules page
  */
-export function getRulesUrl(query: Query): To {
+export function getRulesUrl(query: Query): Partial<Path> {
   return { pathname: '/coding_rules', search: queryToSearch(query) };
 }
 

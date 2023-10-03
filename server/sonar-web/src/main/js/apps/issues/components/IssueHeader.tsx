@@ -160,6 +160,7 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
       open: issue.key,
       types: issue.type === IssueType.SecurityHotspot ? issue.type : undefined,
     });
+
     const canSetTags = issue.actions.includes(IssueActions.SetTags);
 
     return (

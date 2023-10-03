@@ -17,22 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
+import styled from '@emotion/styled';
+import {
+  Badge,
+  BasicSeparator,
+  ClipboardIconButton,
+  DisabledText,
+  HelperHintIcon,
+  IssueMessageHighlighting,
+  LightLabel,
+  Link,
+  LinkIcon,
+  Note,
+  PageContentFontWrapper,
+  themeBorder,
+} from 'design-system';
 import * as React from 'react';
-import { colors } from '../../../app/theme';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
-import Link from '../../../components/common/Link';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Tooltip from '../../../components/controls/Tooltip';
-import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
-import LinkIcon from '../../../components/icons/LinkIcon';
-import DateFormatter from '../../../components/intl/DateFormatter';
+import IssueSeverityIcon from '../../../components/icon-mappers/IssueSeverityIcon';
+import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
-import SeverityHelper from '../../../components/shared/SeverityHelper';
 import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
 import TagsList from '../../../components/tags/TagsList';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getRuleUrl } from '../../../helpers/urls';
+import { getPathUrlAsString, getRuleUrl } from '../../../helpers/urls';
+import { IssueSeverity as IssueSeverityType } from '../../../types/issues';
 import { Dict, RuleDetails } from '../../../types/types';
 import RuleDetailsTagsPopup from './RuleDetailsTagsPopup';
 
@@ -49,7 +60,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
   renderType = () => {
     const { ruleDetails } = this.props;
     return (
-      <li className="coding-rules-detail-property muted" data-meta="type">
+      <Note className="it__coding-rules-detail-property sw-mr-4" data-meta="type">
         <DocumentationTooltip
           content={
             <>
@@ -64,15 +75,17 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
             },
           ]}
         >
-          <IssueTypeIcon className="little-spacer-right" query={ruleDetails.type} />
-          {translate('issue.type', ruleDetails.type)}
+          <DisabledText className="sw-flex sw-items-center sw-gap-1">
+            <IssueTypeIcon fill="iconTypeDisabled" type={ruleDetails.type} aria-hidden />
+            {translate('issue.type', ruleDetails.type)}
+          </DisabledText>
         </DocumentationTooltip>
-      </li>
+      </Note>
     );
   };
 
   renderSeverity = () => (
-    <li className="coding-rules-detail-property muted" data-meta="severity">
+    <Note className="it__coding-rules-detail-property sw-mr-4" data-meta="severity">
       <DocumentationTooltip
         content={
           <>
@@ -87,13 +100,16 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
           },
         ]}
       >
-        <SeverityHelper
-          fill={colors.neutral200}
-          className="display-inline-flex-center"
-          severity={this.props.ruleDetails.severity}
-        />
+        <DisabledText className="sw-flex sw-items-center sw-gap-1">
+          <IssueSeverityIcon
+            fill="iconSeverityDisabled"
+            severity={this.props.ruleDetails.severity as IssueSeverityType}
+            aria-hidden
+          />
+          {translate('severity', this.props.ruleDetails.severity)}
+        </DisabledText>
       </DocumentationTooltip>
-    </li>
+    </Note>
   );
 
   renderStatus = () => {
@@ -103,9 +119,9 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     }
     return (
       <Tooltip overlay={translate('status')}>
-        <li className="coding-rules-detail-property" data-meta="status">
-          <span className="badge badge-error">{translate('rules.status', ruleDetails.status)}</span>
-        </li>
+        <Note data-meta="status">
+          <Badge variant="deleted">{translate('rules.status', ruleDetails.status)}</Badge>
+        </Note>
       </Tooltip>
     );
   };
@@ -114,11 +130,13 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     const { canWrite, ruleDetails } = this.props;
     const { sysTags = [], tags = [] } = ruleDetails;
     const allTags = [...sysTags, ...tags];
+    const TAGS_TO_DISPLAY = 1;
 
     return (
-      <div className="coding-rules-detail-property null-spacer-bottom" data-meta="tags">
+      <div className="it__coding-rules-detail-property" data-meta="tags">
         <TagsList
           allowUpdate={canWrite}
+          tagsToDisplay={TAGS_TO_DISPLAY}
           tags={allTags.length > 0 ? allTags : [translate('coding_rules.no_tags')]}
           overlay={
             canWrite ? (
@@ -134,13 +152,6 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     );
   };
 
-  renderCreationDate = () => (
-    <li className="coding-rules-detail-property" data-meta="available-since">
-      <span className="little-spacer-right">{translate('coding_rules.available_since')}</span>
-      <DateFormatter date={this.props.ruleDetails.createdAt} />
-    </li>
-  );
-
   renderRepository = () => {
     const { referencedRepositories, ruleDetails } = this.props;
     const repository = referencedRepositories[ruleDetails.repo];
@@ -149,9 +160,9 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     }
     return (
       <Tooltip overlay={translate('coding_rules.repository_language')}>
-        <li className="coding-rules-detail-property" data-meta="repository">
+        <Note className="it__coding-rules-detail-property sw-mr-4" data-meta="repository">
           {repository.name} ({ruleDetails.langName})
-        </li>
+        </Note>
       </Tooltip>
     );
   };
@@ -162,7 +173,9 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     }
     return (
       <Tooltip overlay={translate('coding_rules.rule_template.title')}>
-        <li className="coding-rules-detail-property">{translate('coding_rules.rule_template')}</li>
+        <Note className="it__coding-rules-detail-property sw-mr-4">
+          {translate('coding_rules.rule_template')}
+        </Note>
       </Tooltip>
     );
   };
@@ -173,18 +186,17 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <li className="coding-rules-detail-property">
+      <Note className="it__coding-rules-detail-property sw-mr-4">
         {translate('coding_rules.custom_rule')}
         {' ('}
         <Link to={getRuleUrl(ruleDetails.templateKey)}>
           {translate('coding_rules.show_template')}
         </Link>
-        {')'}
-        <HelpTooltip
-          className="little-spacer-left"
-          overlay={translate('coding_rules.custom_rule.help')}
-        />
-      </li>
+        {') '}
+        <HelpTooltip overlay={translate('coding_rules.custom_rule.help')}>
+          <HelperHintIcon />
+        </HelpTooltip>
+      </Note>
     );
   };
 
@@ -194,15 +206,21 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <Tooltip overlay={translate('coding_rules.remediation_function')}>
-        <li className="coding-rules-detail-property" data-meta="remediation-function">
-          {translate('coding_rules.remediation_function', ruleDetails.remFnType)}
-          {':'}
-          {ruleDetails.remFnBaseEffort !== undefined && ` ${ruleDetails.remFnBaseEffort}`}
-          {ruleDetails.remFnGapMultiplier !== undefined && ` +${ruleDetails.remFnGapMultiplier}`}
-          {ruleDetails.gapDescription !== undefined && ` ${ruleDetails.gapDescription}`}
-        </li>
-      </Tooltip>
+      <>
+        <BasicSeparator className="sw-my-2" />
+        <RightMetaHeaderInfo
+          title={translate('coding_rules.remediation_function', ruleDetails.remFnType)}
+        >
+          <Tooltip overlay={translate('coding_rules.remediation_function')}>
+            <Note className="it__coding-rules-detail-property" data-meta="remediation-function">
+              {ruleDetails.remFnBaseEffort !== undefined && ` ${ruleDetails.remFnBaseEffort}`}
+              {ruleDetails.remFnGapMultiplier !== undefined &&
+                ` +${ruleDetails.remFnGapMultiplier}`}
+              {ruleDetails.gapDescription !== undefined && ` ${ruleDetails.gapDescription}`}
+            </Note>
+          </Tooltip>
+        </RightMetaHeaderInfo>
+      </>
     );
   };
 
@@ -217,9 +235,9 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     }
     return (
       <Tooltip overlay={translateWithParameters('coding_rules.external_rule.engine', engine)}>
-        <li className="coding-rules-detail-property">
-          <div className="badge spacer-left text-text-top">{engine}</div>
-        </li>
+        <Note className="it__coding-rules-detail-property sw-mr-4">
+          <Badge>{engine}</Badge>
+        </Note>
       </Tooltip>
     );
   };
@@ -230,79 +248,104 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     const displayedKey = ruleDetails.key.startsWith(EXTERNAL_PREFIX)
       ? ruleDetails.key.substring(EXTERNAL_PREFIX.length)
       : ruleDetails.key;
-    return <span className="note text-middle">{displayedKey}</span>;
+    return <Note className="sw-overflow-hidden sw-text-ellipsis">{displayedKey}</Note>;
   }
 
   render() {
     const { ruleDetails } = this.props;
+    const ruleUrl = getRuleUrl(ruleDetails.key);
+
     const hasTypeData = !ruleDetails.isExternal || ruleDetails.type !== 'UNKNOWN';
     return (
-      <div className="js-rule-meta">
-        <div className="display-flex-space-between spacer-bottom">
-          {ruleDetails.cleanCodeAttributeCategory !== undefined && (
-            <CleanCodeAttributePill
-              cleanCodeAttributeCategory={ruleDetails.cleanCodeAttributeCategory}
-              cleanCodeAttribute={ruleDetails.cleanCodeAttribute}
-              type="rule"
-            />
-          )}
-          <div className="pull-right display-flex-center spacer-right">
-            {this.renderKey()}
-            {!ruleDetails.isExternal && (
-              <Link
-                className="coding-rules-detail-permalink link-no-underline spacer-left text-middle"
-                title={translate('permalink')}
-                to={getRuleUrl(ruleDetails.key)}
-              >
-                <LinkIcon />
-              </Link>
+      <header className="sw-flex sw-mb-6">
+        <div className="sw-mr-8 sw-flex-1">
+          <div className="sw-mb-4">
+            {ruleDetails.cleanCodeAttributeCategory !== undefined && (
+              <CleanCodeAttributePill
+                cleanCodeAttributeCategory={ruleDetails.cleanCodeAttributeCategory}
+                cleanCodeAttribute={ruleDetails.cleanCodeAttribute}
+                type="rule"
+              />
             )}
           </div>
-        </div>
 
-        <div className="display-flex-space-between big-spacer-bottom">
-          <h1 className="page-title coding-rules-detail-header">{ruleDetails.name}</h1>
-          {this.renderTags()}
-        </div>
+          <div className="sw-mb-4">
+            <PageContentFontWrapper className="sw-body-md-highlight" as="h1">
+              <IssueMessageHighlighting message={ruleDetails.name} />
+              <ClipboardIconButton
+                Icon={LinkIcon}
+                aria-label={translate('permalink')}
+                className="sw-ml-1 sw-align-bottom"
+                copyValue={getPathUrlAsString(ruleUrl, ruleDetails.isExternal)}
+                discreet
+              />
+            </PageContentFontWrapper>
+          </div>
 
-        <div className="display-flex-center">
-          {!!ruleDetails.impacts.length && (
-            <div className="sw-flex sw-items-center flex-1">
-              <span>{translate('issue.software_qualities.label')}</span>
-              <ul className="sw-flex sw-gap-2">
-                {ruleDetails.impacts.map(({ severity, softwareQuality }) => (
-                  <li key={softwareQuality}>
-                    <SoftwareImpactPill
-                      className="little-spacer-left"
-                      severity={severity}
-                      quality={softwareQuality}
-                      type="rule"
-                    />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
+          <div className="sw-flex sw-items-center">
+            {!!ruleDetails.impacts.length && (
+              <div className="sw-flex sw-items-center sw-flex-1">
+                <Note>{translate('issue.software_qualities.label')}</Note>
+                <ul className="sw-flex sw-gap-2">
+                  {ruleDetails.impacts.map(({ severity, softwareQuality }) => (
+                    <li key={softwareQuality}>
+                      <SoftwareImpactPill
+                        className="sw-ml-2"
+                        severity={severity}
+                        quality={softwareQuality}
+                        type="rule"
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+          <BasicSeparator className="sw-my-3" />
           {hasTypeData && (
-            <ul className="coding-rules-detail-properties">
-              {this.renderType()}
-              {this.renderSeverity()}
-              {!ruleDetails.isExternal && this.renderStatus()}
-              {!ruleDetails.isExternal && this.renderCreationDate()}
-              {this.renderRepository()}
+            <div className="sw-flex sw-items-center">
               {!ruleDetails.isExternal && (
                 <>
                   {this.renderTemplate()}
                   {this.renderParentTemplate()}
-                  {this.renderRemediation()}
                 </>
               )}
+
+              {this.renderRepository()}
+              {this.renderType()}
+              {this.renderSeverity()}
               {ruleDetails.isExternal && this.renderExternalBadge()}
-            </ul>
+              {!ruleDetails.isExternal && this.renderStatus()}
+            </div>
           )}
         </div>
-      </div>
+        <StyledSection className="sw-flex sw-flex-col sw-pl-4 sw-min-w-abs-150 sw-max-w-abs-250">
+          {this.renderKey()}
+          <BasicSeparator className="sw-my-2" />
+          <RightMetaHeaderInfo title={translate('issue.tags')}>
+            {this.renderTags()}
+          </RightMetaHeaderInfo>
+          {this.renderRemediation()}
+        </StyledSection>
+      </header>
     );
   }
 }
+
+function RightMetaHeaderInfo({
+  title,
+  children,
+}: Readonly<{ title: string; children: React.ReactNode }>) {
+  return (
+    <div>
+      <LightLabel as="div" className="sw-body-sm-highlight">
+        {title}
+      </LightLabel>
+      {children}
+    </div>
+  );
+}
+
+const StyledSection = styled.div`
+  border-left: ${themeBorder('default', 'pageBlockBorder')};
+`;

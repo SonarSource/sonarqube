@@ -28,15 +28,15 @@ interface Props {
   className?: string;
   tags: string[];
   overlay?: React.ReactNode;
+  tagsToDisplay?: number;
 }
-
-const TAGS_TO_DISPLAY = 2;
 
 export default function TagsList({
   allowUpdate = false,
   className,
   tags,
   overlay,
+  tagsToDisplay = 2,
 }: Readonly<Props>) {
   const [open, setOpen] = React.useState(false);
 
@@ -52,7 +52,7 @@ export default function TagsList({
       overlay={overlay}
       popupPlacement={PopupPlacement.Bottom}
       tags={tags}
-      tagsToDisplay={TAGS_TO_DISPLAY}
+      tagsToDisplay={tagsToDisplay}
       tooltip={Tooltip}
     />
   );
