@@ -305,7 +305,18 @@ export default class QualityProfilesServiceMock {
   }
 
   handleGetImporters = () => {
-    return this.reply([]);
+    return this.reply([
+      {
+        key: 'sonar-importer-a',
+        name: 'Importer A',
+        languages: ['c'],
+      },
+      {
+        key: 'sonar-importer-b',
+        name: 'Importer B',
+        languages: ['c'],
+      },
+    ]);
   };
 
   handleCopyProfile = (fromKey: string, name: string): Promise<Profile> => {

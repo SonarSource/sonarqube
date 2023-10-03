@@ -23,7 +23,7 @@ import selectEvent from 'react-select-event';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
 import { mockPaging, mockRule } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../helpers/testSelector';
+import { byRole, byText } from '../../../helpers/testSelector';
 import routes from '../routes';
 
 jest.mock('../../../api/quality-profiles');
@@ -93,14 +93,16 @@ const ui = {
   }),
   listLinkJavaQualityProfile: byRole('link', { name: 'java quality profile' }),
   returnToList: byRole('link', { name: 'quality_profiles.page' }),
-  languageSelect: byRole('combobox', { name: 'language field_required' }),
+  languageSelect: byRole('combobox', { name: 'language' }),
   profileExtendSelect: byRole('combobox', {
-    name: 'quality_profiles.creation.choose_parent_quality_profile field_required',
+    name: 'quality_profiles.creation.choose_parent_quality_profile',
   }),
   profileCopySelect: byRole('combobox', {
-    name: 'quality_profiles.creation.choose_copy_quality_profile field_required',
+    name: 'quality_profiles.creation.choose_copy_quality_profile',
   }),
-  nameCreatePopupInput: byRole('textbox', { name: 'name field_required' }),
+  nameCreatePopupInput: byRole('textbox', { name: 'name required' }),
+  importerA: byText('Importer A'),
+  importerB: byText('Importer B'),
   comparisonDiffTableHeading: (rulesQuantity: number, profileName: string) =>
     byRole('columnheader', {
       name: `quality_profiles.x_rules_only_in.${rulesQuantity}.${profileName}`,
@@ -252,6 +254,29 @@ describe('Create', () => {
     });
 
     expect(await ui.headingNewCQualityProfile.find()).toBeInTheDocument();
+  });
+
+  it('should render importers', async () => {
+    const user = userEvent.setup();
+    serviceMock.setAdmin();
+    renderQualityProfiles();
+
+    await act(async () => {
+      await user.click(await ui.createButton.find());
+    });
+    await user.click(ui.blankRadio.get());
+    await selectEvent.select(ui.languageSelect.get(), 'C');
+
+    expect(ui.importerA.get()).toBeInTheDocument();
+    expect(ui.importerB.get()).toBeInTheDocument();
+
+    await user.click(ui.copyRadio.get());
+    expect(ui.importerA.query()).not.toBeInTheDocument();
+    expect(ui.importerB.query()).not.toBeInTheDocument();
+
+    await user.click(ui.extendRadio.get());
+    expect(ui.importerA.query()).not.toBeInTheDocument();
+    expect(ui.importerB.query()).not.toBeInTheDocument();
   });
 });
 

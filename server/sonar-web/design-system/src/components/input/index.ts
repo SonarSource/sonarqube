@@ -21,6 +21,7 @@ export * from './Checkbox';
 export * from './DatePicker';
 export * from './DateRangePicker';
 export * from './DiscreetSelect';
+export * from './FileInput';
 export * from './FormField';
 export * from './InputField';
 export * from './InputMultiSelect';
