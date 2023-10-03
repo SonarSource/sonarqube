@@ -11,7 +11,7 @@ unzip build-wrapper.zip"
 
 exports[`should render correctly and allow token generation: cfamily mac, copy additional properties 1`] = `"sonar.cfamily.build-wrapper-output=bw-output"`;
 
-exports[`should render correctly and allow token generation: cfamily mac, copy build-wrapper command 1`] = `"./build-wrapper-macos-x86/build-wrapper-macos-x86 --out-dir bw-output <your build command here>"`;
+exports[`should render correctly and allow token generation: cfamily mac, copy build-wrapper command 1`] = `"./build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your build command here>"`;
 
 exports[`should render correctly and allow token generation: cfamily mac, copy shell script 1`] = `
 "curl 'http://localhost/static/cpp/build-wrapper-macosx-x86.zip' --output build-wrapper.zip

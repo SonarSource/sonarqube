@@ -77,7 +77,7 @@ unzip build-wrapper.zip`,
       highlightScriptKey:
         'onboarding.tutorial.with.azure_pipelines.BranchAnalysis.build_wrapper.ccpp.nix',
       scriptBuild:
-        './build-wrapper-macos-x86/build-wrapper-macos-x86 --out-dir bw-output <your build command here>',
+        './build-wrapper-macosx-x86/build-wrapper-macosx-x86 --out-dir bw-output <your build command here>',
     },
   };
 
