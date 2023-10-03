@@ -295,7 +295,7 @@ export function selectStyle<
       boxShadow: `${others.defaultShadow}`,
       position: 'absolute',
       top: '100%',
-      width: '100%',
+      minWidth: '100%',
     }),
     menuPortal: (baseStyles) => ({
       ...baseStyles,
