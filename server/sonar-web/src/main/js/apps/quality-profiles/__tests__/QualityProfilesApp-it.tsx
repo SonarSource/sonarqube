@@ -85,7 +85,7 @@ const ui = {
     }),
   activateConfirmButton: byRole('button', { name: 'coding_rules.activate' }),
   namePropupInput: byRole('textbox', { name: 'quality_profiles.new_name required' }),
-  filterByLang: byRole('combobox', { name: 'quality_profiles.filter_by:' }),
+  filterByLang: byRole('combobox', { name: 'quality_profiles.select_lang' }),
   listLinkCQualityProfile: byRole('link', { name: 'c quality profile' }),
   headingNewCQualityProfile: byRole('heading', { name: 'New c quality profile' }),
   headingNewCQualityProfileFromCreateButton: byRole('heading', {
@@ -113,7 +113,7 @@ const ui = {
   stagnantProfilesRegion: byRole('region', { name: 'quality_profiles.stagnant_profiles' }),
   recentlyAddedRulesRegion: byRole('region', { name: 'quality_profiles.latest_new_rules' }),
   newRuleLink: byRole('link', { name: 'Recently Added Rule' }),
-  seeAllNewRulesLink: byRole('link', { name: 'see_all 20 quality_profiles.latest_new_rules' }),
+  seeAllNewRulesLink: byRole('link', { name: 'quality_profiles.latest_new_rules.see_all_x.20' }),
 };
 
 it('should list Quality Profiles and filter by language', async () => {

@@ -91,7 +91,6 @@ export default function AssigneeSelect(props: AssigneeSelectProps) {
       size="full"
       controlSize="full"
       inputId={inputId}
-      isClearable
       defaultOptions={defaultOptions}
       loadOptions={handleAssigneeSearch}
       onChange={props.onAssigneeSelect}

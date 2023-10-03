@@ -45,8 +45,6 @@ export default function ComparisonForm(props: Readonly<Props>) {
     .filter((p) => p.language === profile.language && p !== profile)
     .map((p) => ({ value: p.key, label: p.name, isDefault: p.isDefault }));
 
-  const value = options.find((o) => o.value === withKey);
-
   const handleProfilesSearch = React.useCallback(
     (query: string, cb: (options: Options<Option>) => void) => {
       cb(options.filter((option) => option.label.toLowerCase().includes(query.toLowerCase())));
@@ -58,9 +56,7 @@ export default function ComparisonForm(props: Readonly<Props>) {
     <>
       <span className="sw-mr-2">{intl.formatMessage({ id: 'quality_profiles.compare_with' })}</span>
       <SearchSelectDropdown
-        placeholder=""
         controlPlaceholder={intl.formatMessage({ id: 'select_verb' })}
-        controlLabel={value?.label}
         controlAriaLabel={intl.formatMessage({ id: 'quality_profiles.compare_with' })}
         options={options}
         onChange={(option: Option) => props.onCompare(option.value)}

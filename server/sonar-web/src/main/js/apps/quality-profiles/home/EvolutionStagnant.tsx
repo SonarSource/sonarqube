@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DiscreetLink, FlagMessage, Note } from 'design-system';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import DateFormatter from '../../../components/intl/DateFormatter';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import ProfileLink from '../components/ProfileLink';
 import { Profile } from '../types';
-import { isStagnant } from '../utils';
+import { getProfilePath, isStagnant } from '../utils';
 
 interface Props {
   profiles: Profile[];
 }
 
 export default function EvolutionStagnant(props: Props) {
+  const intl = useIntl();
   const outdated = props.profiles.filter((profile) => !profile.isBuiltIn && isStagnant(profile));
 
   if (outdated.length === 0) {
@@ -36,38 +37,33 @@ export default function EvolutionStagnant(props: Props) {
   }
 
   return (
-    <section
-      className="boxed-group boxed-group-inner quality-profiles-evolution-stagnant"
-      aria-label={translate('quality_profiles.stagnant_profiles')}
-    >
-      <h2 className="h4 spacer-bottom">{translate('quality_profiles.stagnant_profiles')}</h2>
-      <div className="spacer-bottom">
-        {translate('quality_profiles.not_updated_more_than_year')}
-      </div>
-      <ul>
+    <section aria-label={intl.formatMessage({ id: 'quality_profiles.stagnant_profiles' })}>
+      <h2 className="sw-heading-md sw-mb-6">
+        {intl.formatMessage({ id: 'quality_profiles.stagnant_profiles' })}
+      </h2>
+
+      <FlagMessage variant="warning" className="sw-mb-3">
+        {intl.formatMessage({ id: 'quality_profiles.not_updated_more_than_year' })}
+      </FlagMessage>
+      <ul className="sw-flex sw-flex-col sw-gap-4 sw-body-sm">
         {outdated.map((profile) => (
-          <li className="spacer-top" key={profile.key}>
-            <div className="text-ellipsis">
-              <ProfileLink
-                className="link-no-underline"
-                language={profile.language}
-                name={profile.name}
-              >
+          <li className="sw-flex sw-flex-col sw-gap-1" key={profile.key}>
+            <div className="sw-truncate">
+              <DiscreetLink to={getProfilePath(profile.name, profile.language)}>
                 {profile.name}
-              </ProfileLink>
+              </DiscreetLink>
             </div>
             {profile.rulesUpdatedAt && (
-              <DateFormatter date={profile.rulesUpdatedAt} long>
-                {(formattedDate) => (
-                  <div className="note">
-                    {translateWithParameters(
-                      'quality_profiles.x_updated_on_y',
-                      profile.languageName,
-                      formattedDate,
-                    )}
-                  </div>
-                )}
-              </DateFormatter>
+              <Note>
+                <DateFormatter date={profile.rulesUpdatedAt} long>
+                  {(formattedDate) =>
+                    intl.formatMessage(
+                      { id: 'quality_profiles.x_updated_on_y' },
+                      { name: profile.languageName, date: formattedDate },
+                    )
+                  }
+                </DateFormatter>
+              </Note>
             )}
           </li>
         ))}

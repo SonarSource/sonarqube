@@ -29,7 +29,7 @@ export interface EvolutionProps {
 
 export default function Evolution({ profiles }: EvolutionProps) {
   return (
-    <div className="quality-profiles-evolution">
+    <div className="sw-flex sw-flex-col sw-gap-12">
       <EvolutionDeprecated profiles={profiles} />
       <EvolutionStagnant profiles={profiles} />
       <EvolutionRules />

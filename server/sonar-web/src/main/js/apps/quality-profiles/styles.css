@@ -17,78 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.quality-profiles-table {
-  padding-top: 7px;
-}
-
-.quality-profiles-table-inheritance {
-  width: 280px;
-}
-
-.quality-profiles-table-projects,
-.quality-profiles-table-rules,
-.quality-profiles-table-date {
-  min-width: 80px;
-}
-
-.quality-profiles-list-header {
-  line-height: var(--controlHeight);
-  margin-bottom: 20px;
-  padding: 5px 10px;
-  border-bottom: 1px solid var(--barBorderColor);
-}
-
-.quality-profile-grid {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.quality-profile-grid-left {
-  width: 340px;
-  flex-shrink: 0;
-}
-
-.quality-profile-grid-right {
-  flex-grow: 1;
-  margin-left: 20px;
-}
-
-.quality-profile-rules-distribution {
-  margin-bottom: 15px;
-  padding: 7px 20px 0;
-}
-
-.quality-profile-rules-deprecated {
-  margin-top: 20px;
-  padding: 15px 20px;
-  background-color: var(--alertBackgroundError);
-}
-
-.quality-profile-not-found {
-  padding-top: 100px;
-  text-align: center;
-}
-
-.quality-profiles-evolution {
-  padding-top: 55px;
-}
-
-.quality-profiles-evolution-deprecated {
-  border-color: var(--alertBorderError);
-  background-color: var(--alertBackgroundError);
-}
-
-.quality-profiles-evolution-stagnant {
-  border-color: var(--alertBorderWarning);
-  background-color: var(--alertBackgroundWarning);
-}
-
-.quality-profiles-evolution-deprecated h2,
-.quality-profiles-evolution-stagnant h2,
-.quality-profiles-evolution-rules h2 {
-  padding: 0;
-}
 
 .quality-profile-changelog-rule-cell {
   line-height: 1.5;
@@ -97,12 +25,6 @@
 .quality-profile-changelog-parameter {
   max-width: 270px;
   word-break: break-word;
-}
-
-.quality-profile-compare-right-table:not(.has-first-column) td,
-.quality-profile-compare-right-table:not(.has-first-column) th {
-  /* Aligns the first column with the second one (50%) and add usual cell padding */
-  padding-left: calc(50% + 10px);
 }
 
 #create-profile-form .radio-card {

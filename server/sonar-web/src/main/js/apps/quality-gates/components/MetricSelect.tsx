@@ -85,7 +85,6 @@ export function MetricSelect({ metric, metricsArray, metrics, onMetricChange }: 
       size="large"
       controlSize="full"
       inputId="condition-metric"
-      isClearable
       defaultOptions={optionsWithDomains}
       loadOptions={handleAssigneeSearch}
       onChange={handleChange}

@@ -71,7 +71,7 @@ const ui = {
   renameButton: byRole('menuitem', { name: 'rename' }),
   setAsDefaultButton: byRole('menuitem', { name: 'set_as_default' }),
   newNameInput: byRole('textbox', { name: /quality_profiles.new_name/ }),
-  qualityProfilePageLink: byRole('link', { name: 'quality_profiles.page' }),
+  qualityProfilePageLink: byRole('link', { name: 'quality_profiles.back_to_list' }),
   rulesTotalRow: byRole('row', { name: /total/ }),
   rulesBugsRow: byRole('row', { name: /issue.type.BUG.plural/ }),
   rulesVulnerabilitiesRow: byRole('row', { name: /issue.type.VULNERABILITY/ }),
@@ -515,7 +515,9 @@ describe('Every Users', () => {
     renderQualityProfile('i-dont-exist');
     await ui.waitForDataLoaded();
 
-    expect(await screen.findByText('quality_profiles.not_found')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'quality_profiles.not_found' }),
+    ).toBeInTheDocument();
     expect(ui.qualityProfilePageLink.get()).toBeInTheDocument();
   });
 

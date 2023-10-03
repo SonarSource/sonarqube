@@ -24,7 +24,6 @@ import {
   useLocation as useLocationRouter,
   useNavigate,
   useParams,
-  useSearchParams,
 } from 'react-router-dom';
 import { queryToSearch, searchParamsToQuery } from '../../helpers/urls';
 import { RawQuery } from '../../types/types';
@@ -49,33 +48,9 @@ export function withRouter<P extends Partial<WithRouterProps>>(
   WrappedComponent: React.ComponentType<P>,
 ): React.ComponentType<Omit<P, keyof WithRouterProps>> {
   function ComponentWithRouterProp(props: P) {
-    const locationRouter = useLocationRouter();
-    const navigate = useNavigate();
+    const router = useRouter();
     const params = useParams();
-    const [searchParams] = useSearchParams();
-
-    const router = React.useMemo(
-      () => ({
-        replace: (path: string | Partial<Location>) => {
-          if ((path as Location).query) {
-            path.search = queryToSearch((path as Location).query);
-          }
-          navigate(path, { replace: true });
-        },
-        push: (path: string | Partial<Location>) => {
-          if ((path as Location).query) {
-            path.search = queryToSearch((path as Location).query);
-          }
-          navigate(path);
-        },
-      }),
-      [navigate],
-    );
-
-    const location = {
-      ...locationRouter,
-      query: searchParamsToQuery(searchParams),
-    };
+    const location = useLocation();
 
     return <WrappedComponent {...props} location={location} params={params} router={router} />;
   }
@@ -86,6 +61,30 @@ export function withRouter<P extends Partial<WithRouterProps>>(
   );
 
   return ComponentWithRouterProp;
+}
+
+export function useRouter() {
+  const navigate = useNavigate();
+
+  const router = React.useMemo(
+    () => ({
+      replace: (path: string | Partial<Location>) => {
+        if ((path as Location).query) {
+          path.search = queryToSearch((path as Location).query);
+        }
+        navigate(path, { replace: true });
+      },
+      push: (path: string | Partial<Location>) => {
+        if ((path as Location).query) {
+          path.search = queryToSearch((path as Location).query);
+        }
+        navigate(path);
+      },
+    }),
+    [navigate],
+  );
+
+  return router;
 }
 
 export function useLocation() {

@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DiscreetLink, FlagMessage, Note } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { useIntl } from 'react-intl';
 import { getDeprecatedActiveRulesUrl } from '../../../helpers/urls';
-import ProfileLink from '../components/ProfileLink';
 import { Profile } from '../types';
+import { getProfilePath } from '../utils';
 
 interface Props {
   profiles: Profile[];
@@ -34,120 +34,131 @@ interface InheritedRulesInfo {
   from: Profile;
 }
 
-export default class EvolutionDeprecated extends React.PureComponent<Props> {
-  getDeprecatedRulesInheritanceChain = (profile: Profile, profilesWithDeprecations: Profile[]) => {
-    let rules: InheritedRulesInfo[] = [];
-    let count = profile.activeDeprecatedRuleCount;
+export default function EvolutionDeprecated({ profiles }: Readonly<Props>) {
+  const intl = useIntl();
 
-    if (count === 0) {
-      return rules;
-    }
+  const profilesWithDeprecations = profiles.filter(
+    (profile) => profile.activeDeprecatedRuleCount > 0,
+  );
 
-    if (profile.parentKey) {
-      const parentProfile = profilesWithDeprecations.find((p) => p.key === profile.parentKey);
-      if (parentProfile) {
-        const parentRules = this.getDeprecatedRulesInheritanceChain(
-          parentProfile,
-          profilesWithDeprecations,
-        );
-        if (parentRules.length) {
-          count -= parentRules.reduce((n, rule) => n + rule.count, 0);
-          rules = rules.concat(parentRules);
-        }
-      }
-    }
-
-    if (count > 0) {
-      rules.push({
-        count,
-        from: profile,
-      });
-    }
-
-    return rules;
-  };
-
-  renderInheritedInfo = (profile: Profile, profilesWithDeprecations: Profile[]) => {
-    const rules = this.getDeprecatedRulesInheritanceChain(profile, profilesWithDeprecations);
-    if (rules.length) {
-      return (
-        <>
-          {rules.map((rule) => {
-            if (rule.from.key === profile.key) {
-              return null;
-            }
-
-            return (
-              <div key={rule.from.key}>
-                {' '}
-                {translateWithParameters(
-                  'coding_rules.filters.inheritance.x_inherited_from_y',
-                  rule.count,
-                  rule.from.name,
-                )}
-              </div>
-            );
-          })}
-        </>
-      );
-    }
+  if (profilesWithDeprecations.length === 0) {
     return null;
-  };
+  }
 
-  render() {
-    const profilesWithDeprecations = this.props.profiles.filter(
-      (profile) => profile.activeDeprecatedRuleCount > 0,
-    );
+  const sortedProfiles = sortBy(profilesWithDeprecations, (p) => -p.activeDeprecatedRuleCount);
 
-    if (profilesWithDeprecations.length === 0) {
-      return null;
-    }
+  return (
+    <section aria-label={intl.formatMessage({ id: 'quality_profiles.deprecated_rules' })}>
+      <h2 className="sw-heading-md sw-mb-6">
+        {intl.formatMessage({ id: 'quality_profiles.deprecated_rules' })}
+      </h2>
+      <FlagMessage variant="error" className="sw-mb-3">
+        {intl.formatMessage(
+          { id: 'quality_profiles.deprecated_rules_are_still_activated' },
+          { count: profilesWithDeprecations.length },
+        )}
+      </FlagMessage>
 
-    const sortedProfiles = sortBy(profilesWithDeprecations, (p) => -p.activeDeprecatedRuleCount);
+      <ul className="sw-flex sw-flex-col sw-gap-4 sw-body-sm">
+        {sortedProfiles.map((profile) => (
+          <li className="sw-flex sw-flex-col sw-gap-1" key={profile.key}>
+            <div className="sw-truncate">
+              <DiscreetLink to={getProfilePath(profile.name, profile.language)}>
+                {profile.name}
+              </DiscreetLink>
+            </div>
 
+            <Note>
+              {profile.languageName}
+              {', '}
+              <DiscreetLink
+                className="link-no-underline"
+                to={getDeprecatedActiveRulesUrl({ qprofile: profile.key })}
+                aria-label={intl.formatMessage(
+                  { id: 'quality_profile.lang_deprecated_x_rules' },
+                  { count: profile.activeDeprecatedRuleCount, name: profile.languageName },
+                )}
+              >
+                {intl.formatMessage(
+                  { id: 'quality_profile.x_rules' },
+                  { count: profile.activeDeprecatedRuleCount },
+                )}
+              </DiscreetLink>
+            </Note>
+            <EvolutionDeprecatedInherited
+              profile={profile}
+              profilesWithDeprecations={profilesWithDeprecations}
+            />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function EvolutionDeprecatedInherited(
+  props: Readonly<{
+    profile: Profile;
+    profilesWithDeprecations: Profile[];
+  }>,
+) {
+  const { profile, profilesWithDeprecations } = props;
+  const intl = useIntl();
+  const rules = React.useMemo(
+    () => getDeprecatedRulesInheritanceChain(profile, profilesWithDeprecations),
+    [profile, profilesWithDeprecations],
+  );
+  if (rules.length) {
     return (
-      <section
-        className="boxed-group boxed-group-inner quality-profiles-evolution-deprecated"
-        aria-label={translate('quality_profiles.deprecated_rules')}
-      >
-        <h2 className="h4 spacer-bottom">{translate('quality_profiles.deprecated_rules')}</h2>
-        <div className="spacer-bottom">
-          {translateWithParameters(
-            'quality_profiles.deprecated_rules_are_still_activated',
-            profilesWithDeprecations.length,
-          )}
-        </div>
-        <ul>
-          {sortedProfiles.map((profile) => (
-            <li className="spacer-top" key={profile.key}>
-              <div className="text-ellipsis little-spacer-bottom">
-                <ProfileLink language={profile.language} name={profile.name}>
-                  {profile.name}
-                </ProfileLink>
-              </div>
-              <div className="note">
-                {profile.languageName}
-                {', '}
-                <Link
-                  className="link-no-underline"
-                  to={getDeprecatedActiveRulesUrl({ qprofile: profile.key })}
-                  aria-label={translateWithParameters(
-                    'quality_profile.lang_deprecated_x_rules',
-                    profile.languageName,
-                    profile.activeDeprecatedRuleCount,
-                  )}
-                >
-                  {translateWithParameters(
-                    'quality_profile.x_rules',
-                    profile.activeDeprecatedRuleCount,
-                  )}
-                </Link>
-                {this.renderInheritedInfo(profile, profilesWithDeprecations)}
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <>
+        {rules.map((rule) => {
+          if (rule.from.key === profile.key) {
+            return null;
+          }
+
+          return (
+            <Note key={rule.from.key}>
+              {intl.formatMessage(
+                { id: 'coding_rules.filters.inheritance.x_inherited_from_y' },
+                { count: rule.count, name: rule.from.name },
+              )}
+            </Note>
+          );
+        })}
+      </>
     );
   }
+  return null;
+}
+
+function getDeprecatedRulesInheritanceChain(profile: Profile, profilesWithDeprecations: Profile[]) {
+  let rules: InheritedRulesInfo[] = [];
+  let count = profile.activeDeprecatedRuleCount;
+
+  if (count === 0) {
+    return rules;
+  }
+
+  if (profile.parentKey) {
+    const parentProfile = profilesWithDeprecations.find((p) => p.key === profile.parentKey);
+    if (parentProfile) {
+      const parentRules = getDeprecatedRulesInheritanceChain(
+        parentProfile,
+        profilesWithDeprecations,
+      );
+      if (parentRules.length) {
+        count -= parentRules.reduce((n, rule) => n + rule.count, 0);
+        rules = rules.concat(parentRules);
+      }
+    }
+  }
+
+  if (count > 0) {
+    rules.push({
+      count,
+      from: profile,
+    });
+  }
+
+  return rules;
 }

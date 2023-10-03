@@ -73,8 +73,6 @@ export default function QualityGatePermissionsAddModalRenderer(
               controlAriaLabel={translate('quality_gates.permissions.search')}
               inputId={USER_SELECT_INPUT_ID}
               autoFocus
-              isClearable={false}
-              placeholder=""
               defaultOptions
               noOptionsMessage={() => translate('no_results')}
               onChange={props.onSelection}

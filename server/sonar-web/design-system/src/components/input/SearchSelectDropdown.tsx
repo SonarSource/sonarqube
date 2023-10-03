@@ -80,7 +80,9 @@ export function SearchSelectDropdown<
     menuIsOpen,
     onChange,
     onInputChange,
+    isClearable,
     zLevel = PopupZLevel.Global,
+    placeholder = '',
     ...rest
   } = props;
   const [open, setOpen] = React.useState(false);
@@ -94,9 +96,11 @@ export function SearchSelectDropdown<
 
   const ref = React.useRef<Select<Option, IsMulti, Group>>(null);
 
+  const computedControlLabel = controlLabel ?? (value as Option | undefined)?.label ?? null;
+
   const toggleDropdown = React.useCallback(
     (value?: boolean) => {
-      setOpen(value === undefined ? !open : value);
+      setOpen(value ?? !open);
     },
     [open],
   );
@@ -131,6 +135,13 @@ export function SearchSelectDropdown<
     [onInputChange],
   );
 
+  const handleClear = () => {
+    onChange?.(null as OnChangeValue<Option, IsMulti>, {
+      action: 'clear',
+      removedValues: [],
+    });
+  };
+
   React.useEffect(() => {
     if (open) {
       ref.current?.inputRef?.select();
@@ -164,7 +175,9 @@ export function SearchSelectDropdown<
               minLength={minLength}
               onChange={handleChange}
               onInputChange={handleInputChange}
+              placeholder={placeholder}
               selectRef={ref}
+              value={value}
             />
           </StyledSearchSelectWrapper>
         </SearchHighlighterContext.Provider>
@@ -176,8 +189,10 @@ export function SearchSelectDropdown<
         ariaLabel={controlAriaLabel}
         className={className}
         disabled={isDisabled}
+        isClearable={isClearable && Boolean(value)}
         isDiscreet={isDiscreet}
-        label={controlLabel}
+        label={computedControlLabel}
+        onClear={handleClear}
         onClick={() => {
           toggleDropdown(true);
         }}

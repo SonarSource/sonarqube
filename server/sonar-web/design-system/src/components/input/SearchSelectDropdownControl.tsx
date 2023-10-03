@@ -20,18 +20,22 @@
 
 import styled from '@emotion/styled';
 import classNames from 'classnames';
+import { useIntl } from 'react-intl';
 import tw from 'twin.macro';
 import { INPUT_SIZES, themeBorder, themeColor, themeContrast } from '../../helpers';
 import { Key } from '../../helpers/keyboard';
 import { InputSizeKeys } from '../../types/theme';
-import { ChevronDownIcon } from '../icons';
+import { InteractiveIcon } from '../InteractiveIcon';
+import { ChevronDownIcon, CloseIcon } from '../icons';
 
 interface SearchSelectDropdownControlProps {
   ariaLabel?: string;
   className?: string;
   disabled?: boolean;
+  isClearable?: boolean;
   isDiscreet?: boolean;
   label?: React.ReactNode | string;
+  onClear: VoidFunction;
   onClick: VoidFunction;
   placeholder?: string;
   size?: InputSizeKeys;
@@ -43,11 +47,16 @@ export function SearchSelectDropdownControl(props: SearchSelectDropdownControlPr
     disabled,
     placeholder,
     label,
+    isClearable,
     isDiscreet,
+    onClear,
     onClick,
     size = 'full',
     ariaLabel = '',
   } = props;
+
+  const intl = useIntl();
+
   return (
     <StyledControl
       aria-label={ariaLabel}
@@ -75,8 +84,21 @@ export function SearchSelectDropdownControl(props: SearchSelectDropdownControlPr
           },
         )}
       >
-        <span className="sw-truncate">{label ?? placeholder}</span>
-        <ChevronDownIcon className="sw-ml-1" />
+        <span className="sw-flex-1 sw-truncate">{label ?? placeholder}</span>
+        <div className="sw-flex sw-items-center">
+          {isClearable && (
+            <InteractiveIcon
+              Icon={CloseIcon}
+              aria-label={intl.formatMessage({ id: 'clear' })}
+              currentColor
+              onClick={() => {
+                onClear();
+              }}
+              size="small"
+            />
+          )}
+          <ChevronDownIcon />
+        </div>
       </InputValue>
     </StyledControl>
   );
@@ -91,7 +113,7 @@ const StyledControl = styled.div`
   ${tw`sw-flex sw-justify-between sw-items-center`};
   ${tw`sw-rounded-2`};
   ${tw`sw-box-border`};
-  ${tw`sw-px-3 sw-py-2`};
+  ${tw`sw-px-3`};
   ${tw`sw-body-sm`};
   ${tw`sw-h-control`};
   ${tw`sw-leading-4`};
@@ -128,6 +150,7 @@ const StyledControl = styled.div`
 `;
 
 const InputValue = styled.span`
+  height: 100%;
   width: 100%;
   color: ${themeContrast('inputBackground')};
 

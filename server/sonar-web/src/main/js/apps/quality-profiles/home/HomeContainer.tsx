@@ -21,6 +21,7 @@ import * as React from 'react';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
 import { QualityProfilesContextProps } from '../qualityProfilesContext';
 import Evolution from './Evolution';
+import LanguageSelect from './LanguageSelect';
 import PageHeader from './PageHeader';
 import ProfilesList from './ProfilesList';
 
@@ -34,11 +35,12 @@ export default function HomeContainer() {
     <div>
       <PageHeader {...context} />
 
-      <div className="page-with-sidebar">
-        <main className="page-main">
+      <div className="sw-grid sw-grid-cols-3 sw-gap-12 sw-mt-12">
+        <main className="sw-col-span-2">
+          <LanguageSelect currentFilter={selectedLanguage} languages={context.languages} />
           <ProfilesList {...context} language={selectedLanguage} />
         </main>
-        <aside className="page-sidebar">
+        <aside>
           <Evolution {...context} />
         </aside>
       </div>
