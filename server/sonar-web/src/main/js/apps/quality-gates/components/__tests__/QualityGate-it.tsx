@@ -388,10 +388,6 @@ it('should show success banner when quality gate is CAYC compliant', async () =>
 
   await user.click(qualityGate);
 
-  expect(screen.getByText('quality_gates.cayc.banner.title')).toBeInTheDocument();
-  expect(
-    screen.getByText('quality_gates.cayc.banner.description1', { exact: false }),
-  ).toBeInTheDocument();
   expect(
     screen.queryByText('quality_gates.cayc_condition.missing_warning.title'),
   ).not.toBeInTheDocument();

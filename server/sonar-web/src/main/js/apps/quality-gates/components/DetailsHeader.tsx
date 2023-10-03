@@ -97,10 +97,10 @@ export default function DetailsHeader({
                 <FlagWarningIcon className="sw-ml-2" description={<CaycBadgeTooltip />} />
               </Tooltip>
             )}
-          </div>
-          <div className="sw-flex sw-gap-2 sw-mt-4">
-            {qualityGate.isDefault && <Badge>{translate('default')}</Badge>}
-            {qualityGate.isBuiltIn && <BuiltInQualityGateBadge />}
+            <div className="sw-flex sw-gap-2 sw-ml-4">
+              {qualityGate.isDefault && <Badge>{translate('default')}</Badge>}
+              {qualityGate.isBuiltIn && <BuiltInQualityGateBadge />}
+            </div>
           </div>
         </div>
         {actionsCount === 1 && (

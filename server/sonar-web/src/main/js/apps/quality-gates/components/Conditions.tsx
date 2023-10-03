@@ -30,7 +30,7 @@ import {
   SubnavigationFlowSeparator,
   Title,
 } from 'design-system';
-import { differenceWith, map, times, uniqBy } from 'lodash';
+import { differenceWith, map, uniqBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import withAvailableFeatures, {
@@ -51,12 +51,9 @@ import {
   QualityGate,
 } from '../../../types/types';
 import { groupAndSortByPriorityConditions } from '../utils';
-import CaycConditionsListItem from './CaycConditionsListItem';
 import ConditionModal from './ConditionModal';
 import CaycReviewUpdateConditionsModal from './ConditionReviewAndUpdateModal';
 import ConditionsTable from './ConditionsTable';
-
-export const CAYC_CONDITIONS_LIST_ITEMS = 6;
 
 interface Props extends WithAvailableFeaturesProps {
   metrics: Dict<Metric>;
@@ -169,37 +166,6 @@ export function Conditions({
 
   return (
     <div>
-      {qualityGate.caycStatus !== CaycStatus.NonCompliant && (
-        <CardWithPrimaryBackground className="sw-mb-9 sw-p-8">
-          <Title as="h2" className="sw-mb-2 sw-heading-md">
-            {translate('quality_gates.cayc.banner.title')}
-          </Title>
-          <SubHeading className="sw-body-sm sw-mb-4">
-            <FormattedMessage
-              id="quality_gates.cayc.banner.description1"
-              defaultMessage={translate('quality_gates.cayc.banner.description1')}
-              values={{
-                cayc_link: (
-                  <Link to={getDocUrl('/user-guide/clean-as-you-code/')}>
-                    {translate('quality_gates.cayc')}
-                  </Link>
-                ),
-              }}
-            />{' '}
-            {translate('quality_gates.cayc.banner.description2')}
-          </SubHeading>
-          <ul className="sw-body-sm">
-            {times(CAYC_CONDITIONS_LIST_ITEMS, (i) => (
-              <CaycConditionsListItem
-                index={i}
-                key={i}
-                last={i === CAYC_CONDITIONS_LIST_ITEMS - 1}
-              />
-            ))}
-          </ul>
-        </CardWithPrimaryBackground>
-      )}
-
       {qualityGate.caycStatus === CaycStatus.NonCompliant && canEdit && (
         <CardWithPrimaryBackground className="sw-mb-9 sw-p-8">
           <Title as="h2" className="sw-mb-2 sw-heading-md">
