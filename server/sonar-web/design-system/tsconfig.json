@@ -3,6 +3,8 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
+    "declaration": true,
+    "declarationMap": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "lib": ["dom", "dom.iterable", "es2022"],
