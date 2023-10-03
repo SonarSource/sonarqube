@@ -33,7 +33,7 @@ const ui = {
   row: byRole('row'),
   link: byRole('link'),
   emptyPage: byText('no_results'),
-  showMore: byRole('link', { name: 'show_more' }),
+  showMore: byRole('button', { name: 'show_more' }),
   startDate: byRole('textbox', { name: 'start_date' }),
   endDate: byRole('textbox', { name: 'end_date' }),
   reset: byRole('button', { name: 'reset_verb' }),

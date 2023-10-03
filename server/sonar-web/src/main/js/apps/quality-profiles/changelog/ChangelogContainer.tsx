@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary, Spinner } from 'design-system';
 import * as React from 'react';
 import { ChangelogResponse, getProfileChangelog } from '../../../api/quality-profiles';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
-import Spinner from '../../../components/ui/Spinner';
 import { parseDate, toISO8601WithOffsetString } from '../../../helpers/dates';
 import { translate } from '../../../helpers/l10n';
 import { withQualityProfilesContext } from '../qualityProfilesContext';
@@ -137,8 +137,8 @@ class ChangelogContainer extends React.PureComponent<Props, State> {
       this.state.events.length < this.state.total;
 
     return (
-      <div className="boxed-group boxed-group-inner js-profile-changelog">
-        <div className="spacer-bottom">
+      <div>
+        <div className="sw-mb-2 sw-flex sw-gap-4 sw-items-center">
           <ChangelogSearch
             dateRange={{
               from: query.since ? parseDate(query.since) : undefined,
@@ -147,7 +147,7 @@ class ChangelogContainer extends React.PureComponent<Props, State> {
             onDateRangeChange={this.handleDateRangeChange}
             onReset={this.handleReset}
           />
-          <Spinner loading={this.state.loading} className="spacer-left" />
+          <Spinner loading={this.state.loading} />
         </div>
 
         {this.state.events != null && this.state.events.length === 0 && <ChangelogEmpty />}
@@ -157,10 +157,10 @@ class ChangelogContainer extends React.PureComponent<Props, State> {
         )}
 
         {shouldDisplayFooter && (
-          <footer className="text-center spacer-top small">
-            <a href="#" onClick={this.loadMore.bind(this)}>
+          <footer className="sw-text-center sw-mt-2">
+            <ButtonSecondary onClick={this.loadMore.bind(this)}>
               {translate('show_more')}
-            </a>
+            </ButtonSecondary>
           </footer>
         )}
       </div>

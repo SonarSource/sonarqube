@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { isSameMinute } from 'date-fns';
+import { ContentCell, Link, Note, Table, TableRow, TableRowInteractive } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import Link from '../../../components/common/Link';
+import { useIntl } from 'react-intl';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { parseDate } from '../../../helpers/dates';
-import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { ProfileChangelogEvent } from '../types';
 import ChangesList from './ChangesList';
@@ -33,6 +33,8 @@ interface Props {
 }
 
 export default function Changelog(props: Props) {
+  const intl = useIntl();
+
   let isEvenRow = false;
   const sortedRows = sortBy(
     props.events,
@@ -54,46 +56,44 @@ export default function Changelog(props: Props) {
       isEvenRow = !isEvenRow;
     }
 
-    const className = 'js-profile-changelog-event ' + (isEvenRow ? 'even' : 'odd');
-
     return (
-      <tr className={className} key={index}>
-        <td className="thin nowrap">{!isBulkChange && <DateTimeFormatter date={event.date} />}</td>
+      <TableRowInteractive key={`${event.date}-${event.ruleKey}`}>
+        <ContentCell className="sw-whitespace-nowrap">
+          {!isBulkChange && <DateTimeFormatter date={event.date} />}
+        </ContentCell>
 
-        <td className="thin nowrap">
+        <ContentCell className="sw-whitespace-nowrap sw-max-w-[120px]">
+          {!isBulkChange && (event.authorName ? event.authorName : <Note>System</Note>)}
+        </ContentCell>
+
+        <ContentCell className="sw-whitespace-nowrap">
           {!isBulkChange &&
-            (event.authorName ? (
-              <span>{event.authorName}</span>
-            ) : (
-              <span className="note">System</span>
-            ))}
-        </td>
+            intl.formatMessage({ id: `quality_profiles.changelog.${event.action}` })}
+        </ContentCell>
 
-        <td className="thin nowrap">
-          {!isBulkChange && translate('quality_profiles.changelog', event.action)}
-        </td>
-
-        <td className="quality-profile-changelog-rule-cell">
+        <ContentCell>
           <Link to={getRulesUrl({ rule_key: event.ruleKey })}>{event.ruleName}</Link>
-        </td>
+        </ContentCell>
 
-        <td>{event.params && <ChangesList changes={event.params} />}</td>
-      </tr>
+        <ContentCell>{event.params && <ChangesList changes={event.params} />}</ContentCell>
+      </TableRowInteractive>
     );
   });
 
   return (
-    <table className="data zebra-hover">
-      <thead>
-        <tr>
-          <th className="thin nowrap">{translate('date')}</th>
-          <th className="thin nowrap">{translate('user')}</th>
-          <th className="thin nowrap">{translate('action')}</th>
-          <th>{translate('rule')}</th>
-          <th>{translate('parameters')}</th>
-        </tr>
-      </thead>
-      <tbody>{rows}</tbody>
-    </table>
+    <Table
+      columnCount={5}
+      header={
+        <TableRow>
+          <ContentCell>{intl.formatMessage({ id: 'date' })}</ContentCell>
+          <ContentCell>{intl.formatMessage({ id: 'user' })}</ContentCell>
+          <ContentCell>{intl.formatMessage({ id: 'action' })}</ContentCell>
+          <ContentCell>{intl.formatMessage({ id: 'rule' })}</ContentCell>
+          <ContentCell>{intl.formatMessage({ id: 'updates' })}</ContentCell>
+        </TableRow>
+      }
+    >
+      {rows}
+    </Table>
   );
 }

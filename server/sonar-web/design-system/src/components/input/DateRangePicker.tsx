@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import { max, min } from 'date-fns';
 import * as React from 'react';
 import { PopupZLevel } from '../../helpers';
+import { InputSizeKeys } from '../../types';
 import { LightLabel } from '../Text';
 import { DatePicker } from './DatePicker';
 
@@ -34,6 +35,7 @@ interface Props {
   className?: string;
   clearButtonLabel: string;
   fromLabel: string;
+  inputSize?: InputSizeKeys;
   maxDate?: Date;
   minDate?: Date;
   onChange: (date: DateRange) => void;
@@ -75,6 +77,7 @@ export class DateRangePicker extends React.PureComponent<Props> {
       alignEndDateCalandarRight,
       clearButtonLabel,
       fromLabel,
+      inputSize = 'full',
       minDate,
       maxDate,
       separatorText,
@@ -95,7 +98,7 @@ export class DateRangePicker extends React.PureComponent<Props> {
           minDate={minDate}
           onChange={this.handleFromChange}
           placeholder={fromLabel}
-          size="full"
+          size={inputSize}
           value={this.from}
           valueFormatter={valueFormatter}
           zLevel={zLevel}
@@ -115,7 +118,7 @@ export class DateRangePicker extends React.PureComponent<Props> {
           minDate={minDate && this.from ? max([minDate, this.from]) : minDate ?? this.from}
           onChange={this.handleToChange}
           placeholder={toLabel}
-          size="full"
+          size={inputSize}
           value={this.to}
           valueFormatter={valueFormatter}
           zLevel={zLevel}

@@ -33,7 +33,7 @@ export default function ChangesList({ changes }: Props) {
   };
 
   return (
-    <ul>
+    <ul className="sw-flex sw-flex-col sw-gap-1">
       {Object.keys(changes).map((key) => (
         <li key={key}>
           {key === 'severity' ? (

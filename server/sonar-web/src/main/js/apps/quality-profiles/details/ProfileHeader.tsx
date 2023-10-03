@@ -94,14 +94,16 @@ export default function ProfileHeader(props: Props) {
                 <DateFromNow date={profile.lastUsed} />
               </div>
 
-              <div>
-                <Link
-                  className="it__quality-profiles__changelog"
-                  to={getProfileChangelogPath(profile.name, profile.language)}
-                >
-                  {translate('see_changelog')}
-                </Link>
-              </div>
+              {!isChangeLogPage && (
+                <div>
+                  <Link
+                    className="it__quality-profiles__changelog"
+                    to={getProfileChangelogPath(profile.name, profile.language)}
+                  >
+                    {translate('see_changelog')}
+                  </Link>
+                </div>
+              )}
             </>
           )}
 
