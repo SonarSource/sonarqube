@@ -67,7 +67,7 @@ function LastSyncAlert({ info, short }: LastSyncProps) {
               values={{
                 date: formattedDate,
                 details: (
-                  <Link to="../settings?category=authentication&tab=github">
+                  <Link to="/admin/settings?category=authentication&tab=github">
                     {translate('settings.authentication.github.synchronization_details_link')}
                   </Link>
                 ),
@@ -88,7 +88,7 @@ function LastSyncAlert({ info, short }: LastSyncProps) {
           defaultMessage={translate('settings.authentication.github.synchronization_failed_short')}
           values={{
             details: (
-              <Link to="../settings?category=authentication&tab=github">
+              <Link to="/admin/settings?category=authentication&tab=github">
                 {translate('settings.authentication.github.synchronization_details_link')}
               </Link>
             ),

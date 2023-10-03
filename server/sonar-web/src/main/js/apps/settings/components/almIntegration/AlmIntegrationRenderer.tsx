@@ -149,7 +149,7 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
             defaultMessage={translate('settings.almintegration.empty.server_base_url')}
             values={{
               serverBaseUrl: (
-                <Link to="../settings?category=general#sonar.core.serverBaseURL">
+                <Link to="/admin/settings?category=general#sonar.core.serverBaseURL">
                   {translate('settings.almintegration.empty.server_base_url.setting_link')}
                 </Link>
               ),
