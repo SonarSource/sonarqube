@@ -22,6 +22,7 @@ import {
   ButtonSecondary,
   DangerButtonSecondary,
   HelperHintIcon,
+  Spinner,
   SubHeadingHighlight,
   themeBorder,
   themeColor,
@@ -32,7 +33,6 @@ import { deleteRule, getRuleDetails, updateRule } from '../../../api/rules';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
-import Spinner from '../../../components/ui/Spinner';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Dict, RuleActivation, RuleDetails as TypeRuleDetails } from '../../../types/types';
 import { Activation } from '../query';

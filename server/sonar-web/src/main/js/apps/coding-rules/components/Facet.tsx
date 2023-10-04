@@ -27,6 +27,7 @@ import { formatMeasure } from '../../../helpers/measures';
 import { MetricType } from '../../../types/metrics';
 import { Dict } from '../../../types/types';
 import { FacetItemsList } from '../../issues/sidebar/FacetItemsList';
+import { MultipleSelectionHint } from '../../issues/sidebar/MultipleSelectionHint';
 import { FacetKey } from '../query';
 
 export interface BasicProps {
@@ -111,6 +112,9 @@ export default class Facet extends React.PureComponent<Props> {
           (key) => renderTextName(key).toLowerCase(),
         ));
     const headerId = `facet_${property}`;
+    const nbSelectableItems =
+      items?.filter((item) => (stats ? stats[item] : undefined)).length ?? 0;
+    const nbSelectedItems = values.length;
 
     return (
       <FacetBox
@@ -135,6 +139,11 @@ export default class Facet extends React.PureComponent<Props> {
         )}
 
         {open && this.props.renderFooter !== undefined && this.props.renderFooter()}
+
+        <MultipleSelectionHint
+          nbSelectableItems={nbSelectableItems}
+          nbSelectedItems={nbSelectedItems}
+        />
       </FacetBox>
     );
   }

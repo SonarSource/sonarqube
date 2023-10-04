@@ -72,6 +72,7 @@ class AvailableSinceFacet extends React.PureComponent<Props & WrappedComponentPr
             value={value}
             showClearButton
             alignRight
+            size="auto"
           />
         )}
       </FacetBox>

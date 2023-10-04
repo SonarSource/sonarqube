@@ -100,6 +100,7 @@ export default class BulkChange extends React.PureComponent<Props, State> {
           size="auto"
           placement={PopupPlacement.BottomRight}
           zLevel={PopupZLevel.Global}
+          allowResizing
           overlay={
             <>
               <ItemButton onClick={this.handleActivateClick}>

@@ -111,7 +111,9 @@ export default class RuleDetailsCustomRules extends React.PureComponent<Props, S
   renderRule = (rule: Rule) => (
     <TableRow data-rule={rule.key} key={rule.key}>
       <ContentCell>
-        <Link to={getRuleUrl(rule.key)}>{rule.name}</Link>
+        <div>
+          <Link to={getRuleUrl(rule.key)}>{rule.name}</Link>
+        </div>
       </ContentCell>
 
       <ContentCell>
