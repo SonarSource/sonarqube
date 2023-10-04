@@ -33,7 +33,6 @@ import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
-import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.BranchDto;
@@ -65,13 +64,13 @@ import org.sonarqube.ws.Projects;
 
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
@@ -372,21 +371,6 @@ public class ImportAzureProjectActionIT {
   }
 
   @Test
-  public void fail_check_alm_setting_not_found() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmPatDto almPatDto = newAlmPatDto();
-    db.getDbClient().almPatDao().insert(db.getSession(), almPatDto, user.getLogin(), null);
-
-    TestRequest request = ws.newRequest()
-      .setParam("almSetting", "testKey");
-
-    assertThatThrownBy(request::execute)
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage("DevOps Platform Setting 'testKey' not found");
-  }
-
-  @Test
   public void fail_project_already_exists() {
     AlmSettingDto almSetting = configureUserAndAlmSettings();
     GsonAzureRepo repo = getGsonAzureRepo();
@@ -406,6 +390,65 @@ public class ImportAzureProjectActionIT {
   }
 
   @Test
+  public void importProject_whenAlmSettingKeyDoesNotExist_shouldThrow() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+
+    TestRequest request = ws.newRequest()
+      .setParam("almSetting", "unknown")
+      .setParam("projectName", "project-name")
+      .setParam("repositoryName", "repo-name");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("DevOps Platform configuration 'unknown' not found.");
+  }
+
+  @Test
+  public void importProject_whenNoAlmSettingKeyAndNoConfig_shouldThrow() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+
+    TestRequest request = ws.newRequest()
+      .setParam("projectName", "project-name")
+      .setParam("repositoryName", "repo-name");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("There is no AZURE_DEVOPS configuration for DevOps Platform. Please add one.");
+  }
+
+  @Test
+  public void importProject_whenNoAlmSettingKeyAndMultipleConfigs_shouldThrow() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+
+    db.almSettings().insertAzureAlmSetting();
+    db.almSettings().insertAzureAlmSetting();
+
+    TestRequest request = ws.newRequest()
+      .setParam("projectName", "project-name")
+      .setParam("repositoryName", "repo-name");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Parameter almSetting is required as there are multiple DevOps Platform configurations.");
+  }
+
+  @Test
+  public void importProject_whenNoAlmSettingKeyAndOnlyOneConfig_shouldImport() {
+    AlmSettingDto almSetting = configureUserAndAlmSettings();
+    mockAzureInteractions(almSetting);
+
+    TestRequest request = ws.newRequest()
+      .setParam("projectName", "project-name")
+      .setParam("repositoryName", "repo-name");
+
+    assertThatNoException().isThrownBy(request::execute);
+  }
+
+
+  @Test
   public void define() {
     WebService.Action def = ws.getDef();
 
@@ -414,7 +457,7 @@ public class ImportAzureProjectActionIT {
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("almSetting", true),
+        tuple("almSetting", false),
         tuple("projectName", true),
         tuple("repositoryName", true),
         tuple(PARAM_NEW_CODE_DEFINITION_TYPE, false),

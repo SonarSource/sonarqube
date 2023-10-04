@@ -38,7 +38,6 @@ import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
-import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
@@ -63,6 +62,7 @@ import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Projects;
 
@@ -70,13 +70,13 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.JVMRandom.nextLong;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
@@ -359,22 +359,6 @@ public class ImportBitbucketServerProjectActionIT {
   }
 
   @Test
-  public void fail_check_alm_setting_not_found() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmPatDto almPatDto = newAlmPatDto();
-    db.getDbClient().almPatDao().insert(db.getSession(), almPatDto, user.getLogin(), null);
-
-    assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam("almSetting", "testKey")
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage("DevOps Platform Setting 'testKey' not found");
-  }
-
-  @Test
   public void fail_when_no_creation_project_permission() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
@@ -439,6 +423,65 @@ public class ImportBitbucketServerProjectActionIT {
   }
 
   @Test
+  public void importProject_whenAlmSettingKeyDoesNotExist_shouldThrow() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+
+    TestRequest request = ws.newRequest()
+      .setParam("almSetting", "unknown")
+      .setParam("projectKey", "projectKey")
+      .setParam("repositorySlug", "repo-slug");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("DevOps Platform configuration 'unknown' not found.");
+  }
+
+  @Test
+  public void importProject_whenNoAlmSettingKeyAndNoConfig_shouldThrow() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+
+    TestRequest request = ws.newRequest()
+      .setParam("projectKey", "projectKey")
+      .setParam("repositorySlug", "repo-slug");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("There is no BITBUCKET configuration for DevOps Platform. Please add one.");
+  }
+
+  @Test
+  public void importProject_whenNoAlmSettingKeyAndMultipleConfigs_shouldThrow() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+
+    db.almSettings().insertBitbucketAlmSetting();
+    db.almSettings().insertBitbucketAlmSetting();
+
+    TestRequest request = ws.newRequest()
+      .setParam("projectKey", "projectKey")
+      .setParam("repositorySlug", "repo-slug");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Parameter almSetting is required as there are multiple DevOps Platform configurations.");
+  }
+
+  @Test
+  public void importProject_whenNoAlmSettingKeyAndOnlyOneConfig_shouldImport() {
+    configureUserAndPatAndAlmSettings();
+    Project project = getGsonBBSProject();
+    mockBitbucketServerRepo(project);
+
+    TestRequest request = ws.newRequest()
+      .setParam("projectKey", "projectKey")
+      .setParam("repositorySlug", "repo-slug");
+
+    assertThatNoException().isThrownBy(request::execute);
+  }
+
+  @Test
   public void definition() {
     WebService.Action def = ws.getDef();
 
@@ -447,7 +490,7 @@ public class ImportBitbucketServerProjectActionIT {
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("almSetting", true),
+        tuple("almSetting", false),
         tuple("repositorySlug", true),
         tuple("projectKey", true),
         tuple(PARAM_NEW_CODE_DEFINITION_TYPE, false),
@@ -457,7 +500,7 @@ public class ImportBitbucketServerProjectActionIT {
   private AlmSettingDto configureUserAndPatAndAlmSettings() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketAlmSetting();
     db.almPats().insert(dto -> {
       dto.setAlmSettingUuid(almSetting.getUuid());
       dto.setUserUuid(user.getUuid());

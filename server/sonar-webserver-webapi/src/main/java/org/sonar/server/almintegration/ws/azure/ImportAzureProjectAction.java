@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
+import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.BranchDto;
@@ -102,12 +103,12 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
       .setSince("8.6")
       .setHandler(this)
       .setChangelog(
+        new Change("10.3", String.format("Parameter %s becomes optional if you have only one configuration for Azure", PARAM_ALM_SETTING)),
         new Change("10.3", "Endpoint visibility change from internal to public"));
 
     action.createParam(PARAM_ALM_SETTING)
-      .setRequired(true)
       .setMaximumLength(200)
-      .setDescription("DevOps Platform setting key");
+      .setDescription("DevOps Platform configuration key. This parameter is optional if you have only one Azure integration.");
 
     action.createParam(PARAM_PROJECT_NAME)
       .setRequired(true)
@@ -136,7 +137,7 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
 
   private CreateWsResponse doHandle(Request request) {
     importHelper.checkProvisionProjectPermission();
-    AlmSettingDto almSettingDto = importHelper.getAlmSetting(request);
+    AlmSettingDto almSettingDto = importHelper.getAlmSettingDtoForAlm(request, ALM.AZURE_DEVOPS);
 
     String newCodeDefinitionType = request.param(PARAM_NEW_CODE_DEFINITION_TYPE);
     String newCodeDefinitionValue = request.param(PARAM_NEW_CODE_DEFINITION_VALUE);

@@ -44,6 +44,7 @@ import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestIndexers;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.permission.PermissionService;
@@ -53,6 +54,7 @@ import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Projects;
 
@@ -60,6 +62,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -266,6 +270,61 @@ public class ImportGitLabProjectActionIT {
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), response.getProject().getKey());
     assertThat(projectDto.orElseThrow().getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_BROWSER);
   }
+
+  @Test
+  public void importProject_whenAlmSettingKeyDoesNotExist_shouldThrow() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+
+    TestRequest request = ws.newRequest()
+      .setParam("almSetting", "unknown")
+      .setParam("gitlabProjectId", "12345");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("DevOps Platform configuration 'unknown' not found.");
+  }
+
+  @Test
+  public void importProject_whenNoAlmSettingKeyAndNoConfig_shouldThrow() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+
+    TestRequest request = ws.newRequest()
+      .setParam("gitlabProjectId", "12345");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("There is no GITLAB configuration for DevOps Platform. Please add one.");
+  }
+
+  @Test
+  public void importProject_whenNoAlmSettingKeyAndMultipleConfigs_shouldThrow() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+
+    db.almSettings().insertGitlabAlmSetting();
+    db.almSettings().insertGitlabAlmSetting();
+
+    TestRequest request = ws.newRequest()
+      .setParam("gitlabProjectId", "12345");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Parameter almSetting is required as there are multiple DevOps Platform configurations.");
+  }
+
+  @Test
+  public void importProject_whenNoAlmSettingKeyAndOnlyOneConfig_shouldImport() {
+    configureUserAndPatAndAlmSettings();
+    mockGitlabProject(emptyList());
+
+    TestRequest request = ws.newRequest()
+      .setParam("gitlabProjectId", "12345");
+
+    assertThatNoException().isThrownBy(request::execute);
+  }
+
 
   private AlmSettingDto configureUserAndPatAndAlmSettings() {
     UserDto user = db.users().insertUser();

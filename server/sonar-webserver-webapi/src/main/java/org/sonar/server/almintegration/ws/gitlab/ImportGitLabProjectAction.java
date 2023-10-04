@@ -25,12 +25,14 @@ import javax.inject.Inject;
 import org.sonar.alm.client.gitlab.GitLabBranch;
 import org.sonar.alm.client.gitlab.GitlabHttpClient;
 import org.sonar.alm.client.gitlab.Project;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.pat.AlmPatDto;
+import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.BranchDto;
@@ -52,6 +54,7 @@ import static java.util.Objects.requireNonNull;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT;
 import static org.sonar.db.project.CreationMethod.getCreationMethod;
+import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
@@ -97,11 +100,13 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
                       "Requires the 'Create Projects' permission")
       .setPost(true)
       .setSince("8.5")
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(
+        new Change("10.3", String.format("Parameter %s becomes optional if you have only one configuration for GitLab", PARAM_ALM_SETTING)));
 
     action.createParam(ImportHelper.PARAM_ALM_SETTING)
-      .setRequired(true)
-      .setDescription("DevOps Platform setting key");
+      .setDescription("DevOps Platform configuration key. This parameter is optional if you have only one GitLab integration.");
+
     action.createParam(PARAM_GITLAB_PROJECT_ID)
       .setRequired(true)
       .setDescription("GitLab project ID");
@@ -128,7 +133,7 @@ public class ImportGitLabProjectAction implements AlmIntegrationsWsAction {
     String newCodeDefinitionValue = request.param(PARAM_NEW_CODE_DEFINITION_VALUE);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      AlmSettingDto almSettingDto = importHelper.getAlmSetting(request);
+      AlmSettingDto almSettingDto = importHelper.getAlmSettingDtoForAlm(request, ALM.GITLAB);
       String pat = getPat(dbSession, almSettingDto);
 
       long gitlabProjectId = request.mandatoryParamAsLong(PARAM_GITLAB_PROJECT_ID);

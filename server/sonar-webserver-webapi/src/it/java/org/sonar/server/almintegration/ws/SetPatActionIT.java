@@ -32,9 +32,11 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
@@ -46,7 +48,9 @@ public class SetPatActionIT {
   @Rule
   public DbTester db = DbTester.create();
 
-  private final WsActionTester ws = new WsActionTester(new SetPatAction(db.getDbClient(), userSession));
+  public ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
+
+  private final WsActionTester ws = new WsActionTester(new SetPatAction(db.getDbClient(), userSession, importHelper));
 
   @Test
   public void set_new_azuredevops_pat() {
@@ -160,21 +164,6 @@ public class SetPatActionIT {
   }
 
   @Test
-  public void fail_when_alm_setting_unknow() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-
-    assertThatThrownBy(() -> {
-      ws.newRequest()
-        .setParam("almSetting", "notExistingKey")
-        .setParam("pat", "12345678987654321")
-        .execute();
-    })
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage("DevOps Platform Setting 'notExistingKey' not found");
-  }
-
-  @Test
   public void set_new_github_pat() {
     UserDto user = db.users().insertUser();
     AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
@@ -209,6 +198,62 @@ public class SetPatActionIT {
   }
 
   @Test
+  public void setPat_whenAlmSettingKeyDoesNotExist_shouldThrow() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+
+    TestRequest request = ws.newRequest()
+      .setParam("almSetting", "unknown")
+      .setParam("pat", "12345678987654321");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("DevOps Platform configuration 'unknown' not found.");
+  }
+
+  @Test
+  public void setPat_whenNoAlmSettingKeyAndNoConfig_shouldThrow() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+
+    TestRequest request = ws.newRequest()
+      .setParam("pat", "12345678987654321");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("There is no configuration for DevOps Platform. Please add one.");
+  }
+
+  @Test
+  public void setPat_whenNoAlmSettingKeyAndMultipleConfigs_shouldThrow() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+
+    db.almSettings().insertAzureAlmSetting();
+    db.almSettings().insertGitHubAlmSetting();
+
+    TestRequest request = ws.newRequest()
+      .setParam("pat", "12345678987654321");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Parameter almSetting is required as there are multiple DevOps Platform configurations.");
+  }
+
+  @Test
+  public void setPat_whenNoAlmSettingKeyAndOnlyOneConfig_shouldImport() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+
+    db.almSettings().insertAzureAlmSetting();
+
+    TestRequest request = ws.newRequest()
+      .setParam("pat", "12345678987654321");
+
+    assertThatNoException().isThrownBy(request::execute);
+  }
+
+  @Test
   public void definition() {
     WebService.Action def = ws.getDef();
 
@@ -216,7 +261,10 @@ public class SetPatActionIT {
     assertThat(def.isPost()).isTrue();
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
-      .containsExactlyInAnyOrder(tuple("almSetting", true), tuple("pat", true), tuple("username", false));
+      .containsExactlyInAnyOrder(
+        tuple("almSetting", false),
+        tuple("pat", true),
+        tuple("username", false));
   }
 
 }

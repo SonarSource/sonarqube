@@ -20,7 +20,9 @@
 package org.sonar.server.almintegration.ws;
 
 import com.google.common.base.Strings;
+import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -33,7 +35,6 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.alm.setting.ALM.BITBUCKET_CLOUD;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
@@ -46,10 +47,12 @@ public class SetPatAction implements AlmIntegrationsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final ImportHelper importHelper;
 
-  public SetPatAction(DbClient dbClient, UserSession userSession) {
+  public SetPatAction(DbClient dbClient, UserSession userSession, ImportHelper importHelper) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.importHelper = importHelper;
   }
 
   @Override
@@ -62,15 +65,17 @@ public class SetPatAction implements AlmIntegrationsWsAction {
       .setHandler(this)
       .setChangelog(
         new Change("9.0", "Bitbucket Cloud support and optional Username parameter were added"),
-        new Change("10.3", "Allow setting Personal Access Tokens for all DevOps platforms"));
+        new Change("10.3", "Allow setting Personal Access Tokens for all DevOps platforms"),
+        new Change("10.3", String.format("Parameter %s becomes optional if you have only one DevOps Platform configuration", PARAM_ALM_SETTING)));
 
     action.createParam(PARAM_ALM_SETTING)
-      .setRequired(true)
-      .setDescription("DevOps Platform setting key");
+      .setDescription("DevOps Platform configuration key. This parameter is optional if you have only one single DevOps Platform integration.");
+
     action.createParam(PARAM_PAT)
       .setRequired(true)
       .setMaximumLength(2000)
       .setDescription("Personal Access Token");
+
     action.createParam(PARAM_USERNAME)
       .setRequired(false)
       .setMaximumLength(2000)
@@ -88,32 +93,56 @@ public class SetPatAction implements AlmIntegrationsWsAction {
       userSession.checkLoggedIn().checkPermission(PROVISION_PROJECTS);
 
       String pat = request.mandatoryParam(PARAM_PAT);
-      String almSettingKey = request.mandatoryParam(PARAM_ALM_SETTING);
       String username = request.param(PARAM_USERNAME);
 
       String userUuid = requireNonNull(userSession.getUuid(), "User UUID cannot be null");
-      AlmSettingDto almSetting = dbClient.almSettingDao().selectByKey(dbSession, almSettingKey)
-        .orElseThrow(() -> new NotFoundException(format("DevOps Platform Setting '%s' not found", almSettingKey)));
+      AlmSettingDto almSettingDto = importHelper.getAlmSettingDto(request);
 
-      if (almSetting.getAlm().equals(BITBUCKET_CLOUD)) {
+      if (almSettingDto.getAlm().equals(BITBUCKET_CLOUD)) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(username), "Username cannot be null for Bitbucket Cloud");
       }
 
-      String resultingPat = CredentialsEncoderHelper.encodeCredentials(almSetting.getAlm(), pat, username);
+      String resultingPat = CredentialsEncoderHelper.encodeCredentials(almSettingDto.getAlm(), pat, username);
 
-      Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSetting);
+      Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto);
       if (almPatDto.isPresent()) {
         AlmPatDto almPat = almPatDto.get();
         almPat.setPersonalAccessToken(resultingPat);
-        dbClient.almPatDao().update(dbSession, almPat, userSession.getLogin(), almSetting.getKey());
+        dbClient.almPatDao().update(dbSession, almPat, userSession.getLogin(), almSettingDto.getKey());
       } else {
         AlmPatDto almPat = new AlmPatDto()
           .setPersonalAccessToken(resultingPat)
-          .setAlmSettingUuid(almSetting.getUuid())
+          .setAlmSettingUuid(almSettingDto.getUuid())
           .setUserUuid(userUuid);
-        dbClient.almPatDao().insert(dbSession, almPat, userSession.getLogin(), almSetting.getKey());
+        dbClient.almPatDao().insert(dbSession, almPat, userSession.getLogin(), almSettingDto.getKey());
       }
       dbSession.commit();
     }
   }
+
+  public AlmSettingDto getAlmConfig(@Nullable String almSettingKey) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      if (almSettingKey != null) {
+        return getAlmSettingDtoFromKey(dbSession, almSettingKey);
+      }
+      return getAlmSettingDtoFromAlm(dbSession);
+    }
+  }
+
+  private AlmSettingDto getAlmSettingDtoFromKey(DbSession dbSession, String almSettingKey) {
+    return dbClient.almSettingDao().selectByKey(dbSession, almSettingKey)
+      .orElseThrow(() -> new NotFoundException(String.format("DevOps Platform configuration '%s' not found.", almSettingKey)));
+  }
+
+  private AlmSettingDto getAlmSettingDtoFromAlm(DbSession dbSession) {
+    List<AlmSettingDto> almSettingDtos = dbClient.almSettingDao().selectAll(dbSession);
+    if (almSettingDtos.isEmpty()) {
+      throw new NotFoundException("There is no configuration for DevOps Platforms. Please add one.");
+    }
+    if (almSettingDtos.size() == 1) {
+      return almSettingDtos.get(0);
+    }
+    throw new IllegalArgumentException(String.format("Parameter %s is required as there are multiple DevOps Platform configurations.", PARAM_ALM_SETTING));
+  }
+
 }

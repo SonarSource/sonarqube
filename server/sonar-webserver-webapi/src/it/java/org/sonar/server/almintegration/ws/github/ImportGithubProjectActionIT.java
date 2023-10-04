@@ -76,6 +76,7 @@ import org.sonarqube.ws.Projects;
 
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -361,6 +362,63 @@ public class ImportGithubProjectActionIT {
     assertThat(projectDto.orElseThrow().getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_BROWSER);
   }
 
+  @Test
+  public void importProject_whenAlmSettingKeyDoesNotExist_shouldThrow() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(GlobalPermission.PROVISION_PROJECTS);
+
+    TestRequest request = ws.newRequest()
+      .setParam(PARAM_ALM_SETTING, "unknown")
+      .setParam(PARAM_ORGANIZATION, "test")
+      .setParam(PARAM_REPOSITORY_KEY, "test/repo");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("DevOps Platform configuration 'unknown' not found.");
+  }
+
+  @Test
+  public void importProject_whenNoAlmSettingKeyAndNoConfig_shouldThrow() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(GlobalPermission.PROVISION_PROJECTS);
+
+    TestRequest request = ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, "test")
+      .setParam(PARAM_REPOSITORY_KEY, "test/repo");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("There is no GITHUB configuration for DevOps Platform. Please add one.");
+  }
+
+  @Test
+  public void importProject_whenNoAlmSettingKeyAndMultipleConfigs_shouldThrow() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(GlobalPermission.PROVISION_PROJECTS);
+    db.almSettings().insertGitHubAlmSetting();
+    db.almSettings().insertGitHubAlmSetting();
+
+    TestRequest request = ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, "test")
+      .setParam(PARAM_REPOSITORY_KEY, "test/repo");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Parameter almSetting is required as there are multiple DevOps Platform configurations.");
+  }
+
+  @Test
+  public void importProject_whenNoAlmSettingKeyAndOnlyOneConfig_shouldImport() {
+    AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
+
+    mockGithubInteractions();
+    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
+
+    TestRequest request = ws.newRequest()
+      .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
+      .setParam(PARAM_ORGANIZATION, "octocat")
+      .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME);
+
+    assertThatNoException().isThrownBy(request::execute);
+  }
+
   private Projects.CreateWsResponse callWebService(AlmSettingDto githubAlmSetting) {
     return ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -396,20 +454,6 @@ public class ImportGithubProjectActionIT {
   }
 
   @Test
-  public void fail_when_almSetting_does_not_exist() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(GlobalPermission.PROVISION_PROJECTS);
-
-    TestRequest request = ws.newRequest()
-      .setParam(PARAM_ALM_SETTING, "unknown")
-      .setParam(PARAM_ORGANIZATION, "test")
-      .setParam(PARAM_REPOSITORY_KEY, "test/repo");
-    assertThatThrownBy(request::execute)
-      .isInstanceOf(NotFoundException.class)
-      .hasMessage("DevOps Platform Setting 'unknown' not found");
-  }
-
-  @Test
   public void fail_when_personal_access_token_doesnt_exist() {
     AlmSettingDto githubAlmSetting = setupUserAndAlmSettings();
 
@@ -431,7 +475,7 @@ public class ImportGithubProjectActionIT {
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple(PARAM_ALM_SETTING, true),
+        tuple(PARAM_ALM_SETTING, false),
         tuple(PARAM_ORGANIZATION, true),
         tuple(PARAM_REPOSITORY_KEY, true),
         tuple(PARAM_NEW_CODE_DEFINITION_TYPE, false),

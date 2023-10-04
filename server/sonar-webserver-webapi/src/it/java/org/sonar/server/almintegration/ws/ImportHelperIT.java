@@ -21,9 +21,11 @@ package org.sonar.server.almintegration.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.impl.ws.SimpleGetRequest;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.ProjectTesting;
 import org.sonar.db.project.ProjectDto;
@@ -33,17 +35,16 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
+import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonarqube.ws.Projects.CreateWsResponse;
 
 public class ImportHelperIT {
 
-  private static final AlmSettingDto ALM_SETTING_WITH_WEBHOOK_SECRET = newGithubAlmSettingDto().setWebhookSecret("webhook_secret");
+  // We use a GitHub ALM just because we have to use one. Tests are not specific to GitHub.
+  private static final ALM GITHUB_ALM = ALM.GITHUB;
   private final System2 system2 = System2.INSTANCE;
   private final ProjectDto projectDto = ProjectTesting.newPublicProjectDto();
-  private final Request request = mock(Request.class);
+  private final Request emptyRequest = new SimpleGetRequest();
 
   @Rule
   public final DbTester db = DbTester.create(system2);
@@ -55,50 +56,73 @@ public class ImportHelperIT {
   private final ImportHelper underTest = new ImportHelper(db.getDbClient(), userSession);
 
   @Test
-  public void it_throws_exception_when_provisioning_project_without_permission() {
-    assertThatThrownBy(() -> underTest.checkProvisionProjectPermission())
+  public void checkProvisionProjectPermission_whenNoPermissions_shouldThrow() {
+    assertThatThrownBy(underTest::checkProvisionProjectPermission)
       .isInstanceOf(UnauthorizedException.class)
       .hasMessage("Authentication is required");
   }
 
   @Test
-  public void it_throws_exception_on_get_alm_setting_when_key_is_empty() {
-    assertThatThrownBy(() -> underTest.getAlmSetting(request))
-      .isInstanceOf(NotFoundException.class);
-  }
-
-  @Test
-  public void it_throws_exception_on_get_alm_setting_when_key_is_not_found() {
-    when(request.mandatoryParam(ImportHelper.PARAM_ALM_SETTING)).thenReturn("key");
-    assertThatThrownBy(() -> underTest.getAlmSetting(request))
+  public void getAlmConfig_whenNoAlmSettingKeyAndNoConfig_shouldThrow() {
+    assertThatThrownBy(() -> underTest.getAlmSettingDtoForAlm(emptyRequest, GITHUB_ALM))
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("DevOps Platform Setting 'key' not found");
+      .hasMessage("There is no GITHUB configuration for DevOps Platform. Please add one.");
   }
 
   @Test
-  public void it_throws_exception_when_user_uuid_is_null() {
-    assertThatThrownBy(() -> underTest.getUserUuid())
+  public void getAlmConfig_whenNoAlmSettingKeyAndOnlyOneConfig_shouldReturnConfig() {
+    AlmSettingDto githubAlmSettingDto = db.almSettings().insertGitHubAlmSetting();
+
+    AlmSettingDto almSettingDto = underTest.getAlmSettingDtoForAlm(emptyRequest, GITHUB_ALM);
+
+    assertThat(almSettingDto).usingRecursiveComparison().isEqualTo(githubAlmSettingDto);
+  }
+
+  @Test
+  public void getAlmConfig_whenNoAlmSettingKeyAndMultipleConfigs_shouldThrow() {
+    db.almSettings().insertGitHubAlmSetting();
+    db.almSettings().insertGitHubAlmSetting();
+
+    assertThatThrownBy(() -> underTest.getAlmSettingDtoForAlm(emptyRequest, GITHUB_ALM))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Parameter almSetting is required as there are multiple DevOps Platform configurations.");
+  }
+
+  @Test
+  public void getAlmConfig_whenAlmSettingKeyProvidedButDoesNotExist_shouldThrow() {
+    Request request = new SimpleGetRequest()
+      .setParam(PARAM_ALM_SETTING, "key");
+
+    assertThatThrownBy(() -> underTest.getAlmSettingDtoForAlm(request, GITHUB_ALM))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("DevOps Platform configuration 'key' not found.");
+  }
+
+  @Test
+  public void getAlmConfig_whenConfigExists_shouldReturnConfig(){
+    AlmSettingDto almSettingDto = db.almSettings().insertAzureAlmSetting();
+    Request request = new SimpleGetRequest()
+      .setParam(PARAM_ALM_SETTING, almSettingDto.getKey());
+
+    AlmSettingDto result = underTest.getAlmSettingDtoForAlm(request, GITHUB_ALM);
+
+    assertThat(result.getUuid()).isEqualTo(almSettingDto.getUuid());
+  }
+
+  @Test
+  public void getUserUuid_whenUserUuidNull_shouldThrow() {
+    assertThatThrownBy(underTest::getUserUuid)
       .isInstanceOf(NullPointerException.class)
-      .hasMessage("User UUID cannot be null");
+      .hasMessage("User UUID cannot be null.");
   }
 
   @Test
-  public void it_returns_create_response() {
+  public void toCreateResponse_shouldReturnProjectResponse() {
     CreateWsResponse response = ImportHelper.toCreateResponse(projectDto);
     CreateWsResponse.Project project = response.getProject();
 
     assertThat(project).extracting(CreateWsResponse.Project::getKey, CreateWsResponse.Project::getName,
         CreateWsResponse.Project::getQualifier)
       .containsExactly(projectDto.getKey(), projectDto.getName(), projectDto.getQualifier());
-  }
-
-  @Test
-  public void getAlmSetting_whenAlmSettingExists_shouldReturnActualAlmSetting(){
-    AlmSettingDto almSettingDto = db.almSettings().insertAzureAlmSetting();
-    when( request.mandatoryParam(ImportHelper.PARAM_ALM_SETTING)).thenReturn(almSettingDto.getKey());
-
-    AlmSettingDto result = underTest.getAlmSetting(request);
-
-    assertThat(result.getUuid()).isEqualTo(almSettingDto.getUuid());
   }
 }
