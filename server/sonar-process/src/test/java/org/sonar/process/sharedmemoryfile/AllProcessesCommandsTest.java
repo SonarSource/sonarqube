@@ -86,19 +86,6 @@ public class AllProcessesCommandsTest {
   }
 
   @Test
-  public void write_and_read_ping() throws IOException {
-    try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
-      int offset = 5;
-
-      assertThat(readLong(commands, offset)).isZero();
-
-      long currentTime = System.currentTimeMillis();
-      commands.ping(PROCESS_NUMBER);
-      assertThat(readLong(commands, offset)).isGreaterThanOrEqualTo(currentTime);
-    }
-  }
-
-  @Test
   public void write_and_read_system_info_url() throws IOException {
     try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
       int offset = 13;

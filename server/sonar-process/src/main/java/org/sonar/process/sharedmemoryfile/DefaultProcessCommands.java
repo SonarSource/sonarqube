@@ -82,16 +82,6 @@ public class DefaultProcessCommands implements ProcessCommands, AutoCloseable {
   }
 
   @Override
-  public void ping() {
-    delegate.ping();
-  }
-
-  @Override
-  public long getLastPing() {
-    return delegate.getLastPing();
-  }
-
-  @Override
   public void setHttpUrl(String s) {
     delegate.setHttpUrl(s);
   }

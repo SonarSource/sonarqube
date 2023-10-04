@@ -236,16 +236,6 @@ public class ProcessEntryPointTest {
     }
 
     @Override
-    public void ping() {
-
-    }
-
-    @Override
-    public long getLastPing() {
-      return 0;
-    }
-
-    @Override
     public void setHttpUrl(String s) {
 
     }

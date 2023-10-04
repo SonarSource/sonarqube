@@ -149,14 +149,6 @@ public class AllProcessesCommands implements AutoCloseable {
     writeByte(processNumber, OPERATIONAL_BYTE_OFFSET, OPERATIONAL);
   }
 
-  void ping(int processNumber) {
-    writeLong(processNumber, PING_BYTE_OFFSET, System.currentTimeMillis());
-  }
-
-  long getLastPing(int processNumber) {
-    return readLong(processNumber, PING_BYTE_OFFSET);
-  }
-
   String getSystemInfoUrl(int processNumber) {
     byte[] urlBytes = readBytes(processNumber, SYSTEM_INFO_URL_BYTE_OFFSET, SYSTEM_INFO_URL_SIZE_IN_BYTES);
     return new String(urlBytes, StandardCharsets.US_ASCII).trim();
@@ -284,16 +276,6 @@ public class AllProcessesCommands implements AutoCloseable {
     @Override
     public void setOperational() {
       AllProcessesCommands.this.setOperational(processNumber);
-    }
-
-    @Override
-    public void ping() {
-      AllProcessesCommands.this.ping(processNumber);
-    }
-
-    @Override
-    public long getLastPing() {
-      return AllProcessesCommands.this.getLastPing(processNumber);
     }
 
     @Override

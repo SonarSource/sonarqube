@@ -51,10 +51,6 @@ public interface ProcessCommands {
    */
   void setOperational();
 
-  void ping();
-
-  long getLastPing();
-
   void setHttpUrl(String s);
 
   String getHttpUrl();
