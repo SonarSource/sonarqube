@@ -38,6 +38,7 @@ public class SafeModeUserSessionTest {
     assertThat(underTest.getName()).isNull();
     assertThat(underTest.getGroups()).isEmpty();
     assertThat(underTest.isActive()).isFalse();
+    assertThat(underTest.isAuthenticatedBrowserSession()).isFalse();
   }
 
   @Test

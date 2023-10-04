@@ -59,7 +59,7 @@ public class LoadProjectStepIT {
       "qualifier", Qualifiers.APP,
       "uuid", "not_used",
       "private", false,
-      "creation_method", CreationMethod.LOCAL.name(),
+      "creation_method", CreationMethod.LOCAL_API.name(),
       "created_at", 1L,
       "updated_at", 1L);
 

@@ -32,10 +32,9 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCreationData;
-import org.sonar.server.component.ComponentUpdater;
-import org.sonar.db.project.CreationMethod;
-import org.sonar.server.component.NewComponent;
 import org.sonar.server.component.ComponentCreationParameters;
+import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.component.NewComponent;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -49,6 +48,8 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
 import static org.sonar.db.component.ComponentValidator.MAX_COMPONENT_NAME_LENGTH;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
+import static org.sonar.db.project.CreationMethod.Category.LOCAL;
+import static org.sonar.db.project.CreationMethod.getCreationMethod;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
@@ -169,10 +170,9 @@ public class CreateAction implements ProjectsWsAction {
       .userUuid(userSession.getUuid())
       .userLogin(userSession.getLogin())
       .mainBranchName(request.getMainBranchKey())
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(getCreationMethod(LOCAL, userSession.isAuthenticatedBrowserSession()))
       .build();
     return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);
-
   }
 
   private static CreateRequest toCreateRequest(Request request) {

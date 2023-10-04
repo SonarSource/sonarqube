@@ -269,7 +269,7 @@ public class ComponentTesting {
   }
 
   public static ProjectDto newProjectDto() {
-    return newProjectDto("uuid").setPrivate(true).setCreationMethod(CreationMethod.LOCAL);
+    return newProjectDto("uuid").setPrivate(true).setCreationMethod(CreationMethod.LOCAL_API);
   }
 
   public static ProjectDto newProjectDto(String projectUuid) {
@@ -277,7 +277,7 @@ public class ComponentTesting {
       .setKey("projectKey")
       .setUuid(projectUuid)
       .setName("projectName")
-      .setCreationMethod(CreationMethod.LOCAL)
+      .setCreationMethod(CreationMethod.LOCAL_API)
       .setQualifier(Qualifiers.PROJECT);
   }
 
@@ -286,7 +286,7 @@ public class ComponentTesting {
       .setKey("appKey")
       .setUuid("uuid")
       .setName("appName")
-      .setCreationMethod(CreationMethod.LOCAL)
+      .setCreationMethod(CreationMethod.LOCAL_API)
       .setQualifier(Qualifiers.APP);
   }
 

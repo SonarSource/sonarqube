@@ -48,7 +48,7 @@ public class ProjectTesting {
       .setName("NAME_" + uuid)
       .setDescription("DESCRIPTION_" + uuid)
       .setQualifier(Qualifiers.PROJECT)
-      .setCreationMethod(CreationMethod.LOCAL)
+      .setCreationMethod(CreationMethod.LOCAL_API)
       .setPrivate(isPrivate);
   }
 

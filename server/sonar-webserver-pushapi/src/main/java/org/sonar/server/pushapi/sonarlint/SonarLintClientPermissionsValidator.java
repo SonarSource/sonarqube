@@ -59,7 +59,7 @@ public class SonarLintClientPermissionsValidator {
     if (userDto == null) {
       throw new ForbiddenException("User does not exist");
     }
-    UserSession userSession = userSessionFactory.create(userDto);
+    UserSession userSession = userSessionFactory.create(userDto, false);
     List<ProjectDto> projectDtos;
     try (DbSession dbSession = dbClient.openSession(false)) {
       projectDtos = dbClient.projectDao().selectByUuids(dbSession, projectUuids);

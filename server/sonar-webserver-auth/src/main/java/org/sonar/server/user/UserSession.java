@@ -227,4 +227,6 @@ public interface UserSession {
   UserSession checkIsSystemAdministrator();
 
   boolean isActive();
+
+  boolean isAuthenticatedBrowserSession();
 }

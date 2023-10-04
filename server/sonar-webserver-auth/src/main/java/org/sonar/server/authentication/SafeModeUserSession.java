@@ -108,4 +108,9 @@ public class SafeModeUserSession extends AbstractUserSession {
   public boolean isActive() {
     return false;
   }
+
+  @Override
+  public boolean isAuthenticatedBrowserSession() {
+    return false;
+  }
 }

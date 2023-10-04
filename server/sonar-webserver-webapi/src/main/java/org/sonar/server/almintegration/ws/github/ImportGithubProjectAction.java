@@ -43,9 +43,9 @@ import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
+import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
-import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
@@ -56,10 +56,11 @@ import org.sonarqube.ws.Projects;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT;
+import static org.sonar.db.project.CreationMethod.getCreationMethod;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.ImportHelper.toCreateResponse;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
-import static org.sonar.db.project.CreationMethod.ALM_IMPORT_API;
 import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_VALUE_DESCRIPTION_PROJECT_CREATION;
 import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.checkNewCodeDefinitionParam;
@@ -211,7 +212,7 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       .userUuid(userSession.getUuid())
       .mainBranchName(mainBranchName)
       .isManaged(gitHubSettings.isProvisioningEnabled())
-      .creationMethod(ALM_IMPORT_API)
+      .creationMethod(getCreationMethod(ALM_IMPORT, userSession.isAuthenticatedBrowserSession()))
       .build();
     return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);
   }

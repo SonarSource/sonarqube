@@ -19,10 +19,39 @@
  */
 package org.sonar.db.project;
 
+import java.util.Arrays;
+
 public enum CreationMethod {
-  UNKNOWN,
-  LOCAL,
-  ALM_IMPORT_API,
-  ALM_IMPORT_UI,
-  SCANNER
+  UNKNOWN(Category.UNKNOWN, false),
+  LOCAL_API(Category.LOCAL, false),
+  LOCAL_BROWSER(Category.LOCAL, true),
+  ALM_IMPORT_API(Category.ALM_IMPORT, false),
+  ALM_IMPORT_BROWSER(Category.ALM_IMPORT, true),
+  SCANNER_API(Category.SCANNER, false);
+
+  private final boolean isCreatedViaBrowser;
+  private final Category category;
+
+  CreationMethod(Category category, boolean isCreatedViaBrowser) {
+    this.isCreatedViaBrowser = isCreatedViaBrowser;
+    this.category = category;
+  }
+
+  public static CreationMethod getCreationMethod(Category category, boolean isBrowserCall) {
+    return Arrays.stream(CreationMethod.values())
+      .filter(creationMethod -> creationMethod.getCategory().equals(category))
+      .filter(creationMethod -> creationMethod.isCreatedViaBrowser() == isBrowserCall)
+      .findAny()
+      .orElse(UNKNOWN);
+  }
+
+  private boolean isCreatedViaBrowser() {
+    return isCreatedViaBrowser;
+  }
+
+  private Category getCategory() {
+    return category;
+  }
+
+  public enum Category {UNKNOWN, LOCAL, ALM_IMPORT, SCANNER}
 }

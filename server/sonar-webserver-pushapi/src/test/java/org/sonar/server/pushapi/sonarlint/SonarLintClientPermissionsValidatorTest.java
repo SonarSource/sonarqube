@@ -35,6 +35,7 @@ import org.sonar.server.user.UserSessionFactory;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,7 +57,7 @@ public class SonarLintClientPermissionsValidatorTest {
   public void before() {
     when(dbClient.userDao()).thenReturn(userDao);
     when(dbClient.projectDao()).thenReturn(projectDao);
-    when(userSessionFactory.create(any())).thenReturn(userSession);
+    when(userSessionFactory.create(any(), eq(false))).thenReturn(userSession);
     when(projectDao.selectProjectsByKeys(any(), any())).thenReturn(projectDtos);
     when(projectDao.selectByUuids(any(), any())).thenReturn(projectDtos);
   }

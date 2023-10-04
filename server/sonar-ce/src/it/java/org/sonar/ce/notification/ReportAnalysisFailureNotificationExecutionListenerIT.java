@@ -146,7 +146,7 @@ public class ReportAnalysisFailureNotificationExecutionListenerIT {
   @Test
   public void onEnd_fails_with_ISE_if_branch_does_not_exist_in_DB() {
     String componentUuid = randomAlphanumeric(6);
-    ProjectDto project = new ProjectDto().setUuid(componentUuid).setKey(randomAlphanumeric(5)).setQualifier(Qualifiers.PROJECT).setCreationMethod(CreationMethod.LOCAL);
+    ProjectDto project = new ProjectDto().setUuid(componentUuid).setKey(randomAlphanumeric(5)).setQualifier(Qualifiers.PROJECT).setCreationMethod(CreationMethod.LOCAL_API);
     dbTester.getDbClient().projectDao().insert(dbTester.getSession(), project);
     dbTester.getSession().commit();
     when(ceTaskMock.getType()).thenReturn(CeTaskTypes.REPORT);

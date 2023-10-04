@@ -169,6 +169,11 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
+  public boolean isAuthenticatedBrowserSession() {
+    return get().isAuthenticatedBrowserSession();
+  }
+
+  @Override
   public boolean hasComponentPermission(String permission, ComponentDto component) {
     return get().hasComponentPermission(permission, component);
   }

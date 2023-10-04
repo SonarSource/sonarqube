@@ -127,17 +127,9 @@ public class ImportBitbucketServerProjectActionIT {
 
   @Test
   public void import_project() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setUserUuid(user.getUuid());
-    });
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
     Project project = getGsonBBSProject();
-    Repository repo = getGsonBBSRepo(project);
-    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
-    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(defaultBranchesList);
+    Repository repo = mockBitbucketServerRepo(project);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -149,29 +141,53 @@ public class ImportBitbucketServerProjectActionIT {
     assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
     assertThat(result.getName()).isEqualTo(repo.getName());
 
-    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
-    assertThat(projectDto).isPresent();
-    assertThat(projectDto.orElseThrow().getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
+    ProjectDto projectDto = getProjectDto(result);
+    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
 
-    assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
+    assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto)).isPresent();
     verify(projectKeyGenerator).generateUniqueProjectKey(requireNonNull(project.getKey()), repo.getSlug());
+  }
+
+  @Test
+  public void importProject_whenCallIsNotFromBrowser_shouldFlagTheProjectAsCreatedFromApi() {
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
+    Project project = getGsonBBSProject();
+    mockBitbucketServerRepo(project);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectKey", "projectKey")
+      .setParam("repositorySlug", "repo-slug")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    ProjectDto projectDto = getProjectDto(response.getProject());
+    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
+  }
+
+  @Test
+  public void importProject_whenCallIsFromBrowser_shouldFlagTheProjectAsCreatedFromBrowser() {
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
+    userSession.flagSessionAsGui();
+    Project project = getGsonBBSProject();
+    mockBitbucketServerRepo(project);
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectKey", "projectKey")
+      .setParam("repositorySlug", "repo-slug")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    ProjectDto projectDto = getProjectDto(response.getProject());
+    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_BROWSER);
   }
 
   @Test
   public void import_project_with_NCD_developer_edition_sets_project_NCD() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
 
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setUserUuid(user.getUuid());
-    });
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
     Project project = getGsonBBSProject();
-    Repository repo = getGsonBBSRepo(project);
-    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
-    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(defaultBranchesList);
+    Repository repo = mockBitbucketServerRepo(project);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -185,12 +201,11 @@ public class ImportBitbucketServerProjectActionIT {
     assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
     assertThat(result.getName()).isEqualTo(repo.getName());
 
-    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
-    assertThat(projectDto).isPresent();
-    assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
+    ProjectDto projectDto = getProjectDto(result);
+    assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto)).isPresent();
     verify(projectKeyGenerator).generateUniqueProjectKey(requireNonNull(project.getKey()), repo.getSlug());
 
-    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(),  projectDto.get().getUuid()))
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.getUuid()))
       .isPresent()
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
@@ -201,17 +216,9 @@ public class ImportBitbucketServerProjectActionIT {
   public void import_project_with_NCD_community_edition_sets_branch_NCD() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
 
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setUserUuid(user.getUuid());
-    });
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
     Project project = getGsonBBSProject();
-    Repository repo = getGsonBBSRepo(project);
-    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
-    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(defaultBranchesList);
+    mockBitbucketServerRepo(project);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -223,12 +230,10 @@ public class ImportBitbucketServerProjectActionIT {
 
     Projects.CreateWsResponse.Project result = response.getProject();
 
-    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
-    assertThat(projectDto).isPresent();
-    BranchDto branchDto = db.getDbClient().branchDao().selectMainBranchByProjectUuid(db.getSession(), projectDto.get().getUuid()).orElseThrow();
+    ProjectDto projectDto = getProjectDto(result);
+    BranchDto branchDto = db.getDbClient().branchDao().selectMainBranchByProjectUuid(db.getSession(), projectDto.getUuid()).orElseThrow();
 
-
-    String projectUuid = projectDto.get().getUuid();
+    String projectUuid = projectDto.getUuid();
     assertThat(db.getDbClient().newCodePeriodDao().selectByBranch(db.getSession(), projectUuid, branchDto.getUuid()))
       .isPresent()
       .get()
@@ -241,17 +246,9 @@ public class ImportBitbucketServerProjectActionIT {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
     when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn("default-branch");
 
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setUserUuid(user.getUuid());
-    });
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
     Project project = getGsonBBSProject();
-    Repository repo = getGsonBBSRepo(project);
-    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
-    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(new BranchesList());
+    mockBitbucketServerRepo(project, new BranchesList());
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -262,11 +259,9 @@ public class ImportBitbucketServerProjectActionIT {
 
     Projects.CreateWsResponse.Project result = response.getProject();
 
-    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
-    assertThat(projectDto).isPresent();
+    ProjectDto projectDto = getProjectDto(result);
 
-
-    String projectUuid = projectDto.get().getUuid();
+    String projectUuid = projectDto.getUuid();
     assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectUuid))
       .isPresent()
       .get()
@@ -278,17 +273,9 @@ public class ImportBitbucketServerProjectActionIT {
   public void import_project_reference_branch_ncd() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
 
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setUserUuid(user.getUuid());
-    });
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
     Project project = getGsonBBSProject();
-    Repository repo = getGsonBBSRepo(project);
-    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
-    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(defaultBranchesList);
+    mockBitbucketServerRepo(project);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -299,10 +286,9 @@ public class ImportBitbucketServerProjectActionIT {
 
     Projects.CreateWsResponse.Project result = response.getProject();
 
-    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
-    assertThat(projectDto).isPresent();
+    ProjectDto projectDto = getProjectDto(result);
 
-    String projectUuid = projectDto.get().getUuid();
+    String projectUuid = projectDto.getUuid();
     assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectUuid))
       .isPresent()
       .get()
@@ -312,20 +298,12 @@ public class ImportBitbucketServerProjectActionIT {
 
   @Test
   public void fail_project_already_exist() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setUserUuid(user.getUuid());
-    });
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
     Project project = getGsonBBSProject();
-    Repository repo = getGsonBBSRepo(project);
+    mockBitbucketServerRepo(project);
     db.components().insertPublicProject(p -> p.setKey(GENERATED_PROJECT_KEY)).getMainBranchComponent();
 
     assertThatThrownBy(() -> {
-      when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
-      when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(defaultBranchesList);
 
       ws.newRequest()
         .setParam("almSetting", almSetting.getKey())
@@ -416,17 +394,9 @@ public class ImportBitbucketServerProjectActionIT {
     Branch branch = new Branch("not_a_master", false);
     branchesList.addBranch(branch);
 
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setUserUuid(user.getUuid());
-    });
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
     Project project = getGsonBBSProject();
-    Repository repo = getGsonBBSRepo(project);
-    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
-    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(branchesList);
+    mockBitbucketServerRepo(project, branchesList);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -436,9 +406,8 @@ public class ImportBitbucketServerProjectActionIT {
 
     Projects.CreateWsResponse.Project result = response.getProject();
 
-    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
-
-    Collection<BranchDto> branchDtos = db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get());
+    ProjectDto projectDto = getProjectDto(result);
+    Collection<BranchDto> branchDtos = db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto);
     List<BranchDto> collect = branchDtos.stream().filter(BranchDto::isMain).toList();
     String mainBranchName = collect.iterator().next().getKey();
     assertThat(mainBranchName).isEqualTo(DEFAULT_MAIN_BRANCH_NAME);
@@ -450,17 +419,9 @@ public class ImportBitbucketServerProjectActionIT {
     Branch branch = new Branch("default", true);
     branchesList.addBranch(branch);
 
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setUserUuid(user.getUuid());
-    });
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
     Project project = getGsonBBSProject();
-    Repository repo = getGsonBBSRepo(project);
-    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(repo);
-    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(branchesList);
+    mockBitbucketServerRepo(project, branchesList);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -470,9 +431,8 @@ public class ImportBitbucketServerProjectActionIT {
 
     Projects.CreateWsResponse.Project result = response.getProject();
 
-    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
-
-    Collection<BranchDto> branchDtos = db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto.get());
+    ProjectDto projectDto = getProjectDto(result);
+    Collection<BranchDto> branchDtos = db.getDbClient().branchDao().selectByProject(db.getSession(), projectDto);
     List<BranchDto> collect = branchDtos.stream().filter(BranchDto::isMain).toList();
     String mainBranchName = collect.iterator().next().getKey();
     assertThat(mainBranchName).isEqualTo("default");
@@ -494,12 +454,29 @@ public class ImportBitbucketServerProjectActionIT {
         tuple(PARAM_NEW_CODE_DEFINITION_VALUE, false));
   }
 
-  private Repository getGsonBBSRepo(Project project) {
+  private AlmSettingDto configureUserAndPatAndAlmSettings() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertGitHubAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setUserUuid(user.getUuid());
+    });
+    return almSetting;
+  }
+
+  private Repository mockBitbucketServerRepo(Project project) {
+    return mockBitbucketServerRepo(project, defaultBranchesList);
+  }
+
+  private Repository mockBitbucketServerRepo(Project project, BranchesList branchesList) {
     Repository bbsResult = new Repository();
     bbsResult.setProject(project);
     bbsResult.setSlug(randomAlphanumeric(5));
     bbsResult.setName(randomAlphanumeric(5));
     bbsResult.setId(nextLong(100));
+    when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(bbsResult);
+    when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(branchesList);
     return bbsResult;
   }
 
@@ -508,6 +485,12 @@ public class ImportBitbucketServerProjectActionIT {
       .setKey(randomAlphanumeric(5))
       .setId(nextLong(100))
       .setName(randomAlphanumeric(5));
+  }
+
+  private ProjectDto getProjectDto(Projects.CreateWsResponse.Project result) {
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+    return projectDto.orElseThrow();
   }
 
 }

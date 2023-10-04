@@ -38,10 +38,9 @@ import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
-import org.sonar.server.component.ComponentUpdater;
-import org.sonar.db.project.CreationMethod;
-import org.sonar.server.component.NewComponent;
 import org.sonar.server.component.ComponentCreationParameters;
+import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.component.NewComponent;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -50,6 +49,8 @@ import org.sonarqube.ws.Projects.CreateWsResponse;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT;
+import static org.sonar.db.project.CreationMethod.getCreationMethod;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.ImportHelper.toCreateResponse;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
@@ -95,8 +96,8 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("import_azure_project")
       .setDescription("Create a SonarQube project with the information from the provided Azure DevOps project.<br/>" +
-                      "Autoconfigure pull request decoration mechanism.<br/>" +
-                      "Requires the 'Create Projects' permission")
+        "Autoconfigure pull request decoration mechanism.<br/>" +
+        "Requires the 'Create Projects' permission")
       .setPost(true)
       .setSince("8.6")
       .setHandler(this)
@@ -190,7 +191,7 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
       .userUuid(userSession.getUuid())
       .userLogin(userSession.getLogin())
       .mainBranchName(repo.getDefaultBranchName())
-      .creationMethod(CreationMethod.ALM_IMPORT_API)
+      .creationMethod(getCreationMethod(ALM_IMPORT, userSession.isAuthenticatedBrowserSession()))
       .build();
     return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);
   }

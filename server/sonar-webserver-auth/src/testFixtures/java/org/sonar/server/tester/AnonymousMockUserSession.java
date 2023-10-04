@@ -36,6 +36,11 @@ public class AnonymousMockUserSession extends AbstractMockUserSession<AnonymousM
   }
 
   @Override
+  public boolean isAuthenticatedBrowserSession() {
+    return false;
+  }
+
+  @Override
   public String getLogin() {
     return null;
   }
@@ -68,5 +73,10 @@ public class AnonymousMockUserSession extends AbstractMockUserSession<AnonymousM
   @Override
   public Optional<ExternalIdentity> getExternalIdentity() {
     return Optional.empty();
+  }
+
+  @Override
+  public void flagAsBrowserSession() {
+    throw new UnsupportedOperationException("An anonymous session can't be authenticated");
   }
 }

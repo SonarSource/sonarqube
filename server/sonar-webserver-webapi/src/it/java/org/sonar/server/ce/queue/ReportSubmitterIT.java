@@ -175,7 +175,7 @@ public class ReportSubmitterIT {
     verify(queue).submit(argThat(submit -> submit.getType().equals(CeTaskTypes.REPORT)
       && submit.getComponent().filter(cpt -> cpt.getUuid().equals(createdProject.uuid()) && cpt.getEntityUuid().equals(projectDto.getUuid())).isPresent()
       && submit.getUuid().equals(TASK_UUID)));
-    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.SCANNER);
+    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.SCANNER_API);
   }
 
   @Test

@@ -99,7 +99,7 @@ public class BaseContextFactory {
           .setSource(Source.external(identityProvider))
           .build());
       jwtHttpHandler.generateToken(userDto, request, response);
-      threadLocalUserSession.set(userSessionFactory.create(userDto));
+      threadLocalUserSession.set(userSessionFactory.create(userDto, true));
     }
   }
 }

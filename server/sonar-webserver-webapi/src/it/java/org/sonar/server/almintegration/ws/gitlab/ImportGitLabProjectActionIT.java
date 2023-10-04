@@ -111,9 +111,7 @@ public class ImportGitLabProjectActionIT {
   public void import_project_developer_edition() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
 
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = insertGitLabConfigurationAndPat(user);
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
     Project project = mockGitlabProject(singletonList(new GitLabBranch("master", true)));
 
     Projects.CreateWsResponse response = ws.newRequest()
@@ -144,9 +142,7 @@ public class ImportGitLabProjectActionIT {
   public void import_project_community_edition() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
 
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = insertGitLabConfigurationAndPat(user);
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
     mockGitlabProject(singletonList(new GitLabBranch("master", true)));
 
     Projects.CreateWsResponse response = ws.newRequest()
@@ -167,17 +163,11 @@ public class ImportGitLabProjectActionIT {
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
       .containsExactly(NUMBER_OF_DAYS, "30", branchDto.getUuid());
-
-    assertThat(projectDto.orElseThrow().getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
   }
-
-
 
   @Test
   public void import_project_with_specific_different_default_branch() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = insertGitLabConfigurationAndPat(user);
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
     Project project = mockGitlabProject(singletonList(new GitLabBranch("main", true)));
 
     Projects.CreateWsResponse response = ws.newRequest()
@@ -203,9 +193,7 @@ public class ImportGitLabProjectActionIT {
 
   @Test
   public void import_project_no_gitlab_default_branch() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = insertGitLabConfigurationAndPat(user);
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
     Project project = mockGitlabProject(emptyList());
 
     Projects.CreateWsResponse response = ws.newRequest()
@@ -231,9 +219,7 @@ public class ImportGitLabProjectActionIT {
 
   @Test
   public void import_project_without_NCD() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = insertGitLabConfigurationAndPat(user);
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
     Project project = mockGitlabProject(singletonList(new GitLabBranch("master", true)));
 
     Projects.CreateWsResponse response = ws.newRequest()
@@ -253,10 +239,8 @@ public class ImportGitLabProjectActionIT {
   }
 
   @Test
-  public void import_project_setsCreationMethod() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = insertGitLabConfigurationAndPat(user);
+  public void importProject_whenNonBrowserCall_setsCreationMethodToApi() {
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
     mockGitlabProject(singletonList(new GitLabBranch("master", true)));
 
     Projects.CreateWsResponse response = ws.newRequest()
@@ -266,6 +250,27 @@ public class ImportGitLabProjectActionIT {
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), response.getProject().getKey());
     assertThat(projectDto.orElseThrow().getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
+  }
+
+  @Test
+  public void importProject_whenBrowserCall_setsCreationMethodToBrowser() {
+    AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
+    userSession.flagSessionAsGui();
+    mockGitlabProject(singletonList(new GitLabBranch("master", true)));
+
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("gitlabProjectId", "12345")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), response.getProject().getKey());
+    assertThat(projectDto.orElseThrow().getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_BROWSER);
+  }
+
+  private AlmSettingDto configureUserAndPatAndAlmSettings() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    return insertGitLabConfigurationAndPat(user);
   }
 
   private AlmSettingDto insertGitLabConfigurationAndPat(UserDto user) {

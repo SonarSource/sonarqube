@@ -42,7 +42,7 @@ public class TestUserSessionFactory implements UserSessionFactory {
   }
 
   @Override
-  public UserSession create(UserDto user) {
+  public UserSession create(UserDto user, boolean isAuthenticatedGuiSession) {
     return new TestUserSession(requireNonNull(user));
   }
 
@@ -143,6 +143,11 @@ public class TestUserSessionFactory implements UserSessionFactory {
     @Override
     public boolean isActive() {
       throw notImplemented();
+    }
+
+    @Override
+    public boolean isAuthenticatedBrowserSession() {
+      return false;
     }
 
     private static RuntimeException notImplemented() {

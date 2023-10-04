@@ -63,6 +63,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Projects;
 
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -119,42 +120,22 @@ public class ImportAzureProjectActionIT {
 
   @Test
   public void import_project() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
-      dto.setUserUuid(user.getUuid());
-    });
-    GsonAzureRepo repo = getGsonAzureRepo();
-    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
-      "project-name", "repo-name"))
-      .thenReturn(repo);
+    AlmSettingDto almSetting = configureUserAndAlmSettings();
+    GsonAzureRepo repo = mockAzureInteractions(almSetting);
 
-    Projects.CreateWsResponse response = ws.newRequest()
-      .setParam("almSetting", almSetting.getKey())
-      .setParam("projectName", "project-name")
-      .setParam("repositoryName", "repo-name")
-      .executeProtobuf(Projects.CreateWsResponse.class);
+    Projects.CreateWsResponse.Project result = callWebserviceAndEnsureProjectIsCreated(almSetting, repo);
 
-    Projects.CreateWsResponse.Project result = response.getProject();
-    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
-    assertThat(result.getName()).isEqualTo(repo.getName());
+    ProjectDto projectDto = getProjectDto(result);
 
-    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
-    assertThat(projectDto).isPresent();
-    assertThat(projectDto.orElseThrow().getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
+    Optional<ProjectAlmSettingDto> projectAlmSettingDto = db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(),      projectDto);
 
-    Optional<ProjectAlmSettingDto> projectAlmSettingDto = db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(),
-      projectDto.get());
     assertThat(projectAlmSettingDto.get().getAlmRepo()).isEqualTo("repo-name");
     assertThat(projectAlmSettingDto.get().getAlmSettingUuid()).isEqualTo(almSetting.getUuid());
     assertThat(projectAlmSettingDto.get().getAlmSlug()).isEqualTo("project-name");
 
     Optional<BranchDto> mainBranch = db.getDbClient()
       .branchDao()
-      .selectByProject(db.getSession(), projectDto.get())
+      .selectByProject(db.getSession(), projectDto)
       .stream()
       .filter(BranchDto::isMain)
       .findFirst();
@@ -165,21 +146,46 @@ public class ImportAzureProjectActionIT {
   }
 
   @Test
+  public void importProject_whenCallIsNotFromBrowser_shouldFlagTheProjectAsCreatedFromApi() {
+    AlmSettingDto almSetting = configureUserAndAlmSettings();
+    GsonAzureRepo repo = mockAzureInteractions(almSetting);
+
+    Projects.CreateWsResponse.Project result = callWebserviceAndEnsureProjectIsCreated(almSetting, repo);
+
+    assertThat(getProjectDto(result).getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
+  }
+
+  @Test
+  public void importProject_whenCallIsFromBrowser_shouldFlagTheProjectAsCreatedFromBrowser() {
+    AlmSettingDto almSetting = configureUserAndAlmSettings();
+    userSession.flagSessionAsGui();
+
+    GsonAzureRepo repo = mockAzureInteractions(almSetting);
+
+    Projects.CreateWsResponse.Project result = callWebserviceAndEnsureProjectIsCreated(almSetting, repo);
+
+    assertThat(getProjectDto(result).getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_BROWSER);
+  }
+
+  private Projects.CreateWsResponse.Project callWebserviceAndEnsureProjectIsCreated(AlmSettingDto almSetting, GsonAzureRepo repo) {
+    Projects.CreateWsResponse response = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("projectName", "project-name")
+      .setParam("repositoryName", "repo-name")
+      .executeProtobuf(Projects.CreateWsResponse.class);
+
+    Projects.CreateWsResponse.Project result = response.getProject();
+    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
+    assertThat(result.getName()).isEqualTo(repo.getName());
+    return result;
+  }
+
+  @Test
   public void import_project_with_NCD_developer_edition() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
 
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
-      dto.setUserUuid(user.getUuid());
-    });
-    GsonAzureRepo repo = getGsonAzureRepo();
-    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
-      "project-name", "repo-name"))
-      .thenReturn(repo);
+    AlmSettingDto almSetting = configureUserAndAlmSettings();
+    mockAzureInteractions(almSetting);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -191,10 +197,8 @@ public class ImportAzureProjectActionIT {
 
     Projects.CreateWsResponse.Project result = response.getProject();
 
-    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
-    assertThat(projectDto).isPresent();
-
-    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.get().getUuid()))
+    ProjectDto projectDto = getProjectDto(result);
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.getUuid()))
       .isPresent()
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
@@ -205,18 +209,8 @@ public class ImportAzureProjectActionIT {
   public void import_project_with_NCD_community_edition() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
 
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
-      dto.setUserUuid(user.getUuid());
-    });
-    GsonAzureRepo repo = getGsonAzureRepo();
-    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
-      "project-name", "repo-name"))
-      .thenReturn(repo);
+    AlmSettingDto almSetting = configureUserAndAlmSettings();
+    mockAzureInteractions(almSetting);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -244,18 +238,8 @@ public class ImportAzureProjectActionIT {
   public void import_project_throw_IAE_when_newCodeDefinitionValue_provided_and_no_newCodeDefinitionType() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
 
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
-      dto.setUserUuid(user.getUuid());
-    });
-    GsonAzureRepo repo = getGsonAzureRepo();
-    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
-      "project-name", "repo-name"))
-      .thenReturn(repo);
+    AlmSettingDto almSetting = configureUserAndAlmSettings();
+    mockAzureInteractions(almSetting);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -267,10 +251,8 @@ public class ImportAzureProjectActionIT {
 
     Projects.CreateWsResponse.Project result = response.getProject();
 
-    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
-    assertThat(projectDto).isPresent();
-
-    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.get().getUuid()))
+    ProjectDto projectDto = getProjectDto(result);
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.getUuid()))
       .isPresent()
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
@@ -281,14 +263,7 @@ public class ImportAzureProjectActionIT {
   public void import_project_reference_branch_ncd_no_default_branch_name() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
 
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
-      dto.setUserUuid(user.getUuid());
-    });
+    AlmSettingDto almSetting = configureUserAndAlmSettings();
     GsonAzureRepo repo = getEmptyGsonAzureRepo();
     when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
       "project-name", "repo-name"))
@@ -303,10 +278,8 @@ public class ImportAzureProjectActionIT {
 
     Projects.CreateWsResponse.Project result = response.getProject();
 
-    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
-    assertThat(projectDto).isPresent();
-
-    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.get().getUuid()))
+    ProjectDto  projectDto = getProjectDto(result);
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.getUuid()))
       .isPresent()
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
@@ -317,18 +290,8 @@ public class ImportAzureProjectActionIT {
   public void import_project_reference_branch_ncd() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
 
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
-      dto.setUserUuid(user.getUuid());
-    });
-    GsonAzureRepo repo = getGsonAzureRepo();
-    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
-      "project-name", "repo-name"))
-      .thenReturn(repo);
+    AlmSettingDto almSetting = configureUserAndAlmSettings();
+    mockAzureInteractions(almSetting);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -339,10 +302,8 @@ public class ImportAzureProjectActionIT {
 
     Projects.CreateWsResponse.Project result = response.getProject();
 
-    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
-    assertThat(projectDto).isPresent();
-
-    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.get().getUuid()))
+    ProjectDto projectDto = getProjectDto(result);
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.getUuid()))
       .isPresent()
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
@@ -351,14 +312,7 @@ public class ImportAzureProjectActionIT {
 
   @Test
   public void import_project_from_empty_repo() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
-      dto.setUserUuid(user.getUuid());
-    });
+    AlmSettingDto almSetting = configureUserAndAlmSettings();
     GsonAzureRepo repo = getEmptyGsonAzureRepo();
     when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
       "project-name", "repo-name"))
@@ -434,14 +388,7 @@ public class ImportAzureProjectActionIT {
 
   @Test
   public void fail_project_already_exists() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setPersonalAccessToken(almSetting.getDecryptedPersonalAccessToken(encryption));
-      dto.setUserUuid(user.getUuid());
-    });
+    AlmSettingDto almSetting = configureUserAndAlmSettings();
     GsonAzureRepo repo = getGsonAzureRepo();
     db.components().insertPublicProject(p -> p.setKey(GENERATED_PROJECT_KEY)).getMainBranchComponent();
 
@@ -472,6 +419,32 @@ public class ImportAzureProjectActionIT {
         tuple("repositoryName", true),
         tuple(PARAM_NEW_CODE_DEFINITION_TYPE, false),
         tuple(PARAM_NEW_CODE_DEFINITION_VALUE, false));
+  }
+
+  private AlmSettingDto configureUserAndAlmSettings() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
+    db.almPats().insert(dto -> {
+      dto.setAlmSettingUuid(almSetting.getUuid());
+      dto.setPersonalAccessToken(requireNonNull(almSetting.getDecryptedPersonalAccessToken(encryption)));
+      dto.setUserUuid(user.getUuid());
+    });
+    return almSetting;
+  }
+
+  private GsonAzureRepo mockAzureInteractions(AlmSettingDto almSetting) {
+    GsonAzureRepo repo = getGsonAzureRepo();
+    when(azureDevOpsHttpClient.getRepo(almSetting.getUrl(), almSetting.getDecryptedPersonalAccessToken(encryption),
+      "project-name", "repo-name"))
+      .thenReturn(repo);
+    return repo;
+  }
+
+  private ProjectDto getProjectDto(Projects.CreateWsResponse.Project result) {
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
+    assertThat(projectDto).isPresent();
+    return projectDto.get();
   }
 
   private GsonAzureRepo getGsonAzureRepo() {

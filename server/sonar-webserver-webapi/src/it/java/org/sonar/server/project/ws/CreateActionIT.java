@@ -135,7 +135,7 @@ public class CreateActionIT {
     ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), DEFAULT_PROJECT_KEY).orElseThrow();
     assertThat(projectDto)
       .extracting(ProjectDto::getKey, ProjectDto::getName, ProjectDto::getQualifier, ProjectDto::isPrivate, ProjectDto::getCreationMethod)
-      .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", false, CreationMethod.LOCAL);
+      .containsOnly(DEFAULT_PROJECT_KEY, DEFAULT_PROJECT_NAME, "TRK", false, CreationMethod.LOCAL_API);
 
     ComponentDto component = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).orElseThrow();
     BranchDto branch = db.getDbClient().branchDao().selectByUuid(db.getSession(), component.branchUuid()).orElseThrow();
@@ -156,6 +156,20 @@ public class CreateActionIT {
       .executeProtobuf(CreateWsResponse.class);
 
     assertThat(result.getProject().getVisibility()).isEqualTo("public");
+  }
+
+  @Test
+  public void createProject_whenCalIsFromGui_setCreationMethodEqualsUi() {
+    userSession.logIn().addPermission(PROVISION_PROJECTS).flagSessionAsGui();
+
+    ws.newRequest()
+      .setParam("project", DEFAULT_PROJECT_KEY)
+      .setParam("name", DEFAULT_PROJECT_NAME)
+      .setParam("visibility", "public")
+      .executeProtobuf(CreateWsResponse.class);
+
+    ProjectDto project = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
+    assertThat(project.getCreationMethod()).isEqualTo(CreationMethod.LOCAL_BROWSER);
   }
 
   @Test

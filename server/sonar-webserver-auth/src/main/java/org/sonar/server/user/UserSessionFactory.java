@@ -26,7 +26,7 @@ import org.sonar.db.user.UserTokenDto;
 @ServerSide
 public interface UserSessionFactory {
 
-  UserSession create(UserDto user);
+  UserSession create(UserDto user, boolean isAuthenticatedGuiSession);
 
   UserSession create(UserDto user, UserTokenDto userToken);
 

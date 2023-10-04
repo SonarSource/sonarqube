@@ -81,7 +81,7 @@ import static com.google.common.base.Preconditions.checkState;
 public class UserSessionRule implements TestRule, UserSession {
   private static final String DEFAULT_LOGIN = "default_login";
 
-  private UserSession currentUserSession;
+  private AbstractMockUserSession<?> currentUserSession;
 
   private UserSessionRule() {
     anonymous();
@@ -170,7 +170,7 @@ public class UserSessionRule implements TestRule, UserSession {
     this.currentUserSession = null;
   }
 
-  public void set(UserSession userSession) {
+  public void set(AbstractMockUserSession<?> userSession) {
     checkNotNull(userSession);
     setCurrentUserSession(userSession);
   }
@@ -220,7 +220,6 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
-
   public UserSessionRule addPortfolioPermission(String portfolioPermission, PortfolioDto... portfolioDto) {
     ensureAbstractMockUserSession().addPortfolioPermission(portfolioPermission, portfolioDto);
     return this;
@@ -255,7 +254,7 @@ public class UserSessionRule implements TestRule, UserSession {
     return (MockUserSession) currentUserSession;
   }
 
-  private void setCurrentUserSession(UserSession userSession) {
+  private void setCurrentUserSession(AbstractMockUserSession<?> userSession) {
     this.currentUserSession = Preconditions.checkNotNull(userSession);
   }
 
@@ -414,5 +413,14 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public boolean isActive() {
     return currentUserSession.isActive();
+  }
+
+  @Override
+  public boolean isAuthenticatedBrowserSession() {
+    return currentUserSession.isAuthenticatedBrowserSession();
+  }
+
+  public void flagSessionAsGui() {
+    currentUserSession.flagAsBrowserSession();
   }
 }

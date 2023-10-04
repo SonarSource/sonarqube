@@ -74,6 +74,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Projects;
 
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
@@ -138,20 +139,11 @@ public class ImportGithubProjectActionIT {
 
   @Test
   public void importProject_ifProjectWithSameNameDoesNotExist_importSucceed() {
-    AlmSettingDto githubAlmSetting = setupAlm();
-    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+    AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
-      "octocat/" + PROJECT_KEY_NAME,
-      "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "default-branch");
-    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
-    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+    GithubApplicationClient.Repository repository = mockGithubInteractions();
 
-    Projects.CreateWsResponse response = ws.newRequest()
-      .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
-      .setParam(PARAM_ORGANIZATION, "octocat")
-      .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
-      .executeProtobuf(Projects.CreateWsResponse.class);
+    Projects.CreateWsResponse response = callWebService(githubAlmSetting);
 
     Projects.CreateWsResponse.Project result = response.getProject();
     assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
@@ -171,14 +163,9 @@ public class ImportGithubProjectActionIT {
   public void importProject_withNCD_developer_edition() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
 
-    AlmSettingDto githubAlmSetting = setupAlm();
-    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+    AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
-      "octocat/" + PROJECT_KEY_NAME,
-      "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "default-branch");
-    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
-    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+    mockGithubInteractions();
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -204,14 +191,9 @@ public class ImportGithubProjectActionIT {
   public void importProject_withNCD_community_edition() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
 
-    AlmSettingDto githubAlmSetting = setupAlm();
-    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+    AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
-      "octocat/" + PROJECT_KEY_NAME,
-      "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "default-branch");
-    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
-    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+    mockGithubInteractions();
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -240,8 +222,7 @@ public class ImportGithubProjectActionIT {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
     when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn("default-branch");
 
-    AlmSettingDto githubAlmSetting = setupAlm();
-    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+    AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
     GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
       "octocat/" + PROJECT_KEY_NAME,
@@ -272,8 +253,7 @@ public class ImportGithubProjectActionIT {
   public void importProject_reference_branch_ncd() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
 
-    AlmSettingDto githubAlmSetting = setupAlm();
-    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+    AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
     GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
       "octocat/" + PROJECT_KEY_NAME,
@@ -302,8 +282,7 @@ public class ImportGithubProjectActionIT {
 
   @Test
   public void importProject_ifProjectWithSameNameAlreadyExists_importSucceed() {
-    AlmSettingDto githubAlmSetting = setupAlm();
-    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+    AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
     db.components().insertPublicProject(p -> p.setKey("Hello-World")).getMainBranchComponent();
 
     GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, "Hello-World", false, "Hello-World",
@@ -324,14 +303,9 @@ public class ImportGithubProjectActionIT {
 
   @Test
   public void importProject_whenGithubProvisioningIsDisabled_shouldApplyPermissionTemplate() {
-    AlmSettingDto githubAlmSetting = setupAlm();
-    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+    AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
-      "octocat/" + PROJECT_KEY_NAME,
-      "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "default-branch");
-    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
-    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+    mockGithubInteractions();
     when(gitHubSettings.isProvisioningEnabled()).thenReturn(false);
 
     ws.newRequest()
@@ -349,14 +323,9 @@ public class ImportGithubProjectActionIT {
 
   @Test
   public void importProject_whenGithubProvisioningIsEnabled_shouldNotApplyPermissionTemplate() {
-    AlmSettingDto githubAlmSetting = setupAlm();
-    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+    AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
-      "octocat/" + PROJECT_KEY_NAME,
-      "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "default-branch");
-    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
-    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+    mockGithubInteractions();
     when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
 
     ws.newRequest()
@@ -370,25 +339,43 @@ public class ImportGithubProjectActionIT {
   }
 
   @Test
-  public void importProject_shouldSetCreationMethod() {
-    AlmSettingDto githubAlmSetting = setupAlm();
-    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSetting.getUuid()).setUserUuid(userSession.getUuid()));
+  public void importProject_shouldSetCreationMethodToApi_ifNonBrowserRequest() {
+    AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
+    mockGithubInteractions();
 
+    Projects.CreateWsResponse response = callWebService(githubAlmSetting);
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), response.getProject().getKey());
+    assertThat(projectDto.orElseThrow().getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
+  }
+
+  @Test
+  public void importProject_shouldSetCreationMethodToBrowser_ifBrowserRequest() {
+    AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
+    userSession.flagSessionAsGui();
+    mockGithubInteractions();
+
+    Projects.CreateWsResponse response = callWebService(githubAlmSetting);
+
+    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), response.getProject().getKey());
+    assertThat(projectDto.orElseThrow().getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_BROWSER);
+  }
+
+  private Projects.CreateWsResponse callWebService(AlmSettingDto githubAlmSetting) {
+    return ws.newRequest()
+      .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
+      .setParam(PARAM_ORGANIZATION, "octocat")
+      .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
+      .executeProtobuf(Projects.CreateWsResponse.class);
+  }
+
+  private GithubApplicationClient.Repository mockGithubInteractions() {
     GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
       "octocat/" + PROJECT_KEY_NAME,
       "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "default-branch");
     when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
     when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
-    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
-
-    Projects.CreateWsResponse response = ws.newRequest()
-      .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
-      .setParam(PARAM_ORGANIZATION, "octocat")
-      .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
-      .executeProtobuf(Projects.CreateWsResponse.class);
-
-    Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), response.getProject().getKey());
-    assertThat(projectDto.orElseThrow().getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
+    return repository;
   }
 
   @Test
@@ -424,7 +411,7 @@ public class ImportGithubProjectActionIT {
 
   @Test
   public void fail_when_personal_access_token_doesnt_exist() {
-    AlmSettingDto githubAlmSetting = setupAlm();
+    AlmSettingDto githubAlmSetting = setupUserAndAlmSettings();
 
     TestRequest request = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -451,10 +438,15 @@ public class ImportGithubProjectActionIT {
         tuple(PARAM_NEW_CODE_DEFINITION_VALUE, false));
   }
 
-  private AlmSettingDto setupAlm() {
+  private AlmSettingDto setupUserWithPatAndAlmSettings() {
+    AlmSettingDto almSettings = setupUserAndAlmSettings();
+    db.almPats().insert(p -> p.setAlmSettingUuid(almSettings.getUuid()).setUserUuid(requireNonNull(userSession.getUuid())));
+    return almSettings;
+  }
+
+  private AlmSettingDto setupUserAndAlmSettings() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(GlobalPermission.PROVISION_PROJECTS);
-
     return db.almSettings().insertGitHubAlmSetting(alm -> alm.setClientId("client_123").setClientSecret("client_secret_123"));
   }
 }

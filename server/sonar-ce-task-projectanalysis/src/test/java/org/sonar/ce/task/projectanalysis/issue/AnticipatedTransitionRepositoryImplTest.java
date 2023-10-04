@@ -139,7 +139,7 @@ public class AnticipatedTransitionRepositoryImplTest {
     projectDto.setUuid(projectUuid);
     projectDto.setQualifier("TRK");
     projectDto.setName("project");
-    projectDto.setCreationMethod(CreationMethod.LOCAL);
+    projectDto.setCreationMethod(CreationMethod.LOCAL_API);
     return projectDto;
   }
 

@@ -123,9 +123,10 @@ public class ProjectDaoIT {
     List<ProjectDto> projects = projectDao.selectProjects(db.getSession());
     assertThat(projects).extracting(ProjectDto::getKey).containsExactlyInAnyOrder("projectKee_o1_p1", "projectKee_o1_p2");
   }
+
   @Test
   public void selectProjects_returnsCreationMethod() {
-    ProjectDto dto1 = createProject("o1", "p1").setCreationMethod(CreationMethod.SCANNER);
+    ProjectDto dto1 = createProject("o1", "p1").setCreationMethod(CreationMethod.SCANNER_API);
     ProjectDto dto2 = createProject("o1", "p2").setCreationMethod(CreationMethod.UNKNOWN);
 
     projectDao.insert(db.getSession(), dto1);
@@ -135,7 +136,7 @@ public class ProjectDaoIT {
     Map<String, CreationMethod> projectToCreationMethod = projects.stream().collect(Collectors.toMap(EntityDto::getName, ProjectDto::getCreationMethod));
     assertThat(projectToCreationMethod)
       .hasSize(2)
-      .containsEntry("projectName_p1", CreationMethod.SCANNER)
+      .containsEntry("projectName_p1", CreationMethod.SCANNER_API)
       .containsEntry("projectName_p2", CreationMethod.UNKNOWN);
   }
 
@@ -469,7 +470,7 @@ public class ProjectDaoIT {
       .setUuid("uuid_" + org + "_" + name)
       .setTags(Arrays.asList("tag1", "tag2"))
       .setDescription("desc_" + name)
-      .setCreationMethod(CreationMethod.LOCAL)
+      .setCreationMethod(CreationMethod.LOCAL_API)
       .setPrivate(false);
   }
 }

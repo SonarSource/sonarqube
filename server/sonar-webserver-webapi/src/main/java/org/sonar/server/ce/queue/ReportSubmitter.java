@@ -39,9 +39,9 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.component.ComponentCreationData;
+import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
-import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.ProjectDefaultVisibility;
@@ -50,8 +50,8 @@ import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.sonar.db.project.CreationMethod.SCANNER_API;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
-import static org.sonar.db.project.CreationMethod.SCANNER;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 @ServerSide
@@ -174,7 +174,7 @@ public class ReportSubmitter {
       .newComponent(newProject)
       .userLogin(userName)
       .userUuid(userUuid)
-      .creationMethod(SCANNER)
+      .creationMethod(SCANNER_API)
       .build();
     return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);
   }

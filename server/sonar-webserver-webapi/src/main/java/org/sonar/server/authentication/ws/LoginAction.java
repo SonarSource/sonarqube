@@ -94,7 +94,7 @@ public class LoginAction extends HttpFilter implements AuthenticationWsAction {
     try {
       UserDto userDto = authenticate(request);
       jwtHttpHandler.generateToken(userDto, request, response);
-      threadLocalUserSession.set(userSessionFactory.create(userDto));
+      threadLocalUserSession.set(userSessionFactory.create(userDto, true));
     } catch (AuthenticationException e) {
       authenticationEvent.loginFailure(request, e);
       response.setStatus(HTTP_UNAUTHORIZED);

@@ -75,6 +75,7 @@ public class ThreadLocalUserSessionTest {
     assertThat(threadLocalUserSession.hasChildProjectsPermission(USER, new ProjectDto())).isFalse();
     assertThat(threadLocalUserSession.hasPortfolioChildProjectsPermission(USER, new ComponentDto())).isFalse();
     assertThat(threadLocalUserSession.hasEntityPermission(USER, new ProjectDto().getUuid())).isFalse();
+    assertThat(threadLocalUserSession.isAuthenticatedBrowserSession()).isFalse();
   }
 
   @Test

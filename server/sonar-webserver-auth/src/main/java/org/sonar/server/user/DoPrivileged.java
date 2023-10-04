@@ -148,6 +148,11 @@ public final class DoPrivileged {
         return true;
       }
 
+      @Override
+      public boolean isAuthenticatedBrowserSession() {
+        return false;
+      }
+
     }
 
     private void start() {

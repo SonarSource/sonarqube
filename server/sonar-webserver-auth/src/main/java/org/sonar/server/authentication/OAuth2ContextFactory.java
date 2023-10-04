@@ -156,7 +156,7 @@ public class OAuth2ContextFactory {
           .setSource(AuthenticationEvent.Source.oauth2(identityProvider))
           .build());
       jwtHttpHandler.generateToken(userDto, request, response);
-      threadLocalUserSession.set(userSessionFactory.create(userDto));
+      threadLocalUserSession.set(userSessionFactory.create(userDto, true));
     }
   }
 }

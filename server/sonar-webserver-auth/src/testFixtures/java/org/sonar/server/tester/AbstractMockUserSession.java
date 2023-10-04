@@ -236,4 +236,6 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   public boolean shouldResetPassword() {
     return resetPassword;
   }
+
+  public abstract void flagAsBrowserSession();
 }

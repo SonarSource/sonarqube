@@ -55,6 +55,7 @@ public class TokenUserSessionIT {
     assertThat(userSession.getUserToken().getName()).isEqualTo("User Token");
     assertThat(userSession.getUserToken().getUserUuid()).isEqualTo("userUid");
     assertThat(userSession.getUserToken().getType()).isEqualTo("USER_TOKEN");
+    assertThat(userSession.isAuthenticatedBrowserSession()).isFalse();
   }
 
   @Test

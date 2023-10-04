@@ -58,6 +58,7 @@ public class ServerUserSessionIT {
     assertThat(session.getLogin()).isNull();
     assertThat(session.getUuid()).isNull();
     assertThat(session.isLoggedIn()).isFalse();
+    assertThat(session.isAuthenticatedBrowserSession()).isFalse();
   }
 
   @Test
@@ -804,7 +805,7 @@ public class ServerUserSessionIT {
   }
 
   private ServerUserSession newUserSession(@Nullable UserDto userDto) {
-    return new ServerUserSession(dbClient, userDto);
+    return new ServerUserSession(dbClient, userDto, false);
   }
 
   private ServerUserSession newAnonymousSession() {

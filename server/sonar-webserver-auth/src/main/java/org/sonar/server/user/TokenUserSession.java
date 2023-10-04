@@ -34,7 +34,7 @@ public class TokenUserSession extends ServerUserSession {
   private final UserTokenDto userToken;
 
   public TokenUserSession(DbClient dbClient, UserDto user, UserTokenDto userToken) {
-    super(dbClient, user);
+    super(dbClient, user, false);
     this.userToken = userToken;
   }
 

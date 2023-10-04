@@ -81,6 +81,11 @@ public class GithubWebhookUserSession extends AbstractUserSession {
   }
 
   @Override
+  public boolean isAuthenticatedBrowserSession() {
+    return false;
+  }
+
+  @Override
   protected boolean hasPermissionImpl(GlobalPermission permission) {
     return false;
   }

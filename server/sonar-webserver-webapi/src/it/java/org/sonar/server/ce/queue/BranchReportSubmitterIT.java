@@ -149,7 +149,7 @@ public class BranchReportSubmitterIT {
     verifyQueueSubmit(mainBranch, branch, user, randomCharacteristics, taskUuid);
 
     ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), componentKey.getKey()).orElseThrow();
-    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.LOCAL);
+    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.LOCAL_API);
   }
 
   @Test
@@ -196,8 +196,7 @@ public class BranchReportSubmitterIT {
     ComponentCreationData componentCreationData = mock(ComponentCreationData.class);
     when(componentCreationData.mainBranchComponent())
       .thenAnswer((Answer<ComponentDto>) invocation -> db.components().insertPrivateProject(PROJECT_UUID, nonExistingBranch).getMainBranchComponent());
-    when(componentUpdater.createWithoutCommit(any(), any()))
-      .thenReturn(componentCreationData);
+    when(componentUpdater.createWithoutCommit(any(), any())).thenReturn(componentCreationData);
     when(branchSupportDelegate.createBranchComponent(any(DbSession.class), same(componentKey), any(), any())).thenReturn(createdBranch);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(nonExistingBranch.getKey()))).thenReturn(true);
     String taskUuid = mockSuccessfulPrepareSubmitCall();
@@ -212,14 +211,13 @@ public class BranchReportSubmitterIT {
     verifyNoMoreInteractions(branchSupportDelegate);
     verifyQueueSubmit(nonExistingBranch, createdBranch, user, randomCharacteristics, taskUuid);
     verify(componentUpdater).commitAndIndex(any(DbSession.class), eq(componentCreationData));
-
     assertProjectCreatedWithCreationMethodEqualsScanner();
   }
 
   private void assertProjectCreatedWithCreationMethodEqualsScanner() {
     ArgumentCaptor<ComponentCreationParameters> componentCreationParametersCaptor = ArgumentCaptor.forClass(ComponentCreationParameters.class);
     verify(componentUpdater).createWithoutCommit(any(), componentCreationParametersCaptor.capture());
-    assertThat(componentCreationParametersCaptor.getValue().creationMethod()).isEqualTo(CreationMethod.SCANNER);
+    assertThat(componentCreationParametersCaptor.getValue().creationMethod()).isEqualTo(CreationMethod.SCANNER_API);
   }
 
   @Test

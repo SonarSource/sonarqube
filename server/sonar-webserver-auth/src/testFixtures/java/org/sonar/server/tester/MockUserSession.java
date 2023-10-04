@@ -44,6 +44,8 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   private UserSession.ExternalIdentity externalIdentity;
   private Long lastSonarlintConnectionDate;
 
+  private boolean isAuthenticatedBrowserSession = false;
+
   public MockUserSession(String login) {
     super(MockUserSession.class);
     checkArgument(!login.isEmpty());
@@ -83,6 +85,11 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   @Override
   public boolean isActive() {
     return true;
+  }
+
+  @Override
+  public boolean isAuthenticatedBrowserSession() {
+    return isAuthenticatedBrowserSession;
   }
 
   @Override
@@ -141,4 +148,8 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     return Optional.ofNullable(externalIdentity);
   }
 
+  @Override
+  public void flagAsBrowserSession() {
+    isAuthenticatedBrowserSession = true;
+  }
 }

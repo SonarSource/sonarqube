@@ -62,6 +62,7 @@ public class ServerUserSession extends AbstractUserSession {
 
   @CheckForNull
   private final UserDto userDto;
+  private final boolean isAuthenticatedBrowserSession;
   private final DbClient dbClient;
   private final Map<String, String> entityUuidByComponentUuid = new HashMap<>();
   private final Map<String, Set<String>> permissionsByEntityUuid = new HashMap<>();
@@ -70,9 +71,10 @@ public class ServerUserSession extends AbstractUserSession {
   private Boolean isSystemAdministrator;
   private Set<GlobalPermission> permissions;
 
-  public ServerUserSession(DbClient dbClient, @Nullable UserDto userDto) {
+  public ServerUserSession(DbClient dbClient, @Nullable UserDto userDto, boolean isAuthenticatedBrowserSession) {
     this.dbClient = dbClient;
     this.userDto = userDto;
+    this.isAuthenticatedBrowserSession = isAuthenticatedBrowserSession;
   }
 
   private Collection<GroupDto> loadGroups() {
@@ -398,6 +400,11 @@ public class ServerUserSession extends AbstractUserSession {
   @Override
   public boolean isActive() {
     return userDto.isActive();
+  }
+
+  @Override
+  public boolean isAuthenticatedBrowserSession() {
+    return isAuthenticatedBrowserSession;
   }
 
   private boolean loadIsSystemAdministrator() {

@@ -170,7 +170,7 @@ public class ApplicationProjectsDaoIT {
       "kee", appUuid,
       "qualifier", "APP",
       "private", true,
-      "creation_method", CreationMethod.LOCAL.name(),
+      "creation_method", CreationMethod.LOCAL_API.name(),
       "updated_at", 1000L,
       "created_at", 1000L);
   }

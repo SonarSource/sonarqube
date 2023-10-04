@@ -113,4 +113,9 @@ public class GithubWebhookUserSessionTest {
   public void hasComponentUuidPermission_returnsAlwaysTrue() {
     assertThat(githubWebhookUserSession.hasComponentUuidPermission("perm", "project")).isTrue();
   }
+
+  @Test
+  public void isAuthenticatedGuiSession_isAlwaysFalse() {
+    assertThat(githubWebhookUserSession.isAuthenticatedBrowserSession()).isFalse();
+  }
 }

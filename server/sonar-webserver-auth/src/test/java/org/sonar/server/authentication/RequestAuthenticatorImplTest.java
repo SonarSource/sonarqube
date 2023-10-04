@@ -22,6 +22,7 @@ package org.sonar.server.authentication;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.db.user.UserDto;
@@ -34,7 +35,9 @@ import org.sonar.server.user.UserSessionFactory;
 import org.sonar.server.usertoken.UserTokenAuthentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -62,7 +65,16 @@ public class RequestAuthenticatorImplTest {
 
   @Before
   public void setUp() {
-    when(sessionFactory.create(A_USER)).thenReturn(new MockUserSession(A_USER));
+    when(sessionFactory.create(eq(A_USER), anyBoolean())).thenAnswer((Answer<UserSession>) invocation -> {
+      MockUserSession mockUserSession = new MockUserSession(A_USER);
+      Boolean isAuthenticatedBrowserSession = invocation.getArgument(1, Boolean.class);
+      if (isAuthenticatedBrowserSession) {
+        mockUserSession.flagAsBrowserSession();
+      }
+      return mockUserSession;
+    })
+
+      .thenReturn(new MockUserSession(A_USER));
     when(sessionFactory.create(A_USER, A_USER_TOKEN)).thenReturn(new MockUserSession(A_USER));
     when(sessionFactory.createAnonymous()).thenReturn(new AnonymousMockUserSession());
     when(sessionFactory.createGithubWebhookUserSession()).thenReturn(githubWebhookMockUserSession);
@@ -73,7 +85,10 @@ public class RequestAuthenticatorImplTest {
     when(httpHeadersAuthentication.authenticate(request, response)).thenReturn(Optional.empty());
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.of(A_USER));
 
-    assertThat(underTest.authenticate(request, response).getUuid()).isEqualTo(A_USER.getUuid());
+    UserSession userSession = underTest.authenticate(request, response);
+    assertThat(userSession.getUuid()).isEqualTo(A_USER.getUuid());
+    assertThat(userSession.isAuthenticatedBrowserSession()).isTrue();
+
     verify(response, never()).setStatus(anyInt());
   }
 
@@ -83,7 +98,9 @@ public class RequestAuthenticatorImplTest {
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
     when(githubWebhookAuthentication.authenticate(request)).thenReturn(Optional.of(UserAuthResult.withGithubWebhook()));
 
-    assertThat(underTest.authenticate(request, response)).isInstanceOf(GithubWebhookUserSession.class);
+    UserSession userSession = underTest.authenticate(request, response);
+    assertThat(userSession).isInstanceOf(GithubWebhookUserSession.class);
+    assertThat(userSession.isAuthenticatedBrowserSession()).isFalse();
     verify(response, never()).setStatus(anyInt());
   }
 
@@ -93,7 +110,9 @@ public class RequestAuthenticatorImplTest {
     when(httpHeadersAuthentication.authenticate(request, response)).thenReturn(Optional.empty());
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
 
-    assertThat(underTest.authenticate(request, response).getUuid()).isEqualTo(A_USER.getUuid());
+    UserSession userSession = underTest.authenticate(request, response);
+    assertThat(userSession.getUuid()).isEqualTo(A_USER.getUuid());
+    assertThat(userSession.isAuthenticatedBrowserSession()).isFalse();
 
     verify(jwtHttpHandler).validateToken(request, response);
     verify(basicAuthentication).authenticate(request);
@@ -108,7 +127,9 @@ public class RequestAuthenticatorImplTest {
     when(httpHeadersAuthentication.authenticate(request, response)).thenReturn(Optional.empty());
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
 
-    assertThat(underTest.authenticate(request, response).getUuid()).isEqualTo(A_USER.getUuid());
+    UserSession userSession = underTest.authenticate(request, response);
+    assertThat(userSession.getUuid()).isEqualTo(A_USER.getUuid());
+    assertThat(userSession.isAuthenticatedBrowserSession()).isFalse();
 
     verify(jwtHttpHandler).validateToken(request, response);
     verify(userTokenAuthentication).authenticate(request);
@@ -120,7 +141,9 @@ public class RequestAuthenticatorImplTest {
     when(httpHeadersAuthentication.authenticate(request, response)).thenReturn(Optional.of(A_USER));
     when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.empty());
 
-    assertThat(underTest.authenticate(request, response).getUuid()).isEqualTo(A_USER.getUuid());
+    UserSession userSession = underTest.authenticate(request, response);
+    assertThat(userSession.getUuid()).isEqualTo(A_USER.getUuid());
+    assertThat(userSession.isAuthenticatedBrowserSession()).isFalse();
 
     verify(httpHeadersAuthentication).authenticate(request, response);
     verify(jwtHttpHandler, never()).validateToken(request, response);
@@ -136,6 +159,8 @@ public class RequestAuthenticatorImplTest {
     UserSession session = underTest.authenticate(request, response);
     assertThat(session.isLoggedIn()).isFalse();
     assertThat(session.getUuid()).isNull();
+    assertThat(session.isAuthenticatedBrowserSession()).isFalse();
+
     verify(response, never()).setStatus(anyInt());
   }
 

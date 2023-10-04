@@ -122,7 +122,7 @@ public class ComponentUpdaterIT {
   public void persist_and_index_when_creating_project() {
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(PRIVATE_COMPONENT)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
     ComponentCreationData returned = underTest.create(db.getSession(), creationParameters);
 
@@ -154,7 +154,7 @@ public class ComponentUpdaterIT {
     when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn("main-branch-global");
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(PRIVATE_COMPONENT)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
 
     ComponentDto returned = underTest.create(db.getSession(), creationParameters).mainBranchComponent();
@@ -167,7 +167,7 @@ public class ComponentUpdaterIT {
   public void persist_private_flag_true_when_creating_project() {
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(PRIVATE_COMPONENT)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
     ComponentDto returned = underTest.create(db.getSession(), creationParameters).mainBranchComponent();
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
@@ -183,7 +183,7 @@ public class ComponentUpdaterIT {
       .build();
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(project)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
     ComponentDto returned = underTest.create(db.getSession(), creationParameters).mainBranchComponent();
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
@@ -200,7 +200,7 @@ public class ComponentUpdaterIT {
 
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(view)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
     ComponentDto returned = underTest.create(db.getSession(), creationParameters).mainBranchComponent();
 
@@ -222,7 +222,7 @@ public class ComponentUpdaterIT {
       .build();
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(application)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
     ComponentCreationData returned = underTest.create(db.getSession(), creationParameters);
 
@@ -246,7 +246,7 @@ public class ComponentUpdaterIT {
       .newComponent(DEFAULT_COMPONENT)
       .userLogin(DEFAULT_USER_LOGIN)
       .userUuid(DEFAULT_USER_UUID)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
 
     ProjectDto dto = underTest.create(db.getSession(), componentCreationParameters).projectDto();
@@ -261,7 +261,7 @@ public class ComponentUpdaterIT {
       .newComponent(DEFAULT_COMPONENT)
       .userLogin(userDto.getLogin())
       .userUuid(userDto.getUuid())
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
 
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ProjectDto.class)))
@@ -280,7 +280,7 @@ public class ComponentUpdaterIT {
       .newComponent(DEFAULT_COMPONENT)
       .userLogin(user.getLogin())
       .userUuid(user.getUuid())
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
 
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(eq(db.getSession()), any(ProjectDto.class)))
@@ -295,7 +295,7 @@ public class ComponentUpdaterIT {
   public void does_not_add_project_to_favorite_when_anonymously_created() {
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(DEFAULT_COMPONENT)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
     ProjectDto projectDto = underTest.create(db.getSession(), creationParameters).projectDto();
 
@@ -313,7 +313,7 @@ public class ComponentUpdaterIT {
       .build();
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(project)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
 
     assertThatThrownBy(() -> underTest.create(session, creationParameters))
@@ -330,7 +330,7 @@ public class ComponentUpdaterIT {
       .build();
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(project)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
 
     assertThatThrownBy(() -> underTest.create(session, creationParameters))
@@ -347,7 +347,7 @@ public class ComponentUpdaterIT {
       .build();
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(project)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
 
     assertThatThrownBy(() -> underTest.create(session, creationParameters))
@@ -382,7 +382,7 @@ public class ComponentUpdaterIT {
       .build();
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(project)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
 
     DbSession dbSession = db.getSession();
@@ -405,7 +405,7 @@ public class ComponentUpdaterIT {
       .build();
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(project)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
 
     DbSession dbSession = db.getSession();
@@ -428,7 +428,7 @@ public class ComponentUpdaterIT {
       .build();
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(project)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
 
     DbSession dbSession = db.getSession();
@@ -447,7 +447,7 @@ public class ComponentUpdaterIT {
       .build();
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(app)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
 
     ComponentDto appDto = underTest.create(db.getSession(), creationParameters).mainBranchComponent();
@@ -466,7 +466,7 @@ public class ComponentUpdaterIT {
       .userUuid(userDto.getUuid())
       .mainBranchName(null)
       .isManaged(true)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
     underTest.createWithoutCommit(db.getSession(), componentCreationParameters);
 
@@ -476,6 +476,11 @@ public class ComponentUpdaterIT {
   @Test
   public void createWithoutCommit_whenProjectIsManagedAndPrivate_applyPublicPermissionsToCreator() {
     UserDto userDto = db.users().insertUser();
+    NewComponent newComponent = NewComponent.newComponentBuilder()
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setPrivate(true)
+      .build();
 
     DbSession session = db.getSession();
 
@@ -485,7 +490,7 @@ public class ComponentUpdaterIT {
       .userUuid(userDto.getUuid())
       .mainBranchName(null)
       .isManaged(true)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
     ComponentCreationData componentCreationData = underTest.createWithoutCommit(session, componentCreationParameters);
 
@@ -495,22 +500,22 @@ public class ComponentUpdaterIT {
   }
 
   @Test
-  public void create_whenCreationMethodIsLocal_persistsIt() {
+  public void create_whenCreationMethodIsLocalApi_persistsIt() {
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(DEFAULT_COMPONENT)
-      .creationMethod(CreationMethod.LOCAL)
+      .creationMethod(CreationMethod.LOCAL_API)
       .build();
     ProjectDto projectDto = underTest.create(db.getSession(), creationParameters).projectDto();
-    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.LOCAL);
+    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.LOCAL_API);
   }
 
   @Test
-  public void create_whenCreationMethodIsAlmImportUi_persistsIt() {
+  public void create_whenCreationMethodIsAlmImportBrowser_persistsIt() {
     ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
       .newComponent(DEFAULT_COMPONENT)
-      .creationMethod(CreationMethod.ALM_IMPORT_UI)
+      .creationMethod(CreationMethod.ALM_IMPORT_BROWSER)
       .build();
     ProjectDto projectDto = underTest.create(db.getSession(), creationParameters).projectDto();
-    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_UI);
+    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_BROWSER);
   }
 }

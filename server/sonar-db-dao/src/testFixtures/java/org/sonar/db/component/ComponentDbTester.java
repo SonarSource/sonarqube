@@ -582,7 +582,7 @@ public class ComponentDbTester {
       .setPrivate(componentDto.isPrivate())
       .setDescription(componentDto.description())
       .setName(componentDto.name())
-      .setCreationMethod(CreationMethod.LOCAL);
+      .setCreationMethod(CreationMethod.LOCAL_API);
   }
 
   public static PortfolioDto toPortfolioDto(ComponentDto componentDto, long createTime) {

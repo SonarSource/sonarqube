@@ -123,7 +123,7 @@ public class SonarLintConnectionFilterIT {
   private void runFilter(String loggedInUser, @Nullable String agent) throws IOException {
     UserDto user = dbTester.getDbClient().userDao().selectByLogin(dbTester.getSession(), loggedInUser);
     ThreadLocalUserSession session = new ThreadLocalUserSession();
-    session.set(new ServerUserSession(dbTester.getDbClient(), user));
+    session.set(new ServerUserSession(dbTester.getDbClient(), user, false));
     SonarLintConnectionFilter underTest = new SonarLintConnectionFilter(dbTester.getDbClient(), session, system2);
     HttpServletRequest httpRequest = mock(HttpServletRequest.class);
     when(httpRequest.getHeader("User-Agent")).thenReturn(agent);
