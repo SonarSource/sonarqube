@@ -15,12 +15,12 @@
       "cleanCodeAttributeCategory": "INTENTIONAL",
       "impacts": [
         {
-          "softwareQuality": "RELIABILITY",
-          "severity": "LOW"
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "HIGH"
         },
         {
           "softwareQuality": "SECURITY",
-          "severity": "HIGH"
+          "severity": "LOW"
         }
       ],
       "params" : {
@@ -37,14 +37,11 @@
       "cleanCodeAttributeCategory": "INTENTIONAL",
       "impacts": [
         {
-          "softwareQuality": "RELIABILITY",
-          "severity": "LOW"
-        },
-        {
-          "softwareQuality": "SECURITY",
+          "softwareQuality": "MAINTAINABILITY",
           "severity": "HIGH"
         }
-      ]
+      ],
+      "params": {}
     },
     {
       "action" : "ACTIVATED",
@@ -55,18 +52,30 @@
       "cleanCodeAttributeCategory": "INTENTIONAL",
       "impacts": [
         {
-          "softwareQuality": "RELIABILITY",
-          "severity": "LOW"
-        },
-        {
-          "softwareQuality": "SECURITY",
+          "softwareQuality": "MAINTAINABILITY",
           "severity": "HIGH"
         }
       ],
       "date" : "2014-09-12T15:20:46+0200",
       "params" : {
         "severity" : "MAJOR",
-        "format" : "^[A-Z][a-zA-Z0-9]*$"
+        "format" : "^[A-Z][a-zA-Z0-9]*",
+        "oldCleanCodeAttribute": "TESTED",
+        "newCleanCodeAttribute": "CLEAR",
+        "oldCleanCodeAttributeCategory": "ADAPTABLE",
+        "newCleanCodeAttributeCategory": "INTENTIONAL",
+        "impactChanges": [
+          {
+            "oldSoftwareQuality": "SECURITY",
+            "newSoftwareQuality": "MAINTAINABILITY",
+            "oldSeverity": "MEDIUM",
+            "newSeverity": "HIGH"
+          },
+          {
+            "oldSoftwareQuality": "RELIABILITY",
+            "oldSeverity": "LOW"
+          }
+        ]
       }
     }
   ]

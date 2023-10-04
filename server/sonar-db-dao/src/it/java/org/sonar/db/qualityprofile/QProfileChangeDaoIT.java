@@ -21,34 +21,49 @@ package org.sonar.db.qualityprofile;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.rule.RuleChangeDto;
+import org.sonar.db.rule.RuleImpactChangeDto;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.Severity.MEDIUM;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
+import static org.sonar.api.rules.CleanCodeAttribute.CLEAR;
+import static org.sonar.api.rules.CleanCodeAttribute.CONVENTIONAL;
+import static org.sonar.api.rules.CleanCodeAttribute.LAWFUL;
+import static org.sonar.api.rules.CleanCodeAttribute.TESTED;
 
 public class QProfileChangeDaoIT {
 
-  private System2 system2 = new AlwaysIncreasingSystem2();
+  private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private DbSession dbSession = db.getSession();
-  private UuidFactory uuidFactory = new SequenceUuidFactory();
-  private QProfileChangeDao underTest = new QProfileChangeDao(system2, uuidFactory);
+  private final DbSession dbSession = db.getSession();
+  private final UuidFactory uuidFactory = new SequenceUuidFactory();
+  private final QProfileChangeDao underTest = new QProfileChangeDao(system2, uuidFactory);
 
   @Test
   public void insert() {
-    QProfileChangeDto dto = insertChange("P1", "ACTIVATED", "marcel_uuid", "some_data");
+    QProfileChangeDto dto = insertChange("P1", "ACTIVATED", "marcel_uuid", "some_data", null);
 
     verifyInserted(dto);
   }
@@ -58,7 +73,7 @@ public class QProfileChangeDaoIT {
    */
   @Test
   public void test_insert_with_null_fields() {
-    QProfileChangeDto dto = insertChange("P1", "ACTIVATED", null, null);
+    QProfileChangeDto dto = insertChange("P1", "ACTIVATED", null, null, null);
 
     verifyInserted(dto);
   }
@@ -100,6 +115,49 @@ public class QProfileChangeDaoIT {
     assertThat(changes)
       .extracting(QProfileChangeDto::getUuid)
       .containsExactly(change2OnP1.getUuid(), change1OnP1.getUuid());
+  }
+
+  @Test
+  public void selectByQuery_shouldReturnCleanCodeAttributeAndImpactChanges() {
+    QProfileDto profile1 = db.qualityProfiles().insert();
+    QProfileDto profile2 = db.qualityProfiles().insert();
+
+    RuleChangeDto ruleChange1 = insertRuleChange(CLEAR, TESTED,
+      Set.of(new RuleImpactChangeDto(MAINTAINABILITY, RELIABILITY, LOW, MEDIUM), new RuleImpactChangeDto(RELIABILITY, null, LOW, null)));
+    RuleChangeDto ruleChange2 = insertRuleChange(CONVENTIONAL, LAWFUL,
+      Set.of(new RuleImpactChangeDto(SECURITY, SECURITY, LOW, HIGH), new RuleImpactChangeDto(RELIABILITY, MAINTAINABILITY, MEDIUM, MEDIUM)));
+
+    QProfileChangeDto change1OnP1 = insertChange(profile1.getRulesProfileUuid(), "ACTIVATED", null, null, ruleChange1);
+    QProfileChangeDto change2OnP1 = insertChange(profile1, "ACTIVATED", null, null);
+    insertChange(profile2.getRulesProfileUuid(), "ACTIVATED", null, null, ruleChange2);
+
+    List<QProfileChangeDto> changes = underTest.selectByQuery(dbSession, new QProfileChangeQuery(profile1.getKee()));
+    assertThat(changes)
+      .extracting(QProfileChangeDto::getUuid)
+      .containsExactly(change2OnP1.getUuid(), change1OnP1.getUuid());
+
+    QProfileChangeDto withRuleChange = changes.stream().filter(c -> c.getUuid().equals(change1OnP1.getUuid())).findAny().orElseThrow();
+    assertThat(withRuleChange.getRuleChange()).isNotNull();
+    assertThat(withRuleChange.getRuleChange()).extracting(RuleChangeDto::getOldCleanCodeAttribute, RuleChangeDto::getNewCleanCodeAttribute)
+      .containsExactly(CLEAR, TESTED);
+    assertThat(withRuleChange.getRuleChange().getRuleImpactChanges()).extracting(RuleImpactChangeDto::getNewSoftwareQuality,
+        RuleImpactChangeDto::getOldSoftwareQuality, RuleImpactChangeDto::getNewSeverity, RuleImpactChangeDto::getOldSeverity)
+      .containsExactlyInAnyOrder(tuple(MAINTAINABILITY, RELIABILITY, LOW, MEDIUM), tuple(RELIABILITY, null, LOW, null));
+
+    QProfileChangeDto withoutRuleChange = changes.stream().filter(c -> c.getUuid().equals(change2OnP1.getUuid())).findAny().orElseThrow();
+    assertThat(withoutRuleChange.getRuleChange()).isNull();
+  }
+
+  @Test
+  public void selectByQuery_whenRuleChangeHasNoImpact_shouldReturnEmptyImpacts() {
+    QProfileDto profile1 = db.qualityProfiles().insert();
+
+    RuleChangeDto ruleChange = insertRuleChange(CLEAR, TESTED, null);
+    insertChange(profile1.getRulesProfileUuid(), "ACTIVATED", null, null, ruleChange);
+
+    List<QProfileChangeDto> changes = underTest.selectByQuery(dbSession, new QProfileChangeQuery(profile1.getKee()));
+    assertThat(changes).hasSize(1);
+    assertThat(changes.get(0).getRuleChange().getRuleImpactChanges()).isEmpty();
   }
 
   @Test
@@ -223,7 +281,7 @@ public class QProfileChangeDaoIT {
   @Test
   public void deleteByProfileKeys_does_nothing_if_row_with_specified_key_does_not_exist() {
     QProfileDto profile1 = db.qualityProfiles().insert();
-    insertChange(profile1.getRulesProfileUuid(), "ACTIVATED", null, null);
+    insertChange(profile1.getRulesProfileUuid(), "ACTIVATED", null, null, null);
 
     underTest.deleteByRulesProfileUuids(dbSession, asList("does not exist"));
 
@@ -231,17 +289,36 @@ public class QProfileChangeDaoIT {
   }
 
   private QProfileChangeDto insertChange(QProfileDto profile, String type, @Nullable String login, @Nullable String data) {
-    return insertChange(profile.getRulesProfileUuid(), type, login, data);
+    return insertChange(profile.getRulesProfileUuid(), type, login, data, null);
   }
 
-  private QProfileChangeDto insertChange(String rulesProfileUuid, String type, @Nullable String userUuid, @Nullable String data) {
+  private QProfileChangeDto insertChange(String rulesProfileUuid, String type, @Nullable String userUuid, @Nullable String data,
+                                         @Nullable RuleChangeDto ruleChange) {
     QProfileChangeDto dto = new QProfileChangeDto()
       .setRulesProfileUuid(rulesProfileUuid)
       .setUserUuid(userUuid)
       .setChangeType(type)
-      .setData(data);
+      .setData(data)
+      .setRuleChange(ruleChange);
     underTest.insert(dbSession, dto);
     return dto;
+  }
+
+  private RuleChangeDto insertRuleChange(CleanCodeAttribute oldAttribute, CleanCodeAttribute newAttribute,
+                                         @Nullable Set<RuleImpactChangeDto> impactChanges) {
+    RuleChangeDto ruleChange = new RuleChangeDto();
+    ruleChange.setUuid(uuidFactory.create());
+    ruleChange.setOldCleanCodeAttribute(oldAttribute);
+    ruleChange.setNewCleanCodeAttribute(newAttribute);
+    ruleChange.setRuleUuid("rule123");
+
+    if (impactChanges != null) {
+      impactChanges.forEach(impact -> impact.setRuleChangeUuid(ruleChange.getUuid()));
+      ruleChange.setRuleImpactChanges(impactChanges);
+    }
+
+    db.getDbClient().ruleChangeDao().insert(dbSession, ruleChange);
+    return ruleChange;
   }
 
   private QProfileChangeDto selectChangeByUuid(String uuid) {

@@ -33,9 +33,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileChangeDao;
-import org.sonar.db.qualityprofile.RuleImpactChangeDto;
 import org.sonar.db.rule.RuleChangeDao;
 import org.sonar.db.rule.RuleChangeDto;
+import org.sonar.db.rule.RuleImpactChangeDto;
 import org.sonar.server.rule.PluginRuleUpdate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,7 +86,7 @@ public class QualityProfileChangesUpdaterTest {
       ruleChangeDto.getNewCleanCodeAttribute() == CleanCodeAttribute.CLEAR
         && ruleChangeDto.getOldCleanCodeAttribute() == CleanCodeAttribute.TESTED
         && ruleChangeDto.getRuleUuid().equals(RULE_UUID)
-        && ruleChangeDto.getRuleImpactChangeDtos().isEmpty()));
+        && ruleChangeDto.getRuleImpactChanges().isEmpty()));
   }
 
   @Test
@@ -120,18 +120,18 @@ public class QualityProfileChangesUpdaterTest {
     assertThat(firstChange.getNewCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CLEAR);
     assertThat(firstChange.getOldCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.TESTED);
     assertThat(firstChange.getRuleUuid()).isEqualTo(RULE_UUID);
-    assertThat(firstChange.getRuleImpactChangeDtos()).hasSize(1);
-    assertThat(firstChange.getRuleImpactChangeDtos()).extracting(RuleImpactChangeDto::getNewSoftwareQuality,
+    assertThat(firstChange.getRuleImpactChanges()).hasSize(1);
+    assertThat(firstChange.getRuleImpactChanges()).extracting(RuleImpactChangeDto::getNewSoftwareQuality,
         RuleImpactChangeDto::getOldSoftwareQuality, RuleImpactChangeDto::getOldSeverity, RuleImpactChangeDto::getNewSeverity)
-      .containsExactly(tuple(SoftwareQuality.RELIABILITY.name(), SoftwareQuality.RELIABILITY.name(), Severity.MEDIUM.name(), Severity.LOW.name()));
+      .containsExactly(tuple(SoftwareQuality.RELIABILITY, SoftwareQuality.RELIABILITY, Severity.MEDIUM, Severity.LOW));
 
     assertThat(secondChange.getNewCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.EFFICIENT);
     assertThat(secondChange.getOldCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.DISTINCT);
     assertThat(secondChange.getRuleUuid()).isEqualTo("ruleUuid2");
-    assertThat(secondChange.getRuleImpactChangeDtos()).hasSize(1);
-    assertThat(secondChange.getRuleImpactChangeDtos()).extracting(RuleImpactChangeDto::getNewSoftwareQuality,
+    assertThat(secondChange.getRuleImpactChanges()).hasSize(1);
+    assertThat(secondChange.getRuleImpactChanges()).extracting(RuleImpactChangeDto::getNewSoftwareQuality,
         RuleImpactChangeDto::getOldSoftwareQuality, RuleImpactChangeDto::getOldSeverity, RuleImpactChangeDto::getNewSeverity)
-      .containsExactly(tuple(SoftwareQuality.SECURITY.name(), SoftwareQuality.RELIABILITY.name(), Severity.MEDIUM.name(), Severity.HIGH.name()));
+      .containsExactly(tuple(SoftwareQuality.SECURITY, SoftwareQuality.RELIABILITY, Severity.MEDIUM, Severity.HIGH));
   }
 
   @Test
@@ -150,6 +150,6 @@ public class QualityProfileChangesUpdaterTest {
 
     verify(qualityProfileChangeDao, times(2)).insert(argThat(dbSession::equals), argThat(qProfileChangeDto ->
       qProfileChangeDto.getChangeType().equals("UPDATED")
-        && qProfileChangeDto.getRuleChangeUuid() != null));
+        && qProfileChangeDto.getRuleChange() != null));
   }
 }

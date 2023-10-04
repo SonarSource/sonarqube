@@ -22,15 +22,18 @@ package org.sonar.db.rule;
 import java.util.HashSet;
 import java.util.Set;
 import org.sonar.api.rules.CleanCodeAttribute;
-import org.sonar.db.qualityprofile.RuleImpactChangeDto;
 
 public class RuleChangeDto {
 
   private String uuid;
   private CleanCodeAttribute oldCleanCodeAttribute;
   private CleanCodeAttribute newCleanCodeAttribute;
-  private Set<RuleImpactChangeDto> ruleImpactChangeDtos = new HashSet<>();
+  private Set<RuleImpactChangeDto> ruleImpactChanges = new HashSet<>();
   private String ruleUuid;
+
+  public RuleChangeDto() {
+    // nothing to do
+  }
 
   public CleanCodeAttribute getOldCleanCodeAttribute() {
     return oldCleanCodeAttribute;
@@ -48,12 +51,12 @@ public class RuleChangeDto {
     this.newCleanCodeAttribute = newCleanCodeAttribute;
   }
 
-  public Set<RuleImpactChangeDto> getRuleImpactChangeDtos() {
-    return ruleImpactChangeDtos;
+  public Set<RuleImpactChangeDto> getRuleImpactChanges() {
+    return ruleImpactChanges;
   }
 
-  public void setRuleImpactChangeDtos(Set<RuleImpactChangeDto> ruleImpactChangeDtos) {
-    this.ruleImpactChangeDtos = ruleImpactChangeDtos;
+  public void setRuleImpactChanges(Set<RuleImpactChangeDto> ruleImpactChanges) {
+    this.ruleImpactChanges = ruleImpactChanges;
   }
 
   public String getRuleUuid() {
@@ -73,7 +76,6 @@ public class RuleChangeDto {
   }
 
   public void addRuleImpactChangeDto(RuleImpactChangeDto ruleImpactChangeDto) {
-    this.ruleImpactChangeDtos.add(ruleImpactChangeDto);
+    this.ruleImpactChanges.add(ruleImpactChangeDto);
   }
-
 }

@@ -17,47 +17,62 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.qualityprofile;
+package org.sonar.db.rule;
+
+import javax.annotation.Nullable;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 
 public class RuleImpactChangeDto {
 
-  private String newSoftwareQuality;
-  private String oldSoftwareQuality;
+  private SoftwareQuality newSoftwareQuality;
+  private SoftwareQuality oldSoftwareQuality;
 
-  private String newSeverity;
-  private String oldSeverity;
+  private Severity newSeverity;
+  private Severity oldSeverity;
 
   private String ruleChangeUuid;
 
-  public String getNewSoftwareQuality() {
+  public RuleImpactChangeDto() {
+  }
+
+  public RuleImpactChangeDto(@Nullable SoftwareQuality newSoftwareQuality, @Nullable SoftwareQuality oldSoftwareQuality,
+                             @Nullable Severity newSeverity, @Nullable Severity oldSeverity) {
+    this.newSoftwareQuality = newSoftwareQuality;
+    this.oldSoftwareQuality = oldSoftwareQuality;
+    this.newSeverity = newSeverity;
+    this.oldSeverity = oldSeverity;
+  }
+
+  public SoftwareQuality getNewSoftwareQuality() {
     return newSoftwareQuality;
   }
 
-  public void setNewSoftwareQuality(String newSoftwareQuality) {
+  public void setNewSoftwareQuality(SoftwareQuality newSoftwareQuality) {
     this.newSoftwareQuality = newSoftwareQuality;
   }
 
-  public String getOldSoftwareQuality() {
+  public SoftwareQuality getOldSoftwareQuality() {
     return oldSoftwareQuality;
   }
 
-  public void setOldSoftwareQuality(String oldSoftwareQuality) {
+  public void setOldSoftwareQuality(SoftwareQuality oldSoftwareQuality) {
     this.oldSoftwareQuality = oldSoftwareQuality;
   }
 
-  public String getNewSeverity() {
+  public Severity getNewSeverity() {
     return newSeverity;
   }
 
-  public void setNewSeverity(String newSeverity) {
+  public void setNewSeverity(Severity newSeverity) {
     this.newSeverity = newSeverity;
   }
 
-  public String getOldSeverity() {
+  public Severity getOldSeverity() {
     return oldSeverity;
   }
 
-  public void setOldSeverity(String oldSeverity) {
+  public void setOldSeverity(Severity oldSeverity) {
     this.oldSeverity = oldSeverity;
   }
 

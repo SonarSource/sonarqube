@@ -23,12 +23,11 @@ import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.qualityprofile.RuleImpactChangeDto;
-import org.sonarqube.ws.Common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,23 +47,23 @@ public class RuleChangeDaoIT {
     ruleChangeDto.setUuid("uuid");
 
     RuleImpactChangeDto ruleImpactChangeDto = new RuleImpactChangeDto();
-    ruleImpactChangeDto.setNewSoftwareQuality(Common.SoftwareQuality.RELIABILITY.name());
-    ruleImpactChangeDto.setOldSoftwareQuality(Common.SoftwareQuality.RELIABILITY.name());
-    ruleImpactChangeDto.setNewSeverity(Severity.LOW.name());
-    ruleImpactChangeDto.setOldSeverity(Severity.HIGH.name());
+    ruleImpactChangeDto.setNewSoftwareQuality(SoftwareQuality.RELIABILITY);
+    ruleImpactChangeDto.setOldSoftwareQuality(SoftwareQuality.RELIABILITY);
+    ruleImpactChangeDto.setNewSeverity(Severity.LOW);
+    ruleImpactChangeDto.setOldSeverity(Severity.HIGH);
 
     RuleImpactChangeDto ruleImpactChangeDto2 = new RuleImpactChangeDto();
-    ruleImpactChangeDto2.setNewSoftwareQuality(Common.SoftwareQuality.SECURITY.name());
-    ruleImpactChangeDto2.setNewSeverity(Severity.MEDIUM.name());
+    ruleImpactChangeDto2.setNewSoftwareQuality(SoftwareQuality.SECURITY);
+    ruleImpactChangeDto2.setNewSeverity(Severity.MEDIUM);
 
     RuleImpactChangeDto ruleImpactChangeDto3 = new RuleImpactChangeDto();
-    ruleImpactChangeDto2.setOldSoftwareQuality(Common.SoftwareQuality.MAINTAINABILITY.name());
-    ruleImpactChangeDto2.setOldSeverity(Severity.MEDIUM.name());
+    ruleImpactChangeDto2.setOldSoftwareQuality(SoftwareQuality.MAINTAINABILITY);
+    ruleImpactChangeDto2.setOldSeverity(Severity.MEDIUM);
 
     Set<RuleImpactChangeDto> impactChanges = Set.of(ruleImpactChangeDto, ruleImpactChangeDto2, ruleImpactChangeDto3);
     impactChanges.forEach(i -> i.setRuleChangeUuid(ruleChangeDto.getUuid()));
 
-    ruleChangeDto.setRuleImpactChangeDtos(impactChanges);
+    ruleChangeDto.setRuleImpactChanges(impactChanges);
     DbSession session = db.getSession();
 
     underTest.insert(session, ruleChangeDto);

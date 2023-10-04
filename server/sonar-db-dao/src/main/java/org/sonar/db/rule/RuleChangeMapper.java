@@ -20,7 +20,6 @@
 package org.sonar.db.rule;
 
 import org.apache.ibatis.annotations.Param;
-import org.sonar.db.qualityprofile.RuleImpactChangeDto;
 
 public interface RuleChangeMapper {
 

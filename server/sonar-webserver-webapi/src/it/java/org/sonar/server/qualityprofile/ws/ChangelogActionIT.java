@@ -22,6 +22,8 @@ package org.sonar.server.qualityprofile.ws;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -29,19 +31,33 @@ import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleChangeDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleImpactChangeDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
-import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.issue.impact.Severity.HIGH;
+import static org.sonar.api.issue.impact.Severity.LOW;
+import static org.sonar.api.issue.impact.Severity.MEDIUM;
+import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
+import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
+import static org.sonar.api.rules.CleanCodeAttribute.CLEAR;
+import static org.sonar.api.rules.CleanCodeAttribute.COMPLETE;
+import static org.sonar.api.rules.CleanCodeAttribute.FOCUSED;
+import static org.sonar.api.rules.CleanCodeAttribute.TESTED;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
@@ -66,12 +82,14 @@ public class ChangelogActionIT {
     QProfileDto profile = db.qualityProfiles().insert();
     UserDto user = db.users().insertUser();
     RuleDto rule = db.rules().insert(RuleKey.of("java", "S001"));
+    RuleChangeDto ruleChange = insertRuleChange(CLEAR, TESTED, rule.getUuid(),
+      Set.of(new RuleImpactChangeDto(MAINTAINABILITY, SECURITY, HIGH, MEDIUM)));
     insertChange(profile, ActiveRuleChange.Type.ACTIVATED, user, ImmutableMap.of(
-      "ruleUuid", rule.getUuid(),
-      "severity", "MINOR",
-      "inheritance", ActiveRuleInheritance.INHERITED.name(),
-      "param_foo", "foo_value",
-      "param_bar", "bar_value"));
+        "ruleUuid", rule.getUuid(),
+        "severity", "MINOR",
+        "param_foo", "foo_value",
+        "param_bar", "bar_value"),
+      ruleChange);
 
     String response = ws.newRequest()
       .setParam(PARAM_LANGUAGE, profile.getLanguage())
@@ -79,38 +97,122 @@ public class ChangelogActionIT {
       .execute()
       .getInput();
 
-    assertJson(response).isSimilarTo("{\n" +
-      "  \"total\": 1,\n" +
-      "  \"p\": 1,\n" +
-      "  \"ps\": 50,\n" +
-      "  \"paging\": {\n" +
-      "     \"pageIndex\": 1,\n" +
-      "     \"pageSize\": 50,\n" +
-      "     \"total\": 1\n" +
-      "  }," +
-      "  \"events\": [\n" +
-      "    {\n" +
-      "      \"date\": \"" + DATE + "\",\n" +
-      "      \"authorLogin\": \"" + user.getLogin() + "\",\n" +
-      "      \"authorName\": \"" + user.getName() + "\",\n" +
-      "      \"action\": \"ACTIVATED\",\n" +
-      "      \"ruleKey\": \"" + rule.getKey() + "\",\n" +
-      "      \"ruleName\": \"" + rule.getName() + "\",\n" +
-      "      \"cleanCodeAttributeCategory\": \"INTENTIONAL\",\n" +
-      "      \"impacts\": [\n" +
-      "        {\n" +
-      "          \"softwareQuality\": \"MAINTAINABILITY\",\n" +
-      "          \"severity\": \"HIGH\"\n" +
-      "        }\n" +
-      "      ]," +
-      "      \"params\": {\n" +
-      "        \"severity\": \"MINOR\",\n" +
-      "        \"bar\": \"bar_value\",\n" +
-      "        \"foo\": \"foo_value\"\n" +
-      "      }\n" +
-      "    }\n" +
-      "  ]\n" +
-      "}");
+    assertJson(response).isSimilarTo("""
+      {
+        "total": 1,
+        "p": 1,
+        "ps": 50,
+        "paging": {
+          "pageIndex": 1,
+          "pageSize": 50,
+          "total": 1
+        },
+        "events": [
+          {
+            "date": "%s",
+            "action": "ACTIVATED",
+            "authorLogin": "%s",
+            "authorName": "%s",
+            "ruleKey": "%s",
+            "ruleName": "%s",
+            "cleanCodeAttributeCategory": "INTENTIONAL",
+            "impacts": [
+              {
+                "softwareQuality": "MAINTAINABILITY",
+                "severity": "HIGH"
+              }
+            ],
+            "params": {
+              "severity": "MINOR",
+              "foo": "foo_value",
+              "bar": "bar_value",
+              "oldCleanCodeAttribute": "CLEAR",
+              "newCleanCodeAttribute": "TESTED",
+              "oldCleanCodeAttributeCategory": "INTENTIONAL",
+              "newCleanCodeAttributeCategory": "ADAPTABLE",
+              "impactChanges": [
+                {
+                  "oldSoftwareQuality": "SECURITY",
+                  "newSoftwareQuality": "MAINTAINABILITY",
+                  "oldSeverity": "MEDIUM",
+                  "newSeverity": "HIGH"
+                }
+              ]
+            }
+          }
+        ]
+      }
+      """.formatted(DATE, user.getLogin(), user.getName(), rule.getKey(), rule.getName()));
+  }
+
+  @Test
+  public void call_shouldReturnRemovedOrAddedImpacts() {
+    QProfileDto profile = db.qualityProfiles().insert();
+    UserDto user = db.users().insertUser();
+    RuleDto rule = db.rules().insert(RuleKey.of("java", "S001"));
+    RuleChangeDto ruleChange = insertRuleChange(COMPLETE, FOCUSED, rule.getUuid(),
+      Set.of(new RuleImpactChangeDto(MAINTAINABILITY, null, HIGH, null), new RuleImpactChangeDto(null, RELIABILITY, null, LOW)));
+    insertChange(profile, ActiveRuleChange.Type.DEACTIVATED, user, ImmutableMap.of(
+        "ruleUuid", rule.getUuid(),
+        "severity", "MINOR",
+        "param_foo", "foo_value",
+        "param_bar", "bar_value"),
+      ruleChange);
+
+    String response = ws.newRequest()
+      .setParam(PARAM_LANGUAGE, profile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+      .execute()
+      .getInput();
+
+    assertJson(response).isSimilarTo("""
+      {
+        "total": 1,
+        "p": 1,
+        "ps": 50,
+        "paging": {
+          "pageIndex": 1,
+          "pageSize": 50,
+          "total": 1
+        },
+        "events": [
+          {
+            "date": "%s",
+            "action": "DEACTIVATED",
+            "authorLogin": "%s",
+            "authorName": "%s",
+            "ruleKey": "%s",
+            "ruleName": "%s",
+            "cleanCodeAttributeCategory": "INTENTIONAL",
+            "impacts": [
+              {
+                "softwareQuality": "MAINTAINABILITY",
+                "severity": "HIGH"
+              }
+            ],
+            "params": {
+              "severity": "MINOR",
+              "foo": "foo_value",
+              "bar": "bar_value",
+              "oldCleanCodeAttribute": "COMPLETE",
+              "newCleanCodeAttribute": "FOCUSED",
+              "oldCleanCodeAttributeCategory": "INTENTIONAL",
+              "newCleanCodeAttributeCategory": "ADAPTABLE",
+              "impactChanges": [
+               {
+                 "newSoftwareQuality": "MAINTAINABILITY",
+                 "newSeverity": "HIGH"
+               },
+               {
+                 "oldSoftwareQuality": "RELIABILITY",
+                 "oldSeverity": "LOW"
+               }
+             ]
+            }
+          }
+        ]
+      }
+      """.formatted(DATE, user.getLogin(), user.getName(), rule.getKey(), rule.getName()));
   }
 
   @Test
@@ -331,7 +433,8 @@ public class ChangelogActionIT {
     String profileUuid = profile.getRulesProfileUuid();
 
     system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:39+0100").getTime());
-    RuleDto rule1 = db.rules().insert(RuleKey.of("java", "S2438"), r -> r.setName("\"Threads\" should not be used where \"Runnables\" are expected"));
+    RuleDto rule1 = db.rules().insert(RuleKey.of("java", "S2438"), r -> r.setName("\"Threads\" should not be used where \"Runnables\" are expected")
+      .addDefaultImpact(new ImpactDto(Uuids.createFast(), SECURITY, LOW)));
     UserDto user1 = db.users().insertUser(u -> u.setLogin("anakin.skywalker").setName("Anakin Skywalker"));
     insertChange(c -> c.setRulesProfileUuid(profileUuid)
       .setUserUuid(user1.getUuid())
@@ -349,10 +452,10 @@ public class ChangelogActionIT {
     system2.setNow(DateUtils.parseDateTime("2014-09-12T15:20:46+0200").getTime());
     RuleDto rule3 = db.rules().insert(RuleKey.of("java", "S00101"), r -> r.setName("Class names should comply with a naming convention"));
     UserDto user3 = db.users().insertUser(u -> u.setLogin("obiwan.kenobi").setName("Obiwan Kenobi"));
-    insertChange(c -> c.setRulesProfileUuid(profileUuid)
-      .setUserUuid(user3.getUuid())
-      .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
-      .setData(ImmutableMap.of("severity", "MAJOR", "param_format", "^[A-Z][a-zA-Z0-9]*", "ruleUuid", rule3.getUuid())));
+    RuleChangeDto ruleChange = insertRuleChange(TESTED, CLEAR, rule3.getUuid(),
+      Set.of(new RuleImpactChangeDto(MAINTAINABILITY, SECURITY, HIGH, MEDIUM), new RuleImpactChangeDto(null, RELIABILITY, null, LOW)));
+    insertChange(profile, ActiveRuleChange.Type.ACTIVATED, user3,
+      ImmutableMap.of("severity", "MAJOR", "param_format", "^[A-Z][a-zA-Z0-9]*", "ruleUuid", rule3.getUuid()), ruleChange);
 
     ws.newRequest()
       .setMethod("GET")
@@ -360,7 +463,7 @@ public class ChangelogActionIT {
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam("ps", "10")
       .execute()
-      .assertJson(this.getClass(), "changelog_example.json");
+      .assertJson(Objects.requireNonNull(ws.getDef().responseExampleAsString()));
   }
 
   @Test
@@ -377,19 +480,38 @@ public class ChangelogActionIT {
     assertThat(language.deprecatedSince()).isNullOrEmpty();
   }
 
-  private QProfileChangeDto insertChange(QProfileDto profile, ActiveRuleChange.Type type, @Nullable UserDto user, @Nullable Map<String, Object> data) {
-    return insertChange(c -> c.setRulesProfileUuid(profile.getRulesProfileUuid())
+  private void insertChange(QProfileDto profile, ActiveRuleChange.Type type, @Nullable UserDto user, @Nullable Map<String, Object> data) {
+    insertChange(profile, type, user, data, null);
+  }
+
+  private void insertChange(QProfileDto profile, ActiveRuleChange.Type type, @Nullable UserDto user, @Nullable Map<String, Object> data,
+                            @Nullable RuleChangeDto ruleChange) {
+    insertChange(c -> c.setRulesProfileUuid(profile.getRulesProfileUuid())
       .setUserUuid(user == null ? null : user.getUuid())
       .setChangeType(type.name())
-      .setData(data));
+      .setData(data)
+      .setRuleChange(ruleChange));
+  }
+
+  private RuleChangeDto insertRuleChange(CleanCodeAttribute oldAttribute, CleanCodeAttribute newAttribute, String ruleUuid, Set<RuleImpactChangeDto> impactChanges) {
+    RuleChangeDto ruleChange = new RuleChangeDto();
+    ruleChange.setUuid(Uuids.createFast());
+    ruleChange.setOldCleanCodeAttribute(oldAttribute);
+    ruleChange.setNewCleanCodeAttribute(newAttribute);
+    ruleChange.setRuleUuid(ruleUuid);
+
+    impactChanges.forEach(impact -> impact.setRuleChangeUuid(ruleChange.getUuid()));
+    ruleChange.setRuleImpactChanges(impactChanges);
+
+    db.getDbClient().ruleChangeDao().insert(db.getSession(), ruleChange);
+    return ruleChange;
   }
 
   @SafeVarargs
-  private final QProfileChangeDto insertChange(Consumer<QProfileChangeDto>... consumers) {
+  private void insertChange(Consumer<QProfileChangeDto>... consumers) {
     QProfileChangeDto dto = new QProfileChangeDto();
     Arrays.stream(consumers).forEach(c -> c.accept(dto));
     db.getDbClient().qProfileChangeDao().insert(db.getSession(), dto);
     db.commit();
-    return dto;
   }
 }

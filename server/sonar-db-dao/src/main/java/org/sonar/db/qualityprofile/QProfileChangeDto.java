@@ -20,16 +20,13 @@
 package org.sonar.db.qualityprofile;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.db.issue.ImpactDto;
+import org.sonar.db.rule.RuleChangeDto;
 
 public class QProfileChangeDto {
 
@@ -38,14 +35,8 @@ public class QProfileChangeDto {
   private String changeType;
   private String userUuid;
   private String data;
-
-  private CleanCodeAttribute oldCleanCodeAttribute;
-  private CleanCodeAttribute newCleanCodeAttribute;
-
-  private Set<RuleImpactChangeDto> ruleImpactChangeDtos;
-
   private long createdAt;
-  private String ruleChangeUuid;
+  private RuleChangeDto ruleChange;
 
   public String getUuid() {
     return uuid;
@@ -119,40 +110,17 @@ public class QProfileChangeDto {
     return this;
   }
 
-  public CleanCodeAttribute getOldCleanCodeAttribute() {
-    return oldCleanCodeAttribute;
+  public RuleChangeDto getRuleChange() {
+    return ruleChange;
   }
 
-  public void setOldCleanCodeAttribute(CleanCodeAttribute oldCleanCodeAttribute) {
-    this.oldCleanCodeAttribute = oldCleanCodeAttribute;
-  }
-
-  public CleanCodeAttribute getNewCleanCodeAttribute() {
-    return newCleanCodeAttribute;
-  }
-
-  public void setNewCleanCodeAttribute(CleanCodeAttribute newCleanCodeAttribute) {
-    this.newCleanCodeAttribute = newCleanCodeAttribute;
-  }
-
-  public Set<RuleImpactChangeDto> getRuleImpactChangeDtos() {
-    return ruleImpactChangeDtos;
-  }
-
-  public void setRuleImpactChangeDtos(Set<RuleImpactChangeDto> ruleImpactChangeDtos) {
-    this.ruleImpactChangeDtos = ruleImpactChangeDtos;
+  public QProfileChangeDto setRuleChange(@Nullable RuleChangeDto ruleChange) {
+    this.ruleChange = ruleChange;
+    return this;
   }
 
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-  }
-
-  public void setRuleChangeUuid(String ruleChangeUuid) {
-    this.ruleChangeUuid = ruleChangeUuid;
-  }
-
-  public String getRuleChangeUuid() {
-    return ruleChangeUuid;
   }
 }

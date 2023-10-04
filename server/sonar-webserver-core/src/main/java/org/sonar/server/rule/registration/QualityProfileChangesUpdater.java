@@ -28,7 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
-import org.sonar.db.qualityprofile.RuleImpactChangeDto;
+import org.sonar.db.rule.RuleImpactChangeDto;
 import org.sonar.db.rule.RuleChangeDto;
 import org.sonar.server.rule.PluginRuleUpdate;
 
@@ -54,7 +54,7 @@ public class QualityProfileChangesUpdater {
         QProfileChangeDto qProfileChangeDto = new QProfileChangeDto();
         qProfileChangeDto.setUuid(uuidFactory.create());
         qProfileChangeDto.setChangeType("UPDATED");
-        qProfileChangeDto.setRuleChangeUuid(ruleChangeUuid);
+        qProfileChangeDto.setRuleChange(ruleChangeDto);
         qProfileChangeDto.setRulesProfileUuid(qualityProfileUuid);
         dbClient.qProfileChangeDao().insert(dbSession, qProfileChangeDto);
       }
@@ -87,10 +87,10 @@ public class QualityProfileChangesUpdater {
     for (SoftwareQuality softwareQuality : matchingSoftwareQualities) {
       RuleImpactChangeDto ruleImpactChangeDto = new RuleImpactChangeDto();
       ruleImpactChangeDto.setRuleChangeUuid(ruleChangeUuid);
-      ruleImpactChangeDto.setOldSeverity(pluginRuleUpdate.getOldImpacts().get(softwareQuality).name());
-      ruleImpactChangeDto.setOldSoftwareQuality(softwareQuality.name());
-      ruleImpactChangeDto.setNewSeverity(pluginRuleUpdate.getNewImpacts().get(softwareQuality).name());
-      ruleImpactChangeDto.setNewSoftwareQuality(softwareQuality.name());
+      ruleImpactChangeDto.setOldSeverity(pluginRuleUpdate.getOldImpacts().get(softwareQuality));
+      ruleImpactChangeDto.setOldSoftwareQuality(softwareQuality);
+      ruleImpactChangeDto.setNewSeverity(pluginRuleUpdate.getNewImpacts().get(softwareQuality));
+      ruleImpactChangeDto.setNewSoftwareQuality(softwareQuality);
       ruleChangeDto.addRuleImpactChangeDto(ruleImpactChangeDto);
     }
 
@@ -107,12 +107,12 @@ public class QualityProfileChangesUpdater {
       RuleImpactChangeDto ruleImpactChangeDto = new RuleImpactChangeDto();
       ruleImpactChangeDto.setRuleChangeUuid(ruleChangeUuid);
       if(i < oldSoftwareQualities.size()) {
-        ruleImpactChangeDto.setOldSeverity(pluginRuleUpdate.getOldImpacts().get(oldSoftwareQualities.get(i)).name());
-        ruleImpactChangeDto.setOldSoftwareQuality(oldSoftwareQualities.get(i).name());
+        ruleImpactChangeDto.setOldSeverity(pluginRuleUpdate.getOldImpacts().get(oldSoftwareQualities.get(i)));
+        ruleImpactChangeDto.setOldSoftwareQuality(oldSoftwareQualities.get(i));
       }
       if(i < newSoftwareQualities.size()) {
-        ruleImpactChangeDto.setNewSeverity(pluginRuleUpdate.getNewImpacts().get(newSoftwareQualities.get(i)).name());
-        ruleImpactChangeDto.setNewSoftwareQuality(newSoftwareQualities.get(i).name());
+        ruleImpactChangeDto.setNewSeverity(pluginRuleUpdate.getNewImpacts().get(newSoftwareQualities.get(i)));
+        ruleImpactChangeDto.setNewSoftwareQuality(newSoftwareQualities.get(i));
       }
       ruleChangeDto.addRuleImpactChangeDto(ruleImpactChangeDto);
     }

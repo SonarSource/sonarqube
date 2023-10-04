@@ -21,7 +21,6 @@ package org.sonar.db.rule;
 
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.RuleImpactChangeDto;
 
 public class RuleChangeDao implements Dao {
 
@@ -30,7 +29,7 @@ public class RuleChangeDao implements Dao {
    * The method doesn't commit its transaction.
    */
   public void insert(DbSession session, RuleChangeDto ruleChangeDto) {
-    for (RuleImpactChangeDto ruleImpactChangeDto : ruleChangeDto.getRuleImpactChangeDtos()) {
+    for (RuleImpactChangeDto ruleImpactChangeDto : ruleChangeDto.getRuleImpactChanges()) {
       session.getMapper(RuleChangeMapper.class).insertRuleImpactChange(ruleImpactChangeDto);
     }
     session.getMapper(RuleChangeMapper.class).insertRuleChange(ruleChangeDto);
