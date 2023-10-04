@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { useState } from 'react';
 import { Button, EditButton } from '../../components/controls/buttons';
 import { translate } from '../../helpers/l10n';
 import { Visibility } from '../../types/component';
@@ -30,61 +31,46 @@ export interface Props {
   onChangeDefaultProjectVisibility: (visibility: Visibility) => void;
 }
 
-interface State {
-  visibilityForm: boolean;
-}
+export default function Header(props: Readonly<Props>) {
+  const [visibilityForm, setVisibilityForm] = useState(false);
 
-export default class Header extends React.PureComponent<Props, State> {
-  state: State = { visibilityForm: false };
+  const { defaultProjectVisibility, hasProvisionPermission } = props;
 
-  handleChangeVisibilityClick = () => {
-    this.setState({ visibilityForm: true });
-  };
+  return (
+    <header className="page-header">
+      <h1 className="page-title">{translate('projects_management')}</h1>
 
-  closeVisiblityForm = () => {
-    this.setState({ visibilityForm: false });
-  };
-
-  render() {
-    const { defaultProjectVisibility, hasProvisionPermission } = this.props;
-    const { visibilityForm } = this.state;
-
-    return (
-      <header className="page-header">
-        <h1 className="page-title">{translate('projects_management')}</h1>
-
-        <div className="page-actions">
-          <span className="big-spacer-right">
-            <span className="text-middle">
-              {translate('settings.projects.default_visibility_of_new_projects')}{' '}
-              <strong>
-                {defaultProjectVisibility ? translate('visibility', defaultProjectVisibility) : '—'}
-              </strong>
-            </span>
-            <EditButton
-              className="js-change-visibility spacer-left button-small"
-              onClick={this.handleChangeVisibilityClick}
-              aria-label={translate('settings.projects.change_visibility_form.label')}
-            />
+      <div className="page-actions">
+        <span className="big-spacer-right">
+          <span className="text-middle">
+            {translate('settings.projects.default_visibility_of_new_projects')}{' '}
+            <strong>
+              {defaultProjectVisibility ? translate('visibility', defaultProjectVisibility) : '—'}
+            </strong>
           </span>
-
-          {hasProvisionPermission && (
-            <Button id="create-project" onClick={this.props.onProjectCreate}>
-              {translate('qualifiers.create.TRK')}
-            </Button>
-          )}
-        </div>
-
-        <p className="page-description">{translate('projects_management.page.description')}</p>
-
-        {visibilityForm && (
-          <ChangeDefaultVisibilityForm
-            defaultVisibility={defaultProjectVisibility ?? Visibility.Public}
-            onClose={this.closeVisiblityForm}
-            onConfirm={this.props.onChangeDefaultProjectVisibility}
+          <EditButton
+            className="js-change-visibility spacer-left button-small"
+            onClick={() => setVisibilityForm(true)}
+            aria-label={translate('settings.projects.change_visibility_form.label')}
           />
+        </span>
+
+        {hasProvisionPermission && (
+          <Button id="create-project" onClick={props.onProjectCreate}>
+            {translate('qualifiers.create.TRK')}
+          </Button>
         )}
-      </header>
-    );
-  }
+      </div>
+
+      <p className="page-description">{translate('projects_management.page.description')}</p>
+
+      {visibilityForm && (
+        <ChangeDefaultVisibilityForm
+          defaultVisibility={defaultProjectVisibility ?? Visibility.Public}
+          onClose={() => setVisibilityForm(false)}
+          onConfirm={props.onChangeDefaultProjectVisibility}
+        />
+      )}
+    </header>
+  );
 }

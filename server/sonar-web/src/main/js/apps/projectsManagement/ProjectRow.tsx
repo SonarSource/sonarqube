@@ -54,7 +54,6 @@ export default function ProjectRow(props: Props) {
         <Checkbox
           label={translateWithParameters('projects_management.select_project', project.name)}
           checked={selected}
-          disabled={project.managed}
           onCheck={handleProjectCheck}
         />
       </td>

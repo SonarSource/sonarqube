@@ -26,52 +26,52 @@ import ProjectRow from './ProjectRow';
 
 interface Props {
   currentUser: Pick<LoggedInUser, 'login'>;
-  onProjectDeselected: (project: string) => void;
-  onProjectSelected: (project: string) => void;
+  onProjectDeselected: (project: Project) => void;
+  onProjectSelected: (project: Project) => void;
   projects: Project[];
   ready?: boolean;
-  selection: string[];
+  selection: Project[];
 }
 
-export default class Projects extends React.PureComponent<Props> {
-  onProjectCheck = (project: Project, checked: boolean) => {
+export default function Projects(props: Readonly<Props>) {
+  const { ready, projects, currentUser, selection } = props;
+
+  const onProjectCheck = (project: Project, checked: boolean) => {
     if (checked) {
-      this.props.onProjectSelected(project.key);
+      props.onProjectSelected(project);
     } else {
-      this.props.onProjectDeselected(project.key);
+      props.onProjectDeselected(project);
     }
   };
 
-  render() {
-    return (
-      <div className="boxed-group boxed-group-inner">
-        <table
-          className={classNames('data', 'zebra', { 'new-loading': !this.props.ready })}
-          id="projects-management-page-projects"
-        >
-          <thead>
-            <tr>
-              <th />
-              <th>{translate('name')}</th>
-              <th />
-              <th>{translate('key')}</th>
-              <th className="thin nowrap text-right">{translate('last_analysis')}</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {this.props.projects.map((project) => (
-              <ProjectRow
-                currentUser={this.props.currentUser}
-                key={project.key}
-                onProjectCheck={this.onProjectCheck}
-                project={project}
-                selected={this.props.selection.includes(project.key)}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  }
+  return (
+    <div className="boxed-group boxed-group-inner">
+      <table
+        className={classNames('data', 'zebra', { 'new-loading': !ready })}
+        id="projects-management-page-projects"
+      >
+        <thead>
+          <tr>
+            <th />
+            <th>{translate('name')}</th>
+            <th />
+            <th>{translate('key')}</th>
+            <th className="thin nowrap text-right">{translate('last_analysis')}</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {projects.map((project) => (
+            <ProjectRow
+              currentUser={currentUser}
+              key={project.key}
+              onProjectCheck={onProjectCheck}
+              project={project}
+              selected={selection.some((s) => s.key === project.key)}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }

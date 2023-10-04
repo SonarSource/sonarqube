@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { bulkDeleteProjects } from '../../api/project-management';
+import { Project, bulkDeleteProjects } from '../../api/project-management';
 import Modal from '../../components/controls/Modal';
 import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
 import { Alert } from '../../components/ui/Alert';
@@ -32,7 +32,7 @@ export interface Props {
   provisioned: boolean;
   qualifier: string;
   query: string;
-  selection: string[];
+  selection: Project[];
   total: number;
 }
 
@@ -57,7 +57,7 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
     const { analyzedBefore } = this.props;
     const parameters = this.props.selection.length
       ? {
-          projects: this.props.selection.join(),
+          projects: this.props.selection.map((s) => s.key).join(),
         }
       : {
           analyzedBefore: analyzedBefore && toISO8601WithOffsetString(analyzedBefore),

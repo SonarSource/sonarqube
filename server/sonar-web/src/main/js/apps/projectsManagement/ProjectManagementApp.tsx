@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debounce, uniq, without } from 'lodash';
+import { debounce, uniq } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
@@ -56,7 +56,7 @@ interface State {
   qualifiers: string;
   query: string;
   ready: boolean;
-  selection: string[];
+  selection: Project[];
   total: number;
   visibility?: Visibility;
 }
@@ -179,17 +179,21 @@ class ProjectManagementApp extends React.PureComponent<Props, State> {
   handleDateChanged = (analyzedBefore: Date | undefined) =>
     this.setState({ ready: false, page: 1, analyzedBefore }, this.requestProjects);
 
-  onProjectSelected = (project: string) => {
-    this.setState(({ selection }) => ({ selection: uniq([...selection, project]) }));
+  onProjectSelected = (project: Project) => {
+    this.setState(({ selection }) => ({
+      selection: uniq([...selection, project]),
+    }));
   };
 
-  onProjectDeselected = (project: string) => {
-    this.setState(({ selection }) => ({ selection: without(selection, project) }));
+  onProjectDeselected = (project: Project) => {
+    this.setState(({ selection }) => ({
+      selection: selection.filter(({ key }) => key !== project.key),
+    }));
   };
 
   onAllSelected = () => {
     this.setState(({ projects }) => ({
-      selection: projects.filter((p) => !p.managed).map((project) => project.key),
+      selection: projects,
     }));
   };
 

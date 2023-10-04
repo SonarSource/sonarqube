@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { bulkApplyTemplate, getPermissionTemplates } from '../../api/permissions';
+import { Project } from '../../api/project-management';
 import Modal from '../../components/controls/Modal';
 import Select from '../../components/controls/Select';
 import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
@@ -36,7 +37,7 @@ export interface Props {
   provisioned: boolean;
   qualifier: string;
   query: string;
-  selection: string[];
+  selection: Project[];
   total: number;
 }
 
@@ -87,9 +88,10 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     const { permissionTemplate } = this.state;
     if (permissionTemplate) {
       this.setState({ submitting: true });
-      const parameters = this.props.selection.length
+      const selection = this.props.selection.filter((s) => !s.managed);
+      const parameters = selection.length
         ? {
-            projects: this.props.selection.join(),
+            projects: selection.map((s) => s.key).join(),
             qualifiers: this.props.qualifier,
             templateId: permissionTemplate,
           }
@@ -120,21 +122,53 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     this.setState({ permissionTemplate: value });
   };
 
-  renderWarning = () => (
-    <Alert variant="warning">
-      {this.props.selection.length
-        ? translateWithParameters(
-            'permission_templates.bulk_apply_permission_template.apply_to_selected',
-            this.props.selection.length,
-          )
-        : translateWithParameters(
-            'permission_templates.bulk_apply_permission_template.apply_to_all',
-            this.props.total,
-          )}
-    </Alert>
-  );
+  renderWarning = () => {
+    const { selection } = this.props;
 
-  renderSelect = () => {
+    const managedProjects = selection.filter((s) => s.managed);
+    const localProjects = selection.filter((s) => !s.managed);
+    const isSelectionOnlyManaged = !!managedProjects.length && !localProjects.length;
+    const isSelectionOnlyLocal = !managedProjects.length && !!localProjects.length;
+
+    if (isSelectionOnlyManaged) {
+      return (
+        <Alert variant="error">
+          {translate(
+            'permission_templates.bulk_apply_permission_template.apply_to_only_github_projects',
+          )}
+        </Alert>
+      );
+    } else if (isSelectionOnlyLocal) {
+      return (
+        <Alert variant="warning">
+          {this.props.selection.length
+            ? translateWithParameters(
+                'permission_templates.bulk_apply_permission_template.apply_to_selected',
+                this.props.selection.length,
+              )
+            : translateWithParameters(
+                'permission_templates.bulk_apply_permission_template.apply_to_all',
+                this.props.total,
+              )}
+        </Alert>
+      );
+    }
+    return (
+      <Alert variant="warning">
+        {translateWithParameters(
+          'permission_templates.bulk_apply_permission_template.apply_to_selected',
+          localProjects.length,
+        )}
+        <br />
+        {translateWithParameters(
+          'permission_templates.bulk_apply_permission_template.apply_to_github_projects',
+          managedProjects.length,
+        )}
+      </Alert>
+    );
+  };
+
+  renderSelect = (isSelectionOnlyManaged: boolean) => {
     const options =
       this.state.permissionTemplates !== undefined
         ? this.state.permissionTemplates.map((t) => ({ label: t.name, value: t.id }))
@@ -148,7 +182,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         <Select
           id="bulk-apply-template"
           inputId="bulk-apply-template-input"
-          isDisabled={this.state.submitting}
+          isDisabled={this.state.submitting || isSelectionOnlyManaged}
           onChange={this.handlePermissionTemplateChange}
           options={options}
           value={options.find((option) => option.value === this.state.permissionTemplate)}
@@ -160,6 +194,8 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
   render() {
     const { done, loading, permissionTemplates, submitting } = this.state;
     const header = translate('permission_templates.bulk_apply_permission_template');
+
+    const isSelectionOnlyManaged = this.props.selection.every((s) => s.managed === true);
 
     return (
       <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
@@ -178,7 +214,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
             <>
               <MandatoryFieldsExplanation className="spacer-bottom" />
               {this.renderWarning()}
-              {this.renderSelect()}
+              {this.renderSelect(isSelectionOnlyManaged)}
             </>
           )}
         </div>
@@ -186,7 +222,10 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         <footer className="modal-foot">
           {submitting && <i className="spinner spacer-right" />}
           {!loading && !done && permissionTemplates && (
-            <SubmitButton disabled={submitting} onClick={this.handleConfirmClick}>
+            <SubmitButton
+              disabled={submitting || isSelectionOnlyManaged}
+              onClick={this.handleConfirmClick}
+            >
               {translate('apply')}
             </SubmitButton>
           )}

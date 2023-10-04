@@ -236,57 +236,119 @@ it('should delete projects, but not Portfolios or Applications', async () => {
   expect(ui.row.getAll()).toHaveLength(3);
 });
 
-it('should bulk apply permission templates to projects', async () => {
-  const user = userEvent.setup();
-  handler.setProjects(
-    Array.from({ length: 11 }, (_, i) => mockProject({ key: i.toString(), name: `Test ${i}` })),
-  );
-  renderProjectManagementApp();
+describe('Bulk permission templates', () => {
+  it('should be applied to local projects', async () => {
+    const user = userEvent.setup();
+    handler.setProjects(
+      Array.from({ length: 11 }, (_, i) => mockProject({ key: i.toString(), name: `Test ${i}` })),
+    );
+    renderProjectManagementApp();
 
-  expect(await ui.bulkApplyButton.find()).toBeDisabled();
-  const projects = ui.row.getAll().slice(1);
-  expect(projects).toHaveLength(11);
-  await user.click(ui.checkAll.get());
-  expect(ui.bulkApplyButton.get()).toBeEnabled();
+    expect(await ui.bulkApplyButton.find()).toBeDisabled();
+    const projects = ui.row.getAll().slice(1);
+    expect(projects).toHaveLength(11);
+    await user.click(ui.checkAll.get());
+    expect(ui.bulkApplyButton.get()).toBeEnabled();
 
-  await user.click(ui.bulkApplyButton.get());
-  expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
-  expect(
-    within(ui.bulkApplyDialog.get()).getByText(
-      'permission_templates.bulk_apply_permission_template.apply_to_selected.11',
-    ),
-  ).toBeInTheDocument();
+    await user.click(ui.bulkApplyButton.get());
+    expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
+    expect(
+      within(ui.bulkApplyDialog.get()).getByText(
+        'permission_templates.bulk_apply_permission_template.apply_to_selected.11',
+      ),
+    ).toBeInTheDocument();
 
-  await user.click(ui.apply.get(ui.bulkApplyDialog.get()));
-  expect(
-    await screen.findByText('bulk apply permission template error message'),
-  ).toBeInTheDocument();
-  expect(ui.bulkApplyDialog.get()).toBeInTheDocument();
+    await user.click(ui.apply.get(ui.bulkApplyDialog.get()));
+    expect(
+      await screen.findByText('bulk apply permission template error message'),
+    ).toBeInTheDocument();
+    expect(ui.bulkApplyDialog.get()).toBeInTheDocument();
 
-  await user.click(ui.cancel.get(ui.bulkApplyDialog.get()));
+    await user.click(ui.cancel.get(ui.bulkApplyDialog.get()));
 
-  await user.click(ui.uncheckAll.get());
-  await user.click(ui.checkbox.get(projects[8]));
-  await user.click(ui.checkbox.get(projects[9]));
-  await user.click(ui.checkbox.get(projects[10]));
-  await user.click(ui.checkbox.get(projects[9])); // uncheck one
-  await user.click(ui.bulkApplyButton.get());
+    await user.click(ui.uncheckAll.get());
+    await user.click(ui.checkbox.get(projects[8]));
+    await user.click(ui.checkbox.get(projects[9]));
+    await user.click(ui.checkbox.get(projects[10]));
+    await user.click(ui.checkbox.get(projects[9])); // uncheck one
+    await user.click(ui.bulkApplyButton.get());
 
-  expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
-  expect(
-    within(ui.bulkApplyDialog.get()).getByText(
-      'permission_templates.bulk_apply_permission_template.apply_to_selected.2',
-    ),
-  ).toBeInTheDocument();
-  await selectEvent.select(
-    ui.selectTemplate.get(ui.bulkApplyDialog.get()),
-    'Permission Template 2',
-  );
-  await user.click(ui.apply.get(ui.bulkApplyDialog.get()));
+    expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
+    expect(
+      within(ui.bulkApplyDialog.get()).getByText(
+        'permission_templates.bulk_apply_permission_template.apply_to_selected.2',
+      ),
+    ).toBeInTheDocument();
+    await selectEvent.select(
+      ui.selectTemplate.get(ui.bulkApplyDialog.get()),
+      'Permission Template 2',
+    );
+    await user.click(ui.apply.get(ui.bulkApplyDialog.get()));
 
-  expect(
-    await within(ui.bulkApplyDialog.get()).findByText('projects_role.apply_template.success'),
-  ).toBeInTheDocument();
+    expect(
+      await within(ui.bulkApplyDialog.get()).findByText('projects_role.apply_template.success'),
+    ).toBeInTheDocument();
+  });
+
+  it('should not be applied to managed projects', async () => {
+    const user = userEvent.setup();
+    handler.setProjects(
+      Array.from({ length: 11 }, (_, i) =>
+        mockProject({ key: i.toString(), name: `Test ${i}`, managed: true }),
+      ),
+    );
+    renderProjectManagementApp();
+
+    expect(await ui.bulkApplyButton.find()).toBeDisabled();
+    const projects = ui.row.getAll().slice(1);
+    expect(projects).toHaveLength(11);
+    await user.click(ui.checkAll.get());
+    expect(ui.bulkApplyButton.get()).toBeEnabled();
+
+    await user.click(ui.bulkApplyButton.get());
+    expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
+    expect(
+      within(ui.bulkApplyDialog.get()).getByText(
+        'permission_templates.bulk_apply_permission_template.apply_to_only_github_projects',
+      ),
+    ).toBeInTheDocument();
+    expect(ui.apply.get(ui.bulkApplyDialog.get())).toBeDisabled();
+  });
+
+  it('should not be applied to managed projects but to local project', async () => {
+    const user = userEvent.setup();
+    const allProjects = [
+      ...Array.from({ length: 6 }, (_, i) =>
+        mockProject({ key: `${i.toString()} managed`, name: `Test managed ${i}`, managed: true }),
+      ),
+      ...Array.from({ length: 5 }, (_, i) =>
+        mockProject({ key: `${i.toString()} local`, name: `Test local ${i}`, managed: false }),
+      ),
+    ];
+
+    handler.setProjects(allProjects);
+    renderProjectManagementApp();
+
+    expect(await ui.bulkApplyButton.find()).toBeDisabled();
+    const projects = ui.row.getAll().slice(1);
+    expect(projects).toHaveLength(11);
+    await user.click(ui.checkAll.get());
+    expect(ui.bulkApplyButton.get()).toBeEnabled();
+
+    await user.click(ui.bulkApplyButton.get());
+    expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
+    expect(
+      within(ui.bulkApplyDialog.get()).getByText(
+        /permission_templates.bulk_apply_permission_template.apply_to_selected.5/,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(ui.bulkApplyDialog.get()).getByText(
+        /permission_templates.bulk_apply_permission_template.apply_to_github_projects.6/,
+      ),
+    ).toBeInTheDocument();
+    expect(ui.apply.get(ui.bulkApplyDialog.get())).toBeEnabled();
+  });
 });
 
 it('should load more and change the filter without caching old pages', async () => {
@@ -461,15 +523,15 @@ it('should show github warning on changing default visibility to admin', async (
   expect(ui.defaultVisibilityWarning.get()).toHaveTextContent('.github');
 });
 
-it('should not allow apply permissions for managed projects', async () => {
+it('should not apply permissions for github projects', async () => {
   const user = userEvent.setup();
   renderProjectManagementApp();
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
   const rows = ui.row.getAll();
-  expect(ui.checkbox.get(rows[4])).toHaveAttribute('aria-disabled', 'true');
+  expect(ui.checkbox.get(rows[4])).not.toHaveAttribute('aria-disabled');
   expect(ui.checkbox.get(rows[1])).not.toHaveAttribute('aria-disabled');
   await user.click(ui.checkAll.get());
-  expect(ui.checkbox.get(rows[4])).not.toBeChecked();
+  expect(ui.checkbox.get(rows[4])).toBeChecked();
   expect(ui.checkbox.get(rows[1])).toBeChecked();
   await act(() => user.click(ui.projectActions.get(rows[4])));
   expect(ui.applyPermissionTemplate.query()).not.toBeInTheDocument();
