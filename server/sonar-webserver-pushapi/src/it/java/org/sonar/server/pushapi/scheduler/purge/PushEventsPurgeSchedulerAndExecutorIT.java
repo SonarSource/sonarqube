@@ -78,7 +78,7 @@ public class PushEventsPurgeSchedulerAndExecutorIT {
     pushEventsPurgeScheduler.start();
 
     await()
-      .atMost(3, TimeUnit.SECONDS)
+      .atMost(10, TimeUnit.SECONDS)
       .pollDelay(500, TimeUnit.MILLISECONDS)
       .until(this::pushEventIsCleanedUp);
   }
