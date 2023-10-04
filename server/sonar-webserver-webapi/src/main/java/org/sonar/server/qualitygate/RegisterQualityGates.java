@@ -41,31 +41,23 @@ import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.measure.Rating;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS_KEY;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_GREATER_THAN;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_LESS_THAN;
 
 public class RegisterQualityGates implements Startable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RegisterQualityGates.class);
-
   private static final String BUILTIN_QUALITY_GATE_NAME = "Sonar way";
-  private static final String A_RATING = Integer.toString(Rating.A.getIndex());
-
   private static final List<QualityGateCondition> QUALITY_GATE_CONDITIONS = asList(
-    new QualityGateCondition().setMetricKey(NEW_SECURITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING),
-    new QualityGateCondition().setMetricKey(NEW_RELIABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING),
-    new QualityGateCondition().setMetricKey(NEW_MAINTAINABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING),
+    new QualityGateCondition().setMetricKey(NEW_VIOLATIONS_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold("0"),
     new QualityGateCondition().setMetricKey(NEW_COVERAGE_KEY).setOperator(OPERATOR_LESS_THAN).setErrorThreshold("80"),
     new QualityGateCondition().setMetricKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold("3"),
     new QualityGateCondition().setMetricKey(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY).setOperator(OPERATOR_LESS_THAN).setErrorThreshold("100"));

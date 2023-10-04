@@ -48,7 +48,7 @@ import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_REMEDIATION_EFFORT_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS_KEY;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.PERCENT;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -105,9 +105,11 @@ public class RegisterQualityGatesIT {
     insertMetrics();
     QualityGateDto builtInQualityGate = db.qualityGates().insertBuiltInQualityGate();
     createBuiltInConditions(builtInQualityGate);
-    // Add another condition
-    qualityGateConditionsUpdater.createCondition(dbSession, builtInQualityGate,
-      NEW_SECURITY_REMEDIATION_EFFORT_KEY, OPERATOR_GREATER_THAN, "5");
+
+    // Add old conditions
+    List.of(NEW_RELIABILITY_RATING_KEY, NEW_MAINTAINABILITY_RATING_KEY, NEW_SECURITY_RATING_KEY)
+      .forEach(metricKey -> qualityGateConditionsUpdater.createCondition(dbSession, builtInQualityGate,
+        metricKey, OPERATOR_GREATER_THAN, "1"));
     dbSession.commit();
 
     underTest.start();
@@ -236,20 +238,25 @@ public class RegisterQualityGatesIT {
   }
 
   private void insertMetrics() {
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_RELIABILITY_RATING_KEY).setValueType(INT.name()).setHidden(false).setDirection(0));
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_SECURITY_RATING_KEY).setValueType(INT.name()).setHidden(false).setDirection(0));
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_SECURITY_REMEDIATION_EFFORT_KEY).setValueType(INT.name()).setHidden(false).setDirection(0));
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_MAINTAINABILITY_RATING_KEY).setValueType(PERCENT.name()).setHidden(false).setDirection(0));
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_COVERAGE_KEY).setValueType(PERCENT.name()).setHidden(false).setDirection(0));
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setValueType(PERCENT.name()).setHidden(false).setDirection(0));
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY).setValueType(PERCENT.name()).setHidden(false).setDirection(0));
+    dbClient.metricDao().insert(dbSession,
+      newMetricDto().setKey(NEW_RELIABILITY_RATING_KEY).setValueType(INT.name()).setHidden(false).setDirection(0));
+    dbClient.metricDao().insert(dbSession,
+      newMetricDto().setKey(NEW_SECURITY_RATING_KEY).setValueType(INT.name()).setHidden(false).setDirection(0));
+    dbClient.metricDao().insert(dbSession,
+      newMetricDto().setKey(NEW_MAINTAINABILITY_RATING_KEY).setValueType(PERCENT.name()).setHidden(false).setDirection(0));
+    dbClient.metricDao().insert(dbSession,
+      newMetricDto().setKey(NEW_VIOLATIONS_KEY).setValueType(INT.name()).setHidden(false).setDirection(0));
+    dbClient.metricDao().insert(dbSession,
+      newMetricDto().setKey(NEW_COVERAGE_KEY).setValueType(PERCENT.name()).setHidden(false).setDirection(0));
+    dbClient.metricDao().insert(dbSession,
+      newMetricDto().setKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setValueType(PERCENT.name()).setHidden(false).setDirection(0));
+    dbClient.metricDao().insert(dbSession,
+      newMetricDto().setKey(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY).setValueType(PERCENT.name()).setHidden(false).setDirection(0));
     dbSession.commit();
   }
 
   private void verifyCorrectBuiltInQualityGate() {
-    MetricDto newReliability = metricDao.selectByKey(dbSession, NEW_RELIABILITY_RATING_KEY);
-    MetricDto newSecurity = metricDao.selectByKey(dbSession, NEW_SECURITY_RATING_KEY);
-    MetricDto newMaintainability = metricDao.selectByKey(dbSession, NEW_MAINTAINABILITY_RATING_KEY);
+    MetricDto newViolations = metricDao.selectByKey(dbSession, NEW_VIOLATIONS_KEY);
     MetricDto newCoverage = metricDao.selectByKey(dbSession, NEW_COVERAGE_KEY);
     MetricDto newDuplication = metricDao.selectByKey(dbSession, NEW_DUPLICATED_LINES_DENSITY_KEY);
     MetricDto newSecurityHotspots = metricDao.selectByKey(dbSession, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY);
@@ -262,9 +269,7 @@ public class RegisterQualityGatesIT {
       .extracting(QualityGateConditionDto::getMetricUuid, QualityGateConditionDto::getOperator,
         QualityGateConditionDto::getErrorThreshold)
       .containsExactlyInAnyOrder(
-        tuple(newReliability.getUuid(), OPERATOR_GREATER_THAN, "1"),
-        tuple(newSecurity.getUuid(), OPERATOR_GREATER_THAN, "1"),
-        tuple(newMaintainability.getUuid(), OPERATOR_GREATER_THAN, "1"),
+        tuple(newViolations.getUuid(), OPERATOR_GREATER_THAN, "0"),
         tuple(newCoverage.getUuid(), OPERATOR_LESS_THAN, "80"),
         tuple(newDuplication.getUuid(), OPERATOR_GREATER_THAN, "3"),
         tuple(newSecurityHotspots.getUuid(), OPERATOR_LESS_THAN, "100"));
@@ -274,11 +279,7 @@ public class RegisterQualityGatesIT {
     List<QualityGateConditionDto> conditions = new ArrayList<>();
 
     conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
-      NEW_SECURITY_RATING_KEY, OPERATOR_GREATER_THAN, "1"));
-    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
-      NEW_RELIABILITY_RATING_KEY, OPERATOR_GREATER_THAN, "1"));
-    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
-      NEW_MAINTAINABILITY_RATING_KEY, OPERATOR_GREATER_THAN, "1"));
+      NEW_VIOLATIONS_KEY, OPERATOR_GREATER_THAN, "0"));
     conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
       NEW_COVERAGE_KEY, OPERATOR_LESS_THAN, "80"));
     conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
@@ -293,11 +294,7 @@ public class RegisterQualityGatesIT {
     List<QualityGateConditionDto> conditions = new ArrayList<>();
 
     conditions.add(createConditionWithoutCheckingDuplicates(qg,
-      NEW_SECURITY_RATING_KEY, OPERATOR_GREATER_THAN, "1"));
-    conditions.add(createConditionWithoutCheckingDuplicates(qg,
-      NEW_RELIABILITY_RATING_KEY, OPERATOR_GREATER_THAN, "1"));
-    conditions.add(createConditionWithoutCheckingDuplicates(qg,
-      NEW_MAINTAINABILITY_RATING_KEY, OPERATOR_GREATER_THAN, "1"));
+      NEW_VIOLATIONS_KEY, OPERATOR_GREATER_THAN, "0"));
     conditions.add(createConditionWithoutCheckingDuplicates(qg,
       NEW_COVERAGE_KEY, OPERATOR_LESS_THAN, "80"));
     conditions.add(createConditionWithoutCheckingDuplicates(qg,
