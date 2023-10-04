@@ -237,14 +237,6 @@ public class AllProcessesCommands implements AutoCloseable {
     return bytes;
   }
 
-  private void writeLong(int processNumber, int offset, long value) {
-    mappedByteBuffer.putLong(offset(processNumber) + offset, value);
-  }
-
-  private long readLong(int processNumber, int offset) {
-    return mappedByteBuffer.getLong(offset(processNumber) + offset);
-  }
-
   // VisibleForTesting
   int offset(int processNumber) {
     return BYTE_LENGTH_FOR_ONE_PROCESS * processNumber;
