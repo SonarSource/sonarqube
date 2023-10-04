@@ -36,6 +36,7 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.component.FileStatuses;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
@@ -159,7 +160,7 @@ public class IntegrateIssuesVisitorTest {
     ClosedIssuesInputFactory closedIssuesInputFactory = new ClosedIssuesInputFactory(issuesLoader, dbClient, movedFilesRepository);
     tracker = new TrackerExecution(baseInputFactory, closedIssuesInputFactory, new Tracker<>(), issuesLoader, analysisMetadataHolder);
     mergeBranchTracker = new ReferenceBranchTrackerExecution(mergeInputFactory, new Tracker<>());
-    prBranchTracker = new PullRequestTrackerExecution(baseInputFactory, targetInputFactory, new Tracker<>(), newLinesRepository);
+    prBranchTracker = new PullRequestTrackerExecution(baseInputFactory, targetInputFactory, new Tracker<>(), newLinesRepository, mock(ConfigurationRepository.class));
     trackingDelegator = new IssueTrackingDelegator(prBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
     treeRootHolder.setRoot(PROJECT);
     protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);

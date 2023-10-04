@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.issue.Issue;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
@@ -37,18 +38,26 @@ public class PullRequestTrackerExecution {
   private final Tracker<DefaultIssue, DefaultIssue> tracker;
   private final NewLinesRepository newLinesRepository;
   private final TrackerTargetBranchInputFactory targetInputFactory;
+  private final ConfigurationRepository config;
 
   public PullRequestTrackerExecution(TrackerBaseInputFactory baseInputFactory, TrackerTargetBranchInputFactory targetInputFactory,
-    Tracker<DefaultIssue, DefaultIssue> tracker, NewLinesRepository newLinesRepository) {
+    Tracker<DefaultIssue, DefaultIssue> tracker, NewLinesRepository newLinesRepository, ConfigurationRepository config) {
     this.baseInputFactory = baseInputFactory;
     this.targetInputFactory = targetInputFactory;
     this.tracker = tracker;
     this.newLinesRepository = newLinesRepository;
+    this.config = config;
   }
 
   public Tracking<DefaultIssue, DefaultIssue> track(Component component, Input<DefaultIssue> rawInput) {
     // Step 1: only keep issues on changed lines
-    List<DefaultIssue> filteredRaws = keepIssuesHavingAtLeastOneLocationOnChangedLines(component, rawInput.getIssues());
+    List<DefaultIssue> filteredRaws;
+    boolean filterIssuesByChangedLines = config.getConfiguration().getBoolean("codescan.pullRequest.filterIssuesByChangedLines").orElse(Boolean.TRUE);
+    if (filterIssuesByChangedLines) {
+      filteredRaws = keepIssuesHavingAtLeastOneLocationOnChangedLines(component, rawInput.getIssues());
+    } else {
+      filteredRaws = rawInput.getIssues().stream().toList();
+    }
     Input<DefaultIssue> unmatchedRawsAfterChangedLineFiltering = createInput(rawInput, filteredRaws);
 
     // Step 2: remove issues that are resolved in the target branch

@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.BlockHashSequence;
@@ -73,7 +74,7 @@ public class PullRequestTrackerExecutionTest {
     when(targetFactory.createForTargetBranch(FILE)).thenReturn(createInput(targetIssues));
 
     Tracker<DefaultIssue, DefaultIssue> tracker = new Tracker<>();
-    underTest = new PullRequestTrackerExecution(baseFactory, targetFactory, tracker, newLinesRepository);
+    underTest = new PullRequestTrackerExecution(baseFactory, targetFactory, tracker, newLinesRepository, mock(ConfigurationRepository.class));
   }
 
   @Test
