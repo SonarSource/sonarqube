@@ -19,8 +19,10 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
@@ -71,8 +73,18 @@ public class UserDeactivator {
   }
 
   private void ensureNotLastAdministrator(DbSession dbSession, UserDto user) {
-    boolean isLastAdmin = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUser(dbSession, null /* TODO */, ADMINISTER.getKey(), user.getUuid()) == 0;
+    boolean isLastAdmin = !selectOrganizationsWithLastAdmin(dbSession, user.getUuid()).isEmpty();
     checkRequest(!isLastAdmin, "User is last administrator, and cannot be deactivated");
+  }
+
+  public List<OrganizationDto> selectOrganizationsWithLastAdmin(DbSession dbSession, String userUuid) {
+    return dbClient.organizationDao().selectByPermission(dbSession, userUuid, ADMINISTER.getKey()).stream()
+            .filter(org -> isLastAdmin(dbSession, org, userUuid))
+            .toList();
+  }
+
+  private boolean isLastAdmin(DbSession dbSession, OrganizationDto org, String userUuid) {
+    return dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUser(dbSession, org.getUuid(), ADMINISTER.getKey(), userUuid) == 0;
   }
 
   private void deleteRelatedData(DbSession dbSession, UserDto user) {

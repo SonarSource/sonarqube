@@ -25,10 +25,13 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singletonList;
@@ -36,6 +39,8 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
 public class DeactivateAction implements UsersWsAction {
+
+  private static final Logger logger = Loggers.get(DeactivateAction.class);
 
   private static final String PARAM_LOGIN = "login";
   private static final String PARAM_ANONYMIZE = "anonymize";
@@ -77,18 +82,26 @@ public class DeactivateAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String login;
-
     userSession.checkLoggedIn().checkIsSystemAdministrator();
-    login = request.mandatoryParam(PARAM_LOGIN);
-    checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
+    String login = request.mandatoryParam(PARAM_LOGIN);
+    String remoteAddress = request.header("X-Forwarded-For").orElse("n/a");
 
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      boolean shouldAnonymize = request.mandatoryParamAsBoolean(PARAM_ANONYMIZE);
-      UserDto userDto = shouldAnonymize
-        ? userDeactivator.deactivateUserWithAnonymization(dbSession, login)
-        : userDeactivator.deactivateUser(dbSession, login);
-      writeResponse(response, userDto.getLogin());
+    try {
+      checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
+
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        boolean shouldAnonymize = request.mandatoryParamAsBoolean(PARAM_ANONYMIZE);
+        UserDto userDto = shouldAnonymize
+                ? userDeactivator.deactivateUserWithAnonymization(dbSession, login)
+                : userDeactivator.deactivateUser(dbSession, login);
+        writeResponse(response, userDto.getLogin());
+      }
+
+      logger.info("User \"{}\" was deactivated. The action was executed by {} from {} remote address.", login, userSession.getLogin(), remoteAddress);
+    } catch (BadRequestException ex) {
+      logger.info("User \"{}\" was not deactivated. The action was executed by {} from {} remote address. Error: {}",
+              login, userSession.getLogin(), remoteAddress, ex.getMessage());
+      throw ex;
     }
   }
 
