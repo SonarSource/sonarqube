@@ -26,12 +26,12 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class CreateUniqueIndexForRuleImpactChangesTable extends DdlChange {
+public class CreateIndexForRuleImpactChangesTable extends DdlChange {
 
-  static final String INDEX_NAME = "uniq_rule_impact_changes";
+  static final String INDEX_NAME = "rule_impact_changes_r_c_uuid";
   static final String TABLE_NAME = "rule_impact_changes";
 
-  public CreateUniqueIndexForRuleImpactChangesTable(Database db) {
+  public CreateIndexForRuleImpactChangesTable(Database db) {
     super(db);
   }
 
@@ -48,9 +48,7 @@ public class CreateUniqueIndexForRuleImpactChangesTable extends DdlChange {
         .setTable(TABLE_NAME)
         .setName(INDEX_NAME)
         .addColumn("rule_change_uuid")
-        .addColumn("new_software_quality")
-        .addColumn("new_severity")
-        .setUnique(true)
+        .setUnique(false)
         .build());
     }
   }

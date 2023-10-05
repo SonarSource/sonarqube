@@ -24,14 +24,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 
-public class CreateUniqueIndexForRuleImpactChangesTableTest {
+public class CreateIndexForRuleImpactChangesTableTest {
 
-  static final String INDEX_NAME = "uniq_rule_impact_changes";
+  static final String INDEX_NAME = "rule_impact_changes_r_c_uuid";
   static final String TABLE_NAME = "rule_impact_changes";
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreateUniqueIndexForRuleImpactChangesTableTest.class, "schema.sql");
+  public final CoreDbTester db = CoreDbTester.createForSchema(CreateIndexForRuleImpactChangesTableTest.class, "schema.sql");
 
-  private final CreateUniqueIndexForRuleImpactChangesTable underTest = new CreateUniqueIndexForRuleImpactChangesTable(db.database());
+  private final CreateIndexForRuleImpactChangesTable underTest = new CreateIndexForRuleImpactChangesTable(db.database());
 
   @Test
   public void migration_should_create_index() throws SQLException {
@@ -39,7 +39,7 @@ public class CreateUniqueIndexForRuleImpactChangesTableTest {
 
     underTest.execute();
 
-    db.assertUniqueIndex(TABLE_NAME, INDEX_NAME, "rule_change_uuid", "new_software_quality", "new_severity");
+    db.assertIndex(TABLE_NAME, INDEX_NAME, "rule_change_uuid");
   }
 
   @Test
@@ -47,6 +47,6 @@ public class CreateUniqueIndexForRuleImpactChangesTableTest {
     underTest.execute();
     underTest.execute();
 
-    db.assertUniqueIndex(TABLE_NAME, INDEX_NAME, "rule_change_uuid", "new_software_quality", "new_severity");
+    db.assertIndex(TABLE_NAME, INDEX_NAME, "rule_change_uuid");
   }
 }
