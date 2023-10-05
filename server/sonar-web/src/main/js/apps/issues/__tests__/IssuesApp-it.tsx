@@ -243,8 +243,7 @@ describe('issues app', () => {
       expect(ui.issueItem8.get()).toBeInTheDocument();
     });
 
-    // Improve this to include all the bulk change fonctionality
-    it('should be able to bulk change', async () => {
+    it('should be able to select issues for bulk change', async () => {
       jest.useRealTimers();
       const user = userEvent.setup();
       const currentUser = mockLoggedInUser({
@@ -257,21 +256,38 @@ describe('issues app', () => {
       // Check that the bulk button has correct behavior
       expect(screen.getByRole('button', { name: 'bulk_change' })).toBeDisabled();
 
+      // Select all issues
       await act(async () => {
         await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
       });
-
       expect(
         screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' }),
       ).toBeInTheDocument();
+
+      // Open bulk change modal and close it
       await user.click(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' }));
       await user.click(screen.getByRole('button', { name: 'cancel' }));
       expect(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.10' })).toHaveFocus();
-      await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
+
+      // Unselect all
+      await act(async () => {
+        await user.click(screen.getByRole('checkbox', { name: 'issues.select_all_issues' }));
+      });
+      expect(screen.getByRole('button', { name: 'bulk_change' })).toBeDisabled();
+    });
+
+    it('should be able to bulk change', async () => {
+      jest.useRealTimers();
+      const user = userEvent.setup();
+      const currentUser = mockLoggedInUser({
+        dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true },
+      });
+      issuesHandler.setIsAdmin(true);
+      issuesHandler.setCurrentUser(currentUser);
+      renderIssueApp(currentUser);
 
       // Check that we bulk change the selected issue
-      const issueBoxFixThat = within(screen.getByRole('region', { name: 'Fix that' }));
-
+      const issueBoxFixThat = within(await screen.findByRole('region', { name: 'Fix that' }));
       await user.click(
         screen.getByRole('checkbox', { name: 'issues.action_select.label.Fix that' }),
       );
