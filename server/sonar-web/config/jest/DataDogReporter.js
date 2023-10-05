@@ -21,9 +21,6 @@
 const fs = require('fs');
 
 const ES_ITEM_CATEGORY = 'Validate-UT-Frontend';
-const ES_ITEM_KIND = 'testcase';
-const ES_ITEM_OPERATION = 'total';
-const ES_ITEM_SUITE = 'Standalone';
 
 module.exports = class ElasticSearchReporter {
   constructor(globalConfig, options) {
@@ -60,20 +57,19 @@ module.exports = class ElasticSearchReporter {
     const timestamp = new Date(testClassResult.perfStats.start).toISOString();
     const testClass = this.stripFilePath(testClassResult.testFilePath);
 
-    return testClassResult.testResults.map(testResult => ({
-      commit,
-      build,
-      category: ES_ITEM_CATEGORY,
-      kind: ES_ITEM_KIND,
-      operation: ES_ITEM_OPERATION,
-      suite: ES_ITEM_SUITE,
-      measureClass: '',
-      measureMethod: '',
-      timestamp,
-      testClass,
-      testMethod: testResult.fullName,
-      duration: testResult.duration
-    }));
+    return testClassResult.testResults
+      .filter((test) => test.status === 'failed')
+      .map((testResult) => ({
+        commit,
+        build,
+        category: ES_ITEM_CATEGORY,
+        timestamp,
+        testClass,
+        testMethod: testResult.fullName,
+        exceptionClass: '',
+        exceptionMessage: testResult.failureMessages[0],
+        exceptionLogs: testResult.failureMessages[0],
+      }));
   }
 
   onRunComplete(contexts, { testResults }) {

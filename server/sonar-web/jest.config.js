@@ -56,9 +56,9 @@ module.exports = {
       },
     ],
     [
-      './config/jest/ElasticSearchReporter.js',
+      './config/jest/DataDogReporter.js',
       {
-        outputFilepath: '/tmp/ut-ts-web-monitoring.log',
+        outputFilepath: '/tmp/ut-ts-web-test-monitoring.log',
       },
     ],
     ['jest-slow-test-reporter', { numTests: 5, warnOnSlowerThan: 10000, color: true }],
