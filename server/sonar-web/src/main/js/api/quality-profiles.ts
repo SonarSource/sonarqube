@@ -22,6 +22,11 @@ import { Exporter, ProfileChangelogEvent } from '../apps/quality-profiles/types'
 import { csvEscape } from '../helpers/csv';
 import { throwGlobalError } from '../helpers/error';
 import { RequestData, getJSON, post, postJSON } from '../helpers/request';
+import {
+  CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../types/clean-code-taxonomy';
 import { Dict, Paging, ProfileInheritanceDetails, UserSelected } from '../types/types';
 
 export interface ProfileActions {
@@ -187,17 +192,29 @@ export function getProfileChangelog(
   });
 }
 
+export interface RuleCompare {
+  key: string;
+  name: string;
+  cleanCodeAttributeCategory: CleanCodeAttributeCategory;
+  impacts: Array<{
+    softwareQuality: SoftwareQuality;
+    severity: SoftwareImpactSeverity;
+  }>;
+  left?: { params: Dict<string>; severity: string };
+  right?: { params: Dict<string>; severity: string };
+}
+
 export interface CompareResponse {
   left: { name: string };
   right: { name: string };
-  inLeft: Array<{ key: string; name: string; severity: string }>;
-  inRight: Array<{ key: string; name: string; severity: string }>;
-  modified: Array<{
-    key: string;
-    name: string;
-    left: { params: Dict<string>; severity: string };
-    right: { params: Dict<string>; severity: string };
-  }>;
+  inLeft: Array<RuleCompare>;
+  inRight: Array<RuleCompare>;
+  modified: Array<
+    RuleCompare & {
+      left: { params: Dict<string>; severity: string };
+      right: { params: Dict<string>; severity: string };
+    }
+  >;
 }
 
 export function compareProfiles(leftKey: string, rightKey: string): Promise<CompareResponse> {

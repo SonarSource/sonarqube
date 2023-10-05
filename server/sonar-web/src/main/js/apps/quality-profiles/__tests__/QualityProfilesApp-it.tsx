@@ -21,6 +21,7 @@ import { act, getByText, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import QualityProfilesServiceMock from '../../../api/mocks/QualityProfilesServiceMock';
+import SettingsServiceMock from '../../../api/mocks/SettingsServiceMock';
 import { mockPaging, mockRule } from '../../../helpers/testMocks';
 import { renderAppRoutes } from '../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../helpers/testSelector';
@@ -30,9 +31,11 @@ jest.mock('../../../api/quality-profiles');
 jest.mock('../../../api/rules');
 
 const serviceMock = new QualityProfilesServiceMock();
+const settingsMock = new SettingsServiceMock();
 
 beforeEach(() => {
   serviceMock.reset();
+  settingsMock.reset();
 });
 
 const ui = {
@@ -83,6 +86,11 @@ const ui = {
     byRole('button', {
       name: `quality_profiles.comparison.activate_rule.${profileName}`,
     }),
+  deactivateRuleButton: (profileName: string) =>
+    byRole('button', {
+      name: `quality_profiles.comparison.deactivate_rule.${profileName}`,
+    }),
+  deactivateConfirmButton: byRole('button', { name: 'yes' }),
   activateConfirmButton: byRole('button', { name: 'coding_rules.activate' }),
   namePropupInput: byRole('textbox', { name: 'quality_profiles.new_name required' }),
   filterByLang: byRole('combobox', { name: 'quality_profiles.select_lang' }),
@@ -103,6 +111,8 @@ const ui = {
   nameCreatePopupInput: byRole('textbox', { name: 'name required' }),
   importerA: byText('Importer A'),
   importerB: byText('Importer B'),
+  summaryAdditionalRules: (count: number) => byText(`quality_profile.summary_additional.${count}`),
+  summaryFewerRules: (count: number) => byText(`quality_profile.summary_fewer.${count}`),
   comparisonDiffTableHeading: (rulesQuantity: number, profileName: string) =>
     byRole('columnheader', {
       name: `quality_profiles.x_rules_only_in.${rulesQuantity}.${profileName}`,
@@ -321,18 +331,44 @@ it('should be able to compare profiles', async () => {
   expect(ui.changelogLink.query()).not.toBeInTheDocument();
 
   await selectEvent.select(ui.compareDropdown.get(), 'java quality profile #2');
-  expect(ui.comparisonDiffTableHeading(1, 'java quality profile').get()).toBeInTheDocument();
+  expect(await ui.comparisonDiffTableHeading(1, 'java quality profile').find()).toBeInTheDocument();
   expect(ui.comparisonDiffTableHeading(1, 'java quality profile #2').get()).toBeInTheDocument();
   expect(ui.comparisonModifiedTableHeading(1).get()).toBeInTheDocument();
 
   // java quality profile is not editable
   expect(ui.activeRuleButton('java quality profile').query()).not.toBeInTheDocument();
+  expect(ui.deactivateRuleButton('java quality profile').query()).not.toBeInTheDocument();
+});
 
-  await user.click(ui.activeRuleButton('java quality profile #2').get());
+it('should be able to activate or deactivate rules in comparison page', async () => {
+  // From the list page
+  const user = userEvent.setup();
+  serviceMock.setAdmin();
+  renderQualityProfiles();
+
+  await user.click(await ui.listProfileActions('java quality profile #2', 'Java').find());
+  await user.click(ui.compareButton.get());
+  await selectEvent.select(ui.compareDropdown.get(), 'java quality profile');
+
+  expect(await ui.summaryFewerRules(1).find()).toBeInTheDocument();
+  expect(ui.summaryAdditionalRules(1).get()).toBeInTheDocument();
+
+  // Activate
+  await act(async () => {
+    await user.click(ui.activeRuleButton('java quality profile #2').get());
+  });
   expect(ui.popup.get()).toBeInTheDocument();
 
-  await user.click(ui.activateConfirmButton.get());
-  expect(ui.comparisonDiffTableHeading(1, 'java quality profile').query()).not.toBeInTheDocument();
+  await act(async () => {
+    await user.click(ui.activateConfirmButton.get());
+  });
+  expect(ui.summaryFewerRules(1).query()).not.toBeInTheDocument();
+
+  // Deactivate
+  await user.click(await ui.deactivateRuleButton('java quality profile #2').find());
+  expect(ui.popup.get()).toBeInTheDocument();
+  await user.click(ui.deactivateConfirmButton.get());
+  expect(ui.summaryAdditionalRules(1).query()).not.toBeInTheDocument();
 });
 
 function renderQualityProfiles() {

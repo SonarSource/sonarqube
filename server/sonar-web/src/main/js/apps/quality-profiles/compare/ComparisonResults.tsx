@@ -18,12 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ActionCell, ContentCell, Link, Table, TableRowInteractive } from 'design-system';
+import { isEqual } from 'lodash';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
-import { CompareResponse, Profile } from '../../../api/quality-profiles';
+import { CompareResponse, Profile, RuleCompare } from '../../../api/quality-profiles';
+import IssueSeverityIcon from '../../../components/icon-mappers/IssueSeverityIcon';
+import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
+import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
 import { getRulesUrl } from '../../../helpers/urls';
+import { IssueSeverity } from '../../../types/issues';
 import { Dict } from '../../../types/types';
 import ComparisonResultActivation from './ComparisonResultActivation';
+import ComparisonResultDeactivation from './ComparisonResultDeactivation';
+import ComparisonResultsSummary from './ComparisonResultsSummary';
 
 type Params = Dict<string>;
 
@@ -31,54 +38,33 @@ interface Props extends CompareResponse {
   leftProfile: Profile;
   refresh: () => Promise<void>;
   rightProfile?: Profile;
+  canDeactivateInheritedRules: boolean;
 }
 
 export default function ComparisonResults(props: Readonly<Props>) {
-  const { leftProfile, rightProfile, inLeft, left, right, inRight, modified } = props;
+  const {
+    leftProfile,
+    rightProfile,
+    inLeft,
+    left,
+    right,
+    inRight,
+    modified,
+    canDeactivateInheritedRules,
+  } = props;
 
   const intl = useIntl();
 
   const emptyComparison = !inLeft.length && !inRight.length && !modified.length;
 
-  const canActivate = (profile: Profile) =>
-    !profile.isBuiltIn && profile.actions && profile.actions.edit;
-
-  const renderRule = React.useCallback((rule: { key: string; name: string }) => {
-    return (
-      <div>
-        <Link className="sw-ml-1" to={getRulesUrl({ rule_key: rule.key, open: rule.key })}>
-          {rule.name}
-        </Link>
-      </div>
-    );
-  }, []);
-
-  const renderParameters = React.useCallback((params: Params) => {
-    if (!params) {
-      return null;
-    }
-    return (
-      <ul>
-        {Object.keys(params).map((key) => (
-          <li className="sw-mt-2 sw-break-all" key={key}>
-            <code className="sw-code">
-              {key}
-              {': '}
-              {params[key]}
-            </code>
-          </li>
-        ))}
-      </ul>
-    );
-  }, []);
+  const canEdit = (profile: Profile) => !profile.isBuiltIn && profile.actions?.edit;
 
   const renderLeft = () => {
     if (inLeft.length === 0) {
       return null;
     }
 
-    const renderSecondColumn = rightProfile && canActivate(rightProfile);
-
+    const canRenderSecondColumn = leftProfile && canEdit(leftProfile);
     return (
       <Table
         columnCount={2}
@@ -94,7 +80,7 @@ export default function ComparisonResults(props: Readonly<Props>) {
                 { count: inLeft.length, profile: left.name },
               )}
             </ContentCell>
-            {renderSecondColumn && (
+            {canRenderSecondColumn && (
               <ContentCell aria-label={intl.formatMessage({ id: 'actions' })}>&nbsp;</ContentCell>
             )}
           </TableRowInteractive>
@@ -102,14 +88,17 @@ export default function ComparisonResults(props: Readonly<Props>) {
       >
         {inLeft.map((rule) => (
           <TableRowInteractive key={`left-${rule.key}`}>
-            <ContentCell>{renderRule(rule)}</ContentCell>
-            {renderSecondColumn && (
+            <ContentCell>
+              <RuleCell rule={rule} />
+            </ContentCell>
+            {canRenderSecondColumn && (
               <ContentCell className="sw-px-0">
-                <ComparisonResultActivation
+                <ComparisonResultDeactivation
                   key={rule.key}
                   onDone={props.refresh}
-                  profile={rightProfile}
+                  profile={leftProfile}
                   ruleKey={rule.key}
+                  canDeactivateInheritedRules={canDeactivateInheritedRules}
                 />
               </ContentCell>
             )}
@@ -124,7 +113,7 @@ export default function ComparisonResults(props: Readonly<Props>) {
       return null;
     }
 
-    const renderFirstColumn = leftProfile && canActivate(leftProfile);
+    const renderFirstColumn = leftProfile && canEdit(leftProfile);
 
     return (
       <Table
@@ -159,7 +148,9 @@ export default function ComparisonResults(props: Readonly<Props>) {
                 />
               </ActionCell>
             )}
-            <ContentCell className="sw-pl-4">{renderRule(rule)}</ContentCell>
+            <ContentCell className="sw-pl-4">
+              <RuleCell rule={rule} />
+            </ContentCell>
           </TableRowInteractive>
         ))}
       </Table>
@@ -195,14 +186,14 @@ export default function ComparisonResults(props: Readonly<Props>) {
           <TableRowInteractive key={`modified-${rule.key}`}>
             <ContentCell>
               <div>
-                {renderRule(rule)}
-                {renderParameters(rule.left.params)}
+                <RuleCell rule={rule} severity={rule.left.severity} />
+                <Parameters params={rule.left.params} />
               </div>
             </ContentCell>
             <ContentCell className="sw-pl-4">
               <div>
-                {renderRule(rule)}
-                {renderParameters(rule.right.params)}
+                <RuleCell rule={rule} severity={rule.right.severity} />
+                <Parameters params={rule.right.params} />
               </div>
             </ContentCell>
           </TableRowInteractive>
@@ -212,16 +203,66 @@ export default function ComparisonResults(props: Readonly<Props>) {
   };
 
   return (
-    <div className="sw-mt-4">
+    <div className="sw-mt-8">
       {emptyComparison ? (
         intl.formatMessage({ id: 'quality_profile.empty_comparison' })
       ) : (
         <>
+          <ComparisonResultsSummary
+            profileName={leftProfile.name}
+            comparedProfileName={rightProfile?.name}
+            additionalCount={inLeft.length}
+            fewerCount={inRight.length}
+          />
           {renderLeft()}
           {renderRight()}
           {renderModified()}
         </>
       )}
     </div>
+  );
+}
+
+function RuleCell({ rule, severity }: Readonly<{ rule: RuleCompare; severity?: string }>) {
+  const shouldRenderSeverity =
+    Boolean(severity) && rule.left && rule.right && isEqual(rule.left.params, rule.right.params);
+
+  return (
+    <div>
+      {shouldRenderSeverity && <IssueSeverityIcon severity={severity as IssueSeverity} />}
+      <Link className="sw-ml-1" to={getRulesUrl({ rule_key: rule.key, open: rule.key })}>
+        {rule.name}
+      </Link>
+      <ul className="sw-mt-3 sw-flex sw-items-center">
+        <li>
+          <CleanCodeAttributePill cleanCodeAttributeCategory={rule.cleanCodeAttributeCategory} />
+        </li>
+        {rule.impacts.map(({ severity, softwareQuality }) => (
+          <li key={softwareQuality} className="sw-ml-2">
+            <SoftwareImpactPill type="rule" quality={softwareQuality} severity={severity} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function Parameters({ params }: Readonly<{ params?: Params }>) {
+  if (!params) {
+    return null;
+  }
+
+  return (
+    <ul>
+      {Object.keys(params).map((key) => (
+        <li className="sw-mt-2 sw-break-all" key={key}>
+          <code className="sw-body-sm">
+            {key}
+            {': '}
+            {params[key]}
+          </code>
+        </li>
+      ))}
+    </ul>
   );
 }

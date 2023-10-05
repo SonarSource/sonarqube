@@ -481,18 +481,37 @@ export function mockCompareResult(overrides: Partial<CompareResponse> = {}): Com
       {
         key: 'java:S4604',
         name: 'Rule in left',
-        severity: 'MINOR',
+        cleanCodeAttributeCategory: CleanCodeAttributeCategory.Adaptable,
+        impacts: [
+          {
+            softwareQuality: SoftwareQuality.Maintainability,
+            severity: SoftwareImpactSeverity.Medium,
+          },
+        ],
       },
     ],
     inRight: [
       {
         key: 'java:S5128',
         name: 'Rule in right',
-        severity: 'MAJOR',
+        cleanCodeAttributeCategory: CleanCodeAttributeCategory.Responsible,
+        impacts: [
+          {
+            softwareQuality: SoftwareQuality.Security,
+            severity: SoftwareImpactSeverity.Medium,
+          },
+        ],
       },
     ],
     modified: [
       {
+        cleanCodeAttributeCategory: CleanCodeAttributeCategory.Consistent,
+        impacts: [
+          {
+            softwareQuality: SoftwareQuality.Maintainability,
+            severity: SoftwareImpactSeverity.Low,
+          },
+        ],
         key: 'java:S1698',
         name: '== and != should not be used when equals is overridden',
         left: { params: {}, severity: 'MINOR' },

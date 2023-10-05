@@ -53,6 +53,7 @@ import {
   compareProfiles,
   copyProfile,
   createQualityProfile,
+  deactivateRule,
   deleteProfile,
   dissociateProject,
   getExporters,
@@ -111,6 +112,7 @@ export default class QualityProfilesServiceMock {
     jest.mocked(searchRules).mockImplementation(this.handleSearchRules);
     jest.mocked(compareProfiles).mockImplementation(this.handleCompareQualityProfiles);
     jest.mocked(activateRule).mockImplementation(this.handleActivateRule);
+    jest.mocked(deactivateRule).mockImplementation(this.handleDeactivateRule);
     jest.mocked(getRuleDetails).mockImplementation(this.handleGetRuleDetails);
     jest.mocked(restoreQualityProfile).mockImplementation(this.handleRestoreQualityProfile);
     jest.mocked(searchUsers).mockImplementation(this.handleSearchUsers);
@@ -556,10 +558,15 @@ export default class QualityProfilesServiceMock {
     rule: string;
     severity?: string;
   }): Promise<undefined> => {
-    const profile = this.listQualityProfile.find((profile) => profile.key === data.key) as Profile;
-    const keyFilter = profile.name === this.comparisonResult.left.name ? 'inRight' : 'inLeft';
+    this.comparisonResult.inRight = this.comparisonResult.inRight.filter(
+      ({ key }) => key !== data.rule,
+    );
 
-    this.comparisonResult[keyFilter] = this.comparisonResult[keyFilter].filter(
+    return this.reply(undefined);
+  };
+
+  handleDeactivateRule = (data: { key: string; rule: string }) => {
+    this.comparisonResult.inLeft = this.comparisonResult.inLeft.filter(
       ({ key }) => key !== data.rule,
     );
 

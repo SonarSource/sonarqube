@@ -24,6 +24,7 @@ import {
   Profile,
   addGroup,
   addUser,
+  compareProfiles,
   getProfileInheritance,
 } from '../api/quality-profiles';
 import { ProfileInheritanceDetails } from '../types/types';
@@ -45,6 +46,19 @@ export function useProfileInheritanceQuery(
       const response = await getProfileInheritance({ language, name });
       response.ancestors.reverse();
       return response;
+    },
+  });
+}
+
+export function useProfilesCompareQuery(leftKey: string, rightKey: string) {
+  return useQuery({
+    queryKey: ['quality-profiles', 'compare', leftKey, rightKey],
+    queryFn: ({ queryKey: [, , leftKey, rightKey] }) => {
+      if (!leftKey || !rightKey) {
+        return null;
+      }
+
+      return compareProfiles(leftKey, rightKey);
     },
   });
 }

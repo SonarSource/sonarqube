@@ -75,6 +75,14 @@ export function TextError({ text, className }: { className?: string; text: strin
   );
 }
 
+export function TextSuccess({ text, className }: Readonly<{ className?: string; text: string }>) {
+  return (
+    <StyledTextSuccess className={className} title={text}>
+      {text}
+    </StyledTextSuccess>
+  );
+}
+
 export const StyledText = styled.span`
   ${tw`sw-inline-block`};
   ${tw`sw-truncate`};
@@ -102,6 +110,10 @@ export const StyledPageTitle = styled(StyledText)`
 
 const StyledTextError = styled(StyledText)`
   color: ${themeColor('danger')};
+`;
+
+const StyledTextSuccess = styled(StyledText)`
+  color: ${themeColor('textSuccess')};
 `;
 
 export const DisabledText = styled.span`
