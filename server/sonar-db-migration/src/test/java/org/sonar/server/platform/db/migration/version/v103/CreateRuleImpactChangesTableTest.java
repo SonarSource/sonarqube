@@ -45,10 +45,10 @@ public class CreateRuleImpactChangesTableTest {
     underTest.execute();
 
     db.assertTableExists(TABLE_NAME);
-    db.assertColumnDefinition(TABLE_NAME, "new_software_quality", Types.VARCHAR, 40, false);
-    db.assertColumnDefinition(TABLE_NAME, "old_software_quality", Types.VARCHAR, 40, false);
-    db.assertColumnDefinition(TABLE_NAME, "new_severity", Types.VARCHAR, 40, false);
-    db.assertColumnDefinition(TABLE_NAME, "old_severity", Types.VARCHAR, 40, false);
+    db.assertColumnDefinition(TABLE_NAME, "new_software_quality", Types.VARCHAR, 40, true);
+    db.assertColumnDefinition(TABLE_NAME, "old_software_quality", Types.VARCHAR, 40, true);
+    db.assertColumnDefinition(TABLE_NAME, "new_severity", Types.VARCHAR, 40, true);
+    db.assertColumnDefinition(TABLE_NAME, "old_severity", Types.VARCHAR, 40, true);
     db.assertColumnDefinition(TABLE_NAME, "rule_change_uuid", Types.VARCHAR, UUID_SIZE, false);
   }
 

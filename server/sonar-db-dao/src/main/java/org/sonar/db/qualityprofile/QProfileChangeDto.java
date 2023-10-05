@@ -45,6 +45,7 @@ public class QProfileChangeDto {
   private Set<RuleImpactChangeDto> ruleImpactChangeDtos;
 
   private long createdAt;
+  private String ruleChangeUuid;
 
   public String getUuid() {
     return uuid;
@@ -147,5 +148,11 @@ public class QProfileChangeDto {
     return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
+  public void setRuleChangeUuid(String ruleChangeUuid) {
+    this.ruleChangeUuid = ruleChangeUuid;
+  }
 
+  public String getRuleChangeUuid() {
+    return ruleChangeUuid;
+  }
 }

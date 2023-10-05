@@ -21,6 +21,7 @@ package org.sonar.server.rule.registration;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,7 @@ import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.QProfileRules;
+import org.sonar.server.rule.PluginRuleUpdate;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.WebServerRuleFinder;
@@ -74,11 +76,12 @@ public class RulesRegistrant implements Startable {
   private final RulesKeyVerifier rulesKeyVerifier;
   private final StartupRuleUpdater startupRuleUpdater;
   private final NewRuleCreator newRuleCreator;
+  private final QualityProfileChangesUpdater qualityProfileChangesUpdater;
 
   public RulesRegistrant(RuleDefinitionsLoader defLoader, QProfileRules qProfileRules, DbClient dbClient, RuleIndexer ruleIndexer,
     ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2, WebServerRuleFinder webServerRuleFinder,
     MetadataIndex metadataIndex, RulesKeyVerifier rulesKeyVerifier, StartupRuleUpdater startupRuleUpdater,
-    NewRuleCreator newRuleCreator) {
+    NewRuleCreator newRuleCreator, QualityProfileChangesUpdater qualityProfileChangesUpdater) {
     this.defLoader = defLoader;
     this.qProfileRules = qProfileRules;
     this.dbClient = dbClient;
@@ -91,6 +94,7 @@ public class RulesRegistrant implements Startable {
     this.rulesKeyVerifier = rulesKeyVerifier;
     this.startupRuleUpdater = startupRuleUpdater;
     this.newRuleCreator = newRuleCreator;
+    this.qualityProfileChangesUpdater = qualityProfileChangesUpdater;
   }
 
   @Override
@@ -103,7 +107,8 @@ public class RulesRegistrant implements Startable {
 
       for (RulesDefinition.ExtendedRepository repoDef : repositories) {
         if (languages.get(repoDef.language()) != null) {
-          registerRules(rulesRegistrationContext, repoDef.rules(), dbSession);
+          Set<PluginRuleUpdate> pluginRuleUpdates = registerRules(rulesRegistrationContext, repoDef.rules(), dbSession);
+          qualityProfileChangesUpdater.updateWithoutCommit(dbSession, pluginRuleUpdates);
           dbSession.commit();
         }
       }
@@ -148,8 +153,9 @@ public class RulesRegistrant implements Startable {
     // nothing
   }
 
-  private void registerRules(RulesRegistrationContext context, List<RulesDefinition.Rule> ruleDefs, DbSession session) {
+  private Set<PluginRuleUpdate> registerRules(RulesRegistrationContext context, List<RulesDefinition.Rule> ruleDefs, DbSession session) {
     Map<RulesDefinition.Rule, RuleDto> dtos = new LinkedHashMap<>(ruleDefs.size());
+    Set<PluginRuleUpdate> pluginRuleUpdates = new HashSet<>();
 
     for (RulesDefinition.Rule ruleDef : ruleDefs) {
       RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
@@ -162,8 +168,8 @@ public class RulesRegistrant implements Startable {
         ruleDto.setRuleKey(ruleKey);
       }
 
-      if (!context.isCreated(ruleDto) && startupRuleUpdater.findChangesAndUpdateRule(ruleDef, ruleDto)) {
-        context.updated(ruleDto);
+      if (!context.isCreated(ruleDto)) {
+        processRuleUpdates(context, pluginRuleUpdates, ruleDef, ruleDto);
       }
 
       if (context.isUpdated(ruleDto) || context.isRenamed(ruleDto)) {
@@ -176,6 +182,17 @@ public class RulesRegistrant implements Startable {
     for (Map.Entry<RulesDefinition.Rule, RuleDto> e : dtos.entrySet()) {
       startupRuleUpdater.mergeParams(context, e.getKey(), e.getValue(), session);
       startupRuleUpdater.updateDeprecatedKeys(context, e.getKey(), e.getValue(), session);
+    }
+    return pluginRuleUpdates;
+  }
+
+  private void processRuleUpdates(RulesRegistrationContext context, Set<PluginRuleUpdate> pluginRuleUpdates, RulesDefinition.Rule ruleDef, RuleDto ruleDto) {
+    StartupRuleUpdater.RuleChange change = startupRuleUpdater.findChangesAndUpdateRule(ruleDef, ruleDto);
+    if (change.hasRuleDefinitionChanged()) {
+      context.updated(ruleDto);
+      if (change.getPluginRuleUpdate() != null) {
+        pluginRuleUpdates.add(change.getPluginRuleUpdate());
+      }
     }
   }
 

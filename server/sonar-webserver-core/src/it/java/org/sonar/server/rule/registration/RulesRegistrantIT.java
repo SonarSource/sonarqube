@@ -50,8 +50,8 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.Context;
 import org.sonar.api.server.rule.RuleDescriptionSection;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
@@ -105,7 +105,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
 import static org.sonar.api.rule.Severity.BLOCKER;
-import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.INFO;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.ASSESS_THE_PROBLEM_SECTION_KEY;
 import static org.sonar.api.server.rule.RuleDescriptionSection.RuleDescriptionSectionKeys.HOW_TO_FIX_SECTION_KEY;
@@ -145,21 +144,22 @@ public class RulesRegistrantIT {
   @org.junit.Rule
   public LogTester logTester = new LogTester();
 
-  private final QProfileRules qProfileRules = mock(QProfileRules.class);
-  private final WebServerRuleFinder webServerRuleFinder = mock(WebServerRuleFinder.class);
+  private final QProfileRules qProfileRules = mock();
+  private final WebServerRuleFinder webServerRuleFinder = mock();
   private final DbClient dbClient = db.getDbClient();
-  private final MetadataIndex metadataIndex = mock(MetadataIndex.class);
+  private final MetadataIndex metadataIndex = mock();
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
   private RuleIndex ruleIndex;
-  private final RuleDescriptionSectionsGenerator ruleDescriptionSectionsGenerator = mock(RuleDescriptionSectionsGenerator.class);
-  private final RuleDescriptionSectionsGeneratorResolver resolver = mock(RuleDescriptionSectionsGeneratorResolver.class);
+  private final RuleDescriptionSectionsGenerator ruleDescriptionSectionsGenerator = mock();
+  private final RuleDescriptionSectionsGeneratorResolver resolver = mock();
 
   private final RulesKeyVerifier rulesKeyVerifier = new RulesKeyVerifier();
   private final StartupRuleUpdater startupRuleUpdater = new StartupRuleUpdater(dbClient, system, uuidFactory, resolver);
   private final NewRuleCreator newRuleCreator = new NewRuleCreator(dbClient, resolver, uuidFactory, system);
+  private final QualityProfileChangesUpdater qualityProfileChangesUpdater = mock();
 
   @Before
   public void before() {
@@ -1162,7 +1162,7 @@ public class RulesRegistrantIT {
     reset(webServerRuleFinder);
 
     RulesRegistrant task = new RulesRegistrant(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer, languages, system, webServerRuleFinder, metadataIndex,
-      rulesKeyVerifier, startupRuleUpdater, newRuleCreator);
+      rulesKeyVerifier, startupRuleUpdater, newRuleCreator, qualityProfileChangesUpdater);
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
     db.getSession().commit();

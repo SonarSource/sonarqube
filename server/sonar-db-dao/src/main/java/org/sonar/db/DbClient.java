@@ -82,6 +82,7 @@ import org.sonar.db.qualityprofile.QualityProfileExportDao;
 import org.sonar.db.report.RegulatoryReportDao;
 import org.sonar.db.report.ReportScheduleDao;
 import org.sonar.db.report.ReportSubscriptionDao;
+import org.sonar.db.rule.RuleChangeDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
@@ -189,6 +190,7 @@ public class DbClient {
   private final ReportSubscriptionDao reportSubscriptionDao;
   private final GithubOrganizationGroupDao githubOrganizationGroupDao;
   private final GithubPermissionsMappingDao githubPermissionsMappingDao;
+  private final RuleChangeDao ruleChangeDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -279,6 +281,7 @@ public class DbClient {
     reportScheduleDao = getDao(map, ReportScheduleDao.class);
     reportSubscriptionDao = getDao(map, ReportSubscriptionDao.class);
     anticipatedTransitionDao = getDao(map, AnticipatedTransitionDao.class);
+    ruleChangeDao = getDao(map, RuleChangeDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -617,6 +620,10 @@ public class DbClient {
 
   public AnticipatedTransitionDao anticipatedTransitionDao() {
     return anticipatedTransitionDao;
+  }
+
+  public RuleChangeDao ruleChangeDao() {
+    return ruleChangeDao;
   }
 }
 

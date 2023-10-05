@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.rule.RuleChangeMapper">
+
+  <insert id="insertRuleChange" parameterType="Map" useGeneratedKeys="false">
+    insert into rule_changes (
+      uuid,
+      new_clean_code_attribute,
+      old_clean_code_attribute,
+      rule_uuid
+    )
+    values (
+      #{dto.uuid,jdbcType=VARCHAR},
+      #{dto.newCleanCodeAttribute,jdbcType=VARCHAR},
+      #{dto.oldCleanCodeAttribute,jdbcType=VARCHAR},
+      #{dto.ruleUuid,jdbcType=VARCHAR}
+    )
+  </insert>
+
+  <insert id="insertRuleImpactChange" parameterType="Map" useGeneratedKeys="false">
+    insert into rule_impact_changes (
+      new_software_quality,
+      old_software_quality,
+      new_severity,
+      old_severity,
+      rule_change_uuid
+    )
+    values (
+      #{dto.newSoftwareQuality,jdbcType=VARCHAR},
+      #{dto.oldSoftwareQuality,jdbcType=VARCHAR},
+      #{dto.newSeverity,jdbcType=VARCHAR},
+      #{dto.oldSeverity,jdbcType=VARCHAR},
+      #{dto.ruleChangeUuid,jdbcType=VARCHAR}
+    )
+  </insert>
+
+</mapper>
+

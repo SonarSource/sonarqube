@@ -40,6 +40,7 @@ import org.sonar.server.rule.AdvancedRuleDescriptionSectionsGenerator;
 import org.sonar.server.rule.LegacyHotspotRuleDescriptionSectionsGenerator;
 import org.sonar.server.rule.LegacyIssueRuleDescriptionSectionsGenerator;
 import org.sonar.server.rule.registration.NewRuleCreator;
+import org.sonar.server.rule.registration.QualityProfileChangesUpdater;
 import org.sonar.server.rule.registration.RulesKeyVerifier;
 import org.sonar.server.rule.registration.RulesRegistrant;
 import org.sonar.server.rule.RuleDescriptionSectionsGeneratorResolver;
@@ -76,6 +77,7 @@ public class PlatformLevelStartup extends PlatformLevel {
       LegacyHotspotRuleDescriptionSectionsGenerator.class,
       LegacyIssueRuleDescriptionSectionsGenerator.class,
       RulesRegistrant.class,
+      QualityProfileChangesUpdater.class,
       NewRuleCreator.class,
       RulesKeyVerifier.class,
       StartupRuleUpdater.class,

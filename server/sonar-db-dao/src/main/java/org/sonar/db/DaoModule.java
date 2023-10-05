@@ -82,6 +82,7 @@ import org.sonar.db.qualityprofile.QualityProfileExportDao;
 import org.sonar.db.report.RegulatoryReportDao;
 import org.sonar.db.report.ReportScheduleDao;
 import org.sonar.db.report.ReportSubscriptionDao;
+import org.sonar.db.rule.RuleChangeDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.scannercache.ScannerAnalysisCacheDao;
@@ -172,6 +173,7 @@ public class DaoModule extends Module {
     ReportScheduleDao.class,
     RoleDao.class,
     RuleDao.class,
+    RuleChangeDao.class,
     RuleRepositoryDao.class,
     SamlMessageIdDao.class,
     ScannerAnalysisCacheDao.class,

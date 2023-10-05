@@ -29,7 +29,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.rule.index.RuleQuery;
 
 /**
- * Operations related to activation and deactivation of rules on user profiles.
+ * Operations related to activation and deactivation of rules on Quality profiles.
  */
 @ServerSide
 public interface QProfileRules {

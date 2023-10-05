@@ -38,10 +38,10 @@ public class CreateRuleImpactChangesTable extends CreateTableChange {
   @Override
   public void execute(DdlChange.Context context, String tableName) throws SQLException {
     context.execute(new CreateTableBuilder(getDialect(), tableName)
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("new_software_quality").setIsNullable(false).setLimit(40).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("old_software_quality").setIsNullable(false).setLimit(40).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("new_severity").setIsNullable(false).setLimit(40).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("old_severity").setIsNullable(false).setLimit(40).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("new_software_quality").setIsNullable(true).setLimit(40).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("old_software_quality").setIsNullable(true).setLimit(40).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("new_severity").setIsNullable(true).setLimit(40).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("old_severity").setIsNullable(true).setLimit(40).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("rule_change_uuid").setIsNullable(false).setLimit(40).build())
       .build());
   }

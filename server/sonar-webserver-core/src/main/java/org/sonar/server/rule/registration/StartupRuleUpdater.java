@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.impact.Severity;
@@ -49,6 +50,7 @@ import org.sonar.db.rule.DeprecatedRuleKeyDto;
 import org.sonar.db.rule.RuleDescriptionSectionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.rule.PluginRuleUpdate;
 import org.sonar.server.rule.RuleDescriptionSectionsGeneratorResolver;
 
 import static com.google.common.collect.Sets.difference;
@@ -80,13 +82,15 @@ public class StartupRuleUpdater {
   /**
    * Returns true in case there was any change detected between rule in the database and rule from the plugin.
    */
-  boolean findChangesAndUpdateRule(RulesDefinition.Rule ruleDef, RuleDto ruleDto) {
-    boolean ruleMerged = mergeRule(ruleDef, ruleDto);
+  RuleChange findChangesAndUpdateRule(RulesDefinition.Rule ruleDef, RuleDto ruleDto) {
+    RuleChange ruleChange = new RuleChange(ruleDto);
+    boolean ruleMerged = mergeRule(ruleDef, ruleDto, ruleChange);
     boolean debtDefinitionsMerged = mergeDebtDefinitions(ruleDef, ruleDto);
     boolean tagsMerged = mergeTags(ruleDef, ruleDto);
     boolean securityStandardsMerged = mergeSecurityStandards(ruleDef, ruleDto);
     boolean educationPrinciplesMerged = mergeEducationPrinciples(ruleDef, ruleDto);
-    return ruleMerged || debtDefinitionsMerged || tagsMerged || securityStandardsMerged || educationPrinciplesMerged;
+    ruleChange.ruleDefinitionChanged = ruleMerged || debtDefinitionsMerged || tagsMerged || securityStandardsMerged || educationPrinciplesMerged;
+    return ruleChange;
   }
 
   void updateDeprecatedKeys(RulesRegistrationContext context, RulesDefinition.Rule ruleDef, RuleDto rule, DbSession dbSession) {
@@ -112,7 +116,7 @@ public class StartupRuleUpdater {
         .setCreatedAt(system2.now())));
   }
 
-  private boolean mergeRule(RulesDefinition.Rule def, RuleDto dto) {
+  private boolean mergeRule(RulesDefinition.Rule def, RuleDto dto, RuleChange ruleChange) {
     boolean changed = false;
     if (!Objects.equals(dto.getName(), def.name())) {
       dto.setName(def.name());
@@ -156,8 +160,8 @@ public class StartupRuleUpdater {
       dto.setType(type);
       changed = true;
     }
-    changed |= mergeCleanCodeAttribute(def, dto);
-    changed |= mergeImpacts(def, dto, uuidFactory);
+    changed |= mergeCleanCodeAttribute(def, dto, ruleChange);
+    changed |= mergeImpacts(def, dto, uuidFactory, ruleChange);
     if (dto.isAdHoc()) {
       dto.setIsAdHoc(false);
       changed = true;
@@ -165,13 +169,14 @@ public class StartupRuleUpdater {
     return changed;
   }
 
-  private static boolean mergeCleanCodeAttribute(RulesDefinition.Rule def, RuleDto dto) {
+  private static boolean mergeCleanCodeAttribute(RulesDefinition.Rule def, RuleDto dto, RuleChange ruleChange) {
     if (dto.getEnumType() == RuleType.SECURITY_HOTSPOT) {
       return false;
     }
     boolean changed = false;
     CleanCodeAttribute defCleanCodeAttribute = def.cleanCodeAttribute();
     if (!Objects.equals(dto.getCleanCodeAttribute(), defCleanCodeAttribute) && (defCleanCodeAttribute != null)) {
+      ruleChange.addCleanCodeAttributeChange(dto.getCleanCodeAttribute(), defCleanCodeAttribute);
       dto.setCleanCodeAttribute(defCleanCodeAttribute);
       changed = true;
     }
@@ -183,7 +188,7 @@ public class StartupRuleUpdater {
     return changed;
   }
 
-  boolean mergeImpacts(RulesDefinition.Rule def, RuleDto dto, UuidFactory uuidFactory) {
+  boolean mergeImpacts(RulesDefinition.Rule def, RuleDto dto, UuidFactory uuidFactory, RuleChange ruleChange) {
     if (dto.getEnumType() == RuleType.SECURITY_HOTSPOT) {
       return false;
     }
@@ -200,16 +205,28 @@ public class StartupRuleUpdater {
         .stream()
         .map(e -> new ImpactDto().setUuid(uuidFactory.create()).setSoftwareQuality(e.getKey()).setSeverity(e.getValue()))
         .collect(Collectors.toSet()));
+      ruleChange.addImpactsChange(removeDuplicatedImpacts(impactsFromDb, impactsFromPlugin), removeDuplicatedImpacts(impactsFromPlugin, impactsFromDb));
+
       return true;
     }
 
     return false;
   }
 
+  /**
+   * Returns a new map that contains only the impacts from the first map that are not present in the map passed as a second argument.
+   */
+  private static Map<SoftwareQuality, Severity> removeDuplicatedImpacts(Map<SoftwareQuality, Severity> impactsA, Map<SoftwareQuality, Severity> impactsB) {
+    return impactsA.entrySet().stream()
+      .filter(entry -> !impactsB.containsKey(entry.getKey()) || !impactsB.get(entry.getKey()).equals(entry.getValue()))
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
+
+
   private static boolean mergeEducationPrinciples(RulesDefinition.Rule ruleDef, RuleDto dto) {
     boolean changed = false;
     if (dto.getEducationPrinciples().size() != ruleDef.educationPrincipleKeys().size() ||
-        !dto.getEducationPrinciples().containsAll(ruleDef.educationPrincipleKeys())) {
+      !dto.getEducationPrinciples().containsAll(ruleDef.educationPrincipleKeys())) {
       dto.setEducationPrinciples(ruleDef.educationPrincipleKeys());
       changed = true;
     }
@@ -223,10 +240,10 @@ public class StartupRuleUpdater {
       dto.setSystemTags(emptySet());
       changed = true;
     } else if (dto.getSystemTags().size() != ruleDef.tags().size() ||
-               !dto.getSystemTags().containsAll(ruleDef.tags())) {
-      dto.setSystemTags(ruleDef.tags());
-      changed = true;
-    }
+      !dto.getSystemTags().containsAll(ruleDef.tags())) {
+        dto.setSystemTags(ruleDef.tags());
+        changed = true;
+      }
     return changed;
   }
 
@@ -237,10 +254,10 @@ public class StartupRuleUpdater {
       dto.setSecurityStandards(emptySet());
       changed = true;
     } else if (dto.getSecurityStandards().size() != ruleDef.securityStandards().size() ||
-               !dto.getSecurityStandards().containsAll(ruleDef.securityStandards())) {
-      dto.setSecurityStandards(ruleDef.securityStandards());
-      changed = true;
-    }
+      !dto.getSecurityStandards().containsAll(ruleDef.securityStandards())) {
+        dto.setSecurityStandards(ruleDef.securityStandards());
+        changed = true;
+      }
     return changed;
   }
 
@@ -377,4 +394,41 @@ public class StartupRuleUpdater {
     return changed;
   }
 
+  public static class RuleChange {
+    private boolean ruleDefinitionChanged = false;
+    private final String ruleUuid;
+    private PluginRuleUpdate pluginRuleUpdate;
+
+    public RuleChange(RuleDto ruleDto) {
+      this.ruleUuid = ruleDto.getUuid();
+    }
+
+    private void createPluginRuleUpdateIfNeeded() {
+      if (pluginRuleUpdate == null) {
+        pluginRuleUpdate = new PluginRuleUpdate();
+        pluginRuleUpdate.setRuleUuid(ruleUuid);
+      }
+    }
+
+    public void addImpactsChange(Map<SoftwareQuality, Severity> oldImpacts, Map<SoftwareQuality, Severity> newImpacts) {
+      createPluginRuleUpdateIfNeeded();
+      oldImpacts.forEach(pluginRuleUpdate::addOldImpact);
+      newImpacts.forEach(pluginRuleUpdate::addNewImpact);
+    }
+
+    public void addCleanCodeAttributeChange(@Nullable CleanCodeAttribute oldAttribute, @Nullable CleanCodeAttribute newAttribute) {
+      createPluginRuleUpdateIfNeeded();
+      pluginRuleUpdate.setOldCleanCodeAttribute(oldAttribute);
+      pluginRuleUpdate.setNewCleanCodeAttribute(newAttribute);
+    }
+
+    public boolean hasRuleDefinitionChanged() {
+      return ruleDefinitionChanged;
+    }
+
+    @CheckForNull
+    public PluginRuleUpdate getPluginRuleUpdate() {
+      return pluginRuleUpdate;
+    }
+  }
 }
