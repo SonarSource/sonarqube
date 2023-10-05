@@ -33,6 +33,7 @@ public class EventDto {
   public static final String CATEGORY_PROFILE = "Profile";
   public static final String CATEGORY_DEFINITION_CHANGE = "Definition change";
   public static final String CATEGORY_ISSUE_DETECTION = "Issue Detection";
+  public static final String CATEGORY_SQ_UPGRADE = "SQ Upgrade";
   private String uuid;
   private String analysisUuid;
   private String componentUuid;

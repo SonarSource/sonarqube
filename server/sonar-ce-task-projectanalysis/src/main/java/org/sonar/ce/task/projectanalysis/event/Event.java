@@ -60,6 +60,10 @@ public class Event {
     return new Event(name, Category.ISSUE_DETECTION);
   }
 
+  public static Event createSqUpgrade(String name) {
+    return new Event(name, Category.SQ_UPGRADE);
+  }
+
   public String getName() {
     return name;
   }
@@ -96,7 +100,7 @@ public class Event {
   }
 
   public enum Category {
-    ALERT, PROFILE, ISSUE_DETECTION
+    ALERT, PROFILE, ISSUE_DETECTION, SQ_UPGRADE
   }
 
 }

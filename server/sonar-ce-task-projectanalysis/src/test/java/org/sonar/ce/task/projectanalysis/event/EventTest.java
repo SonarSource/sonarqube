@@ -68,4 +68,13 @@ public class EventTest {
       .isEqualTo(source)
       .isNotNull();
   }
+
+  @Test
+  public void createSqUpgradeEvents_verify_fields() {
+    Event event = Event.createSqUpgrade(SOME_NAME);
+    assertThat(event.getName()).isEqualTo(SOME_NAME);
+    assertThat(event.getCategory()).isEqualTo(Event.Category.SQ_UPGRADE);
+    assertThat(event.getData()).isNull();
+    assertThat(event.getDescription()).isNull();
+  }
 }

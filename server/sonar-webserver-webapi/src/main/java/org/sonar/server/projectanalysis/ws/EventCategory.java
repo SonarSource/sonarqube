@@ -25,7 +25,8 @@ public enum EventCategory {
   QUALITY_PROFILE("Profile"),
   QUALITY_GATE("Alert"),
   DEFINITION_CHANGE("Definition change"),
-  ISSUE_DETECTION("Issue Detection");
+  ISSUE_DETECTION("Issue Detection"),
+  SQ_UPGRADE("SQ Upgrade");
 
   private final String label;
 

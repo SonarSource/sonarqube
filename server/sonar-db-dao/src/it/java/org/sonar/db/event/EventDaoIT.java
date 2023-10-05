@@ -200,6 +200,24 @@ public class EventDaoIT {
   }
 
   @Test
+  public void givenSomeSqUpgradeEvents_whenRetrieved_shouldReturnCorrectlyOrderedByDateDescending() {
+    long olderDate = 1L;
+    long newerDate = 2L;
+
+    ComponentDto componentDto = ComponentTesting.newPrivateProjectDto();
+    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(componentDto);
+    dbTester.events().insertEvent(newEvent(analysis).setCategory(EventDto.CATEGORY_SQ_UPGRADE).setDate(olderDate).setUuid("E1"));
+    dbTester.events().insertEvent(newEvent(analysis).setCategory(EventDto.CATEGORY_SQ_UPGRADE).setDate(newerDate).setUuid("E2"));
+
+    List<EventDto> events = underTest.selectSqUpgradesByMostRecentFirst(dbSession, componentDto.uuid());
+    assertThat(events).hasSize(2);
+    assertThat(events.get(0).getUuid()).isEqualTo("E2");
+    assertThat(events.get(0).getDate()).isEqualTo(newerDate);
+    assertThat(events.get(1).getUuid()).isEqualTo("E1");
+    assertThat(events.get(1).getDate()).isEqualTo(olderDate);
+  }
+
+  @Test
   public void delete_by_uuid() {
     dbTester.events().insertEvent(newEvent(newAnalysis(ComponentTesting.newPrivateProjectDto())).setUuid("E1"));
 

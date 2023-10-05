@@ -34,6 +34,7 @@ import org.sonar.ce.task.projectanalysis.event.Event;
 import org.sonar.ce.task.projectanalysis.event.EventRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbTester;
@@ -51,6 +52,7 @@ import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builde
 import static org.sonar.db.event.EventDto.CATEGORY_ALERT;
 import static org.sonar.db.event.EventDto.CATEGORY_ISSUE_DETECTION;
 import static org.sonar.db.event.EventDto.CATEGORY_PROFILE;
+import static org.sonar.db.event.EventDto.CATEGORY_SQ_UPGRADE;
 import static org.sonar.db.event.EventDto.CATEGORY_VERSION;
 
 public class PersistEventsStepIT extends BaseStepTest {
@@ -87,6 +89,8 @@ public class PersistEventsStepIT extends BaseStepTest {
 
   private final EventRepository eventRepository = mock(EventRepository.class);
   private final UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
+
+  private final SonarQubeVersion sonarQubeVersion = mock();
 
   private PersistEventsStep underTest;
 
@@ -208,6 +212,33 @@ public class PersistEventsStepIT extends BaseStepTest {
     assertThat(eventDto.getName()).isEqualTo(issueDetection.getName());
     assertThat(eventDto.getDescription()).isEqualTo(issueDetection.getDescription());
     assertThat(eventDto.getCategory()).isEqualTo(CATEGORY_ISSUE_DETECTION);
+    assertThat(eventDto.getData()).isNull();
+    assertThat(eventDto.getDate()).isEqualTo(analysisMetadataHolder.getAnalysisDate());
+    assertThat(eventDto.getCreatedAt()).isEqualTo(NOW);
+  }
+
+  @Test
+  public void execute_whenSqUpgradeEventRaised_shouldPersist() {
+    when(system2.now()).thenReturn(NOW);
+    treeRootHolder.setRoot(ROOT);
+    Event sqUpgradeEvent = Event.createSqUpgrade("10.3");
+    when(eventRepository.getEvents()).thenReturn(List.of(sqUpgradeEvent));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(dbTester.countRowsOfTable(dbTester.getSession(), "events")).isEqualTo(2);
+    List<EventDto> eventDtos = dbTester.getDbClient().eventDao().selectByComponentUuid(dbTester.getSession(), ROOT.getUuid());
+    assertThat(eventDtos)
+      .extracting(EventDto::getCategory)
+      .containsOnly(CATEGORY_SQ_UPGRADE, CATEGORY_VERSION);
+    EventDto eventDto = eventDtos.stream()
+      .filter(t -> CATEGORY_SQ_UPGRADE.equals(t.getCategory()))
+      .findAny()
+      .orElseGet(() -> fail("Issue detection event not found"));
+    assertThat(eventDto.getComponentUuid()).isEqualTo(ROOT.getUuid());
+    assertThat(eventDto.getName()).isEqualTo(sqUpgradeEvent.getName());
+    assertThat(eventDto.getCategory()).isEqualTo(CATEGORY_SQ_UPGRADE);
+    assertThat(eventDto.getDescription()).isNull();
     assertThat(eventDto.getData()).isNull();
     assertThat(eventDto.getDate()).isEqualTo(analysisMetadataHolder.getAnalysisDate());
     assertThat(eventDto.getCreatedAt()).isEqualTo(NOW);

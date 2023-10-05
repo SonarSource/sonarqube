@@ -123,6 +123,7 @@ public class PersistEventsStep implements ComputationStep {
         case ALERT -> EventDto.CATEGORY_ALERT;
         case PROFILE -> EventDto.CATEGORY_PROFILE;
         case ISSUE_DETECTION -> EventDto.CATEGORY_ISSUE_DETECTION;
+        case SQ_UPGRADE -> EventDto.CATEGORY_SQ_UPGRADE;
       };
     }
 

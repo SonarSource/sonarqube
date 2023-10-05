@@ -64,6 +64,20 @@
       e.event_date desc
   </select>
 
+    <select id="selectSqUpgrades" resultType="Event" parameterType="map">
+    select
+      <include refid="eventColumns"/>
+    from events e
+    inner join snapshots s on
+      s.uuid = e.analysis_uuid
+      and s.status = 'P'
+      and s.root_component_uuid = #{componentUuid,jdbcType=VARCHAR}
+    where
+      e.category = 'SQ Upgrade'
+    order by
+      e.event_date desc
+  </select>
+
   <insert id="insert" parameterType="Event">
     INSERT INTO events (uuid, analysis_uuid, component_uuid, name, category, description, event_data, event_date, created_at)
     VALUES (

@@ -49,6 +49,10 @@ public class EventDao implements Dao {
     return mapper(session).selectVersions(componentUuid);
   }
 
+  public List<EventDto> selectSqUpgradesByMostRecentFirst(DbSession session, String componentUuid) {
+    return mapper(session).selectSqUpgrades(componentUuid);
+  }
+
   public EventDto insert(DbSession session, EventDto dto) {
     mapper(session).insert(dto);
 

@@ -35,6 +35,8 @@ public interface EventMapper {
 
   List<EventDto> selectVersions(@Param("componentUuid") String componentUuid);
 
+  List<EventDto> selectSqUpgrades(@Param("componentUuid") String componentUuid);
+
   void insert(EventDto dto);
 
   void update(@Param("uuid") String uuid, @Param("name") @Nullable String name, @Param("description") @Nullable String description);

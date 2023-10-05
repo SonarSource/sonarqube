@@ -53,6 +53,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     // Pre analysis operations
     PreMeasuresComputationChecksStep.class,
+    SqUpgradeDetectionEventsStep.class,
 
     // load project related stuffs
     LoadFileHashesAndStatusStep.class,
