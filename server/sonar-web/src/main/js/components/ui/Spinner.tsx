@@ -45,7 +45,7 @@ export default function Spinner(props: Props) {
 
   return (
     <>
-      <div className="sw-overflow-hidden">
+      <div className="sw-overflow-hidden sw-relative">
         <i
           aria-live="polite"
           data-testid="spinner"
@@ -54,7 +54,7 @@ export default function Spinner(props: Props) {
             'is-loading': loading,
           })}
         >
-          {loading && <span className="sw-sr-only sw-left-[-10000px]">{ariaLabel}</span>}
+          {loading && <span className="sw-sr-only">{ariaLabel}</span>}
         </i>
       </div>
       {!loading && children}

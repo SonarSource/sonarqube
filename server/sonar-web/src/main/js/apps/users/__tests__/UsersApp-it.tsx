@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { act, screen, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
@@ -589,10 +589,10 @@ describe('in manage mode', () => {
     expect(await ui.sureButton.find()).toBeInTheDocument();
     await act(() => user.click(ui.sureButton.get()));
 
-    expect(getTokensList()).toHaveLength(2);
+    await waitFor(() => expect(getTokensList()).toHaveLength(2));
 
     await act(() => user.click(ui.generateButton.get()));
-    expect(getTokensList()).toHaveLength(3);
+    await waitFor(() => expect(getTokensList()).toHaveLength(3));
     expect(await screen.findByText('users.tokens.new_token_created.test')).toBeInTheDocument();
 
     await user.click(ui.doneButton.get());

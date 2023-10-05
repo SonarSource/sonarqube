@@ -55,13 +55,17 @@ exports[`should render with primary and secondary buttons 1`] = `
     class="emotion-0 emotion-1"
   >
     <div
-      class="sw-overflow-hidden sw-sr-only sw-left-[-10000px]"
+      class="sw-relative"
     >
       <div
-        aria-live="polite"
-        class="emotion-2 emotion-3"
-        role="status"
-      />
+        class="sw-overflow-hidden sw-sr-only"
+      >
+        <div
+          aria-live="polite"
+          class="emotion-2 emotion-3"
+          role="status"
+        />
+      </div>
     </div>
     <button
       type="button"
@@ -132,13 +136,17 @@ exports[`should render with secondary button 1`] = `
     class="emotion-0 emotion-1"
   >
     <div
-      class="sw-overflow-hidden sw-sr-only sw-left-[-10000px]"
+      class="sw-relative"
     >
       <div
-        aria-live="polite"
-        class="emotion-2 emotion-3"
-        role="status"
-      />
+        class="sw-overflow-hidden sw-sr-only"
+      >
+        <div
+          aria-live="polite"
+          class="emotion-2 emotion-3"
+          role="status"
+        />
+      </div>
     </div>
     <button
       type="button"
