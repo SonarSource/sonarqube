@@ -108,7 +108,9 @@ describe('Admin or user with permission', () => {
       });
       expect(ui.dialog.get()).toBeInTheDocument();
       await selectEvent.select(ui.selectUserOrGroup.get(), 'Buzz');
-      await user.click(ui.addButton.get());
+      await act(async () => {
+        await user.click(ui.addButton.get());
+      });
       expect(ui.permissionSection.byText('Buzz').get()).toBeInTheDocument();
 
       // Remove User
@@ -118,7 +120,9 @@ describe('Admin or user with permission', () => {
           .get(),
       );
       expect(ui.dialog.get()).toBeInTheDocument();
-      await user.click(ui.removeButton.get());
+      await act(async () => {
+        await user.click(ui.removeButton.get());
+      });
       expect(ui.permissionSection.byText('buzz').query()).not.toBeInTheDocument();
     });
 
@@ -135,7 +139,9 @@ describe('Admin or user with permission', () => {
       });
       expect(ui.dialog.get()).toBeInTheDocument();
       await selectEvent.select(ui.selectUserOrGroup.get(), 'ACDC');
-      await user.click(ui.addButton.get());
+      await act(async () => {
+        await user.click(ui.addButton.get());
+      });
       expect(ui.permissionSection.byText('ACDC').get()).toBeInTheDocument();
 
       // Remove group
@@ -145,7 +151,9 @@ describe('Admin or user with permission', () => {
           .get(),
       );
       expect(ui.dialog.get()).toBeInTheDocument();
-      await user.click(ui.removeButton.get());
+      await act(async () => {
+        await user.click(ui.removeButton.get());
+      });
       expect(ui.permissionSection.byText('ACDC').query()).not.toBeInTheDocument();
     });
 

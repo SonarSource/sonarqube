@@ -144,7 +144,7 @@ export default class ChangeProjectsForm extends React.PureComponent<Props, State
         isOverflowVisible
         onClose={this.props.onClose}
         body={
-          <div className="sw-mt-1">
+          <div className="sw-mt-1" id="profile-projects">
             <SelectList
               allowBulkSelection
               elements={this.state.projects.map((project) => project.key)}

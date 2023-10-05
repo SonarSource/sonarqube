@@ -17,8 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { UseQueryResult, useQuery } from '@tanstack/react-query';
-import { Profile, getProfileInheritance } from '../api/quality-profiles';
+import { UseQueryResult, useMutation, useQuery } from '@tanstack/react-query';
+import {
+  AddRemoveGroupParameters,
+  AddRemoveUserParameters,
+  Profile,
+  addGroup,
+  addUser,
+  getProfileInheritance,
+} from '../api/quality-profiles';
 import { ProfileInheritanceDetails } from '../types/types';
 
 export function useProfileInheritanceQuery(
@@ -39,5 +46,19 @@ export function useProfileInheritanceQuery(
       response.ancestors.reverse();
       return response;
     },
+  });
+}
+
+export function useAddUserMutation(onSuccess: () => unknown) {
+  return useMutation({
+    mutationFn: (data: AddRemoveUserParameters) => addUser(data),
+    onSuccess,
+  });
+}
+
+export function useAddGroupMutation(onSuccess: () => unknown) {
+  return useMutation({
+    mutationFn: (data: AddRemoveGroupParameters) => addGroup(data),
+    onSuccess,
   });
 }
