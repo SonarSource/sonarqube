@@ -24,6 +24,7 @@ export const ALL_CUSTOMER_CATEGORIES: Dict<String> = {
   'codescan': CUSTOMER_CATEGORY,
   'housekeeping': CUSTOMER_CATEGORY,
   'exclusions': CUSTOMER_CATEGORY,
+  'mule': CUSTOMER_CATEGORY,
   'languages': LANGUAGES_CATEGORY,
   'new_code_period': NEW_CODE_PERIOD_CATEGORY
 };
