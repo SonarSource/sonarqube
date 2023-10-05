@@ -120,11 +120,12 @@ message UpdateConditionResponse {
 // GET api/qualitygates/show
 message ShowWsResponse {
   optional string id = 1;
-  optional string name = 2;
+  required string name = 2;
   repeated Condition conditions = 3;
-  optional bool isBuiltIn = 4;
+  required bool isBuiltIn = 4;
   optional Actions actions = 5;
-  optional string caycStatus = 6;
+  required string caycStatus = 6;
+  required bool isDefault = 7;
 
   message Condition {
     required string id = 1;

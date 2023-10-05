@@ -15,6 +15,7 @@
     }
   ],
   "isBuiltIn": false,
+  "isDefault": false,
   "actions": {
     "rename": true,
     "setAsDefault": true,

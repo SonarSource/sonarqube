@@ -44,6 +44,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -255,6 +257,26 @@ public class ShowActionIT {
       .containsExactlyInAnyOrder(
         false, false, true, false, false, false, true);
 
+  }
+
+  @Test
+  public void reponse_should_show_isDefault() {
+    QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate();
+    db.qualityGates().setDefaultQualityGate(defaultQualityGate);
+
+    ShowWsResponse response = ws.newRequest()
+      .setParam("name", defaultQualityGate.getName())
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertTrue(response.getIsDefault());
+
+    QualityGateDto nonDefaultQualityGate = db.qualityGates().insertQualityGate();
+
+    response = ws.newRequest()
+      .setParam("name", nonDefaultQualityGate.getName())
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertFalse(response.getIsDefault());
   }
 
   @Test
