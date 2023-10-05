@@ -348,6 +348,10 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
     }
   };
 
+  handleSelectRule = (key: string) => {
+    this.routeSelectedRulePath(key);
+  };
+
   selectPreviousRule = () => {
     const { rules } = this.state;
     const selectedIndex = this.getSelectedIndex();
@@ -684,6 +688,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
                             onOpen={this.handleRuleOpen}
                             rule={rule}
                             selected={rule.key === selected}
+                            selectRule={this.handleSelectRule}
                             selectedProfile={this.getSelectedProfile()}
                           />
                         ))}

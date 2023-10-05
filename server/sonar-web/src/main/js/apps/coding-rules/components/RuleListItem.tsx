@@ -50,6 +50,7 @@ interface Props {
   onOpen: (ruleKey: string) => void;
   rule: Rule;
   selected: boolean;
+  selectRule: (key: string) => void;
   selectedProfile?: Profile;
 }
 
@@ -86,6 +87,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
     }
 
     event.preventDefault();
+    event.stopPropagation();
     this.props.onOpen(this.props.rule.key);
   };
 
@@ -204,6 +206,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
         className="it__coding-rule sw-p-3 sw-mb-4 sw-rounded-1 sw-bg-white"
         aria-current={selected}
         data-rule={rule.key}
+        onClick={() => this.props.selectRule(rule.key)}
       >
         <div className="sw-flex sw-flex-col">
           <div className="sw-mb-4">
@@ -263,8 +266,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
 }
 
 const ListItemStyled = styled.li<{ selected: boolean }>`
-  border: ${(props) =>
-    props.selected ? themeBorder('default', 'primary') : themeBorder('default', 'almCardBorder')};
-
-  border-width: ${(props) => (props.selected ? '2px' : '1px')};
+  outline: ${(props) =>
+    props.selected ? themeBorder('heavy', 'primary') : themeBorder('default', 'almCardBorder')};
+  outline-offset: ${(props) => (props.selected ? '-2px' : '-1px')};
 `;

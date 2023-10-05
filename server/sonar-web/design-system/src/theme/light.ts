@@ -814,6 +814,7 @@ export const lightTheme = {
     active: ['4px', 'solid', ...primary.light],
     xsActive: ['3px', 'solid', ...primary.light],
     focus: ['4px', 'solid', ...secondary.default, OPACITY_20_PERCENT],
+    heavy: ['2px', 'solid', ...COLORS.grey[50]],
   },
 
   avatar: {

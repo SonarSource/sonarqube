@@ -248,7 +248,11 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     const displayedKey = ruleDetails.key.startsWith(EXTERNAL_PREFIX)
       ? ruleDetails.key.substring(EXTERNAL_PREFIX.length)
       : ruleDetails.key;
-    return <Note className="sw-overflow-hidden sw-text-ellipsis">{displayedKey}</Note>;
+    return (
+      <Note className="sw-overflow-hidden sw-text-ellipsis" title={displayedKey}>
+        {displayedKey}
+      </Note>
+    );
   }
 
   render() {
