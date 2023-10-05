@@ -18,29 +18,58 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Dict } from '../../../types/types';
+import { ProfileChangelogEvent } from '../types';
+import CleanCodeAttributeChange from './CleanCodeAttributeChange';
 import ParameterChange from './ParameterChange';
 import SeverityChange from './SeverityChange';
+import SoftwareImpactChange from './SoftwareImpactChange';
 
 interface Props {
-  changes: Dict<string | null>;
+  changes: ProfileChangelogEvent['params'];
 }
 
 export default function ChangesList({ changes }: Props) {
-  const renderSeverity = (key: string) => {
-    const severity = changes[key];
-    return severity ? <SeverityChange severity={severity} /> : null;
-  };
+  const {
+    severity,
+    oldCleanCodeAttribute,
+    oldCleanCodeAttributeCategory,
+    newCleanCodeAttribute,
+    newCleanCodeAttributeCategory,
+    impactChanges,
+    ...rest
+  } = changes ?? {};
 
   return (
-    <ul className="sw-flex sw-flex-col sw-gap-1">
-      {Object.keys(changes).map((key) => (
+    <ul className="sw-w-full sw-flex sw-flex-col sw-gap-1">
+      {severity && (
+        <li>
+          <SeverityChange severity={severity} />
+        </li>
+      )}
+
+      {oldCleanCodeAttribute &&
+        oldCleanCodeAttributeCategory &&
+        newCleanCodeAttribute &&
+        newCleanCodeAttributeCategory && (
+          <li>
+            <CleanCodeAttributeChange
+              oldCleanCodeAttribute={oldCleanCodeAttribute}
+              oldCleanCodeAttributeCategory={oldCleanCodeAttributeCategory}
+              newCleanCodeAttribute={newCleanCodeAttribute}
+              newCleanCodeAttributeCategory={newCleanCodeAttributeCategory}
+            />
+          </li>
+        )}
+
+      {impactChanges?.map((impactChange, index) => (
+        <li key={index}>
+          <SoftwareImpactChange impactChange={impactChange} />
+        </li>
+      ))}
+
+      {Object.keys(rest).map((key) => (
         <li key={key}>
-          {key === 'severity' ? (
-            renderSeverity(key)
-          ) : (
-            <ParameterChange name={key} value={changes[key]} />
-          )}
+          <ParameterChange name={key} value={rest[key] as string | null} />
         </li>
       ))}
     </ul>

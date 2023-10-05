@@ -29,8 +29,14 @@ import {
   mockRuleDetails,
   mockUserSelected,
 } from '../../helpers/testMocks';
-import { CleanCodeAttributeCategory, SoftwareQuality } from '../../types/clean-code-taxonomy';
+import {
+  CleanCodeAttribute,
+  CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../../types/clean-code-taxonomy';
 import { SearchRulesResponse } from '../../types/coding-rules';
+import { IssueSeverity } from '../../types/issues';
 import { SearchRulesQuery } from '../../types/rules';
 import { Dict, Paging, ProfileInheritanceDetails, RuleDetails } from '../../types/types';
 import {
@@ -226,6 +232,13 @@ export default class QualityProfilesServiceMock {
         action: 'DEACTIVATED',
         ruleKey: 'php:rule1',
         ruleName: 'PHP Rule',
+        params: {
+          severity: IssueSeverity.Critical,
+          newCleanCodeAttribute: CleanCodeAttribute.Complete,
+          newCleanCodeAttributeCategory: CleanCodeAttributeCategory.Intentional,
+          oldCleanCodeAttribute: CleanCodeAttribute.Clear,
+          oldCleanCodeAttributeCategory: CleanCodeAttributeCategory.Responsible,
+        },
       }),
       mockQualityProfileChangelogEvent({
         date: '2019-05-23T03:12:32+0100',
@@ -245,6 +258,23 @@ export default class QualityProfilesServiceMock {
         action: 'DEACTIVATED',
         ruleKey: 'c:rule1',
         ruleName: 'Rule 1',
+        params: {
+          severity: IssueSeverity.Critical,
+          newCleanCodeAttribute: CleanCodeAttribute.Complete,
+          newCleanCodeAttributeCategory: CleanCodeAttributeCategory.Intentional,
+          oldCleanCodeAttribute: CleanCodeAttribute.Lawful,
+          oldCleanCodeAttributeCategory: CleanCodeAttributeCategory.Responsible,
+          impactChanges: [
+            {
+              newSeverity: SoftwareImpactSeverity.Medium,
+              newSoftwareQuality: SoftwareQuality.Reliability,
+            },
+            {
+              oldSeverity: SoftwareImpactSeverity.High,
+              oldSoftwareQuality: SoftwareQuality.Maintainability,
+            },
+          ],
+        },
       }),
       mockQualityProfileChangelogEvent({
         date: '2019-04-23T02:12:32+0100',
@@ -259,7 +289,7 @@ export default class QualityProfilesServiceMock {
         ruleName: 'Rule 2',
         authorName: 'John Doe',
         params: {
-          severity: 'CRITICAL',
+          severity: IssueSeverity.Critical,
           credentialWords: 'foo,bar',
         },
       }),

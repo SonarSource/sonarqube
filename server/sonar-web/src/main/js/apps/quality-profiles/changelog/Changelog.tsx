@@ -18,11 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { isSameMinute } from 'date-fns';
-import { ContentCell, Link, Note, Table, TableRow, TableRowInteractive } from 'design-system';
+import {
+  CellComponent,
+  ContentCell,
+  Link,
+  Note,
+  Table,
+  TableRow,
+  TableRowInteractive,
+} from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
+import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
+import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
 import { parseDate } from '../../../helpers/dates';
 import { getRulesUrl } from '../../../helpers/urls';
 import { ProfileChangelogEvent } from '../types';
@@ -35,7 +45,6 @@ interface Props {
 export default function Changelog(props: Props) {
   const intl = useIntl();
 
-  let isEvenRow = false;
   const sortedRows = sortBy(
     props.events,
     // sort events by date, rounded to a minute, recent events first
@@ -52,30 +61,46 @@ export default function Changelog(props: Props) {
       prev.authorName === event.authorName &&
       prev.action === event.action;
 
-    if (!isBulkChange) {
-      isEvenRow = !isEvenRow;
-    }
-
     return (
-      <TableRowInteractive key={`${event.date}-${event.ruleKey}`}>
-        <ContentCell className="sw-whitespace-nowrap">
+      <TableRowInteractive key={index}>
+        <ContentCell className="sw-whitespace-nowrap sw-align-top">
           {!isBulkChange && <DateTimeFormatter date={event.date} />}
         </ContentCell>
 
-        <ContentCell className="sw-whitespace-nowrap sw-max-w-[120px]">
+        <ContentCell className="sw-whitespace-nowrap sw-align-top sw-max-w-[120px]">
           {!isBulkChange && (event.authorName ? event.authorName : <Note>System</Note>)}
         </ContentCell>
 
-        <ContentCell className="sw-whitespace-nowrap">
+        <ContentCell className="sw-whitespace-nowrap sw-align-top">
           {!isBulkChange &&
             intl.formatMessage({ id: `quality_profiles.changelog.${event.action}` })}
         </ContentCell>
 
-        <ContentCell>
-          <Link to={getRulesUrl({ rule_key: event.ruleKey })}>{event.ruleName}</Link>
-        </ContentCell>
+        <CellComponent className="sw-align-top">
+          {event.ruleName && (
+            <Link to={getRulesUrl({ rule_key: event.ruleKey })} className="sw-block sw-w-fit">
+              {event.ruleName}
+            </Link>
+          )}
+          <div className="sw-mt-2 sw-flex sw-gap-2">
+            {event.cleanCodeAttributeCategory && (
+              <CleanCodeAttributePill
+                cleanCodeAttributeCategory={event.cleanCodeAttributeCategory}
+              />
+            )}
+            {event.impacts?.map((impact) => (
+              <SoftwareImpactPill
+                key={impact.softwareQuality}
+                quality={impact.softwareQuality}
+                severity={impact.severity}
+              />
+            ))}
+          </div>
+        </CellComponent>
 
-        <ContentCell>{event.params && <ChangesList changes={event.params} />}</ContentCell>
+        <ContentCell className="sw-align-top sw-max-w-[400px]">
+          {event.params && <ChangesList changes={event.params} />}
+        </ContentCell>
       </TableRowInteractive>
     );
   });
@@ -83,6 +108,7 @@ export default function Changelog(props: Props) {
   return (
     <Table
       columnCount={5}
+      columnWidths={['1%', '1%', '1%', 'auto', '1%']}
       header={
         <TableRow>
           <ContentCell>{intl.formatMessage({ id: 'date' })}</ContentCell>

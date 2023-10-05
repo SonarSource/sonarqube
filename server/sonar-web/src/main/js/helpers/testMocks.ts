@@ -510,8 +510,19 @@ export function mockQualityProfileChangelogEvent(
     action: 'ACTIVATED',
     date: '2019-04-23T02:12:32+0100',
     params: {
-      severity: 'MAJOR',
+      severity: IssueSeverity.Major,
     },
+    cleanCodeAttributeCategory: CleanCodeAttributeCategory.Responsible,
+    impacts: [
+      {
+        softwareQuality: SoftwareQuality.Maintainability,
+        severity: SoftwareImpactSeverity.Low,
+      },
+      {
+        softwareQuality: SoftwareQuality.Security,
+        severity: SoftwareImpactSeverity.High,
+      },
+    ],
     ruleKey: 'rule-key',
     ruleName: 'rule-name',
     ...eventOverride,

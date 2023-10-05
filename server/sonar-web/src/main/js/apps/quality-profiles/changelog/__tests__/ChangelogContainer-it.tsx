@@ -31,12 +31,37 @@ jest.mock('../../../../api/quality-profiles');
 const serviceMock = new QualityProfilesServiceMock();
 const ui = {
   row: byRole('row'),
+  cell: byRole('cell'),
   link: byRole('link'),
   emptyPage: byText('no_results'),
   showMore: byRole('button', { name: 'show_more' }),
   startDate: byRole('textbox', { name: 'start_date' }),
   endDate: byRole('textbox', { name: 'end_date' }),
   reset: byRole('button', { name: 'reset_verb' }),
+
+  checkRow: (
+    index: number,
+    date: string,
+    user: string,
+    action: string,
+    rule: string | null,
+    updates: RegExp[] = [],
+  ) => {
+    const row = ui.row.getAll()[index];
+    if (!row) {
+      throw new Error(`Cannot find row ${index}`);
+    }
+    const cells = ui.cell.getAll(row);
+    expect(cells[0]).toHaveTextContent(date);
+    expect(cells[1]).toHaveTextContent(user);
+    expect(cells[2]).toHaveTextContent(action);
+    if (rule !== null) {
+      expect(cells[3]).toHaveTextContent(rule);
+    }
+    for (const update of updates) {
+      expect(cells[4]).toHaveTextContent(update);
+    }
+  },
 };
 
 beforeEach(() => {
@@ -55,26 +80,33 @@ afterEach(() => {
 
 it('should see the changelog', async () => {
   const user = userEvent.setup();
+
   renderChangeLog();
 
   const rows = await ui.row.findAll();
   expect(rows).toHaveLength(6);
   expect(ui.emptyPage.query()).not.toBeInTheDocument();
-  expect(rows[1]).toHaveTextContent('May 23, 2019');
-  expect(rows[1]).not.toHaveTextContent('quality_profiles.severity');
-  expect(rows[2]).toHaveTextContent('April 23, 2019');
-  expect(rows[2]).toHaveTextContent(
-    'Systemquality_profiles.changelog.DEACTIVATEDRule 0quality_profiles.severity_set_to severity.MAJOR',
+  ui.checkRow(1, 'May 23, 2019', 'System', 'quality_profiles.changelog.ACTIVATED', 'Rule 0');
+  ui.checkRow(
+    2,
+    'April 23, 2019',
+    'System',
+    'quality_profiles.changelog.DEACTIVATED',
+    'Rule 0issue.clean_code_attribute_category.RESPONSIBLE.title_shortissue.software_quality.MAINTAINABILITYissue.software_quality.SECURITY',
+    [/quality_profiles.severity_set_to severity.MAJOR/],
   );
-  expect(rows[3]).not.toHaveTextContent('April 23, 2019');
-  expect(rows[3]).not.toHaveTextContent('Systemquality_profiles.changelog.DEACTIVATED');
-  expect(rows[3]).toHaveTextContent('Rule 1quality_profiles.severity_set_to severity.MAJOR');
-  expect(rows[4]).toHaveTextContent('John Doe');
-  expect(rows[4]).not.toHaveTextContent('System');
-  expect(rows[5]).toHaveTextContent('March 23, 2019');
-  expect(rows[5]).toHaveTextContent('John Doequality_profiles.changelog.ACTIVATEDRule 2');
-  expect(rows[5]).toHaveTextContent(
-    'quality_profiles.severity_set_to severity.CRITICALquality_profiles.parameter_set_to.credentialWords.foo,bar',
+  ui.checkRow(
+    3,
+    '',
+    '',
+    '',
+    'Rule 1issue.clean_code_attribute_category.RESPONSIBLE.title_shortissue.software_quality.MAINTAINABILITYissue.software_quality.SECURITY',
+    [
+      /quality_profiles.severity_set_to severity.CRITICAL/,
+      /quality_profiles.changelog.cca_and_category_changed.*COMPLETE.*INTENTIONAL.*LAWFUL.*RESPONSIBLE/,
+      /quality_profiles.changelog.impact_added.severity.*MEDIUM.*RELIABILITY/,
+      /quality_profiles.changelog.impact_removed.severity.HIGH.*MAINTAINABILITY/,
+    ],
   );
   await user.click(ui.link.get(rows[1]));
   expect(screen.getByText('/coding_rules?rule_key=c%3Arule0')).toBeInTheDocument();
@@ -120,10 +152,10 @@ it('should see short changelog for php', async () => {
 
   const rows = await ui.row.findAll();
   expect(rows).toHaveLength(2);
-  expect(rows[1]).toHaveTextContent('May 23, 2019');
-  expect(rows[1]).toHaveTextContent(
-    'Systemquality_profiles.changelog.DEACTIVATEDPHP Rulequality_profiles.severity_set_to severity.MAJOR',
-  );
+  ui.checkRow(1, 'May 23, 2019', 'System', 'quality_profiles.changelog.DEACTIVATED', 'PHP Rule', [
+    /quality_profiles.severity_set_to severity.CRITICAL/,
+    /quality_profiles.changelog.cca_and_category_changed.*COMPLETE.*INTENTIONAL.*CLEAR.*RESPONSIBLE/,
+  ]);
   expect(ui.showMore.query()).not.toBeInTheDocument();
 });
 

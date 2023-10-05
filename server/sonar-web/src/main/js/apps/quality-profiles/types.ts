@@ -18,6 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Profile as BaseProfile } from '../../api/quality-profiles';
+import {
+  CleanCodeAttribute,
+  CleanCodeAttributeCategory,
+  SoftwareImpactSeverity,
+  SoftwareQuality,
+} from '../../types/clean-code-taxonomy';
+import { IssueSeverity } from '../../types/issues';
 import { Dict } from '../../types/types';
 
 export interface Profile extends BaseProfile {
@@ -31,11 +38,30 @@ export interface Exporter {
   languages: string[];
 }
 
+export interface ProfileChangelogEventImpactChange {
+  oldSoftwareQuality?: SoftwareQuality;
+  newSoftwareQuality?: SoftwareQuality;
+  oldSeverity?: SoftwareImpactSeverity;
+  newSeverity?: SoftwareImpactSeverity;
+}
+
 export interface ProfileChangelogEvent {
   action: string;
   authorName?: string;
+  cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
+  impacts: {
+    softwareQuality: SoftwareQuality;
+    severity: SoftwareImpactSeverity;
+  }[];
   date: string;
-  params?: Dict<string | null>;
+  params?: {
+    severity?: IssueSeverity;
+    oldCleanCodeAttribute?: CleanCodeAttribute;
+    oldCleanCodeAttributeCategory?: CleanCodeAttributeCategory;
+    newCleanCodeAttribute?: CleanCodeAttribute;
+    newCleanCodeAttributeCategory?: CleanCodeAttributeCategory;
+    impactChanges?: ProfileChangelogEventImpactChange[];
+  } & Dict<string | ProfileChangelogEventImpactChange[] | null>;
   ruleKey: string;
   ruleName: string;
 }
