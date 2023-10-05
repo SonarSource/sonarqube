@@ -17,135 +17,122 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FileInput, FlagMessage, FormField, Modal, Spinner } from 'design-system';
 import * as React from 'react';
+import { useRef, useState } from 'react';
+import { useIntl } from 'react-intl';
 import { restoreQualityProfile } from '../../../api/quality-profiles';
-import Modal from '../../../components/controls/Modal';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import { Alert } from '../../../components/ui/Alert';
-import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   onClose: () => void;
   onRestore: () => void;
 }
 
-interface State {
-  loading: boolean;
-  profile?: { name: string };
-  ruleFailures?: number;
-  ruleSuccesses?: number;
-}
+export default function RestoreProfileForm({ onClose, onRestore }: Readonly<Props>) {
+  const intl = useIntl();
 
-export default class RestoreProfileForm extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { loading: false };
+  const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState();
+  const [ruleFailures, setRuleFailures] = useState();
+  const [ruleSuccesses, setRuleSuccesses] = useState();
 
-  componentDidMount() {
-    this.mounted = true;
+  const formRef = useRef<HTMLFormElement>(null);
+
+  async function handleFormSubmit() {
+    if (!formRef.current) {
+      return;
+    }
+    const data = new FormData(formRef.current);
+
+    try {
+      setLoading(true);
+      const { profile, ruleFailures, ruleSuccesses } = await restoreQualityProfile(data);
+      setProfile(profile);
+      setRuleFailures(ruleFailures);
+      setRuleSuccesses(ruleSuccesses);
+      onRestore();
+    } finally {
+      setLoading(false);
+    }
   }
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    this.setState({ loading: true });
-
-    const data = new FormData(event.currentTarget);
-
-    restoreQualityProfile(data).then(
-      (response: any) => {
-        if (this.mounted) {
-          this.setState({
-            loading: false,
-            profile: response.profile,
-            ruleFailures: response.ruleFailures,
-            ruleSuccesses: response.ruleSuccesses,
-          });
-        }
-        this.props.onRestore();
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      },
-    );
-  };
-
-  renderAlert(profile: { name: string }, ruleFailures = 0, ruleSuccesses: number): React.ReactNode {
+  function renderAlert(profile: { name: string }, ruleFailures: number, ruleSuccesses: number) {
     return ruleFailures ? (
-      <Alert variant="warning">
-        {translateWithParameters(
-          'quality_profiles.restore_profile.warning',
-          profile.name,
-          ruleSuccesses,
-          ruleFailures,
+      <FlagMessage variant="warning">
+        {intl.formatMessage(
+          {
+            id: `quality_profiles.restore_profile.warning`,
+          },
+          {
+            profileName: profile.name,
+            ruleFailures,
+            ruleSuccesses,
+          },
         )}
-      </Alert>
+      </FlagMessage>
     ) : (
-      <Alert variant="success">
-        {translateWithParameters(
-          'quality_profiles.restore_profile.success',
-          profile.name,
-          ruleSuccesses,
+      <FlagMessage variant="success">
+        {intl.formatMessage(
+          {
+            id: `quality_profiles.restore_profile.success`,
+          },
+          {
+            profileName: profile.name,
+            ruleSuccesses,
+          },
         )}
-      </Alert>
+      </FlagMessage>
     );
   }
 
-  render() {
-    const header = translate('quality_profiles.restore_profile');
-
-    const { loading, profile, ruleFailures, ruleSuccesses } = this.state;
-
-    return (
-      <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
-        <form id="restore-profile-form" onSubmit={this.handleFormSubmit}>
-          <div className="modal-head">
-            <h2>{header}</h2>
-          </div>
-
-          <div className="modal-body">
-            {profile != null && ruleSuccesses != null ? (
-              this.renderAlert(profile, ruleFailures, ruleSuccesses)
-            ) : (
-              <>
-                <MandatoryFieldsExplanation className="modal-field" />
-                <div className="modal-field">
-                  <label htmlFor="restore-profile-backup">
-                    {translate('backup')}
-                    <MandatoryFieldMarker />
-                  </label>
-                  <input id="restore-profile-backup" name="backup" required type="file" />
-                </div>
-              </>
-            )}
-          </div>
-
-          {ruleSuccesses == null ? (
-            <div className="modal-foot">
-              {loading && <i className="spinner spacer-right" />}
-              <SubmitButton disabled={loading} id="restore-profile-submit">
-                {translate('restore')}
-              </SubmitButton>
-              <ResetButtonLink id="restore-profile-cancel" onClick={this.props.onClose}>
-                {translate('cancel')}
-              </ResetButtonLink>
-            </div>
+  return (
+    <Modal
+      headerTitle={intl.formatMessage({ id: 'quality_profiles.restore_profile' })}
+      onClose={onClose}
+      body={
+        <form ref={formRef}>
+          {profile != null && ruleSuccesses != null ? (
+            renderAlert(profile, ruleFailures ?? 0, ruleSuccesses)
           ) : (
-            <div className="modal-foot">
-              <ResetButtonLink id="restore-profile-cancel" onClick={this.props.onClose}>
-                {translate('close')}
-              </ResetButtonLink>
-            </div>
+            <>
+              <MandatoryFieldsExplanation className="modal-field" />
+              <FormField
+                htmlFor="restore-profile-backup"
+                label={intl.formatMessage({ id: 'backup' })}
+              >
+                <FileInput
+                  id="restore-profile-backup"
+                  name="backup"
+                  chooseLabel={intl.formatMessage({ id: 'choose_file' })}
+                  clearLabel={intl.formatMessage({ id: 'clear_file' })}
+                  noFileLabel={intl.formatMessage({ id: 'no_file_selected' })}
+                  required
+                />
+              </FormField>
+            </>
           )}
         </form>
-      </Modal>
-    );
-  }
+      }
+      primaryButton={
+        ruleSuccesses == null ? (
+          <>
+            <Spinner loading={loading} />
+            <ButtonPrimary
+              disabled={loading}
+              onClick={handleFormSubmit}
+              id="restore-profile-submit"
+            >
+              {intl.formatMessage({ id: 'restore' })}
+            </ButtonPrimary>
+          </>
+        ) : (
+          <ButtonPrimary id="restore-profile-cancel" onClick={onClose}>
+            {intl.formatMessage({ id: 'close' })}
+          </ButtonPrimary>
+        )
+      }
+      secondaryButtonLabel={intl.formatMessage({ id: ruleSuccesses == null ? 'cancel' : 'close' })}
+    />
+  );
 }
