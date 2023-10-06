@@ -70,7 +70,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
           }
           links={[
             {
-              href: '/user-guide/rules',
+              href: '/user-guide/rules/overview',
               label: translate('learn_more'),
             },
           ]}
@@ -95,7 +95,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
         }
         links={[
           {
-            href: '/user-guide/rules',
+            href: '/user-guide/rules/overview',
             label: translate('learn_more'),
           },
         ]}
