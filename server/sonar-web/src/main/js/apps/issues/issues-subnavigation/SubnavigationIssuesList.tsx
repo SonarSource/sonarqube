@@ -89,7 +89,7 @@ export default function SubnavigationIssuesList(props: Props) {
         })}
       </StyledList>
       {paging && paging.total > 0 && (
-        <StyledFooter
+        <ListFooter
           className="sw-my-0 sw-py-4"
           count={issues.length}
           loadMore={props.fetchMoreIssues}
@@ -106,10 +106,6 @@ const StyledList = styled.ul`
   li:not(:last-child) {
     border-bottom: ${themeBorder('default')};
   }
-`;
-
-const StyledFooter = styled(ListFooter)`
-  border-top: ${themeBorder('default', 'filterbarBorder')};
 `;
 
 const StyledWrapper = styled.div`
