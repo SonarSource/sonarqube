@@ -38,7 +38,7 @@ function SourceViewerWrapper(props: SourceViewerWrapperProps) {
 
   const handleLoaded = React.useCallback(() => {
     if (line) {
-      const row = document.querySelector(`.source-line[data-line-number="${line}"]`);
+      const row = document.querySelector(`.it__source-line-code[data-line-number="${line}"]`);
       if (row) {
         row.scrollIntoView({ block: 'center' });
       }
