@@ -78,7 +78,7 @@ function BaseLinkWithRef(props: LinkProps, ref: React.ForwardedRef<HTMLAnchorEle
         onClick(event);
       }
     },
-    [onClick, blurAfterClick, preventDefault, stopPropagation, disabled]
+    [onClick, blurAfterClick, preventDefault, stopPropagation, disabled],
   );
 
   if (isExternal) {
@@ -152,8 +152,8 @@ export const DrilldownLink = styled(StyledBaseLink)`
     disabled
       ? tw`sw-cursor-default`
       : `--active: ${themeColor('linkActive')({ theme })};
-         --border: ${themeBorder('default', 'drilldownBorder')({ theme })};
-         --borderActive: ${themeBorder('default', 'linkActive')({ theme })};`};
+         --border: ${themeBorder('default', 'linkBorder')({ theme })};
+         --borderActive: ${themeBorder('default', 'linkBorder')({ theme })};`};
 
   --color: ${themeColor('drilldown')};
 `;
@@ -166,11 +166,11 @@ export const HoverLink = styled(StyledBaseLink)`
   --color: ${themeColor('linkDiscreet')};
   --active: ${themeColor('linkActive')};
   --border: ${themeBorder('default', 'transparent')};
-  --borderActive: ${themeBorder('default', 'linkActive')};
+  --borderActive: ${themeBorder('default', 'linkBorder')};
 
   ${TooltipWrapperInner} & {
     --active: ${themeColor('linkTooltipActive')};
-    --borderActive: ${themeBorder('default', 'linkTooltipActive')};
+    --borderActive: ${themeBorder('default', 'linkBorder')};
   }
 `;
 HoverLink.displayName = 'HoverLink';
@@ -210,14 +210,14 @@ export const StandoutLink = styled(StyledBaseLink)`
 
   --color: ${themeColor('linkDefault')};
   --active: ${themeColor('linkActive')};
-  --border: ${themeBorder('default', 'linkDefault')};
-  --borderActive: ${themeBorder('default', 'linkDefault')};
+  --border: ${themeBorder('default', 'linkBorder')};
+  --borderActive: ${themeBorder('default', 'linkBorder')};
 
   ${TooltipWrapperInner} & {
     --color: ${themeColor('linkTooltipDefault')};
     --active: ${themeColor('linkTooltipActive')};
-    --border: ${themeBorder('default', 'linkTooltipDefault')};
-    --borderActive: ${themeBorder('default', 'linkTooltipActive')};
+    --border: ${themeBorder('default', 'linkBorder')};
+    --borderActive: ${themeBorder('default', 'linkBorder')};
   }
 `;
 StandoutLink.displayName = 'StandoutLink';

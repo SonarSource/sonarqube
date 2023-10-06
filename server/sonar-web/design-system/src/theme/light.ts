@@ -310,6 +310,7 @@ export const lightTheme = {
     linkDiscreet: 'currentColor',
     linkTooltipDefault: COLORS.indigo[200],
     linkTooltipActive: COLORS.indigo[100],
+    linkBorder: COLORS.indigo[300],
 
     // discreet select
     discreetBorder: secondary.default,

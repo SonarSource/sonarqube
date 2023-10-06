@@ -101,9 +101,11 @@ function IssueSourceViewerHeader(props: Readonly<Props> & ThemeProp) {
         {displayProjectName && (
           <>
             {linkToProject ? (
-              <HoverLink to={getBranchLikeUrl(project, branchLike)} className="sw-mr-2">
-                <LightLabel>{projectName}</LightLabel>
-              </HoverLink>
+              <LightLabel>
+                <HoverLink to={getBranchLikeUrl(project, branchLike)} className="sw-mr-2">
+                  {projectName}
+                </HoverLink>
+              </LightLabel>
             ) : (
               <LightLabel className="sw-ml-1 sw-mr-2">{projectName}</LightLabel>
             )}
