@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
@@ -127,12 +126,6 @@ public class ActiveRuleChange {
       .filter(param -> !param.getKey().isEmpty())
       .forEach(param -> data.put("param_" + param.getKey(), param.getValue()));
 
-    if (StringUtils.isNotEmpty(severity)) {
-      data.put("severity", severity);
-    }
-    if (inheritance != null) {
-      data.put("inheritance", inheritance.name());
-    }
     dto.setData(data);
     return dto;
   }
