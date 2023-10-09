@@ -41,6 +41,7 @@ it('should render correctly', async () => {
   expect(screen.getByRole('status', { name: 'v1.0' })).toBeInTheDocument();
   expect(screen.getByText(/event.category.OTHER/)).toBeInTheDocument();
   expect(screen.getByText(/event.category.DEFINITION_CHANGE/)).toBeInTheDocument();
+  expect(screen.getByText('event.sqUpgrade10.2')).toBeInTheDocument();
 });
 
 function renderActivityPanel(props: Partial<ActivityPanelProps> = {}) {
@@ -73,6 +74,11 @@ function renderActivityPanel(props: Partial<ActivityPanelProps> = {}) {
               },
             ],
           },
+        }),
+        mockAnalysisEvent({
+          key: '5',
+          category: ProjectAnalysisEventCategory.SqUpgrade,
+          name: '10.2',
         }),
       ],
     }),

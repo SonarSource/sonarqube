@@ -17,24 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Badge, QualityGateIndicator } from 'design-system';
+import { Badge, FlagMessage, QualityGateIndicator } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { isDefinitionChangeEvent } from '../../../components/activity-graph/DefinitionChangeEventInner';
 import { isRichQualityGateEvent } from '../../../components/activity-graph/RichQualityGateEventInner';
 import { translate } from '../../../helpers/l10n';
-import { AnalysisEvent } from '../../../types/project-activity';
+import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../../types/project-activity';
 
 interface Props {
   event: AnalysisEvent;
 }
 
 export function Event({ event }: Props) {
-  if (event.category === 'VERSION') {
+  if (event.category === ProjectAnalysisEventCategory.Version) {
     return (
-      <Badge className="sw-px-1 sw-text-ellipsis sw-mb-1" variant="new">
-        {event.name}
-      </Badge>
+      <div>
+        <Badge className="sw-px-1 sw-text-ellipsis sw-mb-1" variant="new">
+          {event.name}
+        </Badge>
+      </div>
+    );
+  }
+
+  if (event.category === ProjectAnalysisEventCategory.SqUpgrade) {
+    return (
+      <FlagMessage className="sw-my-1" variant="info">
+        <FormattedMessage
+          id="event.sqUpgrade"
+          values={{
+            sqVersion: event.name,
+          }}
+        />
+      </FlagMessage>
     );
   }
 

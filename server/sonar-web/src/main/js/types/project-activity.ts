@@ -69,6 +69,7 @@ export enum ProjectAnalysisEventCategory {
   Version = 'VERSION',
   QualityGate = 'QUALITY_GATE',
   QualityProfile = 'QUALITY_PROFILE',
+  SqUpgrade = 'SQ_UPGRADE',
   Other = 'OTHER',
 }
 

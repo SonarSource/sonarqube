@@ -22,7 +22,10 @@ import * as React from 'react';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate } from '../../../helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
-import { Analysis as TypeAnalysis } from '../../../types/project-activity';
+import {
+  ProjectAnalysisEventCategory,
+  Analysis as TypeAnalysis,
+} from '../../../types/project-activity';
 import Event from './Event';
 
 export interface AnalysisProps {
@@ -33,9 +36,19 @@ export interface AnalysisProps {
 export function Analysis({ analysis, ...props }: AnalysisProps) {
   const sortedEvents = sortBy(
     analysis.events,
-    // versions first
-    (event) => (event.category === 'VERSION' ? 0 : 1),
-    // then the rest sorted by category
+    (event) => {
+      switch (event.category) {
+        case ProjectAnalysisEventCategory.Version:
+          // versions first
+          return 0;
+        case ProjectAnalysisEventCategory.SqUpgrade:
+          // SQ Upgrade second
+          return 1;
+        default:
+          // then the rest sorted by category
+          return 2;
+      }
+    },
     'category',
   );
 
