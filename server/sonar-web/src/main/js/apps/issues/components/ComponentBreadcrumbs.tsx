@@ -19,7 +19,7 @@
  */
 
 import styled from '@emotion/styled';
-import { Badge, themeBorder, themeColor, themeContrast } from 'design-system';
+import { Badge, themeBorder, themeContrast } from 'design-system';
 import * as React from 'react';
 import BranchIcon from '../../../components/icons/BranchIcon';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -89,9 +89,7 @@ export default function ComponentBreadcrumbs({
 }
 
 const DivStyled = styled.div`
-  background-color: ${themeColor('subnavigation')};
   color: ${themeContrast('breadcrumb')};
-
   &:not(:last-child) {
     border-bottom: ${themeBorder('default')};
   }

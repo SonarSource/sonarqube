@@ -107,7 +107,7 @@ import IssuesSourceViewer from './IssuesSourceViewer';
 import NoIssues from './NoIssues';
 import NoMyIssues from './NoMyIssues';
 import PageActions from './PageActions';
-import StyledHeader, { PSEUDO_SHADOW_HEIGHT } from './StyledHeader';
+import { PSEUDO_SHADOW_HEIGHT } from './StyledHeader';
 
 interface Props extends WithIndexationContextProps {
   branchLike?: BranchLike;
@@ -1156,7 +1156,6 @@ export class App extends React.PureComponent<Props, State> {
             onFilterChange={this.handleFilterChange}
             onIssueChange={this.handleIssueChange}
             onIssueCheck={currentUser.isLoggedIn ? this.handleIssueCheck : undefined}
-            onIssueClick={this.openIssue}
             onIssueSelect={this.selectIssue}
             onPopupToggle={this.handlePopupToggle}
             openPopup={this.state.openPopup}
@@ -1196,18 +1195,16 @@ export class App extends React.PureComponent<Props, State> {
     ) : (
       <>
         <A11ySkipTarget anchor="issues_main" />
-        <StyledHeader headerHeight={84}>
-          <div className="sw-p-6 sw-flex sw-w-full sw-items-center sw-justify-between">
-            {this.renderBulkChange()}
+        <div className="sw-p-6 sw-flex sw-w-full sw-items-center sw-justify-between sw-box-border">
+          {this.renderBulkChange()}
 
-            <PageActions
-              canSetHome={!this.props.component}
-              effortTotal={this.state.effortTotal}
-              paging={this.props.component?.needIssueSync ? undefined : paging}
-              selectedIndex={selectedIndex}
-            />
-          </div>
-        </StyledHeader>
+          <PageActions
+            canSetHome={!this.props.component}
+            effortTotal={this.state.effortTotal}
+            paging={this.props.component?.needIssueSync ? undefined : paging}
+            selectedIndex={selectedIndex}
+          />
+        </div>
       </>
     );
   }
@@ -1229,9 +1226,10 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <ScreenPositionHelper>
         {({ top }) => (
-          <div
+          <StyledIssueWrapper
             className={classNames('it__layout-page-main-inner sw-pt-0', {
               'sw-overflow-y-auto': !(openIssue && openRuleDetails),
+              'details-open': openIssue && openRuleDetails,
             })}
             style={{ height: `calc((100vh - ${top + LAYOUT_FOOTER_HEIGHT}px)` }}
           >
@@ -1305,7 +1303,7 @@ export class App extends React.PureComponent<Props, State> {
                 </div>
               )}
             </Spinner>
-          </div>
+          </StyledIssueWrapper>
         )}
       </ScreenPositionHelper>
     );
@@ -1343,9 +1341,7 @@ export class App extends React.PureComponent<Props, State> {
 
               {this.renderSide(openIssue)}
 
-              <MainContentStyle className="sw-relative sw-ml-12 sw-flex-1">
-                {this.renderPage()}
-              </MainContentStyle>
+              <main className="sw-relative sw-ml-12 sw-flex-1">{this.renderPage()}</main>
             </div>
           </PageContentFontWrapper>
         </LargeCenteredLayout>
@@ -1382,14 +1378,19 @@ const PageWrapperStyle = styled.div`
   background-color: ${themeColor('backgroundPrimary')};
 `;
 
-const MainContentStyle = styled.main`
-  background-color: ${themeColor('subnavigation')};
-  border-left: ${themeBorder('default', 'filterbarBorder')};
-  border-right: ${themeBorder('default', 'filterbarBorder')};
-`;
-
 const SideBarStyle = styled.div`
   border-left: ${themeBorder('default', 'filterbarBorder')};
   border-right: ${themeBorder('default', 'filterbarBorder')};
   background-color: ${themeColor('backgroundSecondary')};
+`;
+
+const StyledIssueWrapper = styled.div`
+  &.details-open {
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: ${themeBorder('default', 'filterbarBorder')};
+    background-color: ${themeColor('filterbar')};
+    border-bottom: none;
+    border-top: none;
+  }
 `;

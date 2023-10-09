@@ -29,7 +29,6 @@ interface Props {
   issue: TypeIssue;
   onChange: (issue: TypeIssue) => void;
   onCheck: ((issueKey: string) => void) | undefined;
-  onClick: (issueKey: string) => void;
   onSelect: (issueKey: string) => void;
   onFilterChange: (changes: Partial<Query>) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;
@@ -93,7 +92,6 @@ export default class ListItem extends React.PureComponent<Props> {
         issue={issue}
         onChange={this.props.onChange}
         onCheck={this.props.onCheck}
-        onClick={this.props.onClick}
         onSelect={this.props.onSelect}
         onPopupToggle={this.props.onPopupToggle}
         openPopup={this.props.openPopup}

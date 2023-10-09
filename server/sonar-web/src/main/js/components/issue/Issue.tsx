@@ -37,7 +37,6 @@ interface Props {
   issue: TypeIssue;
   onChange: (issue: TypeIssue) => void;
   onCheck?: (issue: string) => void;
-  onClick?: (issueKey: string) => void;
   onSelect: (issueKey: string) => void;
   onPopupToggle: (issue: string, popupName: string, open?: boolean) => void;
   openPopup?: string;
@@ -127,7 +126,6 @@ export default function Issue(props: Props) {
       onAssign={handleAssignement}
       onChange={onChange}
       onCheck={props.onCheck}
-      onClick={props.onClick}
       onSelect={props.onSelect}
       selected={selected}
       togglePopup={togglePopup}

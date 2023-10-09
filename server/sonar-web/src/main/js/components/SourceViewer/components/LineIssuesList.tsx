@@ -62,7 +62,7 @@ export default function LineIssuesList(props: LineIssuesListProps) {
     return null;
   }
   return (
-    <div className="issue-list">
+    <ul className="sw-my-4 sw-max-w-[980px]">
       {displayedIssue.map((issue) => (
         <Issue
           branchLike={props.branchLike}
@@ -76,6 +76,6 @@ export default function LineIssuesList(props: LineIssuesListProps) {
           selected={props.selectedIssue === issue.key}
         />
       ))}
-    </div>
+    </ul>
   );
 }

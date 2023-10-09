@@ -20,7 +20,7 @@
 
 import styled from '@emotion/styled';
 import classNames from 'classnames';
-import { Checkbox, themeBorder, themeColor } from 'design-system';
+import { Checkbox, themeBorder } from 'design-system';
 import * as React from 'react';
 import { deleteIssueComment, editIssueComment } from '../../../api/issues';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -41,7 +41,6 @@ interface Props {
   onChange: (issue: Issue) => void;
   onCheck?: (issue: string) => void;
   onSelect: (issueKey: string) => void;
-  onClick?: (issueKey: string) => void;
   selected: boolean;
   togglePopup: (popup: string, show: boolean | void) => void;
 }
@@ -82,13 +81,9 @@ export default class IssueView extends React.PureComponent<Props> {
 
     const hasCheckbox = this.props.onCheck != null;
 
-    const issueClass = classNames(
-      'it__issue-item sw-py-3 sw-flex sw-items-center sw-justify-between sw-w-full ',
-      {
-        'no-click': this.props.onClick === undefined,
-        selected: this.props.selected,
-      },
-    );
+    const issueClass = classNames('it__issue-item sw-p-3 sw-mb-4 sw-rounded-1 sw-bg-white', {
+      selected: this.props.selected,
+    });
 
     return (
       <IssueItem
@@ -98,7 +93,7 @@ export default class IssueView extends React.PureComponent<Props> {
         aria-label={issue.message}
         ref={(node) => (this.nodeRef = node)}
       >
-        <div className="sw-flex sw-w-full sw-px-2 sw-gap-4">
+        <div className="sw-flex sw-gap-4">
           {hasCheckbox && (
             <span className="sw-mt-7 sw-self-start">
               <Checkbox
@@ -139,20 +134,11 @@ export default class IssueView extends React.PureComponent<Props> {
 }
 
 const IssueItem = styled.li`
-  box-sizing: border-box;
-  border: ${themeBorder('default', 'transparent')};
-  border-top: ${themeBorder('default')};
-  outline: none;
-
-  &:last-child {
-    border-bottom: ${themeBorder('default')};
-  }
+  outline: ${themeBorder('default', 'almCardBorder')};
+  outline-offset: -1px;
 
   &.selected {
-    border: ${themeBorder('default', 'tableRowSelected')};
-  }
-
-  &:hover {
-    background: ${themeColor('tableRowHover')};
+    outline: ${themeBorder('heavy', 'primary')};
+    outline-offset: -2px;
   }
 `;
