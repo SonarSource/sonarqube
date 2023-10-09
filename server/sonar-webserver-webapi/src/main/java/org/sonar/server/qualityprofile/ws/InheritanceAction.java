@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -134,7 +135,7 @@ public class InheritanceAction implements QProfileWsAction {
       .setName(qualityProfile.getName())
       .setActiveRuleCount(statistics.countRulesByProfileKey.getOrDefault(key, 0L))
       .setOverridingRuleCount(statistics.countOverridingRulesByProfileKey.getOrDefault(key, 0L))
-      .setInactiveRuleCount(statistics.countInactiveRuleByProfileKey.getOrDefault(key, 0L))
+      .setInactiveRuleCount(statistics.countInactiveRuleByProfileKey.get(key))
       .setIsBuiltIn(qualityProfile.isBuiltIn());
     ofNullable(qualityProfile.getParentKee()).ifPresent(builder::setParent);
     return builder.build();
@@ -151,7 +152,7 @@ public class InheritanceAction implements QProfileWsAction {
       countRulesByProfileKey = dao.countActiveRulesByQuery(dbSession, builder.setProfiles(profiles).build());
       countOverridingRulesByProfileKey = dao.countActiveRulesByQuery(dbSession, builder.setProfiles(profiles).setInheritance(OVERRIDES).build());
       long totalRuleAvailable = dbClient.ruleDao().countByLanguage(dbSession, language);
-      countRulesByProfileKey.forEach((profileKey, activeRules) -> countInactiveRuleByProfileKey.put(profileKey, totalRuleAvailable - activeRules));
+      profiles.forEach(p -> countInactiveRuleByProfileKey.put(p.getKee(), totalRuleAvailable - Optional.ofNullable(countRulesByProfileKey.get(p.getKee())).orElse(0L)));
     }
   }
 }

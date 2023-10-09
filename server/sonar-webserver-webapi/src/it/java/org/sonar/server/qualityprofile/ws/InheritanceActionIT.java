@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -167,6 +168,26 @@ public class InheritanceActionIT {
 
     assertThat(result.getAncestorsList()).extracting(InheritanceWsResponse.QualityProfile::getKey).containsExactly(parent.getKee());
     assertThat(result.getAncestorsList()).extracting(InheritanceWsResponse.QualityProfile::getActiveRuleCount).containsExactly(2L);
+  }
+
+  @Test
+  public void handle_whenNoRulesActivated_shouldReturnExpectedInactivateRulesForLanguage() throws IOException {
+    String language = "java";
+    QProfileDto qualityProfile = db.qualityProfiles().insert(p -> p.setLanguage(language));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage(language));
+
+    InputStream response = ws.newRequest()
+      .setMediaType(PROTOBUF)
+      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
+      .execute()
+      .getInputStream();
+    InheritanceWsResponse result = InheritanceWsResponse.parseFrom(response);
+
+    assertThat(result.getProfile().getKey()).isEqualTo(qualityProfile.getKee());
+    assertThat(result.getProfile().getActiveRuleCount()).isZero();
+    assertThat(result.getProfile().getInactiveRuleCount()).isEqualTo(1);
+
   }
 
   @Test
