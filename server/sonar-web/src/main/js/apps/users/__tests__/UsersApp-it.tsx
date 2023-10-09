@@ -273,8 +273,8 @@ describe('in non managed mode', () => {
     renderUsersApp();
 
     await act(async () => expect(await ui.aliceRow.find()).toBeInTheDocument());
+    expect(await ui.userRows.findAll()).toHaveLength(6);
     expect(ui.bobRow.get()).toBeInTheDocument();
-    expect(ui.userRows.getAll()).toHaveLength(6);
 
     await act(async () => {
       await user.click(await ui.showMore.find());
