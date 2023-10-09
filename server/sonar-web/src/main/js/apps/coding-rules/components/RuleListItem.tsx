@@ -25,13 +25,13 @@ import {
   InheritanceIcon,
   Link,
   Note,
+  OverridenIcon,
   themeBorder,
 } from 'design-system';
 import * as React from 'react';
 import { Profile, deactivateRule } from '../../../api/quality-profiles';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import Tooltip from '../../../components/controls/Tooltip';
-import SeverityIcon from '../../../components/icons/SeverityIcon';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
 import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
 import TagsList from '../../../components/tags/TagsList';
@@ -99,7 +99,6 @@ export default class RuleListItem extends React.PureComponent<Props> {
 
     return (
       <div className="sw-mr-2 sw-shrink-0">
-        <SeverityIcon severity={activation.severity} />
         {selectedProfile && selectedProfile.parentName && (
           <>
             {activation.inherit === 'OVERRIDES' && (
@@ -110,7 +109,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   selectedProfile.parentName,
                 )}
               >
-                <InheritanceIcon className="sw-ml-1" fill="destructiveIconFocus" />
+                <OverridenIcon className="sw-ml-1" />
               </Tooltip>
             )}
             {activation.inherit === 'INHERITED' && (
@@ -121,7 +120,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   selectedProfile.parentName,
                 )}
               >
-                <InheritanceIcon className="sw-ml-1" fill="currentColor" />
+                <InheritanceIcon className="sw-ml-1" />
               </Tooltip>
             )}
           </>

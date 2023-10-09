@@ -195,7 +195,7 @@ export function getProfileChangelog(
 export interface RuleCompare {
   key: string;
   name: string;
-  cleanCodeAttributeCategory: CleanCodeAttributeCategory;
+  cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
   impacts: Array<{
     softwareQuality: SoftwareQuality;
     severity: SoftwareImpactSeverity;
