@@ -153,6 +153,7 @@ export interface Condition {
   id: string;
   metric: string;
   op?: string;
+  isCaycCondition?: boolean;
 }
 
 export interface CustomMeasure {

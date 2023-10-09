@@ -61,32 +61,56 @@ describe('getLocalizedMetricNameNoDiffMetric', () => {
 describe('groupAndSortByPriorityConditions', () => {
   const conditions = [
     mockCondition(),
+    mockCondition({ metric: MetricKey.new_duplicated_lines_density, isCaycCondition: true }),
     mockCondition({ metric: MetricKey.bugs }),
-    mockCondition({ metric: MetricKey.new_coverage }),
+    mockCondition({ metric: MetricKey.new_coverage, isCaycCondition: true }),
     mockCondition({ metric: MetricKey.new_reliability_rating }),
     mockCondition({ metric: MetricKey.code_smells }),
     mockCondition({ metric: MetricKey.duplicated_lines_density }),
+    mockCondition({ metric: MetricKey.new_violations, isCaycCondition: true }),
     mockCondition({ metric: MetricKey.new_bugs }),
+    mockCondition({ metric: MetricKey.new_security_hotspots_reviewed, isCaycCondition: true }),
   ];
-  const expectedConditionsOrderNewCode = [
-    MetricKey.new_reliability_rating,
-    MetricKey.new_coverage,
-    MetricKey.new_bugs,
-  ];
+  const expectedConditionsOrderNewCode = [MetricKey.new_bugs, MetricKey.new_reliability_rating];
   const expectConditionsOrderOverallCode = [
     MetricKey.bugs,
     MetricKey.code_smells,
     MetricKey.coverage,
     MetricKey.duplicated_lines_density,
   ];
+  const expectedConditionsOrderCayc = [
+    MetricKey.new_violations,
+    MetricKey.new_security_hotspots_reviewed,
+    MetricKey.new_coverage,
+    MetricKey.new_duplicated_lines_density,
+  ];
 
   it('should return grouped conditions by overall/new code and sort them by CAYC order', () => {
-    const result = groupAndSortByPriorityConditions(conditions, METRICS);
+    const result = groupAndSortByPriorityConditions(conditions, METRICS, true);
     const conditionsMap = ({ metric }: Condition) => metric;
 
     expect(result.newCodeConditions.map(conditionsMap)).toEqual(expectedConditionsOrderNewCode);
     expect(result.overallCodeConditions.map(conditionsMap)).toEqual(
       expectConditionsOrderOverallCode,
     );
+    expect(result.caycConditions.map(conditionsMap)).toEqual(expectedConditionsOrderCayc);
+  });
+
+  it('should return grouped conditions and add CaYC conditions to new code if QG is not compliant', () => {
+    const result = groupAndSortByPriorityConditions(conditions, METRICS, false);
+    const conditionsMap = ({ metric }: Condition) => metric;
+
+    expect(result.newCodeConditions.map(conditionsMap)).toEqual([
+      MetricKey.new_violations,
+      MetricKey.new_security_hotspots_reviewed,
+      MetricKey.new_coverage,
+      MetricKey.new_duplicated_lines_density,
+      MetricKey.new_bugs,
+      MetricKey.new_reliability_rating,
+    ]);
+    expect(result.overallCodeConditions.map(conditionsMap)).toEqual(
+      expectConditionsOrderOverallCode,
+    );
+    expect(result.caycConditions.map(conditionsMap)).toEqual([]);
   });
 });

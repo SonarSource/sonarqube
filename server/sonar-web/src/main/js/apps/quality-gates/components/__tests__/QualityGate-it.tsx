@@ -246,14 +246,19 @@ it('should be able to edit a condition', async () => {
   const newConditions = within(await screen.findByTestId('quality-gates__conditions-new'));
 
   await user.click(
-    newConditions.getByLabelText('quality_gates.condition.edit.Coverage on New Code'),
+    newConditions.getByLabelText('quality_gates.condition.edit.Line Coverage on New Code'),
   );
   const dialog = within(screen.getByRole('dialog'));
-  await user.click(dialog.getByRole('textbox', { name: 'quality_gates.conditions.value' }));
-  await user.keyboard('{Backspace}{Backspace}23{Enter}');
+  const textBox = dialog.getByRole('textbox', { name: 'quality_gates.conditions.value' });
+  await user.clear(textBox);
+  await user.type(textBox, '23');
+  await user.click(dialog.getByRole('button', { name: 'quality_gates.update_condition' }));
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
-  expect(await newConditions.findByText('Coverage')).toBeInTheDocument();
-  expect(await newConditions.findByText('23.0%')).toBeInTheDocument();
+  expect(await newConditions.findByText('Line Coverage')).toBeInTheDocument();
+  expect(
+    await within(await screen.findByTestId('quality-gates__conditions-new')).findByText('23.0%'),
+  ).toBeInTheDocument();
 });
 
 it('should be able to handle duplicate or deprecated condition', async () => {
@@ -340,13 +345,19 @@ it('should show warning banner when CAYC condition is not properly set and shoul
     screen.getByRole('button', { name: 'quality_gates.cayc.review_update_modal.confirm_text' }),
   );
 
-  const conditionsWrapper = within(await screen.findByTestId('quality-gates__conditions-new'));
-  expect(conditionsWrapper.getByText('Maintainability Rating')).toBeInTheDocument();
-  expect(conditionsWrapper.getByText('Reliability Rating')).toBeInTheDocument();
-  expect(conditionsWrapper.getByText('Security Hotspots Reviewed')).toBeInTheDocument();
-  expect(conditionsWrapper.getByText('Security Rating')).toBeInTheDocument();
-  expect(conditionsWrapper.getAllByText('Coverage')).toHaveLength(2); // This quality gate has duplicate condition
-  expect(conditionsWrapper.getByText('Duplicated Lines (%)')).toBeInTheDocument();
+  const conditionsWrapper = within(await screen.findByTestId('quality-gates__conditions-cayc'));
+  expect(
+    conditionsWrapper.getByText('metric.new_violations.description.positive'),
+  ).toBeInTheDocument();
+  expect(
+    conditionsWrapper.getByText('metric.new_security_hotspots_reviewed.description.positive'),
+  ).toBeInTheDocument();
+  expect(
+    conditionsWrapper.getByText('metric.new_coverage.description.positive'),
+  ).toBeInTheDocument();
+  expect(
+    conditionsWrapper.getByText('metric.new_duplicated_lines_density.description.positive'),
+  ).toBeInTheDocument();
 
   const overallConditionsWrapper = within(
     await screen.findByTestId('quality-gates__conditions-overall'),
@@ -379,62 +390,12 @@ it('should warn user when quality gate is not CAYC compliant and user has permis
   expect(screen.getAllByText('quality_gates.cayc.tooltip.message').length).toBeGreaterThan(0);
 });
 
-it('should show success banner when quality gate is CAYC compliant', async () => {
-  const user = userEvent.setup();
+it('should render CaYC conditions on a separate table', async () => {
   handler.setIsAdmin(true);
   renderQualityGateApp();
 
-  const qualityGate = await screen.findByText('SonarSource way');
-
-  await user.click(qualityGate);
-
-  expect(
-    screen.queryByText('quality_gates.cayc_condition.missing_warning.title'),
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', { name: 'quality_gates.cayc_condition.review_update' }),
-  ).not.toBeInTheDocument();
-
-  const conditionsWrapper = within(await screen.findByTestId('quality-gates__conditions-new'));
-
-  expect(await conditionsWrapper.findByText('Maintainability Rating')).toBeInTheDocument();
-  expect(await conditionsWrapper.findByText('Reliability Rating')).toBeInTheDocument();
-  expect(await conditionsWrapper.findByText('Security Hotspots Reviewed')).toBeInTheDocument();
-  expect(await conditionsWrapper.findByText('Security Rating')).toBeInTheDocument();
-  expect(await conditionsWrapper.findByText('Coverage')).toBeInTheDocument();
-  expect(await conditionsWrapper.findByText('Duplicated Lines (%)')).toBeInTheDocument();
-});
-
-it('should unlock editing option for CAYC conditions', async () => {
-  const user = userEvent.setup();
-  handler.setIsAdmin(true);
-  renderQualityGateApp();
-
-  const qualityGate = await screen.findByText('SonarSource way');
-  await user.click(qualityGate);
-  expect(screen.getByText('quality_gates.cayc.unlock_edit')).toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', {
-      name: 'quality_gates.condition.edit.Security Rating on New Code',
-    }),
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', {
-      name: 'quality_gates.condition.delete.Security Rating on New Code',
-    }),
-  ).not.toBeInTheDocument();
-
-  await user.click(screen.getByText('quality_gates.cayc.unlock_edit'));
-  expect(
-    screen.getByRole('button', {
-      name: 'quality_gates.condition.edit.Security Rating on New Code',
-    }),
-  ).toBeInTheDocument();
-  expect(
-    screen.getByRole('button', {
-      name: 'quality_gates.condition.delete.Security Rating on New Code',
-    }),
-  ).toBeInTheDocument();
+  expect(await screen.findByTestId('quality-gates__conditions-cayc')).toBeInTheDocument();
+  expect(await screen.findByTestId('quality-gates__conditions-new')).toBeInTheDocument();
 });
 
 describe('The Project section', () => {

@@ -42,11 +42,7 @@ import {
   Metric,
   QualityGate,
 } from '../../../types/types';
-import {
-  CAYC_CONDITIONS_WITH_FIXED_VALUE,
-  getLocalizedMetricNameNoDiffMetric,
-  isCaycCondition,
-} from '../utils';
+import { getLocalizedMetricNameNoDiffMetric, isConditionWithFixedValue } from '../utils';
 import ConditionModal from './ConditionModal';
 import ConditionValue from './ConditionValue';
 
@@ -147,7 +143,7 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
           {!isCaycModal && canEdit && (
             <>
               {(!isCaycCompliantAndOverCompliant ||
-                !CAYC_CONDITIONS_WITH_FIXED_VALUE.includes(condition.metric) ||
+                !isConditionWithFixedValue(condition) ||
                 (isCaycCompliantAndOverCompliant && showEdit)) && (
                 <>
                   <InteractiveIcon
@@ -174,7 +170,7 @@ export class ConditionComponent extends React.PureComponent<Props, State> {
                 </>
               )}
               {(!isCaycCompliantAndOverCompliant ||
-                !isCaycCondition(condition) ||
+                !condition.isCaycCondition ||
                 (isCaycCompliantAndOverCompliant && showEdit)) && (
                 <>
                   <DestructiveIcon

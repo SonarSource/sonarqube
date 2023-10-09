@@ -24,7 +24,7 @@ import { themeColor } from 'design-system';
 import * as React from 'react';
 import { formatMeasure } from '../../../helpers/measures';
 import { Condition, Metric } from '../../../types/types';
-import { getCorrectCaycCondition, isCaycCondition } from '../utils';
+import { getCorrectCaycCondition } from '../utils';
 import ConditionValueDescription from './ConditionValueDescription';
 
 interface Props {
@@ -65,7 +65,7 @@ function ConditionValue({
   return (
     <>
       <span className="sw-mr-2">{formatMeasure(condition.error, metric.type)}</span>
-      {isCaycCompliantAndOverCompliant && isCaycCondition(condition) && (
+      {isCaycCompliantAndOverCompliant && condition.isCaycCondition && (
         <ConditionValueDescription condition={condition} metric={metric} />
       )}
     </>

@@ -26,6 +26,7 @@ import {
   HelperHintIcon,
   LightPrimary,
   Link,
+  Note,
   SubHeading,
   SubnavigationFlowSeparator,
   Title,
@@ -51,6 +52,7 @@ import {
   QualityGate,
 } from '../../../types/types';
 import { groupAndSortByPriorityConditions } from '../utils';
+import CaycConditionsTable from './CaycConditionsTable';
 import ConditionModal from './ConditionModal';
 import CaycReviewUpdateConditionsModal from './ConditionReviewAndUpdateModal';
 import ConditionsTable from './ConditionsTable';
@@ -84,14 +86,15 @@ export function Conditions({
   const [editing, setEditing] = React.useState<boolean>(
     qualityGate.caycStatus === CaycStatus.NonCompliant,
   );
+  const isQGCompliant =
+    qualityGate.caycStatus === CaycStatus.Compliant ||
+    qualityGate.caycStatus === CaycStatus.OverCompliant;
   const { name } = qualityGate;
   const canEdit = Boolean(qualityGate.actions?.manageConditions);
   const { conditions = [] } = qualityGate;
   const existingConditions = conditions.filter((condition) => metrics[condition.metric]);
-  const { overallCodeConditions, newCodeConditions } = groupAndSortByPriorityConditions(
-    existingConditions,
-    metrics,
-  );
+  const { overallCodeConditions, newCodeConditions, caycConditions } =
+    groupAndSortByPriorityConditions(existingConditions, metrics, isQGCompliant);
 
   const duplicates: ConditionType[] = [];
   const savedConditions = existingConditions.filter((condition) => condition.id != null);
@@ -202,18 +205,6 @@ export function Conditions({
           <HeadingDark className="sw-body-md-highlight sw-m-0">
             {translate('quality_gates.conditions')}
           </HeadingDark>
-          <DocumentationTooltip
-            className="sw-ml-2"
-            content={translate('quality_gates.conditions.help')}
-            links={[
-              {
-                href: '/user-guide/clean-as-you-code/',
-                label: translate('quality_gates.conditions.help.link'),
-              },
-            ]}
-          >
-            <HelperHintIcon />
-          </DocumentationTooltip>
         </div>
         <div>
           {(qualityGate.caycStatus === CaycStatus.NonCompliant || editing) && canEdit && (
@@ -241,54 +232,80 @@ export function Conditions({
         </FlagMessage>
       )}
 
-      {newCodeConditions.length > 0 && (
-        <div>
-          <HeadingDark as="h3" className="sw-mb-2">
-            {translate('quality_gates.conditions.new_code', 'long')}
-          </HeadingDark>
-          {hasFeature(Feature.BranchSupport) && (
-            <SubHeading as="p" className="sw-mb-2 sw-body-sm">
-              {translate('quality_gates.conditions.new_code', 'description')}
-            </SubHeading>
-          )}
-          <ConditionsTable
-            qualityGate={qualityGate}
-            metrics={metrics}
-            canEdit={canEdit}
-            onRemoveCondition={onRemoveCondition}
-            onSaveCondition={onSaveCondition}
-            updatedConditionId={updatedConditionId}
-            conditions={newCodeConditions}
-            showEdit={editing}
-            scope="new"
-          />
-        </div>
-      )}
+      <div className="sw-flex sw-flex-col sw-gap-8">
+        {caycConditions.length > 0 && (
+          <div>
+            <div className="sw-flex sw-items-center sw-gap-2 sw-mb-2">
+              <HeadingDark as="h3">{translate('quality_gates.conditions.cayc')}</HeadingDark>
+              <DocumentationTooltip
+                content={translate('quality_gates.conditions.cayc.hint')}
+                placement="right"
+              >
+                <HelperHintIcon />
+              </DocumentationTooltip>
+            </div>
 
-      {overallCodeConditions.length > 0 && (
-        <div className="sw-mt-5">
-          <HeadingDark as="h3" className="sw-mb-2">
-            {translate('quality_gates.conditions.overall_code', 'long')}
-          </HeadingDark>
+            <CaycConditionsTable metrics={metrics} conditions={caycConditions} />
 
-          {hasFeature(Feature.BranchSupport) && (
-            <SubHeading as="p" className="sw-mb-2 sw-body-sm">
-              {translate('quality_gates.conditions.overall_code', 'description')}
-            </SubHeading>
-          )}
+            {hasFeature(Feature.BranchSupport) && (
+              <Note className="sw-mb-2 sw-body-sm">
+                {translate('quality_gates.conditions.cayc', 'description')}
+              </Note>
+            )}
+          </div>
+        )}
 
-          <ConditionsTable
-            qualityGate={qualityGate}
-            metrics={metrics}
-            canEdit={canEdit}
-            onRemoveCondition={onRemoveCondition}
-            onSaveCondition={onSaveCondition}
-            updatedConditionId={updatedConditionId}
-            conditions={overallCodeConditions}
-            scope="overall"
-          />
-        </div>
-      )}
+        {newCodeConditions.length > 0 && (
+          <div>
+            <HeadingDark as="h3" className="sw-mb-2">
+              {translate('quality_gates.conditions.new_code', 'long')}
+            </HeadingDark>
+
+            <ConditionsTable
+              qualityGate={qualityGate}
+              metrics={metrics}
+              canEdit={canEdit}
+              onRemoveCondition={onRemoveCondition}
+              onSaveCondition={onSaveCondition}
+              updatedConditionId={updatedConditionId}
+              conditions={newCodeConditions}
+              showEdit={editing}
+              scope="new"
+            />
+
+            {hasFeature(Feature.BranchSupport) && (
+              <Note className="sw-mb-2 sw-body-sm">
+                {translate('quality_gates.conditions.new_code', 'description')}
+              </Note>
+            )}
+          </div>
+        )}
+
+        {overallCodeConditions.length > 0 && (
+          <div className="sw-mt-5">
+            <HeadingDark as="h3" className="sw-mb-2">
+              {translate('quality_gates.conditions.overall_code', 'long')}
+            </HeadingDark>
+
+            <ConditionsTable
+              qualityGate={qualityGate}
+              metrics={metrics}
+              canEdit={canEdit}
+              onRemoveCondition={onRemoveCondition}
+              onSaveCondition={onSaveCondition}
+              updatedConditionId={updatedConditionId}
+              conditions={overallCodeConditions}
+              scope="overall"
+            />
+
+            {hasFeature(Feature.BranchSupport) && (
+              <Note className="sw-mb-2 sw-body-sm">
+                {translate('quality_gates.conditions.overall_code', 'description')}
+              </Note>
+            )}
+          </div>
+        )}
+      </div>
 
       {qualityGate.caycStatus !== CaycStatus.NonCompliant && !editing && canEdit && (
         <div className="sw-mt-4 it__qg-unfollow-cayc">

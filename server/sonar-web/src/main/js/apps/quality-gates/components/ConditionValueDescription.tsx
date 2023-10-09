@@ -30,7 +30,6 @@ import { AppState } from '../../../types/appstate';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { GlobalSettingKeys } from '../../../types/settings';
 import { Condition, Metric } from '../../../types/types';
-import { isCaycCondition } from '../utils';
 import { GreenColorText } from './ConditionValue';
 
 const NO_DESCRIPTION_CONDITION = [
@@ -83,7 +82,7 @@ function ConditionValueDescription({
 
   return (
     <GreenColorText isToBeModified={isToBeModified}>
-      {isCaycCondition(condition) && !NO_DESCRIPTION_CONDITION.includes(condition.metric) && (
+      {condition.isCaycCondition && !NO_DESCRIPTION_CONDITION.includes(condition.metric) && (
         <>
           (
           {translate(

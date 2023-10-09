@@ -79,7 +79,7 @@ export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) 
           .then((resultCondition) => {
             const currentCondition = conditions.find((con) => con.metric === condition.metric);
             if (currentCondition) {
-              onSaveCondition(resultCondition, currentCondition);
+              onSaveCondition({ ...resultCondition, isCaycCondition: true }, currentCondition);
             }
           })
           .catch(() => undefined),
@@ -92,7 +92,9 @@ export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) 
           ...getCorrectCaycCondition(condition),
           gateName: qualityGate.name,
         })
-          .then((resultCondition) => onAddCondition(resultCondition))
+          .then((resultCondition) => {
+            onAddCondition({ ...resultCondition, isCaycCondition: true });
+          })
           .catch(() => undefined),
       );
     });

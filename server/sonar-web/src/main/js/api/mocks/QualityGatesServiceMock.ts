@@ -73,7 +73,20 @@ export class QualityGatesServiceMock {
       mockQualityGate({
         name: 'SonarSource way',
         conditions: [
-          { id: 'AXJMbIUGPAOIsUIE3eNC', metric: 'new_coverage', op: 'LT', error: '85' },
+          {
+            id: 'AXJMbIUGPAOIsUIE3eNC',
+            metric: 'new_coverage',
+            op: 'LT',
+            error: '85',
+            isCaycCondition: true,
+          },
+          {
+            id: 'AXJMbIUGPAOIsUIE3eNF',
+            metric: 'new_violations',
+            op: 'GT',
+            error: '0',
+            isCaycCondition: true,
+          },
           { id: 'AXJMbIUGPAOIsUIE3eNE', metric: 'reliability_rating', op: 'GT', error: '4' },
           { id: 'AXJMbIUGPAOIsUIE3eND', metric: 'security_rating', op: 'GT', error: '4' },
           {
@@ -89,12 +102,20 @@ export class QualityGatesServiceMock {
             metric: 'new_duplicated_lines_density',
             op: 'GT',
             error: '3',
+            isCaycCondition: true,
           },
           {
             id: 'AXJMbIUHPAOIsUIE3eOi',
             metric: 'new_security_hotspots_reviewed',
             op: 'LT',
             error: '100',
+            isCaycCondition: true,
+          },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eNfc',
+            metric: MetricKey.new_line_coverage,
+            op: 'GT',
+            error: '3',
           },
         ],
         isDefault: true,
@@ -104,8 +125,15 @@ export class QualityGatesServiceMock {
       mockQualityGate({
         name: 'SonarSource way - CFamily',
         conditions: [
-          { id: 'AXJMbIUHPAOIsUIE3eOu', metric: 'new_coverage', op: 'LT', error: '0' },
-          { id: 'AXJMbIUHPAOIsUIE3eOubis', metric: 'new_coverage', op: 'LT', error: '1' },
+          {
+            id: 'AXJMbIUHPAOIsUIE3eOu',
+            metric: 'new_coverage',
+            op: 'LT',
+            error: '0',
+            isCaycCondition: true,
+          },
+          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '1' },
+          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '0' },
           { id: 'deprecated', metric: 'function_complexity', op: 'LT', error: '1' },
         ],
         isDefault: false,
@@ -395,7 +423,7 @@ export class QualityGatesServiceMock {
       gateName: string;
     } & Omit<Condition, 'id'>,
   ) => {
-    const { metric, gateName, op, error } = data;
+    const { metric, gateName, op, error, isCaycCondition } = data;
     const qg = this.list.find((q) => q.name === gateName);
     if (qg === undefined) {
       return Promise.reject({
@@ -405,14 +433,14 @@ export class QualityGatesServiceMock {
 
     const conditions = qg.conditions || [];
     const id = `condId${qg.name}${conditions.length}`;
-    const newCondition = { metric, op, error, id };
+    const newCondition = { metric, op, error, id, isCaycCondition };
 
     conditions.push(newCondition);
     qg.conditions = conditions;
     return this.reply(newCondition);
   };
 
-  updateConditionHandler = ({ id, metric, op, error }: Condition) => {
+  updateConditionHandler = ({ id, metric, op, error, isCaycCondition }: Condition) => {
     const condition = flatten(this.list.map((q) => q.conditions || [])).find((q) => q.id === id);
     if (condition === undefined) {
       return Promise.reject({ errors: [{ msg: `No condition has been found for id ${id}` }] });
@@ -421,6 +449,7 @@ export class QualityGatesServiceMock {
     condition.metric = metric;
     condition.op = op;
     condition.error = error;
+    condition.isCaycCondition = isCaycCondition;
 
     return this.reply(condition);
   };
