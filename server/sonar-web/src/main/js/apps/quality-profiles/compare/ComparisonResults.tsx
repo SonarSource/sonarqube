@@ -233,16 +233,22 @@ function RuleCell({ rule, severity }: Readonly<{ rule: RuleCompare; severity?: s
       <Link className="sw-ml-1" to={getRulesUrl({ rule_key: rule.key, open: rule.key })}>
         {rule.name}
       </Link>
-      <ul className="sw-mt-3 sw-flex sw-items-center">
-        <li>
-          <CleanCodeAttributePill cleanCodeAttributeCategory={rule.cleanCodeAttributeCategory} />
-        </li>
-        {rule.impacts.map(({ severity, softwareQuality }) => (
-          <li key={softwareQuality} className="sw-ml-2">
-            <SoftwareImpactPill type="rule" quality={softwareQuality} severity={severity} />
-          </li>
-        ))}
-      </ul>
+      {(rule.cleanCodeAttributeCategory || rule.impacts.length > 0) && (
+        <ul className="sw-mt-3 sw-flex sw-items-center">
+          {rule.cleanCodeAttributeCategory && (
+            <li>
+              <CleanCodeAttributePill
+                cleanCodeAttributeCategory={rule.cleanCodeAttributeCategory}
+              />
+            </li>
+          )}
+          {rule.impacts.map(({ severity, softwareQuality }) => (
+            <li key={softwareQuality} className="sw-ml-2">
+              <SoftwareImpactPill type="rule" quality={softwareQuality} severity={severity} />
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

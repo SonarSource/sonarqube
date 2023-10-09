@@ -505,13 +505,7 @@ export function mockCompareResult(overrides: Partial<CompareResponse> = {}): Com
     ],
     modified: [
       {
-        cleanCodeAttributeCategory: CleanCodeAttributeCategory.Consistent,
-        impacts: [
-          {
-            softwareQuality: SoftwareQuality.Maintainability,
-            severity: SoftwareImpactSeverity.Low,
-          },
-        ],
+        impacts: [],
         key: 'java:S1698',
         name: '== and != should not be used when equals is overridden',
         left: { params: {}, severity: 'MINOR' },
