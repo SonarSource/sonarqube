@@ -447,7 +447,7 @@ public class TelemetryDataJsonWriterTest {
             "developmentCost": 30,
             "ncdId": 12345,
             "externalSecurityReportExportedAt": 1500000,
-            "creationMethod": "LOCAL_API"
+            "project_creation_method": "LOCAL_API"
           },
           {
             "projectUuid": "uuid-1",
@@ -464,7 +464,7 @@ public class TelemetryDataJsonWriterTest {
             "developmentCost": 60,
             "ncdId": 12345,
             "externalSecurityReportExportedAt": 1500001,
-            "creationMethod": "LOCAL_API"
+            "project_creation_method": "LOCAL_API"
           },
           {
             "projectUuid": "uuid-2",
@@ -481,7 +481,7 @@ public class TelemetryDataJsonWriterTest {
             "developmentCost": 90,
             "ncdId": 12345,
             "externalSecurityReportExportedAt": 1500002,
-            "creationMethod": "LOCAL_API"
+            "project_creation_method": "LOCAL_API"
           }
         ]
       }
