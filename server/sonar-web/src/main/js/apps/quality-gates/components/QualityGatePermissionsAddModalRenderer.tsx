@@ -111,7 +111,7 @@ function OptionRenderer({
       {isUser(option) ? (
         <>
           <Avatar
-            className={small ? 'sw-my-1/2' : ''}
+            className={small ? 'sw-my-1' : ''}
             hash={option.avatar}
             name={option.name}
             size={small ? 'xs' : 'sm'}
@@ -124,7 +124,7 @@ function OptionRenderer({
       ) : (
         <>
           <GenericAvatar
-            className={small ? 'sw-my-1/2' : ''}
+            className={small ? 'sw-my-1' : ''}
             Icon={UserGroupIcon}
             name={option.name}
             size={small ? 'xs' : 'sm'}

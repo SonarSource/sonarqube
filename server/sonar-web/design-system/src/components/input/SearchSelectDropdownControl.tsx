@@ -116,7 +116,7 @@ const StyledControl = styled.div`
   ${tw`sw-px-3`};
   ${tw`sw-body-sm`};
   ${tw`sw-h-control`};
-  ${tw`sw-leading-4`};
+  ${tw`sw-leading-6`};
   ${tw`sw-cursor-pointer`};
 
   &.is-discreet {

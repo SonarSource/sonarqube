@@ -45,7 +45,7 @@ function userToOption(user: RestUser | UserActive) {
   return {
     value: user.login,
     label: isUserActive(user) ? userInfo : translateWithParameters('user.x_deleted', userInfo),
-    Icon: <Avatar hash={user.avatar} name={user.name} size="xs" />,
+    Icon: <Avatar hash={user.avatar} name={user.name} size="xs" className="sw-my-1" />,
   };
 }
 

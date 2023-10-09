@@ -40,7 +40,7 @@ const minSearchLength = 2;
 const UNASSIGNED = { value: '', label: translate('unassigned') };
 
 const renderAvatar = (name?: string, avatar?: string) => (
-  <Avatar hash={avatar} name={name} size="xs" />
+  <Avatar hash={avatar} name={name} size="xs" className="sw-my-1" />
 );
 
 export default function IssueAssignee(props: Props) {
