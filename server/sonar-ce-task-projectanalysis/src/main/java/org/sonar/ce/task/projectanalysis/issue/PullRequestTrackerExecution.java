@@ -64,7 +64,9 @@ public class PullRequestTrackerExecution {
     Input<DefaultIssue> unmatchedRawsAfterTargetResolvedTracking;
     if (targetInputFactory.hasTargetBranchAnalysis()) {
       Input<DefaultIssue> targetInput = targetInputFactory.createForTargetBranch(component);
-      List<DefaultIssue> resolvedTargetIssues = targetInput.getIssues().stream().filter(i -> Issue.STATUS_RESOLVED.equals(i.status())).toList();
+      List<DefaultIssue> resolvedTargetIssues = targetInput.getIssues().stream()
+              .filter(i -> !filterIssuesByChangedLines || Issue.STATUS_RESOLVED.equals(i.status()))
+              .toList();
       Input<DefaultIssue> resolvedTargetInput = createInput(targetInput, resolvedTargetIssues);
       Tracking<DefaultIssue, DefaultIssue> prResolvedTracking = tracker.trackNonClosed(unmatchedRawsAfterChangedLineFiltering, resolvedTargetInput);
       unmatchedRawsAfterTargetResolvedTracking = createInput(rawInput, prResolvedTracking.getUnmatchedRaws().toList());
