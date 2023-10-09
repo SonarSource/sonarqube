@@ -216,6 +216,24 @@ public class ChangelogActionIT {
   }
 
   @Test
+  public void call_whenNoChangeData_shouldIncludeRuleUuid() {
+    String ruleUuid = "ruleUuid";
+    QProfileDto profile = db.qualityProfiles().insert();
+    UserDto user = db.users().insertUser();
+    RuleDto rule = db.rules().insert(RuleKey.of("java", ruleUuid));
+    RuleChangeDto ruleChange = insertRuleChange(COMPLETE, FOCUSED, rule.getUuid(), Set.of());
+    insertChange(profile, ActiveRuleChange.Type.DEACTIVATED, user, Map.of(), ruleChange);
+
+    String response = ws.newRequest()
+      .setParam(PARAM_LANGUAGE, profile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+      .execute()
+      .getInput();
+
+    assertThat(response).contains(ruleUuid);
+  }
+
+  @Test
   public void find_changelog_by_profile_key() {
     QProfileDto profile = db.qualityProfiles().insert();
     RuleDto rule = db.rules().insert();

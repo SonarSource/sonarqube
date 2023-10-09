@@ -147,11 +147,14 @@ public class ChangelogAction implements QProfileWsAction {
   }
 
   private static String extractRuleUuid(QProfileChangeDto change) {
+    if (change.getRuleChange() != null) {
+      return change.getRuleChange().getRuleUuid();
+    }
     return change.getDataAsMap().get("ruleUuid");
   }
 
   private static void writeResponse(JsonWriter json, int total, int page, int pageSize, List<QProfileChangeDto> changelogs,
-                                    Map<String, UserDto> usersByUuid, Map<String, RuleDto> rulesByRuleUuids) {
+    Map<String, UserDto> usersByUuid, Map<String, RuleDto> rulesByRuleUuids) {
     json.beginObject();
     writePaging(json, total, page, pageSize);
     json.name("paging").beginObject()
