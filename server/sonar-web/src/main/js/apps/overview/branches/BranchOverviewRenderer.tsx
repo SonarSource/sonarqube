@@ -104,6 +104,7 @@ export default function BranchOverviewRenderer(props: BranchOverviewRendererProp
                 <div className="sw-flex-1">
                   <div className="sw-flex sw-flex-col sw-pt-6">
                     <MeasuresPanel
+                      analyses={analyses}
                       appLeak={appLeak}
                       branch={branch}
                       component={component}

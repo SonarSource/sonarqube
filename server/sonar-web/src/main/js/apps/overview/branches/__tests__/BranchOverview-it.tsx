@@ -31,7 +31,7 @@ import { getActivityGraph, saveActivityGraph } from '../../../../components/acti
 import { isDiffMetric } from '../../../../helpers/measures';
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import { mockAnalysis } from '../../../../helpers/mocks/project-activity';
+import { mockAnalysis, mockAnalysisEvent } from '../../../../helpers/mocks/project-activity';
 import {
   mockQualityGateApplicationStatus,
   mockQualityGateProjectStatus,
@@ -40,8 +40,12 @@ import { mockLoggedInUser, mockPeriod } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey, MetricType } from '../../../../types/metrics';
-import { GraphType } from '../../../../types/project-activity';
-import { CaycStatus, Measure, Metric } from '../../../../types/types';
+import {
+  Analysis,
+  GraphType,
+  ProjectAnalysisEventCategory,
+} from '../../../../types/project-activity';
+import { CaycStatus, Measure, Metric, Paging } from '../../../../types/types';
 import BranchOverview, { BRANCH_OVERVIEW_ACTIVITY_GRAPH, NO_CI_DETECTED } from '../BranchOverview';
 
 jest.mock('../../../../api/measures', () => {
@@ -399,6 +403,95 @@ it.each([
     await screen.findByText('overview.quality_gate.status');
 
     expect(screen.queryByText('overview.project.next_steps.set_up_ci') === null).toBe(expected);
+  },
+);
+
+it.each([
+  [
+    'no upgrade event',
+    [
+      mockAnalysis({
+        events: [mockAnalysisEvent({ category: ProjectAnalysisEventCategory.Other })],
+      }),
+    ],
+    false,
+  ],
+  [
+    'upgrade event too old',
+    [
+      mockAnalysis({
+        date: '2023-04-02T12:10:30+0200',
+        events: [mockAnalysisEvent({ category: ProjectAnalysisEventCategory.SqUpgrade })],
+      }),
+    ],
+    false,
+  ],
+  [
+    'upgrade event too far down in the list',
+    [
+      mockAnalysis({
+        date: '2023-04-13T08:10:30+0200',
+      }),
+      mockAnalysis({
+        date: '2023-04-13T09:10:30+0200',
+      }),
+      mockAnalysis({
+        date: '2023-04-13T10:10:30+0200',
+      }),
+      mockAnalysis({
+        date: '2023-04-13T11:10:30+0200',
+      }),
+      mockAnalysis({
+        date: '2023-04-13T12:10:30+0200',
+        events: [mockAnalysisEvent({ category: ProjectAnalysisEventCategory.SqUpgrade })],
+      }),
+    ],
+    false,
+  ],
+  [
+    'upgrade event without QP update event',
+    [
+      mockAnalysis({
+        date: '2023-04-13T12:10:30+0200',
+        events: [mockAnalysisEvent({ category: ProjectAnalysisEventCategory.SqUpgrade })],
+      }),
+    ],
+    false,
+  ],
+  [
+    'upgrade event with QP update event',
+    [
+      mockAnalysis({
+        date: '2023-04-13T12:10:30+0200',
+        events: [
+          mockAnalysisEvent({ category: ProjectAnalysisEventCategory.SqUpgrade }),
+          mockAnalysisEvent({ category: ProjectAnalysisEventCategory.QualityProfile }),
+        ],
+      }),
+    ],
+    true,
+  ],
+])(
+  'should correctly display message about SQ upgrade updating QPs',
+  async (_, analyses, expected) => {
+    jest.useFakeTimers({
+      advanceTimers: true,
+      now: new Date('2023-04-25T12:00:00+0200'),
+    });
+
+    jest.mocked(getProjectActivity).mockResolvedValueOnce({
+      analyses,
+    } as { analyses: Analysis[]; paging: Paging });
+
+    renderBranchOverview();
+
+    await screen.findByText('overview.quality_gate.status');
+
+    expect(
+      screen.queryByText(/overview.quality_profiles_update_after_sq_upgrade.message/) !== null,
+    ).toBe(expected);
+
+    jest.useRealTimers();
   },
 );
 

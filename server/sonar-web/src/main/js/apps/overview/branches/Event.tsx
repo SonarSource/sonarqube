@@ -42,7 +42,7 @@ export function Event({ event }: Props) {
 
   if (event.category === ProjectAnalysisEventCategory.SqUpgrade) {
     return (
-      <FlagMessage className="sw-my-1" variant="info">
+      <FlagMessage className="sw-my-1" id={event.key} variant="info">
         <FormattedMessage
           id="event.sqUpgrade"
           values={{

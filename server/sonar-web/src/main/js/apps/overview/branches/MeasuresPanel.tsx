@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { isBefore, sub } from 'date-fns';
 import {
+  ButtonLink,
   Card,
   CoverageIndicator,
   DuplicationsIndicator,
@@ -29,6 +31,7 @@ import {
   ToggleButton,
 } from 'design-system';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import DocLink from '../../../components/common/DocLink';
 import ComponentReportActions from '../../../components/controls/ComponentReportActions';
 import { Location, withRouter } from '../../../components/hoc/withRouter';
@@ -41,15 +44,18 @@ import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { IssueType } from '../../../types/issues';
 import { MetricKey } from '../../../types/metrics';
+import { Analysis, ProjectAnalysisEventCategory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import { Component, MeasureEnhanced, Period } from '../../../types/types';
 import { MeasurementType, parseQuery } from '../utils';
+import { MAX_ANALYSES_NB } from './ActivityPanel';
 import { LeakPeriodInfo } from './LeakPeriodInfo';
 import MeasuresPanelIssueMeasure from './MeasuresPanelIssueMeasure';
 import MeasuresPanelNoNewCode from './MeasuresPanelNoNewCode';
 import MeasuresPanelPercentMeasure from './MeasuresPanelPercentMeasure';
 
 export interface MeasuresPanelProps {
+  analyses?: Analysis[];
   appLeak?: ApplicationPeriod;
   branch?: Branch;
   component: Component;
@@ -65,8 +71,11 @@ export enum MeasuresPanelTabs {
   Overall = 'overall',
 }
 
+const SQ_UPGRADE_NOTIFICATION_TIMEOUT = { weeks: 3 };
+
 export function MeasuresPanel(props: MeasuresPanelProps) {
   const {
+    analyses,
     appLeak,
     branch,
     component,
@@ -93,6 +102,43 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
   });
 
   const isNewCodeTab = tab === MeasuresPanelTabs.New;
+
+  const recentSqUpgradeEvent = React.useMemo(() => {
+    if (!analyses || analyses.length === 0) {
+      return undefined;
+    }
+
+    const notificationExpirationTime = sub(new Date(), SQ_UPGRADE_NOTIFICATION_TIMEOUT);
+
+    for (const analysis of analyses.slice(0, MAX_ANALYSES_NB)) {
+      if (isBefore(new Date(analysis.date), notificationExpirationTime)) {
+        return undefined;
+      }
+
+      let sqUpgradeEvent = undefined;
+      let hasQpUpdateEvent = false;
+      for (const event of analysis.events) {
+        sqUpgradeEvent =
+          event.category === ProjectAnalysisEventCategory.SqUpgrade ? event : sqUpgradeEvent;
+        hasQpUpdateEvent =
+          hasQpUpdateEvent || event.category === ProjectAnalysisEventCategory.QualityProfile;
+
+        if (sqUpgradeEvent !== undefined && hasQpUpdateEvent) {
+          return sqUpgradeEvent;
+        }
+      }
+    }
+
+    return undefined;
+  }, [analyses]);
+
+  const scrollToLatestSqUpgradeEvent = () => {
+    document.querySelector(`#${recentSqUpgradeEvent?.key}`)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'center',
+    });
+  };
 
   React.useEffect(() => {
     // Open Overall tab by default if there are no new measures.
@@ -132,6 +178,23 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
         </div>
       ) : (
         <>
+          {recentSqUpgradeEvent && (
+            <div>
+              <FlagMessage className="sw-mb-4" variant="info">
+                <FormattedMessage
+                  id="overview.quality_profiles_update_after_sq_upgrade.message"
+                  values={{
+                    link: (
+                      <ButtonLink className="sw-ml-1" onClick={scrollToLatestSqUpgradeEvent}>
+                        <FormattedMessage id="overview.quality_profiles_update_after_sq_upgrade.link" />
+                      </ButtonLink>
+                    ),
+                    sqVersion: recentSqUpgradeEvent.name,
+                  }}
+                />
+              </FlagMessage>
+            </div>
+          )}
           <div className="sw-flex sw-items-center">
             <ToggleButton onChange={(key) => selectTab(key)} options={tabs} value={tab} />
             {failingConditions > 0 && (

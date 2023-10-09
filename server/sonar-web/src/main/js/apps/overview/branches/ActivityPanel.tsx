@@ -52,7 +52,7 @@ export interface ActivityPanelProps {
   onGraphChange: (graph: GraphType) => void;
 }
 
-const MAX_ANALYSES_NB = 5;
+export const MAX_ANALYSES_NB = 5;
 const MAX_GRAPH_NB = 2;
 const MAX_SERIES_PER_GRAPH = 3;
 
