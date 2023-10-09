@@ -31,7 +31,9 @@ import {
 } from 'design-system';
 import { countBy } from 'lodash';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { setQualityGateAsDefault } from '../../../api/quality-gates';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { CaycStatus, QualityGate } from '../../../types/types';
@@ -102,6 +104,22 @@ export default function DetailsHeader({
               {qualityGate.isBuiltIn && <BuiltInQualityGateBadge />}
             </div>
           </div>
+          {qualityGate.isBuiltIn && (
+            <p className="sw-mt-4">
+              <FormattedMessage
+                defaultMessage="quality_gates.is_built_in.description"
+                id="quality_gates.is_built_in.description"
+                tagName="p"
+                values={{
+                  link: (
+                    <DocumentationLink to="/user-guide/clean-as-you-code/">
+                      {translate('clean_as_you_code')}
+                    </DocumentationLink>
+                  ),
+                }}
+              />
+            </p>
+          )}
         </div>
         {actionsCount === 1 && (
           <>

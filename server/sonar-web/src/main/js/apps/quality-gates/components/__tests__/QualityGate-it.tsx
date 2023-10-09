@@ -62,6 +62,19 @@ it('should list all quality gates', async () => {
   ).toBeInTheDocument();
 });
 
+it('should render the built-in quality gate properly', async () => {
+  const user = userEvent.setup();
+  renderQualityGateApp();
+
+  const builtInQualityGate = await screen.findByText('Sonar way');
+
+  await act(async () => {
+    await user.click(builtInQualityGate);
+  });
+
+  expect(await screen.findByText(/quality_gates.is_built_in.description/)).toBeInTheDocument();
+});
+
 it('should be able to create a quality gate then delete it', async () => {
   const user = userEvent.setup();
   handler.setIsAdmin(true);
