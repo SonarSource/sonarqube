@@ -98,7 +98,7 @@ export default function Changelog(props: Props) {
           </div>
         </CellComponent>
 
-        <ContentCell className="sw-align-top sw-max-w-[400px]">
+        <ContentCell className="sw-align-top">
           {event.params && <ChangesList changes={event.params} />}
         </ContentCell>
       </TableRowInteractive>
@@ -108,7 +108,7 @@ export default function Changelog(props: Props) {
   return (
     <Table
       columnCount={5}
-      columnWidths={['1%', '1%', '1%', 'auto', '1%']}
+      columnWidths={['1%', '1%', '1%', 'auto', '400px']}
       header={
         <TableRow>
           <ContentCell>{intl.formatMessage({ id: 'date' })}</ContentCell>
