@@ -669,7 +669,7 @@ export const lightTheme = {
     pillWarningIcon: COLORS.yellow[700],
     pillInfo: COLORS.blue[800],
     pillInfoIcon: COLORS.blue[700],
-    pillNeutral: COLORS.blueGrey[800],
+    pillNeutral: COLORS.blueGrey[500],
 
     // breadcrumbs
     breadcrumb: secondary.dark,

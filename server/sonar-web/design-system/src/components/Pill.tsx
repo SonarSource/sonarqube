@@ -64,7 +64,6 @@ const StyledPill = styled.span<{
   ${tw`sw-px-[8px] sw-py-[2px]`};
   ${tw`sw-rounded-pill`};
 
-  background-color: ${({ variant }) => themeContrast(variantThemeColors[variant])};
   background-color: ${({ variant }) => themeColor(variantThemeColors[variant])};
   color: ${({ variant }) => themeContrast(variantThemeColors[variant])};
   border-style: ${({ variant }) => (variant === 'neutral' ? 'hidden' : 'solid')};
