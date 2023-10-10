@@ -222,7 +222,6 @@ public class StartupRuleUpdater {
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
-
   private static boolean mergeEducationPrinciples(RulesDefinition.Rule ruleDef, RuleDto dto) {
     boolean changed = false;
     if (dto.getEducationPrinciples().size() != ruleDef.educationPrincipleKeys().size() ||
@@ -239,25 +238,24 @@ public class StartupRuleUpdater {
     if (RuleStatus.REMOVED == ruleDef.status()) {
       dto.setSystemTags(emptySet());
       changed = true;
-    } else if (dto.getSystemTags().size() != ruleDef.tags().size() ||
-      !dto.getSystemTags().containsAll(ruleDef.tags())) {
-        dto.setSystemTags(ruleDef.tags());
-        changed = true;
-      }
+    } else if (dto.getSystemTags().size() != ruleDef.tags().size() || !dto.getSystemTags().containsAll(ruleDef.tags())) {
+      dto.setSystemTags(ruleDef.tags());
+      changed = true;
+    }
     return changed;
   }
 
   private static boolean mergeSecurityStandards(RulesDefinition.Rule ruleDef, RuleDto dto) {
     boolean changed = false;
+    Set<String> securityStandards = dto.getSecurityStandards();
 
     if (RuleStatus.REMOVED == ruleDef.status()) {
       dto.setSecurityStandards(emptySet());
       changed = true;
-    } else if (dto.getSecurityStandards().size() != ruleDef.securityStandards().size() ||
-      !dto.getSecurityStandards().containsAll(ruleDef.securityStandards())) {
-        dto.setSecurityStandards(ruleDef.securityStandards());
-        changed = true;
-      }
+    } else if (securityStandards.size() != ruleDef.securityStandards().size() || !securityStandards.containsAll(ruleDef.securityStandards())) {
+      dto.setSecurityStandards(ruleDef.securityStandards());
+      changed = true;
+    }
     return changed;
   }
 
