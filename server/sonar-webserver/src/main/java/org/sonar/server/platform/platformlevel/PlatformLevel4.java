@@ -62,6 +62,8 @@ import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.almintegration.ws.github.GithubProvisioningWs;
 import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.almsettings.ws.AlmSettingsWsModule;
+import org.sonar.server.almsettings.ws.DelegatingDevOpsPlatformService;
+import org.sonar.server.almsettings.ws.GitHubDevOpsPlatformService;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierImpl;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationHandler;
@@ -307,6 +309,7 @@ public class PlatformLevel4 extends PlatformLevel {
       DefaultBranchNameResolver.class,
       DefaultDocumentationLinkGenerator.class,
       DelegatingManagedServices.class,
+      DelegatingDevOpsPlatformService.class,
 
       // batch
       new BatchWsModule(),
@@ -548,6 +551,7 @@ public class PlatformLevel4 extends PlatformLevel {
       GithubApplicationHttpClientImpl.class,
       GithubProvisioningConfigValidator.class,
       GithubProvisioningWs.class,
+      GitHubDevOpsPlatformService.class,
       BitbucketCloudRestClientConfiguration.class,
       BitbucketServerRestClient.class,
       GitlabHttpClient.class,

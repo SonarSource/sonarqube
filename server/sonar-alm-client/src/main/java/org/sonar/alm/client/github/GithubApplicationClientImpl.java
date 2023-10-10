@@ -146,6 +146,14 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   }
 
   @Override
+  public Optional<Long> getInstallationId(GithubAppConfiguration githubAppConfiguration, String repositorySlug) {
+    AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
+    String endpoint = String.format("/repos/%s/installation", repositorySlug);
+    return get(githubAppConfiguration.getApiEndpoint(), appToken, endpoint, GithubBinding.GsonInstallation.class)
+      .map(GithubBinding.GsonInstallation::getId);
+  }
+
+  @Override
   public Organizations listOrganizations(String appUrl, AccessToken accessToken, int page, int pageSize) {
     checkPageArgs(page, pageSize);
 

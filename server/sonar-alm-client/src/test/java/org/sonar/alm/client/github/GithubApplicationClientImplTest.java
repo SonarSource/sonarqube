@@ -236,6 +236,39 @@ public class GithubApplicationClientImplTest {
   }
 
   @Test
+  public void getInstallationId_returns_installation_id_of_given_account() throws IOException {
+    AppToken appToken = new AppToken(APP_JWT_TOKEN);
+    when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);
+    when(httpClient.get(appUrl, appToken, "/repos/torvalds/linux/installation"))
+      .thenReturn(new OkGetResponse("{" +
+        "  \"id\": 2," +
+        "  \"account\": {" +
+        "    \"login\": \"torvalds\"" +
+        "  }" +
+        "}"));
+
+    assertThat(underTest.getInstallationId(githubAppConfiguration, "torvalds/linux")).hasValue(2L);
+  }
+
+  @Test
+  public void getInstallationId_throws_IAE_if_fail_to_create_app_token() {
+    when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenThrow(IllegalArgumentException.class);
+
+    assertThatThrownBy(() -> underTest.getInstallationId(githubAppConfiguration, "torvalds"))
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void getInstallationId_return_empty_if_no_installation_found_for_githubAccount() throws IOException {
+    AppToken appToken = new AppToken(APP_JWT_TOKEN);
+    when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);
+    when(httpClient.get(appUrl, appToken, "/repos/torvalds/linux/installation"))
+      .thenReturn(new ErrorGetResponse(404, null));
+
+    assertThat(underTest.getInstallationId(githubAppConfiguration, "torvalds")).isEmpty();
+  }
+
+  @Test
   @UseDataProvider("githubServers")
   public void createUserAccessToken_returns_empty_if_access_token_cant_be_created(String apiUrl, String appUrl) throws IOException {
     when(httpClient.post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code"))

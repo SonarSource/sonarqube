@@ -47,6 +47,12 @@ public interface GithubApplicationClient {
   GithubBinding.GsonApp getApp(GithubAppConfiguration githubAppConfiguration);
 
   /**
+   * Retrieve the installation id for the given accountName.
+   * @throws IllegalArgumentException if one of the arguments is invalid (for example, wrong private key)
+   */
+  Optional<Long> getInstallationId(GithubAppConfiguration githubAppConfiguration, String repositorySlug);
+
+  /**
    * Lists all the organizations accessible to the access token provided.
    */
   Organizations listOrganizations(String appUrl, AccessToken accessToken, int page, int pageSize);
