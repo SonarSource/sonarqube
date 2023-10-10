@@ -27,7 +27,6 @@ import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { translate } from '../../../helpers/l10n';
 import { Languages } from '../../../types/languages';
 import { QualityProfilesContextProps } from '../qualityProfilesContext';
-import '../styles.css';
 import { Exporter, Profile } from '../types';
 import { sortProfiles } from '../utils';
 
