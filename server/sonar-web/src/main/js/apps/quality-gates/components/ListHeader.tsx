@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, HelperHintIcon, Note } from 'design-system';
+import { ButtonPrimary, HelperHintIcon, Title } from 'design-system';
 import * as React from 'react';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import ModalButton from '../../../components/controls/ModalButton';
@@ -32,13 +32,14 @@ interface Props {
 function CreateQualityGateModal({
   refreshQualityGates,
 }: Readonly<Pick<Props, 'refreshQualityGates'>>) {
+  const renderModal = React.useCallback(
+    ({ onClose }) => <CreateQualityGateForm onClose={onClose} onCreate={refreshQualityGates} />,
+    [refreshQualityGates],
+  );
+
   return (
     <div>
-      <ModalButton
-        modal={({ onClose }) => (
-          <CreateQualityGateForm onClose={onClose} onCreate={refreshQualityGates} />
-        )}
-      >
+      <ModalButton modal={renderModal}>
         {({ onClick }) => (
           <ButtonPrimary data-test="quality-gates__add" onClick={onClick}>
             {translate('create')}
@@ -53,11 +54,11 @@ export default function ListHeader({ canCreate, refreshQualityGates }: Readonly<
   return (
     <div className="sw-flex sw-justify-between sw-pb-4">
       <div className="sw-flex sw-justify-between">
-        <Note as="h1" className="sw-flex sw-items-center sw-body-md-highlight">
+        <Title className="sw-flex sw-items-center sw-body-md-highlight sw-mb-0">
           {translate('quality_gates.page')}
-        </Note>
+        </Title>
         <DocumentationTooltip
-          className="spacer-left"
+          className="sw-ml-2"
           content={translate('quality_gates.help')}
           links={[
             {

@@ -159,7 +159,11 @@ export default class Details extends React.PureComponent<Props, State> {
               <Helmet defer={false} title={qualityGate.name} />
               <DetailsHeader
                 onSetDefault={this.handleSetDefault}
-                qualityGate={qualityGate}
+                qualityGate={{
+                  ...qualityGate,
+                  // isDefault isn't acually returned by the 'show' endpoint, so qualityGate is incomplete
+                  isDefault: checkIfDefault(qualityGate, this.props.qualityGates),
+                }}
                 refreshItem={this.fetchDetails}
                 refreshList={refreshQualityGates}
               />

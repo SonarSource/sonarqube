@@ -185,7 +185,7 @@ export function Conditions({
                   </Link>
                 ),
               }}
-            />
+            />{' '}
             {translate('quality_gates.cayc.banner.description2')}
           </SubHeading>
           <ul className="sw-body-sm">
