@@ -68,7 +68,7 @@ describe('Rules app list', () => {
       (category) => `issue.clean_code_attribute_category.${category}`,
     ).forEach((name) => expect(ui.facetItem(name).get()).toBeInTheDocument());
 
-    SOFTWARE_QUALITIES.map((quality) => `issue.software_quality.${quality}`).forEach((name) =>
+    SOFTWARE_QUALITIES.map((quality) => `software_quality.${quality}`).forEach((name) =>
       expect(ui.facetItem(name).get()).toBeInTheDocument(),
     );
 
@@ -199,7 +199,7 @@ describe('Rules app list', () => {
 
       // Filter by software quality
       await act(async () => {
-        await user.click(ui.facetItem('issue.software_quality.MAINTAINABILITY').get());
+        await user.click(ui.facetItem('software_quality.MAINTAINABILITY').get());
       });
       expect(ui.ruleListItem.getAll(ui.rulesList.get())).toHaveLength(10);
 

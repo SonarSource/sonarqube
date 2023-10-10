@@ -113,7 +113,7 @@ const selectors = {
     byText(`rule.clean_code_attribute_category.${category}.title_short`),
   ruleCleanCodeAttribute: (attribute: CleanCodeAttribute) =>
     byText(new RegExp(`rule\\.clean_code_attribute\\.${attribute}$`)),
-  ruleSoftwareQuality: (quality: SoftwareQuality) => byText(`issue.software_quality.${quality}`),
+  ruleSoftwareQuality: (quality: SoftwareQuality) => byText(`software_quality.${quality}`),
 
   // Rule tags
   tagsDropdown: byLabelText(/tags_list_x/).byRole('button'),

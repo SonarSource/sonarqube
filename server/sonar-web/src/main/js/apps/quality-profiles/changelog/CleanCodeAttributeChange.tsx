@@ -42,16 +42,16 @@ export default function CleanCodeAttributeChange(props: Readonly<Props>) {
 
   const labels = {
     newCleanCodeAttribute: intl.formatMessage({
-      id: `issue.clean_code_attribute.${newCleanCodeAttribute}`,
+      id: `rule.clean_code_attribute.${newCleanCodeAttribute}`,
     }),
     newCleanCodeAttributeCategory: intl.formatMessage({
-      id: `issue.clean_code_attribute_category.${newCleanCodeAttributeCategory}`,
+      id: `rule.clean_code_attribute_category.${newCleanCodeAttributeCategory}`,
     }),
     oldCleanCodeAttribute: intl.formatMessage({
-      id: `issue.clean_code_attribute.${oldCleanCodeAttribute}`,
+      id: `rule.clean_code_attribute.${oldCleanCodeAttribute}`,
     }),
     oldCleanCodeAttributeCategory: intl.formatMessage({
-      id: `issue.clean_code_attribute_category.${oldCleanCodeAttributeCategory}`,
+      id: `rule.clean_code_attribute_category.${oldCleanCodeAttributeCategory}`,
     }),
   };
 

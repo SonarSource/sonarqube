@@ -148,7 +148,7 @@ export default function ProfileRules({ profile }: Readonly<Props>) {
         >
           {Object.values(CleanCodeAttributeCategory).map((category) => (
             <ProfileRulesRow
-              title={translate('issue.clean_code_attribute_category', category)}
+              title={translate('rule.clean_code_attribute_category', category)}
               total={totalByCctCategory[category]?.count}
               count={countsByCctCategory[category]?.count}
               key={category}
@@ -180,7 +180,7 @@ export default function ProfileRules({ profile }: Readonly<Props>) {
         >
           {Object.values(SoftwareQuality).map((quality) => (
             <ProfileRulesRow
-              title={translate('issue.software_quality', quality)}
+              title={translate('software_quality', quality)}
               total={totalBySoftwareQuality[quality]?.count}
               count={countsBySoftwareImpact[quality]?.count}
               key={quality}

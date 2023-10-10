@@ -107,7 +107,7 @@ export const ui = {
     name: `issue.clean_code_attribute_category.${CleanCodeAttributeCategory.Consistent}`,
   }),
   softwareQualityMaintainabilityFilter: byRole('checkbox', {
-    name: `issue.software_quality.${SoftwareQuality.Maintainability}`,
+    name: `software_quality.${SoftwareQuality.Maintainability}`,
   }),
   codeSmellIssueTypeFilter: byRole('checkbox', { name: 'issue.type.CODE_SMELL' }),
   confirmedStatusFilter: byRole('checkbox', { name: 'issue.status.CONFIRMED' }),

@@ -32,9 +32,9 @@ export default function SoftwareImpactChange({ impactChange }: Readonly<Props>) 
 
   const labels = {
     oldSeverity: intl.formatMessage({ id: `severity.${oldSeverity}` }),
-    oldSoftwareQuality: intl.formatMessage({ id: `issue.software_quality.${oldSoftwareQuality}` }),
+    oldSoftwareQuality: intl.formatMessage({ id: `software_quality.${oldSoftwareQuality}` }),
     newSeverity: intl.formatMessage({ id: `severity.${newSeverity}` }),
-    newSoftwareQuality: intl.formatMessage({ id: `issue.software_quality.${newSoftwareQuality}` }),
+    newSoftwareQuality: intl.formatMessage({ id: `software_quality.${newSoftwareQuality}` }),
   };
 
   const isChanged = oldSeverity && oldSoftwareQuality && newSeverity && newSoftwareQuality;

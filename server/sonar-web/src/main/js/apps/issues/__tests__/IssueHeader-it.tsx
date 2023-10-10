@@ -61,9 +61,9 @@ it('renders correctly', async () => {
   jest.runOnlyPendingTimers();
 
   // Software Qualities
-  const qualityBadge = byText(`issue.software_quality.${issue.impacts[0].softwareQuality}`).get();
+  const qualityBadge = byText(`software_quality.${issue.impacts[0].softwareQuality}`).get();
   expect(qualityBadge).toBeInTheDocument();
-  await expect(qualityBadge).toHaveATooltipWithContent('issue.software_quality');
+  await expect(qualityBadge).toHaveATooltipWithContent('software_quality');
   jest.runOnlyPendingTimers();
 
   // Deprecated type

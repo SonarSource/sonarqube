@@ -25,8 +25,8 @@ export interface DeprecatedTooltipProps {
 }
 
 const FILTERS_LIST = {
-  type: ['issue.clean_code_attribute', 'issue.software_quality'],
-  severity: ['issue.software_quality', 'issue.severity.new'],
+  type: ['issue.clean_code_attribute', 'software_quality'],
+  severity: ['software_quality', 'issue.severity.new'],
 };
 
 export function DeprecatedFieldTooltip({ field }: DeprecatedTooltipProps) {

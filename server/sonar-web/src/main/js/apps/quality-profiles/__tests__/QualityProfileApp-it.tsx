@@ -72,8 +72,8 @@ const ui = {
   setAsDefaultButton: byRole('menuitem', { name: 'set_as_default' }),
   newNameInput: byRole('textbox', { name: /quality_profiles.new_name/ }),
   qualityProfilePageLink: byRole('link', { name: 'quality_profiles.back_to_list' }),
-  rulesConsistencyRow: byRole('row', { name: /issue.clean_code_attribute_category.CONSISTENT/ }),
-  rulesSecurityRow: byRole('row', { name: /issue.clean_code_attribute_category.SECURITY/ }),
+  rulesConsistencyRow: byRole('row', { name: /rule.clean_code_attribute_category.CONSISTENT/ }),
+  rulesSecurityRow: byRole('row', { name: /rule.clean_code_attribute_category.SECURITY/ }),
   rulesMissingSonarWayWarning: byText('quality_profiles.sonarway_missing_rules_description'),
   rulesMissingSonarWayLink: byRole('link', {
     name: /quality_profiles.sonarway_see_x_missing_rules/,
@@ -228,7 +228,7 @@ describe('Admin or user with permission', () => {
       expect(await ui.projectSection.find()).toBeInTheDocument();
 
       expect(
-        await ui.projectSection.byText('quality_profiles.projects_for_default').get(),
+        ui.projectSection.byText('quality_profiles.projects_for_default').get(),
       ).toBeInTheDocument();
     });
   });
@@ -476,13 +476,13 @@ describe('Every Users', () => {
 
     expect(await ui.rulesSection.find()).toBeInTheDocument();
 
-    ui.checkRuleRow('issue.clean_code_attribute_category.INTENTIONAL', 23, 4);
-    ui.checkRuleRow('issue.clean_code_attribute_category.CONSISTENT', 2, 18);
-    ui.checkRuleRow('issue.clean_code_attribute_category.ADAPTABLE', 1, 11);
-    ui.checkRuleRow('issue.clean_code_attribute_category.RESPONSIBLE', 0, 0);
-    ui.checkRuleRow('issue.software_quality.MAINTAINABILITY', 9, 44);
-    ui.checkRuleRow('issue.software_quality.RELIABILITY', 16, 1);
-    ui.checkRuleRow('issue.software_quality.SECURITY', 0, 14);
+    ui.checkRuleRow('rule.clean_code_attribute_category.INTENTIONAL', 23, 4);
+    ui.checkRuleRow('rule.clean_code_attribute_category.CONSISTENT', 2, 18);
+    ui.checkRuleRow('rule.clean_code_attribute_category.ADAPTABLE', 1, 11);
+    ui.checkRuleRow('rule.clean_code_attribute_category.RESPONSIBLE', 0, 0);
+    ui.checkRuleRow('software_quality.MAINTAINABILITY', 9, 44);
+    ui.checkRuleRow('software_quality.RELIABILITY', 16, 1);
+    ui.checkRuleRow('software_quality.SECURITY', 0, 14);
   });
 
   it('should be able to see a warning when some rules are missing compare to Sonar way', async () => {
