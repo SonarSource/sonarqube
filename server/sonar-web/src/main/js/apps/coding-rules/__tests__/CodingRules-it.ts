@@ -562,7 +562,7 @@ describe('Rule app details', () => {
     await user.click(ui.activateButton.get());
     await user.type(ui.paramInput('1').get(), 'paramInput');
     await act(() => user.click(ui.activateButton.get(ui.activateQPDialog.get())));
-    expect(ui.qpLink('QP FooBarBaz').getAll()).toHaveLength(2);
+    expect(ui.qpLink('QP FooBarBaz').get()).toBeInTheDocument();
     expect(ui.qpLink('QP FooBaz').get()).toBeInTheDocument();
 
     // Rule is activated in all quality profiles - show notification in dialog

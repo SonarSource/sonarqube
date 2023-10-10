@@ -89,7 +89,11 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
           <InheritanceIcon
             fill={activation.inherit === 'OVERRIDES' ? 'destructiveIconFocus' : 'currentColor'}
           />
-          <DiscreetLink className="sw-ml-1" to={profilePath}>
+          <DiscreetLink
+            className="sw-ml-1"
+            aria-label={`${translate('quality_profiles.parent')} ${profile.parentName}`}
+            to={profilePath}
+          >
             {profile.parentName}
           </DiscreetLink>
         </Note>
@@ -208,7 +212,12 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
         <ContentCell className="coding-rules-detail-quality-profile-name">
           <div className="sw-flex sw-flex-col">
             <div>
-              <Link to={getQualityProfileUrl(profile.name, profile.language)}>{profile.name}</Link>
+              <Link
+                aria-label={profile.name}
+                to={getQualityProfileUrl(profile.name, profile.language)}
+              >
+                {profile.name}
+              </Link>
               {profile.isBuiltIn && <BuiltInQualityProfileBadge className="sw-ml-2" />}
             </div>
             {this.renderInheritedProfile(activation, profile)}
