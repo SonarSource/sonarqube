@@ -55,6 +55,8 @@ const ui = {
   stillFailingTxt: byText('event.quality_gate.still_x'),
 
   versionLabel: byText('event.category.VERSION', { exact: false }),
+
+  sqUpgradeLabel: (sqVersion: string) => byText(`event.sqUpgrade${sqVersion}`),
 };
 
 const handler = new BranchesServiceMock();
@@ -233,6 +235,19 @@ describe('VERSION events', () => {
 
     expect(ui.versionLabel.get()).toBeInTheDocument();
     expect(screen.getByText('1.0')).toBeInTheDocument();
+  });
+});
+
+describe('SQ_UPGRADE events', () => {
+  it('should render correctly', () => {
+    renderEventInner({
+      event: mockAnalysisEvent({
+        category: ProjectAnalysisEventCategory.SqUpgrade,
+        name: '10.0',
+      }),
+    });
+
+    expect(ui.sqUpgradeLabel('10.0').get()).toBeInTheDocument();
   });
 });
 

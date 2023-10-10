@@ -361,6 +361,18 @@ describe('filtering', () => {
         key: `analysis-4`,
         events: [mockAnalysisEvent({ key: '3', category: ProjectAnalysisEventCategory.Version })],
       }),
+      mockAnalysis({
+        key: `analysis-5`,
+        events: [mockAnalysisEvent({ key: '4', category: ProjectAnalysisEventCategory.SqUpgrade })],
+      }),
+      mockAnalysis({
+        key: `analysis-6`,
+        events: [mockAnalysisEvent({ key: '5', category: ProjectAnalysisEventCategory.Version })],
+      }),
+      mockAnalysis({
+        key: `analysis-7`,
+        events: [mockAnalysisEvent({ key: '6', category: ProjectAnalysisEventCategory.SqUpgrade })],
+      }),
     ]);
 
     const { ui } = getPageObject();
@@ -368,10 +380,13 @@ describe('filtering', () => {
     await ui.appLoaded();
 
     await ui.filterByCategory(ProjectAnalysisEventCategory.Version);
-    expect(ui.activityItem.getAll().length).toBe(2);
+    expect(ui.activityItem.getAll().length).toBe(3);
 
     await ui.filterByCategory(ProjectAnalysisEventCategory.QualityGate);
     expect(ui.activityItem.getAll().length).toBe(1);
+
+    await ui.filterByCategory(ProjectAnalysisEventCategory.SqUpgrade);
+    expect(ui.activityItem.getAll().length).toBe(2);
   });
 
   it('should correctly filter by date range', async () => {

@@ -65,7 +65,7 @@ export default function ProjectActivityPageFilters(props: ProjectActivityPageFil
           onChange={(data: LabelValueSelectOption<string>) => handleCategoryChange(data)}
           options={options}
           placeholder={translate('project_activity.filter_events')}
-          size="small"
+          size="full"
           value={options.find((o) => o.value === category)}
           classNames={{
             menu: () => 'sw-z-dropdown-menu-page',

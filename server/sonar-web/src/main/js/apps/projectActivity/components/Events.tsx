@@ -36,9 +36,19 @@ function Events(props: EventsProps) {
 
   const sortedEvents = sortBy(
     events,
-    // versions last
-    (event) => (event.category === ProjectAnalysisEventCategory.Version ? 1 : 0),
-    // then the rest sorted by category
+    (event) => {
+      switch (event.category) {
+        case ProjectAnalysisEventCategory.SqUpgrade:
+          // SQ Upgrade first
+          return 0;
+        case ProjectAnalysisEventCategory.Version:
+          // versions last
+          return 2;
+        default:
+          // then the rest in between, sorted by category
+          return 1;
+      }
+    },
     'category',
   );
 

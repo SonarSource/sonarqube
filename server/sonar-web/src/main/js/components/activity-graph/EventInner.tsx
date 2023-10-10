@@ -22,10 +22,11 @@ import * as React from 'react';
 import { ComponentContext } from '../../app/components/componentContext/ComponentContext';
 import { translate } from '../../helpers/l10n';
 import { useBranchesQuery } from '../../queries/branch';
-import { AnalysisEvent } from '../../types/project-activity';
+import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../types/project-activity';
 import Tooltip from '../controls/Tooltip';
 import { DefinitionChangeEventInner, isDefinitionChangeEvent } from './DefinitionChangeEventInner';
 import { RichQualityGateEventInner, isRichQualityGateEvent } from './RichQualityGateEventInner';
+import { SqUpgradeActivityEventMessage } from './SqUpgradeActivityEventMessage';
 
 export interface EventInnerProps {
   event: AnalysisEvent;
@@ -39,6 +40,8 @@ export default function EventInner({ event, readonly }: EventInnerProps) {
     return <RichQualityGateEventInner event={event} readonly={readonly} />;
   } else if (isDefinitionChangeEvent(event)) {
     return <DefinitionChangeEventInner branchLike={branchLike} event={event} readonly={readonly} />;
+  } else if (event.category === ProjectAnalysisEventCategory.SqUpgrade) {
+    return <SqUpgradeActivityEventMessage event={event} />;
   }
 
   const tooltipContent =
