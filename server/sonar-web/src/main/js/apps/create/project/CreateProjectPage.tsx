@@ -57,6 +57,7 @@ interface State {
   gitlabSettings: AlmSettingsInstance[];
   loading: boolean;
   creatingAlmDefinition?: AlmKeys;
+  nbrOfProjects?: number;
 }
 
 const PROJECT_MODE_FOR_ALM_KEY = {
@@ -137,9 +138,11 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     this.setState({ creatingAlmDefinition: alm });
   };
 
-  handleProjectSetupDone = (createProject: CreateProjectApiCallback) => {
+  handleProjectSetupDone = (createProject: CreateProjectApiCallback, nbrOfProjects?: number) => {
     const { location, router } = this.props;
     this.createProjectFnRef = createProject;
+
+    this.setState({ nbrOfProjects });
 
     location.query.setncd = 'true';
     router.push(location);
@@ -273,7 +276,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
 
   render() {
     const { location, router } = this.props;
-    const { creatingAlmDefinition } = this.state;
+    const { creatingAlmDefinition, nbrOfProjects } = this.state;
     const mode: CreateProjectModes | undefined = location.query?.mode;
     const isProjectSetupDone = location.query?.setncd === 'true';
     const gridLayoutStyle = mode ? 'sw-col-start-2 sw-col-span-10' : 'sw-col-span-12';
@@ -297,6 +300,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
             <NewCodeDefinitionSelection
               router={router}
               createProjectFnRef={this.createProjectFnRef}
+              numberOfProjects={nbrOfProjects}
             />
           </div>
 

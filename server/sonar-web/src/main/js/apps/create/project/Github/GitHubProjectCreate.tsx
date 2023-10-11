@@ -37,7 +37,7 @@ import GitHubProjectCreateRenderer from './GitHubProjectCreateRenderer';
 interface Props {
   canAdmin: boolean;
   loadingBindings: boolean;
-  onProjectSetupDone: (createProject: CreateProjectApiCallback) => void;
+  onProjectSetupDone: (createProject: CreateProjectApiCallback, nbrOfProjects: number) => void;
   almInstances: AlmSettingsInstance[];
   location: Location;
   router: Router;
@@ -259,16 +259,17 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
     }
   };
 
-  handleImportRepository = (repoKey: string) => {
+  handleImportRepository = (repoKeys: string[]) => {
     const { selectedOrganization, selectedAlmInstance } = this.state;
 
-    if (selectedAlmInstance && selectedOrganization && repoKey !== '') {
+    if (selectedAlmInstance && selectedOrganization && repoKeys.length > 0) {
       this.props.onProjectSetupDone(
         setupGithubProjectCreation({
           almSetting: selectedAlmInstance.key,
           organization: selectedOrganization.key,
-          repositoryKey: repoKey,
+          repositoryKey: repoKeys.join(','), // TBD
         }),
+        repoKeys.length,
       );
     }
   };

@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, Link, Spinner, Title } from 'design-system';
+import { ButtonPrimary, ButtonSecondary, FlagMessage, Link, Spinner, Title } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { useNavigate } from 'react-router-dom';
 import { Router } from '../../../../components/hoc/withRouter';
 import NewCodeDefinitionSelector from '../../../../components/new-code-definition/NewCodeDefinitionSelector';
 import { useDocUrl } from '../../../../helpers/docs';
@@ -32,15 +33,21 @@ import { CreateProjectApiCallback } from '../types';
 interface Props {
   createProjectFnRef: CreateProjectApiCallback | null;
   router: Router;
+  numberOfProjects?: number;
 }
 
 export default function NewCodeDefinitionSelection(props: Props) {
-  const { createProjectFnRef, router } = props;
+  const { createProjectFnRef, router, numberOfProjects } = props;
 
   const [submitting, setSubmitting] = React.useState(false);
   const [selectedDefinition, selectDefinition] = React.useState<NewCodeDefinitiondWithCompliance>();
 
+  const navigate = useNavigate();
+
   const getDocUrl = useDocUrl();
+
+  const isMultipleProjects = numberOfProjects !== undefined && numberOfProjects !== 1;
+  const projectCount = isMultipleProjects ? numberOfProjects : 1;
 
   const handleProjectCreation = React.useCallback(async () => {
     if (createProjectFnRef && selectedDefinition) {
@@ -58,7 +65,15 @@ export default function NewCodeDefinitionSelection(props: Props) {
 
   return (
     <div id="project-ncd-selection" className="sw-body-sm">
-      <Title>{translate('onboarding.create_project.new_code_definition.title')}</Title>
+      <Title>
+        <FormattedMessage
+          defaultMessage={translate('onboarding.create_x_project.new_code_definition.title')}
+          id="onboarding.create_x_project.new_code_definition.title"
+          values={{
+            count: projectCount,
+          }}
+        />
+      </Title>
 
       <p className="sw-mb-2">
         <FormattedMessage
@@ -74,15 +89,35 @@ export default function NewCodeDefinitionSelection(props: Props) {
         />
       </p>
 
-      <NewCodeDefinitionSelector onNcdChanged={selectDefinition} />
+      <NewCodeDefinitionSelector
+        onNcdChanged={selectDefinition}
+        isMultipleProjects={isMultipleProjects}
+      />
+
+      {isMultipleProjects && (
+        <FlagMessage variant="info">
+          {translate('onboarding.create_projects.new_code_definition.change_info')}
+        </FlagMessage>
+      )}
 
       <div className="sw-mt-10 sw-mb-8">
+        <ButtonSecondary className="sw-mr-2" onClick={() => navigate(-1)}>
+          {translate('back')}
+        </ButtonSecondary>
         <ButtonPrimary
           onClick={handleProjectCreation}
           disabled={!selectedDefinition?.isCompliant || submitting}
           type="submit"
         >
-          {translate('onboarding.create_project.new_code_definition.create_project')}
+          <FormattedMessage
+            defaultMessage={translate(
+              'onboarding.create_project.new_code_definition.create_x_projects',
+            )}
+            id="onboarding.create_project.new_code_definition.create_x_projects"
+            values={{
+              count: projectCount,
+            }}
+          />
           <Spinner className="sw-ml-2" loading={submitting} />
         </ButtonPrimary>
       </div>

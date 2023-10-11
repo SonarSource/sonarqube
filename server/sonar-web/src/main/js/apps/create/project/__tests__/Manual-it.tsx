@@ -53,10 +53,10 @@ const ui = {
     name: /onboarding.create_project.display_name/,
   }),
   projectNextButton: byRole('button', { name: 'next' }),
-  newCodeDefinitionHeader: byText('onboarding.create_project.new_code_definition.title'),
+  newCodeDefinitionHeader: byText('onboarding.create_x_project.new_code_definition.title1'),
   inheritGlobalNcdRadio: byRole('radio', { name: 'new_code_definition.global_setting' }),
   projectCreateButton: byRole('button', {
-    name: 'onboarding.create_project.new_code_definition.create_project',
+    name: 'onboarding.create_project.new_code_definition.create_x_projects1',
   }),
   overrideNcdRadio: byRole('radio', { name: 'new_code_definition.specific_setting' }),
   ncdOptionPreviousVersionRadio: byRole('radio', {

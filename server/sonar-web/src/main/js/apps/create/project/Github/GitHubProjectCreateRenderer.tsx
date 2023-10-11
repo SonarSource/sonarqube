@@ -52,7 +52,7 @@ export interface GitHubProjectCreateRendererProps {
   loadingBindings: boolean;
   loadingOrganizations: boolean;
   loadingRepositories: boolean;
-  onImportRepository: (key: string) => void;
+  onImportRepository: (key: string[]) => void;
   onLoadMore: () => void;
   onSearch: (q: string) => void;
   onSelectOrganization: (key: string) => void;
@@ -183,7 +183,7 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
   }
 
   const handleImport = () => {
-    props.onImportRepository(Array.from(selected).toString()); // TBD
+    props.onImportRepository(Array.from(selected));
   };
 
   const handleCheckAll = () => {

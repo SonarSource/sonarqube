@@ -152,13 +152,13 @@ it('should show import project feature when PAT is already set', async () => {
   await user.click(setupButton);
 
   expect(
-    screen.getByRole('heading', { name: 'onboarding.create_project.new_code_definition.title' }),
+    screen.getByRole('heading', { name: 'onboarding.create_x_project.new_code_definition.title1' }),
   ).toBeInTheDocument();
 
   await user.click(screen.getByRole('radio', { name: 'new_code_definition.global_setting' }));
   await user.click(
     screen.getByRole('button', {
-      name: 'onboarding.create_project.new_code_definition.create_project',
+      name: 'onboarding.create_project.new_code_definition.create_x_projects1',
     }),
   );
 

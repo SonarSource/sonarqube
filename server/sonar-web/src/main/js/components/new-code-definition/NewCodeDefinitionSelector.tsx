@@ -45,10 +45,11 @@ import { NewCodeDefinitionLevels } from './utils';
 
 interface Props {
   onNcdChanged: (ncd: NewCodeDefinitiondWithCompliance) => void;
+  isMultipleProjects?: boolean;
 }
 
 export default function NewCodeDefinitionSelector(props: Props) {
-  const { onNcdChanged } = props;
+  const { onNcdChanged, isMultipleProjects } = props;
 
   const [globalNcd, setGlobalNcd] = React.useState<NewCodeDefinition | null>(null);
   const [selectedNcdType, setSelectedNcdType] = React.useState<NewCodeDefinitionType | null>(null);
@@ -101,7 +102,9 @@ export default function NewCodeDefinitionSelector(props: Props) {
     <PageContentFontWrapper>
       <p className="sw-mt-10">
         <strong className="sw-body-md-highlight">
-          {translate('new_code_definition.question')}
+          {isMultipleProjects
+            ? translate('new_code_definition.question.multiple_projects')
+            : translate('new_code_definition.question')}
         </strong>
       </p>
       <div className="sw-mt-7 sw-ml-1" role="radiogroup">
@@ -124,13 +127,19 @@ export default function NewCodeDefinitionSelector(props: Props) {
         </StyledGlobalSettingWrapper>
 
         <RadioButton
-          aria-label={translate('new_code_definition.specific_setting')}
+          aria-label={
+            isMultipleProjects
+              ? translate('new_code_definition.specific_setting.multiple_projects')
+              : translate('new_code_definition.specific_setting')
+          }
           checked={Boolean(selectedNcdType && selectedNcdType !== NewCodeDefinitionType.Inherited)}
           className="sw-mt-12 sw-font-semibold"
           onCheck={() => handleNcdChanged(NewCodeDefinitionType.PreviousVersion)}
           value="specific"
         >
-          {translate('new_code_definition.specific_setting')}
+          {isMultipleProjects
+            ? translate('new_code_definition.specific_setting.multiple_projects')
+            : translate('new_code_definition.specific_setting')}
         </RadioButton>
       </div>
 

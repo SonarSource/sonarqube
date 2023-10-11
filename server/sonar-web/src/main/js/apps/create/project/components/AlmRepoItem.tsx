@@ -70,7 +70,7 @@ export default function AlmRepoItem({
   onCheck,
   onImport,
 }: AlmRepoItemProps) {
-  const labelId = `${almKey.replace(/\s/g, '_')}-label`;
+  const labelId = `${almKey.toString().replace(/\s/g, '_')}-label`;
   return (
     <RepositoryItem
       selected={selected}

@@ -52,9 +52,18 @@ const ui = {
   project3Checkbox: byRole('listitem', { name: 'Github repo 3' }).byRole('checkbox'),
   checkAll: byRole('checkbox', { name: 'onboarding.create_project.select_all_repositories' }),
   importButton: byRole('button', { name: 'onboarding.create_project.import' }),
-  newCodeTitle: byRole('heading', { name: 'onboarding.create_project.new_code_definition.title' }),
+  newCodeTitle: byRole('heading', {
+    name: 'onboarding.create_x_project.new_code_definition.title1',
+  }),
+  newCodeMultipleProjectTitle: byRole('heading', {
+    name: 'onboarding.create_x_project.new_code_definition.title2',
+  }),
+  changePeriodLaterInfo: byText('onboarding.create_projects.new_code_definition.change_info'),
   createProjectButton: byRole('button', {
-    name: 'onboarding.create_project.new_code_definition.create_project',
+    name: 'onboarding.create_project.new_code_definition.create_x_projects1',
+  }),
+  createProjectsButton: byRole('button', {
+    name: 'onboarding.create_project.new_code_definition.create_x_projects2',
   }),
   globalSettingRadio: byRole('radio', { name: 'new_code_definition.global_setting' }),
 };
@@ -202,9 +211,12 @@ it('should import several projects', async () => {
   expect(ui.importButton.get()).toBeInTheDocument();
   await user.click(ui.importButton.get());
 
-  expect(await ui.newCodeTitle.find()).toBeInTheDocument();
+  expect(await ui.newCodeMultipleProjectTitle.find()).toBeInTheDocument();
+  expect(ui.changePeriodLaterInfo.get()).toBeInTheDocument();
+  expect(ui.createProjectsButton.get()).toBeDisabled();
 
-  // TBD
+  await user.click(ui.globalSettingRadio.get());
+  expect(ui.createProjectsButton.get()).toBeEnabled();
 });
 
 it('should show search filter when the authentication is successful', async () => {
