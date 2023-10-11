@@ -21,6 +21,7 @@ import * as React from 'react';
 import Link from '../../../components/common/Link';
 import { getEditionUrl } from '../../../helpers/editions';
 import { translate } from '../../../helpers/l10n';
+import { getBaseUrl } from '../../../helpers/system';
 import { Edition, EditionKey } from '../../../types/editions';
 
 interface Props {
@@ -41,7 +42,7 @@ export default function EditionBox({ edition, ncloc, serverId, currentEdition }:
                 <img
                   alt="SonarQube logo"
                   className="max-width-100 little-spacer-right"
-                  src="/images/embed-doc/sq-icon.svg"
+                  src={`${getBaseUrl()}/images/embed-doc/sq-icon.svg`}
                 />
                 Data Center Edition
               </h3>
@@ -66,7 +67,7 @@ export default function EditionBox({ edition, ncloc, serverId, currentEdition }:
                 <img
                   alt="SonarQube logo"
                   className="max-width-100 little-spacer-right"
-                  src="/images/embed-doc/sq-icon.svg"
+                  src={`${getBaseUrl()}/images/embed-doc/sq-icon.svg`}
                 />
                 Developer Edition
               </h3>
@@ -80,22 +81,22 @@ export default function EditionBox({ edition, ncloc, serverId, currentEdition }:
                   <img
                     alt="GitHub"
                     className="little-spacer-left max-width-100"
-                    src="/images/alm/github.svg"
+                    src={`${getBaseUrl()}/images/alm/github.svg`}
                   />
                   <img
                     alt="GitLab"
                     className="little-spacer-left max-width-100"
-                    src="/images/alm/gitlab.svg"
+                    src={`${getBaseUrl()}/images/alm/gitlab.svg`}
                   />
                   <img
                     alt="Azure DevOps"
                     className="little-spacer-left max-width-100"
-                    src="/images/alm/azure.svg"
+                    src={`${getBaseUrl()}/images/alm/azure.svg`}
                   />
                   <img
                     alt="Bitbucket"
                     className="little-spacer-left max-width-100"
-                    src="/images/alm/bitbucket.svg"
+                    src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
                   />
                 </li>
                 <li>
@@ -117,7 +118,7 @@ export default function EditionBox({ edition, ncloc, serverId, currentEdition }:
                 <img
                   alt="SonarQube logo"
                   className="max-width-100 little-spacer-right"
-                  src="/images/embed-doc/sq-icon.svg"
+                  src={`${getBaseUrl()}/images/embed-doc/sq-icon.svg`}
                 />{' '}
                 Enterprise Edition
               </h3>
