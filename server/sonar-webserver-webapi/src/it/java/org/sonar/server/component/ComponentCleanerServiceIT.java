@@ -27,10 +27,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
@@ -46,6 +48,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.server.es.Indexers.EntityEvent.DELETION;
 
 public class ComponentCleanerServiceIT {
@@ -170,6 +173,26 @@ public class ComponentCleanerServiceIT {
     assertThat(dbClient.branchDao().selectByUuid(dbSession, otherBranch.getUuid())).isEmpty();
     verify(indexers).commitAndIndexBranches(any(), eq(List.of(otherBranch)), eq(BranchEvent.DELETION));
     verifyNoMoreInteractions(indexers);
+  }
+
+  @Test
+  public void deleteBranch_whenDeletingBiggestBranch_shouldUpdateProjectNcloc() {
+    MetricDto metricNcloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.toString()));
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+
+    BranchDto biggestBranch = insertBranchWithNcloc(project, metricNcloc, 200d);
+    insertBranchWithNcloc(project, metricNcloc, 10d);
+    dbClient.projectDao().updateNcloc(dbSession, project.getUuid(), 200);
+
+    assertThat(dbClient.projectDao().getNclocSum(db.getSession())).isEqualTo(200L);
+    underTest.deleteBranch(dbSession, biggestBranch);
+    assertThat(dbClient.projectDao().getNclocSum(db.getSession())).isEqualTo(10L);
+  }
+
+  private BranchDto insertBranchWithNcloc(ProjectDto project, MetricDto metricNcloc, double value) {
+    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    db.measures().insertLiveMeasure(branch, metricNcloc, m -> m.setValue(value));
+    return branch;
   }
 
   @Test

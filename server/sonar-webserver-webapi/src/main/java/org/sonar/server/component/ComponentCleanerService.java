@@ -56,7 +56,13 @@ public class ComponentCleanerService {
       throw new IllegalArgumentException("Only non-main branches can be deleted");
     }
     dbClient.purgeDao().deleteBranch(dbSession, branch.getUuid());
+    updateProjectNcloc(dbSession, branch.getProjectUuid());
     indexers.commitAndIndexBranches(dbSession, singletonList(branch), BranchEvent.DELETION);
+  }
+
+  private void updateProjectNcloc(DbSession dbSession, String projectUuid) {
+    long maxncloc = dbClient.liveMeasureDao().sumNclocOfBiggestBranchForProject(dbSession, projectUuid);
+    dbClient.projectDao().updateNcloc(dbSession, projectUuid, maxncloc);
   }
 
   public void deleteEntity(DbSession dbSession, EntityDto entity) {
