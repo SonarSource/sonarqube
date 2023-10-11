@@ -29,8 +29,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
-import org.sonar.api.utils.System2;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.utils.System2;
 import org.sonar.core.config.ComputeEngineProperties;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;
@@ -41,10 +41,10 @@ import org.sonar.db.component.ComponentDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH;
+import static org.sonar.core.ce.CeTaskCharacteristics.PULL_REQUEST;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
 
 public class NextPendingTaskPickerIT {
 
@@ -293,7 +293,7 @@ public class NextPendingTaskPickerIT {
 
   private CeQueueDto insertPendingBranch(String uuid) {
     CeQueueDto queue = insertPending(uuid, null);
-    insertCharacteristics(queue.getUuid(), BRANCH_KEY);
+    insertCharacteristics(queue.getUuid(), BRANCH);
     return queue;
   }
 

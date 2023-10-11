@@ -35,6 +35,7 @@ import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTaskSubmit;
+import org.sonar.core.ce.CeTaskCharacteristics;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -42,7 +43,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeActivityDto.Status;
 import org.sonar.db.ce.CeQueueDto;
-import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.project.ProjectDto;
@@ -55,7 +55,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH_TYPE;
 import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 import static org.sonar.db.component.BranchType.BRANCH;
@@ -287,9 +287,9 @@ public class AsyncIssueIndexingImplTest {
     assertThat(tasks).hasSize(2);
 
     assertThat(tasks)
-      .extracting(p -> p.getCharacteristics().get(BRANCH_TYPE_KEY),
-        p -> p.getCharacteristics().get(CeTaskCharacteristicDto.BRANCH_KEY),
-        p -> p.getCharacteristics().get(CeTaskCharacteristicDto.PULL_REQUEST))
+      .extracting(p -> p.getCharacteristics().get(BRANCH_TYPE),
+        p -> p.getCharacteristics().get(CeTaskCharacteristics.BRANCH),
+        p -> p.getCharacteristics().get(CeTaskCharacteristics.PULL_REQUEST))
       .containsExactlyInAnyOrder(
         tuple("BRANCH", "branch_1", null),
         tuple("PULL_REQUEST", null, "pr_1"));

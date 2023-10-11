@@ -42,6 +42,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH;
+import static org.sonar.core.ce.CeTaskCharacteristics.DEVOPS_PLATFORM_PROJECT_IDENTIFIER;
+import static org.sonar.core.ce.CeTaskCharacteristics.DEVOPS_PLATFORM_URL;
+import static org.sonar.core.ce.CeTaskCharacteristics.PULL_REQUEST;
 
 public class SubmitActionTest {
 
@@ -84,7 +88,15 @@ public class SubmitActionTest {
   public void submit_task_with_characteristics() {
     when(reportSubmitter.submit(eq("my_project"), eq("My Project"), anyMap(), any())).thenReturn(A_CE_TASK);
 
-    String[] characteristics = {"branch=foo", "pullRequest=123", "unsupported=bar"};
+    String devOpsPlatformUrl = "https://github.com";
+    String devOpsPlatformProjectIdentifier = "foo/bar";
+    
+    String[] characteristics = {
+      buildCharacteristicParam(BRANCH, "foo"),
+      buildCharacteristicParam(PULL_REQUEST, "123"),
+      buildCharacteristicParam("unsupported", "bar"),
+      buildCharacteristicParam(DEVOPS_PLATFORM_URL, devOpsPlatformUrl),
+      buildCharacteristicParam(DEVOPS_PLATFORM_PROJECT_IDENTIFIER,  devOpsPlatformProjectIdentifier) };
     Ce.SubmitResponse submitResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
       .setParam("projectName", "My Project")
@@ -97,7 +109,16 @@ public class SubmitActionTest {
     verify(reportSubmitter).submit(eq("my_project"), eq("My Project"), map.capture(), any());
 
     // unsupported characteristics are ignored
-    assertThat(map.getValue()).containsExactly(entry("branch", "foo"), entry("pullRequest", "123"));
+
+    assertThat(map.getValue()).containsExactly(
+      entry(BRANCH, "foo"),
+      entry(PULL_REQUEST, "123"),
+      entry(DEVOPS_PLATFORM_URL, devOpsPlatformUrl),
+      entry(DEVOPS_PLATFORM_PROJECT_IDENTIFIER, devOpsPlatformProjectIdentifier));
+  }
+
+  private static String buildCharacteristicParam(String characteristic, String value) {
+    return characteristic + "=" + value;
   }
 
   @Test

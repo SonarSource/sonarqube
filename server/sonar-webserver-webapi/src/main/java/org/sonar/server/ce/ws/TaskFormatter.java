@@ -49,6 +49,9 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH_TYPE;
+import static org.sonar.core.ce.CeTaskCharacteristics.PULL_REQUEST;
 
 /**
  * Converts {@link CeActivityDto} and {@link CeQueueDto} to the protobuf objects
@@ -198,8 +201,8 @@ public class TaskFormatter {
 
     static DtoCache forActivityDtos(DbClient dbClient, DbSession dbSession, Collection<CeActivityDto> ceActivityDtos) {
       Map<String, ComponentDto> componentsByUuid = dbClient.componentDao().selectByUuids(
-          dbSession,
-          getComponentUuidsOfCeActivities(ceActivityDtos))
+        dbSession,
+        getComponentUuidsOfCeActivities(ceActivityDtos))
         .stream()
         .collect(Collectors.toMap(ComponentDto::uuid, Function.identity()));
       Multimap<String, CeTaskCharacteristicDto> characteristicsByTaskUuid = dbClient.ceTaskCharacteristicsDao()
@@ -228,21 +231,21 @@ public class TaskFormatter {
 
     Optional<String> getBranchKey(String taskUuid) {
       return characteristicsByTaskUuid.get(taskUuid).stream()
-        .filter(c -> c.getKey().equals(CeTaskCharacteristicDto.BRANCH_KEY))
+        .filter(c -> c.getKey().equals(BRANCH))
         .map(CeTaskCharacteristicDto::getValue)
         .findAny();
     }
 
     Optional<Common.BranchType> getBranchType(String taskUuid) {
       return characteristicsByTaskUuid.get(taskUuid).stream()
-        .filter(c -> c.getKey().equals(CeTaskCharacteristicDto.BRANCH_TYPE_KEY))
+        .filter(c -> c.getKey().equals(BRANCH_TYPE))
         .map(c -> Common.BranchType.valueOf(c.getValue()))
         .findAny();
     }
 
     Optional<String> getPullRequest(String taskUuid) {
       return characteristicsByTaskUuid.get(taskUuid).stream()
-        .filter(c -> c.getKey().equals(CeTaskCharacteristicDto.PULL_REQUEST))
+        .filter(c -> c.getKey().equals(PULL_REQUEST))
         .map(CeTaskCharacteristicDto::getValue)
         .findAny();
     }

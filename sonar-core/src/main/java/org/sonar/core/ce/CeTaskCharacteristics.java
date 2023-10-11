@@ -17,33 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.ci;
+package org.sonar.core.ce;
 
-import java.util.Optional;
+public class CeTaskCharacteristics {
 
-/**
- * Configuration provided by CI environments like TravisCI or Jenkins.
- *
- * @see CiVendor
- */
-public interface CiConfiguration {
+  public static final String BRANCH = "branch";
+  public static final String BRANCH_TYPE = "branchType";
+  public static final String PULL_REQUEST = "pullRequest";
+  public static final String DEVOPS_PLATFORM_URL = "devOpsPlatformUrl";
+  public static final String DEVOPS_PLATFORM_PROJECT_IDENTIFIER = "devOpsPlatformProjectIdentifier";
 
-  /**
-   * Name of the CI environment
-   */
-  String getCiName();
-
-  /**
-   * The revision that triggered the analysis. It should
-   * be the revision as seen by end-user, but not the necessarily
-   * the effective revision of the clone on disk (merge commit with
-   * base branch for instance).
-   */
-  Optional<String> getScmRevision();
-
-  /**
-   *  The information about DevOpsPlatform that was detected.
-   */
-  Optional<DevOpsPlatformInfo> getDevOpsPlatformInfo();
-
+  private CeTaskCharacteristics() {
+  }
 }

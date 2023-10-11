@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
+import org.sonar.core.ce.CeTaskCharacteristics;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
@@ -69,13 +70,12 @@ import static org.mockito.Mockito.mock;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH_TYPE;
+import static org.sonar.core.ce.CeTaskCharacteristics.PULL_REQUEST;
 import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MAX_EXECUTED_AT;
@@ -398,8 +398,8 @@ public class ActivityActionIT {
     ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH).setKey(branchName));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     CeActivityDto activity = insertActivity("T1", project.projectUuid(), project.mainBranchUuid(), SUCCESS, analysis);
-    insertCharacteristic(activity, BRANCH_KEY, branchName);
-    insertCharacteristic(activity, BRANCH_TYPE_KEY, BRANCH.name());
+    insertCharacteristic(activity, CeTaskCharacteristics.BRANCH, branchName);
+    insertCharacteristic(activity, BRANCH_TYPE, BRANCH.name());
 
     ActivityResponse response = ws.newRequest().executeProtobuf(ActivityResponse.class);
 
@@ -414,11 +414,11 @@ public class ActivityActionIT {
     logInAsSystemAdministrator();
     String branch = "ny_branch";
     CeQueueDto queue1 = insertQueue("T1", null, IN_PROGRESS);
-    insertCharacteristic(queue1, BRANCH_KEY, branch);
-    insertCharacteristic(queue1, BRANCH_TYPE_KEY, BRANCH.name());
+    insertCharacteristic(queue1, CeTaskCharacteristics.BRANCH, branch);
+    insertCharacteristic(queue1, BRANCH_TYPE, BRANCH.name());
     CeQueueDto queue2 = insertQueue("T2", null, PENDING);
-    insertCharacteristic(queue2, BRANCH_KEY, branch);
-    insertCharacteristic(queue2, BRANCH_TYPE_KEY, BRANCH.name());
+    insertCharacteristic(queue2, CeTaskCharacteristics.BRANCH, branch);
+    insertCharacteristic(queue2, BRANCH_TYPE, BRANCH.name());
 
     ActivityResponse response = ws.newRequest()
       .setParam("status", "FAILED,IN_PROGRESS,PENDING")

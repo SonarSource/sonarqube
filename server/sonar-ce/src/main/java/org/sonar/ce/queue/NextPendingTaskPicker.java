@@ -26,10 +26,10 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.config.Configuration;
 import org.sonar.core.config.ComputeEngineProperties;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -38,8 +38,8 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskDtoLight;
 import org.sonar.db.ce.PrOrBranchTask;
 
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH;
+import static org.sonar.core.ce.CeTaskCharacteristics.PULL_REQUEST;
 
 @ComputeEngineSide
 public class NextPendingTaskPicker {
@@ -100,7 +100,7 @@ public class NextPendingTaskPicker {
 
     for (PrOrBranchTask task : queuedPrOrBranches) {
       if ((Objects.equals(task.getBranchType(), PULL_REQUEST) && canRunPr(task, inProgressTasks))
-        || (Objects.equals(task.getBranchType(), BRANCH_KEY) && canRunBranch(task, inProgressTasks))) {
+        || (Objects.equals(task.getBranchType(), BRANCH) && canRunBranch(task, inProgressTasks))) {
         return Optional.of(task);
       }
     }

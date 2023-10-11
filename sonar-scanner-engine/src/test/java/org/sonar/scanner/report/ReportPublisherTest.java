@@ -24,6 +24,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,6 +41,8 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
+import org.sonar.scanner.ci.CiConfiguration;
+import org.sonar.scanner.ci.DevOpsPlatformInfo;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -81,6 +84,7 @@ public class ReportPublisherTest {
   private AnalysisContextReportPublisher contextPublisher = mock(AnalysisContextReportPublisher.class);
   private BranchConfiguration branchConfiguration = mock(BranchConfiguration.class);
   private CeTaskReportDataHolder reportMetadataHolder = mock(CeTaskReportDataHolder.class);
+  private CiConfiguration ciConfiguration = mock(CiConfiguration.class);
   private ReportPublisher underTest;
   private AnalysisWarnings analysisWarnings = mock(AnalysisWarnings.class);
   private FileStructure fileStructure;
@@ -99,7 +103,7 @@ public class ReportPublisherTest {
       .resolve("folder")
       .resolve("report-task.txt"));
     underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, reportTempFolder,
-      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider, fileStructure);
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider, fileStructure, ciConfiguration);
   }
 
   @Test
@@ -196,7 +200,7 @@ public class ReportPublisherTest {
     when(branchConfiguration.branchType()).thenReturn(BRANCH);
     when(branchConfiguration.branchName()).thenReturn("branch-6.7");
     ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
-      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider, fileStructure);
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider, fileStructure, ciConfiguration);
 
     underTest.prepareAndDumpMetadata("TASK-123");
 
@@ -217,7 +221,7 @@ public class ReportPublisherTest {
     when(branchConfiguration.pullRequestKey()).thenReturn("105");
 
     ReportPublisher underTest = new ReportPublisher(properties, wsClient, server, contextPublisher, moduleHierarchy, mode, mock(TempFolder.class),
-      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider, fileStructure);
+      new ReportPublisherStep[0], branchConfiguration, reportMetadataHolder, analysisWarnings, javaArchitectureInformationProvider, fileStructure, ciConfiguration);
 
     underTest.prepareAndDumpMetadata("TASK-123");
 
@@ -316,6 +320,7 @@ public class ReportPublisherTest {
     WsRequest wsRequest = capture.getValue();
     assertThat(wsRequest.getParameters().getKeys()).containsOnly("projectKey");
     assertThat(wsRequest.getParameters().getValue("projectKey")).isEqualTo("org.sonarsource.sonarqube:sonarqube");
+    assertThat(wsRequest.getParameters().getValues("characteristic")).isEmpty();
   }
 
   @Test
@@ -376,6 +381,40 @@ public class ReportPublisherTest {
     assertThat(wsRequest.getParameters().getValues("projectKey")).containsExactly("org.sonarsource.sonarqube:sonarqube");
     assertThat(wsRequest.getParameters().getValues("characteristic"))
       .containsExactlyInAnyOrder("pullRequest=" + pullRequestId);
+  }
+
+  @Test
+  public void upload_whenDevOpsPlatformInformationPresentInCiConfiguration_shouldUploadDevOpsPlatformInfoAsCharacteristic() throws Exception {
+    String branchName = "feature";
+    String pullRequestId = "pr-123";
+    DevOpsPlatformInfo devOpsPlatformInfo = new DevOpsPlatformInfo("https://devops.example.com", "projectId");
+
+    when(branchConfiguration.branchName()).thenReturn(branchName);
+    when(branchConfiguration.branchType()).thenReturn(PULL_REQUEST);
+    when(branchConfiguration.pullRequestKey()).thenReturn(pullRequestId);
+    when(ciConfiguration.getDevOpsPlatformInfo()).thenReturn(Optional.of(devOpsPlatformInfo));
+
+    WsResponse response = mock(WsResponse.class);
+
+    PipedOutputStream out = new PipedOutputStream();
+    PipedInputStream in = new PipedInputStream(out);
+    Ce.SubmitResponse.newBuilder().build().writeTo(out);
+    out.close();
+
+    when(response.failIfNotSuccessful()).thenReturn(response);
+    when(response.contentStream()).thenReturn(in);
+
+    when(wsClient.call(any(WsRequest.class))).thenReturn(response);
+    underTest.upload(reportTempFolder.newFile());
+
+    ArgumentCaptor<WsRequest> capture = ArgumentCaptor.forClass(WsRequest.class);
+    verify(wsClient).call(capture.capture());
+
+    WsRequest wsRequest = capture.getValue();
+    assertThat(wsRequest.getParameters().getValues("characteristic"))
+      .contains(
+        "devOpsPlatformUrl=" + devOpsPlatformInfo.getUrl(),
+        "devOpsPlatformProjectIdentifier=" + devOpsPlatformInfo.getProjectIdentifier());
   }
 
   @Test

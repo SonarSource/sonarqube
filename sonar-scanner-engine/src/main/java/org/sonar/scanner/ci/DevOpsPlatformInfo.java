@@ -19,31 +19,22 @@
  */
 package org.sonar.scanner.ci;
 
-import java.util.Optional;
+public class DevOpsPlatformInfo {
 
-/**
- * Configuration provided by CI environments like TravisCI or Jenkins.
- *
- * @see CiVendor
- */
-public interface CiConfiguration {
+  private final String url;
+  private final String projectIdentifier;
 
-  /**
-   * Name of the CI environment
-   */
-  String getCiName();
+  public DevOpsPlatformInfo(String url, String projectIdentifier) {
+    this.url = url;
+    this.projectIdentifier = projectIdentifier;
+  }
 
-  /**
-   * The revision that triggered the analysis. It should
-   * be the revision as seen by end-user, but not the necessarily
-   * the effective revision of the clone on disk (merge commit with
-   * base branch for instance).
-   */
-  Optional<String> getScmRevision();
+  public String getUrl() {
+    return url;
+  }
 
-  /**
-   *  The information about DevOpsPlatform that was detected.
-   */
-  Optional<DevOpsPlatformInfo> getDevOpsPlatformInfo();
+  public String getProjectIdentifier() {
+    return projectIdentifier;
+  }
 
 }

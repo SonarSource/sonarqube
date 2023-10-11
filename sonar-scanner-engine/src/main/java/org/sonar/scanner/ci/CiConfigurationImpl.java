@@ -27,21 +27,33 @@ import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 public class CiConfigurationImpl implements CiConfiguration {
   private final String ciName;
 
-  @Nullable
-  private final String scmRevision;
+  private final Optional<String> scmRevision;
+  private final Optional<DevOpsPlatformInfo> devOpsPlatformInfo;
 
   public CiConfigurationImpl(@Nullable String scmRevision, String ciName) {
-    this.scmRevision = defaultIfBlank(scmRevision, null);
+    this.scmRevision = Optional.ofNullable(defaultIfBlank(scmRevision, null));
     this.ciName = ciName;
+    this.devOpsPlatformInfo = Optional.empty();
+  }
+
+  public CiConfigurationImpl(@Nullable String scmRevision, String ciName, DevOpsPlatformInfo devOpsPlatformInfo) {
+    this.scmRevision = Optional.ofNullable(defaultIfBlank(scmRevision, null));
+    this.ciName = ciName;
+    this.devOpsPlatformInfo = Optional.of(devOpsPlatformInfo);
   }
 
   @Override
   public Optional<String> getScmRevision() {
-    return Optional.ofNullable(scmRevision);
+    return scmRevision;
   }
 
   @Override
   public String getCiName() {
     return ciName;
+  }
+
+  @Override
+  public Optional<DevOpsPlatformInfo> getDevOpsPlatformInfo() {
+    return devOpsPlatformInfo;
   }
 }

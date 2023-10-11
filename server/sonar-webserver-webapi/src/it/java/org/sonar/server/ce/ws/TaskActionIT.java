@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.ce.CeTaskCharacteristics;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
@@ -36,10 +37,10 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskMessageDto;
-import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
@@ -57,8 +58,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.SCAN;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH_TYPE;
 import static org.sonar.db.component.BranchType.BRANCH;
 
 public class TaskActionIT {
@@ -174,8 +174,8 @@ public class TaskActionIT {
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(BRANCH).setKey(branchName));
     db.components().insertSnapshot(branch);
     CeActivityDto activity = createAndPersistArchivedTask(mainBranch);
-    insertCharacteristic(activity, BRANCH_KEY, branchName);
-    insertCharacteristic(activity, BRANCH_TYPE_KEY, BRANCH.name());
+    insertCharacteristic(activity, CeTaskCharacteristics.BRANCH, branchName);
+    insertCharacteristic(activity, BRANCH_TYPE, BRANCH.name());
 
     Ce.TaskResponse taskResponse = ws.newRequest()
       .setParam("id", SOME_TASK_UUID)
@@ -193,8 +193,8 @@ public class TaskActionIT {
 
     String branch = "my_branch";
     CeQueueDto queueDto = createAndPersistQueueTask(null, user);
-    insertCharacteristic(queueDto, BRANCH_KEY, branch);
-    insertCharacteristic(queueDto, BRANCH_TYPE_KEY, BRANCH.name());
+    insertCharacteristic(queueDto, CeTaskCharacteristics.BRANCH, branch);
+    insertCharacteristic(queueDto, BRANCH_TYPE, BRANCH.name());
 
     Ce.TaskResponse taskResponse = ws.newRequest()
       .setParam("id", SOME_TASK_UUID)

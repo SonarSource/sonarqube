@@ -34,16 +34,18 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import okhttp3.HttpUrl;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.core.ce.CeTaskCharacteristics;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
+import org.sonar.scanner.ci.CiConfiguration;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
@@ -61,6 +63,9 @@ import org.sonarqube.ws.client.WsResponse;
 import static java.net.URLEncoder.encode;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH_TYPE;
+import static org.sonar.core.ce.CeTaskCharacteristics.DEVOPS_PLATFORM_PROJECT_IDENTIFIER;
+import static org.sonar.core.ce.CeTaskCharacteristics.DEVOPS_PLATFORM_URL;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 import static org.sonar.core.util.FileUtils.humanReadableByteCountSI;
 import static org.sonar.scanner.scan.branch.BranchType.PULL_REQUEST;
@@ -93,10 +98,12 @@ public class ReportPublisher implements Startable {
   private final AnalysisWarnings analysisWarnings;
   private final JavaArchitectureInformationProvider javaArchitectureInformationProvider;
 
+  private final CiConfiguration ciConfiguration;
+
   public ReportPublisher(ScanProperties properties, DefaultScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
     InputModuleHierarchy moduleHierarchy, GlobalAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers, BranchConfiguration branchConfiguration,
     CeTaskReportDataHolder ceTaskReportDataHolder, AnalysisWarnings analysisWarnings,
-    JavaArchitectureInformationProvider javaArchitectureInformationProvider, FileStructure fileStructure) {
+    JavaArchitectureInformationProvider javaArchitectureInformationProvider, FileStructure fileStructure, CiConfiguration ciConfiguration) {
     this.wsClient = wsClient;
     this.server = server;
     this.contextPublisher = contextPublisher;
@@ -112,6 +119,7 @@ public class ReportPublisher implements Startable {
     this.javaArchitectureInformationProvider = javaArchitectureInformationProvider;
     this.writer = new ScannerReportWriter(fileStructure);
     this.reader = new ScannerReportReader(fileStructure);
+    this.ciConfiguration = ciConfiguration;
   }
 
   @Override
@@ -211,11 +219,15 @@ public class ReportPublisher implements Startable {
 
     String branchName = branchConfiguration.branchName();
     if (branchName != null) {
+      ciConfiguration.getDevOpsPlatformInfo().ifPresent(devOpsPlatformInfo -> {
+        post.setParam(CHARACTERISTIC, buildCharacteristicParam(DEVOPS_PLATFORM_URL ,devOpsPlatformInfo.getUrl()));
+        post.setParam(CHARACTERISTIC, buildCharacteristicParam(DEVOPS_PLATFORM_PROJECT_IDENTIFIER, devOpsPlatformInfo.getProjectIdentifier()));
+      });
       if (branchConfiguration.branchType() != PULL_REQUEST) {
-        post.setParam(CHARACTERISTIC, "branch=" + branchName);
-        post.setParam(CHARACTERISTIC, "branchType=" + branchConfiguration.branchType().name());
+        post.setParam(CHARACTERISTIC, buildCharacteristicParam(CeTaskCharacteristics.BRANCH, branchName));
+        post.setParam(CHARACTERISTIC, buildCharacteristicParam(BRANCH_TYPE, branchConfiguration.branchType().name()));
       } else {
-        post.setParam(CHARACTERISTIC, "pullRequest=" + branchConfiguration.pullRequestKey());
+        post.setParam(CHARACTERISTIC, buildCharacteristicParam(CeTaskCharacteristics.PULL_REQUEST, branchConfiguration.pullRequestKey()));
       }
     }
 
@@ -240,6 +252,10 @@ public class ReportPublisher implements Startable {
       long stopTime = System.currentTimeMillis();
       LOG.info("Analysis report uploaded in " + (stopTime - startTime) + "ms");
     }
+  }
+
+  private static String buildCharacteristicParam(String characteristic, String value) {
+    return characteristic + "=" + value;
   }
 
   void prepareAndDumpMetadata(String taskId) {

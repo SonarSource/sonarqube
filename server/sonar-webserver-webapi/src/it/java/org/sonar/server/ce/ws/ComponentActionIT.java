@@ -27,17 +27,18 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.ce.CeTaskCharacteristics;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskMessageDto;
-import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.TestComponentFinder;
@@ -55,11 +56,10 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH_TYPE;
 import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
 
@@ -180,8 +180,8 @@ public class ComponentActionIT {
     ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH).setKey(branchName));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
     CeActivityDto activity = insertActivity("T1", project.getMainBranchComponent(), project.getProjectDto(), SUCCESS, analysis);
-    insertCharacteristic(activity, BRANCH_KEY, branchName);
-    insertCharacteristic(activity, BRANCH_TYPE_KEY, BRANCH.name());
+    insertCharacteristic(activity, CeTaskCharacteristics.BRANCH, branchName);
+    insertCharacteristic(activity, BRANCH_TYPE, BRANCH.name());
 
     Ce.ComponentResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.projectKey())
@@ -200,11 +200,11 @@ public class ComponentActionIT {
     String branchName = randomAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH).setKey(branchName));
     CeQueueDto queue1 = insertQueue("T1", project.getMainBranchComponent(), project.getProjectDto(), IN_PROGRESS);
-    insertCharacteristic(queue1, BRANCH_KEY, branchName);
-    insertCharacteristic(queue1, BRANCH_TYPE_KEY, BRANCH.name());
+    insertCharacteristic(queue1, CeTaskCharacteristics.BRANCH, branchName);
+    insertCharacteristic(queue1, BRANCH_TYPE, BRANCH.name());
     CeQueueDto queue2 = insertQueue("T2", project.getMainBranchComponent(), project.getProjectDto(), PENDING);
-    insertCharacteristic(queue2, BRANCH_KEY, branchName);
-    insertCharacteristic(queue2, BRANCH_TYPE_KEY, BRANCH.name());
+    insertCharacteristic(queue2, CeTaskCharacteristics.BRANCH, branchName);
+    insertCharacteristic(queue2, BRANCH_TYPE, BRANCH.name());
 
     Ce.ComponentResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, branch.getKey())
@@ -226,14 +226,14 @@ public class ComponentActionIT {
     String branchName1 = "Branch1";
     ComponentDto branch1 = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH).setKey("branch1"));
     CeQueueDto branchQueue1 = insertQueue("Branch1", project.getMainBranchComponent(), project.getProjectDto(), IN_PROGRESS);
-    insertCharacteristic(branchQueue1, BRANCH_KEY, branchName1);
-    insertCharacteristic(branchQueue1, BRANCH_TYPE_KEY, BRANCH.name());
+    insertCharacteristic(branchQueue1, CeTaskCharacteristics.BRANCH, branchName1);
+    insertCharacteristic(branchQueue1, BRANCH_TYPE, BRANCH.name());
 
     ComponentDto branch2 = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(BRANCH).setKey("branch2"));
     String branchName2 = "Branch2";
     CeQueueDto branchQueue2 = insertQueue("Branch2", project.getMainBranchComponent(), project.getProjectDto(), PENDING);
-    insertCharacteristic(branchQueue2, BRANCH_KEY, branchName2);
-    insertCharacteristic(branchQueue2, BRANCH_TYPE_KEY, BRANCH.name());
+    insertCharacteristic(branchQueue2, CeTaskCharacteristics.BRANCH, branchName2);
+    insertCharacteristic(branchQueue2, BRANCH_TYPE, BRANCH.name());
 
     Ce.ComponentResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.projectKey())

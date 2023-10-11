@@ -65,6 +65,11 @@ public class CiConfigurationProvider {
     }
 
     @Override
+    public Optional<DevOpsPlatformInfo> getDevOpsPlatformInfo() {
+      return Optional.empty();
+    }
+
+    @Override
     public String getCiName() {
       return "undetected";
     }

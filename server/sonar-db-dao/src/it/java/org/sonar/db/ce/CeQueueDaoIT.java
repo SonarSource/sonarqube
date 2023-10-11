@@ -46,12 +46,12 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH;
+import static org.sonar.core.ce.CeTaskCharacteristics.PULL_REQUEST;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 import static org.sonar.db.ce.CeQueueTesting.newCeQueueDto;
 import static org.sonar.db.ce.CeQueueTesting.reset;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
 
 public class CeQueueDaoIT {
   private static final long INIT_TIME = 1_450_000_000_000L;
@@ -295,7 +295,7 @@ public class CeQueueDaoIT {
     List<CeQueueDto> notPendingForWorker = underTestAlwaysIncreasingSystem2.selectNotPendingForWorker(db.getSession(), WORKER_UUID_1);
 
     assertThat(notPendingForWorker).extracting(CeQueueDto::getUuid)
-            .contains(inProgressTaskWorker1.getUuid());
+      .contains(inProgressTaskWorker1.getUuid());
   }
 
   @Test
@@ -655,7 +655,7 @@ public class CeQueueDaoIT {
     assertThat(prOrBranchTasks).hasSize(1);
     assertThat(prOrBranchTasks.get(0))
       .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid, PrOrBranchTask::getTaskType)
-      .containsExactly(BRANCH_KEY, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
+      .containsExactly(BRANCH, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
   }
 
   @Test
@@ -667,12 +667,12 @@ public class CeQueueDaoIT {
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(123L));
     List<PrOrBranchTask> prOrBranchTasks = underTest.selectOldestPendingPrOrBranch(db.getSession());
-    insertCharacteristic(BRANCH_KEY, "123", "c1", TASK_UUID_1);
+    insertCharacteristic(BRANCH, "123", "c1", TASK_UUID_1);
 
     assertThat(prOrBranchTasks).hasSize(1);
     assertThat(prOrBranchTasks.get(0))
       .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid, PrOrBranchTask::getTaskType)
-      .containsExactly(BRANCH_KEY, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
+      .containsExactly(BRANCH, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
   }
 
   @Test
@@ -725,7 +725,7 @@ public class CeQueueDaoIT {
     assertThat(prOrBranchTasks).hasSize(1);
     assertThat(prOrBranchTasks.get(0))
       .extracting(PrOrBranchTask::getBranchType, PrOrBranchTask::getComponentUuid, PrOrBranchTask::getEntityUuid, PrOrBranchTask::getTaskType)
-      .containsExactly(BRANCH_KEY, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
+      .containsExactly(BRANCH, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
   }
 
   private void insertPending(CeQueueDto dto) {

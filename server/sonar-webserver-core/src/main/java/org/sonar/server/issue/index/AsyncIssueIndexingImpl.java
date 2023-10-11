@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTaskSubmit;
+import org.sonar.core.ce.CeTaskCharacteristics;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -41,9 +42,8 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.SnapshotDto;
 
 import static java.util.stream.Collectors.toCollection;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH_TYPE;
+import static org.sonar.core.ce.CeTaskCharacteristics.PULL_REQUEST;
 import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
 
 public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
@@ -181,8 +181,8 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
 
   private CeTaskSubmit buildTaskSubmit(BranchDto branch) {
     Map<String, String> characteristics = new HashMap<>();
-    characteristics.put(branch.getBranchType() == BranchType.BRANCH ? BRANCH_KEY : PULL_REQUEST, branch.getKey());
-    characteristics.put(BRANCH_TYPE_KEY, branch.getBranchType().name());
+    characteristics.put(branch.getBranchType() == BranchType.BRANCH ? CeTaskCharacteristics.BRANCH : PULL_REQUEST, branch.getKey());
+    characteristics.put(BRANCH_TYPE, branch.getBranchType().name());
 
     return ceQueue.prepareSubmit()
       .setType(BRANCH_ISSUE_SYNC)
