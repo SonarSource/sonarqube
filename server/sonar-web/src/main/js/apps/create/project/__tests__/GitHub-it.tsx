@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
@@ -26,8 +26,9 @@ import { getGithubRepositories } from '../../../../api/alm-integrations';
 import AlmIntegrationsServiceMock from '../../../../api/mocks/AlmIntegrationsServiceMock';
 import AlmSettingsServiceMock from '../../../../api/mocks/AlmSettingsServiceMock';
 import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitionServiceMock';
+import { mockGitHubRepository } from '../../../../helpers/mocks/alm-integrations';
 import { renderApp } from '../../../../helpers/testReactTestingUtils';
-import { byLabelText, byText } from '../../../../helpers/testSelector';
+import { byLabelText, byRole, byText } from '../../../../helpers/testSelector';
 import CreateProjectPage from '../CreateProjectPage';
 
 jest.mock('../../../../api/alm-integrations');
@@ -43,6 +44,19 @@ const ui = {
   githubCreateProjectButton: byText('onboarding.create_project.select_method.github'),
   instanceSelector: byLabelText(/alm.configuration.selector.label/),
   organizationSelector: byLabelText('onboarding.create_project.github.choose_organization'),
+  project1: byRole('listitem', { name: 'Github repo 1' }),
+  project1Checkbox: byRole('listitem', { name: 'Github repo 1' }).byRole('checkbox'),
+  project2: byRole('listitem', { name: 'Github repo 2' }),
+  project2Checkbox: byRole('listitem', { name: 'Github repo 2' }).byRole('checkbox'),
+  project3: byRole('listitem', { name: 'Github repo 3' }),
+  project3Checkbox: byRole('listitem', { name: 'Github repo 3' }).byRole('checkbox'),
+  checkAll: byRole('checkbox', { name: 'onboarding.create_project.select_all_repositories' }),
+  importButton: byRole('button', { name: 'onboarding.create_project.import' }),
+  newCodeTitle: byRole('heading', { name: 'onboarding.create_project.new_code_definition.title' }),
+  createProjectButton: byRole('button', {
+    name: 'onboarding.create_project.new_code_definition.create_project',
+  }),
+  globalSettingRadio: byRole('radio', { name: 'new_code_definition.global_setting' }),
 };
 
 beforeAll(() => {
@@ -92,7 +106,6 @@ it('should not redirect to github when url is malformated', async () => {
 
 it('should show import project feature when the authentication is successfull', async () => {
   const user = userEvent.setup();
-  let repoItem;
 
   renderCreateProject('project/create?mode=github&almInstance=conf-github-2&code=213321213');
 
@@ -100,42 +113,98 @@ it('should show import project feature when the authentication is successfull', 
 
   await selectEvent.select(ui.organizationSelector.get(), [/org-1/]);
 
-  expect(screen.getByText('Github repo 1')).toBeInTheDocument();
-  expect(screen.getByText('Github repo 2')).toBeInTheDocument();
+  expect(await ui.project1.find()).toBeInTheDocument();
+  expect(ui.project2.get()).toBeInTheDocument();
+  expect(ui.checkAll.get()).not.toBeChecked();
 
-  repoItem = screen.getByRole('row', {
-    name: 'Github repo 1 onboarding.create_project.see_on_github onboarding.create_project.repository_imported',
-  });
+  expect(ui.project1Checkbox.get()).toBeChecked();
+  expect(ui.project1Checkbox.get()).toBeDisabled();
 
   expect(
-    within(repoItem).getByText('onboarding.create_project.repository_imported'),
+    ui.project1.byText('onboarding.create_project.repository_imported').get(),
   ).toBeInTheDocument();
 
-  expect(within(repoItem).getByRole('link', { name: /Github repo 1/ })).toBeInTheDocument();
-  expect(within(repoItem).getByRole('link', { name: /Github repo 1/ })).toHaveAttribute(
+  expect(ui.project1.byRole('link', { name: /Github repo 1/ }).get()).toBeInTheDocument();
+  expect(ui.project1.byRole('link', { name: /Github repo 1/ }).get()).toHaveAttribute(
     'href',
     '/dashboard?id=key123',
   );
 
-  repoItem = screen.getByRole('row', {
-    name: 'Github repo 2 onboarding.create_project.see_on_github onboarding.create_project.import',
-  });
+  expect(ui.project2Checkbox.get()).not.toBeChecked();
+  expect(ui.project2Checkbox.get()).toBeEnabled();
 
-  const importButton = screen.getByText('onboarding.create_project.import');
-  await user.click(importButton);
+  expect(ui.importButton.query()).not.toBeInTheDocument();
+  await user.click(ui.project2Checkbox.get());
+  await waitFor(() => expect(ui.checkAll.get()).toBeChecked());
 
-  expect(
-    screen.getByRole('heading', { name: 'onboarding.create_project.new_code_definition.title' }),
-  ).toBeInTheDocument();
+  expect(ui.importButton.get()).toBeInTheDocument();
+  await user.click(ui.importButton.get());
 
-  await user.click(screen.getByRole('radio', { name: 'new_code_definition.global_setting' }));
-  await user.click(
-    screen.getByRole('button', {
-      name: 'onboarding.create_project.new_code_definition.create_project',
-    }),
-  );
+  expect(await ui.newCodeTitle.find()).toBeInTheDocument();
+
+  await user.click(ui.globalSettingRadio.get());
+
+  expect(ui.createProjectButton.get()).toBeEnabled();
+  await user.click(ui.createProjectButton.get());
 
   expect(await screen.findByText('/dashboard?id=key')).toBeInTheDocument();
+});
+
+it('should import several projects', async () => {
+  const user = userEvent.setup();
+
+  almIntegrationHandler.setGithubRepositories([
+    mockGitHubRepository({ name: 'Github repo 1', key: 'key1' }),
+    mockGitHubRepository({ name: 'Github repo 2', key: 'key2' }),
+    mockGitHubRepository({ name: 'Github repo 3', key: 'key3' }),
+  ]);
+
+  renderCreateProject('project/create?mode=github&almInstance=conf-github-2&code=213321213');
+
+  expect(await ui.instanceSelector.find()).toBeInTheDocument();
+
+  await selectEvent.select(ui.organizationSelector.get(), [/org-1/]);
+
+  expect(await ui.project1.find()).toBeInTheDocument();
+  expect(ui.project1Checkbox.get()).not.toBeChecked();
+  expect(ui.project2Checkbox.get()).not.toBeChecked();
+  expect(ui.project3Checkbox.get()).not.toBeChecked();
+  expect(ui.checkAll.get()).not.toBeChecked();
+  expect(ui.importButton.query()).not.toBeInTheDocument();
+
+  await user.click(ui.project1Checkbox.get());
+
+  expect(ui.project1Checkbox.get()).toBeChecked();
+  expect(ui.project2Checkbox.get()).not.toBeChecked();
+  expect(ui.project3Checkbox.get()).not.toBeChecked();
+  expect(ui.checkAll.get()).not.toBeChecked();
+  expect(ui.importButton.get()).toBeInTheDocument();
+
+  await user.click(ui.checkAll.get());
+
+  expect(ui.project1Checkbox.get()).toBeChecked();
+  expect(ui.project2Checkbox.get()).toBeChecked();
+  expect(ui.project3Checkbox.get()).toBeChecked();
+  expect(ui.checkAll.get()).toBeChecked();
+  expect(ui.importButton.get()).toBeInTheDocument();
+
+  await user.click(ui.checkAll.get());
+
+  expect(ui.project1Checkbox.get()).not.toBeChecked();
+  expect(ui.project2Checkbox.get()).not.toBeChecked();
+  expect(ui.project3Checkbox.get()).not.toBeChecked();
+  expect(ui.checkAll.get()).not.toBeChecked();
+  expect(ui.importButton.query()).not.toBeInTheDocument();
+
+  await user.click(ui.project1Checkbox.get());
+  await user.click(ui.project2Checkbox.get());
+
+  expect(ui.importButton.get()).toBeInTheDocument();
+  await user.click(ui.importButton.get());
+
+  expect(await ui.newCodeTitle.find()).toBeInTheDocument();
+
+  // TBD
 });
 
 it('should show search filter when the authentication is successful', async () => {

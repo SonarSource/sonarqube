@@ -82,7 +82,6 @@ export function mockGitHubRepository(overrides: Partial<GithubRepository> = {}):
     id: 'id1234',
     key: 'key3456',
     name: 'repository 1',
-    sqProjectKey: '',
     url: 'https://github.com/owner/repo1',
     ...overrides,
   };
@@ -95,7 +94,6 @@ export function mockGitlabProject(overrides: Partial<GitlabProject> = {}): Gitla
     slug: 'awesome-project-exclamation',
     pathName: 'Company / Best Projects',
     pathSlug: 'company/best-projects',
-    sqProjectKey: '',
     url: 'https://gitlab.company.com/best-projects/awesome-project-exclamation',
     ...overrides,
   };

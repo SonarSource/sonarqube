@@ -86,7 +86,7 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
           <LightPrimary className="sw-body-sm">{translate('no_results')}</LightPrimary>
         </div>
       ) : (
-        <div className="sw-flex sw-flex-col sw-gap-3">
+        <ul className="sw-flex sw-flex-col sw-gap-3">
           {projects.map((project) => (
             <AlmRepoItem
               key={project.id}
@@ -108,7 +108,7 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
               }
             />
           ))}
-        </div>
+        </ul>
       )}
       <ListFooter
         className="sw-mb-10"

@@ -131,7 +131,7 @@ it('should show import project feature when PAT is already set', async () => {
   expect(screen.getByText('BitbucketCloud Repo 1')).toBeInTheDocument();
   expect(screen.getByText('BitbucketCloud Repo 2')).toBeInTheDocument();
 
-  projectItem = screen.getByRole('row', { name: /BitbucketCloud Repo 1/ });
+  projectItem = screen.getByRole('listitem', { name: /BitbucketCloud Repo 1/ });
   expect(
     within(projectItem).getByText('onboarding.create_project.repository_imported'),
   ).toBeInTheDocument();
@@ -144,7 +144,7 @@ it('should show import project feature when PAT is already set', async () => {
     '/dashboard?id=key',
   );
 
-  projectItem = screen.getByRole('row', { name: /BitbucketCloud Repo 2/ });
+  projectItem = screen.getByRole('listitem', { name: /BitbucketCloud Repo 2/ });
   const setupButton = within(projectItem).getByRole('button', {
     name: 'onboarding.create_project.import',
   });

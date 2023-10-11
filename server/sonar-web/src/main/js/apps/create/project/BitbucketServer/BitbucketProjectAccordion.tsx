@@ -85,7 +85,7 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
               </FlagMessage>
             )}
 
-            <div className="sw-flex sw-flex-col sw-gap-3">
+            <ul className="sw-flex sw-flex-col sw-gap-3">
               {repositories.map((r) => (
                 <AlmRepoItem
                   key={r.name}
@@ -96,7 +96,7 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
                   primaryTextNode={<span>{r.name}</span>}
                 />
               ))}
-            </div>
+            </ul>
           </div>
 
           {!showingAllRepositories && repositoryCount > 0 && (

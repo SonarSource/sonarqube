@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Accordion, Spinner, FlagMessage, Link, SearchHighlighter } from 'design-system';
+import { Accordion, FlagMessage, Link, SearchHighlighter, Spinner } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import ListFooter from '../../../../components/controls/ListFooter';
@@ -93,7 +93,7 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
             </FlagMessage>
           ) : (
             <>
-              <div className="sw-flex sw-flex-col sw-gap-3">
+              <ul className="sw-flex sw-flex-col sw-gap-3">
                 {limitedRepositories.map((r) => (
                   <AlmRepoItem
                     key={r.name}
@@ -108,7 +108,7 @@ export default function AzureProjectAccordion(props: AzureProjectAccordionProps)
                     }
                   />
                 ))}
-              </div>
+              </ul>
               <ListFooter
                 count={limitedRepositories.length}
                 total={repositories.length}

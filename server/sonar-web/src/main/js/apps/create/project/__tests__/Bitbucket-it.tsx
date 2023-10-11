@@ -121,14 +121,14 @@ it('should show import project feature when PAT is already set', async () => {
   await user.click(projectItem);
 
   expect(
-    screen.getByRole('row', {
-      name: 'Bitbucket Repo 1 onboarding.create_project.repository_imported',
+    screen.getByRole('listitem', {
+      name: 'Bitbucket Repo 1',
     }),
   ).toBeInTheDocument();
 
   expect(
-    screen.getByRole('row', {
-      name: 'Bitbucket Repo 2 onboarding.create_project.import',
+    screen.getByRole('listitem', {
+      name: 'Bitbucket Repo 2',
     }),
   ).toBeInTheDocument();
 

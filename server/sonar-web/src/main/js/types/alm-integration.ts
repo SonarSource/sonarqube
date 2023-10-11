@@ -69,7 +69,7 @@ export interface GithubRepository {
   key: string;
   name: string;
   url: string;
-  sqProjectKey: string;
+  sqProjectKey?: string;
 }
 
 export interface GitlabProject {

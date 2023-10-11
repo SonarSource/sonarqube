@@ -101,14 +101,14 @@ it('should show import project feature when PAT is already set', async () => {
   expect(screen.getByText('Azure project 2')).toBeInTheDocument();
 
   expect(
-    screen.getByRole('row', {
-      name: 'Azure repo 1 onboarding.create_project.repository_imported',
+    screen.getByRole('listitem', {
+      name: 'Azure repo 1',
     }),
   ).toBeInTheDocument();
 
   expect(
-    screen.getByRole('row', {
-      name: 'Azure repo 2 onboarding.create_project.import',
+    screen.getByRole('listitem', {
+      name: 'Azure repo 2',
     }),
   ).toBeInTheDocument();
 

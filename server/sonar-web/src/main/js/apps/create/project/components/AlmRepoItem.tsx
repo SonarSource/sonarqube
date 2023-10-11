@@ -22,28 +22,40 @@ import styled from '@emotion/styled';
 import classNames from 'classnames';
 import {
   ButtonSecondary,
-  Card,
   CheckIcon,
+  Checkbox,
   DiscreetLink,
   LightLabel,
   LightPrimary,
   Link,
-  themeColor,
+  themeBorder,
 } from 'design-system';
 import React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { getProjectUrl } from '../../../../helpers/urls';
 
-interface AlmRepoItemProps {
+type AlmRepoItemProps = {
   primaryTextNode: React.ReactNode;
   secondaryTextNode?: React.ReactNode;
   sqProjectKey?: string;
   almKey: string;
   almUrl?: string;
   almUrlText?: string;
-  onImport: (key: string) => void;
   almIconSrc: string;
-}
+} & (
+  | {
+      multiple: true;
+      onCheck: (key: string) => void;
+      selected: boolean;
+      onImport?: never;
+    }
+  | {
+      multiple?: false;
+      onCheck?: never;
+      selected?: never;
+      onImport: (key: string) => void;
+    }
+);
 
 export default function AlmRepoItem({
   almKey,
@@ -53,19 +65,34 @@ export default function AlmRepoItem({
   almUrl,
   almUrlText,
   almIconSrc,
+  multiple,
+  selected,
+  onCheck,
   onImport,
 }: AlmRepoItemProps) {
+  const labelId = `${almKey.replace(/\s/g, '_')}-label`;
   return (
-    <StyledCard
-      key={almKey}
-      role="row"
-      className={classNames('sw-flex sw-px-4', {
-        'sw-py-4': sqProjectKey !== undefined,
-        'sw-py-2': sqProjectKey === undefined,
+    <RepositoryItem
+      selected={selected}
+      imported={sqProjectKey !== undefined}
+      aria-labelledby={labelId}
+      onClick={() => multiple && sqProjectKey === undefined && onCheck(almKey)}
+      className={classNames('sw-flex sw-items-center sw-w-full sw-p-4 sw-rounded-1', {
+        'sw-py-4': multiple || sqProjectKey !== undefined,
+        'sw-py-2': !multiple && sqProjectKey === undefined,
       })}
     >
+      {multiple && (
+        <Checkbox
+          checked={selected || sqProjectKey !== undefined}
+          className="sw-p-1 sw-mr-2"
+          disabled={sqProjectKey !== undefined}
+          onCheck={() => onCheck(almKey)}
+          onClick={(e: React.MouseEvent<HTMLLabelElement>) => e.stopPropagation()}
+        />
+      )}
       <div className="sw-w-[70%] sw-min-w-0 sw-flex sw-mr-1">
-        <div className="sw-max-w-[50%] sw-flex sw-items-center">
+        <div id={labelId} className="sw-max-w-[50%] sw-flex sw-items-center">
           <img
             alt="" // Should be ignored by screen readers
             className="sw-h-4 sw-w-4 sw-mr-2"
@@ -109,19 +136,26 @@ export default function AlmRepoItem({
             </LightPrimary>
           </div>
         ) : (
-          <ButtonSecondary
-            onClick={() => {
-              onImport(almKey);
-            }}
-          >
-            {translate('onboarding.create_project.import')}
-          </ButtonSecondary>
+          <>
+            {!multiple && (
+              <ButtonSecondary
+                onClick={() => {
+                  onImport(almKey);
+                }}
+              >
+                {translate('onboarding.create_project.import')}
+              </ButtonSecondary>
+            )}
+          </>
         )}
       </div>
-    </StyledCard>
+    </RepositoryItem>
   );
 }
 
-const StyledCard = styled(Card)`
-  border-color: ${themeColor('almCardBorder')};
+const RepositoryItem = styled.li<{ selected?: boolean; imported?: boolean }>`
+  box-sizing: border-box;
+  border: ${({ selected }) =>
+    selected ? themeBorder('default', 'primary') : themeBorder('default')};
+  cursor: ${({ imported }) => imported && 'default'};
 `;

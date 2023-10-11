@@ -90,7 +90,7 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
           <LightPrimary className="sw-body-sm">{translate('no_results')}</LightPrimary>
         </div>
       ) : (
-        <div className="sw-flex sw-flex-col sw-gap-3">
+        <ul className="sw-flex sw-flex-col sw-gap-3">
           {repositories.map((r) => (
             <AlmRepoItem
               key={r.uuid}
@@ -104,7 +104,7 @@ export default function BitbucketCloudSearchForm(props: BitbucketCloudSearchForm
               secondaryTextNode={<span title={r.projectKey}>{r.projectKey}</span>}
             />
           ))}
-        </div>
+        </ul>
       )}
 
       <ListFooter

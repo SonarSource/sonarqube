@@ -35,7 +35,7 @@ interface Props {
   label?: string;
   loading?: boolean;
   onCheck: (checked: boolean, id?: string) => void;
-  onClick?: (event: React.MouseEvent<HTMLInputElement>) => void;
+  onClick?: (event: React.MouseEvent<HTMLLabelElement>) => void;
   onFocus?: VoidFunction;
   right?: boolean;
   thirdState?: boolean;
@@ -64,7 +64,7 @@ export function Checkbox({
   };
 
   return (
-    <CheckboxContainer className={className} disabled={disabled}>
+    <CheckboxContainer className={className} disabled={disabled} onClick={onClick}>
       {right && children}
       <AccessibleCheckbox
         aria-label={label ?? title}
@@ -72,7 +72,6 @@ export function Checkbox({
         disabled={disabled ?? loading}
         id={id}
         onChange={handleChange}
-        onClick={onClick}
         onFocus={onFocus}
         type="checkbox"
       />
