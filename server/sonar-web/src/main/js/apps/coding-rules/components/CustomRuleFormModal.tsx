@@ -315,45 +315,51 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
     );
   };
 
-  renderParameterField = (param: RuleParameter) => (
-    <FormField
-      ariaLabel={param.key}
-      className="sw-capitalize"
-      label={param.key}
-      htmlFor={`coding-rule-custom-rule-${param.key}`}
-      key={param.key}
-    >
-      {param.type === 'TEXT' ? (
-        <InputTextArea
-          disabled={this.state.submitting}
-          id={`coding-rule-custom-rule-${param.key}`}
-          name={param.key}
-          onChange={this.handleParameterChange}
-          placeholder={param.defaultValue}
-          size="full"
-          rows={3}
-          value={this.state.params[param.key] || ''}
-        />
-      ) : (
-        <InputField
-          disabled={this.state.submitting}
-          id={`coding-rule-custom-rule-${param.key}`}
-          name={param.key}
-          onChange={this.handleParameterChange}
-          placeholder={param.defaultValue}
-          size="full"
-          type="text"
-          value={this.state.params[param.key] ?? ''}
-        />
-      )}
-      {param.htmlDesc !== undefined && (
-        <LightLabel
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
-        />
-      )}
-    </FormField>
-  );
+  renderParameterField = (param: RuleParameter) => {
+    // Gets the actual value from params from the state.
+    // Without it, we have a issue with string 'constructor' as key
+    const actualValue = new Map(Object.entries(this.state.params)).get(param.key) ?? '';
+
+    return (
+      <FormField
+        ariaLabel={param.key}
+        className="sw-capitalize"
+        label={param.key}
+        htmlFor={`coding-rule-custom-rule-${param.key}`}
+        key={param.key}
+      >
+        {param.type === 'TEXT' ? (
+          <InputTextArea
+            disabled={this.state.submitting}
+            id={`coding-rule-custom-rule-${param.key}`}
+            name={param.key}
+            onChange={this.handleParameterChange}
+            placeholder={param.defaultValue}
+            size="full"
+            rows={3}
+            value={actualValue}
+          />
+        ) : (
+          <InputField
+            disabled={this.state.submitting}
+            id={`coding-rule-custom-rule-${param.key}`}
+            name={param.key}
+            onChange={this.handleParameterChange}
+            placeholder={param.defaultValue}
+            size="full"
+            type="text"
+            value={actualValue}
+          />
+        )}
+        {param.htmlDesc !== undefined && (
+          <LightLabel
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: sanitizeString(param.htmlDesc) }}
+          />
+        )}
+      </FormField>
+    );
+  };
 
   render() {
     const { customRule, templateRule } = this.props;
