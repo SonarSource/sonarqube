@@ -370,7 +370,7 @@ qa_bb_cloud_task:
     - ./private/cirrus/cirrus-qa.sh h2
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
-qa_ha_task:
+qa_ha_cluster_task:
   <<: *DEFAULT_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *MASTER_OR_NIGHTLY_OR_MAINTENANCE_TASK_TEMPLATE
@@ -383,7 +383,25 @@ qa_ha_task:
     additional_containers:
       - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   env:
-    QA_CATEGORY: HA
+    QA_CATEGORY: HA_CLUSTER
+  script:
+    - ./private/cirrus/cirrus-qa.sh postgres
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
+qa_ha_elasticsearch_task:
+  <<: *DEFAULT_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *MASTER_OR_NIGHTLY_OR_MAINTENANCE_TASK_TEMPLATE
+  <<: *JAR_CACHE_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
+    cpu: 2.4
+    memory: 10Gb
+    additional_containers:
+      - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
+  env:
+    QA_CATEGORY: HA_ELASTICSEARCH
   script:
     - ./private/cirrus/cirrus-qa.sh postgres
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
