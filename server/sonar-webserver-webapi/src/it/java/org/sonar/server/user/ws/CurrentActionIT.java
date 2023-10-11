@@ -19,10 +19,14 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.Collection;
 import java.util.Map;
 import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Suite;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
@@ -51,238 +55,247 @@ import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFIL
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonar.server.user.ws.DismissNoticeAction.AVAILABLE_NOTICE_KEYS;
 import static org.sonar.test.JsonAssert.assertJson;
 
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+  CurrentActionIT.OtherTest.class,
+  CurrentActionIT.DimissableNoticeTest.class
+})
 public class CurrentActionIT {
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public static class OtherTest {
+    @Rule
+    public UserSessionRule userSession = UserSessionRule.standalone();
+    @Rule
+    public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private final PlatformEditionProvider platformEditionProvider = mock(PlatformEditionProvider.class);
-  private final HomepageTypesImpl homepageTypes = new HomepageTypesImpl();
-  private final PermissionService permissionService = new PermissionServiceImpl(new ResourceTypes(new ResourceTypeTree[] {
-    ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.PROJECT).build()).build()}));
-  private final WsActionTester ws = new WsActionTester(
-    new CurrentAction(userSession, db.getDbClient(), new AvatarResolverImpl(), homepageTypes, platformEditionProvider, permissionService));
+    private final PlatformEditionProvider platformEditionProvider = mock(PlatformEditionProvider.class);
+    private final HomepageTypesImpl homepageTypes = new HomepageTypesImpl();
+    private final PermissionService permissionService = new PermissionServiceImpl(new ResourceTypes(new ResourceTypeTree[] {
+      ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.PROJECT).build()).build()}));
+    private final WsActionTester ws = new WsActionTester(
+      new CurrentAction(userSession, db.getDbClient(), new AvatarResolverImpl(), homepageTypes, platformEditionProvider, permissionService));
 
-  @Test
-  public void return_user_info() {
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin("obiwan.kenobi")
-      .setName("Obiwan Kenobi")
-      .setEmail("obiwan.kenobi@starwars.com")
-      .setLocal(true)
-      .setExternalLogin("obiwan")
-      .setExternalIdentityProvider("sonarqube")
-      .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket")));
-    userSession.logIn(user);
+    private CurrentWsResponse call() {
+      return ws.newRequest().executeProtobuf(CurrentWsResponse.class);
+    }
 
-    CurrentWsResponse response = call();
+    @Test
+    public void return_user_info() {
+      UserDto user = db.users().insertUser(u -> u
+        .setLogin("obiwan.kenobi")
+        .setName("Obiwan Kenobi")
+        .setEmail("obiwan.kenobi@starwars.com")
+        .setLocal(true)
+        .setExternalLogin("obiwan")
+        .setExternalIdentityProvider("sonarqube")
+        .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket")));
+      userSession.logIn(user);
 
-    assertThat(response)
-      .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::getEmail, CurrentWsResponse::getAvatar,
-        CurrentWsResponse::getLocal,
-        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getScmAccountsList)
-      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com", "f5aa64437a1821ffe8b563099d506aef", true, "obiwan", "sonarqube",
-        newArrayList("obiwan:bitbucket", "obiwan:github"));
+      CurrentWsResponse response = call();
+
+      assertThat(response)
+        .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::getEmail, CurrentWsResponse::getAvatar,
+          CurrentWsResponse::getLocal,
+          CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getScmAccountsList)
+        .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com", "f5aa64437a1821ffe8b563099d506aef", true, "obiwan", "sonarqube",
+          newArrayList("obiwan:bitbucket", "obiwan:github"));
+    }
+
+    @Test
+    public void return_minimal_user_info() {
+      UserDto user = db.users().insertUser(u -> u
+        .setLogin("obiwan.kenobi")
+        .setName("Obiwan Kenobi")
+        .setEmail(null)
+        .setLocal(true)
+        .setExternalLogin("obiwan")
+        .setExternalIdentityProvider("sonarqube")
+        .setScmAccounts(emptyList()));
+      userSession.logIn(user);
+
+      CurrentWsResponse response = call();
+
+      assertThat(response)
+        .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::hasAvatar, CurrentWsResponse::getLocal,
+          CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getUsingSonarLintConnectedMode)
+        .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube", false);
+      assertThat(response.hasEmail()).isFalse();
+      assertThat(response.getScmAccountsList()).isEmpty();
+      assertThat(response.getGroupsList()).isEmpty();
+      assertThat(response.getPermissions().getGlobalList()).isEmpty();
+    }
+
+    @Test
+    public void convert_empty_email_to_null() {
+      UserDto user = db.users().insertUser(u -> u
+        .setLogin("obiwan.kenobi")
+        .setEmail(""));
+      userSession.logIn(user);
+
+      CurrentWsResponse response = call();
+
+      assertThat(response.hasEmail()).isFalse();
+    }
+
+    @Test
+    public void return_group_membership() {
+      UserDto user = db.users().insertUser();
+      userSession.logIn(user);
+      db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), user);
+      db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), user);
+
+      CurrentWsResponse response = call();
+
+      assertThat(response.getGroupsList()).containsOnly("Jedi", "Rebel");
+    }
+
+    @Test
+    public void return_permissions() {
+      UserDto user = db.users().insertUser();
+      userSession
+        .logIn(user)
+        .addPermission(SCAN)
+        .addPermission(ADMINISTER_QUALITY_PROFILES);
+
+      CurrentWsResponse response = call();
+      assertThat(response.getPermissions().getGlobalList()).containsOnly("profileadmin", "scan");
+    }
+
+    @Test
+    public void fail_with_ISE_when_user_login_in_db_does_not_exist() {
+      db.users().insertUser(usert -> usert.setLogin("another"));
+      userSession.logIn("obiwan.kenobi");
+
+      assertThatThrownBy(this::call)
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("User login 'obiwan.kenobi' cannot be found");
+    }
+
+    @Test
+    public void anonymous() {
+      userSession
+        .anonymous()
+        .addPermission(SCAN)
+        .addPermission(PROVISION_PROJECTS);
+
+      CurrentWsResponse response = call();
+
+      assertThat(response.getIsLoggedIn()).isFalse();
+      assertThat(response.getPermissions().getGlobalList()).containsOnly("scan", "provisioning");
+      assertThat(response)
+        .extracting(CurrentWsResponse::hasLogin, CurrentWsResponse::hasName, CurrentWsResponse::hasEmail, CurrentWsResponse::hasLocal,
+          CurrentWsResponse::hasExternalIdentity, CurrentWsResponse::hasExternalProvider)
+        .containsOnly(false);
+      assertThat(response.getScmAccountsList()).isEmpty();
+      assertThat(response.getGroupsList()).isEmpty();
+    }
+
+    @Test
+    public void json_example() {
+      ComponentDto componentDto = db.components().insertPrivateProject(u -> u.setUuid("UUID-of-the-death-star").setKey("death-star-key")).getMainBranchComponent();
+      UserDto obiwan = db.users().insertUser(user -> user
+        .setLogin("obiwan.kenobi")
+        .setName("Obiwan Kenobi")
+        .setEmail("obiwan.kenobi@starwars.com")
+        .setLocal(true)
+        .setExternalLogin("obiwan.kenobi")
+        .setExternalIdentityProvider("sonarqube")
+        .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
+        .setHomepageType("PROJECT")
+        .setHomepageParameter("UUID-of-the-death-star"));
+      userSession
+        .logIn(obiwan)
+        .addPermission(SCAN)
+        .addPermission(ADMINISTER_QUALITY_PROFILES)
+        .addProjectPermission(USER, db.components().getProjectDtoByMainBranch(componentDto));
+      db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), obiwan);
+      db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), obiwan);
+
+      String response = ws.newRequest().execute().getInput();
+
+      assertJson(response).isSimilarTo(getClass().getResource("current-example.json"));
+    }
+
+    @Test
+    public void handle_givenSonarLintUserInDatabase_returnSonarLintUserFromTheEndpoint() {
+      UserDto user = db.users().insertUser(u -> u.setLastSonarlintConnectionDate(System.currentTimeMillis()));
+      userSession.logIn(user);
+
+      CurrentWsResponse response = call();
+
+      assertThat(response.getUsingSonarLintConnectedMode()).isTrue();
+    }
+
+    @Test
+    public void test_definition() {
+      WebService.Action definition = ws.getDef();
+      assertThat(definition.key()).isEqualTo("current");
+      assertThat(definition.description()).isEqualTo("Get the details of the current authenticated user.");
+      assertThat(definition.since()).isEqualTo("5.2");
+      assertThat(definition.isPost()).isFalse();
+      assertThat(definition.isInternal()).isTrue();
+      assertThat(definition.responseExampleAsString()).isNotEmpty();
+      assertThat(definition.params()).isEmpty();
+      assertThat(definition.changelog()).isNotEmpty();
+    }
   }
 
-  @Test
-  public void return_educationPrinciples_dismiss_notice() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
+  @RunWith(Parameterized.class)
+  public static class DimissableNoticeTest {
+    @Rule
+    public UserSessionRule userSession = UserSessionRule.standalone();
+    @Rule
+    public DbTester db = DbTester.create(System2.INSTANCE);
 
-    PropertyDto property = new PropertyDto().setUserUuid(user.getUuid()).setKey("user.dismissedNotices.educationPrinciples");
-    db.properties().insertProperties(userSession.getLogin(), null, null, null, property);
+    private final PlatformEditionProvider platformEditionProvider = mock(PlatformEditionProvider.class);
+    private final HomepageTypesImpl homepageTypes = new HomepageTypesImpl();
+    private final PermissionService permissionService = new PermissionServiceImpl(new ResourceTypes(new ResourceTypeTree[] {
+      ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.PROJECT).build()).build()}));
+    private final WsActionTester ws = new WsActionTester(
+      new CurrentAction(userSession, db.getDbClient(), new AvatarResolverImpl(), homepageTypes, platformEditionProvider, permissionService));
 
-    CurrentWsResponse response = call();
+    private CurrentWsResponse call() {
+      return ws.newRequest().executeProtobuf(CurrentWsResponse.class);
+    }
 
-    assertThat(response.getDismissedNoticesMap().entrySet())
-      .extracting(Map.Entry::getKey, Map.Entry::getValue)
-      .contains(Tuple.tuple("educationPrinciples", true));
+    @Parameterized.Parameters
+    public static Collection<String> parameterCombination() {
+      return AVAILABLE_NOTICE_KEYS;
+    }
+
+    private final String notice;
+
+    public DimissableNoticeTest(String notice) {
+      this.notice = notice;
+    }
+
+    @Test
+    public void return_dismissed_notice() {
+      UserDto user = db.users().insertUser();
+      userSession.logIn(user);
+
+      PropertyDto property = new PropertyDto().setUserUuid(user.getUuid()).setKey("user.dismissedNotices." + this.notice);
+      db.properties().insertProperties(userSession.getLogin(), null, null, null, property);
+
+      CurrentWsResponse response = call();
+
+      assertThat(response.getDismissedNoticesMap().entrySet())
+        .extracting(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(Tuple.tuple(this.notice, true));
+    }
+
+    @Test
+    public void return_not_dismissed_notice() {
+      UserDto user = db.users().insertUser();
+      userSession.logIn(user);
+
+      CurrentWsResponse response = call();
+
+      assertThat(response.getDismissedNoticesMap().entrySet())
+        .extracting(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(Tuple.tuple(this.notice, false));
+    }
   }
-
-  @Test
-  public void return_educationPrinciples_not_dismissed() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
-
-    CurrentWsResponse response = call();
-
-    assertThat(response.getDismissedNoticesMap().entrySet())
-      .extracting(Map.Entry::getKey, Map.Entry::getValue)
-      .contains(Tuple.tuple("educationPrinciples", false));
-  }
-
-  @Test
-  public void return_minimal_user_info() {
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin("obiwan.kenobi")
-      .setName("Obiwan Kenobi")
-      .setEmail(null)
-      .setLocal(true)
-      .setExternalLogin("obiwan")
-      .setExternalIdentityProvider("sonarqube")
-      .setScmAccounts(emptyList()));
-    userSession.logIn(user);
-
-    CurrentWsResponse response = call();
-
-    assertThat(response)
-      .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::hasAvatar, CurrentWsResponse::getLocal,
-        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getUsingSonarLintConnectedMode)
-      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube", false);
-    assertThat(response.hasEmail()).isFalse();
-    assertThat(response.getScmAccountsList()).isEmpty();
-    assertThat(response.getGroupsList()).isEmpty();
-    assertThat(response.getPermissions().getGlobalList()).isEmpty();
-  }
-
-  @Test
-  public void convert_empty_email_to_null() {
-    UserDto user = db.users().insertUser(u -> u
-      .setLogin("obiwan.kenobi")
-      .setEmail(""));
-    userSession.logIn(user);
-
-    CurrentWsResponse response = call();
-
-    assertThat(response.hasEmail()).isFalse();
-  }
-
-  @Test
-  public void return_group_membership() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
-    db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), user);
-    db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), user);
-
-    CurrentWsResponse response = call();
-
-    assertThat(response.getGroupsList()).containsOnly("Jedi", "Rebel");
-  }
-
-  @Test
-  public void return_permissions() {
-    UserDto user = db.users().insertUser();
-    userSession
-      .logIn(user)
-      .addPermission(SCAN)
-      .addPermission(ADMINISTER_QUALITY_PROFILES);
-
-    CurrentWsResponse response = call();
-    assertThat(response.getPermissions().getGlobalList()).containsOnly("profileadmin", "scan");
-  }
-
-  @Test
-  public void fail_with_ISE_when_user_login_in_db_does_not_exist() {
-    db.users().insertUser(usert -> usert.setLogin("another"));
-    userSession.logIn("obiwan.kenobi");
-
-    assertThatThrownBy(this::call)
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("User login 'obiwan.kenobi' cannot be found");
-  }
-
-  @Test
-  public void anonymous() {
-    userSession
-      .anonymous()
-      .addPermission(SCAN)
-      .addPermission(PROVISION_PROJECTS);
-
-    CurrentWsResponse response = call();
-
-    assertThat(response.getIsLoggedIn()).isFalse();
-    assertThat(response.getPermissions().getGlobalList()).containsOnly("scan", "provisioning");
-    assertThat(response)
-      .extracting(CurrentWsResponse::hasLogin, CurrentWsResponse::hasName, CurrentWsResponse::hasEmail, CurrentWsResponse::hasLocal,
-        CurrentWsResponse::hasExternalIdentity, CurrentWsResponse::hasExternalProvider)
-      .containsOnly(false);
-    assertThat(response.getScmAccountsList()).isEmpty();
-    assertThat(response.getGroupsList()).isEmpty();
-  }
-
-  @Test
-  public void json_example() {
-    ComponentDto componentDto = db.components().insertPrivateProject(u -> u.setUuid("UUID-of-the-death-star").setKey("death-star-key")).getMainBranchComponent();
-    UserDto obiwan = db.users().insertUser(user -> user
-      .setLogin("obiwan.kenobi")
-      .setName("Obiwan Kenobi")
-      .setEmail("obiwan.kenobi@starwars.com")
-      .setLocal(true)
-      .setExternalLogin("obiwan.kenobi")
-      .setExternalIdentityProvider("sonarqube")
-      .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
-      .setHomepageType("PROJECT")
-      .setHomepageParameter("UUID-of-the-death-star"));
-    userSession
-      .logIn(obiwan)
-      .addPermission(SCAN)
-      .addPermission(ADMINISTER_QUALITY_PROFILES)
-      .addProjectPermission(USER, db.components().getProjectDtoByMainBranch(componentDto));
-    db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), obiwan);
-    db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), obiwan);
-
-    String response = ws.newRequest().execute().getInput();
-
-    assertJson(response).isSimilarTo(getClass().getResource("current-example.json"));
-  }
-
-  @Test
-  public void handle_givenSonarLintUserInDatabase_returnSonarLintUserFromTheEndpoint() {
-    UserDto user = db.users().insertUser(u -> u.setLastSonarlintConnectionDate(System.currentTimeMillis()));
-    userSession.logIn(user);
-
-    CurrentWsResponse response = call();
-
-    assertThat(response.getUsingSonarLintConnectedMode()).isTrue();
-  }
-
-  @Test
-  public void return_sonarlintAd_dismiss_notice() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
-
-    PropertyDto property = new PropertyDto().setUserUuid(user.getUuid()).setKey("user.dismissedNotices.sonarlintAd");
-    db.properties().insertProperties(userSession.getLogin(), null, null, null, property);
-
-    CurrentWsResponse response = call();
-
-    assertThat(response.getDismissedNoticesMap().entrySet())
-      .extracting(Map.Entry::getKey, Map.Entry::getValue)
-      .contains(Tuple.tuple("sonarlintAd", true));
-  }
-
-  @Test
-  public void return_sonarlintAd_not_dismissed() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
-
-    CurrentWsResponse response = call();
-
-    assertThat(response.getDismissedNoticesMap().entrySet())
-      .extracting(Map.Entry::getKey, Map.Entry::getValue)
-      .contains(Tuple.tuple("sonarlintAd", false));
-  }
-
-
-  @Test
-  public void test_definition() {
-    WebService.Action definition = ws.getDef();
-    assertThat(definition.key()).isEqualTo("current");
-    assertThat(definition.description()).isEqualTo("Get the details of the current authenticated user.");
-    assertThat(definition.since()).isEqualTo("5.2");
-    assertThat(definition.isPost()).isFalse();
-    assertThat(definition.isInternal()).isTrue();
-    assertThat(definition.responseExampleAsString()).isNotEmpty();
-    assertThat(definition.params()).isEmpty();
-    assertThat(definition.changelog()).isNotEmpty();
-  }
-
-  private CurrentWsResponse call() {
-    return ws.newRequest().executeProtobuf(CurrentWsResponse.class);
-  }
-
 }

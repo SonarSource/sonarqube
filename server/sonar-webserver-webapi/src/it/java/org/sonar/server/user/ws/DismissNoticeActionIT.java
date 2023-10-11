@@ -85,7 +85,6 @@ public class DismissNoticeActionIT {
     assertThat(propertyDto).isPresent();
   }
 
-
   @Test
   public void authentication_is_required() {
     TestRequest testRequest = tester.newRequest()
@@ -95,7 +94,6 @@ public class DismissNoticeActionIT {
       .isInstanceOf(UnauthorizedException.class)
       .hasMessage("Authentication is required");
   }
-
 
   @Test
   public void notice_parameter_is_mandatory() {
@@ -107,7 +105,6 @@ public class DismissNoticeActionIT {
       .hasMessage("The 'notice' parameter is missing");
   }
 
-
   @Test
   public void notice_not_supported() {
     userSessionRule.logIn();
@@ -116,9 +113,9 @@ public class DismissNoticeActionIT {
 
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Value of parameter 'notice' (not_supported_value) must be one of: [educationPrinciples, sonarlintAd, issueCleanCodeGuide]");
+      .hasMessage(
+        "Value of parameter 'notice' (not_supported_value) must be one of: [educationPrinciples, sonarlintAd, issueCleanCodeGuide, qualityGateCaYCConditionsSimplification]");
   }
-
 
   @Test
   public void notice_already_exist_dont_fail() {
@@ -134,6 +131,5 @@ public class DismissNoticeActionIT {
     assertThat(testResponse.getStatus()).isEqualTo(204);
     assertThat(db.properties().findFirstUserProperty(userSessionRule.getUuid(), "user.dismissedNotices.educationPrinciples")).isPresent();
   }
-
 
 }

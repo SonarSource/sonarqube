@@ -33,6 +33,7 @@ export enum NoticeType {
   EDUCATION_PRINCIPLES = 'educationPrinciples',
   SONARLINT_AD = 'sonarlintAd',
   ISSUE_GUIDE = 'issueCleanCodeGuide',
+  QG_CAYC_CONDITIONS_SIMPLIFICATION = 'qualityGateCaYCConditionsSimplification',
 }
 
 export interface LoggedInUser extends CurrentUser, UserActive {

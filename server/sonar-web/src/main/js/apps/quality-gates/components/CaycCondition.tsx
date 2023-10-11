@@ -25,6 +25,7 @@ import withMetricsContext from '../../../app/components/metrics/withMetricsConte
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
+import { MetricKey } from '../../../types/metrics';
 import { Condition, Dict, Metric } from '../../../types/types';
 import { getCaycConditionMetadata, getLocalizedMetricNameNoDiffMetric } from '../utils';
 
@@ -44,7 +45,11 @@ function CaycCondition({ condition, metric, metrics }: Readonly<Props>) {
 
   return (
     <TableRow>
-      <ContentCell>
+      <ContentCell
+        data-guiding-id={
+          condition.metric === MetricKey.new_violations ? 'caycConditionsSimplification' : undefined
+        }
+      >
         <Highlight>{translate(`metric.${metric.key}.description.positive`)}</Highlight>
       </ContentCell>
 

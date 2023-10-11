@@ -30,6 +30,7 @@ import {
   UserGroup,
   changePassword,
   deleteUser,
+  dismissNotice,
   getIdentityProviders,
   getUserGroups,
   getUsers,
@@ -139,6 +140,7 @@ export default class UsersServiceMock {
     jest.mocked(removeUserFromGroup).mockImplementation(this.handleRemoveUserFromGroup);
     jest.mocked(changePassword).mockImplementation(this.handleChangePassword);
     jest.mocked(deleteUser).mockImplementation(this.handleDeactivateUser);
+    jest.mocked(dismissNotice).mockResolvedValue({});
   }
 
   setIsManaged(managed: boolean) {

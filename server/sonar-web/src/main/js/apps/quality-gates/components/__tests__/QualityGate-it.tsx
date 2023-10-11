@@ -21,23 +21,33 @@ import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import selectEvent from 'react-select-event';
 import { QualityGatesServiceMock } from '../../../../api/mocks/QualityGatesServiceMock';
+import UsersServiceMock from '../../../../api/mocks/UsersServiceMock';
 import { searchProjects, searchUsers } from '../../../../api/quality-gates';
+import { dismissNotice } from '../../../../api/users';
+import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import { RenderContext, renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
+import { byRole } from '../../../../helpers/testSelector';
 import { Feature } from '../../../../types/features';
+import { NoticeType } from '../../../../types/users';
 import routes from '../../routes';
 
-let handler: QualityGatesServiceMock;
+let qualityGateHandler: QualityGatesServiceMock;
+let usersHandler: UsersServiceMock;
 
 beforeAll(() => {
-  handler = new QualityGatesServiceMock();
+  qualityGateHandler = new QualityGatesServiceMock();
+  usersHandler = new UsersServiceMock();
 });
 
-afterEach(() => handler.reset());
+afterEach(() => {
+  qualityGateHandler.reset();
+  usersHandler.reset();
+});
 
 it('should open the default quality gates', async () => {
   renderQualityGateApp();
 
-  const defaultQualityGate = handler.getDefaultQualityGate();
+  const defaultQualityGate = qualityGateHandler.getDefaultQualityGate();
   expect(
     await screen.findByRole('button', {
       current: 'page',
@@ -51,13 +61,13 @@ it('should list all quality gates', async () => {
 
   expect(
     await screen.findByRole('button', {
-      name: `${handler.getDefaultQualityGate().name} default`,
+      name: `${qualityGateHandler.getDefaultQualityGate().name} default`,
     }),
   ).toBeInTheDocument();
 
   expect(
     screen.getByRole('button', {
-      name: `${handler.getBuiltInQualityGate().name} quality_gates.built_in`,
+      name: `${qualityGateHandler.getBuiltInQualityGate().name} quality_gates.built_in`,
     }),
   ).toBeInTheDocument();
 });
@@ -77,7 +87,7 @@ it('should render the built-in quality gate properly', async () => {
 
 it('should be able to create a quality gate then delete it', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
   let createButton = await screen.findByRole('button', { name: 'create' });
 
@@ -124,7 +134,7 @@ it('should be able to create a quality gate then delete it', async () => {
 
 it('should be able to copy a quality gate which is CAYC compliant', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
 
   const notDefaultQualityGate = await screen.findByText('Sonar way');
@@ -144,7 +154,7 @@ it('should be able to copy a quality gate which is CAYC compliant', async () => 
 
 it('should not be able to copy a quality gate which is not CAYC compliant', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
 
   const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
@@ -157,7 +167,7 @@ it('should not be able to copy a quality gate which is not CAYC compliant', asyn
 
 it('should be able to rename a quality gate', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
   await user.click(await screen.findByLabelText('menu'));
   const renameButton = screen.getByRole('menuitem', { name: 'rename' });
@@ -173,7 +183,7 @@ it('should be able to rename a quality gate', async () => {
 
 it('should not be able to set as default a quality gate which is not CAYC compliant', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
 
   const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
@@ -185,7 +195,7 @@ it('should not be able to set as default a quality gate which is not CAYC compli
 
 it('should be able to set as default a quality gate which is CAYC compliant', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
 
   const notDefaultQualityGate = await screen.findByRole('button', { name: /Sonar way/ });
@@ -198,7 +208,7 @@ it('should be able to set as default a quality gate which is CAYC compliant', as
 
 it('should be able to add a condition', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
 
   await user.click(await screen.findByText('SonarSource way - CFamily'));
@@ -253,7 +263,7 @@ it('should be able to add a condition', async () => {
 
 it('should be able to edit a condition', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
 
   const newConditions = within(await screen.findByTestId('quality-gates__conditions-new'));
@@ -276,12 +286,14 @@ it('should be able to edit a condition', async () => {
 
 it('should be able to handle duplicate or deprecated condition', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
 
   await user.click(
     // make it a regexp to ignore badges:
-    await screen.findByRole('button', { name: new RegExp(handler.getCorruptedQualityGateName()) }),
+    await screen.findByRole('button', {
+      name: new RegExp(qualityGateHandler.getCorruptedQualityGateName()),
+    }),
   );
 
   expect(await screen.findByText('quality_gates.duplicated_conditions')).toBeInTheDocument();
@@ -292,7 +304,7 @@ it('should be able to handle duplicate or deprecated condition', async () => {
 
 it('should be able to handle delete condition', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
 
   await user.click(await screen.findByText('Non Cayc QG'));
@@ -323,7 +335,7 @@ it('should explain condition on branch', async () => {
 
 it('should show warning banner when CAYC condition is not properly set and should be able to update them', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
 
   const qualityGate = await screen.findByText('SonarSource way - CFamily');
@@ -392,7 +404,7 @@ it('should not warn user when quality gate is not CAYC compliant and user has no
 
 it('should warn user when quality gate is not CAYC compliant and user has permission to edit it', async () => {
   const user = userEvent.setup();
-  handler.setIsAdmin(true);
+  qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
 
   const nonCompliantQualityGate = await screen.findByRole('button', { name: /Non Cayc QG/ });
@@ -404,17 +416,56 @@ it('should warn user when quality gate is not CAYC compliant and user has permis
 });
 
 it('should render CaYC conditions on a separate table', async () => {
-  handler.setIsAdmin(true);
+  qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
 
   expect(await screen.findByTestId('quality-gates__conditions-cayc')).toBeInTheDocument();
   expect(await screen.findByTestId('quality-gates__conditions-new')).toBeInTheDocument();
 });
 
+it('should display CaYC condition simplification tour for users who didnt dismissed it', async () => {
+  const user = userEvent.setup();
+  qualityGateHandler.setIsAdmin(true);
+  renderQualityGateApp({ currentUser: mockLoggedInUser() });
+
+  const qualityGate = await screen.findByText('SonarSource way');
+
+  await act(async () => {
+    await user.click(qualityGate);
+  });
+
+  expect(await byRole('alertdialog').find()).toBeInTheDocument();
+
+  await act(async () => {
+    await user.click(byRole('alertdialog').byRole('button', { name: 'dismiss' }).get());
+  });
+
+  expect(await byRole('alertdialog').query()).not.toBeInTheDocument();
+  expect(dismissNotice).toHaveBeenLastCalledWith(NoticeType.QG_CAYC_CONDITIONS_SIMPLIFICATION);
+});
+
+it('should not display CaYC condition simplification tour for users who dismissed it', async () => {
+  const user = userEvent.setup();
+  qualityGateHandler.setIsAdmin(true);
+  renderQualityGateApp({
+    currentUser: mockLoggedInUser({
+      dismissedNotices: { [NoticeType.QG_CAYC_CONDITIONS_SIMPLIFICATION]: true },
+    }),
+  });
+
+  const qualityGate = await screen.findByText('SonarSource way');
+
+  await act(async () => {
+    await user.click(qualityGate);
+  });
+
+  expect(await byRole('alertdialog').query()).not.toBeInTheDocument();
+});
+
 describe('The Project section', () => {
   it('should render list of projects correctly in different tabs', async () => {
     const user = userEvent.setup();
-    handler.setIsAdmin(true);
+    qualityGateHandler.setIsAdmin(true);
     renderQualityGateApp();
 
     const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
@@ -435,7 +486,7 @@ describe('The Project section', () => {
 
   it('should handle select and deselect correctly', async () => {
     const user = userEvent.setup();
-    handler.setIsAdmin(true);
+    qualityGateHandler.setIsAdmin(true);
     renderQualityGateApp();
 
     const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
@@ -466,7 +517,7 @@ describe('The Project section', () => {
 
   it('should handle the search of projects', async () => {
     const user = userEvent.setup();
-    handler.setIsAdmin(true);
+    qualityGateHandler.setIsAdmin(true);
     renderQualityGateApp();
 
     const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
@@ -490,7 +541,7 @@ describe('The Project section', () => {
     });
 
     const user = userEvent.setup();
-    handler.setIsAdmin(true);
+    qualityGateHandler.setIsAdmin(true);
     renderQualityGateApp();
 
     const notDefaultQualityGate = await screen.findByText('SonarSource way - CFamily');
@@ -507,14 +558,14 @@ describe('The Permissions section', () => {
     // await just to make sure we've loaded the page
     expect(
       await screen.findByRole('button', {
-        name: `${handler.getDefaultQualityGate().name} default`,
+        name: `${qualityGateHandler.getDefaultQualityGate().name} default`,
       }),
     ).toBeInTheDocument();
 
     expect(screen.queryByText('quality_gates.permissions')).not.toBeInTheDocument();
   });
   it('should show button to grant permission when user is admin', async () => {
-    handler.setIsAdmin(true);
+    qualityGateHandler.setIsAdmin(true);
     renderQualityGateApp();
 
     const grantPermissionButton = await screen.findByRole('button', {
@@ -526,7 +577,7 @@ describe('The Permissions section', () => {
 
   it('should assign permission to a user and delete it later', async () => {
     const user = userEvent.setup();
-    handler.setIsAdmin(true);
+    qualityGateHandler.setIsAdmin(true);
     renderQualityGateApp();
 
     expect(screen.queryByText('userlogin')).not.toBeInTheDocument();
@@ -575,7 +626,7 @@ describe('The Permissions section', () => {
 
   it('should assign permission to a group and delete it later', async () => {
     const user = userEvent.setup();
-    handler.setIsAdmin(true);
+    qualityGateHandler.setIsAdmin(true);
     renderQualityGateApp();
 
     expect(screen.queryByText('userlogin')).not.toBeInTheDocument();
@@ -611,7 +662,7 @@ describe('The Permissions section', () => {
     (searchUsers as jest.Mock).mockRejectedValue('error');
 
     const user = userEvent.setup();
-    handler.setIsAdmin(true);
+    qualityGateHandler.setIsAdmin(true);
     renderQualityGateApp();
 
     const grantPermissionButton = await screen.findByRole('button', {

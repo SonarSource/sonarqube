@@ -52,6 +52,7 @@ import {
   QualityGate,
 } from '../../../types/types';
 import { groupAndSortByPriorityConditions } from '../utils';
+import CaYCConditionsSimplificationGuide from './CaYCConditionsSimplificationGuide';
 import CaycConditionsTable from './CaycConditionsTable';
 import ConditionModal from './ConditionModal';
 import CaycReviewUpdateConditionsModal from './ConditionReviewAndUpdateModal';
@@ -169,6 +170,8 @@ export function Conditions({
 
   return (
     <div>
+      <CaYCConditionsSimplificationGuide />
+
       {qualityGate.caycStatus === CaycStatus.NonCompliant && canEdit && (
         <CardWithPrimaryBackground className="sw-mb-9 sw-p-8">
           <Title as="h2" className="sw-mb-2 sw-heading-md">

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.List;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -33,9 +34,12 @@ import static com.google.common.base.Preconditions.checkState;
 
 public class DismissNoticeAction implements UsersWsAction {
 
-  public static final String EDUCATION_PRINCIPLES = "educationPrinciples";
-  public static final String SONARLINT_AD = "sonarlintAd";
-  public static final String ISSUE_CLEAN_CODE_GUIDE = "issueCleanCodeGuide";
+  private static final String EDUCATION_PRINCIPLES = "educationPrinciples";
+  private static final String SONARLINT_AD = "sonarlintAd";
+  private static final String ISSUE_CLEAN_CODE_GUIDE = "issueCleanCodeGuide";
+  private static final String QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION = "qualityGateCaYCConditionsSimplification";
+
+  protected static final List<String> AVAILABLE_NOTICE_KEYS = List.of(EDUCATION_PRINCIPLES, SONARLINT_AD, ISSUE_CLEAN_CODE_GUIDE, QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION);
   public static final String USER_DISMISS_CONSTANT = "user.dismissedNotices.";
 
   private final UserSession userSession;
@@ -51,6 +55,7 @@ public class DismissNoticeAction implements UsersWsAction {
     WebService.NewAction action = context.createAction("dismiss_notice")
       .setDescription("Dismiss a notice for the current user. Silently ignore if the notice is already dismissed.")
       .setChangelog(new Change("10.2", "Support for new notice '%s' was added.".formatted(ISSUE_CLEAN_CODE_GUIDE)))
+      .setChangelog(new Change("10.3", "Support for new notice '%s' was added.".formatted(QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION)))
       .setSince("9.6")
       .setInternal(true)
       .setHandler(this)
@@ -59,7 +64,7 @@ public class DismissNoticeAction implements UsersWsAction {
     action.createParam("notice")
       .setDescription("notice key to dismiss")
       .setExampleValue(EDUCATION_PRINCIPLES)
-      .setPossibleValues(EDUCATION_PRINCIPLES, SONARLINT_AD, ISSUE_CLEAN_CODE_GUIDE);
+      .setPossibleValues(AVAILABLE_NOTICE_KEYS);
   }
 
   @Override
