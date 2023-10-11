@@ -28,8 +28,10 @@ import {
 } from '../../../../helpers/mocks/project-activity';
 import { mockMetric } from '../../../../helpers/testMocks';
 
+import userEvent from '@testing-library/user-event';
+import { Route, useSearchParams } from 'react-router-dom';
 import { parseDate } from '../../../../helpers/dates';
-import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { renderAppRoutes } from '../../../../helpers/testReactTestingUtils';
 import { MetricKey } from '../../../../types/metrics';
 import {
   ApplicationAnalysisEventCategory,
@@ -39,7 +41,9 @@ import {
 import ActivityPanel, { ActivityPanelProps } from '../ActivityPanel';
 
 it('should render correctly', async () => {
+  const user = userEvent.setup();
   renderActivityPanel();
+
   expect(await screen.findAllByText('metric.level.ERROR')).toHaveLength(2);
   expect(screen.getAllByText('metric.level.OK')).toHaveLength(2);
   expect(screen.getByRole('status', { name: 'v1.0' })).toBeInTheDocument();
@@ -64,9 +68,22 @@ it('should render correctly', async () => {
   expect(screen.getByText(/^502 project_activity\.graphs\.issues$/)).toBeInTheDocument();
   expect(screen.getByText(/^0\.0% project_activity\.graphs\.coverage$/)).toBeInTheDocument();
   expect(screen.getByText(/^10\.0% project_activity\.graphs\.duplications$/)).toBeInTheDocument();
+
+  // Rich Quality Profile event
+  expect(
+    screen.getByLabelText(
+      /Quality profile QP-test has been updated with 1 new rule, 2 modified rules, and 3 removed rules/,
+    ),
+  ).toBeInTheDocument();
+
+  await user.click(
+    screen.getByRole('link', { name: 'quality_profiles.page_title_changelog_x.QP-test' }),
+  );
+
+  expect(await screen.findByText('QP-test java')).toBeInTheDocument();
 });
 
-function renderActivityPanel(props: Partial<ActivityPanelProps> = {}) {
+function renderActivityPanel() {
   const mockedMeasureHistory = [
     mockMeasureHistory({
       metric: MetricKey.code_smells,
@@ -157,6 +174,17 @@ function renderActivityPanel(props: Partial<ActivityPanelProps> = {}) {
           category: ProjectAnalysisEventCategory.SqUpgrade,
           name: '10.2',
         }),
+        mockAnalysisEvent({
+          key: '6',
+          category: ProjectAnalysisEventCategory.QualityProfile,
+          name: 'Quality profile QP-test has been updated with 1 new rule, 2 modified rules, and 3 removed rules',
+          description: '1 new rule, 2 modified rules, and 3 removed rules',
+          qualityProfile: {
+            languageKey: 'java',
+            name: 'QP-test',
+            key: 'testkey',
+          },
+        }),
       ],
     }),
     mockAnalysis({ key: 'bar' }),
@@ -173,5 +201,20 @@ function renderActivityPanel(props: Partial<ActivityPanelProps> = {}) {
     loading: false,
   };
 
-  return renderComponent(<ActivityPanel {...mockedProps} {...props} />);
+  return renderAppRoutes('overview', () => (
+    <>
+      <Route path="/overview" element={<ActivityPanel {...mockedProps} />} />
+      <Route
+        path="/profiles/changelog"
+        Component={() => {
+          const [searchParams] = useSearchParams();
+          return (
+            <div>
+              {searchParams.get('name')} {searchParams.get('language')}
+            </div>
+          );
+        }}
+      />
+    </>
+  ));
 }

@@ -26,6 +26,10 @@ import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../types/project
 import Tooltip from '../controls/Tooltip';
 import { DefinitionChangeEventInner, isDefinitionChangeEvent } from './DefinitionChangeEventInner';
 import { RichQualityGateEventInner, isRichQualityGateEvent } from './RichQualityGateEventInner';
+import {
+  RichQualityProfileEventInner,
+  isRichQualityProfileEvent,
+} from './RichQualityProfileEventInner';
 import { SqUpgradeActivityEventMessage } from './SqUpgradeActivityEventMessage';
 
 export interface EventInnerProps {
@@ -40,6 +44,8 @@ export default function EventInner({ event, readonly }: EventInnerProps) {
     return <RichQualityGateEventInner event={event} readonly={readonly} />;
   } else if (isDefinitionChangeEvent(event)) {
     return <DefinitionChangeEventInner branchLike={branchLike} event={event} readonly={readonly} />;
+  } else if (isRichQualityProfileEvent(event)) {
+    return <RichQualityProfileEventInner event={event} />;
   } else if (event.category === ProjectAnalysisEventCategory.SqUpgrade) {
     return <SqUpgradeActivityEventMessage event={event} />;
   }

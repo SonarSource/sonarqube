@@ -57,6 +57,11 @@ export interface AnalysisEvent {
       oldBranch?: string;
     }>;
   };
+  qualityProfile?: {
+    key: string;
+    languageKey: string;
+    name: string;
+  };
 }
 
 export enum GraphType {

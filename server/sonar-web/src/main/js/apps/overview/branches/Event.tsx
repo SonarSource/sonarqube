@@ -22,6 +22,10 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { isDefinitionChangeEvent } from '../../../components/activity-graph/DefinitionChangeEventInner';
 import { isRichQualityGateEvent } from '../../../components/activity-graph/RichQualityGateEventInner';
+import {
+  RichQualityProfileEventInner,
+  isRichQualityProfileEvent,
+} from '../../../components/activity-graph/RichQualityProfileEventInner';
 import { SqUpgradeActivityEventMessage } from '../../../components/activity-graph/SqUpgradeActivityEventMessage';
 import { translate } from '../../../helpers/l10n';
 import { AnalysisEvent, ProjectAnalysisEventCategory } from '../../../types/project-activity';
@@ -43,6 +47,10 @@ export function Event({ event }: Props) {
 
   if (event.category === ProjectAnalysisEventCategory.SqUpgrade) {
     return <SqUpgradeActivityEventMessage event={event} />;
+  }
+
+  if (isRichQualityProfileEvent(event)) {
+    return <RichQualityProfileEventInner event={event} />;
   }
 
   const eventCategory = translate('event.category', event.category);
