@@ -22,18 +22,20 @@ import styled from '@emotion/styled';
 import {
   Badge,
   DangerButtonSecondary,
+  DisabledText,
   InheritanceIcon,
   Link,
-  Note,
   OverridenIcon,
   themeBorder,
 } from 'design-system';
 import * as React from 'react';
 import { Profile, deactivateRule } from '../../../api/quality-profiles';
+import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import Tooltip from '../../../components/controls/Tooltip';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
 import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
+import TypeHelper from '../../../components/shared/TypeHelper';
 import TagsList from '../../../components/tags/TagsList';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getRuleUrl } from '../../../helpers/urls';
@@ -99,7 +101,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
 
     return (
       <div className="sw-mr-2 sw-shrink-0">
-        {selectedProfile && selectedProfile.parentName && (
+        {selectedProfile?.parentName && (
           <>
             {activation.inherit === 'OVERRIDES' && (
               <Tooltip
@@ -198,7 +200,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
 
   render() {
     const { rule, selected } = this.props;
-    const allTags = [...(rule.tags || []), ...(rule.sysTags || [])];
+    const allTags = [...(rule.tags ?? []), ...(rule.sysTags ?? [])];
     return (
       <ListItemStyled
         selected={selected}
@@ -208,7 +210,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
         onClick={() => this.props.selectRule(rule.key)}
       >
         <div className="sw-flex sw-flex-col">
-          <div className="sw-mb-4">
+          <div className="sw-mb-2">
             {rule.cleanCodeAttributeCategory !== undefined && (
               <CleanCodeAttributePill
                 cleanCodeAttributeCategory={rule.cleanCodeAttributeCategory}
@@ -242,7 +244,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
               )}
             </div>
             <div className="sw-flex sw-items-center sw-ml-2">
-              <Note>{rule.langName}</Note>
+              <span>{rule.langName}</span>
               {rule.impacts.map(({ severity, softwareQuality }) => (
                 <SoftwareImpactPill
                   className="sw-ml-3"
@@ -252,6 +254,29 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   type="rule"
                 />
               ))}
+
+              <DocumentationTooltip
+                content={
+                  <div>
+                    <p className="sw-mb-2">{translate('coding_rules.type.deprecation.title')}</p>
+                    <p>{translate('coding_rules.type.deprecation.filter_by')}</p>
+                  </div>
+                }
+                links={[
+                  {
+                    href: '/user-guide/clean-code',
+                    label: translate('learn_more'),
+                  },
+                ]}
+              >
+                <DisabledText className="sw-ml-3 sw-whitespace-nowrap">
+                  <TypeHelper
+                    className="sw-flex sw-items-center"
+                    iconFill="iconTypeDisabled"
+                    type={rule.type}
+                  />
+                </DisabledText>
+              </DocumentationTooltip>
               {allTags.length > 0 && (
                 <TagsList allowUpdate={false} className="sw-ml-3" tags={allTags} />
               )}

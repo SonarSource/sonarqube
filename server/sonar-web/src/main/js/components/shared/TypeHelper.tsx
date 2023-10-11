@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { IconProps } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { IssueType, RuleType } from '../../types/types';
@@ -24,13 +25,14 @@ import IssueTypeIcon from '../icon-mappers/IssueTypeIcon';
 
 interface Props {
   className?: string;
+  iconFill?: IconProps['fill'];
   type: IssueType | RuleType;
 }
 
 export default function TypeHelper(props: Props) {
   return (
     <span className={props.className}>
-      <IssueTypeIcon className="sw-mr-1" type={props.type} />
+      <IssueTypeIcon className="sw-mr-1" type={props.type} fill={props.iconFill} />
       {translate('issue.type', props.type)}
     </span>
   );

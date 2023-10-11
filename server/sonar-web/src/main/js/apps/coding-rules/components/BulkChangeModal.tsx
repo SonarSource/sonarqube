@@ -253,7 +253,10 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
             <ButtonPrimary
               autoFocus
               type="submit"
-              disabled={this.state.submitting || this.state.selectedProfiles.length === 0}
+              disabled={
+                this.state.submitting ||
+                (this.state.selectedProfiles.length === 0 && profile === undefined)
+              }
               form={FORM_ID}
             >
               {translate('apply')}

@@ -263,7 +263,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     return (
       <header className="sw-flex sw-mb-6">
         <div className="sw-mr-8 sw-flex-1">
-          <div className="sw-mb-4">
+          <div className="sw-mb-2">
             {ruleDetails.cleanCodeAttributeCategory !== undefined && (
               <CleanCodeAttributePill
                 cleanCodeAttributeCategory={ruleDetails.cleanCodeAttributeCategory}
@@ -273,8 +273,8 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
             )}
           </div>
 
-          <div className="sw-mb-4">
-            <PageContentFontWrapper className="sw-body-md-highlight" as="h1">
+          <div className="sw-mb-2">
+            <PageContentFontWrapper className="sw-heading-md" as="h1">
               <IssueMessageHighlighting message={ruleDetails.name} />
               <ClipboardIconButton
                 Icon={LinkIcon}
@@ -290,11 +290,10 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
             {!!ruleDetails.impacts.length && (
               <div className="sw-flex sw-items-center sw-flex-1">
                 <Note>{translate('issue.software_qualities.label')}</Note>
-                <ul className="sw-flex sw-gap-2">
+                <ul className="sw-flex sw-gap-2 sw-ml-1">
                   {ruleDetails.impacts.map(({ severity, softwareQuality }) => (
                     <li key={softwareQuality}>
                       <SoftwareImpactPill
-                        className="sw-ml-2"
                         severity={severity}
                         quality={softwareQuality}
                         type="rule"
@@ -305,7 +304,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
               </div>
             )}
           </div>
-          <BasicSeparator className="sw-my-3" />
+          <BasicSeparator className="sw-my-4" />
           {hasTypeData && (
             <div className="sw-flex sw-items-center">
               {!ruleDetails.isExternal && (

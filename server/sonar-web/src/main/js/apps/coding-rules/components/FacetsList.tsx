@@ -49,6 +49,8 @@ export interface FacetsListProps {
   selectedProfile?: Profile;
 }
 
+const MAX_INITIAL_LANGUAGES = 5;
+
 export default function FacetsList(props: FacetsListProps) {
   const languageDisabled = !props.hideProfileFacet && props.query.profile !== undefined;
 
@@ -60,11 +62,12 @@ export default function FacetsList(props: FacetsListProps) {
   return (
     <>
       <LanguageFacet
+        maxInitialItems={MAX_INITIAL_LANGUAGES}
         onChange={props.onFilterChange}
         onToggle={props.onFacetToggle}
         open={!!props.openFacets.languages}
         selectedLanguages={props.query.languages}
-        stats={props.facets && props.facets.languages}
+        stats={props.facets?.languages}
         disabled={languageDisabled}
         disabledHelper={translate('coding_rules.filters.language.inactive')}
       />

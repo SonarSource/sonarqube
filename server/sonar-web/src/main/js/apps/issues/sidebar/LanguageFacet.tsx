@@ -32,6 +32,7 @@ import { ListStyleFacet } from './ListStyleFacet';
 interface Props {
   fetching?: boolean;
   languages: Languages;
+  maxInitialItems?: number;
   selectedLanguages: string[];
   loadSearchResultCount?: (property: string, changes: Partial<Query>) => Promise<Facet>;
   onChange: (changes: Partial<Query>) => void;
@@ -99,6 +100,7 @@ class LanguageFacetClass extends React.PureComponent<Props> {
         getSearchResultKey={(language) => language.key}
         getSearchResultText={(language) => language.name}
         loadSearchResultCount={this.loadSearchResultCount}
+        maxInitialItems={this.props.maxInitialItems}
         minSearchLength={1}
         onChange={this.props.onChange}
         onSearch={this.handleSearch}
