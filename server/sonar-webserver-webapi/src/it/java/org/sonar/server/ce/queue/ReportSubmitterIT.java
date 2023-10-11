@@ -20,15 +20,21 @@
 package org.sonar.server.ce.queue;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.alm.client.github.AppInstallationToken;
+import org.sonar.alm.client.github.GithubApplicationClient;
+import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
+import org.sonar.alm.client.github.config.GithubAppConfiguration;
+import org.sonar.alm.client.github.config.GithubAppInstallation;
 import org.sonar.api.utils.System2;
+import org.sonar.auth.github.GitHubSettings;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.queue.CeTaskSubmit;
@@ -36,13 +42,21 @@ import org.sonar.core.i18n.I18n;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.alm.setting.ALM;
+import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
+import org.sonar.server.almsettings.ws.DelegatingDevOpsPlatformService;
+import org.sonar.server.almsettings.ws.DevOpsPlatformService;
+import org.sonar.server.almsettings.ws.DevOpsProjectDescriptor;
+import org.sonar.server.almsettings.ws.GitHubDevOpsPlatformService;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
@@ -60,16 +74,19 @@ import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.IntStream.rangeClosed;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
@@ -98,8 +115,19 @@ public class ReportSubmitterIT {
     new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, mock(PermissionUpdater.class), mock(PermissionService.class));
   private final BranchSupport ossEditionBranchSupport = new BranchSupport(null);
 
+  private final GithubApplicationClient githubApplicationClient = mock();
+  private final GithubGlobalSettingsValidator githubGlobalSettingsValidator = mock();
+  private final GitHubSettings gitHubSettings = mock();
+  private final ProjectKeyGenerator projectKeyGenerator = mock();
+
+  private final DevOpsPlatformService devOpsPlatformService = new DelegatingDevOpsPlatformService(
+    Set.of(new GitHubDevOpsPlatformService(db.getDbClient(), githubGlobalSettingsValidator,
+      githubApplicationClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings)));
+
+  private final DevOpsPlatformService devOpsPlatformServiceSpy = spy(devOpsPlatformService);
+
   private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), ossEditionBranchSupport,
-    projectDefaultVisibility);
+    projectDefaultVisibility, devOpsPlatformServiceSpy);
 
   @Before
   public void before() {
@@ -115,9 +143,7 @@ public class ReportSubmitterIT {
     mockSuccessfulPrepareSubmitCall();
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), any(), eq(PROJECT_KEY)))
       .thenReturn(true);
-    Map<String, String> nonEmptyCharacteristics = IntStream.range(0, 1 + new Random().nextInt(5))
-      .boxed()
-      .collect(Collectors.toMap(i -> randomAlphabetic(i + 10), i1 -> randomAlphabetic(i1 + 20)));
+    Map<String, String> nonEmptyCharacteristics = Map.of(BRANCH, "branch1");
     InputStream reportInput = IOUtils.toInputStream("{binary}", UTF_8);
 
     assertThatThrownBy(() -> underTest.submit(PROJECT_KEY, PROJECT_NAME, nonEmptyCharacteristics, reportInput))
@@ -152,9 +178,11 @@ public class ReportSubmitterIT {
     verifyReportIsPersisted(TASK_UUID);
     verifyNoInteractions(permissionTemplateService);
     verify(queue).submit(argThat(submit -> submit.getType().equals(CeTaskTypes.REPORT)
-      && submit.getComponent().filter(cpt -> cpt.getUuid().equals(project.getMainBranchComponent().uuid()) && cpt.getEntityUuid().equals(project.projectUuid())).isPresent()
-      && submit.getSubmitterUuid().equals(user.getUuid())
-      && submit.getUuid().equals(TASK_UUID)));
+                                           && submit.getComponent()
+                                             .filter(cpt -> cpt.getUuid().equals(project.getMainBranchComponent().uuid()) && cpt.getEntityUuid().equals(project.projectUuid()))
+                                             .isPresent()
+                                           && submit.getSubmitterUuid().equals(user.getUuid())
+                                           && submit.getUuid().equals(TASK_UUID)));
   }
 
   @Test
@@ -173,8 +201,9 @@ public class ReportSubmitterIT {
 
     verifyReportIsPersisted(TASK_UUID);
     verify(queue).submit(argThat(submit -> submit.getType().equals(CeTaskTypes.REPORT)
-      && submit.getComponent().filter(cpt -> cpt.getUuid().equals(createdProject.uuid()) && cpt.getEntityUuid().equals(projectDto.getUuid())).isPresent()
-      && submit.getUuid().equals(TASK_UUID)));
+                                           && submit.getComponent().filter(cpt -> cpt.getUuid().equals(createdProject.uuid()) && cpt.getEntityUuid().equals(projectDto.getUuid()))
+                                             .isPresent()
+                                           && submit.getUuid().equals(TASK_UUID)));
     assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.SCANNER_API);
   }
 
@@ -231,17 +260,92 @@ public class ReportSubmitterIT {
   }
 
   @Test
-  public void submit_a_report_on_new_project_with_scan_permission() {
-    userSession
-      .addPermission(GlobalPermission.SCAN)
-      .addPermission(PROVISION_PROJECTS);
+  public void submit_whenReportIsForANewProjectWithoutDevOpsMetadata_createsLocalProject() {
+    userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
     mockSuccessfulPrepareSubmitCall();
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY)))
       .thenReturn(true);
 
     underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
-    verify(queue).submit(any(CeTaskSubmit.class));
+    ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), PROJECT_KEY).orElseThrow();
+    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.SCANNER_API);
+    assertThat(projectDto.getName()).isEqualTo(PROJECT_NAME);
+
+    BranchDto branchDto = db.getDbClient().branchDao().selectByBranchKey(db.getSession(), projectDto.getUuid(), "main").orElseThrow();
+    assertThat(branchDto.isMain()).isTrue();
+  }
+
+  @Test
+  public void submit_whenReportIsForANewProjectWithoutValidAlmSettings_createsProjectWithoutDevOpsBinding() {
+    userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
+    mockSuccessfulPrepareSubmitCall();
+
+    Map<String, String> characteristics = Map.of("random", "data");
+    DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo");
+    when(devOpsPlatformServiceSpy.getDevOpsProjectDescriptor(characteristics)).thenReturn(Optional.of(projectDescriptor));
+
+    underTest.submit(PROJECT_KEY, PROJECT_NAME, characteristics, IOUtils.toInputStream("{binary}", UTF_8));
+
+    ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), PROJECT_KEY).orElseThrow();
+    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.SCANNER_API);
+    assertThat(projectDto.getName()).isEqualTo(PROJECT_NAME);
+
+    BranchDto branchDto = db.getDbClient().branchDao().selectByBranchKey(db.getSession(), projectDto.getUuid(), "main").orElseThrow();
+    assertThat(branchDto.isMain()).isTrue();
+
+    assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.getUuid())).isEmpty();
+  }
+
+  @Test
+  public void submit_whenReportIsForANewProjectWithValidAlmSettings_createsProjectWithDevOpsBinding() {
+    userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
+    mockSuccessfulPrepareSubmitCall();
+
+    Map<String, String> characteristics = Map.of("random", "data");
+    DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo");
+
+    mockInteractionsWithDevOpsPlatformServiceSpyBeforeProjectCreation(characteristics, projectDescriptor);
+
+    underTest.submit(PROJECT_KEY, PROJECT_NAME, characteristics, IOUtils.toInputStream("{binary}", UTF_8));
+
+    ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), PROJECT_KEY).orElseThrow();
+    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.SCANNER_API_DEVOPS_AUTO_CONFIG);
+    assertThat(projectDto.getName()).isEqualTo("repoName");
+
+    BranchDto branchDto = db.getDbClient().branchDao().selectByBranchKey(db.getSession(), projectDto.getUuid(), "defaultBranch").orElseThrow();
+    assertThat(branchDto.isMain()).isTrue();
+
+    assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.getUuid())).isPresent();
+  }
+
+  private void mockInteractionsWithDevOpsPlatformServiceSpyBeforeProjectCreation(Map<String, String> characteristics, DevOpsProjectDescriptor projectDescriptor) {
+    doReturn(Optional.of(projectDescriptor)).when(devOpsPlatformServiceSpy).getDevOpsProjectDescriptor(characteristics);
+    AlmSettingDto almSettingDto = mock(AlmSettingDto.class);
+    when(almSettingDto.getAlm()).thenReturn(ALM.GITHUB);
+    when(almSettingDto.getUrl()).thenReturn("https://www.toto.com");
+    when(almSettingDto.getUuid()).thenReturn("TEST_GH");
+    doReturn(Optional.of(almSettingDto)).when(devOpsPlatformServiceSpy).getValidAlmSettingDto(any(), eq(projectDescriptor));
+    mockGithubInteractions(almSettingDto);
+  }
+
+  private void mockGithubInteractions(AlmSettingDto almSettingDto) {
+    GithubAppConfiguration githubAppConfiguration = mock(GithubAppConfiguration.class);
+    when(githubGlobalSettingsValidator.validate(almSettingDto)).thenReturn(githubAppConfiguration);
+    GithubAppInstallation githubAppInstallation = mock(GithubAppInstallation.class);
+    when(githubAppInstallation.installationId()).thenReturn("5435345");
+    when(githubApplicationClient.getWhitelistedGithubAppInstallations(any())).thenReturn(List.of(githubAppInstallation));
+    when(githubApplicationClient.createAppInstallationToken(any(), anyLong())).thenReturn(Optional.of(mock(AppInstallationToken.class)));
+    when(githubApplicationClient.createAppInstallationToken(any(), anyLong())).thenReturn(Optional.of(mock(AppInstallationToken.class)));
+    when(githubApplicationClient.getInstallationId(eq(githubAppConfiguration), any())).thenReturn(Optional.of(5435345L));
+    GithubApplicationClient.Repository repository = mock(GithubApplicationClient.Repository.class);
+    when(repository.getDefaultBranch()).thenReturn("defaultBranch");
+    when(repository.getFullName()).thenReturn("orga/repoName");
+    when(repository.getName()).thenReturn("repoName");
+    when(githubApplicationClient.getRepository(any(), any(), any())).thenReturn(Optional.of(repository));
+    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn("projectKey");
   }
 
   @Test
@@ -300,7 +404,7 @@ public class ReportSubmitterIT {
       .extracting(throwable -> ((BadRequestException) throwable).errors())
       .asList()
       .contains(format("The project '%s' is already defined in SonarQube but as a module of project '%s'. " +
-          "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
+                       "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
         dir.getKey(), project.getKey(), project.getKey(), dir.getKey()));
   }
 

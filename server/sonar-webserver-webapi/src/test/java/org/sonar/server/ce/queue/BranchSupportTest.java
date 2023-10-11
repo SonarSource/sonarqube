@@ -38,7 +38,9 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.ce.CeTaskCharacteristics.PULL_REQUEST;
 
 @RunWith(DataProviderRunner.class)
 public class BranchSupportTest {
@@ -54,17 +56,31 @@ public class BranchSupportTest {
 
     ComponentKey componentKey = underTestNoBranch.createComponentKey(projectKey, NO_CHARACTERISTICS);
 
-    assertThat(componentKey)
-      .isEqualTo(underTestWithBranch.createComponentKey(projectKey, NO_CHARACTERISTICS));
+    assertThat(componentKey).isEqualTo(underTestWithBranch.createComponentKey(projectKey, NO_CHARACTERISTICS));
     assertThat(componentKey.getKey()).isEqualTo(projectKey);
     assertThat(componentKey.getBranchName()).isEmpty();
     assertThat(componentKey.getPullRequestKey()).isEmpty();
+    verifyNoInteractions(branchSupportDelegate);
   }
 
   @Test
-  public void createComponentKey_delegates_to_delegate_if_characteristics_is_not_empty() {
+  public void createComponentKey_whenCharacteristicsIsRandom_returnsComponentKey() {
     String projectKey = randomAlphanumeric(12);
     Map<String, String> nonEmptyMap = newRandomNonEmptyMap();
+
+    ComponentKey componentKey = underTestWithBranch.createComponentKey(projectKey, nonEmptyMap);
+
+    assertThat(componentKey).isEqualTo(underTestWithBranch.createComponentKey(projectKey, NO_CHARACTERISTICS));
+    assertThat(componentKey.getKey()).isEqualTo(projectKey);
+    assertThat(componentKey.getBranchName()).isEmpty();
+    assertThat(componentKey.getPullRequestKey()).isEmpty();
+    verifyNoInteractions(branchSupportDelegate);
+  }
+
+  @Test
+  public void createComponentKey_whenCharacteristicsIsBranchRelated_delegates() {
+    String projectKey = randomAlphanumeric(12);
+    Map<String, String> nonEmptyMap = Map.of(PULL_REQUEST, "PR-2");
     ComponentKey expected = mock(ComponentKey.class);
     when(branchSupportDelegate.createComponentKey(projectKey, nonEmptyMap)).thenReturn(expected);
 

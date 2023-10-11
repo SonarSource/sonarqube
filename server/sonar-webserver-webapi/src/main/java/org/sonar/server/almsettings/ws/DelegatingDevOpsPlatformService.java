@@ -24,10 +24,12 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Priority;
 import org.apache.commons.lang.NotImplementedException;
+import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.server.component.ComponentCreationData;
 
 @ServerSide
 @Priority(1)
@@ -55,6 +57,22 @@ public class DelegatingDevOpsPlatformService implements DevOpsPlatformService {
   public Optional<AlmSettingDto> getValidAlmSettingDto(DbSession dbSession, DevOpsProjectDescriptor devOpsProjectDescriptor) {
     return findDelegate(devOpsProjectDescriptor.alm())
       .flatMap(delegate -> delegate.getValidAlmSettingDto(dbSession, devOpsProjectDescriptor));
+  }
+
+  @Override
+  public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, String projectKey, AlmSettingDto almSettingDto,
+    DevOpsProjectDescriptor devOpsProjectDescriptor) {
+    return findDelegate(almSettingDto.getAlm())
+      .map(delegate -> delegate.createProjectAndBindToDevOpsPlatform(dbSession, projectKey, almSettingDto, devOpsProjectDescriptor))
+      .orElseThrow(() -> new IllegalStateException("Impossible to bind project to ALM platform " + almSettingDto.getAlm()));
+  }
+
+  @Override
+  public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, AlmSettingDto almSettingDto, AccessToken accessToken,
+    DevOpsProjectDescriptor devOpsProjectDescriptor) {
+    return findDelegate(almSettingDto.getAlm())
+      .map(delegate -> delegate.createProjectAndBindToDevOpsPlatform(dbSession, almSettingDto, accessToken, devOpsProjectDescriptor))
+      .orElseThrow(() -> new IllegalStateException("Impossible to bind project to ALM platform " + almSettingDto.getAlm()));
   }
 
   private Optional<DevOpsPlatformService> findDelegate(ALM alm) {

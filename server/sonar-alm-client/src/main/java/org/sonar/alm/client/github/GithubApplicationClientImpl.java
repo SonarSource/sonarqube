@@ -71,6 +71,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   protected final GithubAppSecurity appSecurity;
   private final GitHubSettings gitHubSettings;
   private final GithubPaginatedHttpClient githubPaginatedHttpClient;
+
   public GithubApplicationClientImpl(GithubApplicationHttpClient appHttpClient, GithubAppSecurity appSecurity, GitHubSettings gitHubSettings,
     GithubPaginatedHttpClient githubPaginatedHttpClient) {
     this.appHttpClient = appHttpClient;
@@ -84,6 +85,25 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
     checkArgument(pageSize > 0 && pageSize <= 100, "'pageSize' must be a value larger than 0 and smaller or equal to 100.");
   }
 
+  @Override
+  public Optional<AppInstallationToken> createAppInstallationToken(GithubAppConfiguration githubAppConfiguration, long installationId) {
+    AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
+    String endPoint = "/app/installations/" + installationId + "/access_tokens";
+    return post(githubAppConfiguration.getApiEndpoint(), appToken, endPoint, GithubBinding.GsonInstallationToken.class)
+      .map(GithubBinding.GsonInstallationToken::getToken)
+      .filter(Objects::nonNull)
+      .map(AppInstallationToken::new);
+  }
+
+  private <T> Optional<T> post(String baseUrl, AccessToken token, String endPoint, Class<T> gsonClass) {
+    try {
+      GithubApplicationHttpClient.Response response = appHttpClient.post(baseUrl, token, endPoint);
+      return handleResponse(response, endPoint, gsonClass);
+    } catch (Exception e) {
+      LOG.warn(FAILED_TO_REQUEST_BEGIN_MSG + endPoint, e);
+      return Optional.empty();
+    }
+  }
 
   @Override
   public void checkApiEndpoint(GithubAppConfiguration githubAppConfiguration) {
@@ -150,7 +170,8 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
     AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
     String endpoint = String.format("/repos/%s/installation", repositorySlug);
     return get(githubAppConfiguration.getApiEndpoint(), appToken, endpoint, GithubBinding.GsonInstallation.class)
-      .map(GithubBinding.GsonInstallation::getId);
+      .map(GithubBinding.GsonInstallation::getId)
+      .filter(installationId -> installationId != 0L);
   }
 
   @Override
@@ -216,7 +237,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
     } catch (IOException e) {
       LOG.warn(FAILED_TO_REQUEST_BEGIN_MSG + endpoint, e);
       throw new IllegalStateException("An error occurred when retrieving your GitHup App installations. "
-        + "It might be related to your GitHub App configuration or a connectivity problem.");
+                                      + "It might be related to your GitHub App configuration or a connectivity problem.");
     }
   }
 
@@ -261,14 +282,17 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   }
 
   @Override
-  public Optional<Repository> getRepository(String appUrl, AccessToken accessToken, String organization, String repositoryKey) {
+  public Optional<Repository> getRepository(String appUrl, AccessToken accessToken, String organizationAndRepository) {
     try {
-      GetResponse response = appHttpClient.get(appUrl, accessToken, String.format("/repos/%s", repositoryKey));
-      return response.getContent()
+      GetResponse response = appHttpClient.get(appUrl, accessToken, String.format("/repos/%s", organizationAndRepository));
+      return Optional.of(response)
+        .filter(r -> r.getCode() == HTTP_OK)
+        .flatMap(GithubApplicationHttpClient.Response::getContent)
         .map(content -> GSON.fromJson(content, GsonGithubRepository.class))
         .map(GsonGithubRepository::toRepository);
     } catch (Exception e) {
-      throw new IllegalStateException(format("Failed to get repository '%s' of '%s' accessible by user access token on '%s'", repositoryKey, organization, appUrl), e);
+      throw new IllegalStateException(format("Failed to get repository '%s' on '%s' (this might be related to the GitHub App installation scope)",
+        organizationAndRepository,  appUrl), e);
     }
   }
 
@@ -295,9 +319,9 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
 
       Optional<String> content = response.getContent();
       Optional<UserAccessToken> accessToken = content.flatMap(c -> Arrays.stream(c.split("&"))
-        .filter(t -> t.startsWith("access_token="))
-        .map(t -> t.split("=")[1])
-        .findAny())
+          .filter(t -> t.startsWith("access_token="))
+          .map(t -> t.split("=")[1])
+          .findAny())
         .map(UserAccessToken::new);
 
       if (accessToken.isPresent()) {
@@ -330,7 +354,6 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       throw new ServerException(HTTP_INTERNAL_ERROR, e.getMessage());
     }
   }
-
 
   protected static <T> Optional<T> handleResponse(GithubApplicationHttpClient.Response response, String endPoint, Class<T> gsonClass) {
     try {

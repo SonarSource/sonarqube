@@ -27,7 +27,8 @@ public enum CreationMethod {
   LOCAL_BROWSER(Category.LOCAL, true),
   ALM_IMPORT_API(Category.ALM_IMPORT, false),
   ALM_IMPORT_BROWSER(Category.ALM_IMPORT, true),
-  SCANNER_API(Category.SCANNER, false);
+  SCANNER_API(Category.SCANNER, false),
+  SCANNER_API_DEVOPS_AUTO_CONFIG(Category.SCANNER, false);
 
   private final boolean isCreatedViaBrowser;
   private final Category category;

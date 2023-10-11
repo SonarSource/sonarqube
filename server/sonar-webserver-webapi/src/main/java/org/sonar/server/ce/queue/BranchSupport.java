@@ -22,6 +22,7 @@ package org.sonar.server.ce.queue;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
@@ -30,6 +31,9 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH;
+import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH_TYPE;
+import static org.sonar.core.ce.CeTaskCharacteristics.PULL_REQUEST;
 
 /**
  * Branch code for {@link ReportSubmitter}.
@@ -38,6 +42,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 @ServerSide
 public class BranchSupport {
+  private static final Set<String> BRANCH_CHARACTERISTICS = Set.of(BRANCH, BRANCH_TYPE, PULL_REQUEST);
   @CheckForNull
   private final BranchSupportDelegate delegate;
 
@@ -46,13 +51,12 @@ public class BranchSupport {
   }
 
   ComponentKey createComponentKey(String projectKey, Map<String, String> characteristics) {
-    if (characteristics.isEmpty()) {
-      return new ComponentKeyImpl(projectKey);
-    } else {
+    boolean containsBranchCharacteristics = characteristics.keySet().stream().anyMatch(BRANCH_CHARACTERISTICS::contains);
+    if (containsBranchCharacteristics) {
       checkState(delegate != null, "Current edition does not support branch feature");
+      return delegate.createComponentKey(projectKey, characteristics);
     }
-
-    return delegate.createComponentKey(projectKey, characteristics);
+    return new ComponentKeyImpl(projectKey);
   }
 
   ComponentDto createBranchComponent(DbSession dbSession, ComponentKey componentKey, ComponentDto mainComponentDto, BranchDto mainComponentBranchDto) {

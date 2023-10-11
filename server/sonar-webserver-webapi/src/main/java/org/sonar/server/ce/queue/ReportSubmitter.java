@@ -34,10 +34,13 @@ import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.server.almsettings.ws.DevOpsPlatformService;
+import org.sonar.server.almsettings.ws.DevOpsProjectDescriptor;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.component.ComponentUpdater;
@@ -45,7 +48,6 @@ import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.ProjectDefaultVisibility;
-import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -64,9 +66,11 @@ public class ReportSubmitter {
   private final DbClient dbClient;
   private final BranchSupport branchSupport;
   private final ProjectDefaultVisibility projectDefaultVisibility;
+  private final DevOpsPlatformService devOpsPlatformService;
 
   public ReportSubmitter(CeQueue queue, UserSession userSession, ComponentUpdater componentUpdater,
-    PermissionTemplateService permissionTemplateService, DbClient dbClient, BranchSupport branchSupport, ProjectDefaultVisibility projectDefaultVisibility) {
+    PermissionTemplateService permissionTemplateService, DbClient dbClient, BranchSupport branchSupport, ProjectDefaultVisibility projectDefaultVisibility,
+    DevOpsPlatformService devOpsPlatformService) {
     this.queue = queue;
     this.userSession = userSession;
     this.componentUpdater = componentUpdater;
@@ -74,6 +78,7 @@ public class ReportSubmitter {
     this.dbClient = dbClient;
     this.branchSupport = branchSupport;
     this.projectDefaultVisibility = projectDefaultVisibility;
+    this.devOpsPlatformService = devOpsPlatformService;
   }
 
   public CeTask submit(String projectKey, @Nullable String projectName, Map<String, String> characteristics, InputStream reportInput) {
@@ -89,7 +94,7 @@ public class ReportSubmitter {
         mainBranchComponent = mainBranchComponentOpt.get();
         validateProject(dbSession, mainBranchComponent, projectKey);
       } else {
-        componentCreationData = createProject(dbSession, componentKey.getKey(), projectName);
+        componentCreationData = createProject(projectKey, projectName, characteristics, dbSession, componentKey);
         mainBranchComponent = componentCreationData.mainBranchComponent();
       }
 
@@ -98,7 +103,7 @@ public class ReportSubmitter {
       ComponentDto branchComponent;
       if (isMainBranch(componentKey, mainBranch)) {
         branchComponent = mainBranchComponent;
-      } else if(componentKey.getBranchName().isPresent()) {
+      } else if (componentKey.getBranchName().isPresent()) {
         branchComponent = dbClient.componentDao().selectByKeyAndBranch(dbSession, componentKey.getKey(), componentKey.getBranchName().get())
           .orElseGet(() -> branchSupport.createBranchComponent(dbSession, componentKey, mainBranchComponent, mainBranch));
       } else {
@@ -154,33 +159,37 @@ public class ReportSubmitter {
     }
   }
 
-  private ComponentCreationData createProject(DbSession dbSession, String projectKey, @Nullable String projectName) {
+  private ComponentCreationData createProject(String projectKey, @Nullable String projectName, Map<String, String> characteristics,
+    DbSession dbSession, BranchSupport.ComponentKey componentKey) {
     userSession.checkPermission(GlobalPermission.PROVISION_PROJECTS);
-    String userUuid = userSession.getUuid();
-    String userName = userSession.getLogin();
 
-    boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(dbSession, userUuid, projectKey);
+    boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(dbSession, userSession.getUuid(), projectKey);
     if (!wouldCurrentUserHaveScanPermission) {
       throw insufficientPrivilegesException();
     }
 
+    Optional<DevOpsProjectDescriptor> devOpsProjectDescriptor = devOpsPlatformService.getDevOpsProjectDescriptor(characteristics);
+    Optional<AlmSettingDto> almSettingDto = devOpsProjectDescriptor.flatMap(descriptor -> devOpsPlatformService.getValidAlmSettingDto(dbSession, descriptor));
+    if (almSettingDto.isPresent()) {
+      return devOpsPlatformService.createProjectAndBindToDevOpsPlatform(dbSession, projectKey, almSettingDto.get(), devOpsProjectDescriptor.get());
+    }
+    return createProject(dbSession, componentKey.getKey(), defaultIfBlank(projectName, projectKey));
+  }
+
+  private ComponentCreationData createProject(DbSession dbSession, String projectKey, String projectName) {
     NewComponent newProject = newComponentBuilder()
       .setKey(projectKey)
       .setName(defaultIfBlank(projectName, projectKey))
       .setQualifier(Qualifiers.PROJECT)
-      .setPrivate(getDefaultVisibility(dbSession).isPrivate())
+      .setPrivate(projectDefaultVisibility.get(dbSession).isPrivate())
       .build();
     ComponentCreationParameters componentCreationParameters = ComponentCreationParameters.builder()
       .newComponent(newProject)
-      .userLogin(userName)
-      .userUuid(userUuid)
+      .userLogin(userSession.getLogin())
+      .userUuid(userSession.getUuid())
       .creationMethod(SCANNER_API)
       .build();
     return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);
-  }
-
-  private Visibility getDefaultVisibility(DbSession dbSession) {
-    return projectDefaultVisibility.get(dbSession);
   }
 
   private CeTask submitReport(DbSession dbSession, InputStream reportInput, ComponentDto branch, BranchDto mainBranch, Map<String, String> characteristics) {

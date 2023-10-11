@@ -48,6 +48,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
+import org.sonar.server.almsettings.ws.GitHubDevOpsPlatformService;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexersImpl;
@@ -98,6 +99,7 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_COD
 public class ImportGithubProjectActionIT {
 
   private static final String PROJECT_KEY_NAME = "PROJECT_NAME";
+  private static final String GENERATED_PROJECT_KEY = "generated_" + PROJECT_KEY_NAME;
 
   @Rule
   public UserSessionRule userSession = standalone();
@@ -122,15 +124,16 @@ public class ImportGithubProjectActionIT {
   private final ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
   private final ProjectKeyGenerator projectKeyGenerator = mock(ProjectKeyGenerator.class);
   private final ProjectDefaultVisibility projectDefaultVisibility = mock(ProjectDefaultVisibility.class);
-  private PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+  private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
 
   private final GitHubSettings gitHubSettings = mock(GitHubSettings.class);
-  private NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
+  private final NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
 
   private final ManagedProjectService managedProjectService = mock(ManagedProjectService.class);
+  private final GitHubDevOpsPlatformService gitHubDevOpsPlatformService = new GitHubDevOpsPlatformService(db.getDbClient(),
+    null, appClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings);
   private final WsActionTester ws = new WsActionTester(new ImportGithubProjectAction(db.getDbClient(), managedProjectService, userSession,
-    projectDefaultVisibility, appClient, componentUpdater, importHelper, projectKeyGenerator, newCodeDefinitionResolver,
-    defaultBranchNameResolver, gitHubSettings));
+    componentUpdater, importHelper, newCodeDefinitionResolver, defaultBranchNameResolver, gitHubDevOpsPlatformService));
 
   @Before
   public void before() {
@@ -147,7 +150,7 @@ public class ImportGithubProjectActionIT {
     Projects.CreateWsResponse response = callWebService(githubAlmSetting);
 
     Projects.CreateWsResponse.Project result = response.getProject();
-    assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
+    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
     assertThat(result.getName()).isEqualTo(repository.getName());
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
@@ -157,7 +160,7 @@ public class ImportGithubProjectActionIT {
     assertThat(mainBranch).isPresent();
     assertThat(mainBranch.get().getKey()).isEqualTo("default-branch");
 
-    verify(managedProjectService).queuePermissionSyncTask(userSession.getUuid(), mainBranch.get().getUuid() , projectDto.get().getUuid());
+    verify(managedProjectService).queuePermissionSyncTask(userSession.getUuid(), mainBranch.get().getUuid(), projectDto.get().getUuid());
   }
 
   @Test
@@ -177,11 +180,12 @@ public class ImportGithubProjectActionIT {
       .executeProtobuf(Projects.CreateWsResponse.class);
 
     Projects.CreateWsResponse.Project result = response.getProject();
+    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
     assertThat(projectDto).isPresent();
 
-    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(),  projectDto.get().getUuid()))
+    assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.get().getUuid()))
       .isPresent()
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue, NewCodePeriodDto::getBranchUuid)
@@ -205,6 +209,7 @@ public class ImportGithubProjectActionIT {
       .executeProtobuf(Projects.CreateWsResponse.class);
 
     Projects.CreateWsResponse.Project result = response.getProject();
+    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
     assertThat(projectDto).isPresent();
@@ -225,11 +230,7 @@ public class ImportGithubProjectActionIT {
 
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
-      "octocat/" + PROJECT_KEY_NAME,
-      "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, null);
-    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
-    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+    mockGithubInteractions();
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -239,6 +240,7 @@ public class ImportGithubProjectActionIT {
       .executeProtobuf(Projects.CreateWsResponse.class);
 
     Projects.CreateWsResponse.Project result = response.getProject();
+    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
     assertThat(projectDto).isPresent();
@@ -256,11 +258,7 @@ public class ImportGithubProjectActionIT {
 
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
-      "octocat/" + PROJECT_KEY_NAME,
-      "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "mainBranch");
-    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
-    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+    mockGithubInteractions();
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -270,6 +268,7 @@ public class ImportGithubProjectActionIT {
       .executeProtobuf(Projects.CreateWsResponse.class);
 
     Projects.CreateWsResponse.Project result = response.getProject();
+    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
     assertThat(projectDto).isPresent();
@@ -278,7 +277,7 @@ public class ImportGithubProjectActionIT {
       .isPresent()
       .get()
       .extracting(NewCodePeriodDto::getType, NewCodePeriodDto::getValue)
-      .containsExactly(REFERENCE_BRANCH, "mainBranch");
+      .containsExactly(REFERENCE_BRANCH, "default-branch");
   }
 
   @Test
@@ -286,10 +285,7 @@ public class ImportGithubProjectActionIT {
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
     db.components().insertPublicProject(p -> p.setKey("Hello-World")).getMainBranchComponent();
 
-    GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, "Hello-World", false, "Hello-World",
-      "https://github.sonarsource.com/api/v3/repos/octocat/Hello-World", "main");
-    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
-    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+    GithubApplicationClient.Repository repository = mockGithubInteractions();
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -298,7 +294,7 @@ public class ImportGithubProjectActionIT {
       .executeProtobuf(Projects.CreateWsResponse.class);
 
     Projects.CreateWsResponse.Project result = response.getProject();
-    assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
+    assertThat(result.getKey()).isEqualTo(GENERATED_PROJECT_KEY);
     assertThat(result.getName()).isEqualTo(repository.getName());
   }
 
@@ -318,7 +314,7 @@ public class ImportGithubProjectActionIT {
     ArgumentCaptor<EntityDto> projectDtoArgumentCaptor = ArgumentCaptor.forClass(EntityDto.class);
     verify(permissionTemplateService).applyDefaultToNewComponent(any(DbSession.class), projectDtoArgumentCaptor.capture(), eq(userSession.getUuid()));
     String projectKey = projectDtoArgumentCaptor.getValue().getKey();
-    assertThat(projectKey).isEqualTo(PROJECT_KEY_NAME);
+    assertThat(projectKey).isEqualTo(GENERATED_PROJECT_KEY);
 
   }
 
@@ -346,6 +342,7 @@ public class ImportGithubProjectActionIT {
 
     Projects.CreateWsResponse response = callWebService(githubAlmSetting);
 
+    assertThat(response.getProject().getKey()).isEqualTo(GENERATED_PROJECT_KEY);
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), response.getProject().getKey());
     assertThat(projectDto.orElseThrow().getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
   }
@@ -358,6 +355,7 @@ public class ImportGithubProjectActionIT {
 
     Projects.CreateWsResponse response = callWebService(githubAlmSetting);
 
+    assertThat(response.getProject().getKey()).isEqualTo(GENERATED_PROJECT_KEY);
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), response.getProject().getKey());
     assertThat(projectDto.orElseThrow().getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_BROWSER);
   }
@@ -431,8 +429,8 @@ public class ImportGithubProjectActionIT {
     GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
       "octocat/" + PROJECT_KEY_NAME,
       "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "default-branch");
-    when(appClient.getRepository(any(), any(), any(), any())).thenReturn(Optional.of(repository));
-    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(PROJECT_KEY_NAME);
+    when(appClient.getRepository(any(), any(), any())).thenReturn(Optional.of(repository));
+    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn(GENERATED_PROJECT_KEY);
     return repository;
   }
 

@@ -44,6 +44,19 @@ public interface GithubApplicationClient {
    */
   UserAccessToken createUserAccessToken(String appUrl, String clientId, String clientSecret, String code);
 
+  /**
+   * Create an installation access token for the specified installation ID.
+   *
+   * IMPORTANT: each call consumes one hit of the App GLOBAL quotas (5'000 hits per hour).
+   *
+   * Token expires after one hour.
+   * See https://developer.github.com/apps/building-github-apps/authenticating-with-github-apps/#authenticating-as-an-installation
+   *
+   * @return {@code Optional.empty()} if Github is not configured or if token failed to be
+   *         created (network issue, parsing error, Github error, ...).
+   */
+  Optional<AppInstallationToken> createAppInstallationToken(GithubAppConfiguration githubAppConfiguration, long installationId);
+
   GithubBinding.GsonApp getApp(GithubAppConfiguration githubAppConfiguration);
 
   /**
@@ -78,7 +91,7 @@ public interface GithubApplicationClient {
   /**
    * Returns the repository identified by the repositoryKey owned by the provided organization.
    */
-  Optional<Repository> getRepository(String appUrl, AccessToken accessToken, String organization, String repositoryKey);
+  Optional<Repository> getRepository(String appUrl, AccessToken accessToken, String repositoryKey);
 
   class Repositories {
     private int total;

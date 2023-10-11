@@ -460,4 +460,13 @@ public class GithubBinding {
       return name;
     }
   }
+
+  public static class GsonInstallationToken {
+    @SerializedName("token")
+    String token;
+
+    public String getToken() {
+      return token;
+    }
+  }
 }
