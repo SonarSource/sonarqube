@@ -43,7 +43,7 @@ public class DefaultPeriodCleanerTest {
   public void doClean() {
     PurgeDao dao = mock(PurgeDao.class);
     DbSession session = mock(DbSession.class);
-    when(dao.selectPurgeableAnalyses("uuid_123", session)).thenReturn(Arrays.asList(
+    when(dao.selectProcessedAnalysisByComponentUuid("uuid_123", session)).thenReturn(Arrays.asList(
         new PurgeableAnalysisDto().setAnalysisUuid("u999").setDate(System2.INSTANCE.now()),
         new PurgeableAnalysisDto().setAnalysisUuid("u456").setDate(System2.INSTANCE.now())
         ));

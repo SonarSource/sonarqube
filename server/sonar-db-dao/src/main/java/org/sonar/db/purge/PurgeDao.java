@@ -160,9 +160,9 @@ public class PurgeDao implements Dao {
     commands.deleteDisabledComponentsWithoutIssues(disabledComponentsWithoutIssue);
   }
 
-  public List<PurgeableAnalysisDto> selectPurgeableAnalyses(String componentUuid, DbSession session) {
+  public List<PurgeableAnalysisDto> selectProcessedAnalysisByComponentUuid(String componentUuid, DbSession session) {
     PurgeMapper mapper = mapper(session);
-    return mapper.selectPurgeableAnalyses(componentUuid).stream()
+    return mapper.selectProcessedAnalysisByComponentUuid(componentUuid).stream()
       .filter(new NewCodePeriodAnalysisFilter(mapper, componentUuid))
       .sorted()
       .toList();

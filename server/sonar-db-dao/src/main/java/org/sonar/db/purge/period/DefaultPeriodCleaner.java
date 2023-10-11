@@ -72,6 +72,6 @@ public class DefaultPeriodCleaner {
   }
 
   private List<PurgeableAnalysisDto> selectAnalysesOfComponent(String componentUuid, DbSession session) {
-    return purgeDao.selectPurgeableAnalyses(componentUuid, session);
+    return purgeDao.selectProcessedAnalysisByComponentUuid(componentUuid, session);
   }
 }

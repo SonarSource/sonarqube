@@ -22,7 +22,7 @@
       </if>
   </select>
 
-  <select id="selectPurgeableAnalyses" parameterType="String" resultType="PurgeableAnalysis">
+  <select id="selectProcessedAnalysisByComponentUuid" parameterType="String" resultType="PurgeableAnalysis">
     select
       s.uuid as "analysisUuid",
       s.created_at as "date",
@@ -33,6 +33,19 @@
       left outer join events ve on ve.analysis_uuid=s.uuid
     where
       s.root_component_uuid=#{componentUuid,jdbcType=VARCHAR}
+      /*These conditions will select all the analysis that are possible candidates for the deletion happening in a second stage.
+        If an analysis has multiple events associated (including Version), a single row should be returned for it*/
+      and ( ve.category is null --Analysis without events are picked
+            --Analysis with Version events are picked with "version" field properly assigned
+            or ve.category='Version'
+            --Analysis with events other than "version" are selected only if they have not been picked already by the previous condition
+            or (ve.category != 'Version' and not exists
+                (select e2.analysis_uuid from events e2
+                  where e2.component_uuid = #{componentUuid,jdbcType=VARCHAR}
+                  and e2.analysis_uuid = ve.analysis_uuid
+                  and e2.category = 'Version')
+                )
+          )
       and s.status='P'
   </select>
 

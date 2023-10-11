@@ -26,7 +26,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -62,7 +61,6 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeQueueDto.Status;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskMessageDto;
-import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
@@ -72,6 +70,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.event.EventComponentChangeDto;
 import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventTesting;
@@ -116,6 +115,7 @@ import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
 import static org.sonar.db.component.SnapshotTesting.newSnapshot;
+import static org.sonar.db.event.EventDto.CATEGORY_SQ_UPGRADE;
 import static org.sonar.db.event.EventDto.CATEGORY_VERSION;
 import static org.sonar.db.issue.IssueTesting.newCodeReferenceIssue;
 import static org.sonar.db.webhook.WebhookDeliveryTesting.newDto;
@@ -493,16 +493,41 @@ public class PurgeDaoIT {
         .setRootComponentUuid(PROJECT_UUID)
         .setStatus(STATUS_PROCESSED)
         .setLast(false)
-        .setProjectVersion("V5")
+        .setProjectVersion("V5"),
+      // with multiple events -> select
+      newSnapshot()
+        .setUuid("u6")
+        .setRootComponentUuid(PROJECT_UUID)
+        .setStatus(STATUS_PROCESSED)
+        .setLast(false)
+        .setProjectVersion("V6"),
+      // with singe event different from Version -> select
+      newSnapshot()
+        .setUuid("u7")
+        .setRootComponentUuid(PROJECT_UUID)
+        .setStatus(STATUS_PROCESSED)
+        .setLast(false)
+        .setProjectVersion("V7")
     };
     db.components().insertSnapshots(analyses);
     db.events().insertEvent(EventTesting.newEvent(analyses[4])
       .setName("V5")
       .setCategory(CATEGORY_VERSION));
 
-    List<PurgeableAnalysisDto> purgeableAnalyses = underTest.selectPurgeableAnalyses(PROJECT_UUID, dbSession);
+    db.events().insertEvent(EventTesting.newEvent(analyses[5])
+      .setName("V6")
+      .setCategory(CATEGORY_VERSION));
+    db.events().insertEvent(EventTesting.newEvent(analyses[5])
+      .setName("10.3")
+      .setCategory(CATEGORY_SQ_UPGRADE));
 
-    assertThat(purgeableAnalyses).hasSize(3);
+    db.events().insertEvent(EventTesting.newEvent(analyses[6])
+      .setName("10.3")
+      .setCategory(CATEGORY_SQ_UPGRADE));
+
+    List<PurgeableAnalysisDto> purgeableAnalyses = underTest.selectProcessedAnalysisByComponentUuid(PROJECT_UUID, dbSession);
+
+    assertThat(purgeableAnalyses).hasSize(5);
     assertThat(getById(purgeableAnalyses, "u1").isLast()).isTrue();
     assertThat(getById(purgeableAnalyses, "u1").hasEvents()).isFalse();
     assertThat(getById(purgeableAnalyses, "u1").getVersion()).isNull();
@@ -512,6 +537,12 @@ public class PurgeDaoIT {
     assertThat(getById(purgeableAnalyses, "u5").isLast()).isFalse();
     assertThat(getById(purgeableAnalyses, "u5").hasEvents()).isTrue();
     assertThat(getById(purgeableAnalyses, "u5").getVersion()).isEqualTo("V5");
+    assertThat(getById(purgeableAnalyses, "u6").isLast()).isFalse();
+    assertThat(getById(purgeableAnalyses, "u6").hasEvents()).isTrue();
+    assertThat(getById(purgeableAnalyses, "u6").getVersion()).isEqualTo("V6");
+    assertThat(getById(purgeableAnalyses, "u7").isLast()).isFalse();
+    assertThat(getById(purgeableAnalyses, "u7").hasEvents()).isTrue();
+    assertThat(getById(purgeableAnalyses, "u7").getVersion()).isNull();
   }
 
   @Test
@@ -534,8 +565,8 @@ public class PurgeDaoIT {
       .setLast(false));
     db.components().insertProjectBranch(project2);
 
-    assertThat(underTest.selectPurgeableAnalyses(project1.uuid(), dbSession)).isEmpty();
-    assertThat(underTest.selectPurgeableAnalyses(project2.uuid(), dbSession))
+    assertThat(underTest.selectProcessedAnalysisByComponentUuid(project1.uuid(), dbSession)).isEmpty();
+    assertThat(underTest.selectProcessedAnalysisByComponentUuid(project2.uuid(), dbSession))
       .extracting(PurgeableAnalysisDto::getAnalysisUuid)
       .containsOnly(analysis2.getUuid());
   }
@@ -571,12 +602,12 @@ public class PurgeDaoIT {
         .setValue(analysisBranch2.getUuid()));
     dbSession.commit();
 
-    assertThat(underTest.selectPurgeableAnalyses(project.uuid(), dbSession))
+    assertThat(underTest.selectProcessedAnalysisByComponentUuid(project.uuid(), dbSession))
       .isEmpty();
-    assertThat(underTest.selectPurgeableAnalyses(branch1.uuid(), dbSession))
+    assertThat(underTest.selectProcessedAnalysisByComponentUuid(branch1.uuid(), dbSession))
       .extracting(PurgeableAnalysisDto::getAnalysisUuid)
       .containsOnly(analysisBranch1.getUuid());
-    assertThat(underTest.selectPurgeableAnalyses(branch2.uuid(), dbSession))
+    assertThat(underTest.selectProcessedAnalysisByComponentUuid(branch2.uuid(), dbSession))
       .isEmpty();
   }
 
