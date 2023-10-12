@@ -162,6 +162,10 @@ export const lightTheme = {
     separatorCircle: COLORS.blueGrey[200],
     separatorSlash: COLORS.blueGrey[300],
 
+    // rule breakdown table
+    breakdownBorder: COLORS.grey[100],
+    breakdownHeaderBackground: COLORS.blueGrey[50],
+
     // flag message
     flagMessageBackground: COLORS.white,
 

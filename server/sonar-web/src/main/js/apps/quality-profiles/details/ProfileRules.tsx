@@ -26,6 +26,7 @@ import {
   SubTitle,
   Table,
   TableRow,
+  themeColor,
 } from 'design-system';
 import { keyBy } from 'lodash';
 import * as React from 'react';
@@ -128,69 +129,68 @@ export default function ProfileRules({ profile }: Readonly<Props>) {
     <section aria-label={translate('rules')} className="it__quality-profiles__rules">
       <SubTitle>{translate('quality_profile.rules.breakdown')}</SubTitle>
 
-      <StyledTableContainer>
-        <Table
-          columnCount={3}
-          columnWidths={['50%', '25%', '25%']}
-          header={
-            <StyledTableRowHeader>
-              <ContentCell className="sw-font-semibold sw-pl-4">
-                {translate('quality_profile.rules.cct_categories_title')}
-              </ContentCell>
-              <NumericalCell className="sw-font-regular">{translate('active')}</NumericalCell>
-              <NumericalCell className="sw-pr-4 sw-font-regular">
-                {translate('inactive')}
-              </NumericalCell>
-            </StyledTableRowHeader>
-          }
-          noHeaderTopBorder
-          noSidePadding
-        >
-          {Object.values(CleanCodeAttributeCategory).map((category) => (
-            <ProfileRulesRow
-              title={translate('rule.clean_code_attribute_category', category)}
-              total={totalByCctCategory[category]?.count}
-              count={countsByCctCategory[category]?.count}
-              key={category}
-              qprofile={profile.key}
-              propertyName={RulesFacetName.CleanCodeAttributeCategories}
-              propertyValue={category}
-            />
-          ))}
-        </Table>
-      </StyledTableContainer>
+      <Table
+        columnCount={3}
+        columnWidths={['50%', '25%', '25%']}
+        header={
+          <StyledTableRowHeader>
+            <ContentCell className="sw-font-semibold sw-pl-4">
+              {translate('quality_profile.rules.cct_categories_title')}
+            </ContentCell>
+            <NumericalCell className="sw-font-regular">{translate('active')}</NumericalCell>
+            <NumericalCell className="sw-pr-4 sw-font-regular">
+              {translate('inactive')}
+            </NumericalCell>
+          </StyledTableRowHeader>
+        }
+        noHeaderTopBorder
+        noSidePadding
+        withRoundedBorder
+      >
+        {Object.values(CleanCodeAttributeCategory).map((category) => (
+          <ProfileRulesRow
+            title={translate('rule.clean_code_attribute_category', category)}
+            total={totalByCctCategory[category]?.count}
+            count={countsByCctCategory[category]?.count}
+            key={category}
+            qprofile={profile.key}
+            propertyName={RulesFacetName.CleanCodeAttributeCategories}
+            propertyValue={category}
+          />
+        ))}
+      </Table>
 
-      <StyledTableContainer className="sw-mt-4">
-        <Table
-          columnCount={3}
-          columnWidths={['50%', '25%', '25%']}
-          header={
-            <StyledTableRowHeader>
-              <ContentCell className="sw-font-semibold sw-pl-4">
-                {translate('quality_profile.rules.software_qualities_title')}
-              </ContentCell>
-              <NumericalCell className="sw-font-regular">{translate('active')}</NumericalCell>
-              <NumericalCell className="sw-pr-4 sw-font-regular">
-                {translate('inactive')}
-              </NumericalCell>
-            </StyledTableRowHeader>
-          }
-          noHeaderTopBorder
-          noSidePadding
-        >
-          {Object.values(SoftwareQuality).map((quality) => (
-            <ProfileRulesRow
-              title={translate('software_quality', quality)}
-              total={totalBySoftwareQuality[quality]?.count}
-              count={countsBySoftwareImpact[quality]?.count}
-              key={quality}
-              qprofile={profile.key}
-              propertyName={RulesFacetName.ImpactSoftwareQualities}
-              propertyValue={quality}
-            />
-          ))}
-        </Table>
-      </StyledTableContainer>
+      <Table
+        className="sw-mt-4"
+        columnCount={3}
+        columnWidths={['50%', '25%', '25%']}
+        header={
+          <StyledTableRowHeader>
+            <ContentCell className="sw-font-semibold sw-pl-4">
+              {translate('quality_profile.rules.software_qualities_title')}
+            </ContentCell>
+            <NumericalCell className="sw-font-regular">{translate('active')}</NumericalCell>
+            <NumericalCell className="sw-pr-4 sw-font-regular">
+              {translate('inactive')}
+            </NumericalCell>
+          </StyledTableRowHeader>
+        }
+        noHeaderTopBorder
+        noSidePadding
+        withRoundedBorder
+      >
+        {Object.values(SoftwareQuality).map((quality) => (
+          <ProfileRulesRow
+            title={translate('software_quality', quality)}
+            total={totalBySoftwareQuality[quality]?.count}
+            count={countsBySoftwareImpact[quality]?.count}
+            key={quality}
+            qprofile={profile.key}
+            propertyName={RulesFacetName.ImpactSoftwareQualities}
+            propertyValue={quality}
+          />
+        ))}
+      </Table>
 
       <div className="sw-mt-6 sw-flex sw-flex-col sw-gap-4 sw-items-start">
         {profile.activeDeprecatedRuleCount > 0 && (
@@ -230,12 +230,6 @@ export default function ProfileRules({ profile }: Readonly<Props>) {
   );
 }
 
-const StyledTableContainer = styled.div`
-  border-radius: 4px;
-  border: 1px solid #dddddd;
-`;
-
 const StyledTableRowHeader = styled(TableRow)`
-  border-radius: 3px;
-  background-color: #eff2f9;
+  background-color: ${themeColor('breakdownHeaderBackground')};
 `;

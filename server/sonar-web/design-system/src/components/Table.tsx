@@ -32,6 +32,7 @@ export interface TableProps extends ComponentProps<'table'> {
   header?: ReactNode;
   noHeaderTopBorder?: boolean;
   noSidePadding?: boolean;
+  withRoundedBorder?: boolean;
 }
 
 export function Table(props: TableProps) {
@@ -44,13 +45,18 @@ export function Table(props: TableProps) {
     children,
     noHeaderTopBorder,
     noSidePadding,
+    withRoundedBorder,
     ...rest
   } = props;
 
   return (
     <StyledTable
       className={classNames(
-        { 'no-header-top-border': noHeaderTopBorder, 'no-side-padding': noSidePadding },
+        {
+          'no-header-top-border': noHeaderTopBorder,
+          'no-side-padding': noSidePadding,
+          'with-rounded-border': withRoundedBorder,
+        },
         className,
       )}
       {...rest}
@@ -219,6 +225,23 @@ export function CheckboxCell({ children, ...props }: CellComponentProps) {
 const StyledTable = styled.table`
   width: 100%;
   border-collapse: collapse;
+
+  &.with-rounded-border {
+    border-collapse: separate;
+    border: ${themeBorder('default', 'breakdownBorder')};
+    ${tw`sw-rounded-1`};
+
+    th:first-of-type {
+      ${tw`sw-rounded-tl-1`};
+    }
+    th:last-of-type {
+      ${tw`sw-rounded-tr-1`};
+    }
+
+    tr:last-child > td {
+      border-bottom: none;
+    }
+  }
 `;
 
 const CellComponentStyled = styled.td`
