@@ -82,6 +82,7 @@ allprojects {
     // On local box, please add artifactoryUsername and artifactoryPassword to ~/.gradle/gradle.properties
     def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
     def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
+    def artifactoryUrl = System.getenv('ARTIFACTORY_URL')
 
     maven {
         if (artifactoryUsername && artifactoryPassword) {
@@ -94,7 +95,7 @@ allprojects {
             // https://www.jfrog.com/jira/browse/RTFACT-13797
             repository = 'public'
         }
-        url "https://repox.jfrog.io/repox/${repository}"
+        url "${artifactoryUrl}/${repository}"
     }
     ivy {
           if (artifactoryUsername && artifactoryPassword) {
@@ -102,7 +103,7 @@ allprojects {
                   username artifactoryUsername
                   password artifactoryPassword
               }
-              url "https://repox.jfrog.io/repox/sonarsource-bucket"
+              url "${artifactoryUrl}/sonarsource-bucket"
 
               patternLayout {
                 artifact '/[organisation]/[module]/[module]-[revision].[ext]'

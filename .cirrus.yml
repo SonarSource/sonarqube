@@ -7,6 +7,9 @@ env:
   ARTIFACTORY_DEPLOY_PASSWORD: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   ARTIFACTORY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
   ARTIFACTORY_PROMOTE_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-promoter access_token]
+  ARTIFACTORY_URL: "https://repox.jfrog.io/repox"
+  ARTIFACTORY_DEPLOY_REPO: "sonarsource-public-qa"
+  ARTIFACTORY_DEPLOY_REPO_PRIVATE: "sonarsource-private-qa"
   # download licenses for testing commercial editions
   GITHUB_TOKEN: VAULT[development/github/token/licenses-ro token]
   # notifications to burgr
@@ -286,7 +289,7 @@ yarn_check_task:
     cpu: 3
     memory: 5Gb
   script: |
-    ./private/cirrus/cirrus-env.sh YARN
+    source cirrus-env YARN
     gradle yarn_check-ci --profile
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
