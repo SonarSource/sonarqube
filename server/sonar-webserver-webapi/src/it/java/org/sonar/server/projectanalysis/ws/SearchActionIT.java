@@ -160,9 +160,13 @@ public class SearchActionIT {
       .setName("6.3").setCategory(VERSION.getLabel()));
     db.events().insertEvent(newEvent(a2).setUuid("E21")
       .setName("Quality Profile changed to Sonar Way")
+        .setData("key=Profile Key;languageKey=The Key of the Language;name=Profile Name")
       .setCategory(EventCategory.QUALITY_PROFILE.getLabel()));
     db.events().insertEvent(newEvent(a2).setUuid("E22")
       .setName("6.3").setCategory(OTHER.getLabel()));
+    db.events().insertEvent(newEvent(a2).setUuid("E23")
+      .setName("Use 'Sonar Way update profile' (JavaScript)")
+      .setCategory(EventCategory.QUALITY_PROFILE.getLabel()));
 
     EventDto eventDto = db.events().insertEvent(newEvent(a3)
       .setUuid("E31")
