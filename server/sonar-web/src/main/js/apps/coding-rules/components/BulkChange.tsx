@@ -35,6 +35,7 @@ import { Query } from '../query';
 import BulkChangeModal from './BulkChangeModal';
 
 interface Props {
+  onSubmit?: () => void;
   query: Query;
   referencedProfiles: Dict<Profile>;
   total: number;
@@ -136,6 +137,7 @@ export default class BulkChange extends React.PureComponent<Props, State> {
           <BulkChangeModal
             action={this.state.action}
             onClose={this.closeModal}
+            onSubmit={this.props.onSubmit}
             profile={this.state.profile}
             query={this.props.query}
             referencedProfiles={this.props.referencedProfiles}

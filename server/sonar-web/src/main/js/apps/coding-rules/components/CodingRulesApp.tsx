@@ -422,23 +422,16 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
   getRuleActivation = (rule: string) => {
     const { actives } = this.state;
     const query = parseQuery(this.props.location.query);
-    if (actives && actives[rule] && query.profile) {
-      return actives[rule][query.profile];
-    }
+
+    return actives?.[rule] && query.profile ? actives[rule][query.profile] : undefined;
   };
 
   getSelectedProfile = () => {
     const { referencedProfiles } = this.state;
     const query = parseQuery(this.props.location.query);
-    if (query.profile) {
-      return referencedProfiles[query.profile];
-    }
-  };
 
-  closeFacet = (facet: string) =>
-    this.setState((state) => ({
-      openFacets: { ...state.openFacets, [facet]: false },
-    }));
+    return query.profile ? referencedProfiles[query.profile] : undefined;
+  };
 
   handleRuleOpen = (ruleKey: string) => {
     this.props.router.push(this.getRulePath(ruleKey));
@@ -492,7 +485,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
         property = newState.openFacets.sonarsourceSecurity ? 'sonarsourceSecurity' : property;
       }
 
-      if (shouldRequestFacet(property) && (!state.facets || !state.facets[property])) {
+      if (shouldRequestFacet(property) && !state.facets?.[property]) {
         newState.loading = true;
         this.fetchFacet(property);
       }
@@ -544,7 +537,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
   handleRuleDeactivate = (profile: string, rule: string) =>
     this.setState((state) => {
       const { actives } = state;
-      if (actives && actives[rule]) {
+      if (actives?.[rule]) {
         const newRule = { ...actives[rule] };
         delete newRule[profile];
         return { actives: { ...actives, [rule]: newRule } };
@@ -558,7 +551,7 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
 
   renderBulkButton = () => {
     const { currentUser } = this.props;
-    const { canWrite, paging, referencedProfiles } = this.state;
+    const { canWrite = false, paging, referencedProfiles } = this.state;
     const query = parseQuery(this.props.location.query);
     const canUpdate = canWrite || Object.values(referencedProfiles).some((p) => p.actions?.edit);
 
@@ -568,7 +561,12 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
 
     return (
       paging && (
-        <BulkChange query={query} referencedProfiles={referencedProfiles} total={paging.total} />
+        <BulkChange
+          onSubmit={this.handleReload}
+          query={query}
+          referencedProfiles={referencedProfiles}
+          total={paging.total}
+        />
       )
     );
   };

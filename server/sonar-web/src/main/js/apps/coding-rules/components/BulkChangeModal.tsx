@@ -33,6 +33,7 @@ interface Props {
   action: string;
   languages: Languages;
   onClose: () => void;
+  onSubmit?: () => void;
   profile?: Profile;
   query: Query;
   referencedProfiles: Dict<Profile>;
@@ -85,6 +86,15 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     this.setState({ selectedProfiles });
   };
 
+  getProfiles = () => {
+    // if a profile is selected in the facet, pick it
+    // otherwise take all profiles selected in the dropdown
+
+    return this.props.profile
+      ? [this.props.profile.key]
+      : this.state.selectedProfiles.map((p) => p.key);
+  };
+
   getAvailableQualityProfiles = ({ query, referencedProfiles } = this.props) => {
     let profiles = Object.values(referencedProfiles);
     if (query.languages.length > 0) {
@@ -115,11 +125,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
 
     const method = this.props.action === 'activate' ? bulkActivateRules : bulkDeactivateRules;
 
-    // if a profile is selected in the facet, pick it
-    // otherwise take all profiles selected in the dropdown
-    const profiles: string[] = this.props.profile
-      ? [this.props.profile.key]
-      : this.state.selectedProfiles.map((p) => p.key);
+    const profiles = this.getProfiles();
 
     for (const profile of profiles) {
       looper = looper
@@ -149,6 +155,14 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
         }
       },
     );
+  };
+
+  handleClose = () => {
+    if (this.props.onSubmit && this.state.finished) {
+      this.props.onSubmit();
+    }
+
+    this.props.onClose();
   };
 
   renderResult = (result: ActivationResult) => {
@@ -246,7 +260,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
       <Modal
         headerTitle={header}
         isScrollable
-        onClose={this.props.onClose}
+        onClose={this.handleClose}
         body={<Spinner loading={this.state.submitting}>{formBody}</Spinner>}
         primaryButton={
           !this.state.finished && (
