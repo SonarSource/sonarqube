@@ -26,17 +26,14 @@ import IssuesCounter from '../components/IssuesCounter';
 interface Props {
   loading: boolean;
   paging: Paging | undefined;
-  selectedIndex: number | undefined;
 }
 
 export default function SubnavigationIssuesListHeader(props: Props) {
-  const { loading, paging, selectedIndex } = props;
+  const { loading, paging } = props;
 
   return (
     <StyledHeader>
-      <Spinner loading={loading}>
-        {paging && <IssuesCounter current={selectedIndex} total={paging.total} />}
-      </Spinner>
+      <Spinner loading={loading}>{paging && <IssuesCounter total={paging.total} />}</Spinner>
     </StyledHeader>
   );
 }

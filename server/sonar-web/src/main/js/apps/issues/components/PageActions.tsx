@@ -29,18 +29,17 @@ export interface PageActionsProps {
   canSetHome: boolean;
   effortTotal: number | undefined;
   paging?: Paging;
-  selectedIndex?: number;
 }
 
 export default function PageActions(props: PageActionsProps) {
-  const { canSetHome, effortTotal, paging, selectedIndex } = props;
+  const { canSetHome, effortTotal, paging } = props;
 
   return (
     <div className="sw-body-sm sw-flex sw-items-center sw-gap-6 sw-justify-end sw-flex-1">
       <KeyboardHint title={translate('issues.to_select_issues')} command="ArrowUp ArrowDown" />
       <KeyboardHint title={translate('issues.to_navigate')} command="ArrowLeft ArrowRight" />
 
-      {paging != null && <IssuesCounter current={selectedIndex} total={paging.total} />}
+      {paging != null && <IssuesCounter total={paging.total} />}
       {effortTotal !== undefined && <TotalEffort effort={effortTotal} />}
 
       {canSetHome && <HomePageSelect currentPage={{ type: 'ISSUES' }} />}

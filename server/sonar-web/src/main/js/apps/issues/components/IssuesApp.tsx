@@ -1184,11 +1184,9 @@ export class App extends React.PureComponent<Props, State> {
   renderHeader({
     openIssue,
     paging,
-    selectedIndex,
   }: {
     openIssue: Issue | undefined;
     paging: Paging | undefined;
-    selectedIndex: number | undefined;
   }) {
     return openIssue ? (
       <A11ySkipTarget anchor="issues_main" />
@@ -1202,7 +1200,6 @@ export class App extends React.PureComponent<Props, State> {
             canSetHome={!this.props.component}
             effortTotal={this.state.effortTotal}
             paging={this.props.component?.needIssueSync ? undefined : paging}
-            selectedIndex={selectedIndex}
           />
         </div>
       </>
@@ -1221,8 +1218,6 @@ export class App extends React.PureComponent<Props, State> {
       loadingRule,
     } = this.state;
 
-    const selectedIndex = this.getSelectedIndex();
-
     return (
       <ScreenPositionHelper>
         {({ top }) => (
@@ -1233,7 +1228,7 @@ export class App extends React.PureComponent<Props, State> {
             })}
             style={{ height: `calc((100vh - ${top + LAYOUT_FOOTER_HEIGHT}px)` }}
           >
-            {this.renderHeader({ openIssue, paging, selectedIndex })}
+            {this.renderHeader({ openIssue, paging })}
 
             <Spinner loading={loadingRule}>
               {/* eslint-disable-next-line local-rules/no-conditional-rendering-of-deferredspinner */}

@@ -22,17 +22,11 @@ import PageCounter from '../../../components/common/PageCounter';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  current: number | undefined;
   total: number;
 }
 
 export default function IssuesCounter(props: Props) {
   return (
-    <PageCounter
-      className="spacer-left"
-      current={props.current}
-      label={translate('issues.issues')}
-      total={props.total}
-    />
+    <PageCounter className="spacer-left" label={translate('issues.issues')} total={props.total} />
   );
 }

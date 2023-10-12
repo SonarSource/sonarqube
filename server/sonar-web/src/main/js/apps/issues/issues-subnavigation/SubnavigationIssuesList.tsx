@@ -51,16 +51,9 @@ export default function SubnavigationIssuesList(props: Props) {
     selectedLocationIndex,
   } = props;
 
-  let selectedIndex: number | undefined = issues.findIndex((issue) => issue.key === selected);
-  selectedIndex = selectedIndex === -1 ? undefined : selectedIndex;
-
   return (
     <StyledWrapper>
-      <SubnavigationIssuesListHeader
-        loading={loading}
-        paging={paging}
-        selectedIndex={selectedIndex}
-      />
+      <SubnavigationIssuesListHeader loading={loading} paging={paging} />
       <StyledList>
         {issues.map((issue, index) => {
           const previousIssue = index > 0 ? issues[index - 1] : undefined;
