@@ -30,6 +30,7 @@ interface Props {
   allowSearch?: boolean;
   allowSelection?: boolean;
   createElementLabel: string;
+  disableMessage?: string;
   elements: string[];
   footerNode?: React.ReactNode;
   headerNode?: React.ReactNode;
@@ -42,6 +43,7 @@ interface Props {
   placeholder: string;
   searchInputAriaLabel: string;
   selectedElements: string[];
+  selectedElementsDisabled?: string[];
   validateSearchInput?: (value: string) => string;
 }
 
@@ -262,6 +264,8 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
       allowSelection = true,
       allowNewElements = true,
       createElementLabel,
+      disableMessage,
+      selectedElementsDisabled = [],
       headerNode = '',
       footerNode = '',
       inputId,
@@ -307,6 +311,8 @@ export class MultiSelectMenu extends PureComponent<Props, State> {
               <MultiSelectMenuOption
                 active={activeElement === element}
                 createElementLabel={createElementLabel}
+                disableMessage={disableMessage}
+                disabled={selectedElementsDisabled.includes(element)}
                 element={element}
                 key={element}
                 onHover={this.handleElementHover}

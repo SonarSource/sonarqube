@@ -19,12 +19,15 @@
  */
 import classNames from 'classnames';
 import { identity } from 'lodash';
+import { PopupPlacement } from '../../helpers';
 import { ItemCheckbox } from '../DropdownMenu';
+import { Tooltip } from '../Tooltip';
 
 export interface MultiSelectOptionProps {
   active?: boolean;
   createElementLabel: string;
   custom?: boolean;
+  disableMessage?: string;
   disabled?: boolean;
   element: string;
   onHover: (element: string) => void;
@@ -39,6 +42,7 @@ export function MultiSelectMenuOption(props: MultiSelectOptionProps) {
     createElementLabel,
     custom,
     disabled,
+    disableMessage,
     element,
     onSelectChange,
     selected,
@@ -52,29 +56,31 @@ export function MultiSelectMenuOption(props: MultiSelectOptionProps) {
   const label = renderLabel(element);
 
   return (
-    <ItemCheckbox
-      checked={Boolean(selected)}
-      className={classNames('sw-flex sw-py-2 sw-px-4', { active })}
-      disabled={disabled}
-      id={element}
-      onCheck={onSelectChange}
-      onFocus={onHover}
-      onPointerEnter={onHover}
-    >
-      {custom ? (
-        <span
-          aria-label={`${createElementLabel}: ${element}`}
-          className="sw-ml-3"
-          title={createElementLabel}
-        >
-          <span aria-hidden className="sw-mr-1">
-            +
+    <Tooltip overlay={disabled && disableMessage} placement={PopupPlacement.Right}>
+      <ItemCheckbox
+        checked={Boolean(selected)}
+        className={classNames('sw-flex sw-py-2 sw-px-4', { active })}
+        disabled={disabled}
+        id={element}
+        onCheck={onSelectChange}
+        onFocus={onHover}
+        onPointerEnter={onHover}
+      >
+        {custom ? (
+          <span
+            aria-label={`${createElementLabel}: ${element}`}
+            className="sw-ml-3"
+            title={createElementLabel}
+          >
+            <span aria-hidden className="sw-mr-1">
+              +
+            </span>
+            {element}
           </span>
-          {element}
-        </span>
-      ) : (
-        <span className="sw-ml-3">{label}</span>
-      )}
-    </ItemCheckbox>
+        ) : (
+          <span className="sw-ml-3">{label}</span>
+        )}
+      </ItemCheckbox>
+    </Tooltip>
   );
 }

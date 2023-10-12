@@ -23,6 +23,7 @@ interface Props {
   allowNewElements?: boolean;
   allowSearch?: boolean;
   createElementLabel: string;
+  disableMessage?: string;
   elements: string[];
   headerLabel: string;
   listSize?: number;
@@ -32,6 +33,7 @@ interface Props {
   onUnselect: (item: string) => void;
   searchInputAriaLabel: string;
   selectedElements: string[];
+  selectedElementsDisabled?: string[];
 }
 
 const LIST_SIZE = 10;
@@ -40,6 +42,8 @@ export function MultiSelector(props: Readonly<Props>) {
   const {
     allowNewElements,
     createElementLabel,
+    disableMessage,
+    selectedElementsDisabled,
     headerLabel,
     noResultsLabel,
     searchInputAriaLabel,
@@ -54,6 +58,7 @@ export function MultiSelector(props: Readonly<Props>) {
       allowNewElements={allowNewElements}
       allowSearch={allowSearch}
       createElementLabel={createElementLabel}
+      disableMessage={disableMessage}
       elements={elements}
       headerNode={<div className="sw-mt-4 sw-font-semibold">{headerLabel}</div>}
       listSize={listSize}
@@ -64,6 +69,7 @@ export function MultiSelector(props: Readonly<Props>) {
       placeholder={searchInputAriaLabel}
       searchInputAriaLabel={searchInputAriaLabel}
       selectedElements={selectedElements}
+      selectedElementsDisabled={selectedElementsDisabled}
       validateSearchInput={validateElement}
     />
   );

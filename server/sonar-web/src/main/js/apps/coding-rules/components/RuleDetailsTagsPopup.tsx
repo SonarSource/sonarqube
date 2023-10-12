@@ -53,10 +53,9 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
       q: query,
       ps: Math.min(this.props.tags.length + LIST_SIZE, 100),
     }).then(
-      (tags) => {
+      (searchResult) => {
         if (this.mounted) {
-          // systems tags can not be unset, don't display them in the results
-          this.setState({ searchResult: without(tags, ...this.props.sysTags) });
+          this.setState({ searchResult });
         }
       },
       () => {},
@@ -73,16 +72,19 @@ export default class RuleDetailsTagsPopup extends React.PureComponent<Props, Sta
 
   render() {
     const availableTags = difference(this.state.searchResult, this.props.tags);
+    const selectedTags = [...this.props.sysTags, ...this.props.tags];
     return (
       <MultiSelector
         createElementLabel={translate('coding_rules.create_tag')}
+        disableMessage={translate('coding_rules.system_tags_tooltip')}
         headerLabel={translate('tags')}
         searchInputAriaLabel={translate('search.search_for_tags')}
         noResultsLabel={translate('no_results')}
         onSearch={this.onSearch}
         onSelect={this.onSelect}
         onUnselect={this.onUnselect}
-        selectedElements={this.props.tags}
+        selectedElements={selectedTags}
+        selectedElementsDisabled={this.props.sysTags}
         elements={availableTags}
       />
     );
