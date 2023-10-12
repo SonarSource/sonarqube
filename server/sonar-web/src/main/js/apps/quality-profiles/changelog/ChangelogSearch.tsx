@@ -38,7 +38,7 @@ export default function ChangelogSearch(props: ChangelogSearchProps) {
         clearButtonLabel={intl.formatMessage({ id: 'clear' })}
         fromLabel={intl.formatMessage({ id: 'start_date' })}
         inputSize="small"
-        separatorText={intl.formatMessage({ id: 'to' })}
+        separatorText={intl.formatMessage({ id: 'to_' })}
         toLabel={intl.formatMessage({ id: 'end_date' })}
         onChange={props.onDateRangeChange}
         value={dateRange}

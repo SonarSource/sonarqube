@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Badge, Breadcrumbs, HoverLink, Link } from 'design-system';
+import { Badge, Breadcrumbs, HoverLink, Link, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from '../../../components/hoc/withRouter';
@@ -80,17 +80,15 @@ export default function ProfileHeader(props: Props) {
       >
         <div className="sw-flex sw-items-center sw-gap-3 sw-self-start">
           {!isProfileComparePath(location.pathname) && (
-            <>
+            <PageContentFontWrapper className="sw-body-sm sw-flex sw-gap-3">
               <div>
-                <strong className="sw-body-sm-highlight">
+                <span className="sw-body-sm-highlight">
                   {translate('quality_profiles.updated_')}
-                </strong>{' '}
+                </span>{' '}
                 <DateFromNow date={profile.rulesUpdatedAt} />
               </div>
               <div>
-                <strong className="sw-body-sm-highlight">
-                  {translate('quality_profiles.used_')}
-                </strong>{' '}
+                <span className="sw-body-sm-highlight">{translate('quality_profiles.used_')}</span>{' '}
                 <DateFromNow date={profile.lastUsed} />
               </div>
 
@@ -104,7 +102,7 @@ export default function ProfileHeader(props: Props) {
                   </Link>
                 </div>
               )}
-            </>
+            </PageContentFontWrapper>
           )}
 
           <ProfileActions
