@@ -122,9 +122,7 @@ export default function ComparisonResults(props: Readonly<Props>) {
         noSidePadding
         header={
           <TableRowInteractive>
-            {renderFirstColumn && (
-              <ContentCell aria-label={intl.formatMessage({ id: 'actions' })}>&nbsp;</ContentCell>
-            )}
+            <ContentCell aria-label={intl.formatMessage({ id: 'actions' })}>&nbsp;</ContentCell>
             <ContentCell className="sw-pl-4">
               {intl.formatMessage(
                 {
@@ -138,16 +136,16 @@ export default function ComparisonResults(props: Readonly<Props>) {
       >
         {inRight.map((rule) => (
           <TableRowInteractive key={`right-${rule.key}`}>
-            {renderFirstColumn && (
-              <ActionCell className="sw-px-0">
+            <ActionCell className="sw-px-0">
+              {renderFirstColumn && (
                 <ComparisonResultActivation
                   key={rule.key}
                   onDone={props.refresh}
                   profile={leftProfile}
                   ruleKey={rule.key}
                 />
-              </ActionCell>
-            )}
+              )}
+            </ActionCell>
             <ContentCell className="sw-pl-4">
               <RuleCell rule={rule} />
             </ContentCell>
