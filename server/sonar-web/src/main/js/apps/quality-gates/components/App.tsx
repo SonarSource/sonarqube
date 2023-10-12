@@ -162,7 +162,6 @@ class App extends React.PureComponent<Props, State> {
                 <Details
                   qualityGateName={name}
                   onSetDefault={this.handleSetDefault}
-                  qualityGates={this.state.qualityGates}
                   refreshQualityGates={this.fetchQualityGates}
                 />
               </StyledContentWrapper>

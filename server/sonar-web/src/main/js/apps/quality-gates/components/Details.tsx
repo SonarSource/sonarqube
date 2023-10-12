@@ -26,14 +26,13 @@ import { fetchQualityGate } from '../../../api/quality-gates';
 import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { Condition, QualityGate } from '../../../types/types';
-import { addCondition, checkIfDefault, deleteCondition, replaceCondition } from '../utils';
+import { addCondition, deleteCondition, replaceCondition } from '../utils';
 import DetailsContent from './DetailsContent';
 import DetailsHeader from './DetailsHeader';
 
 interface Props {
   qualityGateName: string;
   onSetDefault: (qualityGate: QualityGate) => void;
-  qualityGates: QualityGate[];
   refreshQualityGates: () => Promise<void>;
 }
 
@@ -159,16 +158,11 @@ export default class Details extends React.PureComponent<Props, State> {
               <Helmet defer={false} title={qualityGate.name} />
               <DetailsHeader
                 onSetDefault={this.handleSetDefault}
-                qualityGate={{
-                  ...qualityGate,
-                  // isDefault isn't acually returned by the 'show' endpoint, so qualityGate is incomplete
-                  isDefault: checkIfDefault(qualityGate, this.props.qualityGates),
-                }}
+                qualityGate={qualityGate}
                 refreshItem={this.fetchDetails}
                 refreshList={refreshQualityGates}
               />
               <DetailsContent
-                isDefault={checkIfDefault(qualityGate, this.props.qualityGates)}
                 onAddCondition={this.handleAddCondition}
                 onRemoveCondition={this.handleRemoveCondition}
                 onSaveCondition={this.handleSaveCondition}

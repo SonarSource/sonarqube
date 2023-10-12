@@ -27,7 +27,6 @@ import Projects from './Projects';
 import QualityGatePermissions from './QualityGatePermissions';
 
 export interface DetailsContentProps {
-  isDefault?: boolean;
   onAddCondition: (condition: Condition) => void;
   onRemoveCondition: (Condition: Condition) => void;
   onSaveCondition: (newCondition: Condition, oldCondition: Condition) => void;
@@ -36,12 +35,12 @@ export interface DetailsContentProps {
 }
 
 export function DetailsContent(props: DetailsContentProps) {
-  const { isDefault, qualityGate, updatedConditionId } = props;
+  const { qualityGate, updatedConditionId } = props;
   const actions = qualityGate.actions || {};
 
   return (
     <div>
-      {isDefault &&
+      {qualityGate.isDefault &&
         (qualityGate.conditions === undefined || qualityGate.conditions.length === 0) && (
           <FlagMessage className="sw-mb-4" variant="warning">
             {translate('quality_gates.is_default_no_conditions')}
@@ -68,7 +67,7 @@ export function DetailsContent(props: DetailsContentProps) {
             </DocumentationTooltip>
           </SubTitle>
 
-          {isDefault ? (
+          {qualityGate.isDefault ? (
             <p className="sw-body-sm sw-mb-2">{translate('quality_gates.projects_for_default')}</p>
           ) : (
             <Projects

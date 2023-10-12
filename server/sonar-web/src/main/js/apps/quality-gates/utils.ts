@@ -190,10 +190,6 @@ export function getCorrectCaycCondition(condition: Condition) {
   return CAYC_CONDITIONS[conditionMetric];
 }
 
-export function checkIfDefault(qualityGate: QualityGate, list: QualityGate[]): boolean {
-  return list.find((candidate) => candidate.name === qualityGate.name)?.isDefault ?? false;
-}
-
 export function addCondition(qualityGate: QualityGate, condition: Condition): QualityGate {
   const oldConditions = qualityGate.conditions || [];
   const conditions = [...oldConditions, condition];
