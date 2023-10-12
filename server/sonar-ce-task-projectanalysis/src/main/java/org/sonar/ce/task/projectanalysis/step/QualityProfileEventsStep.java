@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Language;
 import org.sonar.api.utils.KeyValueFormat;
@@ -38,8 +40,11 @@ import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository;
+import org.sonar.ce.task.projectanalysis.qualityprofile.QualityProfileRuleChangeResolver;
+import org.sonar.ce.task.projectanalysis.qualityprofile.QualityProfileTextGenerator;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.util.UtcDateUtils;
+import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
 
@@ -52,22 +57,25 @@ import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRep
  * As it depends upon {@link CoreMetrics#QUALITY_PROFILES_KEY}, it must be executed after {@link ComputeQProfileMeasureStep}
  */
 public class QualityProfileEventsStep implements ComputationStep {
+  private static final Logger LOG = LoggerFactory.getLogger(QualityProfileEventsStep.class);
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
   private final EventRepository eventRepository;
   private final LanguageRepository languageRepository;
   private final QProfileStatusRepository qProfileStatusRepository;
+  private final QualityProfileRuleChangeResolver qualityProfileRuleChangeTextResolver;
 
   public QualityProfileEventsStep(TreeRootHolder treeRootHolder,
     MetricRepository metricRepository, MeasureRepository measureRepository, LanguageRepository languageRepository,
-    EventRepository eventRepository, QProfileStatusRepository qProfileStatusRepository) {
+    EventRepository eventRepository, QProfileStatusRepository qProfileStatusRepository, QualityProfileRuleChangeResolver qualityProfileRuleChangeTextResolver) {
     this.treeRootHolder = treeRootHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.eventRepository = eventRepository;
     this.languageRepository = languageRepository;
     this.qProfileStatusRepository = qProfileStatusRepository;
+    this.qualityProfileRuleChangeTextResolver = qualityProfileRuleChangeTextResolver;
   }
 
   @Override
@@ -77,21 +85,21 @@ public class QualityProfileEventsStep implements ComputationStep {
 
   private void executeForBranch(Component branchComponent) {
     Optional<Measure> baseMeasure = measureRepository.getBaseMeasure(branchComponent, metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY));
-    if (!baseMeasure.isPresent()) {
+    if (baseMeasure.isEmpty()) {
       // first analysis -> do not generate events
       return;
     }
 
     // Load profiles used in current analysis for which at least one file of the corresponding language exists
     Optional<Measure> rawMeasure = measureRepository.getRawMeasure(branchComponent, metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY));
-    if (!rawMeasure.isPresent()) {
+    if (rawMeasure.isEmpty()) {
       // No qualify profile computed on the project
       return;
     }
     Map<String, QualityProfile> rawProfiles = QPMeasureData.fromJson(rawMeasure.get().getStringValue()).getProfilesByKey();
 
     Map<String, QualityProfile> baseProfiles = parseJsonData(baseMeasure.get());
-    detectNewOrUpdatedProfiles(baseProfiles, rawProfiles);
+    detectNewOrUpdatedProfiles(baseProfiles, rawProfiles, branchComponent.getUuid());
     detectNoMoreUsedProfiles(baseProfiles);
   }
 
@@ -111,26 +119,39 @@ public class QualityProfileEventsStep implements ComputationStep {
     }
   }
 
-  private void detectNewOrUpdatedProfiles(Map<String, QualityProfile> baseProfiles, Map<String, QualityProfile> rawProfiles) {
+  private void detectNewOrUpdatedProfiles(Map<String, QualityProfile> baseProfiles, Map<String, QualityProfile> rawProfiles, String componentUuid) {
     for (QualityProfile profile : rawProfiles.values()) {
       qProfileStatusRepository.get(profile.getQpKey()).ifPresent(status -> {
         if (status.equals(ADDED)) {
           markAsAdded(profile);
         } else if (status.equals(UPDATED)) {
-          markAsChanged(baseProfiles.get(profile.getQpKey()), profile);
+          markAsChanged(baseProfiles.get(profile.getQpKey()), profile, componentUuid);
         }
       });
     }
   }
 
-  private void markAsChanged(QualityProfile baseProfile, QualityProfile profile) {
-    Date from = baseProfile.getRulesUpdatedAt();
+  private void markAsChanged(QualityProfile baseProfile, QualityProfile profile, String componentUuid) {
+    try {
+      Map<ActiveRuleChange.Type, Long> changesMappedToNumberOfRules = qualityProfileRuleChangeTextResolver.mapChangeToNumberOfRules(baseProfile, componentUuid);
 
-    String data = KeyValueFormat.format(ImmutableSortedMap.of(
-      "key", profile.getQpKey(),
-      "from", UtcDateUtils.formatDateTime(fixDate(from)),
-      "to", UtcDateUtils.formatDateTime(fixDate(profile.getRulesUpdatedAt()))));
-    eventRepository.add(createQProfileEvent(profile, "Changes in %s", data));
+      if (changesMappedToNumberOfRules.isEmpty()) {
+        LOG.debug("No changes found for Quality Profile {}. Quality Profile event skipped.", profile.getQpKey());
+        return;
+      }
+
+      String data = KeyValueFormat.format(ImmutableSortedMap.of(
+        "key", profile.getQpKey(),
+        "from", UtcDateUtils.formatDateTime(fixDate(baseProfile.getRulesUpdatedAt())),
+        "to", UtcDateUtils.formatDateTime(fixDate(profile.getRulesUpdatedAt())),
+        "name", profile.getQpName(),
+        "languageKey", profile.getLanguageKey()));
+      String ruleChangeText = QualityProfileTextGenerator.generateRuleChangeText(changesMappedToNumberOfRules);
+
+      eventRepository.add(createQProfileEvent(profile, "%s updated with " + ruleChangeText, data, ruleChangeText));
+    } catch (Exception e) {
+      LOG.error("Failed to generate 'change' event for Quality Profile " + profile.getQpKey(), e);
+    }
   }
 
   private void markAsRemoved(QualityProfile profile) {
@@ -149,10 +170,14 @@ public class QualityProfileEventsStep implements ComputationStep {
     return Event.createProfile(String.format(namePattern, profileLabel(profile)), data, null);
   }
 
+  private Event createQProfileEvent(QualityProfile profile, String namePattern, @Nullable String data, @Nullable String description) {
+    return Event.createProfile(String.format(namePattern, profileLabel(profile)), data, description);
+  }
+
   private String profileLabel(QualityProfile profile) {
     Optional<Language> language = languageRepository.find(profile.getLanguageKey());
     String languageName = language.isPresent() ? language.get().getName() : profile.getLanguageKey();
-    return String.format("'%s' (%s)", profile.getQpName(), languageName);
+    return String.format("\"%s\" (%s)", profile.getQpName(), languageName);
   }
 
   /**

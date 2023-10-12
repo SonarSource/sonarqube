@@ -123,6 +123,7 @@ import org.sonar.ce.task.projectanalysis.qualitymodel.ReliabilityAndSecurityRati
 import org.sonar.ce.task.projectanalysis.qualitymodel.SecurityReviewMeasuresVisitor;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
 import org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepositoryImpl;
+import org.sonar.ce.task.projectanalysis.qualityprofile.QualityProfileRuleChangeResolver;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoDbLoader;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.source.DbLineHashVersion;
@@ -251,6 +252,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       IssueFilter.class,
 
       FlowGenerator.class,
+      QualityProfileRuleChangeResolver.class,
       // push events
       PushEventFactory.class,
 
