@@ -17,33 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { HighlightedSection, Table } from 'design-system';
+
+import { CheckIcon, LightLabel } from 'design-system';
 import * as React from 'react';
-import { Condition as ConditionType, Dict, Metric } from '../../../types/types';
-import CaycCondition from './CaycCondition';
+import { translate } from '../../../helpers/l10n';
 
-interface Props {
-  metrics: Dict<Metric>;
-  conditions: ConditionType[];
-}
-
-export default function CaycConditionsTable({ metrics, conditions }: Readonly<Props>) {
+export default function CaycConditionsListItem({ metricKey }: Readonly<{ metricKey: string }>) {
   return (
-    <HighlightedSection className="sw-px-4 sw-py-0 sw-my-2">
-      <Table
-        columnCount={2}
-        columnWidths={['auto', '1fr']}
-        className="sw-my-2"
-        data-testid="quality-gates__conditions-cayc"
-      >
-        {conditions.map((condition) => (
-          <CaycCondition
-            key={condition.id}
-            condition={condition}
-            metric={metrics[condition.metric]}
-          />
-        ))}
-      </Table>
-    </HighlightedSection>
+    <li>
+      <CheckIcon className="sw-mr-1 sw-pt-1/2" />
+      <LightLabel>{translate(`metric.${metricKey}.description.positive`)}</LightLabel>
+    </li>
   );
 }

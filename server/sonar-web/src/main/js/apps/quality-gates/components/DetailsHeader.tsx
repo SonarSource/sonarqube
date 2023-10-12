@@ -92,7 +92,7 @@ export default function DetailsHeader({
     <>
       <div className="it__layout-page-main-header sw-flex sw-items-center sw-justify-between sw-mb-9">
         <div className="sw-flex sw-flex-col">
-          <div className="sw-flex sw-items-center">
+          <div className="sw-flex sw-items-baseline">
             <SubTitle className="sw-m-0">{qualityGate.name}</SubTitle>
             {qualityGate.caycStatus === CaycStatus.NonCompliant && canEdit && (
               <Tooltip overlay={<CaycBadgeTooltip />} mouseLeaveDelay={TOOLTIP_MOUSE_LEAVE_DELAY}>

@@ -33,9 +33,10 @@ import { Condition, Metric } from '../../../types/types';
 import { GreenColorText } from './ConditionValue';
 
 const NO_DESCRIPTION_CONDITION = [
-  'new_security_hotspots_reviewed',
-  'new_coverage',
-  'new_duplicated_lines_density',
+  MetricKey.new_violations,
+  MetricKey.new_security_hotspots_reviewed,
+  MetricKey.new_coverage,
+  MetricKey.new_duplicated_lines_density,
 ];
 
 interface Props {
@@ -82,15 +83,19 @@ function ConditionValueDescription({
 
   return (
     <GreenColorText isToBeModified={isToBeModified}>
-      {condition.isCaycCondition && !NO_DESCRIPTION_CONDITION.includes(condition.metric) && (
-        <>
-          (
-          {translate(
-            `quality_gates.cayc.${condition.metric}.${formatMeasure(condition.error, metric.type)}`,
-          )}
-          )
-        </>
-      )}
+      {condition.isCaycCondition &&
+        !NO_DESCRIPTION_CONDITION.includes(condition.metric as MetricKey) && (
+          <>
+            (
+            {translate(
+              `quality_gates.cayc.${condition.metric}.${formatMeasure(
+                condition.error,
+                metric.type,
+              )}`,
+            )}
+            )
+          </>
+        )}
     </GreenColorText>
   );
 }

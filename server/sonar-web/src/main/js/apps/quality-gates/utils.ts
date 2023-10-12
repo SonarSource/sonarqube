@@ -34,7 +34,10 @@ type CaycMetricKeys =
   | MetricKey.new_coverage
   | MetricKey.new_duplicated_lines_density;
 
-const CAYC_CONDITIONS: Record<CaycMetricKeys, Condition & { shouldRenderOperator?: boolean }> = {
+export const CAYC_CONDITIONS: Record<
+  CaycMetricKeys,
+  Condition & { shouldRenderOperator?: boolean }
+> = {
   [MetricKey.new_violations]: {
     id: MetricKey.new_violations,
     metric: MetricKey.new_violations,
@@ -130,12 +133,12 @@ export function getCaycConditionsWithCorrectValue(conditions: Condition[]) {
 
 export function groupConditionsByMetric(
   conditions: Condition[],
-  isQGCompliant: boolean,
+  isBuiltInQG = false,
 ): GroupedByMetricConditions {
   return conditions.reduce(
     (result, condition) => {
       const isNewCode = isDiffMetric(condition.metric);
-      if (condition.isCaycCondition && isQGCompliant) {
+      if (condition.isCaycCondition && isBuiltInQG) {
         result.caycConditions.push(condition);
       } else if (isNewCode) {
         result.newCodeConditions.push(condition);
@@ -156,9 +159,9 @@ export function groupConditionsByMetric(
 export function groupAndSortByPriorityConditions(
   conditions: Condition[],
   metrics: Dict<Metric>,
-  isQGCompliant: boolean,
+  isBuiltInQG = false,
 ): GroupedByMetricConditions {
-  const groupedConditions = groupConditionsByMetric(conditions, isQGCompliant);
+  const groupedConditions = groupConditionsByMetric(conditions, isBuiltInQG);
 
   function sortFn(a: Condition, b: Condition) {
     const priorityA = CAYC_CONDITION_ORDER_PRIORITIES[a.metric] ?? 0;

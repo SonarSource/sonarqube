@@ -370,19 +370,7 @@ it('should show warning banner when CAYC condition is not properly set and shoul
     screen.getByRole('button', { name: 'quality_gates.cayc.review_update_modal.confirm_text' }),
   );
 
-  const conditionsWrapper = within(await screen.findByTestId('quality-gates__conditions-cayc'));
-  expect(
-    conditionsWrapper.getByText('metric.new_violations.description.positive'),
-  ).toBeInTheDocument();
-  expect(
-    conditionsWrapper.getByText('metric.new_security_hotspots_reviewed.description.positive'),
-  ).toBeInTheDocument();
-  expect(
-    conditionsWrapper.getByText('metric.new_coverage.description.positive'),
-  ).toBeInTheDocument();
-  expect(
-    conditionsWrapper.getByText('metric.new_duplicated_lines_density.description.positive'),
-  ).toBeInTheDocument();
+  expect(await screen.findByText('quality_gates.cayc.banner.title')).toBeInTheDocument();
 
   const overallConditionsWrapper = within(
     await screen.findByTestId('quality-gates__conditions-overall'),
@@ -415,12 +403,14 @@ it('should warn user when quality gate is not CAYC compliant and user has permis
   expect(screen.getAllByText('quality_gates.cayc.tooltip.message').length).toBeGreaterThan(0);
 });
 
-it('should render CaYC conditions on a separate table', async () => {
+it('should render CaYC conditions on a separate table if Sonar way', async () => {
+  const user = userEvent.setup();
   qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp();
+  await user.click(await screen.findByText('Sonar way'));
 
+  expect(screen.queryByText('quality_gates.cayc.banner.title')).not.toBeInTheDocument();
   expect(await screen.findByTestId('quality-gates__conditions-cayc')).toBeInTheDocument();
-  expect(await screen.findByTestId('quality-gates__conditions-new')).toBeInTheDocument();
 });
 
 it('should display CaYC condition simplification tour for users who didnt dismissed it', async () => {
@@ -428,7 +418,7 @@ it('should display CaYC condition simplification tour for users who didnt dismis
   qualityGateHandler.setIsAdmin(true);
   renderQualityGateApp({ currentUser: mockLoggedInUser() });
 
-  const qualityGate = await screen.findByText('SonarSource way');
+  const qualityGate = await screen.findByText('Sonar way');
 
   await act(async () => {
     await user.click(qualityGate);
@@ -440,7 +430,7 @@ it('should display CaYC condition simplification tour for users who didnt dismis
     await user.click(byRole('alertdialog').byRole('button', { name: 'dismiss' }).get());
   });
 
-  expect(await byRole('alertdialog').query()).not.toBeInTheDocument();
+  expect(byRole('alertdialog').query()).not.toBeInTheDocument();
   expect(dismissNotice).toHaveBeenLastCalledWith(NoticeType.QG_CAYC_CONDITIONS_SIMPLIFICATION);
 });
 
@@ -453,13 +443,13 @@ it('should not display CaYC condition simplification tour for users who dismisse
     }),
   });
 
-  const qualityGate = await screen.findByText('SonarSource way');
+  const qualityGate = await screen.findByText('Sonar way');
 
   await act(async () => {
     await user.click(qualityGate);
   });
 
-  expect(await byRole('alertdialog').query()).not.toBeInTheDocument();
+  expect(byRole('alertdialog').query()).not.toBeInTheDocument();
 });
 
 describe('The Project section', () => {

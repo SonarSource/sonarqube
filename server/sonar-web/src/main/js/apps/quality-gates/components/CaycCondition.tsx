@@ -44,7 +44,7 @@ function CaycCondition({ condition, metric, metrics }: Readonly<Props>) {
   };
 
   return (
-    <TableRow>
+    <StyledTableRow>
       <ContentCell
         data-guiding-id={
           condition.metric === MetricKey.new_violations ? 'caycConditionsSimplification' : undefined
@@ -74,9 +74,18 @@ function CaycCondition({ condition, metric, metrics }: Readonly<Props>) {
           </>
         )}
       </StyledContentCell>
-    </TableRow>
+    </StyledTableRow>
   );
 }
+
+const StyledTableRow = styled(TableRow)`
+  &:first-child > td {
+    border-top: 0;
+  }
+  &:last-child > td {
+    border-bottom: 0;
+  }
+`;
 
 const StyledContentCell = styled(ContentCell)`
   white-space: nowrap;

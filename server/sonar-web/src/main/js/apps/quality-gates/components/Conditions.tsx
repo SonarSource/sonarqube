@@ -19,6 +19,7 @@
  */
 
 import {
+  ButtonPrimary,
   ButtonSecondary,
   CardWithPrimaryBackground,
   FlagMessage,
@@ -28,8 +29,7 @@ import {
   Link,
   Note,
   SubHeading,
-  SubnavigationFlowSeparator,
-  Title,
+  SubHeadingHighlight,
 } from 'design-system';
 import { differenceWith, map, uniqBy } from 'lodash';
 import * as React from 'react';
@@ -51,8 +51,9 @@ import {
   Metric,
   QualityGate,
 } from '../../../types/types';
-import { groupAndSortByPriorityConditions } from '../utils';
+import { CAYC_CONDITIONS, groupAndSortByPriorityConditions } from '../utils';
 import CaYCConditionsSimplificationGuide from './CaYCConditionsSimplificationGuide';
+import CaycConditionsListItem from './CaycConditionsListItem';
 import CaycConditionsTable from './CaycConditionsTable';
 import ConditionModal from './ConditionModal';
 import CaycReviewUpdateConditionsModal from './ConditionReviewAndUpdateModal';
@@ -87,15 +88,12 @@ export function Conditions({
   const [editing, setEditing] = React.useState<boolean>(
     qualityGate.caycStatus === CaycStatus.NonCompliant,
   );
-  const isQGCompliant =
-    qualityGate.caycStatus === CaycStatus.Compliant ||
-    qualityGate.caycStatus === CaycStatus.OverCompliant;
   const { name } = qualityGate;
   const canEdit = Boolean(qualityGate.actions?.manageConditions);
   const { conditions = [] } = qualityGate;
   const existingConditions = conditions.filter((condition) => metrics[condition.metric]);
   const { overallCodeConditions, newCodeConditions, caycConditions } =
-    groupAndSortByPriorityConditions(existingConditions, metrics, isQGCompliant);
+    groupAndSortByPriorityConditions(existingConditions, metrics, qualityGate.isBuiltIn);
 
   const duplicates: ConditionType[] = [];
   const savedConditions = existingConditions.filter((condition) => condition.id != null);
@@ -172,12 +170,39 @@ export function Conditions({
     <div>
       <CaYCConditionsSimplificationGuide />
 
+      {qualityGate.caycStatus !== CaycStatus.NonCompliant && !qualityGate.isBuiltIn && (
+        <CardWithPrimaryBackground className="sw-mb-9 sw-p-8">
+          <SubHeadingHighlight className="sw-mb-2">
+            {translate('quality_gates.cayc.banner.title')}
+          </SubHeadingHighlight>
+
+          <div>
+            <FormattedMessage
+              id="quality_gates.cayc.banner.description1"
+              defaultMessage={translate('quality_gates.cayc.banner.description1')}
+              values={{
+                cayc_link: (
+                  <Link to={getDocUrl('/user-guide/clean-as-you-code/')}>
+                    {translate('quality_gates.cayc')}
+                  </Link>
+                ),
+              }}
+            />
+          </div>
+          <div className="sw-my-2">{translate('quality_gates.cayc.banner.description2')}</div>
+          <ul className="sw-body-sm sw-flex sw-flex-col sw-gap-2">
+            {Object.values(CAYC_CONDITIONS).map((condition) => (
+              <CaycConditionsListItem key={condition.metric} metricKey={condition.metric} />
+            ))}
+          </ul>
+        </CardWithPrimaryBackground>
+      )}
       {qualityGate.caycStatus === CaycStatus.NonCompliant && canEdit && (
         <CardWithPrimaryBackground className="sw-mb-9 sw-p-8">
-          <Title as="h2" className="sw-mb-2 sw-heading-md">
+          <SubHeadingHighlight className="sw-mb-2">
             {translate('quality_gates.cayc_missing.banner.title')}
-          </Title>
-          <SubHeading className="sw-body-sm sw-mb-4">
+          </SubHeadingHighlight>
+          <div>
             <FormattedMessage
               id="quality_gates.cayc_missing.banner.description"
               defaultMessage={translate('quality_gates.cayc_missing.banner.description')}
@@ -189,14 +214,13 @@ export function Conditions({
                 ),
               }}
             />
-          </SubHeading>
-          <SubnavigationFlowSeparator className="sw-m-0" />
+          </div>
           {canEdit && (
             <ModalButton modal={renderCaycModal}>
               {({ onClick }) => (
-                <ButtonSecondary className="sw-mt-4" onClick={onClick}>
+                <ButtonPrimary className="sw-mt-4" onClick={onClick}>
                   {translate('quality_gates.cayc_condition.review_update')}
-                </ButtonSecondary>
+                </ButtonPrimary>
               )}
             </ModalButton>
           )}
@@ -208,6 +232,20 @@ export function Conditions({
           <HeadingDark className="sw-body-md-highlight sw-m-0">
             {translate('quality_gates.conditions')}
           </HeadingDark>
+          {!qualityGate.isBuiltIn && (
+            <DocumentationTooltip
+              className="sw-ml-2"
+              content={translate('quality_gates.conditions.help')}
+              links={[
+                {
+                  href: '/user-guide/clean-as-you-code/',
+                  label: translate('quality_gates.conditions.help.link'),
+                },
+              ]}
+            >
+              <HelperHintIcon />
+            </DocumentationTooltip>
+          )}
         </div>
         <div>
           {(qualityGate.caycStatus === CaycStatus.NonCompliant || editing) && canEdit && (
