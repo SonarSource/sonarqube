@@ -78,11 +78,9 @@ export default function Changelog(props: Props) {
 
         <CellComponent className="sw-align-top">
           {event.ruleName && (
-            <Link to={getRulesUrl({ rule_key: event.ruleKey })} className="sw-block sw-w-fit">
-              {event.ruleName}
-            </Link>
+            <Link to={getRulesUrl({ rule_key: event.ruleKey })}>{event.ruleName}</Link>
           )}
-          <div className="sw-mt-2 sw-flex sw-gap-2">
+          <div className="sw-mt-3 sw-flex sw-gap-2">
             {event.cleanCodeAttributeCategory && (
               <CleanCodeAttributePill
                 cleanCodeAttributeCategory={event.cleanCodeAttributeCategory}

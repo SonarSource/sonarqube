@@ -82,13 +82,15 @@ export default function ProfileHeader(props: Props) {
           {!isProfileComparePath(location.pathname) && (
             <PageContentFontWrapper className="sw-body-sm sw-flex sw-gap-3">
               <div>
-                <span className="sw-body-sm-highlight">
+                <strong className="sw-body-sm-highlight">
                   {translate('quality_profiles.updated_')}
-                </span>{' '}
+                </strong>{' '}
                 <DateFromNow date={profile.rulesUpdatedAt} />
               </div>
               <div>
-                <span className="sw-body-sm-highlight">{translate('quality_profiles.used_')}</span>{' '}
+                <strong className="sw-body-sm-highlight">
+                  {translate('quality_profiles.used_')}
+                </strong>{' '}
                 <DateFromNow date={profile.lastUsed} />
               </div>
 
