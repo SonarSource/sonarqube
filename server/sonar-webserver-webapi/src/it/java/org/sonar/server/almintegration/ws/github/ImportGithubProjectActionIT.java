@@ -90,7 +90,6 @@ import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
-import static org.sonar.server.almintegration.ws.github.ImportGithubProjectAction.PARAM_ORGANIZATION;
 import static org.sonar.server.almintegration.ws.github.ImportGithubProjectAction.PARAM_REPOSITORY_KEY;
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
@@ -173,7 +172,6 @@ public class ImportGithubProjectActionIT {
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
-      .setParam(PARAM_ORGANIZATION, "octocat")
       .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
       .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "NUMBER_OF_DAYS")
       .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30")
@@ -202,7 +200,6 @@ public class ImportGithubProjectActionIT {
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
-      .setParam(PARAM_ORGANIZATION, "octocat")
       .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
       .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "NUMBER_OF_DAYS")
       .setParam(PARAM_NEW_CODE_DEFINITION_VALUE, "30")
@@ -234,7 +231,6 @@ public class ImportGithubProjectActionIT {
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
-      .setParam(PARAM_ORGANIZATION, "octocat")
       .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
       .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "reference_branch")
       .executeProtobuf(Projects.CreateWsResponse.class);
@@ -262,7 +258,6 @@ public class ImportGithubProjectActionIT {
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
-      .setParam(PARAM_ORGANIZATION, "octocat")
       .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
       .setParam(PARAM_NEW_CODE_DEFINITION_TYPE, "reference_branch")
       .executeProtobuf(Projects.CreateWsResponse.class);
@@ -289,7 +284,6 @@ public class ImportGithubProjectActionIT {
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
-      .setParam(PARAM_ORGANIZATION, "octocat")
       .setParam(PARAM_REPOSITORY_KEY, "Hello-World")
       .executeProtobuf(Projects.CreateWsResponse.class);
 
@@ -307,7 +301,6 @@ public class ImportGithubProjectActionIT {
 
     ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
-      .setParam(PARAM_ORGANIZATION, "octocat")
       .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
       .executeProtobuf(Projects.CreateWsResponse.class);
 
@@ -327,7 +320,6 @@ public class ImportGithubProjectActionIT {
 
     ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
-      .setParam(PARAM_ORGANIZATION, "octocat")
       .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
       .executeProtobuf(Projects.CreateWsResponse.class);
 
@@ -367,7 +359,6 @@ public class ImportGithubProjectActionIT {
 
     TestRequest request = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, "unknown")
-      .setParam(PARAM_ORGANIZATION, "test")
       .setParam(PARAM_REPOSITORY_KEY, "test/repo");
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
@@ -380,7 +371,6 @@ public class ImportGithubProjectActionIT {
     userSession.logIn(user).addPermission(GlobalPermission.PROVISION_PROJECTS);
 
     TestRequest request = ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, "test")
       .setParam(PARAM_REPOSITORY_KEY, "test/repo");
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
@@ -395,7 +385,6 @@ public class ImportGithubProjectActionIT {
     db.almSettings().insertGitHubAlmSetting();
 
     TestRequest request = ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, "test")
       .setParam(PARAM_REPOSITORY_KEY, "test/repo");
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -411,7 +400,6 @@ public class ImportGithubProjectActionIT {
 
     TestRequest request = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
-      .setParam(PARAM_ORGANIZATION, "octocat")
       .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME);
 
     assertThatNoException().isThrownBy(request::execute);
@@ -420,7 +408,6 @@ public class ImportGithubProjectActionIT {
   private Projects.CreateWsResponse callWebService(AlmSettingDto githubAlmSetting) {
     return ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
-      .setParam(PARAM_ORGANIZATION, "octocat")
       .setParam(PARAM_REPOSITORY_KEY, "octocat/" + PROJECT_KEY_NAME)
       .executeProtobuf(Projects.CreateWsResponse.class);
   }
@@ -438,7 +425,6 @@ public class ImportGithubProjectActionIT {
   public void fail_when_not_logged_in() {
     TestRequest request = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, "asdfghjkl")
-      .setParam(PARAM_ORGANIZATION, "test")
       .setParam(PARAM_REPOSITORY_KEY, "test/repo");
     assertThatThrownBy(request::execute)
       .isInstanceOf(UnauthorizedException.class);
@@ -457,7 +443,6 @@ public class ImportGithubProjectActionIT {
 
     TestRequest request = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
-      .setParam(PARAM_ORGANIZATION, "test")
       .setParam(PARAM_REPOSITORY_KEY, "test/repo");
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
@@ -474,7 +459,6 @@ public class ImportGithubProjectActionIT {
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
         tuple(PARAM_ALM_SETTING, false),
-        tuple(PARAM_ORGANIZATION, true),
         tuple(PARAM_REPOSITORY_KEY, true),
         tuple(PARAM_NEW_CODE_DEFINITION_TYPE, false),
         tuple(PARAM_NEW_CODE_DEFINITION_VALUE, false));

@@ -30,8 +30,6 @@ public class ImportGithubProjectRequest {
   private String almSetting;
   private String repositoryKey;
 
-  private String organization;
-
   /**
    * This is a mandatory parameter.
    */
@@ -54,18 +52,6 @@ public class ImportGithubProjectRequest {
    */
   public ImportGithubProjectRequest setRepositoryKey(String repositoryKey) {
     this.repositoryKey = repositoryKey;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
-
-  /**
-   * This is a mandatory parameter.
-   */
-  public ImportGithubProjectRequest setOrganization(String organization) {
-    this.organization = organization;
     return this;
   }
 

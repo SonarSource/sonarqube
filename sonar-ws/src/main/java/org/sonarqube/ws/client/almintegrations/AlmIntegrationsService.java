@@ -110,7 +110,6 @@ public class AlmIntegrationsService extends BaseService {
     return call(
       new PostRequest(path("import_github_project"))
         .setParam("almSetting", request.getAlmSetting())
-        .setParam("organization", request.getOrganization())
         .setParam("repositoryKey", request.getRepositoryKey())
         .setMediaType(MediaTypes.JSON),
       Projects.CreateWsResponse.parser());

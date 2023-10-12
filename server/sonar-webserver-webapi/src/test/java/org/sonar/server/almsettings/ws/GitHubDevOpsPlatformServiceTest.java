@@ -286,7 +286,7 @@ public class GitHubDevOpsPlatformServiceTest {
     when(repository.getDefaultBranch()).thenReturn(MAIN_BRANCH_NAME);
     when(repository.getName()).thenReturn(PROJECT_NAME);
     when(repository.getFullName()).thenReturn(GITHUB_REPO_FULL_NAME);
-    when(githubApplicationClient.getRepository(GITHUB_API_URL, appInstallationToken, PROJECT_NAME)).thenReturn(Optional.of(repository));
+    when(githubApplicationClient.getRepository(GITHUB_API_URL, appInstallationToken, GITHUB_REPO_FULL_NAME)).thenReturn(Optional.of(repository));
     when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn("generated_" + PROJECT_KEY);
   }
 
