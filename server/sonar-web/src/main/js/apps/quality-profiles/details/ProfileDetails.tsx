@@ -41,7 +41,7 @@ function ProfileDetails(props: ProfileDetailsProps) {
 
   return (
     <ContentWrapper>
-      <div className="sw-grid sw-grid-cols-3 sw-gap-12">
+      <div className="sw-grid sw-grid-cols-3 sw-gap-12 sw-mt-12">
         <div className="sw-col-span-2 sw-flex sw-flex-col sw-gap-12">
           {profile.activeRuleCount === 0 && (profile.projectCount || profile.isDefault) && (
             <FlagMessage variant="warning">

@@ -137,7 +137,7 @@ class ChangelogContainer extends React.PureComponent<Props, State> {
       this.state.events.length < this.state.total;
 
     return (
-      <div>
+      <div className="sw-mt-4">
         <div className="sw-mb-2 sw-flex sw-gap-4 sw-items-center">
           <ChangelogSearch
             dateRange={{
