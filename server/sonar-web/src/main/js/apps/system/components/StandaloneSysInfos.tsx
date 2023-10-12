@@ -38,7 +38,7 @@ interface Props {
 export default function StandAloneSysInfos({ expandedCards, sysInfoData, toggleCard }: Props) {
   const mainCardName = 'System';
   return (
-    <>
+    <ul>
       <HealthCard
         biggerHealth
         health={getHealth(sysInfoData)}
@@ -57,6 +57,6 @@ export default function StandAloneSysInfos({ expandedCards, sysInfoData, toggleC
           sysInfoData={ignoreInfoFields(section)}
         />
       ))}
-    </>
+    </ul>
   );
 }
