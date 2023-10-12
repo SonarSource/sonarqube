@@ -57,7 +57,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.AnticipatedTransitionDto;
 import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IssueChangeDto;
-import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.rule.RuleDto;
@@ -69,9 +68,9 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.data.MapEntry.entry;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -97,7 +96,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
   private final System2 system2 = mock(System2.class);
   private final DbSession session = db.getSession();
   private final DbClient dbClient = db.getDbClient();
-  private final UpdateConflictResolver conflictResolver = mock(UpdateConflictResolver.class);
+  private final UpdateConflictResolver conflictResolver = spy(new UpdateConflictResolver());
   private ProtoIssueCache protoIssueCache;
   private ComputationStep underTest;
 
@@ -333,7 +332,7 @@ public class PersistIssuesStepIT extends BaseStepTest {
     underTest.execute(context);
 
     ArgumentCaptor<IssueDto> issueDtoCaptor = ArgumentCaptor.forClass(IssueDto.class);
-    verify(conflictResolver).resolve(eq(defaultIssue), issueDtoCaptor.capture(), any(IssueDao.class), any(DbSession.class));
+    verify(conflictResolver).resolve(eq(defaultIssue), issueDtoCaptor.capture());
     assertThat(issueDtoCaptor.getValue().getKey()).isEqualTo(issue.getKey());
     assertThat(context.getStatistics().getAll()).contains(
       entry("inserts", "0"), entry("updates", "1"), entry("merged", "1"));

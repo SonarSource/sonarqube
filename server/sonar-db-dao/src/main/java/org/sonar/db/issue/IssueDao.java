@@ -101,17 +101,32 @@ public class IssueDao implements Dao {
 
   public void insert(DbSession session, IssueDto dto) {
     mapper(session).insert(dto);
-    insertIssueImpacts(dto, mapper(session));
+    insertIssueImpacts(session, dto);
   }
 
-  private static void updateIssueImpacts(IssueDto issueDto, IssueMapper mapper) {
-    mapper.deleteIssueImpacts(issueDto.getKey());
-    insertIssueImpacts(issueDto, mapper);
+  /**
+   * In certain circumstances, most notably persisting issues in the CE, importing issues and web issue storage, we wish to avoid persisting
+   * both issues and their issue impacts in the same batch transactions, as this introduces a significant performance regression. In those
+   * situations, issues will be inserted first, and then subsequently their issue impacts using
+   * {@link IssueDao#insertIssueImpacts(DbSession, IssueDto) ()}.
+   */
+  public void insertWithoutImpacts(DbSession session, IssueDto dto) {
+    mapper(session).insert(dto);
   }
 
-  private static void insertIssueImpacts(IssueDto issueDto, IssueMapper mapper) {
+  public void insertIssueImpacts(DbSession session, IssueDto issueDto) {
+    IssueMapper mapper = mapper(session);
     issueDto.getImpacts()
       .forEach(impact -> mapper.insertIssueImpact(issueDto.getKey(), impact));
+  }
+
+  private void updateIssueImpacts(DbSession session, IssueDto issueDto) {
+    deleteIssueImpacts(session, issueDto);
+    insertIssueImpacts(session, issueDto);
+  }
+
+  public void deleteIssueImpacts(DbSession session, IssueDto issueDto) {
+    mapper(session).deleteIssueImpacts(issueDto.getKey());
   }
 
   public void insert(DbSession session, IssueDto dto, IssueDto... others) {
@@ -123,14 +138,19 @@ public class IssueDao implements Dao {
 
   public void update(DbSession session, IssueDto dto) {
     mapper(session).update(dto);
-    updateIssueImpacts(dto, mapper(session));
+    updateIssueImpacts(session, dto);
   }
 
-  public void updateIfBeforeSelectedDate(DbSession session, IssueDto dto) {
-    int updatedRows = mapper(session).updateIfBeforeSelectedDate(dto);
-    if (updatedRows != 0) {
-      updateIssueImpacts(dto, mapper(session));
-    }
+  /**
+   * Update issue without updating issue impacts. Used only in batch update.
+   * Issue impacts should be updated separately.
+   */
+  public void updateWithoutIssueImpacts(DbSession session, IssueDto dto) {
+    mapper(session).update(dto);
+  }
+
+  public boolean updateIfBeforeSelectedDate(DbSession session, IssueDto dto) {
+    return mapper(session).updateIfBeforeSelectedDate(dto) != 0;
   }
 
   public List<IssueDto> selectByKeysIfNotUpdatedAt(DbSession session, List<String> keys, long updatedAt) {

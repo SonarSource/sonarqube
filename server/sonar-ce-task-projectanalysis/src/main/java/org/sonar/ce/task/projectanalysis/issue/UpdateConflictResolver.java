@@ -23,8 +23,6 @@ import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.db.DbSession;
-import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
 
 /**
@@ -35,10 +33,10 @@ public class UpdateConflictResolver {
 
   private static final Logger LOG = LoggerFactory.getLogger(UpdateConflictResolver.class);
 
-  public void resolve(DefaultIssue issue, IssueDto dbIssue, IssueDao issueDao, DbSession dbSession) {
+  public IssueDto resolve(DefaultIssue issue, IssueDto dbIssue) {
     LOG.debug("Resolve conflict on issue {}", issue.key());
     mergeFields(dbIssue, issue);
-    issueDao.update(dbSession, IssueDto.toDtoForUpdate(issue, System.currentTimeMillis()));
+    return IssueDto.toDtoForUpdate(issue, System.currentTimeMillis());
   }
 
   @VisibleForTesting

@@ -628,6 +628,57 @@ public class IssueDaoIT {
   }
 
   @Test
+  public void deleteIssueImpacts_shouldDeleteOnlyImpactsOfIssue() {
+    ImpactDto impact1 = new ImpactDto()
+      .setUuid(UuidFactoryFast.getInstance().create())
+      .setSoftwareQuality(MAINTAINABILITY)
+      .setSeverity(HIGH);
+    ImpactDto impact2 = new ImpactDto()
+      .setUuid(UuidFactoryFast.getInstance().create())
+      .setSoftwareQuality(SECURITY)
+      .setSeverity(LOW);
+    IssueDto issue1 = createIssueWithKey(ISSUE_KEY1)
+      .addImpact(impact1)
+      .addImpact(impact2);
+    underTest.insert(db.getSession(), issue1);
+    underTest.deleteIssueImpacts(db.getSession(), issue1);
+
+    Optional<IssueDto> issueDto = underTest.selectByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(issueDto).isPresent()
+      .get()
+      .extracting(IssueDto::getImpacts)
+      .satisfies(impactDtos -> assertThat(impactDtos).isEmpty());
+  }
+
+  @Test
+  public void updateWithoutIssueImpacts_shouldNotReplaceIssueImpacts() {
+    ImpactDto impact1 = new ImpactDto()
+      .setUuid(UuidFactoryFast.getInstance().create())
+      .setSoftwareQuality(MAINTAINABILITY)
+      .setSeverity(HIGH);
+    ImpactDto impact2 = new ImpactDto()
+      .setUuid(UuidFactoryFast.getInstance().create())
+      .setSoftwareQuality(SECURITY)
+      .setSeverity(LOW);
+    IssueDto issue1 = createIssueWithKey(ISSUE_KEY1)
+      .addImpact(impact1)
+      .addImpact(impact2);
+    underTest.insert(db.getSession(), issue1);
+
+    issue1.setResolution(RESOLUTION_FALSE_POSITIVE);
+
+    underTest.updateWithoutIssueImpacts(db.getSession(), issue1);
+
+    Optional<IssueDto> issueDto = underTest.selectByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(issueDto).isPresent()
+      .get()
+      .satisfies(i -> assertThat(i.getResolution()).isEqualTo(RESOLUTION_FALSE_POSITIVE) )
+      .extracting(IssueDto::getImpacts)
+      .satisfies(impactDtos -> assertThat(impactDtos).extracting(ImpactDto::getSoftwareQuality,ImpactDto::getSeverity)
+        .containsExactlyInAnyOrder(tuple(MAINTAINABILITY, HIGH), tuple(SECURITY, LOW)));
+  }
+
+  @Test
   public void update_whenUpdatingRuleDescriptionContextKeyToNull_returnsEmptyContextKey() {
     IssueDto issue = createIssueWithKey(ISSUE_KEY1).setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
     underTest.insert(db.getSession(), issue);
@@ -830,14 +881,11 @@ public class IssueDaoIT {
   public void updateIfBeforeSelectedDate_whenCalledWithBeforeSelectDate_shouldUpdateImpacts() {
     prepareTables();
     IssueDto issueDto = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)
-      .setSelectedAt(1_440_000_000_000L)
-      .replaceAllImpacts(List.of(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(RELIABILITY).setSeverity(LOW)));
+      .setSelectedAt(1_440_000_000_000L);
 
-    underTest.updateIfBeforeSelectedDate(db.getSession(), issueDto);
+    boolean isUpdated = underTest.updateIfBeforeSelectedDate(db.getSession(), issueDto);
 
-    assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).getImpacts()).extracting(i -> i.getSoftwareQuality(), i -> i.getSeverity())
-      .containsExactly(tuple(RELIABILITY, LOW));
-
+    assertThat(isUpdated).isTrue();
   }
 
   @Test

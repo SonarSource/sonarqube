@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import org.assertj.core.groups.Tuple;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
@@ -29,19 +28,15 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.db.DbSession;
 import org.sonar.db.issue.ImpactDto;
-import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 
 public class UpdateConflictResolverTest {
+  private final UpdateConflictResolver underTest = new UpdateConflictResolver();
 
   @Test
   public void should_reload_issue_and_resolve_conflict() {
@@ -56,8 +51,6 @@ public class UpdateConflictResolverTest {
       .setStatus(STATUS_OPEN);
 
     // Issue as seen and changed by end-user
-    IssueDao issueDao = mock(IssueDao.class);
-    DbSession dbSession = mock(DbSession.class);
     IssueDto issueDto = new IssueDto()
       .setKee("ABCDE")
       .setType(CODE_SMELL)
@@ -72,11 +65,7 @@ public class UpdateConflictResolverTest {
       // field changed by user
       .setAssigneeUuid("arthur-uuid");
 
-    new UpdateConflictResolver().resolve(issue, issueDto, issueDao, dbSession);
-
-    ArgumentCaptor<IssueDto> argument = ArgumentCaptor.forClass(IssueDto.class);
-    verify(issueDao).update(any(), argument.capture());
-    IssueDto updatedIssue = argument.getValue();
+    IssueDto updatedIssue = underTest.resolve(issue, issueDto);
     assertThat(updatedIssue.getKee()).isEqualTo("ABCDE");
     assertThat(updatedIssue.getAssigneeUuid()).isEqualTo("arthur-uuid");
     assertThat(updatedIssue.getImpacts())
@@ -120,7 +109,7 @@ public class UpdateConflictResolverTest {
       .setSeverity(Severity.MAJOR)
       .setManualSeverity(false);
 
-    new UpdateConflictResolver().mergeFields(dbIssue, issue);
+    underTest.mergeFields(dbIssue, issue);
 
     assertThat(issue.key()).isEqualTo("ABCDE");
     assertThat(issue.componentKey()).isEqualTo("struts:org.apache.struts.Action");
@@ -156,7 +145,7 @@ public class UpdateConflictResolverTest {
       .setSeverity(Severity.INFO)
       .setManualSeverity(true);
 
-    new UpdateConflictResolver().mergeFields(dbIssue, issue);
+    underTest.mergeFields(dbIssue, issue);
 
     assertThat(issue.severity()).isEqualTo(Severity.INFO);
     assertThat(issue.manualSeverity()).isTrue();

@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -130,10 +131,12 @@ public class PersistIssuesStep implements ComputationStep {
 
     final long now = system2.now();
 
+    List<IssueDto> issueDtos = new LinkedList<>();
     addedIssues.forEach(addedIssue -> {
       String ruleUuid = ruleRepository.getByKey(addedIssue.ruleKey()).getUuid();
       IssueDto dto = IssueDto.toDtoForComputationInsert(addedIssue, ruleUuid, now);
-      issueDao.insert(dbSession, dto);
+      issueDao.insertWithoutImpacts(dbSession, dto);
+      issueDtos.add(dto);
       if (isOnBranchUsingReferenceBranch() && addedIssue.isOnChangedLine()) {
         issueDao.insertAsNewCodeOnReferenceBranch(dbSession, NewCodeReferenceIssueDto.fromIssueDto(dto, now, uuidFactory));
       }
@@ -141,6 +144,8 @@ public class PersistIssuesStep implements ComputationStep {
       issueStorage.insertChanges(changeMapper, addedIssue, uuidFactory);
       addedIssue.getAnticipatedTransitionUuid().ifPresent(anticipatedTransitionMapper::delete);
     });
+
+    issueDtos.forEach(issueDto -> issueDao.insertIssueImpacts(dbSession, issueDto));
   }
 
   private void persistUpdatedIssues(IssueStatistics statistics, List<DefaultIssue> updatedIssues, IssueDao issueDao,
@@ -150,23 +155,35 @@ public class PersistIssuesStep implements ComputationStep {
     }
 
     long now = system2.now();
+    LinkedList<IssueDto> updatedIssueDtos = new LinkedList<>();
     updatedIssues.forEach(i -> {
       IssueDto dto = IssueDto.toDtoForUpdate(i, now);
-      issueDao.updateIfBeforeSelectedDate(dbSession, dto);
+      boolean isUpdated = issueDao.updateIfBeforeSelectedDate(dbSession, dto);
+      if (isUpdated) {
+        updatedIssueDtos.add(dto);
+      }
       statistics.updates++;
     });
+    updatedIssueDtos.forEach(i -> issueDao.deleteIssueImpacts(dbSession, i));
+    updatedIssueDtos.forEach(i -> issueDao.insertIssueImpacts(dbSession, i));
 
     // retrieve those of the updatedIssues which have not been updated and apply conflictResolver on them
     List<String> updatedIssueKeys = updatedIssues.stream().map(DefaultIssue::key).toList();
     List<IssueDto> conflictIssueKeys = issueDao.selectByKeysIfNotUpdatedAt(dbSession, updatedIssueKeys, now);
     if (!conflictIssueKeys.isEmpty()) {
+      updatedIssueDtos.clear();
       Map<String, DefaultIssue> issuesByKeys = updatedIssues.stream().collect(Collectors.toMap(DefaultIssue::key, Function.identity()));
       conflictIssueKeys
         .forEach(dbIssue -> {
           DefaultIssue updatedIssue = issuesByKeys.get(dbIssue.getKey());
-          conflictResolver.resolve(updatedIssue, dbIssue, issueDao, dbSession);
+          IssueDto issueToBeUpdated = conflictResolver.resolve(updatedIssue, dbIssue);
+          issueDao.updateWithoutIssueImpacts(dbSession, issueToBeUpdated);
+          updatedIssueDtos.add(issueToBeUpdated);
           statistics.merged++;
         });
+
+      updatedIssueDtos.forEach(i -> issueDao.deleteIssueImpacts(dbSession, i));
+      updatedIssueDtos.forEach(i -> issueDao.insertIssueImpacts(dbSession, i));
     }
 
     updatedIssues.forEach(i -> issueStorage.insertChanges(changeMapper, i, uuidFactory));

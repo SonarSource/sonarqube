@@ -21,6 +21,7 @@ package org.sonar.server.issue;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -100,7 +101,7 @@ public class WebIssueStorage extends IssueStorage {
    * @return the keys of the inserted issues
    */
   private Collection<IssueDto> insert(DbSession session, Iterable<DefaultIssue> issuesToInsert, long now) {
-    List<IssueDto> inserted = new ArrayList<>();
+    List<IssueDto> inserted = new LinkedList<>();
     int count = 0;
     IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);
     for (DefaultIssue issue : issuesToInsert) {
@@ -113,6 +114,8 @@ public class WebIssueStorage extends IssueStorage {
       }
       count++;
     }
+
+    inserted.forEach(dto -> getDbClient().issueDao().insertIssueImpacts(session, dto));
     session.commit();
     return inserted;
   }
@@ -125,7 +128,7 @@ public class WebIssueStorage extends IssueStorage {
     dto.setCleanCodeAttribute(ruleDto.getCleanCodeAttribute());
     dto.setRuleDefaultImpacts(ruleDto.getDefaultImpacts());
 
-    getDbClient().issueDao().insert(session, dto);
+    getDbClient().issueDao().insertWithoutImpacts(session, dto);
     return dto;
   }
 
