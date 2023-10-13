@@ -67,7 +67,7 @@ public class ScmActionIT {
   public void setUp() {
     project = dbTester.components().insertPrivateProject(PROJECT_UUID);
     file = ComponentTesting.newFileDto(project.getMainBranchComponent(), null, FILE_UUID).setKey(FILE_KEY);
-    dbClient.componentDao().insertOnMainBranch(dbTester.getSession(), file);
+    dbClient.componentDao().insertWithAudit(dbTester.getSession(), file);
     dbTester.getSession().commit();
   }
 

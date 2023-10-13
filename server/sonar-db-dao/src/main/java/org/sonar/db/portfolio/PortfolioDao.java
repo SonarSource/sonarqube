@@ -98,10 +98,16 @@ public class PortfolioDao implements Dao {
   /*
    * Modify portfolios
    */
-  public void insert(DbSession dbSession, PortfolioDto portfolio) {
+  public void insertWithAudit(DbSession dbSession, PortfolioDto portfolio) {
+    insert(dbSession, portfolio, true);
+  }
+
+  public void insert(DbSession dbSession, PortfolioDto portfolio, boolean shouldPersistAudit) {
     checkArgument(portfolio.isRoot() == (portfolio.getUuid().equals(portfolio.getRootUuid())));
     mapper(dbSession).insert(portfolio);
-    auditPersister.addComponent(dbSession, toComponentNewValue(portfolio));
+    if(shouldPersistAudit) {
+      auditPersister.addComponent(dbSession, toComponentNewValue(portfolio));
+    }
   }
 
   public void delete(DbSession dbSession, PortfolioDto portfolio) {

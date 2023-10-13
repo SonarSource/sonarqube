@@ -289,14 +289,14 @@ public class ComponentDao implements Dao {
   /*
     INSERT / UPDATE
    */
-  public void insert(DbSession session, ComponentDto item, boolean isMainBranch) {
+  public void insert(DbSession session, ComponentDto item, boolean shouldPersistAudit) {
     mapper(session).insert(item);
-    if (isMainBranch) {
+    if (shouldPersistAudit) {
       auditPersister.addComponent(session, new ComponentNewValue(item));
     }
   }
 
-  public void insertOnMainBranch(DbSession session, ComponentDto item) {
+  public void insertWithAudit(DbSession session, ComponentDto item) {
     insert(session, item, true);
   }
 

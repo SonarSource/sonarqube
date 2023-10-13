@@ -138,7 +138,7 @@ public class ComponentUpdater {
       }
     } else if (isPortfolio(componentDto)) {
       portfolioDto = toPortfolioDto(componentDto, now);
-      dbClient.portfolioDao().insert(dbSession, portfolioDto);
+      dbClient.portfolioDao().insert(dbSession, portfolioDto, false);
       permissionTemplateService.applyDefaultToNewComponent(dbSession, portfolioDto, componentCreationParameters.userUuid());
     } else {
       throw new IllegalArgumentException("Component " + componentDto + " is not a top level entity");

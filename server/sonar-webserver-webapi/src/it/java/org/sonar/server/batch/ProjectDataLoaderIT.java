@@ -136,7 +136,7 @@ public class ProjectDataLoaderIT {
   public void fails_with_BRE_if_component_is_not_root() {
     String uuid = "uuid";
     String key = "key";
-    dbClient.componentDao().insertOnMainBranch(dbSession, new ComponentDto()
+    dbClient.componentDao().insertWithAudit(dbSession, new ComponentDto()
       .setUuid(uuid)
       .setUuidPath(uuid + ".")
       .setBranchUuid("branchUuid")

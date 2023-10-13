@@ -100,9 +100,9 @@ public class ComponentUuidFactoryImplIT {
   @Test
   public void getOrCreateForKey_whenNoExistingComponentsInDbForPortfolioAndSubPortfolio_shouldLoadUuidFromPortfolioTable() {
     PortfolioDto portfolioDto = ComponentTesting.newPortfolioDto("uuid_ptf1", "ptf1", "Portfolio1", null);
-    db.getDbClient().portfolioDao().insert(db.getSession(), portfolioDto);
+    db.getDbClient().portfolioDao().insertWithAudit(db.getSession(), portfolioDto);
     PortfolioDto subPortfolio = ComponentTesting.newPortfolioDto("subPtf1", "sub_ptf_1", "portfolio", portfolioDto);
-    db.getDbClient().portfolioDao().insert(db.getSession(), subPortfolio);
+    db.getDbClient().portfolioDao().insertWithAudit(db.getSession(), subPortfolio);
 
     ComponentUuidFactory underTest = new ComponentUuidFactoryImpl(db.getDbClient(), db.getSession(), portfolioDto.getKey());
 

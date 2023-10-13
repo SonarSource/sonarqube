@@ -26,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
@@ -34,6 +33,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
@@ -64,9 +64,11 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.APP;
@@ -92,15 +94,16 @@ public class ComponentUpdaterIT {
 
   private final System2 system2 = System2.INSTANCE;
 
+  private final AuditPersister auditPersister = mock();
+
   @Rule
-  public final DbTester db = DbTester.create(system2);
+  public final DbTester db = DbTester.create(system2, auditPersister);
   @Rule
   public final I18nRule i18n = new I18nRule().put("qualifier.TRK", "Project");
 
   private final TestIndexers projectIndexers = new TestIndexers();
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
   private final DefaultBranchNameResolver defaultBranchNameResolver = mock(DefaultBranchNameResolver.class);
-  private final Configuration config = mock(Configuration.class);
   public EsTester es = EsTester.createCustom(new FooIndexDefinition());
   private final PermissionUpdater<UserPermissionChange> userPermissionUpdater = new PermissionUpdater(
     new IndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
@@ -471,6 +474,26 @@ public class ComponentUpdaterIT {
     underTest.createWithoutCommit(db.getSession(), componentCreationParameters);
 
     verify(permissionTemplateService, never()).applyDefaultToNewComponent(any(), any(), any());
+  }
+
+  @Test
+  public void createWithoutCommit_whenInsertingPortfolio_shouldOnlyAddOneEntryToAuditLogs() {
+    String portfolioKey = "portfolio";
+    NewComponent portfolio = NewComponent.newComponentBuilder()
+      .setKey(portfolioKey)
+      .setName(portfolioKey)
+      .setQualifier(VIEW)
+      .build();
+    ComponentCreationParameters creationParameters = ComponentCreationParameters.builder()
+      .newComponent(portfolio)
+      .creationMethod(CreationMethod.LOCAL_API)
+      .build();
+
+    underTest.createWithoutCommit(db.getSession(), creationParameters);
+    db.commit();
+
+    verify(auditPersister, times(1)).addComponent(argThat(d -> d.equals(db.getSession())),
+      argThat(newValue -> newValue.getComponentKey().equals(portfolioKey)));
   }
 
   @Test

@@ -150,7 +150,7 @@ public class PortfolioDaoIT {
     PortfolioDto portfolio2 = ComponentTesting.newPortfolioDto("uuid2", "ptf2", "Portfolio 2", null);
     PortfolioDto subPortfolio2 = ComponentTesting.newPortfolioDto("sub_uuid21", "sub_ptd2", "SubPortfolio 2", portfolio2);
     Arrays.asList(portfolio1, subPortfolio1, subSubPortfolio1, portfolio2, subPortfolio2)
-      .forEach(portfolio -> portfolioDao.insert(db.getSession(), portfolio));
+      .forEach(portfolio -> portfolioDao.insertWithAudit(db.getSession(), portfolio));
 
     List<KeyWithUuidDto> keyWithUuidDtos = portfolioDao.selectUuidsByKey(db.getSession(), portfolio1.getKey());
 
@@ -169,14 +169,14 @@ public class PortfolioDaoIT {
       .setUuid("uuid")
       .setParentUuid(null)
       .setRootUuid("root");
-    assertThatThrownBy(() -> portfolioDao.insert(session, portfolio))
+    assertThatThrownBy(() -> portfolioDao.insertWithAudit(session, portfolio))
       .isInstanceOf(IllegalArgumentException.class);
 
     PortfolioDto portfolio2 = new PortfolioDto()
       .setUuid("uuid")
       .setParentUuid("parent")
       .setRootUuid("uuid");
-    assertThatThrownBy(() -> portfolioDao.insert(session, portfolio2))
+    assertThatThrownBy(() -> portfolioDao.insertWithAudit(session, portfolio2))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -746,7 +746,7 @@ public class PortfolioDaoIT {
       .setRootUuid(parent.getRootUuid())
       .setParentUuid(parent.getUuid())
       .setUuid(uuid);
-    db.getDbClient().portfolioDao().insert(session, portfolio);
+    db.getDbClient().portfolioDao().insertWithAudit(session, portfolio);
     session.commit();
     return portfolio;
   }

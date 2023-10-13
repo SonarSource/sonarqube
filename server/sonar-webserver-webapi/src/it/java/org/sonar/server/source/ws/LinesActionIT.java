@@ -34,7 +34,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.user.UserDto;
@@ -409,7 +408,7 @@ public class LinesActionIT {
 
   private ComponentDto insertFile(ComponentDto project) {
     ComponentDto file = newFileDto(project);
-    componentDao.insertOnMainBranch(db.getSession(), file);
+    componentDao.insertWithAudit(db.getSession(), file);
     db.getSession().commit();
     return file;
   }

@@ -94,7 +94,7 @@ public class AnticipatedTransitionRepositoryImplTest {
     dbClient.branchDao().insert(db.getSession(), branchDto);
 
     ComponentDto fileDto = getComponentDto(projectKey + ":" + mainFile, branchDto.getUuid());
-    dbClient.componentDao().insertOnMainBranch(db.getSession(), fileDto);
+    dbClient.componentDao().insertWithAudit(db.getSession(), fileDto);
 
     insertAnticipatedTransition(projectUuid, mainFile);
     insertAnticipatedTransition(projectUuid, "file2.js");

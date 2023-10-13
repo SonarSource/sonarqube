@@ -19,6 +19,7 @@
  */
 package org.sonar.db.audit;
 
+import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -39,5 +40,9 @@ public class AuditDbTester {
     AuditDto auditDto = AuditTesting.newAuditDto(createdAt);
     dbClient.auditDao().insert(dbSession, auditDto);
     db.commit();
+  }
+
+  public final List<AuditDto> selectAll() {
+    return dbClient.auditDao().selectOlderThan(dbSession, Long.MAX_VALUE);
   }
 }

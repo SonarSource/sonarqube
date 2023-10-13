@@ -270,7 +270,7 @@ public class ComponentDbTester {
 
     PortfolioDto portfolioDto = toPortfolioDto(componentDto, System2.INSTANCE.now());
     portfolioPopulator.accept(portfolioDto);
-    dbClient.portfolioDao().insert(dbSession, portfolioDto);
+    dbClient.portfolioDao().insertWithAudit(dbSession, portfolioDto);
     db.commit();
     return componentDto;
   }
