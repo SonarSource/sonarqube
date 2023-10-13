@@ -83,6 +83,7 @@ import static org.sonar.db.measure.ProjectMeasuresIndexerIterator.METRIC_KEYS;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.IS_FAVORITE_CRITERION;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryValidator.NON_METRIC_SORT_KEYS;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_CREATION_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -124,6 +125,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE)
       .setInternal(true)
       .setChangelog(
+        new Change("10.3", "Add 'creationDate' sort parameter."),
         new Change("10.2", "Field 'needIssueSync' removed from response"),
         new Change("8.3", "Add 'qualifier' filter and facet"),
         new Change("8.0", "Field 'id' removed from response"))
@@ -195,8 +197,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>APP - for applications</li>" +
         HTML_UL_END_TAG);
     action.createParam(Param.SORT)
-      .setDescription("Sort projects by numeric metric key, quality gate status (using '%s'), last analysis date (using '%s'), or by project name.",
-        ALERT_STATUS_KEY, SORT_BY_LAST_ANALYSIS_DATE, PARAM_FILTER)
+      .setDescription("Sort projects by numeric metric key, quality gate status (using '%s'), last analysis date (using '%s'), project name or creationDate (using '%s').",
+        ALERT_STATUS_KEY, SORT_BY_LAST_ANALYSIS_DATE, PARAM_FILTER, SORT_BY_CREATION_DATE)
       .setDefaultValue(SORT_BY_NAME)
       .setPossibleValues(
         Stream.concat(METRIC_KEYS.stream(), NON_METRIC_SORT_KEYS.stream()).sorted().toList())

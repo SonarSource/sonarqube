@@ -22,13 +22,16 @@ package org.sonar.server.measure.index;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.lucene.search.join.ScoreMode;
+import org.assertj.core.groups.Tuple;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
@@ -53,6 +56,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
@@ -120,14 +124,21 @@ public class ProjectMeasuresIndexerIT {
 
   @Test
   public void indexAll_indexes_all_projects() {
-    SnapshotDto snapshot1 = db.components().insertProjectAndSnapshot(newPrivateProjectDto());
-    SnapshotDto snapshot2 = db.components().insertProjectAndSnapshot(newPrivateProjectDto());
-    SnapshotDto snapshot3 = db.components().insertProjectAndSnapshot(newPrivateProjectDto());
+
+    ProjectData project1 = db.components().insertPrivateProject();
+    SnapshotDto snapshot1 = db.components().insertSnapshot(project1.getMainBranchComponent());
+
+    ProjectData project2 = db.components().insertPrivateProject();
+    SnapshotDto snapshot2 = db.components().insertSnapshot(project2.getMainBranchComponent());
+
+    ProjectData project3 = db.components().insertPrivateProject();
+    SnapshotDto snapshot3 = db.components().insertSnapshot(project3.getMainBranchComponent());
 
     underTest.indexAll();
 
     assertThatIndexContainsOnly(snapshot1, snapshot2, snapshot3);
     assertThatQualifierIs("TRK", snapshot1, snapshot2, snapshot3);
+    assertThatIndexContainsCreationDate(project1, project2, project3);
   }
 
   /**
@@ -198,7 +209,7 @@ public class ProjectMeasuresIndexerIT {
     BranchDto branchDto = db.components().insertProjectBranch(project1.getProjectDto());
     underTest.indexOnAnalysis(branchDto.getUuid());
 
-    assertThatIndexContainsOnly(new ProjectDto[]{});
+    assertThatIndexContainsOnly(new ProjectDto[] {});
   }
 
   @Test
@@ -363,8 +374,7 @@ public class ProjectMeasuresIndexerIT {
           boolQuery()
             .filter(termQuery(FIELD_MEASURES_MEASURE_KEY, metric))
             .filter(termQuery(FIELD_MEASURES_MEASURE_VALUE, value)),
-          ScoreMode.Avg
-        )));
+          ScoreMode.Avg)));
 
     assertThat(es.client().search(request).getHits().getHits())
       .extracting(SearchHit::getId)
@@ -380,14 +390,32 @@ public class ProjectMeasuresIndexerIT {
       Arrays.stream(expectedSnapshots).map(this::getProjectUuidFromSnapshot).toArray(String[]::new));
   }
 
+  private void assertThatIndexContainsCreationDate(ProjectData... projectDatas) {
+    List<Map<String, Object>> documents = es.getDocuments(TYPE_PROJECT_MEASURES).stream().map(SearchHit::getSourceAsMap).toList();
+
+    List<Tuple> expected = Arrays.stream(projectDatas).map(
+      projectData -> tuple(
+        projectData.getProjectDto().getKey(),
+        projectData.getProjectDto().getCreatedAt()))
+      .toList();
+    assertThat(documents)
+      .extracting(hit -> hit.get("key"), hit -> stringDateToMilliseconds((String) hit.get("createdAt")))
+      .containsExactlyInAnyOrderElementsOf(expected);
+
+  }
+
+  private static long stringDateToMilliseconds(String date) {
+    return DateTime.parse(date).getMillis();
+  }
+
   private String getProjectUuidFromSnapshot(SnapshotDto s) {
     ProjectDto projectDto = db.getDbClient().projectDao().selectByBranchUuid(db.getSession(), s.getRootComponentUuid()).orElseThrow();
     return projectDto.getUuid();
   }
 
   private void assertThatIndexContainsOnly(ProjectDto... expectedProjects) {
-    assertThat(es.getIds(TYPE_PROJECT_MEASURES)).containsExactlyInAnyOrder(
-      Arrays.stream(expectedProjects).map(ProjectDto::getUuid).toArray(String[]::new));
+    assertThat(es.getIds(TYPE_PROJECT_MEASURES)).containsExactlyInAnyOrderElementsOf(
+      Arrays.stream(expectedProjects).map(ProjectDto::getUuid).toList());
   }
 
   private void assertThatQualifierIs(String qualifier, ProjectDto... expectedProjects) {

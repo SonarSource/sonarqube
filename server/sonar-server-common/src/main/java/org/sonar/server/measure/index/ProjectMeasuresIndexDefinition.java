@@ -19,6 +19,7 @@
  */
 package org.sonar.server.measure.index;
 
+import javax.inject.Inject;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.Index;
@@ -33,8 +34,6 @@ import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SEARCH_GR
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.es.newindex.SettingsConfiguration.MANUAL_REFRESH_INTERVAL;
 import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
-
-import javax.inject.Inject;
 
 public class ProjectMeasuresIndexDefinition implements IndexDefinition {
 
@@ -51,6 +50,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
   public static final String FIELD_NAME = "name";
   public static final String FIELD_QUALIFIER = "qualifier";
   public static final String FIELD_ANALYSED_AT = "analysedAt";
+  public static final String FIELD_CREATED_AT = "createdAt";
   public static final String FIELD_QUALITY_GATE_STATUS = "qualityGateStatus";
   public static final String FIELD_TAGS = "tags";
   public static final String FIELD_MEASURES = "measures";
@@ -113,5 +113,6 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
       .addIntegerField(SUB_FIELD_DISTRIB_NCLOC)
       .build();
     mapping.createDateTimeField(FIELD_ANALYSED_AT);
+    mapping.createDateTimeField(FIELD_CREATED_AT);
   }
 }

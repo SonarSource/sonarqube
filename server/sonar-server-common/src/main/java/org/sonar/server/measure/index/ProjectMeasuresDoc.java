@@ -32,6 +32,7 @@ import org.sonar.server.permission.index.AuthorizationDoc;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_CREATED_AT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
@@ -101,6 +102,15 @@ public class ProjectMeasuresDoc extends BaseDoc {
   public ProjectMeasuresDoc setAnalysedAt(@Nullable Date d) {
     setField(FIELD_ANALYSED_AT, d);
     return this;
+  }
+
+  public ProjectMeasuresDoc setCreatedAt(Date d) {
+    setField(FIELD_CREATED_AT, d);
+    return this;
+  }
+
+  public Date getCreatedAt() {
+    return getField(FIELD_CREATED_AT);
   }
 
   public Collection<Map<String, Object>> getMeasures() {

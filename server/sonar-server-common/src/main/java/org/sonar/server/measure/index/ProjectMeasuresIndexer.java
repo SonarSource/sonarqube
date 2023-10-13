@@ -215,6 +215,7 @@ public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, Ne
       .setQualityGateStatus(projectMeasures.getMeasures().getQualityGateStatus())
       .setTags(project.getTags())
       .setAnalysedAt(analysisDate == null ? null : new Date(analysisDate))
+      .setCreatedAt(new Date(project.getCreationDate()))
       .setMeasuresFromMap(projectMeasures.getMeasures().getNumericMeasures())
       .setLanguages(new ArrayList<>(projectMeasures.getMeasures().getNclocByLanguages().keySet()))
       .setNclocLanguageDistributionFromMap(projectMeasures.getMeasures().getNclocByLanguages());

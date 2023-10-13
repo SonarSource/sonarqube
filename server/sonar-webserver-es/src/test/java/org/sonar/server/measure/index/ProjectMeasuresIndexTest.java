@@ -25,7 +25,9 @@ import com.google.common.collect.Sets;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -182,6 +184,38 @@ public class ProjectMeasuresIndexTest {
 
     assertResults(new ProjectMeasuresQuery().setSort("alert_status").setAsc(true), PROJECT1, project4, PROJECT2);
     assertResults(new ProjectMeasuresQuery().setSort("alert_status").setAsc(false), PROJECT2, PROJECT1, project4);
+  }
+
+  public void sort_by_creation_date() {
+    Instant now = Instant.ofEpochMilli(1000L);
+    Date nowMinus10 = Date.from(now.minusSeconds(10));
+    Date nowMinus20 = Date.from(now.minusSeconds(20));
+    Date nowMinus30 = Date.from(now.minusSeconds(30));
+
+    ComponentDto project4 = ComponentTesting.newPrivateProjectDto().setUuid("Project-4").setName("Project 4").setKey("key-4");
+    index(
+      newDoc(PROJECT1).setCreatedAt(nowMinus10),
+      newDoc(PROJECT2).setCreatedAt(nowMinus30),
+      newDoc(project4).setCreatedAt(nowMinus20));
+
+    assertResults(new ProjectMeasuresQuery().setSort("creation_date").setAsc(true), PROJECT1, project4, PROJECT2);
+    assertResults(new ProjectMeasuresQuery().setSort("creation_date").setAsc(false), PROJECT2, PROJECT1, project4);
+  }
+
+  public void sort_by_analysis_date() {
+    Instant now = Instant.ofEpochMilli(1000L);
+    Date nowMinus10 = Date.from(now.minusSeconds(10));
+    Date nowMinus20 = Date.from(now.minusSeconds(20));
+    Date nowMinus30 = Date.from(now.minusSeconds(30));
+
+    ComponentDto project4 = ComponentTesting.newPrivateProjectDto().setUuid("Project-4").setName("Project 4").setKey("key-4");
+    index(
+      newDoc(PROJECT1).setAnalysedAt(nowMinus10),
+      newDoc(PROJECT2).setAnalysedAt(nowMinus30),
+      newDoc(project4).setAnalysedAt(nowMinus20));
+
+    assertResults(new ProjectMeasuresQuery().setSort("analysis_date").setAsc(true), PROJECT1, project4, PROJECT2);
+    assertResults(new ProjectMeasuresQuery().setSort("analysis_date").setAsc(false), PROJECT2, PROJECT1, project4);
   }
 
   @Test
@@ -1455,7 +1489,7 @@ public class ProjectMeasuresIndexTest {
       newDoc().setTags(newArrayList("finance", "offshore")),
       newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags("off", 1,10);
+    List<String> result = underTest.searchTags("off", 1, 10);
 
     assertThat(result).containsOnly("offshore", "official", "Madhoff");
   }
@@ -1485,7 +1519,7 @@ public class ProjectMeasuresIndexTest {
       newDoc().setTags(newArrayList("finance", "offshore")),
       newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags(null, 1,10);
+    List<String> result = underTest.searchTags(null, 1, 10);
 
     assertThat(result).containsExactly("Madhoff", "finance", "java", "javascript", "marketing", "official", "offshore");
   }
@@ -1500,16 +1534,16 @@ public class ProjectMeasuresIndexTest {
       newDoc().setTags(newArrayList("finance", "offshore")),
       newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags(null, 1,3);
+    List<String> result = underTest.searchTags(null, 1, 3);
     assertThat(result).containsExactly("Madhoff", "finance", "java");
 
-    result = underTest.searchTags(null, 2,3);
+    result = underTest.searchTags(null, 2, 3);
     assertThat(result).containsExactly("javascript", "marketing", "official");
 
-    result = underTest.searchTags(null, 3,3);
+    result = underTest.searchTags(null, 3, 3);
     assertThat(result).containsExactly("offshore");
 
-    result = underTest.searchTags(null, 3,4);
+    result = underTest.searchTags(null, 3, 4);
     assertThat(result).isEmpty();
   }
 
@@ -1523,7 +1557,7 @@ public class ProjectMeasuresIndexTest {
       newDoc().setTags(newArrayList("finance", "offshore")),
       newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags(null, 10,2);
+    List<String> result = underTest.searchTags(null, 10, 2);
 
     assertThat(result).isEmpty();
   }
@@ -1538,14 +1572,14 @@ public class ProjectMeasuresIndexTest {
 
     userSession.logIn(USER1);
 
-    List<String> result = underTest.searchTags(null, 1,10);
+    List<String> result = underTest.searchTags(null, 1, 10);
 
     assertThat(result).containsOnly("finance", "marketing");
   }
 
   @Test
   public void search_tags_with_no_tags() {
-    List<String> result = underTest.searchTags("whatever", 1,10);
+    List<String> result = underTest.searchTags("whatever", 1, 10);
 
     assertThat(result).isEmpty();
   }
@@ -1554,7 +1588,7 @@ public class ProjectMeasuresIndexTest {
   public void search_tags_with_page_size_at_0() {
     index(newDoc().setTags(newArrayList("offshore")));
 
-    List<String> result = underTest.searchTags(null, 1,0);
+    List<String> result = underTest.searchTags(null, 1, 0);
 
     assertThat(result).isEmpty();
   }
@@ -1585,10 +1619,9 @@ public class ProjectMeasuresIndexTest {
     int jsLocByProjects = 900;
     int csLocByProjects = 2;
 
-    ProjectMeasuresDoc[] documents = IntStream.range(0, nbProjects).mapToObj(i ->
-      newDoc("lines", 10, "coverage", 80)
-        .setLanguages(asList("java", "cs", "js"))
-        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", javaLocByProjects, "cs", csLocByProjects, "js", jsLocByProjects))).toArray(ProjectMeasuresDoc[]::new);
+    ProjectMeasuresDoc[] documents = IntStream.range(0, nbProjects).mapToObj(i -> newDoc("lines", 10, "coverage", 80)
+      .setLanguages(asList("java", "cs", "js"))
+      .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", javaLocByProjects, "cs", csLocByProjects, "js", jsLocByProjects))).toArray(ProjectMeasuresDoc[]::new);
 
     es.putDocuments(TYPE_PROJECT_MEASURES, documents);
 
@@ -1603,9 +1636,9 @@ public class ProjectMeasuresIndexTest {
 
     assertThat(result.getNclocByLanguage())
       .hasSize(3)
-      .containsEntry("java",(long) nbProjects * javaLocByProjects)
-      .containsEntry("cs",(long) nbProjects * csLocByProjects)
-      .containsEntry("js",(long) nbProjects * jsLocByProjects);
+      .containsEntry("java", (long) nbProjects * javaLocByProjects)
+      .containsEntry("cs", (long) nbProjects * csLocByProjects)
+      .containsEntry("js", (long) nbProjects * jsLocByProjects);
   }
 
   @Test

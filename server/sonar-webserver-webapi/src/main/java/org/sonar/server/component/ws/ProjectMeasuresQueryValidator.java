@@ -30,12 +30,13 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
 import static org.sonar.db.measure.ProjectMeasuresIndexerIterator.METRIC_KEYS;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_CREATION_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 
 public class ProjectMeasuresQueryValidator {
 
-  static final Set<String> NON_METRIC_SORT_KEYS = new HashSet<>(asList(SORT_BY_NAME, SORT_BY_LAST_ANALYSIS_DATE));
+  static final Set<String> NON_METRIC_SORT_KEYS = new HashSet<>(asList(SORT_BY_NAME, SORT_BY_LAST_ANALYSIS_DATE, SORT_BY_CREATION_DATE));
 
   private ProjectMeasuresQueryValidator() {
   }

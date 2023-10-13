@@ -32,7 +32,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -180,7 +179,7 @@ public class SearchProjectsActionIT {
     assertThat(def.isPost()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
     assertThat(def.params().stream().map(Param::key).toList()).containsOnly("filter", "facets", "s", "asc", "ps", "p", "f");
-    assertThat(def.changelog()).hasSize(3);
+    assertThat(def.changelog()).hasSize(4);
 
     Param sort = def.param("s");
     assertThat(sort.defaultValue()).isEqualTo("name");
@@ -205,7 +204,8 @@ public class SearchProjectsActionIT {
       "ncloc",
       "new_maintainability_rating",
       "name",
-      "analysisDate");
+      "analysisDate",
+      "creationDate");
 
     Param asc = def.param("asc");
     assertThat(asc.defaultValue()).isEqualTo("true");
@@ -1330,7 +1330,7 @@ public class SearchProjectsActionIT {
 
   private void addFavourite(@Nullable String entityUuid, @Nullable String entityKey, @Nullable String entityName, @Nullable String qualifier) {
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite")
-        .setEntityUuid(entityUuid).setUserUuid(userSession.getUuid()), userSession.getLogin(), entityKey, entityName, qualifier);
+      .setEntityUuid(entityUuid).setUserUuid(userSession.getUuid()), userSession.getLogin(), entityKey, entityName, qualifier);
     dbSession.commit();
   }
 

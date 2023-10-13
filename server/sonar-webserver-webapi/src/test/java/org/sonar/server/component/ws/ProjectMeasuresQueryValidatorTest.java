@@ -28,7 +28,6 @@ import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterio
 
 public class ProjectMeasuresQueryValidatorTest {
 
-
   @Test
   public void query_with_empty_metrics_is_valid() {
     ProjectMeasuresQueryValidator.validate(new ProjectMeasuresQuery());
@@ -197,6 +196,16 @@ public class ProjectMeasuresQueryValidatorTest {
   @Test
   public void sort_by_new_reliability_rating_is_valid() {
     assertValidSortKey("new_reliability_rating");
+  }
+
+  @Test
+  public void sort_by_creation_date_is_valid() {
+    assertValidSortKey("creationDate");
+  }
+
+  @Test
+  public void sort_by_analysis_date_is_valid() {
+    assertValidSortKey("analysisDate");
   }
 
   @Test

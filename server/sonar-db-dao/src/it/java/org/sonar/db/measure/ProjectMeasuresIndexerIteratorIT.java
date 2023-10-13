@@ -248,6 +248,7 @@ public class ProjectMeasuresIndexerIteratorIT {
     assertThat(docsById).hasSize(1);
     ProjectMeasures doc = docsById.get(projectData.projectUuid());
     assertThat(doc.getProject().getAnalysisDate()).isNull();
+    assertThat(doc.getProject().getCreationDate()).isEqualTo(projectData.getProjectDto().getCreatedAt());
   }
 
   @Test

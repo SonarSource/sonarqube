@@ -114,6 +114,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndex.Facet.ALERT_ST
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.Facet.LANGUAGES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.Facet.TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_CREATED_AT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
@@ -128,6 +129,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.SUB_FIELD_MEASURES_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_CREATION_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
@@ -302,6 +304,8 @@ public class ProjectMeasuresIndex {
       requestBuilder.sort(DefaultIndexSettingsElement.SORTABLE_ANALYZER.subField(FIELD_NAME), query.isAsc() ? ASC : DESC);
     } else if (SORT_BY_LAST_ANALYSIS_DATE.equals(sort)) {
       requestBuilder.sort(FIELD_ANALYSED_AT, query.isAsc() ? ASC : DESC);
+    } else if (SORT_BY_CREATION_DATE.equals(sort)) {
+      requestBuilder.sort(FIELD_CREATED_AT, query.isAsc() ? ASC : DESC);
     } else if (ALERT_STATUS_KEY.equals(sort)) {
       requestBuilder.sort(FIELD_QUALITY_GATE_STATUS, query.isAsc() ? ASC : DESC);
       requestBuilder.sort(DefaultIndexSettingsElement.SORTABLE_ANALYZER.subField(FIELD_NAME), ASC);

@@ -72,7 +72,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     CoreMetrics.NEW_LINES_KEY,
     CoreMetrics.NEW_RELIABILITY_RATING_KEY);
 
-  private static final String SQL_PROJECTS = "SELECT p.uuid, p.kee, p.name, s.created_at, p.tags, p.qualifier " +
+  private static final String SQL_PROJECTS = "SELECT p.uuid, p.kee, p.name, p.created_at, s.created_at, p.tags, p.qualifier " +
     "FROM projects p " +
     "INNER JOIN project_branches pb ON pb.project_uuid = p.uuid AND pb.is_main = ? " +
     "LEFT OUTER JOIN snapshots s ON s.root_component_uuid=pb.uuid AND s.islast=? " +
@@ -141,10 +141,11 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
         String uuid = rs.getString(1);
         String key = rs.getString(2);
         String name = rs.getString(3);
-        Long analysisDate = DatabaseUtils.getLong(rs, 4);
-        List<String> tags = readDbTags(DatabaseUtils.getString(rs, 5));
-        String qualifier = rs.getString(6);
-        Project project = new Project(uuid, key, name, qualifier, tags, analysisDate);
+        Long creationDate = rs.getLong(4);
+        Long analysisDate = DatabaseUtils.getLong(rs, 5);
+        List<String> tags = readDbTags(DatabaseUtils.getString(rs, 6));
+        String qualifier = rs.getString(7);
+        Project project = new Project(uuid, key, name, qualifier, tags, creationDate, analysisDate);
         projects.add(project);
       }
       return projects;
@@ -331,16 +332,18 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     private final String key;
     private final String name;
     private final String qualifier;
+    private final Long creationDate;
     private final Long analysisDate;
     private final List<String> tags;
 
-    public Project(String uuid, String key, String name, String qualifier, List<String> tags, @Nullable Long analysisDate) {
+    public Project(String uuid, String key, String name, String qualifier, List<String> tags, Long creationDate, @Nullable Long analysisDate) {
       this.uuid = uuid;
       this.key = key;
       this.name = name;
       this.qualifier = qualifier;
       this.tags = tags;
       this.analysisDate = analysisDate;
+      this.creationDate = creationDate;
     }
 
     public String getUuid() {
@@ -366,6 +369,10 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     @CheckForNull
     public Long getAnalysisDate() {
       return analysisDate;
+    }
+
+    public Long getCreationDate() {
+      return creationDate;
     }
   }
 
