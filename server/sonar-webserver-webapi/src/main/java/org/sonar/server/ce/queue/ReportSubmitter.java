@@ -46,6 +46,7 @@ import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
@@ -67,10 +68,11 @@ public class ReportSubmitter {
   private final BranchSupport branchSupport;
   private final ProjectDefaultVisibility projectDefaultVisibility;
   private final DevOpsPlatformService devOpsPlatformService;
+  private final ManagedInstanceService managedInstanceService;
 
   public ReportSubmitter(CeQueue queue, UserSession userSession, ComponentUpdater componentUpdater,
     PermissionTemplateService permissionTemplateService, DbClient dbClient, BranchSupport branchSupport, ProjectDefaultVisibility projectDefaultVisibility,
-    DevOpsPlatformService devOpsPlatformService) {
+    DevOpsPlatformService devOpsPlatformService, ManagedInstanceService managedInstanceService) {
     this.queue = queue;
     this.userSession = userSession;
     this.componentUpdater = componentUpdater;
@@ -79,6 +81,7 @@ public class ReportSubmitter {
     this.branchSupport = branchSupport;
     this.projectDefaultVisibility = projectDefaultVisibility;
     this.devOpsPlatformService = devOpsPlatformService;
+    this.managedInstanceService = managedInstanceService;
   }
 
   public CeTask submit(String projectKey, @Nullable String projectName, Map<String, String> characteristics, InputStream reportInput) {
@@ -166,6 +169,10 @@ public class ReportSubmitter {
     boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(dbSession, userSession.getUuid(), projectKey);
     if (!wouldCurrentUserHaveScanPermission) {
       throw insufficientPrivilegesException();
+    }
+
+    if (managedInstanceService.isInstanceExternallyManaged()) {
+      return createProject(dbSession, componentKey.getKey(), defaultIfBlank(projectName, projectKey));
     }
 
     Optional<DevOpsProjectDescriptor> devOpsProjectDescriptor = devOpsPlatformService.getDevOpsProjectDescriptor(characteristics);

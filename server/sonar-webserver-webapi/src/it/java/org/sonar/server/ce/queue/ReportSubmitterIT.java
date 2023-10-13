@@ -62,6 +62,7 @@ import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.PermissionUpdater;
@@ -126,8 +127,10 @@ public class ReportSubmitterIT {
 
   private final DevOpsPlatformService devOpsPlatformServiceSpy = spy(devOpsPlatformService);
 
+  private final ManagedInstanceService managedInstanceService = mock();
+
   private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), ossEditionBranchSupport,
-    projectDefaultVisibility, devOpsPlatformServiceSpy);
+    projectDefaultVisibility, devOpsPlatformServiceSpy, managedInstanceService);
 
   @Before
   public void before() {
@@ -268,12 +271,7 @@ public class ReportSubmitterIT {
 
     underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
-    ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), PROJECT_KEY).orElseThrow();
-    assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.SCANNER_API);
-    assertThat(projectDto.getName()).isEqualTo(PROJECT_NAME);
-
-    BranchDto branchDto = db.getDbClient().branchDao().selectByBranchKey(db.getSession(), projectDto.getUuid(), "main").orElseThrow();
-    assertThat(branchDto.isMain()).isTrue();
+    assertLocalProjectWasCreated();
   }
 
   @Test
@@ -288,6 +286,27 @@ public class ReportSubmitterIT {
 
     underTest.submit(PROJECT_KEY, PROJECT_NAME, characteristics, IOUtils.toInputStream("{binary}", UTF_8));
 
+    assertLocalProjectWasCreated();
+  }
+
+  @Test
+  public void submit_whenReportIsForANewProjectWithValidAlmSettingsButAutoProvisioningOn_createsLocalProject() {
+    userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
+    mockSuccessfulPrepareSubmitCall();
+
+    Map<String, String> characteristics = Map.of("random", "data");
+    DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo");
+
+    mockInteractionsWithDevOpsPlatformServiceSpyBeforeProjectCreation(characteristics, projectDescriptor);
+
+    underTest.submit(PROJECT_KEY, PROJECT_NAME, characteristics, IOUtils.toInputStream("{binary}", UTF_8));
+
+    assertLocalProjectWasCreated();
+  }
+
+  private void assertLocalProjectWasCreated() {
     ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), PROJECT_KEY).orElseThrow();
     assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.SCANNER_API);
     assertThat(projectDto.getName()).isEqualTo(PROJECT_NAME);
@@ -311,6 +330,10 @@ public class ReportSubmitterIT {
 
     underTest.submit(PROJECT_KEY, PROJECT_NAME, characteristics, IOUtils.toInputStream("{binary}", UTF_8));
 
+    assertProjectWasCreatedWithBinding();
+  }
+
+  private void assertProjectWasCreatedWithBinding() {
     ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), PROJECT_KEY).orElseThrow();
     assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.SCANNER_API_DEVOPS_AUTO_CONFIG);
     assertThat(projectDto.getName()).isEqualTo("repoName");

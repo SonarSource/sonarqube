@@ -54,6 +54,7 @@ import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
@@ -109,8 +110,9 @@ public class BranchReportSubmitterIT {
   private final DevOpsPlatformService devOpsPlatformService = new GitHubDevOpsPlatformService(db.getDbClient(), null,
     null, projectDefaultVisibility, null, userSession, componentUpdater, null);
 
+  private final ManagedInstanceService managedInstanceService = mock();
   private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), branchSupport,
-    projectDefaultVisibility, devOpsPlatformService);
+    projectDefaultVisibility, devOpsPlatformService, managedInstanceService);
 
   @Before
   public void before() {
