@@ -22,7 +22,6 @@ import {
   getBitbucketServerProjects,
   getBitbucketServerRepositories,
   searchForBitbucketServerRepositories,
-  setupBitbucketServerProjectCreation,
 } from '../../../../api/alm-integrations';
 import { Location, Router } from '../../../../components/hoc/withRouter';
 import {
@@ -31,8 +30,9 @@ import {
   BitbucketRepository,
 } from '../../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../../types/alm-settings';
+import { ImportProjectParam } from '../CreateProjectPage';
 import { DEFAULT_BBS_PAGE_SIZE } from '../constants';
-import { CreateProjectApiCallback } from '../types';
+import { CreateProjectModes } from '../types';
 import BitbucketCreateProjectRenderer from './BitbucketProjectCreateRenderer';
 
 interface Props {
@@ -41,7 +41,7 @@ interface Props {
   loadingBindings: boolean;
   location: Location;
   router: Router;
-  onProjectSetupDone: (createProject: CreateProjectApiCallback) => void;
+  onProjectSetupDone: (importProjects: ImportProjectParam) => void;
 }
 
 interface State {
@@ -184,13 +184,16 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
     const { selectedAlmInstance } = this.state;
 
     if (selectedAlmInstance) {
-      this.props.onProjectSetupDone(
-        setupBitbucketServerProjectCreation({
-          almSetting: selectedAlmInstance.key,
-          projectKey: selectedRepository.projectKey,
-          repositorySlug: selectedRepository.slug,
-        }),
-      );
+      this.props.onProjectSetupDone({
+        creationMode: CreateProjectModes.BitbucketServer,
+        almSetting: selectedAlmInstance.key,
+        projects: [
+          {
+            projectKey: selectedRepository.projectKey,
+            repositorySlug: selectedRepository.slug,
+          },
+        ],
+      });
     }
   };
 

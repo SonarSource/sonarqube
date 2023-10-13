@@ -41,7 +41,7 @@ import GitHubProjectCreate from './Github/GitHubProjectCreate';
 import GitlabProjectCreate from './Gitlab/GitlabProjectCreate';
 import NewCodeDefinitionSelection from './components/NewCodeDefinitionSelection';
 import ManualProjectCreate from './manual/ManualProjectCreate';
-import { CreateProjectApiCallback, CreateProjectModes } from './types';
+import { CreateProjectModes } from './types';
 
 export interface CreateProjectPageProps extends WithAvailableFeaturesProps {
   appState: AppState;
@@ -57,7 +57,7 @@ interface State {
   gitlabSettings: AlmSettingsInstance[];
   loading: boolean;
   creatingAlmDefinition?: AlmKeys;
-  nbrOfProjects?: number;
+  importProjects?: ImportProjectParam;
 }
 
 const PROJECT_MODE_FOR_ALM_KEY = {
@@ -68,9 +68,56 @@ const PROJECT_MODE_FOR_ALM_KEY = {
   [AlmKeys.GitLab]: CreateProjectModes.GitLab,
 };
 
+export type ImportProjectParam =
+  | {
+      creationMode: CreateProjectModes.AzureDevOps;
+      almSetting: string;
+      projects: {
+        projectName: string;
+        repositoryName: string;
+      }[];
+    }
+  | {
+      creationMode: CreateProjectModes.BitbucketCloud;
+      almSetting: string;
+      projects: {
+        repositorySlug: string;
+      }[];
+    }
+  | {
+      creationMode: CreateProjectModes.BitbucketServer;
+      almSetting: string;
+      projects: {
+        repositorySlug: string;
+        projectKey: string;
+      }[];
+    }
+  | {
+      creationMode: CreateProjectModes.GitHub;
+      almSetting: string;
+      projects: {
+        organization: string;
+        repositoryKey: string;
+      }[];
+    }
+  | {
+      creationMode: CreateProjectModes.GitLab;
+      almSetting: string;
+      projects: {
+        gitlabProjectId: string;
+      }[];
+    }
+  | {
+      creationMode: CreateProjectModes.Manual;
+      projects: {
+        project: string;
+        name: string;
+        mainBranch: string;
+      }[];
+    };
+
 export class CreateProjectPage extends React.PureComponent<CreateProjectPageProps, State> {
   mounted = false;
-  createProjectFnRef: CreateProjectApiCallback | null = null;
 
   state: State = {
     azureSettings: [],
@@ -95,7 +142,7 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
   cleanQueryParameters() {
     const { location, router } = this.props;
 
-    if (location.query?.setncd === 'true' && this.createProjectFnRef === null) {
+    if (location.query?.setncd === 'true') {
       // Timeout is required to force the refresh of the URL
       setTimeout(() => {
         location.query.setncd = undefined;
@@ -138,11 +185,10 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
     this.setState({ creatingAlmDefinition: alm });
   };
 
-  handleProjectSetupDone = (createProject: CreateProjectApiCallback, nbrOfProjects?: number) => {
+  handleProjectSetupDone = (importProjects: ImportProjectParam) => {
     const { location, router } = this.props;
-    this.createProjectFnRef = createProject;
 
-    this.setState({ nbrOfProjects });
+    this.setState({ importProjects });
 
     location.query.setncd = 'true';
     router.push(location);
@@ -275,8 +321,8 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
   }
 
   render() {
-    const { location, router } = this.props;
-    const { creatingAlmDefinition, nbrOfProjects } = this.state;
+    const { location } = this.props;
+    const { creatingAlmDefinition, importProjects } = this.state;
     const mode: CreateProjectModes | undefined = location.query?.mode;
     const isProjectSetupDone = location.query?.setncd === 'true';
     const gridLayoutStyle = mode ? 'sw-col-start-2 sw-col-span-10' : 'sw-col-span-12';
@@ -296,13 +342,9 @@ export class CreateProjectPage extends React.PureComponent<CreateProjectPageProp
           <div className={classNames({ 'sw-hidden': isProjectSetupDone })}>
             {this.renderProjectCreation(mode)}
           </div>
-          <div className={classNames({ 'sw-hidden': !isProjectSetupDone })}>
-            <NewCodeDefinitionSelection
-              router={router}
-              createProjectFnRef={this.createProjectFnRef}
-              numberOfProjects={nbrOfProjects}
-            />
-          </div>
+          {importProjects !== undefined && isProjectSetupDone && (
+            <NewCodeDefinitionSelection importProjects={importProjects} />
+          )}
 
           {creatingAlmDefinition && (
             <AlmBindingDefinitionForm

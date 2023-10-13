@@ -33,19 +33,19 @@ import { debounce, isEmpty } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { doesComponentExists } from '../../../../api/components';
-import { setupManualProjectCreation } from '../../../../api/project-management';
 import { getValue } from '../../../../api/settings';
 import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { PROJECT_KEY_INVALID_CHARACTERS, validateProjectKey } from '../../../../helpers/projects';
 import { ProjectKeyValidationResult } from '../../../../types/component';
 import { GlobalSettingKeys } from '../../../../types/settings';
+import { ImportProjectParam } from '../CreateProjectPage';
 import { PROJECT_NAME_MAX_LEN } from '../constants';
-import { CreateProjectApiCallback } from '../types';
+import { CreateProjectModes } from '../types';
 
 interface Props {
   branchesEnabled: boolean;
-  onProjectSetupDone: (createProject: CreateProjectApiCallback) => void;
+  onProjectSetupDone: (importProjects: ImportProjectParam) => void;
 }
 
 interface State {
@@ -133,13 +133,16 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     event.preventDefault();
     const { projectKey, projectName, mainBranchName } = this.state;
     if (this.canSubmit(this.state)) {
-      this.props.onProjectSetupDone(
-        setupManualProjectCreation({
-          project: projectKey,
-          name: (projectName || projectKey).trim(),
-          mainBranch: mainBranchName,
-        }),
-      );
+      this.props.onProjectSetupDone({
+        creationMode: CreateProjectModes.Manual,
+        projects: [
+          {
+            project: projectKey,
+            name: (projectName || projectKey).trim(),
+            mainBranch: mainBranchName,
+          },
+        ],
+      });
     }
   };
 

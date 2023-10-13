@@ -22,13 +22,13 @@ import {
   getAzureProjects,
   getAzureRepositories,
   searchAzureRepositories,
-  setupAzureProjectCreation,
 } from '../../../../api/alm-integrations';
 import { Location, Router } from '../../../../components/hoc/withRouter';
 import { AzureProject, AzureRepository } from '../../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Dict } from '../../../../types/types';
-import { CreateProjectApiCallback } from '../types';
+import { ImportProjectParam } from '../CreateProjectPage';
+import { CreateProjectModes } from '../types';
 import AzureCreateProjectRenderer from './AzureProjectCreateRenderer';
 
 interface Props {
@@ -37,7 +37,7 @@ interface Props {
   almInstances: AlmSettingsInstance[];
   location: Location;
   router: Router;
-  onProjectSetupDone: (createProject: CreateProjectApiCallback) => void;
+  onProjectSetupDone: (importProjects: ImportProjectParam) => void;
 }
 
 interface State {
@@ -210,13 +210,16 @@ export default class AzureProjectCreate extends React.PureComponent<Props, State
     const { selectedAlmInstance } = this.state;
 
     if (selectedAlmInstance && selectedRepository) {
-      this.props.onProjectSetupDone(
-        setupAzureProjectCreation({
-          almSetting: selectedAlmInstance.key,
-          projectName: selectedRepository.projectName,
-          repositoryName: selectedRepository.name,
-        }),
-      );
+      this.props.onProjectSetupDone({
+        creationMode: CreateProjectModes.AzureDevOps,
+        almSetting: selectedAlmInstance.key,
+        projects: [
+          {
+            projectName: selectedRepository.projectName,
+            repositoryName: selectedRepository.name,
+          },
+        ],
+      });
     }
   };
 

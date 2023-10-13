@@ -24,20 +24,20 @@ import {
   getGithubClientId,
   getGithubOrganizations,
   getGithubRepositories,
-  setupGithubProjectCreation,
 } from '../../../../api/alm-integrations';
 import { Location, Router } from '../../../../components/hoc/withRouter';
 import { getHostUrl } from '../../../../helpers/urls';
 import { GithubOrganization, GithubRepository } from '../../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Paging } from '../../../../types/types';
-import { CreateProjectApiCallback } from '../types';
+import { ImportProjectParam } from '../CreateProjectPage';
+import { CreateProjectModes } from '../types';
 import GitHubProjectCreateRenderer from './GitHubProjectCreateRenderer';
 
 interface Props {
   canAdmin: boolean;
   loadingBindings: boolean;
-  onProjectSetupDone: (createProject: CreateProjectApiCallback, nbrOfProjects: number) => void;
+  onProjectSetupDone: (importProjects: ImportProjectParam) => void;
   almInstances: AlmSettingsInstance[];
   location: Location;
   router: Router;
@@ -263,14 +263,14 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
     const { selectedOrganization, selectedAlmInstance } = this.state;
 
     if (selectedAlmInstance && selectedOrganization && repoKeys.length > 0) {
-      this.props.onProjectSetupDone(
-        setupGithubProjectCreation({
-          almSetting: selectedAlmInstance.key,
+      this.props.onProjectSetupDone({
+        almSetting: selectedAlmInstance.key,
+        creationMode: CreateProjectModes.GitHub,
+        projects: repoKeys.map((repositoryKey) => ({
+          repositoryKey,
           organization: selectedOrganization.key,
-          repositoryKey: repoKeys.join(','), // TBD
-        }),
-        repoKeys.length,
-      );
+        })),
+      });
     }
   };
 

@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { getGitlabProjects, setupGitlabProjectCreation } from '../../../../api/alm-integrations';
+import { getGitlabProjects } from '../../../../api/alm-integrations';
 import { Location, Router } from '../../../../components/hoc/withRouter';
 import { GitlabProject } from '../../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Paging } from '../../../../types/types';
-import { CreateProjectApiCallback } from '../types';
+import { ImportProjectParam } from '../CreateProjectPage';
+import { CreateProjectModes } from '../types';
 import GitlabProjectCreateRenderer from './GitlabProjectCreateRenderer';
 
 interface Props {
@@ -32,7 +33,7 @@ interface Props {
   almInstances: AlmSettingsInstance[];
   location: Location;
   router: Router;
-  onProjectSetupDone: (createProject: CreateProjectApiCallback) => void;
+  onProjectSetupDone: (importProjects: ImportProjectParam) => void;
 }
 
 interface State {
@@ -139,10 +140,11 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
     const { selectedAlmInstance } = this.state;
 
     if (selectedAlmInstance) {
-      this.props.onProjectSetupDone(
-        // eslint-disable-next-line local-rules/no-api-imports
-        setupGitlabProjectCreation({ almSetting: selectedAlmInstance.key, gitlabProjectId }),
-      );
+      this.props.onProjectSetupDone({
+        creationMode: CreateProjectModes.GitLab,
+        almSetting: selectedAlmInstance.key,
+        projects: [{ gitlabProjectId }],
+      });
     }
   };
 

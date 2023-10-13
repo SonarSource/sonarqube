@@ -18,16 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import {
-  searchForBitbucketCloudRepositories,
-  setupBitbucketCloudProjectCreation,
-} from '../../../../api/alm-integrations';
+import { searchForBitbucketCloudRepositories } from '../../../../api/alm-integrations';
 import { Location, Router } from '../../../../components/hoc/withRouter';
 import { BitbucketCloudRepository } from '../../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../../types/alm-settings';
 import { Paging } from '../../../../types/types';
+import { ImportProjectParam } from '../CreateProjectPage';
 import { BITBUCKET_CLOUD_PROJECTS_PAGESIZE } from '../constants';
-import { CreateProjectApiCallback } from '../types';
+import { CreateProjectModes } from '../types';
 import BitbucketCloudProjectCreateRenderer from './BitbucketCloudProjectCreateRender';
 
 interface Props {
@@ -36,7 +34,7 @@ interface Props {
   loadingBindings: boolean;
   location: Location;
   router: Router;
-  onProjectSetupDone: (createProject: CreateProjectApiCallback) => void;
+  onProjectSetupDone: (importProjects: ImportProjectParam) => void;
 }
 
 interface State {
@@ -193,12 +191,15 @@ export default class BitbucketCloudProjectCreate extends React.PureComponent<Pro
     const { selectedAlmInstance } = this.state;
 
     if (selectedAlmInstance) {
-      this.props.onProjectSetupDone(
-        setupBitbucketCloudProjectCreation({
-          almSetting: selectedAlmInstance.key,
-          repositorySlug,
-        }),
-      );
+      this.props.onProjectSetupDone({
+        creationMode: CreateProjectModes.BitbucketCloud,
+        almSetting: selectedAlmInstance.key,
+        projects: [
+          {
+            repositorySlug,
+          },
+        ],
+      });
     }
   };
 

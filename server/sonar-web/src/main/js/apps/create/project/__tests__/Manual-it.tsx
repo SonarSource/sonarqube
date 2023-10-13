@@ -32,9 +32,7 @@ import CreateProjectPage, { CreateProjectPageProps } from '../CreateProjectPage'
 jest.mock('../../../../api/alm-settings');
 jest.mock('../../../../api/newCodeDefinition');
 jest.mock('../../../../api/project-management', () => ({
-  setupManualProjectCreation: jest
-    .fn()
-    .mockReturnValue(() => Promise.resolve({ project: mockProject() })),
+  createProject: jest.fn().mockReturnValue(Promise.resolve({ project: mockProject() })),
 }));
 jest.mock('../../../../api/components', () => ({
   ...jest.requireActual('../../../../api/components'),

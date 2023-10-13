@@ -18,50 +18,81 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ButtonPrimary, ButtonSecondary, FlagMessage, Link, Spinner, Title } from 'design-system';
+import { omit } from 'lodash';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
+import { useEffect } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
-import { Router } from '../../../../components/hoc/withRouter';
 import NewCodeDefinitionSelector from '../../../../components/new-code-definition/NewCodeDefinitionSelector';
 import { useDocUrl } from '../../../../helpers/docs';
 import { addGlobalSuccessMessage } from '../../../../helpers/globalMessages';
 import { translate } from '../../../../helpers/l10n';
-import { getProjectUrl } from '../../../../helpers/urls';
+import { getProjectUrl, queryToSearch } from '../../../../helpers/urls';
+import {
+  MutationArg,
+  useImportProjectMutation,
+  useImportProjectProgress,
+} from '../../../../queries/import-projects';
 import { NewCodeDefinitiondWithCompliance } from '../../../../types/new-code-definition';
-import { CreateProjectApiCallback } from '../types';
+import { ImportProjectParam } from '../CreateProjectPage';
 
 interface Props {
-  createProjectFnRef: CreateProjectApiCallback | null;
-  router: Router;
-  numberOfProjects?: number;
+  importProjects: ImportProjectParam;
 }
 
 export default function NewCodeDefinitionSelection(props: Props) {
-  const { createProjectFnRef, router, numberOfProjects } = props;
+  const { importProjects } = props;
 
-  const [submitting, setSubmitting] = React.useState(false);
   const [selectedDefinition, selectDefinition] = React.useState<NewCodeDefinitiondWithCompliance>();
-
+  const { mutate, isLoading, data, reset } = useImportProjectMutation();
+  const mutateCount = useImportProjectProgress();
+  const intl = useIntl();
   const navigate = useNavigate();
-
   const getDocUrl = useDocUrl();
 
-  const isMultipleProjects = numberOfProjects !== undefined && numberOfProjects !== 1;
-  const projectCount = isMultipleProjects ? numberOfProjects : 1;
+  const projectCount = importProjects.projects.length;
+  const isMultipleProjects = projectCount > 1;
 
-  const handleProjectCreation = React.useCallback(async () => {
-    if (createProjectFnRef && selectedDefinition) {
-      setSubmitting(true);
-      const { project } = await createProjectFnRef(
-        selectedDefinition.type,
-        selectedDefinition.value,
-      );
-      setSubmitting(false);
-      router.push(getProjectUrl(project.key));
-
-      addGlobalSuccessMessage(translate('onboarding.create_project.success'));
+  useEffect(() => {
+    if (mutateCount > 0 || !data) {
+      return;
     }
-  }, [createProjectFnRef, router, selectedDefinition]);
+    reset();
+    addGlobalSuccessMessage(
+      intl.formatMessage(
+        { id: 'onboarding.create_project.success' },
+        {
+          count: projectCount,
+        },
+      ),
+    );
+
+    if (projectCount === 1) {
+      navigate(getProjectUrl(data.project.key));
+    } else {
+      navigate({
+        pathname: '/projects',
+        search: queryToSearch({ recent: true }),
+      });
+    }
+  }, [data, projectCount, mutateCount, reset, intl, navigate]);
+
+  const handleProjectCreation = () => {
+    if (selectedDefinition) {
+      importProjects.projects.forEach((p) => {
+        const arg = {
+          // eslint-disable-next-line local-rules/use-metrickey-enum
+          ...omit(importProjects, 'projects'),
+          ...p,
+        } as MutationArg;
+        mutate({
+          newCodeDefinitionType: selectedDefinition.type,
+          newCodeDefinitionValue: selectedDefinition.value,
+          ...arg,
+        });
+      });
+    }
+  };
 
   return (
     <div id="project-ncd-selection" className="sw-body-sm">
@@ -106,7 +137,7 @@ export default function NewCodeDefinitionSelection(props: Props) {
         </ButtonSecondary>
         <ButtonPrimary
           onClick={handleProjectCreation}
-          disabled={!selectedDefinition?.isCompliant || submitting}
+          disabled={!selectedDefinition?.isCompliant || isLoading}
           type="submit"
         >
           <FormattedMessage
@@ -118,7 +149,7 @@ export default function NewCodeDefinitionSelection(props: Props) {
               count: projectCount,
             }}
           />
-          <Spinner className="sw-ml-2" loading={submitting} />
+          <Spinner className="sw-ml-2" loading={isLoading} />
         </ButtonPrimary>
       </div>
     </div>

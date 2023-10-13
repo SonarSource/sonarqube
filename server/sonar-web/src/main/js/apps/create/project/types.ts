@@ -17,8 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ProjectBase } from '../../../api/components';
-import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 
 export enum CreateProjectModes {
   Manual = 'manual',
@@ -28,8 +26,3 @@ export enum CreateProjectModes {
   GitHub = 'github',
   GitLab = 'gitlab',
 }
-
-export type CreateProjectApiCallback = (
-  newCodeDefinitionType?: NewCodeDefinitionType,
-  newCodeDefinitionValue?: string,
-) => Promise<{ project: ProjectBase }>;
