@@ -78,18 +78,20 @@ function renderGraphsTooltips(props: Partial<Props> = {}) {
   const date = props.selectedDate || parseDate('2016-01-01T00:00:00+0200');
   const metrics: Metric[] = [];
 
-  [
-    [MetricKey.bugs, '1'],
-    [MetricKey.reliability_rating, '3'],
-    [MetricKey.code_smells, '0'],
-    [MetricKey.sqale_rating, '1'],
-    [MetricKey.vulnerabilities, '2'],
-    [MetricKey.security_rating, '5'],
-    [MetricKey.lines_to_cover, '10'],
-    [MetricKey.uncovered_lines, '8'],
-    [MetricKey.coverage, '75'],
-    [MetricKey.duplicated_lines_density, '3'],
-  ].forEach(([metric, value]) => {
+  (
+    [
+      [MetricKey.bugs, '1'],
+      [MetricKey.reliability_rating, '3'],
+      [MetricKey.code_smells, '0'],
+      [MetricKey.sqale_rating, '1'],
+      [MetricKey.vulnerabilities, '2'],
+      [MetricKey.security_rating, '5'],
+      [MetricKey.lines_to_cover, '10'],
+      [MetricKey.uncovered_lines, '8'],
+      [MetricKey.coverage, '75'],
+      [MetricKey.duplicated_lines_density, '3'],
+    ] as Array<[MetricKey, string]>
+  ).forEach(([metric, value]) => {
     measuresHistory.push(
       mockMeasureHistory({
         metric,

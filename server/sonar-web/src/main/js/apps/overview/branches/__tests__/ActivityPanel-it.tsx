@@ -23,11 +23,14 @@ import { mockComponent } from '../../../../helpers/mocks/component';
 import {
   mockAnalysis,
   mockAnalysisEvent,
+  mockHistoryItem,
   mockMeasureHistory,
 } from '../../../../helpers/mocks/project-activity';
 import { mockMetric } from '../../../../helpers/testMocks';
 
+import { parseDate } from '../../../../helpers/dates';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { MetricKey } from '../../../../types/metrics';
 import {
   ApplicationAnalysisEventCategory,
   DefinitionChangeType,
@@ -42,10 +45,74 @@ it('should render correctly', async () => {
   expect(screen.getByText(/event.category.OTHER/)).toBeInTheDocument();
   expect(screen.getByText(/event.category.DEFINITION_CHANGE/)).toBeInTheDocument();
   expect(screen.getByText('event.sqUpgrade10.2')).toBeInTheDocument();
+
+  // Checking measures variations
+  expect(screen.getAllByText(/project_activity\.graphs\.coverage$/)).toHaveLength(3);
+  expect(screen.getAllByText(/project_activity\.graphs\.duplications$/)).toHaveLength(3);
+  // Analysis 1 (latest)
+  expect(screen.getByText(/^\+0 project_activity\.graphs\.issues$/)).toBeInTheDocument();
+  expect(screen.getByText(/^\+6\.5% project_activity\.graphs\.duplications$/)).toBeInTheDocument();
+  // Analysis 2
+  expect(screen.getByText(/^\+2 project_activity\.graphs\.issues$/)).toBeInTheDocument();
+  expect(screen.getByText(/^-1\.0% project_activity\.graphs\.coverage$/)).toBeInTheDocument();
+  // Analysis 3
+  expect(screen.getByText(/^-100 project_activity\.graphs\.issues$/)).toBeInTheDocument();
+  expect(screen.getByText(/^\+15\.2% project_activity\.graphs\.coverage$/)).toBeInTheDocument();
+  expect(screen.getByText(/^-1\.5% project_activity\.graphs\.duplications$/)).toBeInTheDocument();
+  // Analysis 4 (first one)
+  expect(screen.getByText(/^502 project_activity\.graphs\.issues$/)).toBeInTheDocument();
+  expect(screen.getByText(/^0\.0% project_activity\.graphs\.coverage$/)).toBeInTheDocument();
+  expect(screen.getByText(/^10\.0% project_activity\.graphs\.duplications$/)).toBeInTheDocument();
 });
 
 function renderActivityPanel(props: Partial<ActivityPanelProps> = {}) {
-  const mockedMeasureHistory = [mockMeasureHistory()];
+  const mockedMeasureHistory = [
+    mockMeasureHistory({
+      metric: MetricKey.code_smells,
+      history: [
+        mockHistoryItem({ date: parseDate('2018-10-27T10:21:15+0200'), value: '500' }),
+        mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '400' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '400' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T18:33:50+0200'), value: '400' }),
+      ],
+    }),
+    mockMeasureHistory({
+      metric: MetricKey.bugs,
+      history: [
+        mockHistoryItem({ date: parseDate('2018-10-27T10:21:15+0200'), value: '0' }),
+        mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '0' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '2' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T18:33:50+0200'), value: '0' }),
+      ],
+    }),
+    mockMeasureHistory({
+      metric: MetricKey.vulnerabilities,
+      history: [
+        mockHistoryItem({ date: parseDate('2018-10-27T10:21:15+0200'), value: '2' }),
+        mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '2' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '2' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T18:33:50+0200'), value: '4' }),
+      ],
+    }),
+    mockMeasureHistory({
+      metric: MetricKey.duplicated_lines_density,
+      history: [
+        mockHistoryItem({ date: parseDate('2018-10-27T10:21:15+0200'), value: '10.0' }),
+        mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '8.5' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '8.5' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T18:33:50+0200'), value: '15.0' }),
+      ],
+    }),
+    mockMeasureHistory({
+      metric: MetricKey.coverage,
+      history: [
+        mockHistoryItem({ date: parseDate('2018-10-27T10:21:15+0200'), value: '0.0' }),
+        mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '15.2' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '14.2' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T18:33:50+0200'), value: '14.2' }),
+      ],
+    }),
+  ];
   const mockedMetrics = [mockMetric()];
   const mockedAnalysis = [
     mockAnalysis({
@@ -83,6 +150,8 @@ function renderActivityPanel(props: Partial<ActivityPanelProps> = {}) {
       ],
     }),
     mockAnalysis({ key: 'bar' }),
+    mockAnalysis(),
+    mockAnalysis(),
   ];
 
   const mockedProps: ActivityPanelProps = {

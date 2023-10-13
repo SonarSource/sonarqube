@@ -20,11 +20,12 @@
 import { throwGlobalError } from '../helpers/error';
 import { getJSON } from '../helpers/request';
 import { BranchParameters } from '../types/branch-like';
+import { MetricKey } from '../types/metrics';
 import { Paging } from '../types/types';
 
 export interface TimeMachineResponse {
   measures: {
-    metric: string;
+    metric: MetricKey;
     history: Array<{ date: string; value?: string }>;
   }[];
   paging: Paging;

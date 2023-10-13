@@ -84,6 +84,8 @@ export { StatusReopenedIcon } from './StatusReopenedIcon';
 export { StatusResolvedIcon } from './StatusResolvedIcon';
 export { TestFileIcon } from './TestFileIcon';
 export { TrashIcon } from './TrashIcon';
+export { TrendDownIcon } from './TrendDownIcon';
+export { TrendUpIcon } from './TrendUpIcon';
 export { TriangleDownIcon } from './TriangleDownIcon';
 export { TriangleLeftIcon } from './TriangleLeftIcon';
 export { TriangleRightIcon } from './TriangleRightIcon';

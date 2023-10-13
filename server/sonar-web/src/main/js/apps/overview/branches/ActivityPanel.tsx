@@ -38,6 +38,7 @@ import {
   MeasureHistory,
 } from '../../../types/project-activity';
 import { Component, Metric } from '../../../types/types';
+import { getAnalysisVariations } from '../utils';
 import Analysis from './Analysis';
 
 export interface ActivityPanelProps {
@@ -88,7 +89,16 @@ export function ActivityPanel(props: ActivityPanelProps) {
       startDate.getTime() > leakPeriodDate.getTime() ? startDate : leakPeriodDate;
   }
 
-  const filteredAnalyses = analyses.filter((a) => a.events.length > 0).slice(0, MAX_ANALYSES_NB);
+  const displayedAnalyses = analyses.slice(0, MAX_ANALYSES_NB);
+
+  const analysisVariations = React.useMemo(
+    () =>
+      getAnalysisVariations(
+        measuresHistory,
+        Math.min(analyses.length, MAX_ANALYSES_NB + 1),
+      ).reverse(),
+    [measuresHistory, analyses.length],
+  );
 
   return (
     <div className="sw-mt-8">
@@ -116,13 +126,18 @@ export function ActivityPanel(props: ActivityPanelProps) {
       </Card>
       <Card className="sw-mt-4" data-test="overview__activity-analyses">
         <Spinner loading={loading}>
-          {filteredAnalyses.length === 0 ? (
+          {displayedAnalyses.length === 0 ? (
             <p>{translate('no_results')}</p>
           ) : (
-            filteredAnalyses.map((analysis, index) => (
+            displayedAnalyses.map((analysis, index) => (
               <div key={analysis.key}>
-                <Analysis analysis={analysis} qualifier={component.qualifier} />
-                {index !== filteredAnalyses.length - 1 && <BasicSeparator className="sw-my-3" />}
+                <Analysis
+                  analysis={analysis}
+                  isFirstAnalysis={index === analyses.length - 1}
+                  qualifier={component.qualifier}
+                  variations={analysisVariations[index]}
+                />
+                {index !== displayedAnalyses.length - 1 && <BasicSeparator className="sw-my-3" />}
               </div>
             ))
           )}

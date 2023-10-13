@@ -1,0 +1,146 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2023 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+import styled from '@emotion/styled';
+import { TrendDownIcon, TrendUpIcon, themeColor } from 'design-system';
+import React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { formatMeasure } from '../../../helpers/measures';
+import { MetricType } from '../../../types/metrics';
+import { AnalysisMeasuresVariations } from '../../../types/project-activity';
+
+interface AnalysisVariationsProps {
+  isFirstAnalysis?: boolean;
+  variations: AnalysisMeasuresVariations;
+}
+
+interface VariationProps {
+  isGoodIfGrowing: boolean;
+  label: string;
+  showVariationIcon?: boolean;
+  valueType?: MetricType;
+  variation?: number;
+}
+
+function Variation(props: Readonly<VariationProps>) {
+  const {
+    isGoodIfGrowing,
+    label,
+    showVariationIcon = true,
+    valueType = MetricType.Integer,
+    variation,
+  } = props;
+
+  if (variation === undefined) {
+    return null;
+  }
+
+  const formattedValue = formatMeasure(variation, valueType);
+
+  if (!showVariationIcon) {
+    return (
+      <span className="sw-flex sw-items-center sw-mx-2">
+        {formattedValue} {<FormattedMessage id={label} />}
+      </span>
+    );
+  }
+
+  let variationIcon = <EqualIconContainer className="sw-text-lg">=</EqualIconContainer>;
+
+  if (variation !== 0) {
+    const ArrowIcon = variation > 0 ? TrendUpIcon : TrendDownIcon;
+    const ArrowIconContainer =
+      variation > 0 === isGoodIfGrowing
+        ? CaYCCompliantIconContainer
+        : CaYCNonCompliantIconContainer;
+
+    variationIcon = (
+      <ArrowIconContainer>
+        <ArrowIcon width={20} />
+      </ArrowIconContainer>
+    );
+  }
+
+  const variationToDisplay = formattedValue.startsWith('-') ? formattedValue : `+${formattedValue}`;
+
+  return (
+    <span className="sw-flex sw-items-center sw-mx-1">
+      {variationIcon} {variationToDisplay} {<FormattedMessage id={label} />}
+    </span>
+  );
+}
+
+export function AnalysisVariations(props: Readonly<AnalysisVariationsProps>) {
+  const { isFirstAnalysis, variations } = props;
+
+  const issuesVariation =
+    (variations.bugs ?? 0) + (variations.code_smells ?? 0) + (variations.vulnerabilities ?? 0);
+  const coverageVariation = variations.coverage;
+  const duplicationsVariation = variations.duplicated_lines_density;
+
+  return (
+    <div className="sw-flex sw-items-center sw-mt-1">
+      <FormattedMessage
+        id={
+          isFirstAnalysis
+            ? 'overview.activity.variations.first_analysis'
+            : 'overview.activity.variations.new_analysis'
+        }
+      />
+      <Variation
+        isGoodIfGrowing={false}
+        label="project_activity.graphs.issues"
+        showVariationIcon={!isFirstAnalysis}
+        variation={issuesVariation}
+      />
+      {coverageVariation !== undefined && <SeparatorContainer>&bull;</SeparatorContainer>}
+      <Variation
+        isGoodIfGrowing
+        label="project_activity.graphs.coverage"
+        showVariationIcon={!isFirstAnalysis}
+        valueType={MetricType.Percent}
+        variation={coverageVariation}
+      />
+      {duplicationsVariation !== undefined && <SeparatorContainer>&bull;</SeparatorContainer>}
+      <Variation
+        isGoodIfGrowing={false}
+        label="project_activity.graphs.duplications"
+        showVariationIcon={!isFirstAnalysis}
+        valueType={MetricType.Percent}
+        variation={duplicationsVariation}
+      />
+    </div>
+  );
+}
+
+const CaYCCompliantIconContainer = styled.span`
+  color: ${themeColor('iconSuccess')};
+`;
+
+const CaYCNonCompliantIconContainer = styled.span`
+  color: ${themeColor('iconError')};
+`;
+
+const EqualIconContainer = styled.span`
+  color: ${themeColor('iconInfo')};
+`;
+
+const SeparatorContainer = styled.span`
+  color: ${themeColor('iconStatus')};
+`;

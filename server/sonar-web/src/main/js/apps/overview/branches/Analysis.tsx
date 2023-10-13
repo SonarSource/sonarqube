@@ -23,17 +23,23 @@ import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate } from '../../../helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
 import {
+  AnalysisMeasuresVariations,
   ProjectAnalysisEventCategory,
   Analysis as TypeAnalysis,
 } from '../../../types/project-activity';
+import { AnalysisVariations } from './AnalysisVariations';
 import Event from './Event';
 
 export interface AnalysisProps {
   analysis: TypeAnalysis;
+  isFirstAnalysis?: boolean;
   qualifier: string;
+  variations?: AnalysisMeasuresVariations;
 }
 
-export function Analysis({ analysis, ...props }: AnalysisProps) {
+export function Analysis(props: Readonly<AnalysisProps>) {
+  const { analysis, isFirstAnalysis, qualifier, variations } = props;
+
   const sortedEvents = sortBy(
     analysis.events,
     (event) => {
@@ -53,8 +59,8 @@ export function Analysis({ analysis, ...props }: AnalysisProps) {
   );
 
   // use `TRK` for all components but applications
-  const qualifier =
-    props.qualifier === ComponentQualifier.Application
+  const displayedQualifier =
+    qualifier === ComponentQualifier.Application
       ? ComponentQualifier.Application
       : ComponentQualifier.Project;
 
@@ -66,7 +72,11 @@ export function Analysis({ analysis, ...props }: AnalysisProps) {
 
       {sortedEvents.length > 0
         ? sortedEvents.map((event) => <Event event={event} key={event.key} />)
-        : translate('project_activity.analyzed', qualifier)}
+        : translate('project_activity.analyzed', displayedQualifier)}
+
+      {qualifier === ComponentQualifier.Project && variations !== undefined && (
+        <AnalysisVariations isFirstAnalysis={isFirstAnalysis} variations={variations} />
+      )}
     </div>
   );
 }

@@ -25,6 +25,7 @@ import { translate } from '../../helpers/l10n';
 import { parseAsString } from '../../helpers/query';
 import { IssueType } from '../../types/issues';
 import { MetricKey } from '../../types/metrics';
+import { AnalysisMeasuresVariations, MeasureHistory } from '../../types/project-activity';
 import { RawQuery } from '../../types/types';
 
 export const METRICS: string[] = [
@@ -107,6 +108,14 @@ export const HISTORY_METRICS_LIST: string[] = [
   MetricKey.coverage,
 ];
 
+const MEASURES_VARIATIONS_METRICS = [
+  MetricKey.bugs,
+  MetricKey.code_smells,
+  MetricKey.coverage,
+  MetricKey.duplicated_lines_density,
+  MetricKey.vulnerabilities,
+];
+
 export enum MeasurementType {
   Coverage = 'COVERAGE',
   Duplication = 'DUPLICATION',
@@ -187,3 +196,39 @@ export const parseQuery = memoize((urlQuery: RawQuery): { codeScope: string } =>
     codeScope: parseAsString(urlQuery['code_scope']),
   };
 });
+
+export function getAnalysisVariations(measures: MeasureHistory[], analysesCount: number) {
+  if (analysesCount === 0) {
+    return [];
+  }
+
+  const emptyVariations: AnalysisMeasuresVariations[] = Array.from(
+    { length: analysesCount },
+    () => ({}),
+  );
+
+  return measures.reduce((variations, { metric, history }) => {
+    if (!MEASURES_VARIATIONS_METRICS.includes(metric)) {
+      return variations;
+    }
+
+    history.slice(-analysesCount).forEach(({ value = '' }, index, analysesHistory) => {
+      if (index === 0) {
+        variations[index][metric] = parseFloat(value) || 0;
+        return;
+      }
+
+      const previousValue = parseFloat(analysesHistory[index - 1].value ?? '') || 0;
+      const numericValue = parseFloat(value) || 0;
+      const variation = numericValue - previousValue;
+
+      if (variation === 0) {
+        return;
+      }
+
+      variations[index][metric] = variation;
+    });
+
+    return variations;
+  }, emptyVariations);
+}
