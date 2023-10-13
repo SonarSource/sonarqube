@@ -20,12 +20,11 @@
 import {
   BasicSeparator,
   Card,
+  CenteredLayout,
   CoverageIndicator,
   DuplicationsIndicator,
   HelperHintIcon,
-  LargeCenteredLayout,
   Link,
-  PageTitle,
   Spinner,
   TextMuted,
 } from 'design-system';
@@ -48,10 +47,10 @@ import { Component, MeasureEnhanced } from '../../../types/types';
 import MeasuresPanelIssueMeasure from '../branches/MeasuresPanelIssueMeasure';
 import MeasuresPanelPercentMeasure from '../branches/MeasuresPanelPercentMeasure';
 import IgnoredConditionWarning from '../components/IgnoredConditionWarning';
+import MetaTopBar from '../components/MetaTopBar';
 import QualityGateConditions from '../components/QualityGateConditions';
 import QualityGateStatusHeader from '../components/QualityGateStatusHeader';
 import QualityGateStatusPassedView from '../components/QualityGateStatusPassedView';
-import { QualityGateStatusTitle } from '../components/QualityGateStatusTitle';
 import SonarLintPromotion from '../components/SonarLintPromotion';
 import '../styles.css';
 import { MeasurementType, PR_METRICS } from '../utils';
@@ -93,11 +92,11 @@ export default function PullRequestOverview(props: Props) {
 
   if (loading) {
     return (
-      <LargeCenteredLayout>
+      <CenteredLayout>
         <div className="sw-p-6">
           <Spinner loading />
         </div>
-      </LargeCenteredLayout>
+      </CenteredLayout>
     );
   }
 
@@ -116,99 +115,95 @@ export default function PullRequestOverview(props: Props) {
     .filter(isDefined);
 
   return (
-    <LargeCenteredLayout>
+    <CenteredLayout>
       <div className="it__pr-overview sw-mt-12">
-        <div className="sw-flex">
-          <div className="sw-flex sw-flex-col sw-mr-12 width-30">
-            <QualityGateStatusTitle />
-            <Card>
-              {status && (
-                <QualityGateStatusHeader
-                  status={status}
-                  failedConditionCount={failedConditions.length}
-                />
-              )}
+        <MetaTopBar />
+        <BasicSeparator className="sw-my-4" />
 
-              <div className="sw-flex sw-items-center sw-mb-4">
-                <TextMuted text={translate('overview.on_new_code_long')} />
-                <HelpTooltip
-                  className="sw-ml-2"
-                  overlay={
-                    <FormattedMessage
-                      defaultMessage={translate('overview.quality_gate.conditions_on_new_code')}
-                      id="overview.quality_gate.conditions_on_new_code"
-                      values={{
-                        link: <Link to={path}>{translate('overview.quality_gate')}</Link>,
-                      }}
-                    />
-                  }
-                >
-                  <HelperHintIcon aria-label="help-tooltip" />
-                </HelpTooltip>
-              </div>
+        <div className="sw-flex sw-flex-col sw-mr-12 width-30">
+          <Card>
+            {status && (
+              <QualityGateStatusHeader
+                status={status}
+                failedConditionCount={failedConditions.length}
+              />
+            )}
 
-              {ignoredConditions && <IgnoredConditionWarning />}
-
-              {status === 'OK' && failedConditions.length === 0 && <QualityGateStatusPassedView />}
-
-              {status !== 'OK' && <BasicSeparator />}
-
-              {failedConditions.length > 0 && (
-                <div>
-                  <QualityGateConditions
-                    branchLike={branchLike}
-                    collapsible
-                    component={component}
-                    failedConditions={failedConditions}
+            <div className="sw-flex sw-items-center sw-mb-4">
+              <TextMuted text={translate('overview.on_new_code_long')} />
+              <HelpTooltip
+                className="sw-ml-2"
+                overlay={
+                  <FormattedMessage
+                    defaultMessage={translate('overview.quality_gate.conditions_on_new_code')}
+                    id="overview.quality_gate.conditions_on_new_code"
+                    values={{
+                      link: <Link to={path}>{translate('overview.quality_gate')}</Link>,
+                    }}
                   />
-                </div>
-              )}
-            </Card>
-            <SonarLintPromotion qgConditions={conditions} />
-          </div>
-
-          <div className="sw-flex-1">
-            <div className="sw-body-md-highlight">
-              <PageTitle as="h2" text={translate('overview.measures')} />
+                }
+              >
+                <HelperHintIcon aria-label="help-tooltip" />
+              </HelpTooltip>
             </div>
 
-            <div className="sw-grid sw-grid-cols-2 sw-gap-4 sw-mt-4">
-              {[
-                IssueType.Bug,
-                IssueType.CodeSmell,
-                IssueType.Vulnerability,
-                IssueType.SecurityHotspot,
-              ].map((type: IssueType) => (
+            {ignoredConditions && <IgnoredConditionWarning />}
+
+            {status === 'OK' && failedConditions.length === 0 && <QualityGateStatusPassedView />}
+
+            {status !== 'OK' && <BasicSeparator />}
+
+            {failedConditions.length > 0 && (
+              <div>
+                <QualityGateConditions
+                  branchLike={branchLike}
+                  collapsible
+                  component={component}
+                  failedConditions={failedConditions}
+                />
+              </div>
+            )}
+          </Card>
+          <SonarLintPromotion qgConditions={conditions} />
+        </div>
+
+        <div className="sw-flex-1">
+          <div className="sw-grid sw-grid-cols-2 sw-gap-4 sw-mt-4">
+            {[
+              IssueType.Bug,
+              IssueType.CodeSmell,
+              IssueType.Vulnerability,
+              IssueType.SecurityHotspot,
+            ].map((type: IssueType) => (
+              <Card key={type} className="sw-p-8">
+                <MeasuresPanelIssueMeasure
+                  branchLike={branchLike}
+                  component={component}
+                  isNewCodeTab
+                  measures={measures}
+                  type={type}
+                />
+              </Card>
+            ))}
+
+            {[MeasurementType.Coverage, MeasurementType.Duplication].map(
+              (type: MeasurementType) => (
                 <Card key={type} className="sw-p-8">
-                  <MeasuresPanelIssueMeasure
+                  <MeasuresPanelPercentMeasure
                     branchLike={branchLike}
                     component={component}
-                    isNewCodeTab
                     measures={measures}
+                    ratingIcon={renderMeasureIcon(type)}
                     type={type}
+                    useDiffMetric
                   />
                 </Card>
-              ))}
-
-              {[MeasurementType.Coverage, MeasurementType.Duplication].map(
-                (type: MeasurementType) => (
-                  <Card key={type} className="sw-p-8">
-                    <MeasuresPanelPercentMeasure
-                      branchLike={branchLike}
-                      component={component}
-                      measures={measures}
-                      ratingIcon={renderMeasureIcon(type)}
-                      type={type}
-                      useDiffMetric
-                    />
-                  </Card>
-                ),
-              )}
-            </div>
+              ),
+            )}
           </div>
         </div>
       </div>
-    </LargeCenteredLayout>
+    </CenteredLayout>
   );
 }
 
