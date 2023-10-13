@@ -198,7 +198,7 @@ describe('Create', () => {
     await user.clear(ui.namePropupInput.get());
     await user.type(ui.namePropupInput.get(), ui.newCQualityProfileName);
     await act(async () => {
-      await user.click(ui.modalExtendButton.get());
+      await user.keyboard('{Enter}');
     });
 
     expect(await ui.headingNewCQualityProfile.find()).toBeInTheDocument();

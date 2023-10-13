@@ -20,7 +20,9 @@
 import { ButtonPrimary, FlagMessage, FormField, InputField, Modal } from 'design-system';
 import * as React from 'react';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
+import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
+import useKeyDown from '../../../hooks/useKeydown';
 import { useProfileInheritanceQuery } from '../../../queries/quality-profiles';
 import { Dict } from '../../../types/types';
 import { Profile, ProfileActionModals } from '../types';
@@ -40,13 +42,21 @@ const LABELS_FOR_ACTION: Dict<{ button: string; header: string }> = {
 };
 
 export default function ProfileModalForm(props: ProfileModalFormProps) {
-  const { action, loading, profile } = props;
+  const { action, loading, profile, onSubmit } = props;
   const [name, setName] = React.useState('');
 
   const submitDisabled = loading || !name || name === profile.name;
   const labels = LABELS_FOR_ACTION[action];
 
   const { data: { ancestors } = {} } = useProfileInheritanceQuery(props.profile);
+
+  const handleSubmit = React.useCallback(() => {
+    if (name) {
+      onSubmit(name);
+    }
+  }, [name, onSubmit]);
+
+  useKeyDown(handleSubmit, [KeyboardKeys.Enter]);
 
   const extendsBuiltIn = ancestors?.some((profile) => profile.isBuiltIn);
   const showBuiltInWarning =
@@ -57,6 +67,7 @@ export default function ProfileModalForm(props: ProfileModalFormProps) {
     <Modal
       headerTitle={translateWithParameters(labels.header, profile.name, profile.languageName)}
       onClose={props.onClose}
+      isOverflowVisible
       loading={loading}
       body={
         <>
@@ -93,7 +104,7 @@ export default function ProfileModalForm(props: ProfileModalFormProps) {
             <InputField
               id="quality-profile-new-name"
               name="name"
-              onChange={(event) => setName(event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setName(event.target.value)}
               required
               size="full"
               type="text"
@@ -103,14 +114,7 @@ export default function ProfileModalForm(props: ProfileModalFormProps) {
         </>
       }
       primaryButton={
-        <ButtonPrimary
-          onClick={() => {
-            if (name) {
-              props.onSubmit(name);
-            }
-          }}
-          disabled={submitDisabled}
-        >
+        <ButtonPrimary onClick={handleSubmit} disabled={submitDisabled}>
           {translate(labels.button)}
         </ButtonPrimary>
       }
