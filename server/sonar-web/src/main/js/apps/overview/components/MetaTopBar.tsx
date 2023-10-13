@@ -18,7 +18,62 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { useIntl } from 'react-intl';
+import DateFromNow from '../../../components/intl/DateFromNow';
+import { getLeakValue } from '../../../components/measure/utils';
+import { isPullRequest } from '../../../helpers/branch-like';
+import { findMeasure, formatMeasure } from '../../../helpers/measures';
+import { BranchLike } from '../../../types/branch-like';
+import { MetricKey, MetricType } from '../../../types/metrics';
+import { MeasureEnhanced } from '../../../types/types';
 
-export default function MetaTopBar() {
-  return <div>Meta top bar</div>;
+interface Props {
+  branchLike: BranchLike;
+  measures: MeasureEnhanced[];
+}
+
+export default function MetaTopBar({ branchLike, measures }: Readonly<Props>) {
+  const intl = useIntl();
+  const isPR = isPullRequest(branchLike);
+
+  const leftSection = (
+    <div>
+      {isPR ? (
+        <>
+          <strong className="sw-body-sm-highlight sw-mr-1">
+            {formatMeasure(
+              getLeakValue(findMeasure(measures, MetricKey.new_lines)),
+              MetricType.ShortInteger,
+            ) ?? '0'}
+          </strong>
+          {intl.formatMessage({ id: 'metric.new_lines.name' })}
+        </>
+      ) : null}
+    </div>
+  );
+  const rightSection = (
+    <div>
+      {branchLike.analysisDate
+        ? intl.formatMessage(
+            {
+              id: 'overview.last_analysis_x',
+            },
+            {
+              date: (
+                <strong className="sw-body-sm-highlight">
+                  <DateFromNow date={branchLike.analysisDate} />
+                </strong>
+              ),
+            },
+          )
+        : null}
+    </div>
+  );
+
+  return (
+    <div className="sw-flex sw-justify-between sw-whitespace-nowrap sw-body-sm">
+      {leftSection}
+      {rightSection}
+    </div>
+  );
 }

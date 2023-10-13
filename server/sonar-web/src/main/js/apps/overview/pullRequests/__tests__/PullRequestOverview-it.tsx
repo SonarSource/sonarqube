@@ -23,15 +23,12 @@ import { getQualityGateProjectStatus } from '../../../../api/quality-gates';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/mocks/component';
-import {
-  mockQualityGateProjectCondition,
-  mockQualityGateStatusCondition,
-} from '../../../../helpers/mocks/quality-gates';
-import { mockLoggedInUser, mockMetric, mockPeriod } from '../../../../helpers/testMocks';
+import { mockQualityGateProjectCondition } from '../../../../helpers/mocks/quality-gates';
+import { mockLoggedInUser, mockMeasure, mockMetric } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentPropsType } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
-import { MetricKey } from '../../../../types/metrics';
+import { MetricKey, MetricType } from '../../../../types/metrics';
 import { CaycStatus } from '../../../../types/types';
 import PullRequestOverview from '../PullRequestOverview';
 
@@ -44,20 +41,17 @@ jest.mock('../../../../api/measures', () => {
         name: '',
         qualifier: ComponentQualifier.Project,
         measures: [
-          mockQualityGateStatusCondition({
-            error: '1.0',
+          mockMeasure({
             metric: MetricKey.new_coverage,
-            period: 1,
           }),
-          mockQualityGateStatusCondition({
-            error: '1.0',
+          mockMeasure({
             metric: MetricKey.duplicated_lines,
-            period: 1,
           }),
-          mockQualityGateStatusCondition({
-            error: '3',
+          mockMeasure({
             metric: MetricKey.new_bugs,
-            period: 1,
+          }),
+          mockMeasure({
+            metric: MetricKey.new_lines,
           }),
         ],
       },
@@ -66,12 +60,12 @@ jest.mock('../../../../api/measures', () => {
         mockMetric({
           key: MetricKey.duplicated_lines,
         }),
+        mockMetric({ key: MetricKey.new_lines, type: MetricType.ShortInteger }),
         mockMetric({
           key: MetricKey.new_bugs,
-          type: 'INT',
+          type: MetricType.Integer,
         }),
       ],
-      period: mockPeriod(),
     }),
   };
 });
@@ -127,6 +121,8 @@ it('should render correctly for a passed QG', async () => {
   renderPullRequestOverview();
 
   await waitFor(async () => expect(await screen.findByText('metric.level.OK')).toBeInTheDocument());
+  expect(screen.getByText('metric.new_lines.name')).toBeInTheDocument();
+  expect(screen.getByText(/overview.last_analysis_x/)).toBeInTheDocument();
 });
 
 it('should render correctly if conditions are ignored', async () => {
@@ -172,11 +168,11 @@ it('should render correctly for a failed QG', async () => {
     expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument(),
   );
 
-  expect(await screen.findByText('metric.new_coverage.name')).toBeInTheDocument();
+  expect(await screen.findByText('1.0% metric.new_coverage.name')).toBeInTheDocument();
   expect(await screen.findByText('quality_gates.operator.GT 2.0%')).toBeInTheDocument();
 
   expect(
-    await screen.findByText('metric.duplicated_lines.name quality_gates.conditions.new_code'),
+    await screen.findByText('1.0% metric.duplicated_lines.name quality_gates.conditions.new_code'),
   ).toBeInTheDocument();
   expect(await screen.findByText('quality_gates.operator.GT 1.0%')).toBeInTheDocument();
 

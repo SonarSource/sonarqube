@@ -53,7 +53,7 @@ import QualityGateStatusHeader from '../components/QualityGateStatusHeader';
 import QualityGateStatusPassedView from '../components/QualityGateStatusPassedView';
 import SonarLintPromotion from '../components/SonarLintPromotion';
 import '../styles.css';
-import { MeasurementType, PR_METRICS } from '../utils';
+import { MeasurementType, PR_METRICS, Status } from '../utils';
 
 interface Props {
   branchLike: PullRequest;
@@ -74,7 +74,10 @@ export default function PullRequestOverview(props: Props) {
     const metricKeys =
       conditions !== undefined
         ? // Also load metrics that apply to failing QG conditions.
-          uniq([...PR_METRICS, ...conditions.filter((c) => c.level !== 'OK').map((c) => c.metric)])
+          uniq([
+            ...PR_METRICS,
+            ...conditions.filter((c) => c.level !== Status.OK).map((c) => c.metric),
+          ])
         : PR_METRICS;
 
     getMeasuresWithMetrics(component.key, metricKeys, getBranchLikeQuery(branchLike)).then(
@@ -117,8 +120,10 @@ export default function PullRequestOverview(props: Props) {
   return (
     <CenteredLayout>
       <div className="it__pr-overview sw-mt-12">
-        <MetaTopBar />
+        <MetaTopBar branchLike={branchLike} measures={measures} />
         <BasicSeparator className="sw-my-4" />
+
+        {ignoredConditions && <IgnoredConditionWarning />}
 
         <div className="sw-flex sw-flex-col sw-mr-12 width-30">
           <Card>
@@ -147,11 +152,11 @@ export default function PullRequestOverview(props: Props) {
               </HelpTooltip>
             </div>
 
-            {ignoredConditions && <IgnoredConditionWarning />}
+            {status === Status.OK && failedConditions.length === 0 && (
+              <QualityGateStatusPassedView />
+            )}
 
-            {status === 'OK' && failedConditions.length === 0 && <QualityGateStatusPassedView />}
-
-            {status !== 'OK' && <BasicSeparator />}
+            {status !== Status.OK && <BasicSeparator />}
 
             {failedConditions.length > 0 && (
               <div>

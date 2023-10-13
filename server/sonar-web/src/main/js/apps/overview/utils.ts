@@ -122,6 +122,11 @@ export enum MeasurementType {
   Duplication = 'DUPLICATION',
 }
 
+export enum Status {
+  OK = 'OK',
+  ERROR = 'ERROR',
+}
+
 const MEASUREMENTS_MAP = {
   [MeasurementType.Coverage]: {
     metric: MetricKey.coverage,
