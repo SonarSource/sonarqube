@@ -39,10 +39,19 @@ public class QProfileChangeDao implements Dao {
     this.uuidFactory = uuidFactory;
   }
 
+  public void bulkInsert(DbSession dbSession, Collection<QProfileChangeDto> profileChangeDtos) {
+    long now = system2.now();
+    profileChangeDtos.forEach(dto -> doInsertAtTime(dbSession, dto, now));
+  }
+
   public void insert(DbSession dbSession, QProfileChangeDto dto) {
+    doInsertAtTime(dbSession, dto, system2.now());
+  }
+
+  private void doInsertAtTime(DbSession dbSession, QProfileChangeDto dto, long time) {
     checkState(dto.getCreatedAt() == 0L, "Date of QProfileChangeDto must be set by DAO only. Got %s.", dto.getCreatedAt());
+    dto.setCreatedAt(time);
     dto.setUuid(uuidFactory.create());
-    dto.setCreatedAt(system2.now());
     mapper(dbSession).insert(dto);
   }
 

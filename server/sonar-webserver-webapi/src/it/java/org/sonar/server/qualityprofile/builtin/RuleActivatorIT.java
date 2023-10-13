@@ -30,6 +30,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.Version;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -76,7 +78,8 @@ public class RuleActivatorIT {
   private final TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
 
   private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
-  private final RuleActivator underTest = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession, mock(Configuration.class));
+  private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
+  private final RuleActivator underTest = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession, mock(Configuration.class), sonarQubeVersion);
 
   @Test
   public void reset_overridden_active_rule() {

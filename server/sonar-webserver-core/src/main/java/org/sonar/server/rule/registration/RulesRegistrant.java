@@ -39,15 +39,17 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.QProfileRules;
-import org.sonar.server.rule.PluginRuleUpdate;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.PluginRuleUpdate;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.WebServerRuleFinder;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -77,11 +79,12 @@ public class RulesRegistrant implements Startable {
   private final StartupRuleUpdater startupRuleUpdater;
   private final NewRuleCreator newRuleCreator;
   private final QualityProfileChangesUpdater qualityProfileChangesUpdater;
+  private final SonarQubeVersion sonarQubeVersion;
 
   public RulesRegistrant(RuleDefinitionsLoader defLoader, QProfileRules qProfileRules, DbClient dbClient, RuleIndexer ruleIndexer,
     ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2, WebServerRuleFinder webServerRuleFinder,
     MetadataIndex metadataIndex, RulesKeyVerifier rulesKeyVerifier, StartupRuleUpdater startupRuleUpdater,
-    NewRuleCreator newRuleCreator, QualityProfileChangesUpdater qualityProfileChangesUpdater) {
+    NewRuleCreator newRuleCreator, QualityProfileChangesUpdater qualityProfileChangesUpdater, SonarQubeVersion sonarQubeVersion) {
     this.defLoader = defLoader;
     this.qProfileRules = qProfileRules;
     this.dbClient = dbClient;
@@ -95,6 +98,7 @@ public class RulesRegistrant implements Startable {
     this.startupRuleUpdater = startupRuleUpdater;
     this.newRuleCreator = newRuleCreator;
     this.qualityProfileChangesUpdater = qualityProfileChangesUpdater;
+    this.sonarQubeVersion = sonarQubeVersion;
   }
 
   @Override
@@ -108,7 +112,7 @@ public class RulesRegistrant implements Startable {
       for (RulesDefinition.ExtendedRepository repoDef : repositories) {
         if (languages.get(repoDef.language()) != null) {
           Set<PluginRuleUpdate> pluginRuleUpdates = registerRules(rulesRegistrationContext, repoDef.rules(), dbSession);
-          qualityProfileChangesUpdater.updateWithoutCommit(dbSession, pluginRuleUpdates);
+          qualityProfileChangesUpdater.createQprofileChangesForRuleUpdates(dbSession, pluginRuleUpdates);
           dbSession.commit();
         }
       }
@@ -120,7 +124,13 @@ public class RulesRegistrant implements Startable {
       // FIXME lack of resiliency, active rules index is corrupted if rule index fails
       // to be updated. Only a single DB commit should be executed.
       ruleIndexer.commitAndIndex(dbSession, rulesRegistrationContext.getAllModified().map(RuleDto::getUuid).collect(Collectors.toSet()));
-      changes.forEach(arChange -> dbClient.qProfileChangeDao().insert(dbSession, arChange.toDto(null)));
+
+      List<QProfileChangeDto> qProfileChangeDtos = changes.stream()
+        .map(ActiveRuleChange::toSystemChangedDto)
+        .peek(dto -> dto.setSqVersion(sonarQubeVersion.toString()))
+        .toList();
+      dbClient.qProfileChangeDao().bulkInsert(dbSession, qProfileChangeDtos);
+
       activeRuleIndexer.commitAndIndex(dbSession, changes);
       rulesRegistrationContext.getRenamed().forEach(e -> LOG.info("Rule {} re-keyed to {}", e.getValue(), e.getKey().getKey()));
       profiler.stopDebug();
@@ -314,8 +324,8 @@ public class RulesRegistrant implements Startable {
 
   private static Set<String> getExistingAndRenamedRepositories(RulesRegistrationContext recorder, Collection<RulesDefinition.Repository> context) {
     return Stream.concat(
-      context.stream().map(RulesDefinition.ExtendedRepository::key),
-      recorder.getRenamed().map(Map.Entry::getValue).map(RuleKey::repository))
+        context.stream().map(RulesDefinition.ExtendedRepository::key),
+        recorder.getRenamed().map(Map.Entry::getValue).map(RuleKey::repository))
       .collect(Collectors.toSet());
   }
 

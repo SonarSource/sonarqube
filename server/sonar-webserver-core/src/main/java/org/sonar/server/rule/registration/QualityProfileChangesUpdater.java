@@ -19,55 +19,59 @@
  */
 package org.sonar.server.rule.registration;
 
+import com.google.common.collect.Sets;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
-import org.sonar.db.rule.RuleImpactChangeDto;
 import org.sonar.db.rule.RuleChangeDto;
+import org.sonar.db.rule.RuleImpactChangeDto;
 import org.sonar.server.rule.PluginRuleUpdate;
 
 public class QualityProfileChangesUpdater {
 
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
+  private final SonarQubeVersion sonarQubeVersion;
 
-  public QualityProfileChangesUpdater(DbClient dbClient, UuidFactory uuidFactory) {
+  public QualityProfileChangesUpdater(DbClient dbClient, UuidFactory uuidFactory, SonarQubeVersion sonarQubeVersion) {
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
+    this.sonarQubeVersion = sonarQubeVersion;
   }
 
-  public void updateWithoutCommit(DbSession dbSession, Set<PluginRuleUpdate> pluginRuleUpdates) {
-    for (PluginRuleUpdate pluginRuleUpdate : pluginRuleUpdates) {
-      String ruleChangeUuid = uuidFactory.create();
-      RuleChangeDto ruleChangeDto = createRuleChange(ruleChangeUuid, pluginRuleUpdate);
+  public void createQprofileChangesForRuleUpdates(DbSession dbSession, Set<PluginRuleUpdate> pluginRuleUpdates) {
+    List<QProfileChangeDto> changesToPersist = pluginRuleUpdates.stream()
+      .flatMap(pluginRuleUpdate -> {
+        RuleChangeDto ruleChangeDto = createNewRuleChange(pluginRuleUpdate);
+        insertRuleChange(dbSession, ruleChangeDto);
 
-      createRuleImpactChanges(ruleChangeUuid, pluginRuleUpdate, ruleChangeDto);
-      insertRuleChange(dbSession, ruleChangeDto);
+        return findQualityProfilesForRule(dbSession, pluginRuleUpdate.getRuleUuid()).stream()
+          .map(qualityProfileUuid -> buildQprofileChangeDtoForRuleChange(qualityProfileUuid, ruleChangeDto));
+      }).toList();
 
-      for (String qualityProfileUuid : findQualityProfilesForRule(dbSession, pluginRuleUpdate.getRuleUuid())) {
-        QProfileChangeDto qProfileChangeDto = new QProfileChangeDto();
-        qProfileChangeDto.setUuid(uuidFactory.create());
-        qProfileChangeDto.setChangeType("UPDATED");
-        qProfileChangeDto.setRuleChange(ruleChangeDto);
-        qProfileChangeDto.setRulesProfileUuid(qualityProfileUuid);
-        dbClient.qProfileChangeDao().insert(dbSession, qProfileChangeDto);
-      }
-
+    if (!changesToPersist.isEmpty()) {
+      dbClient.qProfileChangeDao().bulkInsert(dbSession, changesToPersist);
     }
   }
 
-  private static RuleChangeDto createRuleChange(String ruleChangeUuid, PluginRuleUpdate pluginRuleUpdate) {
+  private RuleChangeDto createNewRuleChange(PluginRuleUpdate pluginRuleUpdate) {
     RuleChangeDto ruleChangeDto = new RuleChangeDto();
-    ruleChangeDto.setUuid(ruleChangeUuid);
+    ruleChangeDto.setUuid(uuidFactory.create());
     ruleChangeDto.setRuleUuid(pluginRuleUpdate.getRuleUuid());
     ruleChangeDto.setOldCleanCodeAttribute(pluginRuleUpdate.getOldCleanCodeAttribute());
     ruleChangeDto.setNewCleanCodeAttribute(pluginRuleUpdate.getNewCleanCodeAttribute());
+
+    ruleChangeDto.setRuleImpactChanges(createRuleImpactChanges(pluginRuleUpdate, ruleChangeDto));
     return ruleChangeDto;
   }
 
@@ -77,46 +81,53 @@ public class QualityProfileChangesUpdater {
       .map(ActiveRuleDto::getProfileUuid)
       .collect(Collectors.toSet());
   }
-
   private void insertRuleChange(DbSession dbSession, RuleChangeDto ruleChangeDto) {
     dbClient.ruleChangeDao().insert(dbSession, ruleChangeDto);
   }
 
-  private static void createRuleImpactChanges(String ruleChangeUuid, PluginRuleUpdate pluginRuleUpdate, RuleChangeDto ruleChangeDto) {
-    List<SoftwareQuality> matchingSoftwareQualities = pluginRuleUpdate.getMatchingSoftwareQualities();
-    for (SoftwareQuality softwareQuality : matchingSoftwareQualities) {
+  private static Set<RuleImpactChangeDto> createRuleImpactChanges(PluginRuleUpdate pluginRuleUpdate, RuleChangeDto ruleChangeDto) {
+    Set<RuleImpactChangeDto> ruleImpactChangeDtos = new HashSet<>();
+
+    pluginRuleUpdate.getMatchingSoftwareQualities().stream()
+      .map(softwareQuality -> {
+        RuleImpactChangeDto ruleImpactChangeDto = new RuleImpactChangeDto();
+        ruleImpactChangeDto.setRuleChangeUuid(ruleChangeDto.getUuid());
+        ruleImpactChangeDto.setOldSeverity(pluginRuleUpdate.getOldImpacts().get(softwareQuality));
+        ruleImpactChangeDto.setOldSoftwareQuality(softwareQuality);
+        ruleImpactChangeDto.setNewSeverity(pluginRuleUpdate.getNewImpacts().get(softwareQuality));
+        ruleImpactChangeDto.setNewSoftwareQuality(softwareQuality);
+        return ruleImpactChangeDto;
+      }).forEach(ruleImpactChangeDtos::add);
+
+    Iterator<SoftwareQuality> removedIterator = (Sets.difference(pluginRuleUpdate.getOldImpacts().keySet(), pluginRuleUpdate.getMatchingSoftwareQualities())).iterator();
+    Iterator<SoftwareQuality> addedIterator = (Sets.difference(pluginRuleUpdate.getNewImpacts().keySet(), pluginRuleUpdate.getMatchingSoftwareQualities())).iterator();
+    while (removedIterator.hasNext() || addedIterator.hasNext()) {
       RuleImpactChangeDto ruleImpactChangeDto = new RuleImpactChangeDto();
-      ruleImpactChangeDto.setRuleChangeUuid(ruleChangeUuid);
-      ruleImpactChangeDto.setOldSeverity(pluginRuleUpdate.getOldImpacts().get(softwareQuality));
-      ruleImpactChangeDto.setOldSoftwareQuality(softwareQuality);
-      ruleImpactChangeDto.setNewSeverity(pluginRuleUpdate.getNewImpacts().get(softwareQuality));
-      ruleImpactChangeDto.setNewSoftwareQuality(softwareQuality);
-      ruleChangeDto.addRuleImpactChangeDto(ruleImpactChangeDto);
+      ruleImpactChangeDto.setRuleChangeUuid(ruleChangeDto.getUuid());
+      if (removedIterator.hasNext()) {
+        var removedSoftwareQuality = removedIterator.next();
+        ruleImpactChangeDto.setOldSoftwareQuality(removedSoftwareQuality);
+        ruleImpactChangeDto.setOldSeverity(pluginRuleUpdate.getOldImpacts().get(removedSoftwareQuality));
+      }
+      if (addedIterator.hasNext()) {
+        var addedSoftwareQuality = addedIterator.next();
+        ruleImpactChangeDto.setNewSoftwareQuality(addedSoftwareQuality);
+        ruleImpactChangeDto.setNewSeverity(pluginRuleUpdate.getNewImpacts().get(addedSoftwareQuality));
+      }
+      ruleImpactChangeDtos.add(ruleImpactChangeDto);
     }
 
-    List<SoftwareQuality> oldSoftwareQualities = pluginRuleUpdate.getOldImpacts().keySet()
-      .stream()
-      .filter(softwareQuality -> !matchingSoftwareQualities.contains(softwareQuality)).toList();
+    return ruleImpactChangeDtos;
+  }
 
-    List<SoftwareQuality> newSoftwareQualities = pluginRuleUpdate.getNewImpacts().keySet()
-      .stream()
-      .filter(softwareQuality -> !matchingSoftwareQualities.contains(softwareQuality)).toList();
-    
-    int size = Math.max(oldSoftwareQualities.size(), newSoftwareQualities.size());
-    for(int i = 0; i < size; i++) {
-      RuleImpactChangeDto ruleImpactChangeDto = new RuleImpactChangeDto();
-      ruleImpactChangeDto.setRuleChangeUuid(ruleChangeUuid);
-      if(i < oldSoftwareQualities.size()) {
-        ruleImpactChangeDto.setOldSeverity(pluginRuleUpdate.getOldImpacts().get(oldSoftwareQualities.get(i)));
-        ruleImpactChangeDto.setOldSoftwareQuality(oldSoftwareQualities.get(i));
-      }
-      if(i < newSoftwareQualities.size()) {
-        ruleImpactChangeDto.setNewSeverity(pluginRuleUpdate.getNewImpacts().get(newSoftwareQualities.get(i)));
-        ruleImpactChangeDto.setNewSoftwareQuality(newSoftwareQualities.get(i));
-      }
-      ruleChangeDto.addRuleImpactChangeDto(ruleImpactChangeDto);
-    }
-
-
+  @NotNull
+  private QProfileChangeDto buildQprofileChangeDtoForRuleChange(String qualityProfileUuid, RuleChangeDto ruleChangeDto) {
+    QProfileChangeDto qProfileChangeDto = new QProfileChangeDto();
+    qProfileChangeDto.setUuid(uuidFactory.create());
+    qProfileChangeDto.setChangeType("UPDATED");
+    qProfileChangeDto.setRuleChange(ruleChangeDto);
+    qProfileChangeDto.setRulesProfileUuid(qualityProfileUuid);
+    qProfileChangeDto.setSqVersion(sonarQubeVersion.toString());
+    return qProfileChangeDto;
   }
 }

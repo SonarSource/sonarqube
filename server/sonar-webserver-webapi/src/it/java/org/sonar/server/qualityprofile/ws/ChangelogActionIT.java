@@ -456,6 +456,7 @@ public class ChangelogActionIT {
     UserDto user1 = db.users().insertUser(u -> u.setLogin("anakin.skywalker").setName("Anakin Skywalker"));
     insertChange(c -> c.setRulesProfileUuid(profileUuid)
       .setUserUuid(user1.getUuid())
+      .setSqVersion("8.3.1")
       .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
       .setData(ImmutableMap.of("severity", "CRITICAL", "ruleUuid", rule1.getUuid())));
 
@@ -464,6 +465,7 @@ public class ChangelogActionIT {
     UserDto user2 = db.users().insertUser(u -> u.setLogin("padme.amidala").setName("Padme Amidala"));
     insertChange(c -> c.setRulesProfileUuid(profileUuid)
       .setUserUuid(user2.getUuid())
+      .setSqVersion("8.3.1")
       .setChangeType(ActiveRuleChange.Type.DEACTIVATED.name())
       .setData(ImmutableMap.of("ruleUuid", rule2.getUuid())));
 
@@ -506,6 +508,7 @@ public class ChangelogActionIT {
                             @Nullable RuleChangeDto ruleChange) {
     insertChange(c -> c.setRulesProfileUuid(profile.getRulesProfileUuid())
       .setUserUuid(user == null ? null : user.getUuid())
+      .setSqVersion("7.6")
       .setChangeType(type.name())
       .setData(data)
       .setRuleChange(ruleChange));

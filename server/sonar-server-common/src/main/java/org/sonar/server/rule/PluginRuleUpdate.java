@@ -19,9 +19,10 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.collect.Sets;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
@@ -63,8 +64,8 @@ public class PluginRuleUpdate {
     return oldImpacts;
   }
 
-  public List<SoftwareQuality> getMatchingSoftwareQualities() {
-    return newImpacts.keySet().stream().filter(oldImpacts::containsKey).toList();
+  public Set<SoftwareQuality> getMatchingSoftwareQualities() {
+    return Sets.intersection(newImpacts.keySet(), oldImpacts.keySet());
   }
 
   public CleanCodeAttribute getNewCleanCodeAttribute() {

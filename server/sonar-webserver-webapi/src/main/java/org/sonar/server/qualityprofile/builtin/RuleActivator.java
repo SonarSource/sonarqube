@@ -37,6 +37,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
@@ -44,6 +45,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.OrgQProfileDto;
+import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDto;
@@ -70,13 +72,15 @@ public class RuleActivator {
   private final TypeValidations typeValidations;
   private final UserSession userSession;
   private final Configuration configuration;
+  private final SonarQubeVersion sonarQubeVersion;
 
-  public RuleActivator(System2 system2, DbClient db, TypeValidations typeValidations, UserSession userSession, Configuration configuration) {
+  public RuleActivator(System2 system2, DbClient db, TypeValidations typeValidations, UserSession userSession, Configuration configuration, SonarQubeVersion sonarQubeVersion) {
     this.system2 = system2;
     this.db = db;
     this.typeValidations = typeValidations;
     this.userSession = userSession;
     this.configuration = configuration;
+    this.sonarQubeVersion = sonarQubeVersion;
   }
 
   public List<ActiveRuleChange> activate(DbSession dbSession, Collection<RuleActivation> activations, RuleActivationContext context) {
@@ -87,10 +91,10 @@ public class RuleActivator {
 
   public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, RuleActivationContext context) {
     context.reset(activation.getRuleUuid());
-    return doActivate(dbSession, activation, context);
+    return doActivateRecursively(dbSession, activation, context);
   }
 
-  private List<ActiveRuleChange> doActivate(DbSession dbSession, RuleActivation activation, RuleActivationContext context) {
+  private List<ActiveRuleChange> doActivateRecursively(DbSession dbSession, RuleActivation activation, RuleActivationContext context) {
     RuleDto rule = context.getRule().get();
     checkRequest(RuleStatus.REMOVED != rule.getStatus(), "Rule was removed: %s", rule.getKey());
     checkRequest(!rule.isTemplate(), "Rule template can't be activated on a Quality profile: %s", rule.getKey());
@@ -133,13 +137,17 @@ public class RuleActivator {
       updateProfileDates(dbSession, context);
     }
 
-    changes.addAll(propagateActivationToDescendants(dbSession, activation, context));
+    // get all inherited profiles
+    for (QProfileDto child : context.getChildProfiles()) {
+      context.selectChild(child);
+      changes.addAll(doActivateRecursively(dbSession, activation, context));
+    }
 
     return changes;
   }
 
   private void handleUpdatedRuleActivation(RuleActivation activation, RuleActivationContext context, ActiveRuleChange change,
-                                           ActiveRuleWrapper activeRule) {
+    ActiveRuleWrapper activeRule) {
     if (context.isCascading() && activeRule.get().getInheritance() == null) {
       // The rule is being propagated, but it was activated directly on this profile before
       change.setSeverity(activeRule.get().getSeverityString());
@@ -283,17 +291,6 @@ public class RuleActivator {
     return severity;
   }
 
-  private List<ActiveRuleChange> propagateActivationToDescendants(DbSession dbSession, RuleActivation activation, RuleActivationContext context) {
-    List<ActiveRuleChange> changes = new ArrayList<>();
-
-    // get all inherited profiles
-    context.getChildProfiles().forEach(child -> {
-      context.selectChild(child);
-      changes.addAll(doActivate(dbSession, activation, context));
-    });
-    return changes;
-  }
-
   private void persist(ActiveRuleChange change, RuleActivationContext context, DbSession dbSession) {
     ActiveRuleDto activeRule = null;
     if (change.getType() == ActiveRuleChange.Type.ACTIVATED) {
@@ -306,7 +303,11 @@ public class RuleActivator {
       activeRule = doUpdate(change, context, dbSession);
     }
     change.setActiveRule(activeRule);
-    db.qProfileChangeDao().insert(dbSession, change.toDto(userSession.getUuid()));
+
+    QProfileChangeDto dto = change.toDto(userSession.getUuid());
+    dto.setSqVersion(sonarQubeVersion.toString());
+
+    db.qProfileChangeDao().insert(dbSession, dto);
   }
 
   private ActiveRuleDto doInsert(ActiveRuleChange change, RuleActivationContext context, DbSession dbSession) {
@@ -381,10 +382,10 @@ public class RuleActivator {
 
   public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleActivationContext context, String ruleUuid, boolean force) {
     context.reset(ruleUuid);
-    return doDeactivate(dbSession, context, force);
+    return doDeactivateRecursively(dbSession, context, force);
   }
 
-  private List<ActiveRuleChange> doDeactivate(DbSession dbSession, RuleActivationContext context, boolean force) {
+  private List<ActiveRuleChange> doDeactivateRecursively(DbSession dbSession, RuleActivationContext context, boolean force) {
     List<ActiveRuleChange> changes = new ArrayList<>();
     ActiveRuleWrapper activeRule = context.getActiveRule();
     if (activeRule != null) {
@@ -399,7 +400,7 @@ public class RuleActivator {
     // get all inherited profiles (they are not built-in by design)
     context.getChildProfiles().forEach(child -> {
       context.selectChild(child);
-      changes.addAll(doDeactivate(dbSession, context, force));
+      changes.addAll(doDeactivateRecursively(dbSession, context, force));
     });
 
     if (!changes.isEmpty()) {

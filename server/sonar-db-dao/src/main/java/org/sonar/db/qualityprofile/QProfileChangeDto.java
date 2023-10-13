@@ -37,6 +37,7 @@ public class QProfileChangeDto {
   private String data;
   private long createdAt;
   private RuleChangeDto ruleChange;
+  private String sqVersion;
 
   public String getUuid() {
     return uuid;
@@ -44,6 +45,16 @@ public class QProfileChangeDto {
 
   public QProfileChangeDto setUuid(String s) {
     this.uuid = s;
+    return this;
+  }
+
+  @CheckForNull
+  public String getSqVersion() {
+    return sqVersion;
+  }
+
+  public QProfileChangeDto setSqVersion(String sqVersion) {
+    this.sqVersion = sqVersion;
     return this;
   }
 

@@ -40,6 +40,8 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInActi
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInQualityProfile;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.Version;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -104,9 +106,10 @@ public class RegisterQualityProfilesNotificationIT {
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private ServerRuleFinder ruleFinder = new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class));
+  private SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
   private BuiltInQProfileInsert builtInQProfileInsert = new BuiltInQProfileInsertImpl(dbClient, ruleFinder, system2, UuidFactoryFast.getInstance(),
-    typeValidations, activeRuleIndexer);
-  private RuleActivator ruleActivator = new RuleActivator(system2, dbClient, typeValidations, userSessionRule, mock(Configuration.class));
+    typeValidations, activeRuleIndexer, sonarQubeVersion);
+  private RuleActivator ruleActivator = new RuleActivator(system2, dbClient, typeValidations, userSessionRule, mock(Configuration.class), sonarQubeVersion);
   private QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, mock(RuleIndex.class), activeRuleIndexer, qualityProfileChangeEventService);
   private BuiltInQProfileUpdate builtInQProfileUpdate = new BuiltInQProfileUpdateImpl(dbClient, ruleActivator, activeRuleIndexer, qualityProfileChangeEventService);
   private BuiltInQualityProfilesUpdateListener builtInQualityProfilesNotification = mock(BuiltInQualityProfilesUpdateListener.class);

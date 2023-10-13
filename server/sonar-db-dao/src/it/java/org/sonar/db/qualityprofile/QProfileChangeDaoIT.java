@@ -22,6 +22,8 @@ package org.sonar.db.qualityprofile;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -93,6 +95,22 @@ public class QProfileChangeDaoIT {
     assertThatThrownBy(() ->  underTest.insert(dbSession, new QProfileChangeDto().setCreatedAt(123L)))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Date of QProfileChangeDto must be set by DAO only. Got 123.");
+  }
+
+  @Test
+  public void whenBulkInsert_thenDateAreTheSame() {
+    List<QProfileChangeDto> changes = Stream.generate(QProfileChangeDto::new)
+      .peek(dto -> dto.setRulesProfileUuid("rule_profil_uuid").setChangeType("type"))
+      .limit(3)
+      .collect(Collectors.toList());
+
+    underTest.bulkInsert(dbSession, changes);
+
+    assertThat(changes)
+      .noneMatch(dto -> dto.getCreatedAt() == 0L);
+    assertThat(changes)
+      .extracting(QProfileChangeDto::getCreatedAt)
+      .containsOnly(changes.get(0).getCreatedAt());
   }
 
   @Test

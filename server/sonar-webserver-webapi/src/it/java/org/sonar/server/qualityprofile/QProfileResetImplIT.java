@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.Version;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.OrgActiveRuleDto;
@@ -65,7 +67,8 @@ public class QProfileResetImplIT {
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
-  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession, mock(Configuration.class));
+  private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
+  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), typeValidations, userSession, mock(Configuration.class), sonarQubeVersion);
   private QProfileTree qProfileTree = new QProfileTreeImpl(db.getDbClient(), ruleActivator, system2, activeRuleIndexer, mock(QualityProfileChangeEventService.class));
   private QProfileRules qProfileRules = new QProfileRulesImpl(db.getDbClient(), ruleActivator, null, activeRuleIndexer, qualityProfileChangeEventService);
   private QProfileResetImpl underTest = new QProfileResetImpl(db.getDbClient(), ruleActivator, activeRuleIndexer, mock(QualityProfileChangeEventService.class));

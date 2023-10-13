@@ -10,6 +10,7 @@
     qpc.user_uuid as userUuid,
     qpc.change_type as changeType,
     qpc.change_data as data,
+    qpc.sq_version as sqVersion,
     rc.uuid as "rc_uuid",
     rc.old_clean_code_attribute as oldCleanCodeAttribute,
     rc.new_clean_code_attribute as newCleanCodeAttribute,
@@ -30,7 +31,8 @@
       user_uuid,
       change_type,
       change_data,
-      rule_change_uuid
+      rule_change_uuid,
+      sq_version
     ) values (
       #{uuid, jdbcType=VARCHAR},
       #{rulesProfileUuid, jdbcType=VARCHAR},
@@ -38,7 +40,8 @@
       #{userUuid, jdbcType=VARCHAR},
       #{changeType, jdbcType=VARCHAR},
       #{data, jdbcType=VARCHAR},
-      #{ruleChange.uuid, jdbcType=VARCHAR}
+      #{ruleChange.uuid, jdbcType=VARCHAR},
+      #{sqVersion, jdbcType=VARCHAR}
     )
   </insert>
 

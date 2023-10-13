@@ -30,6 +30,8 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInQualityProfile;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.Version;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
@@ -68,7 +70,8 @@ public class BuiltInQProfileInsertImplIT {
   private final DbSession batchDbSession = db.getDbClient().openSession(true);
   private final ServerRuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient(), mock(RuleDescriptionFormatter.class));
   private final ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
-  private final BuiltInQProfileInsertImpl underTest = new BuiltInQProfileInsertImpl(db.getDbClient(), ruleFinder, system2, uuidFactory, typeValidations, activeRuleIndexer);
+  private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
+  private final BuiltInQProfileInsertImpl underTest = new BuiltInQProfileInsertImpl(db.getDbClient(), ruleFinder, system2, uuidFactory, typeValidations, activeRuleIndexer, sonarQubeVersion);
 
   @After
   public void tearDown() {
@@ -218,6 +221,7 @@ public class BuiltInQProfileInsertImplIT {
     assertThat(change.getUuid()).isNotEmpty();
     assertThat(change.getUserUuid()).isNull();
     assertThat(change.getRulesProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
+    assertThat(change.getSqVersion()).isEqualTo(sonarQubeVersion.toString());
   }
 
   private QProfileDto verifyProfileInDb(BuiltInQProfile builtIn) {

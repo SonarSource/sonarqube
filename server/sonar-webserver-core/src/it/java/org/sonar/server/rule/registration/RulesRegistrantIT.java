@@ -52,6 +52,8 @@ import org.sonar.api.server.rule.RuleDescriptionSection;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.Version;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
@@ -149,6 +151,7 @@ public class RulesRegistrantIT {
   private final DbClient dbClient = db.getDbClient();
   private final MetadataIndex metadataIndex = mock();
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
+  private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
 
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
@@ -1137,8 +1140,8 @@ public class RulesRegistrantIT {
     execute(context -> context.createRepository("fake", "java").done());
     //THEN
     List<QProfileChangeDto> qProfileChangeDtos = dbClient.qProfileChangeDao().selectByQuery(db.getSession(), new QProfileChangeQuery(qProfileDto.getKee()));
-    assertThat(qProfileChangeDtos).extracting(QProfileChangeDto::getRulesProfileUuid, QProfileChangeDto::getChangeType)
-      .contains(tuple(qProfileDto.getRulesProfileUuid(), "DEACTIVATED"));
+    assertThat(qProfileChangeDtos).extracting(QProfileChangeDto::getRulesProfileUuid, QProfileChangeDto::getChangeType, QProfileChangeDto::getSqVersion)
+      .contains(tuple(qProfileDto.getRulesProfileUuid(), "DEACTIVATED", sonarQubeVersion.toString()));
   }
 
   @Test
@@ -1162,7 +1165,7 @@ public class RulesRegistrantIT {
     reset(webServerRuleFinder);
 
     RulesRegistrant task = new RulesRegistrant(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer, languages, system, webServerRuleFinder, metadataIndex,
-      rulesKeyVerifier, startupRuleUpdater, newRuleCreator, qualityProfileChangesUpdater);
+      rulesKeyVerifier, startupRuleUpdater, newRuleCreator, qualityProfileChangesUpdater, sonarQubeVersion);
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
     db.getSession().commit();

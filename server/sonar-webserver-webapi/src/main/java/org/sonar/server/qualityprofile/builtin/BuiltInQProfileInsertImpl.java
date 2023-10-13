@@ -35,6 +35,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -43,6 +44,7 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
 import org.sonar.db.qualityprofile.OrgQProfileDto;
+import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -64,15 +66,17 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
   private final TypeValidations typeValidations;
   private final ActiveRuleIndexer activeRuleIndexer;
   private RuleRepository ruleRepository;
+  private final SonarQubeVersion sonarQubeVersion;
 
   public BuiltInQProfileInsertImpl(DbClient dbClient, ServerRuleFinder ruleFinder, System2 system2, UuidFactory uuidFactory,
-    TypeValidations typeValidations, ActiveRuleIndexer activeRuleIndexer) {
+    TypeValidations typeValidations, ActiveRuleIndexer activeRuleIndexer, SonarQubeVersion sonarQubeVersion) {
     this.dbClient = dbClient;
     this.ruleFinder = ruleFinder;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
     this.typeValidations = typeValidations;
     this.activeRuleIndexer = activeRuleIndexer;
+    this.sonarQubeVersion = sonarQubeVersion;
   }
 
   @Override
@@ -86,7 +90,11 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
       .map(activeRule -> insertActiveRule(batchDbSession, ruleProfile, activeRule, now.getTime()))
       .toList();
 
-    changes.forEach(change -> dbClient.qProfileChangeDao().insert(batchDbSession, change.toDto(null)));
+    List<QProfileChangeDto> changeDtos = changes.stream()
+      .map(ActiveRuleChange::toSystemChangedDto)
+      .peek(dto -> dto.setSqVersion(sonarQubeVersion.toString()))
+      .toList();
+    dbClient.qProfileChangeDao().bulkInsert(batchDbSession, changeDtos);
 
     createDefaultAndOrgQProfiles(batchDbSession, builtInQProfile, ruleProfile);
 

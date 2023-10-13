@@ -31,6 +31,8 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.Version;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -86,7 +88,8 @@ public class QProfilesWsMediumIT {
   private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
   private final TypeValidations typeValidations = new TypeValidations(emptyList());
   private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
-  private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, typeValidations, userSessionRule, mock(Configuration.class));
+  private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
+  private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, typeValidations, userSessionRule, mock(Configuration.class), sonarQubeVersion);
   private final QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
   private final QProfileWsSupport qProfileWsSupport = new QProfileWsSupport(dbClient, userSessionRule);
   private final RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(dbClient);

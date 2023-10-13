@@ -27,6 +27,8 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
+import org.sonar.api.utils.Version;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -56,8 +58,9 @@ public class QualityProfileChangesUpdaterTest {
   private final RuleChangeDao ruleChangeDao = mock();
   private final QProfileChangeDao qualityProfileChangeDao = mock();
   private final ActiveRuleDao activeRuleDao = mock();
+  private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
 
-  private final QualityProfileChangesUpdater underTest = new QualityProfileChangesUpdater(dbClient, UuidFactoryImpl.INSTANCE);
+  private final QualityProfileChangesUpdater underTest = new QualityProfileChangesUpdater(dbClient, UuidFactoryImpl.INSTANCE, sonarQubeVersion);
 
   @Before
   public void before() {
@@ -68,7 +71,7 @@ public class QualityProfileChangesUpdaterTest {
 
   @Test
   public void updateWithoutCommit_whenNoRuleChanges_thenDontInteractWithDatabase() {
-    underTest.updateWithoutCommit(mock(), Set.of());
+    underTest.createQprofileChangesForRuleUpdates(mock(), Set.of());
 
     verifyNoInteractions(dbClient);
   }
@@ -80,7 +83,7 @@ public class QualityProfileChangesUpdaterTest {
     pluginRuleUpdate.setOldCleanCodeAttribute(CleanCodeAttribute.TESTED);
     pluginRuleUpdate.setRuleUuid(RULE_UUID);
 
-    underTest.updateWithoutCommit(dbSession, Set.of(pluginRuleUpdate));
+    underTest.createQprofileChangesForRuleUpdates(dbSession, Set.of(pluginRuleUpdate));
 
     verify(ruleChangeDao).insert(argThat(dbSession::equals), argThat(ruleChangeDto ->
       ruleChangeDto.getNewCleanCodeAttribute() == CleanCodeAttribute.CLEAR
@@ -109,7 +112,7 @@ public class QualityProfileChangesUpdaterTest {
     pluginRuleUpdate2.addNewImpact(SoftwareQuality.SECURITY, Severity.HIGH);
     pluginRuleUpdate2.addOldImpact(SoftwareQuality.RELIABILITY, Severity.MEDIUM);
 
-    underTest.updateWithoutCommit(dbSession, Set.of(pluginRuleUpdate, pluginRuleUpdate2));
+    underTest.createQprofileChangesForRuleUpdates(dbSession, Set.of(pluginRuleUpdate, pluginRuleUpdate2));
 
     ArgumentCaptor<RuleChangeDto> captor = ArgumentCaptor.forClass(RuleChangeDto.class);
     verify(ruleChangeDao, times(2)).insert(argThat(dbSession::equals), captor.capture());
@@ -146,10 +149,11 @@ public class QualityProfileChangesUpdaterTest {
     pluginRuleUpdate.setOldCleanCodeAttribute(CleanCodeAttribute.TESTED);
     pluginRuleUpdate.setRuleUuid(RULE_UUID);
 
-    underTest.updateWithoutCommit(dbSession, Set.of(pluginRuleUpdate));
+    underTest.createQprofileChangesForRuleUpdates(dbSession, Set.of(pluginRuleUpdate));
 
-    verify(qualityProfileChangeDao, times(2)).insert(argThat(dbSession::equals), argThat(qProfileChangeDto ->
-      qProfileChangeDto.getChangeType().equals("UPDATED")
-        && qProfileChangeDto.getRuleChange() != null));
+    verify(qualityProfileChangeDao, times(1)).bulkInsert(argThat(dbSession::equals),
+      argThat(qProfileChangeDtos ->
+        qProfileChangeDtos.stream()
+          .allMatch(dto -> "UPDATED".equals(dto.getChangeType()) && dto.getRuleChange() != null)));
   }
 }

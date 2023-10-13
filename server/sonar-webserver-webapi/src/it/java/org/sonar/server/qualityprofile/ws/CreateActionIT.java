@@ -33,6 +33,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.api.utils.Version;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -90,7 +92,8 @@ public class CreateActionIT {
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
   private ProfileImporter[] profileImporters = createImporters();
   private QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
-  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, null, userSession, mock(Configuration.class));
+  private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
+  private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, null, userSession, mock(Configuration.class), sonarQubeVersion);
   private QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer, qualityProfileChangeEventService);
   private QProfileExporters qProfileExporters = new QProfileExporters(dbClient, null, qProfileRules, profileImporters);
 

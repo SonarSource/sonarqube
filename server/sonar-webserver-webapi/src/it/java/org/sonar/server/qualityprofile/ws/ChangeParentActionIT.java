@@ -33,6 +33,8 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.Version;
+import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -90,6 +92,7 @@ public class ChangeParentActionIT {
   private Language language = LanguageTesting.newLanguage(randomAlphanumeric(20));
   private String ruleRepository = randomAlphanumeric(5);
   private QProfileTreeImpl qProfileTree;
+  private SonarQubeVersion sonarQubeVersion;
 
   @Before
   public void setUp() {
@@ -100,7 +103,8 @@ public class ChangeParentActionIT {
     ruleIndexer = new RuleIndexer(esClient, dbClient);
     activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);
     TypeValidations typeValidations = new TypeValidations(Collections.emptyList());
-    RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, typeValidations, userSession, mock(Configuration.class));
+    sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
+    RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, typeValidations, userSession, mock(Configuration.class), sonarQubeVersion);
     qProfileTree = new QProfileTreeImpl(dbClient, ruleActivator, System2.INSTANCE, activeRuleIndexer, mock(QualityProfileChangeEventService.class));
     ChangeParentAction underTest = new ChangeParentAction(
       dbClient,

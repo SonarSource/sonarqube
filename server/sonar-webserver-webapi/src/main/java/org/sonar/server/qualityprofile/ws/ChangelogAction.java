@@ -77,7 +77,8 @@ public class ChangelogAction implements QProfileWsAction {
         new Change("9.8", "The field 'paging' has been added to the response"),
         new Change("10.3", "Added fields 'cleanCodeAttributeCategory', 'impacts' to response"),
         new Change("10.3", "Added fields 'oldCleanCodeAttribute', 'newCleanCodeAttribute', 'oldCleanCodeAttributeCategory', " +
-          "'newCleanCodeAttributeCategory' and 'impactChanges' to 'params' section of response"))
+          "'newCleanCodeAttributeCategory' and 'impactChanges' to 'params' section of response"),
+        new Change("10.3", "Added field 'sonarQubeVersion' to 'params' section of response"))
       .setHandler(this)
       .setResponseExample(getClass().getResource("changelog-example.json"));
 
@@ -167,6 +168,7 @@ public class ChangelogAction implements QProfileWsAction {
       JsonWriter changeWriter = json.beginObject();
       changeWriter
         .prop("date", DateUtils.formatDateTime(change.getCreatedAt()))
+        .prop("sonarQubeVersion", change.getSqVersion())
         .prop("action", change.getChangeType());
       UserDto user = usersByUuid.get(change.getUserUuid());
       if (user != null) {

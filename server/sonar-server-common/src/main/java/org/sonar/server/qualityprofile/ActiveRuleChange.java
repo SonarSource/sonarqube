@@ -114,6 +114,10 @@ public class ActiveRuleChange {
     return this;
   }
 
+  public QProfileChangeDto toSystemChangedDto() {
+    return toDto(null);
+  }
+
   public QProfileChangeDto toDto(@Nullable String userUuid) {
     QProfileChangeDto dto = new QProfileChangeDto();
     dto.setChangeType(type.name());
