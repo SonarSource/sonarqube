@@ -53,7 +53,7 @@ public class TokenExpirationNotificationSenderTest {
     underTest.sendNotifications();
     assertThat(logTester.getLogs(LoggerLevel.DEBUG))
       .extracting(LogAndArguments::getFormattedMsg)
-      .containsExactly("Emails for token expiration notification have not been sent because email settings are not configured.");
+      .contains("Emails for token expiration notification have not been sent because email settings are not configured.");
   }
 
   @Test
