@@ -21,6 +21,7 @@ import { isSameMinute } from 'date-fns';
 import {
   CellComponent,
   ContentCell,
+  FlagMessage,
   Link,
   Note,
   Table,
@@ -29,7 +30,7 @@ import {
 } from 'design-system';
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
 import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
@@ -52,19 +53,51 @@ export default function Changelog(props: Props) {
     (e) => e.action,
   );
 
+  const isSameEventDate = (thisEvent: ProfileChangelogEvent, otherEvent?: ProfileChangelogEvent) =>
+    otherEvent !== undefined && isSameMinute(parseDate(otherEvent.date), parseDate(thisEvent.date));
+
+  const isSameEventGroup = (thisEvent: ProfileChangelogEvent, otherEvent?: ProfileChangelogEvent) =>
+    otherEvent !== undefined &&
+    isSameEventDate(thisEvent, otherEvent) &&
+    otherEvent.authorName === thisEvent.authorName &&
+    otherEvent.action === thisEvent.action;
+
   const rows = sortedRows.map((event, index) => {
-    const prev = index > 0 ? sortedRows[index - 1] : null;
-    const isSameDate = prev != null && isSameMinute(parseDate(prev.date), parseDate(event.date));
-    const isBulkChange =
-      prev != null &&
-      isSameDate &&
-      prev.authorName === event.authorName &&
-      prev.action === event.action;
+    const prev = sortedRows[index - 1];
+    const isBulkChange = isSameEventGroup(event, prev);
+
+    const nextEventInDifferentGroup = sortedRows
+      .slice(index + 1)
+      .find((e) => !isSameEventGroup(event, e));
+
+    const isNewSonarQubeVersion =
+      !isBulkChange &&
+      nextEventInDifferentGroup !== undefined &&
+      nextEventInDifferentGroup.sonarQubeVersion !== event.sonarQubeVersion;
 
     return (
       <TableRowInteractive key={index}>
-        <ContentCell className="sw-whitespace-nowrap sw-align-top">
-          {!isBulkChange && <DateTimeFormatter date={event.date} />}
+        <ContentCell className="sw-align-top">
+          {!isBulkChange && (
+            <div>
+              <span className="sw-whitespace-nowrap">
+                <DateTimeFormatter date={event.date} />
+              </span>
+
+              {isNewSonarQubeVersion && (
+                <div className="sw-mt-2 sw-whitespace-nowrap">
+                  <FlagMessage variant="info">
+                    <FormattedMessage
+                      id="quality_profiles.changelog.sq_upgrade"
+                      values={{
+                        sqVersion: event.sonarQubeVersion,
+                      }}
+                    />
+                  </FlagMessage>
+                </div>
+              )}
+            </div>
+          )}
         </ContentCell>
 
         <ContentCell className="sw-whitespace-nowrap sw-align-top sw-max-w-[120px]">

@@ -538,6 +538,7 @@ export function mockQualityProfileChangelogEvent(
     ],
     ruleKey: 'rule-key',
     ruleName: 'rule-name',
+    sonarQubeVersion: '10.3',
     ...eventOverride,
   };
 }

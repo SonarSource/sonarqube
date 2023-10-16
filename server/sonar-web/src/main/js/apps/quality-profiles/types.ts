@@ -64,6 +64,7 @@ export interface ProfileChangelogEvent {
   } & Dict<string | ProfileChangelogEventImpactChange[] | null>;
   ruleKey: string;
   ruleName: string;
+  sonarQubeVersion: string;
 }
 
 export enum ProfileActionModals {
