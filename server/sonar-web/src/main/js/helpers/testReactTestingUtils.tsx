@@ -24,7 +24,16 @@ import { omit } from 'lodash';
 import * as React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { IntlProvider, ReactIntlErrorCode } from 'react-intl';
-import { MemoryRouter, Outlet, Route, Routes, parsePath } from 'react-router-dom';
+import {
+  MemoryRouter,
+  Outlet,
+  Route,
+  RouterProvider,
+  Routes,
+  createMemoryRouter,
+  createRoutesFromElements,
+  parsePath,
+} from 'react-router-dom';
 import AdminContext from '../app/components/AdminContext';
 import GlobalMessagesContainer from '../app/components/GlobalMessagesContainer';
 import AppStateContextProvider from '../app/components/app-state/AppStateContextProvider';
@@ -189,8 +198,20 @@ function renderRoutedApp(
   }: RenderContext = {},
 ): RenderResult {
   const path = parsePath(navigateTo);
-  path.pathname = `/${path.pathname}`;
+  if (!path.pathname?.startsWith('/')) {
+    path.pathname = `/${path.pathname}`;
+  }
   const queryClient = new QueryClient();
+
+  const router = createMemoryRouter(
+    createRoutesFromElements(
+      <>
+        {children}
+        <Route path="*" element={<CatchAll />} />
+      </>,
+    ),
+    { initialEntries: [path] },
+  );
 
   return render(
     <HelmetProvider context={{}}>
@@ -203,12 +224,7 @@ function renderRoutedApp(
                   <IndexationContextProvider>
                     <QueryClientProvider client={queryClient}>
                       <GlobalMessagesContainer />
-                      <MemoryRouter initialEntries={[path]}>
-                        <Routes>
-                          {children}
-                          <Route path="*" element={<CatchAll />} />
-                        </Routes>
-                      </MemoryRouter>
+                      <RouterProvider router={router} />
                     </QueryClientProvider>
                   </IndexationContextProvider>
                 </AppStateContextProvider>

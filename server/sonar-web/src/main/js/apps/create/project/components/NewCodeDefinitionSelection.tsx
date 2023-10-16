@@ -22,7 +22,7 @@ import { omit } from 'lodash';
 import * as React from 'react';
 import { useEffect } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, unstable_usePrompt as usePrompt } from 'react-router-dom';
 import NewCodeDefinitionSelector from '../../../../components/new-code-definition/NewCodeDefinitionSelector';
 import { useDocUrl } from '../../../../helpers/docs';
 import { addGlobalSuccessMessage } from '../../../../helpers/globalMessages';
@@ -35,6 +35,10 @@ import {
 } from '../../../../queries/import-projects';
 import { NewCodeDefinitiondWithCompliance } from '../../../../types/new-code-definition';
 import { ImportProjectParam } from '../CreateProjectPage';
+
+const listener = (event: BeforeUnloadEvent) => {
+  event.returnValue = true;
+};
 
 interface Props {
   importProjects: ImportProjectParam;
@@ -49,6 +53,10 @@ export default function NewCodeDefinitionSelection(props: Props) {
   const intl = useIntl();
   const navigate = useNavigate();
   const getDocUrl = useDocUrl();
+  usePrompt({
+    when: isLoading,
+    message: translate('onboarding.create_project.please_dont_leave'),
+  });
 
   const projectCount = importProjects.projects.length;
   const isMultipleProjects = projectCount > 1;
@@ -76,6 +84,14 @@ export default function NewCodeDefinitionSelection(props: Props) {
       });
     }
   }, [data, projectCount, mutateCount, reset, intl, navigate]);
+
+  React.useEffect(() => {
+    if (isLoading) {
+      window.addEventListener('beforeunload', listener);
+    }
+
+    return () => window.removeEventListener('beforeunload', listener);
+  }, [isLoading]);
 
   const handleProjectCreation = () => {
     if (selectedDefinition) {
@@ -131,10 +147,8 @@ export default function NewCodeDefinitionSelection(props: Props) {
         </FlagMessage>
       )}
 
-      <div className="sw-mt-10 sw-mb-8">
-        <ButtonSecondary className="sw-mr-2" onClick={() => navigate(-1)}>
-          {translate('back')}
-        </ButtonSecondary>
+      <div className="sw-mt-10 sw-mb-8 sw-flex sw-gap-2 sw-items-center">
+        <ButtonSecondary onClick={() => navigate(-1)}>{translate('back')}</ButtonSecondary>
         <ButtonPrimary
           onClick={handleProjectCreation}
           disabled={!selectedDefinition?.isCompliant || isLoading}
@@ -151,6 +165,17 @@ export default function NewCodeDefinitionSelection(props: Props) {
           />
           <Spinner className="sw-ml-2" loading={isLoading} />
         </ButtonPrimary>
+        {isLoading && (
+          <FlagMessage variant="warning">
+            <FormattedMessage
+              id="onboarding.create_project.import_in_progress"
+              values={{
+                count: projectCount - mutateCount,
+                total: projectCount,
+              }}
+            />
+          </FlagMessage>
+        )}
       </div>
     </div>
   );

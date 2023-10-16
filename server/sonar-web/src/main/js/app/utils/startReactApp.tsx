@@ -24,7 +24,12 @@ import * as React from 'react';
 import { render } from 'react-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { IntlShape, RawIntlProvider } from 'react-intl';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import {
+  Route,
+  RouterProvider,
+  createBrowserRouter,
+  createRoutesFromElements,
+} from 'react-router-dom';
 import accountRoutes from '../../apps/account/routes';
 import auditLogsRoutes from '../../apps/audit-logs/routes';
 import backgroundTasksRoutes from '../../apps/background-tasks/routes';
@@ -174,6 +179,75 @@ function renderRedirects() {
   );
 }
 
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <>
+      {renderRedirects()}
+
+      <Route path="formatting/help" element={<FormattingHelp />} />
+
+      <Route element={<SimpleContainer />}>{maintenanceRoutes()}</Route>
+
+      <Route element={<MigrationContainer />}>
+        {sessionsRoutes()}
+
+        <Route path="/" element={<App />}>
+          <Route index element={<Landing />} />
+
+          <Route element={<GlobalContainer />}>
+            {accountRoutes()}
+
+            {codingRulesRoutes()}
+
+            <Route path="extension/:pluginKey/:extensionKey" element={<GlobalPageExtension />} />
+
+            {globalIssuesRoutes()}
+
+            {projectsRoutes()}
+
+            {qualityGatesRoutes()}
+            {qualityProfilesRoutes()}
+
+            <Route path="portfolios" element={<PortfoliosPage />} />
+
+            <Route path="sonarlint/auth" element={<SonarLintConnection />} />
+
+            {webAPIRoutes()}
+            {webAPIRoutesV2()}
+
+            {renderComponentRoutes()}
+
+            {renderAdminRoutes()}
+          </Route>
+          <Route
+            // We don't want this route to have any menu.
+            // That is why we can not have it under the accountRoutes
+            path="account/reset_password"
+            element={<ResetPassword />}
+          />
+
+          <Route
+            // We don't want this route to have any menu. This is why we define it here
+            // rather than under the admin routes.
+            path="admin/change_admin_password"
+            element={<ChangeAdminPasswordApp />}
+          />
+
+          <Route
+            // We don't want this route to have any menu. This is why we define it here
+            // rather than under the admin routes.
+            path="admin/plugin_risk_consent"
+            element={<PluginRiskConsent />}
+          />
+          <Route path="not_found" element={<NotFound />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Route>
+    </>,
+  ),
+  { basename: getBaseUrl() },
+);
+
 const queryClient = new QueryClient();
 
 export default function startReactApp(
@@ -195,75 +269,8 @@ export default function startReactApp(
               <ThemeProvider theme={lightTheme}>
                 <QueryClientProvider client={queryClient}>
                   <GlobalMessagesContainer />
-                  <BrowserRouter basename={getBaseUrl()}>
-                    <Helmet titleTemplate={translate('page_title.template.default')} />
-                    <Routes>
-                      {renderRedirects()}
-
-                      <Route path="formatting/help" element={<FormattingHelp />} />
-
-                      <Route element={<SimpleContainer />}>{maintenanceRoutes()}</Route>
-
-                      <Route element={<MigrationContainer />}>
-                        {sessionsRoutes()}
-
-                        <Route path="/" element={<App />}>
-                          <Route index element={<Landing />} />
-
-                          <Route element={<GlobalContainer />}>
-                            {accountRoutes()}
-
-                            {codingRulesRoutes()}
-
-                            <Route
-                              path="extension/:pluginKey/:extensionKey"
-                              element={<GlobalPageExtension />}
-                            />
-
-                            {globalIssuesRoutes()}
-
-                            {projectsRoutes()}
-
-                            {qualityGatesRoutes()}
-                            {qualityProfilesRoutes()}
-
-                            <Route path="portfolios" element={<PortfoliosPage />} />
-
-                            <Route path="sonarlint/auth" element={<SonarLintConnection />} />
-
-                            {webAPIRoutes()}
-                            {webAPIRoutesV2()}
-
-                            {renderComponentRoutes()}
-
-                            {renderAdminRoutes()}
-                          </Route>
-                          <Route
-                            // We don't want this route to have any menu.
-                            // That is why we can not have it under the accountRoutes
-                            path="account/reset_password"
-                            element={<ResetPassword />}
-                          />
-
-                          <Route
-                            // We don't want this route to have any menu. This is why we define it here
-                            // rather than under the admin routes.
-                            path="admin/change_admin_password"
-                            element={<ChangeAdminPasswordApp />}
-                          />
-
-                          <Route
-                            // We don't want this route to have any menu. This is why we define it here
-                            // rather than under the admin routes.
-                            path="admin/plugin_risk_consent"
-                            element={<PluginRiskConsent />}
-                          />
-                          <Route path="not_found" element={<NotFound />} />
-                          <Route path="*" element={<NotFound />} />
-                        </Route>
-                      </Route>
-                    </Routes>
-                  </BrowserRouter>
+                  <Helmet titleTemplate={translate('page_title.template.default')} />
+                  <RouterProvider router={router} />
                 </QueryClientProvider>
               </ThemeProvider>
             </RawIntlProvider>
