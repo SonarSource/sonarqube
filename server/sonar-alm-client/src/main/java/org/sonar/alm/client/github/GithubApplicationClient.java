@@ -22,9 +22,12 @@ package org.sonar.alm.client.github;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.alm.client.github.api.GsonRepositoryCollaborator;
+import org.sonar.alm.client.github.api.GsonRepositoryTeam;
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
 import org.sonar.alm.client.github.config.GithubAppInstallation;
 import org.sonar.alm.client.github.security.AccessToken;
@@ -92,6 +95,12 @@ public interface GithubApplicationClient {
    * Returns the repository identified by the repositoryKey owned by the provided organization.
    */
   Optional<Repository> getRepository(String appUrl, AccessToken accessToken, String repositoryKey);
+
+
+
+  Set<GsonRepositoryTeam> getRepositoryTeams(String appUrl, AppInstallationToken accessToken, String orgName, String repoName);
+
+  Set<GsonRepositoryCollaborator> getRepositoryCollaborators(String appUrl, AppInstallationToken accessToken, String orgName, String repoName);
 
   class Repositories {
     private int total;

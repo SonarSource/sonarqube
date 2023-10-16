@@ -1,0 +1,26 @@
+[
+  {
+    "login": "jean-michel",
+    "id": 1,
+    "role_name": "role1",
+    "permissions": {
+      "admin": true,
+      "maintain": true,
+      "push": true,
+      "triage": true,
+      "pull": true
+    }
+  },
+  {
+    "login": "jean-pierre",
+    "id": 2,
+    "role_name": "role2",
+    "permissions": {
+      "admin": false,
+      "maintain": false,
+      "push": true,
+      "triage": true,
+      "pull": true
+    }
+  }
+]

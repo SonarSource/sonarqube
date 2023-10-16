@@ -23,17 +23,22 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import javax.annotation.Nullable;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.slf4j.event.Level;
 import org.sonar.alm.client.github.GithubApplicationHttpClient.RateLimit;
+import org.sonar.alm.client.github.api.GsonRepositoryCollaborator;
+import org.sonar.alm.client.github.api.GsonRepositoryTeam;
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
 import org.sonar.alm.client.github.config.GithubAppInstallation;
 import org.sonar.alm.client.github.security.AccessToken;
@@ -44,6 +49,7 @@ import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.auth.github.GitHubSettings;
+import org.sonar.auth.github.GsonRepositoryPermissions;
 import org.sonarqube.ws.client.HttpException;
 
 import static java.net.HttpURLConnection.HTTP_CREATED;
@@ -53,6 +59,7 @@ import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -65,7 +72,12 @@ import static org.sonar.alm.client.github.GithubApplicationHttpClient.GetRespons
 
 @RunWith(DataProviderRunner.class)
 public class GithubApplicationClientImplTest {
-
+  private static final String ORG_NAME = "ORG_NAME";
+  private static final String TEAM_NAME = "team1";
+  private static final String REPO_NAME = "repo1";
+  private static final String APP_URL = "https://github.com/";
+  private static final String REPO_TEAMS_ENDPOINT = "/repos/ORG_NAME/repo1/teams";
+  private static final String REPO_COLLABORATORS_ENDPOINT = "/repos/ORG_NAME/repo1/collaborators?affiliation=direct";
   private static final int INSTALLATION_ID = 1;
   private static final String APP_JWT_TOKEN = "APP_TOKEN_JWT";
   private static final String PAYLOAD_2_ORGS = """
@@ -108,7 +120,9 @@ public class GithubApplicationClientImplTest {
   private GitHubSettings gitHubSettings = mock();
 
   private GithubPaginatedHttpClient githubPaginatedHttpClient = mock();
+  private AppInstallationToken appInstallationToken = mock();
   private GithubApplicationClient underTest;
+
 
   private String appUrl = "Any URL";
 
@@ -574,8 +588,11 @@ public class GithubApplicationClientImplTest {
 
     assertThatThrownBy(() -> underTest.getWhitelistedGithubAppInstallations(githubAppConfiguration))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("An error occurred when retrieving your GitHup App installations. "
-                  + "It might be related to your GitHub App configuration or a connectivity problem.");
+      .hasMessage(
+        "SonarQube was not able to retrieve resources from GitHub. "
+        + "This is likely due to a connectivity problem or a temporary network outage: "
+        + "Error while executing a paginated call to GitHub - appUrl: Any URL, path: /app/installations. io exception"
+        );
   }
 
   @Test
@@ -1032,6 +1049,84 @@ public class GithubApplicationClientImplTest {
 
     assertThat(accessToken).hasValue(installToken);
     verify(httpClient).post(appUrl, appToken, "/app/installations/" + INSTALLATION_ID + "/access_tokens");
+  }
+
+  @Test
+  public void getRepositoryTeams_returnsRepositoryTeams() throws IOException {
+    ArgumentCaptor<Function<String, List<GsonRepositoryTeam>>> deserializerCaptor = ArgumentCaptor.forClass(Function.class);
+
+    when(githubPaginatedHttpClient.get(eq(APP_URL), eq(appInstallationToken), eq(REPO_TEAMS_ENDPOINT), deserializerCaptor.capture())).thenReturn(expectedTeams());
+
+    Set<GsonRepositoryTeam> repoTeams = underTest.getRepositoryTeams(APP_URL, appInstallationToken, ORG_NAME, REPO_NAME);
+
+    assertThat(repoTeams)
+      .containsExactlyInAnyOrderElementsOf(expectedTeams());
+
+    String responseContent = getResponseContent("repo-teams-full-response.json");
+    assertThat(deserializerCaptor.getValue().apply(responseContent)).containsExactlyElementsOf(expectedTeams());
+  }
+
+  @Test
+  public void getRepositoryTeams_whenGitHubCallThrowsIOException_shouldLogAndThrow() throws IOException {
+    when(githubPaginatedHttpClient.get(eq(APP_URL), eq(appInstallationToken), eq(REPO_TEAMS_ENDPOINT), any())).thenThrow(new IOException("error"));
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> underTest.getRepositoryTeams(APP_URL, appInstallationToken, ORG_NAME, REPO_NAME))
+      .isInstanceOf(IllegalStateException.class)
+      .withMessage(
+        "SonarQube was not able to retrieve resources from GitHub. This is likely due to a connectivity problem or a temporary network outage: Error while executing a paginated call to GitHub - appUrl: https://github.com/, path: /repos/ORG_NAME/repo1/teams. error");
+
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs(Level.WARN))
+      .containsExactly("Error while executing a paginated call to GitHub - appUrl: https://github.com/, path: /repos/ORG_NAME/repo1/teams.");
+  }
+
+  private static List<GsonRepositoryTeam> expectedTeams() {
+    return List.of(
+      new GsonRepositoryTeam("team1", 1, "team1", "pull", new GsonRepositoryPermissions(true, true, true, true, true)),
+      new GsonRepositoryTeam("team2", 2, "team2", "push", new GsonRepositoryPermissions(false, false, true, true, true)));
+  }
+
+  @Test
+  public void getRepositoryCollaborators_returnsCollaboratorsFromGithub() throws IOException {
+    ArgumentCaptor<Function<String, List<GsonRepositoryCollaborator>>> deserializerCaptor = ArgumentCaptor.forClass(Function.class);
+
+    when(githubPaginatedHttpClient.get(eq(APP_URL), eq(appInstallationToken), eq(REPO_COLLABORATORS_ENDPOINT), deserializerCaptor.capture())).thenReturn(expectedCollaborators());
+
+    Set<GsonRepositoryCollaborator> repoTeams = underTest.getRepositoryCollaborators(APP_URL, appInstallationToken, ORG_NAME, REPO_NAME);
+
+    assertThat(repoTeams)
+      .containsExactlyInAnyOrderElementsOf(expectedCollaborators());
+
+    String responseContent = getResponseContent("repo-collaborators-full-response.json");
+    assertThat(deserializerCaptor.getValue().apply(responseContent)).containsExactlyElementsOf(expectedCollaborators());
+
+  }
+
+  @Test
+  public void getRepositoryCollaborators_whenGitHubCallThrowsIOException_shouldLogAndThrow() throws IOException {
+    when(githubPaginatedHttpClient.get(eq(APP_URL), eq(appInstallationToken), eq(REPO_COLLABORATORS_ENDPOINT), any())).thenThrow(new IOException("error"));
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> underTest.getRepositoryCollaborators(APP_URL, appInstallationToken, ORG_NAME, REPO_NAME))
+      .isInstanceOf(IllegalStateException.class)
+      .withMessage(
+        "SonarQube was not able to retrieve resources from GitHub. This is likely due to a connectivity problem or a temporary network outage: "
+        + "Error while executing a paginated call to GitHub - appUrl: https://github.com/, path: /repos/ORG_NAME/repo1/collaborators?affiliation=direct. error");
+
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs(Level.WARN))
+      .containsExactly("Error while executing a paginated call to GitHub - appUrl: https://github.com/, path: /repos/ORG_NAME/repo1/collaborators?affiliation=direct.");
+  }
+
+  private static String getResponseContent(String path) throws IOException {
+    return IOUtils.toString(GithubApplicationClientImplTest.class.getResourceAsStream(path), StandardCharsets.UTF_8);
+  }
+
+  private static List<GsonRepositoryCollaborator> expectedCollaborators() {
+    return List.of(
+      new GsonRepositoryCollaborator("jean-michel", 1, "role1", new GsonRepositoryPermissions(true, true, true, true, true)),
+      new GsonRepositoryCollaborator("jean-pierre", 2, "role2", new GsonRepositoryPermissions(false, false, true, true, true)));
   }
 
   private void mockAccessTokenCallingGithubFailure() throws IOException {

@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -40,6 +41,8 @@ import org.sonar.alm.client.github.GithubApplicationHttpClient.GetResponse;
 import org.sonar.alm.client.github.GithubBinding.GsonGithubRepository;
 import org.sonar.alm.client.github.GithubBinding.GsonInstallations;
 import org.sonar.alm.client.github.GithubBinding.GsonRepositorySearch;
+import org.sonar.alm.client.github.api.GsonRepositoryCollaborator;
+import org.sonar.alm.client.github.api.GsonRepositoryTeam;
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
 import org.sonar.alm.client.github.config.GithubAppInstallation;
 import org.sonar.alm.client.github.security.AccessToken;
@@ -66,6 +69,12 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   protected static final String WRITE_PERMISSION_NAME = "write";
   protected static final String READ_PERMISSION_NAME = "read";
   protected static final String FAILED_TO_REQUEST_BEGIN_MSG = "Failed to request ";
+
+  private static final String EXCEPTION_MESSAGE = "SonarQube was not able to retrieve resources from GitHub. "
+                                                  + "This is likely due to a connectivity problem or a temporary network outage";
+
+  private static final Type REPOSITORY_TEAM_LIST_TYPE = TypeToken.getParameterized(List.class, GsonRepositoryTeam.class).getType();
+  private static final Type REPOSITORY_COLLABORATORS_LIST_TYPE = TypeToken.getParameterized(List.class, GsonRepositoryCollaborator.class).getType();
   private static final Type ORGANIZATION_LIST_TYPE = TypeToken.getParameterized(List.class, GithubBinding.GsonInstallation.class).getType();
   protected final GithubApplicationHttpClient appHttpClient;
   protected final GithubAppSecurity appSecurity;
@@ -232,13 +241,8 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   private List<GithubBinding.GsonInstallation> fetchAppInstallationsFromGithub(GithubAppConfiguration githubAppConfiguration) {
     AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
     String endpoint = "/app/installations";
-    try {
-      return githubPaginatedHttpClient.get(githubAppConfiguration.getApiEndpoint(), appToken, endpoint, resp -> GSON.fromJson(resp, ORGANIZATION_LIST_TYPE));
-    } catch (IOException e) {
-      LOG.warn(FAILED_TO_REQUEST_BEGIN_MSG + endpoint, e);
-      throw new IllegalStateException("An error occurred when retrieving your GitHup App installations. "
-                                      + "It might be related to your GitHub App configuration or a connectivity problem.");
-    }
+
+    return executePaginatedQuery(githubAppConfiguration.getApiEndpoint(), appToken, endpoint, resp -> GSON.fromJson(resp, ORGANIZATION_LIST_TYPE));
   }
 
   protected <T> Optional<T> get(String baseUrl, AccessToken token, String endPoint, Class<T> gsonClass) {
@@ -292,7 +296,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
         .map(GsonGithubRepository::toRepository);
     } catch (Exception e) {
       throw new IllegalStateException(format("Failed to get repository '%s' on '%s' (this might be related to the GitHub App installation scope)",
-        organizationAndRepository,  appUrl), e);
+        organizationAndRepository, appUrl), e);
     }
   }
 
@@ -361,6 +365,44 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
     } catch (Exception e) {
       LOG.warn(FAILED_TO_REQUEST_BEGIN_MSG + endPoint, e);
       return Optional.empty();
+    }
+  }
+
+  @Override
+  public Set<GsonRepositoryTeam> getRepositoryTeams(String appUrl, AppInstallationToken accessToken, String orgName, String repoName) {
+    return Set
+      .copyOf(executePaginatedQuery(appUrl, accessToken, format("/repos/%s/%s/teams", orgName, repoName), resp -> GSON.fromJson(resp, REPOSITORY_TEAM_LIST_TYPE)));
+  }
+
+  @Override
+  public Set<GsonRepositoryCollaborator> getRepositoryCollaborators(String appUrl, AppInstallationToken accessToken, String orgName, String repoName) {
+    return Set
+      .copyOf(
+        executePaginatedQuery(
+          appUrl,
+          accessToken,
+          format("/repos/%s/%s/collaborators?affiliation=direct", orgName, repoName),
+          resp -> GSON.fromJson(resp, REPOSITORY_COLLABORATORS_LIST_TYPE)));
+  }
+
+  private <E> List<E> executePaginatedQuery(String appUrl, AccessToken token, String query, Function<String, List<E>> responseDeserializer) {
+    try {
+      return githubPaginatedHttpClient.get(appUrl, token, query, responseDeserializer);
+    } catch (IOException ioException) {
+      throw logAndCreateException(ioException, format("Error while executing a paginated call to GitHub - appUrl: %s, path: %s.", appUrl, query));
+    }
+  }
+
+  private static IllegalStateException logAndCreateException(IOException ioException, String errorMessage) {
+    log(errorMessage, ioException);
+    return new IllegalStateException(EXCEPTION_MESSAGE + ": " + errorMessage + " " + ioException.getMessage());
+  }
+
+  private static void log(String message, Exception e) {
+    if (LOG.isDebugEnabled()) {
+      LOG.warn(message, e);
+    } else {
+      LOG.warn(message);
     }
   }
 }
