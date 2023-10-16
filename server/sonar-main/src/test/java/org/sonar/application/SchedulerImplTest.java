@@ -37,6 +37,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestName;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.mockito.Mockito;
@@ -66,11 +67,14 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 
 public class SchedulerImplTest {
+  private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(SchedulerImplTest.class);
 
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @Rule
+  public TestName testName = new TestName();
 
   private Level initialLevel;
 
@@ -97,6 +101,7 @@ public class SchedulerImplTest {
     Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     initialLevel = logger.getLevel();
     logger.setLevel(Level.TRACE);
+    LOG.debug("Starting {}", testName.getMethodName());
   }
 
   @After
@@ -377,9 +382,9 @@ public class SchedulerImplTest {
   private Scheduler startAll(AppSettings settings) throws InterruptedException {
     SchedulerImpl scheduler = newScheduler(settings, false);
     scheduler.schedule();
-    processLauncher.waitForProcess(ELASTICSEARCH).signalAsOperational();
-    processLauncher.waitForProcess(WEB_SERVER).signalAsOperational();
-    processLauncher.waitForProcess(COMPUTE_ENGINE).signalAsOperational();
+    processLauncher.waitForProcessAlive(ELASTICSEARCH).signalAsOperational();
+    processLauncher.waitForProcessAlive(WEB_SERVER).signalAsOperational();
+    processLauncher.waitForProcessAlive(COMPUTE_ENGINE).signalAsOperational();
     return scheduler;
   }
 
@@ -538,7 +543,9 @@ public class SchedulerImplTest {
 
     @Override
     public void destroyForcibly() {
-      if (isAlive()) {
+      boolean isAlive = isAlive();
+      LOG.debug("Calling destroyForcibly for process {} with isAlive={}. ", processId, isAlive);
+      if (isAlive) {
         orderedStops.add(processId);
       }
       alive.countDown();
