@@ -32,6 +32,7 @@ import { parseDate } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { localizeMetric } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
+import { MetricKey } from '../../../types/metrics';
 import {
   Analysis as AnalysisType,
   GraphType,
@@ -100,6 +101,15 @@ export function ActivityPanel(props: ActivityPanelProps) {
     [measuresHistory, analyses.length],
   );
 
+  const qualityGateStatuses = React.useMemo(
+    () =>
+      measuresHistory
+        .find(({ metric }) => metric === MetricKey.alert_status)
+        ?.history.slice(-MAX_ANALYSES_NB)
+        .reverse(),
+    [measuresHistory],
+  );
+
   return (
     <div className="sw-mt-8">
       <PageTitle as="h2" text={translate('overview.activity')} />
@@ -135,6 +145,7 @@ export function ActivityPanel(props: ActivityPanelProps) {
                   analysis={analysis}
                   isFirstAnalysis={index === analyses.length - 1}
                   qualifier={component.qualifier}
+                  qualityGateStatus={qualityGateStatuses?.[index]?.value}
                   variations={analysisVariations[index]}
                 />
                 {index !== displayedAnalyses.length - 1 && <BasicSeparator className="sw-my-3" />}

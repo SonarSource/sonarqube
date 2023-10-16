@@ -106,6 +106,7 @@ export const HISTORY_METRICS_LIST: string[] = [
   MetricKey.duplicated_lines_density,
   MetricKey.ncloc,
   MetricKey.coverage,
+  MetricKey.alert_status,
 ];
 
 const MEASURES_VARIATIONS_METRICS = [

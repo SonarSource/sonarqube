@@ -40,7 +40,8 @@ import ActivityPanel, { ActivityPanelProps } from '../ActivityPanel';
 
 it('should render correctly', async () => {
   renderActivityPanel();
-  expect(await screen.findByText('event.quality_gate.ERROR')).toBeInTheDocument();
+  expect(await screen.findAllByText('metric.level.ERROR')).toHaveLength(2);
+  expect(screen.getAllByText('metric.level.OK')).toHaveLength(2);
   expect(screen.getByRole('status', { name: 'v1.0' })).toBeInTheDocument();
   expect(screen.getByText(/event.category.OTHER/)).toBeInTheDocument();
   expect(screen.getByText(/event.category.DEFINITION_CHANGE/)).toBeInTheDocument();
@@ -110,6 +111,15 @@ function renderActivityPanel(props: Partial<ActivityPanelProps> = {}) {
         mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: '15.2' }),
         mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: '14.2' }),
         mockHistoryItem({ date: parseDate('2020-10-27T18:33:50+0200'), value: '14.2' }),
+      ],
+    }),
+    mockMeasureHistory({
+      metric: MetricKey.alert_status,
+      history: [
+        mockHistoryItem({ date: parseDate('2018-10-27T10:21:15+0200'), value: 'OK' }),
+        mockHistoryItem({ date: parseDate('2018-10-27T12:21:15+0200'), value: 'ERROR' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T16:33:50+0200'), value: 'ERROR' }),
+        mockHistoryItem({ date: parseDate('2020-10-27T18:33:50+0200'), value: 'OK' }),
       ],
     }),
   ];
