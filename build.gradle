@@ -82,7 +82,11 @@ allprojects {
     // On local box, please add artifactoryUsername and artifactoryPassword to ~/.gradle/gradle.properties
     def artifactoryUsername = System.env.'ARTIFACTORY_PRIVATE_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
     def artifactoryPassword = System.env.'ARTIFACTORY_PRIVATE_PASSWORD' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
-    def artifactoryUrl = System.getenv('ARTIFACTORY_URL')
+    def artifactoryUrl = System.getenv('ARTIFACTORY_URL') ?: (project.hasProperty('artifactoryUrl') ? project.getProperty('artifactoryUrl') : '')
+
+    if (artifactoryUrl == '') {
+      throw new GradleException('Invalid artifactoryUrl')
+    }
 
     maven {
         if (artifactoryUsername && artifactoryPassword) {
