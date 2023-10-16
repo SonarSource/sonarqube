@@ -40,6 +40,7 @@ export const PROJECTS_ALL = 'all';
 export const SORTING_METRICS: SortingOption[] = [
   { value: 'name' },
   { value: 'analysis_date' },
+  { value: 'creation_date' },
   { value: 'reliability' },
   { value: 'security' },
   { value: 'security_review' },
@@ -52,6 +53,7 @@ export const SORTING_METRICS: SortingOption[] = [
 export const SORTING_LEAK_METRICS: SortingOption[] = [
   { value: 'name' },
   { value: 'analysis_date' },
+  { value: 'creation_date' },
   { value: 'new_reliability', class: 'projects-leak-sorting-option' },
   { value: 'new_security', class: 'projects-leak-sorting-option' },
   { value: 'new_security_review', class: 'projects-leak-sorting-option' },
@@ -303,6 +305,7 @@ const propertyToMetricMap: Dict<string | undefined> = {
   tags: 'tags',
   search: 'query',
   qualifier: 'qualifier',
+  creation_date: 'creationDate',
 };
 
 const metricToPropertyMap = invert(propertyToMetricMap);

@@ -72,7 +72,7 @@ export default function NewCodeDefinitionSelection(props: Props) {
     } else {
       navigate({
         pathname: '/projects',
-        search: queryToSearch({ recent: true }),
+        search: queryToSearch({ sort: '-creation_date' }),
       });
     }
   }, [data, projectCount, mutateCount, reset, intl, navigate]);
