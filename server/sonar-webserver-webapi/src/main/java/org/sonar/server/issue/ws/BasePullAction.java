@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -92,7 +93,9 @@ public abstract class BasePullAction implements WsAction {
       .setResponseExample(getClass().getResource(resourceExample))
       .setDescription(format("This endpoint fetches and returns all (unless filtered by optional params) the %s for a given branch. " +
         "The %s returned are not paginated, so the response size can be big. Requires project 'Browse' permission.", issueType, issueType))
-      .setSince(sinceVersion);
+      .setSince(sinceVersion)
+      .setChangelog(new Change("10.3", "The response field 'creationDate' contains the functional issue creation date " +
+        "instead of the database operation date"));
 
     action.createParam(PROJECT_KEY_PARAM)
       .setRequired(true)

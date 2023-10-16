@@ -44,11 +44,14 @@ public class PullHotspotsActionProtobufObjectGenerator implements ProtobufObject
     Hotspots.HotspotLite.Builder builder = Hotspots.HotspotLite.newBuilder()
       .setKey(hotspotDto.getKey())
       .setFilePath(hotspotDto.getFilePath())
-      .setCreationDate(hotspotDto.getCreatedAt())
       .setStatus(hotspotDto.getStatus())
       .setRuleKey(hotspotDto.getRuleKey().toString())
       .setStatus(hotspotDto.getStatus())
       .setVulnerabilityProbability(getVulnerabilityProbability(ruleDto));
+
+    if (hotspotDto.getIssueCreationTime() != null) {
+      builder.setCreationDate(hotspotDto.getIssueCreationTime());
+    }
 
     String resolution = hotspotDto.getResolution();
     if (resolution != null) {

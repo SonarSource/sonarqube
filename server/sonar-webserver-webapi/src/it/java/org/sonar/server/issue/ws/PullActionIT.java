@@ -201,7 +201,7 @@ public class PullActionIT {
     IssueDto issueDto = issueDbTester.insertIssue(rule, p -> p.setSeverity("MINOR")
       .setManualSeverity(true)
       .setMessage("message")
-      .setCreatedAt(NOW)
+      .setIssueCreationTime(NOW)
       .setStatus(Issue.STATUS_RESOLVED)
       .setLocations(mainLocation.build())
       .setType(Common.RuleType.BUG.getNumber()));

@@ -185,7 +185,7 @@ public class PullActionIT {
     IssueDto issueDto = issueDbTester.insertHotspot(p -> p.setSeverity("MINOR")
       .setMessage("message")
       .setAssigneeUuid(assignee.getUuid())
-      .setCreatedAt(NOW)
+      .setIssueCreationTime(NOW)
       .setStatus(Issue.STATUS_TO_REVIEW)
       .setLocations(mainLocation.build()));
 

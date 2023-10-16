@@ -22,6 +22,7 @@ package org.sonar.server.hotspot.ws;
 import java.util.Date;
 import java.util.Set;
 import org.junit.Test;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
@@ -44,6 +45,7 @@ public class PullHotspotsActionProtobufObjectGeneratorTest {
 
   @Test
   public void generateIssueMessage_shouldMapDtoFields() {
+    Date creationDate = new Date();
     IssueDto issueDto = new IssueDto()
       .setKee("key")
       .setFilePath("/home/src/Class.java")
@@ -54,7 +56,7 @@ public class PullHotspotsActionProtobufObjectGeneratorTest {
       .setRuleUuid("rule-uuid-1")
       .setMessage("Look at me, I'm the issue now!")
       .setAssigneeLogin("assignee-login")
-      .setIssueCreationDate(new Date());
+      .setIssueCreationDate(creationDate);
 
     DbIssues.Locations locations = DbIssues.Locations.newBuilder()
       .setTextRange(range(2, 3))
@@ -66,14 +68,16 @@ public class PullHotspotsActionProtobufObjectGeneratorTest {
 
     HotspotLite result = underTest.generateIssueMessage(issueDto, ruleDto);
     assertThat(result).extracting(
-      HotspotLite::getKey,
-      HotspotLite::getFilePath,
-      HotspotLite::getVulnerabilityProbability,
-      HotspotLite::getStatus,
-      HotspotLite::getResolution,
-      HotspotLite::getRuleKey,
-      HotspotLite::getAssignee)
-      .containsExactly("key", "/home/src/Class.java", "LOW", "REVIEWED", "FIXED", "repo:rule", "assignee-login");
+        HotspotLite::getKey,
+        HotspotLite::getFilePath,
+        HotspotLite::getVulnerabilityProbability,
+        HotspotLite::getStatus,
+        HotspotLite::getResolution,
+        HotspotLite::getRuleKey,
+        HotspotLite::getAssignee,
+        HotspotLite::getCreationDate)
+      .containsExactly("key", "/home/src/Class.java", "LOW", "REVIEWED", "FIXED", "repo:rule", "assignee-login",
+        DateUtils.dateToLong(creationDate));
   }
 
   @Test

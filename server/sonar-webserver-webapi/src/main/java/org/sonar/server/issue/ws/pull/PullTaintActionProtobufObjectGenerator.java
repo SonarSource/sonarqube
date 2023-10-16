@@ -89,7 +89,9 @@ public class PullTaintActionProtobufObjectGenerator implements ProtobufObjectGen
       issueDto.getAssigneeUuid().equals(userSession.getUuid()));
 
     taintBuilder.setKey(issueDto.getKey());
-    taintBuilder.setCreationDate(issueDto.getCreatedAt());
+    if (issueDto.getIssueCreationTime() != null) {
+      taintBuilder.setCreationDate(issueDto.getIssueCreationTime());
+    }
     taintBuilder.setResolved(issueDto.getStatus().equals(org.sonar.api.issue.Issue.STATUS_RESOLVED));
     taintBuilder.setRuleKey(issueDto.getRuleKey().toString());
     if (issueDto.getSeverity() != null) {

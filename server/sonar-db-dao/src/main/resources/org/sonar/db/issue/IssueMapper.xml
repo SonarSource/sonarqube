@@ -602,6 +602,7 @@
     i.kee as kee,
     i.rule_uuid as ruleUuid,
     i.created_at as createdAt,
+    i.issue_creation_date as issueCreationTime,
     i.status as status,
     i.resolution as resolution,
     r.rule_type as ruleType,

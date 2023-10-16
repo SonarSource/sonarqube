@@ -233,7 +233,7 @@ public class PullTaintActionIT {
       .setManualSeverity(true)
       .setMessage("message")
       .setMessageFormattings(DbIssues.MessageFormattings.newBuilder().addMessageFormatting(MESSAGE_FORMATTING).build())
-      .setCreatedAt(NOW)
+      .setIssueCreationTime(NOW)
       .setStatus(Issue.STATUS_OPEN)
       .setLocations(mainLocation.build())
       .setType(Common.RuleType.VULNERABILITY.getNumber()));

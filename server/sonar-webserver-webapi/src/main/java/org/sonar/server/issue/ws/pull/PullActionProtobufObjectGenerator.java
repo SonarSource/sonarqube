@@ -59,7 +59,9 @@ public class PullActionProtobufObjectGenerator implements ProtobufObjectGenerato
     Location location = locationBuilder.build();
 
     issueBuilder.setKey(issueDto.getKey());
-    issueBuilder.setCreationDate(issueDto.getCreatedAt());
+    if (issueDto.getIssueCreationTime() != null) {
+      issueBuilder.setCreationDate(issueDto.getIssueCreationTime());
+    }
     issueBuilder.setResolved(issueDto.getStatus().equals(org.sonar.api.issue.Issue.STATUS_RESOLVED));
     issueBuilder.setRuleKey(issueDto.getRuleKey().toString());
     if (issueDto.isManualSeverity() && issueDto.getSeverity() != null) {
