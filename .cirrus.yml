@@ -26,6 +26,10 @@ env:
   BRANCH_NIGHTLY: "branch-nightly-build"
   BRANCH_PATTERN_MAINTENANCE: "branch-.*"
   BRANCH_PATTERN_PUBLIC: "public_.*"
+  GRADLE_ENTERPRISE_USERNAME: VAULT[development/team/sonarqube/kv/data/gradle-enterprise data.username]
+  GRADLE_ENTERPRISE_PASSWORD: VAULT[development/team/sonarqube/kv/data/gradle-enterprise data.password]
+  GRADLE_ENTERPRISE_URL: VAULT[development/team/sonarqube/kv/data/gradle-enterprise data.url]
+  GRADLE_ENTERPRISE_KEY: VAULT[development/team/sonarqube/kv/data/gradle-enterprise data.access-key]
 
 auto_cancellation: $CIRRUS_BRANCH != $BRANCH_MAIN && $CIRRUS_BRANCH !=~ $BRANCH_PATTERN_MAINTENANCE
 
