@@ -88,10 +88,6 @@ function prepareChildren(r: any): Children {
   };
 }
 
-export function showLeakMeasure(branchLike?: BranchLike) {
-  return isPullRequest(branchLike);
-}
-
 function skipRootDir(breadcrumbs: ComponentMeasure[]) {
   return breadcrumbs.filter((component) => {
     return !(component.qualifier === ComponentQualifier.Directory && component.name === '/');
@@ -131,7 +127,7 @@ export function getCodeMetrics(
   if (qualifier === ComponentQualifier.Application) {
     return [...APPLICATION_METRICS];
   }
-  if (showLeakMeasure(branchLike)) {
+  if (isPullRequest(branchLike)) {
     return [...LEAK_METRICS];
   }
   return [...METRICS];

@@ -54,7 +54,7 @@ it.each(
   ].map(Array.of),
 )('should show message for %s', async (metric) => {
   renderSonarLintPromotion({
-    qgConditions: [mockQualityGateStatusCondition({ metric: metric as string })],
+    qgConditions: [mockQualityGateStatusCondition({ metric: metric as MetricKey })],
   });
 
   expect(

@@ -22,14 +22,13 @@ import React from 'react';
 import { theme as twTheme } from 'twin.macro';
 import { BasePlacement, PopupPlacement } from '../helpers/positioning';
 import { themeColor, themeContrast } from '../helpers/theme';
+import { QGStatus } from '../types/quality-gates';
 
 const SIZE = {
   sm: twTheme('spacing.4'),
   md: twTheme('spacing.6'),
   xl: twTheme('spacing.16'),
 };
-
-type QGStatus = 'ERROR' | 'OK' | 'NONE' | 'NOT_COMPUTED';
 
 interface Props {
   ariaLabel?: string;

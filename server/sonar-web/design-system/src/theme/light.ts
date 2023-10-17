@@ -318,6 +318,7 @@ export const lightTheme = {
     linkTooltipDefault: COLORS.indigo[200],
     linkTooltipActive: COLORS.indigo[100],
     linkBorder: COLORS.indigo[300],
+    contentLinkBorder: COLORS.blueGrey[200],
 
     // discreet select
     discreetBorder: secondary.default,
@@ -427,9 +428,13 @@ export const lightTheme = {
     qgIndicatorFailed: COLORS.red[200],
     qgIndicatorNotComputed: COLORS.blueGrey[200],
 
+    // quality gate status card
+    qgCardFailed: COLORS.red[300],
+
     // quality gate texts colors
     qgConditionNotCayc: COLORS.red[600],
     qgConditionCayc: COLORS.green[600],
+    qgCardTitle: COLORS.blueGrey[700],
 
     // main bar
     mainBar: COLORS.white,

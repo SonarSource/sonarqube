@@ -22,7 +22,7 @@ import { screen } from '@testing-library/react';
 import React from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { render } from '../../helpers/testUtils';
-import { DiscreetLink, StandoutLink as Link } from '../Link';
+import { ContentLink, DiscreetLink, StandoutLink as Link } from '../Link';
 
 beforeAll(() => {
   const { location } = window;
@@ -37,7 +37,7 @@ beforeEach(() => {
 // This functionality won't be needed once we update the breadcrumbs
 it('should remove focus after link is clicked', async () => {
   const { user } = setupWithMemoryRouter(
-    <Link blurAfterClick icon={<div>Icon</div>} to="/initial" />
+    <Link blurAfterClick icon={<div>Icon</div>} to="/initial" />,
   );
 
   await user.click(screen.getByRole('link'));
@@ -63,7 +63,7 @@ it('should stop propagation when stopPropagation is true', async () => {
   const { user } = setupWithMemoryRouter(
     <button onClick={buttonOnClick} type="button">
       <Link stopPropagation to="/second" />
-    </button>
+    </button>,
   );
 
   await user.click(screen.getByRole('link'));
@@ -73,9 +73,7 @@ it('should stop propagation when stopPropagation is true', async () => {
 
 it('should call onClick when one is passed', async () => {
   const onClick = jest.fn();
-  const { user } = setupWithMemoryRouter(
-    <Link onClick={onClick} stopPropagation to="/second" />
-  );
+  const { user } = setupWithMemoryRouter(<Link onClick={onClick} stopPropagation to="/second" />);
 
   await user.click(screen.getByRole('link'));
 
@@ -98,8 +96,11 @@ it('external links are indicated by OpenNewTabIcon', () => {
   expect(screen.getByRole('img', { hidden: true })).toBeInTheDocument();
 });
 
-it('discreet links also can be external indicated by the OpenNewTabIcon', () => {
-  setupWithMemoryRouter(<DiscreetLink to="https://google.com">external link</DiscreetLink>);
+it.each([
+  ['discreet', DiscreetLink],
+  ['content', ContentLink],
+])('%s links also can be external indicated by the OpenNewTabIcon', (_, LinkComponent) => {
+  setupWithMemoryRouter(<LinkComponent to="https://google.com">external link</LinkComponent>);
   expect(screen.getByRole('link')).toBeVisible();
 
   expect(screen.getByRole('img', { hidden: true })).toBeInTheDocument();
@@ -125,6 +126,6 @@ const setupWithMemoryRouter = (component: JSX.Element, initialEntries = ['/initi
         />
         <Route element={<ShowPath />} path="/second" />
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 };

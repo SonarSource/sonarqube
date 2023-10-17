@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { MetricKey } from '../../types/metrics';
 import {
   QualityGateApplicationStatus,
   QualityGateProjectStatus,
@@ -70,7 +71,7 @@ export function mockQualityGateStatusCondition(
     actual: '10',
     error: '0',
     level: 'ERROR',
-    metric: 'foo',
+    metric: MetricKey.bugs,
     op: 'GT',
     ...overrides,
   };
@@ -83,7 +84,7 @@ export function mockQualityGateStatusConditionEnhanced(
     actual: '10',
     error: '0',
     level: 'ERROR',
-    metric: 'foo',
+    metric: MetricKey.bugs,
     op: 'GT',
     measure: mockMeasureEnhanced({ ...(overrides.measure || {}) }),
     ...overrides,

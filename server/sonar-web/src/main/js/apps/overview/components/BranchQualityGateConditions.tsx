@@ -31,7 +31,7 @@ import {
 } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
-import { MetricKey, MetricType } from '../../../types/metrics';
+import { MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component } from '../../../types/types';
 import {
@@ -50,7 +50,7 @@ export default function BranchQualityGateConditions(props: Readonly<Props>) {
   const { branchLike, component, failedConditions } = props;
 
   const filteredFailedConditions = failedConditions.filter(
-    (condition) => !METRICS_REPORTED_IN_OVERVIEW_CARDS.includes(condition.metric as MetricKey),
+    (condition) => !METRICS_REPORTED_IN_OVERVIEW_CARDS.includes(condition.metric),
   );
 
   return (

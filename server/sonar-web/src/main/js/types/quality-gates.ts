@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { BranchLike } from './branch-like';
+import { MetricKey } from './metrics';
 import { CaycStatus, MeasureEnhanced, Metric, Status } from './types';
 import { UserBase } from './users';
 
@@ -76,7 +77,7 @@ export interface QualityGateStatusCondition {
   actual?: string;
   error?: string;
   level: Status;
-  metric: string;
+  metric: MetricKey;
   op: string;
   period?: number;
   warning?: string;

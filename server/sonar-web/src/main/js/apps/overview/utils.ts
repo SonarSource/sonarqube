@@ -86,6 +86,7 @@ export const PR_METRICS: string[] = [
   MetricKey.new_coverage,
   MetricKey.new_lines_to_cover,
 
+  MetricKey.new_violations,
   MetricKey.duplicated_lines_density,
   MetricKey.new_duplicated_lines_density,
   MetricKey.new_lines,

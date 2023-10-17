@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { MetricKey } from '../types/metrics';
 import {
   QualityGateApplicationStatusChildProject,
   QualityGateProjectStatus,
@@ -32,7 +33,7 @@ export function extractStatusConditionsFromProjectStatus(
         actual: c.actualValue,
         error: c.errorThreshold,
         level: c.status,
-        metric: c.metricKey,
+        metric: c.metricKey as MetricKey,
         op: c.comparator,
         period: c.periodIndex,
       }))
@@ -48,7 +49,7 @@ export function extractStatusConditionsFromApplicationStatusChildProject(
         actual: c.value,
         error: c.errorThreshold,
         level: c.status,
-        metric: c.metric,
+        metric: c.metric as MetricKey,
         op: c.comparator,
         period: c.periodIndex,
       }))

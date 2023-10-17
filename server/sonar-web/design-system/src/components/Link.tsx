@@ -204,6 +204,12 @@ export const DiscreetLink = styled(HoverLink)`
 `;
 DiscreetLink.displayName = 'DiscreetLink';
 
+export const ContentLink = styled(HoverLink)`
+  --color: ${themeColor('pageContent')};
+  --border: ${themeBorder('default', 'contentLinkBorder')};
+`;
+ContentLink.displayName = 'ContentLink';
+
 export const StandoutLink = styled(StyledBaseLink)`
   ${tw`sw-font-semibold`}
   ${tw`sw-no-underline`}
