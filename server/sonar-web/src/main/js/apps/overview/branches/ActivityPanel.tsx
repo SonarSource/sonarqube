@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { BasicSeparator, Card, PageTitle, Spinner } from 'design-system';
 import * as React from 'react';
 import GraphsHeader from '../../../components/activity-graph/GraphsHeader';
@@ -113,8 +114,10 @@ export function ActivityPanel(props: ActivityPanelProps) {
   return (
     <div className="sw-mt-8">
       <PageTitle as="h2" text={translate('overview.activity')} />
+
       <Card className="overview-panel sw-mt-4" data-test="overview__activity-panel">
         <GraphsHeader graph={graph} metrics={metrics} onUpdateGraph={props.onGraphChange} />
+
         <GraphsHistory
           analyses={[]}
           ariaLabel={translateWithParameters(
@@ -129,12 +132,9 @@ export function ActivityPanel(props: ActivityPanelProps) {
           measuresHistory={measuresHistory}
           series={series}
         />
-        <BasicSeparator />
-        <div className="sw-flex sw-justify-end sw-pt-3">
-          <ActivityLink branchLike={branchLike} component={component.key} graph={graph} />
-        </div>
-      </Card>
-      <Card className="sw-mt-4" data-test="overview__activity-analyses">
+
+        <BasicSeparator className="sw-mb-4 sw-mt-16" />
+
         <Spinner loading={loading}>
           {displayedAnalyses.length === 0 ? (
             <p>{translate('no_results')}</p>
@@ -148,11 +148,18 @@ export function ActivityPanel(props: ActivityPanelProps) {
                   qualityGateStatus={qualityGateStatuses?.[index]?.value}
                   variations={analysisVariations[index]}
                 />
+
                 {index !== displayedAnalyses.length - 1 && <BasicSeparator className="sw-my-3" />}
               </div>
             ))
           )}
         </Spinner>
+
+        <BasicSeparator className="sw-mt-4" />
+
+        <div className="sw-flex sw-justify-center sw-pt-3">
+          <ActivityLink branchLike={branchLike} component={component.key} graph={graph} />
+        </div>
       </Card>
     </div>
   );
