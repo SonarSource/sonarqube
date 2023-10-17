@@ -52,6 +52,7 @@ const ui = {
   project3Checkbox: byRole('listitem', { name: 'Github repo 3' }).byRole('checkbox'),
   checkAll: byRole('checkbox', { name: 'onboarding.create_project.select_all_repositories' }),
   importButton: byRole('button', { name: 'onboarding.create_project.import' }),
+  backButton: byRole('button', { name: 'back' }),
   newCodeTitle: byRole('heading', {
     name: 'onboarding.create_x_project.new_code_definition.title1',
   }),
@@ -215,8 +216,20 @@ it('should import several projects', async () => {
   expect(ui.changePeriodLaterInfo.get()).toBeInTheDocument();
   expect(ui.createProjectsButton.get()).toBeDisabled();
 
+  await user.click(ui.backButton.get());
+  expect(ui.project1Checkbox.get()).toBeChecked();
+  expect(ui.project2Checkbox.get()).toBeChecked();
+  expect(ui.project3Checkbox.get()).not.toBeChecked();
+  expect(ui.importButton.get()).toBeInTheDocument();
+  await user.click(ui.importButton.get());
+
+  expect(await ui.newCodeMultipleProjectTitle.find()).toBeInTheDocument();
+
   await user.click(ui.globalSettingRadio.get());
   expect(ui.createProjectsButton.get()).toBeEnabled();
+  await user.click(ui.createProjectsButton.get());
+
+  expect(await screen.findByText('/projects?sort=-creation_date')).toBeInTheDocument();
 });
 
 it('should show search filter when the authentication is successful', async () => {
