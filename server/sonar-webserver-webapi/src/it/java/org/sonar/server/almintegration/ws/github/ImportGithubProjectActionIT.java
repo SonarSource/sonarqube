@@ -31,6 +31,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.auth.github.GitHubSettings;
+import org.sonar.auth.github.GithubPermissionConverter;
 import org.sonar.core.i18n.I18n;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -129,8 +130,10 @@ public class ImportGithubProjectActionIT {
   private final NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
 
   private final ManagedProjectService managedProjectService = mock(ManagedProjectService.class);
+
+  private final GithubPermissionConverter githubPermissionConverter = new GithubPermissionConverter();
   private final GitHubDevOpsPlatformService gitHubDevOpsPlatformService = new GitHubDevOpsPlatformService(db.getDbClient(),
-    null, appClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings);
+    null, appClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings, githubPermissionConverter);
   private final WsActionTester ws = new WsActionTester(new ImportGithubProjectAction(db.getDbClient(), managedProjectService, userSession,
     componentUpdater, importHelper, newCodeDefinitionResolver, defaultBranchNameResolver, gitHubDevOpsPlatformService));
 

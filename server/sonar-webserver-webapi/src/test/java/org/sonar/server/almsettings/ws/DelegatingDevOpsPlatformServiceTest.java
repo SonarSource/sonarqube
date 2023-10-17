@@ -31,6 +31,7 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -86,6 +87,26 @@ public class DelegatingDevOpsPlatformServiceTest {
       .usingRecursiveComparison().isEqualTo(new AlmSettingDto().setAlm(ALM.GITHUB));
   }
 
+  @Test
+  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenNoDelegates_shouldThrow() {
+    DevOpsProjectDescriptor devOpsProjectDescriptor = mock();
+    when(devOpsProjectDescriptor.alm()).thenReturn(ALM.GITHUB);
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> NO_DEVOPS_PLATFORMS.isScanAllowedUsingPermissionsFromDevopsPlatform(mock(), devOpsProjectDescriptor))
+      .withMessage("No delegate found to handle projects on GITHUB");
+  }
+
+  @Test
+  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenDelegates_shouldReturnDelegateResponse() {
+    DevOpsProjectDescriptor devOpsProjectDescriptor = mock();
+    when(devOpsProjectDescriptor.alm()).thenReturn(ALM.GITHUB);
+
+    boolean isScanAllowed = MULTIPLE_DEVOPS_PLATFORMS.isScanAllowedUsingPermissionsFromDevopsPlatform(mock(), devOpsProjectDescriptor);
+
+    assertThat(isScanAllowed).isTrue();
+  }
+
   private static DevOpsPlatformService mockGitHubDevOpsPlatformService() {
     DevOpsPlatformService mockDevOpsPlatformService = mock();
     when(mockDevOpsPlatformService.getDevOpsPlatform()).thenReturn(ALM.GITHUB);
@@ -93,6 +114,7 @@ public class DelegatingDevOpsPlatformServiceTest {
       .thenReturn(Optional.of(new DevOpsProjectDescriptor(ALM.GITHUB, "githubUrl", "githubRepo")));
     when(mockDevOpsPlatformService.getValidAlmSettingDto(any(), any()))
       .thenReturn(Optional.of(new AlmSettingDto().setAlm(ALM.GITHUB)));
+    when(mockDevOpsPlatformService.isScanAllowedUsingPermissionsFromDevopsPlatform(any(), any())).thenReturn(true);
     return mockDevOpsPlatformService;
   }
 

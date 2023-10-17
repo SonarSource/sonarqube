@@ -60,6 +60,13 @@ public class DelegatingDevOpsPlatformService implements DevOpsPlatformService {
   }
 
   @Override
+  public boolean isScanAllowedUsingPermissionsFromDevopsPlatform(AlmSettingDto almSettingDto, DevOpsProjectDescriptor devOpsProjectDescriptor) {
+    return findDelegate(devOpsProjectDescriptor.alm())
+      .map(delegate -> delegate.isScanAllowedUsingPermissionsFromDevopsPlatform(almSettingDto, devOpsProjectDescriptor))
+      .orElseThrow(() -> new IllegalStateException("No delegate found to handle projects on " + devOpsProjectDescriptor.alm()));
+  }
+
+  @Override
   public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, String projectKey, AlmSettingDto almSettingDto,
     DevOpsProjectDescriptor devOpsProjectDescriptor) {
     return findDelegate(almSettingDto.getAlm())

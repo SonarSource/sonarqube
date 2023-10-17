@@ -19,9 +19,11 @@
  */
 package org.sonar.server.almsettings.ws;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,11 +37,16 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.alm.client.github.AppInstallationToken;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
+import org.sonar.alm.client.github.api.GsonRepositoryCollaborator;
+import org.sonar.alm.client.github.api.GsonRepositoryTeam;
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.web.UserRole;
 import org.sonar.auth.github.GitHubSettings;
+import org.sonar.auth.github.GithubPermissionConverter;
+import org.sonar.auth.github.GsonRepositoryPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
@@ -48,6 +55,8 @@ import org.sonar.db.alm.setting.ProjectAlmSettingDao;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.provisioning.GithubPermissionsMappingDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentCreationParameters;
@@ -58,6 +67,7 @@ import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
@@ -84,6 +94,7 @@ public class GitHubDevOpsPlatformServiceTest {
   private static final String ORGANIZATION_NAME = "orgname";
   private static final String GITHUB_REPO_FULL_NAME = ORGANIZATION_NAME + "/" + PROJECT_NAME;
   private static final String GITHUB_API_URL = "https://api.toto.com";
+  private static final DevOpsProjectDescriptor DEV_OPS_PROJECT_DESCRIPTOR = new DevOpsProjectDescriptor(ALM.GITHUB, GITHUB_API_URL, GITHUB_REPO_FULL_NAME);
 
   @Mock
   private DbSession dbSession;
@@ -108,6 +119,9 @@ public class GitHubDevOpsPlatformServiceTest {
 
   @Mock
   private GitHubSettings gitHubSettings;
+
+  @Mock
+  private GithubPermissionConverter githubPermissionConverter;
 
   @InjectMocks
   private GitHubDevOpsPlatformService gitHubDevOpsPlatformService;
@@ -179,23 +193,20 @@ public class GitHubDevOpsPlatformServiceTest {
 
   @Test
   public void createProjectAndBindToDevOpsPlatform_whenRepoNotFound_throws() {
-    DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, GITHUB_API_URL, GITHUB_REPO_FULL_NAME);
 
-    AlmSettingDto almSettingDto = mockAlmSettingDto(devOpsProjectDescriptor);
+    AlmSettingDto almSettingDto = mockAlmSettingDto();
     GithubAppConfiguration githubAppConfiguration = mockGitHubAppConfiguration(almSettingDto);
     when(githubApplicationClient.getInstallationId(githubAppConfiguration, GITHUB_REPO_FULL_NAME)).thenReturn(Optional.empty());
 
     assertThatIllegalStateException().isThrownBy(
-        () -> gitHubDevOpsPlatformService.createProjectAndBindToDevOpsPlatform(dbSession, PROJECT_KEY, almSettingDto, devOpsProjectDescriptor))
+        () -> gitHubDevOpsPlatformService.createProjectAndBindToDevOpsPlatform(dbSession, PROJECT_KEY, almSettingDto, DEV_OPS_PROJECT_DESCRIPTOR))
       .withMessage("Impossible to find the repository orgname/projectName on GitHub, using the devops config devops-platform-config-1.");
   }
 
   @Test
   public void createProjectAndBindToDevOpsPlatform_whenRepoFoundOnGitHub_successfullyCreatesProject() {
     // given
-    DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, GITHUB_API_URL, GITHUB_REPO_FULL_NAME);
-
-    AlmSettingDto almSettingDto = mockAlmSettingDto(devOpsProjectDescriptor);
+    AlmSettingDto almSettingDto = mockAlmSettingDto();
     mockExistingGitHubRepository(almSettingDto);
 
     ComponentCreationData componentCreationData = mockProjectCreation();
@@ -204,7 +215,7 @@ public class GitHubDevOpsPlatformServiceTest {
 
     // when
     ComponentCreationData actualComponentCreationData = gitHubDevOpsPlatformService.createProjectAndBindToDevOpsPlatform(dbSession, PROJECT_KEY, almSettingDto,
-      devOpsProjectDescriptor);
+      DEV_OPS_PROJECT_DESCRIPTOR);
 
     // then
     assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
@@ -224,11 +235,10 @@ public class GitHubDevOpsPlatformServiceTest {
   @Test
   public void createProjectAndBindToDevOpsPlatform_whenRepoFoundOnGitHubAndAutoProvisioningOn_successfullyCreatesProject() {
     // given
-    DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, GITHUB_API_URL, GITHUB_REPO_FULL_NAME);
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
     when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
 
-    AlmSettingDto almSettingDto = mockAlmSettingDto(devOpsProjectDescriptor);
+    AlmSettingDto almSettingDto = mockAlmSettingDto();
     mockExistingGitHubRepository(almSettingDto);
 
     ComponentCreationData componentCreationData = mockProjectCreation();
@@ -237,7 +247,7 @@ public class GitHubDevOpsPlatformServiceTest {
 
     // when
     ComponentCreationData actualComponentCreationData = gitHubDevOpsPlatformService.createProjectAndBindToDevOpsPlatform(dbSession, PROJECT_KEY, almSettingDto,
-      devOpsProjectDescriptor);
+      DEV_OPS_PROJECT_DESCRIPTOR);
 
     // then
     assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
@@ -256,15 +266,208 @@ public class GitHubDevOpsPlatformServiceTest {
 
   @Test
   public void createProjectAndBindToDevOpsPlatform_whenWrongToken_throws() {
-    DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, GITHUB_API_URL, GITHUB_REPO_FULL_NAME);
-    AlmSettingDto almSettingDto = mockAlmSettingDto(devOpsProjectDescriptor);
+    AlmSettingDto almSettingDto = mockAlmSettingDto();
     mockExistingGitHubRepository(almSettingDto);
 
     when(githubApplicationClient.createAppInstallationToken(any(), anyLong())).thenReturn(Optional.empty());
 
     assertThatIllegalStateException().isThrownBy(
-        () -> gitHubDevOpsPlatformService.createProjectAndBindToDevOpsPlatform(dbSession, PROJECT_KEY, almSettingDto, devOpsProjectDescriptor))
+        () -> gitHubDevOpsPlatformService.createProjectAndBindToDevOpsPlatform(dbSession, PROJECT_KEY, almSettingDto, DEV_OPS_PROJECT_DESCRIPTOR))
       .withMessage("Error while generating token for GitHub Api Url https://api.toto.com (installation id: 534534534543)");
+  }
+
+  @Test
+  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenUserIsCollaboratorWithScan_returnsTrue() {
+    // given
+    AlmSettingDto almSettingDto = mockAlmSettingDto();
+
+    GsonRepositoryCollaborator collaborator1 = mockCollaborator("collaborator1", 1, "role1");
+    GsonRepositoryCollaborator collaborator2 = mockCollaborator("collaborator2", 2, "role2");
+    mockGithubCollaboratorsFromApi(almSettingDto, collaborator1, collaborator2);
+    bindSessionToCollaborator(collaborator2);
+
+    mockPermissionsConversion(collaborator2, "another_perm", UserRole.SCAN);
+
+    // when
+    boolean isGranted = gitHubDevOpsPlatformService.isScanAllowedUsingPermissionsFromDevopsPlatform(almSettingDto, DEV_OPS_PROJECT_DESCRIPTOR);
+
+    // then
+    assertThat(isGranted).isTrue();
+  }
+
+  @Test
+  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenUserIsCollaboratorButWithoutScan_returnsFalse() {
+    // given
+    AlmSettingDto almSettingDto = mockAlmSettingDto();
+
+    GsonRepositoryCollaborator collaborator1 = mockCollaborator("collaborator1", 1, "role1");
+    mockGithubCollaboratorsFromApi(almSettingDto, collaborator1);
+    bindSessionToCollaborator(collaborator1);
+
+    mockPermissionsConversion(collaborator1, "admin");
+
+    // when
+    boolean isGranted = gitHubDevOpsPlatformService.isScanAllowedUsingPermissionsFromDevopsPlatform(almSettingDto, DEV_OPS_PROJECT_DESCRIPTOR);
+
+    // then
+    assertThat(isGranted).isFalse();
+  }
+
+  @Test
+  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenRepoFoundOnGitHubAndUserIsCollaboratorButWithoutScan_returnsFalse() {
+    // given
+    AlmSettingDto almSettingDto = mockAlmSettingDto();
+
+    GsonRepositoryCollaborator collaborator1 = mockCollaborator("collaborator1", 1, "role1");
+    mockGithubCollaboratorsFromApi(almSettingDto, collaborator1);
+    bindSessionToCollaborator(collaborator1);
+
+    mockPermissionsConversion(collaborator1, "admin");
+
+    // when
+    boolean isGranted = gitHubDevOpsPlatformService.isScanAllowedUsingPermissionsFromDevopsPlatform(almSettingDto, DEV_OPS_PROJECT_DESCRIPTOR);
+
+    // then
+    assertThat(isGranted).isFalse();
+  }
+
+  @Test
+  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenRepoFoundOnGitHubAndUserIsNotExternal_returnsFalse() {
+    // given
+    AlmSettingDto almSettingDto = mockAlmSettingDto();
+
+    GsonRepositoryCollaborator collaborator1 = mockCollaborator("collaborator1", 1, "role1");
+    mockGithubCollaboratorsFromApi(almSettingDto, collaborator1);
+    mockPermissionsConversion(collaborator1, "admin");
+
+    // when
+    boolean isGranted = gitHubDevOpsPlatformService.isScanAllowedUsingPermissionsFromDevopsPlatform(almSettingDto, DEV_OPS_PROJECT_DESCRIPTOR);
+
+    // then
+    assertThat(isGranted).isFalse();
+  }
+
+  private void mockPermissionsConversion(GsonRepositoryCollaborator collaborator, String... sqPermissions) {
+    Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos = mockPermissionsMappingsDtos();
+    when(githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(githubPermissionsMappingDtos, collaborator.roleName(), collaborator.permissions()))
+      .thenReturn(Arrays.stream(sqPermissions).collect(toSet()));
+  }
+
+  private void bindSessionToCollaborator(GsonRepositoryCollaborator collaborator1) {
+    UserSession.ExternalIdentity externalIdentity = new UserSession.ExternalIdentity(String.valueOf(collaborator1.id()), collaborator1.name());
+    when(userSession.getExternalIdentity()).thenReturn(Optional.of(externalIdentity));
+  }
+
+  private static GsonRepositoryCollaborator mockCollaborator(String collaborator1, int id, String role1) {
+    return new GsonRepositoryCollaborator(collaborator1, id, role1,
+      new GsonRepositoryPermissions(false, false, false, false, false));
+  }
+
+  private void mockGithubCollaboratorsFromApi(AlmSettingDto almSettingDto, GsonRepositoryCollaborator... repositoryCollaborators) {
+    GithubAppConfiguration githubAppConfiguration = mockGitHubAppConfiguration(almSettingDto);
+    when(githubApplicationClient.getInstallationId(githubAppConfiguration, GITHUB_REPO_FULL_NAME)).thenReturn(Optional.of(APP_INSTALLATION_ID));
+    AppInstallationToken appInstallationToken = mockAppInstallationToken(githubAppConfiguration, APP_INSTALLATION_ID);
+    when(githubApplicationClient.getRepositoryCollaborators(GITHUB_API_URL, appInstallationToken, ORGANIZATION_NAME, PROJECT_NAME))
+      .thenReturn(Arrays.stream(repositoryCollaborators).collect(toSet()));
+  }
+
+  @Test
+  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenInstallationIdNotFound_throws() {
+    // given
+    AlmSettingDto almSettingDto = mockAlmSettingDto();
+
+    when(githubApplicationClient.getInstallationId(any(), any())).thenReturn(Optional.empty());
+
+    // when
+    assertThatIllegalStateException()
+      .isThrownBy(() -> gitHubDevOpsPlatformService.isScanAllowedUsingPermissionsFromDevopsPlatform(almSettingDto, DEV_OPS_PROJECT_DESCRIPTOR))
+        .withMessage("Impossible to find the repository orgname/projectName on GitHub, using the devops config devops-platform-config-1.");
+  }
+
+  @Test
+  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenUserIsMemberOfAGroupWithScan_returnsTrue() {
+    // given
+    AlmSettingDto almSettingDto = mockAlmSettingDto();
+
+    GsonRepositoryTeam team1 = mockGithubTeam("team1", 1, "role1");
+    GsonRepositoryTeam team2 = mockGithubTeam("team2", 2, "role2");
+    mockTeamsFromApi(almSettingDto, team1, team2);
+    bindGroupsToUser(team1.name(), team2.name());
+
+    mockPermissionsConversion(team1, "another_perm", UserRole.SCAN);
+
+    // when
+    boolean isGranted = gitHubDevOpsPlatformService.isScanAllowedUsingPermissionsFromDevopsPlatform(almSettingDto, DEV_OPS_PROJECT_DESCRIPTOR);
+
+    // then
+    assertThat(isGranted).isTrue();
+  }
+
+  @Test
+  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenUserIsMemberOfAGroupWithoutScanPermission_returnsFalse() {
+    // given
+    AlmSettingDto almSettingDto = mockAlmSettingDto();
+
+    GsonRepositoryTeam team1 = mockGithubTeam("team1", 1, "role1");
+    mockTeamsFromApi(almSettingDto, team1);
+    bindGroupsToUser(team1.name(), "another_local_team");
+
+    mockPermissionsConversion(team1, "another_perm", "admin");
+
+    // when
+    boolean isGranted = gitHubDevOpsPlatformService.isScanAllowedUsingPermissionsFromDevopsPlatform(almSettingDto, DEV_OPS_PROJECT_DESCRIPTOR);
+
+    // then
+    assertThat(isGranted).isFalse();
+  }
+
+  @Test
+  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenUserIsNotMemberOfAGroupWithScanPermission_returnsFalse() {
+    // given
+    AlmSettingDto almSettingDto = mockAlmSettingDto();
+
+    GsonRepositoryTeam team1 = mockGithubTeam("team1", 1, "role1");
+    mockTeamsFromApi(almSettingDto, team1);
+    bindGroupsToUser("another_local_team");
+
+    mockPermissionsConversion(team1, "another_perm", UserRole.SCAN);
+
+    // when
+    boolean isGranted = gitHubDevOpsPlatformService.isScanAllowedUsingPermissionsFromDevopsPlatform(almSettingDto, DEV_OPS_PROJECT_DESCRIPTOR);
+
+    // then
+    assertThat(isGranted).isFalse();
+  }
+
+  private void bindGroupsToUser(String... groupNames) {
+    Set<GroupDto> groupDtos = Arrays.stream(groupNames)
+      .map(groupName -> new GroupDto().setName(ORGANIZATION_NAME + "/" + groupName).setUuid("uuid_" + groupName))
+      .collect(toSet());
+    when(userSession.getGroups()).thenReturn(groupDtos);
+  }
+
+  private static GsonRepositoryTeam mockGithubTeam(String name, int id, String role) {
+    return new GsonRepositoryTeam(name, id, name + "slug", role, new GsonRepositoryPermissions(false, false, false, false, false));
+  }
+
+  private void mockTeamsFromApi(AlmSettingDto almSettingDto, GsonRepositoryTeam... repositoryTeams) {
+    GithubAppConfiguration githubAppConfiguration = mockGitHubAppConfiguration(almSettingDto);
+    when(githubApplicationClient.getInstallationId(githubAppConfiguration, GITHUB_REPO_FULL_NAME)).thenReturn(Optional.of(APP_INSTALLATION_ID));
+    AppInstallationToken appInstallationToken = mockAppInstallationToken(githubAppConfiguration, APP_INSTALLATION_ID);
+    when(githubApplicationClient.getRepositoryTeams(GITHUB_API_URL, appInstallationToken, ORGANIZATION_NAME, PROJECT_NAME))
+      .thenReturn(Arrays.stream(repositoryTeams).collect(toSet()));
+  }
+
+  private void mockPermissionsConversion(GsonRepositoryTeam team, String... sqPermissions) {
+    Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos = mockPermissionsMappingsDtos();
+    when(githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(githubPermissionsMappingDtos, team.permission(), team.permissions()))
+      .thenReturn(Arrays.stream(sqPermissions).collect(toSet()));
+  }
+
+  private Set<GithubPermissionsMappingDto> mockPermissionsMappingsDtos() {
+    Set<GithubPermissionsMappingDto> githubPermissionsMappingDtos = Set.of(mock(GithubPermissionsMappingDto.class));
+    when(dbClient.githubPermissionsMappingDao().findAll(any())).thenReturn(githubPermissionsMappingDtos);
+    return githubPermissionsMappingDtos;
   }
 
   private void mockExistingGitHubRepository(AlmSettingDto almSettingDto) {
@@ -296,7 +499,7 @@ public class GitHubDevOpsPlatformServiceTest {
     return appInstallationToken;
   }
 
-  private static AlmSettingDto mockAlmSettingDto(DevOpsProjectDescriptor devOpsProjectDescriptor) {
+  private static AlmSettingDto mockAlmSettingDto() {
     AlmSettingDto almSettingDto = mock();
     when(almSettingDto.getUuid()).thenReturn("almsetting-uuid-1");
     when(almSettingDto.getKey()).thenReturn("devops-platform-config-1");

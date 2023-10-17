@@ -76,6 +76,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.IntStream.rangeClosed;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -123,7 +124,7 @@ public class ReportSubmitterIT {
 
   private final DevOpsPlatformService devOpsPlatformService = new DelegatingDevOpsPlatformService(
     Set.of(new GitHubDevOpsPlatformService(db.getDbClient(), githubGlobalSettingsValidator,
-      githubApplicationClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings)));
+      githubApplicationClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings, null)));
 
   private final DevOpsPlatformService devOpsPlatformServiceSpy = spy(devOpsPlatformService);
 
@@ -275,7 +276,7 @@ public class ReportSubmitterIT {
   }
 
   @Test
-  public void submit_whenReportIsForANewProjectWithoutValidAlmSettings_createsProjectWithoutDevOpsBinding() {
+  public void submit_whenReportIsForANewGithubProjectWithoutValidAlmSettings_throws() {
     userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
     mockSuccessfulPrepareSubmitCall();
@@ -284,13 +285,18 @@ public class ReportSubmitterIT {
     DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo");
     when(devOpsPlatformServiceSpy.getDevOpsProjectDescriptor(characteristics)).thenReturn(Optional.of(projectDescriptor));
 
-    underTest.submit(PROJECT_KEY, PROJECT_NAME, characteristics, IOUtils.toInputStream("{binary}", UTF_8));
+    assertThatIllegalArgumentException().isThrownBy(() -> underTest.submit(PROJECT_KEY, PROJECT_NAME, characteristics, IOUtils.toInputStream("{binary}", UTF_8)))
+      .withMessage("The project orga/repo could not be created. It was auto-detected as a GITHUB project and no valid DevOps platform configuration were found to access apiUrl");
 
-    assertLocalProjectWasCreated();
+    assertNoProjectWasCreated();
+  }
+
+  private void assertNoProjectWasCreated() {
+    assertThat(db.getDbClient().projectDao().selectAll(db.getSession())).isEmpty();
   }
 
   @Test
-  public void submit_whenReportIsForANewProjectWithValidAlmSettingsButAutoProvisioningOn_createsLocalProject() {
+  public void submit_whenReportIsForANewProjectWithValidAlmSettingsAutoProvisioningOnAndPermOnGh_createsProjectWithBinding() {
     userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
     when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
@@ -299,10 +305,42 @@ public class ReportSubmitterIT {
     Map<String, String> characteristics = Map.of("random", "data");
     DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo");
 
-    mockInteractionsWithDevOpsPlatformServiceSpyBeforeProjectCreation(characteristics, projectDescriptor);
+    AlmSettingDto almSettingDto = mockInteractionsWithDevOpsPlatformServiceSpyBeforeProjectCreation(characteristics, projectDescriptor);
+    when(devOpsPlatformServiceSpy.isScanAllowedUsingPermissionsFromDevopsPlatform(almSettingDto, projectDescriptor)).thenReturn(true);
 
     underTest.submit(PROJECT_KEY, PROJECT_NAME, characteristics, IOUtils.toInputStream("{binary}", UTF_8));
 
+    assertProjectWasCreatedWithBinding();
+  }
+
+  @Test
+  public void submit_whenReportIsForANewProjectWithProjectDescriptorAndNoValidAlmSettingsAndAutoProvisioningOn_throws() {
+    userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
+    mockSuccessfulPrepareSubmitCall();
+
+    Map<String, String> characteristics = Map.of("random", "data");
+    DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo");
+    doReturn(Optional.of(projectDescriptor)).when(devOpsPlatformServiceSpy).getDevOpsProjectDescriptor(characteristics);
+
+    assertThatIllegalArgumentException()
+      .isThrownBy(() -> underTest.submit(PROJECT_KEY, PROJECT_NAME, characteristics, IOUtils.toInputStream("{binary}", UTF_8)))
+      .withMessage("The project orga/repo could not be created. It was auto-detected as a GITHUB project and no valid DevOps platform configuration were found to access apiUrl");
+
+    assertNoProjectWasCreated();
+  }
+
+  @Test
+  public void submit_whenReportIsForANewProjectWithoutDevOpsMetadataAndAutoProvisioningOn_shouldCreateLocalProject() {
+    userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
+    mockSuccessfulPrepareSubmitCall();
+
+    Map<String, String> characteristics = Map.of("random", "data");
+
+    underTest.submit(PROJECT_KEY, PROJECT_NAME, characteristics, IOUtils.toInputStream("{binary}", UTF_8));
     assertLocalProjectWasCreated();
   }
 
@@ -344,7 +382,7 @@ public class ReportSubmitterIT {
     assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.getUuid())).isPresent();
   }
 
-  private void mockInteractionsWithDevOpsPlatformServiceSpyBeforeProjectCreation(Map<String, String> characteristics, DevOpsProjectDescriptor projectDescriptor) {
+  private AlmSettingDto mockInteractionsWithDevOpsPlatformServiceSpyBeforeProjectCreation(Map<String, String> characteristics, DevOpsProjectDescriptor projectDescriptor) {
     doReturn(Optional.of(projectDescriptor)).when(devOpsPlatformServiceSpy).getDevOpsProjectDescriptor(characteristics);
     AlmSettingDto almSettingDto = mock(AlmSettingDto.class);
     when(almSettingDto.getAlm()).thenReturn(ALM.GITHUB);
@@ -352,6 +390,7 @@ public class ReportSubmitterIT {
     when(almSettingDto.getUuid()).thenReturn("TEST_GH");
     doReturn(Optional.of(almSettingDto)).when(devOpsPlatformServiceSpy).getValidAlmSettingDto(any(), eq(projectDescriptor));
     mockGithubInteractions(almSettingDto);
+    return almSettingDto;
   }
 
   private void mockGithubInteractions(AlmSettingDto almSettingDto) {

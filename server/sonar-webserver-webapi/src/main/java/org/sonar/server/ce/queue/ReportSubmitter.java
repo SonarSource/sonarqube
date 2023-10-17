@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -154,7 +155,7 @@ public class ReportSubmitter {
       // Project key is already used as a module of another project
       ComponentDto anotherBaseProject = dbClient.componentDao().selectOrFailByUuid(dbSession, component.branchUuid());
       errors.add(format("The project '%s' is already defined in SonarQube but as a module of project '%s'. "
-        + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
+                        + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
         rawProjectKey, anotherBaseProject.getKey(), anotherBaseProject.getKey(), rawProjectKey));
     }
     if (!errors.isEmpty()) {
@@ -166,21 +167,47 @@ public class ReportSubmitter {
     DbSession dbSession, BranchSupport.ComponentKey componentKey) {
     userSession.checkPermission(GlobalPermission.PROVISION_PROJECTS);
 
-    boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(dbSession, userSession.getUuid(), projectKey);
-    if (!wouldCurrentUserHaveScanPermission) {
-      throw insufficientPrivilegesException();
-    }
+    DevOpsProjectDescriptor devOpsProjectDescriptor = devOpsPlatformService.getDevOpsProjectDescriptor(characteristics).orElse(null);
+    AlmSettingDto almSettingDto = getAlmSettingDto(dbSession, devOpsProjectDescriptor);
 
-    if (managedInstanceService.isInstanceExternallyManaged()) {
-      return createProject(dbSession, componentKey.getKey(), defaultIfBlank(projectName, projectKey));
-    }
+    throwIfNoValidDevOpsConfigurationFoundForDevOpsProject(devOpsProjectDescriptor, almSettingDto);
+    throwIfCurrentUserWouldNotHaveScanPermission(projectKey, dbSession, devOpsProjectDescriptor, almSettingDto);
 
-    Optional<DevOpsProjectDescriptor> devOpsProjectDescriptor = devOpsPlatformService.getDevOpsProjectDescriptor(characteristics);
-    Optional<AlmSettingDto> almSettingDto = devOpsProjectDescriptor.flatMap(descriptor -> devOpsPlatformService.getValidAlmSettingDto(dbSession, descriptor));
-    if (almSettingDto.isPresent()) {
-      return devOpsPlatformService.createProjectAndBindToDevOpsPlatform(dbSession, projectKey, almSettingDto.get(), devOpsProjectDescriptor.get());
+    if (almSettingDto != null) {
+      return devOpsPlatformService.createProjectAndBindToDevOpsPlatform(dbSession, projectKey, almSettingDto, devOpsProjectDescriptor);
     }
     return createProject(dbSession, componentKey.getKey(), defaultIfBlank(projectName, projectKey));
+  }
+
+  @CheckForNull
+  private AlmSettingDto getAlmSettingDto(DbSession dbSession, @Nullable DevOpsProjectDescriptor devOpsProjectDescriptor) {
+    if (devOpsProjectDescriptor != null) {
+      return devOpsPlatformService.getValidAlmSettingDto(dbSession, devOpsProjectDescriptor).orElse(null);
+    }
+    return null;
+  }
+
+  private static void throwIfNoValidDevOpsConfigurationFoundForDevOpsProject(@Nullable DevOpsProjectDescriptor devOpsProjectDescriptor, @Nullable AlmSettingDto almSettingDto) {
+    if (devOpsProjectDescriptor != null && almSettingDto == null) {
+      throw new IllegalArgumentException(format("The project %s could not be created. It was auto-detected as a %s project "
+                                                + "and no valid DevOps platform configuration were found to access %s",
+        devOpsProjectDescriptor.projectIdentifier(), devOpsProjectDescriptor.alm(), devOpsProjectDescriptor.url()));
+    }
+  }
+
+  private void throwIfCurrentUserWouldNotHaveScanPermission(String projectKey, DbSession dbSession, @Nullable DevOpsProjectDescriptor devOpsProjectDescriptor,
+    @Nullable AlmSettingDto almSettingDto) {
+    if (!wouldCurrentUserHaveScanPermission(projectKey, dbSession, devOpsProjectDescriptor, almSettingDto)) {
+      throw insufficientPrivilegesException();
+    }
+  }
+
+  private boolean wouldCurrentUserHaveScanPermission(String projectKey, DbSession dbSession, @Nullable DevOpsProjectDescriptor devOpsProjectDescriptor,
+    @Nullable AlmSettingDto almSettingDto) {
+    if (managedInstanceService.isInstanceExternallyManaged() && almSettingDto != null && devOpsProjectDescriptor != null) {
+      return devOpsPlatformService.isScanAllowedUsingPermissionsFromDevopsPlatform(almSettingDto, devOpsProjectDescriptor);
+    }
+    return permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(dbSession, userSession.getUuid(), projectKey);
   }
 
   private ComponentCreationData createProject(DbSession dbSession, String projectKey, String projectName) {

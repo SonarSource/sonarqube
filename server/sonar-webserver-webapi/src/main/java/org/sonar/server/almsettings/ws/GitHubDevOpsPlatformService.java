@@ -21,16 +21,23 @@ package org.sonar.server.almsettings.ws;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.github.AppInstallationToken;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
+import org.sonar.alm.client.github.api.GsonRepositoryCollaborator;
+import org.sonar.alm.client.github.api.GsonRepositoryTeam;
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.web.UserRole;
 import org.sonar.auth.github.GitHubSettings;
+import org.sonar.auth.github.GithubPermissionConverter;
+import org.sonar.auth.github.GsonRepositoryPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
@@ -38,6 +45,8 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.provisioning.GithubPermissionsMappingDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentCreationParameters;
@@ -70,10 +79,11 @@ public class GitHubDevOpsPlatformService implements DevOpsPlatformService {
   private final UserSession userSession;
   private final ComponentUpdater componentUpdater;
   private final GitHubSettings gitHubSettings;
+  private final GithubPermissionConverter githubPermissionConverter;
 
   public GitHubDevOpsPlatformService(DbClient dbClient, GithubGlobalSettingsValidator githubGlobalSettingsValidator,
     GithubApplicationClient githubApplicationClient, ProjectDefaultVisibility projectDefaultVisibility, ProjectKeyGenerator projectKeyGenerator, UserSession userSession,
-    ComponentUpdater componentUpdater, GitHubSettings gitHubSettings) {
+    ComponentUpdater componentUpdater, GitHubSettings gitHubSettings, GithubPermissionConverter githubPermissionConverter) {
     this.dbClient = dbClient;
     this.githubGlobalSettingsValidator = githubGlobalSettingsValidator;
     this.githubApplicationClient = githubApplicationClient;
@@ -82,6 +92,7 @@ public class GitHubDevOpsPlatformService implements DevOpsPlatformService {
     this.userSession = userSession;
     this.componentUpdater = componentUpdater;
     this.gitHubSettings = gitHubSettings;
+    this.githubPermissionConverter = githubPermissionConverter;
   }
 
   @Override
@@ -103,7 +114,7 @@ public class GitHubDevOpsPlatformService implements DevOpsPlatformService {
   public Optional<AlmSettingDto> getValidAlmSettingDto(DbSession dbSession, DevOpsProjectDescriptor devOpsProjectDescriptor) {
     Optional<AlmSettingDto> configurationToUse = dbClient.almSettingDao().selectByAlm(dbSession, getDevOpsPlatform()).stream()
       .filter(almSettingDto -> devOpsProjectDescriptor.url().equals(almSettingDto.getUrl()))
-      .filter(almSettingDto -> findInstallationIdToAccessRepo(almSettingDto, devOpsProjectDescriptor.projectIdentifier()).isPresent())
+      .filter(almSettingDto -> findInstallationIdToAccessRepo(devOpsProjectDescriptor, almSettingDto))
       .findFirst();
     if (configurationToUse.isPresent()) {
       LOG.info("DevOps configuration {} auto-detected", configurationToUse.get().getKey());
@@ -114,11 +125,81 @@ public class GitHubDevOpsPlatformService implements DevOpsPlatformService {
     return configurationToUse;
   }
 
+  private boolean findInstallationIdToAccessRepo(DevOpsProjectDescriptor devOpsProjectDescriptor, AlmSettingDto almSettingDto) {
+    GithubAppConfiguration githubAppConfiguration = githubGlobalSettingsValidator.validate(almSettingDto);
+    return findInstallationIdToAccessRepo(almSettingDto, githubAppConfiguration, devOpsProjectDescriptor.projectIdentifier()).isPresent();
+  }
+
+  @Override
+  public boolean isScanAllowedUsingPermissionsFromDevopsPlatform(AlmSettingDto almSettingDto, DevOpsProjectDescriptor devOpsProjectDescriptor) {
+    GithubAppConfiguration githubAppConfiguration = githubGlobalSettingsValidator.validate(almSettingDto);
+    long installationId = findInstallationIdToAccessRepo(almSettingDto, githubAppConfiguration, devOpsProjectDescriptor.projectIdentifier())
+      .orElseThrow(() -> new IllegalStateException(format("Impossible to find the repository %s on GitHub, using the devops config %s.",
+        devOpsProjectDescriptor.projectIdentifier(), almSettingDto.getKey())));
+    return isScanAllowedUsingPermissionsFromGithub(devOpsProjectDescriptor.projectIdentifier(), githubAppConfiguration, installationId);
+  }
+
+  private boolean isScanAllowedUsingPermissionsFromGithub(String organizationAndRepository, GithubAppConfiguration githubAppConfiguration, long installationId) {
+    AppInstallationToken accessToken = generateAppInstallationToken(githubAppConfiguration, installationId);
+
+    String[] orgaAndRepoTokenified = organizationAndRepository.split("/");
+    String organization = orgaAndRepoTokenified[0];
+    String repository = orgaAndRepoTokenified[1];
+
+    Set<GithubPermissionsMappingDto> permissionsMappingDtos = dbClient.githubPermissionsMappingDao().findAll(dbClient.openSession(false));
+
+    boolean userHasDirectAccessToRepo = doesUserHaveScanPermission(githubAppConfiguration.getApiEndpoint(), accessToken, organization, repository, permissionsMappingDtos);
+    if (userHasDirectAccessToRepo) {
+      return true;
+    }
+    return doesUserBelongToAGroupWithScanPermission(githubAppConfiguration.getApiEndpoint(), accessToken, organization, repository, permissionsMappingDtos);
+  }
+
+  private boolean doesUserHaveScanPermission(String apiEndpoint, AppInstallationToken accessToken, String organization, String repository,
+    Set<GithubPermissionsMappingDto> permissionsMappingDtos) {
+    Set<GsonRepositoryCollaborator> repositoryCollaborators = githubApplicationClient.getRepositoryCollaborators(apiEndpoint, accessToken, organization, repository);
+
+    String externalLogin = userSession.getExternalIdentity().map(UserSession.ExternalIdentity::login).orElse(null);
+    if (externalLogin == null) {
+      return false;
+    }
+    return repositoryCollaborators.stream()
+      .filter(gsonRepositoryCollaborator -> externalLogin.equals(gsonRepositoryCollaborator.name()))
+      .findAny()
+      .map(gsonRepositoryCollaborator -> hasScanPermission(permissionsMappingDtos, gsonRepositoryCollaborator.roleName(), gsonRepositoryCollaborator.permissions()))
+      .orElse(false);
+  }
+
+  private boolean doesUserBelongToAGroupWithScanPermission(String apiUrl, AppInstallationToken accessToken, String organization, String repository,
+    Set<GithubPermissionsMappingDto> permissionsMappingDtos) {
+    Set<GsonRepositoryTeam> repositoryTeams = githubApplicationClient.getRepositoryTeams(apiUrl, accessToken, organization, repository);
+
+    Set<String> groupsOfUser = findUserMembershipOnSonarQube(organization);
+    return repositoryTeams.stream()
+      .filter(team -> hasScanPermission(permissionsMappingDtos, team.permission(), team.permissions()))
+      .map(GsonRepositoryTeam::name)
+      .anyMatch(groupsOfUser::contains);
+  }
+
+  private Set<String> findUserMembershipOnSonarQube(String organization) {
+    return userSession.getGroups().stream()
+      .map(GroupDto::getName)
+      .filter(groupName -> groupName.contains("/"))
+      .map(name -> name.replaceFirst(organization + "/", ""))
+      .collect(Collectors.toSet());
+  }
+
+  private boolean hasScanPermission(Set<GithubPermissionsMappingDto> permissionsMappingDtos, String role, GsonRepositoryPermissions permissions) {
+    Set<String> sonarqubePermissions = githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(permissionsMappingDtos,
+      role, permissions);
+    return sonarqubePermissions.contains(UserRole.SCAN);
+  }
+
   @Override
   public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, String projectKey, AlmSettingDto almSettingDto,
     DevOpsProjectDescriptor devOpsProjectDescriptor) {
     GithubAppConfiguration githubAppConfiguration = githubGlobalSettingsValidator.validate(almSettingDto);
-    GithubApplicationClient.Repository repository = findInstallationIdToAccessRepo(almSettingDto, devOpsProjectDescriptor.projectIdentifier())
+    GithubApplicationClient.Repository repository = findInstallationIdToAccessRepo(almSettingDto, githubAppConfiguration, devOpsProjectDescriptor.projectIdentifier())
       .flatMap(installationId -> findRepositoryOnGithub(devOpsProjectDescriptor.projectIdentifier(), githubAppConfiguration, installationId))
       .orElseThrow(() -> new IllegalStateException(format("Impossible to find the repository %s on GitHub, using the devops config %s.",
         devOpsProjectDescriptor.projectIdentifier(), almSettingDto.getKey())));
@@ -126,9 +207,8 @@ public class GitHubDevOpsPlatformService implements DevOpsPlatformService {
     return createProjectAndBindToDevOpsPlatform(dbSession, projectKey, almSettingDto, repository, SCANNER_API_DEVOPS_AUTO_CONFIG);
   }
 
-  private Optional<Long> findInstallationIdToAccessRepo(AlmSettingDto almSettingDto, String repositoryKey) {
+  private Optional<Long> findInstallationIdToAccessRepo(AlmSettingDto almSettingDto, GithubAppConfiguration githubAppConfiguration, String repositoryKey) {
     try {
-      GithubAppConfiguration githubAppConfiguration = githubGlobalSettingsValidator.validate(almSettingDto);
       return githubApplicationClient.getInstallationId(githubAppConfiguration, repositoryKey);
     } catch (Exception exception) {
       LOG.info(format("Could not use DevOps configuration '%s' to access repo %s. Error: %s", almSettingDto.getKey(), repositoryKey, exception.getMessage()));

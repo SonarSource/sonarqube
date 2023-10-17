@@ -35,6 +35,8 @@ public interface DevOpsPlatformService {
 
   Optional<AlmSettingDto> getValidAlmSettingDto(DbSession dbSession, DevOpsProjectDescriptor devOpsProjectDescriptor);
 
+  boolean isScanAllowedUsingPermissionsFromDevopsPlatform(AlmSettingDto almSettingDto, DevOpsProjectDescriptor devOpsProjectDescriptor);
+
   ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, String projectKey, AlmSettingDto almSettingDto, DevOpsProjectDescriptor devOpsProjectDescriptor);
 
   ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, AlmSettingDto almSettingDto, AccessToken accessToken,
