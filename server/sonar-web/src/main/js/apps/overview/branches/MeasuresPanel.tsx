@@ -183,9 +183,10 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
               <FlagMessage className="sw-mb-4" variant="info">
                 <FormattedMessage
                   id="overview.quality_profiles_update_after_sq_upgrade.message"
+                  tagName="span"
                   values={{
                     link: (
-                      <ButtonLink className="sw-ml-1" onClick={scrollToLatestSqUpgradeEvent}>
+                      <ButtonLink onClick={scrollToLatestSqUpgradeEvent}>
                         <FormattedMessage id="overview.quality_profiles_update_after_sq_upgrade.link" />
                       </ButtonLink>
                     ),
