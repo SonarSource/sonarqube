@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, Link, PageContentFontWrapper } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../../components/common/DocLink';
-import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys, GithubBindingDefinition } from '../../../../types/alm-settings';
 import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
@@ -33,9 +33,20 @@ export interface GithubFormProps {
 
 export default function GithubForm(props: GithubFormProps) {
   const { formData, onFieldChange } = props;
-
+  const toStatic = useDocUrl(ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]);
   return (
-    <>
+    <PageContentFontWrapper className="sw-body-sm">
+      <FlagMessage variant="info" className="sw-mb-8">
+        <span>
+          <FormattedMessage
+            defaultMessage={translate(`settings.almintegration.github.info`)}
+            id="settings.almintegration.github.info"
+            values={{
+              link: <Link to={toStatic}>{translate('learn_more')}</Link>,
+            }}
+          />
+        </span>
+      </FlagMessage>
       <AlmBindingDefinitionFormField
         autoFocus
         help={translate('settings.almintegration.form.name.github.help')}
@@ -64,19 +75,7 @@ export default function GithubForm(props: GithubFormProps) {
         propKey="url"
         value={formData.url}
       />
-      <Alert className="big-spacer-top" variant="info">
-        <FormattedMessage
-          defaultMessage={translate(`settings.almintegration.github.info`)}
-          id="settings.almintegration.github.info"
-          values={{
-            link: (
-              <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]}>
-                {translate('learn_more')}
-              </DocLink>
-            ),
-          }}
-        />
-      </Alert>
+
       <AlmBindingDefinitionFormField
         id="app_id"
         help={translate('settings.almintegration.form.app_id.github.help')}
@@ -125,6 +124,6 @@ export default function GithubForm(props: GithubFormProps) {
         isSecret
         optional
       />
-    </>
+    </PageContentFontWrapper>
   );
 }

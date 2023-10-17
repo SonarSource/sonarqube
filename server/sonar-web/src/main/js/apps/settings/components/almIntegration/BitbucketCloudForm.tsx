@@ -67,11 +67,6 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
           />
         }
         id="workspace.bitbucketcloud"
-        error={
-          workspaceIDIsInvalid
-            ? translate('settings.almintegration.form.workspace.bitbucketcloud.error')
-            : undefined
-        }
         isInvalid={workspaceIDIsInvalid}
         maxLength={80}
         onFieldChange={props.onFieldChange}

@@ -17,22 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ButtonSecondary,
+  FlagMessage,
+  FormField,
+  InputField,
+  InputTextArea,
+  Link,
+} from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../../components/common/DocLink';
-import ValidationInput, {
-  ValidationInputErrorPlacement,
-} from '../../../../components/controls/ValidationInput';
-import { ButtonLink } from '../../../../components/controls/buttons';
-import { Alert } from '../../../../components/ui/Alert';
-import MandatoryFieldMarker from '../../../../components/ui/MandatoryFieldMarker';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { AlmBindingDefinitionBase } from '../../../../types/alm-settings';
 import '../../styles.css';
 
 export interface AlmBindingDefinitionFormFieldProps<B extends AlmBindingDefinitionBase> {
   autoFocus?: boolean;
-  error?: string;
   help?: React.ReactNode;
   id: string;
   isInvalid?: boolean;
@@ -51,7 +52,6 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
 ) {
   const {
     autoFocus,
-    error,
     help,
     id,
     isInvalid = false,
@@ -65,83 +65,71 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
   } = props;
   const [showField, setShowField] = React.useState(!overwriteOnly);
 
+  const toStatic = useDocUrl('/instance-administration/security/#settings-encryption');
+
   return (
-    <div className="settings-definition">
-      <div className="settings-definition-left">
-        <label className="h3" htmlFor={id}>
-          {translate('settings.almintegration.form', id)}
-        </label>
-        {!optional && <MandatoryFieldMarker />}
-        {help && <div className="markdown small spacer-top">{help}</div>}
-      </div>
-      <div className="settings-definition-right big-padded-top display-flex-column">
-        {!showField && overwriteOnly && (
-          <div>
-            <p>{translate('settings.almintegration.form.secret.field')}</p>
-            <ButtonLink
-              aria-label={translateWithParameters(
-                'settings.almintegration.form.secret.update_field_x',
-                translate('settings.almintegration.form', id),
-              )}
-              onClick={() => {
-                props.onFieldChange(propKey, '');
-                setShowField(true);
-              }}
-            >
-              {translate('settings.almintegration.form.secret.update_field')}
-            </ButtonLink>
-          </div>
-        )}
-
-        {showField && isTextArea && (
-          <textarea
-            className="width-100"
-            id={id}
-            maxLength={maxLength || 2000}
-            onChange={(e) => props.onFieldChange(propKey, e.currentTarget.value)}
-            required={!optional}
-            rows={5}
-            value={value}
-          />
-        )}
-
-        {showField && !isTextArea && (
-          <ValidationInput
-            error={error}
-            errorPlacement={ValidationInputErrorPlacement.Bottom}
-            isValid={false}
-            isInvalid={isInvalid}
+    <FormField
+      htmlFor={id}
+      label={translate('settings.almintegration.form', id)}
+      description={help}
+      required={!optional}
+      className="sw-mb-8"
+    >
+      {!showField && overwriteOnly && (
+        <div className="sw-flex sw-items-center">
+          <p className="sw-mr-2">{translate('settings.almintegration.form.secret.field')}</p>
+          <ButtonSecondary
+            aria-label={translateWithParameters(
+              'settings.almintegration.form.secret.update_field_x',
+              translate('settings.almintegration.form', id),
+            )}
+            onClick={() => {
+              props.onFieldChange(propKey, '');
+              setShowField(true);
+            }}
           >
-            <input
-              className="width-100"
-              autoFocus={autoFocus}
-              id={id}
-              maxLength={maxLength || 100}
-              name={id}
-              onChange={(e) => props.onFieldChange(propKey, e.currentTarget.value)}
-              size={50}
-              type="text"
-              value={value}
-            />
-          </ValidationInput>
-        )}
-
-        {showField && isSecret && (
-          <Alert variant="info" className="spacer-top">
+            {translate('settings.almintegration.form.secret.update_field')}
+          </ButtonSecondary>
+        </div>
+      )}
+      {showField && isTextArea && (
+        <InputTextArea
+          id={id}
+          maxLength={maxLength || 2000}
+          onChange={(e) => props.onFieldChange(propKey, e.currentTarget.value)}
+          required={!optional}
+          rows={5}
+          size="full"
+          value={value}
+          isInvalid={isInvalid}
+        />
+      )}
+      {showField && !isTextArea && (
+        <InputField
+          autoFocus={autoFocus}
+          id={id}
+          maxLength={maxLength || 100}
+          name={id}
+          onChange={(e) => props.onFieldChange(propKey, e.currentTarget.value)}
+          type="text"
+          size="full"
+          value={value}
+          isInvalid={isInvalid}
+        />
+      )}
+      {showField && isSecret && (
+        <FlagMessage variant="info" className="sw-mt-2">
+          <span>
             <FormattedMessage
               id="settings.almintegration.form.secret.can_encrypt"
               defaultMessage={translate('settings.almintegration.form.secret.can_encrypt')}
               values={{
-                learn_more: (
-                  <DocLink to="/instance-administration/security/#settings-encryption">
-                    {translate('learn_more')}
-                  </DocLink>
-                ),
+                learn_more: <Link to={toStatic}>{translate('learn_more')}</Link>,
               }}
             />
-          </Alert>
-        )}
-      </div>
-    </div>
+          </span>
+        </FlagMessage>
+      )}
+    </FormField>
   );
 }

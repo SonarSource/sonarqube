@@ -21,7 +21,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import AlmSettingsServiceMock from '../../../../../api/mocks/AlmSettingsServiceMock';
 import { renderComponent } from '../../../../../helpers/testReactTestingUtils';
-import { byRole, byText } from '../../../../../helpers/testSelector';
+import { byLabelText, byRole, byText } from '../../../../../helpers/testSelector';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import AlmBindingDefinitionForm, {
   AlmBindingDefinitionFormProps,
@@ -43,7 +43,7 @@ const ui = {
   bitbucketConfiguration: (almKey: AlmKeys.BitbucketCloud | AlmKeys.BitbucketServer) =>
     byRole('button', { name: `alm.${almKey}.long` }),
   configurationInput: (id: string) =>
-    byRole('textbox', { name: `settings.almintegration.form.${id}` }),
+    byLabelText(`settings.almintegration.form.${id}`, { exact: false }),
   saveConfigurationButton: byRole('button', { name: 'settings.almintegration.form.save' }),
   cancelButton: byRole('button', { name: 'cancel' }),
   validationError: (text: string) => byText(text),
