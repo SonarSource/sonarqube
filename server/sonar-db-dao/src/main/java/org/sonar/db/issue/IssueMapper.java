@@ -50,9 +50,6 @@ public interface IssueMapper {
     @Param("excludingRepositories") List<String> excludingRepositories,
     @Param("languages") List<String> languages, @Param("pagination") Pagination pagination);
 
-  List<IssueDto> selectByComponentUuidPaginated(@Param("componentUuid") String componentUuid,
-    @Param("pagination") Pagination pagination);
-
   List<IssueDto> selectByKeysIfNotUpdatedAt(@Param("keys") List<String> keys, @Param("updatedAt") long updatedAt);
 
   List<PrIssueDto> selectOpenByComponentUuids(List<String> componentUuids);

@@ -51,6 +51,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -92,6 +93,7 @@ public class IssueDaoIT {
   private static final String ISSUE_KEY1 = "I1";
   private static final String ISSUE_KEY2 = "I2";
   private static final String TEST_CONTEXT_KEY = "test_context_key";
+  private static final String USER_LOGIN = "user_login";
 
   private static final RuleType[] RULE_TYPES_EXCEPT_HOTSPOT = Stream.of(RuleType.values())
     .filter(r -> r != RuleType.SECURITY_HOTSPOT)
@@ -110,6 +112,7 @@ public class IssueDaoIT {
   private final IssueDao underTest = db.getDbClient().issueDao();
 
   private ComponentDto projectDto;
+  private UserDto userDto;
 
   @Before
   public void setup() {
@@ -118,6 +121,7 @@ public class IssueDaoIT {
     db.rules().insert(RULE.setIsExternal(true));
     projectDto = db.components().insertPrivateProject(t -> t.setUuid(PROJECT_UUID).setKey(PROJECT_KEY)).getMainBranchComponent();
     db.components().insertComponent(newFileDto(projectDto).setUuid(FILE_UUID).setKey(FILE_KEY));
+    userDto = db.users().insertUser(USER_LOGIN);
   }
 
   @Test
@@ -142,7 +146,8 @@ public class IssueDaoIT {
       .setResolution("FIXED")
       .setChecksum("123456789")
       .setAuthorLogin("morgan")
-      .setAssigneeUuid("karadoc")
+      .setAssigneeUuid(userDto.getUuid())
+      .setAssigneeLogin(USER_LOGIN)
       .setCreatedAt(1_440_000_000_000L)
       .setUpdatedAt(1_440_000_000_000L)
       .setRule(RULE)
@@ -194,6 +199,9 @@ public class IssueDaoIT {
     List<IssueDto> issues = underTest.selectByKeys(db.getSession(), asList("I1", "I2", "I3"));
 
     assertThat(issues).extracting(IssueDto::getKey).containsExactlyInAnyOrder("I1", "I2");
+    assertThat(issues).filteredOn(issueDto -> issueDto.getKey().equals("I1"))
+      .extracting(IssueDto::getAssigneeLogin)
+      .containsExactly(USER_LOGIN);
     assertThat(issues).filteredOn(issueDto -> issueDto.getKey().equals("I1"))
       .extracting(IssueDto::getImpacts)
       .flatMap(issueImpactDtos -> issueImpactDtos)
@@ -363,17 +371,6 @@ public class IssueDaoIT {
       .extracting(IssueDto::getKey, IssueDto::getStatus)
       .containsExactlyInAnyOrder(tuple("issueB0", STATUS_OPEN),
         tuple("issueB1", STATUS_RESOLVED));
-  }
-
-  @Test
-  public void selectByComponentUuidPaginated() {
-    // contains I1 and I2
-    prepareTables();
-
-    List<IssueDto> issues = underTest.selectByComponentUuidPaginated(db.getSession(), PROJECT_UUID, 1);
-
-    // results are not ordered, so do not use "containsExactly"
-    assertThat(issues).extracting("key").containsOnly("I1", "I2");
   }
 
   @Test
@@ -949,6 +946,7 @@ public class IssueDaoIT {
       .setRuleUuid(RULE.getUuid())
       .setComponentUuid(FILE_UUID)
       .setProjectUuid(PROJECT_UUID)
+      .setAssigneeUuid(userDto.getUuid())
       .addImpact(newIssueImpact(RELIABILITY, MEDIUM))
       .addImpact(newIssueImpact(SECURITY, LOW)));
     underTest.insert(db.getSession(), newIssueDto(ISSUE_KEY2)

@@ -401,11 +401,13 @@
 
   <select id="selectByKeys" parameterType="map" resultMap="issueResultMap">
     select
-    <include refid="issueColumns"/>
+    <include refid="issueColumns"/>,
+    u.login as assigneeLogin
     from issues i
     inner join rules r on r.uuid=i.rule_uuid
     inner join components p on p.uuid=i.component_uuid
     inner join components root on root.uuid=i.project_uuid
+    left join users u on i.assignee = u.uuid
     left join new_code_reference_issues n on i.kee = n.issue_key
     left outer join issues_impacts ii on i.kee = ii.issue_key
     left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
@@ -578,23 +580,6 @@
         </foreach>
    </if>
     order by i.kee
-    <include refid="org.sonar.db.common.Common.pagination"/>
-  </select>
-
-  <select id="selectByComponentUuidPaginated" parameterType="map" resultMap="issueResultMap">
-    select
-    <include refid="issueColumns"/>,
-    u.login as assigneeLogin
-    from issues i
-    inner join rules r on r.uuid=i.rule_uuid
-    inner join components p on p.uuid=i.component_uuid
-    inner join components root on root.uuid=i.project_uuid
-    left join users u on i.assignee = u.uuid
-    left join new_code_reference_issues n on i.kee = n.issue_key
-    left outer join issues_impacts ii on i.kee = ii.issue_key
-    left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
-    where i.project_uuid=#{componentUuid,jdbcType=VARCHAR}
-    order by i.issue_creation_date ASC
     <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 

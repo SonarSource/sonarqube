@@ -78,10 +78,6 @@ public class IssueDao implements Dao {
       includingRepositories, excludingRepositories, languages, Pagination.forPage(page).andSize(BIG_PAGE_SIZE));
   }
 
-  public List<IssueDto> selectByComponentUuidPaginated(DbSession session, String componentUuid, int page) {
-    return mapper(session).selectByComponentUuidPaginated(componentUuid, Pagination.forPage(page).andSize(DEFAULT_PAGE_SIZE));
-  }
-
   public Set<String> selectComponentUuidsOfOpenIssuesForProjectUuid(DbSession session, String projectUuid) {
     return mapper(session).selectComponentUuidsOfOpenIssuesForProjectUuid(projectUuid);
   }
