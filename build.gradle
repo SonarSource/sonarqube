@@ -265,7 +265,7 @@ subprojects {
         entry 'okhttp'
         entry 'mockwebserver'
       }
-      dependency 'org.json:json:20220924'
+      dependency 'org.json:json:20231013'
       dependency 'com.tngtech.java:junit-dataprovider:1.13.1'
       dependencySet(group: 'io.jsonwebtoken', version: '0.11.5') {
         entry 'jjwt-api'
