@@ -595,7 +595,7 @@ public class BulkChangeActionIT {
   }
 
   @Test
-  public void ignore_external_issue() {
+  public void bulk_change_includes_external_issue() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     ProjectData projectData = db.components().insertPrivateProject();
@@ -611,7 +611,7 @@ public class BulkChangeActionIT {
       .setDoTransition("confirm")
       .build());
 
-    checkResponse(response, 2, 1, 1, 0);
+    checkResponse(response, 2, 2, 0, 0);
   }
 
   @Test

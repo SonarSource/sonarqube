@@ -46,9 +46,6 @@ public class TransitionService {
   }
 
   public List<Transition> listTransitions(DefaultIssue issue) {
-    if (issue.isFromExternalRuleEngine()){
-      return Collections.emptyList();
-    }
     String projectUuid = requireNonNull(issue.projectUuid());
     return workflow.outTransitions(issue)
       .stream()
@@ -58,7 +55,6 @@ public class TransitionService {
   }
 
   public boolean doTransition(DefaultIssue defaultIssue, IssueChangeContext issueChangeContext, String transitionKey) {
-    checkArgument(!defaultIssue.isFromExternalRuleEngine(), "Transition is not allowed on issues imported from external rule engines");
     return workflow.doManualTransition(defaultIssue, transitionKey, issueChangeContext);
   }
 

@@ -232,7 +232,7 @@ public class SearchResponseLoader {
           ComponentDto branch = componentsByProjectUuid.get(issueDto.getProjectUuid());
           result.addActions(issueDto.getKey(), listAvailableActions(issueDto, branch));
         }
-        if (fields.contains(TRANSITIONS) && !issueDto.isExternal()) {
+        if (fields.contains(TRANSITIONS)) {
           // TODO workflow and action engines must not depend on org.sonar.api.issue.Issue but on a generic interface
           DefaultIssue issue = issueDto.toDefaultIssue();
           result.addTransitions(issue.key(), transitionService.listTransitions(issue));

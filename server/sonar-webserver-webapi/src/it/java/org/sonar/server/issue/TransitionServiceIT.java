@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
@@ -37,7 +36,6 @@ import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
@@ -77,7 +75,7 @@ public class TransitionServiceIT {
   }
 
   @Test
-  public void list_transitions_returns_empty_list_on_external_issue() {
+  public void list_transitions_on_external_issue() {
     ProjectData project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project.getMainBranchComponent()));
     RuleDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
@@ -87,7 +85,7 @@ public class TransitionServiceIT {
 
     List<Transition> result = underTest.listTransitions(externalIssue.toDefaultIssue());
 
-    assertThat(result).isEmpty();
+    assertThat(result).extracting(Transition::key).containsOnly("confirm", "resolve", "falsepositive", "wontfix");
   }
 
   @Test
@@ -130,16 +128,16 @@ public class TransitionServiceIT {
   }
 
   @Test
-  public void do_transition_fail_on_external_issue() {
+  public void do_transition_on_external_issue() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
     IssueDto externalIssue = db.issues().insert(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
-    DefaultIssue defaultIssue = externalIssue.toDefaultIssue();
 
-    IssueChangeContext issueChangeContext = issueChangeContextByUserBuilder(new Date(), "user_uuid").build();
-    assertThatThrownBy(() -> underTest.doTransition(defaultIssue, issueChangeContext, "confirm"))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Transition is not allowed on issues imported from external rule engines");
+    DefaultIssue defaultIssue = externalIssue.toDefaultIssue();
+    boolean result = underTest.doTransition(defaultIssue, issueChangeContextByUserBuilder(new Date(), "user_uuid").build(), "confirm");
+
+    assertThat(result).isTrue();
+    assertThat(defaultIssue.status()).isEqualTo(STATUS_CONFIRMED);
   }
 }

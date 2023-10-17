@@ -153,16 +153,16 @@ public class DoTransitionActionIT {
   }
 
   @Test
-  public void fail_if_external_issue() {
+  public void transition_succeeds_on_external_issue() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto externalRule = db.rules().insertIssueRule(r -> r.setIsExternal(true));
     IssueDto externalIssue = db.issues().insertIssue(externalRule, project, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
-    userSession.logIn().addProjectPermission(USER, project, file);
+    userSession.logIn(db.users().insertUser()).addProjectPermission(USER, project, file);
 
-    assertThatThrownBy(() -> call(externalIssue.getKey(), "confirm"))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Transition is not allowed on issues imported from external rule engines");
+    call(externalIssue.getKey(), "confirm");
+    IssueDto issueReloaded = db.getDbClient().issueDao().selectByKey(db.getSession(), externalIssue.getKey()).get();
+    assertThat(issueReloaded.getStatus()).isEqualTo(STATUS_CONFIRMED);
   }
 
   @Test
