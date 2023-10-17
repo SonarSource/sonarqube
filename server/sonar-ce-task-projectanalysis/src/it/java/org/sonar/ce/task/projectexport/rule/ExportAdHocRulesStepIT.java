@@ -181,6 +181,45 @@ public class ExportAdHocRulesStepIT {
     assertThat(underTest.getDescription()).isEqualTo("Export ad-hoc rules");
   }
 
+  @Test
+  public void execute_shouldMapFieldWithEmptyString_whenNameOrPluginKeyAreNull() {
+    RuleKey ruleKey = RuleKey.of("plugin1", "partiallyInit");
+    RuleDto partiallyInitRuleDto = insertAdHocRuleWithoutNameAndPluginKeyAndAdHocInformations(ruleKey);
+    insertIssue(partiallyInitRuleDto, mainBranch.uuid(), mainBranch.uuid());
+
+    underTest.execute(new TestComputationStepContext());
+
+    List<ProjectDump.AdHocRule> exportedRules = dumpWriter.getWrittenMessagesOf(DumpElement.AD_HOC_RULES);
+    assertThat(exportedRules).hasSize(1);
+    ProjectDump.AdHocRule adHocRule = exportedRules.iterator().next();
+    assertThat(adHocRule.getName()).isEmpty();
+    assertThat(adHocRule.getPluginKey()).isEmpty();
+    ProjectDump.AdHocRule.RuleMetadata adHocRuleMetadata = adHocRule.getMetadata();
+    assertThat(adHocRuleMetadata.getAdHocDescription()).isEmpty();
+    assertThat(adHocRuleMetadata.getAdHocName()).isEmpty();
+    assertThat(adHocRuleMetadata.getAdHocSeverity()).isEmpty();
+    assertThat(adHocRuleMetadata.getAdHocType()).isZero();
+
+  }
+
+  private RuleDto insertAdHocRuleWithoutNameAndPluginKeyAndAdHocInformations(RuleKey ruleKey) {
+    RuleDto partiallyInitRuleDto = new RuleDto()
+      .setIsExternal(false)
+      .setIsAdHoc(true)
+      .setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL)
+      .addDefaultImpact(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.MAINTAINABILITY).setSeverity(org.sonar.api.issue.impact.Severity.MEDIUM))
+      .addDefaultImpact(new ImpactDto().setUuid(Uuids.createFast()).setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH))
+      .setRuleKey(ruleKey)
+      .setScope(RuleDto.Scope.ALL)
+      .setStatus(RuleStatus.READY);
+
+    dbTester.rules().insert(partiallyInitRuleDto);
+    dbTester.commit();
+
+    return dbTester.getDbClient().ruleDao().selectByKey(dbTester.getSession(), ruleKey)
+      .orElseThrow(() -> new RuntimeException("insertAdHocRule failed"));
+  }
+
   private ProjectDto createProject() {
     Date createdAt = new Date();
     ProjectData projectData = dbTester.components().insertPublicProject(PROJECT_UUID);
@@ -277,7 +316,6 @@ public class ExportAdHocRulesStepIT {
       .collect(Collectors.toMap(i -> SoftwareQuality.valueOf(i.getSoftwareQuality().name()),
         i -> org.sonar.api.issue.impact.Severity.valueOf(i.getSeverity().name())));
   }
-
 
   private static void assertProtobufAdHocRuleIsCorrectlyBuilt(ProjectDump.AdHocRule.RuleMetadata metadata, RuleDto expected) {
     assertThat(metadata.getAdHocName()).isEqualTo(expected.getAdHocName());

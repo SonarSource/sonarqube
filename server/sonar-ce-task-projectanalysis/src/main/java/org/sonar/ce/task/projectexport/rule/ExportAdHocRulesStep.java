@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectexport.rule;
 import com.hazelcast.internal.util.MutableLong;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.ibatis.cursor.Cursor;
 import org.slf4j.LoggerFactory;
@@ -57,8 +58,7 @@ public class ExportAdHocRulesStep implements ComputationStep {
     try (
       StreamWriter<ProjectDump.AdHocRule> output = dumpWriter.newStreamWriter(DumpElement.AD_HOC_RULES);
       DbSession dbSession = dbClient.openSession(false);
-      Cursor<RuleDto> ruleDtoCursor = dbSession.getMapper(ProjectExportMapper.class).scrollAdhocRulesForExport(projectHolder.projectDto().getUuid())
-    ) {
+      Cursor<RuleDto> ruleDtoCursor = dbSession.getMapper(ProjectExportMapper.class).scrollAdhocRulesForExport(projectHolder.projectDto().getUuid())) {
       ProjectDump.AdHocRule.Builder adHocRuleBuilder = ProjectDump.AdHocRule.newBuilder();
       ruleDtoCursor
         .forEach(ruleDto -> {
@@ -78,11 +78,11 @@ public class ExportAdHocRulesStep implements ComputationStep {
     return builder
       .clear()
       .setRef(ruleDto.getUuid())
-      .setPluginKey(ruleDto.getPluginKey())
+      .setPluginKey(Optional.of(ruleDto).map(RuleDto::getPluginKey).orElse(""))
       .setPluginRuleKey(ruleDto.getKey().rule())
       .setPluginName(ruleDto.getRepositoryKey())
-      .setName(ruleDto.getName())
-      .setStatus(ruleDto.getStatus().name())
+      .setName(Optional.of(ruleDto).map(RuleDto::getName).orElse(""))
+      .setStatus(Optional.of(ruleDto).map(RuleDto::getStatus).map(Enum::name).orElse(""))
       .setType(ruleDto.getType())
       .setScope(ruleDto.getScope().name())
       .setMetadata(buildMetadata(ruleDto))
@@ -101,11 +101,12 @@ public class ExportAdHocRulesStep implements ComputationStep {
   }
 
   private static ProjectDump.AdHocRule.RuleMetadata buildMetadata(RuleDto ruleDto) {
+    Optional<RuleDto> rule = Optional.of(ruleDto);
     return ProjectDump.AdHocRule.RuleMetadata.newBuilder()
-      .setAdHocName(ruleDto.getAdHocName())
-      .setAdHocDescription(ruleDto.getAdHocDescription())
-      .setAdHocSeverity(ruleDto.getAdHocSeverity())
-      .setAdHocType(ruleDto.getAdHocType())
+      .setAdHocName(rule.map(RuleDto::getAdHocName).orElse(""))
+      .setAdHocDescription(rule.map(RuleDto::getAdHocDescription).orElse(""))
+      .setAdHocSeverity(rule.map(RuleDto::getAdHocSeverity).orElse(""))
+      .setAdHocType(rule.map(RuleDto::getAdHocType).orElse(0))
       .build();
   }
 
