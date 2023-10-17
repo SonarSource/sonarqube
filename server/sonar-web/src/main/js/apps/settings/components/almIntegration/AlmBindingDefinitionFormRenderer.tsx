@@ -17,11 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FlagMessage, Modal, Spinner } from 'design-system';
 import * as React from 'react';
-import Modal from '../../../../components/controls/Modal';
-import { ResetButtonLink, SubmitButton } from '../../../../components/controls/buttons';
-import { Alert } from '../../../../components/ui/Alert';
-import Spinner from '../../../../components/ui/Spinner';
 import { translate } from '../../../../helpers/l10n';
 import {
   AlmBindingDefinition,
@@ -99,47 +96,50 @@ export default class AlmBindingDefinitionFormRenderer extends React.PureComponen
   render() {
     const { isUpdate, canSubmit, submitting, validationError } = this.props;
     const header = translate('settings.almintegration.form.header', isUpdate ? 'edit' : 'create');
+    const FORM_ID = `settings.almintegration.form.${isUpdate ? 'edit' : 'create'}`;
 
     const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
       event.preventDefault();
       this.props.onSubmit();
     };
 
+    const formBody = (
+      <form id={FORM_ID} onSubmit={handleSubmit}>
+        {this.renderForm()}
+        {validationError && !canSubmit && (
+          <FlagMessage variant="error" className="sw-w-full">
+            <div>
+              <p>{translate('settings.almintegration.configuration_invalid')}</p>
+              <ul>
+                <li>{validationError}</li>
+              </ul>
+            </div>
+          </FlagMessage>
+        )}
+      </form>
+    );
+
     return (
       <Modal
-        contentLabel={header}
-        onRequestClose={this.props.onCancel}
-        shouldCloseOnOverlayClick={false}
-        size="medium"
-      >
-        <form onSubmit={handleSubmit}>
-          <div className="modal-head">
-            <h2>{header}</h2>
-          </div>
-
-          <div className="modal-body modal-container">
-            {this.renderForm()}
-            {validationError && !canSubmit && (
-              <Alert variant="error">
-                <p className="spacer-bottom">
-                  {translate('settings.almintegration.configuration_invalid')}
-                </p>
-                <ul className="list-styled">
-                  <li>{validationError}</li>
-                </ul>
-              </Alert>
-            )}
-          </div>
-
-          <div className="modal-foot">
-            <SubmitButton disabled={!canSubmit || submitting}>
+        headerTitle={header}
+        isScrollable
+        onClose={this.props.onCancel}
+        body={formBody}
+        primaryButton={
+          <>
+            <Spinner loading={submitting} />
+            <ButtonPrimary
+              form={FORM_ID}
+              type="submit"
+              autoFocus
+              disabled={!canSubmit || submitting}
+            >
               {translate('settings.almintegration.form.save')}
-              <Spinner className="spacer-left" loading={submitting} />
-            </SubmitButton>
-            <ResetButtonLink onClick={this.props.onCancel}>{translate('cancel')}</ResetButtonLink>
-          </div>
-        </form>
-      </Modal>
+            </ButtonPrimary>
+          </>
+        }
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 }
