@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import styled from '@emotion/styled';
-import { TrendDownIcon, TrendUpIcon, themeColor } from 'design-system';
+import { TrendDirection, TrendIcon, TrendType, themeColor } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { formatMeasure } from '../../../helpers/measures';
@@ -61,21 +61,21 @@ function Variation(props: Readonly<VariationProps>) {
     );
   }
 
-  let variationIcon = <EqualIconContainer className="sw-text-lg">=</EqualIconContainer>;
-
+  let trendIconDirection = TrendDirection.Equal;
+  let trendIconType = TrendType.Neutral;
   if (variation !== 0) {
-    const ArrowIcon = variation > 0 ? TrendUpIcon : TrendDownIcon;
-    const ArrowIconContainer =
-      variation > 0 === isGoodIfGrowing
-        ? CaYCCompliantIconContainer
-        : CaYCNonCompliantIconContainer;
-
-    variationIcon = (
-      <ArrowIconContainer>
-        <ArrowIcon width={20} />
-      </ArrowIconContainer>
-    );
+    trendIconDirection = variation > 0 ? TrendDirection.Up : TrendDirection.Down;
+    trendIconType = variation > 0 === isGoodIfGrowing ? TrendType.Positive : TrendType.Negative;
   }
+  const variationIcon = (
+    <TrendIcon
+      className="sw-text-lg"
+      direction={trendIconDirection}
+      height={20}
+      type={trendIconType}
+      width={20}
+    />
+  );
 
   const variationToDisplay = formattedValue.startsWith('-') ? formattedValue : `+${formattedValue}`;
 
@@ -128,18 +128,6 @@ export function AnalysisVariations(props: Readonly<AnalysisVariationsProps>) {
     </div>
   );
 }
-
-const CaYCCompliantIconContainer = styled.span`
-  color: ${themeColor('iconSuccess')};
-`;
-
-const CaYCNonCompliantIconContainer = styled.span`
-  color: ${themeColor('iconError')};
-`;
-
-const EqualIconContainer = styled.span`
-  color: ${themeColor('iconInfo')};
-`;
 
 const SeparatorContainer = styled.span`
   color: ${themeColor('iconStatus')};
