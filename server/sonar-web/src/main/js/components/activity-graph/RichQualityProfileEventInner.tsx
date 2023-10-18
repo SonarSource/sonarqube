@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Link } from 'design-system';
+import { DiscreetLink } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { getProfileChangelogPath } from '../../apps/quality-profiles/utils';
@@ -53,7 +53,7 @@ export function RichQualityProfileEventInner({
   return (
     <span aria-label={name}>
       {truncatedName}
-      <Link
+      <DiscreetLink
         aria-label={intl.formatMessage(
           { id: 'quality_profiles.page_title_changelog_x' },
           { 0: qualityProfileName },
@@ -61,7 +61,7 @@ export function RichQualityProfileEventInner({
         to={getProfileChangelogPath(qualityProfileName, languageKey)}
       >
         {description}
-      </Link>
+      </DiscreetLink>
     </span>
   );
 }
