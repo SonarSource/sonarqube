@@ -131,13 +131,11 @@ public class ShowActionIT {
   public void show_project_setting() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
-    var currentTime = System.currentTimeMillis();
 
-    tester.insert(new NewCodePeriodDto()
+    var ncd = tester.insert(new NewCodePeriodDto()
       .setProjectUuid(project.getUuid())
       .setType(NewCodePeriodType.NUMBER_OF_DAYS)
       .setPreviousNonCompliantValue("100")
-      .setUpdatedAt(currentTime)
       .setValue("90"));
 
     ShowWSResponse response = ws.newRequest()
@@ -145,7 +143,7 @@ public class ShowActionIT {
       .executeProtobuf(ShowWSResponse.class);
 
     assertResponse(response, project.getKey(), "", NUMBER_OF_DAYS, "90", false, "100");
-    assertUpdatedAt(response, currentTime);
+    assertUpdatedAt(response, ncd.getUpdatedAt());
   }
 
   @Test
