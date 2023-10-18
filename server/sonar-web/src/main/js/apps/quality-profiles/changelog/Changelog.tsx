@@ -58,31 +58,37 @@ export default function Changelog(props: Props) {
   const isSameEventDate = (thisEvent: ProfileChangelogEvent, otherEvent?: ProfileChangelogEvent) =>
     otherEvent !== undefined && isSameMinute(parseDate(otherEvent.date), parseDate(thisEvent.date));
 
-  const isSameEventGroup = (thisEvent: ProfileChangelogEvent, otherEvent?: ProfileChangelogEvent) =>
-    otherEvent !== undefined &&
-    isSameEventDate(thisEvent, otherEvent) &&
-    otherEvent.authorName === thisEvent.authorName &&
-    otherEvent.action === thisEvent.action;
+  const isSameEventAuthor = (
+    thisEvent: ProfileChangelogEvent,
+    otherEvent?: ProfileChangelogEvent,
+  ) => otherEvent !== undefined && otherEvent.authorName === thisEvent.authorName;
+
+  const isSameEventAction = (
+    thisEvent: ProfileChangelogEvent,
+    otherEvent?: ProfileChangelogEvent,
+  ) => otherEvent !== undefined && otherEvent.action === thisEvent.action;
 
   const rows = sortedRows.map((event, index) => {
-    const prev = sortedRows[index - 1];
-    const isBulkChange = isSameEventGroup(event, prev);
+    const prevRow = sortedRows[index - 1];
+    const shouldDisplayDate = !isSameEventDate(event, prevRow);
+    const shouldDisplayAuthor = shouldDisplayDate || !isSameEventAuthor(event, prevRow);
+    const shouldDisplayAction = shouldDisplayAuthor || !isSameEventAction(event, prevRow);
 
     const nextEventInDifferentGroup = sortedRows
       .slice(index + 1)
-      .find((e) => !isSameEventGroup(event, e));
+      .find((e) => !isSameEventDate(event, e));
 
     const isNewSonarQubeVersion =
-      !isBulkChange &&
+      shouldDisplayDate &&
       nextEventInDifferentGroup !== undefined &&
       nextEventInDifferentGroup.sonarQubeVersion !== event.sonarQubeVersion;
 
     return (
       <TableRowInteractive key={index}>
         <ContentCell
-          className={classNames('sw-align-top', { 'sw-border-transparent': isBulkChange })}
+          className={classNames('sw-align-top', { 'sw-border-transparent': !shouldDisplayDate })}
         >
-          {!isBulkChange && (
+          {shouldDisplayDate && (
             <div>
               <span className="sw-whitespace-nowrap">
                 <DateTimeFormatter date={event.date} />
@@ -106,23 +112,23 @@ export default function Changelog(props: Props) {
 
         <ContentCell
           className={classNames('sw-whitespace-nowrap sw-align-top sw-max-w-[120px]', {
-            'sw-border-transparent': isBulkChange,
+            'sw-border-transparent': !shouldDisplayDate,
           })}
         >
-          {!isBulkChange && (event.authorName ? event.authorName : <Note>System</Note>)}
+          {shouldDisplayAuthor && (event.authorName ? event.authorName : <Note>System</Note>)}
         </ContentCell>
 
         <ContentCell
           className={classNames('sw-whitespace-nowrap sw-align-top', {
-            'sw-border-transparent': isBulkChange,
+            'sw-border-transparent': !shouldDisplayDate,
           })}
         >
-          {!isBulkChange &&
+          {shouldDisplayAction &&
             intl.formatMessage({ id: `quality_profiles.changelog.${event.action}` })}
         </ContentCell>
 
         <CellComponent
-          className={classNames('sw-align-top', { 'sw-border-transparent': isBulkChange })}
+          className={classNames('sw-align-top', { 'sw-border-transparent': !shouldDisplayDate })}
         >
           {event.ruleName && (
             <Link to={getRulesUrl({ rule_key: event.ruleKey })}>{event.ruleName}</Link>
@@ -145,7 +151,7 @@ export default function Changelog(props: Props) {
 
         <ContentCell
           className={classNames('sw-align-top sw-max-w-[400px]', {
-            'sw-border-transparent': isBulkChange,
+            'sw-border-transparent': !shouldDisplayDate,
           })}
         >
           {event.params && <ChangesList changes={event.params} />}
