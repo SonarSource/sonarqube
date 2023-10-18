@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import classNames from 'classnames';
 import { isSameMinute } from 'date-fns';
 import {
   CellComponent,
@@ -77,7 +79,9 @@ export default function Changelog(props: Props) {
 
     return (
       <TableRowInteractive key={index}>
-        <ContentCell className="sw-align-top">
+        <ContentCell
+          className={classNames('sw-align-top', { 'sw-border-transparent': isBulkChange })}
+        >
           {!isBulkChange && (
             <div>
               <span className="sw-whitespace-nowrap">
@@ -100,16 +104,26 @@ export default function Changelog(props: Props) {
           )}
         </ContentCell>
 
-        <ContentCell className="sw-whitespace-nowrap sw-align-top sw-max-w-[120px]">
+        <ContentCell
+          className={classNames('sw-whitespace-nowrap sw-align-top sw-max-w-[120px]', {
+            'sw-border-transparent': isBulkChange,
+          })}
+        >
           {!isBulkChange && (event.authorName ? event.authorName : <Note>System</Note>)}
         </ContentCell>
 
-        <ContentCell className="sw-whitespace-nowrap sw-align-top">
+        <ContentCell
+          className={classNames('sw-whitespace-nowrap sw-align-top', {
+            'sw-border-transparent': isBulkChange,
+          })}
+        >
           {!isBulkChange &&
             intl.formatMessage({ id: `quality_profiles.changelog.${event.action}` })}
         </ContentCell>
 
-        <CellComponent className="sw-align-top">
+        <CellComponent
+          className={classNames('sw-align-top', { 'sw-border-transparent': isBulkChange })}
+        >
           {event.ruleName && (
             <Link to={getRulesUrl({ rule_key: event.ruleKey })}>{event.ruleName}</Link>
           )}
@@ -129,7 +143,11 @@ export default function Changelog(props: Props) {
           </div>
         </CellComponent>
 
-        <ContentCell className="sw-align-top sw-max-w-[400px]">
+        <ContentCell
+          className={classNames('sw-align-top sw-max-w-[400px]', {
+            'sw-border-transparent': isBulkChange,
+          })}
+        >
           {event.params && <ChangesList changes={event.params} />}
         </ContentCell>
       </TableRowInteractive>
