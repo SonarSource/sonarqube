@@ -92,7 +92,7 @@ export default function AlmRepoItem({
         />
       )}
       <div className="sw-w-[70%] sw-min-w-0 sw-flex sw-mr-1">
-        <div id={labelId} className="sw-max-w-[50%] sw-flex sw-items-center">
+        <div id={labelId} className="sw-max-w-full sw-flex sw-items-center">
           <img
             alt="" // Should be ignored by screen readers
             className="sw-h-4 sw-w-4 sw-mr-2"
@@ -110,7 +110,7 @@ export default function AlmRepoItem({
             </LightPrimary>
           )}
         </div>
-        <div className="sw-max-w-[50%] sw-min-w-0 sw-ml-2 sw-flex sw-items-center">
+        <div className="sw-max-w-full sw-min-w-0 sw-ml-2 sw-flex sw-items-center">
           <LightLabel className="sw-body-sm sw-truncate">{secondaryTextNode}</LightLabel>
         </div>
       </div>

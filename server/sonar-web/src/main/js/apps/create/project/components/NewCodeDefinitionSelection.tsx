@@ -25,7 +25,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { useNavigate, unstable_usePrompt as usePrompt } from 'react-router-dom';
 import NewCodeDefinitionSelector from '../../../../components/new-code-definition/NewCodeDefinitionSelector';
 import { useDocUrl } from '../../../../helpers/docs';
-import { addGlobalSuccessMessage } from '../../../../helpers/globalMessages';
+import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../../../helpers/globalMessages';
 import { translate } from '../../../../helpers/l10n';
 import { getProjectUrl, queryToSearch } from '../../../../helpers/urls';
 import {
@@ -48,13 +48,15 @@ export default function NewCodeDefinitionSelection(props: Props) {
   const { importProjects } = props;
 
   const [selectedDefinition, selectDefinition] = React.useState<NewCodeDefinitiondWithCompliance>();
-  const { mutate, isLoading, data, reset } = useImportProjectMutation();
+  const [failedImports, setFailedImports] = React.useState<number>(0);
+  const { mutateAsync, data, reset, isIdle } = useImportProjectMutation();
   const mutateCount = useImportProjectProgress();
+  const isImporting = mutateCount > 0;
   const intl = useIntl();
   const navigate = useNavigate();
   const getDocUrl = useDocUrl();
   usePrompt({
-    when: isLoading,
+    when: isImporting,
     message: translate('onboarding.create_project.please_dont_leave'),
   });
 
@@ -62,7 +64,7 @@ export default function NewCodeDefinitionSelection(props: Props) {
   const isMultipleProjects = projectCount > 1;
 
   useEffect(() => {
-    if (mutateCount > 0 || !data) {
+    if (mutateCount > 0 || isIdle) {
       return;
     }
     reset();
@@ -70,28 +72,40 @@ export default function NewCodeDefinitionSelection(props: Props) {
       intl.formatMessage(
         { id: 'onboarding.create_project.success' },
         {
-          count: projectCount,
+          count: projectCount - failedImports,
         },
       ),
     );
+    if (failedImports > 0) {
+      addGlobalErrorMessage(
+        intl.formatMessage(
+          { id: 'onboarding.create_project.failure' },
+          {
+            count: failedImports,
+          },
+        ),
+      );
+    }
 
     if (projectCount === 1) {
-      navigate(getProjectUrl(data.project.key));
+      if (data) {
+        navigate(getProjectUrl(data.project.key));
+      }
     } else {
       navigate({
         pathname: '/projects',
         search: queryToSearch({ sort: '-creation_date' }),
       });
     }
-  }, [data, projectCount, mutateCount, reset, intl, navigate]);
+  }, [data, projectCount, failedImports, mutateCount, reset, intl, navigate, isIdle]);
 
   React.useEffect(() => {
-    if (isLoading) {
+    if (isImporting) {
       window.addEventListener('beforeunload', listener);
     }
 
     return () => window.removeEventListener('beforeunload', listener);
-  }, [isLoading]);
+  }, [isImporting]);
 
   const handleProjectCreation = () => {
     if (selectedDefinition) {
@@ -101,10 +115,12 @@ export default function NewCodeDefinitionSelection(props: Props) {
           ...omit(importProjects, 'projects'),
           ...p,
         } as MutationArg;
-        mutate({
+        mutateAsync({
           newCodeDefinitionType: selectedDefinition.type,
           newCodeDefinitionValue: selectedDefinition.value,
           ...arg,
+        }).catch(() => {
+          setFailedImports((prev) => prev + 1);
         });
       });
     }
@@ -151,7 +167,7 @@ export default function NewCodeDefinitionSelection(props: Props) {
         <ButtonSecondary onClick={() => navigate(-1)}>{translate('back')}</ButtonSecondary>
         <ButtonPrimary
           onClick={handleProjectCreation}
-          disabled={!selectedDefinition?.isCompliant || isLoading}
+          disabled={!selectedDefinition?.isCompliant || isImporting}
           type="submit"
         >
           <FormattedMessage
@@ -163,9 +179,9 @@ export default function NewCodeDefinitionSelection(props: Props) {
               count: projectCount,
             }}
           />
-          <Spinner className="sw-ml-2" loading={isLoading} />
+          <Spinner className="sw-ml-2" loading={isImporting} />
         </ButtonPrimary>
-        {isLoading && (
+        {isImporting && projectCount > 1 && (
           <FlagMessage variant="warning">
             <FormattedMessage
               id="onboarding.create_project.import_in_progress"
