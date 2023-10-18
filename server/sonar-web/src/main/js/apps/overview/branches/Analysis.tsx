@@ -59,6 +59,7 @@ export function Analysis(props: Readonly<AnalysisProps>) {
       }
     },
     'category',
+    'name',
   );
 
   return (
