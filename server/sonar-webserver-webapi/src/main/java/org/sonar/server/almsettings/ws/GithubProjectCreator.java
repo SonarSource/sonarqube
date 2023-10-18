@@ -21,7 +21,9 @@ package org.sonar.server.almsettings.ws;
 
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.alm.client.github.AppInstallationToken;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.api.GsonRepositoryCollaborator;
 import org.sonar.alm.client.github.api.GsonRepositoryTeam;
@@ -47,6 +49,7 @@ import org.sonar.server.user.UserSession;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.utils.Preconditions.checkState;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 
 public class GithubProjectCreator implements DevOpsProjectCreator {
@@ -58,9 +61,12 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
   private final ComponentUpdater componentUpdater;
   private final GithubProjectCreationParameters githubProjectCreationParameters;
   private final DevOpsProjectDescriptor devOpsProjectDescriptor;
-  private final AccessToken appInstallationToken;
   private final UserSession userSession;
   private final AlmSettingDto almSettingDto;
+  private final AccessToken devOpsAppInstallationToken;
+
+  @CheckForNull
+  private final AppInstallationToken authAppInstallationToken;
 
   public GithubProjectCreator(DbClient dbClient, GithubApplicationClient githubApplicationClient, GithubPermissionConverter githubPermissionConverter,
     ProjectKeyGenerator projectKeyGenerator, ComponentUpdater componentUpdater, GithubProjectCreationParameters githubProjectCreationParameters) {
@@ -71,14 +77,17 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
     this.projectKeyGenerator = projectKeyGenerator;
     this.componentUpdater = componentUpdater;
     this.githubProjectCreationParameters = githubProjectCreationParameters;
-    devOpsProjectDescriptor = githubProjectCreationParameters.devOpsProjectDescriptor();
-    appInstallationToken = githubProjectCreationParameters.appInstallationToken();
     userSession = githubProjectCreationParameters.userSession();
     almSettingDto = githubProjectCreationParameters.almSettingDto();
+    devOpsProjectDescriptor = githubProjectCreationParameters.devOpsProjectDescriptor();
+    devOpsAppInstallationToken = githubProjectCreationParameters.devOpsAppInstallationToken();
+    authAppInstallationToken = githubProjectCreationParameters.authAppInstallationToken();
   }
 
   @Override
   public boolean isScanAllowedUsingPermissionsFromDevopsPlatform() {
+    checkState(githubProjectCreationParameters.authAppInstallationToken() != null, "An auth app token is required in case repository permissions checking is necessary.");
+
     String[] orgaAndRepoTokenified = devOpsProjectDescriptor.projectIdentifier().split("/");
     String organization = orgaAndRepoTokenified[0];
     String repository = orgaAndRepoTokenified[1];
@@ -93,8 +102,8 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
   }
 
   private boolean doesUserHaveScanPermission(String organization, String repository, Set<GithubPermissionsMappingDto> permissionsMappingDtos) {
-    Set<GsonRepositoryCollaborator> repositoryCollaborators = githubApplicationClient.getRepositoryCollaborators(devOpsProjectDescriptor.url(), appInstallationToken, organization,
-      repository);
+    Set<GsonRepositoryCollaborator> repositoryCollaborators = githubApplicationClient.getRepositoryCollaborators(devOpsProjectDescriptor.url(), authAppInstallationToken,
+      organization, repository);
 
     String externalLogin = userSession.getExternalIdentity().map(UserSession.ExternalIdentity::login).orElse(null);
     if (externalLogin == null) {
@@ -109,7 +118,7 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
 
   private boolean doesUserBelongToAGroupWithScanPermission(String organization, String repository,
     Set<GithubPermissionsMappingDto> permissionsMappingDtos) {
-    Set<GsonRepositoryTeam> repositoryTeams = githubApplicationClient.getRepositoryTeams(devOpsProjectDescriptor.url(), appInstallationToken, organization, repository);
+    Set<GsonRepositoryTeam> repositoryTeams = githubApplicationClient.getRepositoryTeams(devOpsProjectDescriptor.url(), authAppInstallationToken, organization, repository);
 
     Set<String> groupsOfUser = findUserMembershipOnSonarQube(organization);
     return repositoryTeams.stream()
@@ -135,7 +144,7 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
   @Override
   public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, @Nullable String projectKey) {
     String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
-    GithubApplicationClient.Repository repository = githubApplicationClient.getRepository(url, appInstallationToken, devOpsProjectDescriptor.projectIdentifier())
+    GithubApplicationClient.Repository repository = githubApplicationClient.getRepository(url, devOpsAppInstallationToken, devOpsProjectDescriptor.projectIdentifier())
       .orElseThrow(() -> new IllegalStateException(
         String.format("Impossible to find the repository '%s' on GitHub, using the devops config %s", devOpsProjectDescriptor.projectIdentifier(), almSettingDto.getKey())));
 

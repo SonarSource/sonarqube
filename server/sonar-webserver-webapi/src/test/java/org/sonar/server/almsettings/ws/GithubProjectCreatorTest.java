@@ -30,6 +30,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.sonar.alm.client.github.AppInstallationToken;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.api.GsonRepositoryCollaborator;
 import org.sonar.alm.client.github.api.GsonRepositoryTeam;
@@ -90,7 +91,9 @@ public class GithubProjectCreatorTest {
   @Mock
   private GithubProjectCreationParameters githubProjectCreationParameters;
   @Mock
-  private AccessToken appInstallationToken;
+  private AccessToken devOpsAppInstallationToken;
+  @Mock
+  private AppInstallationToken authAppInstallationToken;
   @Mock
   private UserSession userSession;
   @Mock
@@ -113,18 +116,21 @@ public class GithubProjectCreatorTest {
 
     when(githubProjectCreationParameters.devOpsProjectDescriptor()).thenReturn(DEVOPS_PROJECT_DESCRIPTOR);
     when(githubProjectCreationParameters.userSession()).thenReturn(userSession);
-    when(githubProjectCreationParameters.appInstallationToken()).thenReturn(appInstallationToken);
+    when(githubProjectCreationParameters.devOpsAppInstallationToken()).thenReturn(devOpsAppInstallationToken);
+    when(githubProjectCreationParameters.authAppInstallationToken()).thenReturn(authAppInstallationToken);
     when(githubProjectCreationParameters.almSettingDto()).thenReturn(almSettingDto);
 
     githubProjectCreator = new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater,
       githubProjectCreationParameters);
-
-   /* when(githubProjectCreationParameters.almSettingDto()).thenReturn();
-    when(githubProjectCreationParameters.almSettingDto()).thenReturn();
-    when(githubProjectCreationParameters.almSettingDto()).thenReturn();
-    when(githubProjectCreationParameters.almSettingDto()).thenReturn();*/
   }
 
+  @Test
+  public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenNoAuthToken_throws() {
+    when(githubProjectCreationParameters.authAppInstallationToken()).thenReturn(null);
+
+    assertThatIllegalStateException().isThrownBy(() -> githubProjectCreator.isScanAllowedUsingPermissionsFromDevopsPlatform())
+      .withMessage("An auth app token is required in case repository permissions checking is necessary.");
+  }
   @Test
   public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenUserIsNotAGitHubUser_returnsFalse() {
     assertThat(githubProjectCreator.isScanAllowedUsingPermissionsFromDevopsPlatform()).isFalse();
@@ -192,7 +198,7 @@ public class GithubProjectCreatorTest {
 
   private void mockGithubCollaboratorsFromApi(GsonRepositoryCollaborator... repositoryCollaborators) {
     Set<GsonRepositoryCollaborator> collaborators = Arrays.stream(repositoryCollaborators).collect(toSet());
-    when(githubApplicationClient.getRepositoryCollaborators(DEVOPS_PROJECT_DESCRIPTOR.url(), appInstallationToken, ORGANIZATION_NAME, REPOSITORY_NAME)).thenReturn(collaborators);
+    when(githubApplicationClient.getRepositoryCollaborators(DEVOPS_PROJECT_DESCRIPTOR.url(), authAppInstallationToken, ORGANIZATION_NAME, REPOSITORY_NAME)).thenReturn(collaborators);
   }
 
   private GsonRepositoryTeam mockGithubTeam(String name, int id, String role, String... sqPermissions) {
@@ -202,7 +208,7 @@ public class GithubProjectCreatorTest {
   }
 
   private void mockTeamsFromApi(GsonRepositoryTeam... repositoryTeams) {
-    when(githubApplicationClient.getRepositoryTeams(DEVOPS_PROJECT_DESCRIPTOR.url(), appInstallationToken, ORGANIZATION_NAME, REPOSITORY_NAME))
+    when(githubApplicationClient.getRepositoryTeams(DEVOPS_PROJECT_DESCRIPTOR.url(), authAppInstallationToken, ORGANIZATION_NAME, REPOSITORY_NAME))
       .thenReturn(Arrays.stream(repositoryTeams).collect(toSet()));
   }
 
@@ -323,7 +329,7 @@ public class GithubProjectCreatorTest {
     when(repository.getDefaultBranch()).thenReturn(MAIN_BRANCH_NAME);
     when(repository.getName()).thenReturn(REPOSITORY_NAME);
     when(repository.getFullName()).thenReturn(DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier());
-    when(githubApplicationClient.getRepository(DEVOPS_PROJECT_DESCRIPTOR.url(), appInstallationToken, DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier())).thenReturn(
+    when(githubApplicationClient.getRepository(DEVOPS_PROJECT_DESCRIPTOR.url(), devOpsAppInstallationToken, DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier())).thenReturn(
       Optional.of(repository));
     when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn("generated_" + DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier());
   }

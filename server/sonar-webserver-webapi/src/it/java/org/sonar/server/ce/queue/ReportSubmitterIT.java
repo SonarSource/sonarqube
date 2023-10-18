@@ -53,8 +53,8 @@ import org.sonar.server.almsettings.ws.DelegatingDevOpsProjectCreatorFactory;
 import org.sonar.server.almsettings.ws.DevOpsProjectCreator;
 import org.sonar.server.almsettings.ws.DevOpsProjectCreatorFactory;
 import org.sonar.server.almsettings.ws.DevOpsProjectDescriptor;
-import org.sonar.server.almsettings.ws.GithubProjectCreator;
 import org.sonar.server.almsettings.ws.GithubProjectCreationParameters;
+import org.sonar.server.almsettings.ws.GithubProjectCreator;
 import org.sonar.server.almsettings.ws.GithubProjectCreatorFactory;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestIndexers;
@@ -263,22 +263,33 @@ public class ReportSubmitterIT {
 
   @Test
   public void submit_whenReportIsForANewProjectWithoutDevOpsMetadata_createsLocalProject() {
-    userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
+    userSession.addPermission(PROVISION_PROJECTS);
     mockSuccessfulPrepareSubmitCall();
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY)))
-      .thenReturn(true);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
 
     underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
     assertLocalProjectWasCreated();
   }
 
-
   @Test
   public void submit_whenReportIsForANewProjectWithValidAlmSettingsAutoProvisioningOnAndPermOnGh_createsProjectWithBinding() {
+    userSession.addPermission(PROVISION_PROJECTS);
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+    mockSuccessfulPrepareSubmitCall();
+
+    DevOpsProjectCreator devOpsProjectCreator = mockAlmSettingDtoAndDevOpsProjectCreator(CHARACTERISTICS);
+    doReturn(true).when(devOpsProjectCreator).isScanAllowedUsingPermissionsFromDevopsPlatform();
+
+    underTest.submit(PROJECT_KEY, PROJECT_NAME, CHARACTERISTICS, IOUtils.toInputStream("{binary}", UTF_8));
+
+    assertProjectWasCreatedWithBinding();
+  }
+
+  @Test
+  public void submit_whenReportIsForANewProjectWithValidAlmSettingsAutoProvisioningOnNoPermOnGhAndGlobalScanPerm_createsProjectWithBinding() {
     userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
     when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
     mockSuccessfulPrepareSubmitCall();
 
     DevOpsProjectCreator devOpsProjectCreator = mockAlmSettingDtoAndDevOpsProjectCreator(CHARACTERISTICS);
@@ -345,8 +356,11 @@ public class ReportSubmitterIT {
     mockGithubRepository();
 
     DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo");
-    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(projectDescriptor, almSettingDto, mock(), true, managedInstanceService.isInstanceExternallyManaged(), userSession);
-    DevOpsProjectCreator devOpsProjectCreator = spy(new GithubProjectCreator(db.getDbClient(), githubApplicationClient, null, projectKeyGenerator, componentUpdater, githubProjectCreationParameters));
+    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(projectDescriptor, almSettingDto, true,
+      managedInstanceService.isInstanceExternallyManaged(), userSession, mock(),
+      null);
+    DevOpsProjectCreator devOpsProjectCreator = spy(
+      new GithubProjectCreator(db.getDbClient(), githubApplicationClient, null, projectKeyGenerator, componentUpdater, githubProjectCreationParameters));
     doReturn(Optional.of(devOpsProjectCreator)).when(devOpsProjectCreatorFactorySpy).getDevOpsProjectCreator(any(), eq(characteristics));
     return devOpsProjectCreator;
   }

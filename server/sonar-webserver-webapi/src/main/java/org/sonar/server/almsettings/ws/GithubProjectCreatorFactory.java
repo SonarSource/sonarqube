@@ -104,6 +104,41 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
       .map(appInstallationToken -> createGithubProjectCreator(dbSession, devOpsProjectDescriptor, almSettingDto, appInstallationToken));
   }
 
+  private GithubProjectCreator createGithubProjectCreator(DbSession dbSession, DevOpsProjectDescriptor devOpsProjectDescriptor, AlmSettingDto almSettingDto,
+    AppInstallationToken appInstallationToken) {
+    LOG.info("DevOps configuration {} auto-detected for project {}", almSettingDto.getKey(), devOpsProjectDescriptor.projectIdentifier());
+    Optional<AppInstallationToken> authAppInstallationToken = getAuthAppInstallationTokenIfNecessary(devOpsProjectDescriptor);
+
+    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor,
+      almSettingDto, projectDefaultVisibility.get(dbSession).isPrivate(), gitHubSettings.isProvisioningEnabled(), userSession, appInstallationToken,
+      authAppInstallationToken.orElse(null));
+    return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater,
+      githubProjectCreationParameters);
+  }
+
+  public Optional<DevOpsProjectCreator> getDevOpsProjectCreator(DbSession dbSession, AlmSettingDto almSettingDto, AccessToken accessToken,
+    DevOpsProjectDescriptor devOpsProjectDescriptor) {
+
+    Optional<AppInstallationToken> authAppInstallationToken = getAuthAppInstallationTokenIfNecessary(devOpsProjectDescriptor);
+    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor,
+      almSettingDto, projectDefaultVisibility.get(dbSession).isPrivate(), gitHubSettings.isProvisioningEnabled(), userSession, accessToken, authAppInstallationToken.orElse(null));
+    return Optional.of(
+      new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater, githubProjectCreationParameters)
+    );
+  }
+
+  private Optional<AppInstallationToken> getAuthAppInstallationTokenIfNecessary(DevOpsProjectDescriptor devOpsProjectDescriptor) {
+    if (gitHubSettings.isProvisioningEnabled()) {
+      GithubAppConfiguration githubAppConfiguration = new GithubAppConfiguration(Long.parseLong(gitHubSettings.appId()), gitHubSettings.privateKey(), gitHubSettings.apiURL());
+      long installationId = findInstallationIdToAccessRepo(githubAppConfiguration, devOpsProjectDescriptor.projectIdentifier())
+        .orElseThrow(() -> new IllegalStateException(format("GitHub auto-provisioning is activated. However the repo %s is not in the scope of the authentication application. "
+                                                            + "The permissions can't be checked, and the project can not be breated.",
+          devOpsProjectDescriptor.projectIdentifier())));
+      return Optional.of(generateAppInstallationToken(githubAppConfiguration, installationId));
+    }
+    return Optional.empty();
+  }
+
   private Optional<Long> findInstallationIdToAccessRepo(GithubAppConfiguration githubAppConfiguration, String repositoryKey) {
     return githubApplicationClient.getInstallationId(githubAppConfiguration, repositoryKey);
   }
@@ -112,24 +147,6 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
     return githubApplicationClient.createAppInstallationToken(githubAppConfiguration, installationId)
       .orElseThrow(() -> new IllegalStateException(format("Error while generating token for GitHub Api Url %s (installation id: %s)",
         githubAppConfiguration.getApiEndpoint(), installationId)));
-  }
-
-  private GithubProjectCreator createGithubProjectCreator(DbSession dbSession, DevOpsProjectDescriptor devOpsProjectDescriptor, AlmSettingDto almSettingDto,
-    AppInstallationToken appInstallationToken) {
-    LOG.info("DevOps configuration {} auto-detected for project {}", almSettingDto.getKey(), devOpsProjectDescriptor.projectIdentifier());
-    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor,
-      almSettingDto, appInstallationToken, projectDefaultVisibility.get(dbSession).isPrivate(), gitHubSettings.isProvisioningEnabled(), userSession);
-    return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater,
-      githubProjectCreationParameters);
-  }
-
-  public Optional<DevOpsProjectCreator> getDevOpsProjectCreator(DbSession dbSession, AlmSettingDto almSettingDto, AccessToken accessToken,
-    DevOpsProjectDescriptor devOpsProjectDescriptor) {
-    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor,
-      almSettingDto, accessToken, projectDefaultVisibility.get(dbSession).isPrivate(), gitHubSettings.isProvisioningEnabled(), userSession);
-    return Optional.of(
-      new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater, githubProjectCreationParameters)
-    );
   }
 
 }

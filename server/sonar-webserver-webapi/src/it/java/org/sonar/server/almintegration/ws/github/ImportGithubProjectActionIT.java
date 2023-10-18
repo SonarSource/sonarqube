@@ -25,13 +25,16 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.alm.client.github.AppInstallationToken;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
+import org.sonar.alm.client.github.api.GsonRepositoryCollaborator;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.GithubPermissionConverter;
+import org.sonar.auth.github.GsonRepositoryPermissions;
 import org.sonar.core.i18n.I18n;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -131,7 +134,7 @@ public class ImportGithubProjectActionIT {
 
   private final ManagedProjectService managedProjectService = mock(ManagedProjectService.class);
 
-  private final GithubPermissionConverter githubPermissionConverter = new GithubPermissionConverter();
+  private final GithubPermissionConverter githubPermissionConverter = mock();
   private final GithubProjectCreatorFactory gitHubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(),
     null, appClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings, githubPermissionConverter);
   private final WsActionTester ws = new WsActionTester(new ImportGithubProjectAction(db.getDbClient(), managedProjectService, userSession,
@@ -147,7 +150,7 @@ public class ImportGithubProjectActionIT {
   public void importProject_ifProjectWithSameNameDoesNotExist_importSucceed() {
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    GithubApplicationClient.Repository repository = mockGithubInteractions();
+    GithubApplicationClient.Repository repository = mockGithubDevOpsAppInteractions();
 
     Projects.CreateWsResponse response = callWebService(githubAlmSetting);
 
@@ -171,7 +174,7 @@ public class ImportGithubProjectActionIT {
 
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    mockGithubInteractions();
+    mockGithubDevOpsAppInteractions();
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -199,7 +202,7 @@ public class ImportGithubProjectActionIT {
 
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    mockGithubInteractions();
+    mockGithubDevOpsAppInteractions();
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -230,7 +233,7 @@ public class ImportGithubProjectActionIT {
 
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    mockGithubInteractions();
+    mockGithubDevOpsAppInteractions();
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -257,7 +260,7 @@ public class ImportGithubProjectActionIT {
 
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    mockGithubInteractions();
+    mockGithubDevOpsAppInteractions();
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -283,7 +286,7 @@ public class ImportGithubProjectActionIT {
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
     db.components().insertPublicProject(p -> p.setKey("Hello-World")).getMainBranchComponent();
 
-    GithubApplicationClient.Repository repository = mockGithubInteractions();
+    GithubApplicationClient.Repository repository = mockGithubDevOpsAppInteractions();
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -299,7 +302,7 @@ public class ImportGithubProjectActionIT {
   public void importProject_whenGithubProvisioningIsDisabled_shouldApplyPermissionTemplate() {
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    mockGithubInteractions();
+    mockGithubDevOpsAppInteractions();
     when(gitHubSettings.isProvisioningEnabled()).thenReturn(false);
 
     ws.newRequest()
@@ -318,8 +321,9 @@ public class ImportGithubProjectActionIT {
   public void importProject_whenGithubProvisioningIsEnabled_shouldNotApplyPermissionTemplate() {
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    mockGithubInteractions();
     when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
+    mockGithubDevOpsAppInteractions();
+    mockGithubAuthAppInteractions();
 
     ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -330,10 +334,29 @@ public class ImportGithubProjectActionIT {
 
   }
 
+  private void mockGithubAuthAppInteractions() {
+    when(gitHubSettings.appId()).thenReturn("432");
+    when(gitHubSettings.privateKey()).thenReturn("private key");
+    when(gitHubSettings.apiURL()).thenReturn("http://www.url.com");
+
+    AppInstallationToken appInstallationToken = mock();
+
+    when(appClient.getInstallationId(any(), any())).thenReturn(Optional.of(321L));
+    when(appClient.createAppInstallationToken(any(), eq(321L))).thenReturn(Optional.of(appInstallationToken));
+
+    GsonRepositoryCollaborator gsonRepositoryCollaborator = new GsonRepositoryCollaborator("toto", 2, "admin", new GsonRepositoryPermissions(true, true, true, true, true));
+    when(appClient.getRepositoryCollaborators(gitHubSettings.apiURL(), appInstallationToken, "octocat", PROJECT_KEY_NAME)).thenReturn(Set.of(gsonRepositoryCollaborator));
+
+    String role = gsonRepositoryCollaborator.roleName();
+    GsonRepositoryPermissions permissions = gsonRepositoryCollaborator.permissions();
+    when(githubPermissionConverter.toSonarqubeRolesWithFallbackOnRepositoryPermissions(Set.of(), role, permissions)).thenReturn(Set.of("scan"));
+
+  }
+
   @Test
   public void importProject_shouldSetCreationMethodToApi_ifNonBrowserRequest() {
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
-    mockGithubInteractions();
+    mockGithubDevOpsAppInteractions();
 
     Projects.CreateWsResponse response = callWebService(githubAlmSetting);
 
@@ -346,7 +369,7 @@ public class ImportGithubProjectActionIT {
   public void importProject_shouldSetCreationMethodToBrowser_ifBrowserRequest() {
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
     userSession.flagSessionAsGui();
-    mockGithubInteractions();
+    mockGithubDevOpsAppInteractions();
 
     Projects.CreateWsResponse response = callWebService(githubAlmSetting);
 
@@ -398,8 +421,7 @@ public class ImportGithubProjectActionIT {
   public void importProject_whenNoAlmSettingKeyAndOnlyOneConfig_shouldImport() {
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    mockGithubInteractions();
-    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
+    mockGithubDevOpsAppInteractions();
 
     TestRequest request = ws.newRequest()
       .setParam(PARAM_ALM_SETTING, githubAlmSetting.getKey())
@@ -415,7 +437,7 @@ public class ImportGithubProjectActionIT {
       .executeProtobuf(Projects.CreateWsResponse.class);
   }
 
-  private GithubApplicationClient.Repository mockGithubInteractions() {
+  private GithubApplicationClient.Repository mockGithubDevOpsAppInteractions() {
     GithubApplicationClient.Repository repository = new GithubApplicationClient.Repository(1L, PROJECT_KEY_NAME, false,
       "octocat/" + PROJECT_KEY_NAME,
       "https://github.sonarsource.com/api/v3/repos/octocat/" + PROJECT_KEY_NAME, "default-branch");

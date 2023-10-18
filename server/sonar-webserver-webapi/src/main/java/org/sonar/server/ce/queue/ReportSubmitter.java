@@ -52,6 +52,7 @@ import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.db.project.CreationMethod.SCANNER_API;
 import static org.sonar.db.project.CreationMethod.SCANNER_API_DEVOPS_AUTO_CONFIG;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
@@ -183,6 +184,9 @@ public class ReportSubmitter {
   }
 
   private boolean wouldCurrentUserHaveScanPermission(String projectKey, DbSession dbSession, @Nullable DevOpsProjectCreator devOpsProjectCreator) {
+    if (userSession.hasPermission(SCAN)) {
+      return true;
+    }
     if (managedInstanceService.isInstanceExternallyManaged() && devOpsProjectCreator != null) {
       return devOpsProjectCreator.isScanAllowedUsingPermissionsFromDevopsPlatform();
     }
