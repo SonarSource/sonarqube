@@ -30,7 +30,7 @@ import { themeBorder, themeColor, themeContrast } from '../../helpers/theme';
 import { isDefined } from '../../helpers/types';
 import { InputSizeKeys } from '../../types/theme';
 import { InteractiveIcon } from '../InteractiveIcon';
-import { Spinner, StyledSpinner } from '../Spinner';
+import { Spinner } from '../Spinner';
 import { CloseIcon } from '../icons/CloseIcon';
 import { SearchIcon } from '../icons/SearchIcon';
 
@@ -83,7 +83,7 @@ export function InputSearch({
         onChange(val);
         setDirty(false);
       }, DEBOUNCE_DELAY),
-    [onChange]
+    [onChange],
   );
 
   const tooShort = isDefined(minLength) && value.length > 0 && value.length < minLength;
@@ -163,9 +163,11 @@ export function InputSearch({
           type="search"
           value={value}
         />
-        <Spinner className="sw-z-normal" loading={loading ?? false}>
-          <StyledSearchIcon />
-        </Spinner>
+        <StyledSearchIconWrapper>
+          <Spinner className="sw-z-normal" loading={loading ?? false}>
+            <StyledSearchIcon />
+          </Spinner>
+        </StyledSearchIconWrapper>
         {value && (
           <StyledInteractiveIcon
             Icon={CloseIcon}
@@ -195,12 +197,6 @@ export const InputSearchWrapper = styled.div`
   ${tw`sw-whitespace-nowrap`}
   ${tw`sw-align-middle`}
   ${tw`sw-h-control`}
-
-  ${StyledSpinner} {
-    top: calc((2.25rem - ${theme('spacing.4')}) / 2);
-    ${tw`sw-left-3`};
-    ${tw`sw-absolute`};
-  }
 `;
 
 export const StyledInputWrapper = styled.div`
@@ -242,8 +238,9 @@ export const StyledInputWrapper = styled.div`
 
 export const StyledSearchIcon = styled(SearchIcon)`
   color: ${themeColor('inputBorder')};
-  top: calc((${theme('height.control')} - ${theme('spacing.4')}) / 2);
+`;
 
+export const StyledSearchIconWrapper = styled.div`
   ${tw`sw-left-3`}
   ${tw`sw-absolute`}
   ${tw`sw-z-normal`}

@@ -72,7 +72,7 @@ const spinAnimation = keyframes`
   }
 `;
 
-export const StyledSpinner = styled.div`
+const StyledSpinner = styled.div`
   border: 2px solid transparent;
   background:
     linear-gradient(0deg, ${themeColor('primary')} 50%, transparent 50% 100%) border-box,
