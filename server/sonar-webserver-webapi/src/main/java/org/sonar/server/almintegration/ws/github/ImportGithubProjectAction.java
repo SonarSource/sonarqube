@@ -33,11 +33,13 @@ import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
 import org.sonar.server.almintegration.ws.ImportHelper;
+import org.sonar.server.almsettings.ws.DevOpsProjectCreator;
 import org.sonar.server.almsettings.ws.DevOpsProjectDescriptor;
-import org.sonar.server.almsettings.ws.GitHubDevOpsPlatformService;
+import org.sonar.server.almsettings.ws.GithubProjectCreatorFactory;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.management.ManagedProjectService;
@@ -47,6 +49,8 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT;
+import static org.sonar.db.project.CreationMethod.getCreationMethod;
 import static org.sonar.server.almintegration.ws.ImportHelper.PARAM_ALM_SETTING;
 import static org.sonar.server.almintegration.ws.ImportHelper.toCreateResponse;
 import static org.sonar.server.newcodeperiod.NewCodeDefinitionResolver.NEW_CODE_PERIOD_TYPE_DESCRIPTION_PROJECT_CREATION;
@@ -70,13 +74,13 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
 
   private final DefaultBranchNameResolver defaultBranchNameResolver;
 
-  private final GitHubDevOpsPlatformService gitHubDevOpsPlatformService;
+  private final GithubProjectCreatorFactory githubProjectCreatorFactory;
 
   @Inject
   public ImportGithubProjectAction(DbClient dbClient, ManagedProjectService managedProjectService, UserSession userSession,
     ComponentUpdater componentUpdater, ImportHelper importHelper,
     NewCodeDefinitionResolver newCodeDefinitionResolver,
-    DefaultBranchNameResolver defaultBranchNameResolver, GitHubDevOpsPlatformService gitHubDevOpsPlatformService) {
+    DefaultBranchNameResolver defaultBranchNameResolver, GithubProjectCreatorFactory githubProjectCreatorFactory) {
     this.dbClient = dbClient;
     this.managedProjectService = managedProjectService;
     this.userSession = userSession;
@@ -84,7 +88,7 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
     this.importHelper = importHelper;
     this.newCodeDefinitionResolver = newCodeDefinitionResolver;
     this.defaultBranchNameResolver = defaultBranchNameResolver;
-    this.gitHubDevOpsPlatformService = gitHubDevOpsPlatformService;
+    this.githubProjectCreatorFactory = githubProjectCreatorFactory;
   }
 
   @Override
@@ -140,8 +144,10 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
 
       String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
       DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, url, repositoryKey);
-      ComponentCreationData componentCreationData = gitHubDevOpsPlatformService.createProjectAndBindToDevOpsPlatform(dbSession, almSettingDto, accessToken,
-        devOpsProjectDescriptor);
+
+      Optional<DevOpsProjectCreator> devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, almSettingDto, accessToken, devOpsProjectDescriptor);
+      CreationMethod creationMethod = getCreationMethod(ALM_IMPORT, userSession.isAuthenticatedBrowserSession());
+      ComponentCreationData componentCreationData = devOpsProjectCreator.get().createProjectAndBindToDevOpsPlatform(dbSession, creationMethod, null);
 
       checkNewCodeDefinitionParam(newCodeDefinitionType, newCodeDefinitionValue);
 

@@ -19,26 +19,10 @@
  */
 package org.sonar.server.almsettings.ws;
 
-import java.util.Map;
-import java.util.Optional;
 import org.sonar.alm.client.github.security.AccessToken;
-import org.sonar.db.DbSession;
-import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
-import org.sonar.server.component.ComponentCreationData;
+import org.sonar.server.user.UserSession;
 
-public interface DevOpsPlatformService {
-
-  ALM getDevOpsPlatform();
-
-  Optional<DevOpsProjectDescriptor> getDevOpsProjectDescriptor(Map<String, String> characteristics);
-
-  Optional<AlmSettingDto> getValidAlmSettingDto(DbSession dbSession, DevOpsProjectDescriptor devOpsProjectDescriptor);
-
-  boolean isScanAllowedUsingPermissionsFromDevopsPlatform(AlmSettingDto almSettingDto, DevOpsProjectDescriptor devOpsProjectDescriptor);
-
-  ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, String projectKey, AlmSettingDto almSettingDto, DevOpsProjectDescriptor devOpsProjectDescriptor);
-
-  ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, AlmSettingDto almSettingDto, AccessToken accessToken,
-    DevOpsProjectDescriptor devOpsProjectDescriptor);
+public record GithubProjectCreationParameters(DevOpsProjectDescriptor devOpsProjectDescriptor, AlmSettingDto almSettingDto, AccessToken appInstallationToken,
+                                              boolean projectsArePrivateByDefault, boolean isProvisioningEnabled, UserSession userSession) {
 }

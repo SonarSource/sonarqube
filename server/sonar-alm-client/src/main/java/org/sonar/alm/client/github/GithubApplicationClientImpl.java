@@ -369,13 +369,13 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   }
 
   @Override
-  public Set<GsonRepositoryTeam> getRepositoryTeams(String appUrl, AppInstallationToken accessToken, String orgName, String repoName) {
+  public Set<GsonRepositoryTeam> getRepositoryTeams(String appUrl, AccessToken accessToken, String orgName, String repoName) {
     return Set
       .copyOf(executePaginatedQuery(appUrl, accessToken, format("/repos/%s/%s/teams", orgName, repoName), resp -> GSON.fromJson(resp, REPOSITORY_TEAM_LIST_TYPE)));
   }
 
   @Override
-  public Set<GsonRepositoryCollaborator> getRepositoryCollaborators(String appUrl, AppInstallationToken accessToken, String orgName, String repoName) {
+  public Set<GsonRepositoryCollaborator> getRepositoryCollaborators(String appUrl, AccessToken accessToken, String orgName, String repoName) {
     return Set
       .copyOf(
         executePaginatedQuery(

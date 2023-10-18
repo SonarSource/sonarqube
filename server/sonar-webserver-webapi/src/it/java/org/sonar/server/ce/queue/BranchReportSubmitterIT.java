@@ -47,8 +47,8 @@ import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.almsettings.ws.DevOpsPlatformService;
-import org.sonar.server.almsettings.ws.GitHubDevOpsPlatformService;
+import org.sonar.server.almsettings.ws.DevOpsProjectCreatorFactory;
+import org.sonar.server.almsettings.ws.GithubProjectCreatorFactory;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.component.ComponentUpdater;
@@ -107,12 +107,12 @@ public class BranchReportSubmitterIT {
   private final BranchSupportDelegate branchSupportDelegate = mock(BranchSupportDelegate.class);
   private final BranchSupport branchSupport = spy(new BranchSupport(branchSupportDelegate));
 
-  private final DevOpsPlatformService devOpsPlatformService = new GitHubDevOpsPlatformService(db.getDbClient(), null,
+  private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(), null,
     null, projectDefaultVisibility, null, userSession, componentUpdater, null, null);
 
   private final ManagedInstanceService managedInstanceService = mock();
   private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), branchSupport,
-    projectDefaultVisibility, devOpsPlatformService, managedInstanceService);
+    projectDefaultVisibility, devOpsProjectCreatorFactory, managedInstanceService);
 
   @Before
   public void before() {

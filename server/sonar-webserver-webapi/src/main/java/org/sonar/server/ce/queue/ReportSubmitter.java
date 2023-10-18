@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -35,13 +34,12 @@ import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
-import org.sonar.server.almsettings.ws.DevOpsPlatformService;
-import org.sonar.server.almsettings.ws.DevOpsProjectDescriptor;
+import org.sonar.server.almsettings.ws.DevOpsProjectCreator;
+import org.sonar.server.almsettings.ws.DevOpsProjectCreatorFactory;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.component.ComponentUpdater;
@@ -55,6 +53,7 @@ import org.sonar.server.user.UserSession;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.sonar.db.project.CreationMethod.SCANNER_API;
+import static org.sonar.db.project.CreationMethod.SCANNER_API_DEVOPS_AUTO_CONFIG;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
@@ -68,12 +67,12 @@ public class ReportSubmitter {
   private final DbClient dbClient;
   private final BranchSupport branchSupport;
   private final ProjectDefaultVisibility projectDefaultVisibility;
-  private final DevOpsPlatformService devOpsPlatformService;
+  private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory;
   private final ManagedInstanceService managedInstanceService;
 
   public ReportSubmitter(CeQueue queue, UserSession userSession, ComponentUpdater componentUpdater,
     PermissionTemplateService permissionTemplateService, DbClient dbClient, BranchSupport branchSupport, ProjectDefaultVisibility projectDefaultVisibility,
-    DevOpsPlatformService devOpsPlatformService, ManagedInstanceService managedInstanceService) {
+    DevOpsProjectCreatorFactory devOpsProjectCreatorFactory, ManagedInstanceService managedInstanceService) {
     this.queue = queue;
     this.userSession = userSession;
     this.componentUpdater = componentUpdater;
@@ -81,7 +80,7 @@ public class ReportSubmitter {
     this.dbClient = dbClient;
     this.branchSupport = branchSupport;
     this.projectDefaultVisibility = projectDefaultVisibility;
-    this.devOpsPlatformService = devOpsPlatformService;
+    this.devOpsProjectCreatorFactory = devOpsProjectCreatorFactory;
     this.managedInstanceService = managedInstanceService;
   }
 
@@ -167,45 +166,25 @@ public class ReportSubmitter {
     DbSession dbSession, BranchSupport.ComponentKey componentKey) {
     userSession.checkPermission(GlobalPermission.PROVISION_PROJECTS);
 
-    DevOpsProjectDescriptor devOpsProjectDescriptor = devOpsPlatformService.getDevOpsProjectDescriptor(characteristics).orElse(null);
-    AlmSettingDto almSettingDto = getAlmSettingDto(dbSession, devOpsProjectDescriptor);
+    DevOpsProjectCreator devOpsProjectCreator = devOpsProjectCreatorFactory.getDevOpsProjectCreator(dbSession, characteristics).orElse(null);
 
-    throwIfNoValidDevOpsConfigurationFoundForDevOpsProject(devOpsProjectDescriptor, almSettingDto);
-    throwIfCurrentUserWouldNotHaveScanPermission(projectKey, dbSession, devOpsProjectDescriptor, almSettingDto);
+    throwIfCurrentUserWouldNotHaveScanPermission(projectKey, dbSession, devOpsProjectCreator);
 
-    if (almSettingDto != null) {
-      return devOpsPlatformService.createProjectAndBindToDevOpsPlatform(dbSession, projectKey, almSettingDto, devOpsProjectDescriptor);
+    if (devOpsProjectCreator != null) {
+      return devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, SCANNER_API_DEVOPS_AUTO_CONFIG, projectKey);
     }
     return createProject(dbSession, componentKey.getKey(), defaultIfBlank(projectName, projectKey));
   }
 
-  @CheckForNull
-  private AlmSettingDto getAlmSettingDto(DbSession dbSession, @Nullable DevOpsProjectDescriptor devOpsProjectDescriptor) {
-    if (devOpsProjectDescriptor != null) {
-      return devOpsPlatformService.getValidAlmSettingDto(dbSession, devOpsProjectDescriptor).orElse(null);
-    }
-    return null;
-  }
-
-  private static void throwIfNoValidDevOpsConfigurationFoundForDevOpsProject(@Nullable DevOpsProjectDescriptor devOpsProjectDescriptor, @Nullable AlmSettingDto almSettingDto) {
-    if (devOpsProjectDescriptor != null && almSettingDto == null) {
-      throw new IllegalArgumentException(format("The project %s could not be created. It was auto-detected as a %s project "
-                                                + "and no valid DevOps platform configuration were found to access %s",
-        devOpsProjectDescriptor.projectIdentifier(), devOpsProjectDescriptor.alm(), devOpsProjectDescriptor.url()));
-    }
-  }
-
-  private void throwIfCurrentUserWouldNotHaveScanPermission(String projectKey, DbSession dbSession, @Nullable DevOpsProjectDescriptor devOpsProjectDescriptor,
-    @Nullable AlmSettingDto almSettingDto) {
-    if (!wouldCurrentUserHaveScanPermission(projectKey, dbSession, devOpsProjectDescriptor, almSettingDto)) {
+  private void throwIfCurrentUserWouldNotHaveScanPermission(String projectKey, DbSession dbSession, @Nullable DevOpsProjectCreator devOpsProjectCreator) {
+    if (!wouldCurrentUserHaveScanPermission(projectKey, dbSession, devOpsProjectCreator)) {
       throw insufficientPrivilegesException();
     }
   }
 
-  private boolean wouldCurrentUserHaveScanPermission(String projectKey, DbSession dbSession, @Nullable DevOpsProjectDescriptor devOpsProjectDescriptor,
-    @Nullable AlmSettingDto almSettingDto) {
-    if (managedInstanceService.isInstanceExternallyManaged() && almSettingDto != null && devOpsProjectDescriptor != null) {
-      return devOpsPlatformService.isScanAllowedUsingPermissionsFromDevopsPlatform(almSettingDto, devOpsProjectDescriptor);
+  private boolean wouldCurrentUserHaveScanPermission(String projectKey, DbSession dbSession, @Nullable DevOpsProjectCreator devOpsProjectCreator) {
+    if (managedInstanceService.isInstanceExternallyManaged() && devOpsProjectCreator != null) {
+      return devOpsProjectCreator.isScanAllowedUsingPermissionsFromDevopsPlatform();
     }
     return permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(dbSession, userSession.getUuid(), projectKey);
   }

@@ -96,11 +96,9 @@ public interface GithubApplicationClient {
    */
   Optional<Repository> getRepository(String appUrl, AccessToken accessToken, String repositoryKey);
 
+  Set<GsonRepositoryTeam> getRepositoryTeams(String appUrl, AccessToken accessToken, String orgName, String repoName);
 
-
-  Set<GsonRepositoryTeam> getRepositoryTeams(String appUrl, AppInstallationToken accessToken, String orgName, String repoName);
-
-  Set<GsonRepositoryCollaborator> getRepositoryCollaborators(String appUrl, AppInstallationToken accessToken, String orgName, String repoName);
+  Set<GsonRepositoryCollaborator> getRepositoryCollaborators(String appUrl, AccessToken accessToken, String orgName, String repoName);
 
   class Repositories {
     private int total;

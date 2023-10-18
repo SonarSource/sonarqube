@@ -20,7 +20,6 @@
 package org.sonar.server.ce.queue;
 
 import java.io.InputStream;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -28,11 +27,8 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.alm.client.github.AppInstallationToken;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
-import org.sonar.alm.client.github.config.GithubAppConfiguration;
-import org.sonar.alm.client.github.config.GithubAppInstallation;
 import org.sonar.api.utils.System2;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.ce.queue.CeQueue;
@@ -53,10 +49,13 @@ import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
-import org.sonar.server.almsettings.ws.DelegatingDevOpsPlatformService;
-import org.sonar.server.almsettings.ws.DevOpsPlatformService;
+import org.sonar.server.almsettings.ws.DelegatingDevOpsProjectCreatorFactory;
+import org.sonar.server.almsettings.ws.DevOpsProjectCreator;
+import org.sonar.server.almsettings.ws.DevOpsProjectCreatorFactory;
 import org.sonar.server.almsettings.ws.DevOpsProjectDescriptor;
-import org.sonar.server.almsettings.ws.GitHubDevOpsPlatformService;
+import org.sonar.server.almsettings.ws.GithubProjectCreator;
+import org.sonar.server.almsettings.ws.GithubProjectCreationParameters;
+import org.sonar.server.almsettings.ws.GithubProjectCreatorFactory;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
@@ -76,10 +75,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.IntStream.rangeClosed;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -100,6 +97,7 @@ public class ReportSubmitterIT {
   private static final String PROJECT_UUID = "P1";
   private static final String PROJECT_NAME = "My Project";
   private static final String TASK_UUID = "TASK_1";
+  private static final Map<String, String> CHARACTERISTICS = Map.of("random", "data");
 
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();
@@ -122,16 +120,16 @@ public class ReportSubmitterIT {
   private final GitHubSettings gitHubSettings = mock();
   private final ProjectKeyGenerator projectKeyGenerator = mock();
 
-  private final DevOpsPlatformService devOpsPlatformService = new DelegatingDevOpsPlatformService(
-    Set.of(new GitHubDevOpsPlatformService(db.getDbClient(), githubGlobalSettingsValidator,
-      githubApplicationClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings, null)));
+  private final GithubProjectCreatorFactory githubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(), githubGlobalSettingsValidator,
+    githubApplicationClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings, null);
+  private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new DelegatingDevOpsProjectCreatorFactory(Set.of(githubProjectCreatorFactory));
 
-  private final DevOpsPlatformService devOpsPlatformServiceSpy = spy(devOpsPlatformService);
+  private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactorySpy = spy(devOpsProjectCreatorFactory);
 
   private final ManagedInstanceService managedInstanceService = mock();
 
   private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), ossEditionBranchSupport,
-    projectDefaultVisibility, devOpsPlatformServiceSpy, managedInstanceService);
+    projectDefaultVisibility, devOpsProjectCreatorFactorySpy, managedInstanceService);
 
   @Before
   public void before() {
@@ -275,25 +273,6 @@ public class ReportSubmitterIT {
     assertLocalProjectWasCreated();
   }
 
-  @Test
-  public void submit_whenReportIsForANewGithubProjectWithoutValidAlmSettings_throws() {
-    userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
-    mockSuccessfulPrepareSubmitCall();
-
-    Map<String, String> characteristics = Map.of("random", "data");
-    DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo");
-    when(devOpsPlatformServiceSpy.getDevOpsProjectDescriptor(characteristics)).thenReturn(Optional.of(projectDescriptor));
-
-    assertThatIllegalArgumentException().isThrownBy(() -> underTest.submit(PROJECT_KEY, PROJECT_NAME, characteristics, IOUtils.toInputStream("{binary}", UTF_8)))
-      .withMessage("The project orga/repo could not be created. It was auto-detected as a GITHUB project and no valid DevOps platform configuration were found to access apiUrl");
-
-    assertNoProjectWasCreated();
-  }
-
-  private void assertNoProjectWasCreated() {
-    assertThat(db.getDbClient().projectDao().selectAll(db.getSession())).isEmpty();
-  }
 
   @Test
   public void submit_whenReportIsForANewProjectWithValidAlmSettingsAutoProvisioningOnAndPermOnGh_createsProjectWithBinding() {
@@ -302,33 +281,12 @@ public class ReportSubmitterIT {
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
     mockSuccessfulPrepareSubmitCall();
 
-    Map<String, String> characteristics = Map.of("random", "data");
-    DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo");
+    DevOpsProjectCreator devOpsProjectCreator = mockAlmSettingDtoAndDevOpsProjectCreator(CHARACTERISTICS);
+    doReturn(true).when(devOpsProjectCreator).isScanAllowedUsingPermissionsFromDevopsPlatform();
 
-    AlmSettingDto almSettingDto = mockInteractionsWithDevOpsPlatformServiceSpyBeforeProjectCreation(characteristics, projectDescriptor);
-    when(devOpsPlatformServiceSpy.isScanAllowedUsingPermissionsFromDevopsPlatform(almSettingDto, projectDescriptor)).thenReturn(true);
-
-    underTest.submit(PROJECT_KEY, PROJECT_NAME, characteristics, IOUtils.toInputStream("{binary}", UTF_8));
+    underTest.submit(PROJECT_KEY, PROJECT_NAME, CHARACTERISTICS, IOUtils.toInputStream("{binary}", UTF_8));
 
     assertProjectWasCreatedWithBinding();
-  }
-
-  @Test
-  public void submit_whenReportIsForANewProjectWithProjectDescriptorAndNoValidAlmSettingsAndAutoProvisioningOn_throws() {
-    userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
-    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
-    mockSuccessfulPrepareSubmitCall();
-
-    Map<String, String> characteristics = Map.of("random", "data");
-    DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo");
-    doReturn(Optional.of(projectDescriptor)).when(devOpsPlatformServiceSpy).getDevOpsProjectDescriptor(characteristics);
-
-    assertThatIllegalArgumentException()
-      .isThrownBy(() -> underTest.submit(PROJECT_KEY, PROJECT_NAME, characteristics, IOUtils.toInputStream("{binary}", UTF_8)))
-      .withMessage("The project orga/repo could not be created. It was auto-detected as a GITHUB project and no valid DevOps platform configuration were found to access apiUrl");
-
-    assertNoProjectWasCreated();
   }
 
   @Test
@@ -338,9 +296,7 @@ public class ReportSubmitterIT {
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
     mockSuccessfulPrepareSubmitCall();
 
-    Map<String, String> characteristics = Map.of("random", "data");
-
-    underTest.submit(PROJECT_KEY, PROJECT_NAME, characteristics, IOUtils.toInputStream("{binary}", UTF_8));
+    underTest.submit(PROJECT_KEY, PROJECT_NAME, CHARACTERISTICS, IOUtils.toInputStream("{binary}", UTF_8));
     assertLocalProjectWasCreated();
   }
 
@@ -358,15 +314,13 @@ public class ReportSubmitterIT {
   @Test
   public void submit_whenReportIsForANewProjectWithValidAlmSettings_createsProjectWithDevOpsBinding() {
     userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
     mockSuccessfulPrepareSubmitCall();
 
-    Map<String, String> characteristics = Map.of("random", "data");
-    DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo");
+    mockAlmSettingDtoAndDevOpsProjectCreator(CHARACTERISTICS);
 
-    mockInteractionsWithDevOpsPlatformServiceSpyBeforeProjectCreation(characteristics, projectDescriptor);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
 
-    underTest.submit(PROJECT_KEY, PROJECT_NAME, characteristics, IOUtils.toInputStream("{binary}", UTF_8));
+    underTest.submit(PROJECT_KEY, PROJECT_NAME, CHARACTERISTICS, IOUtils.toInputStream("{binary}", UTF_8));
 
     assertProjectWasCreatedWithBinding();
   }
@@ -382,32 +336,27 @@ public class ReportSubmitterIT {
     assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.getUuid())).isPresent();
   }
 
-  private AlmSettingDto mockInteractionsWithDevOpsPlatformServiceSpyBeforeProjectCreation(Map<String, String> characteristics, DevOpsProjectDescriptor projectDescriptor) {
-    doReturn(Optional.of(projectDescriptor)).when(devOpsPlatformServiceSpy).getDevOpsProjectDescriptor(characteristics);
+  private DevOpsProjectCreator mockAlmSettingDtoAndDevOpsProjectCreator(Map<String, String> characteristics) {
     AlmSettingDto almSettingDto = mock(AlmSettingDto.class);
     when(almSettingDto.getAlm()).thenReturn(ALM.GITHUB);
     when(almSettingDto.getUrl()).thenReturn("https://www.toto.com");
-    when(almSettingDto.getUuid()).thenReturn("TEST_GH");
-    doReturn(Optional.of(almSettingDto)).when(devOpsPlatformServiceSpy).getValidAlmSettingDto(any(), eq(projectDescriptor));
-    mockGithubInteractions(almSettingDto);
-    return almSettingDto;
+    when(almSettingDto.getUuid()).thenReturn("uuid_gh_1");
+
+    mockGithubRepository();
+
+    DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo");
+    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(projectDescriptor, almSettingDto, mock(), true, managedInstanceService.isInstanceExternallyManaged(), userSession);
+    DevOpsProjectCreator devOpsProjectCreator = spy(new GithubProjectCreator(db.getDbClient(), githubApplicationClient, null, projectKeyGenerator, componentUpdater, githubProjectCreationParameters));
+    doReturn(Optional.of(devOpsProjectCreator)).when(devOpsProjectCreatorFactorySpy).getDevOpsProjectCreator(any(), eq(characteristics));
+    return devOpsProjectCreator;
   }
 
-  private void mockGithubInteractions(AlmSettingDto almSettingDto) {
-    GithubAppConfiguration githubAppConfiguration = mock(GithubAppConfiguration.class);
-    when(githubGlobalSettingsValidator.validate(almSettingDto)).thenReturn(githubAppConfiguration);
-    GithubAppInstallation githubAppInstallation = mock(GithubAppInstallation.class);
-    when(githubAppInstallation.installationId()).thenReturn("5435345");
-    when(githubApplicationClient.getWhitelistedGithubAppInstallations(any())).thenReturn(List.of(githubAppInstallation));
-    when(githubApplicationClient.createAppInstallationToken(any(), anyLong())).thenReturn(Optional.of(mock(AppInstallationToken.class)));
-    when(githubApplicationClient.createAppInstallationToken(any(), anyLong())).thenReturn(Optional.of(mock(AppInstallationToken.class)));
-    when(githubApplicationClient.getInstallationId(eq(githubAppConfiguration), any())).thenReturn(Optional.of(5435345L));
+  private void mockGithubRepository() {
     GithubApplicationClient.Repository repository = mock(GithubApplicationClient.Repository.class);
     when(repository.getDefaultBranch()).thenReturn("defaultBranch");
     when(repository.getFullName()).thenReturn("orga/repoName");
     when(repository.getName()).thenReturn("repoName");
     when(githubApplicationClient.getRepository(any(), any(), any())).thenReturn(Optional.of(repository));
-    when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn("projectKey");
   }
 
   @Test

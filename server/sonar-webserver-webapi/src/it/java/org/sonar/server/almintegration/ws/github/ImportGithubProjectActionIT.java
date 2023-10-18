@@ -49,7 +49,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
-import org.sonar.server.almsettings.ws.GitHubDevOpsPlatformService;
+import org.sonar.server.almsettings.ws.GithubProjectCreatorFactory;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexersImpl;
@@ -132,10 +132,10 @@ public class ImportGithubProjectActionIT {
   private final ManagedProjectService managedProjectService = mock(ManagedProjectService.class);
 
   private final GithubPermissionConverter githubPermissionConverter = new GithubPermissionConverter();
-  private final GitHubDevOpsPlatformService gitHubDevOpsPlatformService = new GitHubDevOpsPlatformService(db.getDbClient(),
+  private final GithubProjectCreatorFactory gitHubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(),
     null, appClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings, githubPermissionConverter);
   private final WsActionTester ws = new WsActionTester(new ImportGithubProjectAction(db.getDbClient(), managedProjectService, userSession,
-    componentUpdater, importHelper, newCodeDefinitionResolver, defaultBranchNameResolver, gitHubDevOpsPlatformService));
+    componentUpdater, importHelper, newCodeDefinitionResolver, defaultBranchNameResolver, gitHubProjectCreatorFactory));
 
   @Before
   public void before() {

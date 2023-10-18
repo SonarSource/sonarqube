@@ -1,0 +1,222 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2023 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.server.almsettings.ws;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.sonar.alm.client.github.AppInstallationToken;
+import org.sonar.alm.client.github.GithubApplicationClient;
+import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
+import org.sonar.auth.github.GitHubSettings;
+import org.sonar.auth.github.GithubPermissionConverter;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.alm.setting.ALM;
+import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
+import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.project.ProjectDefaultVisibility;
+import org.sonar.server.user.UserSession;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.core.ce.CeTaskCharacteristics.DEVOPS_PLATFORM_PROJECT_IDENTIFIER;
+import static org.sonar.core.ce.CeTaskCharacteristics.DEVOPS_PLATFORM_URL;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GithubProjectCreatorFactoryTest {
+  private static final String EXCEPTION_MESSAGE =
+    "The project orgname/projectName could not be created. It was auto-detected as a GITHUB project and no valid DevOps platform configuration were found to access https://api.toto.com."
+    + " Please check with a SonarQube administrator.";
+
+  private static final String PROJECT_NAME = "projectName";
+  private static final String ORGANIZATION_NAME = "orgname";
+  private static final String GITHUB_REPO_FULL_NAME = ORGANIZATION_NAME + "/" + PROJECT_NAME;
+  private static final String GITHUB_API_URL = "https://api.toto.com";
+
+  private static final DevOpsProjectDescriptor GITHUB_PROJECT_DESCRIPTOR = new DevOpsProjectDescriptor(ALM.GITHUB, GITHUB_API_URL, GITHUB_REPO_FULL_NAME);
+  private static final Map<String, String> VALID_GITHUB_PROJECT_COORDINATES = Map.of(
+    DEVOPS_PLATFORM_URL, GITHUB_PROJECT_DESCRIPTOR.url(),
+    DEVOPS_PLATFORM_PROJECT_IDENTIFIER, GITHUB_PROJECT_DESCRIPTOR.projectIdentifier()
+  );
+  private static final long APP_INSTALLATION_ID = 534534534543L;
+
+  @Mock
+  private DbSession dbSession;
+  @Mock
+  private GithubGlobalSettingsValidator githubGlobalSettingsValidator;
+  @Mock
+  private GithubApplicationClient githubApplicationClient;
+
+  @Mock
+  private ComponentUpdater componentUpdater;
+
+  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+  private DbClient dbClient;
+  @Mock
+  private UserSession userSession;
+
+  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+  private ProjectDefaultVisibility projectDefaultVisibility;
+
+  @Mock
+  private ProjectKeyGenerator projectKeyGenerator;
+
+  @Mock
+  private GitHubSettings gitHubSettings;
+
+  @Mock
+  private GithubPermissionConverter githubPermissionConverter;
+
+  @Mock
+  private AppInstallationToken appInstallationToken;
+
+  @InjectMocks
+  private GithubProjectCreatorFactory githubProjectCreatorFactory;
+
+  @Test
+  public void getDevOpsProjectCreator_whenNoCharacteristics_shouldReturnEmpty() {
+    Optional<DevOpsProjectCreator> devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, Map.of());
+
+    assertThat(devOpsProjectCreator).isEmpty();
+  }
+
+  @Test
+  public void getDevOpsProjectCreator_whenValidCharacteristicsButNoAlmSettingDao_shouldThrow() {
+    assertThatIllegalStateException().isThrownBy(() -> githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES))
+      .withMessage(EXCEPTION_MESSAGE);
+  }
+
+  @Test
+  public void getDevOpsProjectCreator_whenValidCharacteristicsButInvalidAlmSettingDto_shouldThrow() {
+    AlmSettingDto almSettingDto = mockAlmSettingDto(true);
+    IllegalArgumentException error = new IllegalArgumentException("error happened");
+    when(githubGlobalSettingsValidator.validate(almSettingDto)).thenThrow(error);
+
+    assertThatIllegalArgumentException().isThrownBy(() -> githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES))
+      .isSameAs(error);
+  }
+
+  @Test
+  public void getDevOpsProjectCreator_whenAppHasNoAccessToRepo_shouldThrow() {
+    mockAlmSettingDto(true);
+    when(githubApplicationClient.getInstallationId(any(), eq(GITHUB_REPO_FULL_NAME))).thenReturn(Optional.empty());
+
+    assertThatIllegalStateException().isThrownBy(() -> githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES))
+      .withMessage(EXCEPTION_MESSAGE);
+  }
+
+  @Test
+  public void getDevOpsProjectCreator_whenNotPossibleToGenerateToken_shouldThrow() {
+    AlmSettingDto almSettingDto = mockAlmSettingDto(true);
+    when(githubApplicationClient.getInstallationId(any(), eq(GITHUB_REPO_FULL_NAME))).thenReturn(Optional.of(APP_INSTALLATION_ID));
+    when(githubGlobalSettingsValidator.validate(almSettingDto)).thenReturn(mock());
+    when(githubApplicationClient.createAppInstallationToken(any(), eq(APP_INSTALLATION_ID))).thenReturn(Optional.empty());
+
+    assertThatIllegalStateException().isThrownBy(() -> githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES))
+      .withMessage("Error while generating token for GitHub Api Url null (installation id: 1)");
+  }
+
+  @Test
+  public void getDevOpsProjectCreator_whenOneValidAlmSetting_shouldInstantiateDevOpsProjectCreator() {
+    AlmSettingDto almSettingDto = mockAlmSettingDto(true);
+    mockSuccesfullGithubInteraction();
+
+    DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES).orElseThrow();
+
+    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(almSettingDto, false, false);
+    assertThat(devOpsProjectCreator).usingRecursiveComparison().isEqualTo(expectedGithubProjectCreator);
+  }
+
+  @Test
+  public void getDevOpsProjectCreator_whenOneValidAlmSettingAndPublicByDefaultAndAutoProviisoningEnabled_shouldInstantiateDevOpsProjectCreator() {
+    when(projectDefaultVisibility.get(any()).isPrivate()).thenReturn(true);
+    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
+
+    AlmSettingDto almSettingDto = mockAlmSettingDto(true);
+    mockSuccesfullGithubInteraction();
+
+    DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES).orElseThrow();
+
+    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(almSettingDto, true, true);
+    assertThat(devOpsProjectCreator).usingRecursiveComparison().isEqualTo(expectedGithubProjectCreator);
+  }
+
+  @Test
+  public void getDevOpsProjectCreator_whenOneMatchingAndOneNotMatchingAlmSetting_shouldInstantiateDevOpsProjectCreator() {
+    AlmSettingDto matchingAlmSettingDto = mockAlmSettingDto(true);
+    AlmSettingDto notMatchingAlmSettingDto = mockAlmSettingDto(false);
+    when(dbClient.almSettingDao().selectByAlm(dbSession, ALM.GITHUB)).thenReturn(List.of(notMatchingAlmSettingDto, matchingAlmSettingDto));
+
+    mockSuccesfullGithubInteraction();
+
+    DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES).orElseThrow();
+
+    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(matchingAlmSettingDto, false, false);
+    assertThat(devOpsProjectCreator).usingRecursiveComparison().isEqualTo(expectedGithubProjectCreator);
+  }
+
+  @Test
+  public void getDevOpsProjectCreatorFromImport_shouldInstantiateDevOpsProjectCreator() {
+    AlmSettingDto mockAlmSettingDto = mockAlmSettingDto(true);
+
+    mockSuccesfullGithubInteraction();
+
+    DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, mockAlmSettingDto, appInstallationToken, GITHUB_PROJECT_DESCRIPTOR)
+      .orElseThrow();
+
+    GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(mockAlmSettingDto, false, false);
+    assertThat(devOpsProjectCreator).usingRecursiveComparison().isEqualTo(expectedGithubProjectCreator);
+  }
+
+  private void mockSuccesfullGithubInteraction() {
+    when(githubApplicationClient.getInstallationId(any(), eq(GITHUB_REPO_FULL_NAME))).thenReturn(Optional.of(APP_INSTALLATION_ID));
+    when(githubApplicationClient.createAppInstallationToken(any(), eq(APP_INSTALLATION_ID))).thenReturn(Optional.of(appInstallationToken));
+  }
+
+  private GithubProjectCreator getExpectedGithubProjectCreator(AlmSettingDto almSettingDto, boolean projectsArePrivateByDefault, boolean isInstanceManaged) {
+    DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, almSettingDto.getUrl(), GITHUB_REPO_FULL_NAME);
+    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor,
+      almSettingDto, appInstallationToken, projectsArePrivateByDefault, isInstanceManaged, userSession);
+    return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater, githubProjectCreationParameters);
+  }
+
+
+  private AlmSettingDto mockAlmSettingDto(boolean repoAccess) {
+    AlmSettingDto almSettingDto = mock();
+    when(almSettingDto.getUrl()).thenReturn(repoAccess ? GITHUB_PROJECT_DESCRIPTOR.url() : "anotherUrl");
+
+    when(dbClient.almSettingDao().selectByAlm(dbSession, ALM.GITHUB)).thenReturn(List.of(almSettingDto));
+    return almSettingDto;
+  }
+
+}
