@@ -49,11 +49,17 @@ export function Event({ event }: Props) {
     return <SqUpgradeActivityEventMessage event={event} />;
   }
 
+  const eventCategory = translate('event.category', event.category);
+
   if (isRichQualityProfileEvent(event)) {
-    return <RichQualityProfileEventInner event={event} />;
+    return (
+      <div className="sw-mb-1">
+        <span className="sw-mr-2">{eventCategory}:</span>
+        <RichQualityProfileEventInner event={event} />
+      </div>
+    );
   }
 
-  const eventCategory = translate('event.category', event.category);
   if (isDefinitionChangeEvent(event)) {
     return <div className="sw-mb-1">{eventCategory}</div>;
   }

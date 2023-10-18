@@ -45,7 +45,16 @@ export default function EventInner({ event, readonly }: EventInnerProps) {
   } else if (isDefinitionChangeEvent(event)) {
     return <DefinitionChangeEventInner branchLike={branchLike} event={event} readonly={readonly} />;
   } else if (isRichQualityProfileEvent(event)) {
-    return <RichQualityProfileEventInner event={event} />;
+    return (
+      <div>
+        <Note className="sw-mr-1 sw-body-sm-highlight">
+          {translate('event.category', event.category)}
+        </Note>
+        <Note>
+          <RichQualityProfileEventInner event={event} />
+        </Note>
+      </div>
+    );
   } else if (event.category === ProjectAnalysisEventCategory.SqUpgrade) {
     return <SqUpgradeActivityEventMessage event={event} />;
   }
