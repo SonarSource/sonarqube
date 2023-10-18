@@ -189,7 +189,7 @@ function getPageObjects() {
     tab: (almKey: AlmKeys) =>
       byRole('tab', { name: `${almKey} settings.almintegration.tab.${almKey}` }),
     bitbucketConfiguration: (almKey: AlmKeys.BitbucketCloud | AlmKeys.BitbucketServer) =>
-      byRole('button', { name: `alm.${almKey}.long` }),
+      byRole('radio', { name: `alm.${almKey}.long` }),
     configurationInput: (id: string) =>
       byRole('textbox', { name: `settings.almintegration.form.${id} required` }),
     updateSecretValueButton: (key: string) =>

@@ -92,31 +92,31 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinitionBase
           </ButtonSecondary>
         </div>
       )}
-      {showField && isTextArea && (
-        <InputTextArea
-          id={id}
-          maxLength={maxLength || 2000}
-          onChange={(e) => props.onFieldChange(propKey, e.currentTarget.value)}
-          required={!optional}
-          rows={5}
-          size="full"
-          value={value}
-          isInvalid={isInvalid}
-        />
-      )}
-      {showField && !isTextArea && (
-        <InputField
-          autoFocus={autoFocus}
-          id={id}
-          maxLength={maxLength || 100}
-          name={id}
-          onChange={(e) => props.onFieldChange(propKey, e.currentTarget.value)}
-          type="text"
-          size="full"
-          value={value}
-          isInvalid={isInvalid}
-        />
-      )}
+      {showField &&
+        (isTextArea ? (
+          <InputTextArea
+            id={id}
+            maxLength={maxLength || 2000}
+            onChange={(e) => props.onFieldChange(propKey, e.currentTarget.value)}
+            required={!optional}
+            rows={5}
+            size="full"
+            value={value}
+            isInvalid={isInvalid}
+          />
+        ) : (
+          <InputField
+            autoFocus={autoFocus}
+            id={id}
+            maxLength={maxLength || 100}
+            name={id}
+            onChange={(e) => props.onFieldChange(propKey, e.currentTarget.value)}
+            type="text"
+            size="full"
+            value={value}
+            isInvalid={isInvalid}
+          />
+        ))}
       {showField && isSecret && (
         <FlagMessage variant="info" className="sw-mt-2">
           <span>

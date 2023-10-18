@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ButtonPrimary, FlagMessage, Modal, Spinner } from 'design-system';
+import { ButtonPrimary, FlagMessage, Modal, PageContentFontWrapper, Spinner } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import {
@@ -48,6 +48,7 @@ export interface Props {
     bitbucketVariant: AlmKeys.BitbucketServer | AlmKeys.BitbucketCloud,
   ) => void;
   validationError?: string;
+  errorListElementRef: React.RefObject<HTMLDivElement>;
 }
 
 export default class AlmBindingDefinitionFormRenderer extends React.PureComponent<Readonly<Props>> {
@@ -94,7 +95,7 @@ export default class AlmBindingDefinitionFormRenderer extends React.PureComponen
   };
 
   render() {
-    const { isUpdate, canSubmit, submitting, validationError } = this.props;
+    const { isUpdate, canSubmit, submitting, validationError, errorListElementRef } = this.props;
     const header = translate('settings.almintegration.form.header', isUpdate ? 'edit' : 'create');
     const FORM_ID = `settings.almintegration.form.${isUpdate ? 'edit' : 'create'}`;
 
@@ -105,17 +106,19 @@ export default class AlmBindingDefinitionFormRenderer extends React.PureComponen
 
     const formBody = (
       <form id={FORM_ID} onSubmit={handleSubmit}>
-        {this.renderForm()}
-        {validationError && !canSubmit && (
-          <FlagMessage variant="error" className="sw-w-full">
-            <div>
-              <p>{translate('settings.almintegration.configuration_invalid')}</p>
-              <ul>
-                <li>{validationError}</li>
-              </ul>
-            </div>
-          </FlagMessage>
-        )}
+        <PageContentFontWrapper className="sw-body-sm" ref={errorListElementRef}>
+          {validationError && !canSubmit && (
+            <FlagMessage variant="error" className="sw-w-full sw-mb-2">
+              <div>
+                <p>{translate('settings.almintegration.configuration_invalid')}</p>
+                <ul>
+                  <li>{validationError}</li>
+                </ul>
+              </div>
+            </FlagMessage>
+          )}
+          {this.renderForm()}
+        </PageContentFontWrapper>
       </form>
     );
 

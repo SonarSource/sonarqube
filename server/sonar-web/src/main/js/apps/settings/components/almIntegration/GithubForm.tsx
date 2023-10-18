@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FlagMessage, Link, PageContentFontWrapper } from 'design-system';
+import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
@@ -35,7 +35,7 @@ export default function GithubForm(props: GithubFormProps) {
   const { formData, onFieldChange } = props;
   const toStatic = useDocUrl(ALM_DOCUMENTATION_PATHS[AlmKeys.GitHub]);
   return (
-    <PageContentFontWrapper className="sw-body-sm">
+    <>
       <FlagMessage variant="info" className="sw-mb-8">
         <span>
           <FormattedMessage
@@ -124,6 +124,6 @@ export default function GithubForm(props: GithubFormProps) {
         isSecret
         optional
       />
-    </PageContentFontWrapper>
+    </>
   );
 }

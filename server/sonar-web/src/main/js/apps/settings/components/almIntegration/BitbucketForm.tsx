@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FormField, ToggleButton } from 'design-system';
 import * as React from 'react';
-import ButtonToggle from '../../../../components/controls/ButtonToggle';
 import { translate } from '../../../../helpers/l10n';
 import {
   AlmKeys,
@@ -45,12 +45,11 @@ export default function BitbucketForm(props: Readonly<BitbucketFormProps>) {
   return (
     <>
       {!isUpdate && (
-        <div className="display-flex-column">
-          <strong>{translate('settings.almintegration.form.choose_bitbucket_variant')}</strong>
-          <div className="little-spacer-top big-spacer-bottom">
-            <ButtonToggle
+        <FormField label={translate('settings.almintegration.form.choose_bitbucket_variant')}>
+          <div>
+            <ToggleButton
               label={translate('settings.almintegration.form.choose_bitbucket_variant')}
-              onCheck={props.onVariantChange}
+              onChange={props.onVariantChange}
               options={[
                 {
                   label: translate('alm.bitbucket.long'),
@@ -61,7 +60,7 @@ export default function BitbucketForm(props: Readonly<BitbucketFormProps>) {
               value={variant}
             />
           </div>
-        </div>
+        </FormField>
       )}
 
       {variant !== undefined && (

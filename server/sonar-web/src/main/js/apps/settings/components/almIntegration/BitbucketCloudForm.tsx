@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../../components/common/DocLink';
-import Link from '../../../../components/common/Link';
-import { Alert } from '../../../../components/ui/Alert';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys, BitbucketCloudBindingDefinition } from '../../../../types/alm-settings';
 import { BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT } from '../../constants';
@@ -39,8 +38,31 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
     formData.workspace && !BITBUCKET_CLOUD_WORKSPACE_ID_FORMAT.test(formData.workspace),
   );
 
+  const toStatic = useDocUrl(ALM_DOCUMENTATION_PATHS[AlmKeys.BitbucketCloud]);
+
   return (
     <>
+      <FlagMessage variant="info" className="sw-mb-8">
+        <div>
+          <FormattedMessage
+            defaultMessage={translate(`settings.almintegration.bitbucketcloud.info`)}
+            id="settings.almintegration.bitbucketcloud.info"
+            values={{
+              oauth: (
+                <Link
+                  to="https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/"
+                  target="_blank"
+                >
+                  {translate('settings.almintegration.bitbucketcloud.oauth')}
+                </Link>
+              ),
+              permission: <strong>Pull Requests: Read</strong>,
+              doc_link: <Link to={toStatic}>{translate('learn_more')}</Link>,
+            }}
+          />
+        </div>
+      </FlagMessage>
+
       <AlmBindingDefinitionFormField
         autoFocus
         help={translate('settings.almintegration.form.name.bitbucketcloud.help')}
@@ -52,19 +74,24 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
       />
       <AlmBindingDefinitionFormField
         help={
-          <FormattedMessage
-            defaultMessage={translate('settings.almintegration.form.workspace.bitbucketcloud.help')}
-            id="settings.almintegration.form.workspace.bitbucketcloud.help"
-            values={{
-              example: (
-                <>
-                  {'https://bitbucket.org/'}
-                  <strong>{'{workspace}'}</strong>
-                  {'/{repository}'}
-                </>
-              ),
-            }}
-          />
+          <>
+            <FormattedMessage
+              defaultMessage={translate(
+                'settings.almintegration.form.workspace.bitbucketcloud.help',
+              )}
+              id="settings.almintegration.form.workspace.bitbucketcloud.help"
+              values={{
+                example: (
+                  <>
+                    {'https://bitbucket.org/'}
+                    <strong>{'{workspace}'}</strong>
+                    {'/{repository}'}
+                  </>
+                ),
+              }}
+            />
+            <p>{translate('settings.almintegration.form.workspace.bitbucketcloud.error')}</p>
+          </>
         }
         id="workspace.bitbucketcloud"
         isInvalid={workspaceIDIsInvalid}
@@ -73,28 +100,6 @@ export default function BitbucketCloudForm(props: BitbucketCloudFormProps) {
         propKey="workspace"
         value={formData.workspace || ''}
       />
-      <Alert className="big-spacer-top" variant="info">
-        <FormattedMessage
-          defaultMessage={translate(`settings.almintegration.bitbucketcloud.info`)}
-          id="settings.almintegration.bitbucketcloud.info"
-          values={{
-            oauth: (
-              <Link
-                to="https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/"
-                target="_blank"
-              >
-                {translate('settings.almintegration.bitbucketcloud.oauth')}
-              </Link>
-            ),
-            permission: <strong>Pull Requests: Read</strong>,
-            doc_link: (
-              <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.BitbucketCloud]}>
-                {translate('learn_more')}
-              </DocLink>
-            ),
-          }}
-        />
-      </Alert>
       <AlmBindingDefinitionFormField
         id="client_id.bitbucketcloud"
         help={translate('settings.almintegration.form.oauth_key.bitbucketcloud.help')}

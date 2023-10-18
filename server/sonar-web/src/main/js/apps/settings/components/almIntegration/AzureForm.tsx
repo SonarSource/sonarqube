@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../../components/common/DocLink';
-import Link from '../../../../components/common/Link';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys, AzureBindingDefinition } from '../../../../types/alm-settings';
 import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
@@ -33,7 +34,7 @@ export interface AzureFormProps {
 
 export default function AzureForm(props: AzureFormProps) {
   const { formData, onFieldChange } = props;
-
+  const toStatic = useDocUrl(ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]);
   return (
     <>
       <AlmBindingDefinitionFormField
@@ -81,11 +82,7 @@ export default function AzureForm(props: AzureFormProps) {
                 </Link>
               ),
               permission: <strong>{'Code > Read & Write'}</strong>,
-              doc_link: (
-                <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.Azure]}>
-                  {translate('learn_more')}
-                </DocLink>
-              ),
+              doc_link: <Link to={toStatic}>{translate('learn_more')}</Link>,
             }}
           />
         }

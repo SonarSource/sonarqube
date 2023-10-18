@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Link } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../../components/common/DocLink';
-import Link from '../../../../components/common/Link';
 import { ALM_DOCUMENTATION_PATHS } from '../../../../helpers/constants';
+import { useDocUrl } from '../../../../helpers/docs';
 import { translate } from '../../../../helpers/l10n';
 import { AlmKeys, GitlabBindingDefinition } from '../../../../types/alm-settings';
 import { AlmBindingDefinitionFormField } from './AlmBindingDefinitionFormField';
@@ -33,7 +34,7 @@ export interface GitlabFormProps {
 
 export default function GitlabForm(props: GitlabFormProps) {
   const { formData, onFieldChange } = props;
-
+  const toStatic = useDocUrl(ALM_DOCUMENTATION_PATHS[AlmKeys.GitLab]);
   return (
     <>
       <AlmBindingDefinitionFormField
@@ -77,11 +78,7 @@ export default function GitlabForm(props: GitlabFormProps) {
               ),
               permission: <strong>Reporter</strong>,
               scope: <strong>api</strong>,
-              doc_link: (
-                <DocLink to={ALM_DOCUMENTATION_PATHS[AlmKeys.GitLab]}>
-                  {translate('learn_more')}
-                </DocLink>
-              ),
+              doc_link: <Link to={toStatic}>{translate('learn_more')}</Link>,
             }}
           />
         }

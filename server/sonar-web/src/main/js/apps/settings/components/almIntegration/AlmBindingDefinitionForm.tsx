@@ -126,6 +126,8 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<
   State
 > {
   mounted = false;
+  errorListElement = React.createRef<HTMLDivElement>();
+
   constructor(props: AlmBindingDefinitionFormProps) {
     super(props);
 
@@ -211,6 +213,9 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<
 
       if (error) {
         this.setState({ validationError: error });
+        if (this.errorListElement?.current) {
+          this.errorListElement.current.scrollIntoView({ block: 'start' });
+        }
       } else {
         this.props.afterSubmit(formData);
       }
@@ -280,6 +285,7 @@ export default class AlmBindingDefinitionForm extends React.PureComponent<
         bitbucketVariant={bitbucketVariant}
         onBitbucketVariantChange={this.handleBitbucketVariantChange}
         validationError={validationError}
+        errorListElementRef={this.errorListElement}
       />
     );
   }
