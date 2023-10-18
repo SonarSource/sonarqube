@@ -22,7 +22,6 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import { translate } from '../../../helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
 import {
   AnalysisMeasuresVariations,
@@ -62,12 +61,6 @@ export function Analysis(props: Readonly<AnalysisProps>) {
     'category',
   );
 
-  // use `TRK` for all components but applications
-  const displayedQualifier =
-    qualifier === ComponentQualifier.Application
-      ? ComponentQualifier.Application
-      : ComponentQualifier.Project;
-
   return (
     <div className="sw-body-sm">
       <div className="sw-flex sw-justify-between sw-mb-1">
@@ -95,9 +88,9 @@ export function Analysis(props: Readonly<AnalysisProps>) {
         )}
       </div>
 
-      {sortedEvents.length > 0
-        ? sortedEvents.map((event) => <Event event={event} key={event.key} />)
-        : translate('project_activity.analyzed', displayedQualifier)}
+      {sortedEvents.map((event) => (
+        <Event event={event} key={event.key} />
+      ))}
 
       {qualifier === ComponentQualifier.Project && variations !== undefined && (
         <AnalysisVariations isFirstAnalysis={isFirstAnalysis} variations={variations} />
