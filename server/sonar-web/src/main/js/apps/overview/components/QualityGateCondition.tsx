@@ -36,6 +36,7 @@ import { IssueType } from '../../../types/issues';
 import { MetricKey, MetricType } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component, Dict } from '../../../types/types';
+import { RATING_TO_SEVERITIES_MAPPING } from '../utils';
 
 interface Props {
   branchLike?: BranchLike;
@@ -71,13 +72,6 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
   }
 
   getUrlForBugsOrVulnerabilities(type: string, inNewCodePeriod: boolean) {
-    const RATING_TO_SEVERITIES_MAPPING = [
-      'BLOCKER,CRITICAL,MAJOR,MINOR',
-      'BLOCKER,CRITICAL,MAJOR',
-      'BLOCKER,CRITICAL',
-      'BLOCKER',
-    ];
-
     const { condition } = this.props;
     const threshold = condition.level === 'ERROR' ? condition.error : condition.warning;
 

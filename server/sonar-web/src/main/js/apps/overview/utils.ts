@@ -26,7 +26,7 @@ import { parseAsString } from '../../helpers/query';
 import { IssueType } from '../../types/issues';
 import { MetricKey } from '../../types/metrics';
 import { AnalysisMeasuresVariations, MeasureHistory } from '../../types/project-activity';
-import { RawQuery } from '../../types/types';
+import { Dict, RawQuery } from '../../types/types';
 
 export const METRICS: string[] = [
   // quality gate
@@ -151,6 +151,35 @@ const MEASUREMENTS_MAP = {
     iconClass: DuplicationsRating,
   },
 };
+
+export const RATING_TO_SEVERITIES_MAPPING = [
+  'BLOCKER,CRITICAL,MAJOR,MINOR',
+  'BLOCKER,CRITICAL,MAJOR',
+  'BLOCKER,CRITICAL',
+  'BLOCKER',
+];
+
+export const RATING_METRICS_MAPPING: Dict<IssueType> = {
+  [MetricKey.reliability_rating]: IssueType.Bug,
+  [MetricKey.new_reliability_rating]: IssueType.Bug,
+  [MetricKey.security_rating]: IssueType.Vulnerability,
+  [MetricKey.new_security_rating]: IssueType.Vulnerability,
+  [MetricKey.sqale_rating]: IssueType.CodeSmell,
+  [MetricKey.new_maintainability_rating]: IssueType.CodeSmell,
+  [MetricKey.security_review_rating]: IssueType.SecurityHotspot,
+  [MetricKey.new_security_review_rating]: IssueType.SecurityHotspot,
+};
+
+export const METRICS_REPORTED_IN_OVERVIEW_CARDS = [
+  MetricKey.new_violations,
+  MetricKey.violations,
+  MetricKey.new_coverage,
+  MetricKey.coverage,
+  MetricKey.new_security_hotspots_reviewed,
+  MetricKey.security_hotspots_reviewed,
+  MetricKey.new_duplicated_lines_density,
+  MetricKey.duplicated_lines_density,
+];
 
 export function getIssueRatingName(type: IssueType) {
   return translate('metric_domain', ISSUETYPE_METRIC_KEYS_MAP[type].ratingName);

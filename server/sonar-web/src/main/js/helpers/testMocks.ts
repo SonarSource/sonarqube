@@ -34,6 +34,7 @@ import { RuleRepository } from '../types/coding-rules';
 import { EditionKey } from '../types/editions';
 import { IssueScope, IssueSeverity, IssueStatus, IssueType, RawIssue } from '../types/issues';
 import { Language } from '../types/languages';
+import { MetricKey, MetricType } from '../types/metrics';
 import { Notification } from '../types/notifications';
 import { DumpStatus, DumpTask } from '../types/project-dump';
 import { TaskStatuses } from '../types/tasks';
@@ -395,11 +396,14 @@ export function mockLocation(overrides: Partial<Location> = {}): Location {
   };
 }
 
-export function mockMetric(overrides: Partial<Pick<Metric, 'key' | 'name' | 'type'>> = {}): Metric {
-  const key = overrides.key || 'coverage';
+export function mockMetric(
+  overrides: Partial<Pick<Metric, 'key' | 'name' | 'type' | 'domain'>> = {},
+): Metric {
+  const key = overrides.key || MetricKey.coverage;
   const name = overrides.name || key;
-  const type = overrides.type || 'PERCENT';
+  const type = overrides.type || MetricType.Percent;
   return {
+    ...overrides,
     id: key,
     key,
     name,

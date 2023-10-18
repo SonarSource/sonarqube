@@ -26,6 +26,7 @@ import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockQualityGateProjectCondition } from '../../../../helpers/mocks/quality-gates';
 import { mockLoggedInUser, mockMeasure, mockMetric } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { byLabelText, byRole } from '../../../../helpers/testSelector';
 import { ComponentPropsType } from '../../../../helpers/testUtils';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey, MetricType } from '../../../../types/metrics';
@@ -121,6 +122,8 @@ it('should render correctly for a passed QG', async () => {
   renderPullRequestOverview();
 
   await waitFor(async () => expect(await screen.findByText('metric.level.OK')).toBeInTheDocument());
+  expect(screen.getByLabelText('overview.quality_gate_x.overview.gate.OK')).toBeInTheDocument();
+
   expect(screen.getByText('metric.new_lines.name')).toBeInTheDocument();
   expect(screen.getByText(/overview.last_analysis_x/)).toBeInTheDocument();
 });
@@ -165,18 +168,21 @@ it('should render correctly for a failed QG', async () => {
   renderPullRequestOverview();
 
   await waitFor(async () =>
-    expect(await screen.findByText('metric.level.ERROR')).toBeInTheDocument(),
+    expect(
+      await byLabelText('overview.quality_gate_x.overview.gate.ERROR').find(),
+    ).toBeInTheDocument(),
   );
 
-  expect(await screen.findByText('1.0% metric.new_coverage.name')).toBeInTheDocument();
-  expect(await screen.findByText('quality_gates.operator.GT 2.0%')).toBeInTheDocument();
-
   expect(
-    await screen.findByText('1.0% metric.duplicated_lines.name quality_gates.conditions.new_code'),
+    byRole('link', {
+      name: 'overview.failed_condition.x_required 10.0% duplicated_lines ≤ 1.0%',
+    }).get(),
   ).toBeInTheDocument();
-  expect(await screen.findByText('quality_gates.operator.GT 1.0%')).toBeInTheDocument();
-
-  expect(screen.getByText('quality_gates.operator.GT 3')).toBeInTheDocument();
+  expect(
+    byRole('link', {
+      name: 'overview.failed_condition.x_required 10 new_bugs ≤ 3',
+    }).get(),
+  ).toBeInTheDocument();
 });
 
 function renderPullRequestOverview(

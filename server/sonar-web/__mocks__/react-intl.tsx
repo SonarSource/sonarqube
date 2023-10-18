@@ -17,12 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { isObject, some } from 'lodash';
 import * as React from 'react';
 
 module.exports = {
   ...jest.requireActual('react-intl'),
   useIntl: () => ({
-    formatMessage: ({ id }, values = {}) => [id, ...Object.values(values)].join('.'),
+    formatMessage: ({ id }, values = {}) => {
+      if (some(values, isObject)) {
+        return (
+          <>
+            {id}
+            {Object.entries(values).map(([key, value]) => (
+              <React.Fragment key={key}>{value}</React.Fragment>
+            ))}
+          </>
+        );
+      }
+      return [id, ...Object.values(values)].join('.');
+    },
   }),
   FormattedMessage: ({ id, values }: { id: string; values?: { [x: string]: React.ReactNode } }) => {
     return (

@@ -23,34 +23,25 @@ import {
   CenteredLayout,
   CoverageIndicator,
   DuplicationsIndicator,
-  HelperHintIcon,
-  Link,
   Spinner,
-  TextMuted,
 } from 'design-system';
 import { uniq } from 'lodash';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { FormattedMessage } from 'react-intl';
 import { getMeasuresWithMetrics } from '../../../api/measures';
-import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { duplicationRatingConverter } from '../../../components/measure/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import { translate } from '../../../helpers/l10n';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
-import { getQualityGateUrl, getQualityGatesUrl } from '../../../helpers/urls';
 import { useBranchStatusQuery } from '../../../queries/branch';
 import { PullRequest } from '../../../types/branch-like';
 import { IssueType } from '../../../types/issues';
 import { Component, MeasureEnhanced } from '../../../types/types';
 import MeasuresPanelIssueMeasure from '../branches/MeasuresPanelIssueMeasure';
 import MeasuresPanelPercentMeasure from '../branches/MeasuresPanelPercentMeasure';
+import BranchQualityGate from '../components/BranchQualityGate';
 import IgnoredConditionWarning from '../components/IgnoredConditionWarning';
 import MetaTopBar from '../components/MetaTopBar';
-import QualityGateConditions from '../components/QualityGateConditions';
-import QualityGateStatusHeader from '../components/QualityGateStatusHeader';
-import QualityGateStatusPassedView from '../components/QualityGateStatusPassedView';
 import SonarLintPromotion from '../components/SonarLintPromotion';
 import '../styles.css';
 import { MeasurementType, PR_METRICS, Status } from '../utils';
@@ -107,11 +98,6 @@ export default function PullRequestOverview(props: Props) {
     return null;
   }
 
-  const path =
-    component.qualityGate === undefined
-      ? getQualityGatesUrl()
-      : getQualityGateUrl(component.qualityGate.name);
-
   const failedConditions = conditions
     .filter((condition) => condition.level === 'ERROR')
     .map((c) => enhanceConditionWithMeasure(c, measures))
@@ -119,93 +105,58 @@ export default function PullRequestOverview(props: Props) {
 
   return (
     <CenteredLayout>
-      <div className="it__pr-overview sw-mt-12">
-        <MetaTopBar branchLike={branchLike} measures={measures} />
-        <BasicSeparator className="sw-my-4" />
+      <div className="it__pr-overview sw-mt-12 sw-grid sw-grid-cols-12">
+        <div className="sw-col-start-2 sw-col-span-10">
+          <MetaTopBar branchLike={branchLike} measures={measures} />
+          <BasicSeparator className="sw-my-4" />
 
-        {ignoredConditions && <IgnoredConditionWarning />}
+          {ignoredConditions && <IgnoredConditionWarning />}
 
-        <div className="sw-flex sw-flex-col sw-mr-12 width-30">
-          <Card>
-            {status && (
-              <QualityGateStatusHeader
-                status={status}
-                failedConditionCount={failedConditions.length}
-              />
-            )}
+          {status && (
+            <BranchQualityGate
+              branchLike={branchLike}
+              component={component}
+              status={status}
+              failedConditions={failedConditions}
+            />
+          )}
 
-            <div className="sw-flex sw-items-center sw-mb-4">
-              <TextMuted text={translate('overview.on_new_code_long')} />
-              <HelpTooltip
-                className="sw-ml-2"
-                overlay={
-                  <FormattedMessage
-                    defaultMessage={translate('overview.quality_gate.conditions_on_new_code')}
-                    id="overview.quality_gate.conditions_on_new_code"
-                    values={{
-                      link: <Link to={path}>{translate('overview.quality_gate')}</Link>,
-                    }}
-                  />
-                }
-              >
-                <HelperHintIcon aria-label="help-tooltip" />
-              </HelpTooltip>
-            </div>
-
-            {status === Status.OK && failedConditions.length === 0 && (
-              <QualityGateStatusPassedView />
-            )}
-
-            {status !== Status.OK && <BasicSeparator />}
-
-            {failedConditions.length > 0 && (
-              <div>
-                <QualityGateConditions
-                  branchLike={branchLike}
-                  collapsible
-                  component={component}
-                  failedConditions={failedConditions}
-                />
-              </div>
-            )}
-          </Card>
-          <SonarLintPromotion qgConditions={conditions} />
-        </div>
-
-        <div className="sw-flex-1">
-          <div className="sw-grid sw-grid-cols-2 sw-gap-4 sw-mt-4">
-            {[
-              IssueType.Bug,
-              IssueType.CodeSmell,
-              IssueType.Vulnerability,
-              IssueType.SecurityHotspot,
-            ].map((type: IssueType) => (
-              <Card key={type} className="sw-p-8">
-                <MeasuresPanelIssueMeasure
-                  branchLike={branchLike}
-                  component={component}
-                  isNewCodeTab
-                  measures={measures}
-                  type={type}
-                />
-              </Card>
-            ))}
-
-            {[MeasurementType.Coverage, MeasurementType.Duplication].map(
-              (type: MeasurementType) => (
+          <div className="sw-flex-1">
+            <div className="sw-grid sw-grid-cols-2 sw-gap-4 sw-mt-4">
+              {[
+                IssueType.Bug,
+                IssueType.CodeSmell,
+                IssueType.Vulnerability,
+                IssueType.SecurityHotspot,
+              ].map((type: IssueType) => (
                 <Card key={type} className="sw-p-8">
-                  <MeasuresPanelPercentMeasure
+                  <MeasuresPanelIssueMeasure
                     branchLike={branchLike}
                     component={component}
+                    isNewCodeTab
                     measures={measures}
-                    ratingIcon={renderMeasureIcon(type)}
                     type={type}
-                    useDiffMetric
                   />
                 </Card>
-              ),
-            )}
+              ))}
+
+              {[MeasurementType.Coverage, MeasurementType.Duplication].map(
+                (type: MeasurementType) => (
+                  <Card key={type} className="sw-p-8">
+                    <MeasuresPanelPercentMeasure
+                      branchLike={branchLike}
+                      component={component}
+                      measures={measures}
+                      ratingIcon={renderMeasureIcon(type)}
+                      type={type}
+                      useDiffMetric
+                    />
+                  </Card>
+                ),
+              )}
+            </div>
           </div>
+          <SonarLintPromotion qgConditions={conditions} />
         </div>
       </div>
     </CenteredLayout>

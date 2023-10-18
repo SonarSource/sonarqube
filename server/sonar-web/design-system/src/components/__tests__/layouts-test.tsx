@@ -26,7 +26,7 @@ describe('CenteredLayout', () => {
 
     expect(screen.getByText('content')).toHaveStyle({
       'min-width': '1280px',
-      'max-width': '1400px',
+      'max-width': '1280px',
     });
   });
 });
