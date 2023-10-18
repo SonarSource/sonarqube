@@ -24,9 +24,9 @@ import {
   DropdownToggler,
   ItemButton,
   PopupPlacement,
+  PopupZLevel,
 } from 'design-system';
 import * as React from 'react';
-import Spinner from '../../../components/ui/Spinner';
 import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { translate } from '../../../helpers/l10n';
 import { openIssue as openSonarLintIssue, probeSonarLintServers } from '../../../helpers/sonarlint';
@@ -39,7 +39,6 @@ export interface Props {
 
 interface State {
   ides: Ide[];
-  loading: boolean;
   mounted: boolean;
 }
 
@@ -48,7 +47,7 @@ const showError = () => addGlobalErrorMessage(translate('issues.open_in_ide.fail
 const showSuccess = () => addGlobalSuccessMessage(translate('issues.open_in_ide.success'));
 
 export function IssueOpenInIdeButton({ issueKey, projectKey }: Readonly<Props>) {
-  const [state, setState] = React.useState<State>({ loading: false, ides: [], mounted: false });
+  const [state, setState] = React.useState<State>({ ides: [], mounted: false });
 
   React.useEffect(() => {
     setState({ ...state, mounted: true });
@@ -61,12 +60,12 @@ export function IssueOpenInIdeButton({ issueKey, projectKey }: Readonly<Props>) 
 
   const cleanState = () => {
     if (state.mounted) {
-      setState({ ...state, ides: [], loading: false });
+      setState({ ...state, ides: [] });
     }
   };
 
   const openIssue = (ide: Ide) => {
-    setState({ ...state, ides: [], loading: true });
+    setState({ ...state, ides: [] });
 
     return openSonarLintIssue(ide.port, projectKey, issueKey)
       .then(showSuccess)
@@ -75,20 +74,16 @@ export function IssueOpenInIdeButton({ issueKey, projectKey }: Readonly<Props>) 
   };
 
   const onClick = async () => {
-    setState({ ...state, ides: [], loading: true });
+    setState({ ...state, ides: [] });
 
     const ides = (await probeSonarLintServers()) ?? [];
 
     if (ides.length === 0) {
-      if (state.mounted) {
-        setState({ ...state, loading: false });
-      }
-
       showError();
     } else if (ides.length === 1) {
       openIssue(ides[0]);
     } else if (state.mounted) {
-      setState({ ...state, ides, loading: false });
+      setState({ ...state, ides });
     }
   };
 
@@ -119,11 +114,10 @@ export function IssueOpenInIdeButton({ issueKey, projectKey }: Readonly<Props>) 
           </DropdownMenu>
         }
         placement={PopupPlacement.BottomLeft}
+        zLevel={PopupZLevel.Global}
       >
-        <ButtonSecondary onClick={onClick}>
+        <ButtonSecondary className="sw-whitespace-nowrap" onClick={onClick}>
           {translate('open_in_ide')}
-
-          <Spinner className="sw-ml-4" loading={state.loading} />
         </ButtonSecondary>
       </DropdownToggler>
     </div>
