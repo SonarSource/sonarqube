@@ -59,6 +59,9 @@ export function RichQualityProfileEventInner({
           { 0: qualityProfileName },
         )}
         to={getProfileChangelogPath(qualityProfileName, languageKey)}
+        // Needed to make this link work from the Activity tab
+        // Because of a click handler on a parent component that is also trigerring a redirection
+        onClick={(event) => event.stopPropagation()}
       >
         {description}
       </DiscreetLink>
