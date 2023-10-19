@@ -33,32 +33,44 @@ it('renders failed QG', () => {
   renderBranchQualityGate();
 
   // Maintainability rating condition
-  expect(
-    byRole('link', {
-      name: 'overview.failed_condition.x_requiredmetric_domain.Maintainability metric.type.rating A',
-    }).get(),
-  ).toBeInTheDocument();
+  const maintainabilityRatingLink = byRole('link', {
+    name: 'overview.failed_condition.x_requiredmetric_domain.Maintainability metric.type.rating A',
+  }).get();
+  expect(maintainabilityRatingLink).toBeInTheDocument();
+  expect(maintainabilityRatingLink).toHaveAttribute(
+    'href',
+    '/project/issues?resolved=false&types=CODE_SMELL&pullRequest=1001&sinceLeakPeriod=true&id=my-project',
+  );
 
   // Security Hotspots rating condition
-  expect(
-    byRole('link', {
-      name: 'overview.failed_condition.x_requiredmetric_domain.Security Review metric.type.rating A',
-    }).get(),
-  ).toBeInTheDocument();
+  const securityHotspotsRatingLink = byRole('link', {
+    name: 'overview.failed_condition.x_requiredmetric_domain.Security Review metric.type.rating A',
+  }).get();
+  expect(securityHotspotsRatingLink).toBeInTheDocument();
+  expect(securityHotspotsRatingLink).toHaveAttribute(
+    'href',
+    '/security_hotspots?id=my-project&pullRequest=1001',
+  );
 
   // New code smells
-  expect(
-    byRole('link', {
-      name: 'overview.failed_condition.x_required 5 Code Smells ≤ 1',
-    }).get(),
-  ).toBeInTheDocument();
+  const codeSmellsLink = byRole('link', {
+    name: 'overview.failed_condition.x_required 5 Code Smells ≤ 1',
+  }).get();
+  expect(codeSmellsLink).toBeInTheDocument();
+  expect(codeSmellsLink).toHaveAttribute(
+    'href',
+    '/project/issues?resolved=false&types=CODE_SMELL&pullRequest=1001&id=my-project',
+  );
 
   // Conditions to cover
-  expect(
-    byRole('link', {
-      name: 'overview.failed_condition.x_required 5 Conditions to cover ≥ 10',
-    }).get(),
-  ).toBeInTheDocument();
+  const conditionToCoverLink = byRole('link', {
+    name: 'overview.failed_condition.x_required 5 Conditions to cover ≥ 10',
+  }).get();
+  expect(conditionToCoverLink).toBeInTheDocument();
+  expect(conditionToCoverLink).toHaveAttribute(
+    'href',
+    '/component_measures?id=my-project&metric=conditions_to_cover&pullRequest=1001&view=list',
+  );
 
   expect(byLabelText('overview.quality_gate_x.overview.gate.ERROR').get()).toBeInTheDocument();
 });

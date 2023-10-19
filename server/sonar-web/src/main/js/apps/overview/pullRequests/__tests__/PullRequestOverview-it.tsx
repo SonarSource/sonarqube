@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { getQualityGateProjectStatus } from '../../../../api/quality-gates';
 import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
@@ -183,6 +184,36 @@ it('should render correctly for a failed QG', async () => {
       name: 'overview.failed_condition.x_required 10 new_bugs ≤ 3',
     }).get(),
   ).toBeInTheDocument();
+});
+
+it('renders SL promotion', async () => {
+  const user = userEvent.setup();
+  jest.mocked(getQualityGateProjectStatus).mockResolvedValueOnce({
+    status: 'ERROR',
+    conditions: [
+      mockQualityGateProjectCondition({
+        errorThreshold: '2.0',
+        metricKey: MetricKey.new_coverage,
+        periodIndex: 1,
+      }),
+    ],
+    caycStatus: CaycStatus.Compliant,
+    ignoredConditions: true,
+  });
+  renderPullRequestOverview();
+
+  await waitFor(async () =>
+    expect(
+      await byRole('heading', { name: 'overview.sonarlint_ad.header' }).find(),
+    ).toBeInTheDocument(),
+  );
+
+  // Close promotion
+  await user.click(byRole('button', { name: 'overview.sonarlint_ad.close_promotion' }).get());
+
+  expect(
+    byRole('heading', { name: 'overview.sonarlint_ad.header' }).query(),
+  ).not.toBeInTheDocument();
 });
 
 function renderPullRequestOverview(

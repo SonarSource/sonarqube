@@ -38,8 +38,15 @@ export const CurrentUserContext = React.createContext<CurrentUserContextInterfac
   updateDismissedNotices: noop,
 });
 
-export function useCurrentLoginUser() {
+export function useCurrentUser() {
   const { currentUser } = useContext(CurrentUserContext);
+
+  return currentUser;
+}
+
+export function useCurrentLoginUser() {
+  const currentUser = useCurrentUser();
+
   if (!currentUser.isLoggedIn) {
     handleRequiredAuthentication();
   }

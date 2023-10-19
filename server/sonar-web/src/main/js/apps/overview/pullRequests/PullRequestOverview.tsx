@@ -32,9 +32,9 @@ import MeasuresCardPanel from '../branches/MeasuresCardPanel';
 import BranchQualityGate from '../components/BranchQualityGate';
 import IgnoredConditionWarning from '../components/IgnoredConditionWarning';
 import MetaTopBar from '../components/MetaTopBar';
-import SonarLintPromotion from '../components/SonarLintPromotion';
 import '../styles.css';
 import { PR_METRICS, Status } from '../utils';
+import SonarLintAd from './SonarLintAd';
 
 interface Props {
   branchLike: PullRequest;
@@ -89,13 +89,13 @@ export default function PullRequestOverview(props: Props) {
   }
 
   const failedConditions = conditions
-    .filter((condition) => condition.level === 'ERROR')
+    .filter((condition) => condition.level === Status.ERROR)
     .map((c) => enhanceConditionWithMeasure(c, measures))
     .filter(isDefined);
 
   return (
     <CenteredLayout>
-      <div className="it__pr-overview sw-mt-12 sw-grid sw-grid-cols-12">
+      <div className="it__pr-overview sw-mt-12 sw-mb-8 sw-grid sw-grid-cols-12">
         <div className="sw-col-start-2 sw-col-span-10">
           <MetaTopBar branchLike={branchLike} measures={measures} />
           <BasicSeparator className="sw-my-4" />
@@ -119,7 +119,7 @@ export default function PullRequestOverview(props: Props) {
             measures={measures}
           />
 
-          <SonarLintPromotion qgConditions={conditions} />
+          <SonarLintAd status={status} />
         </div>
       </div>
     </CenteredLayout>

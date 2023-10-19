@@ -21,6 +21,7 @@
 import { ChevronRightIcon, DangerButtonSecondary } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
+import { isIssueMeasure, propsToIssueParams } from '../../../components/shared/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure, getShortType, isDiffMetric } from '../../../helpers/measures';
@@ -168,10 +169,10 @@ function getQGConditionUrl(
 ) {
   const { metric } = condition;
   const sinceLeakPeriod = isDiffMetric(metric);
-  const issueType = RATING_METRICS_MAPPING[metric];
+  const ratingIssueType = RATING_METRICS_MAPPING[metric];
 
-  if (issueType) {
-    if (issueType === IssueType.SecurityHotspot) {
+  if (ratingIssueType) {
+    if (ratingIssueType === IssueType.SecurityHotspot) {
       return getComponentSecurityHotspotsUrl(componentKey, {
         ...getBranchLikeQuery(branchLike),
         ...(sinceLeakPeriod ? { sinceLeakPeriod: 'true' } : {}),
@@ -179,12 +180,19 @@ function getQGConditionUrl(
     }
     return getComponentIssuesUrl(componentKey, {
       resolved: 'false',
-      types: issueType,
+      types: ratingIssueType,
       ...getBranchLikeQuery(branchLike),
       ...(sinceLeakPeriod ? { sinceLeakPeriod: 'true' } : {}),
-      ...(issueType !== IssueType.CodeSmell
+      ...(ratingIssueType !== IssueType.CodeSmell
         ? { severities: RATING_TO_SEVERITIES_MAPPING[Number(condition.error) - 1] }
         : {}),
+    });
+  }
+
+  if (isIssueMeasure(condition.measure.metric.key)) {
+    return getComponentIssuesUrl(componentKey, {
+      ...propsToIssueParams(condition.measure.metric.key, condition.period != null),
+      ...getBranchLikeQuery(branchLike),
     });
   }
 
