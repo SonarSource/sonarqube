@@ -31,8 +31,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.alm.client.github.AppInstallationToken;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
-import org.sonar.auth.github.GitHubSettings;
 import org.sonar.alm.client.github.GithubPermissionConverter;
+import org.sonar.auth.github.GitHubSettings;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
@@ -58,10 +58,6 @@ import static org.sonar.core.ce.CeTaskCharacteristics.DEVOPS_PLATFORM_URL;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GithubProjectCreatorFactoryTest {
-  private static final String EXCEPTION_MESSAGE =
-    "The project orgname/projectName could not be created. It was auto-detected as a GITHUB project and no valid DevOps platform configuration were found to access https://api.toto.com."
-    + " Please check with a SonarQube administrator.";
-
   private static final String PROJECT_NAME = "projectName";
   private static final String ORGANIZATION_NAME = "orgname";
   private static final String GITHUB_REPO_FULL_NAME = ORGANIZATION_NAME + "/" + PROJECT_NAME;
@@ -70,8 +66,7 @@ public class GithubProjectCreatorFactoryTest {
   private static final DevOpsProjectDescriptor GITHUB_PROJECT_DESCRIPTOR = new DevOpsProjectDescriptor(ALM.GITHUB, GITHUB_API_URL, GITHUB_REPO_FULL_NAME);
   private static final Map<String, String> VALID_GITHUB_PROJECT_COORDINATES = Map.of(
     DEVOPS_PLATFORM_URL, GITHUB_PROJECT_DESCRIPTOR.url(),
-    DEVOPS_PLATFORM_PROJECT_IDENTIFIER, GITHUB_PROJECT_DESCRIPTOR.projectIdentifier()
-  );
+    DEVOPS_PLATFORM_PROJECT_IDENTIFIER, GITHUB_PROJECT_DESCRIPTOR.projectIdentifier());
   private static final long APP_INSTALLATION_ID = 534534534543L;
 
   @Mock
@@ -116,9 +111,9 @@ public class GithubProjectCreatorFactoryTest {
   }
 
   @Test
-  public void getDevOpsProjectCreator_whenValidCharacteristicsButNoAlmSettingDao_shouldThrow() {
-    assertThatIllegalStateException().isThrownBy(() -> githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES))
-      .withMessage(EXCEPTION_MESSAGE);
+  public void getDevOpsProjectCreator_whenValidCharacteristicsButNoAlmSettingDao_shouldReturnEmpty() {
+    Optional<DevOpsProjectCreator> devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES);
+    assertThat(devOpsProjectCreator).isEmpty();
   }
 
   @Test
@@ -132,12 +127,12 @@ public class GithubProjectCreatorFactoryTest {
   }
 
   @Test
-  public void getDevOpsProjectCreator_whenAppHasNoAccessToRepo_shouldThrow() {
+  public void getDevOpsProjectCreator_whenAppHasNoAccessToRepo_shouldReturnEmpty() {
     mockAlmSettingDto(true);
     when(githubApplicationClient.getInstallationId(any(), eq(GITHUB_REPO_FULL_NAME))).thenReturn(Optional.empty());
 
-    assertThatIllegalStateException().isThrownBy(() -> githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES))
-      .withMessage(EXCEPTION_MESSAGE);
+    Optional<DevOpsProjectCreator> devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES);
+    assertThat(devOpsProjectCreator).isEmpty();
   }
 
   @Test

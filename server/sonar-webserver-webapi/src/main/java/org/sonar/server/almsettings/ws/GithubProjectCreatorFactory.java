@@ -26,11 +26,11 @@ import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.github.AppInstallationToken;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
+import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.alm.client.github.config.GithubAppConfiguration;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.api.server.ServerSide;
 import org.sonar.auth.github.GitHubSettings;
-import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
@@ -93,19 +93,12 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
     }
     DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, githubApiUrl, githubRepository);
 
-    Optional<DevOpsProjectCreator> githubProjectCreator = dbClient.almSettingDao().selectByAlm(dbSession, ALM.GITHUB).stream()
+    return dbClient.almSettingDao().selectByAlm(dbSession, ALM.GITHUB).stream()
       .filter(almSettingDto -> devOpsProjectDescriptor.url().equals(almSettingDto.getUrl()))
       .map(almSettingDto -> findInstallationIdAndCreateDevOpsProjectCreator(dbSession, devOpsProjectDescriptor, almSettingDto))
       .flatMap(Optional::stream)
       .findFirst();
 
-    if (githubProjectCreator.isPresent()) {
-      return githubProjectCreator;
-    }
-
-    throw new IllegalStateException(format("The project %s could not be created. It was auto-detected as a %s project "
-                                           + "and no valid DevOps platform configuration were found to access %s. Please check with a SonarQube administrator.",
-      devOpsProjectDescriptor.projectIdentifier(), devOpsProjectDescriptor.alm(), devOpsProjectDescriptor.url()));
   }
 
   private Optional<DevOpsProjectCreator> findInstallationIdAndCreateDevOpsProjectCreator(DbSession dbSession, DevOpsProjectDescriptor devOpsProjectDescriptor,
@@ -144,7 +137,7 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
       GithubAppConfiguration githubAppConfiguration = new GithubAppConfiguration(Long.parseLong(gitHubSettings.appId()), gitHubSettings.privateKey(), gitHubSettings.apiURL());
       long installationId = findInstallationIdToAccessRepo(githubAppConfiguration, devOpsProjectDescriptor.projectIdentifier())
         .orElseThrow(() -> new IllegalStateException(format("GitHub auto-provisioning is activated. However the repo %s is not in the scope of the authentication application. "
-                                                            + "The permissions can't be checked, and the project can not be created.",
+          + "The permissions can't be checked, and the project can not be created.",
           devOpsProjectDescriptor.projectIdentifier())));
       return Optional.of(generateAppInstallationToken(githubAppConfiguration, installationId));
     }
