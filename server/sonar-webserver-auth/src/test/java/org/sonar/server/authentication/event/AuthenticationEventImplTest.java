@@ -23,15 +23,14 @@ import com.google.common.base.Joiner;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -52,12 +51,13 @@ public class AuthenticationEventImplTest {
 
   @Before
   public void setUp() {
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
+    logTester.clear();
   }
 
   @Test
   public void login_success_fails_with_NPE_if_request_is_null() {
-    logTester.setLevel(LoggerLevel.INFO);
+    logTester.setLevel(Level.INFO);
 
     Source sso = Source.sso();
     assertThatThrownBy(() -> underTest.loginSuccess(null, "login", sso))
@@ -67,7 +67,7 @@ public class AuthenticationEventImplTest {
 
   @Test
   public void login_success_fails_with_NPE_if_source_is_null() {
-    logTester.setLevel(LoggerLevel.INFO);
+    logTester.setLevel(Level.INFO);
 
     assertThatThrownBy(() -> underTest.loginSuccess(mock(HttpRequest.class), "login", null))
       .isInstanceOf(NullPointerException.class)
@@ -77,7 +77,7 @@ public class AuthenticationEventImplTest {
   @Test
   public void login_success_does_not_interact_with_request_if_log_level_is_above_DEBUG() {
     HttpRequest request = mock(HttpRequest.class);
-    logTester.setLevel(LoggerLevel.INFO);
+    logTester.setLevel(Level.INFO);
 
     underTest.loginSuccess(request, "login", Source.sso());
 
@@ -86,7 +86,7 @@ public class AuthenticationEventImplTest {
 
   @Test
   public void login_success_message_is_sanitized() {
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
 
     underTest.loginSuccess(mockRequest("1.2.3.4"), "login with \n malicious line \r return", Source.sso());
 
@@ -98,14 +98,14 @@ public class AuthenticationEventImplTest {
   public void login_success_creates_DEBUG_log_with_empty_login_if_login_argument_is_null() {
     underTest.loginSuccess(mockRequest(), null, Source.sso());
 
-    verifyLog("login success [method|SSO][provider|SSO|sso][IP||][login|]");
+    verifyLog("login success [method|SSO][provider|SSO|sso][IP||][login|]", Set.of("logout", "login failure"));
   }
 
   @Test
   public void login_success_creates_DEBUG_log_with_method_provider_and_login() {
     underTest.loginSuccess(mockRequest(), "foo", Source.realm(Method.BASIC, "some provider name"));
 
-    verifyLog("login success [method|BASIC][provider|REALM|some provider name][IP||][login|foo]");
+    verifyLog("login success [method|BASIC][provider|REALM|some provider name][IP||][login|foo]", Set.of("logout", "login failure"));
   }
 
   @Test
@@ -113,35 +113,37 @@ public class AuthenticationEventImplTest {
     underTest.loginSuccess(mockRequest(), LOGIN_129_CHARS, Source.realm(Method.BASIC, "some provider name"));
 
     verifyLog("login success [method|BASIC][provider|REALM|some provider name][IP||][login|012345678901234567890123456789012345678901234567890123456789" +
-      "01234567890123456789012345678901234567890123456789012345678901234567...(129)]");
+      "01234567890123456789012345678901234567890123456789012345678901234567...(129)]",
+      Set.of("logout", "login failure"));
   }
 
   @Test
   public void login_success_logs_remote_ip_from_request() {
     underTest.loginSuccess(mockRequest("1.2.3.4"), "foo", Source.realm(Method.EXTERNAL, "bar"));
 
-    verifyLog("login success [method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|][login|foo]");
+    verifyLog("login success [method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|][login|foo]", Set.of("logout", "login failure"));
   }
 
   @Test
   public void login_success_logs_X_Forwarded_For_header_from_request() {
-    HttpRequest request = mockRequest("1.2.3.4", asList("2.3.4.5"));
+    HttpRequest request = mockRequest("1.2.3.4", List.of("2.3.4.5"));
     underTest.loginSuccess(request, "foo", Source.realm(Method.EXTERNAL, "bar"));
 
-    verifyLog("login success [method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|2.3.4.5][login|foo]");
+    verifyLog("login success [method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|2.3.4.5][login|foo]", Set.of("logout", "login failure"));
   }
 
   @Test
   public void login_success_logs_X_Forwarded_For_header_from_request_and_supports_multiple_headers() {
-    HttpRequest request = mockRequest("1.2.3.4", asList("2.3.4.5", "6.5.4.3"), asList("9.5.6.7"), asList("6.3.2.4"));
+    HttpRequest request = mockRequest("1.2.3.4", List.of("2.3.4.5", "6.5.4.3"), List.of("9.5.6.7"), List.of("6.3.2.4"));
     underTest.loginSuccess(request, "foo", Source.realm(Method.EXTERNAL, "bar"));
 
-    verifyLog("login success [method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|2.3.4.5,6.5.4.3,9.5.6.7,6.3.2.4][login|foo]");
+    verifyLog("login success [method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|2.3.4.5,6.5.4.3,9.5.6.7,6.3.2.4][login|foo]",
+      Set.of("logout", "login failure"));
   }
 
   @Test
   public void login_failure_fails_with_NPE_if_request_is_null() {
-    logTester.setLevel(LoggerLevel.INFO);
+    logTester.setLevel(Level.INFO);
 
     AuthenticationException exception = newBuilder().setSource(Source.sso()).build();
     assertThatThrownBy(() -> underTest.loginFailure(null, exception))
@@ -151,7 +153,7 @@ public class AuthenticationEventImplTest {
 
   @Test
   public void login_failure_fails_with_NPE_if_AuthenticationException_is_null() {
-    logTester.setLevel(LoggerLevel.INFO);
+    logTester.setLevel(Level.INFO);
 
     assertThatThrownBy(() -> underTest.loginFailure(mock(HttpRequest.class), null))
       .isInstanceOf(NullPointerException.class)
@@ -162,7 +164,7 @@ public class AuthenticationEventImplTest {
   public void login_failure_does_not_interact_with_arguments_if_log_level_is_above_DEBUG() {
     HttpRequest request = mock(HttpRequest.class);
     AuthenticationException exception = mock(AuthenticationException.class);
-    logTester.setLevel(LoggerLevel.INFO);
+    logTester.setLevel(Level.INFO);
 
     underTest.loginFailure(request, exception);
 
@@ -174,7 +176,7 @@ public class AuthenticationEventImplTest {
     AuthenticationException exception = newBuilder().setSource(Source.sso()).setMessage("message").build();
     underTest.loginFailure(mockRequest(), exception);
 
-    verifyLog("login failure [cause|message][method|SSO][provider|SSO|sso][IP||][login|]");
+    verifyLog("login failure [cause|message][method|SSO][provider|SSO|sso][IP||][login|]", Set.of("logout", "login success"));
   }
 
   @Test
@@ -182,7 +184,7 @@ public class AuthenticationEventImplTest {
     AuthenticationException exception = newBuilder().setSource(Source.sso()).setLogin("FoO").build();
     underTest.loginFailure(mockRequest(), exception);
 
-    verifyLog("login failure [cause|][method|SSO][provider|SSO|sso][IP||][login|FoO]");
+    verifyLog("login failure [cause|][method|SSO][provider|SSO|sso][IP||][login|FoO]", Set.of("logout", "login success"));
   }
 
   @Test
@@ -194,7 +196,8 @@ public class AuthenticationEventImplTest {
       .build();
     underTest.loginFailure(mockRequest(), exception);
 
-    verifyLog("login failure [cause|something got terribly wrong][method|BASIC][provider|REALM|some provider name][IP||][login|BaR]");
+    verifyLog("login failure [cause|something got terribly wrong][method|BASIC][provider|REALM|some provider name][IP||][login|BaR]",
+      Set.of("logout", "login success"));
   }
 
   @Test
@@ -207,7 +210,8 @@ public class AuthenticationEventImplTest {
     underTest.loginFailure(mockRequest(), exception);
 
     verifyLog("login failure [cause|pop][method|BASIC][provider|REALM|some provider name][IP||][login|012345678901234567890123456789012345678901234567890123456789" +
-      "01234567890123456789012345678901234567890123456789012345678901234567...(129)]");
+      "01234567890123456789012345678901234567890123456789012345678901234567...(129)]",
+      Set.of("logout", "login success"));
   }
 
   @Test
@@ -219,7 +223,8 @@ public class AuthenticationEventImplTest {
       .build();
     underTest.loginFailure(mockRequest("1.2.3.4"), exception);
 
-    verifyLog("login failure [cause|Damn it!][method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|][login|Baaad]");
+    verifyLog("login failure [cause|Damn it!][method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|][login|Baaad]",
+      Set.of("logout", "login success"));
   }
 
   @Test
@@ -229,10 +234,11 @@ public class AuthenticationEventImplTest {
       .setMessage("Hop la!")
       .setLogin("foo")
       .build();
-    HttpRequest request = mockRequest("1.2.3.4", asList("2.3.4.5"));
+    HttpRequest request = mockRequest("1.2.3.4", List.of("2.3.4.5"));
     underTest.loginFailure(request, exception);
 
-    verifyLog("login failure [cause|Hop la!][method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|2.3.4.5][login|foo]");
+    verifyLog("login failure [cause|Hop la!][method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|2.3.4.5][login|foo]",
+      Set.of("logout", "login success"));
   }
 
   @Test
@@ -242,15 +248,16 @@ public class AuthenticationEventImplTest {
       .setMessage("Boom!")
       .setLogin("foo")
       .build();
-    HttpRequest request = mockRequest("1.2.3.4", asList("2.3.4.5", "6.5.4.3"), asList("9.5.6.7"), asList("6.3.2.4"));
+    HttpRequest request = mockRequest("1.2.3.4", List.of("2.3.4.5", "6.5.4.3"), List.of("9.5.6.7"), List.of("6.3.2.4"));
     underTest.loginFailure(request, exception);
 
-    verifyLog("login failure [cause|Boom!][method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|2.3.4.5,6.5.4.3,9.5.6.7,6.3.2.4][login|foo]");
+    verifyLog("login failure [cause|Boom!][method|EXTERNAL][provider|REALM|bar][IP|1.2.3.4|2.3.4.5,6.5.4.3,9.5.6.7,6.3.2.4][login|foo]",
+      Set.of("logout", "login success"));
   }
 
   @Test
   public void logout_success_fails_with_NPE_if_request_is_null() {
-    logTester.setLevel(LoggerLevel.INFO);
+    logTester.setLevel(Level.INFO);
 
     assertThatThrownBy(() -> underTest.logoutSuccess(null, "foo"))
       .isInstanceOf(NullPointerException.class)
@@ -260,7 +267,7 @@ public class AuthenticationEventImplTest {
   @Test
   public void logout_success_does_not_interact_with_request_if_log_level_is_above_DEBUG() {
     HttpRequest request = mock(HttpRequest.class);
-    logTester.setLevel(LoggerLevel.INFO);
+    logTester.setLevel(Level.INFO);
 
     underTest.logoutSuccess(request, "foo");
 
@@ -271,42 +278,42 @@ public class AuthenticationEventImplTest {
   public void logout_success_creates_DEBUG_log_with_empty_login_if_login_argument_is_null() {
     underTest.logoutSuccess(mockRequest(), null);
 
-    verifyLog("logout success [IP||][login|]");
+    verifyLog("logout success [IP||][login|]", Set.of("login", "logout failure"));
   }
 
   @Test
   public void logout_success_creates_DEBUG_log_with_login() {
     underTest.logoutSuccess(mockRequest(), "foo");
 
-    verifyLog("logout success [IP||][login|foo]");
+    verifyLog("logout success [IP||][login|foo]", Set.of("login", "logout failure"));
   }
 
   @Test
   public void logout_success_logs_remote_ip_from_request() {
     underTest.logoutSuccess(mockRequest("1.2.3.4"), "foo");
 
-    verifyLog("logout success [IP|1.2.3.4|][login|foo]");
+    verifyLog("logout success [IP|1.2.3.4|][login|foo]", Set.of("login", "logout failure"));
   }
 
   @Test
   public void logout_success_logs_X_Forwarded_For_header_from_request() {
-    HttpRequest request = mockRequest("1.2.3.4", asList("2.3.4.5"));
+    HttpRequest request = mockRequest("1.2.3.4", List.of("2.3.4.5"));
     underTest.logoutSuccess(request, "foo");
 
-    verifyLog("logout success [IP|1.2.3.4|2.3.4.5][login|foo]");
+    verifyLog("logout success [IP|1.2.3.4|2.3.4.5][login|foo]", Set.of("login", "logout failure"));
   }
 
   @Test
   public void logout_success_logs_X_Forwarded_For_header_from_request_and_supports_multiple_headers() {
-    HttpRequest request = mockRequest("1.2.3.4", asList("2.3.4.5", "6.5.4.3"), asList("9.5.6.7"), asList("6.3.2.4"));
+    HttpRequest request = mockRequest("1.2.3.4", List.of("2.3.4.5", "6.5.4.3"), List.of("9.5.6.7"), List.of("6.3.2.4"));
     underTest.logoutSuccess(request, "foo");
 
-    verifyLog("logout success [IP|1.2.3.4|2.3.4.5,6.5.4.3,9.5.6.7,6.3.2.4][login|foo]");
+    verifyLog("logout success [IP|1.2.3.4|2.3.4.5,6.5.4.3,9.5.6.7,6.3.2.4][login|foo]", Set.of("login", "logout failure"));
   }
 
   @Test
   public void logout_failure_with_NPE_if_request_is_null() {
-    logTester.setLevel(LoggerLevel.INFO);
+    logTester.setLevel(Level.INFO);
 
     assertThatThrownBy(() -> underTest.logoutFailure(null, "bad csrf"))
       .isInstanceOf(NullPointerException.class)
@@ -315,7 +322,7 @@ public class AuthenticationEventImplTest {
 
   @Test
   public void login_fails_with_NPE_if_error_message_is_null() {
-    logTester.setLevel(LoggerLevel.INFO);
+    logTester.setLevel(Level.INFO);
 
     assertThatThrownBy(() -> underTest.logoutFailure(mock(HttpRequest.class), null))
       .isInstanceOf(NullPointerException.class)
@@ -325,7 +332,7 @@ public class AuthenticationEventImplTest {
   @Test
   public void logout_does_not_interact_with_request_if_log_level_is_above_DEBUG() {
     HttpRequest request = mock(HttpRequest.class);
-    logTester.setLevel(LoggerLevel.INFO);
+    logTester.setLevel(Level.INFO);
 
     underTest.logoutFailure(request, "bad csrf");
 
@@ -336,36 +343,36 @@ public class AuthenticationEventImplTest {
   public void logout_creates_DEBUG_log_with_error() {
     underTest.logoutFailure(mockRequest(), "bad token");
 
-    verifyLog("logout failure [error|bad token][IP||]");
+    verifyLog("logout failure [error|bad token][IP||]", Set.of("login", "logout success"));
   }
 
   @Test
   public void logout_logs_remote_ip_from_request() {
     underTest.logoutFailure(mockRequest("1.2.3.4"), "bad token");
 
-    verifyLog("logout failure [error|bad token][IP|1.2.3.4|]");
+    verifyLog("logout failure [error|bad token][IP|1.2.3.4|]", Set.of("login", "logout success"));
   }
 
   @Test
   public void logout_logs_X_Forwarded_For_header_from_request() {
-    HttpRequest request = mockRequest("1.2.3.4", asList("2.3.4.5"));
+    HttpRequest request = mockRequest("1.2.3.4", List.of("2.3.4.5"));
     underTest.logoutFailure(request, "bad token");
 
-    verifyLog("logout failure [error|bad token][IP|1.2.3.4|2.3.4.5]");
+    verifyLog("logout failure [error|bad token][IP|1.2.3.4|2.3.4.5]", Set.of("login", "logout success"));
   }
 
   @Test
   public void logout_logs_X_Forwarded_For_header_from_request_and_supports_multiple_headers() {
-    HttpRequest request = mockRequest("1.2.3.4", asList("2.3.4.5", "6.5.4.3"), asList("9.5.6.7"), asList("6.3.2.4"));
+    HttpRequest request = mockRequest("1.2.3.4", List.of("2.3.4.5", "6.5.4.3"), List.of("9.5.6.7"), List.of("6.3.2.4"));
     underTest.logoutFailure(request, "bad token");
 
-    verifyLog("logout failure [error|bad token][IP|1.2.3.4|2.3.4.5,6.5.4.3,9.5.6.7,6.3.2.4]");
+    verifyLog("logout failure [error|bad token][IP|1.2.3.4|2.3.4.5,6.5.4.3,9.5.6.7,6.3.2.4]",
+      Set.of("login", "logout success"));
   }
 
-  private void verifyLog(String expected) {
-    assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(Level.DEBUG))
-      .containsOnly(expected);
+  private void verifyLog(String expected, Set<String> notExpected) {
+    assertThat(logTester.logs(Level.DEBUG)).contains(expected);
+    assertThat(logTester.logs(Level.DEBUG)).noneMatch(log -> notExpected.stream().anyMatch(log::startsWith));
   }
 
   private static HttpRequest mockRequest() {
