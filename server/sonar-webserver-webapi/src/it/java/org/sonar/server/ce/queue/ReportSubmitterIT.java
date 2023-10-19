@@ -63,8 +63,10 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
@@ -77,6 +79,7 @@ import static java.util.stream.IntStream.rangeClosed;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -110,18 +113,19 @@ public class ReportSubmitterIT {
   private final CeQueue queue = mock(CeQueueImpl.class);
   private final TestIndexers projectIndexers = new TestIndexers();
   private final PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
-
-  private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), mock(System2.class), permissionTemplateService,
-    new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, mock(PermissionUpdater.class), mock(PermissionService.class));
   private final BranchSupport ossEditionBranchSupport = new BranchSupport(null);
-
   private final GithubApplicationClient githubApplicationClient = mock();
   private final GithubGlobalSettingsValidator githubGlobalSettingsValidator = mock();
   private final GitHubSettings gitHubSettings = mock();
   private final ProjectKeyGenerator projectKeyGenerator = mock();
+  private final PermissionUpdater<UserPermissionChange> permissionUpdater = mock();
+  private PermissionService permissionService = new PermissionServiceImpl(mock());
+  private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), mock(System2.class), permissionTemplateService,
+    new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, mock(PermissionUpdater.class), permissionService);
 
   private final GithubProjectCreatorFactory githubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(), githubGlobalSettingsValidator,
-    githubApplicationClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings, null);
+    githubApplicationClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings, null, permissionUpdater, permissionService);
+
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new DelegatingDevOpsProjectCreatorFactory(Set.of(githubProjectCreatorFactory));
 
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactorySpy = spy(devOpsProjectCreatorFactory);
@@ -135,6 +139,7 @@ public class ReportSubmitterIT {
   public void before() {
     when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PUBLIC);
     when(defaultBranchNameResolver.getEffectiveMainBranchName()).thenReturn(DEFAULT_MAIN_BRANCH_NAME);
+    userSession.logIn("login");
   }
 
   @Test
@@ -263,9 +268,9 @@ public class ReportSubmitterIT {
 
   @Test
   public void submit_whenReportIsForANewProjectWithoutDevOpsMetadata_createsLocalProject() {
-    userSession.addPermission(PROVISION_PROJECTS);
+    userSession.addPermission(PROVISION_PROJECTS).addPermission(SCAN);
     mockSuccessfulPrepareSubmitCall();
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), anyString(), anyString())).thenReturn(true);
 
     underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
@@ -274,7 +279,9 @@ public class ReportSubmitterIT {
 
   @Test
   public void submit_whenReportIsForANewProjectWithValidAlmSettingsAutoProvisioningOnAndPermOnGh_createsProjectWithBinding() {
-    userSession.addPermission(PROVISION_PROJECTS);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS).addPermission(SCAN);
+
     when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
     mockSuccessfulPrepareSubmitCall();
 
@@ -288,7 +295,8 @@ public class ReportSubmitterIT {
 
   @Test
   public void submit_whenReportIsForANewProjectWithValidAlmSettingsAutoProvisioningOnNoPermOnGhAndGlobalScanPerm_createsProjectWithBinding() {
-    userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
     when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
     mockSuccessfulPrepareSubmitCall();
 
@@ -359,8 +367,8 @@ public class ReportSubmitterIT {
     GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(projectDescriptor, almSettingDto, true,
       managedInstanceService.isInstanceExternallyManaged(), userSession, mock(),
       null);
-    DevOpsProjectCreator devOpsProjectCreator = spy(
-      new GithubProjectCreator(db.getDbClient(), githubApplicationClient, null, projectKeyGenerator, componentUpdater, githubProjectCreationParameters));
+    DevOpsProjectCreator devOpsProjectCreator = spy(new GithubProjectCreator(db.getDbClient(), githubApplicationClient, null, projectKeyGenerator,
+      componentUpdater, permissionUpdater, permissionService, githubProjectCreationParameters));
     doReturn(Optional.of(devOpsProjectCreator)).when(devOpsProjectCreatorFactorySpy).getDevOpsProjectCreator(any(), eq(characteristics));
     return devOpsProjectCreator;
   }

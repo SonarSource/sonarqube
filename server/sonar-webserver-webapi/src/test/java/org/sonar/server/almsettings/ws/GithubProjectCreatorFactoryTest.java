@@ -39,6 +39,9 @@ import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
 
@@ -76,31 +79,28 @@ public class GithubProjectCreatorFactoryTest {
   private GithubGlobalSettingsValidator githubGlobalSettingsValidator;
   @Mock
   private GithubApplicationClient githubApplicationClient;
-
   @Mock
   private ComponentUpdater componentUpdater;
-
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private DbClient dbClient;
   @Mock
   private UserSession userSession;
-
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private ProjectDefaultVisibility projectDefaultVisibility;
-
   @Mock
   private ProjectKeyGenerator projectKeyGenerator;
-
   @Mock
   private GitHubSettings gitHubSettings;
-
   @Mock
   private GithubPermissionConverter githubPermissionConverter;
-
   @Mock
   private AppInstallationToken appInstallationToken;
   @Mock
   private AppInstallationToken authAppInstallationToken;
+  @Mock
+  private PermissionService permissionService;
+  @Mock
+  private PermissionUpdater<UserPermissionChange> permissionUpdater;
 
   @InjectMocks
   private GithubProjectCreatorFactory githubProjectCreatorFactory;
@@ -217,9 +217,9 @@ public class GithubProjectCreatorFactoryTest {
     AppInstallationToken authAppInstallToken = isInstanceManaged ? authAppInstallationToken : null;
     GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor,
       almSettingDto, projectsArePrivateByDefault, isInstanceManaged, userSession, appInstallationToken, authAppInstallToken);
-    return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater, githubProjectCreationParameters);
+    return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater, permissionUpdater, permissionService,
+      githubProjectCreationParameters);
   }
-
 
   private AlmSettingDto mockAlmSettingDto(boolean repoAccess) {
     AlmSettingDto almSettingDto = mock();

@@ -37,6 +37,9 @@ import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
 
@@ -57,10 +60,13 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
   private final ComponentUpdater componentUpdater;
   private final GitHubSettings gitHubSettings;
   private final GithubPermissionConverter githubPermissionConverter;
+  private final PermissionUpdater<UserPermissionChange> permissionUpdater;
+  private final PermissionService permissionService;
 
   public GithubProjectCreatorFactory(DbClient dbClient, GithubGlobalSettingsValidator githubGlobalSettingsValidator,
     GithubApplicationClient githubApplicationClient, ProjectDefaultVisibility projectDefaultVisibility, ProjectKeyGenerator projectKeyGenerator, UserSession userSession,
-    ComponentUpdater componentUpdater, GitHubSettings gitHubSettings, GithubPermissionConverter githubPermissionConverter) {
+    ComponentUpdater componentUpdater, GitHubSettings gitHubSettings, GithubPermissionConverter githubPermissionConverter,
+    PermissionUpdater<UserPermissionChange> permissionUpdater, PermissionService permissionService) {
     this.dbClient = dbClient;
     this.githubGlobalSettingsValidator = githubGlobalSettingsValidator;
     this.githubApplicationClient = githubApplicationClient;
@@ -70,6 +76,8 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
     this.componentUpdater = componentUpdater;
     this.gitHubSettings = gitHubSettings;
     this.githubPermissionConverter = githubPermissionConverter;
+    this.permissionUpdater = permissionUpdater;
+    this.permissionService = permissionService;
   }
 
   @Override
@@ -112,7 +120,7 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
     GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor,
       almSettingDto, projectDefaultVisibility.get(dbSession).isPrivate(), gitHubSettings.isProvisioningEnabled(), userSession, appInstallationToken,
       authAppInstallationToken.orElse(null));
-    return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater,
+    return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater, permissionUpdater, permissionService,
       githubProjectCreationParameters);
   }
 
@@ -123,7 +131,8 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
     GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor,
       almSettingDto, projectDefaultVisibility.get(dbSession).isPrivate(), gitHubSettings.isProvisioningEnabled(), userSession, accessToken, authAppInstallationToken.orElse(null));
     return Optional.of(
-      new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater, githubProjectCreationParameters)
+      new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater, permissionUpdater, permissionService,
+        githubProjectCreationParameters)
     );
   }
 
@@ -132,7 +141,7 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
       GithubAppConfiguration githubAppConfiguration = new GithubAppConfiguration(Long.parseLong(gitHubSettings.appId()), gitHubSettings.privateKey(), gitHubSettings.apiURL());
       long installationId = findInstallationIdToAccessRepo(githubAppConfiguration, devOpsProjectDescriptor.projectIdentifier())
         .orElseThrow(() -> new IllegalStateException(format("GitHub auto-provisioning is activated. However the repo %s is not in the scope of the authentication application. "
-                                                            + "The permissions can't be checked, and the project can not be breated.",
+                                                            + "The permissions can't be checked, and the project can not be created.",
           devOpsProjectDescriptor.projectIdentifier())));
       return Optional.of(generateAppInstallationToken(githubAppConfiguration, installationId));
     }

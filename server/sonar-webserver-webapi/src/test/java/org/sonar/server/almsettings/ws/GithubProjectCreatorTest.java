@@ -20,6 +20,7 @@
 package org.sonar.server.almsettings.ws;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
@@ -53,6 +54,10 @@ import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionServiceImpl;
+import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Objects.requireNonNull;
@@ -98,6 +103,9 @@ public class GithubProjectCreatorTest {
   private UserSession userSession;
   @Mock
   private AlmSettingDto almSettingDto;
+  private PermissionService permissionService = new PermissionServiceImpl(mock());
+  @Mock
+  private PermissionUpdater<UserPermissionChange> permissionUpdater;
 
   private GithubProjectCreator githubProjectCreator;
 
@@ -121,7 +129,7 @@ public class GithubProjectCreatorTest {
     when(githubProjectCreationParameters.almSettingDto()).thenReturn(almSettingDto);
 
     githubProjectCreator = new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater,
-      githubProjectCreationParameters);
+      permissionUpdater, permissionService, githubProjectCreationParameters);
   }
 
   @Test
@@ -296,6 +304,10 @@ public class GithubProjectCreatorTest {
     assertAlmSettingsDtoContainsCorrectInformation(almSettingDto, requireNonNull(componentCreationData.projectDto()), projectAlmSettingDto);
   }
 
+  @Captor
+  private ArgumentCaptor<Collection<UserPermissionChange>> permissionChangesCaptor;
+
+  @Test
   public void createProjectAndBindToDevOpsPlatformFromApi_whenRepoFoundOnGitHubAutoProvisioningOnAndRepoPrivate_successfullyCreatesProject() {
     // given
     when(githubProjectCreationParameters.projectsArePrivateByDefault()).thenReturn(true);
@@ -318,6 +330,13 @@ public class GithubProjectCreatorTest {
     assertComponentCreationParametersContainsCorrectInformation(componentCreationParameters, projectKey, ALM_IMPORT_API);
     assertThat(componentCreationParameters.isManaged()).isTrue();
     assertThat(componentCreationParameters.newComponent().isPrivate()).isTrue();
+
+    verify(permissionUpdater).apply(any(), permissionChangesCaptor.capture());
+    UserPermissionChange permissionChange = permissionChangesCaptor.getValue().iterator().next();
+    assertThat(permissionChange.getUserId().getUuid()).isEqualTo(userSession.getUuid());
+    assertThat(permissionChange.getUserId().getLogin()).isEqualTo(userSession.getLogin());
+    assertThat(permissionChange.getPermission()).isEqualTo(UserRole.SCAN);
+    assertThat(permissionChange.getProjectUuid()).isEqualTo(actualComponentCreationData.projectDto().getUuid());
 
     verify(projectAlmSettingDao).insertOrUpdate(any(), projectAlmSettingDtoCaptor.capture(), eq(ALM_SETTING_KEY), eq(REPOSITORY_NAME), eq(projectKey));
     ProjectAlmSettingDto projectAlmSettingDto = projectAlmSettingDtoCaptor.getValue();
