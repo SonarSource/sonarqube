@@ -27,6 +27,8 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.ce.queue.ReportSubmitter;
+import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
@@ -35,6 +37,7 @@ import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -170,5 +173,21 @@ public class SubmitActionTest {
       .execute();
 
     verify(reportSubmitter).submit(eq("my_project"), eq("my_project"), anyMap(), any());
+  }
+
+  @Test
+  public void handle_whenReportSubmitterThrowIllegalStateException_shouldThrowServerException() {
+    when(reportSubmitter.submit(eq("my_project"), eq("my_project"), anyMap(), any()))
+      .thenThrow(new IllegalStateException("Error message"));
+
+    TestRequest request = tester.newRequest()
+      .setParam("projectKey", "my_project")
+      .setPart("report", new ByteArrayInputStream("{binary}".getBytes()), "foo.bar")
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setMethod("POST");
+
+    assertThatThrownBy(() -> request.execute())
+      .isInstanceOf(ServerException.class)
+      .hasMessage("Error message");
   }
 }
