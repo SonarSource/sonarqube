@@ -200,16 +200,20 @@ public class PersistComponentsStep implements ComputationStep {
     @Override
     public void visitProjectView(Component projectView, Path<ComponentDtoHolder> path) {
       ComponentDto dto = createForProjectView(projectView, path);
-      persistComponent(dto);
+      persistComponent(dto, false);
     }
 
     private ComponentDto persistComponent(ComponentDto componentDto) {
+      return persistComponent(componentDto, true);
+    }
+
+    private ComponentDto persistComponent(ComponentDto componentDto, boolean shouldPersistAudit) {
       ComponentDto existingComponent = existingComponentDtosByUuids.remove(componentDto.uuid());
       if (existingComponent == null) {
         if (componentDto.qualifier().equals("APP") && componentDto.scope().equals("PRJ")) {
           throw new IllegalStateException("Application should already exists: " + componentDto);
         }
-        dbClient.componentDao().insert(dbSession, componentDto, analysisMetadataHolder.getBranch().isMain());
+        dbClient.componentDao().insert(dbSession, componentDto, shouldPersistAudit);
         return componentDto;
       }
       Optional<ComponentUpdateDto> update = compareForUpdate(existingComponent, componentDto);

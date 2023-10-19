@@ -46,13 +46,17 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.ViewAttributes.Type.APPLICATION;
 import static org.sonar.ce.task.projectanalysis.component.ViewAttributes.Type.PORTFOLIO;
@@ -78,8 +82,10 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
   private static final String PROJECT_VIEW_1_NAME = "PV1_NAME";
   private static final String PROJECT_VIEW_1_UUID = "PV1_UUID";
 
+  private final AuditPersister auditPersister = mock();
+
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE, auditPersister);
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
@@ -311,6 +317,23 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
     assertRowsCountInTableComponents(3);
     ComponentDto pv1Dto = getComponentFromDb(PROJECT_VIEW_1_KEY);
     assertDtoIsProjectView1(pv1Dto, view, view, project);
+  }
+
+  @Test
+  public void execute_whenPortfolioProjectAndTechnicalProjectIsCreated_shouldStoreTwoAuditLogs() {
+    ComponentDto view = newViewDto();
+    ComponentDto project = ComponentTesting.newPrivateProjectDto();
+    persistComponents(view, project);
+
+    treeRootHolder.setRoot(
+      createViewBuilder(PORTFOLIO)
+        .addChildren(createProjectView1Builder(project, null).build())
+        .build());
+
+    underTest.execute(new TestComputationStepContext());
+
+    //We create audits for the portfolio and the project, not for the technical project
+    verify(auditPersister, times(2)).addComponent(any(), any());
   }
 
   @Test
