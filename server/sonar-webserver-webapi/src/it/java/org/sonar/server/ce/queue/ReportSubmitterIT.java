@@ -56,6 +56,7 @@ import org.sonar.server.almsettings.ws.DevOpsProjectDescriptor;
 import org.sonar.server.almsettings.ws.GithubProjectCreationParameters;
 import org.sonar.server.almsettings.ws.GithubProjectCreator;
 import org.sonar.server.almsettings.ws.GithubProjectCreatorFactory;
+import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
@@ -123,20 +124,20 @@ public class ReportSubmitterIT {
   private final PermissionService permissionService = new PermissionServiceImpl(mock());
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), mock(System2.class), permissionTemplateService,
     new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, mock(PermissionUpdater.class), permissionService);
-
   private final ManagedProjectService managedProjectService = mock();
+  private final ManagedInstanceService managedInstanceService = mock();
+  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, managedInstanceService, componentUpdater);
   private final GithubProjectCreatorFactory githubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(), githubGlobalSettingsValidator,
-    githubApplicationClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings, null, permissionUpdater, permissionService,
+    githubApplicationClient, projectKeyGenerator, userSession, projectCreator, gitHubSettings, null, permissionUpdater, permissionService,
     managedProjectService);
 
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new DelegatingDevOpsProjectCreatorFactory(Set.of(githubProjectCreatorFactory));
 
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactorySpy = spy(devOpsProjectCreatorFactory);
 
-  private final ManagedInstanceService managedInstanceService = mock();
 
-  private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), ossEditionBranchSupport,
-    projectDefaultVisibility, devOpsProjectCreatorFactorySpy, managedInstanceService);
+  private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, projectCreator, componentUpdater, permissionTemplateService, db.getDbClient(),
+    ossEditionBranchSupport, devOpsProjectCreatorFactorySpy, managedInstanceService);
 
   @Before
   public void before() {
@@ -313,7 +314,8 @@ public class ReportSubmitterIT {
 
   @Test
   public void submit_whenReportIsForANewProjectWithoutDevOpsMetadataAndAutoProvisioningOn_shouldCreateLocalProject() {
-    userSession.addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(GlobalPermission.SCAN).addPermission(PROVISION_PROJECTS);
     when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
     mockSuccessfulPrepareSubmitCall();
@@ -367,11 +369,9 @@ public class ReportSubmitterIT {
     mockGithubRepository();
 
     DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, "apiUrl", "orga/repo");
-    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(projectDescriptor, almSettingDto, true,
-      managedInstanceService.isInstanceExternallyManaged(), userSession, mock(),
-      null);
+    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(projectDescriptor, almSettingDto, userSession, mock(), null);
     DevOpsProjectCreator devOpsProjectCreator = spy(new GithubProjectCreator(db.getDbClient(), githubApplicationClient, null, projectKeyGenerator,
-      componentUpdater, permissionUpdater, permissionService, managedProjectService, githubProjectCreationParameters));
+      permissionUpdater, permissionService, managedProjectService, projectCreator, githubProjectCreationParameters));
     doReturn(Optional.of(devOpsProjectCreator)).when(devOpsProjectCreatorFactorySpy).getDevOpsProjectCreator(any(), eq(characteristics));
     return devOpsProjectCreator;
   }

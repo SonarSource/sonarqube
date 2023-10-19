@@ -53,6 +53,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.almsettings.ws.GithubProjectCreatorFactory;
+import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexersImpl;
@@ -60,6 +61,7 @@ import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteUpdater;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.permission.GroupPermissionChanger;
@@ -133,11 +135,14 @@ public class ImportGithubProjectActionIT {
   private final NewCodeDefinitionResolver newCodeDefinitionResolver = new NewCodeDefinitionResolver(db.getDbClient(), editionProvider);
 
   private final ManagedProjectService managedProjectService = mock(ManagedProjectService.class);
+  private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
 
   private final GithubPermissionConverter githubPermissionConverter = mock();
 
+  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, managedInstanceService, componentUpdater);
+
   private final GithubProjectCreatorFactory gitHubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(),
-    null, appClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings, githubPermissionConverter, userPermissionUpdater, permissionService,
+    null, appClient, projectKeyGenerator, userSession, projectCreator, gitHubSettings, githubPermissionConverter, userPermissionUpdater, permissionService,
     managedProjectService);
   private final WsActionTester ws = new WsActionTester(new ImportGithubProjectAction(db.getDbClient(), userSession,
     componentUpdater, importHelper, newCodeDefinitionResolver, defaultBranchNameResolver, gitHubProjectCreatorFactory));
@@ -323,7 +328,7 @@ public class ImportGithubProjectActionIT {
   public void importProject_whenGithubProvisioningIsEnabled_shouldNotApplyPermissionTemplate() {
     AlmSettingDto githubAlmSetting = setupUserWithPatAndAlmSettings();
 
-    when(gitHubSettings.isProvisioningEnabled()).thenReturn(true);
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
     mockGithubDevOpsAppInteractions();
     mockGithubAuthAppInteractions();
 

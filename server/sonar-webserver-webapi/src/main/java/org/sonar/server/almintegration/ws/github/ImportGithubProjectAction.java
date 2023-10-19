@@ -142,7 +142,7 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
       DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, url, repositoryKey);
 
-      DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, almSettingDto, accessToken, devOpsProjectDescriptor);
+      DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(almSettingDto, accessToken, devOpsProjectDescriptor);
       CreationMethod creationMethod = getCreationMethod(ALM_IMPORT, userSession.isAuthenticatedBrowserSession());
       ComponentCreationData componentCreationData = devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, creationMethod, null);
 

@@ -44,20 +44,16 @@ import org.sonar.db.user.UserIdDto;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.common.permission.Operation;
 import org.sonar.server.component.ComponentCreationData;
-import org.sonar.server.component.ComponentCreationParameters;
-import org.sonar.server.component.ComponentUpdater;
-import org.sonar.server.component.NewComponent;
 import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChange;
+import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toSet;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.utils.Preconditions.checkState;
-import static org.sonar.server.component.NewComponent.newComponentBuilder;
 
 public class GithubProjectCreator implements DevOpsProjectCreator {
 
@@ -65,10 +61,10 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
   private final GithubApplicationClient githubApplicationClient;
   private final GithubPermissionConverter githubPermissionConverter;
   private final ProjectKeyGenerator projectKeyGenerator;
-  private final ComponentUpdater componentUpdater;
   private final PermissionUpdater<UserPermissionChange> permissionUpdater;
   private final PermissionService permissionService;
   private final ManagedProjectService managedProjectService;
+  private final ProjectCreator projectCreator;
   private final GithubProjectCreationParameters githubProjectCreationParameters;
   private final DevOpsProjectDescriptor devOpsProjectDescriptor;
   private final UserSession userSession;
@@ -79,17 +75,17 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
   private final AppInstallationToken authAppInstallationToken;
 
   public GithubProjectCreator(DbClient dbClient, GithubApplicationClient githubApplicationClient, GithubPermissionConverter githubPermissionConverter,
-    ProjectKeyGenerator projectKeyGenerator, ComponentUpdater componentUpdater, PermissionUpdater<UserPermissionChange> permissionUpdater, PermissionService permissionService,
-    ManagedProjectService managedProjectService, GithubProjectCreationParameters githubProjectCreationParameters) {
+    ProjectKeyGenerator projectKeyGenerator, PermissionUpdater<UserPermissionChange> permissionUpdater, PermissionService permissionService,
+    ManagedProjectService managedProjectService, ProjectCreator projectCreator, GithubProjectCreationParameters githubProjectCreationParameters) {
 
     this.dbClient = dbClient;
     this.githubApplicationClient = githubApplicationClient;
     this.githubPermissionConverter = githubPermissionConverter;
     this.projectKeyGenerator = projectKeyGenerator;
-    this.componentUpdater = componentUpdater;
     this.permissionUpdater = permissionUpdater;
     this.permissionService = permissionService;
     this.managedProjectService = managedProjectService;
+    this.projectCreator = projectCreator;
     this.githubProjectCreationParameters = githubProjectCreationParameters;
     userSession = githubProjectCreationParameters.userSession();
     almSettingDto = githubProjectCreationParameters.almSettingDto();
@@ -167,7 +163,8 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
 
   private ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, @Nullable String projectKey, AlmSettingDto almSettingDto,
     GithubApplicationClient.Repository repository, CreationMethod creationMethod) {
-    ComponentCreationData componentCreationData = createProject(dbSession, projectKey, repository, creationMethod);
+    String key = Optional.ofNullable(projectKey).orElse(getUniqueProjectKey(repository));
+    ComponentCreationData componentCreationData = projectCreator.createProject(dbSession, key, repository.getName(), repository.getDefaultBranch(), creationMethod);
     ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
     createProjectAlmSettingDto(dbSession, repository, projectDto, almSettingDto);
     addScanPermissionToCurrentUser(dbSession, projectDto);
@@ -186,24 +183,6 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
   private void syncProjectPermissionsWithGithub(ProjectDto projectDto, BranchDto mainBranchDto) {
     String userUuid = requireNonNull(userSession.getUuid());
     managedProjectService.queuePermissionSyncTask(userUuid, mainBranchDto.getUuid(), projectDto.getUuid());
-  }
-
-  private ComponentCreationData createProject(DbSession dbSession, @Nullable String projectKey, GithubApplicationClient.Repository repository, CreationMethod creationMethod) {
-    NewComponent projectComponent = newComponentBuilder()
-      .setKey(Optional.ofNullable(projectKey).orElse(getUniqueProjectKey(repository)))
-      .setName(repository.getName())
-      .setPrivate(githubProjectCreationParameters.projectsArePrivateByDefault())
-      .setQualifier(PROJECT)
-      .build();
-    ComponentCreationParameters componentCreationParameters = ComponentCreationParameters.builder()
-      .newComponent(projectComponent)
-      .userLogin(userSession.getLogin())
-      .userUuid(userSession.getUuid())
-      .mainBranchName(repository.getDefaultBranch())
-      .isManaged(githubProjectCreationParameters.isProvisioningEnabled())
-      .creationMethod(creationMethod)
-      .build();
-    return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);
   }
 
   private String getUniqueProjectKey(GithubApplicationClient.Repository repository) {

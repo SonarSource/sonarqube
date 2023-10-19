@@ -55,11 +55,14 @@ import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
+import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChange;
+import org.sonar.server.project.ProjectDefaultVisibility;
+import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Objects.requireNonNull;
@@ -110,9 +113,14 @@ public class GithubProjectCreatorTest {
   private final PermissionService permissionService = new PermissionServiceImpl(mock());
   @Mock
   private PermissionUpdater<UserPermissionChange> permissionUpdater;
-
   @Mock
   private ManagedProjectService managedProjectService;
+  @Mock
+  private ManagedInstanceService managedInstanceService;
+
+  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+  private ProjectDefaultVisibility projectDefaultVisibility;
+  private ProjectCreator projectCreator;
 
   private GithubProjectCreator githubProjectCreator;
 
@@ -135,8 +143,10 @@ public class GithubProjectCreatorTest {
     when(githubProjectCreationParameters.authAppInstallationToken()).thenReturn(authAppInstallationToken);
     when(githubProjectCreationParameters.almSettingDto()).thenReturn(almSettingDto);
 
-    githubProjectCreator = new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater,
-      permissionUpdater, permissionService, managedProjectService, githubProjectCreationParameters);
+    projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, managedInstanceService, componentUpdater);
+    githubProjectCreator = new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator,
+      permissionUpdater, permissionService, managedProjectService, projectCreator, githubProjectCreationParameters);
+
   }
 
   @Test
@@ -146,6 +156,7 @@ public class GithubProjectCreatorTest {
     assertThatIllegalStateException().isThrownBy(() -> githubProjectCreator.isScanAllowedUsingPermissionsFromDevopsPlatform())
       .withMessage("An auth app token is required in case repository permissions checking is necessary.");
   }
+
   @Test
   public void isScanAllowedUsingPermissionsFromDevopsPlatform_whenUserIsNotAGitHubUser_returnsFalse() {
     assertThat(githubProjectCreator.isScanAllowedUsingPermissionsFromDevopsPlatform()).isFalse();
@@ -213,7 +224,8 @@ public class GithubProjectCreatorTest {
 
   private void mockGithubCollaboratorsFromApi(GsonRepositoryCollaborator... repositoryCollaborators) {
     Set<GsonRepositoryCollaborator> collaborators = Arrays.stream(repositoryCollaborators).collect(toSet());
-    when(githubApplicationClient.getRepositoryCollaborators(DEVOPS_PROJECT_DESCRIPTOR.url(), authAppInstallationToken, ORGANIZATION_NAME, REPOSITORY_NAME)).thenReturn(collaborators);
+    when(githubApplicationClient.getRepositoryCollaborators(DEVOPS_PROJECT_DESCRIPTOR.url(), authAppInstallationToken, ORGANIZATION_NAME, REPOSITORY_NAME)).thenReturn(
+      collaborators);
   }
 
   private GsonRepositoryTeam mockGithubTeam(String name, int id, String role, String... sqPermissions) {
@@ -317,8 +329,8 @@ public class GithubProjectCreatorTest {
   @Test
   public void createProjectAndBindToDevOpsPlatformFromApi_whenRepoFoundOnGitHubAutoProvisioningOnAndRepoPrivate_successfullyCreatesProject() {
     // given
-    when(githubProjectCreationParameters.projectsArePrivateByDefault()).thenReturn(true);
-    when(githubProjectCreationParameters.isProvisioningEnabled()).thenReturn(true);
+    when(projectDefaultVisibility.get(any()).isPrivate()).thenReturn(true);
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
 
     String projectKey = "customProjectKey";
     mockGitHubRepository();
@@ -347,7 +359,7 @@ public class GithubProjectCreatorTest {
   }
 
   private void verifyProjectSyncTaskWasCreated(ComponentCreationData componentCreationData) {
-    String projectUuid = requireNonNull(      componentCreationData.projectDto()).getUuid();
+    String projectUuid = requireNonNull(componentCreationData.projectDto()).getUuid();
     String mainBranchUuid = requireNonNull(componentCreationData.mainBranchDto()).getUuid();
     verify(managedProjectService).queuePermissionSyncTask(USER_UUID, mainBranchUuid, projectUuid);
   }

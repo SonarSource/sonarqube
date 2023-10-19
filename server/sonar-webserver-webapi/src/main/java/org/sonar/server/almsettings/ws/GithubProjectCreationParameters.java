@@ -25,7 +25,7 @@ import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.user.UserSession;
 
-public record GithubProjectCreationParameters(DevOpsProjectDescriptor devOpsProjectDescriptor, AlmSettingDto almSettingDto, boolean projectsArePrivateByDefault,
-                                              boolean isProvisioningEnabled, UserSession userSession, AccessToken devOpsAppInstallationToken,
+public record GithubProjectCreationParameters(DevOpsProjectDescriptor devOpsProjectDescriptor, AlmSettingDto almSettingDto, UserSession userSession,
+                                              AccessToken devOpsAppInstallationToken,
                                               @Nullable AppInstallationToken authAppInstallationToken) {
 }

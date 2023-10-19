@@ -58,6 +58,7 @@ import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
+import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.emptyMap;
@@ -108,11 +109,12 @@ public class BranchReportSubmitterIT {
   private final BranchSupport branchSupport = spy(new BranchSupport(branchSupportDelegate));
 
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(), null,
-    null, projectDefaultVisibility, null, userSession, componentUpdater, null, null, null, null, null);
+    null, null, userSession, null, null, null, null, null, null);
 
   private final ManagedInstanceService managedInstanceService = mock();
-  private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), branchSupport,
-    projectDefaultVisibility, devOpsProjectCreatorFactory, managedInstanceService);
+  private final ProjectCreator projectCreator = new ProjectCreator(userSession, projectDefaultVisibility, managedInstanceService, componentUpdater);
+  private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, projectCreator, componentUpdater, permissionTemplateService, db.getDbClient(), branchSupport,
+    devOpsProjectCreatorFactory, managedInstanceService);
 
   @Before
   public void before() {

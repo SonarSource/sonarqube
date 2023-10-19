@@ -36,12 +36,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
-import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChange;
-import org.sonar.server.project.ProjectDefaultVisibility;
+import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -55,10 +54,9 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
   private final DbClient dbClient;
   private final GithubGlobalSettingsValidator githubGlobalSettingsValidator;
   private final GithubApplicationClient githubApplicationClient;
-  private final ProjectDefaultVisibility projectDefaultVisibility;
   private final ProjectKeyGenerator projectKeyGenerator;
+  private final ProjectCreator projectCreator;
   private final UserSession userSession;
-  private final ComponentUpdater componentUpdater;
   private final GitHubSettings gitHubSettings;
   private final GithubPermissionConverter githubPermissionConverter;
   private final PermissionUpdater<UserPermissionChange> permissionUpdater;
@@ -67,16 +65,15 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
   private final ManagedProjectService managedProjectService;
 
   public GithubProjectCreatorFactory(DbClient dbClient, GithubGlobalSettingsValidator githubGlobalSettingsValidator,
-    GithubApplicationClient githubApplicationClient, ProjectDefaultVisibility projectDefaultVisibility, ProjectKeyGenerator projectKeyGenerator, UserSession userSession,
-    ComponentUpdater componentUpdater, GitHubSettings gitHubSettings, GithubPermissionConverter githubPermissionConverter,
+    GithubApplicationClient githubApplicationClient, ProjectKeyGenerator projectKeyGenerator, UserSession userSession,
+    ProjectCreator projectCreator, GitHubSettings gitHubSettings, GithubPermissionConverter githubPermissionConverter,
     PermissionUpdater<UserPermissionChange> permissionUpdater, PermissionService permissionService, ManagedProjectService managedProjectService) {
     this.dbClient = dbClient;
     this.githubGlobalSettingsValidator = githubGlobalSettingsValidator;
     this.githubApplicationClient = githubApplicationClient;
-    this.projectDefaultVisibility = projectDefaultVisibility;
     this.projectKeyGenerator = projectKeyGenerator;
     this.userSession = userSession;
-    this.componentUpdater = componentUpdater;
+    this.projectCreator = projectCreator;
     this.gitHubSettings = gitHubSettings;
     this.githubPermissionConverter = githubPermissionConverter;
     this.permissionUpdater = permissionUpdater;
@@ -95,40 +92,39 @@ public class GithubProjectCreatorFactory implements DevOpsProjectCreatorFactory 
 
     return dbClient.almSettingDao().selectByAlm(dbSession, ALM.GITHUB).stream()
       .filter(almSettingDto -> devOpsProjectDescriptor.url().equals(almSettingDto.getUrl()))
-      .map(almSettingDto -> findInstallationIdAndCreateDevOpsProjectCreator(dbSession, devOpsProjectDescriptor, almSettingDto))
+      .map(almSettingDto -> findInstallationIdAndCreateDevOpsProjectCreator(devOpsProjectDescriptor, almSettingDto))
       .flatMap(Optional::stream)
       .findFirst();
 
   }
 
-  private Optional<DevOpsProjectCreator> findInstallationIdAndCreateDevOpsProjectCreator(DbSession dbSession, DevOpsProjectDescriptor devOpsProjectDescriptor,
+  private Optional<DevOpsProjectCreator> findInstallationIdAndCreateDevOpsProjectCreator(DevOpsProjectDescriptor devOpsProjectDescriptor,
     AlmSettingDto almSettingDto) {
     GithubAppConfiguration githubAppConfiguration = githubGlobalSettingsValidator.validate(almSettingDto);
     return findInstallationIdToAccessRepo(githubAppConfiguration, devOpsProjectDescriptor.projectIdentifier())
       .map(installationId -> generateAppInstallationToken(githubAppConfiguration, installationId))
-      .map(appInstallationToken -> createGithubProjectCreator(dbSession, devOpsProjectDescriptor, almSettingDto, appInstallationToken));
+      .map(appInstallationToken -> createGithubProjectCreator(devOpsProjectDescriptor, almSettingDto, appInstallationToken));
   }
 
-  private GithubProjectCreator createGithubProjectCreator(DbSession dbSession, DevOpsProjectDescriptor devOpsProjectDescriptor, AlmSettingDto almSettingDto,
+  private GithubProjectCreator createGithubProjectCreator(DevOpsProjectDescriptor devOpsProjectDescriptor, AlmSettingDto almSettingDto,
     AppInstallationToken appInstallationToken) {
     LOG.info("DevOps configuration {} auto-detected for project {}", almSettingDto.getKey(), devOpsProjectDescriptor.projectIdentifier());
     Optional<AppInstallationToken> authAppInstallationToken = getAuthAppInstallationTokenIfNecessary(devOpsProjectDescriptor);
 
-    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor,
-      almSettingDto, projectDefaultVisibility.get(dbSession).isPrivate(), gitHubSettings.isProvisioningEnabled(), userSession, appInstallationToken,
+    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor, almSettingDto, userSession, appInstallationToken,
       authAppInstallationToken.orElse(null));
-    return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater, permissionUpdater, permissionService,
-      managedProjectService, githubProjectCreationParameters);
+    return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, permissionUpdater, permissionService,
+      managedProjectService, projectCreator, githubProjectCreationParameters);
   }
 
-  public DevOpsProjectCreator getDevOpsProjectCreator(DbSession dbSession, AlmSettingDto almSettingDto, AccessToken accessToken,
+  public DevOpsProjectCreator getDevOpsProjectCreator(AlmSettingDto almSettingDto, AccessToken accessToken,
     DevOpsProjectDescriptor devOpsProjectDescriptor) {
 
     Optional<AppInstallationToken> authAppInstallationToken = getAuthAppInstallationTokenIfNecessary(devOpsProjectDescriptor);
-    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor,
-      almSettingDto, projectDefaultVisibility.get(dbSession).isPrivate(), gitHubSettings.isProvisioningEnabled(), userSession, accessToken, authAppInstallationToken.orElse(null));
-    return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater, permissionUpdater, permissionService,
-      managedProjectService, githubProjectCreationParameters
+    GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor, almSettingDto, userSession, accessToken,
+      authAppInstallationToken.orElse(null));
+    return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, permissionUpdater, permissionService,
+      managedProjectService, projectCreator, githubProjectCreationParameters
     );
   }
 
