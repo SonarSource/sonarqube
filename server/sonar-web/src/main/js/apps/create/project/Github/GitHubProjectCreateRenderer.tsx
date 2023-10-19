@@ -46,7 +46,7 @@ import { Paging } from '../../../../types/types';
 import AlmRepoItem from '../components/AlmRepoItem';
 import AlmSettingsInstanceDropdown from '../components/AlmSettingsInstanceDropdown';
 
-export interface GitHubProjectCreateRendererProps {
+interface GitHubProjectCreateRendererProps {
   canAdmin: boolean;
   error: boolean;
   loadingBindings: boolean;
@@ -66,18 +66,27 @@ export interface GitHubProjectCreateRendererProps {
   onSelectedAlmInstanceChange: (instance: AlmSettingsInstance) => void;
 }
 
+type RepositoryListProps = Pick<
+  GitHubProjectCreateRendererProps,
+  | 'loadingRepositories'
+  | 'repositories'
+  | 'repositoryPaging'
+  | 'searchQuery'
+  | 'selectedOrganization'
+  | 'onLoadMore'
+  | 'onSearch'
+> & {
+  selected: Set<string>;
+  checkAll: () => void;
+  uncheckAll: () => void;
+  onCheck: (key: string) => void;
+};
+
 function orgToOption({ key, name }: GithubOrganization) {
   return { value: key, label: name };
 }
 
-function RepositoryList(
-  props: GitHubProjectCreateRendererProps & {
-    selected: Set<string>;
-    checkAll: () => void;
-    uncheckAll: () => void;
-    onCheck: (key: string) => void;
-  },
-) {
+function RepositoryList(props: RepositoryListProps) {
   const {
     loadingRepositories,
     repositories,
