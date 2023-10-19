@@ -62,6 +62,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.management.ManagedInstanceService;
+import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.PermissionTemplateService;
@@ -119,12 +120,14 @@ public class ReportSubmitterIT {
   private final GitHubSettings gitHubSettings = mock();
   private final ProjectKeyGenerator projectKeyGenerator = mock();
   private final PermissionUpdater<UserPermissionChange> permissionUpdater = mock();
-  private PermissionService permissionService = new PermissionServiceImpl(mock());
+  private final PermissionService permissionService = new PermissionServiceImpl(mock());
   private final ComponentUpdater componentUpdater = new ComponentUpdater(db.getDbClient(), mock(I18n.class), mock(System2.class), permissionTemplateService,
     new FavoriteUpdater(db.getDbClient()), projectIndexers, new SequenceUuidFactory(), defaultBranchNameResolver, mock(PermissionUpdater.class), permissionService);
 
+  private final ManagedProjectService managedProjectService = mock();
   private final GithubProjectCreatorFactory githubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(), githubGlobalSettingsValidator,
-    githubApplicationClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings, null, permissionUpdater, permissionService);
+    githubApplicationClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings, null, permissionUpdater, permissionService,
+    managedProjectService);
 
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new DelegatingDevOpsProjectCreatorFactory(Set.of(githubProjectCreatorFactory));
 
@@ -368,7 +371,7 @@ public class ReportSubmitterIT {
       managedInstanceService.isInstanceExternallyManaged(), userSession, mock(),
       null);
     DevOpsProjectCreator devOpsProjectCreator = spy(new GithubProjectCreator(db.getDbClient(), githubApplicationClient, null, projectKeyGenerator,
-      componentUpdater, permissionUpdater, permissionService, githubProjectCreationParameters));
+      componentUpdater, permissionUpdater, permissionService, managedProjectService, githubProjectCreationParameters));
     doReturn(Optional.of(devOpsProjectCreator)).when(devOpsProjectCreatorFactorySpy).getDevOpsProjectCreator(any(), eq(characteristics));
     return devOpsProjectCreator;
   }

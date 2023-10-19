@@ -137,8 +137,9 @@ public class ImportGithubProjectActionIT {
   private final GithubPermissionConverter githubPermissionConverter = mock();
 
   private final GithubProjectCreatorFactory gitHubProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(),
-    null, appClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings, githubPermissionConverter, userPermissionUpdater, permissionService);
-  private final WsActionTester ws = new WsActionTester(new ImportGithubProjectAction(db.getDbClient(), managedProjectService, userSession,
+    null, appClient, projectDefaultVisibility, projectKeyGenerator, userSession, componentUpdater, gitHubSettings, githubPermissionConverter, userPermissionUpdater, permissionService,
+    managedProjectService);
+  private final WsActionTester ws = new WsActionTester(new ImportGithubProjectAction(db.getDbClient(), userSession,
     componentUpdater, importHelper, newCodeDefinitionResolver, defaultBranchNameResolver, gitHubProjectCreatorFactory));
 
   @Before

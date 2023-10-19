@@ -45,6 +45,7 @@ import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDao;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.provisioning.GithubPermissionsMappingDto;
@@ -54,6 +55,7 @@ import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentCreationParameters;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
+import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.PermissionUpdater;
@@ -83,6 +85,8 @@ public class GithubProjectCreatorTest {
   private static final String ALM_SETTING_KEY = "github_config_1";
   private static final String USER_LOGIN = "userLogin";
   private static final String USER_UUID = "userUuid";
+  private static final String BRANCH_UUID = "branchUuid1";
+
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private DbClient dbClient;
   @Mock
@@ -103,9 +107,12 @@ public class GithubProjectCreatorTest {
   private UserSession userSession;
   @Mock
   private AlmSettingDto almSettingDto;
-  private PermissionService permissionService = new PermissionServiceImpl(mock());
+  private final PermissionService permissionService = new PermissionServiceImpl(mock());
   @Mock
   private PermissionUpdater<UserPermissionChange> permissionUpdater;
+
+  @Mock
+  private ManagedProjectService managedProjectService;
 
   private GithubProjectCreator githubProjectCreator;
 
@@ -129,7 +136,7 @@ public class GithubProjectCreatorTest {
     when(githubProjectCreationParameters.almSettingDto()).thenReturn(almSettingDto);
 
     githubProjectCreator = new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater,
-      permissionUpdater, permissionService, githubProjectCreationParameters);
+      permissionUpdater, permissionService, managedProjectService, githubProjectCreationParameters);
   }
 
   @Test
@@ -331,16 +338,27 @@ public class GithubProjectCreatorTest {
     assertThat(componentCreationParameters.isManaged()).isTrue();
     assertThat(componentCreationParameters.newComponent().isPrivate()).isTrue();
 
+    verifyScanPermissionWasAddedToUser(actualComponentCreationData);
+    verifyProjectSyncTaskWasCreated(actualComponentCreationData);
+
+    verify(projectAlmSettingDao).insertOrUpdate(any(), projectAlmSettingDtoCaptor.capture(), eq(ALM_SETTING_KEY), eq(REPOSITORY_NAME), eq(projectKey));
+    ProjectAlmSettingDto projectAlmSettingDto = projectAlmSettingDtoCaptor.getValue();
+    assertAlmSettingsDtoContainsCorrectInformation(almSettingDto, requireNonNull(componentCreationData.projectDto()), projectAlmSettingDto);
+  }
+
+  private void verifyProjectSyncTaskWasCreated(ComponentCreationData componentCreationData) {
+    String projectUuid = requireNonNull(      componentCreationData.projectDto()).getUuid();
+    String mainBranchUuid = requireNonNull(componentCreationData.mainBranchDto()).getUuid();
+    verify(managedProjectService).queuePermissionSyncTask(USER_UUID, mainBranchUuid, projectUuid);
+  }
+
+  private void verifyScanPermissionWasAddedToUser(ComponentCreationData actualComponentCreationData) {
     verify(permissionUpdater).apply(any(), permissionChangesCaptor.capture());
     UserPermissionChange permissionChange = permissionChangesCaptor.getValue().iterator().next();
     assertThat(permissionChange.getUserId().getUuid()).isEqualTo(userSession.getUuid());
     assertThat(permissionChange.getUserId().getLogin()).isEqualTo(userSession.getLogin());
     assertThat(permissionChange.getPermission()).isEqualTo(UserRole.SCAN);
     assertThat(permissionChange.getProjectUuid()).isEqualTo(actualComponentCreationData.projectDto().getUuid());
-
-    verify(projectAlmSettingDao).insertOrUpdate(any(), projectAlmSettingDtoCaptor.capture(), eq(ALM_SETTING_KEY), eq(REPOSITORY_NAME), eq(projectKey));
-    ProjectAlmSettingDto projectAlmSettingDto = projectAlmSettingDtoCaptor.getValue();
-    assertAlmSettingsDtoContainsCorrectInformation(almSettingDto, requireNonNull(componentCreationData.projectDto()), projectAlmSettingDto);
   }
 
   private void mockGitHubRepository() {
@@ -357,6 +375,9 @@ public class GithubProjectCreatorTest {
     ComponentCreationData componentCreationData = mock();
     ProjectDto projectDto = mockProjectDto(projectKey);
     when(componentCreationData.projectDto()).thenReturn(projectDto);
+    BranchDto branchDto = mock();
+    when(branchDto.getUuid()).thenReturn(BRANCH_UUID);
+    when(componentCreationData.mainBranchDto()).thenReturn(branchDto);
     when(componentUpdater.createWithoutCommit(any(), componentCreationParametersCaptor.capture())).thenReturn(componentCreationData);
     return componentCreationData;
   }

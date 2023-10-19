@@ -39,6 +39,7 @@ import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.almintegration.ws.ProjectKeyGenerator;
 import org.sonar.server.component.ComponentUpdater;
+import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChange;
@@ -101,6 +102,8 @@ public class GithubProjectCreatorFactoryTest {
   private PermissionService permissionService;
   @Mock
   private PermissionUpdater<UserPermissionChange> permissionUpdater;
+  @Mock
+  private ManagedProjectService managedProjectService;
 
   @InjectMocks
   private GithubProjectCreatorFactory githubProjectCreatorFactory;
@@ -200,8 +203,7 @@ public class GithubProjectCreatorFactoryTest {
 
     mockSuccessfulGithubInteraction();
 
-    DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, mockAlmSettingDto, appInstallationToken, GITHUB_PROJECT_DESCRIPTOR)
-      .orElseThrow();
+    DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, mockAlmSettingDto, appInstallationToken, GITHUB_PROJECT_DESCRIPTOR);
 
     GithubProjectCreator expectedGithubProjectCreator = getExpectedGithubProjectCreator(mockAlmSettingDto, false, false);
     assertThat(devOpsProjectCreator).usingRecursiveComparison().isEqualTo(expectedGithubProjectCreator);
@@ -218,7 +220,7 @@ public class GithubProjectCreatorFactoryTest {
     GithubProjectCreationParameters githubProjectCreationParameters = new GithubProjectCreationParameters(devOpsProjectDescriptor,
       almSettingDto, projectsArePrivateByDefault, isInstanceManaged, userSession, appInstallationToken, authAppInstallToken);
     return new GithubProjectCreator(dbClient, githubApplicationClient, githubPermissionConverter, projectKeyGenerator, componentUpdater, permissionUpdater, permissionService,
-      githubProjectCreationParameters);
+      managedProjectService, githubProjectCreationParameters);
   }
 
   private AlmSettingDto mockAlmSettingDto(boolean repoAccess) {

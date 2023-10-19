@@ -108,7 +108,7 @@ public class BranchReportSubmitterIT {
   private final BranchSupport branchSupport = spy(new BranchSupport(branchSupportDelegate));
 
   private final DevOpsProjectCreatorFactory devOpsProjectCreatorFactory = new GithubProjectCreatorFactory(db.getDbClient(), null,
-    null, projectDefaultVisibility, null, userSession, componentUpdater, null, null, null, null);
+    null, projectDefaultVisibility, null, userSession, componentUpdater, null, null, null, null, null);
 
   private final ManagedInstanceService managedInstanceService = mock();
   private final ReportSubmitter underTest = new ReportSubmitter(queue, userSession, componentUpdater, permissionTemplateService, db.getDbClient(), branchSupport,

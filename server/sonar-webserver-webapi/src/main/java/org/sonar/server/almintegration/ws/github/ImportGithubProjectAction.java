@@ -42,7 +42,6 @@ import org.sonar.server.almsettings.ws.DevOpsProjectDescriptor;
 import org.sonar.server.almsettings.ws.GithubProjectCreatorFactory;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
-import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.newcodeperiod.NewCodeDefinitionResolver;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.user.UserSession;
@@ -65,7 +64,6 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
 
   private final DbClient dbClient;
 
-  private final ManagedProjectService managedProjectService;
   private final UserSession userSession;
   private final ComponentUpdater componentUpdater;
   private final ImportHelper importHelper;
@@ -77,12 +75,11 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
   private final GithubProjectCreatorFactory githubProjectCreatorFactory;
 
   @Inject
-  public ImportGithubProjectAction(DbClient dbClient, ManagedProjectService managedProjectService, UserSession userSession,
+  public ImportGithubProjectAction(DbClient dbClient, UserSession userSession,
     ComponentUpdater componentUpdater, ImportHelper importHelper,
     NewCodeDefinitionResolver newCodeDefinitionResolver,
     DefaultBranchNameResolver defaultBranchNameResolver, GithubProjectCreatorFactory githubProjectCreatorFactory) {
     this.dbClient = dbClient;
-    this.managedProjectService = managedProjectService;
     this.userSession = userSession;
     this.componentUpdater = componentUpdater;
     this.importHelper = importHelper;
@@ -145,9 +142,9 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
       DevOpsProjectDescriptor devOpsProjectDescriptor = new DevOpsProjectDescriptor(ALM.GITHUB, url, repositoryKey);
 
-      Optional<DevOpsProjectCreator> devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, almSettingDto, accessToken, devOpsProjectDescriptor);
+      DevOpsProjectCreator devOpsProjectCreator = githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, almSettingDto, accessToken, devOpsProjectDescriptor);
       CreationMethod creationMethod = getCreationMethod(ALM_IMPORT, userSession.isAuthenticatedBrowserSession());
-      ComponentCreationData componentCreationData = devOpsProjectCreator.get().createProjectAndBindToDevOpsPlatform(dbSession, creationMethod, null);
+      ComponentCreationData componentCreationData = devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, creationMethod, null);
 
       checkNewCodeDefinitionParam(newCodeDefinitionType, newCodeDefinitionValue);
 
@@ -161,10 +158,6 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
       }
 
       componentUpdater.commitAndIndex(dbSession, componentCreationData);
-
-      String userUuid = requireNonNull(userSession.getUuid());
-      managedProjectService.queuePermissionSyncTask(userUuid, mainBranchDto.getUuid(), projectDto.getUuid());
-
       return toCreateResponse(projectDto);
     }
   }
