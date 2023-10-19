@@ -32,7 +32,7 @@ import org.sonar.alm.client.github.AppInstallationToken;
 import org.sonar.alm.client.github.GithubApplicationClient;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.auth.github.GitHubSettings;
-import org.sonar.auth.github.GithubPermissionConverter;
+import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;

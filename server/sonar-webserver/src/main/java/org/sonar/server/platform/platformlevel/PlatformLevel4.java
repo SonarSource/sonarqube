@@ -41,7 +41,7 @@ import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.auth.bitbucket.BitbucketModule;
 import org.sonar.auth.github.GitHubModule;
 import org.sonar.auth.github.GitHubSettings;
-import org.sonar.auth.github.GithubPermissionConverter;
+import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.auth.gitlab.GitLabModule;
 import org.sonar.auth.ldap.LdapModule;
 import org.sonar.auth.saml.SamlModule;

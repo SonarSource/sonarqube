@@ -30,7 +30,7 @@ import org.sonar.alm.client.github.config.GithubAppConfiguration;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.api.server.ServerSide;
 import org.sonar.auth.github.GitHubSettings;
-import org.sonar.auth.github.GithubPermissionConverter;
+import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;

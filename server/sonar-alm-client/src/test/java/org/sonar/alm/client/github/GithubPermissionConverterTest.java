@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.auth.github;
+package org.sonar.alm.client.github;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Suite;
+import org.sonar.auth.github.GsonRepositoryPermissions;
 import org.sonar.db.provisioning.GithubPermissionsMappingDto;
 
 import static org.assertj.core.api.Assertions.assertThat;

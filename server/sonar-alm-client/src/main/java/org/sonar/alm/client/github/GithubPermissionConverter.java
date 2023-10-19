@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.auth.github;
+package org.sonar.alm.client.github;
 
 import java.util.List;
 import java.util.Map;
@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.auth.github.GsonRepositoryPermissions;
 import org.sonar.db.provisioning.GithubPermissionsMappingDto;
 
 import static java.util.function.Function.identity;

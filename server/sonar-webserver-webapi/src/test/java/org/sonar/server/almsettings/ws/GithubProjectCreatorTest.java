@@ -38,7 +38,7 @@ import org.sonar.alm.client.github.api.GsonRepositoryTeam;
 import org.sonar.alm.client.github.security.AccessToken;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.UserRole;
-import org.sonar.auth.github.GithubPermissionConverter;
+import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.auth.github.GsonRepositoryPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.alm.setting.ALM;

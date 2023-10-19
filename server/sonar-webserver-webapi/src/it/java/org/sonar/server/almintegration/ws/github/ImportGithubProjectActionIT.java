@@ -33,7 +33,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.auth.github.GitHubSettings;
-import org.sonar.auth.github.GithubPermissionConverter;
+import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.auth.github.GsonRepositoryPermissions;
 import org.sonar.core.i18n.I18n;
 import org.sonar.core.platform.EditionProvider;
