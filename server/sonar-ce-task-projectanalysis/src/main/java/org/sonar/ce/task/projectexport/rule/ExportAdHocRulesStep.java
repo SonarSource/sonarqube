@@ -35,7 +35,6 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.ImpactDto;
-import org.sonar.db.project.ProjectExportMapper;
 import org.sonar.db.rule.RuleDto;
 
 import static java.lang.String.format;
@@ -58,7 +57,8 @@ public class ExportAdHocRulesStep implements ComputationStep {
     try (
       StreamWriter<ProjectDump.AdHocRule> output = dumpWriter.newStreamWriter(DumpElement.AD_HOC_RULES);
       DbSession dbSession = dbClient.openSession(false);
-      Cursor<RuleDto> ruleDtoCursor = dbSession.getMapper(ProjectExportMapper.class).scrollAdhocRulesForExport(projectHolder.projectDto().getUuid())) {
+      Cursor<RuleDto> ruleDtoCursor = dbClient.projectExportDao()
+        .scrollAdhocRulesForExport(dbSession, projectHolder.projectDto().getUuid())) {
       ProjectDump.AdHocRule.Builder adHocRuleBuilder = ProjectDump.AdHocRule.newBuilder();
       ruleDtoCursor
         .forEach(ruleDto -> {

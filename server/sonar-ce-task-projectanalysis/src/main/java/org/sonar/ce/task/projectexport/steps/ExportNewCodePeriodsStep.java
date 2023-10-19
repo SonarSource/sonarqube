@@ -26,7 +26,6 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
-import org.sonar.db.project.ProjectExportMapper;
 
 import static java.lang.String.format;
 
@@ -50,8 +49,8 @@ public class ExportNewCodePeriodsStep implements ComputationStep {
       DbSession dbSession = dbClient.openSession(false)) {
 
       final ProjectDump.NewCodePeriod.Builder builder = ProjectDump.NewCodePeriod.newBuilder();
-      final List<NewCodePeriodDto> newCodePeriods = dbSession.getMapper(ProjectExportMapper.class)
-        .selectNewCodePeriodsForExport(projectHolder.projectDto().getUuid());
+      final List<NewCodePeriodDto> newCodePeriods = dbClient.projectExportDao()
+        .selectNewCodePeriodsForExport(dbSession, projectHolder.projectDto().getUuid());
       for (NewCodePeriodDto newCodePeriod : newCodePeriods) {
         builder.clear()
           .setUuid(newCodePeriod.getUuid())

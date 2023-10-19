@@ -26,7 +26,6 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ProjectLinkDto;
-import org.sonar.db.project.ProjectExportMapper;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultString;
@@ -51,7 +50,8 @@ public class ExportLinksStep implements ComputationStep {
       try (DbSession dbSession = dbClient.openSession(false);
         StreamWriter<ProjectDump.Link> linksWriter = dumpWriter.newStreamWriter(DumpElement.LINKS)) {
         ProjectDump.Link.Builder builder = ProjectDump.Link.newBuilder();
-        List<ProjectLinkDto> links = dbSession.getMapper(ProjectExportMapper.class).selectLinksForExport(projectHolder.projectDto().getUuid());
+        List<ProjectLinkDto> links = dbClient.projectExportDao()
+          .selectLinksForExport(dbSession, projectHolder.projectDto().getUuid());
         for (ProjectLinkDto link : links) {
           builder
             .clear()

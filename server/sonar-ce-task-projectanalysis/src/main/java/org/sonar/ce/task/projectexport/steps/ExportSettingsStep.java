@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.project.ProjectExportMapper;
 import org.sonar.db.property.PropertyDto;
 
 import static java.lang.String.format;
@@ -44,7 +43,7 @@ public class ExportSettingsStep implements ComputationStep {
   private final ProjectHolder projectHolder;
   private final DumpWriter dumpWriter;
 
-  public ExportSettingsStep(DbClient dbClient, ProjectHolder projectHolder,DumpWriter dumpWriter) {
+  public ExportSettingsStep(DbClient dbClient, ProjectHolder projectHolder, DumpWriter dumpWriter) {
     this.dbClient = dbClient;
     this.projectHolder = projectHolder;
     this.dumpWriter = dumpWriter;
@@ -58,7 +57,8 @@ public class ExportSettingsStep implements ComputationStep {
       DbSession dbSession = dbClient.openSession(false)) {
 
       final ProjectDump.Setting.Builder builder = ProjectDump.Setting.newBuilder();
-      final List<PropertyDto> properties = dbSession.getMapper(ProjectExportMapper.class).selectPropertiesForExport(projectHolder.projectDto().getUuid())
+      final List<PropertyDto> properties = dbClient.projectExportDao()
+        .selectPropertiesForExport(dbSession, projectHolder.projectDto().getUuid())
         .stream()
         .filter(dto -> dto.getEntityUuid() != null)
         .filter(dto -> !IGNORED_KEYS.contains(dto.getKey()))

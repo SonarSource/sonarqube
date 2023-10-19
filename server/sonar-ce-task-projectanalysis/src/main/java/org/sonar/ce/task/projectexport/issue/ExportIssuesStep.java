@@ -42,7 +42,6 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.project.ProjectExportMapper;
 import org.sonar.db.protobuf.DbIssues;
 
 import static java.lang.String.format;
@@ -75,7 +74,8 @@ public class ExportIssuesStep implements ComputationStep {
     try (
       StreamWriter<ProjectDump.Issue> output = dumpWriter.newStreamWriter(DumpElement.ISSUES);
       DbSession dbSession = dbClient.openSession(false);
-      Cursor<IssueDto> issueDtoCursor = dbSession.getMapper(ProjectExportMapper.class).scrollIssueForExport(projectHolder.projectDto().getUuid())) {
+      Cursor<IssueDto> issueDtoCursor = dbClient.projectExportDao()
+        .scrollIssueForExport(dbSession, projectHolder.projectDto().getUuid())) {
       ProjectDump.Issue.Builder issueBuilder = ProjectDump.Issue.newBuilder();
       issueDtoCursor
         .forEach(issueDto -> {

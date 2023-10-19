@@ -30,7 +30,6 @@ import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.project.ProjectExportMapper;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.defaultString;
@@ -54,7 +53,8 @@ public class ExportBranchesStep implements ComputationStep {
       try (DbSession dbSession = dbClient.openSession(false);
         StreamWriter<ProjectDump.Branch> output = dumpWriter.newStreamWriter(DumpElement.BRANCHES)) {
         ProjectDump.Branch.Builder builder = ProjectDump.Branch.newBuilder();
-        List<BranchDto> branches = dbSession.getMapper(ProjectExportMapper.class).selectBranchesForExport(projectHolder.projectDto().getUuid());
+        List<BranchDto> branches = dbClient.projectExportDao()
+          .selectBranchesForExport(dbSession, projectHolder.projectDto().getUuid());
         for (BranchDto branch : branches) {
           builder
             .clear()

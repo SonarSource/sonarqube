@@ -60,6 +60,7 @@ import org.sonar.db.plugin.PluginDao;
 import org.sonar.db.portfolio.PortfolioDao;
 import org.sonar.db.project.ProjectBadgeTokenDao;
 import org.sonar.db.project.ProjectDao;
+import org.sonar.db.project.ProjectExportDao;
 import org.sonar.db.property.InternalComponentPropertiesDao;
 import org.sonar.db.property.InternalPropertiesDao;
 import org.sonar.db.property.PropertiesDao;
@@ -191,6 +192,7 @@ public class DbClient {
   private final GithubOrganizationGroupDao githubOrganizationGroupDao;
   private final GithubPermissionsMappingDao githubPermissionsMappingDao;
   private final RuleChangeDao ruleChangeDao;
+  private final ProjectExportDao projectExportDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -282,6 +284,7 @@ public class DbClient {
     reportSubscriptionDao = getDao(map, ReportSubscriptionDao.class);
     anticipatedTransitionDao = getDao(map, AnticipatedTransitionDao.class);
     ruleChangeDao = getDao(map, RuleChangeDao.class);
+    projectExportDao = getDao(map, ProjectExportDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -624,6 +627,10 @@ public class DbClient {
 
   public RuleChangeDao ruleChangeDao() {
     return ruleChangeDao;
+  }
+
+  public ProjectExportDao projectExportDao() {
+    return projectExportDao;
   }
 }
 
