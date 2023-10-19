@@ -217,12 +217,12 @@ public class ReportPublisher implements Startable {
       .setParam("projectName", moduleHierarchy.root().getOriginalName())
       .setPart("report", filePart);
 
+    ciConfiguration.getDevOpsPlatformInfo().ifPresent(devOpsPlatformInfo -> {
+      post.setParam(CHARACTERISTIC, buildCharacteristicParam(DEVOPS_PLATFORM_URL ,devOpsPlatformInfo.getUrl()));
+      post.setParam(CHARACTERISTIC, buildCharacteristicParam(DEVOPS_PLATFORM_PROJECT_IDENTIFIER, devOpsPlatformInfo.getProjectIdentifier()));
+    });
     String branchName = branchConfiguration.branchName();
     if (branchName != null) {
-      ciConfiguration.getDevOpsPlatformInfo().ifPresent(devOpsPlatformInfo -> {
-        post.setParam(CHARACTERISTIC, buildCharacteristicParam(DEVOPS_PLATFORM_URL ,devOpsPlatformInfo.getUrl()));
-        post.setParam(CHARACTERISTIC, buildCharacteristicParam(DEVOPS_PLATFORM_PROJECT_IDENTIFIER, devOpsPlatformInfo.getProjectIdentifier()));
-      });
       if (branchConfiguration.branchType() != PULL_REQUEST) {
         post.setParam(CHARACTERISTIC, buildCharacteristicParam(CeTaskCharacteristics.BRANCH, branchName));
         post.setParam(CHARACTERISTIC, buildCharacteristicParam(BRANCH_TYPE, branchConfiguration.branchType().name()));

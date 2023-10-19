@@ -75,6 +75,7 @@ github_task_template: &GITHUB_TASK_TEMPLATE
     'private/core-extension-developer-server/src/main/java/com/sonarsource/github/**/*.java',
     'private/it-branch/it-tests/src/test/java/com/sonarsource/branch/it/suite/pr/github/**/*.java',
     'private/it-branch/it-tests/src/test/java/com/sonarsource/provisioning/github/*.java',
+    'private/it-branch/it-tests/src/test/java/com/sonarsource/onboarding/github/*.java',
     'private/core-extension-github-provisioning/**/*'
     )
 
