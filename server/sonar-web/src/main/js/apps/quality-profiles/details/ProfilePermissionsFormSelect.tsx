@@ -52,9 +52,9 @@ export default function ProfilePermissionsFormSelect(props: Readonly<Props>) {
   const controlLabel = selected ? (
     <>
       {isUser(selected) ? (
-        <Avatar hash={selected.avatar} name={selected.name} size="xs" />
+        <Avatar hash={selected.avatar} name={selected.name} size="xs" className="sw-mt-1" />
       ) : (
-        <GenericAvatar Icon={UserGroupIcon} name={selected.name} size="xs" />
+        <GenericAvatar Icon={UserGroupIcon} name={selected.name} size="xs" className="sw-mt-1" />
       )}{' '}
       {selected.name}
     </>
