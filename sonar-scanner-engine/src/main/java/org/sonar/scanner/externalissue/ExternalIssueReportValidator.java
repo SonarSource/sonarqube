@@ -20,8 +20,9 @@
 package org.sonar.scanner.externalissue;
 
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.scanner.ScannerSide;
@@ -30,7 +31,7 @@ import org.sonar.core.documentation.DocumentationLinkGenerator;
 @ScannerSide
 public class ExternalIssueReportValidator {
   private static final Logger LOGGER = LoggerFactory.getLogger(ExternalIssueReportValidator.class);
-  private static final String RULE_ID = "ruleId";
+  private static final String ISSUE_RULE_ID = "ruleId";
   private static final String SEVERITY = "severity";
   private static final String TYPE = "type";
   private static final String DOCUMENTATION_SUFFIX = "/analyzing-source-code/importing-external-issues/generic-issue-import-format/";
@@ -40,23 +41,42 @@ public class ExternalIssueReportValidator {
     this.documentationLinkGenerator = documentationLinkGenerator;
   }
 
+  /**
+   * <p>Since we are supporting deprecated format, we decide which format it is in order by:
+   *   <ul>
+   *     <li>if both 'rules' and 'issues' fields are present, we assume it is CCT format</li>
+   *     <li>if only 'issues' field is present, we assume it is deprecated format</li>
+   *     <li>otherwise we throw exception as an invalid report was detected</li>
+   *   </ul>
+   * </p>
+   */
   public void validate(ExternalIssueReport report, Path reportPath) {
-    if (report.rules != null) {
-      checkNoField(report.issues, "issues", reportPath);
-      validateRules(report.rules, reportPath);
-    } else if (report.issues != null) {
+    if (report.rules != null && report.issues != null) {
+      Set<String> ruleIds = validateRules(report.rules, reportPath);
+      validateIssuesCctFormat(report.issues, ruleIds, reportPath);
+    } else if (report.rules == null && report.issues != null) {
       String documentationLink = documentationLinkGenerator.getDocumentationLink(DOCUMENTATION_SUFFIX);
       LOGGER.warn("External issues were imported with a deprecated format which will be removed soon. " +
         "Please switch to the newest format to fully benefit from Clean Code: {}", documentationLink);
-      validateIssues(report.issues, reportPath);
+      validateIssuesDeprecatedFormat(report.issues, reportPath);
     } else {
-      throw new IllegalStateException(String.format("Failed to parse report '%s': missing mandatory field 'rules'", reportPath));
+      throw new IllegalStateException(String.format("Failed to parse report '%s': invalid report detected.", reportPath));
     }
   }
 
-  private static void validateIssues(ExternalIssueReport.Issue[] issues, Path reportPath) {
+  private static void validateIssuesCctFormat(ExternalIssueReport.Issue[] issues, Set<String> ruleIds, Path reportPath) {
     for (ExternalIssueReport.Issue issue : issues) {
-      mandatoryField(issue.ruleId, RULE_ID, reportPath);
+      mandatoryField(issue.ruleId, ISSUE_RULE_ID, reportPath);
+      checkRuleExistsInReport(ruleIds, issue, reportPath);
+      checkNoField(issue.severity, SEVERITY, reportPath);
+      checkNoField(issue.type, TYPE, reportPath);
+      validateAlwaysRequiredIssueFields(issue, reportPath);
+    }
+  }
+
+  private static void validateIssuesDeprecatedFormat(ExternalIssueReport.Issue[] issues, Path reportPath) {
+    for (ExternalIssueReport.Issue issue : issues) {
+      mandatoryField(issue.ruleId, ISSUE_RULE_ID, reportPath);
       mandatoryField(issue.severity, SEVERITY, reportPath);
       mandatoryField(issue.type, TYPE, reportPath);
       mandatoryField(issue.engineId, "engineId", reportPath);
@@ -64,24 +84,21 @@ public class ExternalIssueReportValidator {
     }
   }
 
-  private static void validateRules(ExternalIssueReport.Rule[] rules, Path reportPath) {
+  private static Set<String> validateRules(ExternalIssueReport.Rule[] rules, Path reportPath) {
+    Set<String> ruleIds = new HashSet<>();
     for (ExternalIssueReport.Rule rule : rules) {
-      mandatoryField(rule.ruleId, RULE_ID, reportPath);
+      mandatoryField(rule.id, "id", reportPath);
       mandatoryField(rule.name, "name", reportPath);
       mandatoryField(rule.engineId, "engineId", reportPath);
       mandatoryField(rule.cleanCodeAttribute, "cleanCodeAttribute", reportPath);
-      mandatoryArray(rule.impacts, "impacts", reportPath);
-      validateIssuesAsPartOfARule(rule.issues, reportPath);
-    }
-  }
+      checkImpactsArray(rule.impacts, reportPath);
 
-  private static void validateIssuesAsPartOfARule(ExternalIssueReport.Issue[] issues, Path reportPath) {
-    for (ExternalIssueReport.Issue issue : issues) {
-      validateAlwaysRequiredIssueFields(issue, reportPath);
-      checkNoField(issue.severity, SEVERITY, reportPath);
-      checkNoField(issue.type, TYPE, reportPath);
-      checkNoField(issue.ruleId, RULE_ID, reportPath);
+      if (!ruleIds.add(rule.id)) {
+        throw new IllegalStateException(String.format("Failed to parse report '%s': found duplicate rule ID '%s'.", reportPath, rule.id));
+      }
     }
+
+    return ruleIds;
   }
 
   private static void checkNoField(@Nullable Object value, String fieldName, Path reportPath) {
@@ -128,17 +145,17 @@ public class ExternalIssueReportValidator {
     }
   }
 
-  private static void mandatoryArray(@Nullable Object[] value, String fieldName, Path reportPath) {
-    mandatoryField(value, fieldName, reportPath);
+  private static void checkImpactsArray(@Nullable Object[] value, Path reportPath) {
+    mandatoryField(value, "impacts", reportPath);
     if (value.length == 0) {
       throw new IllegalStateException(String.format("Failed to parse report '%s': mandatory array '%s' not populated.", reportPath,
-        fieldName));
+        "impacts"));
     }
   }
 
-  private static void mandatoryField(@Nullable String value, String fieldName, Path reportPath) {
-    if (StringUtils.isBlank(value)) {
-      throw new IllegalStateException(String.format("Failed to parse report '%s': missing mandatory field '%s'.", reportPath, fieldName));
+  private static void checkRuleExistsInReport(Set<String> ruleIds, ExternalIssueReport.Issue issue, Path reportPath) {
+    if (!ruleIds.contains(issue.ruleId)) {
+      throw new IllegalStateException(String.format("Failed to parse report '%s': rule with '%s' not present.", reportPath, issue.ruleId));
     }
   }
 }

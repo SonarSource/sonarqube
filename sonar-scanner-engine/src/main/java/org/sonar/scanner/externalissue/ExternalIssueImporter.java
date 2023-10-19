@@ -19,7 +19,9 @@
  */
 package org.sonar.scanner.externalissue;
 
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -58,7 +60,7 @@ public class ExternalIssueImporter {
 
   public void execute() {
     if (report.rules != null) {
-      importRules();
+      importNewFormat();
     } else {
       importDeprecatedFormat();
     }
@@ -74,23 +76,27 @@ public class ExternalIssueImporter {
     logStatistics(issueCount, StringUtils.EMPTY);
   }
 
-  private void importRules() {
+  private void importNewFormat() {
+    Map<String, Rule> rulesMap = new HashMap<>();
+
     for (Rule rule : report.rules) {
+      rulesMap.put(rule.id, rule);
       NewAdHocRule adHocRule = createAdHocRule(rule);
-      int issueCount = 0;
-      for (Issue issue : rule.issues) {
-        if (importIssue(issue, rule)) {
-          issueCount++;
-        }
-      }
-      logStatistics(issueCount, String.format(" for ruleId '%s'", rule.ruleId));
       adHocRule.save();
     }
+
+    int issueCount = 0;
+    for (Issue issue : report.issues) {
+      if (importIssue(issue, rulesMap.get(issue.ruleId))) {
+        issueCount++;
+      }
+    }
+    logStatistics(issueCount, StringUtils.EMPTY);
   }
 
   private NewAdHocRule createAdHocRule(Rule rule) {
     NewAdHocRule adHocRule = context.newAdHocRule();
-    adHocRule.ruleId(rule.ruleId);
+    adHocRule.ruleId(rule.id);
     adHocRule.name(rule.name);
     adHocRule.description(rule.description);
     adHocRule.engineId(rule.engineId);
@@ -151,7 +157,7 @@ public class ExternalIssueImporter {
   private boolean importIssue(Issue issue, ExternalIssueReport.Rule rule) {
     NewExternalIssue externalIssue = context.newExternalIssue()
       .engineId(rule.engineId)
-      .ruleId(rule.ruleId)
+      .ruleId(rule.id)
       .severity(backmapSeverityFromImpact(rule))
       .type(backmapTypeFromImpact(rule));
 

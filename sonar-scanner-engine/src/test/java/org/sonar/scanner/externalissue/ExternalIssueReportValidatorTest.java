@@ -48,7 +48,7 @@ public class ExternalIssueReportValidatorTest {
   private static final String TEST_URL = "test-url";
 
   private final Gson gson = new Gson();
-  private final Path reportPath = Paths.get("some-folder");
+  private final Path reportPath = Paths.get("report-path");
   private final DocumentationLinkGenerator documentationLinkGenerator = mock(DocumentationLinkGenerator.class);
   private final ExternalIssueReportValidator validator = new ExternalIssueReportValidator(documentationLinkGenerator);
 
@@ -61,9 +61,27 @@ public class ExternalIssueReportValidatorTest {
   }
 
   @Test
+  public void validate_whenInvalidReport_shouldThrowException() throws IOException {
+    ExternalIssueReport report = readInvalidReport(DEPRECATED_REPORTS_LOCATION);
+    assertThatThrownBy(() -> validator.validate(report, reportPath))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to parse report 'report-path': invalid report detected.");
+  }
+
+  @Test
   public void validate_whenCorrect_shouldNotThrowException() throws IOException {
     ExternalIssueReport report = read(REPORTS_LOCATION);
     assertThatCode(() -> validator.validate(report, reportPath)).doesNotThrowAnyException();
+  }
+
+  @Test
+  public void validate_whenDuplicateRuleIdFound_shouldThrowException() throws IOException {
+    ExternalIssueReport report = read(REPORTS_LOCATION);
+    report.rules[0].id = "rule2";
+
+    assertThatThrownBy(() -> validator.validate(report, reportPath))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to parse report 'report-path': found duplicate rule ID 'rule2'.");
   }
 
   @Test
@@ -73,7 +91,7 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'cleanCodeAttribute'.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'cleanCodeAttribute'.");
   }
 
   @Test
@@ -83,17 +101,17 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'engineId'.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'engineId'.");
   }
 
   @Test
   public void validate_whenMissingFilepathFieldForPrimaryLocation_shouldThrowException() throws IOException {
     ExternalIssueReport report = read(REPORTS_LOCATION);
-    report.rules[0].issues[0].primaryLocation.filePath = null;
+    report.issues[0].primaryLocation.filePath = null;
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'filePath' in the primary location of the issue.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'filePath' in the primary location of the issue.");
   }
 
   @Test
@@ -103,57 +121,57 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'impacts'.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'impacts'.");
   }
 
   @Test
   public void validate_whenMissingMessageFieldForPrimaryLocation_shouldThrowException() throws IOException {
     ExternalIssueReport report = read(REPORTS_LOCATION);
-    report.rules[0].issues[0].primaryLocation.message = null;
+    report.issues[0].primaryLocation.message = null;
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'message' in the primary location of the issue.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'message' in the primary location of the issue.");
   }
 
   @Test
   public void validate_whenMissingStartLineFieldForPrimaryLocation_shouldThrowException() throws IOException {
     ExternalIssueReport report = read(REPORTS_LOCATION);
-    report.rules[0].issues[0].primaryLocation.textRange.startLine = null;
+    report.issues[0].primaryLocation.textRange.startLine = null;
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'startLine of the text range' in the primary location of the issue.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'startLine of the text range' in the primary location of the issue.");
   }
 
   @Test
   public void validate_whenReportMissingFilePathForSecondaryLocation_shouldThrowException() throws IOException {
     ExternalIssueReport report = read(REPORTS_LOCATION);
-    report.rules[0].issues[3].secondaryLocations[0].filePath = null;
+    report.issues[3].secondaryLocations[0].filePath = null;
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'filePath' in a secondary location of the issue.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'filePath' in a secondary location of the issue.");
   }
 
   @Test
   public void validate_whenReportMissingTextRangeForSecondaryLocation_shouldThrowException() throws IOException {
     ExternalIssueReport report = read(REPORTS_LOCATION);
-    report.rules[0].issues[3].secondaryLocations[0].textRange = null;
+    report.issues[3].secondaryLocations[0].textRange = null;
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'textRange' in a secondary location of the issue.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'textRange' in a secondary location of the issue.");
   }
 
   @Test
   public void validate_whenReportMissingTextRangeStartLineForSecondaryLocation_shouldThrowException() throws IOException {
     ExternalIssueReport report = read(REPORTS_LOCATION);
-    report.rules[0].issues[3].secondaryLocations[0].textRange.startLine = null;
+    report.issues[3].secondaryLocations[0].textRange.startLine = null;
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'startLine of the text range' in a secondary location of the issue.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'startLine of the text range' in a secondary location of the issue.");
   }
 
   @Test
@@ -163,57 +181,73 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'name'.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'name'.");
   }
 
   @Test
   public void validate_whenMissingPrimaryLocationField_shouldThrowException() throws IOException {
     ExternalIssueReport report = read(REPORTS_LOCATION);
-    report.rules[0].issues[0].primaryLocation = null;
+    report.issues[0].primaryLocation = null;
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'primaryLocation'.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'primaryLocation'.");
   }
 
   @Test
-  public void validate_whenMissingRuleIdField_shouldThrowException() throws IOException {
-    ExternalIssueReport report = read(REPORTS_LOCATION);
-    report.rules[0].ruleId = null;
+  public void validate_whenMissingOrEmptyRuleIdField_shouldThrowException() throws IOException {
+    String errorMessage = "Failed to parse report 'report-path': missing mandatory field 'id'.";
 
+    ExternalIssueReport report = read(REPORTS_LOCATION);
+    report.rules[0].id = null;
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'ruleId'.");
+      .hasMessage(errorMessage);
+
+    report.rules[0].id = "";
+    assertThatThrownBy(() -> validator.validate(report, reportPath))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(errorMessage);
   }
 
   @Test
-  public void validate_whenContainsDeprecatedIssuesEntry_shouldThrowException() throws IOException {
+  public void validate_whenIssueContainsRuleIdNotPresentInReport_shouldThrowException() throws IOException {
     ExternalIssueReport report = read(REPORTS_LOCATION);
-    report.issues = new ExternalIssueReport.Issue[] { new ExternalIssueReport.Issue() };
+    report.issues[0].ruleId = "rule-id-not-present";
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Deprecated 'issues' field found in the following report: 'some-folder'.");
+      .hasMessage("Failed to parse report 'report-path': rule with 'rule-id-not-present' not present.");
+  }
+
+  @Test
+  public void validate_whenIssueRuleIdNotPresentInReport_shouldThrowException() throws IOException {
+    ExternalIssueReport report = read(REPORTS_LOCATION);
+    report.issues[0].ruleId = null;
+
+    assertThatThrownBy(() -> validator.validate(report, reportPath))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'ruleId'.");
   }
 
   @Test
   public void validate_whenContainsDeprecatedSeverityEntry_shouldThrowException() throws IOException {
     ExternalIssueReport report = read(REPORTS_LOCATION);
-    report.rules[0].issues[0].severity = "MAJOR";
+    report.issues[0].severity = "MAJOR";
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Deprecated 'severity' field found in the following report: 'some-folder'.");
+      .hasMessage("Deprecated 'severity' field found in the following report: 'report-path'.");
   }
 
   @Test
   public void validate_whenContainsDeprecatedTypeEntry_shouldThrowException() throws IOException {
     ExternalIssueReport report = read(REPORTS_LOCATION);
-    report.rules[0].issues[0].type = "BUG";
+    report.issues[0].type = "BUG";
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Deprecated 'type' field found in the following report: 'some-folder'.");
+      .hasMessage("Deprecated 'type' field found in the following report: 'report-path'.");
   }
 
   @Test
@@ -223,7 +257,7 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': mandatory array 'impacts' not populated.");
+      .hasMessage("Failed to parse report 'report-path': mandatory array 'impacts' not populated.");
   }
 
   @Test
@@ -240,7 +274,7 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'engineId'.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'engineId'.");
     assertWarningLog();
   }
 
@@ -251,7 +285,7 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'filePath' in the primary location of the issue.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'filePath' in the primary location of the issue.");
     assertWarningLog();
   }
 
@@ -262,7 +296,7 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'message' in the primary location of the issue.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'message' in the primary location of the issue.");
     assertWarningLog();
   }
 
@@ -273,7 +307,7 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'primaryLocation'.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'primaryLocation'.");
     assertWarningLog();
   }
 
@@ -284,7 +318,7 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'startLine of the text range' in the primary location of the issue.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'startLine of the text range' in the primary location of the issue.");
     assertWarningLog();
   }
 
@@ -295,7 +329,7 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'filePath' in a secondary location of the issue.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'filePath' in a secondary location of the issue.");
     assertWarningLog();
   }
 
@@ -306,7 +340,7 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'textRange' in a secondary location of the issue.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'textRange' in a secondary location of the issue.");
     assertWarningLog();
   }
 
@@ -317,7 +351,7 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'startLine of the text range' in a secondary location of the issue.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'startLine of the text range' in a secondary location of the issue.");
     assertWarningLog();
   }
 
@@ -328,7 +362,7 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'ruleId'.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'ruleId'.");
     assertWarningLog();
   }
 
@@ -339,7 +373,7 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'severity'.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'severity'.");
     assertWarningLog();
   }
 
@@ -350,18 +384,8 @@ public class ExternalIssueReportValidatorTest {
 
     assertThatThrownBy(() -> validator.validate(report, reportPath))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'type'.");
+      .hasMessage("Failed to parse report 'report-path': missing mandatory field 'type'.");
     assertWarningLog();
-  }
-
-  @Test
-  public void validate_whenEmptyStringForMandatoryField_shouldStillThrowException() throws IOException {
-    ExternalIssueReport report = read(REPORTS_LOCATION);
-    report.rules[0].ruleId = "";
-
-    assertThatThrownBy(() -> validator.validate(report, reportPath))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to parse report 'some-folder': missing mandatory field 'ruleId'.");
   }
 
   private void assertWarningLog() {
@@ -373,6 +397,11 @@ public class ExternalIssueReportValidatorTest {
 
   private ExternalIssueReport read(String location) throws IOException {
     Reader reader = Files.newBufferedReader(Paths.get(location + "report.json"), StandardCharsets.UTF_8);
+    return gson.fromJson(reader, ExternalIssueReport.class);
+  }
+
+  private ExternalIssueReport readInvalidReport(String location) throws IOException {
+    Reader reader = Files.newBufferedReader(Paths.get(location + "invalid_report.json"), StandardCharsets.UTF_8);
     return gson.fromJson(reader, ExternalIssueReport.class);
   }
 

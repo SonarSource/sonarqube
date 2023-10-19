@@ -121,11 +121,10 @@ public class ExternalIssueReportParserTest {
   }
 
   private static void assertCctReport(ExternalIssueReport report) {
-    assertThat(report.issues).isNull();
     assertThat(report.rules).hasSize(2);
 
     ExternalIssueReport.Rule rule = report.rules[0];
-    assertThat(rule.ruleId).isEqualTo("rule1");
+    assertThat(rule.id).isEqualTo("rule1");
     assertThat(rule.engineId).isEqualTo("test");
     assertThat(rule.name).isEqualTo("just_some_rule_name");
     assertThat(rule.description).isEqualTo("just_some_description");
@@ -136,11 +135,11 @@ public class ExternalIssueReportParserTest {
     assertThat(rule.impacts[1].severity).isEqualTo("LOW");
     assertThat(rule.impacts[1].softwareQuality).isEqualTo("SECURITY");
 
-    assertThat(rule.issues).hasSize(4);
+    assertThat(report.issues).hasSize(8);
 
-    ExternalIssueReport.Issue issue1 = rule.issues[0];
+    ExternalIssueReport.Issue issue1 = report.issues[0];
     assertThat(issue1.engineId).isNull();
-    assertThat(issue1.ruleId).isNull();
+    assertThat(issue1.ruleId).isEqualTo("rule1");
     assertThat(issue1.severity).isNull();
     assertThat(issue1.effortMinutes).isEqualTo(40);
     assertThat(issue1.type).isNull();
@@ -152,9 +151,9 @@ public class ExternalIssueReportParserTest {
     assertThat(issue1.primaryLocation.textRange.endLine).isEqualTo(3);
     assertThat(issue1.secondaryLocations).isNull();
 
-    ExternalIssueReport.Issue issue2 = rule.issues[3];
+    ExternalIssueReport.Issue issue2 = report.issues[7];
     assertThat(issue2.engineId).isNull();
-    assertThat(issue2.ruleId).isNull();
+    assertThat(issue2.ruleId).isEqualTo("rule2");
     assertThat(issue2.severity).isNull();
     assertThat(issue2.effortMinutes).isNull();
     assertThat(issue2.type).isNull();

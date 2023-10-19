@@ -82,7 +82,7 @@ public class ExternalIssueImporterTest {
   public void execute_whenNewFormatWithZeroIssues() {
     ExternalIssueReport report = new ExternalIssueReport();
     ExternalIssueReport.Rule rule = createRule();
-    rule.issues = new ExternalIssueReport.Issue[0];
+    report.issues = new ExternalIssueReport.Issue[0];
     report.rules = new ExternalIssueReport.Rule[]{rule};
 
     ExternalIssueImporter underTest = new ExternalIssueImporter(this.context, report);
@@ -90,7 +90,7 @@ public class ExternalIssueImporterTest {
 
     assertThat(context.allExternalIssues()).isEmpty();
     assertThat(context.allIssues()).isEmpty();
-    assertThat(logs.logs(Level.INFO)).contains("Imported 0 issues in 0 files for ruleId 'some_rule_id'");
+    assertThat(logs.logs(Level.INFO)).contains("Imported 0 issues in 0 files");
   }
 
   @Test
@@ -109,7 +109,7 @@ public class ExternalIssueImporterTest {
     assertThat(output.severity()).isEqualTo(Severity.CRITICAL); //backmapped
     assertThat(output.type()).isEqualTo(RuleType.VULNERABILITY); //backmapped
     assertThat(output.remediationEffort()).isNull();
-    assertThat(logs.logs(Level.INFO)).contains("Imported 1 issue in 1 file for ruleId 'some_rule_id'");
+    assertThat(logs.logs(Level.INFO)).contains("Imported 1 issue in 1 file");
     assertThat(context.allAdHocRules()).hasSize(1);
 
     AdHocRule output1 = context.allAdHocRules().iterator().next();
@@ -177,7 +177,7 @@ public class ExternalIssueImporterTest {
   public void execute_whenNewFormatContainsNonExistentCleanCodeAttribute_shouldThrowException() {
     ExternalIssueReport report = new ExternalIssueReport();
     ExternalIssueReport.Rule rule = createRule("not_existent_attribute", MAINTAINABILITY.name(), HIGH.name());
-    rule.issues = new ExternalIssueReport.Issue[]{};
+    report.issues = new ExternalIssueReport.Issue[]{};
     report.rules = new ExternalIssueReport.Rule[]{rule};
 
     ExternalIssueImporter underTest = new ExternalIssueImporter(this.context, report);
@@ -191,7 +191,7 @@ public class ExternalIssueImporterTest {
   public void execute_whenNewFormatContainsNonExistentSoftwareQuality_shouldThrowException() {
     ExternalIssueReport report = new ExternalIssueReport();
     ExternalIssueReport.Rule rule = createRule(CleanCodeAttribute.CONVENTIONAL.name(), "not_existent_software_quality", HIGH.name());
-    rule.issues = new ExternalIssueReport.Issue[]{};
+    report.issues = new ExternalIssueReport.Issue[]{};
     report.rules = new ExternalIssueReport.Rule[]{rule};
 
     ExternalIssueImporter underTest = new ExternalIssueImporter(this.context, report);
@@ -206,7 +206,7 @@ public class ExternalIssueImporterTest {
     ExternalIssueReport report = new ExternalIssueReport();
     ExternalIssueReport.Rule rule = createRule(CleanCodeAttribute.CONVENTIONAL.name(), SoftwareQuality.RELIABILITY.name(),
       "not_existent_impact_severity");
-    rule.issues = new ExternalIssueReport.Issue[]{};
+    report.issues = new ExternalIssueReport.Issue[]{};
     report.rules = new ExternalIssueReport.Rule[]{rule};
 
     ExternalIssueImporter underTest = new ExternalIssueImporter(this.context, report);
@@ -310,7 +310,7 @@ public class ExternalIssueImporterTest {
 
   private static ExternalIssueReport.Rule createRule(String cleanCodeAttribute, String softwareQuality, String impactSeverity) {
     ExternalIssueReport.Rule rule = new ExternalIssueReport.Rule();
-    rule.ruleId = RULE_ID;
+    rule.id = RULE_ID;
     rule.name = RULE_NAME;
     rule.engineId = RULE_ENGINE_ID;
     rule.cleanCodeAttribute = cleanCodeAttribute;
@@ -342,7 +342,8 @@ public class ExternalIssueImporterTest {
   private void runOn(ExternalIssueReport.Issue input) {
     ExternalIssueReport report = new ExternalIssueReport();
     ExternalIssueReport.Rule rule = createRule();
-    rule.issues = new ExternalIssueReport.Issue[]{input};
+    input.ruleId = rule.id;
+    report.issues = new ExternalIssueReport.Issue[]{input};
     report.rules = new ExternalIssueReport.Rule[]{rule};
 
     ExternalIssueImporter underTest = new ExternalIssueImporter(this.context, report);

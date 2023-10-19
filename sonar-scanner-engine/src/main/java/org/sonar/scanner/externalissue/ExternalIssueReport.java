@@ -42,14 +42,13 @@ public class ExternalIssueReport {
   }
 
   static class Rule {
-    String ruleId;
+    String id;
     String engineId;
     String name;
     @Nullable
     String description;
     String cleanCodeAttribute;
     Impact[] impacts;
-    Issue[] issues;
   }
 
   static class Impact {
