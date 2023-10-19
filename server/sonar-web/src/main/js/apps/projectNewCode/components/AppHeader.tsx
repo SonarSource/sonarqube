@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link, Title } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../components/common/DocLink';
-import Link from '../../../components/common/Link';
+import { useDocUrl } from '../../../helpers/docs';
 import { translate } from '../../../helpers/l10n';
 
 export interface AppHeaderProps {
@@ -29,10 +29,11 @@ export interface AppHeaderProps {
 
 export default function AppHeader(props: AppHeaderProps) {
   const { canAdmin } = props;
+  const toUrl = useDocUrl('/project-administration/defining-new-code/');
 
   return (
-    <header className="page-header">
-      <h1 className="sw-mb-4">{translate('project_baseline.page')}</h1>
+    <header className="sw-mt-8 sw-mb-4">
+      <Title className="sw-mb-4">{translate('project_baseline.page')}</Title>
       <p className="sw-mb-2">{translate('project_baseline.page.description')}</p>
       <p className="sw-mb-2">{translate('settings.new_code_period.description1')}</p>
       <p className="sw-mb-2">
@@ -56,11 +57,7 @@ export default function AppHeader(props: AppHeaderProps) {
           defaultMessage={translate('settings.new_code_period.description3')}
           id="settings.new_code_period.description3"
           values={{
-            link: (
-              <DocLink to="/project-administration/defining-new-code/">
-                {translate('settings.new_code_period.description3.link')}
-              </DocLink>
-            ),
+            link: <Link to={toUrl}>{translate('settings.new_code_period.description3.link')}</Link>,
           }}
         />
       </p>
