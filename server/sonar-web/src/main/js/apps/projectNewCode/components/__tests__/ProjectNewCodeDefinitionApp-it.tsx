@@ -177,7 +177,7 @@ it('renders correctly branch modal', async () => {
   });
   await ui.appIsLoaded();
 
-  await ui.openBranchSettingModal('main');
+  await ui.openBranchSettingModal('main branches.main_branch branch_list.default_setting');
 
   expect(ui.specificAnalysisRadio.query()).not.toBeInTheDocument();
 });
@@ -188,13 +188,13 @@ it('can set a previous version setting for branch', async () => {
     featureList: [Feature.BranchSupport],
   });
   await ui.appIsLoaded();
-  await ui.setBranchPreviousVersionSetting('main');
+  await ui.setBranchPreviousVersionSetting('main branches.main_branch branch_list.default_setting');
 
   expect(
     within(byRole('table').get()).getByText('new_code_definition.previous_version'),
   ).toBeInTheDocument();
 
-  await user.click(await ui.branchActionsButton('main').find());
+  await user.click(await ui.branchActionsButton().find());
 
   expect(ui.resetToDefaultButton.get()).toBeInTheDocument();
   await user.click(ui.resetToDefaultButton.get());
@@ -211,7 +211,10 @@ it('can set a number of days setting for branch', async () => {
   });
   await ui.appIsLoaded();
 
-  await ui.setBranchNumberOfDaysSetting('main', '15');
+  await ui.setBranchNumberOfDaysSetting(
+    'main branches.main_branch branch_list.default_setting',
+    '15',
+  );
 
   expect(
     within(byRole('table').get()).getByText('new_code_definition.number_days: 15'),
@@ -219,7 +222,7 @@ it('can set a number of days setting for branch', async () => {
 });
 
 it('cannot set a specific analysis setting for branch', async () => {
-  const { ui } = getPageObjects();
+  const { ui, user } = getPageObjects();
   newCodeDefinitionMock.setListBranchesNewCode([
     mockNewCodePeriodBranch({
       branchKey: 'main',
@@ -232,8 +235,12 @@ it('cannot set a specific analysis setting for branch', async () => {
   });
   await ui.appIsLoaded();
 
-  await ui.openBranchSettingModal('main');
-
+  await user.click(
+    await byRole('row', { name: /main branches.main_branch/ })
+      .byLabelText('menu')
+      .find(),
+  );
+  await user.click(await byRole('menuitem', { name: 'edit' }).find());
   expect(ui.specificAnalysisRadio.get()).toBeChecked();
   expect(ui.specificAnalysisRadio.get()).toHaveClass('disabled');
   expect(ui.specificAnalysisWarning.get()).toBeInTheDocument();
@@ -251,7 +258,10 @@ it('can set a reference branch setting for branch', async () => {
   });
   await ui.appIsLoaded();
 
-  await ui.setBranchReferenceToBranchSetting('main', 'normal-branch');
+  await ui.setBranchReferenceToBranchSetting(
+    'main branches.main_branch branch_list.default_setting',
+    'normal-branch',
+  );
 
   expect(
     byRole('table').byText('baseline.reference_branch: normal-branch').get(),
@@ -396,12 +406,11 @@ function getPageObjects() {
     analysisListItem: byRole('radio', { name: /baseline.branch_analyses.analysis_for_x/ }),
     saveButton: byRole('button', { name: 'save' }),
     cancelButton: byRole('button', { name: 'cancel' }),
-    branchActionsButton: (branch: string) =>
-      byRole('button', { name: `branch_list.show_actions_for_x.${branch}` }),
+    branchActionsButton: () => byRole('button', { name: `menu` }),
     editButton: byRole('button', { name: 'edit' }),
-    resetToDefaultButton: byRole('button', { name: 'reset_to_default' }),
+    resetToDefaultButton: byRole('menuitem', { name: 'reset_to_default' }),
     branchNCDsBanner: byText(/new_code_definition.auto_update.branch.message/),
-    dismissButton: byLabelText('alert.dismiss'),
+    dismissButton: byLabelText('dismiss'),
   };
 
   async function appIsLoaded() {
@@ -448,8 +457,9 @@ function getPageObjects() {
   }
 
   async function openBranchSettingModal(branch: string) {
-    await user.click(await ui.branchActionsButton(branch).find());
-    await user.click(ui.editButton.get());
+    await user.click(
+      await byRole('row', { name: branch, exact: false }).byLabelText('edit').find(),
+    );
   }
 
   return {

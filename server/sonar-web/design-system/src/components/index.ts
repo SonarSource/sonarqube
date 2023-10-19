@@ -39,7 +39,7 @@ export * from './FacetBox';
 export * from './FacetItem';
 export { FailedQGConditionLink } from './FailedQGConditionLink';
 export * from './FavoriteButton';
-export { FlagMessage } from './FlagMessage';
+export { DismissableFlagMessage, FlagMessage } from './FlagMessage';
 export * from './FlowStep';
 export * from './HighlightedSection';
 export { Histogram } from './Histogram';

@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { HeadingDark } from 'design-system';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
@@ -218,9 +220,10 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
             )}
 
             {globalNewCodeDefinition && branchSupportEnabled && (
-              <div className="huge-spacer-top branch-baseline-selector">
-                <hr />
-                <h2>{translate('project_baseline.configure_branches')}</h2>
+              <div className="sw-mt-6">
+                <HeadingDark className="sw-mb-4">
+                  {translate('project_baseline.configure_branches')}
+                </HeadingDark>
                 <BranchList
                   branchList={branchList}
                   component={component}

@@ -18,9 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
+import { IntlShape } from 'react-intl';
 import { render } from '../../helpers/testUtils';
 import { FCProps } from '../../types/misc';
-import { FlagMessage, Variant } from '../FlagMessage';
+import { DismissableFlagMessage, FlagMessage, Variant } from '../FlagMessage';
+
+jest.mock(
+  'react-intl',
+  () =>
+    ({
+      ...jest.requireActual('react-intl'),
+      useIntl: () => ({
+        formatMessage: ({ id }: { id: string }, values = {}) =>
+          [id, ...Object.values(values)].join('.'),
+      }),
+    }) as IntlShape,
+);
 
 it.each([
   ['error', '1px solid rgb(249,112,102)'],
@@ -35,10 +48,22 @@ it.each([
   expect(item).toHaveStyle({ border: color });
 });
 
+it('should render Dismissable flag message properly', () => {
+  const dismissFunc = jest.fn();
+  render(<DismissableFlagMessage onDismiss={dismissFunc} role="status" variant="error" />);
+  const item = screen.getByRole('status');
+  expect(item).toBeInTheDocument();
+  expect(item).toHaveStyle({ border: '1px solid rgb(249,112,102)' });
+  const dismissButton = screen.getByRole('button');
+  expect(dismissButton).toBeInTheDocument();
+  dismissButton.click();
+  expect(dismissFunc).toHaveBeenCalled();
+});
+
 function renderFlagMessage(props: Partial<FCProps<typeof FlagMessage>> = {}) {
   return render(
     <FlagMessage role="status" variant="error" {...props}>
       This is an error!
-    </FlagMessage>
+    </FlagMessage>,
   );
 }

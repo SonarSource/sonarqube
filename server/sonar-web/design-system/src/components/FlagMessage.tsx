@@ -20,10 +20,12 @@
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import tw from 'twin.macro';
 import { themeBorder, themeColor, themeContrast } from '../helpers/theme';
 import { ThemeColors } from '../types/theme';
-import { FlagErrorIcon, FlagInfoIcon, FlagSuccessIcon, FlagWarningIcon } from './icons';
+import { InteractiveIcon } from './InteractiveIcon';
+import { CloseIcon, FlagErrorIcon, FlagInfoIcon, FlagSuccessIcon, FlagWarningIcon } from './icons';
 
 export type Variant = 'error' | 'warning' | 'success' | 'info';
 
@@ -79,6 +81,31 @@ export function FlagMessage(props: Props & React.HTMLAttributes<HTMLDivElement>)
 
 FlagMessage.displayName = 'FlagMessage'; // so that tests don't see the obfuscated production name
 
+interface DismissableFlagMessageProps extends Props {
+  onDismiss: () => void;
+}
+
+export function DismissableFlagMessage(
+  props: DismissableFlagMessageProps & React.HTMLAttributes<HTMLDivElement>,
+) {
+  const { onDismiss, children, ...flagMessageProps } = props;
+  const intl = useIntl();
+  return (
+    <FlagMessage {...flagMessageProps}>
+      {children}
+      <DismissIcon
+        Icon={CloseIcon}
+        aria-label={intl.formatMessage({ id: 'dismiss' })}
+        className="sw-ml-3"
+        onClick={onDismiss}
+        size="small"
+      />
+    </FlagMessage>
+  );
+}
+
+DismissableFlagMessage.displayName = 'DismissableFlagMessage'; // so that tests don't see the obfuscated production name
+
 export const StyledFlag = styled.div<{
   backGroundColor: ThemeColors;
   borderColor: ThemeColors;
@@ -110,4 +137,14 @@ export const StyledFlag = styled.div<{
     ${tw`sw-body-sm`}
     color: ${themeContrast('flagMessageBackground')};
   }
+`;
+
+export const DismissIcon = styled(InteractiveIcon)`
+  --background: ${themeColor('productNews')};
+  --backgroundHover: ${themeColor('productNewsHover')};
+  --color: ${themeContrast('productNews')};
+  --colorHover: ${themeContrast('productNewsHover')};
+  --focus: ${themeColor('interactiveIconFocus', 0.2)};
+
+  height: 28px;
 `;

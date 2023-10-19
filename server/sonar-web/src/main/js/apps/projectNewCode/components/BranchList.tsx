@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ActionCell, ContentCell, Spinner, Table, TableRow } from 'design-system';
 import * as React from 'react';
 import {
   listBranchesNewCodeDefinition,
@@ -27,7 +28,6 @@ import {
   PreviouslyNonCompliantBranchNCD,
   isPreviouslyNonCompliantDaysNCD,
 } from '../../../components/new-code-definition/utils';
-import Spinner from '../../../components/ui/Spinner';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { DEFAULT_NEW_CODE_DEFINITION_TYPE } from '../../../helpers/new-code-definition';
@@ -164,6 +164,14 @@ export default class BranchList extends React.PureComponent<Props, State> {
       return <Spinner />;
     }
 
+    const header = (
+      <TableRow>
+        <ContentCell>{translate('branch_list.branch')}</ContentCell>
+        <ContentCell>{translate('branch_list.current_setting')}</ContentCell>
+        <ActionCell>{translate('branch_list.actions')}</ActionCell>
+      </TableRow>
+    );
+
     return (
       <div>
         {previouslyNonCompliantBranchNCDs && (
@@ -172,29 +180,18 @@ export default class BranchList extends React.PureComponent<Props, State> {
             previouslyNonCompliantBranchNCDs={previouslyNonCompliantBranchNCDs}
           />
         )}
-        <table className="data zebra">
-          <thead>
-            <tr>
-              <th>{translate('branch_list.branch')}</th>
-              <th className="nowrap huge-spacer-right">
-                {translate('branch_list.current_setting')}
-              </th>
-              <th className="thin nowrap">{translate('branch_list.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {branches.map((branch) => (
-              <BranchListRow
-                branch={branch}
-                existingBranches={branchList.map((b) => b.name)}
-                inheritedSetting={inheritedSetting}
-                key={branch.name}
-                onOpenEditModal={this.openEditModal}
-                onResetToDefault={this.resetToDefault}
-              />
-            ))}
-          </tbody>
-        </table>
+        <Table columnCount={3} header={header}>
+          {branches.map((branch) => (
+            <BranchListRow
+              branch={branch}
+              existingBranches={branchList.map((b) => b.name)}
+              inheritedSetting={inheritedSetting}
+              key={branch.name}
+              onOpenEditModal={this.openEditModal}
+              onResetToDefault={this.resetToDefault}
+            />
+          ))}
+        </Table>
         {editedBranch && (
           <BranchNewCodeDefinitionSettingModal
             branch={editedBranch}

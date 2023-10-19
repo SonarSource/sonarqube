@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { DismissableFlagMessage, Link } from 'design-system';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { MessageTypes, checkMessageDismissed, setMessageDismissed } from '../../api/messages';
+import { useDocUrl } from '../../helpers/docs';
 import { Component } from '../../types/types';
-import DocLink from '../common/DocLink';
-import DismissableAlertComponent from '../ui/DismissableAlertComponent';
 import { PreviouslyNonCompliantBranchNCD } from './utils';
 
 interface NCDAutoUpdateMessageProps {
@@ -33,6 +34,9 @@ interface NCDAutoUpdateMessageProps {
 export default function NCDAutoUpdateMessage(props: NCDAutoUpdateMessageProps) {
   const { component, previouslyNonCompliantBranchNCDs } = props;
   const intl = useIntl();
+  const toUrl = useDocUrl(
+    '/project-administration/clean-as-you-code-settings/defining-new-code/#new-code-definition-options',
+  );
 
   const [dismissed, setDismissed] = useState(true);
 
@@ -79,24 +83,17 @@ export default function NCDAutoUpdateMessage(props: NCDAutoUpdateMessageProps) {
   );
 
   return (
-    <DismissableAlertComponent
-      className="sw-my-4"
-      onDismiss={handleBannerDismiss}
-      variant="info"
-      display="banner"
-    >
-      <FormattedMessage
-        id="new_code_definition.auto_update.branch.message"
-        values={{
-          date: new Date(previouslyNonCompliantBranchNCDs[0].updatedAt).toLocaleDateString(),
-          branchesList,
-          link: (
-            <DocLink to="/project-administration/clean-as-you-code-settings/defining-new-code/#new-code-definition-options">
-              {intl.formatMessage({ id: 'learn_more' })}
-            </DocLink>
-          ),
-        }}
-      />
-    </DismissableAlertComponent>
+    <DismissableFlagMessage className="sw-my-4" onDismiss={handleBannerDismiss} variant="info">
+      <div>
+        <FormattedMessage
+          id="new_code_definition.auto_update.branch.message"
+          values={{
+            date: new Date(previouslyNonCompliantBranchNCDs[0].updatedAt).toLocaleDateString(),
+            branchesList,
+            link: <Link to={toUrl}>{intl.formatMessage({ id: 'learn_more' })}</Link>,
+          }}
+        />
+      </div>
+    </DismissableFlagMessage>
   );
 }

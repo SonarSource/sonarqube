@@ -17,11 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ActionCell,
+  ActionsDropdown,
+  Badge,
+  ContentCell,
+  FlagWarningIcon,
+  InteractiveIcon,
+  ItemButton,
+  PencilIcon,
+  TableRowInteractive,
+} from 'design-system';
 import * as React from 'react';
-import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import Tooltip from '../../../components/controls/Tooltip';
 import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
-import WarningIcon from '../../../components/icons/WarningIcon';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { isNewCodeDefinitionCompliant } from '../../../helpers/new-code-definition';
@@ -101,44 +110,52 @@ export default function BranchListRow(props: BranchListRowProps) {
   const isCompliant = isNewCodeDefinitionCompliant(inheritedSetting);
 
   return (
-    <tr className={settingWarning ? 'branch-setting-warning' : ''}>
-      <td className="nowrap">
-        <BranchLikeIcon branchLike={branch} className="little-spacer-right" />
+    <TableRowInteractive>
+      <ContentCell>
+        <BranchLikeIcon branchLike={branch} className="sw-mr-1" />
         {branch.name}
-        {branch.isMain && (
-          <div className="badge spacer-left">{translate('branches.main_branch')}</div>
-        )}
-      </td>
-      <td className="huge-spacer-right nowrap">
+        {branch.isMain && <Badge className="sw-ml-1">{translate('branches.main_branch')}</Badge>}
+      </ContentCell>
+      <ContentCell>
         <Tooltip overlay={settingWarning}>
           <span>
-            {settingWarning !== undefined && <WarningIcon className="little-spacer-right" />}
+            {settingWarning !== undefined && <FlagWarningIcon className="sw-mr-1" />}
             {branch.newCodePeriod
               ? renderNewCodePeriodSetting(branch.newCodePeriod)
               : translate('branch_list.default_setting')}
           </span>
         </Tooltip>
-      </td>
-      <td className="text-right">
-        <ActionsDropdown
-          label={translateWithParameters('branch_list.show_actions_for_x', branch.name)}
-        >
-          <ActionsDropdownItem onClick={() => props.onOpenEditModal(branch)}>
-            {translate('edit')}
-          </ActionsDropdownItem>
-          {branch.newCodePeriod && (
-            <ActionsDropdownItem
-              disabled={!isCompliant}
-              onClick={() => props.onResetToDefault(branch.name)}
-              tooltipOverlay={
+      </ContentCell>
+      <ActionCell>
+        {!branch.newCodePeriod && (
+          <InteractiveIcon
+            Icon={PencilIcon}
+            aria-label={translate('edit')}
+            onClick={() => props.onOpenEditModal(branch)}
+            className="sw-mr-2"
+            size="small"
+          />
+        )}
+        {branch.newCodePeriod && (
+          <ActionsDropdown allowResizing id="new-code-action">
+            <Tooltip
+              overlay={
                 isCompliant ? null : translate('project_baseline.compliance.warning.title.project')
               }
             >
-              {translate('reset_to_default')}
-            </ActionsDropdownItem>
-          )}
-        </ActionsDropdown>
-      </td>
-    </tr>
+              <ItemButton
+                disabled={!isCompliant}
+                onClick={() => props.onResetToDefault(branch.name)}
+              >
+                {translate('reset_to_default')}
+              </ItemButton>
+            </Tooltip>
+            <ItemButton onClick={() => props.onOpenEditModal(branch)}>
+              {translate('edit')}
+            </ItemButton>
+          </ActionsDropdown>
+        )}
+      </ActionCell>
+    </TableRowInteractive>
   );
 }
