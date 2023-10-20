@@ -17,14 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SelectionCard } from 'design-system';
+import { Badge, FlagErrorIcon, FormField, InputSelect, SelectionCard } from 'design-system';
 import * as React from 'react';
-import { components, OptionProps } from 'react-select';
-import Select from '../../../components/controls/Select';
+import { OptionProps, components } from 'react-select';
 import Tooltip from '../../../components/controls/Tooltip';
-import AlertErrorIcon from '../../../components/icons/AlertErrorIcon';
 import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
-import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { NewCodeDefinitionType } from '../../../types/new-code-definition';
@@ -64,7 +61,7 @@ function renderBranchOption(props: OptionProps<BranchOption, false>) {
           )}
         >
           <span>
-            {option.value} <AlertErrorIcon />
+            {option.value} <FlagErrorIcon className="sw-ml-2" />
           </span>
         </Tooltip>
       ) : (
@@ -78,9 +75,7 @@ function renderBranchOption(props: OptionProps<BranchOption, false>) {
           >
             {option.value}
           </span>
-          {option.isMain && (
-            <div className="badge spacer-left">{translate('branches.main_branch')}</div>
-          )}
+          {option.isMain && <Badge className="sw-ml-2">{translate('branches.main_branch')}</Badge>}
         </>
       )}
     </components.Option>
@@ -115,24 +110,28 @@ export default function NewCodeDefinitionSettingReferenceBranch(
         {selected && (
           <>
             {settingLevel === NewCodeDefinitionLevels.Project && (
-              <p className="spacer-top">{translate('baseline.reference_branch.description2')}</p>
+              <p>{translate('baseline.reference_branch.description2')}</p>
             )}
-            <div className="big-spacer-top display-flex-column">
-              <MandatoryFieldsExplanation className="spacer-bottom" />
-              <label className="text-middle" htmlFor="reference_branch">
-                <strong>{translate('baseline.reference_branch.choose')}</strong>
-                <MandatoryFieldMarker />
-              </label>
-              <Select
-                className="little-spacer-top spacer-bottom"
-                options={branchList}
-                aria-label={translate('baseline.reference_branch.choose')}
-                onChange={(option: BranchOption) => props.onChangeReferenceBranch(option.value)}
-                value={currentBranch}
-                components={{
-                  Option: renderBranchOption,
-                }}
-              />
+            <div className="sw-flex sw-flex-col">
+              <MandatoryFieldsExplanation className="sw-mb-2" />
+
+              <FormField
+                ariaLabel={translate('baseline.reference_branch.choose')}
+                label={translate('baseline.reference_branch.choose')}
+                htmlFor="new-code-definition-reference-branch"
+                required
+              >
+                <InputSelect
+                  inputId="new-code-definition-reference-branch"
+                  size="large"
+                  options={branchList}
+                  onChange={(option: BranchOption) => props.onChangeReferenceBranch(option.value)}
+                  value={currentBranch}
+                  components={{
+                    Option: renderBranchOption,
+                  }}
+                />
+              </FormField>
             </div>
           </>
         )}

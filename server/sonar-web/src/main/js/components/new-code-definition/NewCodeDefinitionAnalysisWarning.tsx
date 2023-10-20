@@ -17,27 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
+import { FlagMessage, Link } from 'design-system';
 import * as React from 'react';
+import { useDocUrl } from '../../helpers/docs';
 import { translate } from '../../helpers/l10n';
-import DocLink from '../common/DocLink';
-import { Alert } from '../ui/Alert';
 
 export default function NewCodeDefinitionAnalysisWarning() {
+  const toStatic = useDocUrl('/project-administration/defining-new-code/');
   return (
-    <Alert variant="warning" className="sw-mb-4 sw-max-w-[800px]">
-      <p className="sw-mb-2 sw-font-bold">
-        {translate('baseline.specific_analysis.compliance_warning.title')}
-      </p>
-      <p className="sw-mb-2">
-        {translate('baseline.specific_analysis.compliance_warning.explanation')}
-      </p>
-      <p>
-        {translate('learn_more')}:&nbsp;
-        <DocLink to="/project-administration/defining-new-code/">
-          {translate('baseline.specific_analysis.compliance_warning.link')}
-        </DocLink>
-      </p>
-    </Alert>
+    <FlagMessage variant="warning" className="sw-mb-4 sw-max-w-[800px]">
+      <div>
+        <p className="sw-mb-2 sw-font-bold">
+          {translate('baseline.specific_analysis.compliance_warning.title')}
+        </p>
+        <p className="sw-mb-2">
+          {translate('baseline.specific_analysis.compliance_warning.explanation')}
+        </p>
+        <p>
+          {translate('learn_more')}:
+          <Link className="sw-ml-2" to={toStatic}>
+            {translate('learn_more')}
+          </Link>
+        </p>
+      </div>
+    </FlagMessage>
   );
 }

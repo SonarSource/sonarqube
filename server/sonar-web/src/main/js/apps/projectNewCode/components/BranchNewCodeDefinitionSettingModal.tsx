@@ -22,7 +22,6 @@ import * as React from 'react';
 import { setNewCodeDefinition } from '../../../api/newCodeDefinition';
 import Modal from '../../../components/controls/Modal';
 import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import NewCodeDefinitionAnalysisWarning from '../../../components/new-code-definition/NewCodeDefinitionAnalysisWarning';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
 import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
@@ -33,7 +32,6 @@ import { getNumberOfDaysDefaultValue } from '../../../helpers/new-code-definitio
 import { Branch, BranchWithNewCodePeriod } from '../../../types/branch-like';
 import { NewCodeDefinition, NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { getSettingValue, validateSetting } from '../utils';
-import BranchAnalysisList from './BranchAnalysisList';
 import NewCodeDefinitionSettingAnalysis from './NewCodeDefinitionSettingAnalysis';
 import NewCodeDefinitionSettingReferenceBranch from './NewCodeDefinitionSettingReferenceBranch';
 
@@ -183,9 +181,6 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body modal-container branch-baseline-setting-modal">
             <p className="sw-mb-3">{translate('baseline.new_code_period_for_branch_x.question')}</p>
-            {currentSetting === NewCodeDefinitionType.SpecificAnalysis && (
-              <NewCodeDefinitionAnalysisWarning />
-            )}
             <div className="display-flex-column huge-spacer-bottom sw-gap-4" role="radiogroup">
               <NewCodeDefinitionPreviousVersionOption
                 isDefault={false}
@@ -212,20 +207,15 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
               {currentSetting === NewCodeDefinitionType.SpecificAnalysis && (
                 <NewCodeDefinitionSettingAnalysis
                   onSelect={noop}
+                  analysis={analysis}
+                  branch={branch.name}
+                  component={this.props.component}
                   selected={
                     selectedNewCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis
                   }
                 />
               )}
             </div>
-            {selectedNewCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis && (
-              <BranchAnalysisList
-                analysis={analysis}
-                branch={branch.name}
-                component={this.props.component}
-                onSelectAnalysis={noop}
-              />
-            )}
           </div>
           <footer className="modal-foot">
             <Spinner className="spacer-right" loading={saving} />

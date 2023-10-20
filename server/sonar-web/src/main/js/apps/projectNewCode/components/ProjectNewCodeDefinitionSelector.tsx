@@ -17,23 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
-import { RadioButton } from 'design-system';
+import { ButtonPrimary, ButtonSecondary, FlagMessage, RadioButton, Spinner } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import GlobalNewCodeDefinitionDescription from '../../../components/new-code-definition/GlobalNewCodeDefinitionDescription';
-import NewCodeDefinitionAnalysisWarning from '../../../components/new-code-definition/NewCodeDefinitionAnalysisWarning';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
 import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
-import { Alert } from '../../../components/ui/Alert';
-import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { Branch } from '../../../types/branch-like';
 import { NewCodeDefinition, NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { validateSetting } from '../utils';
-import BranchAnalysisList from './BranchAnalysisList';
 import NewCodeDefinitionSettingAnalysis from './NewCodeDefinitionSettingAnalysis';
 import NewCodeDefinitionSettingReferenceBranch from './NewCodeDefinitionSettingReferenceBranch';
 
@@ -100,11 +94,11 @@ export default function ProjectNewCodeDefinitionSelector(
   }
 
   return (
-    <form className="project-baseline-selector" onSubmit={props.onSubmit}>
-      <div className="big-spacer-top spacer-bottom" role="radiogroup">
+    <form className="it__project-baseline-selector" onSubmit={props.onSubmit}>
+      <div className="sw-mb-4 sw-mt-8" role="radiogroup">
         <RadioButton
           checked={!overrideGlobalNewCodeDefinition}
-          className="big-spacer-bottom"
+          className="sw-mb-4"
           onCheck={() => props.onToggleSpecificSetting(false)}
           value="general"
         >
@@ -117,7 +111,7 @@ export default function ProjectNewCodeDefinitionSelector(
 
         <RadioButton
           checked={overrideGlobalNewCodeDefinition}
-          className="huge-spacer-top"
+          className="sw-mt-8"
           onCheck={() => props.onToggleSpecificSetting(true)}
           value="specific"
         >
@@ -125,87 +119,81 @@ export default function ProjectNewCodeDefinitionSelector(
         </RadioButton>
       </div>
 
-      <div className="big-spacer-left big-spacer-right project-baseline-setting">
-        {newCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis && (
-          <NewCodeDefinitionAnalysisWarning />
-        )}
-        <div className="display-flex-column big-spacer-bottom sw-gap-4" role="radiogroup">
-          <NewCodeDefinitionPreviousVersionOption
+      <div className="sw-flex sw-flex-col sw-gap-4" role="radiogroup">
+        <NewCodeDefinitionPreviousVersionOption
+          disabled={!overrideGlobalNewCodeDefinition}
+          onSelect={props.onSelectSetting}
+          selected={
+            overrideGlobalNewCodeDefinition &&
+            selectedNewCodeDefinitionType === NewCodeDefinitionType.PreviousVersion
+          }
+        />
+        <NewCodeDefinitionDaysOption
+          days={days}
+          currentDaysValue={
+            newCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
+              ? newCodeDefinitionValue
+              : undefined
+          }
+          previousNonCompliantValue={previousNonCompliantValue}
+          updatedAt={projectNcdUpdatedAt}
+          disabled={!overrideGlobalNewCodeDefinition}
+          isChanged={isChanged}
+          isValid={isValid}
+          onChangeDays={props.onSelectDays}
+          onSelect={props.onSelectSetting}
+          selected={
+            overrideGlobalNewCodeDefinition &&
+            selectedNewCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
+          }
+          settingLevel={NewCodeDefinitionLevels.Project}
+        />
+        {branchesEnabled && (
+          <NewCodeDefinitionSettingReferenceBranch
+            branchList={branchList.map(branchToOption)}
             disabled={!overrideGlobalNewCodeDefinition}
+            onChangeReferenceBranch={props.onSelectReferenceBranch}
             onSelect={props.onSelectSetting}
+            referenceBranch={referenceBranch ?? ''}
             selected={
               overrideGlobalNewCodeDefinition &&
-              selectedNewCodeDefinitionType === NewCodeDefinitionType.PreviousVersion
-            }
-          />
-          <NewCodeDefinitionDaysOption
-            days={days}
-            currentDaysValue={
-              newCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
-                ? newCodeDefinitionValue
-                : undefined
-            }
-            previousNonCompliantValue={previousNonCompliantValue}
-            updatedAt={projectNcdUpdatedAt}
-            disabled={!overrideGlobalNewCodeDefinition}
-            isChanged={isChanged}
-            isValid={isValid}
-            onChangeDays={props.onSelectDays}
-            onSelect={props.onSelectSetting}
-            selected={
-              overrideGlobalNewCodeDefinition &&
-              selectedNewCodeDefinitionType === NewCodeDefinitionType.NumberOfDays
+              selectedNewCodeDefinitionType === NewCodeDefinitionType.ReferenceBranch
             }
             settingLevel={NewCodeDefinitionLevels.Project}
           />
-          {branchesEnabled && (
-            <NewCodeDefinitionSettingReferenceBranch
-              branchList={branchList.map(branchToOption)}
-              disabled={!overrideGlobalNewCodeDefinition}
-              onChangeReferenceBranch={props.onSelectReferenceBranch}
-              onSelect={props.onSelectSetting}
-              referenceBranch={referenceBranch ?? ''}
-              selected={
-                overrideGlobalNewCodeDefinition &&
-                selectedNewCodeDefinitionType === NewCodeDefinitionType.ReferenceBranch
-              }
-              settingLevel={NewCodeDefinitionLevels.Project}
-            />
-          )}
-          {!branchesEnabled && newCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis && (
-            <NewCodeDefinitionSettingAnalysis
-              onSelect={noop}
-              selected={
-                overrideGlobalNewCodeDefinition &&
-                selectedNewCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis
-              }
-            />
-          )}
-        </div>
-        {!branchesEnabled &&
-          overrideGlobalNewCodeDefinition &&
-          selectedNewCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis && (
-            <BranchAnalysisList
-              analysis={analysis ?? ''}
-              branch={branch.name}
-              component={component}
-              onSelectAnalysis={noop}
-            />
-          )}
-      </div>
-      <div className="big-spacer-top">
-        <Alert variant="info" className={classNames('spacer-bottom', { invisible: !isChanged })}>
-          {translate('baseline.next_analysis_notice')}
-        </Alert>
-        <Spinner className="spacer-right" loading={saving} />
-        {!saving && (
-          <>
-            <SubmitButton disabled={!isValid || !isChanged}>{translate('save')}</SubmitButton>
-            <ResetButtonLink className="spacer-left" disabled={!isChanged} onClick={props.onCancel}>
-              {translate('cancel')}
-            </ResetButtonLink>
-          </>
         )}
+        {!branchesEnabled && newCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis && (
+          <NewCodeDefinitionSettingAnalysis
+            onSelect={noop}
+            analysis={analysis ?? ''}
+            branch={branch.name}
+            component={component}
+            selected={
+              overrideGlobalNewCodeDefinition &&
+              selectedNewCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis
+            }
+          />
+        )}
+      </div>
+      <div className="sw-mt-4">
+        {isChanged && (
+          <FlagMessage variant="info" className="sw-mb-4">
+            {translate('baseline.next_analysis_notice')}
+          </FlagMessage>
+        )}
+        <div className="sw-flex sw-items-center">
+          <ButtonPrimary type="submit" disabled={!isValid || !isChanged || saving}>
+            {translate('save')}
+          </ButtonPrimary>
+          <ButtonSecondary
+            className="sw-ml-2"
+            disabled={saving || !isChanged}
+            onClick={props.onCancel}
+          >
+            {translate('cancel')}
+          </ButtonSecondary>
+          <Spinner className="sw-ml-2" loading={saving} />
+        </div>
       </div>
     </form>
   );

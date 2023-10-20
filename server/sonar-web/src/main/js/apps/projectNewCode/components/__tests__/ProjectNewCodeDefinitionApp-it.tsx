@@ -28,6 +28,7 @@ import NewCodeDefinitionServiceMock from '../../../../api/mocks/NewCodeDefinitio
 import { ProjectActivityServiceMock } from '../../../../api/mocks/ProjectActivityServiceMock';
 import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockNewCodePeriodBranch } from '../../../../helpers/mocks/new-code-definition';
+import { mockAnalysis } from '../../../../helpers/mocks/project-activity';
 import { mockAppState } from '../../../../helpers/testMocks';
 import {
   RenderContext,
@@ -157,16 +158,21 @@ it('cannot set specific analysis setting', async () => {
       value: 'analysis_id',
     }),
   ]);
+  projectActivityMock.setAnalysesList([
+    mockAnalysis({
+      key: `analysis_id`,
+      date: '2018-01-11T00:00:00+0200',
+    }),
+  ]);
   renderProjectNewCodeDefinitionApp();
   await ui.appIsLoaded();
 
   expect(await ui.specificAnalysisRadio.find()).toBeChecked();
+  expect(ui.baselineSpecificAnalysisDate.get()).toBeInTheDocument();
+
   expect(ui.specificAnalysisRadio.get()).toHaveClass('disabled');
   expect(ui.specificAnalysisWarning.get()).toBeInTheDocument();
 
-  await selectEvent.select(ui.analysisFromSelect.get(), 'baseline.branch_analyses.ranges.allTime');
-
-  expect(first(ui.analysisListItem.getAll())).toHaveClass('disabled');
   expect(ui.saveButton.get()).toBeDisabled();
 });
 
@@ -245,9 +251,6 @@ it('cannot set a specific analysis setting for branch', async () => {
   expect(ui.specificAnalysisRadio.get()).toHaveClass('disabled');
   expect(ui.specificAnalysisWarning.get()).toBeInTheDocument();
 
-  await selectEvent.select(ui.analysisFromSelect.get(), 'baseline.branch_analyses.ranges.allTime');
-
-  expect(first(ui.analysisListItem.getAll())).toHaveClass('disabled');
   expect(last(ui.saveButton.getAll())).toBeDisabled();
 });
 
@@ -402,8 +405,6 @@ function getPageObjects() {
     chooseBranchSelect: byRole('combobox', { name: 'baseline.reference_branch.choose' }),
     specificAnalysisRadio: byRole('radio', { name: /baseline.specific_analysis.description/ }),
     specificAnalysisWarning: byText('baseline.specific_analysis.compliance_warning.title'),
-    analysisFromSelect: byRole('combobox', { name: 'baseline.analysis_from' }),
-    analysisListItem: byRole('radio', { name: /baseline.branch_analyses.analysis_for_x/ }),
     saveButton: byRole('button', { name: 'save' }),
     cancelButton: byRole('button', { name: 'cancel' }),
     branchActionsButton: () => byRole('button', { name: `menu` }),
@@ -411,6 +412,7 @@ function getPageObjects() {
     resetToDefaultButton: byRole('menuitem', { name: 'reset_to_default' }),
     branchNCDsBanner: byText(/new_code_definition.auto_update.branch.message/),
     dismissButton: byLabelText('dismiss'),
+    baselineSpecificAnalysisDate: byText(/January 10, 2018/),
   };
 
   async function appIsLoaded() {
