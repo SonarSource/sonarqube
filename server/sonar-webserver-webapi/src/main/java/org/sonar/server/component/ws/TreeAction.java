@@ -52,7 +52,11 @@ import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.ComponentTreeQuery.Strategy;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.user.TokenType;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.TreeWsResponse;
@@ -180,7 +184,7 @@ public class TreeAction implements ComponentsWsAction {
 
       ComponentTreeQuery query = toComponentTreeQuery(treeRequest, baseComponent);
       List<ComponentDto> components = dbClient.componentDao().selectDescendants(dbSession, query);
-      components = filterAuthorizedComponents(components);
+      components = filterAuthorizedComponents(components, baseComponent);
 
       int total = components.size();
       components = sortComponents(components, treeRequest);
@@ -192,7 +196,18 @@ public class TreeAction implements ComponentsWsAction {
     }
   }
 
-  private List<ComponentDto> filterAuthorizedComponents(List<ComponentDto> components) {
+  private List<ComponentDto> filterAuthorizedComponents(List<ComponentDto> components, ComponentDto parentComponent) {
+    if (userSession instanceof ThreadLocalUserSession) {
+      UserSession tokenUserSession = ((ThreadLocalUserSession) userSession).get();
+      if (tokenUserSession instanceof TokenUserSession) {
+        UserTokenDto userToken = ((TokenUserSession) tokenUserSession).getUserToken();
+        if (TokenType.PROJECT_ANALYSIS_TOKEN.name().equals(userToken.getType())) {
+          if (userToken.getProjectKey().equals(parentComponent.getKey())) {
+            return components;
+          }
+        }
+      }
+    }
     return userSession.keepAuthorizedComponents(UserRole.USER, components);
   }
 
@@ -217,6 +232,17 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   private void checkPermissions(ComponentDto baseComponent) {
+    if (userSession instanceof ThreadLocalUserSession) {
+      UserSession tokenUserSession = ((ThreadLocalUserSession) userSession).get();
+      if (tokenUserSession instanceof TokenUserSession) {
+        UserTokenDto userToken = ((TokenUserSession) tokenUserSession).getUserToken();
+        if (TokenType.PROJECT_ANALYSIS_TOKEN.name().equals(userToken.getType())) {
+          if (userToken.getProjectKey().equals(baseComponent.getKey())) {
+            return;
+          }
+        }
+      }
+    }
     userSession.checkComponentPermission(UserRole.USER, baseComponent);
   }
 

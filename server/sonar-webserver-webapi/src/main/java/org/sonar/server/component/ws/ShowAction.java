@@ -38,8 +38,12 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.user.TokenType;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.ShowWsResponse;
@@ -111,11 +115,26 @@ public class ShowAction implements ComponentsWsAction {
   private ShowWsResponse doHandle(Request request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(dbSession, request);
-      userSession.checkComponentPermission(UserRole.USER, component);
+      checkPermissions(component);
       Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.branchUuid());
       List<ComponentDto> ancestors = dbClient.componentDao().selectAncestors(dbSession, component);
       return buildResponse(dbSession, component, ancestors, lastAnalysis.orElse(null), request);
     }
+  }
+
+  private void checkPermissions(ComponentDto baseComponent) {
+    if (userSession instanceof ThreadLocalUserSession) {
+      UserSession tokenUserSession = ((ThreadLocalUserSession) userSession).get();
+      if (tokenUserSession instanceof TokenUserSession) {
+        UserTokenDto userToken = ((TokenUserSession) tokenUserSession).getUserToken();
+        if (TokenType.PROJECT_ANALYSIS_TOKEN.name().equals(userToken.getType())) {
+          if (userToken.getProjectKey().equals(baseComponent.getKey())) {
+            return;
+          }
+        }
+      }
+    }
+    userSession.checkComponentPermission(UserRole.USER, baseComponent);
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request request) {
