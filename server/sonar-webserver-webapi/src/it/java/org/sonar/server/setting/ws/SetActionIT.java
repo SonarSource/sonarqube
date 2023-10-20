@@ -69,7 +69,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -1136,6 +1135,34 @@ public class SetActionIT {
     assertThat(definition.since()).isEqualTo("6.1");
     assertThat(definition.params()).extracting(Param::key)
       .containsOnly("key", "value", "values", "fieldValues", "component");
+  }
+
+  @Test
+  public void call_whenEmailPropertyValid_shouldSucceed() {
+    definitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .type(PropertyType.EMAIL)
+      .build());
+
+    callForGlobalSetting("my.key", "test@sonarsource.com");
+    assertGlobalSetting("my.key", "test@sonarsource.com");
+  }
+
+  @Test
+  public void call_whenEmailPropertyInvalid_shouldFail() {
+    definitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .type(PropertyType.EMAIL)
+      .build());
+    i18n.put("property.error.notEmail", "Not a valid email address");
+
+    assertThatThrownBy(() -> callForGlobalSetting("my.key", "test1@sonarsource.com,test2@sonarsource.com"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Not a valid email address");
   }
 
   private void assertGlobalSetting(String key, String value) {

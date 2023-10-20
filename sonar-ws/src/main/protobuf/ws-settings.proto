@@ -83,6 +83,7 @@ enum Type {
   LICENSE = 13;
   JSON = 14;
   FORMATTED_TEXT = 15;
+  EMAIL = 16;
 }
 
 // Response of GET api/settings/values
@@ -117,6 +118,3 @@ message FieldValues {
     map<string, string> value = 1;
   }
 }
-
-
-
