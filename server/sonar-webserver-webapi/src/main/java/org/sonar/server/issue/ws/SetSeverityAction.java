@@ -26,6 +26,8 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
@@ -54,6 +56,7 @@ public class SetSeverityAction implements IssuesWsAction {
   private final IssueFieldsSetter issueFieldsSetter;
   private final IssueUpdater issueUpdater;
   private final OperationResponseWriter responseWriter;
+  private final Logger logger = Loggers.get(SetSeverityAction.class);
 
   public SetSeverityAction(UserSession userSession, DbClient dbClient, IssueChangeEventService issueChangeEventService,
     IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,
@@ -110,6 +113,8 @@ public class SetSeverityAction implements IssuesWsAction {
   private SearchResponseData setType(DbSession session, String issueKey, String severity) {
     IssueDto issueDto = issueFinder.getByKey(session, issueKey);
     DefaultIssue issue = issueDto.toDefaultIssue();
+    logger.info("Change Issue Severity:: from: {}, to: {}, project: {}, issueId: {}, user: {}",
+            issueDto.getSeverity(), severity, issueDto.getProjectKey(), issueDto.getKee(), userSession.getLogin());
     userSession.checkComponentUuidPermission(ISSUE_ADMIN, issue.projectUuid());
 
     IssueChangeContext context = issueChangeContextByUserBuilder(new Date(), userSession.getUuid()).withRefreshMeasures().build();

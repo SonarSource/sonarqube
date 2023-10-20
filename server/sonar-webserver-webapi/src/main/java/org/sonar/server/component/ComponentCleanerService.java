@@ -34,6 +34,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
@@ -53,9 +54,9 @@ public class ComponentCleanerService {
     this.projectIndexers = projectIndexers;
   }
 
-  public void delete(DbSession dbSession, List<ProjectDto> projects) {
+  public void delete(DbSession dbSession, List<ProjectDto> projects, String user) {
     for (ProjectDto project : projects) {
-      delete(dbSession, project);
+      delete(dbSession, project, user);
     }
   }
 
@@ -70,10 +71,12 @@ public class ComponentCleanerService {
     projectIndexers.commitAndIndexBranches(dbSession, singletonList(branch), PROJECT_DELETION);
   }
 
-  public void delete(DbSession dbSession, ProjectDto project) {
+  public void delete(DbSession dbSession, ProjectDto project, String user) {
     Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, project.getOrganizationUuid());
-    logger.info("cleaning component entries for project: {}, projectId: {}, organization: {}, orgId: {}", project.getKey(),
-            project.getUuid(), organization.get().getKey(), organization.get().getUuid());
+    logger.info(
+            "cleaning component entries for projectName: {}, projectKey: {}, projectId: {}, organization: {}, orgId: {}, user: {}",
+            project.getName(), project.getKey(), project.getUuid(), organization.get().getKey(),
+            organization.get().getUuid(), user);
     dbClient.purgeDao().deleteProject(dbSession, project.getUuid(), project.getQualifier(), project.getName(), project.getKey());
     dbClient.userDao().cleanHomepage(dbSession, project);
     dbClient.userTokenDao().deleteByProjectKey(dbSession, project.getKey());
