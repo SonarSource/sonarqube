@@ -82,6 +82,11 @@ abstract class AbstractDialect implements Dialect {
     return false;
   }
 
+  @Override
+  public boolean supportsNullNotDistinct() {
+    return false;
+  }
+
   Version checkDbVersion(DatabaseMetaData metaData, Version minSupported) throws SQLException {
     int major = metaData.getDatabaseMajorVersion();
     int minor = metaData.getDatabaseMinorVersion();

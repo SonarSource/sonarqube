@@ -44,7 +44,7 @@ public abstract class CreateIndexOnColumns extends DdlChange {
   public void execute(Context context) throws SQLException {
     try (Connection connection = getDatabase().getDataSource().getConnection()) {
       if (!DatabaseUtils.indexExistsIgnoreCase(table, newIndexName(), connection)) {
-        CreateIndexBuilder builder = new CreateIndexBuilder()
+        CreateIndexBuilder builder = new CreateIndexBuilder(getDialect())
           .setTable(table)
           .setName(newIndexName())
           .setUnique(unique);

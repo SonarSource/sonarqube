@@ -41,9 +41,9 @@ public class CreateUniqueConstraintOnRulesDefaultImpacts extends DdlChange {
     }
   }
 
-  private static void createIndex(Context context, Connection connection) {
+  private void createIndex(Context context, Connection connection) {
     if (!DatabaseUtils.indexExistsIgnoreCase(TABLE_NAME, INDEX_NAME, connection)) {
-      context.execute(new CreateIndexBuilder()
+      context.execute(new CreateIndexBuilder(getDialect())
         .setTable(TABLE_NAME)
         .setName(INDEX_NAME)
         .addColumn("rule_uuid")

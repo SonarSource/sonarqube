@@ -82,7 +82,7 @@ public class PostgreSqlTest {
   @Test
   public void postgresql_9_2_is_not_supported() throws Exception {
     assertThatThrownBy(() -> {
-      DatabaseMetaData metadata = newMetadata( 9, 2);
+      DatabaseMetaData metadata = newMetadata(9, 2);
       underTest.init(metadata);
     })
       .isInstanceOf(MessageException.class)
@@ -91,7 +91,7 @@ public class PostgreSqlTest {
 
   @Test
   public void postgresql_9_3_is_supported_without_upsert() throws Exception {
-    DatabaseMetaData metadata = newMetadata( 9, 3);
+    DatabaseMetaData metadata = newMetadata(9, 3);
     underTest.init(metadata);
 
     assertThat(underTest.supportsUpsert()).isFalse();
@@ -100,7 +100,7 @@ public class PostgreSqlTest {
 
   @Test
   public void postgresql_9_5_is_supported_with_upsert() throws Exception {
-    DatabaseMetaData metadata = newMetadata( 9, 5);
+    DatabaseMetaData metadata = newMetadata(9, 5);
     underTest.init(metadata);
 
     assertThat(underTest.supportsUpsert()).isTrue();
@@ -122,6 +122,27 @@ public class PostgreSqlTest {
     assertThatThrownBy(() -> underTest.supportsUpsert())
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("onInit() must be called before calling supportsUpsert()");
+  }
+
+  @Test
+  public void supportsNullNotDistinct_throws_ISE_if_not_initialized() {
+    assertThatThrownBy(() -> underTest.supportsNullNotDistinct())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("onInit() must be called before calling supportsNullNotDistinct()");
+  }
+
+  @Test
+  public void supportsNullNotDistinct_shouldReturnTrue_WhenPostgres15OrGreater() throws SQLException {
+    DatabaseMetaData metadata = newMetadata(15, 0);
+    underTest.init(metadata);
+    assertThat(underTest.supportsNullNotDistinct()).isTrue();
+  }
+
+  @Test
+  public void supportsNullNotDistinct_shouldReturnFalse_WhenPostgres14OrLesser() throws SQLException {
+    DatabaseMetaData metadata = newMetadata(14, 0);
+    underTest.init(metadata);
+    assertThat(underTest.supportsNullNotDistinct()).isFalse();
   }
 
   private DatabaseMetaData newMetadata(int dbMajorVersion, int dbMinorVersion) throws SQLException {

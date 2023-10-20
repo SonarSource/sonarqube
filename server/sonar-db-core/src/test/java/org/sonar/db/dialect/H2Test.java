@@ -80,4 +80,9 @@ public class H2Test {
   public void supportsUpsert_returns_false() {
     assertThat(underTest.supportsUpsert()).isFalse();
   }
+
+  @Test
+  public void supportsNullNotDistinct_returns_true() {
+    assertThat(underTest.supportsNullNotDistinct()).isTrue();
+  }
 }

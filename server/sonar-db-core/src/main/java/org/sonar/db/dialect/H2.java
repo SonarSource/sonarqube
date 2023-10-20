@@ -42,6 +42,11 @@ public class H2 extends AbstractDialect {
   }
 
   @Override
+  public boolean supportsNullNotDistinct() {
+    return true;
+  }
+
+  @Override
   public void init(DatabaseMetaData metaData) {
     LoggerFactory.getLogger(getClass()).warn("H2 database should be used for evaluation purpose only.");
   }

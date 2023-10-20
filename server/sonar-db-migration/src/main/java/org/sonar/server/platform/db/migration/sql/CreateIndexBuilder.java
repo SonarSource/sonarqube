@@ -21,6 +21,9 @@ package org.sonar.server.platform.db.migration.sql;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.def.ColumnDef;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -31,10 +34,16 @@ import static org.sonar.server.platform.db.migration.def.Validations.validateTab
 
 public class CreateIndexBuilder {
 
-  private final List<String> columns = new ArrayList<>();
+  private static final String COLUMN_CANNOT_BE_NULL = "Column cannot be null";
+  private final List<NullableColumn> columns = new ArrayList<>();
+  private final Dialect dialect;
   private String tableName;
   private String indexName;
   private boolean unique = false;
+
+  public CreateIndexBuilder(Dialect dialect) {
+    this.dialect = dialect;
+  }
 
   /**
    * Required name of table on which index is created
@@ -68,16 +77,27 @@ public class CreateIndexBuilder {
    * Other attributes are ignored.
    */
   public CreateIndexBuilder addColumn(ColumnDef column) {
-    columns.add(requireNonNull(column, "Column cannot be null").getName());
+    requireNonNull(column, COLUMN_CANNOT_BE_NULL);
+    columns.add(new NullableColumn(column.getName(), column.isNullable()));
     return this;
   }
 
   /**
    * Add a column to the scope of index. Order of calls to this
    * method is important and is kept as-is when creating the index.
+   *
+   * @deprecated use {@link CreateIndexBuilder#addColumn(String, boolean) instead}
    */
+  @Deprecated(since = "10.3")
   public CreateIndexBuilder addColumn(String column) {
-    columns.add(requireNonNull(column, "Column cannot be null"));
+    requireNonNull(column, COLUMN_CANNOT_BE_NULL);
+    columns.add(new NullableColumn(column, false));
+    return this;
+  }
+
+  public CreateIndexBuilder addColumn(String column, boolean isNullable) {
+    requireNonNull(column, COLUMN_CANNOT_BE_NULL);
+    columns.add(new NullableColumn(column, isNullable));
     return this;
   }
 
@@ -88,18 +108,46 @@ public class CreateIndexBuilder {
     return singletonList(createSqlStatement());
   }
 
+  /**
+   *
+   */
   private String createSqlStatement() {
     StringBuilder sql = new StringBuilder("CREATE ");
     if (unique) {
       sql.append("UNIQUE ");
+      if (dialect.supportsNullNotDistinct() && !PostgreSql.ID.equals(dialect.getId())) {
+        sql.append("NULLS NOT DISTINCT ");
+      }
     }
     sql.append("INDEX ");
     sql.append(indexName);
     sql.append(" ON ");
     sql.append(tableName);
     sql.append(" (");
-    sql.append(String.join(", ", columns));
+
+    /*
+     * Oldest versions of postgres don't support NULLS NOT DISTINCT, and their default behavior is NULLS DISTINCT.
+     * To make sure we apply the same constraints as other DB vendors, we use coalesce to default to empty string, to ensure unicity constraint.
+     * Other db vendors are not impacted since they fall back to NULLS NOT DISTINCT by default.
+     */
+    if (unique && !dialect.supportsNullNotDistinct() && PostgreSql.ID.equals(dialect.getId())) {
+      sql.append(columns.stream()
+        .map(c -> c.isNullable() ? "COALESCE(%s, '')".formatted(c.name()) : c.name())
+        .collect(Collectors.joining(", ")));
+    } else {
+      sql.append(columns.stream()
+        .map(NullableColumn::name)
+        .collect(Collectors.joining(", ")));
+    }
+
     sql.append(")");
+
+    if (unique && dialect.supportsNullNotDistinct() && PostgreSql.ID.equals(dialect.getId())) {
+      sql.append(" NULLS NOT DISTINCT");
+    }
     return sql.toString();
+  }
+
+  private record NullableColumn(String name, boolean isNullable) {
   }
 }

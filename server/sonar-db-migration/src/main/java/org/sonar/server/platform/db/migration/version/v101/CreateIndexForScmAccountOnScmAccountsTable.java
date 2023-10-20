@@ -46,9 +46,9 @@ class CreateIndexForScmAccountOnScmAccountsTable extends DdlChange {
     }
   }
 
-  private static void createIndex(Context context, Connection connection) {
+  private void createIndex(Context context, Connection connection) {
     if (!DatabaseUtils.indexExistsIgnoreCase(SCM_ACCOUNTS_TABLE_NAME, INDEX_NAME, connection)) {
-      context.execute(new CreateIndexBuilder()
+      context.execute(new CreateIndexBuilder(getDialect())
         .setTable(SCM_ACCOUNTS_TABLE_NAME)
         .setName(INDEX_NAME)
         .addColumn(SCM_ACCOUNT_COLUMN_NAME)

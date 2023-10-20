@@ -52,9 +52,9 @@ public class CreateUniqueIndexForReportSchedulesTable extends DdlChange {
     }
   }
 
-  private static void createUserUuidUniqueIndex(Context context, Connection connection) {
+  private void createUserUuidUniqueIndex(Context context, Connection connection) {
     if (!DatabaseUtils.indexExistsIgnoreCase(TABLE_NAME, INDEX_NAME, connection)) {
-      context.execute(new CreateIndexBuilder()
+      context.execute(new CreateIndexBuilder(getDialect())
         .setTable(TABLE_NAME)
         .setName(INDEX_NAME)
         .addColumn(COLUMN_NAME_PORTFOLIO)

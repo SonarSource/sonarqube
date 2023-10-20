@@ -279,9 +279,9 @@ public class GroupPermissionChangerIT {
   public void do_nothing_when_adding_permission_that_already_exists() {
     db.users().insertPermissionOnGroup(group, ADMINISTER_QUALITY_GATES);
 
-    apply(new GroupPermissionChange(Operation.ADD, ADMINISTER_QUALITY_GATES.getKey(), null, group, permissionService));
+    apply(new GroupPermissionChange(Operation.ADD, ADMINISTER_QUALITY_GATES.getKey(), null, group, permissionService), ADMINISTER_QUALITY_GATES.getKey());
 
-    assertThat(db.users().selectGroupPermissions(group, null)).containsOnly(ADMINISTER_QUALITY_GATES.getKey());
+    assertThat(db.users().selectGroupPermissions(group, null)).containsExactly(ADMINISTER_QUALITY_GATES.getKey());
   }
 
   @Test
@@ -295,7 +295,7 @@ public class GroupPermissionChangerIT {
           fail("a BadRequestException should have been thrown for permission " + perm);
         } catch (BadRequestException e) {
           assertThat(e).hasMessage("Invalid project permission '" + perm +
-            "'. Valid values are [" + StringUtils.join(permissionService.getAllProjectPermissions(), ", ") + "]");
+                                   "'. Valid values are [" + StringUtils.join(permissionService.getAllProjectPermissions(), ", ") + "]");
         }
       });
   }
@@ -311,7 +311,7 @@ public class GroupPermissionChangerIT {
           fail("a BadRequestException should have been thrown for permission " + perm);
         } catch (BadRequestException e) {
           assertThat(e).hasMessage("Invalid project permission '" + perm +
-            "'. Valid values are [" + StringUtils.join(permissionService.getAllProjectPermissions(), ", ") + "]");
+                                   "'. Valid values are [" + StringUtils.join(permissionService.getAllProjectPermissions(), ", ") + "]");
         }
       });
   }

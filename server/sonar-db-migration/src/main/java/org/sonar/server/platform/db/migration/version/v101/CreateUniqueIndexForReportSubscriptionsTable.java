@@ -30,7 +30,7 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 import static org.sonar.server.platform.db.migration.version.v101.AddReportSubscriptionsTable.TABLE_NAME;
 
 
-public class CreateUniqueIndexForReportSubscriptionsTable extends DdlChange{
+public class CreateUniqueIndexForReportSubscriptionsTable extends DdlChange {
 
   @VisibleForTesting
   static final String COLUMN_NAME_PORTFOLIO = "portfolio_uuid";
@@ -55,9 +55,9 @@ public class CreateUniqueIndexForReportSubscriptionsTable extends DdlChange{
     }
   }
 
-  private static void createUserUuidUniqueIndex(DdlChange.Context context, Connection connection) {
+  private void createUserUuidUniqueIndex(DdlChange.Context context, Connection connection) {
     if (!DatabaseUtils.indexExistsIgnoreCase(TABLE_NAME, INDEX_NAME, connection)) {
-      context.execute(new CreateIndexBuilder()
+      context.execute(new CreateIndexBuilder(getDialect())
         .setTable(TABLE_NAME)
         .setName(INDEX_NAME)
         .addColumn(COLUMN_NAME_PORTFOLIO)

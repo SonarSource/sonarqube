@@ -1607,8 +1607,8 @@ public class CreateInitialSchema extends DdlChange {
       .build());
   }
 
-  private static void addIndex(Context context, String table, String index, boolean unique, ColumnDef firstColumn, ColumnDef... otherColumns) {
-    CreateIndexBuilder builder = new CreateIndexBuilder()
+  private void addIndex(Context context, String table, String index, boolean unique, ColumnDef firstColumn, ColumnDef... otherColumns) {
+    CreateIndexBuilder builder = new CreateIndexBuilder(getDialect())
       .setTable(table)
       .setName(index)
       .setUnique(unique);

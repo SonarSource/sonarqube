@@ -33,9 +33,11 @@ public class PostgreSql extends AbstractDialect {
   static final List<String> INIT_STATEMENTS = List.of("SET standard_conforming_strings=on", "SET backslash_quote=off");
   private static final Version MIN_SUPPORTED_VERSION = Version.create(9, 3, 0);
   private static final Version MIN_UPSERT_VERSION = Version.create(9, 5, 0);
+  private static final Version MIN_NULL_NOT_DISTINCT_VERSION = Version.create(15, 0, 0);
 
   private boolean initialized = false;
   private boolean supportsUpsert = false;
+  private boolean supportsNullNotDistinct = false;
 
   public PostgreSql() {
     super(ID, "org.postgresql.Driver", "true", "false", "SELECT 1");
@@ -63,12 +65,19 @@ public class PostgreSql extends AbstractDialect {
   }
 
   @Override
+  public boolean supportsNullNotDistinct() {
+    checkState(initialized, "onInit() must be called before calling supportsNullNotDistinct()");
+    return supportsNullNotDistinct;
+  }
+
+  @Override
   public void init(DatabaseMetaData metaData) throws SQLException {
     checkState(!initialized, "onInit() must be called once");
 
     Version version = checkDbVersion(metaData, MIN_SUPPORTED_VERSION);
 
     supportsUpsert = version.compareTo(MIN_UPSERT_VERSION) >= 0;
+    supportsNullNotDistinct = version.compareTo(MIN_NULL_NOT_DISTINCT_VERSION) >= 0;
     if (!supportsUpsert) {
       LoggerFactory.getLogger(getClass()).warn("Upgrading PostgreSQL to {} or greater is recommended for better performances", MIN_UPSERT_VERSION);
     }

@@ -19,8 +19,14 @@
  */
 package org.sonar.server.platform.db.migration.sql;
 
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.List;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.sonar.db.dialect.H2;
+import org.sonar.db.dialect.Oracle;
+import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,57 +35,106 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVar
 public class CreateIndexBuilderTest {
   @Test
   public void create_index_on_single_column() {
-    verifySql(new CreateIndexBuilder()
-      .setTable("issues")
-      .setName("issues_key")
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build()),
+    verifySql(new CreateIndexBuilder(new Oracle())
+        .setTable("issues")
+        .setName("issues_key")
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build()),
       "CREATE INDEX issues_key ON issues (kee)");
   }
 
   @Test
   public void create_unique_index_on_single_column() {
-    verifySql(new CreateIndexBuilder()
-      .setTable("issues")
-      .setName("issues_key")
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
-      .setUnique(true),
+    verifySql(new CreateIndexBuilder(new Oracle())
+        .setTable("issues")
+        .setName("issues_key")
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
+        .setUnique(true),
       "CREATE UNIQUE INDEX issues_key ON issues (kee)");
   }
 
   @Test
   public void create_index_on_multiple_columns() {
-    verifySql(new CreateIndexBuilder()
-      .setTable("rules")
-      .setName("rules_key")
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("repository").setLimit(10).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("rule_key").setLimit(50).build()),
+    verifySql(new CreateIndexBuilder(new Oracle())
+        .setTable("rules")
+        .setName("rules_key")
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("repository").setLimit(10).build())
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("rule_key").setLimit(50).build()),
       "CREATE INDEX rules_key ON rules (repository, rule_key)");
   }
 
   @Test
   public void create_unique_index_on_multiple_columns() {
-    verifySql(new CreateIndexBuilder()
-      .setTable("rules")
-      .setName("rules_key")
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("repository").setLimit(10).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("rule_key").setLimit(50).build())
-      .setUnique(true),
+    verifySql(new CreateIndexBuilder(new Oracle())
+        .setTable("rules")
+        .setName("rules_key")
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("repository").setLimit(10).build())
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("rule_key").setLimit(50).build())
+        .setUnique(true),
       "CREATE UNIQUE INDEX rules_key ON rules (repository, rule_key)");
   }
 
   @Test
+  public void build_whenDialectH2_shouldHaveNullsNotDistinctClause() {
+    verifySql(new CreateIndexBuilder(new H2())
+        .setTable("rules")
+        .setName("rules_key")
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("repository").setLimit(10).build())
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("rule_key").setLimit(50).build())
+        .setUnique(true),
+      "CREATE UNIQUE NULLS NOT DISTINCT INDEX rules_key ON rules (repository, rule_key)");
+  }
+
+  @Test
+  public void build_whenDialectPostgres15_shouldHaveNullsNotDistinctClause() throws SQLException {
+    PostgreSql postgreSql = new PostgreSql();
+    getMetadataForDbVersion(15, 0);
+    postgreSql.init(getMetadataForDbVersion(15, 0));
+
+    verifySql(new CreateIndexBuilder(postgreSql)
+        .setTable("rules")
+        .setName("rules_key")
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("repository").setLimit(10).build())
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("rule_key").setLimit(50).build())
+        .setUnique(true),
+      "CREATE UNIQUE INDEX rules_key ON rules (repository, rule_key) NULLS NOT DISTINCT");
+  }
+
+  @Test
+  public void build_whenDialectPostgres14OrLower_shouldHaveCoalesceConditionsOnNullableColumns() throws SQLException {
+    PostgreSql postgreSql = new PostgreSql();
+    getMetadataForDbVersion(14, 0);
+    postgreSql.init(getMetadataForDbVersion(14, 0));
+
+    verifySql(new CreateIndexBuilder(postgreSql)
+        .setTable("rules")
+        .setName("rules_key")
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("repository").setLimit(10).build())
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("rule_key").setLimit(50).setIsNullable(false).build())
+        .setUnique(true),
+      "CREATE UNIQUE INDEX rules_key ON rules (COALESCE(repository, ''), rule_key)");
+  }
+
+  private static DatabaseMetaData getMetadataForDbVersion(int major, int minor) throws SQLException {
+    DatabaseMetaData databaseMetaData = Mockito.mock(DatabaseMetaData.class);
+    Mockito.when(databaseMetaData.getDatabaseMajorVersion()).thenReturn(major);
+    Mockito.when(databaseMetaData.getDatabaseMinorVersion()).thenReturn(minor);
+    return databaseMetaData;
+  }
+
+
+  @Test
   public void index_length_is_not_specified_on_big_varchar_columns() {
-    verifySql(new CreateIndexBuilder()
-      .setTable("issues")
-      .setName("issues_key")
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(4000).build()),
+    verifySql(new CreateIndexBuilder(new Oracle())
+        .setTable("issues")
+        .setName("issues_key")
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(4000).build()),
       "CREATE INDEX issues_key ON issues (kee)");
   }
 
   @Test
   public void throw_NPE_if_table_is_missing() {
     assertThatThrownBy(() -> {
-      new CreateIndexBuilder()
+      new CreateIndexBuilder(new Oracle())
         .setName("issues_key")
         .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
         .build();
@@ -91,7 +146,7 @@ public class CreateIndexBuilderTest {
   @Test
   public void throw_NPE_if_index_name_is_missing() {
     assertThatThrownBy(() -> {
-      new CreateIndexBuilder()
+      new CreateIndexBuilder(new H2())
         .setTable("issues")
         .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
         .build();
@@ -103,7 +158,7 @@ public class CreateIndexBuilderTest {
   @Test
   public void throw_IAE_if_columns_are_missing() {
     assertThatThrownBy(() -> {
-      new CreateIndexBuilder()
+      new CreateIndexBuilder(new H2())
         .setTable("issues")
         .setName("issues_key")
         .build();
@@ -115,7 +170,7 @@ public class CreateIndexBuilderTest {
   @Test
   public void throw_IAE_if_table_name_is_not_valid() {
     assertThatThrownBy(() -> {
-      new CreateIndexBuilder()
+      new CreateIndexBuilder(new H2())
         .setTable("(not valid)")
         .setName("issues_key")
         .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
@@ -128,7 +183,7 @@ public class CreateIndexBuilderTest {
   @Test
   public void throw_NPE_when_adding_null_column() {
     assertThatThrownBy(() -> {
-      new CreateIndexBuilder()
+      new CreateIndexBuilder(new H2())
         .setTable("issues")
         .setName("issues_key")
         .addColumn((String) null)

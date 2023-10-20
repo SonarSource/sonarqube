@@ -63,11 +63,16 @@ public interface Dialect {
   boolean supportsUpsert();
 
   /**
+   * Indicates whether the dialect supports the NULLS NOT DISTINCT clause in unique indexes
+   */
+  boolean supportsNullNotDistinct();
+
+  /**
    * This method is called when connecting for the first
    * time to the database.
    *
    * @throws MessageException when validation error must be displayed to user
-   * @throws SQLException in case of error to run the validations
+   * @throws SQLException     in case of error to run the validations
    */
   void init(DatabaseMetaData metaData) throws SQLException;
 }
