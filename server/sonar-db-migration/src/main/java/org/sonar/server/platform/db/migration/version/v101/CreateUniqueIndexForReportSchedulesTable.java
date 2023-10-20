@@ -57,8 +57,8 @@ public class CreateUniqueIndexForReportSchedulesTable extends DdlChange {
       context.execute(new CreateIndexBuilder(getDialect())
         .setTable(TABLE_NAME)
         .setName(INDEX_NAME)
-        .addColumn(COLUMN_NAME_PORTFOLIO)
-        .addColumn(COLUMN_NAME_BRANCH)
+        .addColumn(COLUMN_NAME_PORTFOLIO, true)
+        .addColumn(COLUMN_NAME_BRANCH, true)
         .setUnique(true)
         .build());
     }

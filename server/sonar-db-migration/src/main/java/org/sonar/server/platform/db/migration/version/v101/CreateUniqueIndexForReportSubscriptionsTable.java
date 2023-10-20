@@ -60,9 +60,9 @@ public class CreateUniqueIndexForReportSubscriptionsTable extends DdlChange {
       context.execute(new CreateIndexBuilder(getDialect())
         .setTable(TABLE_NAME)
         .setName(INDEX_NAME)
-        .addColumn(COLUMN_NAME_PORTFOLIO)
-        .addColumn(COLUMN_NAME_BRANCH)
-        .addColumn(COLUMN_NAME_USER)
+        .addColumn(COLUMN_NAME_PORTFOLIO, true)
+        .addColumn(COLUMN_NAME_BRANCH, true)
+        .addColumn(COLUMN_NAME_USER, false)
         .setUnique(true)
         .build());
     }

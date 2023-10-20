@@ -47,7 +47,7 @@ public class CreateIndexForRuleImpactChangesTable extends DdlChange {
       context.execute(new CreateIndexBuilder(getDialect())
         .setTable(TABLE_NAME)
         .setName(INDEX_NAME)
-        .addColumn("rule_change_uuid")
+        .addColumn("rule_change_uuid", false)
         .setUnique(false)
         .build());
     }

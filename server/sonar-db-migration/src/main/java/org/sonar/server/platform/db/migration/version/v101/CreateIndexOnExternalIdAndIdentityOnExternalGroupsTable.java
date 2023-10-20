@@ -52,8 +52,8 @@ public class CreateIndexOnExternalIdAndIdentityOnExternalGroupsTable extends Ddl
       context.execute(new CreateIndexBuilder(getDialect())
         .setTable(TABLE_NAME)
         .setName(INDEX_NAME)
-        .addColumn(EXTERNAL_IDENTITY_PROVIDER_COLUMN_NAME)
-        .addColumn(EXTERNAL_GROUP_ID_COLUMN_NAME)
+        .addColumn(EXTERNAL_IDENTITY_PROVIDER_COLUMN_NAME, false)
+        .addColumn(EXTERNAL_GROUP_ID_COLUMN_NAME, false)
         .setUnique(true)
         .build());
     }

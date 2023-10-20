@@ -53,7 +53,7 @@ public class CreateUniqueIndexForScimGroupsUuid extends DdlChange {
       context.execute(new CreateIndexBuilder(getDialect())
         .setTable(TABLE_NAME)
         .setName(INDEX_NAME)
-        .addColumn(COLUMN_NAME)
+        .addColumn(COLUMN_NAME, false)
         .setUnique(true)
         .build());
     }

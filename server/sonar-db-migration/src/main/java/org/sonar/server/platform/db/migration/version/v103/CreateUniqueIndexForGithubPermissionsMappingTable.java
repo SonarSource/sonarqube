@@ -52,8 +52,8 @@ public class CreateUniqueIndexForGithubPermissionsMappingTable extends DdlChange
       context.execute(new CreateIndexBuilder(getDialect())
         .setTable(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME)
         .setName(INDEX_NAME)
-        .addColumn(GITHUB_ROLE_COLUMN)
-        .addColumn(SONARQUBE_PERMISSION_COLUMN)
+        .addColumn(GITHUB_ROLE_COLUMN, false)
+        .addColumn(SONARQUBE_PERMISSION_COLUMN, false)
         .setUnique(true)
         .build());
     }

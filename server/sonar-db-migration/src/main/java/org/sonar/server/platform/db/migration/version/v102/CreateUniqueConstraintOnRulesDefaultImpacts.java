@@ -46,8 +46,8 @@ public class CreateUniqueConstraintOnRulesDefaultImpacts extends DdlChange {
       context.execute(new CreateIndexBuilder(getDialect())
         .setTable(TABLE_NAME)
         .setName(INDEX_NAME)
-        .addColumn("rule_uuid")
-        .addColumn("software_quality")
+        .addColumn("rule_uuid", false)
+        .addColumn("software_quality", false)
         .setUnique(true)
         .build());
     }

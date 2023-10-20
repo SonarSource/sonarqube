@@ -51,7 +51,7 @@ class CreateIndexForScmAccountOnScmAccountsTable extends DdlChange {
       context.execute(new CreateIndexBuilder(getDialect())
         .setTable(SCM_ACCOUNTS_TABLE_NAME)
         .setName(INDEX_NAME)
-        .addColumn(SCM_ACCOUNT_COLUMN_NAME)
+        .addColumn(SCM_ACCOUNT_COLUMN_NAME, false)
         .setUnique(false)
         .build());
     }

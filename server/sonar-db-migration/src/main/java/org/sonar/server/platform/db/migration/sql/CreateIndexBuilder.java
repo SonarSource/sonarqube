@@ -22,6 +22,7 @@ package org.sonar.server.platform.db.migration.sql;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.def.ColumnDef;
@@ -86,12 +87,10 @@ public class CreateIndexBuilder {
    * Add a column to the scope of index. Order of calls to this
    * method is important and is kept as-is when creating the index.
    *
-   * @deprecated use {@link CreateIndexBuilder#addColumn(String, boolean) instead}
    */
-  @Deprecated(since = "10.3")
   public CreateIndexBuilder addColumn(String column) {
     requireNonNull(column, COLUMN_CANNOT_BE_NULL);
-    columns.add(new NullableColumn(column, false));
+    columns.add(new NullableColumn(column, null));
     return this;
   }
 
@@ -104,8 +103,13 @@ public class CreateIndexBuilder {
   public List<String> build() {
     validateTableName(tableName);
     validateIndexName(indexName);
+    validateColumnsForUniqueIndex(unique, columns);
     checkArgument(!columns.isEmpty(), "at least one column must be specified");
     return singletonList(createSqlStatement());
+  }
+
+  private static void validateColumnsForUniqueIndex(boolean unique, List<NullableColumn> columns) {
+    checkArgument(!unique || columns.stream().allMatch(c->c.isNullable() != null), "Nullability of column should be provided for unique indexes");
   }
 
   /**
@@ -148,6 +152,6 @@ public class CreateIndexBuilder {
     return sql.toString();
   }
 
-  private record NullableColumn(String name, boolean isNullable) {
+  private record NullableColumn(String name, @Nullable Boolean isNullable) {
   }
 }

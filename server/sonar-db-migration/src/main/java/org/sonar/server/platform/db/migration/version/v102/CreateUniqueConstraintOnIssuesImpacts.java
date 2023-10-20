@@ -46,8 +46,8 @@ public class CreateUniqueConstraintOnIssuesImpacts extends DdlChange {
       context.execute(new CreateIndexBuilder(getDialect())
         .setTable(TABLE_NAME)
         .setName(INDEX_NAME)
-        .addColumn("issue_key")
-        .addColumn("software_quality")
+        .addColumn("issue_key", false)
+        .addColumn("software_quality", false)
         .setUnique(true)
         .build());
     }

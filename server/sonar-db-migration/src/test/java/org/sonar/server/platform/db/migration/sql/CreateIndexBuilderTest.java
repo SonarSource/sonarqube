@@ -156,6 +156,20 @@ public class CreateIndexBuilderTest {
   }
 
   @Test
+  public void build_shouldThrowException_whenUniqueAndColumnNullabilityIsNotProvided() {
+    assertThatThrownBy(() -> {
+      new CreateIndexBuilder(new H2())
+        .setTable("issues")
+        .setName("name")
+        .addColumn("columnName")
+        .setUnique(true)
+        .build();
+    })
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Nullability of column should be provided for unique indexes");
+  }
+
+  @Test
   public void throw_IAE_if_columns_are_missing() {
     assertThatThrownBy(() -> {
       new CreateIndexBuilder(new H2())
