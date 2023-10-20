@@ -26,8 +26,8 @@ import org.sonar.core.documentation.DocumentationLinkGenerator;
 
 public class RuntimeJavaVersion {
   private static final Logger LOG = LoggerFactory.getLogger(RuntimeJavaVersion.class);
-  public static final String LOG_MESSAGE = "SonarScanner will require Java 17 to run, starting in SonarQube 10.3";
-  public static final String WARNING_MESSAGE_TEMPLATE = "SonarScanner will require Java 17 to run, starting in SonarQube 10.3. Please upgrade the" +
+  public static final String LOG_MESSAGE = "SonarScanner will require Java 17 to run, starting in SonarQube 10.4";
+  public static final String WARNING_MESSAGE_TEMPLATE = "SonarScanner will require Java 17 to run, starting in SonarQube 10.4. Please upgrade the" +
     " version of Java that executes the scanner and refer to <a href=\"{}/\" target=\"_blank\">the documentation</a> if needed.";
 
   private final DocumentationLinkGenerator documentationLinkGenerator;
