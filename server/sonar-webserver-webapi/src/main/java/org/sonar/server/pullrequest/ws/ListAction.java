@@ -21,7 +21,6 @@ package org.sonar.server.pullrequest.ws;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Collections.singletonList;
-import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -40,7 +39,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -149,23 +147,24 @@ public class ListAction implements PullRequestWsAction {
         ProjectPullRequests.PullRequest.Builder builder = ProjectPullRequests.PullRequest.newBuilder();
         builder.setKey(branch.getKey());
 
-        DbProjectBranches.PullRequestData pullRequestData = requireNonNull(branch.getPullRequestData(),
-                "Pull request data should be available for branch type PULL_REQUEST");
-        builder.setBranch(pullRequestData.getBranch());
-        ofNullable(emptyToNull(pullRequestData.getUrl())).ifPresent(builder::setUrl);
-        ofNullable(emptyToNull(pullRequestData.getTitle())).ifPresent(builder::setTitle);
+        // The additional PR information might be optionally specified inside data attribute.
+        DbProjectBranches.PullRequestData pullRequestData = branch.getPullRequestData();
+        if (pullRequestData != null) {
+            builder.setBranch(pullRequestData.getBranch());
+            builder.setTarget(pullRequestData.getTarget());
+            ofNullable(emptyToNull(pullRequestData.getUrl())).ifPresent(builder::setUrl);
+            ofNullable(emptyToNull(pullRequestData.getTitle())).ifPresent(builder::setTitle);
+        } else {
+            builder.setBranch(branch.getKey());
+            builder.setTitle(branch.getKey());
+        }
 
         if (mergeBranch.isPresent()) {
             String mergeBranchKey = mergeBranch.get().getKey();
             builder.setBase(mergeBranchKey);
+            builder.setTarget(mergeBranchKey);
         } else {
             builder.setIsOrphan(true);
-        }
-
-        if (StringUtils.isNotEmpty(pullRequestData.getTarget())) {
-            builder.setTarget(pullRequestData.getTarget());
-        } else if (mergeBranch.isPresent()) {
-            builder.setTarget(mergeBranch.get().getKey());
         }
 
         ofNullable(analysisDate).ifPresent(builder::setAnalysisDate);
