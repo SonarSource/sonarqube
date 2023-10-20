@@ -56,7 +56,6 @@ import org.sonar.server.almsettings.ws.DevOpsProjectDescriptor;
 import org.sonar.server.almsettings.ws.GithubProjectCreationParameters;
 import org.sonar.server.almsettings.ws.GithubProjectCreator;
 import org.sonar.server.almsettings.ws.GithubProjectCreatorFactory;
-import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
@@ -72,6 +71,7 @@ import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.project.DefaultBranchNameResolver;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.project.Visibility;
+import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.lang.String.format;
@@ -86,6 +86,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -278,7 +279,8 @@ public class ReportSubmitterIT {
 
     underTest.submit(PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
 
-    assertLocalProjectWasCreated();
+    ProjectDto projectDto = assertLocalProjectWasCreated();
+    verify(permissionTemplateService).applyDefaultToNewComponent(any(DbSession.class), eq(projectDto), eq(userSession.getUuid()));
   }
 
   @Test
@@ -295,6 +297,7 @@ public class ReportSubmitterIT {
     underTest.submit(PROJECT_KEY, PROJECT_NAME, CHARACTERISTICS, IOUtils.toInputStream("{binary}", UTF_8));
 
     assertProjectWasCreatedWithBinding();
+    verify(permissionTemplateService, never()).applyDefaultToNewComponent(any(), any(), any());
   }
 
   @Test
@@ -310,6 +313,7 @@ public class ReportSubmitterIT {
     underTest.submit(PROJECT_KEY, PROJECT_NAME, CHARACTERISTICS, IOUtils.toInputStream("{binary}", UTF_8));
 
     assertProjectWasCreatedWithBinding();
+    verify(permissionTemplateService, never()).applyDefaultToNewComponent(any(), any(), any());
   }
 
   @Test
@@ -321,10 +325,11 @@ public class ReportSubmitterIT {
     mockSuccessfulPrepareSubmitCall();
 
     underTest.submit(PROJECT_KEY, PROJECT_NAME, CHARACTERISTICS, IOUtils.toInputStream("{binary}", UTF_8));
-    assertLocalProjectWasCreated();
+    ProjectDto projectDto = assertLocalProjectWasCreated();
+    verify(permissionTemplateService).applyDefaultToNewComponent(any(DbSession.class), eq(projectDto), eq(userSession.getUuid()));
   }
 
-  private void assertLocalProjectWasCreated() {
+  private ProjectDto assertLocalProjectWasCreated() {
     ProjectDto projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), PROJECT_KEY).orElseThrow();
     assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.SCANNER_API);
     assertThat(projectDto.getName()).isEqualTo(PROJECT_NAME);
@@ -333,6 +338,7 @@ public class ReportSubmitterIT {
     assertThat(branchDto.isMain()).isTrue();
 
     assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.getUuid())).isEmpty();
+    return projectDto;
   }
 
   @Test

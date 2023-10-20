@@ -22,20 +22,22 @@ package org.sonar.db.project;
 import java.util.Arrays;
 
 public enum CreationMethod {
-  UNKNOWN(Category.UNKNOWN, false),
-  LOCAL_API(Category.LOCAL, false),
-  LOCAL_BROWSER(Category.LOCAL, true),
-  ALM_IMPORT_API(Category.ALM_IMPORT, false),
-  ALM_IMPORT_BROWSER(Category.ALM_IMPORT, true),
-  SCANNER_API(Category.SCANNER, false),
-  SCANNER_API_DEVOPS_AUTO_CONFIG(Category.SCANNER, false);
+  UNKNOWN(Category.UNKNOWN, false, true),
+  LOCAL_API(Category.LOCAL, false, true),
+  LOCAL_BROWSER(Category.LOCAL, true, true),
+  ALM_IMPORT_API(Category.ALM_IMPORT, false, false),
+  ALM_IMPORT_BROWSER(Category.ALM_IMPORT, true, false),
+  SCANNER_API(Category.SCANNER, false, true),
+  SCANNER_API_DEVOPS_AUTO_CONFIG(Category.SCANNER, false, false);
 
-  private final boolean isCreatedViaBrowser;
   private final Category category;
+  private final boolean isCreatedViaBrowser;
+  private final boolean isLocal;
 
-  CreationMethod(Category category, boolean isCreatedViaBrowser) {
+  CreationMethod(Category category, boolean isCreatedViaBrowser, boolean isLocal) {
     this.isCreatedViaBrowser = isCreatedViaBrowser;
     this.category = category;
+    this.isLocal = isLocal;
   }
 
   public static CreationMethod getCreationMethod(Category category, boolean isBrowserCall) {
@@ -52,6 +54,10 @@ public enum CreationMethod {
 
   private Category getCategory() {
     return category;
+  }
+
+  public boolean isLocal() {
+    return isLocal;
   }
 
   public enum Category {UNKNOWN, LOCAL, ALM_IMPORT, SCANNER}

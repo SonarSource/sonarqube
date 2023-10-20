@@ -62,7 +62,7 @@ public class ProjectCreator {
       .userLogin(userSession.getLogin())
       .userUuid(userSession.getUuid())
       .mainBranchName(mainBranchName)
-      .isManaged(managedInstanceService.isInstanceExternallyManaged())
+      .isManaged(managedInstanceService.isInstanceExternallyManaged() && !creationMethod.isLocal())
       .creationMethod(creationMethod)
       .build();
     return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);

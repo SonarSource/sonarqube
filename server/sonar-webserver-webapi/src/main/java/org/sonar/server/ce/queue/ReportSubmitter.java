@@ -40,12 +40,12 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.almsettings.ws.DevOpsProjectCreator;
 import org.sonar.server.almsettings.ws.DevOpsProjectCreatorFactory;
-import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.permission.PermissionTemplateService;
+import org.sonar.server.project.ws.ProjectCreator;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
