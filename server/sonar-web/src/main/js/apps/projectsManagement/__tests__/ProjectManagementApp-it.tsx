@@ -73,7 +73,8 @@ const ui = {
   firstProjectActions: byRole('button', {
     name: 'projects_management.show_actions_for_x.Project 1',
   }),
-  projectActions: byRole('button', { name: /projects_management.show_actions_for_x/ }),
+  projectActions: (projectName: string) =>
+    byRole('button', { name: `projects_management.show_actions_for_x.${projectName}` }),
   editPermissions: byRole('link', { name: 'edit_permissions' }),
   showPermissions: byRole('link', { name: 'show_permissions' }),
   applyPermissionTemplate: byRole('button', { name: 'projects_role.apply_template' }),
@@ -86,7 +87,8 @@ const ui = {
   create: byRole('button', { name: 'create' }),
   close: byRole('button', { name: 'close' }),
   restore: byRole('button', { name: 'restore' }),
-  checkbox: byRole('checkbox'),
+  checkbox: (projectName: string) =>
+    byRole('checkbox', { name: `projects_management.select_project.${projectName}` }),
   deleteProjects: byRole('button', {
     name: /permission_templates.(select_to_delete|delete_selected)/,
   }),
@@ -224,15 +226,16 @@ it('should delete projects, but not Portfolios or Applications', async () => {
   renderProjectManagementApp();
   expect(await ui.deleteProjects.find()).toBeDisabled();
   expect(ui.row.getAll()).toHaveLength(5);
-  await user.click(ui.checkbox.get(ui.row.getAll()[1]));
-  await user.click(ui.checkbox.get(ui.row.getAll()[2]));
+  await user.click(ui.checkbox('Project 1').get());
+  await user.click(ui.checkbox('Project 2').get());
+
   expect(ui.deleteProjects.get()).toBeEnabled();
   await user.click(ui.deleteProjects.get());
   expect(ui.deleteDialog.get()).toBeInTheDocument();
   expect(
-    within(ui.deleteDialog.get()).getByText('projects_management.delete_selected_warning.2'),
+    ui.deleteDialog.byText('projects_management.delete_selected_warning.2').get(),
   ).toBeInTheDocument();
-  await user.click(ui.delete.get(ui.deleteDialog.get()));
+  await user.click(ui.deleteDialog.by(ui.delete).get());
   expect(ui.row.getAll()).toHaveLength(3);
 });
 
@@ -253,37 +256,37 @@ describe('Bulk permission templates', () => {
     await user.click(ui.bulkApplyButton.get());
     expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
     expect(
-      within(ui.bulkApplyDialog.get()).getByText(
-        'permission_templates.bulk_apply_permission_template.apply_to_selected.11',
-      ),
+      ui.bulkApplyDialog
+        .byText('permission_templates.bulk_apply_permission_template.apply_to_selected.11')
+        .get(),
     ).toBeInTheDocument();
 
-    await user.click(ui.apply.get(ui.bulkApplyDialog.get()));
+    await user.click(ui.bulkApplyDialog.by(ui.apply).get());
     expect(
       await screen.findByText('bulk apply permission template error message'),
     ).toBeInTheDocument();
     expect(ui.bulkApplyDialog.get()).toBeInTheDocument();
 
-    await user.click(ui.cancel.get(ui.bulkApplyDialog.get()));
+    await user.click(ui.bulkApplyDialog.by(ui.cancel).get());
 
     await user.click(ui.uncheckAll.get());
-    await user.click(ui.checkbox.get(projects[8]));
-    await user.click(ui.checkbox.get(projects[9]));
-    await user.click(ui.checkbox.get(projects[10]));
-    await user.click(ui.checkbox.get(projects[9])); // uncheck one
+    await user.click(ui.checkbox('Test 7').get());
+    await user.click(ui.checkbox('Test 8').get());
+    await user.click(ui.checkbox('Test 9').get());
+    await user.click(ui.checkbox('Test 8').get()); // uncheck one
     await user.click(ui.bulkApplyButton.get());
 
     expect(await ui.bulkApplyDialog.find()).toBeInTheDocument();
     expect(
-      within(ui.bulkApplyDialog.get()).getByText(
-        'permission_templates.bulk_apply_permission_template.apply_to_selected.2',
-      ),
+      ui.bulkApplyDialog
+        .byText('permission_templates.bulk_apply_permission_template.apply_to_selected.2')
+        .get(),
     ).toBeInTheDocument();
     await selectEvent.select(
-      ui.selectTemplate.get(ui.bulkApplyDialog.get()),
+      ui.bulkApplyDialog.by(ui.selectTemplate).get(),
       'Permission Template 2',
     );
-    await user.click(ui.apply.get(ui.bulkApplyDialog.get()));
+    await user.click(ui.bulkApplyDialog.by(ui.apply).get());
 
     expect(
       await within(ui.bulkApplyDialog.get()).findByText('projects_role.apply_template.success'),
@@ -312,7 +315,7 @@ describe('Bulk permission templates', () => {
         'permission_templates.bulk_apply_permission_template.apply_to_only_github_projects',
       ),
     ).toBeInTheDocument();
-    expect(ui.apply.get(ui.bulkApplyDialog.get())).toBeDisabled();
+    expect(ui.bulkApplyDialog.by(ui.apply).get()).toBeDisabled();
   });
 
   it('should not be applied to managed projects but to local project', async () => {
@@ -347,7 +350,7 @@ describe('Bulk permission templates', () => {
         /permission_templates.bulk_apply_permission_template.apply_to_github_projects.6/,
       ),
     ).toBeInTheDocument();
-    expect(ui.apply.get(ui.bulkApplyDialog.get())).toBeEnabled();
+    expect(ui.bulkApplyDialog.by(ui.apply).get()).toBeEnabled();
   });
 });
 
@@ -400,34 +403,32 @@ it('should create project', async () => {
   renderProjectManagementApp({}, { permissions: { global: [Permissions.ProjectCreation] } });
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
   await user.click(await ui.createProject.find());
-  let dialog = ui.createDialog.get();
-  expect(dialog).toBeInTheDocument();
-  expect(ui.privateVisibility.get(dialog)).not.toBeChecked();
-  await user.click(ui.privateVisibility.get(dialog));
-  expect(ui.privateVisibility.get(dialog)).not.toBeChecked();
-  await user.click(ui.cancel.get(dialog));
+  expect(ui.createDialog.get()).toBeInTheDocument();
+  expect(ui.createDialog.by(ui.privateVisibility).get()).not.toBeChecked();
+  await user.click(ui.createDialog.by(ui.privateVisibility).get());
+  expect(ui.createDialog.by(ui.privateVisibility).get()).not.toBeChecked();
+  await user.click(ui.createDialog.by(ui.cancel).get());
 
   expect(await ui.defaultVisibility.find()).toBeInTheDocument();
   expect(ui.defaultVisibility.get()).toHaveTextContent('—');
   await user.click(ui.editDefaultVisibility.get());
   expect(await ui.changeDefaultVisibilityDialog.find()).toBeInTheDocument();
   expect(ui.defaultVisibilityWarning.get()).not.toHaveTextContent('.github');
-  await user.click(ui.visibilityPublicRadio.get(ui.changeDefaultVisibilityDialog.get()));
-  await user.click(ui.submitDefaultVisibilityChange.get(ui.changeDefaultVisibilityDialog.get()));
+  await user.click(ui.changeDefaultVisibilityDialog.by(ui.visibilityPublicRadio).get());
+  await user.click(ui.changeDefaultVisibilityDialog.by(ui.submitDefaultVisibilityChange).get());
   expect(ui.changeDefaultVisibilityDialog.query()).not.toBeInTheDocument();
   expect(ui.defaultVisibility.get()).toHaveTextContent('visibility.public');
 
   await user.click(await ui.createProject.find());
-  dialog = ui.createDialog.get();
-  expect(dialog).toBeInTheDocument();
-  await user.click(ui.privateVisibility.get(dialog));
-  expect(ui.privateVisibility.get(dialog)).toBeChecked();
-  await user.type(ui.displayNameInput.get(dialog), 'a Test');
-  await user.type(ui.projectKeyInput.get(dialog), 'test');
-  expect(ui.mainBranchNameInput.get(dialog)).toHaveValue('main');
-  await user.click(ui.create.get(dialog));
-  expect(ui.successMsg.get(dialog)).toBeInTheDocument();
-  await user.click(ui.close.get(dialog));
+  expect(ui.createDialog.get()).toBeInTheDocument();
+  await user.click(ui.createDialog.by(ui.privateVisibility).get());
+  expect(ui.createDialog.by(ui.privateVisibility).get()).toBeChecked();
+  await user.type(ui.createDialog.by(ui.displayNameInput).get(), 'a Test');
+  await user.type(ui.createDialog.by(ui.projectKeyInput).get(), 'test');
+  expect(ui.createDialog.by(ui.mainBranchNameInput).get()).toHaveValue('main');
+  await user.click(ui.createDialog.by(ui.create).get());
+  expect(ui.createDialog.by(ui.successMsg).get()).toBeInTheDocument();
+  await user.click(ui.createDialog.by(ui.close).get());
   expect(ui.row.getAll()).toHaveLength(6);
   expect(ui.row.getAll()[1]).toHaveTextContent('qualifier.TRKa Testvisibility.privatetest—');
 });
@@ -451,13 +452,13 @@ it('should apply template for single object', async () => {
 
   expect(ui.applyTemplateDialog.get()).toBeInTheDocument();
   await selectEvent.select(
-    ui.selectTemplate.get(ui.applyTemplateDialog.get()),
+    ui.applyTemplateDialog.by(ui.selectTemplate).get(),
     'Permission Template 2',
   );
-  await user.click(ui.apply.get(ui.applyTemplateDialog.get()));
+  await user.click(ui.applyTemplateDialog.by(ui.apply).get());
 
   expect(
-    await within(ui.applyTemplateDialog.get()).findByText('projects_role.apply_template.success'),
+    await ui.applyTemplateDialog.byText('projects_role.apply_template.success').find(),
   ).toBeInTheDocument();
 });
 
@@ -469,7 +470,7 @@ it('should restore access to admin', async () => {
   expect(ui.editPermissions.query()).not.toBeInTheDocument();
   await user.click(ui.restoreAccess.get());
   expect(ui.restoreAccessDialog.get()).toBeInTheDocument();
-  await act(() => user.click(ui.restore.get(ui.restoreAccessDialog.get())));
+  await act(() => user.click(ui.restoreAccessDialog.by(ui.restore).get()));
   expect(ui.restoreAccessDialog.query()).not.toBeInTheDocument();
   await act(async () => user.click(await ui.firstProjectActions.find()));
   expect(ui.restoreAccess.query()).not.toBeInTheDocument();
@@ -485,15 +486,14 @@ it('should restore access for github project', async () => {
     { featureList: [Feature.GithubProvisioning] },
   );
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
-  const rows = ui.row.getAll();
-  await act(async () => user.click(await ui.projectActions.find(rows[4])));
+  await act(async () => user.click(await ui.projectActions('Project 4').find()));
   expect(await ui.restoreAccess.find()).toBeInTheDocument();
   expect(ui.showPermissions.query()).not.toBeInTheDocument();
   await user.click(ui.restoreAccess.get());
   expect(ui.restoreAccessDialog.get()).toBeInTheDocument();
-  await act(() => user.click(ui.restore.get(ui.restoreAccessDialog.get())));
+  await act(() => user.click(ui.restoreAccessDialog.by(ui.restore).get()));
   expect(ui.restoreAccessDialog.query()).not.toBeInTheDocument();
-  await act(async () => user.click(await ui.projectActions.find(rows[4])));
+  await act(async () => user.click(await ui.projectActions('Project 4').find()));
   expect(ui.restoreAccess.query()).not.toBeInTheDocument();
   expect(ui.showPermissions.get()).toBeInTheDocument();
 });
@@ -507,10 +507,9 @@ it('should not allow to restore access on github project for GH user', async () 
     { featureList: [Feature.GithubProvisioning] },
   );
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
-  const rows = ui.row.getAll();
-  await act(async () => user.click(await ui.projectActions.find(rows[4])));
+  await act(async () => user.click(await ui.projectActions('Project 4').find()));
   expect(ui.restoreAccess.query()).not.toBeInTheDocument();
-  await act(async () => user.click(await ui.projectActions.find(rows[1])));
+  await act(async () => user.click(await ui.projectActions('Project 1').find()));
   expect(ui.restoreAccess.get()).toBeInTheDocument();
 });
 
@@ -527,17 +526,16 @@ it('should not apply permissions for github projects', async () => {
   const user = userEvent.setup();
   renderProjectManagementApp();
   await waitFor(() => expect(ui.row.getAll()).toHaveLength(5));
-  const rows = ui.row.getAll();
-  expect(ui.checkbox.get(rows[4])).not.toHaveAttribute('aria-disabled');
-  expect(ui.checkbox.get(rows[1])).not.toHaveAttribute('aria-disabled');
+  expect(ui.checkbox('Project 4').get()).not.toHaveAttribute('aria-disabled');
+  expect(ui.checkbox('Project 1').get()).not.toHaveAttribute('aria-disabled');
   await user.click(ui.checkAll.get());
-  expect(ui.checkbox.get(rows[4])).toBeChecked();
-  expect(ui.checkbox.get(rows[1])).toBeChecked();
-  await act(() => user.click(ui.projectActions.get(rows[4])));
+  expect(ui.checkbox('Project 4').get()).toBeChecked();
+  expect(ui.checkbox('Project 1').get()).toBeChecked();
+  await act(() => user.click(ui.projectActions('Project 4').get()));
   expect(ui.applyPermissionTemplate.query()).not.toBeInTheDocument();
   expect(ui.editPermissions.query()).not.toBeInTheDocument();
   expect(ui.showPermissions.get()).toBeInTheDocument();
-  await act(() => user.click(ui.projectActions.get(rows[1])));
+  await act(() => user.click(ui.projectActions('Project 1').get()));
   expect(ui.applyPermissionTemplate.get()).toBeInTheDocument();
   expect(ui.editPermissions.get()).toBeInTheDocument();
   expect(ui.showPermissions.query()).not.toBeInTheDocument();

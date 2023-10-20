@@ -52,6 +52,7 @@ export interface ReactTestingQuery {
   byLabelText(...args: Parameters<BoundFunction<GetByText>>): ReactTestingQuery;
   byTestId(...args: Parameters<BoundFunction<GetByBoundAttribute>>): ReactTestingQuery;
   byDisplayValue(...args: Parameters<BoundFunction<GetByBoundAttribute>>): ReactTestingQuery;
+  by(selector: ReactTestingQuery): ReactTestingQuery;
 
   getAt<T extends HTMLElement = HTMLElement>(index: number, container?: HTMLElement): T;
   findAt<T extends HTMLElement = HTMLElement>(
@@ -102,28 +103,32 @@ abstract class ChainingQuery implements ReactTestingQuery {
     return null;
   }
 
+  by(selector: ReactTestingQuery): ReactTestingQuery {
+    return new ChainDispatch(this, selector);
+  }
+
   byText(...args: Parameters<BoundFunction<GetByText>>): ReactTestingQuery {
-    return new ChainDispatch(this, new DispatchByText(args));
+    return this.by(new DispatchByText(args));
   }
 
   byRole(...args: Parameters<BoundFunction<GetByRole>>): ReactTestingQuery {
-    return new ChainDispatch(this, new DispatchByRole(args));
+    return this.by(new DispatchByRole(args));
   }
 
   byPlaceholderText(...args: Parameters<BoundFunction<GetByBoundAttribute>>): ReactTestingQuery {
-    return new ChainDispatch(this, new DispatchByPlaceholderText(args));
+    return this.by(new DispatchByPlaceholderText(args));
   }
 
   byLabelText(...args: Parameters<BoundFunction<GetByText>>): ReactTestingQuery {
-    return new ChainDispatch(this, new DispatchByLabelText(args));
+    return this.by(new DispatchByLabelText(args));
   }
 
   byTestId(...args: Parameters<BoundFunction<GetByBoundAttribute>>): ReactTestingQuery {
-    return new ChainDispatch(this, new DispatchByTestId(args));
+    return this.by(new DispatchByTestId(args));
   }
 
   byDisplayValue(...args: Parameters<BoundFunction<GetByBoundAttribute>>): ReactTestingQuery {
-    return new ChainDispatch(this, new DispatchByDisplayValue(args));
+    return this.by(new DispatchByDisplayValue(args));
   }
 }
 
