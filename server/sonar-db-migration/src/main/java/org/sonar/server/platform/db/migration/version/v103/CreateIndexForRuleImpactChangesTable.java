@@ -42,9 +42,9 @@ public class CreateIndexForRuleImpactChangesTable extends DdlChange {
     }
   }
 
-  private static void createUniqueIndex(Context context, Connection connection) {
+  private void createUniqueIndex(Context context, Connection connection) {
     if (!DatabaseUtils.indexExistsIgnoreCase(TABLE_NAME, INDEX_NAME, connection)) {
-      context.execute(new CreateIndexBuilder()
+      context.execute(new CreateIndexBuilder(getDialect())
         .setTable(TABLE_NAME)
         .setName(INDEX_NAME)
         .addColumn("rule_change_uuid")

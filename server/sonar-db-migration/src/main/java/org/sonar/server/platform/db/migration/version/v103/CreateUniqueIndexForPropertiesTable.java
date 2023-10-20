@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.db.migration.version.v103;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
@@ -27,35 +26,28 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.GITHUB_PERMISSIONS_MAPPING_TABLE_NAME;
-import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.GITHUB_ROLE_COLUMN;
-import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.SONARQUBE_PERMISSION_COLUMN;
+public class CreateUniqueIndexForPropertiesTable extends DdlChange {
 
-public class CreateUniqueIndexForGithubPermissionsMappingTable extends DdlChange {
+  public static final String INDEX_NAME = "uniq_properties";
+  public static final String PROPERTIES_TABLE_NAME = "properties";
 
-  @VisibleForTesting
-  static final String INDEX_NAME = "uniq_github_perm_mappings";
-
-  public CreateUniqueIndexForGithubPermissionsMappingTable(Database db) {
+  public CreateUniqueIndexForPropertiesTable(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
     try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      createUniqueIndex(context, connection);
-    }
-  }
-
-  private void createUniqueIndex(Context context, Connection connection) {
-    if (!DatabaseUtils.indexExistsIgnoreCase(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME, INDEX_NAME, connection)) {
-      context.execute(new CreateIndexBuilder(getDialect())
-        .setTable(GITHUB_PERMISSIONS_MAPPING_TABLE_NAME)
-        .setName(INDEX_NAME)
-        .addColumn(GITHUB_ROLE_COLUMN)
-        .addColumn(SONARQUBE_PERMISSION_COLUMN)
-        .setUnique(true)
-        .build());
+      if (!DatabaseUtils.indexExistsIgnoreCase(PROPERTIES_TABLE_NAME, INDEX_NAME, connection)) {
+        context.execute(new CreateIndexBuilder(getDialect())
+          .setTable(PROPERTIES_TABLE_NAME)
+          .setName(INDEX_NAME)
+          .addColumn("prop_key", false)
+          .addColumn("entity_uuid", true)
+          .addColumn("user_uuid", true)
+          .setUnique(true)
+          .build());
+      }
     }
   }
 }

@@ -22,7 +22,9 @@ package org.sonar.db.property;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -67,6 +69,7 @@ import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 
 @RunWith(DataProviderRunner.class)
 public class PropertiesDaoIT {
+
   private static final String VALUE_SIZE_4000 = String.format("%1$4000.4000s", "*");
   private static final String VALUE_SIZE_4001 = VALUE_SIZE_4000 + "P";
   private static final long INITIAL_DATE = 1_444_000L;
@@ -514,7 +517,7 @@ public class PropertiesDaoIT {
 
   @DataProvider
   public static Object[][] allValuesForSelect() {
-    return new Object[][] {
+    return new Object[][]{
       {null, ""},
       {"", ""},
       {"some value", "some value"},
@@ -820,7 +823,7 @@ public class PropertiesDaoIT {
 
   @DataProvider
   public static Object[][] valueUpdatesDataProvider() {
-    return new Object[][] {
+    return new Object[][]{
       {null, null},
       {null, ""},
       {null, "some value"},
@@ -996,6 +999,35 @@ public class PropertiesDaoIT {
       .isInstanceOf(IllegalArgumentException.class);
   }
 
+  @Test
+  public void insert_shouldFail_whenPropertyAlreadyExists() {
+    PropertiesMapper mapper = db.getSession().getSqlSession().getMapper(PropertiesMapper.class);
+
+    mapper.insertAsText("uuid1", "key", null, null, "value", new Date().getTime());
+    assertThatThrownBy(() -> {
+      mapper.insertAsText("uuid2", "key", null, null, "value", new Date().getTime());
+    }).hasCauseInstanceOf(SQLException.class);
+  }
+
+  @Test
+  public void insert_shouldFail_whenPropertyAlreadyExistsOnKeyAndUser() {
+    PropertiesMapper mapper = db.getSession().getSqlSession().getMapper(PropertiesMapper.class);
+
+    mapper.insertAsText("uuid3", "key", "user", null, "value", new Date().getTime());
+    assertThatThrownBy(() -> mapper.insertAsText("uuid4", "key", "user", null, "value", new Date().getTime()))
+      .hasCauseInstanceOf(SQLException.class);
+  }
+
+  @Test
+  public void insert_shouldFail_whenPropertyAlreadyExistsOnKeyAndUserAndEntity() {
+    PropertiesMapper mapper = db.getSession().getSqlSession().getMapper(PropertiesMapper.class);
+
+    mapper.insertAsText("uuid5", "key", "user", "entity", "value", new Date().getTime());
+    assertThatThrownBy(() -> mapper.insertAsText("uuid6", "key", "user", "entity", "value", new Date().getTime()))
+      .hasCauseInstanceOf(SQLException.class);
+
+  }
+
   @CheckForNull
   private PropertyDto findByKey(List<PropertyDto> properties, String key) {
     for (PropertyDto property : properties) {
@@ -1030,9 +1062,9 @@ public class PropertiesDaoIT {
     }
 
     return (String) db.selectFirst(session, "select uuid as \"uuid\" from properties" +
-      " where prop_key='" + key + "'" +
-      " and user_uuid" + (userUuid == null ? " is null" : "='" + userUuid + "'") +
-      " and entity_uuid" + (entityUuid == null ? " is null" : "='" + entityUuid + "'")).get("uuid");
+                                            " where prop_key='" + key + "'" +
+                                            " and user_uuid" + (userUuid == null ? " is null" : "='" + userUuid + "'") +
+                                            " and entity_uuid" + (entityUuid == null ? " is null" : "='" + entityUuid + "'")).get("uuid");
   }
 
   private ProjectDto insertPrivateProject(String projectKey) {

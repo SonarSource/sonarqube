@@ -53,6 +53,8 @@ public class DbVersion103 implements DbVersion {
       .add(10_3_009, "Create table 'rule_changes'", CreateRuleChangesTable.class)
       .add(10_3_010, "Create table 'rule_impact_changes", CreateRuleImpactChangesTable.class)
       .add(10_3_011, "Create index for 'rule_impact_changes", CreateIndexForRuleImpactChangesTable.class)
-      .add(10_3_012, "Add 'sq_version' column in 'qprofile_changes' table", AddSqVersionColumnInQprofileChangesTable.class);
+      .add(10_3_012, "Add 'sq_version' column in 'qprofile_changes' table", AddSqVersionColumnInQprofileChangesTable.class)
+      .add(10_3_013, "Deduplicate potential records in 'properties' table", DeduplicatePropertiesTable.class)
+      .add(10_3_014, "Create unique index to 'properties' table", CreateUniqueIndexForPropertiesTable.class);
   }
 }
