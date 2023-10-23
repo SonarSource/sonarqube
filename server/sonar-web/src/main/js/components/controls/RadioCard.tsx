@@ -20,6 +20,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { KeyboardKeys } from '../../helpers/keycodes';
 import { translate } from '../../helpers/l10n';
 import RecommendedIcon from '../icons/RecommendedIcon';
 import './Radio.css';
@@ -55,6 +56,14 @@ export default function RadioCard(props: Props) {
     noRadio = false,
   } = props;
   const isActionable = Boolean(onClick);
+  const clickHandler = isActionable && !disabled && !selected ? onClick : undefined;
+
+  const keyPressHandler = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.code === KeyboardKeys.Enter) {
+      clickHandler?.();
+    }
+  };
+
   return (
     <div
       aria-checked={selected}
@@ -68,7 +77,8 @@ export default function RadioCard(props: Props) {
         },
         className,
       )}
-      onClick={isActionable && !disabled && !selected ? onClick : undefined}
+      onClick={clickHandler}
+      onKeyPress={keyPressHandler}
       role="radio"
       aria-label={label}
       aria-disabled={disabled}
