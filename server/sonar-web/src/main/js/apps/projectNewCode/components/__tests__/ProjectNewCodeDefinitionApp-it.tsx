@@ -19,7 +19,7 @@
  */
 import { act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { first, last } from 'lodash';
+import { last } from 'lodash';
 import selectEvent from 'react-select-event';
 import { MessageTypes } from '../../../../api/messages';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';

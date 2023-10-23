@@ -17,15 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { ButtonPrimary, Modal, PageContentFontWrapper, Spinner } from 'design-system';
 import { noop } from 'lodash';
 import * as React from 'react';
 import { setNewCodeDefinition } from '../../../api/newCodeDefinition';
-import Modal from '../../../components/controls/Modal';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
 import NewCodeDefinitionDaysOption from '../../../components/new-code-definition/NewCodeDefinitionDaysOption';
 import NewCodeDefinitionPreviousVersionOption from '../../../components/new-code-definition/NewCodeDefinitionPreviousVersionOption';
 import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
-import Spinner from '../../../components/ui/Spinner';
 import { toISO8601WithOffsetString } from '../../../helpers/dates';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getNumberOfDaysDefaultValue } from '../../../helpers/new-code-definition';
@@ -53,6 +52,8 @@ interface State {
   saving: boolean;
   selectedNewCodeDefinitionType?: NewCodeDefinitionType;
 }
+
+const FORM_ID = 'branch-new-code-definition-setting-form';
 
 export default class BranchNewCodeDefinitionSettingModal extends React.PureComponent<Props, State> {
   mounted = false;
@@ -162,10 +163,9 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
     const { branch, branchList } = this.props;
     const { analysis, days, isChanged, referenceBranch, saving, selectedNewCodeDefinitionType } =
       this.state;
+    const currentSetting = branch.newCodePeriod?.type;
 
     const header = translateWithParameters('baseline.new_code_period_for_branch_x', branch.name);
-
-    const currentSetting = branch.newCodePeriod?.type;
 
     const isValid = validateSetting({
       numberOfDays: days,
@@ -173,59 +173,63 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
       selectedNewCodeDefinitionType,
     });
 
-    return (
-      <Modal contentLabel={header} onRequestClose={this.requestClose} size="large">
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <form onSubmit={this.handleSubmit}>
-          <div className="modal-body modal-container branch-baseline-setting-modal">
-            <p className="sw-mb-3">{translate('baseline.new_code_period_for_branch_x.question')}</p>
-            <div className="display-flex-column huge-spacer-bottom sw-gap-4" role="radiogroup">
-              <NewCodeDefinitionPreviousVersionOption
-                isDefault={false}
-                onSelect={this.handleSelectSetting}
-                selected={selectedNewCodeDefinitionType === NewCodeDefinitionType.PreviousVersion}
+    const formBody = (
+      <form id={FORM_ID} onSubmit={this.handleSubmit}>
+        <PageContentFontWrapper className="sw-body-sm">
+          <p className="sw-mb-3">{translate('baseline.new_code_period_for_branch_x.question')}</p>
+          <div className="sw-flex sw-flex-col sw-mb-10 sw-gap-4" role="radiogroup">
+            <NewCodeDefinitionPreviousVersionOption
+              isDefault={false}
+              onSelect={this.handleSelectSetting}
+              selected={selectedNewCodeDefinitionType === NewCodeDefinitionType.PreviousVersion}
+            />
+            <NewCodeDefinitionDaysOption
+              days={days}
+              isChanged={isChanged}
+              isValid={isValid}
+              onChangeDays={this.handleSelectDays}
+              onSelect={this.handleSelectSetting}
+              selected={selectedNewCodeDefinitionType === NewCodeDefinitionType.NumberOfDays}
+              settingLevel={NewCodeDefinitionLevels.Branch}
+            />
+            <NewCodeDefinitionSettingReferenceBranch
+              branchList={branchList.map(this.branchToOption)}
+              onChangeReferenceBranch={this.handleSelectReferenceBranch}
+              onSelect={this.handleSelectSetting}
+              referenceBranch={referenceBranch}
+              selected={selectedNewCodeDefinitionType === NewCodeDefinitionType.ReferenceBranch}
+              settingLevel={NewCodeDefinitionLevels.Branch}
+            />
+            {currentSetting === NewCodeDefinitionType.SpecificAnalysis && (
+              <NewCodeDefinitionSettingAnalysis
+                onSelect={noop}
+                analysis={analysis}
+                branch={branch.name}
+                component={this.props.component}
+                selected={selectedNewCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis}
               />
-              <NewCodeDefinitionDaysOption
-                days={days}
-                isChanged={isChanged}
-                isValid={isValid}
-                onChangeDays={this.handleSelectDays}
-                onSelect={this.handleSelectSetting}
-                selected={selectedNewCodeDefinitionType === NewCodeDefinitionType.NumberOfDays}
-                settingLevel={NewCodeDefinitionLevels.Branch}
-              />
-              <NewCodeDefinitionSettingReferenceBranch
-                branchList={branchList.map(this.branchToOption)}
-                onChangeReferenceBranch={this.handleSelectReferenceBranch}
-                onSelect={this.handleSelectSetting}
-                referenceBranch={referenceBranch}
-                selected={selectedNewCodeDefinitionType === NewCodeDefinitionType.ReferenceBranch}
-                settingLevel={NewCodeDefinitionLevels.Branch}
-              />
-              {currentSetting === NewCodeDefinitionType.SpecificAnalysis && (
-                <NewCodeDefinitionSettingAnalysis
-                  onSelect={noop}
-                  analysis={analysis}
-                  branch={branch.name}
-                  component={this.props.component}
-                  selected={
-                    selectedNewCodeDefinitionType === NewCodeDefinitionType.SpecificAnalysis
-                  }
-                />
-              )}
-            </div>
+            )}
           </div>
-          <footer className="modal-foot">
-            <Spinner className="spacer-right" loading={saving} />
-            <SubmitButton disabled={!isChanged || saving || !isValid}>
+        </PageContentFontWrapper>
+      </form>
+    );
+
+    return (
+      <Modal
+        isLarge
+        headerTitle={header}
+        onClose={this.requestClose}
+        body={formBody}
+        primaryButton={
+          <>
+            <Spinner loading={saving} />
+            <ButtonPrimary form={FORM_ID} disabled={!isChanged || saving || !isValid} type="submit">
               {translate('save')}
-            </SubmitButton>
-            <ResetButtonLink onClick={this.props.onClose}>{translate('cancel')}</ResetButtonLink>
-          </footer>
-        </form>
-      </Modal>
+            </ButtonPrimary>
+          </>
+        }
+        secondaryButtonLabel={translate('cancel')}
+      />
     );
   }
 }
