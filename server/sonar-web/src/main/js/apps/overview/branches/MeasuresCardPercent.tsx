@@ -96,7 +96,7 @@ export default function MeasuresCardPercent(
     errorRequireLabel = intl.formatMessage(
       { id: 'overview.quality_gate.required_x' },
       {
-        operator: failedCondition.op === 'GT' ? '<=' : '>=',
+        operator: failedCondition.op === 'GT' ? '≤' : '≥',
         value: formatMeasure(
           failedCondition.level === 'ERROR' ? failedCondition.error : failedCondition.warning,
           MetricType.Percent,
