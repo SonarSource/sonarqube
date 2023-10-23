@@ -50,7 +50,7 @@ const CONDITIONS_TO_SHOW = [
 export function SonarLintPromotion({ currentUser, qgConditions }: SonarLintPromotionProps) {
   const showMessage = qgConditions?.some(
     (qgCondition) =>
-      CONDITIONS_TO_SHOW.includes(qgCondition.metric as MetricKey) && qgCondition.level === 'ERROR',
+      CONDITIONS_TO_SHOW.includes(qgCondition.metric) && qgCondition.level === 'ERROR',
   );
   if (!showMessage || currentUser.usingSonarLintConnectedMode) {
     return null;
