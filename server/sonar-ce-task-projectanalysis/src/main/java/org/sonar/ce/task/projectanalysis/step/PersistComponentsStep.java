@@ -30,7 +30,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.BranchPersister;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -60,18 +59,15 @@ public class PersistComponentsStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final System2 system2;
   private final MutableDisabledComponentsHolder disabledComponentsHolder;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final BranchPersister branchPersister;
   private final ProjectPersister projectPersister;
 
   public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder, System2 system2,
-    MutableDisabledComponentsHolder disabledComponentsHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    BranchPersister branchPersister, ProjectPersister projectPersister) {
+    MutableDisabledComponentsHolder disabledComponentsHolder, BranchPersister branchPersister, ProjectPersister projectPersister) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.system2 = system2;
     this.disabledComponentsHolder = disabledComponentsHolder;
-    this.analysisMetadataHolder = analysisMetadataHolder;
     this.branchPersister = branchPersister;
     this.projectPersister = projectPersister;
   }

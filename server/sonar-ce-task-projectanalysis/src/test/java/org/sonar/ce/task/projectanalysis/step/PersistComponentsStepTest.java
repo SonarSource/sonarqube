@@ -21,7 +21,6 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.BranchPersister;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.MutableDisabledComponentsHolder;
@@ -55,16 +54,13 @@ public class PersistComponentsStepTest {
     doReturn(componentDao).when(dbClient).componentDao();
     doReturn(emptyList()).when(componentDao).selectByBranchUuid(eq(projectKey), any(DbSession.class));
 
-    assertThatThrownBy(() -> {
-      new PersistComponentsStep(
-        dbClient,
-        treeRootHolder,
-        System2.INSTANCE,
-        mock(MutableDisabledComponentsHolder.class),
-        mock(AnalysisMetadataHolder.class),
-        mock(BranchPersister.class),
-        mock(ProjectPersister.class)).execute(new TestComputationStepContext());
-    })
+    assertThatThrownBy(() -> new PersistComponentsStep(
+      dbClient,
+      treeRootHolder,
+      System2.INSTANCE,
+      mock(MutableDisabledComponentsHolder.class),
+      mock(BranchPersister.class),
+      mock(ProjectPersister.class)).execute(new TestComputationStepContext()))
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("The project '" + projectKey + "' is not stored in the database, during a project analysis");
   }

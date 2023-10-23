@@ -86,7 +86,7 @@ public class ReportPersistComponentsStepIT extends BaseStepTest {
 
     BranchPersister branchPersister = mock(BranchPersister.class);
     ProjectPersister projectPersister = mock(ProjectPersister.class);
-    underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister, projectPersister);
+    underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, branchPersister, projectPersister);
   }
 
   @Override

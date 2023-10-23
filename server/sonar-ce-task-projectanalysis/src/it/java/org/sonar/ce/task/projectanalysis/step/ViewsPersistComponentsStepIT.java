@@ -30,10 +30,8 @@ import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.BranchPersister;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.ce.task.projectanalysis.component.MutableDisabledComponentsHolder;
 import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.ProjectViewAttributes;
@@ -61,7 +59,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.ViewAttributes.Type.APPLICATION;
 import static org.sonar.ce.task.projectanalysis.component.ViewAttributes.Type.PORTFOLIO;
 import static org.sonar.ce.task.projectanalysis.component.ViewsComponent.builder;
-import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
@@ -89,8 +86,6 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-  @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
   private final System2 system2 = mock(System2.class);
   private final DbClient dbClient = dbTester.getDbClient();
@@ -103,10 +98,9 @@ public class ViewsPersistComponentsStepIT extends BaseStepTest {
     now = DATE_FORMAT.parse("2015-06-02");
     when(system2.now()).thenReturn(now.getTime());
 
-    analysisMetadataHolder.setBranch(new DefaultBranchImpl(DEFAULT_MAIN_BRANCH_NAME));
     BranchPersister branchPersister = mock(BranchPersister.class);
     ProjectPersister projectPersister = mock(ProjectPersister.class);
-    underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister, projectPersister);
+    underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, branchPersister, projectPersister);
   }
 
   @Override
