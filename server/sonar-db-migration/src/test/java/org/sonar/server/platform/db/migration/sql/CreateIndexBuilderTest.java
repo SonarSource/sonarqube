@@ -133,76 +133,63 @@ public class CreateIndexBuilderTest {
 
   @Test
   public void throw_NPE_if_table_is_missing() {
-    assertThatThrownBy(() -> {
-      new CreateIndexBuilder(new Oracle())
-        .setName("issues_key")
-        .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
-        .build();
-    })
+    CreateIndexBuilder builder = new CreateIndexBuilder(new Oracle())
+      .setName("issues_key")
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build());
+    assertThatThrownBy(builder::build)
       .isInstanceOf(NullPointerException.class)
       .hasMessage("Table name can't be null");
   }
 
   @Test
   public void throw_NPE_if_index_name_is_missing() {
-    assertThatThrownBy(() -> {
-      new CreateIndexBuilder(new H2())
-        .setTable("issues")
-        .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
-        .build();
-    })
+    CreateIndexBuilder builder = new CreateIndexBuilder(new H2())
+      .setTable("issues")
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build());
+    assertThatThrownBy(builder::build)
       .isInstanceOf(NullPointerException.class)
       .hasMessage("Index name can't be null");
   }
 
   @Test
   public void build_shouldThrowException_whenUniqueAndColumnNullabilityIsNotProvided() {
-    assertThatThrownBy(() -> {
-      new CreateIndexBuilder(new H2())
-        .setTable("issues")
-        .setName("name")
-        .addColumn("columnName")
-        .setUnique(true)
-        .build();
-    })
+    CreateIndexBuilder builder = new CreateIndexBuilder(new H2())
+      .setTable("issues")
+      .setName("name")
+      .addColumn("columnName")
+      .setUnique(true);
+    assertThatThrownBy(builder::build)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Nullability of column should be provided for unique indexes");
   }
 
   @Test
   public void throw_IAE_if_columns_are_missing() {
-    assertThatThrownBy(() -> {
-      new CreateIndexBuilder(new H2())
-        .setTable("issues")
-        .setName("issues_key")
-        .build();
-    })
+    CreateIndexBuilder builder = new CreateIndexBuilder(new H2())
+      .setTable("issues")
+      .setName("issues_key");
+    assertThatThrownBy(builder::build)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("at least one column must be specified");
   }
 
   @Test
   public void throw_IAE_if_table_name_is_not_valid() {
-    assertThatThrownBy(() -> {
-      new CreateIndexBuilder(new H2())
-        .setTable("(not valid)")
-        .setName("issues_key")
-        .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
-        .build();
-    })
+    CreateIndexBuilder builder = new CreateIndexBuilder(new H2())
+      .setTable("(not valid)")
+      .setName("issues_key")
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build());
+    assertThatThrownBy(builder::build)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Table name must be lower case and contain only alphanumeric chars or '_', got '(not valid)'");
   }
 
   @Test
   public void throw_NPE_when_adding_null_column() {
-    assertThatThrownBy(() -> {
-      new CreateIndexBuilder(new H2())
-        .setTable("issues")
-        .setName("issues_key")
-        .addColumn((String) null)
-        .build();
-    })
+    CreateIndexBuilder builder = new CreateIndexBuilder(new H2())
+      .setTable("issues")
+      .setName("issues_key");
+    assertThatThrownBy(() -> builder.addColumn((String) null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("Column cannot be null");
   }

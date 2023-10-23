@@ -136,7 +136,7 @@ public class CreateIndexBuilder {
      */
     if (unique && !dialect.supportsNullNotDistinct() && PostgreSql.ID.equals(dialect.getId())) {
       sql.append(columns.stream()
-        .map(c -> c.isNullable() ? "COALESCE(%s, '')".formatted(c.name()) : c.name())
+        .map(c -> Boolean.TRUE.equals(c.isNullable()) ? "COALESCE(%s, '')".formatted(c.name()) : c.name())
         .collect(Collectors.joining(", ")));
     } else {
       sql.append(columns.stream()
