@@ -72,7 +72,7 @@ public class EmbeddedTomcatTest {
 
     assertThatThrownBy(tomcat::start)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage(String.format("Unsupported connector: Connector[AJP/1.3-%s]", httpPort));
+      .hasMessage(String.format("Unsupported connector: Connector[\"ajp-nio-127.0.0.1-%s\"]", httpPort));
   }
 
   private Connector getAJPConnector(Props props) {
