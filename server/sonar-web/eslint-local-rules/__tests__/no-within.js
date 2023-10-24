@@ -17,16 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = {
-  'use-jest-mocked': require('./use-jest-mocked'),
-  'convert-class-to-function-component': require('./convert-class-to-function-component'),
-  'no-conditional-rendering-of-deferredspinner': require('./no-conditional-rendering-of-deferredspinner'),
-  'use-visibility-enum': require('./use-visibility-enum'),
-  'use-componentqualifier-enum': require('./use-componentqualifier-enum'),
-  'use-metrickey-enum': require('./use-metrickey-enum'),
-  'use-metrictype-enum': require('./use-metrictype-enum'),
-  'use-await-expect-async-matcher': require('./use-await-expect-async-matcher'),
-  'no-implicit-coercion': require('./no-implicit-coercion'),
-  'no-api-imports': require('./no-api-imports'),
-  'no-within': require('./no-within'),
-};
+const { RuleTester } = require('eslint');
+const noWithin = require('../no-within');
+
+const ruleTester = new RuleTester({
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
+    },
+  },
+  parser: require.resolve('@typescript-eslint/parser'),
+});
+
+ruleTester.run('no-within', noWithin, {
+  valid: [
+    {
+      code: `
+      import {within} from '@testing-library/react';
+      test();
+      `,
+    },
+    {
+      code: `
+        within();
+      `,
+    },
+  ],
+  invalid: [
+    {
+      code: `
+      import {within} from '@testing-library/react';
+
+      within();
+      `,
+      errors: [{ messageId: 'noWithin' }],
+    },
+  ],
+});
