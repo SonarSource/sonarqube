@@ -130,14 +130,18 @@ export default function BranchListRow(props: BranchListRowProps) {
         {!branch.newCodePeriod && (
           <InteractiveIcon
             Icon={PencilIcon}
-            aria-label={translate('edit')}
+            aria-label={translateWithParameters('branch_list.edit_for_x', branch.name)}
             onClick={() => props.onOpenEditModal(branch)}
             className="sw-mr-2"
             size="small"
           />
         )}
         {branch.newCodePeriod && (
-          <ActionsDropdown allowResizing id="new-code-action">
+          <ActionsDropdown
+            allowResizing
+            id="new-code-action"
+            ariaLabel={translateWithParameters('branch_list.show_actions_for_x', branch.name)}
+          >
             <Tooltip
               overlay={
                 isCompliant ? null : translate('project_baseline.compliance.warning.title.project')

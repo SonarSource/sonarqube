@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { act, within } from '@testing-library/react';
+import { act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { first, last } from 'lodash';
 import selectEvent from 'react-select-event';
@@ -183,7 +183,7 @@ it('renders correctly branch modal', async () => {
   });
   await ui.appIsLoaded();
 
-  await ui.openBranchSettingModal('main branches.main_branch branch_list.default_setting');
+  await ui.openBranchSettingModal('main');
 
   expect(ui.specificAnalysisRadio.query()).not.toBeInTheDocument();
 });
@@ -194,20 +194,21 @@ it('can set a previous version setting for branch', async () => {
     featureList: [Feature.BranchSupport],
   });
   await ui.appIsLoaded();
-  await ui.setBranchPreviousVersionSetting('main branches.main_branch branch_list.default_setting');
+  await ui.setBranchPreviousVersionSetting('main');
 
   expect(
-    within(byRole('table').get()).getByText('new_code_definition.previous_version'),
-  ).toBeInTheDocument();
+    byRole('table').byRole('cell', { name: 'branch_list.default_setting' }).getAll(),
+  ).toHaveLength(2);
+  expect(byRole('table').byText('new_code_definition.previous_version').get()).toBeInTheDocument();
 
-  await user.click(await ui.branchActionsButton().find());
+  await user.click(await ui.branchActionsButton('main').find());
 
   expect(ui.resetToDefaultButton.get()).toBeInTheDocument();
   await user.click(ui.resetToDefaultButton.get());
 
   expect(
-    first(within(byRole('table').get()).getAllByText('branch_list.default_setting')),
-  ).toBeInTheDocument();
+    byRole('table').byRole('cell', { name: 'branch_list.default_setting' }).getAll(),
+  ).toHaveLength(3);
 });
 
 it('can set a number of days setting for branch', async () => {
@@ -217,14 +218,9 @@ it('can set a number of days setting for branch', async () => {
   });
   await ui.appIsLoaded();
 
-  await ui.setBranchNumberOfDaysSetting(
-    'main branches.main_branch branch_list.default_setting',
-    '15',
-  );
+  await ui.setBranchNumberOfDaysSetting('main', '15');
 
-  expect(
-    within(byRole('table').get()).getByText('new_code_definition.number_days: 15'),
-  ).toBeInTheDocument();
+  expect(byRole('table').byText('new_code_definition.number_days: 15').get()).toBeInTheDocument();
 });
 
 it('cannot set a specific analysis setting for branch', async () => {
@@ -241,11 +237,7 @@ it('cannot set a specific analysis setting for branch', async () => {
   });
   await ui.appIsLoaded();
 
-  await user.click(
-    await byRole('row', { name: /main branches.main_branch/ })
-      .byLabelText('menu')
-      .find(),
-  );
+  await user.click(await byLabelText('branch_list.show_actions_for_x.main').find());
   await user.click(await byRole('menuitem', { name: 'edit' }).find());
   expect(ui.specificAnalysisRadio.get()).toBeChecked();
   expect(ui.specificAnalysisRadio.get()).toHaveClass('disabled');
@@ -261,10 +253,7 @@ it('can set a reference branch setting for branch', async () => {
   });
   await ui.appIsLoaded();
 
-  await ui.setBranchReferenceToBranchSetting(
-    'main branches.main_branch branch_list.default_setting',
-    'normal-branch',
-  );
+  await ui.setBranchReferenceToBranchSetting('main', 'normal-branch');
 
   expect(
     byRole('table').byText('baseline.reference_branch: normal-branch').get(),
@@ -407,8 +396,8 @@ function getPageObjects() {
     specificAnalysisWarning: byText('baseline.specific_analysis.compliance_warning.title'),
     saveButton: byRole('button', { name: 'save' }),
     cancelButton: byRole('button', { name: 'cancel' }),
-    branchActionsButton: () => byRole('button', { name: `menu` }),
-    editButton: byRole('button', { name: 'edit' }),
+    branchActionsButton: (name: string) =>
+      byRole('button', { name: `branch_list.show_actions_for_x.${name}` }),
     resetToDefaultButton: byRole('menuitem', { name: 'reset_to_default' }),
     branchNCDsBanner: byText(/new_code_definition.auto_update.branch.message/),
     dismissButton: byLabelText('dismiss'),
@@ -459,9 +448,7 @@ function getPageObjects() {
   }
 
   async function openBranchSettingModal(branch: string) {
-    await user.click(
-      await byRole('row', { name: branch, exact: false }).byLabelText('edit').find(),
-    );
+    await user.click(await byLabelText(`branch_list.edit_for_x.${branch}`).find());
   }
 
   return {
