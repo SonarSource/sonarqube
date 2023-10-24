@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Link, Title } from 'design-system';
+import { HeadingDark, Link, Title } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useDocUrl } from '../../../helpers/docs';
@@ -51,7 +51,6 @@ export default function AppHeader(props: AppHeaderProps) {
           />
         )}
       </p>
-
       <p className="sw-mb-2">
         <FormattedMessage
           defaultMessage={translate('settings.new_code_period.description3')}
@@ -61,10 +60,9 @@ export default function AppHeader(props: AppHeaderProps) {
           }}
         />
       </p>
-
-      <p className="sw-mt-4">
-        <strong>{translate('project_baseline.page.question')}</strong>
-      </p>
+      <HeadingDark className="sw-mt-4" as="h2">
+        {translate('project_baseline.page.question')}
+      </HeadingDark>
     </header>
   );
 }

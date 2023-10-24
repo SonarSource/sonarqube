@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { HeadingDark } from 'design-system';
+import { HeadingDark, LargeCenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
@@ -27,7 +27,6 @@ import withAvailableFeatures, {
 } from '../../../app/components/available-features/withAvailableFeatures';
 import withComponentContext from '../../../app/components/componentContext/withComponentContext';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
-import Spinner from '../../../components/ui/Spinner';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import {
@@ -181,16 +180,20 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
   }, [resetStatesFromProjectNewCodeDefinition]);
 
   return (
-    <>
+    <LargeCenteredLayout id="new-code-rules-page">
       <Suggestions suggestions="project_baseline" />
       <Helmet defer={false} title={translate('project_baseline.page')} />
-      <div className="page page-limited">
+      <PageContentFontWrapper className="sw-my-8 sw-body-sm">
         <AppHeader canAdmin={!!appState.canAdmin} />
         <Spinner loading={isLoading} />
 
         {!isLoading && (
-          <div className="panel-white project-baseline">
-            {branchSupportEnabled && <h2>{translate('project_baseline.default_setting')}</h2>}
+          <div className="it__project-baseline">
+            {branchSupportEnabled && (
+              <HeadingDark as="h3" className="sw-mt-4">
+                {translate('project_baseline.default_setting')}
+              </HeadingDark>
+            )}
 
             {globalNewCodeDefinition && isSpecificNewCodeDefinition !== undefined && (
               <ProjectNewCodeDefinitionSelector
@@ -221,7 +224,7 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
 
             {globalNewCodeDefinition && branchSupportEnabled && (
               <div className="sw-mt-6">
-                <HeadingDark className="sw-mb-4">
+                <HeadingDark as="h3" className="sw-mb-4">
                   {translate('project_baseline.configure_branches')}
                 </HeadingDark>
                 <BranchList
@@ -234,8 +237,8 @@ function ProjectNewCodeDefinitionApp(props: Readonly<ProjectNewCodeDefinitionApp
             )}
           </div>
         )}
-      </div>
-    </>
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }
 
