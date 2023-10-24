@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 const { RuleTester } = require('eslint');
-const noImplicitCoersion = require('../no-implicit-coersion');
+const noImplicitCoercion = require('../no-implicit-coercion');
 
 const ruleTester = new RuleTester({
   parserOptions: {
@@ -29,7 +29,7 @@ const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
 });
 
-ruleTester.run('no-implicit-coersion', noImplicitCoersion, {
+ruleTester.run('no-implicit-coercion', noImplicitCoercion, {
   valid: [
     {
       code: `
@@ -135,7 +135,7 @@ ruleTester.run('no-implicit-coersion', noImplicitCoersion, {
             return true;
           }
         }`,
-      errors: [{ messageId: 'noImplicitCoersion' }],
+      errors: [{ messageId: 'noImplicitCoercion' }],
     },
     {
       code: `
@@ -144,7 +144,7 @@ ruleTester.run('no-implicit-coersion', noImplicitCoersion, {
             return true;
           }
         }`,
-      errors: [{ messageId: 'noImplicitCoersion' }],
+      errors: [{ messageId: 'noImplicitCoercion' }],
     },
     {
       code: `
@@ -153,14 +153,14 @@ ruleTester.run('no-implicit-coersion', noImplicitCoersion, {
             return true;
           }
         }`,
-      errors: [{ messageId: 'noImplicitCoersion' }],
+      errors: [{ messageId: 'noImplicitCoercion' }],
     },
     {
       code: `
         function test(value?: number) {
           return value && value > -1;
         }`,
-      errors: [{ messageId: 'noImplicitCoersion' }],
+      errors: [{ messageId: 'noImplicitCoercion' }],
     },
     {
       code: `
@@ -169,14 +169,14 @@ ruleTester.run('no-implicit-coersion', noImplicitCoersion, {
             return 1;
           }
         }`,
-      errors: [{ messageId: 'noImplicitCoersion' }],
+      errors: [{ messageId: 'noImplicitCoercion' }],
     },
     {
       code: `
         function test(value?: number) {
           return value || 100;
         }`,
-      errors: [{ messageId: 'noImplicitCoersion' }],
+      errors: [{ messageId: 'noImplicitCoercion' }],
     },
     {
       code: `
@@ -186,7 +186,7 @@ ruleTester.run('no-implicit-coersion', noImplicitCoersion, {
         function Test(props: Props) {
           return props.test && props.test.toString();
         }`,
-      errors: [{ messageId: 'noImplicitCoersion' }],
+      errors: [{ messageId: 'noImplicitCoercion' }],
     },
     {
       code: `
@@ -199,7 +199,7 @@ ruleTester.run('no-implicit-coersion', noImplicitCoersion, {
           }
           return 100;
         }`,
-      errors: [{ messageId: 'noImplicitCoersion' }],
+      errors: [{ messageId: 'noImplicitCoercion' }],
     },
     {
       code: `
@@ -213,7 +213,7 @@ ruleTester.run('no-implicit-coersion', noImplicitCoersion, {
           }
           return 100;
         }`,
-      errors: [{ messageId: 'noImplicitCoersion' }],
+      errors: [{ messageId: 'noImplicitCoercion' }],
     },
     {
       code: `
@@ -228,7 +228,7 @@ ruleTester.run('no-implicit-coersion', noImplicitCoersion, {
           </div>
         );
       }`,
-      errors: [{ messageId: 'noImplicitCoersion' }, { messageId: 'noImplicitCoersion' }],
+      errors: [{ messageId: 'noImplicitCoercion' }, { messageId: 'noImplicitCoercion' }],
     },
   ],
 });

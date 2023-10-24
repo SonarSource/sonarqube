@@ -27,7 +27,7 @@ module.exports = {
       recommended: true,
     },
     messages: {
-      noImplicitCoersion:
+      noImplicitCoercion:
         'Use explicit comparison instead of implicit coercion for strings and numbers.',
     },
   },
@@ -73,7 +73,7 @@ function checkImplicitCoercion(context, argument) {
   if (type.isUnion() ? type.types.some(isForbiddenType) : isForbiddenType(type)) {
     context.report({
       node: argument,
-      messageId: 'noImplicitCoersion',
+      messageId: 'noImplicitCoercion',
     });
   }
 }

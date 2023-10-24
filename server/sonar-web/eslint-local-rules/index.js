@@ -26,6 +26,6 @@ module.exports = {
   'use-metrickey-enum': require('./use-metrickey-enum'),
   'use-metrictype-enum': require('./use-metrictype-enum'),
   'use-await-expect-async-matcher': require('./use-await-expect-async-matcher'),
-  'no-implicit-coersion': require('./no-implicit-coersion'),
+  'no-implicit-coercion': require('./no-implicit-coercion'),
   'no-api-imports': require('./no-api-imports'),
 };

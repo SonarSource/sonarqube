@@ -16,7 +16,7 @@
     "local-rules/no-conditional-rendering-of-deferredspinner": "warn",
     "local-rules/use-jest-mocked": "warn",
     "local-rules/use-await-expect-async-matcher": "warn",
-    "local-rules/no-implicit-coersion": "warn",
+    "local-rules/no-implicit-coercion": "warn",
     "local-rules/no-api-imports": "warn"
   }
 }
