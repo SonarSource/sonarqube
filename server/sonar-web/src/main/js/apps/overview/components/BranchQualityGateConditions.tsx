@@ -102,6 +102,7 @@ export function FailedMetric(props: Readonly<FailedMetricProps>) {
 function FailedRatingMetric({ condition }: Readonly<FailedMetricProps>) {
   const {
     error,
+    actual,
     measure: {
       metric: { type, domain },
     },
@@ -111,11 +112,12 @@ function FailedRatingMetric({ condition }: Readonly<FailedMetricProps>) {
   return (
     <>
       {intl.formatMessage(
-        { id: 'overview.failed_condition.x_required' },
+        { id: 'overview.failed_condition.x_rating_required' },
         {
-          metric: `${intl.formatMessage({
+          rating: `${intl.formatMessage({
             id: `metric_domain.${domain}`,
           })} ${intl.formatMessage({ id: 'metric.type.RATING' }).toLowerCase()}`,
+          value: formatMeasure(actual, type),
           threshold: (
             <strong className="sw-body-sm-highlight sw-ml-1">{formatMeasure(error, type)}</strong>
           ),

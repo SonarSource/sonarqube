@@ -205,7 +205,7 @@ export const DiscreetLink = styled(HoverLink)`
 DiscreetLink.displayName = 'DiscreetLink';
 
 export const ContentLink = styled(HoverLink)`
-  --color: ${themeColor('pageContent')};
+  --color: ${themeColor('pageTitle')};
   --border: ${themeBorder('default', 'contentLinkBorder')};
 `;
 ContentLink.displayName = 'ContentLink';

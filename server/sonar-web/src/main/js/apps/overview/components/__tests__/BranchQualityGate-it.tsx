@@ -34,7 +34,7 @@ it('renders failed QG', () => {
 
   // Maintainability rating condition
   const maintainabilityRatingLink = byRole('link', {
-    name: 'overview.failed_condition.x_requiredmetric_domain.Maintainability metric.type.rating A',
+    name: 'overview.failed_condition.x_rating_requiredmetric_domain.Maintainability metric.type.ratingE A',
   }).get();
   expect(maintainabilityRatingLink).toBeInTheDocument();
   expect(maintainabilityRatingLink).toHaveAttribute(
@@ -44,7 +44,7 @@ it('renders failed QG', () => {
 
   // Security Hotspots rating condition
   const securityHotspotsRatingLink = byRole('link', {
-    name: 'overview.failed_condition.x_requiredmetric_domain.Security Review metric.type.rating A',
+    name: 'overview.failed_condition.x_rating_requiredmetric_domain.Security Review metric.type.ratingE A',
   }).get();
   expect(securityHotspotsRatingLink).toBeInTheDocument();
   expect(securityHotspotsRatingLink).toHaveAttribute(

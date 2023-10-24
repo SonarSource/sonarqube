@@ -51,7 +51,7 @@ export default function MeasuresCard(
       {...rest}
     >
       <PageContentFontWrapper className="sw-flex sw-flex-col sw-gap-1 sw-justify-between">
-        <StyledTitleContainer className="sw-flex sw-items-center sw-gap-2 sw-font-semibold">
+        <div className="sw-flex sw-items-center sw-gap-2 sw-font-semibold">
           {value ? (
             <ContentLink
               aria-label={translateWithParameters(
@@ -65,10 +65,10 @@ export default function MeasuresCard(
               {value}
             </ContentLink>
           ) : (
-            <span> — </span>
+            <StyledNoValue> — </StyledNoValue>
           )}
           {translate(label)}
-        </StyledTitleContainer>
+        </div>
         {children && <div className="sw-flex sw-flex-col">{children}</div>}
       </PageContentFontWrapper>
 
@@ -77,12 +77,12 @@ export default function MeasuresCard(
   );
 }
 
+const StyledNoValue = styled.span`
+  color: ${themeColor('pageTitle')};
+`;
+
 export const StyledCard = styled(Card)`
   &.failed {
     border-color: ${themeColor('qgCardFailed')};
   }
-`;
-
-const StyledTitleContainer = styled.div`
-  color: ${themeColor('qgCardTitle')};
 `;

@@ -434,7 +434,6 @@ export const lightTheme = {
     // quality gate texts colors
     qgConditionNotCayc: COLORS.red[600],
     qgConditionCayc: COLORS.green[600],
-    qgCardTitle: COLORS.blueGrey[700],
 
     // main bar
     mainBar: COLORS.white,
