@@ -45,7 +45,7 @@ public class StartupLogsTest {
 
     assertThatThrownBy(() -> underTest.log(tomcat))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Unsupported connector: Connector[AJP/1.3-1234]");
+      .hasMessageContaining("Unsupported connector: Connector[\"ajp-nio-127.0.0.1-1234\"]");
   }
 
   @Test
