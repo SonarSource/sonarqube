@@ -44,6 +44,7 @@ import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.status.SimpleStatus;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbIssues;
@@ -360,6 +361,11 @@ public final class IssueDto implements Serializable {
 
   public String getStatus() {
     return status;
+  }
+
+  public SimpleStatus getSimpleStatus() {
+    checkArgument(status != null, "Status must be initialized to retrieve simple status");
+    return SimpleStatus.of(status, resolution);
   }
 
   public IssueDto setStatus(@Nullable String s) {
@@ -828,7 +834,7 @@ public final class IssueDto implements Serializable {
     this.ruleDefaultImpacts = new HashSet<>(ruleDefaultImpacts);
     return this;
   }
-  
+
 
   public IssueDto replaceAllImpacts(Collection<ImpactDto> newImpacts) {
     Set<SoftwareQuality> newSoftwareQuality = newImpacts.stream().map(ImpactDto::getSoftwareQuality).collect(Collectors.toSet());

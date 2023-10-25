@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.time.DateUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.Severity;
@@ -36,6 +37,7 @@ import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.status.SimpleStatus;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
@@ -340,6 +342,29 @@ public class IssueDtoTest {
     assertThat(issueDto.getOptionalRuleDescriptionContextKey()).contains(TEST_CONTEXT_KEY);
     assertThat(issueDto.getImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
       .containsExactlyInAnyOrder(tuple(MAINTAINABILITY, HIGH), tuple(RELIABILITY, LOW));
+  }
+
+  @Test
+  public void getSimpleStatus_shouldReturnExpectedValueFromStatusAndResolution(){
+    IssueDto dto = new IssueDto();
+    dto.setStatus(Issue.STATUS_CLOSED);
+    assertThat(dto.getSimpleStatus()).isEqualTo(SimpleStatus.FIXED);
+
+    dto.setStatus(Issue.STATUS_RESOLVED);
+    dto.setResolution(Issue.RESOLUTION_FALSE_POSITIVE);
+    assertThat(dto.getSimpleStatus()).isEqualTo(SimpleStatus.FALSE_POSITIVE);
+
+    dto.setStatus(Issue.STATUS_RESOLVED);
+    dto.setResolution(Issue.RESOLUTION_WONT_FIX);
+    assertThat(dto.getSimpleStatus()).isEqualTo(SimpleStatus.ACCEPTED);
+  }
+
+  @Test
+  public void getSimpleStatus_shouldThrowException_whenStatusIsNotInitialized(){
+    IssueDto dto = new IssueDto();
+    assertThatThrownBy(dto::getSimpleStatus)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Status must be initialized to retrieve simple status");
   }
 
   private DefaultIssue createExampleDefaultIssue(Date dateNow) {
