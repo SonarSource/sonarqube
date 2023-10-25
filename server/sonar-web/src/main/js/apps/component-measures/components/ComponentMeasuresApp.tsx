@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { withTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import {
@@ -84,6 +85,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
+
     this.state = {
       loading: true,
       measures: [],
@@ -109,9 +111,14 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
     const query = parseQuery(this.props.location.query);
 
     if (
-      !isSameBranchLike(prevProps.branchLike, this.props.branchLike) ||
-      prevProps.component.key !== this.props.component.key ||
-      prevQuery.selected !== query.selected
+      // If this update is triggered by the branch query resolving, and the metrics query started
+      // in componentDidMount is not done yet, we should not fetch measures just now, as it may
+      // throw a bug in ITs looking for a metric that isn't there yet. In this case the measures
+      // will be fetched once the state updates.
+      Object.keys(this.state.metrics).length > 0 &&
+      (!isSameBranchLike(prevProps.branchLike, this.props.branchLike) ||
+        prevProps.component.key !== this.props.component.key ||
+        prevQuery.selected !== query.selected)
     ) {
       this.fetchMeasures(this.state.metrics);
     }
@@ -159,11 +166,15 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
     if (displayOverview) {
       return undefined;
     }
+
     const metric = this.state.metrics[query.metric];
+
     if (!metric) {
       const domainMeasures = groupByDomains(this.state.measures);
+
       const firstMeasure =
         domainMeasures[0] && sortMeasures(domainMeasures[0].name, domainMeasures[0].measures)[0];
+
       if (firstMeasure && typeof firstMeasure !== 'string') {
         return firstMeasure.metric;
       }
@@ -175,6 +186,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
     const query: Query = { ...parseQuery(this.props.location.query), ...newQuery };
 
     const metric = this.getSelectedMetric(query, false);
+
     if (metric) {
       if (query.view === MeasurePageView.treemap && !hasTreemap(metric.key, metric.type)) {
         query.view = MeasurePageView.tree;
@@ -237,6 +249,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
     return (
       <StyledMain className="sw-rounded-1 sw-mb-4">
         <MeasureContent
+          asc={query.asc}
           branchLike={branchLike}
           leakPeriod={leakPeriod}
           metrics={this.state.metrics}
@@ -244,7 +257,6 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
           rootComponent={component}
           router={this.props.router}
           selected={query.selected}
-          asc={query.asc}
           updateQuery={this.updateQuery}
           view={query.view}
         />
@@ -278,6 +290,7 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
                 showFullMeasures={showFullMeasures}
                 updateQuery={this.updateQuery}
               />
+
               <div className="sw-col-span-9 sw-ml-12">
                 {this.renderContent(displayOverview, query, metric)}
               </div>
