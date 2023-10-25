@@ -29,6 +29,7 @@ export function mockLicense(override?: Partial<License>) {
     isValidServerId: true,
     isOfficialDistribution: true,
     isSupported: false,
+    canActivateGracePeriod: false,
     loc: 120085,
     maxLoc: 500000,
     plugins: ['Branches', 'PLI language'],
