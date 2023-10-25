@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue;
 
-import java.util.Collections;
 import java.util.List;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -27,7 +26,6 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
