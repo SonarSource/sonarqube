@@ -48,4 +48,7 @@ export interface License {
   remainingLocThreshold: number;
   serverId: string;
   type: string;
+  canActivateGracePeriod: boolean;
+  gracePeriodEndDate?: string;
+  gracePeriodExpired?: boolean;
 }
