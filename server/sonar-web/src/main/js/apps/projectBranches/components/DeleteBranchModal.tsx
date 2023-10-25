@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DangerButtonPrimary, Modal } from 'design-system';
 import * as React from 'react';
-import Modal from '../../../components/controls/Modal';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import { FormattedMessage } from 'react-intl';
 import { getBranchLikeDisplayName, isPullRequest } from '../../../helpers/branch-like';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { useDeletBranchMutation } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
@@ -32,48 +31,56 @@ interface Props {
   onClose: () => void;
 }
 
+const FORM_ID = 'confirm-branch-delete-form';
+
 export default function DeleteBranchModal(props: Props) {
-  const { branchLike, component } = props;
+  const { branchLike, component, onClose } = props;
   const { mutate: deleteBranch, isLoading } = useDeletBranchMutation();
 
-  const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    deleteBranch(
-      { component, branchLike },
-      {
-        onSuccess: props.onClose,
-      },
-    );
-  };
-
-  const header = translate(
-    isPullRequest(branchLike)
-      ? 'project_branch_pull_request.pull_request.delete'
-      : 'project_branch_pull_request.branch.delete',
+  const handleSubmit = React.useCallback(
+    (event: React.SyntheticEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      deleteBranch(
+        { component, branchLike },
+        {
+          onSuccess: onClose,
+        },
+      );
+    },
+    [deleteBranch, component, branchLike, onClose],
   );
 
   return (
-    <Modal contentLabel={header} onRequestClose={props.onClose}>
-      <header className="modal-head">
-        <h2>{header}</h2>
-      </header>
-      <form onSubmit={handleSubmit}>
-        <div className="modal-body">
-          {translateWithParameters(
+    <Modal
+      headerTitle={
+        <FormattedMessage
+          id={
             isPullRequest(branchLike)
-              ? 'project_branch_pull_request.pull_request.delete.are_you_sure'
-              : 'project_branch_pull_request.branch.delete.are_you_sure',
-            getBranchLikeDisplayName(branchLike),
-          )}
-        </div>
-        <footer className="modal-foot">
-          {isLoading && <i className="spinner spacer-right" />}
-          <SubmitButton className="button-red" disabled={isLoading}>
-            {translate('delete')}
-          </SubmitButton>
-          <ResetButtonLink onClick={props.onClose}>{translate('cancel')}</ResetButtonLink>
-        </footer>
-      </form>
-    </Modal>
+              ? 'project_branch_pull_request.pull_request.delete'
+              : 'project_branch_pull_request.branch.delete'
+          }
+        />
+      }
+      body={
+        <form id={FORM_ID} onSubmit={handleSubmit}>
+          <FormattedMessage
+            id={
+              isPullRequest(branchLike)
+                ? 'project_branch_pull_request.pull_request.delete.are_you_sure'
+                : 'project_branch_pull_request.branch.delete.are_you_sure'
+            }
+            values={{ name: getBranchLikeDisplayName(branchLike) }}
+          />
+        </form>
+      }
+      loading={isLoading}
+      primaryButton={
+        <DangerButtonPrimary type="submit" form={FORM_ID}>
+          <FormattedMessage id="delete" />
+        </DangerButtonPrimary>
+      }
+      secondaryButtonLabel={<FormattedMessage id="cancel" />}
+      onClose={props.onClose}
+    />
   );
 }

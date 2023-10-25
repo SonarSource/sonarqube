@@ -163,7 +163,7 @@ it('should be able to set a branch as the main branch', async () => {
   await act(async () => {
     await user.click(
       within(ui.dialog.get()).getByRole('button', {
-        name: 'project_branch_pull_request.branch.set_x_as_main.delete-branch',
+        name: 'project_branch_pull_request.branch.set_main',
       }),
     );
   });

@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FormField, InputField, Modal } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
-import Modal from '../../../components/controls/Modal';
-import { ResetButtonLink, SubmitButton } from '../../../components/controls/buttons';
-import MandatoryFieldMarker from '../../../components/ui/MandatoryFieldMarker';
-import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
+import { FormattedMessage } from 'react-intl';
 import { translate } from '../../../helpers/l10n';
 import { useRenameMainBranchMutation } from '../../../queries/branch';
 import { MainBranch } from '../../../types/branch-like';
@@ -34,60 +32,61 @@ interface Props {
   onClose: () => void;
 }
 
+const FORM_ID = 'branch-rename-form';
+
 export default function RenameBranchModal(props: Props) {
-  const { branch, component } = props;
+  const { branch, component, onClose } = props;
   const [name, setName] = useState<string>();
 
   const { mutate: renameMainBranch, isLoading } = useRenameMainBranchMutation();
 
-  const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!name) {
-      return;
-    }
+  const handleSubmit = React.useCallback(
+    (event: React.SyntheticEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (!name) {
+        return;
+      }
 
-    renameMainBranch({ component, name }, { onSuccess: props.onClose });
-  };
+      renameMainBranch({ component, name }, { onSuccess: onClose });
+    },
+    [component, name, onClose, renameMainBranch],
+  );
 
-  const handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+  const handleNameChange = React.useCallback((event: React.SyntheticEvent<HTMLInputElement>) => {
     setName(event.currentTarget.value);
-  };
+  }, []);
 
   const header = translate('project_branch_pull_request.branch.rename');
   const submitDisabled = isLoading || !name || name === branch.name;
 
   return (
-    <Modal contentLabel={header} onRequestClose={props.onClose} size="small">
-      <header className="modal-head">
-        <h2>{header}</h2>
-      </header>
-      <form onSubmit={handleSubmit}>
-        <div className="modal-body">
-          <MandatoryFieldsExplanation className="modal-field" />
-          <div className="modal-field">
-            <label htmlFor="rename-branch-name">
-              {translate('new_name')}
-              <MandatoryFieldMarker />
-            </label>
-            <input
+    <Modal
+      headerTitle={header}
+      body={
+        <form id={FORM_ID} onSubmit={handleSubmit}>
+          <FormField className="sw-mb-1" label={<FormattedMessage id="new_name" />}>
+            <InputField
               autoFocus
               id="rename-branch-name"
               maxLength={100}
               name="name"
               onChange={handleNameChange}
               required
-              size={50}
+              size="full"
               type="text"
               value={name ?? branch.name}
             />
-          </div>
-        </div>
-        <footer className="modal-foot">
-          {isLoading && <i className="spinner spacer-right" />}
-          <SubmitButton disabled={submitDisabled}>{translate('rename')}</SubmitButton>
-          <ResetButtonLink onClick={props.onClose}>{translate('cancel')}</ResetButtonLink>
-        </footer>
-      </form>
-    </Modal>
+          </FormField>
+        </form>
+      }
+      loading={isLoading}
+      primaryButton={
+        <ButtonPrimary disabled={submitDisabled} type="submit" form={FORM_ID}>
+          <FormattedMessage id="rename" />
+        </ButtonPrimary>
+      }
+      secondaryButtonLabel={<FormattedMessage id="cancel" />}
+      onClose={props.onClose}
+    />
   );
 }

@@ -20,8 +20,8 @@
 import { ButtonPrimary, FlagMessage, Modal } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import DocLink from '../../../components/common/DocLink';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import DocumentationLink from '../../../components/common/DocumentationLink';
+import { translate } from '../../../helpers/l10n';
 import { useSetMainBranchMutation } from '../../../queries/branch';
 import { Branch } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
@@ -33,42 +33,46 @@ interface SetAsMainBranchModalProps {
   onSetAsMain: () => void;
 }
 
+const FORM_ID = 'branch-setasmain-form';
+
 export default function SetAsMainBranchModal(props: SetAsMainBranchModalProps) {
   const { branch, component, onClose, onSetAsMain } = props;
   const { mutate: setMainBranch, isLoading } = useSetMainBranchMutation();
 
-  const handleClick = () => {
-    setMainBranch({ component, branchName: branch.name }, { onSuccess: onSetAsMain });
-  };
+  const handleSubmit = React.useCallback(
+    (e: React.SyntheticEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setMainBranch({ component, branchName: branch.name }, { onSuccess: onSetAsMain });
+    },
+    [branch, component, onSetAsMain, setMainBranch],
+  );
 
   return (
     <Modal
       headerTitle={
-        <span className="sw-break-all">
-          {translateWithParameters('project_branch_pull_request.branch.set_x_as_main', branch.name)}
-        </span>
+        <FormattedMessage
+          id="project_branch_pull_request.branch.set_x_as_main"
+          values={{ branch: <span className="sw-break-all">{branch.name}</span> }}
+        />
       }
       loading={isLoading}
       onClose={onClose}
       body={
-        <>
+        <form id={FORM_ID} onSubmit={handleSubmit}>
           <p className="sw-mb-4">
-            {translateWithParameters(
-              'project_branch_pull_request.branch.main_branch.are_you_sure',
-              branch.name,
-            )}
+            <FormattedMessage
+              id="project_branch_pull_request.branch.main_branch.are_you_sure"
+              values={{ branch: <span className="sw-break-all">{branch.name}</span> }}
+            />
           </p>
           <p className="sw-mb-4">
             <FormattedMessage
               id="project_branch_pull_request.branch.main_branch.learn_more"
-              defaultMessage={translate(
-                'project_branch_pull_request.branch.main_branch.learn_more',
-              )}
               values={{
                 documentation: (
-                  <DocLink to="/analyzing-source-code/branches/branch-analysis/#main-branch">
+                  <DocumentationLink to="/analyzing-source-code/branches/branch-analysis/#main-branch">
                     {translate('documentation')}
-                  </DocLink>
+                  </DocumentationLink>
                 ),
               }}
             />
@@ -76,14 +80,14 @@ export default function SetAsMainBranchModal(props: SetAsMainBranchModalProps) {
           <FlagMessage variant="warning">
             {translate('project_branch_pull_request.branch.main_branch.requires_reindex')}
           </FlagMessage>
-        </>
+        </form>
       }
       primaryButton={
-        <ButtonPrimary disabled={isLoading} onClick={handleClick}>
-          {translateWithParameters('project_branch_pull_request.branch.set_x_as_main', branch.name)}
+        <ButtonPrimary disabled={isLoading} type="submit" form={FORM_ID}>
+          <FormattedMessage id="project_branch_pull_request.branch.set_main" />
         </ButtonPrimary>
       }
-      secondaryButtonLabel={translate('cancel')}
+      secondaryButtonLabel={<FormattedMessage id="cancel" />}
     />
   );
 }
