@@ -19,7 +19,7 @@
  */
 import { Badge, FlagErrorIcon, FormField, InputSelect, SelectionCard } from 'design-system';
 import * as React from 'react';
-import { OptionProps, components } from 'react-select';
+import { MenuPlacement, OptionProps, components } from 'react-select';
 import Tooltip from '../../../components/controls/Tooltip';
 import { NewCodeDefinitionLevels } from '../../../components/new-code-definition/utils';
 import MandatoryFieldsExplanation from '../../../components/ui/MandatoryFieldsExplanation';
@@ -38,6 +38,7 @@ export interface BaselineSettingReferenceBranchProps {
     NewCodeDefinitionLevels,
     NewCodeDefinitionLevels.NewProject | NewCodeDefinitionLevels.Global
   >;
+  inputSelectMenuPlacement?: MenuPlacement;
 }
 
 export interface BranchOption {
@@ -85,7 +86,15 @@ function renderBranchOption(props: OptionProps<BranchOption, false>) {
 export default function NewCodeDefinitionSettingReferenceBranch(
   props: Readonly<BaselineSettingReferenceBranchProps>,
 ) {
-  const { branchList, className, disabled, referenceBranch, selected, settingLevel } = props;
+  const {
+    branchList,
+    className,
+    disabled,
+    referenceBranch,
+    selected,
+    settingLevel,
+    inputSelectMenuPlacement,
+  } = props;
 
   const currentBranch = branchList.find((b) => b.value === referenceBranch) || {
     label: referenceBranch,
@@ -123,13 +132,15 @@ export default function NewCodeDefinitionSettingReferenceBranch(
               >
                 <InputSelect
                   inputId="new-code-definition-reference-branch"
-                  size="large"
+                  className="sw-w-abs-300"
+                  size="full"
                   options={branchList}
                   onChange={(option: BranchOption) => props.onChangeReferenceBranch(option.value)}
                   value={currentBranch}
                   components={{
                     Option: renderBranchOption,
                   }}
+                  menuPlacement={inputSelectMenuPlacement}
                 />
               </FormField>
             </div>

@@ -43,7 +43,6 @@ import { Branch, BranchLike } from '../../../types/branch-like';
 import { Feature } from '../../../types/features';
 import { NewCodeDefinitionType } from '../../../types/new-code-definition';
 import { Component } from '../../../types/types';
-import '../styles.css';
 import { getSettingValue } from '../utils';
 import AppHeader from './AppHeader';
 import BranchList from './BranchList';

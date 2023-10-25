@@ -199,6 +199,7 @@ export default class BranchNewCodeDefinitionSettingModal extends React.PureCompo
               referenceBranch={referenceBranch}
               selected={selectedNewCodeDefinitionType === NewCodeDefinitionType.ReferenceBranch}
               settingLevel={NewCodeDefinitionLevels.Branch}
+              inputSelectMenuPlacement="top"
             />
             {currentSetting === NewCodeDefinitionType.SpecificAnalysis && (
               <NewCodeDefinitionSettingAnalysis
