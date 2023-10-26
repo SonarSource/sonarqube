@@ -24,6 +24,7 @@ import java.util.EnumSet;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -90,10 +91,14 @@ public class ListAction implements IssuesWsAction {
       .setHandler(this)
       .setInternal(true)
       .setDescription("List issues. This endpoint is used in degraded mode, when issue indexation is running." +
-        "<br>Either 'project' or 'component' parameter is required." +
-        "<br>Total number of issues will be always equal to a page size, as this counting all issues is not supported. " +
-        "<br>Requires the 'Browse' permission on the specified project. ")
+                      "<br>Either 'project' or 'component' parameter is required." +
+                      "<br>Total number of issues will be always equal to a page size, as this counting all issues is not supported. " +
+                      "<br>Requires the 'Browse' permission on the specified project. ")
       .setSince("10.2")
+      .setChangelog(
+        new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'simpleStatus' instead."),
+        new Change("10.4", "Add 'simpleStatus' field to the response.")
+      )
       .setResponseExample(getClass().getResource("list-example.json"));
 
     action.addPagingParams(100, MAX_PAGE_SIZE);

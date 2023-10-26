@@ -83,6 +83,8 @@ public class SetTypeAction implements IssuesWsAction {
         "</ul>")
       .setSince("5.5")
       .setChangelog(
+        new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'simpleStatus' instead."),
+        new Change("10.4", "Add 'simpleStatus' field to the response."),
         new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
         new Change("10.2", "This endpoint is now deprecated."),
         new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),

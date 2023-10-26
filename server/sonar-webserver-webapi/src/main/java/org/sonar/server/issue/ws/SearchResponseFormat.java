@@ -37,6 +37,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.Paging;
+import org.sonar.core.issue.status.SimpleStatus;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
@@ -204,6 +205,7 @@ public class SearchResponseFormat {
     ofNullable(data.getUserByUuid(dto.getAssigneeUuid())).ifPresent(assignee -> issueBuilder.setAssignee(assignee.getLogin()));
     ofNullable(emptyToNull(dto.getResolution())).ifPresent(issueBuilder::setResolution);
     issueBuilder.setStatus(dto.getStatus());
+    issueBuilder.setSimpleStatus(SimpleStatus.of(dto.getStatus(), dto.getResolution()).name());
     issueBuilder.setMessage(nullToEmpty(dto.getMessage()));
     issueBuilder.addAllMessageFormattings(MessageFormattingUtils.dbMessageFormattingToWs(dto.parseMessageFormattings()));
     issueBuilder.addAllTags(dto.getTags());

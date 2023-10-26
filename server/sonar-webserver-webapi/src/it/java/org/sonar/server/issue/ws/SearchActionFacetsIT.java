@@ -265,7 +265,8 @@ public class SearchActionFacetsIT {
 
         RuleDto rule = db.rules().insertIssueRule();
         db.issues().insertIssue(rule, project, file, i -> i.setAssigneeUuid(user.getUuid())
-          .setStatus(ISSUE_STATUSES[random.nextInt(ISSUE_STATUSES.length)])
+          .setStatus(Issue.STATUS_RESOLVED)
+          .setResolution(Issue.RESOLUTION_FIXED)
           .setType(rule.getType()));
       });
 
