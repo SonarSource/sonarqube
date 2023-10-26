@@ -33,7 +33,8 @@ import javax.servlet.http.HttpServletResponse;
 public class CspFilter implements Filter {
 
     private final List<String> cspHeaders = new ArrayList<>();
-    private String policies = null;
+    private String defaultPolicies = null;
+    private String codescanPolicies = null;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -41,6 +42,41 @@ public class CspFilter implements Filter {
         cspHeaders.add("X-Content-Security-Policy");
         cspHeaders.add("X-WebKit-CSP");
 
+        this.defaultPolicies = String.join("; ", getDefaultCspPolicies()).trim();
+        this.codescanPolicies = String.join("; ", getCodescanCspPolicies()).trim();
+    }
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        boolean isCodescan = request.getServerName().contains("codescan.io") || request.getServerName().contains("autorabit.com");
+        String policies = isCodescan ? codescanPolicies : defaultPolicies;
+        // Add policies to all HTTP headers
+        for (String header : this.cspHeaders) {
+            ((HttpServletResponse) response).setHeader(header, policies);
+        }
+
+        chain.doFilter(request, response);
+    }
+
+    @Override
+    public void destroy() {
+        // Not used
+    }
+
+    private List<String> getDefaultCspPolicies() {
+        List<String> cspPolicies = new ArrayList<>();
+        cspPolicies.add("default-src 'self'");
+        cspPolicies.add("base-uri 'none'");
+        cspPolicies.add("connect-src 'self' http: https:");
+        cspPolicies.add("img-src * data: blob:");
+        cspPolicies.add("object-src 'none'");
+        cspPolicies.add("script-src 'self' 'unsafe-inline' 'unsafe-eval'");
+        cspPolicies.add("style-src 'self' 'unsafe-inline'");
+        return cspPolicies;
+    }
+
+    private List<String> getCodescanCspPolicies() {
         List<String> cspPolicies = new ArrayList<>();
 
         // Directives not specified default to this one.
@@ -65,23 +101,7 @@ public class CspFilter implements Filter {
         cspPolicies.add("frame-ancestors 'self' app.pendo.io");
         cspPolicies.add("frame-src 'self' app.pendo.io");
         cspPolicies.add("child-src 'self' app.pendo.io");
-        this.policies = String.join("; ", cspPolicies).trim();
-    }
-
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
-        // Add policies to all HTTP headers
-        for (String header : this.cspHeaders) {
-            ((HttpServletResponse) response).setHeader(header, this.policies);
-        }
-
-        chain.doFilter(request, response);
-    }
-
-    @Override
-    public void destroy() {
-        // Not used
+        return cspPolicies;
     }
 
 }

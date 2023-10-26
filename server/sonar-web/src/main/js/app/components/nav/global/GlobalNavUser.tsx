@@ -71,7 +71,8 @@ export class GlobalNavUser extends React.PureComponent<Props, State> {
     const currentUser = this.props.currentUser as LoggedInUser;
     const hasOrganizations = this.props.userOrganizations.length > 0;
 
-    if (isLoggedIn(currentUser) && hasOrganizations && !pendoInitialized) {
+    const isCodescan = window.location.hostname.includes('codescan.io') || window.location.hostname.includes('autorabit.com');
+    if (isLoggedIn(currentUser) && hasOrganizations && !pendoInitialized && isCodescan) {
       const script = document.createElement('script');
       const orgKeys = this.props.userOrganizations.map(o => o.kee).join(',');
 
