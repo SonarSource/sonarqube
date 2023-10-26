@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { HelperHintIcon, Spinner, Switch } from 'design-system';
 import * as React from 'react';
 import { useEffect } from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
-import Toggle from '../../../components/controls/Toggle';
-import Spinner from '../../../components/ui/Spinner';
 import { isMainBranch } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { useExcludeFromPurgeMutation } from '../../../queries/branch';
@@ -50,16 +49,25 @@ export default function BranchPurgeSetting(props: Props) {
 
   return (
     <>
-      <Toggle disabled={disabled} onChange={handleOnChange} value={branch.excludedFromPurge} />
-      <span className="spacer-left">
-        <Spinner loading={isLoading} />
-      </span>
+      <Switch
+        disabled={disabled}
+        onChange={handleOnChange}
+        value={branch.excludedFromPurge}
+        labels={{
+          on: translate('on'),
+          off: translate('off'),
+        }}
+      />
+      <Spinner loading={isLoading} className="sw-ml-1" />
       {isTheMainBranch && (
         <HelpTooltip
+          className="sw-ml-1"
           overlay={translate(
             'project_branch_pull_request.branch.auto_deletion.main_branch_tooltip',
           )}
-        />
+        >
+          <HelperHintIcon aria-label={translate('help')} />
+        </HelpTooltip>
       )}
     </>
   );

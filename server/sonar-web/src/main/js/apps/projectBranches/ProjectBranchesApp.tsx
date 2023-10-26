@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { LargeCenteredLayout, PageContentFontWrapper, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
@@ -35,15 +37,17 @@ function ProjectBranchesApp(props: ProjectBranchesAppProps) {
   const { component, fetchComponent } = props;
 
   return (
-    <div className="page page-limited" id="project-branch-like">
-      <header className="page-header">
-        <Helmet defer={false} title={translate('project_branch_pull_request.page')} />
-        <h1>{translate('project_branch_pull_request.page')}</h1>
-        <LifetimeInformation />
-      </header>
+    <LargeCenteredLayout id="project-branch-like">
+      <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+        <header className="sw-mb-5">
+          <Helmet defer={false} title={translate('project_branch_pull_request.page')} />
+          <Title className="sw-mb-4">{translate('project_branch_pull_request.page')}</Title>
+          <LifetimeInformation />
+        </header>
 
-      <BranchLikeTabs component={component} fetchComponent={fetchComponent} />
-    </div>
+        <BranchLikeTabs component={component} fetchComponent={fetchComponent} />
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }
 

@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { ActionCell, ContentCell, HelperHintIcon, Table, TableRow } from 'design-system';
 import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { getBranchLikeKey } from '../../../helpers/branch-like';
@@ -24,6 +26,9 @@ import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { Component } from '../../../types/types';
 import BranchLikeRow from './BranchLikeRow';
+
+const COLUMN_WIDTHS_WITH_PURGE_SETTING = ['auto', '10%', '15%', '15%', '5%'];
+const COLUMN_WIDTHS_WITHOUT_PURGE_SETTING = ['auto', '10%', '15%', '5%'];
 
 export interface BranchLikeTableProps {
   branchLikes: BranchLike[];
@@ -38,54 +43,60 @@ export interface BranchLikeTableProps {
 function BranchLikeTable(props: BranchLikeTableProps) {
   const { branchLikes, component, displayPurgeSetting, title } = props;
 
+  const header = (
+    <TableRow>
+      <ContentCell>{title}</ContentCell>
+      <ContentCell>{translate('status')}</ContentCell>
+      <ContentCell>{translate('project_branch_pull_request.last_analysis_date')}</ContentCell>
+      {displayPurgeSetting && (
+        <ContentCell>
+          <div className="sw-flex sw-items-center">
+            <span>
+              {translate('project_branch_pull_request.branch.auto_deletion.keep_when_inactive')}
+            </span>
+            <HelpTooltip
+              className="sw-ml-1"
+              overlay={translate(
+                'project_branch_pull_request.branch.auto_deletion.keep_when_inactive.tooltip',
+              )}
+            >
+              <HelperHintIcon />
+            </HelpTooltip>
+          </div>
+        </ContentCell>
+      )}
+
+      <ActionCell>{translate('actions')}</ActionCell>
+    </TableRow>
+  );
+
   return (
-    <div className="boxed-group boxed-group-inner">
-      <table className="data zebra zebra-hover fixed">
-        <thead>
-          <tr>
-            <th className="nowrap">{title}</th>
-            <th className="nowrap" style={{ width: '80px' }}>
-              {translate('status')}
-            </th>
-            <th className="nowrap" style={{ width: '140px' }}>
-              {translate('project_branch_pull_request.last_analysis_date')}
-            </th>
-            {displayPurgeSetting && (
-              <th className="nowrap" style={{ width: '150px' }}>
-                <div className="display-flex-center">
-                  <span>
-                    {translate(
-                      'project_branch_pull_request.branch.auto_deletion.keep_when_inactive',
-                    )}
-                  </span>
-                  <HelpTooltip
-                    className="little-spacer-left"
-                    overlay={translate(
-                      'project_branch_pull_request.branch.auto_deletion.keep_when_inactive.tooltip',
-                    )}
-                  />
-                </div>
-              </th>
-            )}
-            <th className="nowrap" style={{ width: '50px' }}>
-              {translate('actions')}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {branchLikes.map((branchLike) => (
-            <BranchLikeRow
-              branchLike={branchLike}
-              component={component}
-              displayPurgeSetting={displayPurgeSetting}
-              key={getBranchLikeKey(branchLike)}
-              onDelete={() => props.onDelete(branchLike)}
-              onRename={() => props.onRename(branchLike)}
-              onSetAsMain={() => props.onSetAsMain(branchLike)}
-            />
-          ))}
-        </tbody>
-      </table>
+    <div className="sw-mt-6">
+      <Table
+        columnCount={
+          displayPurgeSetting
+            ? COLUMN_WIDTHS_WITH_PURGE_SETTING.length
+            : COLUMN_WIDTHS_WITHOUT_PURGE_SETTING.length
+        }
+        columnWidths={
+          displayPurgeSetting
+            ? COLUMN_WIDTHS_WITH_PURGE_SETTING
+            : COLUMN_WIDTHS_WITHOUT_PURGE_SETTING
+        }
+        header={header}
+      >
+        {branchLikes.map((branchLike) => (
+          <BranchLikeRow
+            branchLike={branchLike}
+            component={component}
+            displayPurgeSetting={displayPurgeSetting}
+            key={getBranchLikeKey(branchLike)}
+            onDelete={() => props.onDelete(branchLike)}
+            onRename={() => props.onRename(branchLike)}
+            onSetAsMain={() => props.onSetAsMain(branchLike)}
+          />
+        ))}
+      </Table>
     </div>
   );
 }

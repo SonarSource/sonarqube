@@ -26,7 +26,7 @@ import { ComponentContext } from '../../../app/components/componentContext/Compo
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockAppState } from '../../../helpers/testMocks';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
-import { byRole } from '../../../helpers/testSelector';
+import { byLabelText, byRole } from '../../../helpers/testSelector';
 import { AppState } from '../../../types/appstate';
 import { Feature } from '../../../types/features';
 import { SettingsKey } from '../../../types/settings';
@@ -39,9 +39,9 @@ const ui = new (class UI {
   branchTabContent = byRole('tabpanel', { name: 'project_branch_pull_request.tabs.branches' });
   branchTabBtn = byRole('tab', { name: 'project_branch_pull_request.tabs.branches' });
   linkForAdmin = byRole('link', { name: 'settings.page' });
-  renameBranchBtn = byRole('button', { name: 'project_branch_pull_request.branch.rename' });
-  deleteBranchBtn = byRole('button', { name: 'project_branch_pull_request.branch.delete' });
-  deletePullRequestBtn = byRole('button', {
+  renameBranchBtn = byRole('menuitem', { name: 'project_branch_pull_request.branch.rename' });
+  deleteBranchBtn = byRole('menuitem', { name: 'project_branch_pull_request.branch.delete' });
+  deletePullRequestBtn = byRole('menuitem', {
     name: 'project_branch_pull_request.pull_request.delete',
   });
 
@@ -77,7 +77,7 @@ const ui = new (class UI {
   getBranchRow = (name: string | RegExp) =>
     within(this.branchTabContent.get()).getByRole('row', { name });
 
-  setMainBranchBtn = byRole('button', { name: 'project_branch_pull_request.branch.set_main' });
+  setMainBranchBtn = byRole('menuitem', { name: 'project_branch_pull_request.branch.set_main' });
   dialog = byRole('dialog');
 })();
 
@@ -101,8 +101,9 @@ it('should show all branches', async () => {
   expect(ui.pullRequestTabContent.query()).not.toBeInTheDocument();
   expect(ui.linkForAdmin.query()).not.toBeInTheDocument();
   expect(await ui.branchRow.findAll()).toHaveLength(4);
-  expect(ui.branchRow.getAt(1)).toHaveTextContent(
-    'mainbranches.main_branchOK1 month agoproject_branch_pull_request.branch.auto_deletion.main_branch_tooltip',
+  expect(ui.branchRow.getAt(1)).toHaveTextContent('mainbranches.main_branchOK1 month ago');
+  await expect(byLabelText('help').get()).toHaveATooltipWithContent(
+    'project_branch_pull_request.branch.auto_deletion.main_branch_tooltip',
   );
   expect(within(ui.branchRow.getAt(1)).getByRole('switch')).toBeDisabled();
   expect(within(ui.branchRow.getAt(1)).getByRole('switch')).toBeChecked();
@@ -137,8 +138,9 @@ it('should be able to rename main branch, but not others', async () => {
   await act(() =>
     user.click(within(ui.renameBranchDialog.get()).getByRole('button', { name: 'rename' })),
   );
-  expect(ui.branchRow.getAt(1)).toHaveTextContent(
-    'developbranches.main_branchOK1 month agoproject_branch_pull_request.branch.auto_deletion.main_branch_tooltip',
+  expect(ui.branchRow.getAt(1)).toHaveTextContent('developbranches.main_branchOK1 month ago');
+  await expect(byLabelText('help').get()).toHaveATooltipWithContent(
+    'project_branch_pull_request.branch.auto_deletion.main_branch_tooltip',
   );
 
   await user.click(await ui.updateSecondBranchBtn.find());

@@ -17,9 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  ActionCell,
+  ActionsDropdown,
+  Badge,
+  ContentCell,
+  ItemButton,
+  ItemDangerButton,
+  TableRowInteractive,
+} from 'design-system';
 import * as React from 'react';
-import BranchStatus from '../../../components/common/BranchStatus';
-import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
+import QualityGateStatus from '../../../app/components/nav/component/branch-like/QualityGateStatus';
 import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import {
@@ -47,54 +55,60 @@ function BranchLikeRow(props: BranchLikeRowProps) {
   const branchLikeDisplayName = getBranchLikeDisplayName(branchLike);
 
   return (
-    <tr>
-      <td className="nowrap hide-overflow">
-        <BranchLikeIcon branchLike={branchLike} className="little-spacer-right" />
+    <TableRowInteractive>
+      <ContentCell>
+        <BranchLikeIcon branchLike={branchLike} className="sw-mr-1" />
         <span title={branchLikeDisplayName}>{branchLikeDisplayName}</span>
         <span>
           {isMainBranch(branchLike) && (
-            <div className="badge spacer-left">{translate('branches.main_branch')}</div>
+            <Badge className="sw-ml-2">{translate('branches.main_branch')}</Badge>
           )}
         </span>
-      </td>
-      <td className="nowrap">
-        <BranchStatus branchLike={branchLike} />
-      </td>
-      <td className="nowrap">{<DateFromNow date={branchLike.analysisDate} />}</td>
+      </ContentCell>
+      <ContentCell>
+        <QualityGateStatus
+          branchLike={branchLike}
+          className="sw-flex sw-items-center sw-w-24"
+          showStatusText
+        />
+      </ContentCell>
+      <ContentCell>{<DateFromNow date={branchLike.analysisDate} />}</ContentCell>
       {displayPurgeSetting && isBranch(branchLike) && (
-        <td className="nowrap js-test-purge-toggle-container">
+        <ContentCell>
           <BranchPurgeSetting branch={branchLike} component={component} />
-        </td>
+        </ContentCell>
       )}
-      <td className="nowrap">
+      <ActionCell>
         <ActionsDropdown
-          label={translateWithParameters(
+          allowResizing
+          id={`branch-settings-action-${branchLikeDisplayName}`}
+          ariaLabel={translateWithParameters(
             'project_branch_pull_request.branch.actions_label',
-            getBranchLikeDisplayName(branchLike),
+            branchLikeDisplayName,
           )}
         >
           {isBranch(branchLike) && !isMainBranch(branchLike) && (
-            <ActionsDropdownItem onClick={props.onSetAsMain}>
+            <ItemButton onClick={props.onSetAsMain}>
               {translate('project_branch_pull_request.branch.set_main')}
-            </ActionsDropdownItem>
+            </ItemButton>
           )}
 
           {isMainBranch(branchLike) ? (
-            <ActionsDropdownItem className="js-rename" onClick={props.onRename}>
+            <ItemButton onClick={props.onRename}>
               {translate('project_branch_pull_request.branch.rename')}
-            </ActionsDropdownItem>
+            </ItemButton>
           ) : (
-            <ActionsDropdownItem className="js-delete" destructive onClick={props.onDelete}>
+            <ItemDangerButton onClick={props.onDelete}>
               {translate(
                 isPullRequest(branchLike)
                   ? 'project_branch_pull_request.pull_request.delete'
                   : 'project_branch_pull_request.branch.delete',
               )}
-            </ActionsDropdownItem>
+            </ItemDangerButton>
           )}
         </ActionsDropdown>
-      </td>
-    </tr>
+      </ActionCell>
+    </TableRowInteractive>
   );
 }
 

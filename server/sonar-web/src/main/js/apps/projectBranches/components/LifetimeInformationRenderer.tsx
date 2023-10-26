@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Link, Spinner } from 'design-system';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import Link from '../../../components/common/Link';
-import Spinner from '../../../components/ui/Spinner';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
@@ -36,7 +36,7 @@ function LifetimeInformationRenderer(props: LifetimeInformationRendererProps) {
   return (
     <Spinner loading={loading}>
       {branchAndPullRequestLifeTimeInDays && (
-        <p className="page-description">
+        <p>
           <FormattedMessage
             defaultMessage={translate('project_branch_pull_request.lifetime_information')}
             id="project_branch_pull_request.lifetime_information"
@@ -47,7 +47,11 @@ function LifetimeInformationRenderer(props: LifetimeInformationRendererProps) {
               defaultMessage={translate('project_branch_pull_request.lifetime_information.admin')}
               id="project_branch_pull_request.lifetime_information.admin"
               values={{
-                settings: <Link to="/admin/settings">{translate('settings.page')}</Link>,
+                settings: (
+                  <Link to="/admin/settings?category=housekeeping#sonar.dbcleaner.daysBeforeDeletingInactiveBranchesAndPRs">
+                    {translate('settings.page')}
+                  </Link>
+                ),
               }}
             />
           )}

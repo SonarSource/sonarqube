@@ -139,7 +139,7 @@ export default function BranchListRow(props: BranchListRowProps) {
         {branch.newCodePeriod && (
           <ActionsDropdown
             allowResizing
-            id="new-code-action"
+            id={`new-code-action-${branch.name}`}
             ariaLabel={translateWithParameters('branch_list.show_actions_for_x', branch.name)}
           >
             <Tooltip

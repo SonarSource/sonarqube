@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { BranchIcon, PullRequestIcon, ToggleButton } from 'design-system';
 import * as React from 'react';
 import { useState } from 'react';
-import BoxedTabs, { getTabId, getTabPanelId } from '../../../components/controls/BoxedTabs';
-import BranchIcon from '../../../components/icons/BranchIcon';
-import PullRequestIcon from '../../../components/icons/PullRequestIcon';
+import { getTabId, getTabPanelId } from '../../../components/controls/BoxedTabs';
 import {
   isBranch,
   isMainBranch,
@@ -51,21 +50,21 @@ export enum Tabs {
 const TABS = [
   {
     key: Tabs.Branch,
+    value: Tabs.Branch,
     label: (
       <>
         <BranchIcon />
-        <span className="spacer-left">
-          {translate('project_branch_pull_request.tabs.branches')}
-        </span>
+        <span className="sw-ml-2">{translate('project_branch_pull_request.tabs.branches')}</span>
       </>
     ),
   },
   {
     key: Tabs.PullRequest,
+    value: Tabs.PullRequest,
     label: (
       <>
         <PullRequestIcon />
-        <span className="spacer-left">
+        <span className="sw-ml-2">
           {translate('project_branch_pull_request.tabs.pull_requests')}
         </span>
       </>
@@ -111,11 +110,11 @@ export default function BranchLikeTabs(props: Props) {
 
   return (
     <>
-      <BoxedTabs
-        className="branch-like-tabs"
-        onSelect={setCurrentTab}
-        selected={currentTab}
-        tabs={TABS}
+      <ToggleButton
+        onChange={(currentTabKey: Tabs) => setCurrentTab(currentTabKey)}
+        value={currentTab}
+        options={TABS}
+        role="tablist"
       />
 
       <div role="tabpanel" id={getTabPanelId(currentTab)} aria-labelledby={getTabId(currentTab)}>

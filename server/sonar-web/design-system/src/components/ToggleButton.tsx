@@ -30,7 +30,7 @@ type ToggleButtonValueType = string | number | boolean;
 export interface ToggleButtonsOption<T extends ToggleButtonValueType> {
   counter?: number;
   disabled?: boolean;
-  label: string;
+  label: string | React.ReactNode;
   value: T;
 }
 
