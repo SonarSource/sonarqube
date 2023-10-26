@@ -42,10 +42,16 @@ module.exports = class ElasticSearchReporter {
 
   collectTestData(testClassResults) {
     const commit = process.env.GIT_SHA1;
+    const branchName = process.env.GITHUB_BRANCH;
     const build = process.env.BUILD_NUMBER;
 
     const data = testClassResults.reduce((flattenedTestResults, testClassResult) => {
-      const formattedTestResults = this.formatTestResults(testClassResult, commit, build);
+      const formattedTestResults = this.formatTestResults(
+        testClassResult,
+        commit,
+        build,
+        branchName,
+      );
 
       return flattenedTestResults.concat(formattedTestResults);
     }, []);
@@ -53,7 +59,7 @@ module.exports = class ElasticSearchReporter {
     this.writeToFile(data);
   }
 
-  formatTestResults(testClassResult, commit, build) {
+  formatTestResults(testClassResult, commit, build, branchName) {
     const timestamp = new Date(testClassResult.perfStats.start).toISOString();
     const testClass = this.stripFilePath(testClassResult.testFilePath);
 
@@ -61,6 +67,7 @@ module.exports = class ElasticSearchReporter {
       .filter((test) => test.status === 'failed')
       .map((testResult) => ({
         commit,
+        branchName,
         build,
         category: ES_ITEM_CATEGORY,
         timestamp,
