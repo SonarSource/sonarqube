@@ -38,6 +38,7 @@ public class IssueListQuery {
   private final Collection<Integer> types;
   private final Collection<String> statuses;
   private final Collection<String> resolutions;
+  private final Collection<String> softwareQualities;
 
   private IssueListQuery(IssueListQueryBuilder issueListQueryBuilder) {
     this.project = issueListQueryBuilder.project;
@@ -54,6 +55,9 @@ public class IssueListQuery {
       .map(Collections::unmodifiableCollection)
       .orElse(emptyList());
     this.resolutions = ofNullable(issueListQueryBuilder.resolutions)
+      .map(Collections::unmodifiableCollection)
+      .orElse(emptyList());
+    this.softwareQualities = ofNullable(issueListQueryBuilder.softwareQualities)
       .map(Collections::unmodifiableCollection)
       .orElse(emptyList());
   }
@@ -98,6 +102,10 @@ public class IssueListQuery {
     return resolutions;
   }
 
+  public Collection<String> getSoftwareQualities() {
+    return softwareQualities;
+  }
+
   public static final class IssueListQueryBuilder {
     private String project;
     private String branch;
@@ -109,6 +117,7 @@ public class IssueListQuery {
     private Collection<Integer> types;
     private Collection<String> statuses;
     private Collection<String> resolutions;
+    private Collection<String> softwareQualities;
 
     private IssueListQueryBuilder() {
     }
@@ -164,6 +173,11 @@ public class IssueListQuery {
 
     public IssueListQueryBuilder resolutions(Collection<String> resolutions) {
       this.resolutions = resolutions;
+      return this;
+    }
+
+    public IssueListQueryBuilder softwareQualities(Collection<String> softwareQualities) {
+      this.softwareQualities = softwareQualities;
       return this;
     }
 

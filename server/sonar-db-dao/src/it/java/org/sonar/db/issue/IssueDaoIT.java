@@ -875,6 +875,19 @@ public class IssueDaoIT {
   }
 
   @Test
+  public void selectIssueKeysByQuery_whenFilteredWithSoftwareQualities_shouldGetThoseIssuesOnly() {
+    prepareTables(); // One of the issues has software quality impact: SECURITY
+
+    List<String> results = underTest.selectIssueKeysByQuery(
+      db.getSession(),
+      newIssueListQueryBuilder().project(PROJECT_KEY).softwareQualities(List.of("SECURITY")).build(),
+      Pagination.forPage(1).andSize(10));
+
+    List<String> expectedKeys = List.of("I1");
+    assertThat(results.stream().toList()).containsExactlyInAnyOrderElementsOf(expectedKeys);
+  }
+
+  @Test
   public void updateIfBeforeSelectedDate_whenCalledWithBeforeSelectDate_shouldUpdateImpacts() {
     prepareTables();
     IssueDto issueDto = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)

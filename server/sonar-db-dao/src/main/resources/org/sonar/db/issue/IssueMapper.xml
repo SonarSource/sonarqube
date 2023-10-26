@@ -668,6 +668,9 @@
     inner join components root on root.uuid=i.project_uuid
     inner join project_branches pb on pb.uuid=i.project_uuid
     left join new_code_reference_issues n on i.kee = n.issue_key
+    <if test="query.softwareQualities.size() > 0">
+      left join issues_impacts im on i.kee = im.issue_key
+    </if>
     <where>
       <if test="query.project != null">
         root.kee = #{query.project,jdbcType=VARCHAR}
@@ -684,6 +687,12 @@
       <if test="query.types.size() > 0">
         AND i.issue_type IN
         <foreach collection="query.types" open="(" close=")" item="type" separator=",">
+          #{type,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+      <if test="query.softwareQualities.size() > 0">
+        AND im.software_quality IN
+        <foreach collection="query.softwareQualities" open="(" close=")" item="type" separator=",">
           #{type,jdbcType=VARCHAR}
         </foreach>
       </if>
