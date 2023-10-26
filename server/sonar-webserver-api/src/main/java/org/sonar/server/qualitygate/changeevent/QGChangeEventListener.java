@@ -20,7 +20,10 @@
 package org.sonar.server.qualitygate.changeevent;
 
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 
@@ -43,6 +46,8 @@ public interface QGChangeEventListener {
     Status getStatus();
 
     RuleType getType();
+
+    Map<SoftwareQuality, Severity> getImpacts();
 
     String getSeverity();
 
