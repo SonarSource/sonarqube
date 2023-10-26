@@ -166,6 +166,8 @@ default_artifact_template: &DEFAULT_ARTIFACTS_TEMPLATE
       path: "**/build/reports/**/*"
     screenshots_artifacts:
       path: "**/build/screenshots/**/*"
+    log_artifacts:
+      path: "**/build/**/*.log"
   always:
     profile_artifacts:
       path: "**/build/reports/profile/**/*"
