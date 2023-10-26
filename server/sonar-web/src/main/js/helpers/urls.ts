@@ -313,8 +313,10 @@ export function getQualityProfileUrl(name: string, language: string): To {
 }
 
 export function getQualityGateUrl(name: string): To {
+  // This is a workaround for the react router bug: https://github.com/remix-run/react-router/issues/10814
+  const qualityGateName = name.replace(/%/g, '%25');
   return {
-    pathname: '/quality_gates/show/' + encodeURIComponent(name),
+    pathname: '/quality_gates/show/' + encodeURIComponent(qualityGateName),
   };
 }
 
