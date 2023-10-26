@@ -95,6 +95,8 @@ describe('openHotspot', () => {
 
 describe('openIssue', () => {
   it('should send the correct request to the IDE to open an issue', async () => {
+    let branchName: string | undefined = undefined;
+    const issueKey = 'my-issue-key';
     const resp = new Response();
 
     window.fetch = jest.fn((input: RequestInfo) => {
@@ -103,7 +105,9 @@ describe('openIssue', () => {
       try {
         expect(calledUrl.searchParams.get('server')).toStrictEqual('http://localhost');
         expect(calledUrl.searchParams.get('project')).toStrictEqual(PROJECT_KEY);
-        expect(calledUrl.searchParams.get('issue')).toStrictEqual('my-issue-key');
+        expect(calledUrl.searchParams.get('issue')).toStrictEqual(issueKey);
+        // eslint-disable-next-line jest/no-conditional-in-test
+        expect(calledUrl.searchParams.get('branch') ?? undefined).toStrictEqual(branchName);
       } catch (error) {
         return Promise.reject(error);
       }
@@ -111,7 +115,13 @@ describe('openIssue', () => {
       return Promise.resolve(resp);
     });
 
-    const result = await openIssue(SONARLINT_PORT_START, PROJECT_KEY, 'my-issue-key');
+    let result = await openIssue(SONARLINT_PORT_START, PROJECT_KEY, issueKey);
+
+    expect(result).toBe(resp);
+
+    branchName = 'branch-1';
+
+    result = await openIssue(SONARLINT_PORT_START, PROJECT_KEY, issueKey, branchName);
 
     expect(result).toBe(resp);
   });

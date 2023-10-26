@@ -128,9 +128,10 @@ export function useBranchesQuery(component?: Component, refetchInterval?: number
           : branchLikes.find(
               (b) => isBranch(b) && (prOrBranch === 'branch' ? b.name === name : b.isMain),
             );
+
       return { branchLikes, branchLike };
     },
-    // The check of the key must desapear once component state is in react-query
+    // The check of the key must disappear once component state is in react-query
     enabled: !!component && component.key === key[1],
     staleTime: refetchInterval ?? BRANCHES_STALE_TIME,
     refetchInterval,
@@ -293,10 +294,10 @@ export function useSetMainBranchMutation() {
 }
 
 /**
- * Helper functions that sould be avoid. Instead convert the component into functional
+ * Helper functions that sould be avoided. Instead convert the component into a functional one
  * and/or use proper react-query
  */
-const DELAY_REFRECH = 1_000;
+const REFRESH_INTERVAL = 1_000;
 
 export function useRefreshBranchStatus(): () => void {
   const queryClient = useQueryClient();
@@ -311,7 +312,7 @@ export function useRefreshBranchStatus(): () => void {
       queryClient.invalidateQueries({
         queryKey: invalidateDetailsKey,
       });
-    }, DELAY_REFRECH),
+    }, REFRESH_INTERVAL),
     [invalidateDetailsKey, invalidateStatusKey],
   );
 }

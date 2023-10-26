@@ -55,12 +55,21 @@ export function openHotspot(calledPort: number, projectKey: string, hotspotKey: 
   return fetch(showUrl.toString()).then((response: Response) => checkStatus(response, true));
 }
 
-export function openIssue(calledPort: number, projectKey: string, issueKey: string) {
+export function openIssue(
+  calledPort: number,
+  projectKey: string,
+  issueKey: string,
+  branchName?: string,
+) {
   const showUrl = new URL(buildSonarLintEndpoint(calledPort, '/issues/show'));
 
   showUrl.searchParams.set('server', getHostUrl());
   showUrl.searchParams.set('project', projectKey);
   showUrl.searchParams.set('issue', issueKey);
+
+  if (branchName !== undefined) {
+    showUrl.searchParams.set('branch', branchName);
+  }
 
   return fetch(showUrl.toString()).then((response: Response) => checkStatus(response, true));
 }

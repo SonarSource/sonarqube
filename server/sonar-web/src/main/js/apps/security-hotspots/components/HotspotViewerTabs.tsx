@@ -81,7 +81,7 @@ export default function HotspotViewerTabs(props: Props) {
     branchLike,
   } = props;
 
-  const refrechBranchStatus = useRefreshBranchStatus();
+  const refreshBranchStatus = useRefreshBranchStatus();
   const isSticky = useStickyDetection('.hotspot-tabs', {
     offset: TABS_OFFSET,
   });
@@ -163,7 +163,7 @@ export default function HotspotViewerTabs(props: Props) {
 
   const handleStatusChange = async (statusOption: HotspotStatusOption) => {
     await props.onUpdateHotspot(true, statusOption);
-    refrechBranchStatus();
+    refreshBranchStatus();
   };
 
   React.useEffect(() => {

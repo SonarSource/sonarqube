@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import {
@@ -28,31 +29,28 @@ import {
   LightLabel,
   Link,
   Spinner,
-  ThemeProp,
   UnfoldIcon,
   themeColor,
-  withTheme,
 } from 'design-system';
 import * as React from 'react';
-import withCurrentUserContext from '../../../app/components/current-user/withCurrentUserContext';
+import { ComponentContext } from '../../../app/components/componentContext/ComponentContext';
+import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
 import Tooltip from '../../../components/controls/Tooltip';
 import { ClipboardBase } from '../../../components/controls/clipboard';
-import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { getBranchLikeQuery, isBranch, isPullRequest } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 import { getBranchLikeUrl, getComponentIssuesUrl } from '../../../helpers/urls';
-import { BranchLike } from '../../../types/branch-like';
+import { useBranchesQuery } from '../../../queries/branch';
 import { ComponentQualifier } from '../../../types/component';
 import { SourceViewerFile } from '../../../types/types';
-import { CurrentUser, isLoggedIn } from '../../../types/users';
+import { isLoggedIn } from '../../../types/users';
 import { IssueOpenInIdeButton } from '../components/IssueOpenInIdeButton';
 
 export const INTERACTIVE_TOOLTIP_DELAY = 0.5;
 
 export interface Props {
-  branchLike: BranchLike | undefined;
   className?: string;
-  currentUser: CurrentUser;
   displayProjectName?: boolean;
   expandable?: boolean;
   issueKey: string;
@@ -62,11 +60,16 @@ export interface Props {
   sourceViewerFile: SourceViewerFile;
 }
 
-function IssueSourceViewerHeader(props: Readonly<Props> & ThemeProp) {
+export function IssueSourceViewerHeader(props: Readonly<Props>) {
+  const { component } = React.useContext(ComponentContext);
+  const { data: branchData, isLoading: isLoadingBranches } = useBranchesQuery(component);
+  const currentUser = useCurrentUser();
+  const theme = useTheme();
+
+  const branchLike = branchData?.branchLike;
+
   const {
-    branchLike,
     className,
-    currentUser,
     displayProjectName = true,
     expandable,
     issueKey,
@@ -74,7 +77,6 @@ function IssueSourceViewerHeader(props: Readonly<Props> & ThemeProp) {
     loading,
     onExpand,
     sourceViewerFile,
-    theme,
   } = props;
 
   const { measures, path, project, projectName, q } = sourceViewerFile;
@@ -87,6 +89,18 @@ function IssueSourceViewerHeader(props: Readonly<Props> & ThemeProp) {
     border: 1px solid ${borderColor};
     border-bottom: none;
   `;
+
+  const branchName = React.useMemo(() => {
+    if (isBranch(branchLike)) {
+      return branchLike.name;
+    }
+
+    if (isPullRequest(branchLike)) {
+      return branchLike.branch;
+    }
+
+    return undefined; // should never end up here, but needed for consistent returns
+  }, [branchLike]);
 
   return (
     <IssueSourceViewerStyle
@@ -149,13 +163,13 @@ function IssueSourceViewerHeader(props: Readonly<Props> & ThemeProp) {
       </div>
 
       {!isProjectRoot && isLoggedIn(currentUser) && (
-        <IssueOpenInIdeButton issueKey={issueKey} projectKey={project} />
+        <IssueOpenInIdeButton branchName={branchName} issueKey={issueKey} projectKey={project} />
       )}
 
       {!isProjectRoot && measures.issues !== undefined && (
         <div
           className={classNames('sw-ml-4', {
-            'sw-mr-1': !expandable || loading,
+            'sw-mr-1': (!expandable || loading) ?? isLoadingBranches,
           })}
         >
           <Link
@@ -170,9 +184,9 @@ function IssueSourceViewerHeader(props: Readonly<Props> & ThemeProp) {
         </div>
       )}
 
-      <Spinner className="sw-mr-1" loading={loading} />
+      <Spinner className="sw-mr-1" loading={loading ?? isLoadingBranches} />
 
-      {expandable && !loading && (
+      {expandable && !(loading ?? isLoadingBranches) && (
         <div className="sw-ml-4">
           <InteractiveIcon
             Icon={UnfoldIcon}
@@ -185,5 +199,3 @@ function IssueSourceViewerHeader(props: Readonly<Props> & ThemeProp) {
     </IssueSourceViewerStyle>
   );
 }
-
-export default withCurrentUserContext(withTheme(IssueSourceViewerHeader));

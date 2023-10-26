@@ -17,12 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { screen, waitFor } from '@testing-library/react';
 import * as React from 'react';
-import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
+import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
+import { ComponentContext } from '../../../../app/components/componentContext/ComponentContext';
+import { mockComponent } from '../../../../helpers/mocks/component';
 import { mockSourceViewerFile } from '../../../../helpers/mocks/sources';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { byRole, byText } from '../../../../helpers/testSelector';
-import IssueSourceViewerHeader, { Props } from '../IssueSourceViewerHeader';
+import { Feature } from '../../../../types/features';
+import { IssueSourceViewerHeader, Props } from '../IssueSourceViewerHeader';
 
 const ui = {
   expandAllLines: byRole('button', { name: 'source_viewer.expand_all_lines' }),
@@ -31,8 +37,19 @@ const ui = {
   viewAllIssues: byRole('link', { name: 'source_viewer.view_all_issues' }),
 };
 
-it('should render correctly', () => {
+const branchHandler = new BranchesServiceMock();
+
+afterEach(() => {
+  branchHandler.reset();
+});
+
+it('should render correctly', async () => {
+  branchHandler.emptyBranchesAndPullRequest();
+
   renderIssueSourceViewerHeader();
+
+  expect(await screen.findByText('loading')).toBeInTheDocument();
+  await waitFor(() => expect(screen.queryByText('loading')).not.toBeInTheDocument());
 
   expect(ui.expandAllLines.get()).toBeInTheDocument();
   expect(ui.projectLink.get()).toBeInTheDocument();
@@ -40,45 +57,67 @@ it('should render correctly', () => {
   expect(ui.viewAllIssues.get()).toBeInTheDocument();
 });
 
-it('should not render expandable link', () => {
+it('should not render expandable link', async () => {
   renderIssueSourceViewerHeader({ expandable: false });
+
+  expect(await screen.findByText('loading')).toBeInTheDocument();
+  await waitFor(() => expect(screen.queryByText('loading')).not.toBeInTheDocument());
 
   expect(ui.expandAllLines.query()).not.toBeInTheDocument();
 });
 
-it('should not render link to project', () => {
-  renderIssueSourceViewerHeader({ linkToProject: false });
+it('should not render link to project', async () => {
+  renderIssueSourceViewerHeader({ linkToProject: false }, '?id=my-project&branch=normal-branch');
+
+  expect(await screen.findByText('loading')).toBeInTheDocument();
+  await waitFor(() => expect(screen.queryByText('loading')).not.toBeInTheDocument());
 
   expect(ui.projectLink.query()).not.toBeInTheDocument();
   expect(ui.projectName.get()).toBeInTheDocument();
 });
 
-it('should not render project name', () => {
-  renderIssueSourceViewerHeader({ displayProjectName: false });
+it('should not render project name', async () => {
+  renderIssueSourceViewerHeader({ displayProjectName: false }, '?id=my-project&pullRequest=01');
+
+  expect(await screen.findByText('loading')).toBeInTheDocument();
+  await waitFor(() => expect(screen.queryByText('loading')).not.toBeInTheDocument());
 
   expect(ui.projectLink.query()).not.toBeInTheDocument();
   expect(ui.projectName.query()).not.toBeInTheDocument();
 });
 
-it('should render without issue expand all when no issue', () => {
+it('should render without issue expand all when no issue', async () => {
   renderIssueSourceViewerHeader({
     sourceViewerFile: mockSourceViewerFile('foo/bar.ts', 'my-project', {
       measures: {},
     }),
   });
 
+  expect(await screen.findByText('loading')).toBeInTheDocument();
+  await waitFor(() => expect(screen.queryByText('loading')).not.toBeInTheDocument());
+
   expect(ui.viewAllIssues.query()).not.toBeInTheDocument();
 });
 
-function renderIssueSourceViewerHeader(props: Partial<Props> = {}) {
+function renderIssueSourceViewerHeader(props: Partial<Props> = {}, path = '?id=my-project') {
   return renderComponent(
-    <IssueSourceViewerHeader
-      branchLike={mockMainBranch()}
-      expandable
-      issueKey="issue-key"
-      onExpand={jest.fn()}
-      sourceViewerFile={mockSourceViewerFile('foo/bar.ts', 'my-project')}
-      {...props}
-    />,
+    <AvailableFeaturesContext.Provider value={[Feature.BranchSupport]}>
+      <ComponentContext.Provider
+        value={{
+          component: mockComponent(),
+          onComponentChange: jest.fn(),
+          fetchComponent: jest.fn(),
+        }}
+      >
+        <IssueSourceViewerHeader
+          expandable
+          issueKey="issue-key"
+          onExpand={jest.fn()}
+          sourceViewerFile={mockSourceViewerFile('foo/bar.ts', 'my-project')}
+          {...props}
+        />
+      </ComponentContext.Provider>
+    </AvailableFeaturesContext.Provider>,
+    path,
   );
 }

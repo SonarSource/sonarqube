@@ -54,7 +54,7 @@ export interface HotspotHeaderProps {
 export function HotspotHeader(props: HotspotHeaderProps) {
   const { branchLike, component, hotspot, standards } = props;
   const { message, messageFormattings, rule, key } = hotspot;
-  const refrechBranchStatus = useRefreshBranchStatus();
+  const refreshBranchStatus = useRefreshBranchStatus();
 
   const permalink = getPathUrlAsString(
     getComponentSecurityHotspotsUrl(component.key, {
@@ -67,7 +67,7 @@ export function HotspotHeader(props: HotspotHeaderProps) {
   const categoryStandard = standards?.[SecurityStandard.SONARSOURCE][rule.securityCategory]?.title;
   const handleStatusChange = async (statusOption: HotspotStatusOption) => {
     await props.onUpdateHotspot(true, statusOption);
-    refrechBranchStatus();
+    refreshBranchStatus();
   };
 
   return (

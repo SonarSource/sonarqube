@@ -103,6 +103,7 @@ it('handles button click with one ide found', async () => {
     MOCK_IDES[0].port,
     MOCK_PROJECT_KEY,
     MOCK_ISSUE_KEY,
+    undefined,
   );
 
   expect(addGlobalSuccessMessage).toHaveBeenCalledWith('issues.open_in_ide.success');
@@ -147,6 +148,7 @@ it('handles button click with several ides found', async () => {
     MOCK_IDES[1].port,
     MOCK_PROJECT_KEY,
     MOCK_ISSUE_KEY,
+    undefined,
   );
 
   expect(addGlobalSuccessMessage).toHaveBeenCalledWith('issues.open_in_ide.success');

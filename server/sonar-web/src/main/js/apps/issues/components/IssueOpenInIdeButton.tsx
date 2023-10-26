@@ -33,6 +33,7 @@ import { openIssue as openSonarLintIssue, probeSonarLintServers } from '../../..
 import { Ide } from '../../../types/sonarlint';
 
 export interface Props {
+  branchName?: string;
   issueKey: string;
   projectKey: string;
 }
@@ -46,7 +47,7 @@ const showError = () => addGlobalErrorMessage(translate('issues.open_in_ide.fail
 
 const showSuccess = () => addGlobalSuccessMessage(translate('issues.open_in_ide.success'));
 
-export function IssueOpenInIdeButton({ issueKey, projectKey }: Readonly<Props>) {
+export function IssueOpenInIdeButton({ branchName, issueKey, projectKey }: Readonly<Props>) {
   const [state, setState] = React.useState<State>({ ides: [], mounted: false });
 
   React.useEffect(() => {
@@ -67,7 +68,7 @@ export function IssueOpenInIdeButton({ issueKey, projectKey }: Readonly<Props>) 
   const openIssue = (ide: Ide) => {
     setState({ ...state, ides: [] });
 
-    return openSonarLintIssue(ide.port, projectKey, issueKey)
+    return openSonarLintIssue(ide.port, projectKey, issueKey, branchName)
       .then(showSuccess)
       .catch(showError)
       .finally(cleanState);

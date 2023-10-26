@@ -43,7 +43,7 @@ import {
   Issue as TypeIssue,
 } from '../../../types/types';
 import { IssueSourceViewerScrollContext } from '../components/IssueSourceViewerScrollContext';
-import IssueSourceViewerHeader from './IssueSourceViewerHeader';
+import { IssueSourceViewerHeader } from './IssueSourceViewerHeader';
 import SnippetViewer from './SnippetViewer';
 import {
   EXPAND_BY_LINES,
@@ -264,7 +264,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
   };
 
   render() {
-    const { branchLike, isLastOccurenceOfPrimaryComponent, issue, snippetGroup } = this.props;
+    const { isLastOccurenceOfPrimaryComponent, issue, snippetGroup } = this.props;
     const { additionalLines, loading, snippets } = this.state;
 
     const snippetLines = linesForSnippets(snippets, {
@@ -302,7 +302,6 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
         )}
 
         <IssueSourceViewerHeader
-          branchLike={branchLike}
           className={issueIsClosed && !issueIsFileLevel ? 'null-spacer-bottom' : ''}
           expandable={isExpandable(snippets, snippetGroup)}
           issueKey={issue.key}
