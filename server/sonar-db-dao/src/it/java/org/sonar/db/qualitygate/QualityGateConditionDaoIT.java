@@ -33,6 +33,7 @@ import org.sonar.db.metric.MetricDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
 public class QualityGateConditionDaoIT {
 
@@ -79,6 +80,20 @@ public class QualityGateConditionDaoIT {
         .toArray());
 
     assertThat(underTest.selectForQualityGate(dbSession, "5")).isEmpty();
+  }
+
+  @Test
+  public void selectAll() {
+    MetricDto metric = dbTester.measures().insertMetric(t -> t.setEnabled(true));
+    QualityGateConditionDto condition1 = insertQGCondition("uuid1", metric.getUuid());
+    QualityGateConditionDto condition2 = insertQGCondition("uuid2", metric.getUuid());
+    QualityGateConditionDto condition3 = insertQGCondition("uuid3", metric.getUuid());
+
+    assertThat(underTest.selectAll(dbSession))
+      .extracting(QualityGateConditionDto::getUuid, QualityGateConditionDto::getMetricUuid)
+      .containsOnly(tuple(condition1.getUuid(), condition1.getMetricUuid()),
+        tuple(condition2.getUuid(), condition2.getMetricUuid()),
+        tuple(condition3.getUuid(), condition3.getMetricUuid()));
   }
 
   @Test

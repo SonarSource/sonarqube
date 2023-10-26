@@ -27,6 +27,8 @@ public interface QualityGateConditionMapper {
 
   List<QualityGateConditionDto> selectForQualityGate(String qGateUuid);
 
+  List<QualityGateConditionDto> selectAll();
+
   void update(QualityGateConditionDto newCondition);
 
   QualityGateConditionDto selectByUuid(String uuid);

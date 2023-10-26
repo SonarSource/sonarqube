@@ -20,6 +20,13 @@
     order by created_at asc
   </select>
 
+  <select id="selectAll" resultType="QualityGateCondition">
+    select
+    <include refid="conditionColumns"/>
+    from quality_gate_conditions
+    order by qgate_uuid asc
+  </select>
+
   <select id="selectByUuid" parameterType="String" resultType="QualityGateCondition">
     select
     <include refid="conditionColumns"/>

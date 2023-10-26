@@ -26,12 +26,14 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,6 +55,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDbTester;
@@ -137,7 +140,7 @@ public class TelemetryDataLoaderImplIT {
 
   @Before
   public void setUpBuiltInQualityGate() {
-    String builtInQgName = "Sonar Way";
+    String builtInQgName = "Sonar way";
     builtInDefaultQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName(builtInQgName).setBuiltIn(true));
     when(qualityGateCaycChecker.checkCaycCompliant(any(), any())).thenReturn(NON_COMPLIANT);
     db.qualityGates().setDefaultQualityGate(builtInDefaultQualityGate);
@@ -219,6 +222,9 @@ public class TelemetryDataLoaderImplIT {
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG1").setBuiltIn(true));
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(qg -> qg.setName("QG2"));
 
+    QualityGateConditionDto condition1 = db.qualityGates().addCondition(qualityGate1, vulnerabilitiesDto, c -> c.setOperator("GT").setErrorThreshold("80"));
+    QualityGateConditionDto condition2 = db.qualityGates().addCondition(qualityGate2, securityHotspotsDto, c -> c.setOperator("LT").setErrorThreshold("2"));
+
     // quality profiles
     QProfileDto javaQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("java"));
     QProfileDto kotlinQP = db.qualityProfiles().insert(qProfileDto -> qProfileDto.setLanguage("kotlin"));
@@ -245,6 +251,7 @@ public class TelemetryDataLoaderImplIT {
     assertThat(data.getVersion()).isEqualTo(version);
     assertThat(data.getEdition()).contains(DEVELOPER);
     assertThat(data.getDefaultQualityGate()).isEqualTo(builtInDefaultQualityGate.getUuid());
+    assertThat(data.getSonarWayQualityGate()).isEqualTo(builtInDefaultQualityGate.getUuid());
     assertThat(data.getNcdId()).isEqualTo(NewCodeDefinition.getInstanceDefault().hashCode());
     assertThat(data.getMessageSequenceNumber()).isOne();
     assertDatabaseMetadata(data.getDatabase());
@@ -294,11 +301,14 @@ public class TelemetryDataLoaderImplIT {
         tuple("branch", NewCodePeriodType.REFERENCE_BRANCH.name(), branch1.uuid()));
 
     assertThat(data.getQualityGates())
-      .extracting(TelemetryData.QualityGate::uuid, TelemetryData.QualityGate::caycStatus)
+      .extracting(TelemetryData.QualityGate::uuid, TelemetryData.QualityGate::caycStatus,
+        qg -> qg.conditions().stream()
+          .map(condition -> tuple(condition.getMetricKey(), condition.getOperator().getDbValue(), condition.getErrorThreshold(), condition.isOnLeakPeriod()))
+          .collect(Collectors.toList()))
       .containsExactlyInAnyOrder(
-        tuple(builtInDefaultQualityGate.getUuid(), "non-compliant"),
-        tuple(qualityGate1.getUuid(), "non-compliant"),
-        tuple(qualityGate2.getUuid(), "non-compliant"));
+        tuple(builtInDefaultQualityGate.getUuid(), "non-compliant", Collections.emptyList()),
+        tuple(qualityGate1.getUuid(), "non-compliant", List.of(tuple(vulnerabilitiesDto.getKey(), condition1.getOperator(), condition1.getErrorThreshold(), false))),
+        tuple(qualityGate2.getUuid(), "non-compliant", List.of(tuple(securityHotspotsDto.getKey(), condition2.getOperator(), condition2.getErrorThreshold(), false))));
 
     assertThat(data.getQualityProfiles())
       .extracting(TelemetryData.QualityProfile::uuid, TelemetryData.QualityProfile::isBuiltIn)
@@ -701,6 +711,8 @@ public class TelemetryDataLoaderImplIT {
       .setValue(value)
       .setCreatedAt(1L));
   }
+
+
 
   @DataProvider
   public static Set<String> getScimFeatureStatues() {

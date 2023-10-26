@@ -40,7 +40,7 @@ public class ConditionTest {
   }
 
   @Test
-  public void constructor_throws_NPE_if_operator_is_null() {
+  public void constructor_throws_NPE_if_operator_operator_is_null() {
     assertThatThrownBy(() -> new Condition(METRIC_KEY, null, ERROR_THRESHOLD))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("operator can't be null");

@@ -63,6 +63,7 @@ public class TelemetryDataJsonWriter {
     json.prop(NCD_ID, telemetryData.getNcdId());
     telemetryData.getEdition().ifPresent(e -> json.prop("edition", e.name().toLowerCase(Locale.ENGLISH)));
     json.prop("defaultQualityGate", telemetryData.getDefaultQualityGate());
+    json.prop("sonarway_quality_gate_uuid", telemetryData.getSonarWayQualityGate());
     json.name("database");
     json.beginObject();
     json.prop("name", telemetryData.getDatabase().name());
@@ -222,6 +223,16 @@ public class TelemetryDataJsonWriter {
         json.beginObject();
         json.prop("uuid", qualityGate.uuid());
         json.prop("caycStatus", qualityGate.caycStatus());
+        json.name("conditions");
+        json.beginArray();
+        qualityGate.conditions().forEach(condition -> {
+          json.beginObject();
+          json.prop("metric", condition.getMetricKey());
+          json.prop("comparison_operator", condition.getOperator().getDbValue());
+          json.prop("error_value", condition.getErrorThreshold());
+          json.endObject();
+        });
+        json.endArray();
         json.endObject();
       });
       json.endArray();

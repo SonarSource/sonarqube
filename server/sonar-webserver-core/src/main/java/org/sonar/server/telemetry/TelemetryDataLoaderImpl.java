@@ -57,10 +57,12 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
+import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.platform.ContainerSupport;
 import org.sonar.server.property.InternalProperties;
+import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.qualitygate.QualityGateCaycChecker;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.telemetry.TelemetryData.Database;
@@ -86,6 +88,7 @@ import static org.sonar.core.platform.EditionProvider.Edition.ENTERPRISE;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
+import static org.sonar.server.qualitygate.Condition.Operator.fromDbValue;
 import static org.sonar.server.telemetry.TelemetryDaemon.I_PROP_MESSAGE_SEQUENCE;
 
 @ServerSide
@@ -167,9 +170,11 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
       data.setNewCodeDefinitions(newCodeDefinitions);
 
       String defaultQualityGateUuid = qualityGateFinder.getDefault(dbSession).getUuid();
+      String sonarWayQualityGateUuid = qualityGateFinder.getSonarWay(dbSession).getUuid();
       List<ProjectDto> projects = dbClient.projectDao().selectProjects(dbSession);
 
       data.setDefaultQualityGate(defaultQualityGateUuid);
+      data.setSonarWayQualityGate(sonarWayQualityGateUuid);
       resolveUnanalyzedLanguageCode(data, dbSession);
       resolveProjectStatistics(data, dbSession, defaultQualityGateUuid, projects);
       resolveProjects(data, dbSession);
@@ -217,7 +222,7 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
     this.qualityProfileByProjectAndLanguage.clear();
   }
 
-  private void loadNewCodeDefinitions(DbSession dbSession, List<BranchMeasuresDto> branchMeasuresDtos) {
+  private void  loadNewCodeDefinitions(DbSession dbSession, List<BranchMeasuresDto> branchMeasuresDtos) {
     var branchUuidByKey = branchMeasuresDtos.stream()
       .collect(Collectors.toMap(dto -> createBranchUniqueKey(dto.getProjectUuid(), dto.getBranchKey()), BranchMeasuresDto::getBranchUuid));
     List<NewCodePeriodDto> newCodePeriodDtos = dbClient.newCodePeriodDao().selectAll(dbSession);
@@ -380,13 +385,48 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
   private void resolveQualityGates(TelemetryData.Builder data, DbSession dbSession) {
     List<TelemetryData.QualityGate> qualityGates = new ArrayList<>();
     Collection<QualityGateDto> qualityGateDtos = dbClient.qualityGateDao().selectAll(dbSession);
+    Collection<QualityGateConditionDto> qualityGateConditions = dbClient.gateConditionDao().selectAll(dbSession);
+    Map<String, MetricDto> metricsByUuid = getMetricsByUuid(dbSession, qualityGateConditions);
+
+    Map<String, List<Condition>> conditionsMap = mapQualityGateConditions(qualityGateConditions, metricsByUuid);
+
     for (QualityGateDto qualityGateDto : qualityGateDtos) {
+      String qualityGateUuid = qualityGateDto.getUuid();
+      List<Condition> conditions = conditionsMap.getOrDefault(qualityGateUuid, Collections.emptyList());
       qualityGates.add(
         new TelemetryData.QualityGate(qualityGateDto.getUuid(), qualityGateCaycChecker.checkCaycCompliant(dbSession,
-          qualityGateDto.getUuid()).toString()));
+          qualityGateDto.getUuid()).toString(), conditions));
     }
 
     data.setQualityGates(qualityGates);
+  }
+
+  private static Map<String, List<Condition>> mapQualityGateConditions(Collection<QualityGateConditionDto> qualityGateConditions, Map<String, MetricDto> metricsByUuid) {
+    Map<String, List<Condition>> conditionsMap = new HashMap<>();
+
+    for (QualityGateConditionDto condition : qualityGateConditions) {
+      String qualityGateUuid = condition.getQualityGateUuid();
+
+      MetricDto metricDto = metricsByUuid.get(condition.getMetricUuid());
+      String metricKey = metricDto != null ? metricDto.getKey() : "Unknown Metric";
+
+      Condition telemetryCondition = new Condition(
+        metricKey,
+        fromDbValue(condition.getOperator()),
+        condition.getErrorThreshold()
+      );
+
+      conditionsMap
+        .computeIfAbsent(qualityGateUuid, k -> new ArrayList<>())
+        .add(telemetryCondition);
+    }
+
+    return conditionsMap;
+  }
+
+  private Map<String, MetricDto> getMetricsByUuid(DbSession dbSession, Collection<QualityGateConditionDto> conditions) {
+    Set<String> metricUuids = conditions.stream().map(QualityGateConditionDto::getMetricUuid).collect(Collectors.toSet());
+    return dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream().filter(MetricDto::isEnabled).collect(Collectors.toMap(MetricDto::getUuid, Function.identity()));
   }
 
   private void resolveUsers(TelemetryData.Builder data, DbSession dbSession) {

@@ -34,6 +34,10 @@ public class QualityGateConditionDao implements Dao {
     return mapper(session).selectForQualityGate(qGateUuid);
   }
 
+  public Collection<QualityGateConditionDto> selectAll(DbSession session) {
+    return mapper(session).selectAll();
+  }
+
   public QualityGateConditionDto selectByUuid(String uuid, DbSession session) {
     return mapper(session).selectByUuid(uuid);
   }

@@ -25,6 +25,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
+import static java.lang.String.format;
+import static org.sonar.server.qualitygate.QualityGate.BUILTIN_QUALITY_GATE_NAME;
+
 public class QualityGateFinder {
   private final DbClient dbClient;
 
@@ -53,6 +56,11 @@ public class QualityGateFinder {
 
   public QualityGateDto getDefault(DbSession dbSession) {
     return Optional.ofNullable(dbClient.qualityGateDao().selectDefault(dbSession)).orElseThrow(() -> new IllegalStateException("Default quality gate is missing"));
+  }
+
+  public QualityGateDto getSonarWay(DbSession dbSession) {
+    return Optional.ofNullable(dbClient.qualityGateDao().selectByName(dbSession, BUILTIN_QUALITY_GATE_NAME)).orElseThrow(() ->
+      new IllegalStateException(format("%s quality gate is missing", BUILTIN_QUALITY_GATE_NAME)));
   }
 
   public static class QualityGateData {

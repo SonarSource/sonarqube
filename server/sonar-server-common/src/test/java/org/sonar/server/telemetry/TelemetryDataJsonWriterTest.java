@@ -42,6 +42,7 @@ import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.telemetry.TelemetryExtension;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.user.UserTelemetryDto;
+import org.sonar.server.qualitygate.Condition;
 
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -50,6 +51,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
+import static org.sonar.server.qualitygate.Condition.Operator.fromDbValue;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @RunWith(DataProviderRunner.class)
@@ -118,6 +120,20 @@ public class TelemetryDataJsonWriterTest {
         "defaultQualityGate": "%s"
       }
       """.formatted(data.getDefaultQualityGate()));
+  }
+
+  @Test
+  public void writes_sonarWay_qg() {
+    TelemetryData data = telemetryBuilder()
+      .setSonarWayQualityGate("sonarWayUUID")
+      .build();
+
+    String json = writeTelemetryData(data);
+    assertJson(json).isSimilarTo("""
+      {
+        "sonarway_quality_gate_uuid": "%s"
+      }
+      """.formatted(data.getSonarWayQualityGate()));
   }
 
   @Test
@@ -517,20 +533,56 @@ public class TelemetryDataJsonWriterTest {
     assertJson(json).isSimilarTo("""
       {
         "quality-gates": [
-          {
-            "uuid": "uuid-0",
-            "caycStatus": "non-compliant"
-          },
-          {
-            "uuid": "uuid-1",
-            "caycStatus": "compliant"
-          },
-          {
-            "uuid": "uuid-2",
-            "caycStatus": "over-compliant"
-          }
-        ]
-      }
+           {
+             "uuid": "uuid-0",
+             "caycStatus": "non-compliant",
+             "conditions": [
+               {
+                 "metric": "new_coverage",
+                 "comparison_operator": "LT",
+                 "error_value": "80"
+               },
+               {
+                 "metric": "new_duplicated_lines_density",
+                 "comparison_operator": "GT",
+                 "error_value": "3"
+               }
+             ]
+           },
+           {
+             "uuid": "uuid-1",
+             "caycStatus": "compliant",
+             "conditions": [
+               {
+                 "metric": "new_coverage",
+                 "comparison_operator": "LT",
+                 "error_value": "80"
+               },
+               {
+                 "metric": "new_duplicated_lines_density",
+                 "comparison_operator": "GT",
+                 "error_value": "3"
+               }
+             ]
+           },
+           {
+             "uuid": "uuid-2",
+             "caycStatus": "over-compliant",
+             "conditions": [
+               {
+                 "metric": "new_coverage",
+                 "comparison_operator": "LT",
+                 "error_value": "80"
+               },
+               {
+                 "metric": "new_duplicated_lines_density",
+                 "comparison_operator": "GT",
+                 "error_value": "3"
+               }
+             ]
+           }
+         ]
+        }
       """);
   }
 
@@ -693,9 +745,15 @@ public class TelemetryDataJsonWriterTest {
   }
 
   private List<TelemetryData.QualityGate> attachQualityGates() {
-    return List.of(new TelemetryData.QualityGate("uuid-0", "non-compliant"),
-      new TelemetryData.QualityGate("uuid-1", "compliant"),
-      new TelemetryData.QualityGate("uuid-2", "over-compliant"));
+    List<Condition> qualityGateConditions = attachQualityGateConditions();
+    return List.of(new TelemetryData.QualityGate("uuid-0", "non-compliant", qualityGateConditions),
+      new TelemetryData.QualityGate("uuid-1", "compliant", qualityGateConditions),
+      new TelemetryData.QualityGate("uuid-2", "over-compliant", qualityGateConditions));
+  }
+
+  private List<Condition> attachQualityGateConditions() {
+    return List.of(new Condition("new_coverage", fromDbValue("LT"), "80"),
+      new Condition("new_duplicated_lines_density", fromDbValue("GT"), "3"));
   }
 
   private List<TelemetryData.Branch> attachBranches() {

@@ -31,6 +31,7 @@ import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.EditionProvider.Edition;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.user.UserTelemetryDto;
+import org.sonar.server.qualitygate.Condition;
 
 import static java.util.Objects.requireNonNullElse;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
@@ -43,6 +44,7 @@ public class TelemetryData {
   private final Database database;
   private final EditionProvider.Edition edition;
   private final String defaultQualityGate;
+  private final String sonarWayQualityGate;
   private final Long installationDate;
   private final String installationVersion;
   private final boolean inContainer;
@@ -68,6 +70,7 @@ public class TelemetryData {
     database = builder.database;
     edition = builder.edition;
     defaultQualityGate = builder.defaultQualityGate;
+    sonarWayQualityGate = builder.sonarWayQualityGate;
     installationDate = builder.installationDate;
     installationVersion = builder.installationVersion;
     inContainer = builder.inContainer;
@@ -112,6 +115,10 @@ public class TelemetryData {
 
   public String getDefaultQualityGate() {
     return defaultQualityGate;
+  }
+
+  public String getSonarWayQualityGate() {
+    return sonarWayQualityGate;
   }
 
   public Long getInstallationDate() {
@@ -190,6 +197,8 @@ public class TelemetryData {
     private Database database;
     private Edition edition;
     private String defaultQualityGate;
+
+    private String sonarWayQualityGate;
     private Long installationDate;
     private String installationVersion;
     private boolean inContainer = false;
@@ -243,6 +252,11 @@ public class TelemetryData {
 
     Builder setDefaultQualityGate(String defaultQualityGate) {
       this.defaultQualityGate = defaultQualityGate;
+      return this;
+    }
+
+    Builder setSonarWayQualityGate(String sonarWayQualityGate) {
+      this.sonarWayQualityGate = sonarWayQualityGate;
       return this;
     }
 
@@ -360,7 +374,7 @@ public class TelemetryData {
   record Project(String projectUuid, Long lastAnalysis, String language, String qualityProfile, Long loc) {
   }
 
-  record QualityGate(String uuid, String caycStatus) {
+  record QualityGate(String uuid, String caycStatus, List<Condition> conditions) {
   }
 
   public record QualityProfile(String uuid, @Nullable String parentUuid, String language, boolean isDefault,
