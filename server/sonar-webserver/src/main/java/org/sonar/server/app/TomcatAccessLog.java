@@ -33,7 +33,7 @@ class TomcatAccessLog {
 
   private static final String PROPERTY_ENABLE = "sonar.web.accessLogs.enable";
   private static final String PROPERTY_PATTERN = "sonar.web.accessLogs.pattern";
-  private static final String DEFAULT_SQ_ACCESS_LOG_PATTERN = "%h %l %u [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\" \"%reqAttribute{ID}\"";
+  private static final String DEFAULT_SQ_ACCESS_LOG_PATTERN = "%h %l %u [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\" \"%reqAttribute{ID}\" %D";
 
   void configure(Tomcat tomcat, Props props) {
     tomcat.setSilent(true);
