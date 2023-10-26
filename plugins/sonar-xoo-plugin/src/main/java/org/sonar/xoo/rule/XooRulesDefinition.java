@@ -187,13 +187,13 @@ public class XooRulesDefinition implements RulesDefinition {
     oneDayDebtPerFile.setDebtRemediationFunction(oneDayDebtPerFile.debtRemediationFunctions().linear("1d"));
     addAllDescriptionSections(oneDayDebtPerFile, "Generate an issue on each file with a debt of one day");
 
-    NewRule oneIssuePerModule = repo.createRule(OneIssuePerModuleSensor.RULE_KEY).setName("One Issue Per Module");
-    oneIssuePerModule
+    NewRule oneIssuePerProject = repo.createRule(OneIssuePerProjectSensor.RULE_KEY).setName("One Issue Per Project");
+    oneIssuePerProject
       .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM)
-      .setDebtRemediationFunction(oneIssuePerModule.debtRemediationFunctions().linearWithOffset("25min", "1h"))
-      .setGapDescription("A certified architect will need roughly half an hour to start working on removal of modules, " +
-        "then it's about one hour per module.");
-    addAllDescriptionSections(oneIssuePerModule, "Generate an issue on each module");
+      .setDebtRemediationFunction(oneIssuePerProject.debtRemediationFunctions().linearWithOffset("25min", "1h"))
+      .setGapDescription("A certified architect will need roughly half an hour to start working on removal of projects, " +
+        "then it's about one hour per project.");
+    addAllDescriptionSections(oneIssuePerProject, "Generate an issue on each project");
 
     NewRule oneBlockerIssuePerFile = repo.createRule(OneBlockerIssuePerFileSensor.RULE_KEY).setName("One Blocker Issue Per File")
       .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM);
@@ -234,17 +234,17 @@ public class XooRulesDefinition implements RulesDefinition {
       .setDebtRemediationFunction(oneCodeSmellIssuePerLine.debtRemediationFunctions().linear("9min"));
     addAllDescriptionSections(oneCodeSmellIssuePerLine, "Generate a code smell issue on each line of a file. It requires the metric \"lines\".");
 
-    NewRule oneVulnerabilityIssuePerModule = repo.createRule(OneVulnerabilityIssuePerModuleSensor.RULE_KEY).setName("One Vulnerability Issue Per Module")
+    NewRule oneVulnerabilityIssuePerProject = repo.createRule(OneVulnerabilityIssuePerProjectSensor.RULE_KEY).setName("One Vulnerability Issue Per Project")
       .addDefaultImpact(SoftwareQuality.SECURITY, Severity.MEDIUM)
       .addDefaultImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH)
       .setCleanCodeAttribute(CleanCodeAttribute.TRUSTWORTHY)
       .setType(RuleType.VULNERABILITY);
-    addAllDescriptionSections(oneVulnerabilityIssuePerModule, "Generate an issue on each module");
+    addAllDescriptionSections(oneVulnerabilityIssuePerProject, "Generate an issue on each project");
 
-    oneVulnerabilityIssuePerModule
-      .setDebtRemediationFunction(oneVulnerabilityIssuePerModule.debtRemediationFunctions().linearWithOffset("25min", "1h"))
-      .setGapDescription("A certified architect will need roughly half an hour to start working on removal of modules, " +
-        "then it's about one hour per module.");
+    oneVulnerabilityIssuePerProject
+      .setDebtRemediationFunction(oneVulnerabilityIssuePerProject.debtRemediationFunctions().linearWithOffset("25min", "1h"))
+      .setGapDescription("A certified architect will need roughly half an hour to start working on removal of project, " +
+        "then it's about one hour per project.");
 
     NewRule templateofRule = repo
       .createRule("xoo-template")
@@ -270,7 +270,7 @@ public class XooRulesDefinition implements RulesDefinition {
         .addOwaspTop10(Y2021, OwaspTop10.A3, OwaspTop10.A2)
         .addCwe(1, 89, 123, 863);
 
-      oneVulnerabilityIssuePerModule
+      oneVulnerabilityIssuePerProject
         .addOwaspTop10(Y2017, OwaspTop10.A9, OwaspTop10.A10)
         .addOwaspTop10(Y2021, OwaspTop10.A6, OwaspTop10.A9)
         .addCwe(250, 564, 546, 943);
@@ -283,7 +283,7 @@ public class XooRulesDefinition implements RulesDefinition {
         .addPciDss(PciDssVersion.V4_0, "6.5a.1", "4.2c")
         .addPciDss(PciDssVersion.V3_2, "6.5a.1b", "4.2b");
 
-      oneVulnerabilityIssuePerModule
+      oneVulnerabilityIssuePerProject
         .addPciDss(PciDssVersion.V4_0, "10.1")
         .addPciDss(PciDssVersion.V3_2, "10.2")
         .addPciDss(PciDssVersion.V4_0, "10.1a.2b")
@@ -293,7 +293,7 @@ public class XooRulesDefinition implements RulesDefinition {
     if (version != null && version.isGreaterThanOrEqual(Version.create(9, 6))) {
       hotspot
         .addOwaspAsvs(OwaspAsvsVersion.V4_0, "2.8.7", "3.1.1", "4.2.2");
-      oneVulnerabilityIssuePerModule
+      oneVulnerabilityIssuePerProject
         .addOwaspAsvs(OwaspAsvsVersion.V4_0, "11.1.2", "14.5.1", "14.5.4");
     }
 

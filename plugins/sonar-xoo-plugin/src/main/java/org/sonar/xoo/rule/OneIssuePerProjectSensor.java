@@ -26,31 +26,31 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.xoo.Xoo;
 
-public class OneVulnerabilityIssuePerModuleSensor implements Sensor {
+public class OneIssuePerProjectSensor implements Sensor {
 
-  public static final String RULE_KEY = "OneVulnerabilityIssuePerModule";
+  public static final String RULE_KEY = "OneIssuePerProject";
 
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .name("One Issue Per Module")
+      .name("One Issue Per Project")
       .onlyOnLanguages(Xoo.KEY)
       .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY);
   }
 
   @Override
   public void execute(SensorContext context) {
-    analyse(context, XooRulesDefinition.XOO_REPOSITORY);
+    analyse(context, Xoo.KEY, XooRulesDefinition.XOO_REPOSITORY);
   }
 
-  private void analyse(SensorContext context, String repo) {
+  private void analyse(SensorContext context, String language, String repo) {
     RuleKey ruleKey = RuleKey.of(repo, RULE_KEY);
     NewIssue newIssue = context.newIssue();
     newIssue
       .forRule(ruleKey)
       .at(newIssue.newLocation()
         .on(context.module())
-        .message("This issue is generated on each module"))
+        .message("This issue is generated on each project"))
       .save();
   }
 

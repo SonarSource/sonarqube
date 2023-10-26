@@ -43,7 +43,7 @@ public class IssuesOnModuleMediumIT {
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
-    .addActiveRule("xoo", "OneIssuePerModule", null, "One issue per module", "MINOR", "xoo", "xoo");
+    .addActiveRule("xoo", "OneIssuePerProject", null, "One issue per module", "MINOR", "xoo", "xoo");
 
   @Test
   public void scanTempProject() throws IOException {

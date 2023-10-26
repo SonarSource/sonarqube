@@ -88,7 +88,7 @@ public class XooRulesDefinitionTest {
   public void define_xoo_vulnerability_rule() {
     RulesDefinition.Repository repo = getRepository();
 
-    RulesDefinition.Rule rule = repo.rule(OneVulnerabilityIssuePerModuleSensor.RULE_KEY);
+    RulesDefinition.Rule rule = repo.rule(OneVulnerabilityIssuePerProjectSensor.RULE_KEY);
     assertThat(rule.name()).isNotEmpty();
     assertThat(rule.securityStandards())
       .isNotEmpty()
