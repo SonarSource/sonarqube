@@ -20,6 +20,7 @@
 import { withTheme } from '@emotion/react';
 import { QueryClient } from '@tanstack/react-query';
 import { Theme } from 'design-system';
+import { isEqual } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { injectIntl, WrappedComponentProps } from 'react-intl';
@@ -67,7 +68,7 @@ class Extension extends React.PureComponent<ExtensionProps, State> {
     if (prevProps.extension.key !== this.props.extension.key) {
       this.stopExtension();
       this.startExtension();
-    } else if (prevProps.location !== this.props.location) {
+    } else if (!isEqual(prevProps.location, this.props.location)) {
       this.startExtension();
     }
   }
