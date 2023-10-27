@@ -37,5 +37,4 @@ public class DbVersion104Test {
   public void verify_migration_is_not_empty() {
     verifyMigrationNotEmpty(underTest);
   }
-
 }

@@ -19,29 +19,24 @@
  */
 package org.sonar.server.platform.db.migration.version.v104;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.Upsert;
 
-// ignoring bad number formatting, as it's indented that we align the migration numbers to SQ versions
-@SuppressWarnings("java:S3937")
-public class DbVersion104 implements DbVersion {
+public class RenameWontFixIssuesMetric extends DataChange {
 
-  /**
-   * We use the start of the 10.X cycle as an opportunity to align migration numbers with the SQ version number.
-   * Please follow this pattern:
-   * 10_0_000
-   * 10_0_001
-   * 10_0_002
-   * 10_1_000
-   * 10_1_001
-   * 10_1_002
-   * 10_2_000
-   */
+  private static final String UPDATE_QUERY = """
+    update metrics set name='accepted_issues', description='Accepted issues' where name='wont_fix_issues'
+    """;
+
+  public RenameWontFixIssuesMetric(Database db) {
+    super(db);
+  }
 
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(10_4_000, "Delete redundant Failed Alerts for Applications", DeleteRedundantFailedAlertsForApplications.class)
-      .add(10_4_001, "Rename metric 'wont_fix_issues' to 'accepted_issues'", RenameWontFixIssuesMetric.class);
+  public void execute(Context context) throws SQLException {
+    Upsert upsert = context.prepareUpsert(UPDATE_QUERY);
+    upsert.execute().commit();
   }
 }
