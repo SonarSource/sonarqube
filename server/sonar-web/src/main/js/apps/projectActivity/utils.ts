@@ -59,7 +59,7 @@ export function historyQueryChanged(prevQuery: Query, nextQuery: Query) {
   return prevQuery.graph !== nextQuery.graph;
 }
 
-interface AnalysesByDay {
+export interface AnalysesByDay {
   byDay: Dict<ParsedAnalysis[]>;
   version: string | null;
   key: string | null;

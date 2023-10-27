@@ -163,6 +163,40 @@ describe('rendering', () => {
     expect(ui.baseline.get()).toBeInTheDocument();
   });
 
+  it('should correctly show the baseline marker when first new code analysis is not present but baseline analysis is present', async () => {
+    const { ui } = getPageObject();
+
+    renderProjectActivityAppContainer(
+      mockComponent({
+        leakPeriodDate: parseDate('2017-03-03T22:00:00.000Z').toDateString(),
+        breadcrumbs: [
+          { key: 'breadcrumb', name: 'breadcrumb', qualifier: ComponentQualifier.Project },
+        ],
+      }),
+    );
+
+    await ui.appLoaded();
+
+    expect(ui.baseline.get()).toBeInTheDocument();
+  });
+
+  it('should not show the baseline marker when first new code analysis and baseline analysis is not present', async () => {
+    const { ui } = getPageObject();
+
+    renderProjectActivityAppContainer(
+      mockComponent({
+        leakPeriodDate: parseDate('2017-03-10T22:00:00.000Z').toDateString(),
+        breadcrumbs: [
+          { key: 'breadcrumb', name: 'breadcrumb', qualifier: ComponentQualifier.Project },
+        ],
+      }),
+    );
+
+    await ui.appLoaded();
+
+    expect(ui.baseline.query()).not.toBeInTheDocument();
+  });
+
   it('should only show certain security hotspot-related metrics for a project', async () => {
     const { ui } = getPageObject();
 

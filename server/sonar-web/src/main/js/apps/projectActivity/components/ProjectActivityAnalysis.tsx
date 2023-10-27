@@ -101,19 +101,6 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
 
   return (
     <>
-      {isBaseline && (
-        <BaselineMarker className="sw-body-sm sw-mt-2">
-          <span className="sw-py-1/2 sw-px-1">
-            {translate('project_activity.new_code_period_start')}
-          </span>
-          <Tooltip
-            overlay={translate('project_activity.new_code_period_start.help')}
-            placement="top"
-          >
-            <HelperHintIcon className="sw-ml-1" />
-          </Tooltip>
-        </BaselineMarker>
-      )}
       <Tooltip mouseEnterDelay={0.5} overlay={tooltipContent} placement="left">
         <ActivityAnalysisListItem
           className={classNames(
@@ -213,6 +200,19 @@ function ProjectActivityAnalysis(props: ProjectActivityAnalysisProps) {
           )}
         </ActivityAnalysisListItem>
       </Tooltip>
+      {isBaseline && (
+        <BaselineMarker className="sw-body-sm sw-mt-2">
+          <span className="sw-py-1/2 sw-px-1">
+            {translate('project_activity.new_code_period_start')}
+          </span>
+          <Tooltip
+            overlay={translate('project_activity.new_code_period_start.help')}
+            placement="top"
+          >
+            <HelperHintIcon className="sw-ml-1" />
+          </Tooltip>
+        </BaselineMarker>
+      )}
     </>
   );
 }
@@ -245,7 +245,7 @@ const ActivityAnalysisListItem = styled.li`
   }
 `;
 
-const BaselineMarker = styled.li`
+export const BaselineMarker = styled.li`
   display: flex;
   align-items: center;
   border-bottom: ${themeBorder('default', 'newCodeHighlight')};

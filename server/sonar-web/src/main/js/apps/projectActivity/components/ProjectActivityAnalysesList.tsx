@@ -20,7 +20,7 @@
 import styled from '@emotion/styled';
 import classNames from 'classnames';
 import { isEqual } from 'date-fns';
-import { Badge, LightLabel, Spinner, themeColor } from 'design-system';
+import { Badge, HelperHintIcon, LightLabel, Spinner, themeColor } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
@@ -29,8 +29,8 @@ import { translate } from '../../../helpers/l10n';
 
 import { ComponentQualifier } from '../../../types/component';
 import { ParsedAnalysis } from '../../../types/project-activity';
-import { Query, activityQueryChanged, getAnalysesByVersionByDay } from '../utils';
-import ProjectActivityAnalysis from './ProjectActivityAnalysis';
+import { AnalysesByDay, Query, activityQueryChanged, getAnalysesByVersionByDay } from '../utils';
+import ProjectActivityAnalysis, { BaselineMarker } from './ProjectActivityAnalysis';
 
 interface Props {
   onAddCustomEvent: (analysis: string, name: string, category?: string) => Promise<void>;
@@ -72,11 +72,36 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
     this.props.onUpdateQuery({ selectedDate: date });
   };
 
-  shouldRenderBaselineMarker(analysis: ParsedAnalysis): boolean {
-    return Boolean(this.props.leakPeriodDate && isEqual(this.props.leakPeriodDate, analysis.date));
+  getNewCodePeriodStartKey(versionByDay: AnalysesByDay[]): {
+    firstNewCodeAnalysisKey: string | undefined;
+    baselineAnalysisKey: string | undefined;
+  } {
+    const { leakPeriodDate } = this.props;
+    if (!leakPeriodDate) {
+      return { firstNewCodeAnalysisKey: undefined, baselineAnalysisKey: undefined };
+    }
+    // In response, the first new code analysis comes before the baseline analysis
+    // This variable is to track the previous analysis and return when next is baseline analysis
+    let prevAnalysis;
+    for (const version of versionByDay) {
+      const days = Object.keys(version.byDay);
+      for (const day of days) {
+        for (const analysis of version.byDay[day]) {
+          if (isEqual(leakPeriodDate, analysis.date)) {
+            return {
+              firstNewCodeAnalysisKey: prevAnalysis?.key,
+              baselineAnalysisKey: analysis.key,
+            };
+          }
+          prevAnalysis = analysis;
+        }
+      }
+    }
+
+    return { firstNewCodeAnalysisKey: undefined, baselineAnalysisKey: undefined };
   }
 
-  renderAnalysis(analysis: ParsedAnalysis) {
+  renderAnalysis(analysis: ParsedAnalysis, newCodeKey?: string) {
     const firstAnalysisKey = this.props.analyses[0].key;
 
     const selectedDate = this.props.query.selectedDate
@@ -94,7 +119,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
         onChangeEvent={this.props.onChangeEvent}
         onDeleteAnalysis={this.props.onDeleteAnalysis}
         onDeleteEvent={this.props.onDeleteEvent}
-        isBaseline={this.shouldRenderBaselineMarker(analysis)}
+        isBaseline={analysis.key === newCodeKey}
         isFirst={analysis.key === firstAnalysisKey}
         key={analysis.key}
         selected={analysis.date.valueOf() === selectedDate}
@@ -105,6 +130,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
 
   render() {
     const byVersionByDay = getAnalysesByVersionByDay(this.props.analyses, this.props.query);
+    const newCodePeriod = this.getNewCodePeriodStartKey(byVersionByDay);
     const hasFilteredData =
       byVersionByDay.length > 1 ||
       (byVersionByDay.length === 1 && Object.keys(byVersionByDay[0].byDay).length > 0);
@@ -136,6 +162,21 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
               : undefined,
         }}
       >
+        {newCodePeriod.baselineAnalysisKey !== undefined &&
+          newCodePeriod.firstNewCodeAnalysisKey === undefined && (
+            <BaselineMarker className="sw-body-sm sw-mb-2">
+              <span className="sw-py-1/2 sw-px-1">
+                {translate('project_activity.new_code_period_start')}
+              </span>
+              <Tooltip
+                overlay={translate('project_activity.new_code_period_start.help')}
+                placement="top"
+              >
+                <HelperHintIcon className="sw-ml-1" />
+              </Tooltip>
+            </BaselineMarker>
+          )}
+
         {byVersionByDay.map((version, idx) => {
           const days = Object.keys(version.byDay);
           if (days.length <= 0) {
@@ -172,8 +213,9 @@ export default class ProjectActivityAnalysesList extends React.PureComponent<Pro
                       <DateFormatter date={Number(day)} long />
                     </div>
                     <ul className="it__project-activity-analyses-list">
-                      {version.byDay[day] != null &&
-                        version.byDay[day].map((analysis) => this.renderAnalysis(analysis))}
+                      {version.byDay[day]?.map((analysis) =>
+                        this.renderAnalysis(analysis, newCodePeriod.firstNewCodeAnalysisKey),
+                      )}
                     </ul>
                   </li>
                 ))}
