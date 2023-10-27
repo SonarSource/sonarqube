@@ -74,4 +74,10 @@ public interface InternalProperties {
    * @throws IllegalArgumentException if {@code propertyKey} is {@code null} or empty
    */
   void write(String propertyKey, @Nullable String value);
+
+  /**
+   * Delete the specified property.
+   *
+   */
+  void delete(String propertyKey);
 }

@@ -44,6 +44,12 @@ public class MapInternalProperties implements InternalProperties {
     values.put(propertyKey, value);
   }
 
+  @Override
+  public void delete(String propertyKey) {
+    checkPropertyKey(propertyKey);
+    values.remove(propertyKey);
+  }
+
   private static void checkPropertyKey(@Nullable String propertyKey) {
     checkArgument(propertyKey != null && !propertyKey.isEmpty(), "property key can't be null nor empty");
   }
