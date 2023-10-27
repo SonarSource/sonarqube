@@ -23,6 +23,7 @@ import * as React from 'react';
 import HelpTooltip from '../../../components/controls/HelpTooltip';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getLeakValue } from '../../../components/measure/utils';
+import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { findMeasure, formatMeasure, localizeMetric } from '../../../helpers/measures';
@@ -58,7 +59,7 @@ export function IssueLabel(props: IssueLabelProps) {
   const params = {
     ...getBranchLikeQuery(branchLike),
     inNewCodePeriod: useDiffMetric ? 'true' : 'false',
-    resolved: 'false',
+    ...DEFAULT_ISSUES_QUERY,
     types: type,
   };
 

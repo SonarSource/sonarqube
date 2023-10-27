@@ -74,7 +74,7 @@ export const ui = {
   resolutionFacet: byRole('button', { name: 'issues.facet.resolutions' }),
   ruleFacet: byRole('button', { name: 'issues.facet.rules' }),
   scopeFacet: byRole('button', { name: 'issues.facet.scopes' }),
-  statusFacet: byRole('button', { name: 'issues.facet.statuses' }),
+  simpleStatusFacet: byRole('button', { name: 'issues.facet.simpleStatuses' }),
   tagFacet: byRole('button', { name: 'issues.facet.tags' }),
   typeFacet: byRole('button', { name: 'issues.facet.types' }),
   cleanCodeAttributeCategoryFacet: byRole('button', {
@@ -97,7 +97,7 @@ export const ui = {
   clearRuleFacet: byTestId('clear-issues.facet.rules'),
   clearScopeFacet: byTestId('clear-issues.facet.scopes'),
   clearSeverityFacet: byTestId('clear-issues.facet.impactSeverities'),
-  clearStatusFacet: byTestId('clear-issues.facet.statuses'),
+  clearSimpleStatusFacet: byTestId('clear-issues.facet.simpleStatuses'),
   clearTagFacet: byTestId('clear-issues.facet.tags'),
 
   responsibleCategoryFilter: byRole('checkbox', {
@@ -110,11 +110,11 @@ export const ui = {
     name: `software_quality.${SoftwareQuality.Maintainability}`,
   }),
   codeSmellIssueTypeFilter: byRole('checkbox', { name: 'issue.type.CODE_SMELL' }),
-  confirmedStatusFilter: byRole('checkbox', { name: 'issue.status.CONFIRMED' }),
+  confirmedStatusFilter: byRole('checkbox', { name: 'issue.simple_status.CONFIRMED' }),
   fixedResolutionFilter: byRole('checkbox', { name: 'issue.resolution.FIXED' }),
   mainScopeFilter: byRole('checkbox', { name: 'issue.scope.MAIN' }),
   mediumSeverityFilter: byRole('checkbox', { name: `severity.${SoftwareImpactSeverity.Medium}` }),
-  openStatusFilter: byRole('checkbox', { name: 'issue.status.OPEN' }),
+  openStatusFilter: byRole('checkbox', { name: 'issue.simple_status.OPEN' }),
   vulnerabilityIssueTypeFilter: byRole('checkbox', { name: 'issue.type.VULNERABILITY' }),
 
   clearAllFilters: byRole('button', { name: 'clear_all_filters' }),

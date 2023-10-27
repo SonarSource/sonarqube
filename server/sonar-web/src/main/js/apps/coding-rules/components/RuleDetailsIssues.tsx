@@ -27,6 +27,7 @@ import withAvailableFeatures, {
   WithAvailableFeaturesProps,
 } from '../../../app/components/available-features/withAvailableFeatures';
 import Tooltip from '../../../components/controls/Tooltip';
+import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import { getIssuesUrl } from '../../../helpers/urls';
@@ -81,7 +82,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
     getFacet(
       {
-        resolved: 'false',
+        ...DEFAULT_ISSUES_QUERY,
         rules: key,
       },
       FacetName.Projects,
@@ -139,7 +140,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
     if (total === undefined) {
       return null;
     }
-    const path = getIssuesUrl({ resolved: 'false', rules: key });
+    const path = getIssuesUrl({ ...DEFAULT_ISSUES_QUERY, rules: key });
 
     const totalItem = (
       <span className="little-spacer-left">
@@ -163,7 +164,7 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
       ruleDetails: { key },
     } = this.props;
 
-    const path = getIssuesUrl({ resolved: 'false', rules: key, projects: project.key });
+    const path = getIssuesUrl({ ...DEFAULT_ISSUES_QUERY, rules: key, projects: project.key });
     return (
       <TableRow key={project.key}>
         <ContentCell>{project.name}</ContentCell>

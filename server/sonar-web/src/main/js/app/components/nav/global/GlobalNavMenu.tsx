@@ -23,6 +23,7 @@ import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import { isMySet } from '../../../../apps/issues/utils';
 import Link from '../../../../components/common/Link';
+import { DEFAULT_ISSUES_QUERY } from '../../../../components/shared/utils';
 import { translate } from '../../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../../helpers/urls';
 import { AppState } from '../../../../types/appstate';
@@ -71,8 +72,8 @@ class GlobalNavMenu extends React.PureComponent<Props> {
   renderIssuesLink() {
     const search = (
       this.props.currentUser.isLoggedIn && isMySet()
-        ? new URLSearchParams({ resolved: 'false', myIssues: 'true' })
-        : new URLSearchParams({ resolved: 'false' })
+        ? new URLSearchParams({ myIssues: 'true', ...DEFAULT_ISSUES_QUERY })
+        : new URLSearchParams(DEFAULT_ISSUES_QUERY)
     ).toString();
 
     return (

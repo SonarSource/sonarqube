@@ -20,6 +20,7 @@
 import { isArray, mapValues, omitBy, pick } from 'lodash';
 import { Path, To } from 'react-router-dom';
 import { getProfilePath } from '../apps/quality-profiles/utils';
+import { DEFAULT_ISSUES_QUERY } from '../components/shared/utils';
 import { BranchLike, BranchParameters } from '../types/branch-like';
 import { ComponentQualifier, isApplication, isPortfolioLike } from '../types/component';
 import { MeasurePageView } from '../types/measures';
@@ -423,7 +424,7 @@ export function getHomePageUrl(homepage: HomePage) {
       return '/projects';
     case 'ISSUES':
     case 'MY_ISSUES':
-      return { pathname: '/issues', query: { resolved: 'false' } };
+      return { pathname: '/issues', query: DEFAULT_ISSUES_QUERY };
   }
 
   // should never happen, but just in case...

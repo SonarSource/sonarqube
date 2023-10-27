@@ -25,7 +25,13 @@ import {
   SoftwareQuality,
 } from '../types/clean-code-taxonomy';
 import { ComponentQualifier } from '../types/component';
-import { IssueResolution, IssueScope, IssueSeverity, IssueType } from '../types/issues';
+import {
+  IssueResolution,
+  IssueScope,
+  IssueSeverity,
+  IssueSimpleStatus,
+  IssueType,
+} from '../types/issues';
 import { RuleType } from '../types/types';
 
 export const SEVERITIES = Object.values(IssueSeverity);
@@ -37,6 +43,14 @@ export const CLEAN_CODE_CATEGORIES = Object.values(CleanCodeAttributeCategory);
 export const SOFTWARE_QUALITIES = Object.values(SoftwareQuality);
 
 export const STATUSES = ['OPEN', 'CONFIRMED', 'REOPENED', 'RESOLVED', 'CLOSED'];
+
+export const SIMPLE_STATUSES = [
+  IssueSimpleStatus.Open,
+  IssueSimpleStatus.Accepted,
+  IssueSimpleStatus.FalsePositive,
+  IssueSimpleStatus.Confirmed,
+  IssueSimpleStatus.Fixed,
+];
 
 export const ISSUE_TYPES: IssueType[] = [
   IssueType.Bug,

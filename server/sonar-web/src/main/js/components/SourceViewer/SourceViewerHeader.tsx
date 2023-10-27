@@ -37,7 +37,6 @@ import {
   themeColor,
 } from 'design-system';
 import * as React from 'react';
-
 import { getBranchLikeQuery } from '../../helpers/branch-like';
 import { ISSUE_TYPES } from '../../helpers/constants';
 import { ISSUETYPE_METRIC_KEYS_MAP } from '../../helpers/issues';
@@ -52,6 +51,7 @@ import {
   getComponentIssuesUrl,
   getComponentSecurityHotspotsUrl,
 } from '../../helpers/urls';
+import { DEFAULT_ISSUES_QUERY } from '../shared/utils';
 
 import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';
@@ -89,7 +89,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props> {
               const params = {
                 ...getBranchLikeQuery(branchLike),
                 files: sourceViewerFile.path,
-                resolved: 'false',
+                ...DEFAULT_ISSUES_QUERY,
                 types: type,
               };
 

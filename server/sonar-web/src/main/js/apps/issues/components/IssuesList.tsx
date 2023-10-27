@@ -19,18 +19,17 @@
  */
 import { groupBy } from 'lodash';
 import * as React from 'react';
+import IssueItem from '../../../components/issue/Issue';
 import { BranchLike } from '../../../types/branch-like';
 import { Component, Issue } from '../../../types/types';
-import { Query } from '../utils';
+
 import ComponentBreadcrumbs from './ComponentBreadcrumbs';
-import ListItem from './ListItem';
 
 interface Props {
   branchLike: BranchLike | undefined;
   checked: string[];
   component: Component | undefined;
   issues: Issue[];
-  onFilterChange: (changes: Partial<Query>) => void;
   onIssueChange: (issue: Issue) => void;
   onIssueCheck: ((issueKey: string) => void) | undefined;
   onIssueSelect: (issueKey: string) => void;
@@ -69,7 +68,7 @@ export default class IssuesList extends React.PureComponent<Props, State> {
         </li>
         <ul>
           {issues.map((issue) => (
-            <ListItem
+            <IssueItem
               branchLike={branchLike}
               checked={checked.includes(issue.key)}
               issue={issue}
@@ -77,7 +76,6 @@ export default class IssuesList extends React.PureComponent<Props, State> {
               onChange={this.props.onIssueChange}
               onCheck={this.props.onIssueCheck}
               onSelect={this.props.onIssueSelect}
-              onFilterChange={this.props.onFilterChange}
               onPopupToggle={this.props.onPopupToggle}
               openPopup={openPopup && openPopup.issue === issue.key ? openPopup.name : undefined}
               selected={selectedIssue != null && selectedIssue.key === issue.key}

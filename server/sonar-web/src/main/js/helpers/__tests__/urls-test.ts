@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DEFAULT_ISSUES_QUERY } from '../../components/shared/utils';
 import { AlmKeys } from '../../types/alm-settings';
 import { ComponentQualifier } from '../../types/component';
 import { IssueType } from '../../types/issues';
@@ -102,10 +103,10 @@ describe('#getComponentIssuesUrl', () => {
   });
 
   it('should work with parameters', () => {
-    expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, { resolved: 'false' })).toEqual(
+    expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, DEFAULT_ISSUES_QUERY)).toEqual(
       expect.objectContaining({
         pathname: '/project/issues',
-        search: queryToSearch({ resolved: 'false', id: SIMPLE_COMPONENT_KEY }),
+        search: queryToSearch({ ...DEFAULT_ISSUES_QUERY, id: SIMPLE_COMPONENT_KEY }),
       }),
     );
   });

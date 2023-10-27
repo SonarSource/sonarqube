@@ -317,10 +317,10 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
         impacts: [
           { softwareQuality: SoftwareQuality.Security, severity: SoftwareImpactSeverity.High },
         ],
-        ruleDescriptionContextKey: 'spring',
         resolution: IssueResolution.Unresolved,
         status: IssueStatus.Open,
         simpleStatus: IssueSimpleStatus.Open,
+        ruleDescriptionContextKey: 'spring',
       }),
       snippets: keyBy(
         [
@@ -347,6 +347,7 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
         },
         resolution: IssueResolution.Fixed,
         status: IssueStatus.Confirmed,
+        simpleStatus: IssueSimpleStatus.Confirmed,
       }),
       snippets: keyBy(
         [

@@ -51,6 +51,7 @@ import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import IssueTabViewer from '../../../components/rules/IssueTabViewer';
 import '../../../components/search-navigator.css';
+import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import Spinner from '../../../components/ui/Spinner';
 import { fillBranchLike, getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
@@ -148,7 +149,6 @@ export interface State {
   selectedLocationIndex?: number;
 }
 
-const DEFAULT_QUERY = { resolved: 'false' };
 const MAX_INITAL_FETCH = 1000;
 const VARIANTS_FACET = 'codeVariants';
 const ISSUES_PAGE_SIZE = 100;
@@ -700,7 +700,7 @@ export class App extends React.PureComponent<Props, State> {
   isFiltered = () => {
     const serialized = serializeQuery(this.state.query);
 
-    return !areQueriesEqual(serialized, DEFAULT_QUERY);
+    return !areQueriesEqual(serialized, DEFAULT_ISSUES_QUERY);
   };
 
   getCheckedIssues = () => {
@@ -828,7 +828,7 @@ export class App extends React.PureComponent<Props, State> {
     this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
-        ...DEFAULT_QUERY,
+        ...DEFAULT_ISSUES_QUERY,
         ...getBranchLikeQuery(this.props.branchLike),
         id: this.props.component?.key,
         myIssues: this.state.myIssues ? 'true' : undefined,
@@ -1156,7 +1156,6 @@ export class App extends React.PureComponent<Props, State> {
             checked={this.state.checked}
             component={component}
             issues={issues}
-            onFilterChange={this.handleFilterChange}
             onIssueChange={this.handleIssueChange}
             onIssueCheck={currentUser.isLoggedIn ? this.handleIssueCheck : undefined}
             onIssueSelect={this.selectIssue}
@@ -1234,7 +1233,6 @@ export class App extends React.PureComponent<Props, State> {
             {this.renderHeader({ openIssue, paging })}
 
             <Spinner loading={loadingRule}>
-              {/* eslint-disable-next-line local-rules/no-conditional-rendering-of-deferredspinner */}
               {openIssue && openRuleDetails ? (
                 <IssueTabViewer
                   activityTabContent={

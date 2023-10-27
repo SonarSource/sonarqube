@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
+import { IssueSimpleStatus } from '../../types/issues';
 import { MetricKey } from '../../types/metrics';
 import { Dict } from '../../types/types';
 
@@ -46,27 +46,31 @@ const ISSUE_MEASURES = [
   MetricKey.new_vulnerabilities,
 ];
 
+export const DEFAULT_ISSUES_QUERY = {
+  simpleStatuses: `${IssueSimpleStatus.Open},${IssueSimpleStatus.Confirmed}`,
+};
+
 const issueParamsPerMetric: Dict<Dict<string>> = {
-  [MetricKey.blocker_violations]: { resolved: 'false', severities: 'BLOCKER' },
-  [MetricKey.new_blocker_violations]: { resolved: 'false', severities: 'BLOCKER' },
-  [MetricKey.critical_violations]: { resolved: 'false', severities: 'CRITICAL' },
-  [MetricKey.new_critical_violations]: { resolved: 'false', severities: 'CRITICAL' },
-  [MetricKey.major_violations]: { resolved: 'false', severities: 'MAJOR' },
-  [MetricKey.new_major_violations]: { resolved: 'false', severities: 'MAJOR' },
-  [MetricKey.minor_violations]: { resolved: 'false', severities: 'MINOR' },
-  [MetricKey.new_minor_violations]: { resolved: 'false', severities: 'MINOR' },
-  [MetricKey.info_violations]: { resolved: 'false', severities: 'INFO' },
-  [MetricKey.new_info_violations]: { resolved: 'false', severities: 'INFO' },
-  [MetricKey.open_issues]: { resolved: 'false', statuses: 'OPEN' },
-  [MetricKey.reopened_issues]: { resolved: 'false', statuses: 'REOPENED' },
-  [MetricKey.confirmed_issues]: { resolved: 'false', statuses: 'CONFIRMED' },
-  [MetricKey.false_positive_issues]: { resolutions: 'FALSE-POSITIVE' },
-  [MetricKey.code_smells]: { resolved: 'false', types: 'CODE_SMELL' },
-  [MetricKey.new_code_smells]: { resolved: 'false', types: 'CODE_SMELL' },
-  [MetricKey.bugs]: { resolved: 'false', types: 'BUG' },
-  [MetricKey.new_bugs]: { resolved: 'false', types: 'BUG' },
-  [MetricKey.vulnerabilities]: { resolved: 'false', types: 'VULNERABILITY' },
-  [MetricKey.new_vulnerabilities]: { resolved: 'false', types: 'VULNERABILITY' },
+  [MetricKey.blocker_violations]: { severities: 'BLOCKER' },
+  [MetricKey.new_blocker_violations]: { severities: 'BLOCKER' },
+  [MetricKey.critical_violations]: { severities: 'CRITICAL' },
+  [MetricKey.new_critical_violations]: { severities: 'CRITICAL' },
+  [MetricKey.major_violations]: { severities: 'MAJOR' },
+  [MetricKey.new_major_violations]: { severities: 'MAJOR' },
+  [MetricKey.minor_violations]: { severities: 'MINOR' },
+  [MetricKey.new_minor_violations]: { severities: 'MINOR' },
+  [MetricKey.info_violations]: { severities: 'INFO' },
+  [MetricKey.new_info_violations]: { severities: 'INFO' },
+  [MetricKey.open_issues]: { simpleStatuses: IssueSimpleStatus.Open },
+  [MetricKey.reopened_issues]: { simpleStatuses: IssueSimpleStatus.Open },
+  [MetricKey.confirmed_issues]: { simpleStatuses: IssueSimpleStatus.Confirmed },
+  [MetricKey.false_positive_issues]: { simpleStatuses: IssueSimpleStatus.FalsePositive },
+  [MetricKey.code_smells]: { types: 'CODE_SMELL' },
+  [MetricKey.new_code_smells]: { types: 'CODE_SMELL' },
+  [MetricKey.bugs]: { types: 'BUG' },
+  [MetricKey.new_bugs]: { types: 'BUG' },
+  [MetricKey.vulnerabilities]: { types: 'VULNERABILITY' },
+  [MetricKey.new_vulnerabilities]: { types: 'VULNERABILITY' },
 };
 
 export function isIssueMeasure(metric: string) {
@@ -75,7 +79,8 @@ export function isIssueMeasure(metric: string) {
 
 export function propsToIssueParams(metric: string, inNewCodePeriod = false) {
   const params: Dict<string | boolean> = {
-    ...(issueParamsPerMetric[metric] || { resolved: 'false' }),
+    ...DEFAULT_ISSUES_QUERY,
+    ...issueParamsPerMetric[metric],
   };
 
   if (inNewCodePeriod) {

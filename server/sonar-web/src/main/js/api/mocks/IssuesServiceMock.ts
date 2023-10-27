@@ -20,13 +20,7 @@
 import { cloneDeep, uniqueId } from 'lodash';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 
-import {
-  ISSUE_TYPES,
-  RESOLUTIONS,
-  SEVERITIES,
-  SOURCE_SCOPES,
-  STATUSES,
-} from '../../helpers/constants';
+import { ISSUE_TYPES, SEVERITIES, SIMPLE_STATUSES, SOURCE_SCOPES } from '../../helpers/constants';
 import { mockIssueAuthors, mockIssueChangelog } from '../../helpers/mocks/issues';
 import { RequestData } from '../../helpers/request';
 import { getStandards } from '../../helpers/security-standard';
@@ -336,9 +330,8 @@ export default class IssuesServiceMock {
         property: name,
         values: (
           {
-            resolutions: RESOLUTIONS,
             severities: SEVERITIES,
-            statuses: STATUSES,
+            simpleStatuses: SIMPLE_STATUSES,
             types: ISSUE_TYPES,
             scopes: SOURCE_SCOPES.map(({ scope }) => scope),
             projects: ['org.project1', 'org.project2'],
@@ -389,6 +382,11 @@ export default class IssuesServiceMock {
 
     // Filter list (only supports assignee, type and severity)
     const filteredList = this.list
+      .filter(
+        (item) =>
+          !query.simpleStatuses ||
+          query.simpleStatuses.split(',').includes(item.issue.simpleStatus),
+      )
       .filter((item) => {
         if (!query.cleanCodeAttributeCategories) {
           return true;
@@ -448,13 +446,8 @@ export default class IssuesServiceMock {
         (item) => !query.severities || query.severities.split(',').includes(item.issue.severity),
       )
       .filter((item) => !query.scopes || query.scopes.split(',').includes(item.issue.scope))
-      .filter((item) => !query.statuses || query.statuses.split(',').includes(item.issue.status))
       .filter((item) => !query.projects || query.projects.split(',').includes(item.issue.project))
       .filter((item) => !query.rules || query.rules.split(',').includes(item.issue.rule))
-      .filter(
-        (item) =>
-          !query.resolutions || query.resolutions.split(',').includes(item.issue.resolution),
-      )
       .filter(
         (item) =>
           !query.inNewCodePeriod || new Date(item.issue.creationDate) > new Date('2023-01-10'),

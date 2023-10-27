@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { isArray } from 'lodash';
+import { intersection, isArray, uniq } from 'lodash';
 import { getUsers } from '../../api/users';
+import { DEFAULT_ISSUES_QUERY } from '../../components/shared/utils';
 import { formatMeasure } from '../../helpers/measures';
 import {
   cleanQuery,
@@ -38,7 +39,13 @@ import {
   SoftwareImpactSeverity,
   SoftwareQuality,
 } from '../../types/clean-code-taxonomy';
-import { Facet, RawFacet } from '../../types/issues';
+import {
+  Facet,
+  IssueResolution,
+  IssueSimpleStatus,
+  IssueStatus,
+  RawFacet,
+} from '../../types/issues';
 import { MetricType } from '../../types/metrics';
 import { SecurityStandard } from '../../types/security';
 import { Dict, Issue, Paging, RawQuery } from '../../types/types';
@@ -70,15 +77,13 @@ export interface Query {
   [OWASP_ASVS_4_0]: string[];
   owaspAsvsLevel: string;
   projects: string[];
-  resolutions: string[];
-  resolved: boolean;
   rules: string[];
   scopes: string[];
   severities: string[];
   inNewCodePeriod: boolean;
   sonarsourceSecurity: string[];
   sort: string;
-  statuses: string[];
+  simpleStatuses: IssueSimpleStatus[];
   tags: string[];
   types: string[];
 }
@@ -120,18 +125,76 @@ export function parseQuery(query: RawQuery): Query {
     [OWASP_ASVS_4_0]: parseAsArray(query[OWASP_ASVS_4_0], parseAsString),
     owaspAsvsLevel: parseAsString(query['owaspAsvsLevel']),
     projects: parseAsArray(query.projects, parseAsString),
-    resolutions: parseAsArray(query.resolutions, parseAsString),
-    resolved: parseAsBoolean(query.resolved),
     rules: parseAsArray(query.rules, parseAsString),
     scopes: parseAsArray(query.scopes, parseAsString),
     severities: parseAsArray(query.severities, parseAsString),
     sonarsourceSecurity: parseAsArray(query.sonarsourceSecurity, parseAsString),
     sort: parseAsSort(query.s),
-    statuses: parseAsArray(query.statuses, parseAsString),
+    simpleStatuses: parseSimpleStatuses(query),
     tags: parseAsArray(query.tags, parseAsString),
     types: parseAsArray(query.types, parseAsString),
     codeVariants: parseAsArray(query.codeVariants, parseAsString),
   };
+}
+
+function parseSimpleStatuses(query: RawQuery) {
+  let result: Array<IssueSimpleStatus> = [];
+
+  if (query.simpleStatuses) {
+    return parseAsArray<IssueSimpleStatus>(query.simpleStatuses, parseAsString);
+  }
+
+  const deprecatedStatusesMap = {
+    [IssueStatus.Open]: [IssueSimpleStatus.Open],
+    [IssueStatus.Confirmed]: [IssueSimpleStatus.Confirmed],
+    [IssueStatus.Reopened]: [IssueSimpleStatus.Open],
+    [IssueStatus.Resolved]: [
+      IssueSimpleStatus.Fixed,
+      IssueSimpleStatus.Accepted,
+      IssueSimpleStatus.FalsePositive,
+    ],
+    [IssueStatus.Closed]: [IssueSimpleStatus.Fixed],
+  };
+  const deprecatedResolutionsMap = {
+    [IssueResolution.FalsePositive]: [IssueSimpleStatus.FalsePositive],
+    [IssueResolution.WontFix]: [IssueSimpleStatus.Accepted],
+    [IssueResolution.Fixed]: [IssueSimpleStatus.Fixed],
+    [IssueResolution.Removed]: [IssueSimpleStatus.Fixed],
+    [IssueResolution.Unresolved]: [IssueSimpleStatus.Open, IssueSimpleStatus.Confirmed],
+  };
+
+  const simpleStatusesFromStatuses = parseAsArray<IssueStatus>(query.statuses, parseAsString)
+    .map((status) => deprecatedStatusesMap[status])
+    .filter(Boolean)
+    .flat();
+  const simpleStatusesFromResolutions = parseAsArray<IssueResolution>(
+    query.resolutions,
+    parseAsString,
+  )
+    .map((status) => deprecatedResolutionsMap[status])
+    .filter(Boolean)
+    .flat();
+
+  const intesectedSimpleStatuses = intersection(
+    simpleStatusesFromStatuses,
+    simpleStatusesFromResolutions,
+  );
+  result = intesectedSimpleStatuses.length
+    ? intesectedSimpleStatuses
+    : simpleStatusesFromResolutions.concat(simpleStatusesFromStatuses);
+
+  if (
+    query.resolved === 'false' &&
+    [IssueSimpleStatus.Open, IssueSimpleStatus.Confirmed].every(
+      (status) => !result.includes(status),
+    )
+  ) {
+    result = result.concat(
+      parseAsArray<IssueSimpleStatus>(DEFAULT_ISSUES_QUERY.simpleStatuses, parseAsString),
+    );
+  }
+
+  return uniq(result);
 }
 
 export function getOpen(query: RawQuery): string | undefined {
@@ -167,8 +230,6 @@ export function serializeQuery(query: Query): RawQuery {
     [OWASP_ASVS_4_0]: serializeStringArray(query[OWASP_ASVS_4_0]),
     owaspAsvsLevel: serializeString(query['owaspAsvsLevel']),
     projects: serializeStringArray(query.projects),
-    resolutions: serializeStringArray(query.resolutions),
-    resolved: query.resolved ? undefined : 'false',
     rules: serializeStringArray(query.rules),
     s: serializeString(query.sort),
     scopes: serializeStringArray(query.scopes),
@@ -177,7 +238,7 @@ export function serializeQuery(query: Query): RawQuery {
     impactSoftwareQualities: serializeStringArray(query.impactSoftwareQualities),
     inNewCodePeriod: query.inNewCodePeriod ? 'true' : undefined,
     sonarsourceSecurity: serializeStringArray(query.sonarsourceSecurity),
-    statuses: serializeStringArray(query.statuses),
+    simpleStatuses: serializeStringArray(query.simpleStatuses),
     tags: serializeStringArray(query.tags),
     types: serializeStringArray(query.types),
     codeVariants: serializeStringArray(query.codeVariants),

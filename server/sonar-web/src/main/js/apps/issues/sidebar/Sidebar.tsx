@@ -52,13 +52,12 @@ import { FileFacet } from './FileFacet';
 import { LanguageFacet } from './LanguageFacet';
 import { PeriodFilter } from './PeriodFilter';
 import { ProjectFacet } from './ProjectFacet';
-import { ResolutionFacet } from './ResolutionFacet';
 import { RuleFacet } from './RuleFacet';
 import { ScopeFacet } from './ScopeFacet';
 import { SeverityFacet } from './SeverityFacet';
+import { SimpleStatusFacet } from './SimpleStatusFacet';
 import { SoftwareQualityFacet } from './SoftwareQualityFacet';
 import { StandardFacet } from './StandardFacet';
-import { StatusFacet } from './StatusFacet';
 import { TagFacet } from './TagFacet';
 import { TypeFacet } from './TypeFacet';
 import { VariantFacet } from './VariantFacet';
@@ -246,25 +245,13 @@ export class SidebarClass extends React.PureComponent<Props> {
 
             <BasicSeparator className="sw-my-4" />
 
-            <ResolutionFacet
-              fetching={this.props.loadingFacets.resolutions === true}
+            <SimpleStatusFacet
+              fetching={this.props.loadingFacets.simpleStatuses === true}
               onChange={this.props.onFilterChange}
               onToggle={this.props.onFacetToggle}
-              open={!!openFacets.resolutions}
-              resolutions={query.resolutions}
-              resolved={query.resolved}
-              stats={facets.resolutions}
-            />
-
-            <BasicSeparator className="sw-my-4" />
-
-            <StatusFacet
-              fetching={this.props.loadingFacets.statuses === true}
-              onChange={this.props.onFilterChange}
-              onToggle={this.props.onFacetToggle}
-              open={!!openFacets.statuses}
-              stats={facets.statuses}
-              statuses={query.statuses}
+              open={!!openFacets.simpleStatuses}
+              simpleStatuses={query.simpleStatuses}
+              stats={facets.simpleStatuses}
             />
 
             <BasicSeparator className="sw-my-4" />

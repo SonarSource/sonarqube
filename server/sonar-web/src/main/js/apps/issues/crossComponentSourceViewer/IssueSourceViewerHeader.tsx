@@ -37,6 +37,7 @@ import { ComponentContext } from '../../../app/components/componentContext/Compo
 import { useCurrentUser } from '../../../app/components/current-user/CurrentUserContext';
 import Tooltip from '../../../components/controls/Tooltip';
 import { ClipboardBase } from '../../../components/controls/clipboard';
+import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { getBranchLikeQuery, isBranch, isPullRequest } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
@@ -181,7 +182,7 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
             to={getComponentIssuesUrl(project, {
               ...getBranchLikeQuery(branchLike),
               files: path,
-              resolved: 'false',
+              ...DEFAULT_ISSUES_QUERY,
             })}
           >
             {translate('source_viewer.view_all_issues')}

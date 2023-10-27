@@ -22,6 +22,7 @@ import {
   SoftwareImpactSeverity,
   SoftwareQuality,
 } from '../../../types/clean-code-taxonomy';
+import { IssueSimpleStatus } from '../../../types/issues';
 import { SecurityStandard } from '../../../types/security';
 import {
   parseQuery,
@@ -62,15 +63,13 @@ describe('serialize/deserialize', () => {
         'owaspAsvs-4.0': ['2'],
         owaspAsvsLevel: '2',
         projects: ['a', 'b'],
-        resolutions: ['a', 'b'],
-        resolved: true,
         rules: ['a', 'b'],
         sort: 'rules',
         scopes: ['a', 'b'],
         severities: ['a', 'b'],
         inNewCodePeriod: true,
         sonarsourceSecurity: ['a', 'b'],
-        statuses: ['a', 'b'],
+        simpleStatuses: [IssueSimpleStatus.Accepted, IssueSimpleStatus.Confirmed],
         tags: ['a', 'b'],
         types: ['a', 'b'],
       }),
@@ -97,14 +96,13 @@ describe('serialize/deserialize', () => {
       'owaspAsvs-4.0': '2',
       owaspAsvsLevel: '2',
       projects: 'a,b',
-      resolutions: 'a,b',
       rules: 'a,b',
       s: 'rules',
       scopes: 'a,b',
       inNewCodePeriod: 'true',
       severities: 'a,b',
       sonarsourceSecurity: 'a,b',
-      statuses: 'a,b',
+      simpleStatuses: 'ACCEPTED,CONFIRMED',
       tags: 'a,b',
       types: 'a,b',
     });
@@ -146,17 +144,78 @@ describe('serialize/deserialize', () => {
       'pciDss-3.2': [],
       'pciDss-4.0': [],
       projects: [],
-      resolutions: [],
-      resolved: true,
       rules: [],
       scopes: [],
       severities: ['CRITICAL', 'MAJOR'],
       sonarsourceSecurity: [],
       sort: '',
-      statuses: [],
+      simpleStatuses: [],
       tags: [],
       types: [],
     });
+  });
+
+  it('should map deprecated status and resolution query to new simple statuses', () => {
+    expect(parseQuery({ statuses: 'OPEN' }).simpleStatuses).toEqual([IssueSimpleStatus.Open]);
+    expect(parseQuery({ statuses: 'REOPENED' }).simpleStatuses).toEqual([IssueSimpleStatus.Open]);
+    expect(parseQuery({ statuses: 'CONFIRMED' }).simpleStatuses).toEqual([
+      IssueSimpleStatus.Confirmed,
+    ]);
+    expect(parseQuery({ statuses: 'RESOLVED' }).simpleStatuses).toEqual([
+      IssueSimpleStatus.Fixed,
+      IssueSimpleStatus.Accepted,
+      IssueSimpleStatus.FalsePositive,
+    ]);
+    expect(parseQuery({ statuses: 'OPEN,REOPENED' }).simpleStatuses).toEqual([
+      IssueSimpleStatus.Open,
+    ]);
+    expect(parseQuery({ statuses: 'OPEN,CONFIRMED' }).simpleStatuses).toEqual([
+      IssueSimpleStatus.Open,
+      IssueSimpleStatus.Confirmed,
+    ]);
+
+    // Resolutions
+    expect(parseQuery({ resolutions: 'FALSE-POSITIVE' }).simpleStatuses).toEqual([
+      IssueSimpleStatus.FalsePositive,
+    ]);
+    expect(parseQuery({ resolutions: 'WONTFIX' }).simpleStatuses).toEqual([
+      IssueSimpleStatus.Accepted,
+    ]);
+    expect(parseQuery({ resolutions: 'REMOVED' }).simpleStatuses).toEqual([
+      IssueSimpleStatus.Fixed,
+    ]);
+    expect(parseQuery({ resolutions: 'REMOVED,WONTFIX,FALSE-POSITIVE' }).simpleStatuses).toEqual([
+      IssueSimpleStatus.Fixed,
+      IssueSimpleStatus.Accepted,
+      IssueSimpleStatus.FalsePositive,
+    ]);
+
+    // Both statuses and resolutions
+    expect(
+      parseQuery({ resolutions: 'FALSE-POSITIVE', statuses: 'RESOLVED' }).simpleStatuses,
+    ).toEqual([IssueSimpleStatus.FalsePositive]);
+    expect(parseQuery({ resolutions: 'WONTFIX', statuses: 'RESOLVED' }).simpleStatuses).toEqual([
+      IssueSimpleStatus.Accepted,
+    ]);
+
+    // With resolved=false
+    expect(
+      parseQuery({ resolutions: 'WONTFIX', statuses: 'RESOLVED', resolved: 'false' })
+        .simpleStatuses,
+    ).toEqual([IssueSimpleStatus.Accepted, IssueSimpleStatus.Open, IssueSimpleStatus.Confirmed]);
+    expect(parseQuery({ statuses: 'OPEN', resolved: 'false' }).simpleStatuses).toEqual([
+      IssueSimpleStatus.Open,
+    ]);
+
+    // With simple status
+    expect(
+      parseQuery({
+        resolutions: 'WONTFIX',
+        statuses: 'RESOLVED',
+        resolved: 'false',
+        simpleStatuses: 'FIXED',
+      }).simpleStatuses,
+    ).toEqual([IssueSimpleStatus.Fixed]);
   });
 });
 

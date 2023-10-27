@@ -23,6 +23,7 @@ import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { BranchLike } from '../../../types/branch-like';
 import { Issue, RawQuery } from '../../../types/types';
+import { DEFAULT_ISSUES_QUERY } from '../../shared/utils';
 
 // maximum possible value
 const PAGE_SIZE = 500;
@@ -32,16 +33,16 @@ const PAGE_MAX = 20;
 function buildListQuery(component: string, branchLike: BranchLike | undefined) {
   return {
     component,
-    resolved: 'false',
+    ...DEFAULT_ISSUES_QUERY,
     ...getBranchLikeQuery(branchLike),
   };
 }
 
 function buildSearchQuery(component: string, branchLike: BranchLike | undefined) {
   return {
+    ...DEFAULT_ISSUES_QUERY,
     additionalFields: '_all',
     componentKeys: component,
-    resolved: 'false',
     s: 'FILE_LINE',
     ...getBranchLikeQuery(branchLike),
   };

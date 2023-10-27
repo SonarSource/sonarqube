@@ -27,6 +27,7 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import Tooltip from '../../../../components/controls/Tooltip';
+import { DEFAULT_ISSUES_QUERY } from '../../../../components/shared/utils';
 import { getBranchLikeQuery, isPullRequest } from '../../../../helpers/branch-like';
 import { hasMessage, translate, translateWithParameters } from '../../../../helpers/l10n';
 import { getPortfolioUrl, getProjectQueryUrl } from '../../../../helpers/urls';
@@ -183,7 +184,7 @@ export function Menu(props: Props) {
     return renderMenuLink({
       label: translate('issues.page'),
       pathname: '/project/issues',
-      additionalQueryParams: { resolved: 'false' },
+      additionalQueryParams: DEFAULT_ISSUES_QUERY,
     });
   };
 

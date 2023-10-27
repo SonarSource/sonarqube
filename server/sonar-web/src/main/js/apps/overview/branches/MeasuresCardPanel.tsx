@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { getLeakValue } from '../../../components/measure/utils';
+import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { findMeasure } from '../../../helpers/measures';
 import {
@@ -62,7 +63,7 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
           label={newViolations === '1' ? 'issue' : 'issues'}
           url={getComponentIssuesUrl(component.key, {
             ...getBranchLikeQuery(branchLike),
-            resolved: 'false',
+            ...DEFAULT_ISSUES_QUERY,
           })}
           value={newViolations}
           failedConditions={failedConditions}
@@ -104,7 +105,6 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
           }
           url={getComponentSecurityHotspotsUrl(component.key, {
             ...getBranchLikeQuery(branchLike),
-            resolved: 'false',
           })}
           value={newSecurityHotspots}
           failedConditions={failedConditions}

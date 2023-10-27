@@ -22,7 +22,11 @@ import * as React from 'react';
 import { Path } from 'react-router-dom';
 import IssueTypeIcon from '../../../components/icons/IssueTypeIcon';
 import MeasureIndicator from '../../../components/measure/MeasureIndicator';
-import { isIssueMeasure, propsToIssueParams } from '../../../components/shared/utils';
+import {
+  DEFAULT_ISSUES_QUERY,
+  isIssueMeasure,
+  propsToIssueParams,
+} from '../../../components/shared/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric, localizeMetric } from '../../../helpers/measures';
@@ -47,7 +51,7 @@ interface Props {
 export default class QualityGateCondition extends React.PureComponent<Props> {
   getIssuesUrl = (inNewCodePeriod: boolean, customQuery: Dict<string>) => {
     const query: Dict<string | undefined> = {
-      resolved: 'false',
+      ...DEFAULT_ISSUES_QUERY,
       ...getBranchLikeQuery(this.props.branchLike),
       ...customQuery,
     };

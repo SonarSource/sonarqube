@@ -21,7 +21,11 @@
 import { ChevronRightIcon, DangerButtonSecondary } from 'design-system';
 import React from 'react';
 import { useIntl } from 'react-intl';
-import { isIssueMeasure, propsToIssueParams } from '../../../components/shared/utils';
+import {
+  DEFAULT_ISSUES_QUERY,
+  isIssueMeasure,
+  propsToIssueParams,
+} from '../../../components/shared/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure, getShortType, isDiffMetric } from '../../../helpers/measures';
@@ -181,7 +185,7 @@ function getQGConditionUrl(
       });
     }
     return getComponentIssuesUrl(componentKey, {
-      resolved: 'false',
+      ...DEFAULT_ISSUES_QUERY,
       types: ratingIssueType,
       ...getBranchLikeQuery(branchLike),
       ...(sinceLeakPeriod ? { sinceLeakPeriod: 'true' } : {}),

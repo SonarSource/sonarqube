@@ -86,17 +86,11 @@ describe('issues app filtering', () => {
     await user.click(ui.mainScopeFilter.get());
     expect(ui.issueItem4.query()).not.toBeInTheDocument();
 
-    // Resolution
-    await user.click(ui.resolutionFacet.get());
-    await user.click(ui.fixedResolutionFilter.get());
-    expect(ui.issueItem2.query()).not.toBeInTheDocument();
-
     // Check that filters were applied as expected
     expect(ui.issueItem6.get()).toBeInTheDocument();
 
     // Status
-    await user.click(ui.statusFacet.get());
-
+    await user.click(ui.simpleStatusFacet.get());
     await user.click(ui.openStatusFilter.get());
     expect(ui.issueItem6.query()).not.toBeInTheDocument(); // Issue 6 should vanish
 
@@ -105,9 +99,6 @@ describe('issues app filtering', () => {
     await user.click(ui.confirmedStatusFilter.get());
     await user.keyboard('{/Control}');
     expect(ui.issueItem6.get()).toBeInTheDocument(); // Issue 6 should come back
-
-    // Clear resolution filter
-    await user.click(ui.clearResolutionFacet.get());
 
     // Rule
     await user.click(ui.ruleFacet.get());
@@ -154,7 +145,6 @@ describe('issues app filtering', () => {
     await user.click(ui.clearIssueTypeFacet.get());
     await user.click(ui.clearSeverityFacet.get());
     await user.click(ui.clearScopeFacet.get());
-    await user.click(ui.clearStatusFacet.get());
     await user.click(ui.clearRuleFacet.get());
     await user.click(ui.clearTagFacet.get());
     await user.click(ui.clearProjectFacet.get());
@@ -360,7 +350,7 @@ describe('issues app when reindexing', () => {
     expect(ui.resolutionFacet.query()).not.toBeInTheDocument();
     expect(ui.ruleFacet.query()).not.toBeInTheDocument();
     expect(ui.scopeFacet.query()).not.toBeInTheDocument();
-    expect(ui.statusFacet.query()).not.toBeInTheDocument();
+    expect(ui.simpleStatusFacet.query()).not.toBeInTheDocument();
     expect(ui.tagFacet.query()).not.toBeInTheDocument();
 
     // Indexation message
