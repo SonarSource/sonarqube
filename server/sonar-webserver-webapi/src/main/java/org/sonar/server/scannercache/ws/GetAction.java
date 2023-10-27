@@ -120,7 +120,7 @@ public class GetAction implements AnalysisCacheWsAction {
   private void checkPermission(ComponentDto project) {
     if (userSession.hasComponentPermission(UserRole.SCAN, project) ||
       userSession.hasComponentPermission(UserRole.ADMIN, project) ||
-      userSession.hasPermission(OrganizationPermission.SCAN, "" /* TODO */)) {
+      userSession.hasPermission(OrganizationPermission.SCAN, project.getOrganizationUuid())) {
       return;
     }
     throw insufficientPrivilegesException();
