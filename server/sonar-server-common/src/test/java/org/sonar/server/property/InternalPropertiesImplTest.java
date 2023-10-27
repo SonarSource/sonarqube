@@ -103,6 +103,13 @@ public class InternalPropertiesImplTest {
     verify(dbSession).commit();
   }
 
+  @Test
+  public void delete_shouldCallDaoAndDeleteProperty() {
+    underTest.delete(SOME_KEY);
+    verify(internalPropertiesDao).delete(dbSession, SOME_KEY);
+    verify(dbSession).commit();
+  }
+
   private void expectKeyNullOrEmptyIAE(ThrowingCallable callback) {
     assertThatThrownBy(callback)
       .isInstanceOf(IllegalArgumentException.class)

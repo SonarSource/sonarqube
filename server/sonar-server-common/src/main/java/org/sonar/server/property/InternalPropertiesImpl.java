@@ -59,6 +59,15 @@ public class InternalPropertiesImpl implements InternalProperties {
     }
   }
 
+  @Override
+  public void delete(String propertyKey) {
+    checkPropertyKey(propertyKey);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      dbClient.internalPropertiesDao().delete(dbSession, propertyKey);
+      dbSession.commit();
+    }
+  }
+
   private static void checkPropertyKey(@Nullable String propertyKey) {
     checkArgument(propertyKey != null && !propertyKey.isEmpty(), "property key can't be null nor empty");
   }
