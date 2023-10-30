@@ -118,7 +118,7 @@ export default function NewCodeDefinition() {
 
                 <div className="settings-definition-right">
                   <Spinner loading={isLoading}>
-                    <form onSubmit={onSubmit}>
+                    <form className="sw-flex sw-flex-col sw-items-stretch" onSubmit={onSubmit}>
                       <NewCodeDefinitionPreviousVersionOption
                         isDefault
                         onSelect={setSelectedNewCodeDefinitionType}
