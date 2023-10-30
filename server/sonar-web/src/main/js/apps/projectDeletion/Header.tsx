@@ -17,29 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Title } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
+import { isApplication, isPortfolioLike } from '../../types/component';
 import { Component } from '../../types/types';
 
 interface Props {
   component: Pick<Component, 'qualifier'>;
 }
 
-export default function Header(props: Props) {
-  const { qualifier } = props.component;
-  let description: string;
-  if (['VW', 'SVW'].includes(qualifier)) {
-    description = translate('portfolio_deletion.page.description');
-  } else if (qualifier === 'APP') {
-    description = translate('application_deletion.page.description');
-  } else {
-    description = translate('project_deletion.page.description');
+function getDescription(qualifier: string) {
+  if (isPortfolioLike(qualifier)) {
+    return translate('portfolio_deletion.page.description');
+  } else if (isApplication(qualifier)) {
+    return translate('application_deletion.page.description');
   }
 
+  return translate('project_deletion.page.description');
+}
+
+export default function Header(props: Readonly<Props>) {
+  const { qualifier } = props.component;
+
   return (
-    <header className="page-header">
-      <h1 className="page-title">{translate('deletion.page')}</h1>
-      <div className="page-description">{description}</div>
+    <header className="sw-mt-8 sw-mb-4">
+      <Title className="sw-mb-4">{translate('deletion.page')}</Title>
+      <p className="sw-mb-2">{getDescription(qualifier)}</p>
     </header>
   );
 }

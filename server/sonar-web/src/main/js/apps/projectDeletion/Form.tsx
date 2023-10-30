@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { DangerButtonPrimary } from 'design-system/lib';
 import * as React from 'react';
 import { deleteApplication } from '../../api/application';
 import { deletePortfolio, deleteProject } from '../../api/project-management';
 import ConfirmButton from '../../components/controls/ConfirmButton';
-import { Button } from '../../components/controls/buttons';
 import { Router, withRouter } from '../../components/hoc/withRouter';
 import { addGlobalSuccessMessage } from '../../helpers/globalMessages';
 import { translate, translateWithParameters } from '../../helpers/l10n';
@@ -67,9 +67,9 @@ export class Form extends React.PureComponent<Props> {
         onConfirm={this.handleDelete}
       >
         {({ onClick }) => (
-          <Button className="button-red" id="delete-project" onClick={onClick}>
+          <DangerButtonPrimary id="delete-project" onClick={onClick}>
             {translate('delete')}
-          </Button>
+          </DangerButtonPrimary>
         )}
       </ConfirmButton>
     );
