@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { LargeCenteredLayout, PageContentFontWrapper, Title } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { changeKey } from '../../api/components';
-import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import RecentHistory from '../../app/components/RecentHistory';
+import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import { Router, withRouter } from '../../components/hoc/withRouter';
 import { translate } from '../../helpers/l10n';
 import { Component } from '../../types/types';
@@ -41,14 +42,16 @@ function ProjectKeyApp({ component, router }: Props) {
   };
 
   return (
-    <div className="page page-limited" id="project-key">
+    <LargeCenteredLayout id="project-key">
       <Helmet defer={false} title={translate('update_key.page')} />
-      <header className="page-header">
-        <h1 className="page-title">{translate('update_key.page')}</h1>
-        <div className="page-description">{translate('update_key.page.description')}</div>
-      </header>
-      <UpdateForm component={component} onKeyChange={handleChangeKey} />
-    </div>
+      <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+        <header className="sw-mt-8 sw-mb-4">
+          <Title className="sw-mb-4">{translate('update_key.page')}</Title>
+          <div className="sw-mb-2">{translate('update_key.page.description')}</div>
+        </header>
+        <UpdateForm component={component} onKeyChange={handleChangeKey} />
+      </PageContentFontWrapper>
+    </LargeCenteredLayout>
   );
 }
 

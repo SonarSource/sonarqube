@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { CenteredLayout, Spinner } from 'design-system';
 import { differenceBy } from 'lodash';
 import * as React from 'react';
 import { createPortal } from 'react-dom';
@@ -363,9 +364,9 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             this.portalAnchor,
           )}
         {loading ? (
-          <div className="page page-limited">
-            <i className="spinner" />
-          </div>
+          <CenteredLayout>
+            <Spinner className="sw-mt-10" />
+          </CenteredLayout>
         ) : (
           <ComponentContext.Provider
             value={{
