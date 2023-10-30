@@ -181,7 +181,7 @@ export default function CodeAppRenderer(props: Props) {
       </div>
 
       {(showComponentList || showSearch) && (
-        <Card className="sw-mt-2">
+        <Card className="sw-mt-2 sw-overflow-auto">
           <Spinner loading={loading}>
             {showComponentList && (
               <Components

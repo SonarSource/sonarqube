@@ -188,7 +188,9 @@ export async function retrieveComponentChildren(
   if (instance.mounted && isPortfolioLike(qualifier)) {
     await Promise.all(
       // eslint-disable-next-line local-rules/no-api-imports
-      result.components.map((c) => getComponentData({ component: c.refKey ?? c.key })),
+      result.components.map((c) =>
+        getComponentData({ component: c.refKey ?? c.key, branch: c.branch }),
+      ),
     ).then(
       (data) => {
         data.forEach(({ component: { analysisDate } }, i) => {
