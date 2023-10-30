@@ -19,7 +19,7 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { render } from '../../../helpers/testUtils';
+import { renderWithContext } from '../../../helpers/testUtils';
 import { FCProps } from '../../../types/misc';
 import { InputSelect } from '../InputSelect';
 
@@ -37,8 +37,39 @@ it('should render select input and be able to click and change', async () => {
   expect(screen.getByRole('note', { name: 'Icon' })).toBeInTheDocument();
 });
 
+it('should render select input with clearable', async () => {
+  const setValue = jest.fn();
+  const user = userEvent.setup();
+  setupWithProps({
+    placeholder: 'placeholder-foo',
+    onChange: setValue,
+    isClearable: true,
+    clearLabel: 'clear-label',
+  });
+  expect(screen.getByText('placeholder-foo')).toBeInTheDocument();
+  await user.click(screen.getByRole('combobox'));
+  expect(screen.getByText(/option foo-bar focused/)).toBeInTheDocument();
+  expect(screen.getByRole('note', { name: 'Icon' })).toBeInTheDocument();
+  await user.click(screen.getByText('bar-foo'));
+  expect(setValue).toHaveBeenCalled();
+  expect(screen.queryByText('placeholder-foo')).not.toBeInTheDocument();
+  expect(screen.getByRole('note', { name: 'Icon' })).toBeInTheDocument();
+
+  // Clear button container aria-hidden by default
+  expect(screen.getByRole('button', { name: 'clear-label', hidden: true })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'clear-label', hidden: true }));
+  expect(screen.getByText('placeholder-foo')).toBeInTheDocument();
+});
+
+it('should render select input with disabled prop', () => {
+  const setValue = jest.fn();
+  setupWithProps({ placeholder: 'placeholder-foo', onChange: setValue, isDisabled: true });
+  expect(screen.getByText('placeholder-foo')).toBeInTheDocument();
+  expect(screen.getByRole('combobox')).toBeDisabled();
+});
+
 function setupWithProps(props: Partial<FCProps<typeof InputSelect>>) {
-  return render(
+  return renderWithContext(
     <InputSelect
       {...props}
       options={[
@@ -53,6 +84,6 @@ function setupWithProps(props: Partial<FCProps<typeof InputSelect>>) {
           ),
         },
       ]}
-    />
+    />,
   );
 }
