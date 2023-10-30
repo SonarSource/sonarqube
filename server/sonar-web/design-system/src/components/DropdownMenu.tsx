@@ -68,6 +68,7 @@ interface ListItemProps {
   onFocus?: VoidFunction;
   onPointerEnter?: VoidFunction;
   onPointerLeave?: VoidFunction;
+  selected?: boolean;
 }
 
 type ItemLinkProps = Omit<ListItemProps, 'innerRef'> &
@@ -76,12 +77,22 @@ type ItemLinkProps = Omit<ListItemProps, 'innerRef'> &
   };
 
 export function ItemLink(props: ItemLinkProps) {
-  const { children, className, disabled, icon, isExternal, onClick, innerRef, to, ...liProps } =
-    props;
+  const {
+    children,
+    className,
+    disabled,
+    icon,
+    isExternal,
+    onClick,
+    selected,
+    innerRef,
+    to,
+    ...liProps
+  } = props;
   return (
     <li {...liProps}>
       <ItemLinkStyled
-        className={classNames(className, { disabled })}
+        className={classNames(className, { disabled, selected })}
         disabled={disabled}
         icon={icon}
         isExternal={isExternal}
@@ -102,11 +113,12 @@ interface ItemNavLinkProps extends ItemLinkProps {
 }
 
 export function ItemNavLink(props: ItemNavLinkProps) {
-  const { children, className, disabled, end, icon, onClick, innerRef, to, ...liProps } = props;
+  const { children, className, disabled, end, icon, onClick, selected, innerRef, to, ...liProps } =
+    props;
   return (
     <li {...liProps}>
       <ItemNavLinkStyled
-        className={classNames(className, { disabled })}
+        className={classNames(className, { disabled, selected })}
         disabled={disabled}
         end={end}
         onClick={onClick}
@@ -128,10 +140,15 @@ interface ItemButtonProps extends ListItemProps {
 }
 
 export function ItemButton(props: ItemButtonProps) {
-  const { children, className, disabled, icon, innerRef, onClick, ...liProps } = props;
+  const { children, className, disabled, icon, innerRef, onClick, selected, ...liProps } = props;
   return (
     <li ref={innerRef} role="none" {...liProps}>
-      <ItemButtonStyled className={className} disabled={disabled} onClick={onClick} role="menuitem">
+      <ItemButtonStyled
+        className={classNames(className, { disabled, selected })}
+        disabled={disabled}
+        onClick={onClick}
+        role="menuitem"
+      >
         {icon}
         {children}
       </ItemButtonStyled>
@@ -334,6 +351,10 @@ const itemStyle = (props: ThemedProps) => css`
     pointer-events: none !important;
 
     ${tw`sw-cursor-not-allowed`};
+  }
+
+  &.selected {
+    background-color: ${themeColor('selectOptionSelected')(props)};
   }
 
   & > svg {

@@ -67,7 +67,10 @@ export class Dropdown extends React.PureComponent<Readonly<Props>, State> {
     if (!prevState.open && this.state.open && this.props.onOpen) {
       this.props.onOpen();
     }
-    if (props.openDropdown !== this.props.openDropdown && this.props.openDropdown) {
+    if (
+      props.openDropdown !== this.props.openDropdown &&
+      typeof this.props.openDropdown === 'boolean'
+    ) {
       this.setState({ open: this.props.openDropdown });
     }
   }

@@ -25,7 +25,7 @@ import {
   SoftwareQuality,
 } from './clean-code-taxonomy';
 import { ComponentQualifier, Visibility } from './component';
-import { MessageFormatting } from './issues';
+import { IssueSimpleStatus, IssueTransition, MessageFormatting } from './issues';
 import { NewCodeDefinitionType } from './new-code-definition';
 import { UserActive, UserBase } from './users';
 
@@ -291,9 +291,10 @@ export interface Issue {
   secondaryLocations: FlowLocation[];
   severity: string;
   status: string;
+  simpleStatus: IssueSimpleStatus;
   tags?: string[];
   textRange?: TextRange;
-  transitions: string[];
+  transitions: IssueTransition[];
   type: IssueType;
 }
 

@@ -154,36 +154,43 @@ describe('issue app', () => {
     // Get a specific issue list item
     const listItem = within(await screen.findByRole('region', { name: 'Fix that' }));
 
-    // Change issue status
-    expect(listItem.getByText('issue.status.OPEN')).toBeInTheDocument();
+    expect(listItem.getByText('issue.simple_status.OPEN')).toBeInTheDocument();
 
     await act(async () => {
-      await user.click(listItem.getByText('issue.status.OPEN'));
+      await user.click(listItem.getByText('issue.simple_status.OPEN'));
     });
+    expect(listItem.getByText('issue.transition.accept')).toBeInTheDocument();
     expect(listItem.getByText('issue.transition.confirm')).toBeInTheDocument();
-    expect(listItem.getByText('issue.transition.resolve')).toBeInTheDocument();
 
     await act(async () => {
       await user.click(listItem.getByText('issue.transition.confirm'));
     });
+
+    expect(listItem.getByRole('textbox')).toBeInTheDocument();
+
+    await act(async () => {
+      await user.type(listItem.getByRole('textbox'), 'test');
+      await user.click(listItem.getByText('resolve'));
+    });
+
     expect(
-      listItem.getByLabelText('issue.transition.status_x_click_to_change.issue.status.CONFIRMED'),
+      listItem.getByLabelText(
+        'issue.transition.status_x_click_to_change.issue.simple_status.CONFIRMED',
+      ),
     ).toBeInTheDocument();
 
-    // As won't fix
+    // Change status again
     await act(async () => {
-      await user.click(listItem.getByText('issue.status.CONFIRMED'));
-      await user.click(listItem.getByText('issue.transition.wontfix'));
+      await user.click(listItem.getByText('issue.simple_status.CONFIRMED'));
+      await user.click(listItem.getByText('issue.transition.accept'));
+      await user.click(listItem.getByText('resolve'));
     });
-    // Comment should open and close
-    expect(listItem.getByRole('button', { name: 'issue.comment.formlink' })).toBeInTheDocument();
-    await act(async () => {
-      await user.keyboard('test');
-      await user.click(listItem.getByRole('button', { name: 'issue.comment.formlink' }));
-    });
+
     expect(
-      listItem.queryByRole('button', { name: 'issue.comment.submit' }),
-    ).not.toBeInTheDocument();
+      listItem.getByLabelText(
+        'issue.transition.status_x_click_to_change.issue.simple_status.ACCEPTED',
+      ),
+    ).toBeInTheDocument();
 
     // Assign issue to a different user
     await act(async () => {

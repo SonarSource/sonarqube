@@ -18,105 +18,90 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { DiscreetSelect } from 'design-system';
+import { Dropdown, PopupPlacement, PopupZLevel, SearchSelectDropdownControl } from 'design-system';
 import * as React from 'react';
-import { GroupBase, OptionProps, components } from 'react-select';
-import { setIssueTransition } from '../../../api/issues';
+import { addIssueComment, setIssueTransition } from '../../../api/issues';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
-import { LabelValueSelectOption } from '../../controls/Select';
-import StatusIcon from '../../icons/StatusIcon';
 import StatusHelper from '../../shared/StatusHelper';
 import { updateIssue } from '../actions';
+import { IssueTransitionOverlay } from './IssueTransitionOverlay';
 
 interface Props {
-  hasTransitions: boolean;
   isOpen: boolean;
-  issue: Pick<Issue, 'key' | 'resolution' | 'status' | 'transitions' | 'type'>;
+  issue: Pick<Issue, 'key' | 'resolution' | 'simpleStatus' | 'transitions' | 'type' | 'actions'>;
   onChange: (issue: Issue) => void;
   togglePopup: (popup: string, show?: boolean) => void;
 }
 
-function SingleValueFactory(issue: Props['issue']) {
-  return function SingleValue<
-    V,
-    Option extends LabelValueSelectOption<V>,
-    IsMulti extends boolean = false,
-    Group extends GroupBase<Option> = GroupBase<Option>,
-  >(props: OptionProps<Option, IsMulti, Group>) {
-    return (
-      <components.SingleValue {...props}>
-        <StatusHelper
-          className="sw-flex sw-items-center"
-          resolution={issue.resolution}
-          status={issue.status}
-        />
-      </components.SingleValue>
-    );
-  };
-}
+export default function IssueTransition(props: Readonly<Props>) {
+  const { isOpen, issue, onChange, togglePopup } = props;
 
-export default class IssueTransition extends React.PureComponent<Props> {
-  setTransition = ({ value }: { value: string }) => {
-    updateIssue(
-      this.props.onChange,
-      // eslint-disable-next-line local-rules/no-api-imports
-      setIssueTransition({ issue: this.props.issue.key, transition: value }),
-    );
+  const [transitioning, setTransitioning] = React.useState(false);
 
-    this.toggleSetTransition(false);
-  };
+  async function handleSetTransition(transition: string, comment?: string) {
+    setTransitioning(true);
 
-  toggleSetTransition = (open: boolean) => {
-    this.props.togglePopup('transition', open);
-  };
-
-  handleClose = () => {
-    this.toggleSetTransition(false);
-  };
-
-  render() {
-    const { issue } = this.props;
-
-    const transitions = issue.transitions.map((transition) => ({
-      label: translate('issue.transition', transition),
-      value: transition,
-      Icon: <StatusIcon status={transition} />,
-    }));
-
-    if (this.props.hasTransitions) {
-      return (
-        <DiscreetSelect
-          aria-label={translateWithParameters(
-            'issue.transition.status_x_click_to_change',
-            translate('issue.status', issue.status),
-          )}
-          size="medium"
-          className="it__issue-transition"
-          components={{ SingleValue: SingleValueFactory(issue) }}
-          menuIsOpen={this.props.isOpen && this.props.hasTransitions}
-          options={transitions}
-          setValue={this.setTransition}
-          onMenuClose={this.handleClose}
-          onMenuOpen={() => this.toggleSetTransition(true)}
-          value={issue.resolution ?? 'OPEN'}
-          customValue={
-            <StatusHelper className="sw-flex" resolution={issue.resolution} status={issue.status} />
-          }
-        />
-      );
+    try {
+      if (typeof comment === 'string' && comment.length > 0) {
+        await setIssueTransition({ issue: issue.key, transition });
+        await updateIssue(onChange, addIssueComment({ issue: issue.key, text: comment }));
+      } else {
+        await updateIssue(onChange, setIssueTransition({ issue: issue.key, transition }));
+      }
+      togglePopup('transition', false);
+    } finally {
+      setTransitioning(false);
     }
+  }
 
-    const resolution = issue.resolution && ` (${translate('issue.resolution', issue.resolution)})`;
+  function handleClose() {
+    togglePopup('transition', false);
+  }
 
+  function onToggleClick() {
+    togglePopup('transition', !isOpen);
+  }
+
+  if (issue.transitions?.length) {
     return (
-      <span className="sw-flex sw-items-center sw-gap-1">
-        <StatusIcon status={issue.status} />
-
-        {translate('issue.status', issue.status)}
-
-        {resolution}
-      </span>
+      <Dropdown
+        allowResizing
+        closeOnClick={false}
+        id="issue-transition"
+        onClose={handleClose}
+        openDropdown={isOpen}
+        overlay={
+          <IssueTransitionOverlay
+            issue={issue}
+            onClose={handleClose}
+            onSetTransition={handleSetTransition}
+            loading={transitioning}
+          />
+        }
+        placement={PopupPlacement.Bottom}
+        zLevel={PopupZLevel.Absolute}
+        size="medium"
+      >
+        {({ a11yAttrs }) => (
+          <SearchSelectDropdownControl
+            {...a11yAttrs}
+            onClick={onToggleClick}
+            onClear={handleClose}
+            isDiscreet
+            className="it__issue-transition sw-px-1"
+            label={
+              <StatusHelper className="sw-flex sw-items-center" simpleStatus={issue.simpleStatus} />
+            }
+            ariaLabel={translateWithParameters(
+              'issue.transition.status_x_click_to_change',
+              translate('issue.simple_status', issue.simpleStatus),
+            )}
+          />
+        )}
+      </Dropdown>
     );
   }
+
+  return <StatusHelper simpleStatus={issue.simpleStatus} />;
 }

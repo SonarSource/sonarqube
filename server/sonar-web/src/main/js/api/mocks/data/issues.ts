@@ -31,7 +31,9 @@ import {
   IssueResolution,
   IssueScope,
   IssueSeverity,
+  IssueSimpleStatus,
   IssueStatus,
+  IssueTransition,
   IssueType,
   RawIssue,
 } from '../../../types/issues';
@@ -296,7 +298,13 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
       issue: mockRawIssue(false, {
         key: ISSUE_2,
         actions: Object.values(IssueActions),
-        transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+        transitions: [
+          IssueTransition.Accept,
+          IssueTransition.Confirm,
+          IssueTransition.Resolve,
+          IssueTransition.FalsePositive,
+          IssueTransition.WontFix,
+        ],
         component: `${baseComponentKey}:${ISSUE_TO_FILES[ISSUE_2][0]}`,
         message: 'Fix that',
         rule: ISSUE_TO_RULE[ISSUE_2],
@@ -312,6 +320,7 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
         ruleDescriptionContextKey: 'spring',
         resolution: IssueResolution.Unresolved,
         status: IssueStatus.Open,
+        simpleStatus: IssueSimpleStatus.Open,
       }),
       snippets: keyBy(
         [
@@ -354,7 +363,12 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
       issue: mockRawIssue(false, {
         key: ISSUE_4,
         actions: Object.values(IssueActions),
-        transitions: ['confirm', 'resolve', 'falsepositive', 'wontfix'],
+        transitions: [
+          IssueTransition.Confirm,
+          IssueTransition.Resolve,
+          IssueTransition.FalsePositive,
+          IssueTransition.WontFix,
+        ],
         component: `${baseComponentKey}:${ISSUE_TO_FILES[ISSUE_4][0]}`,
         message: 'Issue with tags',
         rule: ISSUE_TO_RULE[ISSUE_4],

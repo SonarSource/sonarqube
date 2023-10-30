@@ -29,7 +29,6 @@ export interface CommentPopupProps {
   toggleComment: (visible: boolean) => void;
   placeholder: string;
   placement?: PopupPlacement;
-  autoTriggered?: boolean;
 }
 
 export default class CommentPopup extends React.PureComponent<CommentPopupProps> {
@@ -38,7 +37,7 @@ export default class CommentPopup extends React.PureComponent<CommentPopupProps>
   };
 
   render() {
-    const { comment, autoTriggered } = this.props;
+    const { comment } = this.props;
 
     return (
       <DropdownOverlay placement={this.props.placement}>
@@ -49,7 +48,6 @@ export default class CommentPopup extends React.PureComponent<CommentPopupProps>
             onSaveComment={this.props.onComment}
             showFormatHelp
             comment={comment?.markdown}
-            autoTriggered={autoTriggered}
           />
         </div>
       </DropdownOverlay>

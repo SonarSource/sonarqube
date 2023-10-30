@@ -32,7 +32,14 @@ import {
 } from '../types/clean-code-taxonomy';
 import { RuleRepository } from '../types/coding-rules';
 import { EditionKey } from '../types/editions';
-import { IssueScope, IssueSeverity, IssueStatus, IssueType, RawIssue } from '../types/issues';
+import {
+  IssueScope,
+  IssueSeverity,
+  IssueSimpleStatus,
+  IssueStatus,
+  IssueType,
+  RawIssue,
+} from '../types/issues';
 import { Language } from '../types/languages';
 import { MetricKey, MetricType } from '../types/metrics';
 import { Notification } from '../types/notifications';
@@ -304,6 +311,7 @@ export function mockRawIssue(withLocations = false, overrides: Partial<RawIssue>
     rule: 'javascript:S1067',
     severity: IssueSeverity.Major,
     status: IssueStatus.Open,
+    simpleStatus: IssueSimpleStatus.Open,
     textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
     type: IssueType.CodeSmell,
     transitions: [],
@@ -358,6 +366,7 @@ export function mockIssue(withLocations = false, overrides: Partial<Issue> = {})
     secondaryLocations: [],
     severity: IssueSeverity.Major,
     status: IssueStatus.Open,
+    simpleStatus: IssueSimpleStatus.Open,
     textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
     transitions: [],
     type: 'BUG',

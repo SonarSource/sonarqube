@@ -33,6 +33,7 @@ exports[`loadIssues should load issues with listIssues if re-indexing 1`] = `
     "projectQualifier": "TRK",
     "rule": "squid:S4797",
     "secondaryLocations": [],
+    "simpleStatus": "OPEN",
     "status": "OPEN",
     "tags": [
       "cert",
@@ -95,6 +96,7 @@ exports[`loadIssues should load issues with searchIssues if not re-indexing 1`] 
     "ruleName": "Handling files is security-sensitive",
     "ruleStatus": "READY",
     "secondaryLocations": [],
+    "simpleStatus": "OPEN",
     "status": "OPEN",
     "tags": [
       "cert",

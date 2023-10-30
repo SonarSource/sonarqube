@@ -17,18 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './Checkbox';
-export * from './DatePicker';
-export * from './DateRangePicker';
-export * from './DiscreetSelect';
-export * from './FileInput';
-export * from './FormField';
-export * from './InputField';
-export * from './InputMultiSelect';
-export * from './InputSearch';
-export * from './InputSelect';
-export * from './MultiSelectMenu';
-export * from './RadioButton';
-export * from './SearchSelect';
-export * from './SearchSelectDropdown';
-export * from './SearchSelectDropdownControl';
+import { IssueTransition } from '../../types/issues';
+
+export function isTransitionDeprecated(transition: IssueTransition) {
+  return transition === IssueTransition.Confirm || transition === IssueTransition.Resolve;
+}
+
+export function isTransitionHidden(transition: IssueTransition) {
+  return transition === IssueTransition.WontFix;
+}
+
+export function transitionRequiresComment(transition: IssueTransition) {
+  return [
+    IssueTransition.Accept,
+    IssueTransition.Confirm,
+    IssueTransition.FalsePositive,
+    IssueTransition.Resolve,
+  ].includes(transition);
+}

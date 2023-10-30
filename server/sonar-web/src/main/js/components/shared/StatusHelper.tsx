@@ -18,22 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import StatusIcon from '../../components/icons/StatusIcon';
 import { translate } from '../../helpers/l10n';
+import { IssueSimpleStatus } from '../../types/issues';
+import SimpleStatusIcon from '../icons/SimpleStatusIcon';
 
 interface Props {
   className?: string;
-  resolution: string | undefined;
-  status: string;
+  simpleStatus: IssueSimpleStatus;
 }
 
 export default function StatusHelper(props: Props) {
-  const resolution = props.resolution && ` (${translate('issue.resolution', props.resolution)})`;
   return (
     <span className={props.className}>
-      <StatusIcon className="little-spacer-right" status={props.status} />
-      {translate('issue.status', props.status)}
-      {resolution}
+      <SimpleStatusIcon className="sw-mr-1" simpleStatus={props.simpleStatus} />
+      {translate('issue.simple_status', props.simpleStatus)}
     </span>
   );
 }

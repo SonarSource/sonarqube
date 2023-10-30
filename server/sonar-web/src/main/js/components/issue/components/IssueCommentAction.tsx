@@ -25,7 +25,6 @@ import { updateIssue } from '../actions';
 import CommentPopup from '../popups/CommentPopup';
 
 interface Props {
-  commentAutoTriggered?: boolean;
   commentPlaceholder: string;
   currentPopup?: boolean;
   issueKey: string;
@@ -60,7 +59,6 @@ export default class IssueCommentAction extends React.PureComponent<Props> {
           open={!!this.props.currentPopup}
           overlay={
             <CommentPopup
-              autoTriggered={this.props.commentAutoTriggered}
               onComment={this.addComment}
               placeholder={this.props.commentPlaceholder}
               toggleComment={this.props.toggleComment}

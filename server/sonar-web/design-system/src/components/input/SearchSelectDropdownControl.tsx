@@ -104,7 +104,7 @@ export function SearchSelectDropdownControl(props: SearchSelectDropdownControlPr
   );
 }
 
-const StyledControl = styled.div`
+export const StyledControl = styled.div`
   color: ${themeContrast('inputBackground')};
   background: ${themeColor('inputBackground')};
   border: ${themeBorder('default', 'inputBorder')};
@@ -121,7 +121,7 @@ const StyledControl = styled.div`
 
   &.is-discreet {
     ${tw`sw-border-none`};
-    ${tw`sw-p-0`};
+    ${tw`sw-px-1`};
     ${tw`sw-w-auto sw-h-auto`};
 
     background: inherit;

@@ -26,6 +26,7 @@ import CurrentUserContextProvider from '../../../../app/components/current-user/
 import { mockIssue, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
 import { ComponentPropsType } from '../../../../helpers/testUtils';
+import { IssueTransition } from '../../../../types/issues';
 import { Issue } from '../../../../types/types';
 import { CurrentUser } from '../../../../types/users';
 import BulkChangeModal, { MAX_PAGE_SIZE } from '../BulkChangeModal';
@@ -70,11 +71,11 @@ it('should render tags correctly', async () => {
 
 it('should render transitions correctly', async () => {
   renderBulkChangeModal([
-    mockIssue(false, { actions: ['set_transition'], transitions: ['Transition1'] }),
+    mockIssue(false, { actions: ['set_transition'], transitions: [IssueTransition.FalsePositive] }),
   ]);
 
   expect(await screen.findByText('issue.transition')).toBeInTheDocument();
-  expect(await screen.findByText('issue.transition.Transition1')).toBeInTheDocument();
+  expect(await screen.findByText('issue.transition.falsepositive')).toBeInTheDocument();
 });
 
 it('should disable the submit button unless some change is configured', async () => {
@@ -108,12 +109,12 @@ it('should properly submit', async () => {
       mockIssue(false, {
         actions: ['assign', 'set_transition', 'set_tags', 'set_type', 'set_severity', 'comment'],
         key: 'issue1',
-        transitions: ['Transition1', 'Transition2'],
+        transitions: [IssueTransition.Accept, IssueTransition.FalsePositive],
       }),
       mockIssue(false, {
         actions: ['assign', 'set_transition', 'set_tags', 'set_type', 'set_severity', 'comment'],
         key: 'issue2',
-        transitions: ['Transition1', 'Transition2'],
+        transitions: [IssueTransition.Accept, IssueTransition.FalsePositive],
       }),
     ],
     {
@@ -136,7 +137,7 @@ it('should properly submit', async () => {
   await user.click(await screen.findByText('Toto'));
 
   // Transition
-  await user.click(await screen.findByText('issue.transition.Transition2'));
+  await user.click(await screen.findByText('issue.transition.accept'));
 
   // Add a tag
   await act(async () => {
@@ -161,7 +162,7 @@ it('should properly submit', async () => {
     add_tags: 'tag1,tag2',
     assign: 'toto',
     comment: 'some comment',
-    do_transition: 'Transition2',
+    do_transition: 'accept',
     sendNotifications: true,
   });
 });

@@ -25,14 +25,20 @@ import {
   StatusResolvedIcon,
 } from 'design-system';
 import * as React from 'react';
+import { IssueSimpleStatus } from '../../types/issues';
 import { Dict } from '../../types/types';
 import { IconProps } from './Icon';
 
 interface Props extends IconProps {
-  status: string;
+  simpleStatus: IssueSimpleStatus;
 }
 
 const statusIcons: Dict<(props: IconProps) => React.ReactElement> = {
+  [IssueSimpleStatus.Accepted]: StatusConfirmedIcon,
+  [IssueSimpleStatus.Confirmed]: StatusConfirmedIcon,
+  [IssueSimpleStatus.FalsePositive]: StatusResolvedIcon,
+  [IssueSimpleStatus.Fixed]: StatusResolvedIcon,
+  [IssueSimpleStatus.Open]: StatusOpenIcon,
   closed: StatusResolvedIcon,
   confirm: StatusConfirmedIcon,
   confirmed: StatusConfirmedIcon,
@@ -49,8 +55,8 @@ const statusIcons: Dict<(props: IconProps) => React.ReactElement> = {
   wontfix: StatusResolvedIcon,
 };
 
-export default function StatusIcon({ status, ...iconProps }: Props) {
-  const DesiredStatusIcon = statusIcons[status.toLowerCase()];
+export default function SimpleStatusIcon({ simpleStatus, ...iconProps }: Props) {
+  const DesiredStatusIcon = statusIcons[simpleStatus.toLowerCase()];
 
   return DesiredStatusIcon ? <DesiredStatusIcon {...iconProps} /> : null;
 }

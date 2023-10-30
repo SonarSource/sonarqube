@@ -66,6 +66,14 @@ export enum IssueStatus {
   Closed = 'CLOSED',
 }
 
+export enum IssueSimpleStatus {
+  Open = 'OPEN',
+  Fixed = 'FIXED',
+  Confirmed = 'CONFIRMED',
+  Accepted = 'ACCEPTED',
+  FalsePositive = 'FALSE_POSITIVE',
+}
+
 export enum IssueActions {
   SetType = 'set_type',
   SetTags = 'set_tags',
@@ -75,6 +83,7 @@ export enum IssueActions {
 }
 
 export enum IssueTransition {
+  Accept = 'accept',
   Confirm = 'confirm',
   UnConfirm = 'unconfirm',
   Resolve = 'resolve',
@@ -112,7 +121,7 @@ export interface RawFlowLocation {
 
 export interface RawIssue {
   actions: string[];
-  transitions: string[];
+  transitions: IssueTransition[];
   tags?: string[];
   assignee?: string;
   author?: string;
@@ -140,6 +149,7 @@ export interface RawIssue {
   message?: string;
   severity: string;
   status: string;
+  simpleStatus: IssueSimpleStatus;
   textRange?: TextRange;
   type: IssueType;
   scope: string;

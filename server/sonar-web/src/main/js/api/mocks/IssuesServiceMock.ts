@@ -39,7 +39,7 @@ import {
 import { SearchRulesResponse } from '../../types/coding-rules';
 import {
   ASSIGNEE_ME,
-  IssueResolution,
+  IssueSimpleStatus,
   IssueStatus,
   IssueTransition,
   IssueType,
@@ -525,45 +525,39 @@ export default class IssuesServiceMock {
   };
 
   handleSetIssueTransition = (data: { issue: string; transition: string }) => {
-    const statusMap: { [key: string]: IssueStatus } = {
-      [IssueTransition.Confirm]: IssueStatus.Confirmed,
-      [IssueTransition.UnConfirm]: IssueStatus.Reopened,
-      [IssueTransition.Resolve]: IssueStatus.Resolved,
-      [IssueTransition.WontFix]: IssueStatus.Resolved,
-      [IssueTransition.FalsePositive]: IssueStatus.Resolved,
+    const simpleStatusMap: { [key: string]: IssueSimpleStatus } = {
+      [IssueTransition.Accept]: IssueSimpleStatus.Accepted,
+      [IssueTransition.Confirm]: IssueSimpleStatus.Confirmed,
+      [IssueTransition.UnConfirm]: IssueSimpleStatus.Open,
+      [IssueTransition.Resolve]: IssueSimpleStatus.Fixed,
+      [IssueTransition.WontFix]: IssueSimpleStatus.Accepted,
+      [IssueTransition.FalsePositive]: IssueSimpleStatus.FalsePositive,
     };
+
     const transitionMap: Dict<IssueTransition[]> = {
-      [IssueStatus.Reopened]: [
+      [IssueSimpleStatus.Open]: [
+        IssueTransition.Accept,
         IssueTransition.Confirm,
         IssueTransition.Resolve,
         IssueTransition.FalsePositive,
         IssueTransition.WontFix,
       ],
-      [IssueStatus.Open]: [
-        IssueTransition.Confirm,
-        IssueTransition.Resolve,
-        IssueTransition.FalsePositive,
-        IssueTransition.WontFix,
-      ],
-      [IssueStatus.Confirmed]: [
+      [IssueSimpleStatus.Confirmed]: [
+        IssueTransition.Accept,
         IssueTransition.Resolve,
         IssueTransition.UnConfirm,
         IssueTransition.FalsePositive,
         IssueTransition.WontFix,
       ],
-      [IssueStatus.Resolved]: [IssueTransition.Reopen],
-    };
-
-    const resolutionMap: Dict<string> = {
-      [IssueTransition.WontFix]: IssueResolution.WontFix,
-      [IssueTransition.FalsePositive]: IssueResolution.FalsePositive,
+      [IssueSimpleStatus.FalsePositive]: [IssueTransition.Reopen],
+      [IssueSimpleStatus.Accepted]: [IssueTransition.Reopen],
+      [IssueSimpleStatus.Fixed]: [IssueTransition.Reopen],
     };
 
     return this.getActionsResponse(
       {
-        status: statusMap[data.transition],
-        transitions: transitionMap[statusMap[data.transition]],
-        resolution: resolutionMap[data.transition],
+        simpleStatus: simpleStatusMap[data.transition],
+        transitions: transitionMap[simpleStatusMap[data.transition]],
       },
       data.issue,
     );

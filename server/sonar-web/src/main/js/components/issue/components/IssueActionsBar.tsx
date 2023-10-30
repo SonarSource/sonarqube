@@ -19,8 +19,7 @@
  */
 
 import * as React from 'react';
-import { translate } from '../../../helpers/l10n';
-import { IssueActions, IssueResolution, IssueType as IssueTypeEnum } from '../../../types/issues';
+import { IssueActions } from '../../../types/issues';
 import { Issue } from '../../../types/types';
 import SoftwareImpactPillList from '../../shared/SoftwareImpactPillList';
 import IssueAssign from './IssueAssign';
@@ -40,11 +39,6 @@ interface Props {
   showSonarLintBadge?: boolean;
 }
 
-interface State {
-  commentAutoTriggered: boolean;
-  commentPlaceholder: string;
-}
-
 export default function IssueActionsBar(props: Props) {
   const {
     issue,
@@ -56,45 +50,26 @@ export default function IssueActionsBar(props: Props) {
     showSonarLintBadge,
   } = props;
 
-  const [commentState, setCommentState] = React.useState<State>({
-    commentAutoTriggered: false,
-    commentPlaceholder: '',
-  });
+  const [commentPlaceholder, setCommentPlaceholder] = React.useState('');
 
-  const toggleComment = (open: boolean, placeholder = '', autoTriggered = false) => {
-    setCommentState({
-      commentPlaceholder: placeholder,
-      commentAutoTriggered: autoTriggered,
-    });
+  const toggleComment = (open: boolean, placeholder = '') => {
+    setCommentPlaceholder(placeholder);
 
     togglePopup('comment', open);
   };
 
-  const handleTransition = (issue: Issue) => {
-    onChange(issue);
-
-    if (
-      issue.resolution === IssueResolution.FalsePositive ||
-      (issue.resolution === IssueResolution.WontFix && issue.type !== IssueTypeEnum.SecurityHotspot)
-    ) {
-      toggleComment(true, translate('issue.comment.explain_why'), true);
-    }
-  };
-
   const canAssign = issue.actions.includes(IssueActions.Assign);
   const canComment = issue.actions.includes(IssueActions.Comment);
-  const hasTransitions = issue.transitions.length > 0;
 
   return (
     <div className="sw-flex sw-gap-3">
       <ul className="it__issue-header-actions sw-flex sw-items-center sw-gap-3 sw-body-sm">
-        <li>
+        <li className="sw-relative">
           <IssueTransition
             isOpen={currentPopup === 'transition'}
             togglePopup={togglePopup}
-            hasTransitions={hasTransitions}
             issue={issue}
-            onChange={handleTransition}
+            onChange={onChange}
           />
         </li>
 
@@ -132,8 +107,7 @@ export default function IssueActionsBar(props: Props) {
 
       {canComment && (
         <IssueCommentAction
-          commentAutoTriggered={commentState.commentAutoTriggered}
-          commentPlaceholder={commentState.commentPlaceholder}
+          commentPlaceholder={commentPlaceholder}
           currentPopup={currentPopup === 'comment'}
           issueKey={issue.key}
           onChange={onChange}

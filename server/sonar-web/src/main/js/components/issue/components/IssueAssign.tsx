@@ -49,7 +49,7 @@ export default function IssueAssignee(props: Props) {
     issue: { assignee, assigneeName, assigneeLogin, assigneeAvatar },
   } = props;
 
-  const assinedUser = assigneeName || assignee;
+  const assinedUser = assigneeName ?? assignee;
   const { currentUser } = React.useContext(CurrentUserContext);
 
   const allowCurrentUserSelection = isLoggedIn(currentUser) && currentUser?.login !== assigneeLogin;
