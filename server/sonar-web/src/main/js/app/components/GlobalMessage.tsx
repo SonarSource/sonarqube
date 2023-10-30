@@ -66,10 +66,8 @@ const MessageBox = styled.div<Pick<Message, 'level'>>`
   opacity: 0;
   animation: ${appearAnim} 0.2s ease forwards;
 
-  & + & {
-    margin-top: calc(${sizes.gridSize} / 2);
-    border-radius: 3px;
-  }
+  margin-top: calc(${sizes.gridSize} / 2);
+  border-radius: 3px;
 `;
 
 const CloseButton = styled(ClearButton)<Pick<Message, 'level'>>`

@@ -83,8 +83,8 @@ export default class GlobalMessagesContainer extends React.Component<{}, State> 
     }
 
     return (
-      <>
-        <MessagesContainer role="alert">
+      <MessagesContainer>
+        <div role="alert">
           {messages
             .filter((m) => m.level === MessageLevel.Error)
             .map((message) => (
@@ -94,8 +94,8 @@ export default class GlobalMessagesContainer extends React.Component<{}, State> 
                 message={message}
               />
             ))}
-        </MessagesContainer>
-        <MessagesContainer role="status">
+        </div>
+        <output>
           {messages
             .filter((m) => m.level === MessageLevel.Success)
             .map((message) => (
@@ -105,8 +105,8 @@ export default class GlobalMessagesContainer extends React.Component<{}, State> 
                 message={message}
               />
             ))}
-        </MessagesContainer>
-      </>
+        </output>
+      </MessagesContainer>
     );
   }
 }
