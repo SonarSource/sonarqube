@@ -35,13 +35,13 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.server.http.JavaxHttpRequest;
 import org.sonar.server.http.JavaxHttpResponse;
 
@@ -103,7 +103,7 @@ public class SamlAuthenticator {
       HttpServletResponse httpServletResponse = ((JavaxHttpResponse) response).getDelegate();
 
       return new Auth(initSettings(callbackUrl), httpServletRequest, httpServletResponse);
-    } catch (SettingsException e) {
+    } catch (Exception e) {
       throw new IllegalStateException("Failed to create a SAML Auth", e);
     }
   }
@@ -135,7 +135,12 @@ public class SamlAuthenticator {
 
     var saml2Settings = new SettingsBuilder().fromValues(samlData).build();
     if (samlSettings.getServiceProviderPrivateKey().isPresent() && saml2Settings.getSPkey() == null) {
-      LOGGER.error("Error in parsing service provider private key, please make sure that it is in PKCS 8 format.");
+      final String pkcs8ErrorMessage = "Error in parsing service provider private key, please make sure that it is in PKCS 8 format.";
+      LOGGER.error(pkcs8ErrorMessage);
+      // If signature is enabled then we need to throw an exception because the authentication will never work with a missing private key
+      if (samlSettings.isSignRequestsEnabled()) {
+        throw new IllegalStateException(pkcs8ErrorMessage);
+      }
     }
     return saml2Settings;
   }

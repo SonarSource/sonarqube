@@ -99,7 +99,7 @@ public class ValidationInitActionTest {
 
     underTest.doFilter(servletRequest, servletResponse, filterChain);
 
-    verify(servletResponse).sendRedirect("/saml/validation");
+    verify(servletResponse).sendRedirect("/saml/validation?CSRFToken=CSRF_TOKEN");
   }
 
   @Test

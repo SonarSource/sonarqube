@@ -84,8 +84,8 @@ public class ValidationInitAction extends HttpFilter implements SamlAction {
     try {
       samlAuthenticator.initLogin(oAuth2ContextFactory.generateCallbackUrl(SamlIdentityProvider.KEY),
         VALIDATION_RELAY_STATE + "/" + csrfState, request, response);
-    } catch (IllegalStateException e) {
-      response.sendRedirect("/" + SAML_VALIDATION_CONTROLLER_CONTEXT + "/" + SAML_VALIDATION_KEY);
+    } catch (IllegalArgumentException | IllegalStateException e) {
+      response.sendRedirect("/" + SAML_VALIDATION_CONTROLLER_CONTEXT + "/" + SAML_VALIDATION_KEY + "?CSRFToken=" + csrfState);
     }
   }
 }
