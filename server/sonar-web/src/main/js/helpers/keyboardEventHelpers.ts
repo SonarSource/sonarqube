@@ -36,13 +36,3 @@ export function isInput(
     event.target instanceof HTMLTextAreaElement
   );
 }
-
-/*
- * Due to React 16 event delegation, stopPropagation called within react-day-picker is NOT preventing other event handlers from being called.
- * As a temporary workaround, we detect this special case using this utility function.
- * This utility function can be removed once we upgrade to React 17, since although there is still event delegation,
- * it is delegated up to the React root, which will stop propagation before it reaches document event handlers.
- */
-export function isDatePicker(event: KeyboardEvent): boolean {
-  return event.target instanceof Element && event.target.matches('.rdp-day');
-}

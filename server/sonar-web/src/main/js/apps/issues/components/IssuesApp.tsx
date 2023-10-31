@@ -55,7 +55,7 @@ import Spinner from '../../../components/ui/Spinner';
 import { fillBranchLike, getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
 import handleRequiredAuthentication from '../../../helpers/handleRequiredAuthentication';
 import { parseIssueFromResponse } from '../../../helpers/issues';
-import { isDatePicker, isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
+import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
@@ -286,11 +286,6 @@ export class App extends React.PureComponent<Props, State> {
     }
 
     if (isInput(event) || isShortcut(event)) {
-      return;
-    }
-
-    // Ignore if date picker is open (to be removed when upgrading to React 17+)
-    if (isDatePicker(event)) {
       return;
     }
 
@@ -866,6 +861,14 @@ export class App extends React.PureComponent<Props, State> {
   };
 
   handleIssueChange = (issue: Issue) => {
+    const { openFacets } = this.state;
+    // The idea is once issue is handle by a react-query we would update only
+    // the facet affected by the issue change. Right now it is too complexe to do so.
+    Object.entries(openFacets).forEach(([facet, isOpen]) => {
+      if (isOpen) {
+        this.fetchFacet(facet);
+      }
+    });
     this.setState((state) => ({
       issues: state.issues.map((candidate) => (candidate.key === issue.key ? issue : candidate)),
     }));

@@ -39,7 +39,7 @@ import ListFooter from '../../../components/controls/ListFooter';
 import Suggestions from '../../../components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
-import { isDatePicker, isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
+import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import {
@@ -165,11 +165,6 @@ export class CodingRulesApp extends React.PureComponent<Props, State> {
 
   handleKeyDown = (event: KeyboardEvent) => {
     if (isInput(event) || isShortcut(event)) {
-      return;
-    }
-
-    // Ignore if date picker is open (to be removed when upgrading to React 17+)
-    if (isDatePicker(event)) {
       return;
     }
 
