@@ -33,7 +33,7 @@ export default function SeverityHelper({ className, severity, fill }: Props) {
   }
   return (
     <span className={className}>
-      <SeverityIcon className="little-spacer-right" fill={fill} severity={severity} aria-hidden />
+      <SeverityIcon className="sw-mr-1" fill={fill} severity={severity} aria-hidden />
       {translate('severity', severity)}
     </span>
   );

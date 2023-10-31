@@ -138,7 +138,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
       <ActionCell>
         {canEdit && (
           <>
-            {!ruleDetails.isTemplate && !!ruleDetails.params?.length && (
+            {!ruleDetails.isTemplate && (
               <ActivationButton
                 activation={activation}
                 ariaLabel={translateWithParameters('coding_rules.change_details_x', profile.name)}

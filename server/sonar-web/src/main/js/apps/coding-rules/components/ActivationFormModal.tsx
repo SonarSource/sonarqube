@@ -30,11 +30,13 @@ import {
 } from 'design-system';
 import * as React from 'react';
 import { Profile, activateRule } from '../../../api/quality-profiles';
-import DocumentationLink from '../../../components/common/DocumentationLink';
+import DocLink from '../../../components/common/DocLink';
 import { translate } from '../../../helpers/l10n';
 import { sanitizeString } from '../../../helpers/sanitize';
+import { IssueSeverity } from '../../../types/issues';
 import { Dict, Rule, RuleActivation, RuleDetails } from '../../../types/types';
 import { sortProfiles } from '../../quality-profiles/utils';
+import { SeveritySelect } from './SeveritySelect';
 
 interface Props {
   activation?: RuleActivation;
@@ -54,6 +56,7 @@ interface State {
   params: Dict<string>;
   profile?: ProfileWithDepth;
   submitting: boolean;
+  severity: IssueSeverity;
 }
 
 const MIN_PROFILES_TO_ENABLE_SELECT = 2;
@@ -69,6 +72,9 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
       params: this.getParams(props),
       profile: profilesWithDepth.length > 0 ? profilesWithDepth[0] : undefined,
       submitting: false,
+      severity: (props.activation
+        ? props.activation.severity
+        : props.rule.severity) as IssueSeverity,
     };
   }
 
@@ -113,14 +119,13 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
   };
 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
-    const { activation, rule } = this.props;
     event.preventDefault();
     this.setState({ submitting: true });
     const data = {
       key: this.state.profile?.key ?? '',
       params: this.state.params,
       rule: this.props.rule.key,
-      severity: activation ? activation.severity : rule.severity,
+      severity: this.state.severity,
     };
     activateRule(data)
       .then(() => this.props.onDone(data.severity))
@@ -148,9 +153,13 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     this.setState({ profile: value.value });
   };
 
+  handleSeverityChange = ({ value }: LabelValueSelectOption<IssueSeverity>) => {
+    this.setState({ severity: value });
+  };
+
   render() {
     const { activation, rule } = this.props;
-    const { profile, submitting } = this.state;
+    const { profile, severity, submitting } = this.state;
     const { params = [] } = rule;
     const profilesWithDepth = this.getQualityProfilesWithDepth();
     const profileOptions = profilesWithDepth.map((p) => ({ label: p.name, value: p }));
@@ -179,10 +188,10 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
             )}
 
             <FlagMessage className="sw-mb-4" variant="info">
-              {translate('coding_rules.severity_cannot_be_modified')}
-              <DocumentationLink className="sw-ml-2" to="/user-guide/clean-code/">
+              {translate('coding_rules.severity_deprecated')}
+              <DocLink className="sw-ml-2 sw-whitespace-nowrap" to="/user-guide/clean-code/">
                 {translate('learn_more')}
-              </DocumentationLink>
+              </DocLink>
             </FlagMessage>
 
             <FormField
@@ -203,6 +212,19 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
                 value={profileOptions.find(({ value }) => value.key === profile?.key)}
               />
             </FormField>
+
+            <FormField
+              ariaLabel={translate('severity')}
+              label={translate('severity')}
+              htmlFor="coding-rules-severity-select"
+            >
+              <SeveritySelect
+                isDisabled={submitting}
+                onChange={this.handleSeverityChange}
+                severity={severity}
+              />
+            </FormField>
+
             {isCustomRule ? (
               <Note as="p" className="sw-my-4">
                 {translate('coding_rules.custom_rule.activation_notice')}

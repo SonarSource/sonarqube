@@ -93,7 +93,7 @@ it('should see the changelog', async () => {
     'System',
     'quality_profiles.changelog.DEACTIVATED',
     'Rule 0issue.clean_code_attribute_category.RESPONSIBLE.title_shortsoftware_quality.SECURITYsoftware_quality.MAINTAINABILITY',
-    [/quality_profiles.severity_set_to severity.MAJOR/],
+    [/quality_profiles.deprecated_severity_set_to severity.MAJOR/],
   );
   ui.checkRow(
     3,
@@ -102,7 +102,7 @@ it('should see the changelog', async () => {
     '',
     'Rule 1issue.clean_code_attribute_category.RESPONSIBLE.title_shortsoftware_quality.SECURITYsoftware_quality.MAINTAINABILITY',
     [
-      /quality_profiles.severity_set_to severity.CRITICAL/,
+      /quality_profiles.deprecated_severity_set_to severity.CRITICAL/,
       /quality_profiles.changelog.cca_and_category_changed.*COMPLETE.*INTENTIONAL.*LAWFUL.*RESPONSIBLE/,
       /quality_profiles.changelog.impact_added.severity.*MEDIUM.*RELIABILITY/,
       /quality_profiles.changelog.impact_removed.severity.HIGH.*MAINTAINABILITY/,
@@ -153,7 +153,7 @@ it('should see short changelog for php', async () => {
   const rows = await ui.row.findAll();
   expect(rows).toHaveLength(2);
   ui.checkRow(1, 'May 23, 2019', 'System', 'quality_profiles.changelog.DEACTIVATED', 'PHP Rule', [
-    /quality_profiles.severity_set_to severity.CRITICAL/,
+    /quality_profiles.deprecated_severity_set_to severity.CRITICAL/,
     /quality_profiles.changelog.cca_and_category_changed.*COMPLETE.*INTENTIONAL.*CLEAR.*RESPONSIBLE/,
   ]);
   expect(ui.showMore.query()).not.toBeInTheDocument();

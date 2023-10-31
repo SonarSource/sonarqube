@@ -363,7 +363,9 @@ describe('Rules app list', () => {
 
     // Activate Rule for qp
     await user.click(ui.activateButton.getAll()[0]);
+    await selectEvent.select(ui.oldSeveritySelect.get(), 'severity.MINOR');
     await user.click(ui.activateButton.get(ui.activateQPDialog.get()));
+
     expect(ui.activateButton.getAll()).toHaveLength(1);
     expect(ui.deactivateButton.getAll()).toHaveLength(1);
 
@@ -707,7 +709,7 @@ describe('Rule app details', () => {
       await user.type(ui.keyTextbox.get(), 'new_custom_rule');
 
       await selectEvent.select(ui.typeSelect.get(), 'issue.type.BUG');
-      await selectEvent.select(ui.severitySelect.get(), 'severity.MINOR');
+      await selectEvent.select(ui.oldSeveritySelect.get(), 'severity.MINOR');
       await selectEvent.select(ui.statusSelect.get(), 'rules.status.BETA');
 
       await user.type(ui.descriptionTextbox.get(), 'Some description for custom rule');

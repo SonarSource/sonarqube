@@ -145,7 +145,7 @@ const selectors = {
   qpLink: (name: string) => byRole('link', { name }),
   activateButton: byRole('button', { name: 'coding_rules.activate' }),
   deactivateButton: byRole('button', { name: 'coding_rules.deactivate' }),
-  severitySelect: byRole('combobox', { name: 'severity' }),
+  oldSeveritySelect: byRole('combobox', { name: 'severity' }),
   qualityProfileSelect: byRole('combobox', { name: 'coding_rules.quality_profile' }),
   activateQPDialog: byRole('dialog', { name: 'coding_rules.activate_in_quality_profile' }),
   changeButton: (profile: string) =>
