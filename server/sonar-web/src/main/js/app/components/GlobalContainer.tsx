@@ -19,7 +19,7 @@
  */
 import { ThemeProvider } from '@emotion/react';
 import classNames from 'classnames';
-import { lightTheme } from 'design-system';
+import { lightTheme, ToastMessageContainer } from 'design-system';
 import * as React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import A11yProvider from '../../components/a11y/A11yProvider';
@@ -28,14 +28,14 @@ import SuggestionsProvider from '../../components/embed-docs-modal/SuggestionsPr
 import NCDAutoUpdateMessage from '../../components/new-code-definition/NCDAutoUpdateMessage';
 import Workspace from '../../components/workspace/Workspace';
 import GlobalFooter from './GlobalFooter';
-import StartupModal from './StartupModal';
-import SystemAnnouncement from './SystemAnnouncement';
 import IndexationContextProvider from './indexation/IndexationContextProvider';
 import IndexationNotification from './indexation/IndexationNotification';
 import LanguagesContextProvider from './languages/LanguagesContextProvider';
 import MetricsContextProvider from './metrics/MetricsContextProvider';
 import GlobalNav from './nav/global/GlobalNav';
 import PromotionNotification from './promotion-notification/PromotionNotification';
+import StartupModal from './StartupModal';
+import SystemAnnouncement from './SystemAnnouncement';
 import UpdateNotification from './update-notification/UpdateNotification';
 
 const TEMP_PAGELIST_WITH_NEW_BACKGROUND = [
@@ -85,6 +85,7 @@ export default function GlobalContainer() {
             >
               <div className="page-container">
                 <Workspace>
+                  <ToastMessageContainer />
                   <IndexationContextProvider>
                     <LanguagesContextProvider>
                       <MetricsContextProvider>

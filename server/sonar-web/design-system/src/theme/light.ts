@@ -109,6 +109,23 @@ export const lightTheme = {
     popup: COLORS.white,
     popupBorder: secondary.default,
 
+    // Toasts
+    toast: COLORS.white,
+    toastText: secondary.darker,
+    toastCloseIcon: secondary.dark,
+
+    toastErrorBorder: danger.light,
+    toastErrorIconBackground: danger.lightest,
+
+    toastWarningBorder: COLORS.yellow[400],
+    toastWarningIconBackground: COLORS.yellow[50],
+
+    toastSuccessBorder: COLORS.yellowGreen[400],
+    toastSuccessIconBackground: COLORS.yellowGreen[50],
+
+    toastInfoBorder: COLORS.blue[400],
+    toastInfoIconBackground: COLORS.blue[50],
+
     // spotlight
     spotlightPulseBackground: primary.default,
     spotlightBackgroundColor: COLORS.blueGrey[50],

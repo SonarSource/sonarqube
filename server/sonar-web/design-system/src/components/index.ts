@@ -101,4 +101,6 @@ export * from './lists';
 export * from './modal/Modal';
 export * from './popups';
 export * from './subnavigation';
+export { ToastMessageContainer } from './toast-message/ToastMessage';
+export * from './toast-message/toast-utils';
 export * from './visual-components';

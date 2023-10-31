@@ -76,3 +76,5 @@ export const OPACITY_20_PERCENT = 0.2;
 export const OPACITY_75_PERCENT = 0.75;
 
 export const GLOBAL_POPUP_Z_INDEX = 5000;
+
+export const TOAST_AUTOCLOSE_DELAY = 5000;

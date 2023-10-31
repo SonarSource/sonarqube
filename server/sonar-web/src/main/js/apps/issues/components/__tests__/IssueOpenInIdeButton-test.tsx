@@ -20,8 +20,10 @@
 
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { addGlobalErrorMessage, addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
-import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../../../helpers/globalMessages';
+import { FormattedMessage } from 'react-intl';
+import DocumentationLink from '../../../../components/common/DocumentationLink';
 import {
   openIssue as openSonarLintIssue,
   probeSonarLintServers,
@@ -34,7 +36,8 @@ jest.mock('../../../../helpers/sonarlint', () => ({
   probeSonarLintServers: jest.fn(),
 }));
 
-jest.mock('../../../../helpers/globalMessages', () => ({
+jest.mock('design-system', () => ({
+  ...jest.requireActual('design-system'),
   addGlobalErrorMessage: jest.fn(),
   addGlobalSuccessMessage: jest.fn(),
 }));
@@ -76,7 +79,18 @@ it('handles button click with no ide found', async () => {
 
   expect(probeSonarLintServers).toHaveBeenCalledWith();
 
-  expect(addGlobalErrorMessage).toHaveBeenCalledWith('issues.open_in_ide.failure');
+  expect(addGlobalErrorMessage).toHaveBeenCalledWith(
+    <FormattedMessage
+      id="issues.open_in_ide.failure"
+      values={{
+        link: (
+          <DocumentationLink to="user-guide/sonarlint-connected-mode/">
+            sonarlint-connected-mode-doc
+          </DocumentationLink>
+        ),
+      }}
+    />,
+  );
 
   expect(openSonarLintIssue).not.toHaveBeenCalled();
   expect(addGlobalSuccessMessage).not.toHaveBeenCalled();

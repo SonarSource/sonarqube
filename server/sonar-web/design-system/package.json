@@ -87,6 +87,7 @@
     "highlight.js": "11.8.0",
     "highlightjs-apex": "1.2.0",
     "highlightjs-cobol": "0.3.3",
-    "highlightjs-sap-abap": "0.3.0"
+    "highlightjs-sap-abap": "0.3.0",
+    "react-toastify": "8.2.0"
   }
 }

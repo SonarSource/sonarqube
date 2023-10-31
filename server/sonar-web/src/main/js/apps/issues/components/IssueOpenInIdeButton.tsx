@@ -25,9 +25,12 @@ import {
   ItemButton,
   PopupPlacement,
   PopupZLevel,
+  addGlobalErrorMessage,
+  addGlobalSuccessMessage,
 } from 'design-system';
 import * as React from 'react';
-import { addGlobalErrorMessage, addGlobalSuccessMessage } from '../../../helpers/globalMessages';
+import { FormattedMessage } from 'react-intl';
+import DocumentationLink from '../../../components/common/DocumentationLink';
 import { translate } from '../../../helpers/l10n';
 import { openIssue as openSonarLintIssue, probeSonarLintServers } from '../../../helpers/sonarlint';
 import { Ide } from '../../../types/sonarlint';
@@ -43,7 +46,19 @@ interface State {
   mounted: boolean;
 }
 
-const showError = () => addGlobalErrorMessage(translate('issues.open_in_ide.failure'));
+const showError = () =>
+  addGlobalErrorMessage(
+    <FormattedMessage
+      id="issues.open_in_ide.failure"
+      values={{
+        link: (
+          <DocumentationLink to="user-guide/sonarlint-connected-mode/">
+            {translate('sonarlint-connected-mode-doc')}
+          </DocumentationLink>
+        ),
+      }}
+    />,
+  );
 
 const showSuccess = () => addGlobalSuccessMessage(translate('issues.open_in_ide.success'));
 
