@@ -49,6 +49,18 @@ public class SimpleStatusTest {
   }
 
   @Test
+  public void of_shouldReturnNull_WhenStatusBelongsToHotspot() {
+    assertThat(SimpleStatus.of(Issue.STATUS_TO_REVIEW, null))
+      .isNull();
+
+    assertThat(SimpleStatus.of(Issue.STATUS_REVIEWED, Issue.RESOLUTION_SAFE))
+      .isNull();
+
+    assertThat(SimpleStatus.of(Issue.STATUS_REVIEWED, Issue.RESOLUTION_ACKNOWLEDGED))
+      .isNull();
+  }
+
+  @Test
   public void of_shouldThrowExceptionWhenUnknownMapping() {
     assertThatThrownBy(() -> SimpleStatus.of(Issue.STATUS_RESOLVED, null))
       .isInstanceOf(IllegalArgumentException.class)

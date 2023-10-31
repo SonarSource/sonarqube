@@ -19,6 +19,7 @@
  */
 package org.sonar.core.issue.status;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 
@@ -29,6 +30,7 @@ public enum SimpleStatus {
   ACCEPTED,
   FIXED;
 
+  @CheckForNull
   public static SimpleStatus of(String status, @Nullable String resolution) {
     switch (status) {
       case Issue.STATUS_OPEN:
@@ -38,6 +40,10 @@ public enum SimpleStatus {
         return SimpleStatus.CONFIRMED;
       case Issue.STATUS_CLOSED:
         return SimpleStatus.FIXED;
+      //Security hotspot should not return simple status as they are deprecated.
+      case Issue.STATUS_REVIEWED:
+      case Issue.STATUS_TO_REVIEW:
+        return null;
       default:
     }
     if (resolution != null) {
