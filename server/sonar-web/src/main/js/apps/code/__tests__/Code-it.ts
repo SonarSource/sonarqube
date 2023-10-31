@@ -28,7 +28,7 @@ import { isDiffMetric } from '../../../helpers/measures';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockMeasure } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
-import { ReactTestingQuery, byLabelText, byRole, byText } from '../../../helpers/testSelector';
+import { QuerySelector, byLabelText, byRole, byText } from '../../../helpers/testSelector';
 import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import { Component } from '../../../types/types';
@@ -400,7 +400,7 @@ function getPageObject(user: UserEvent) {
     newCodeBtn: byRole('radio', { name: 'projects.view.new_code' }),
     overallCodeBtn: byRole('radio', { name: 'projects.view.overall_code' }),
     measureRow: (name: string | RegExp) => byLabelText(name),
-    measureValueCell: (row: ReactTestingQuery, name: string, value: string) => {
+    measureValueCell: (row: QuerySelector, name: string, value: string) => {
       const i = Array.from(screen.getAllByRole('columnheader')).findIndex(
         (c) => c.textContent?.includes(name),
       );

@@ -32,7 +32,7 @@ function maybeScreen(container?: HTMLElement) {
   return container ? within(container) : screen;
 }
 
-export interface ReactTestingQuery {
+interface ReactTestingQuery {
   find<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
     waitForOptions?: waitForOptions,
@@ -45,43 +45,44 @@ export interface ReactTestingQuery {
   getAll<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T[];
   query<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T | null;
   queryAll<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T[] | null;
-
-  byText(...args: Parameters<BoundFunction<GetByText>>): ReactTestingQuery;
-  byRole(...args: Parameters<BoundFunction<GetByRole>>): ReactTestingQuery;
-  byPlaceholderText(...args: Parameters<BoundFunction<GetByBoundAttribute>>): ReactTestingQuery;
-  byLabelText(...args: Parameters<BoundFunction<GetByText>>): ReactTestingQuery;
-  byTestId(...args: Parameters<BoundFunction<GetByBoundAttribute>>): ReactTestingQuery;
-  byDisplayValue(...args: Parameters<BoundFunction<GetByBoundAttribute>>): ReactTestingQuery;
-  by(selector: ReactTestingQuery): ReactTestingQuery;
-
-  getAt<T extends HTMLElement = HTMLElement>(index: number, container?: HTMLElement): T;
-  findAt<T extends HTMLElement = HTMLElement>(
-    index: number,
-    container?: HTMLElement,
-    waitForOptions?: waitForOptions,
-  ): Promise<T>;
-
-  queryAt<T extends HTMLElement = HTMLElement>(index: number, container?: HTMLElement): T | null;
 }
 
-abstract class ChainingQuery implements ReactTestingQuery {
-  abstract find<T extends HTMLElement = HTMLElement>(
+export class QuerySelector {
+  dispatchQuery: ReactTestingQuery;
+
+  constructor(dispatchQuery: ReactTestingQuery) {
+    this.dispatchQuery = dispatchQuery;
+  }
+
+  find<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
     waitForOptions?: waitForOptions,
-  ): Promise<T>;
+  ): Promise<T> {
+    return this.dispatchQuery.find<T>(container, waitForOptions);
+  }
 
-  abstract findAll<T extends HTMLElement = HTMLElement>(
+  findAll<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
     waitForOptions?: waitForOptions,
-  ): Promise<T[]>;
+  ): Promise<T[]> {
+    return this.dispatchQuery.findAll<T>(container, waitForOptions);
+  }
 
-  abstract get<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T;
+  get<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T {
+    return this.dispatchQuery.get<T>(container);
+  }
 
-  abstract getAll<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T[];
+  getAll<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T[] {
+    return this.dispatchQuery.getAll<T>(container);
+  }
 
-  abstract query<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T | null;
+  query<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T | null {
+    return this.dispatchQuery.query<T>(container);
+  }
 
-  abstract queryAll<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T[] | null;
+  queryAll<T extends HTMLElement = HTMLElement>(container?: HTMLElement): T[] | null {
+    return this.dispatchQuery.queryAll<T>(container);
+  }
 
   getAt<T extends HTMLElement = HTMLElement>(index: number, container?: HTMLElement): T {
     return this.getAll<T>(container)[index];
@@ -103,31 +104,31 @@ abstract class ChainingQuery implements ReactTestingQuery {
     return null;
   }
 
-  by(selector: ReactTestingQuery): ReactTestingQuery {
+  by(selector: ReactTestingQuery): QuerySelector {
     return new ChainDispatch(this, selector);
   }
 
-  byText(...args: Parameters<BoundFunction<GetByText>>): ReactTestingQuery {
+  byText(...args: Parameters<BoundFunction<GetByText>>): QuerySelector {
     return this.by(new DispatchByText(args));
   }
 
-  byRole(...args: Parameters<BoundFunction<GetByRole>>): ReactTestingQuery {
+  byRole(...args: Parameters<BoundFunction<GetByRole>>): QuerySelector {
     return this.by(new DispatchByRole(args));
   }
 
-  byPlaceholderText(...args: Parameters<BoundFunction<GetByBoundAttribute>>): ReactTestingQuery {
+  byPlaceholderText(...args: Parameters<BoundFunction<GetByBoundAttribute>>): QuerySelector {
     return this.by(new DispatchByPlaceholderText(args));
   }
 
-  byLabelText(...args: Parameters<BoundFunction<GetByText>>): ReactTestingQuery {
+  byLabelText(...args: Parameters<BoundFunction<GetByText>>): QuerySelector {
     return this.by(new DispatchByLabelText(args));
   }
 
-  byTestId(...args: Parameters<BoundFunction<GetByBoundAttribute>>): ReactTestingQuery {
+  byTestId(...args: Parameters<BoundFunction<GetByBoundAttribute>>): QuerySelector {
     return this.by(new DispatchByTestId(args));
   }
 
-  byDisplayValue(...args: Parameters<BoundFunction<GetByBoundAttribute>>): ReactTestingQuery {
+  byDisplayValue(...args: Parameters<BoundFunction<GetByBoundAttribute>>): QuerySelector {
     return this.by(new DispatchByDisplayValue(args));
   }
 
@@ -136,64 +137,61 @@ abstract class ChainingQuery implements ReactTestingQuery {
   }
 }
 
-class ChainDispatch extends ChainingQuery {
-  insideQuery: ReactTestingQuery;
-  elementQuery: ReactTestingQuery;
+class ChainDispatch extends QuerySelector {
+  innerQuery: QuerySelector;
 
-  constructor(insideQuery: ReactTestingQuery, elementQuery: ReactTestingQuery) {
-    super();
-    this.insideQuery = insideQuery;
-    this.elementQuery = elementQuery;
+  constructor(insideQuery: QuerySelector, elementQuery: ReactTestingQuery) {
+    super(elementQuery);
+    this.innerQuery = insideQuery;
   }
 
   async find<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
     waitForOptions?: waitForOptions,
   ) {
-    return this.elementQuery.find<T>(await this.insideQuery.find(container, waitForOptions));
+    return this.dispatchQuery.find<T>(await this.innerQuery.find(container, waitForOptions));
   }
 
   async findAll<T extends HTMLElement = HTMLElement>(
     container?: HTMLElement,
     waitForOptions?: waitForOptions,
   ) {
-    return this.elementQuery.findAll<T>(await this.insideQuery.find(container, waitForOptions));
+    return this.dispatchQuery.findAll<T>(await this.innerQuery.find(container, waitForOptions));
   }
 
   get<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {
-    return this.elementQuery.get<T>(this.insideQuery.get(container));
+    return this.dispatchQuery.get<T>(this.innerQuery.get(container));
   }
 
   getAll<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {
-    const containers = this.insideQuery.getAll(container);
+    const containers = this.innerQuery.getAll(container);
     return containers.reduce(
-      (acc, item) => [...acc, ...(this.elementQuery.queryAll<T>(item) ?? [])],
+      (acc, item) => [...acc, ...(this.dispatchQuery.queryAll<T>(item) ?? [])],
       [],
     );
   }
 
   query<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {
-    const innerContainer = this.insideQuery.query(container);
+    const innerContainer = this.innerQuery.query(container);
     if (innerContainer) {
-      return this.elementQuery.query<T>(innerContainer);
+      return this.dispatchQuery.query<T>(innerContainer);
     }
     return null;
   }
 
   queryAll<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {
-    const innerContainer = this.insideQuery.query(container);
+    const innerContainer = this.innerQuery.query(container);
     if (innerContainer) {
-      return this.elementQuery.queryAll<T>(innerContainer);
+      return this.dispatchQuery.queryAll<T>(innerContainer);
     }
     return null;
   }
 }
 
-class DispatchByText extends ChainingQuery {
+class DispatchByText implements ReactTestingQuery {
   readonly args: Parameters<BoundFunction<GetByText>>;
 
   constructor(args: Parameters<BoundFunction<GetByText>>) {
-    super();
     this.args = args;
   }
 
@@ -228,11 +226,10 @@ class DispatchByText extends ChainingQuery {
   }
 }
 
-class DispatchByLabelText extends ChainingQuery {
+class DispatchByLabelText implements ReactTestingQuery {
   readonly args: Parameters<BoundFunction<GetByText>>;
 
   constructor(args: Parameters<BoundFunction<GetByText>>) {
-    super();
     this.args = args;
   }
 
@@ -267,11 +264,10 @@ class DispatchByLabelText extends ChainingQuery {
   }
 }
 
-class DispatchByRole extends ChainingQuery {
+class DispatchByRole implements ReactTestingQuery {
   readonly args: Parameters<BoundFunction<GetByRole>>;
 
   constructor(args: Parameters<BoundFunction<GetByRole>>) {
-    super();
     this.args = args;
   }
 
@@ -306,11 +302,10 @@ class DispatchByRole extends ChainingQuery {
   }
 }
 
-class DispatchByTestId extends ChainingQuery {
+class DispatchByTestId implements ReactTestingQuery {
   readonly args: Parameters<BoundFunction<GetByBoundAttribute>>;
 
   constructor(args: Parameters<BoundFunction<GetByBoundAttribute>>) {
-    super();
     this.args = args;
   }
 
@@ -345,11 +340,10 @@ class DispatchByTestId extends ChainingQuery {
   }
 }
 
-class DispatchByTitle extends ChainingQuery {
+class DispatchByTitle implements ReactTestingQuery {
   readonly args: Parameters<BoundFunction<GetByBoundAttribute>>;
 
   constructor(args: Parameters<BoundFunction<GetByBoundAttribute>>) {
-    super();
     this.args = args;
   }
 
@@ -384,11 +378,10 @@ class DispatchByTitle extends ChainingQuery {
   }
 }
 
-class DispatchByDisplayValue extends ChainingQuery {
+class DispatchByDisplayValue implements ReactTestingQuery {
   readonly args: Parameters<BoundFunction<GetByBoundAttribute>>;
 
   constructor(args: Parameters<BoundFunction<GetByBoundAttribute>>) {
-    super();
     this.args = args;
   }
 
@@ -423,11 +416,10 @@ class DispatchByDisplayValue extends ChainingQuery {
   }
 }
 
-class DispatchByPlaceholderText extends ChainingQuery {
+class DispatchByPlaceholderText implements ReactTestingQuery {
   readonly args: Parameters<BoundFunction<GetByBoundAttribute>>;
 
   constructor(args: Parameters<BoundFunction<GetByBoundAttribute>>) {
-    super();
     this.args = args;
   }
 
@@ -463,29 +455,29 @@ class DispatchByPlaceholderText extends ChainingQuery {
 }
 
 export function byText(...args: Parameters<BoundFunction<GetByText>>) {
-  return new DispatchByText(args);
+  return new QuerySelector(new DispatchByText(args));
 }
 
 export function byRole(...args: Parameters<BoundFunction<GetByRole>>) {
-  return new DispatchByRole(args);
+  return new QuerySelector(new DispatchByRole(args));
 }
 
 export function byPlaceholderText(...args: Parameters<BoundFunction<GetByBoundAttribute>>) {
-  return new DispatchByPlaceholderText(args);
+  return new QuerySelector(new DispatchByPlaceholderText(args));
 }
 
 export function byLabelText(...args: Parameters<BoundFunction<GetByText>>) {
-  return new DispatchByLabelText(args);
+  return new QuerySelector(new DispatchByLabelText(args));
 }
 
 export function byTestId(...args: Parameters<BoundFunction<GetByBoundAttribute>>) {
-  return new DispatchByTestId(args);
+  return new QuerySelector(new DispatchByTestId(args));
 }
 
 export function byTitle(...args: Parameters<BoundFunction<GetByBoundAttribute>>) {
-  return new DispatchByTitle(args);
+  return new QuerySelector(new DispatchByTitle(args));
 }
 
 export function byDisplayValue(...args: Parameters<BoundFunction<GetByBoundAttribute>>) {
-  return new DispatchByDisplayValue(args);
+  return new QuerySelector(new DispatchByDisplayValue(args));
 }
