@@ -193,6 +193,6 @@ function getSearchPlaceholderLabel(qualifier: ComponentQualifier) {
       return translate('code.search_placeholder.application');
 
     default:
-      return translate('code.search_placeholder.portfolio');
+      return translate('code.search_placeholder');
   }
 }
