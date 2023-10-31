@@ -130,6 +130,10 @@ abstract class ChainingQuery implements ReactTestingQuery {
   byDisplayValue(...args: Parameters<BoundFunction<GetByBoundAttribute>>): ReactTestingQuery {
     return this.by(new DispatchByDisplayValue(args));
   }
+
+  byTitle(...args: Parameters<BoundFunction<GetByBoundAttribute>>): ReactTestingQuery {
+    return this.by(new DispatchByTitle(args));
+  }
 }
 
 class ChainDispatch extends ChainingQuery {
@@ -341,6 +345,45 @@ class DispatchByTestId extends ChainingQuery {
   }
 }
 
+class DispatchByTitle extends ChainingQuery {
+  readonly args: Parameters<BoundFunction<GetByBoundAttribute>>;
+
+  constructor(args: Parameters<BoundFunction<GetByBoundAttribute>>) {
+    super();
+    this.args = args;
+  }
+
+  find<T extends HTMLElement = HTMLElement>(
+    container?: HTMLElement,
+    waitForOptions?: waitForOptions,
+  ) {
+    return maybeScreen(container).findByTitle<T>(...this.args, waitForOptions);
+  }
+
+  findAll<T extends HTMLElement = HTMLElement>(
+    container?: HTMLElement,
+    waitForOptions?: waitForOptions,
+  ) {
+    return maybeScreen(container).findAllByTitle<T>(...this.args, waitForOptions);
+  }
+
+  get<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {
+    return maybeScreen(container).getByTitle<T>(...this.args);
+  }
+
+  getAll<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {
+    return maybeScreen(container).getAllByTitle<T>(...this.args);
+  }
+
+  query<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {
+    return maybeScreen(container).queryByTitle<T>(...this.args);
+  }
+
+  queryAll<T extends HTMLElement = HTMLElement>(container?: HTMLElement) {
+    return maybeScreen(container).queryAllByTitle<T>(...this.args);
+  }
+}
+
 class DispatchByDisplayValue extends ChainingQuery {
   readonly args: Parameters<BoundFunction<GetByBoundAttribute>>;
 
@@ -437,6 +480,10 @@ export function byLabelText(...args: Parameters<BoundFunction<GetByText>>) {
 
 export function byTestId(...args: Parameters<BoundFunction<GetByBoundAttribute>>) {
   return new DispatchByTestId(args);
+}
+
+export function byTitle(...args: Parameters<BoundFunction<GetByBoundAttribute>>) {
+  return new DispatchByTitle(args);
 }
 
 export function byDisplayValue(...args: Parameters<BoundFunction<GetByBoundAttribute>>) {
