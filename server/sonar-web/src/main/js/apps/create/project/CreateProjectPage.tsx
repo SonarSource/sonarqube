@@ -96,7 +96,6 @@ export type ImportProjectParam =
       creationMode: CreateProjectModes.GitHub;
       almSetting: string;
       projects: {
-        organization: string;
         repositoryKey: string;
       }[];
     }

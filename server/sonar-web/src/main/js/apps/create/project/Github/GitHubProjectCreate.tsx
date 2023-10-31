@@ -266,10 +266,7 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
       this.props.onProjectSetupDone({
         almSetting: selectedAlmInstance.key,
         creationMode: CreateProjectModes.GitHub,
-        projects: repoKeys.map((repositoryKey) => ({
-          repositoryKey,
-          organization: selectedOrganization.key,
-        })),
+        projects: repoKeys.map((repositoryKey) => ({ repositoryKey })),
       });
     }
   };

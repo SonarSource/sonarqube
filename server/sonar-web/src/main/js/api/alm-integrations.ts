@@ -201,7 +201,6 @@ export function setupGithubProjectCreation(data: {
 
 export function importGithubRepository(data: {
   almSetting: string;
-  organization: string;
   repositoryKey: string;
   newCodeDefinitionType?: string;
   newCodeDefinitionValue?: string;
