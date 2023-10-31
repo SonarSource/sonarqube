@@ -35,7 +35,7 @@ import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
-import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
+import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import { parseDate } from '../../../helpers/dates';
 import { getRulesUrl } from '../../../helpers/urls';
 import { ProfileChangelogEvent } from '../types';
@@ -139,13 +139,7 @@ export default function Changelog(props: Props) {
                 cleanCodeAttributeCategory={event.cleanCodeAttributeCategory}
               />
             )}
-            {event.impacts?.map((impact) => (
-              <SoftwareImpactPill
-                key={impact.softwareQuality}
-                quality={impact.softwareQuality}
-                severity={impact.severity}
-              />
-            ))}
+            <SoftwareImpactPillList softwareImpacts={event.impacts} />
           </div>
         </CellComponent>
 

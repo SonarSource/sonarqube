@@ -32,7 +32,7 @@ import { setIssueAssignee } from '../../../api/issues';
 import { updateIssue } from '../../../components/issue/actions';
 import IssueActionsBar from '../../../components/issue/components/IssueActionsBar';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
-import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
+import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { isInput, isShortcut } from '../../../helpers/keyboardEventHelpers';
@@ -191,13 +191,9 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
           </div>
           <div className="sw-flex sw-items-center">
             <Note>{translate('issue.software_qualities.label')}</Note>
-            <ul className="sw-ml-1 sw-flex sw-gap-2" data-guiding-id="issue-2">
-              {issue.impacts.map(({ severity, softwareQuality }) => (
-                <li key={softwareQuality}>
-                  <SoftwareImpactPill severity={severity} quality={softwareQuality} />
-                </li>
-              ))}
-            </ul>
+            <div data-guiding-id="issue-2">
+              <SoftwareImpactPillList className="sw-ml-1" softwareImpacts={issue.impacts} />
+            </div>
           </div>
           <BasicSeparator className="sw-my-3" />
           <IssueActionsBar

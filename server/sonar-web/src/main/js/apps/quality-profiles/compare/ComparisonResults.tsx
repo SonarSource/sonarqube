@@ -24,7 +24,7 @@ import { useIntl } from 'react-intl';
 import { CompareResponse, Profile, RuleCompare } from '../../../api/quality-profiles';
 import IssueSeverityIcon from '../../../components/icon-mappers/IssueSeverityIcon';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
-import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
+import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import { getRulesUrl } from '../../../helpers/urls';
 import { IssueSeverity } from '../../../types/issues';
 import { Dict } from '../../../types/types';
@@ -240,11 +240,11 @@ function RuleCell({ rule, severity }: Readonly<{ rule: RuleCompare; severity?: s
               />
             </li>
           )}
-          {rule.impacts.map(({ severity, softwareQuality }) => (
-            <li key={softwareQuality} className="sw-ml-2">
-              <SoftwareImpactPill type="rule" quality={softwareQuality} severity={severity} />
+          {rule.impacts.length > 0 && (
+            <li>
+              <SoftwareImpactPillList className="sw-ml-2" softwareImpacts={rule.impacts} />
             </li>
-          ))}
+          )}
         </ul>
       )}
     </div>

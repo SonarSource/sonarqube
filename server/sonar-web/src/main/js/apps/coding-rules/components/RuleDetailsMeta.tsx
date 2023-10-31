@@ -39,7 +39,7 @@ import Tooltip from '../../../components/controls/Tooltip';
 import IssueSeverityIcon from '../../../components/icon-mappers/IssueSeverityIcon';
 import IssueTypeIcon from '../../../components/icon-mappers/IssueTypeIcon';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
-import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
+import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import TagsList from '../../../components/tags/TagsList';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getPathUrlAsString, getRuleUrl } from '../../../helpers/urls';
@@ -290,17 +290,11 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
             {!!ruleDetails.impacts.length && (
               <div className="sw-flex sw-items-center sw-flex-1">
                 <Note>{translate('issue.software_qualities.label')}</Note>
-                <ul className="sw-flex sw-gap-2 sw-ml-1">
-                  {ruleDetails.impacts.map(({ severity, softwareQuality }) => (
-                    <li key={softwareQuality}>
-                      <SoftwareImpactPill
-                        severity={severity}
-                        quality={softwareQuality}
-                        type="rule"
-                      />
-                    </li>
-                  ))}
-                </ul>
+                <SoftwareImpactPillList
+                  className="sw-ml-1"
+                  softwareImpacts={ruleDetails.impacts}
+                  type="rule"
+                />
               </div>
             )}
           </div>

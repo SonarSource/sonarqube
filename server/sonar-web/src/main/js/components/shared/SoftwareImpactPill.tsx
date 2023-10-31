@@ -22,7 +22,7 @@ import { Pill } from 'design-system';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from '../../helpers/l10n';
-import { SoftwareImpactSeverity, SoftwareQuality } from '../../types/clean-code-taxonomy';
+import { SoftwareImpactSeverity } from '../../types/clean-code-taxonomy';
 import DocumentationTooltip from '../common/DocumentationTooltip';
 import SoftwareImpactSeverityIcon from '../icons/SoftwareImpactSeverityIcon';
 
@@ -30,7 +30,7 @@ export interface Props {
   className?: string;
   severity: SoftwareImpactSeverity;
   type?: 'issue' | 'rule';
-  quality: SoftwareQuality;
+  quality: string;
 }
 
 export default function SoftwareImpactPill(props: Props) {
@@ -50,7 +50,7 @@ export default function SoftwareImpactPill(props: Props) {
           defaultMessage={translate(`${type}.impact.severity.tooltip`)}
           values={{
             severity: translate('severity', severity).toLowerCase(),
-            quality: translate('software_quality', quality).toLowerCase(),
+            quality: quality.toLowerCase(),
           }}
         />
       }
@@ -62,7 +62,7 @@ export default function SoftwareImpactPill(props: Props) {
       ]}
     >
       <Pill className={classNames('sw-flex sw-gap-1 sw-items-center', className)} variant={variant}>
-        {translate('software_quality', quality)}
+        {quality}
         <SoftwareImpactSeverityIcon severity={severity} data-guiding-id="issue-3" />
       </Pill>
     </DocumentationTooltip>

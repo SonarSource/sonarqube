@@ -22,7 +22,7 @@ import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { IssueActions, IssueResolution, IssueType as IssueTypeEnum } from '../../../types/issues';
 import { Issue } from '../../../types/types';
-import SoftwareImpactPill from '../../shared/SoftwareImpactPill';
+import SoftwareImpactPillList from '../../shared/SoftwareImpactPillList';
 import IssueAssign from './IssueAssign';
 import { SonarLintBadge } from './IssueBadges';
 import IssueCommentAction from './IssueCommentAction';
@@ -109,14 +109,8 @@ export default function IssueActionsBar(props: Props) {
         </li>
 
         {showIssueImpact && (
-          <li className="sw-flex sw-gap-3" data-guiding-id="issue-2">
-            {issue.impacts.map(({ severity, softwareQuality }) => (
-              <SoftwareImpactPill
-                key={softwareQuality}
-                severity={severity}
-                quality={softwareQuality}
-              />
-            ))}
+          <li data-guiding-id="issue-2">
+            <SoftwareImpactPillList className="sw-gap-3" softwareImpacts={issue.impacts} />
           </li>
         )}
 

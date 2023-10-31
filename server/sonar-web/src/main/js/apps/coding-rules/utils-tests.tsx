@@ -39,7 +39,11 @@ const selectors = {
   // List
   rulesList: byRole('list', { name: 'list_of_rules' }),
   ruleListItemLink: (name: string) => byRole('link', { name }),
-  ruleListItem: byRole('listitem'),
+  getAllRuleListItems: () =>
+    byRole('list', { name: 'list_of_rules' })
+      .byRole('listitem')
+      .getAll()
+      .filter((item) => !!item.getAttribute('data-rule')),
   currentListItem: byRole('listitem', { current: true }),
 
   // Filters

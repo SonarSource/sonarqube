@@ -34,7 +34,7 @@ import DocumentationTooltip from '../../../components/common/DocumentationToolti
 import ConfirmButton from '../../../components/controls/ConfirmButton';
 import Tooltip from '../../../components/controls/Tooltip';
 import { CleanCodeAttributePill } from '../../../components/shared/CleanCodeAttributePill';
-import SoftwareImpactPill from '../../../components/shared/SoftwareImpactPill';
+import SoftwareImpactPillList from '../../../components/shared/SoftwareImpactPillList';
 import TypeHelper from '../../../components/shared/TypeHelper';
 import TagsList from '../../../components/tags/TagsList';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -245,15 +245,11 @@ export default class RuleListItem extends React.PureComponent<Props> {
             </div>
             <div className="sw-flex sw-items-center sw-ml-2">
               <span>{rule.langName}</span>
-              {rule.impacts.map(({ severity, softwareQuality }) => (
-                <SoftwareImpactPill
-                  className="sw-ml-3"
-                  key={softwareQuality}
-                  severity={severity}
-                  quality={softwareQuality}
-                  type="rule"
-                />
-              ))}
+              <SoftwareImpactPillList
+                className="sw-ml-3 sw-gap-3"
+                softwareImpacts={rule.impacts}
+                type="rule"
+              />
 
               <DocumentationTooltip
                 content={
