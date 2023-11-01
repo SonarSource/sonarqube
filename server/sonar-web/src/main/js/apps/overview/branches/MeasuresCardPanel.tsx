@@ -55,82 +55,86 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
   ) as string;
 
   return (
-    <div className={classNames('sw-grid sw-grid-cols-2 sw-gap-4 sw-mt-4', className)}>
-      <MeasuresCardNumber
-        data-test="overview__measures-new-violations"
-        label={newViolations === '1' ? 'issue' : 'issues'}
-        url={getComponentIssuesUrl(component.key, {
-          ...getBranchLikeQuery(branchLike),
-          resolved: 'false',
-        })}
-        value={newViolations}
-        failedConditions={failedConditions}
-        failingConditionMetric={MetricKey.new_violations}
-        requireLabel={intl.formatMessage(
-          { id: 'overview.quality_gate.require_fixing' },
-          {
-            count: newViolations,
-          },
-        )}
-        guidingKeyOnError="overviewZeroNewIssuesSimplification"
-      />
+    <div className={classNames('sw-w-full sw-flex sw-flex-row sw-gap-4 sw-mt-4', className)}>
+      <div className="sw-flex-1 sw-flex sw-flex-col sw-gap-4">
+        <MeasuresCardNumber
+          data-test="overview__measures-new-violations"
+          label={newViolations === '1' ? 'issue' : 'issues'}
+          url={getComponentIssuesUrl(component.key, {
+            ...getBranchLikeQuery(branchLike),
+            resolved: 'false',
+          })}
+          value={newViolations}
+          failedConditions={failedConditions}
+          failingConditionMetric={MetricKey.new_violations}
+          requireLabel={intl.formatMessage(
+            { id: 'overview.quality_gate.require_fixing' },
+            {
+              count: newViolations,
+            },
+          )}
+          guidingKeyOnError="overviewZeroNewIssuesSimplification"
+        />
 
-      <MeasuresCardNumber
-        label={
-          newSecurityHotspots === '1'
-            ? 'issue.type.SECURITY_HOTSPOT'
-            : 'issue.type.SECURITY_HOTSPOT.plural'
-        }
-        url={getComponentSecurityHotspotsUrl(component.key, {
-          ...getBranchLikeQuery(branchLike),
-          resolved: 'false',
-        })}
-        value={newSecurityHotspots}
-        failedConditions={failedConditions}
-        failingConditionMetric={MetricKey.new_security_hotspots_reviewed}
-        requireLabel={intl.formatMessage(
-          { id: 'overview.quality_gate.require_reviewing' },
-          {
-            count: newSecurityHotspots,
-          },
-        )}
-      />
+        <MeasuresCardPercent
+          componentKey={component.key}
+          branchLike={branchLike}
+          measurementType={MeasurementType.Coverage}
+          label="overview.quality_gate.coverage"
+          url={getComponentDrilldownUrl({
+            componentKey: component.key,
+            metric: getMeasurementMetricKey(MeasurementType.Coverage, true),
+            branchLike,
+            listView: true,
+          })}
+          failedConditions={failedConditions}
+          failingConditionMetric={MetricKey.new_coverage}
+          newLinesMetric={MetricKey.new_lines_to_cover}
+          afterMergeMetric={MetricKey.coverage}
+          measures={measures}
+        />
+      </div>
 
-      <MeasuresCardPercent
-        componentKey={component.key}
-        branchLike={branchLike}
-        measurementType={MeasurementType.Coverage}
-        label="overview.quality_gate.coverage"
-        url={getComponentDrilldownUrl({
-          componentKey: component.key,
-          metric: getMeasurementMetricKey(MeasurementType.Coverage, true),
-          branchLike,
-          listView: true,
-        })}
-        failedConditions={failedConditions}
-        failingConditionMetric={MetricKey.new_coverage}
-        newLinesMetric={MetricKey.new_lines_to_cover}
-        afterMergeMetric={MetricKey.coverage}
-        measures={measures}
-      />
+      <div className="sw-flex-1 sw-flex sw-flex-col sw-gap-4">
+        <MeasuresCardNumber
+          label={
+            newSecurityHotspots === '1'
+              ? 'issue.type.SECURITY_HOTSPOT'
+              : 'issue.type.SECURITY_HOTSPOT.plural'
+          }
+          url={getComponentSecurityHotspotsUrl(component.key, {
+            ...getBranchLikeQuery(branchLike),
+            resolved: 'false',
+          })}
+          value={newSecurityHotspots}
+          failedConditions={failedConditions}
+          failingConditionMetric={MetricKey.new_security_hotspots_reviewed}
+          requireLabel={intl.formatMessage(
+            { id: 'overview.quality_gate.require_reviewing' },
+            {
+              count: newSecurityHotspots,
+            },
+          )}
+        />
 
-      <MeasuresCardPercent
-        componentKey={component.key}
-        branchLike={branchLike}
-        measurementType={MeasurementType.Duplication}
-        label="overview.quality_gate.duplications"
-        url={getComponentDrilldownUrl({
-          componentKey: component.key,
-          metric: getMeasurementMetricKey(MeasurementType.Duplication, true),
-          branchLike,
-          listView: true,
-        })}
-        failedConditions={failedConditions}
-        failingConditionMetric={MetricKey.new_duplicated_lines_density}
-        newLinesMetric={MetricKey.new_lines}
-        afterMergeMetric={MetricKey.duplicated_lines_density}
-        measures={measures}
-      />
+        <MeasuresCardPercent
+          componentKey={component.key}
+          branchLike={branchLike}
+          measurementType={MeasurementType.Duplication}
+          label="overview.quality_gate.duplications"
+          url={getComponentDrilldownUrl({
+            componentKey: component.key,
+            metric: getMeasurementMetricKey(MeasurementType.Duplication, true),
+            branchLike,
+            listView: true,
+          })}
+          failedConditions={failedConditions}
+          failingConditionMetric={MetricKey.new_duplicated_lines_density}
+          newLinesMetric={MetricKey.new_lines}
+          afterMergeMetric={MetricKey.duplicated_lines_density}
+          measures={measures}
+        />
+      </div>
     </div>
   );
 }
