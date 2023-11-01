@@ -123,15 +123,14 @@ describe('Rules app list', () => {
 
       await act(async () => {
         await user.click(monthSelector);
-        await user.click(within(ui.dateInputMonthSelect.get()).getByText('Nov'));
+        await selectEvent.select(ui.dateInputMonthSelect.byRole('combobox').get(), 'Nov');
       });
 
       const yearSelector = within(ui.dateInputYearSelect.get()).getByRole('combobox');
 
       await act(async () => {
         await user.click(yearSelector);
-        await user.click(within(ui.dateInputYearSelect.get()).getAllByText('2022')[-1]);
-        await user.click(within(ui.dateInputYearSelect.get()).getByText('2022'));
+        await selectEvent.select(ui.dateInputYearSelect.byRole('combobox').get(), '2022');
         await user.click(screen.getByText('1', { selector: 'button' }));
       });
 
