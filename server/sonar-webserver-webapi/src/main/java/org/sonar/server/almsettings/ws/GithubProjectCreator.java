@@ -164,7 +164,15 @@ public class GithubProjectCreator implements DevOpsProjectCreator {
   private ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, @Nullable String projectKey, AlmSettingDto almSettingDto,
     GithubApplicationClient.Repository repository, CreationMethod creationMethod) {
     String key = Optional.ofNullable(projectKey).orElse(getUniqueProjectKey(repository));
-    ComponentCreationData componentCreationData = projectCreator.createProject(dbSession, key, repository.getName(), repository.getDefaultBranch(), creationMethod);
+
+    boolean isPrivate;
+    if (managedProjectService.isProjectVisibilitySynchronizationActivated()) {
+      isPrivate = repository.isPrivate();
+    } else {
+      isPrivate = true;
+    }
+
+    ComponentCreationData componentCreationData = projectCreator.createProject(dbSession, key, repository.getName(), repository.getDefaultBranch(), creationMethod, isPrivate);
     ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
     createProjectAlmSettingDto(dbSession, repository, projectDto, almSettingDto);
     addScanPermissionToCurrentUser(dbSession, projectDto);

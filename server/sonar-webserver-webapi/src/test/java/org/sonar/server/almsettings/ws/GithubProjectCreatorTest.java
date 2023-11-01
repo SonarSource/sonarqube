@@ -290,11 +290,53 @@ public class GithubProjectCreatorTest {
     ComponentCreationParameters componentCreationParameters = componentCreationParametersCaptor.getValue();
     assertComponentCreationParametersContainsCorrectInformation(componentCreationParameters, "generated_orga2/repo1", SCANNER_API_DEVOPS_AUTO_CONFIG);
     assertThat(componentCreationParameters.isManaged()).isFalse();
-    assertThat(componentCreationParameters.newComponent().isPrivate()).isFalse();
+    assertThat(componentCreationParameters.newComponent().isPrivate()).isTrue();
 
     verify(projectAlmSettingDao).insertOrUpdate(any(), projectAlmSettingDtoCaptor.capture(), eq(ALM_SETTING_KEY), eq(REPOSITORY_NAME), eq("generated_orga2/repo1"));
     ProjectAlmSettingDto projectAlmSettingDto = projectAlmSettingDtoCaptor.getValue();
     assertAlmSettingsDtoContainsCorrectInformation(almSettingDto, requireNonNull(componentCreationData.projectDto()), projectAlmSettingDto);
+  }
+
+  @Test
+  public void createProjectAndBindToDevOpsPlatformFromScanner_whenRepoFoundOnGitHubAndVisibilitySynchronizationEnabled_successfullyCreatesProjectAndSetsVisibility() {
+    // given
+    mockPublicGithubRepository();
+
+    ComponentCreationData componentCreationData = mockProjectCreation("generated_orga2/repo1");
+    ProjectAlmSettingDao projectAlmSettingDao = mock();
+    when(dbClient.projectAlmSettingDao()).thenReturn(projectAlmSettingDao);
+    when(managedProjectService.isProjectVisibilitySynchronizationActivated()).thenReturn(true);
+
+    // when
+    ComponentCreationData actualComponentCreationData = githubProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
+      SCANNER_API_DEVOPS_AUTO_CONFIG, null);
+
+    // then
+    assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
+
+    ComponentCreationParameters componentCreationParameters = componentCreationParametersCaptor.getValue();
+    assertThat(componentCreationParameters.newComponent().isPrivate()).isFalse();
+  }
+
+  @Test
+  public void createProjectAndBindToDevOpsPlatformFromScanner_whenRepoFoundOnGitHubAndVisibilitySynchronizationDisabled_successfullyCreatesProjectAndMakesProjectPrivate() {
+    // given
+    mockGitHubRepository();
+
+    ComponentCreationData componentCreationData = mockProjectCreation("generated_orga2/repo1");
+    ProjectAlmSettingDao projectAlmSettingDao = mock();
+    when(dbClient.projectAlmSettingDao()).thenReturn(projectAlmSettingDao);
+    when(managedProjectService.isProjectVisibilitySynchronizationActivated()).thenReturn(false);
+
+    // when
+    ComponentCreationData actualComponentCreationData = githubProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
+      SCANNER_API_DEVOPS_AUTO_CONFIG, null);
+
+    // then
+    assertThat(actualComponentCreationData).isEqualTo(componentCreationData);
+
+    ComponentCreationParameters componentCreationParameters = componentCreationParametersCaptor.getValue();
+    assertThat(componentCreationParameters.newComponent().isPrivate()).isTrue();
   }
 
   @Test
@@ -316,7 +358,7 @@ public class GithubProjectCreatorTest {
     ComponentCreationParameters componentCreationParameters = componentCreationParametersCaptor.getValue();
     assertComponentCreationParametersContainsCorrectInformation(componentCreationParameters, projectKey, ALM_IMPORT_API);
     assertThat(componentCreationParameters.isManaged()).isFalse();
-    assertThat(componentCreationParameters.newComponent().isPrivate()).isFalse();
+    assertThat(componentCreationParameters.newComponent().isPrivate()).isTrue();
 
     verify(projectAlmSettingDao).insertOrUpdate(any(), projectAlmSettingDtoCaptor.capture(), eq(ALM_SETTING_KEY), eq(REPOSITORY_NAME), eq(projectKey));
     ProjectAlmSettingDto projectAlmSettingDto = projectAlmSettingDtoCaptor.getValue();
@@ -373,15 +415,24 @@ public class GithubProjectCreatorTest {
     assertThat(permissionChange.getProjectUuid()).isEqualTo(actualComponentCreationData.projectDto().getUuid());
   }
 
-  private void mockGitHubRepository() {
+  private void mockPublicGithubRepository() {
+    GithubApplicationClient.Repository repository =mockGitHubRepository();
+    when(repository.isPrivate()).thenReturn(false);
+  }
+
+  private GithubApplicationClient.Repository mockGitHubRepository() {
     GithubApplicationClient.Repository repository = mock();
     when(repository.getDefaultBranch()).thenReturn(MAIN_BRANCH_NAME);
     when(repository.getName()).thenReturn(REPOSITORY_NAME);
     when(repository.getFullName()).thenReturn(DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier());
+    when(repository.isPrivate()).thenReturn(true);
     when(githubApplicationClient.getRepository(DEVOPS_PROJECT_DESCRIPTOR.url(), devOpsAppInstallationToken, DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier())).thenReturn(
       Optional.of(repository));
     when(projectKeyGenerator.generateUniqueProjectKey(repository.getFullName())).thenReturn("generated_" + DEVOPS_PROJECT_DESCRIPTOR.projectIdentifier());
+    return  repository;
   }
+
+
 
   private ComponentCreationData mockProjectCreation(String projectKey) {
     ComponentCreationData componentCreationData = mock();

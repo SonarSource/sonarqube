@@ -130,6 +130,13 @@ public class DelegatingManagedServices implements ManagedInstanceService, Manage
       .ifPresent(managedProjectService -> managedProjectService.queuePermissionSyncTask(submitterUuid, componentUuid, projectUuid));
   }
 
+  @Override
+  public boolean isProjectVisibilitySynchronizationActivated() {
+    return findManagedProjectService()
+      .map(ManagedProjectService::isProjectVisibilitySynchronizationActivated)
+      .orElse(false);
+  }
+
   private Optional<ManagedProjectService> findManagedProjectService() {
     return findManagedInstanceService()
       .filter(ManagedProjectService.class::isInstance)

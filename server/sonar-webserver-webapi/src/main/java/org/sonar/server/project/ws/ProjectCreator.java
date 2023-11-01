@@ -50,11 +50,13 @@ public class ProjectCreator {
     this.componentUpdater = componentUpdater;
   }
 
-  public ComponentCreationData createProject(DbSession dbSession, String projectKey, String projectName, @Nullable String mainBranchName, CreationMethod creationMethod) {
+  public ComponentCreationData createProject(DbSession dbSession, String projectKey, String projectName, @Nullable String mainBranchName, CreationMethod creationMethod,
+    @Nullable Boolean isPrivate) {
+    boolean visibility = isPrivate != null ? isPrivate : projectDefaultVisibility.get(dbSession).isPrivate();
     NewComponent projectComponent = newComponentBuilder()
       .setKey(projectKey)
       .setName(projectName)
-      .setPrivate(projectDefaultVisibility.get(dbSession).isPrivate())
+      .setPrivate(visibility)
       .setQualifier(PROJECT)
       .build();
     ComponentCreationParameters componentCreationParameters = ComponentCreationParameters.builder()
@@ -66,5 +68,9 @@ public class ProjectCreator {
       .creationMethod(creationMethod)
       .build();
     return componentUpdater.createWithoutCommit(dbSession, componentCreationParameters);
+  }
+
+  public ComponentCreationData createProject(DbSession dbSession, String projectKey, String projectName, @Nullable String mainBranchName, CreationMethod creationMethod) {
+    return createProject(dbSession, projectKey, projectName, mainBranchName, creationMethod, projectDefaultVisibility.get(dbSession).isPrivate());
   }
 }

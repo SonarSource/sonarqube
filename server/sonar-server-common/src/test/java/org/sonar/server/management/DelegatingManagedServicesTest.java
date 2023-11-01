@@ -278,6 +278,18 @@ public class DelegatingManagedServicesTest {
     verify(alwaysManagedInstanceService).queuePermissionSyncTask("userUuid", "componentUuid", "projectUuid");
   }
 
+  @Test
+  public void isProjectVisibilitySynchronizationActivated_whenManagedInstanceServices_shouldDelegatesToRightService() {
+    DelegatingManagedServices managedInstanceService = new DelegatingManagedServices(Set.of(new NeverManagedInstanceService(), new AlwaysManagedInstanceService()));
+
+    assertThat(managedInstanceService.isProjectVisibilitySynchronizationActivated()).isTrue();
+  }
+
+  @Test
+  public void isProjectVisibilitySynchronizationActivated_whenManagedNoInstanceServices_returnsFalse() {
+    assertThat(NO_MANAGED_SERVICES.isProjectVisibilitySynchronizationActivated()).isFalse();
+  }
+
   private static class NeverManagedInstanceService implements ManagedInstanceService, ManagedProjectService {
 
     @Override
@@ -333,6 +345,11 @@ public class DelegatingManagedServicesTest {
     @Override
     public void queuePermissionSyncTask(String submitterUuid, String componentUuid, String projectUuid) {
 
+    }
+
+    @Override
+    public boolean isProjectVisibilitySynchronizationActivated() {
+      return false;
     }
   }
 
@@ -391,6 +408,11 @@ public class DelegatingManagedServicesTest {
     @Override
     public void queuePermissionSyncTask(String submitterUuid, String componentUuid, String projectUuid) {
 
+    }
+
+    @Override
+    public boolean isProjectVisibilitySynchronizationActivated() {
+      return true;
     }
   }
 
