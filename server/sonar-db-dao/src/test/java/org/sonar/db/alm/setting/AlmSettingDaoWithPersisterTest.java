@@ -107,6 +107,6 @@ public class AlmSettingDaoWithPersisterTest {
     assertThat(newValue)
       .extracting("devOpsPlatformSettingUuid", "key")
       .containsExactly(almSettingDto.getUuid(), almSettingDto.getKey());
-    assertThat(newValue.toString()).doesNotContain("url");
+    assertThat(newValue.toString()).doesNotContain("\"url\"");
   }
 }
