@@ -67,15 +67,7 @@ export default function NewCodeDefinitionSelection(props: Props) {
     if (mutateCount > 0 || isIdle) {
       return;
     }
-    reset();
-    addGlobalSuccessMessage(
-      intl.formatMessage(
-        { id: 'onboarding.create_project.success' },
-        {
-          count: projectCount - failedImports,
-        },
-      ),
-    );
+
     if (failedImports > 0) {
       addGlobalErrorMessage(
         intl.formatMessage(
@@ -87,16 +79,30 @@ export default function NewCodeDefinitionSelection(props: Props) {
       );
     }
 
-    if (projectCount === 1) {
-      if (data) {
-        navigate(getProjectUrl(data.project.key));
+    if (projectCount > failedImports) {
+      addGlobalSuccessMessage(
+        intl.formatMessage(
+          { id: 'onboarding.create_project.success' },
+          {
+            count: projectCount - failedImports,
+          },
+        ),
+      );
+
+      if (projectCount === 1) {
+        if (data) {
+          navigate(getProjectUrl(data.project.key));
+        }
+      } else {
+        navigate({
+          pathname: '/projects',
+          search: queryToSearch({ sort: '-creation_date' }),
+        });
       }
-    } else {
-      navigate({
-        pathname: '/projects',
-        search: queryToSearch({ sort: '-creation_date' }),
-      });
     }
+
+    reset();
+    setFailedImports(0);
   }, [data, projectCount, failedImports, mutateCount, reset, intl, navigate, isIdle]);
 
   React.useEffect(() => {
