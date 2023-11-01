@@ -82,6 +82,7 @@ it('should render the built-in quality gate properly', async () => {
     await user.click(builtInQualityGate);
   });
 
+  expect(await screen.findByText(/quality_gates.is_built_in.cayc.description/)).toBeInTheDocument();
   expect(await screen.findByText(/quality_gates.is_built_in.description/)).toBeInTheDocument();
 });
 

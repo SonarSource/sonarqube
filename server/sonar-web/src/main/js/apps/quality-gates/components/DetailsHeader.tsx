@@ -27,6 +27,7 @@ import {
   ItemButton,
   ItemDangerButton,
   ItemDivider,
+  LightLabel,
   SubTitle,
 } from 'design-system';
 import { countBy } from 'lodash';
@@ -105,20 +106,34 @@ export default function DetailsHeader({
             </div>
           </div>
           {qualityGate.isBuiltIn && (
-            <p className="sw-mt-4">
-              <FormattedMessage
-                defaultMessage="quality_gates.is_built_in.description"
-                id="quality_gates.is_built_in.description"
-                tagName="p"
-                values={{
-                  link: (
-                    <DocumentationLink to="/user-guide/clean-as-you-code/">
-                      {translate('clean_as_you_code')}
-                    </DocumentationLink>
-                  ),
-                }}
-              />
-            </p>
+            <>
+              <LightLabel className="sw-mt-2">
+                <FormattedMessage
+                  defaultMessage="quality_gates.is_built_in.cayc.description"
+                  id="quality_gates.is_built_in.cayc.description"
+                  values={{
+                    link: (
+                      <DocumentationLink to="/user-guide/clean-as-you-code/">
+                        {translate('clean_as_you_code')}
+                      </DocumentationLink>
+                    ),
+                  }}
+                />
+              </LightLabel>
+              <span className="sw-mt-9">
+                <FormattedMessage
+                  defaultMessage="quality_gates.is_built_in.description"
+                  id="quality_gates.is_built_in.description"
+                  values={{
+                    link: (
+                      <DocumentationLink to="/user-guide/quality-gates/#recommended-quality-gate">
+                        {translate('learn_more')}
+                      </DocumentationLink>
+                    ),
+                  }}
+                />
+              </span>
+            </>
           )}
         </div>
         {actionsCount === 1 && (
