@@ -36,6 +36,7 @@ public class UserQuery {
   private final Long lastConnectionDateTo;
   private final Long sonarLintLastConnectionDateFrom;
   private final Long sonarLintLastConnectionDateTo;
+  private final String externalLogin;
   private final Set<String> userUuids;
 
   private UserQuery(UserQuery userQuery, Collection<String> userUuids) {
@@ -46,12 +47,14 @@ public class UserQuery {
     this.lastConnectionDateTo = userQuery.getLastConnectionDateTo();
     this.sonarLintLastConnectionDateTo = userQuery.getSonarLintLastConnectionDateTo();
     this.sonarLintLastConnectionDateFrom = userQuery.getSonarLintLastConnectionDateFrom();
+    this.externalLogin = userQuery.externalLogin;
     this.userUuids = new HashSet<>(userUuids);
   }
 
   private UserQuery(@Nullable String searchText, @Nullable Boolean isActive, @Nullable String isManagedSqlClause,
     @Nullable OffsetDateTime lastConnectionDateFrom, @Nullable OffsetDateTime lastConnectionDateTo,
-    @Nullable OffsetDateTime sonarLintLastConnectionDateFrom, @Nullable OffsetDateTime sonarLintLastConnectionDateTo, @Nullable Set<String> userUuids) {
+    @Nullable OffsetDateTime sonarLintLastConnectionDateFrom, @Nullable OffsetDateTime sonarLintLastConnectionDateTo, @Nullable String externalLogin,
+    @Nullable Set<String> userUuids) {
     this.searchText = searchTextToSearchTextSql(searchText);
     this.isActive = isActive;
     this.isManagedSqlClause = isManagedSqlClause;
@@ -59,6 +62,7 @@ public class UserQuery {
     this.lastConnectionDateTo = formatDateToInput(lastConnectionDateTo);
     this.sonarLintLastConnectionDateFrom = parseDateToLong(sonarLintLastConnectionDateFrom);
     this.sonarLintLastConnectionDateTo = formatDateToInput(sonarLintLastConnectionDateTo);
+    this.externalLogin = externalLogin;
     this.userUuids = userUuids;
   }
 
@@ -129,6 +133,11 @@ public class UserQuery {
   }
 
   @CheckForNull
+  public String getExternalLogin() {
+    return externalLogin;
+  }
+
+  @CheckForNull
   public Set<String> getUserUuids() {
     return userUuids;
   }
@@ -145,6 +154,7 @@ public class UserQuery {
     private OffsetDateTime lastConnectionDateTo = null;
     private OffsetDateTime sonarLintLastConnectionDateFrom = null;
     private OffsetDateTime sonarLintLastConnectionDateTo = null;
+    private String externalLogin = null;
     private Set<String> userUuids = null;
 
     private UserQueryBuilder() {
@@ -185,6 +195,11 @@ public class UserQuery {
       return this;
     }
 
+    public UserQueryBuilder externalLogin(@Nullable String externalLogin) {
+      this.externalLogin = externalLogin;
+      return this;
+    }
+
     public UserQueryBuilder userUuids(@Nullable Set<String> userUuids) {
       this.userUuids = userUuids;
       return this;
@@ -193,7 +208,7 @@ public class UserQuery {
     public UserQuery build() {
       return new UserQuery(
         searchText, isActive, isManagedSqlClause, lastConnectionDateFrom, lastConnectionDateTo,
-        sonarLintLastConnectionDateFrom, sonarLintLastConnectionDateTo, userUuids);
+        sonarLintLastConnectionDateFrom, sonarLintLastConnectionDateTo, externalLogin, userUuids);
     }
   }
 }

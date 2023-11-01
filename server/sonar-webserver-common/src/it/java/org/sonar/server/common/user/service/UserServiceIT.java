@@ -234,6 +234,34 @@ public class UserServiceIT {
   }
 
   @Test
+  public void search_whenFilteringByExternalLoginAndMatchFound_returnsTheCorrectResult() {
+    prepareUsersWithExternalLogin();
+
+    SearchResults<UserInformation> users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(50).setExternalLogin("user1").build());
+
+    assertThat(users.searchResults())
+      .extracting(r -> r.userDto().getExternalLogin())
+      .containsExactly("user1");
+  }
+
+  @Test
+  public void search_whenFilteringByExternalLoginAndNoMatchFound_returnsNoResult() {
+    prepareUsersWithExternalLogin();
+
+    SearchResults<UserInformation> users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(50).setExternalLogin("nomatch").build());
+
+    assertThat(users.searchResults())
+      .extracting(r -> r.userDto().getExternalLogin())
+      .isEmpty();
+  }
+
+  private void prepareUsersWithExternalLogin() {
+    db.users().insertUser(user -> user.setExternalLogin("user1"));
+    db.users().insertUser(user -> user.setExternalLogin("USER1"));
+    db.users().insertUser(user -> user.setExternalLogin("user1-oldaccount"));
+  }
+
+  @Test
   public void return_scm_accounts() {
     UserDto user = db.users().insertUser(u -> u.setScmAccounts(asList("john1", "john2")));
 

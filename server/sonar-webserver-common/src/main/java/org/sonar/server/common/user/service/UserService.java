@@ -92,6 +92,7 @@ public class UserService {
     request.getLastConnectionDateTo().ifPresent(builder::lastConnectionDateTo);
     request.getSonarLintLastConnectionDateFrom().ifPresent(builder::sonarLintLastConnectionDateFrom);
     request.getSonarLintLastConnectionDateTo().ifPresent(builder::sonarLintLastConnectionDateTo);
+    request.getExternalLogin().ifPresent(builder::externalLogin);
 
     if (managedInstanceService.isInstanceExternallyManaged()) {
       String managedInstanceSql = Optional.ofNullable(request.isManaged())

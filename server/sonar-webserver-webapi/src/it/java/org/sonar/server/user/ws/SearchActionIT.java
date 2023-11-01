@@ -65,6 +65,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.server.user.ws.SearchAction.EXTERNAL_IDENTITY;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionIT {
@@ -505,7 +506,7 @@ public class SearchActionIT {
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(9);
+    assertThat(action.params()).hasSize(10);
   }
 
   @Test
@@ -569,13 +570,6 @@ public class SearchActionIT {
       .forEach(SearchActionIT::assertForbiddenException);
   }
 
-  private static void assertForbiddenException(TestRequest testRequest) {
-    assertThatThrownBy(() -> testRequest.executeProtobuf(SearchWsResponse.class))
-      .asInstanceOf(InstanceOfAssertFactories.type(ServerException.class))
-      .extracting(ServerException::httpCode)
-      .isEqualTo(403);
-  }
-
   private void assertUserWithFilter(String field, Instant filterValue, String userLogin, boolean isExpectedToBeThere) {
     var assertion = assertThat(ws.newRequest()
       .setParam("q", "user-%_%-")
@@ -599,6 +593,57 @@ public class SearchActionIT {
           .collect(toMap(identity(), userUuid -> Set.of(userUuids).contains(userUuid)));
       }
     );
+  }
+
+  @Test
+  public void search_whenFilteringOnExternalIdentityAndNotAdmin_shouldThrow() {
+    userSession.logIn();
+
+    TestRequest testRequest = ws.newRequest()
+      .setParam(EXTERNAL_IDENTITY, "login");
+
+    assertForbiddenException(testRequest);
+  }
+
+  private static void assertForbiddenException(TestRequest testRequest) {
+    assertThatThrownBy(() -> testRequest.executeProtobuf(SearchWsResponse.class))
+      .asInstanceOf(InstanceOfAssertFactories.type(ServerException.class))
+      .extracting(ServerException::httpCode)
+      .isEqualTo(403);
+  }
+
+  @Test
+  public void search_whenFilteringOnExternalIdentityAndMatch_shouldReturnMatchingUser() {
+    userSession.logIn().setSystemAdministrator();
+
+    prepareUsersWithExternalLogin();
+
+    TestRequest testRequest = ws.newRequest()
+      .setParam(EXTERNAL_IDENTITY, "user1");
+
+    assertThat(testRequest.executeProtobuf(SearchWsResponse.class).getUsersList())
+      .extracting(User::getExternalIdentity)
+      .containsExactly("user1");
+  }
+
+  @Test
+  public void search_whenFilteringOnExternalIdentityAndNoMatch_shouldReturnMatchingUser() {
+    userSession.logIn().setSystemAdministrator();
+
+    prepareUsersWithExternalLogin();
+
+    TestRequest testRequest = ws.newRequest()
+      .setParam(EXTERNAL_IDENTITY, "nomatch");
+
+    assertThat(testRequest.executeProtobuf(SearchWsResponse.class).getUsersList())
+      .extracting(User::getExternalIdentity)
+      .isEmpty();
+  }
+
+  private void prepareUsersWithExternalLogin() {
+    db.users().insertUser(user -> user.setExternalLogin("user1"));
+    db.users().insertUser(user -> user.setExternalLogin("USER1"));
+    db.users().insertUser(user -> user.setExternalLogin("user1-oldaccount"));
   }
 
 }

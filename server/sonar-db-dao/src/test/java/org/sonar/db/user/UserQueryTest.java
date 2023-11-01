@@ -53,6 +53,7 @@ public class UserQueryTest {
       .lastConnectionDateTo(OffsetDateTime.now().plus(1, ChronoUnit.DECADES))
       .sonarLintLastConnectionDateFrom(OffsetDateTime.now().plus(2, ChronoUnit.DAYS))
       .sonarLintLastConnectionDateTo(OffsetDateTime.now().minus(2, ChronoUnit.DECADES))
+      .externalLogin("externalLogin")
       .build();
   }
 }

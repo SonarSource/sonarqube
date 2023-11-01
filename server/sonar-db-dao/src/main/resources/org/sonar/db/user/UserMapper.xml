@@ -169,6 +169,9 @@
             <if test="query.sonarLintLastConnectionDateTo != null">
                 AND (u.last_sonarlint_connection is null or u.last_sonarlint_connection &lt; #{query.sonarLintLastConnectionDateTo, jdbcType=BIGINT})
             </if>
+            <if test="query.externalLogin != null">
+                AND (u.external_login = #{query.externalLogin, jdbcType=VARCHAR})
+            </if>
         </where>
     </sql>
 

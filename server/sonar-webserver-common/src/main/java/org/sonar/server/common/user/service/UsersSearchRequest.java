@@ -37,6 +37,7 @@ public class UsersSearchRequest {
   private final OffsetDateTime lastConnectionDateTo;
   private final OffsetDateTime sonarLintLastConnectionDateFrom;
   private final OffsetDateTime sonarLintLastConnectionDateTo;
+  private final String externalLogin;
 
   private UsersSearchRequest(Builder builder) {
     this.page = builder.page;
@@ -44,6 +45,7 @@ public class UsersSearchRequest {
     this.query = builder.query;
     this.deactivated = builder.deactivated;
     this.managed = builder.managed;
+    this.externalLogin = builder.externalLogin;
     try {
       this.lastConnectionDateFrom = Optional.ofNullable(builder.lastConnectionDateFrom).map(DateUtils::parseOffsetDateTime).orElse(null);
       this.lastConnectionDateTo = Optional.ofNullable(builder.lastConnectionDateTo).map(DateUtils::parseOffsetDateTime).orElse(null);
@@ -92,6 +94,10 @@ public class UsersSearchRequest {
     return Optional.ofNullable(sonarLintLastConnectionDateTo);
   }
 
+  public Optional<String> getExternalLogin() {
+    return Optional.ofNullable(externalLogin);
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -106,6 +112,7 @@ public class UsersSearchRequest {
     private String lastConnectionDateTo;
     private String sonarLintLastConnectionDateFrom;
     private String sonarLintLastConnectionDateTo;
+    private String externalLogin;
 
     private Builder() {
       // enforce factory method use
@@ -153,6 +160,11 @@ public class UsersSearchRequest {
 
     public Builder setSonarLintLastConnectionDateTo(@Nullable String sonarLintLastConnectionDateTo) {
       this.sonarLintLastConnectionDateTo = sonarLintLastConnectionDateTo;
+      return this;
+    }
+
+    public Builder setExternalLogin(@Nullable String externalLogin) {
+      this.externalLogin = externalLogin;
       return this;
     }
 

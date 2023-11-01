@@ -42,16 +42,17 @@ import static org.sonar.server.common.PaginationInformation.forPageIndex;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements UsersWsAction {
+  private static final int MAX_PAGE_SIZE = 500;
+
   private static final String DEACTIVATED_PARAM = "deactivated";
   private static final String MANAGED_PARAM = "managed";
-
-  private static final int MAX_PAGE_SIZE = 500;
   static final String LAST_CONNECTION_DATE_FROM = "lastConnectedAfter";
   static final String LAST_CONNECTION_DATE_TO = "lastConnectedBefore";
   static final String SONAR_LINT_LAST_CONNECTION_DATE_FROM = "slLastConnectedAfter";
   static final String SONAR_LINT_LAST_CONNECTION_DATE_TO = "slLastConnectedBefore";
-  private final UserSession userSession;
+  static final String EXTERNAL_IDENTITY = "externalIdentity";
 
+  private final UserSession userSession;
   private final UserService userService;
   private final SearchWsReponseGenerator searchWsReponseGenerator;
 
@@ -79,6 +80,7 @@ public class SearchAction implements UsersWsAction {
         "Field 'lastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.3", "New optional parameters " + EXTERNAL_IDENTITY + " to find a user by its IdP login"),
         new Change("10.1", "New optional parameters " + SONAR_LINT_LAST_CONNECTION_DATE_FROM +
           " and " + SONAR_LINT_LAST_CONNECTION_DATE_TO + " to filter users by SonarLint last connection date. Only available with Administer System permission."),
         new Change("10.1", "New optional parameters " + LAST_CONNECTION_DATE_FROM +
@@ -136,7 +138,7 @@ public class SearchAction implements UsersWsAction {
     action.createParam(SONAR_LINT_LAST_CONNECTION_DATE_FROM)
       .setSince("10.1")
       .setDescription("""
-        Filter the users based on the sonar lint last connection date field 
+        Filter the users based on the sonar lint last connection date field
         Only users who interacted with this instance using SonarLint at or after the date will be returned.
         The format must be ISO 8601 datetime format (YYYY-MM-DDThh:mm:ss±hhmm)""")
       .setRequired(false)
@@ -151,6 +153,12 @@ public class SearchAction implements UsersWsAction {
       .setRequired(false)
       .setDefaultValue(null)
       .setExampleValue(dateExample);
+    action.createParam(EXTERNAL_IDENTITY)
+      .setSince("10.3")
+      .setDescription("""
+        Find a user by its external identity (ie. its login in the Identity Provider).
+        This is case sensitive and only available with Administer System permission.
+        """);
   }
 
   @Override
@@ -166,6 +174,7 @@ public class SearchAction implements UsersWsAction {
       throwIfParameterValuePresent(request, LAST_CONNECTION_DATE_TO);
       throwIfParameterValuePresent(request, SONAR_LINT_LAST_CONNECTION_DATE_FROM);
       throwIfParameterValuePresent(request, SONAR_LINT_LAST_CONNECTION_DATE_TO);
+      throwIfParameterValuePresent(request, EXTERNAL_IDENTITY);
     }
   }
 
@@ -176,7 +185,7 @@ public class SearchAction implements UsersWsAction {
     return searchWsReponseGenerator.toUsersForResponse(userSearchResults.searchResults(), paging);
   }
 
-  private UsersSearchRequest toSearchRequest(Request request) {
+  private static UsersSearchRequest toSearchRequest(Request request) {
     int pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
     checkArgument(pageSize <= MAX_PAGE_SIZE, "The '%s' parameter must be less than %s", PAGE_SIZE, MAX_PAGE_SIZE);
     return UsersSearchRequest.builder()
@@ -187,6 +196,7 @@ public class SearchAction implements UsersWsAction {
       .setLastConnectionDateTo(request.param(LAST_CONNECTION_DATE_TO))
       .setSonarLintLastConnectionDateFrom(request.param(SONAR_LINT_LAST_CONNECTION_DATE_FROM))
       .setSonarLintLastConnectionDateTo(request.param(SONAR_LINT_LAST_CONNECTION_DATE_TO))
+      .setExternalLogin(request.param(EXTERNAL_IDENTITY))
       .setPage(request.mandatoryParamAsInt(PAGE))
       .setPageSize(pageSize)
       .build();
