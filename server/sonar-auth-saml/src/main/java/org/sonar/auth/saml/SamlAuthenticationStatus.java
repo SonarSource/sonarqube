@@ -37,6 +37,10 @@ public class SamlAuthenticationStatus {
 
   private List<String> warnings = new ArrayList<>();
 
+  private boolean encryptionEnabled = false;
+
+  private boolean signatureEnabled = false;
+
   public String getStatus() {
     return status;
   }
@@ -75,5 +79,21 @@ public class SamlAuthenticationStatus {
 
   public void setWarnings(List<String> warnings) {
     this.warnings = warnings;
+  }
+
+  public boolean isEncryptionEnabled() {
+    return encryptionEnabled;
+  }
+
+  public void setEncryptionEnabled(boolean encryptionEnabled) {
+    this.encryptionEnabled = encryptionEnabled;
+  }
+
+  public boolean isSignatureEnabled() {
+    return signatureEnabled;
+  }
+
+  public void setSignatureEnabled(boolean signatureEnabled) {
+    this.signatureEnabled = signatureEnabled;
   }
 }

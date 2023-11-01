@@ -42,6 +42,7 @@
     <style>
       body {
         background-color: #f3f3f3;
+        font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
       }
 
       h1 {
@@ -102,8 +103,21 @@
       }
 
       .success {
-        background-color: #008a25;
+        background-color: #008223;
       }
+
+      .success-label {
+        color: #008223;
+      }
+
+      .label {
+        font-size: 20px;
+      }
+
+      .spacer-right {
+        margin-right: 10px;
+      }
+
     </style>
   </head>
 
@@ -128,6 +142,21 @@
       function createSectionTitle(title) {
         const node = document.createElement("h2");
         node.textContent = title;
+        return node;
+      }
+
+      function createEnabledLabel() {
+        const node = document.createElement("p");
+        node.innerHTML = '<svg class="spacer-right" height="16" version="1.1" viewBox="0 0 16 16" width="16" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 1.41421;"><path d="M14.92 4.804q0 0.357-0.25 0.607l-7.679 7.679q-0.25 0.25-0.607 0.25t-0.607-0.25l-4.446-4.446q-0.25-0.25-0.25-0.607t0.25-0.607l1.214-1.214q0.25-0.25 0.607-0.25t0.607 0.25l2.625 2.634 5.857-5.866q0.25-0.25 0.607-0.25t0.607 0.25l1.214 1.214q0.25 0.25 0.25 0.607z" style="fill: currentcolor;"></path></svg>Enabled';
+        node.classList.add("success-label");
+        node.classList.add("label");
+        return node;
+      }
+
+      function createDisabledLabel() {
+        const node = document.createElement("p");
+        node.textContent = "Disabled";
+        node.classList.add("label");
         return node;
       }
 
@@ -184,6 +213,8 @@
       const mappings = decodedStatus.mappedAttributes;
       const errors = decodedStatus.errors;
       const warnings = decodedStatus.warnings;
+      const signatureEnabled = decodedStatus.signatureEnabled;
+      const encryptionEnabled = decodedStatus.encryptionEnabled;
 
       // Switch status class
       const statusNode = document.querySelector("#status");
@@ -209,6 +240,9 @@
         if (mappings && Object.keys(mappings).length > 0) {
           addSection(container, "Attribute mappings", createTable(mappings));
         }
+
+        addSection(container, "Signature of SAML requests", signatureEnabled ? createEnabledLabel() : createDisabledLabel());
+        addSection(container, "Encryption of SAML assertions", encryptionEnabled ? createEnabledLabel() : createDisabledLabel());
       }
       });
     </script>

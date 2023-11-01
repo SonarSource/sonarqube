@@ -224,7 +224,7 @@ public class SamlAuthenticator {
   public String getAuthenticationStatusPage(HttpRequest request, HttpResponse response) {
     try {
       Auth auth = initSamlAuth(request, response);
-      return getSamlAuthStatusHtml(request, getSamlAuthenticationStatus(auth, samlSettings));
+      return getSamlAuthStatusHtml(request, getSamlAuthenticationStatus(request.getParameter("SAMLResponse"), auth, samlSettings));
     } catch (IllegalStateException e) {
       return getSamlAuthStatusHtml(request, getSamlAuthenticationStatus(String.format("%s due to: %s", e.getMessage(), e.getCause().getMessage())));
     }
