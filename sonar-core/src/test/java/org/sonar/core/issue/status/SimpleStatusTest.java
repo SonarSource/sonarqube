@@ -19,13 +19,18 @@
  */
 package org.sonar.core.issue.status;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.testfixtures.log.LogAndArguments;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SimpleStatusTest {
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void of_shouldMapToCorrectSimpleStatus() {
@@ -62,13 +67,11 @@ public class SimpleStatusTest {
 
   @Test
   public void of_shouldThrowExceptionWhenUnknownMapping() {
-    assertThatThrownBy(() -> SimpleStatus.of(Issue.STATUS_RESOLVED, null))
-      .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Can't find mapped simple status for status 'RESOLVED' and resolution 'null'");
+    assertThat(SimpleStatus.of(Issue.STATUS_RESOLVED, null)).isNull();
+    assertThat(logTester.getLogs()).extracting(LogAndArguments::getFormattedMsg).contains("Can't find mapped simple status for status 'RESOLVED' and resolution 'null'");
 
-    assertThatThrownBy(() -> SimpleStatus.of(Issue.STATUS_RESOLVED, Issue.RESOLUTION_SAFE))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Can't find mapped simple status for status 'RESOLVED' and resolution 'SAFE'");
+    assertThat(SimpleStatus.of(Issue.STATUS_RESOLVED, Issue.RESOLUTION_SAFE)).isNull();
+    assertThat(logTester.getLogs()).extracting(LogAndArguments::getFormattedMsg).contains("Can't find mapped simple status for status 'RESOLVED' and resolution 'SAFE'");
   }
 
 }

@@ -29,6 +29,7 @@ import java.util.Random;
 import java.util.Set;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.CleanCodeAttribute;
@@ -37,6 +38,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.status.SimpleStatus;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.protobuf.DbIssues.MessageFormattingType;
@@ -49,7 +51,6 @@ import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBu
 import static org.sonar.db.protobuf.DbIssues.MessageFormattingType.CODE;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueFieldsSetter.ASSIGNEE;
-import static org.sonar.server.issue.IssueFieldsSetter.RESOLUTION;
 import static org.sonar.server.issue.IssueFieldsSetter.SEVERITY;
 import static org.sonar.server.issue.IssueFieldsSetter.STATUS;
 import static org.sonar.server.issue.IssueFieldsSetter.TECHNICAL_DEBT;
@@ -400,12 +401,12 @@ public class IssueFieldsSetterTest {
   }
 
   @Test
-  public void set_resolution() {
-    boolean updated = underTest.setResolution(issue, "OPEN", context);
+  public void setResolution_shouldNotTriggerFieldChange() {
+    boolean updated = underTest.setResolution(issue, Issue.STATUS_OPEN, context);
     assertThat(updated).isTrue();
-    assertThat(issue.resolution()).isEqualTo("OPEN");
+    assertThat(issue.resolution()).isEqualTo(Issue.STATUS_OPEN);
 
-    FieldDiffs.Diff diff = issue.currentChange().get(RESOLUTION);
+    FieldDiffs.Diff diff = issue.currentChange().get(IssueFieldsSetter.RESOLUTION);
     assertThat(diff.oldValue()).isNull();
     assertThat(diff.newValue()).isEqualTo("OPEN");
     assertThat(issue.mustSendNotifications()).isTrue();
@@ -413,24 +414,65 @@ public class IssueFieldsSetterTest {
 
   @Test
   public void not_change_resolution() {
-    issue.setResolution("FIXED");
-    boolean updated = underTest.setResolution(issue, "FIXED", context);
+    issue.setResolution(Issue.RESOLUTION_FIXED);
+    boolean updated = underTest.setResolution(issue, Issue.RESOLUTION_FIXED, context);
     assertThat(updated).isFalse();
-    assertThat(issue.resolution()).isEqualTo("FIXED");
+    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
   }
 
   @Test
   public void set_status() {
-    boolean updated = underTest.setStatus(issue, "OPEN", context);
+    boolean updated = underTest.setStatus(issue, Issue.STATUS_OPEN, context);
     assertThat(updated).isTrue();
-    assertThat(issue.status()).isEqualTo("OPEN");
+    assertThat(issue.status()).isEqualTo(Issue.STATUS_OPEN);
 
     FieldDiffs.Diff diff = issue.currentChange().get(STATUS);
     assertThat(diff.oldValue()).isNull();
-    assertThat(diff.newValue()).isEqualTo("OPEN");
+    assertThat(diff.newValue()).isEqualTo(Issue.STATUS_OPEN);
     assertThat(issue.mustSendNotifications()).isTrue();
+  }
+
+  @Test
+  public void setSimpleStatus_shouldTriggerFieldChange() {
+    issue.setResolution(null);
+    issue.setStatus(Issue.STATUS_OPEN);
+
+    SimpleStatus simpleStatus = issue.getSimpleStatus();
+
+    underTest.setResolution(issue, Issue.RESOLUTION_WONT_FIX, context);
+    underTest.setStatus(issue, Issue.STATUS_RESOLVED, context);
+    underTest.setSimpleStatus(issue, simpleStatus, issue.getSimpleStatus(), context);
+
+    FieldDiffs.Diff diff = issue.currentChange().diffs().get(IssueFieldsSetter.SIMPLE_STATUS);
+    assertThat(diff.oldValue()).isEqualTo(SimpleStatus.OPEN);
+    assertThat(diff.newValue()).isEqualTo(SimpleStatus.ACCEPTED);
+  }
+
+  @Test
+  public void setSimpleStatus_shouldNotTriggerFieldChange_whenNoChanges() {
+    issue.setResolution(null);
+    issue.setStatus(Issue.STATUS_OPEN);
+
+    SimpleStatus simpleStatus = issue.getSimpleStatus();
+    underTest.setSimpleStatus(issue, simpleStatus, issue.getSimpleStatus(), context);
+
+    assertThat(issue.currentChange()).isNull();
+  }
+
+  @Test
+  public void setSimpleStatus_shouldNotTriggerFieldChange_whenSecurityHotspot() {
+    issue.setResolution(null);
+    issue.setStatus(Issue.STATUS_TO_REVIEW);
+
+    SimpleStatus simpleStatus = issue.getSimpleStatus();
+
+    issue.setResolution(Issue.RESOLUTION_SAFE);
+    issue.setStatus(Issue.STATUS_REVIEWED);
+    underTest.setSimpleStatus(issue, simpleStatus, issue.getSimpleStatus(), context);
+
+    assertThat(issue.currentChange()).isNull();
   }
 
   @Test
@@ -608,33 +650,33 @@ public class IssueFieldsSetterTest {
   }
 
   @Test
-  public void message_formatting_different_size_is_changed(){
-    issue.setMessageFormattings(formattings(formatting(0,3,CODE)));
-    boolean updated = underTest.setLocations(issue, formattings(formatting(0,3,CODE), formatting(4,6,CODE)));
+  public void message_formatting_different_size_is_changed() {
+    issue.setMessageFormattings(formattings(formatting(0, 3, CODE)));
+    boolean updated = underTest.setLocations(issue, formattings(formatting(0, 3, CODE), formatting(4, 6, CODE)));
     assertThat(updated).isTrue();
   }
 
   @Test
-  public void message_formatting_different_start_is_changed(){
-    issue.setMessageFormattings(formattings(formatting(0,3,CODE)));
-    boolean updated = underTest.setLocations(issue, formattings(formatting(1,3,CODE)));
+  public void message_formatting_different_start_is_changed() {
+    issue.setMessageFormattings(formattings(formatting(0, 3, CODE)));
+    boolean updated = underTest.setLocations(issue, formattings(formatting(1, 3, CODE)));
     assertThat(updated).isTrue();
   }
 
   @Test
-  public void message_formatting_different_end_is_changed(){
-    issue.setMessageFormattings(formattings(formatting(0,3,CODE)));
-    boolean updated = underTest.setLocations(issue, formattings(formatting(0,4,CODE)));
+  public void message_formatting_different_end_is_changed() {
+    issue.setMessageFormattings(formattings(formatting(0, 3, CODE)));
+    boolean updated = underTest.setLocations(issue, formattings(formatting(0, 4, CODE)));
     assertThat(updated).isTrue();
   }
 
   private static DbIssues.MessageFormatting formatting(int start, int end, MessageFormattingType type) {
     return DbIssues.MessageFormatting
-        .newBuilder()
-        .setStart(start)
-        .setEnd(end)
-        .setType(type)
-        .build();
+      .newBuilder()
+      .setStart(start)
+      .setEnd(end)
+      .setType(type)
+      .build();
   }
 
   private static DbIssues.MessageFormattings formattings(DbIssues.MessageFormatting... messageFormatting) {

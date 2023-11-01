@@ -41,6 +41,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.status.SimpleStatus;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserIdDto;
@@ -61,8 +62,18 @@ public class IssueFieldsSetter {
   public static final String TYPE = "type";
   public static final String CLEAN_CODE_ATTRIBUTE = "cleanCodeAttribute";
   public static final String ASSIGNEE = "assignee";
+
+  /**
+   * @deprecated use {@link IssueFieldsSetter#SIMPLE_STATUS} instead
+   */
+  @Deprecated(since = "10.4")
   public static final String RESOLUTION = "resolution";
+  /**
+   * @deprecated use {@link IssueFieldsSetter#SIMPLE_STATUS} instead
+   */
+  @Deprecated(since = "10.4")
   public static final String STATUS = "status";
+  public static final String SIMPLE_STATUS = "simpleStatus";
   public static final String AUTHOR = "author";
   public static final String FILE = "file";
   public static final String FROM_BRANCH = "from_branch";
@@ -249,6 +260,15 @@ public class IssueFieldsSetter {
     return false;
   }
 
+  public boolean setSimpleStatus(DefaultIssue issue, @Nullable SimpleStatus previousSimpleStatus, @Nullable SimpleStatus newSimpleStatus, IssueChangeContext context) {
+    if (!Objects.equals(newSimpleStatus, previousSimpleStatus)) {
+      //Currently, simple status is not persisted in database, but is considered as an issue change
+      issue.setFieldChange(context, SIMPLE_STATUS, previousSimpleStatus, issue.getSimpleStatus());
+      return true;
+    }
+    return false;
+  }
+
   public boolean setStatus(DefaultIssue issue, String status, IssueChangeContext context) {
     if (!Objects.equals(status, issue.status())) {
       issue.setFieldChange(context, STATUS, issue.status(), status);
@@ -326,8 +346,8 @@ public class IssueFieldsSetter {
 
     for (int i = 0; i < l1c.getMessageFormattingCount(); i++) {
       if (l1c.getMessageFormatting(i).getStart() != l2.getMessageFormatting(i).getStart()
-        || l1c.getMessageFormatting(i).getEnd() != l2.getMessageFormatting(i).getEnd()
-        || l1c.getMessageFormatting(i).getType() != l2.getMessageFormatting(i).getType()) {
+          || l1c.getMessageFormatting(i).getEnd() != l2.getMessageFormatting(i).getEnd()
+          || l1c.getMessageFormatting(i).getType() != l2.getMessageFormatting(i).getType()) {
         return false;
       }
     }

@@ -29,6 +29,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.status.SimpleStatus;
 import org.sonar.server.issue.IssueFieldsSetter;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -301,7 +302,7 @@ public class IssueWorkflow implements Startable {
         .automatic()
         .build())
 
-    // reopen closed hotspots
+      // reopen closed hotspots
       .transition(Transition.builder("automaticunclosetoreview")
         .from(STATUS_CLOSED).to(STATUS_TO_REVIEW)
         .conditions(
@@ -330,8 +331,10 @@ public class IssueWorkflow implements Startable {
   public boolean doManualTransition(DefaultIssue issue, String transitionKey, IssueChangeContext issueChangeContext) {
     Transition transition = stateOf(issue).transition(transitionKey);
     if (transition.supports(issue) && !transition.automatic()) {
+      SimpleStatus previousSimpleStatus = issue.getSimpleStatus();
       functionExecutor.execute(transition.functions(), issue, issueChangeContext);
       updater.setStatus(issue, transition.to(), issueChangeContext);
+      updater.setSimpleStatus(issue, previousSimpleStatus, issue.getSimpleStatus(), issueChangeContext);
       return true;
     }
     return false;
@@ -347,8 +350,10 @@ public class IssueWorkflow implements Startable {
   public void doAutomaticTransition(DefaultIssue issue, IssueChangeContext issueChangeContext) {
     Transition transition = stateOf(issue).outAutomaticTransition(issue);
     if (transition != null) {
+      SimpleStatus previousSimpleStatus = issue.getSimpleStatus();
       functionExecutor.execute(transition.functions(), issue, issueChangeContext);
       updater.setStatus(issue, transition.to(), issueChangeContext);
+      updater.setSimpleStatus(issue, previousSimpleStatus, issue.getSimpleStatus(), issueChangeContext);
     }
   }
 

@@ -63,7 +63,6 @@ import static org.sonar.server.issue.IssueFieldsSetter.TECHNICAL_DEBT;
 
 public class IssueChangeWSSupport {
   private static final String EFFORT_CHANGELOG_KEY = "effort";
-
   private final DbClient dbClient;
   private final AvatarResolver avatarFactory;
   private final UserSession userSession;

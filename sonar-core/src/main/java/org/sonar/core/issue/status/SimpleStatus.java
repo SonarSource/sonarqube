@@ -21,14 +21,20 @@ package org.sonar.core.issue.status;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
 
 public enum SimpleStatus {
+
+
   OPEN,
   CONFIRMED,
   FALSE_POSITIVE,
   ACCEPTED,
   FIXED;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SimpleStatus.class);
 
   @CheckForNull
   public static SimpleStatus of(String status, @Nullable String resolution) {
@@ -57,6 +63,7 @@ public enum SimpleStatus {
         default:
       }
     }
-    throw new IllegalArgumentException(String.format("Can't find mapped simple status for status '%s' and resolution '%s'", status, resolution));
+    LOGGER.warn("Can't find mapped simple status for status '{}' and resolution '{}'", status, resolution);
+    return null;
   }
 }
