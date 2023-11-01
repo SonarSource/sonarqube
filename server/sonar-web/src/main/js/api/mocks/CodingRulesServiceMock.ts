@@ -28,11 +28,13 @@ import {
   mockRuleRepository,
 } from '../../helpers/testMocks';
 import { RuleRepository, SearchRulesResponse } from '../../types/coding-rules';
+import { ComponentQualifier, Visibility } from '../../types/component';
 import { RawIssuesResponse } from '../../types/issues';
 import { SearchRulesQuery } from '../../types/rules';
 import { SecurityStandard } from '../../types/security';
 import { Dict, Rule, RuleActivation, RuleDetails, RulesUpdateRequest } from '../../types/types';
 import { NoticeType } from '../../types/users';
+import { getComponentData } from '../components';
 import { getFacet } from '../issues';
 import {
   Profile,
@@ -64,6 +66,7 @@ jest.mock('../rules');
 jest.mock('../issues');
 jest.mock('../users');
 jest.mock('../quality-profiles');
+jest.mock('../components');
 
 type FacetFilter = Pick<
   SearchRulesQuery,
@@ -125,10 +128,11 @@ export default class CodingRulesServiceMock {
     jest.mocked(bulkDeactivateRules).mockImplementation(this.handleBulkDeactivateRules);
     jest.mocked(activateRule).mockImplementation(this.handleActivateRule);
     jest.mocked(deactivateRule).mockImplementation(this.handleDeactivateRule);
-    jest.mocked(getFacet).mockImplementation(this.handleGetGacet);
+    jest.mocked(getFacet).mockImplementation(this.handleGetFacet);
     jest.mocked(getRuleTags).mockImplementation(this.handleGetRuleTags);
     jest.mocked(getCurrentUser).mockImplementation(this.handleGetCurrentUser);
     jest.mocked(dismissNotice).mockImplementation(this.handleDismissNotification);
+    jest.mocked(getComponentData).mockImplementation(this.handleGetComponentData);
   }
 
   getRulesWithoutDetails(rules: RuleDetails[]) {
@@ -274,19 +278,23 @@ export default class CodingRulesServiceMock {
     return this.qualityProfile.filter((qp) => qp.language === language);
   }
 
-  handleGetGacet = (): Promise<{
+  handleGetFacet = (): Promise<{
     facet: { count: number; val: string }[];
     response: RawIssuesResponse;
   }> => {
     return this.reply({
-      facet: [],
+      facet: [
+        { count: 135, val: 'project-1' },
+        { count: 65, val: 'project-2' },
+        { count: 13, val: 'project-3' },
+      ],
       response: {
         components: [],
         effortTotal: 0,
         facets: [],
         issues: [],
         languages: [],
-        paging: { total: 0, pageIndex: 1, pageSize: 1 },
+        paging: { total: 213, pageIndex: 1, pageSize: 1 },
       },
     });
   };
@@ -608,6 +616,18 @@ export default class CodingRulesServiceMock {
     }
 
     return Promise.reject();
+  };
+
+  handleGetComponentData = (data: { component: string }) => {
+    return Promise.resolve({
+      ancestors: [],
+      component: {
+        key: data.component,
+        name: data.component.toUpperCase().split(/[ -.]/g).join(' '),
+        qualifier: ComponentQualifier.Project,
+        visibility: Visibility.Public,
+      },
+    });
   };
 
   reply<T>(response: T): Promise<T> {

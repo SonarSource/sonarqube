@@ -18,7 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ContentCell, Link, Spinner, SubHeadingHighlight, Table, TableRow } from 'design-system';
+import { keyBy } from 'lodash';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { getComponentData } from '../../../api/components';
 import { getFacet } from '../../../api/issues';
 import withAvailableFeatures, {
   WithAvailableFeaturesProps,
@@ -30,7 +33,7 @@ import { getIssuesUrl } from '../../../helpers/urls';
 import { Feature } from '../../../types/features';
 import { FacetName } from '../../../types/issues';
 import { MetricType } from '../../../types/metrics';
-import { RuleDetails } from '../../../types/types';
+import { Dict, RuleDetails } from '../../../types/types';
 
 interface Props extends WithAvailableFeaturesProps {
   ruleDetails: Pick<RuleDetails, 'key' | 'type'>;
@@ -45,8 +48,11 @@ interface Project {
 interface State {
   loading: boolean;
   projects?: Project[];
-  total?: number;
+  totalIssues?: number;
+  totalProjects?: number;
 }
+
+const MAX_VIOLATING_PROJECTS = 10;
 
 export class RuleDetailsIssues extends React.PureComponent<Props, State> {
   mounted = false;
@@ -80,17 +86,16 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
       },
       FacetName.Projects,
     ).then(
-      ({ facet, response }) => {
+      async ({ facet, response }) => {
         if (this.mounted) {
-          const { components = [], paging } = response;
-          const projects = [];
-          for (const item of facet) {
-            const project = components.find((component) => component.key === item.val);
-            if (project) {
-              projects.push({ count: item.count, key: project.key, name: project.name });
-            }
-          }
-          this.setState({ projects, loading: false, total: paging.total });
+          const { paging } = response;
+
+          this.setState({
+            projects: await this.getProjects(facet.slice(0, MAX_VIOLATING_PROJECTS)),
+            loading: false,
+            totalIssues: paging.total,
+            totalProjects: facet.length,
+          });
         }
       },
       () => {
@@ -101,12 +106,36 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
     );
   };
 
+  /**
+   * Retrieve the names of the projects, to display nicely
+   * (The facet only contains key & count)
+   */
+  getProjects = async (facet: { count: number; val: string }[]) => {
+    const projects: Dict<{ key: string; name: string }> = keyBy(
+      await Promise.all(
+        facet.map((item) =>
+          getComponentData({ component: item.val })
+            .then((response) => ({
+              key: item.val,
+              name: response.component.name,
+            }))
+            .catch(() => ({ key: item.val, name: item.val })),
+        ),
+      ),
+      'key',
+    );
+
+    return facet.map((item) => {
+      return { count: item.count, key: item.val, name: projects[item.val].name };
+    });
+  };
+
   renderTotal = () => {
     const {
       ruleDetails: { key },
     } = this.props;
 
-    const { total } = this.state;
+    const { totalIssues: total } = this.state;
     if (total === undefined) {
       return null;
     }
@@ -146,7 +175,8 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { loading, projects = [] } = this.state;
+    const { ruleDetails } = this.props;
+    const { loading, projects = [], totalProjects } = this.state;
 
     return (
       <div className="sw-mb-8">
@@ -157,19 +187,36 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
           </SubHeadingHighlight>
 
           {projects.length > 0 ? (
-            <Table
-              className="sw-mt-6"
-              columnCount={2}
-              header={
-                <TableRow>
-                  <ContentCell colSpan={2}>
-                    {translate('coding_rules.most_violating_projects')}
-                  </ContentCell>
-                </TableRow>
-              }
-            >
-              {projects.map(this.renderProject)}
-            </Table>
+            <>
+              <Table
+                className="sw-mt-6"
+                columnCount={2}
+                header={
+                  <TableRow>
+                    <ContentCell colSpan={2}>
+                      {translate('coding_rules.most_violating_projects')}
+                    </ContentCell>
+                  </TableRow>
+                }
+              >
+                {projects.map(this.renderProject)}
+              </Table>
+              {totalProjects !== undefined && totalProjects > projects.length && (
+                <div className="sw-text-center sw-mt-4">
+                  <FormattedMessage
+                    id="coding_rules.most_violating_projects.more_x"
+                    values={{
+                      count: totalProjects - projects.length,
+                      link: (
+                        <Link to={getIssuesUrl({ resolved: 'false', rules: ruleDetails.key })}>
+                          <FormattedMessage id="coding_rules.most_violating_projects.link" />
+                        </Link>
+                      ),
+                    }}
+                  />
+                </div>
+              )}
+            </>
           ) : (
             <div className="sw-mb-6">
               {translate('coding_rules.no_issue_detected_for_projects')}
