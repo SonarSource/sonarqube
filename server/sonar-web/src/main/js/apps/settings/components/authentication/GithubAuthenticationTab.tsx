@@ -124,7 +124,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
           </div>
         )}
       </div>
-      {enabled && (
+      {enabled && !hasLegacyConfiguration && (
         <GitHubConfigurationValidity
           selectedOrganizations={
             (values['sonar.auth.github.organizations']?.value as string[]) ?? []
@@ -146,7 +146,7 @@ export default function GithubAuthenticationTab(props: GithubAuthenticationProps
               values={{
                 documentation: (
                   <DocLink to="/instance-administration/authentication/github">
-                    {translate('documentation')}
+                    {translate('settings.authentication.github.form.legacy_configured.link')}
                   </DocLink>
                 ),
               }}

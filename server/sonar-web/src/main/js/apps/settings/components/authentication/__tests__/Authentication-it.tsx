@@ -134,6 +134,8 @@ const ui = {
     noGithubConfiguration: byText('settings.authentication.github.form.not_configured'),
     createConfigButton: byRole('button', { name: 'settings.authentication.form.create' }),
     clientId: byRole('textbox', { name: 'property.sonar.auth.github.clientId.secured.name' }),
+    appId: byRole('textbox', { name: 'property.sonar.auth.github.appId.name' }),
+    privateKey: byRole('textbox', { name: 'property.sonar.auth.github.privateKey.secured.name' }),
     clientSecret: byRole('textbox', {
       name: 'property.sonar.auth.github.clientSecret.secured.name',
     }),
@@ -235,6 +237,8 @@ const ui = {
       await act(async () => {
         await user.type(await github.clientId.find(), 'Awsome GITHUB config');
         await user.type(github.clientSecret.get(), 'Client shut');
+        await user.type(github.appId.get(), 'App id');
+        await user.type(github.privateKey.get(), 'Private Key');
         await user.type(github.githubApiUrl.get(), 'API Url');
         await user.type(github.githubWebUrl.get(), 'WEb Url');
         await user.type(github.organizations.get(), 'organization1');
@@ -356,7 +360,7 @@ describe('SAML tab', () => {
     await user.click(saml.scimProvisioningButton.get());
     expect(saml.saveScim.get()).toBeEnabled();
     await user.click(saml.saveScim.get());
-    await user.click(saml.confirmProvisioningButton.get());
+    await act(() => user.click(saml.confirmProvisioningButton.get()));
 
     expect(await saml.scimProvisioningButton.find()).toBeChecked();
     expect(await saml.saveScim.find()).toBeDisabled();
@@ -480,7 +484,7 @@ describe('Github tab', () => {
 
     expect(github.saveGithubProvisioning.get()).toBeEnabled();
     await user.click(github.saveGithubProvisioning.get());
-    await user.click(github.confirmProvisioningButton.get());
+    await act(() => user.click(github.confirmProvisioningButton.get()));
 
     expect(await github.githubProvisioningButton.find()).toBeChecked();
     expect(github.disableConfigButton.get()).toBeDisabled();

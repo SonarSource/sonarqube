@@ -148,6 +148,27 @@ export const definitions: ExtendedSettingDefinition[] = [
     fields: [],
   },
   {
+    key: 'sonar.auth.github.appId',
+    name: 'App ID',
+    description:
+      'The App ID is found on your GitHub App\u0027s page on GitHub at Settings \u003e Developer Settings \u003e GitHub Apps.',
+    category: 'authentication',
+    subCategory: 'github',
+    options: [],
+    fields: [],
+  },
+  {
+    key: 'sonar.auth.github.privateKey.secured',
+    name: 'Private Key',
+    description:
+      'Your GitHub App\u0027s private key. You can generate a .pem file from your GitHub App\u0027s page under Private keys.\nCopy and paste the whole contents of the file here.',
+    type: SettingType.TEXT,
+    category: 'authentication',
+    subCategory: 'github',
+    options: [],
+    fields: [],
+  },
+  {
     key: 'sonar.auth.github.clientSecret.secured',
     name: 'Client Secret',
     description: 'Client password provided by GitHub when registering the application.',
