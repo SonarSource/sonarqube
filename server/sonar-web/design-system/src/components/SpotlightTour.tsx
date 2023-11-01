@@ -139,11 +139,14 @@ function TooltipComponent({
       </div>
       <div>{step.content}</div>
       <div className="sw-flex sw-justify-between sw-items-center sw-mt-3">
-        <strong>
-          {stepXofYLabel
-            ? stepXofYLabel(index + 1, size)
-            : intl.formatMessage({ id: 'guiding.step_x_of_y' }, { '0': index + 1, '1': size })}
-        </strong>
+        {(stepXofYLabel || size > 1) && (
+          <strong>
+            {stepXofYLabel
+              ? stepXofYLabel(index + 1, size)
+              : intl.formatMessage({ id: 'guiding.step_x_of_y' }, { '0': index + 1, '1': size })}
+          </strong>
+        )}
+        <span />
         <div>
           {index > 0 && (
             <ButtonLink className="sw-mr-4" {...backProps}>

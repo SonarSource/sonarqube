@@ -34,6 +34,7 @@ export enum NoticeType {
   SONARLINT_AD = 'sonarlintAd',
   ISSUE_GUIDE = 'issueCleanCodeGuide',
   QG_CAYC_CONDITIONS_SIMPLIFICATION = 'qualityGateCaYCConditionsSimplification',
+  OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION = 'overviewZeroNewIssuesSimplification',
 }
 
 export interface LoggedInUser extends CurrentUser, UserActive {

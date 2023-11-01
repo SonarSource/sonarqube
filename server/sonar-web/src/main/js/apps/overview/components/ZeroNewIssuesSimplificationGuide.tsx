@@ -20,67 +20,66 @@
 
 import { SpotlightTour, SpotlightTourStep } from 'design-system';
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { dismissNotice } from '../../../api/users';
 import { CurrentUserContext } from '../../../app/components/current-user/CurrentUserContext';
-import DocumentationLink from '../../../components/common/DocumentationLink';
-import { translate } from '../../../helpers/l10n';
+import Link from '../../../components/common/Link';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { QualityGate } from '../../../types/types';
 import { NoticeType } from '../../../types/users';
 
-export default function CaYCConditionsSimplificationGuide() {
+interface Props {
+  qualityGate: QualityGate;
+}
+
+export default function ZeroNewIssuesSimplificationGuide({ qualityGate }: Readonly<Props>) {
   const { currentUser, updateDismissedNotices } = React.useContext(CurrentUserContext);
   const shouldRun =
     currentUser.isLoggedIn &&
-    !currentUser.dismissedNotices[NoticeType.QG_CAYC_CONDITIONS_SIMPLIFICATION];
+    !currentUser.dismissedNotices[NoticeType.OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION];
 
   const steps: SpotlightTourStep[] = [
     {
-      target: '[data-guiding-id="caycConditionsSimplification"]',
-      content: (
-        <p>{translate('quality_gates.cayc.condition_simplification_tour.page_1.content1')}</p>
-      ),
-      title: translate('quality_gates.cayc.condition_simplification_tour.page_1.title'),
-      placement: 'right',
-    },
-    {
-      target: '[data-guiding-id="caycConditionsSimplification"]',
+      target: `[data-guiding-id="overviewZeroNewIssuesSimplification"]`,
       content: (
         <>
           <p className="sw-mb-4">
-            {translate('quality_gates.cayc.condition_simplification_tour.page_2.content1')}
+            <FormattedMessage
+              id="overview.quality_gates.conditions.condition_simplification_tour.content1"
+              defaultMessage={translate(
+                'overview.quality_gates.conditions.condition_simplification_tour.content1',
+              )}
+              values={{
+                link: (
+                  <Link to={`/quality_gates/show/${qualityGate.name}`}>
+                    {translateWithParameters(
+                      'overview.quality_gates.conditions.condition_simplification_tour.content1.link',
+                      qualityGate.name,
+                    )}
+                  </Link>
+                ),
+              }}
+            />
           </p>
-          <p>{translate('quality_gates.cayc.condition_simplification_tour.page_2.content2')}</p>
+          <p>
+            {translate('overview.quality_gates.conditions.condition_simplification_tour.content2')}
+          </p>
         </>
       ),
-      title: translate('quality_gates.cayc.condition_simplification_tour.page_2.title'),
-      placement: 'right',
-    },
-    {
-      target: '[data-guiding-id="caycConditionsSimplification"]',
-      content: (
-        <>
-          <p className="sw-mb-4">
-            {translate('quality_gates.cayc.condition_simplification_tour.page_3.content1')}
-          </p>
-          <DocumentationLink to="/user-guide/issues/#resolutions">
-            {translate('quality_gates.cayc.condition_simplification_tour.page_3.content2')}
-          </DocumentationLink>
-        </>
-      ),
-      title: translate('quality_gates.cayc.condition_simplification_tour.page_3.title'),
+      title: translate('overview.quality_gates.conditions.condition_simplification_tour.title'),
       placement: 'right',
     },
   ];
 
   const onCallback = async (props: { action: string; type: string }) => {
     if (props.action === 'close' && props.type === 'tour:end' && shouldRun) {
-      await dismissNotice(NoticeType.QG_CAYC_CONDITIONS_SIMPLIFICATION);
-      updateDismissedNotices(NoticeType.QG_CAYC_CONDITIONS_SIMPLIFICATION, true);
+      await dismissNotice(NoticeType.OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION);
+      updateDismissedNotices(NoticeType.OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION, true);
     }
   };
 
   return (
     <SpotlightTour
-      continuous
       run={shouldRun}
       closeLabel={translate('dismiss')}
       callback={onCallback}

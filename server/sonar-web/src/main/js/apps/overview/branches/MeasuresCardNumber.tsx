@@ -32,13 +32,22 @@ interface Props {
   value: string;
   failingConditionMetric: MetricKey;
   requireLabel: string;
+  guidingKeyOnError?: string;
 }
 
 export default function MeasuresCardNumber(
   props: React.PropsWithChildren<Props & React.HTMLAttributes<HTMLDivElement>>,
 ) {
-  const { label, value, failedConditions, url, failingConditionMetric, requireLabel, ...rest } =
-    props;
+  const {
+    label,
+    value,
+    failedConditions,
+    url,
+    failingConditionMetric,
+    requireLabel,
+    guidingKeyOnError,
+    ...rest
+  } = props;
 
   const failed = Boolean(
     failedConditions.find((condition) => condition.metric === failingConditionMetric),
@@ -51,6 +60,7 @@ export default function MeasuresCardNumber(
       metric={failingConditionMetric}
       label={label}
       failed={failed}
+      data-guiding-id={failed ? guidingKeyOnError : undefined}
       {...rest}
     >
       {failed && <TextError className="sw-font-regular sw-mt-2" text={requireLabel} />}

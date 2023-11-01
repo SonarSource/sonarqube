@@ -22,16 +22,18 @@ import { uniq } from 'lodash';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { getMeasuresWithMetrics } from '../../../api/measures';
+import { fetchQualityGate, getGateForProject } from '../../../api/quality-gates';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { isDefined } from '../../../helpers/types';
 import { useBranchStatusQuery } from '../../../queries/branch';
 import { PullRequest } from '../../../types/branch-like';
-import { Component, MeasureEnhanced } from '../../../types/types';
+import { Component, MeasureEnhanced, QualityGate } from '../../../types/types';
 import MeasuresCardPanel from '../branches/MeasuresCardPanel';
 import BranchQualityGate from '../components/BranchQualityGate';
 import IgnoredConditionWarning from '../components/IgnoredConditionWarning';
 import MetaTopBar from '../components/MetaTopBar';
+import ZeroNewIssuesSimplificationGuide from '../components/ZeroNewIssuesSimplificationGuide';
 import '../styles.css';
 import { PR_METRICS, Status } from '../utils';
 import SonarLintAd from './SonarLintAd';
@@ -43,14 +45,18 @@ interface Props {
 
 export default function PullRequestOverview(props: Props) {
   const { component, branchLike } = props;
-  const [loadingMeasure, setLoadingMeasure] = useState(false);
+  const [isLoadingMeasures, setIsLoadingMeasures] = useState(false);
   const [measures, setMeasures] = useState<MeasureEnhanced[]>([]);
-  const { data: { conditions, ignoredConditions, status } = {}, isLoading } =
-    useBranchStatusQuery(component);
-  const loading = isLoading || loadingMeasure;
+  const {
+    data: { conditions, ignoredConditions, status } = {},
+    isLoading: isLoadingBranchStatusesData,
+  } = useBranchStatusQuery(component);
+  const [isLoadingQualityGate, setIsLoadingQualityGate] = useState(false);
+  const [qualityGate, setQualityGate] = useState<QualityGate>();
+  const isLoading = isLoadingBranchStatusesData || isLoadingMeasures || isLoadingQualityGate;
 
   useEffect(() => {
-    setLoadingMeasure(true);
+    setIsLoadingMeasures(true);
 
     const metricKeys =
       conditions !== undefined
@@ -64,17 +70,31 @@ export default function PullRequestOverview(props: Props) {
     getMeasuresWithMetrics(component.key, metricKeys, getBranchLikeQuery(branchLike)).then(
       ({ component, metrics }) => {
         if (component.measures) {
-          setLoadingMeasure(false);
+          setIsLoadingMeasures(false);
           setMeasures(enhanceMeasuresWithMetrics(component.measures || [], metrics));
         }
       },
       () => {
-        setLoadingMeasure(false);
+        setIsLoadingMeasures(false);
       },
     );
   }, [branchLike, component.key, conditions]);
 
-  if (loading) {
+  useEffect(() => {
+    async function fetchQualityGateDate() {
+      setIsLoadingQualityGate(true);
+
+      const qualityGate = await getGateForProject({ project: component.key });
+      const qgDetails = await fetchQualityGate({ name: qualityGate.name });
+
+      setQualityGate(qgDetails);
+      setIsLoadingQualityGate(false);
+    }
+
+    fetchQualityGateDate();
+  }, [component.key]);
+
+  if (isLoading) {
     return (
       <CenteredLayout>
         <div className="sw-p-6">
@@ -118,6 +138,8 @@ export default function PullRequestOverview(props: Props) {
             failedConditions={failedConditions}
             measures={measures}
           />
+
+          {qualityGate?.isBuiltIn && <ZeroNewIssuesSimplificationGuide qualityGate={qualityGate} />}
 
           <SonarLintAd status={status} />
         </div>

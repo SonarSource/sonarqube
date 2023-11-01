@@ -19,9 +19,13 @@
  */
 package org.sonar.server.user.ws;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
@@ -33,7 +37,9 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.server.user.ws.DismissNoticeAction.AVAILABLE_NOTICE_KEYS;
 
+@RunWith(DataProviderRunner.class)
 public class DismissNoticeActionIT {
 
   @Rule
@@ -42,48 +48,6 @@ public class DismissNoticeActionIT {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private final WsActionTester tester = new WsActionTester(new DismissNoticeAction(userSessionRule, db.getDbClient()));
-
-  @Test
-  public void dismiss_educationPrinciples() {
-    userSessionRule.logIn();
-
-    TestResponse testResponse = tester.newRequest()
-      .setParam("notice", "educationPrinciples")
-      .execute();
-
-    assertThat(testResponse.getStatus()).isEqualTo(204);
-
-    Optional<PropertyDto> propertyDto = db.properties().findFirstUserProperty(userSessionRule.getUuid(), "user.dismissedNotices.educationPrinciples");
-    assertThat(propertyDto).isPresent();
-  }
-
-  @Test
-  public void dismiss_sonarlintAd() {
-    userSessionRule.logIn();
-
-    TestResponse testResponse = tester.newRequest()
-      .setParam("notice", "sonarlintAd")
-      .execute();
-
-    assertThat(testResponse.getStatus()).isEqualTo(204);
-
-    Optional<PropertyDto> propertyDto = db.properties().findFirstUserProperty(userSessionRule.getUuid(), "user.dismissedNotices.sonarlintAd");
-    assertThat(propertyDto).isPresent();
-  }
-
-  @Test
-  public void execute_whenNoticeIsIssueCleanCodeGuide_shouldDismissCorrespondingNotice() {
-    userSessionRule.logIn();
-
-    TestResponse testResponse = tester.newRequest()
-      .setParam("notice", "issueCleanCodeGuide")
-      .execute();
-
-    assertThat(testResponse.getStatus()).isEqualTo(204);
-
-    Optional<PropertyDto> propertyDto = db.properties().findFirstUserProperty(userSessionRule.getUuid(), "user.dismissedNotices.issueCleanCodeGuide");
-    assertThat(propertyDto).isPresent();
-  }
 
   @Test
   public void authentication_is_required() {
@@ -114,7 +78,8 @@ public class DismissNoticeActionIT {
     assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(
-        "Value of parameter 'notice' (not_supported_value) must be one of: [educationPrinciples, sonarlintAd, issueCleanCodeGuide, qualityGateCaYCConditionsSimplification]");
+        "Value of parameter 'notice' (not_supported_value) must be one of: [educationPrinciples, sonarlintAd, issueCleanCodeGuide, qualityGateCaYCConditionsSimplification, " +
+          "overviewZeroNewIssuesSimplification]");
   }
 
   @Test
@@ -125,11 +90,32 @@ public class DismissNoticeActionIT {
     assertThat(db.properties().findFirstUserProperty(userSessionRule.getUuid(), "user.dismissedNotices.educationPrinciples")).isPresent();
 
     TestResponse testResponse = tester.newRequest()
-      .setParam("notice", "sonarlintAd")
+      .setParam("notice", "educationPrinciples")
       .execute();
 
     assertThat(testResponse.getStatus()).isEqualTo(204);
     assertThat(db.properties().findFirstUserProperty(userSessionRule.getUuid(), "user.dismissedNotices.educationPrinciples")).isPresent();
   }
 
+  @Test
+  @UseDataProvider("noticeKeys")
+  public void dismiss_notice(String noticeKey) {
+    userSessionRule.logIn();
+
+    TestResponse testResponse = tester.newRequest()
+      .setParam("notice", noticeKey)
+      .execute();
+
+    assertThat(testResponse.getStatus()).isEqualTo(204);
+
+    Optional<PropertyDto> propertyDto = db.properties().findFirstUserProperty(userSessionRule.getUuid(), "user.dismissedNotices." + noticeKey);
+    assertThat(propertyDto).isPresent();
+  }
+
+  @DataProvider
+  public static Object[][] noticeKeys() {
+    return AVAILABLE_NOTICE_KEYS.stream()
+      .map(noticeKey -> new Object[] {noticeKey})
+      .toArray(Object[][]::new);
+  }
 }

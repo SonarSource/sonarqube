@@ -98,6 +98,7 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
                       isLastStatus={qgStatusIdx === failedQgStatuses.length - 1}
                       key={qgStatus.key}
                       qgStatus={qgStatus}
+                      qualityGate={qualityGate}
                     />
                   ))}
                 </div>

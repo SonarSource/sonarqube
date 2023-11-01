@@ -27,13 +27,16 @@ import {
   QualityGateStatus,
   QualityGateStatusConditionEnhanced,
 } from '../../../types/quality-gates';
+import { QualityGate } from '../../../types/types';
 import QualityGateConditions from '../components/QualityGateConditions';
+import ZeroNewIssuesSimplificationGuide from '../components/ZeroNewIssuesSimplificationGuide';
 
 export interface QualityGatePanelSectionProps {
   branchLike?: BranchLike;
   isApplication?: boolean;
   isLastStatus?: boolean;
   qgStatus: QualityGateStatus;
+  qualityGate?: QualityGate;
 }
 
 function splitConditions(
@@ -54,7 +57,7 @@ function splitConditions(
 }
 
 export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
-  const { isApplication, isLastStatus, qgStatus } = props;
+  const { isApplication, isLastStatus, qgStatus, qualityGate } = props;
   const [collapsed, setCollapsed] = React.useState(false);
 
   const toggle = React.useCallback(() => {
@@ -101,10 +104,14 @@ export function QualityGatePanelSection(props: QualityGatePanelSectionProps) {
               </>
             )}
 
+            {qualityGate?.isBuiltIn && (
+              <ZeroNewIssuesSimplificationGuide qualityGate={qualityGate} />
+            )}
             <QualityGateConditions
               component={qgStatus}
               branchLike={qgStatus.branchLike}
               failedConditions={newCodeFailedConditions}
+              isBuiltInQualityGate={qualityGate?.isBuiltIn}
             />
           </>
         )}

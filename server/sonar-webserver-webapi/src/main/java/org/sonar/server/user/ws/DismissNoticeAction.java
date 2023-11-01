@@ -38,8 +38,10 @@ public class DismissNoticeAction implements UsersWsAction {
   private static final String SONARLINT_AD = "sonarlintAd";
   private static final String ISSUE_CLEAN_CODE_GUIDE = "issueCleanCodeGuide";
   private static final String QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION = "qualityGateCaYCConditionsSimplification";
+  private static final String OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION = "overviewZeroNewIssuesSimplification";
 
-  protected static final List<String> AVAILABLE_NOTICE_KEYS = List.of(EDUCATION_PRINCIPLES, SONARLINT_AD, ISSUE_CLEAN_CODE_GUIDE, QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION);
+  protected static final List<String> AVAILABLE_NOTICE_KEYS = List.of(EDUCATION_PRINCIPLES, SONARLINT_AD, ISSUE_CLEAN_CODE_GUIDE, QUALITY_GATE_CAYC_CONDITIONS_SIMPLIFICATION,
+    OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION);
   public static final String USER_DISMISS_CONSTANT = "user.dismissedNotices.";
 
   private final UserSession userSession;
@@ -86,14 +88,12 @@ public class DismissNoticeAction implements UsersWsAction {
         .setKey(paramKey)
         .build();
 
-      if (!dbClient.propertiesDao().selectByQuery(query, dbSession).isEmpty()) {
-        // already dismissed
-        response.noContent();
+      if (dbClient.propertiesDao().selectByQuery(query, dbSession).isEmpty()) {
+        PropertyDto property = new PropertyDto().setUserUuid(currentUserUuid).setKey(paramKey);
+        dbClient.propertiesDao().saveProperty(dbSession, property);
+        dbSession.commit();
       }
 
-      PropertyDto property = new PropertyDto().setUserUuid(currentUserUuid).setKey(paramKey);
-      dbClient.propertiesDao().saveProperty(dbSession, property);
-      dbSession.commit();
       response.noContent();
     }
   }

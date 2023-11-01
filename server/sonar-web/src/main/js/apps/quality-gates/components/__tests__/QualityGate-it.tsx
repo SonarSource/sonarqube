@@ -426,6 +426,32 @@ it('should display CaYC condition simplification tour for users who didnt dismis
 
   expect(await byRole('alertdialog').find()).toBeInTheDocument();
 
+  expect(
+    byRole('alertdialog')
+      .byText('quality_gates.cayc.condition_simplification_tour.page_1.title')
+      .get(),
+  ).toBeInTheDocument();
+
+  await act(async () => {
+    await user.click(byRole('alertdialog').byRole('button', { name: 'next' }).get());
+  });
+
+  expect(
+    byRole('alertdialog')
+      .byText('quality_gates.cayc.condition_simplification_tour.page_2.title')
+      .get(),
+  ).toBeInTheDocument();
+
+  await act(async () => {
+    await user.click(byRole('alertdialog').byRole('button', { name: 'next' }).get());
+  });
+
+  expect(
+    byRole('alertdialog')
+      .byText('quality_gates.cayc.condition_simplification_tour.page_3.title')
+      .get(),
+  ).toBeInTheDocument();
+
   await act(async () => {
     await user.click(byRole('alertdialog').byRole('button', { name: 'dismiss' }).get());
   });

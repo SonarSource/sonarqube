@@ -72,6 +72,7 @@ export default function MeasuresCardPanel(props: React.PropsWithChildren<Props>)
             count: newViolations,
           },
         )}
+        guidingKeyOnError="overviewZeroNewIssuesSimplification"
       />
 
       <MeasuresCardNumber

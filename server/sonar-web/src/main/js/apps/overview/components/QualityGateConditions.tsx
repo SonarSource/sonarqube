@@ -22,9 +22,11 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
+import { MetricKey } from '../../../types/metrics';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
 import { Component } from '../../../types/types';
 import QualityGateCondition from './QualityGateCondition';
+import QualityGateSimplifiedCondition from './QualityGateSimplifiedCondition';
 
 const LEVEL_ORDER = ['ERROR', 'WARN'];
 
@@ -33,15 +35,24 @@ export interface QualityGateConditionsProps {
   component: Pick<Component, 'key'>;
   collapsible?: boolean;
   failedConditions: QualityGateStatusConditionEnhanced[];
+  isBuiltInQualityGate?: boolean;
 }
 
 const MAX_CONDITIONS = 5;
 
 export function QualityGateConditions(props: QualityGateConditionsProps) {
-  const { branchLike, collapsible, component, failedConditions } = props;
+  const { branchLike, collapsible, component, failedConditions, isBuiltInQualityGate } = props;
   const [collapsed, toggleCollapsed] = React.useState(Boolean(collapsible));
 
   const handleToggleCollapsed = React.useCallback(() => toggleCollapsed(!collapsed), [collapsed]);
+
+  const isSimplifiedCondition = React.useCallback(
+    (condition: QualityGateStatusConditionEnhanced) => {
+      const { metric } = condition.measure;
+      return metric.key === MetricKey.new_violations && isBuiltInQualityGate;
+    },
+    [isBuiltInQualityGate],
+  );
 
   const sortedConditions = sortBy(failedConditions, (condition) =>
     LEVEL_ORDER.indexOf(condition.level),
@@ -62,11 +73,19 @@ export function QualityGateConditions(props: QualityGateConditionsProps) {
     <ul id="overview-quality-gate-conditions-list" className="sw-mb-2">
       {renderConditions.map((condition) => (
         <div key={condition.measure.metric.key}>
-          <QualityGateCondition
-            branchLike={branchLike}
-            component={component}
-            condition={condition}
-          />
+          {isSimplifiedCondition(condition) ? (
+            <QualityGateSimplifiedCondition
+              branchLike={branchLike}
+              component={component}
+              condition={condition}
+            />
+          ) : (
+            <QualityGateCondition
+              branchLike={branchLike}
+              component={component}
+              condition={condition}
+            />
+          )}
           <BasicSeparator />
         </div>
       ))}

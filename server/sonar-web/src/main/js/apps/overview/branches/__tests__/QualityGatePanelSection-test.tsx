@@ -20,9 +20,14 @@
 
 import { screen } from '@testing-library/react';
 import * as React from 'react';
+import CurrentUserContextProvider from '../../../../app/components/current-user/CurrentUserContextProvider';
+import { mockQualityGate, mockQualityGateStatus } from '../../../../helpers/mocks/quality-gates';
+import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import { renderComponent } from '../../../../helpers/testReactTestingUtils';
+import { byRole } from '../../../../helpers/testSelector';
 import { MetricKey } from '../../../../types/metrics';
 import { CaycStatus, Status } from '../../../../types/types';
+import { CurrentUser, NoticeType } from '../../../../types/users';
 import QualityGatePanelSection, { QualityGatePanelSectionProps } from '../QualityGatePanelSection';
 
 const failedConditions = [
@@ -31,7 +36,7 @@ const failedConditions = [
     measure: {
       metric: {
         id: 'metricId1',
-        key: 'metricKey1',
+        key: MetricKey.new_coverage,
         name: 'metricName1',
         type: 'metricType1',
       },
@@ -44,7 +49,7 @@ const failedConditions = [
     measure: {
       metric: {
         id: 'metricId2',
-        key: 'metricKey2',
+        key: MetricKey.security_hotspots,
         name: 'metricName2',
         type: 'metricType2',
       },
@@ -52,20 +57,33 @@ const failedConditions = [
     metric: MetricKey.security_hotspots,
     op: 'op2',
   },
+  {
+    level: 'ERROR' as Status,
+    measure: {
+      metric: {
+        id: 'metricId2',
+        key: MetricKey.new_violations,
+        name: 'metricName2',
+        type: 'metricType2',
+      },
+    },
+    metric: MetricKey.new_violations,
+    op: 'op2',
+  },
 ];
 
-const qgStatus = {
+const qgStatus = mockQualityGateStatus({
   caycStatus: CaycStatus.Compliant,
   failedConditions,
   key: 'qgStatusKey',
   name: 'qgStatusName',
   status: 'ERROR' as Status,
-};
+});
 
 it('should render correctly for an application with 1 new code condition and 1 overall code condition', async () => {
   renderQualityGatePanelSection();
 
-  expect(await screen.findByText('quality_gates.conditions.new_code_1')).toBeInTheDocument();
+  expect(await screen.findByText('quality_gates.conditions.new_code_x.2')).toBeInTheDocument();
   expect(await screen.findByText('quality_gates.conditions.overall_code_1')).toBeInTheDocument();
 });
 
@@ -79,6 +97,40 @@ it('should render correctly for a project with 1 new code condition', () => {
   expect(screen.queryByText('quality_gates.conditions.overall_code_1')).not.toBeInTheDocument();
 });
 
-function renderQualityGatePanelSection(props: Partial<QualityGatePanelSectionProps> = {}) {
-  return renderComponent(<QualityGatePanelSection isApplication qgStatus={qgStatus} {...props} />);
+it('should render correctly 0 New issues onboarding', async () => {
+  renderQualityGatePanelSection({
+    isApplication: false,
+    qgStatus: { ...qgStatus, failedConditions: [failedConditions[2]] },
+    qualityGate: mockQualityGate({ isBuiltIn: true }),
+  });
+
+  expect(screen.queryByText('quality_gates.conditions.new_code_1')).not.toBeInTheDocument();
+  expect(await byRole('alertdialog').find()).toBeInTheDocument();
+});
+
+it('should not render 0 New issues onboarding for user who dismissed it', async () => {
+  renderQualityGatePanelSection(
+    {
+      isApplication: false,
+      qgStatus: { ...qgStatus, failedConditions: [failedConditions[2]] },
+      qualityGate: mockQualityGate({ isBuiltIn: true }),
+    },
+    mockLoggedInUser({
+      dismissedNotices: { [NoticeType.OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION]: true },
+    }),
+  );
+
+  expect(screen.queryByText('quality_gates.conditions.new_code_1')).not.toBeInTheDocument();
+  expect(await byRole('alertdialog').query()).not.toBeInTheDocument();
+});
+
+function renderQualityGatePanelSection(
+  props: Partial<QualityGatePanelSectionProps> = {},
+  currentUser: CurrentUser = mockLoggedInUser(),
+) {
+  return renderComponent(
+    <CurrentUserContextProvider currentUser={currentUser}>
+      <QualityGatePanelSection isApplication qgStatus={qgStatus} {...props} />
+    </CurrentUserContextProvider>,
+  );
 }
