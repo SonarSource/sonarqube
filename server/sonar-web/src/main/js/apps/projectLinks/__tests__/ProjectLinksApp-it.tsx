@@ -72,7 +72,7 @@ function getPageObjects() {
 
   const ui = {
     pageTitle: byRole('heading', { name: 'project_links.page' }),
-    noResultsTable: byText('no_results'),
+    noResultsTable: byText('project_links.no_results'),
     createLinkButton: byRole('button', { name: 'create' }),
     nameInput: byRole('textbox', { name: /project_links.name/ }),
     urlInput: byRole('textbox', { name: /project_links.url/ }),

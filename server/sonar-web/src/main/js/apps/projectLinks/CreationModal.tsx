@@ -17,12 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FormField, InputField, Modal } from 'design-system';
 import * as React from 'react';
-import SimpleModal from '../../components/controls/SimpleModal';
-import { ResetButtonLink, SubmitButton } from '../../components/controls/buttons';
-import MandatoryFieldMarker from '../../components/ui/MandatoryFieldMarker';
 import MandatoryFieldsExplanation from '../../components/ui/MandatoryFieldsExplanation';
-import Spinner from '../../components/ui/Spinner';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
@@ -35,10 +32,13 @@ interface State {
   url: string;
 }
 
+const FORM_ID = 'create-link-form';
+
 export default class CreationModal extends React.PureComponent<Props, State> {
   state: State = { name: '', url: '' };
 
-  handleSubmit = () => {
+  handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
     return this.props.onSubmit(this.state.name, this.state.url).then(this.props.onClose);
   };
 
@@ -53,68 +53,55 @@ export default class CreationModal extends React.PureComponent<Props, State> {
   render() {
     const header = translate('project_links.create_new_project_link');
 
+    const formBody = (
+      <form id={FORM_ID} onSubmit={this.handleSubmit} className="sw-mb-2">
+        <MandatoryFieldsExplanation />
+
+        <FormField
+          label={translate('project_links.name')}
+          htmlFor="create-link-name"
+          className="sw-mt-4"
+          required
+        >
+          <InputField
+            autoFocus
+            required
+            size="auto"
+            id="create-link-name"
+            maxLength={128}
+            name="name"
+            onChange={this.handleNameChange}
+            type="text"
+            value={this.state.name}
+          />
+        </FormField>
+
+        <FormField label={translate('project_links.url')} htmlFor="create-link-url" required>
+          <InputField
+            size="auto"
+            required
+            id="create-link-url"
+            maxLength={128}
+            name="url"
+            onChange={this.handleUrlChange}
+            type="text"
+            value={this.state.url}
+          />
+        </FormField>
+      </form>
+    );
+
     return (
-      <SimpleModal
-        header={header}
+      <Modal
+        headerTitle={header}
         onClose={this.props.onClose}
-        onSubmit={this.handleSubmit}
-        size="small"
-      >
-        {({ onCloseClick, onFormSubmit, submitting }) => (
-          <form onSubmit={onFormSubmit}>
-            <header className="modal-head">
-              <h2>{header}</h2>
-            </header>
-
-            <div className="modal-body">
-              <MandatoryFieldsExplanation className="modal-field" />
-
-              <div className="modal-field">
-                <label htmlFor="create-link-name">
-                  {translate('project_links.name')}
-                  <MandatoryFieldMarker />
-                </label>
-                <input
-                  autoFocus
-                  id="create-link-name"
-                  maxLength={128}
-                  name="name"
-                  onChange={this.handleNameChange}
-                  required
-                  type="text"
-                  value={this.state.name}
-                />
-              </div>
-
-              <div className="modal-field">
-                <label htmlFor="create-link-url">
-                  {translate('project_links.url')}
-                  <MandatoryFieldMarker />
-                </label>
-                <input
-                  id="create-link-url"
-                  maxLength={128}
-                  name="url"
-                  onChange={this.handleUrlChange}
-                  required
-                  type="text"
-                  value={this.state.url}
-                />
-              </div>
-            </div>
-
-            <footer className="modal-foot">
-              <Spinner className="spacer-right" loading={submitting} />
-              <SubmitButton disabled={submitting} id="create-link-confirm">
-                {translate('create')}
-              </SubmitButton>
-              <ResetButtonLink disabled={submitting} onClick={onCloseClick}>
-                {translate('cancel')}
-              </ResetButtonLink>
-            </footer>
-          </form>
-        )}
-      </SimpleModal>
+        body={formBody}
+        primaryButton={
+          <ButtonPrimary form={FORM_ID} type="submit">
+            {translate('create')}
+          </ButtonPrimary>
+        }
+      />
     );
   }
 }

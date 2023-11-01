@@ -17,12 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import {
+  ActionCell,
+  ContentCell,
+  DestructiveIcon,
+  Link,
+  Note,
+  TableRow,
+  TrashIcon,
+} from 'design-system';
 import * as React from 'react';
 import isValidUri from '../../app/utils/isValidUri';
-import Link from '../../components/common/Link';
-import { Button } from '../../components/controls/buttons';
 import ConfirmButton from '../../components/controls/ConfirmButton';
-import ProjectLinkIcon from '../../components/icons/ProjectLinkIcon';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import { getLinkName, isProvided } from '../../helpers/projectLinks';
 import { ProjectLink } from '../../types/types';
@@ -35,28 +42,13 @@ interface Props {
 export default class LinkRow extends React.PureComponent<Props> {
   renderNameForProvided = (link: ProjectLink) => {
     return (
-      <div className="display-inline-block text-top">
-        <div>
-          <span className="js-name">{getLinkName(link)}</span>
-        </div>
-        <div className="note little-spacer-top">
-          <span className="js-type">{`sonar.links.${link.type}`}</span>
-        </div>
-      </div>
-    );
-  };
-
-  renderName = (link: ProjectLink) => {
-    return (
       <div>
-        <ProjectLinkIcon className="little-spacer-right" type={link.type} />
-        {isProvided(link) ? (
-          this.renderNameForProvided(link)
-        ) : (
-          <div className="display-inline-block text-top">
-            <span className="js-name">{link.name}</span>
-          </div>
-        )}
+        <div>
+          <span>{getLinkName(link)}</span>
+        </div>
+        <Note className="sw-mt-1">
+          <span>{`sonar.links.${link.type}`}</span>
+        </Note>
       </div>
     );
   };
@@ -79,13 +71,12 @@ export default class LinkRow extends React.PureComponent<Props> {
         onConfirm={this.props.onDelete}
       >
         {({ onClick }) => (
-          <Button
-            className="button-red js-delete-button"
+          <DestructiveIcon
+            Icon={TrashIcon}
             aria-label={translateWithParameters('project_links.delete_x_link', link.name ?? '')}
             onClick={onClick}
-          >
-            {translate('delete')}
-          </Button>
+            size="small"
+          />
         )}
       </ConfirmButton>
     );
@@ -95,9 +86,17 @@ export default class LinkRow extends React.PureComponent<Props> {
     const { link } = this.props;
 
     return (
-      <tr data-name={link.name}>
-        <td className="nowrap">{this.renderName(link)}</td>
-        <td className="nowrap js-url">
+      <TableRow data-name={link.name}>
+        <ContentCell>
+          {isProvided(link) ? (
+            this.renderNameForProvided(link)
+          ) : (
+            <div>
+              <span>{link.name}</span>
+            </div>
+          )}
+        </ContentCell>
+        <ContentCell>
           {isValidUri(link.url) ? (
             <Link to={link.url} target="_blank">
               {link.url}
@@ -105,9 +104,9 @@ export default class LinkRow extends React.PureComponent<Props> {
           ) : (
             link.url
           )}
-        </td>
-        <td className="thin nowrap">{this.renderDeleteButton(link)}</td>
-      </tr>
+        </ContentCell>
+        <ActionCell>{this.renderDeleteButton(link)}</ActionCell>
+      </TableRow>
     );
   }
 }

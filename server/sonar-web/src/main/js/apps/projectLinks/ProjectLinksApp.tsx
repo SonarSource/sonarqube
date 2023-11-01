@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { LargeCenteredLayout, PageContentFontWrapper, Spinner } from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { createLink, deleteLink, getProjectLinks } from '../../api/projectLinks';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
-import Spinner from '../../components/ui/Spinner';
 import { translate } from '../../helpers/l10n';
 import { Component, ProjectLink } from '../../types/types';
 import Header from './Header';
-import Table from './Table';
+import ProjectLinkTable from './ProjectLinkTable';
 
 interface Props {
   component: Component;
@@ -102,13 +103,15 @@ export class ProjectLinksApp extends React.PureComponent<Props, State> {
   render() {
     const { loading, links } = this.state;
     return (
-      <div className="page page-limited">
-        <Helmet defer={false} title={translate('project_links.page')} />
-        <Header onCreate={this.handleCreateLink} />
-        <Spinner loading={loading}>
-          {links && <Table links={links} onDelete={this.handleDeleteLink} />}
-        </Spinner>
-      </div>
+      <LargeCenteredLayout>
+        <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+          <Helmet defer={false} title={translate('project_links.page')} />
+          <Header onCreate={this.handleCreateLink} />
+          <Spinner loading={loading}>
+            <ProjectLinkTable links={links ?? []} onDelete={this.handleDeleteLink} />
+          </Spinner>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     );
   }
 }

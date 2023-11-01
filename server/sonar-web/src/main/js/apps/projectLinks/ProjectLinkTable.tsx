@@ -17,49 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { ActionCell, ContentCell, Note, Table, TableRow } from 'design-system';
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 import { orderLinks } from '../../helpers/projectLinks';
 import { ProjectLink } from '../../types/types';
-import LinkRow from './LinkRow';
+import LinkRow from './ProjectLinkRow';
 
 interface Props {
   links: ProjectLink[];
   onDelete: (linkId: string) => Promise<void>;
 }
 
-export default class Table extends React.PureComponent<Props> {
-  renderHeader() {
-    // keep empty cell for actions
-    return (
-      <thead>
-        <tr>
-          <th className="nowrap">{translate('project_links.name')}</th>
-          <th className="nowrap width-100">{translate('project_links.url')}</th>
-          <th className="thin">&nbsp;</th>
-        </tr>
-      </thead>
-    );
+export default function ProjectLinkTable({ links, onDelete }: Readonly<Props>) {
+  if (!links.length) {
+    return <Note>{translate('project_links.no_results')}</Note>;
   }
 
-  render() {
-    if (!this.props.links.length) {
-      return <div className="note">{translate('no_results')}</div>;
-    }
+  const orderedLinks = orderLinks(links);
 
-    const orderedLinks = orderLinks(this.props.links);
+  const linkRows = orderedLinks.map((link) => (
+    <LinkRow key={link.id} link={link} onDelete={onDelete} />
+  ));
 
-    const linkRows = orderedLinks.map((link) => (
-      <LinkRow key={link.id} link={link} onDelete={this.props.onDelete} />
-    ));
+  const header = (
+    <TableRow>
+      <ContentCell>{translate('project_links.name')}</ContentCell>
+      <ContentCell>{translate('project_links.url')}</ContentCell>
+      <ActionCell>&nbsp;</ActionCell>
+    </TableRow>
+  );
 
-    return (
-      <div className="boxed-group boxed-group-inner">
-        <table className="data zebra" id="project-links">
-          {this.renderHeader()}
-          <tbody>{linkRows}</tbody>
-        </table>
-      </div>
-    );
-  }
+  return (
+    <Table columnCount={3} header={header}>
+      {linkRows}
+    </Table>
+  );
 }

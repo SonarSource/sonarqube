@@ -61,6 +61,7 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = [
   '/project/branches',
   '/project/key',
   '/project/deletion',
+  '/project/links',
 ];
 
 export default function GlobalContainer() {
