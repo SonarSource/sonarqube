@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitForElementToBeRemoved } from '@testing-library/react';
 import * as React from 'react';
 import BranchesServiceMock from '../../../../api/mocks/BranchesServiceMock';
 import { AvailableFeaturesContext } from '../../../../app/components/available-features/AvailableFeaturesContext';
@@ -48,8 +48,7 @@ it('should render correctly', async () => {
 
   renderIssueSourceViewerHeader();
 
-  expect(await screen.findByText('loading')).toBeInTheDocument();
-  await waitFor(() => expect(screen.queryByText('loading')).not.toBeInTheDocument());
+  await waitForElementToBeRemoved(screen.queryByText('loading'));
 
   expect(ui.expandAllLines.get()).toBeInTheDocument();
   expect(ui.projectLink.get()).toBeInTheDocument();
@@ -60,8 +59,7 @@ it('should render correctly', async () => {
 it('should not render expandable link', async () => {
   renderIssueSourceViewerHeader({ expandable: false });
 
-  expect(await screen.findByText('loading')).toBeInTheDocument();
-  await waitFor(() => expect(screen.queryByText('loading')).not.toBeInTheDocument());
+  await waitForElementToBeRemoved(screen.queryByText('loading'));
 
   expect(ui.expandAllLines.query()).not.toBeInTheDocument();
 });
@@ -69,8 +67,7 @@ it('should not render expandable link', async () => {
 it('should not render link to project', async () => {
   renderIssueSourceViewerHeader({ linkToProject: false }, '?id=my-project&branch=normal-branch');
 
-  expect(await screen.findByText('loading')).toBeInTheDocument();
-  await waitFor(() => expect(screen.queryByText('loading')).not.toBeInTheDocument());
+  await waitForElementToBeRemoved(screen.queryByText('loading'));
 
   expect(ui.projectLink.query()).not.toBeInTheDocument();
   expect(ui.projectName.get()).toBeInTheDocument();
@@ -79,8 +76,7 @@ it('should not render link to project', async () => {
 it('should not render project name', async () => {
   renderIssueSourceViewerHeader({ displayProjectName: false }, '?id=my-project&pullRequest=01');
 
-  expect(await screen.findByText('loading')).toBeInTheDocument();
-  await waitFor(() => expect(screen.queryByText('loading')).not.toBeInTheDocument());
+  await waitForElementToBeRemoved(screen.queryByText('loading'));
 
   expect(ui.projectLink.query()).not.toBeInTheDocument();
   expect(ui.projectName.query()).not.toBeInTheDocument();
@@ -93,8 +89,7 @@ it('should render without issue expand all when no issue', async () => {
     }),
   });
 
-  expect(await screen.findByText('loading')).toBeInTheDocument();
-  await waitFor(() => expect(screen.queryByText('loading')).not.toBeInTheDocument());
+  await waitForElementToBeRemoved(screen.queryByText('loading'));
 
   expect(ui.viewAllIssues.query()).not.toBeInTheDocument();
 });
