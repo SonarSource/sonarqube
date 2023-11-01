@@ -59,8 +59,6 @@ interface State {
   qualityGates: QualityGate[];
 }
 
-const MAIN_CONTENT_TOP_PADDING = 48;
-
 class App extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { canCreate: false, loading: true, qualityGates: [] };
@@ -139,7 +137,7 @@ class App extends React.PureComponent<Props, State> {
             <Suggestions suggestions="quality_gates" />
 
             <StyledContentWrapper
-              className="sw-col-span-3 sw-px-4 sw-py-6 sw-border-t-0 sw-rounded-0"
+              className="sw-col-span-3 sw-px-4 sw-py-6 sw-border-y-0 sw-rounded-0"
               style={{
                 height: `calc(100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT}px)`,
               }}
@@ -151,20 +149,20 @@ class App extends React.PureComponent<Props, State> {
             </StyledContentWrapper>
 
             {name !== undefined && (
-              <StyledContentWrapper
-                className="sw-col-span-9 sw-overflow-y-auto sw-mt-12"
+              <div
+                className="sw-col-span-9 sw-overflow-y-auto"
                 style={{
-                  height: `calc(100vh - ${
-                    LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT
-                  }px - ${MAIN_CONTENT_TOP_PADDING}px)`,
+                  height: `calc(100vh - ${LAYOUT_GLOBAL_NAV_HEIGHT + LAYOUT_FOOTER_HEIGHT}px)`,
                 }}
               >
-                <Details
-                  qualityGateName={name}
-                  onSetDefault={this.handleSetDefault}
-                  refreshQualityGates={this.fetchQualityGates}
-                />
-              </StyledContentWrapper>
+                <StyledContentWrapper className="sw-my-12">
+                  <Details
+                    qualityGateName={name}
+                    onSetDefault={this.handleSetDefault}
+                    refreshQualityGates={this.fetchQualityGates}
+                  />
+                </StyledContentWrapper>
+              </div>
             )}
           </div>
         </PageContentFontWrapper>
@@ -185,6 +183,5 @@ const StyledContentWrapper = withTheme(styled.div`
   border-radius: 4px;
   background-color: ${themeColor('filterbar')};
   border: ${themeBorder('default', 'filterbarBorder')};
-  border-bottom: none;
   overflow-x: hidden;
 `);
