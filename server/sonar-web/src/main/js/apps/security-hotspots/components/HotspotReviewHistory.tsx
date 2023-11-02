@@ -85,7 +85,7 @@ export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
             )}
 
             {type === ReviewHistoryType.Comment && key && html && markdown && (
-              <div className="sw-mt-2 sw-flex sw-justify-between sw-h-5">
+              <div className="sw-mt-2 sw-flex sw-justify-between">
                 <CommentBox
                   className="sw-pl-2 sw-ml-2 sw-body-sm"
                   // eslint-disable-next-line react/no-danger
