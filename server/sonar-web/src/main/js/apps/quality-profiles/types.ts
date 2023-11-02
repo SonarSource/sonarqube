@@ -49,7 +49,8 @@ export interface ProfileChangelogEvent {
   action: string;
   authorName?: string;
   cleanCodeAttributeCategory?: CleanCodeAttributeCategory;
-  impacts: {
+  // impacts should be always set in the wild. But Next currently has a specific database state for which this field is undefined. May be possible to make this field required in the future.
+  impacts?: {
     softwareQuality: SoftwareQuality;
     severity: SoftwareImpactSeverity;
   }[];

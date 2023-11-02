@@ -139,7 +139,7 @@ export default function Changelog(props: Props) {
                 cleanCodeAttributeCategory={event.cleanCodeAttributeCategory}
               />
             )}
-            <SoftwareImpactPillList softwareImpacts={event.impacts} />
+            {event.impacts && <SoftwareImpactPillList softwareImpacts={event.impacts} />}
           </div>
         </CellComponent>
 
