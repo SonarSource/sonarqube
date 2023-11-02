@@ -63,7 +63,7 @@ public class ProjectsAction implements QProfileWsAction {
       .setSince("5.2")
       .setHandler(this)
       .setDescription("List projects with their association status regarding a quality profile. <br/>" +
-        "Only projects explicitly bound to the profile are returned, those associated with the profile because is the default one are not. <br/>" +
+        "Only projects explicitly bound to the profile are returned, those associated with the profile because it is the default one are not. <br/>" +
         "See api/qualityprofiles/search in order to get the Quality Profile Key. ")
       .setResponseExample(getClass().getResource("projects-example.json"));
 
