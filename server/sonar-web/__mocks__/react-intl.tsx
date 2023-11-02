@@ -36,6 +36,7 @@ module.exports = {
       }
       return [id, ...Object.values(values)].join('.');
     },
+    formatDate: jest.fn().mockReturnValue(''),
   }),
   FormattedMessage: ({ id, values }: { id: string; values?: { [x: string]: React.ReactNode } }) => {
     return (
