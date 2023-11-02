@@ -2,7 +2,7 @@
 
 exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: Groovy: build.gradle file 1`] = `
 "plugins {
-  id "org.sonarqube" version "4.3.1.3277"
+  id "org.sonarqube" version "4.4.1.3373"
 }
 
 sonar {
@@ -15,7 +15,7 @@ sonar {
 
 exports[`bitbucket: can select devops platform and complete all the steps with copying code snippets: Kotlin: build.gradle.kts file 1`] = `
 "plugins {
-  id("org.sonarqube") version "4.3.1.3277"
+  id("org.sonarqube") version "4.4.1.3373"
 }
     
 sonar {
@@ -209,7 +209,7 @@ exports[`bitbucket: can select devops platform and complete all the steps with c
 
 exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: Groovy: build.gradle file 1`] = `
 "plugins {
-  id "org.sonarqube" version "4.3.1.3277"
+  id "org.sonarqube" version "4.4.1.3373"
 }
 
 sonar {
@@ -222,7 +222,7 @@ sonar {
 
 exports[`bitbucketcloud: can select devops platform and complete all the steps with copying code snippets: Kotlin: build.gradle.kts file 1`] = `
 "plugins {
-  id("org.sonarqube") version "4.3.1.3277"
+  id("org.sonarqube") version "4.4.1.3373"
 }
     
 sonar {
@@ -416,7 +416,7 @@ exports[`bitbucketcloud: can select devops platform and complete all the steps w
 
 exports[`github: can select devops platform and complete all the steps with copying code snippets: Groovy: build.gradle file 1`] = `
 "plugins {
-  id "org.sonarqube" version "4.3.1.3277"
+  id "org.sonarqube" version "4.4.1.3373"
 }
 
 sonar {
@@ -429,7 +429,7 @@ sonar {
 
 exports[`github: can select devops platform and complete all the steps with copying code snippets: Kotlin: build.gradle.kts file 1`] = `
 "plugins {
-  id("org.sonarqube") version "4.3.1.3277"
+  id("org.sonarqube") version "4.4.1.3373"
 }
     
 sonar {
@@ -623,7 +623,7 @@ exports[`github: can select devops platform and complete all the steps with copy
 
 exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: Groovy: build.gradle file 1`] = `
 "plugins {
-  id "org.sonarqube" version "4.3.1.3277"
+  id "org.sonarqube" version "4.4.1.3373"
 }
 
 sonar {
@@ -636,7 +636,7 @@ sonar {
 
 exports[`gitlab: can select devops platform and complete all the steps with copying code snippets: Kotlin: build.gradle.kts file 1`] = `
 "plugins {
-  id("org.sonarqube") version "4.3.1.3277"
+  id("org.sonarqube") version "4.4.1.3373"
 }
     
 sonar {
