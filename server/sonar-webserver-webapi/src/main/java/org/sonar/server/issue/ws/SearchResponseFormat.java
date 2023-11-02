@@ -205,7 +205,7 @@ public class SearchResponseFormat {
     ofNullable(data.getUserByUuid(dto.getAssigneeUuid())).ifPresent(assignee -> issueBuilder.setAssignee(assignee.getLogin()));
     ofNullable(emptyToNull(dto.getResolution())).ifPresent(issueBuilder::setResolution);
     issueBuilder.setStatus(dto.getStatus());
-    issueBuilder.setSimpleStatus(SimpleStatus.of(dto.getStatus(), dto.getResolution()).name());
+    Optional.ofNullable(SimpleStatus.of(dto.getStatus(), dto.getResolution())).map(SimpleStatus::name).ifPresent(issueBuilder::setSimpleStatus);
     issueBuilder.setMessage(nullToEmpty(dto.getMessage()));
     issueBuilder.addAllMessageFormattings(MessageFormattingUtils.dbMessageFormattingToWs(dto.parseMessageFormattings()));
     issueBuilder.addAllTags(dto.getTags());

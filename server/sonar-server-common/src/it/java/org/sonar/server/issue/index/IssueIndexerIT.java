@@ -71,8 +71,8 @@ import static org.sonar.server.es.Indexers.BranchEvent.DELETION;
 import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_KEY_UPDATE;
 import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_TAGS_UPDATE;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
-import static org.sonar.server.issue.index.IssueIndexDefinition.SUB_FIELD_SOFTWARE_QUALITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.SUB_FIELD_SEVERITY;
+import static org.sonar.server.issue.index.IssueIndexDefinition.SUB_FIELD_SOFTWARE_QUALITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
@@ -153,6 +153,7 @@ public class IssueIndexerIT {
       .containsExactlyInAnyOrder(Map.of(
         SUB_FIELD_SOFTWARE_QUALITY, SoftwareQuality.MAINTAINABILITY.name(),
         SUB_FIELD_SEVERITY, Severity.HIGH.name()));
+    assertThat(doc.simpleStatus()).isEqualTo(issue.getSimpleStatus().name());
   }
 
   @Test

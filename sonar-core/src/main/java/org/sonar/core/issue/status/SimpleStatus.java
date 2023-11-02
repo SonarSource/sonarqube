@@ -40,13 +40,13 @@ public enum SimpleStatus {
         return SimpleStatus.CONFIRMED;
       case Issue.STATUS_CLOSED:
         return SimpleStatus.FIXED;
-      //Security hotspot should not return simple status as they are deprecated.
+      // Security hotspot should not return simple status as they are deprecated.
       case Issue.STATUS_REVIEWED:
       case Issue.STATUS_TO_REVIEW:
         return null;
       default:
     }
-    if (resolution != null) {
+    if (Issue.STATUS_RESOLVED.equals(status) && resolution != null) {
       switch (resolution) {
         case Issue.RESOLUTION_FALSE_POSITIVE:
           return SimpleStatus.FALSE_POSITIVE;

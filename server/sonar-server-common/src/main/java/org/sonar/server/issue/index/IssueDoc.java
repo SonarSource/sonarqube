@@ -35,8 +35,8 @@ import org.sonar.server.permission.index.AuthorizationDoc;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.VulnerabilityProbability;
 
-import static org.sonar.server.issue.index.IssueIndexDefinition.SUB_FIELD_SOFTWARE_QUALITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.SUB_FIELD_SEVERITY;
+import static org.sonar.server.issue.index.IssueIndexDefinition.SUB_FIELD_SOFTWARE_QUALITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 
 public class IssueDoc extends BaseDoc {
@@ -110,6 +110,11 @@ public class IssueDoc extends BaseDoc {
   @CheckForNull
   public String resolution() {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION);
+  }
+
+  @CheckForNull
+  public String simpleStatus() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_SIMPLE_STATUS);
   }
 
   @CheckForNull
@@ -233,6 +238,11 @@ public class IssueDoc extends BaseDoc {
 
   public IssueDoc setResolution(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, s);
+    return this;
+  }
+
+  public IssueDoc setSimpleStatus(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_SIMPLE_STATUS, s);
     return this;
   }
 

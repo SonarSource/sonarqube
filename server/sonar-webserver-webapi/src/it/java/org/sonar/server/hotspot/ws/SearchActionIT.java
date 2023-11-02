@@ -101,8 +101,8 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
-import static org.sonar.api.issue.Issue.STATUSES;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
+import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
@@ -591,29 +591,25 @@ public class SearchActionIT {
   @Test
   public void returns_only_hotspots_to_review_or_reviewed_of_project() {
     ProjectData projectData = dbTester.components().insertPublicProject();
-    ComponentDto project = projectData.getMainBranchComponent();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
 
     userSessionRule.registerProjects(projectData.getProjectDto());
     indexPermissions();
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    IssueDto[] hotspots = STATUSES.stream()
-      .map(status -> {
-        RuleDto rule = newRule(SECURITY_HOTSPOT);
-        return insertHotspot(rule, project, file, t -> t.setStatus(status));
-      })
-      .toArray(IssueDto[]::new);
-    indexIssues();
-    String[] expectedKeys = Arrays.stream(hotspots)
-      .filter(t -> STATUS_REVIEWED.equals(t.getStatus()) || STATUS_TO_REVIEW.equals(t.getStatus()))
-      .map(IssueDto::getKey)
-      .toArray(String[]::new);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(mainBranch));
 
-    SearchWsResponse response = newRequest(project)
+    RuleDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto toReviewHotspot = insertHotspot(rule, mainBranch, file, i -> i.setStatus(STATUS_TO_REVIEW));
+    IssueDto reviewedHotspot = insertHotspot(rule, mainBranch, file, i -> i.setStatus(STATUS_REVIEWED).setResolution(RESOLUTION_ACKNOWLEDGED));
+    IssueDto wrongStatusHotspot = insertHotspot(rule, mainBranch, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FIXED));
+
+    indexIssues();
+
+    SearchWsResponse response = newRequest(mainBranch)
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
-      .containsOnly(expectedKeys);
+      .containsOnly(toReviewHotspot.getKey(), reviewedHotspot.getKey());
   }
 
   @Test
@@ -1789,7 +1785,7 @@ public class SearchActionIT {
 
     SearchWsResponse responseOnLeak = newRequest(project,
       t -> t.setParam(PARAM_IN_NEW_CODE_PERIOD, "true"))
-      .executeProtobuf(SearchWsResponse.class);
+        .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(Stream.concat(
@@ -1833,7 +1829,7 @@ public class SearchActionIT {
 
     SearchWsResponse responseOnLeak = newRequest(project,
       t -> t.setParam(PARAM_IN_NEW_CODE_PERIOD, "true"))
-      .executeProtobuf(SearchWsResponse.class);
+        .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(hotspotsInLeakPeriod
@@ -1871,7 +1867,7 @@ public class SearchActionIT {
 
     SearchWsResponse responseOnLeak = newRequest(project,
       t -> t.setParam(PARAM_IN_NEW_CODE_PERIOD, "true"))
-      .executeProtobuf(SearchWsResponse.class);
+        .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList()).isEmpty();
   }
 
@@ -1904,7 +1900,7 @@ public class SearchActionIT {
 
     SearchWsResponse responseOnLeak = newRequest(project,
       t -> t.setParam(PARAM_IN_NEW_CODE_PERIOD, "true").setParam(PARAM_PULL_REQUEST, "pr"))
-      .executeProtobuf(SearchWsResponse.class);
+        .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList()).hasSize(3);
   }
 
@@ -1947,7 +1943,7 @@ public class SearchActionIT {
 
     SearchWsResponse responseOnLeak = newRequest(application.getMainBranchComponent(),
       t -> t.setParam(PARAM_IN_NEW_CODE_PERIOD, "true"))
-      .executeProtobuf(SearchWsResponse.class);
+        .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(afterRef.getKey());
@@ -2000,14 +1996,14 @@ public class SearchActionIT {
     ComponentDto applicationComponentDto = applicationData.getMainBranchComponent();
     SearchWsResponse responseAll = newRequest(applicationComponentDto,
       t -> t.setParam(PARAM_BRANCH, applicationBranch.getKey()))
-      .executeProtobuf(SearchWsResponse.class);
+        .executeProtobuf(SearchWsResponse.class);
     assertThat(responseAll.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(afterRef.getKey(), atRef.getKey(), beforeRef.getKey(), project2Issue.getKey());
 
     SearchWsResponse responseOnLeak = newRequest(applicationComponentDto,
       t -> t.setParam(PARAM_IN_NEW_CODE_PERIOD, "true").setParam(PARAM_BRANCH, applicationBranch.getKey()))
-      .executeProtobuf(SearchWsResponse.class);
+        .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(afterRef.getKey());

@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition.OwaspAsvsVersion;
+import org.sonar.core.issue.status.SimpleStatus;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.Facets;
@@ -368,6 +369,31 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
       newDoc("I3", project.uuid(), file).setResolution(RESOLUTION_FIXED));
 
     assertThatFacetHasOnly(IssueQuery.builder(), "resolutions", entry("FALSE-POSITIVE", 2L), entry("FIXED", 1L));
+  }
+
+  @Test
+  public void search_shouldReturnSimpleStatusesFacet() {
+    ComponentDto mainBranch = newPrivateProjectDto();
+    ComponentDto file = newFileDto(mainBranch);
+
+    indexIssues(
+      newDoc("I1", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.CONFIRMED.name()),
+      newDoc("I2", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.FIXED.name()),
+      newDoc("I3", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.OPEN.name()),
+      newDoc("I4", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.OPEN.name()),
+      newDoc("I5", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.ACCEPTED.name()),
+      newDoc("I6", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.ACCEPTED.name()),
+      newDoc("I7", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.ACCEPTED.name()),
+      newDoc("I8", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.FALSE_POSITIVE.name()),
+      newDoc("I9", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.FALSE_POSITIVE.name()));
+
+    assertThatFacetHasSize(IssueQuery.builder().build(), "simpleStatuses", 5);
+    assertThatFacetHasOnly(IssueQuery.builder(), "simpleStatuses",
+      entry("OPEN", 2L),
+      entry("CONFIRMED", 1L),
+      entry("FALSE_POSITIVE", 2L),
+      entry("ACCEPTED", 3L),
+      entry("FIXED", 1L));
   }
 
   @Test
@@ -869,7 +895,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @SafeVarargs
-  private final void assertThatFacetHasExactly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
+  private void assertThatFacetHasExactly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
     SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(singletonList(facet)));
     Facets facets = new Facets(result, system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.getNames()).containsOnly(facet, "effort");
@@ -877,7 +903,7 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @SafeVarargs
-  private final void assertThatFacetHasOnly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
+  private void assertThatFacetHasOnly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
     SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(singletonList(facet)));
     Facets facets = new Facets(result, system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.getNames()).containsOnly(facet, "effort");

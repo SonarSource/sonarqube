@@ -59,6 +59,7 @@ public class IssuesWsParameters {
   public static final String PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES = "cleanCodeAttributeCategories";
   public static final String PARAM_STATUSES = "statuses";
   public static final String PARAM_RESOLUTIONS = "resolutions";
+  public static final String PARAM_SIMPLE_STATUSES = "simpleStatuses";
   public static final String PARAM_RESOLVED = "resolved";
   public static final String PARAM_COMPONENTS = "components";
   public static final String PARAM_COMPONENT_KEYS = "componentKeys";
@@ -78,7 +79,6 @@ public class IssuesWsParameters {
   public static final String PARAM_REMOVE_TAGS = "remove_tags";
   public static final String PARAM_SEND_NOTIFICATIONS = "sendNotifications";
   public static final String PARAM_ASSIGNEES = "assignees";
-
 
   public static final String PARAM_AUTHOR = "author";
   public static final String PARAM_SCOPES = "scopes";

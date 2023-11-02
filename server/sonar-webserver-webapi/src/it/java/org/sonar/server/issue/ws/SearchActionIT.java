@@ -48,6 +48,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.issue.status.SimpleStatus;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -99,9 +100,17 @@ import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
+import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
+import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
+import static org.sonar.api.issue.Issue.STATUS_CLOSED;
+import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
@@ -136,6 +145,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SOFT
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE_PERIOD;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SIMPLE_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 
 public class SearchActionIT {
@@ -238,7 +248,7 @@ public class SearchActionIT {
         .get(0)
         .getActions()
         .getActionsList())
-      .isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY, ACTION_ASSIGN));
+          .isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY, ACTION_ASSIGN));
 
     response = ws.newRequest()
       .setParam(PARAM_ADDITIONAL_FIELDS, "actions")
@@ -251,7 +261,7 @@ public class SearchActionIT {
         .get(0)
         .getActions()
         .getActionsList())
-      .isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY));
+          .isEqualTo(asList(ACTION_SET_TAGS, COMMENT_KEY));
   }
 
   @Test
@@ -595,6 +605,79 @@ public class SearchActionIT {
   }
 
   @Test
+  public void search_whenFilteringBySimpleStatuses_shouldReturnSimpleStatusesFacet() {
+    RuleDto rule = newIssueRule();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN));
+    IssueDto expectedIssue = db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FALSE_POSITIVE));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FIXED));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_CLOSED).setResolution(RESOLUTION_WONT_FIX));
+    // security hotspot should be ignored
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_REVIEWED).setResolution(RESOLUTION_SAFE));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(PARAM_SIMPLE_STATUSES, SimpleStatus.ACCEPTED.name())
+      .setParam(FACETS, PARAM_SIMPLE_STATUSES)
+      .executeProtobuf(SearchWsResponse.class);
+
+    List<Issue> issuesList = response.getIssuesList();
+    assertThat(issuesList)
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(expectedIssue.getKey());
+
+    Optional<Common.Facet> first = response.getFacets().getFacetsList()
+      .stream().filter(facet -> facet.getProperty().equals(PARAM_SIMPLE_STATUSES))
+      .findFirst();
+    assertThat(first.get().getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactlyInAnyOrder(
+        tuple(SimpleStatus.OPEN.name(), 1L),
+        tuple(SimpleStatus.ACCEPTED.name(), 1L),
+        tuple(SimpleStatus.FIXED.name(), 2L),
+        tuple(SimpleStatus.FALSE_POSITIVE.name(), 1L));
+  }
+
+  @Test
+  public void search_whenSimpleStatusesFacetRequested_shouldReturnFacet() {
+    RuleDto rule = newIssueRule();
+    ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
+      c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_OPEN));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_REOPENED));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_CONFIRMED));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FALSE_POSITIVE));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FIXED));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_CLOSED).setResolution(RESOLUTION_REMOVED));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_CLOSED).setResolution(RESOLUTION_FIXED));
+    // security hotspot should be ignored
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus(STATUS_REVIEWED).setResolution(RESOLUTION_SAFE));
+    indexPermissionsAndIssues();
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(FACETS, PARAM_SIMPLE_STATUSES)
+      .executeProtobuf(SearchWsResponse.class);
+
+    Optional<Common.Facet> first = response.getFacets().getFacetsList()
+      .stream().filter(facet -> facet.getProperty().equals(PARAM_SIMPLE_STATUSES))
+      .findFirst();
+    assertThat(first.get().getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactlyInAnyOrder(
+        tuple(SimpleStatus.OPEN.name(), 2L),
+        tuple(SimpleStatus.ACCEPTED.name(), 1L),
+        tuple(SimpleStatus.CONFIRMED.name(), 1L),
+        tuple(SimpleStatus.FIXED.name(), 3L),
+        tuple(SimpleStatus.FALSE_POSITIVE.name(), 1L));
+
+  }
+
+  @Test
   public void search_whenImpactSoftwareQualitiesFacetRequested_shouldReturnFacet() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
@@ -635,7 +718,7 @@ public class SearchActionIT {
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
-      
+
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i
       .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.SECURITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH).setUuid(uuidFactory.create()))
       .addImpact(new ImpactDto().setSoftwareQuality(SoftwareQuality.RELIABILITY).setSeverity(org.sonar.api.issue.impact.Severity.HIGH).setUuid(uuidFactory.create())));
@@ -1128,7 +1211,7 @@ public class SearchActionIT {
     assertThat(ws.newRequest()
       .setMultiParam("author", singletonList("unknown"))
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
-      .isEmpty();
+        .isEmpty();
   }
 
   @Test
@@ -1999,7 +2082,7 @@ public class SearchActionIT {
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4.0", "owaspAsvs-4.0",
       "owaspAsvsLevel", "owaspTop10", "owaspTop10-2021", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod", "codeVariants",
-      "cleanCodeAttributeCategories", "impactSeverities", "impactSoftwareQualities");
+      "cleanCodeAttributeCategories", "impactSeverities", "impactSoftwareQualities", "simpleStatuses");
 
     WebService.Param branch = def.param(PARAM_BRANCH);
     assertThat(branch.isInternal()).isFalse();
@@ -2074,9 +2157,9 @@ public class SearchActionIT {
   private RuleDto newIssueRule(String ruleKey, Consumer<RuleDto> consumer) {
     RuleDto rule = newRule(RuleKey.of("xoo", ruleKey),
       createDefaultRuleDescriptionSection(uuidFactory.create(), "Rule desc"))
-      .setLanguage("xoo")
-      .setName("Rule name")
-      .setStatus(RuleStatus.READY);
+        .setLanguage("xoo")
+        .setName("Rule name")
+        .setStatus(RuleStatus.READY);
     consumer.accept(rule);
     db.rules().insert(rule);
     return rule;

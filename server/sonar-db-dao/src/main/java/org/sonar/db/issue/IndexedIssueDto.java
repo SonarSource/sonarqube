@@ -23,9 +23,14 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.core.issue.status.SimpleStatus;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public final class IndexedIssueDto {
   private String issueKey = null;
@@ -115,6 +120,12 @@ public final class IndexedIssueDto {
   public IndexedIssueDto setStatus(String status) {
     this.status = status;
     return this;
+  }
+
+  @CheckForNull
+  public String getSimpleStatus() {
+    checkArgument(status != null, "Status must be initialized to retrieve simple status");
+    return Optional.ofNullable(SimpleStatus.of(status, resolution)).map(SimpleStatus::name).orElse(null);
   }
 
   public Long getEffort() {
@@ -303,7 +314,6 @@ public final class IndexedIssueDto {
   public Set<ImpactDto> getRuleDefaultImpacts() {
     return ruleDefaultImpacts;
   }
-
 
   public Map<SoftwareQuality, Severity> getEffectiveImpacts() {
     EnumMap<SoftwareQuality, Severity> effectiveImpacts = new EnumMap<>(SoftwareQuality.class);

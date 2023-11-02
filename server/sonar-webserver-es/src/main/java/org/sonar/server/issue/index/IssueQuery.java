@@ -62,6 +62,7 @@ public class IssueQuery {
   private final Collection<String> impactSeverities;
   private final Collection<String> impactSoftwareQualities;
   private final Collection<String> statuses;
+  private final Collection<String> simpleStatuses;
   private final Collection<String> resolutions;
   private final Collection<String> components;
   private final Collection<String> projects;
@@ -110,6 +111,7 @@ public class IssueQuery {
     this.impactSoftwareQualities = defaultCollection(builder.impactSoftwareQualities);
     this.statuses = defaultCollection(builder.statuses);
     this.resolutions = defaultCollection(builder.resolutions);
+    this.simpleStatuses = defaultCollection(builder.simpleStatuses);
     this.components = defaultCollection(builder.components);
     this.projects = defaultCollection(builder.projects);
     this.directories = defaultCollection(builder.directories);
@@ -171,6 +173,10 @@ public class IssueQuery {
     return statuses;
   }
 
+  public Collection<String> simpleStatuses() {
+    return simpleStatuses;
+  }
+
   public Collection<String> resolutions() {
     return resolutions;
   }
@@ -178,7 +184,6 @@ public class IssueQuery {
   public Collection<String> componentUuids() {
     return components;
   }
-
 
   public Collection<String> projectUuids() {
     return projects;
@@ -363,6 +368,7 @@ public class IssueQuery {
     private Collection<String> impactSoftwareQualities;
     private Collection<String> statuses;
     private Collection<String> resolutions;
+    private Collection<String> simpleStatuses;
     private Collection<String> components;
     private Collection<String> projects;
     private Collection<String> directories;
@@ -424,6 +430,11 @@ public class IssueQuery {
 
     public Builder resolutions(@Nullable Collection<String> l) {
       this.resolutions = l;
+      return this;
+    }
+
+    public Builder simpleStatuses(@Nullable Collection<String> l) {
+      this.simpleStatuses = l;
       return this;
     }
 
