@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { screen, within } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { formatISO, parseISO } from 'date-fns';
+import { byRole } from '../../../../../src/main/js/helpers/testSelector';
 import { IntlWrapper, render } from '../../../helpers/testUtils';
 import { DateRangePicker } from '../DateRangePicker';
 
@@ -33,6 +34,7 @@ afterEach(() => {
 });
 
 it('behaves correctly', async () => {
+  const nav = byRole('navigation');
   // Remove delay to play nice with fake timers
   const user = userEvent.setup({ delay: null });
 
@@ -41,13 +43,12 @@ it('behaves correctly', async () => {
 
   await user.click(screen.getByRole('textbox', { name: 'from' }));
 
-  const fromDateNav = screen.getByRole('navigation');
-  expect(fromDateNav).toBeInTheDocument();
+  expect(nav.get()).toBeInTheDocument();
 
-  await user.click(within(fromDateNav).getByRole('button', { name: 'previous' }));
+  await user.click(nav.byRole('button', { name: 'previous_month_x' }).get());
   await user.click(screen.getByText('7'));
 
-  expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+  expect(nav.query()).not.toBeInTheDocument();
 
   expect(onChange).toHaveBeenCalled();
   const { from } = onChange.mock.calls[0][0]; // first argument
@@ -58,15 +59,14 @@ it('behaves correctly', async () => {
 
   jest.runAllTimers();
 
-  const toDateNav = await screen.findByRole('navigation');
-  const previousButton = within(toDateNav).getByRole('button', { name: 'previous' });
-  const nextButton = within(toDateNav).getByRole('button', { name: 'next' });
-  await user.click(previousButton);
-  await user.click(nextButton);
-  await user.click(previousButton);
+  const previousButton = nav.byRole('button', { name: 'previous_month_x' });
+  const nextButton = nav.byRole('button', { name: 'next_month_x' });
+  await user.click(previousButton.get());
+  await user.click(nextButton.get());
+  await user.click(previousButton.get());
   await user.click(screen.getByText('12'));
 
-  expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+  expect(nav.query()).not.toBeInTheDocument();
 
   expect(onChange).toHaveBeenCalled();
   const { to } = onChange.mock.calls[0][0]; // first argument
@@ -88,6 +88,6 @@ function renderDateRangePicker(overrides: Partial<DateRangePicker['props']> = {}
         valueFormatter={defaultFormatter}
         {...overrides}
       />
-    </IntlWrapper>
+    </IntlWrapper>,
   );
 }

@@ -48,6 +48,16 @@ export function CustomCalendarNavigation(props: CaptionProps) {
 
   const intl = useIntl();
 
+  const formatChevronLabel = (date?: Date) => {
+    if (date === undefined) {
+      return intl.formatMessage({ id: 'disabled_' });
+    }
+    return `${intl.formatDate(date, { month: 'long', format: 'M' })} ${intl.formatDate(date, {
+      year: 'numeric',
+      format: 'y',
+    })}`;
+  };
+
   const baseDate = startOfMonth(displayMonth); // reference date
 
   const months = range(MONTHS_IN_A_YEAR).map((month) => {
@@ -74,8 +84,12 @@ export function CustomCalendarNavigation(props: CaptionProps) {
     <nav className="sw-flex sw-items-center sw-justify-between sw-py-1">
       <InteractiveIcon
         Icon={ChevronLeftIcon}
-        aria-label={intl.formatMessage({ id: 'previous_' })}
+        aria-label={intl.formatMessage(
+          { id: 'previous_month_x' },
+          { month: formatChevronLabel(previousMonth) },
+        )}
         className="sw-mr-2"
+        disabled={previousMonth === undefined}
         onClick={() => {
           if (previousMonth) {
             goToMonth(previousMonth);
@@ -116,8 +130,14 @@ export function CustomCalendarNavigation(props: CaptionProps) {
 
       <InteractiveIcon
         Icon={ChevronRightIcon}
-        aria-label={intl.formatMessage({ id: 'next_' })}
+        aria-label={intl.formatMessage(
+          { id: 'next_month_x' },
+          {
+            month: formatChevronLabel(nextMonth),
+          },
+        )}
         className="sw-ml-2"
+        disabled={nextMonth === undefined}
         onClick={() => {
           if (nextMonth) {
             goToMonth(nextMonth);

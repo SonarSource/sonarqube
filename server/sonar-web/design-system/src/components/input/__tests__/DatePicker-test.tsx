@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { screen, within } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getMonth, getYear, parseISO } from 'date-fns';
+import { byRole } from '../../../../../src/main/js/helpers/testSelector';
 import { renderWithContext } from '../../../helpers/testUtils';
 import { DatePicker } from '../DatePicker';
 
@@ -40,7 +41,7 @@ it('behaves correctly', async () => {
   const nav = screen.getByRole('navigation');
   expect(nav).toBeInTheDocument();
 
-  await user.click(within(nav).getByRole('button', { name: 'previous_' }));
+  await user.click(byRole('navigation').byRole('button', { name: 'previous_month_x' }).get());
   await user.click(screen.getByText('7'));
 
   expect(onChange).toHaveBeenCalled();
@@ -54,7 +55,7 @@ it('behaves correctly', async () => {
    * Then check that onChange was correctly called with a date in the following month
    */
   await user.click(screen.getByRole('textbox'));
-  await user.click(screen.getByRole('button', { name: 'next_' }));
+  await user.click(screen.getByRole('button', { name: 'next_month_x' }));
   await user.click(screen.getByText('12'));
 
   expect(onChange).toHaveBeenCalled();
@@ -82,6 +83,25 @@ it('behaves correctly', async () => {
 
   expect(getMonth(newDate3)).toBe(1);
   expect(getYear(newDate3)).toBe(2019);
+});
+
+it('should disable next navigation when not in the accepted range', async () => {
+  const user = userEvent.setup();
+
+  const currentDate = parseISO('2022-11-13');
+
+  renderDatePicker({
+    currentMonth: currentDate,
+    maxDate: parseISO('2022-12-30'),
+    value: currentDate,
+    // eslint-disable-next-line jest/no-conditional-in-test
+    valueFormatter: (date?: Date) => (date ? 'formatted date' : 'no date'),
+  });
+
+  await user.click(screen.getByRole('textbox'));
+  await user.click(screen.getByRole('button', { name: 'next_month_x' }));
+
+  expect(screen.getByRole('button', { name: 'next_month_x' })).toBeDisabled();
 });
 
 it('should clear the value', async () => {
@@ -136,6 +156,6 @@ function renderDatePicker(overrides: Partial<DatePicker['props']> = {}) {
       placeholder="placeholder"
       valueFormatter={defaultFormatter}
       {...overrides}
-    />
+    />,
   );
 }

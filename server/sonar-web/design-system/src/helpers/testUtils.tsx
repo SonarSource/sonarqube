@@ -30,7 +30,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 export function render(
   ui: React.ReactElement,
   options?: RenderOptions,
-  userEventOptions?: UserEventsOptions
+  userEventOptions?: UserEventsOptions,
 ) {
   return { ...rtlRender(ui, options), user: userEvent.setup(userEventOptions) };
 }
@@ -42,7 +42,7 @@ type RenderContextOptions = Omit<RenderOptions, 'wrapper'> & {
 
 export function renderWithContext(
   ui: React.ReactElement,
-  { userEventOptions, ...options }: RenderContextOptions = {}
+  { userEventOptions, ...options }: RenderContextOptions = {},
 ) {
   return render(ui, { ...options, wrapper: getContextWrapper() }, userEventOptions);
 }
@@ -53,7 +53,7 @@ interface RenderRouterOptions {
 
 export function renderWithRouter(
   ui: React.ReactElement,
-  options: RenderContextOptions & RenderRouterOptions = {}
+  options: RenderContextOptions & RenderRouterOptions = {},
 ) {
   const { additionalRoutes, userEventOptions, ...renderOptions } = options;
 
@@ -128,7 +128,10 @@ export function IntlWrapper({
       messages={messages}
       onError={(e) => {
         // ignore missing translations, there are none!
-        if (e.code !== ReactIntlErrorCode.MISSING_TRANSLATION) {
+        if (
+          e.code !== ReactIntlErrorCode.MISSING_TRANSLATION &&
+          e.code !== ReactIntlErrorCode.UNSUPPORTED_FORMATTER
+        ) {
           // eslint-disable-next-line no-console
           console.error(e);
         }
