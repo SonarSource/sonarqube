@@ -38,7 +38,7 @@ function dotnetYamlSteps(projectKey: string) {
       - name: Cache SonarQube packages
         uses: actions/cache@v1
         with:
-          path: ~\\sonar\\cache
+          path: ~\\.sonar\\cache
           key: \${{ runner.os }}-sonar
           restore-keys: \${{ runner.os }}-sonar
       - name: Cache SonarQube scanner
