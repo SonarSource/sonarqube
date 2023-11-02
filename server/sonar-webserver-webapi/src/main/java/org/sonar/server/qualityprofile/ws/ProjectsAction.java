@@ -62,8 +62,9 @@ public class ProjectsAction implements QProfileWsAction {
     NewAction action = controller.createAction("projects")
       .setSince("5.2")
       .setHandler(this)
-      .setDescription("List projects with their association status regarding a quality profile <br/>" +
-        "See api/qualityprofiles/search in order to get the Quality Profile Key")
+      .setDescription("List projects with their association status regarding a quality profile. <br/>" +
+        "Only projects explicitly bound to the profile are returned, those associated to the profile because is the default one are not. <br/>" +
+        "See api/qualityprofiles/search in order to get the Quality Profile Key. ")
       .setResponseExample(getClass().getResource("projects-example.json"));
 
     action.setChangelog(
