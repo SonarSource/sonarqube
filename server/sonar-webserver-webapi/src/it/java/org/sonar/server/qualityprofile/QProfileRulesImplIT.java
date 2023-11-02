@@ -97,7 +97,7 @@ public class QProfileRulesImplIT {
 
     assertThat(db.getDbClient().qProfileChangeDao().selectByQuery(db.getSession(), new QProfileChangeQuery(qProfile.getKee())))
       .extracting(QProfileChangeDto::getUserUuid, QProfileChangeDto::getDataAsMap)
-      .containsExactlyInAnyOrder(tuple(user.getUuid(), ImmutableMap.of("ruleUuid", rule.getUuid())));
+      .containsExactlyInAnyOrder(tuple(user.getUuid(), ImmutableMap.of("ruleUuid", rule.getUuid(), "severity", Severity.CRITICAL)));
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), any(), eq(qProfile.getLanguage()));
   }
 }

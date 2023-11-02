@@ -221,6 +221,7 @@ public class BuiltInQProfileInsertImplIT {
     assertThat(change.getUuid()).isNotEmpty();
     assertThat(change.getUserUuid()).isNull();
     assertThat(change.getRulesProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
+    assertThat(change.getDataAsMap()).containsEntry("severity", expectedSeverity);
     assertThat(change.getSqVersion()).isEqualTo(sonarQubeVersion.toString());
   }
 
