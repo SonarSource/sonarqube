@@ -61,7 +61,7 @@ task "yarn_validate-ci"(type: Exec) {
   dependsOn "yarn_design-system"
   
   // Note that outputs are not relocatable, because contain absolute paths, and that's why inputs are not relativized
-  ['config', 'src/main/js'].each {
+  ['config', 'src/main/js', 'design-system'].each {
     inputs.dir(it)
   }
   ['package.json', 'yarn.lock', 'tsconfig.json', '.eslintrc', 'jest.config.js'].each {
