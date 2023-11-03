@@ -117,6 +117,8 @@ export const ui = {
   openStatusFilter: byRole('checkbox', { name: 'issue.simple_status.OPEN' }),
   vulnerabilityIssueTypeFilter: byRole('checkbox', { name: 'issue.type.VULNERABILITY' }),
 
+  bulkChangeComment: byRole('textbox', { name: /issue_bulk_change.resolution_comment/ }),
+
   clearAllFilters: byRole('button', { name: 'clear_all_filters' }),
 
   dateInputMonthSelect: byTestId('month-select'),

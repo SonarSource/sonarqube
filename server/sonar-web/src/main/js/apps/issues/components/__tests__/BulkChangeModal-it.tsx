@@ -74,8 +74,36 @@ it('should render transitions correctly', async () => {
     mockIssue(false, { actions: ['set_transition'], transitions: [IssueTransition.FalsePositive] }),
   ]);
 
-  expect(await screen.findByText('issue.transition')).toBeInTheDocument();
+  expect(await screen.findByText('issue.change_status')).toBeInTheDocument();
   expect(await screen.findByText('issue.transition.falsepositive')).toBeInTheDocument();
+});
+
+it('should only render the comment field when necessary', async () => {
+  const user = userEvent.setup();
+  renderBulkChangeModal([
+    mockIssue(false, {
+      actions: ['set_transition', 'comment'],
+      key: 'issue1',
+      transitions: [IssueTransition.Reopen],
+    }),
+    mockIssue(false, {
+      actions: ['set_transition', 'comment'],
+      key: 'issue2',
+      transitions: [IssueTransition.Accept],
+    }),
+  ]);
+
+  // Open should not trigger comment
+  await user.click(await screen.findByText('issue.transition.reopen'));
+  expect(
+    screen.queryByRole('textbox', { name: /issue_bulk_change.resolution_comment/ }),
+  ).not.toBeInTheDocument();
+
+  // Accept should trigger comment
+  await user.click(await screen.findByText('issue.transition.accept'));
+  expect(
+    await screen.findByRole('textbox', { name: /issue_bulk_change.resolution_comment/ }),
+  ).toBeInTheDocument();
 });
 
 it('should disable the submit button unless some change is configured', async () => {
@@ -84,10 +112,6 @@ it('should disable the submit button unless some change is configured', async ()
 
   // Apply button should be disabled
   expect(await screen.findByRole('button', { name: 'apply' })).toBeDisabled();
-
-  // Adding a comment should not enable the submit button
-  await user.type(screen.getByRole('textbox', { name: /issue.comment.formlink/ }), 'some comment');
-  expect(screen.getByRole('button', { name: 'apply' })).toBeDisabled();
 
   // Add a tag
   await act(async () => {
@@ -147,7 +171,10 @@ it('should properly submit', async () => {
   });
 
   // Comment
-  await user.type(screen.getByRole('textbox', { name: /issue.comment.formlink/ }), 'some comment');
+  await user.type(
+    screen.getByRole('textbox', { name: /issue_bulk_change.resolution_comment/ }),
+    'some comment',
+  );
 
   // Send notification
   await user.click(screen.getByRole('checkbox', { name: 'issue.send_notifications' }));

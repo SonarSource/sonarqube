@@ -23,24 +23,26 @@ import {
   Checkbox,
   FlagMessage,
   FormField,
-  HelperHintIcon,
   Highlight,
+  InputTextArea,
   LabelValueSelectOption,
   LightLabel,
   Modal,
   RadioButton,
   Spinner,
 } from 'design-system';
-import { pickBy, sortBy } from 'lodash';
+import { countBy, flattenDeep, pickBy, sortBy } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { SingleValue } from 'react-select';
 import { bulkChangeIssues, searchIssueTags } from '../../../api/issues';
 import FormattingTips from '../../../components/common/FormattingTips';
+import { isTransitionHidden, transitionRequiresComment } from '../../../components/issue/helpers';
 import { throwGlobalError } from '../../../helpers/error';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { withBranchStatusRefresh } from '../../../queries/branch';
-import { Dict, Issue, Paging } from '../../../types/types';
+import { IssueTransition } from '../../../types/issues';
+import { Issue, Paging } from '../../../types/types';
 import AssigneeSelect from './AssigneeSelect';
 import TagsSelect from './TagsSelect';
 
@@ -59,7 +61,7 @@ interface FormFields {
   notifications?: boolean;
   removeTags?: Array<string>;
   severity?: string;
-  transition?: string;
+  transition?: IssueTransition;
   type?: string;
 }
 
@@ -149,7 +151,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
     }
   };
 
-  handleRadioTransitionChange = (transition: string) => {
+  handleRadioTransitionChange = (transition: IssueTransition) => {
     this.setState({ transition });
   };
 
@@ -192,23 +194,12 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
   };
 
   getAvailableTransitions(issues: Issue[]) {
-    const transitions: Dict<number> = {};
+    const allTransitions = flattenDeep(issues.map((issue) => issue.transitions));
+    const countTransitions = countBy<IssueTransition>(allTransitions);
 
-    issues.forEach((issue) => {
-      if (issue.transitions) {
-        issue.transitions.forEach((t) => {
-          if (transitions[t] !== undefined) {
-            transitions[t]++;
-          } else {
-            transitions[t] = 1;
-          }
-        });
-      }
-    });
-
-    return sortBy(Object.keys(transitions)).map((transition) => ({
+    return sortBy(Object.keys(countTransitions)).map((transition: IssueTransition) => ({
       transition,
-      count: transitions[transition],
+      count: countTransitions[transition],
     }));
   }
 
@@ -293,7 +284,9 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
   };
 
   renderTransitionsField = () => {
-    const transitions = this.getAvailableTransitions(this.state.issues);
+    const transitions = this.getAvailableTransitions(this.state.issues).filter(
+      (transition) => !isTransitionHidden(transition.transition),
+    );
 
     if (transitions.length === 0) {
       return null;
@@ -303,7 +296,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
       <div className="sw-mb-6">
         <fieldset>
           <Highlight as="legend" className="sw-mb-2">
-            {translate('issue.transition')}
+            {translate('issue.change_status')}
           </Highlight>
           {transitions.map((transition) => (
             <div
@@ -328,29 +321,32 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
   };
 
   renderCommentField = () => {
-    const affected = this.state.issues.filter(hasAction('comment')).length;
+    const affectedIssuesCount = this.state.issues.filter(hasAction('comment')).length;
+    if (affectedIssuesCount === 0) {
+      return null;
+    }
 
-    if (affected === 0) {
+    // Selected transition does not require comment
+    if (!this.state.transition || !transitionRequiresComment(this.state.transition)) {
       return null;
     }
 
     return (
-      <FormField
-        help={
-          <div className="-sw-mt-1" title={translate('issue_bulk_change.comment.help')}>
-            <HelperHintIcon />
-          </div>
-        }
-        htmlFor="comment"
-        label={translate('issue.comment.formlink')}
-      >
-        <textarea
-          id="comment"
+      <FormField label={translate('issue_bulk_change.resolution_comment')}>
+        <InputTextArea
+          autoFocus
+          aria-label={translate('issue_bulk_change.resolution_comment')}
           onChange={this.handleCommentChange}
-          rows={4}
-          value={this.state.comment ?? ''}
+          placeholder={translate(
+            'issue.transition.comment.placeholder',
+            this.state.transition ?? '',
+          )}
+          rows={5}
+          value={this.state.comment}
+          size="auto"
+          className="sw-resize-y sw-w-full"
         />
-        <FormattingTips className="sw-text-right" />
+        <FormattingTips className="sw-mt-2" />
       </FormField>
     );
   };
@@ -377,7 +373,7 @@ export class BulkChangeModal extends React.PureComponent<Props, State> {
 
     return (
       <Spinner loading={loading}>
-        <form id="bulk-change-form" onSubmit={this.handleSubmit}>
+        <form id="bulk-change-form" onSubmit={this.handleSubmit} className="sw-mr-4">
           {limitReached && (
             <FlagMessage className="sw-mb-4" variant="warning">
               <span>

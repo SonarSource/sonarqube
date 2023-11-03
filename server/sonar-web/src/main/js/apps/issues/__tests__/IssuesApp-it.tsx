@@ -293,11 +293,12 @@ describe('issues app', () => {
       );
       await user.click(screen.getByRole('button', { name: 'issues.bulk_change_X_issues.1' }));
 
-      await user.click(screen.getByRole('textbox', { name: /issue.comment.formlink/ }));
-      await user.keyboard('New Comment');
-      expect(screen.getByRole('button', { name: 'apply' })).toBeDisabled();
+      expect(ui.bulkChangeComment.query()).not.toBeInTheDocument();
 
       await user.click(screen.getByRole('radio', { name: 'issue.transition.falsepositive' }));
+      await user.click(ui.bulkChangeComment.get());
+      await user.keyboard('New Comment');
+
       await user.click(screen.getByRole('button', { name: 'apply' }));
 
       expect(
