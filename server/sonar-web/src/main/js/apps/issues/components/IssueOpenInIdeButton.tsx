@@ -39,6 +39,7 @@ export interface Props {
   branchName?: string;
   issueKey: string;
   projectKey: string;
+  pullRequestID?: string;
 }
 
 interface State {
@@ -62,7 +63,12 @@ const showError = () =>
 
 const showSuccess = () => addGlobalSuccessMessage(translate('issues.open_in_ide.success'));
 
-export function IssueOpenInIdeButton({ branchName, issueKey, projectKey }: Readonly<Props>) {
+export function IssueOpenInIdeButton({
+  branchName,
+  issueKey,
+  projectKey,
+  pullRequestID,
+}: Readonly<Props>) {
   const [state, setState] = React.useState<State>({ ides: [], mounted: false });
 
   React.useEffect(() => {
@@ -83,7 +89,7 @@ export function IssueOpenInIdeButton({ branchName, issueKey, projectKey }: Reado
   const openIssue = (ide: Ide) => {
     setState({ ...state, ides: [] });
 
-    return openSonarLintIssue(ide.port, projectKey, issueKey, branchName)
+    return openSonarLintIssue(ide.port, projectKey, issueKey, branchName, pullRequestID)
       .then(showSuccess)
       .catch(showError)
       .finally(cleanState);

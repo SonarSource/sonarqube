@@ -90,16 +90,16 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
     border-bottom: none;
   `;
 
-  const branchName = React.useMemo(() => {
+  const [branchName, pullRequestID] = React.useMemo(() => {
     if (isBranch(branchLike)) {
-      return branchLike.name;
+      return [branchLike.name, undefined];
     }
 
     if (isPullRequest(branchLike)) {
-      return branchLike.branch;
+      return [branchLike.branch, branchLike.key];
     }
 
-    return undefined; // should never end up here, but needed for consistent returns
+    return [undefined, undefined]; // should never end up here, but needed for consistent returns
   }, [branchLike]);
 
   return (
@@ -163,7 +163,12 @@ export function IssueSourceViewerHeader(props: Readonly<Props>) {
       </div>
 
       {!isProjectRoot && isLoggedIn(currentUser) && (
-        <IssueOpenInIdeButton branchName={branchName} issueKey={issueKey} projectKey={project} />
+        <IssueOpenInIdeButton
+          branchName={branchName}
+          issueKey={issueKey}
+          projectKey={project}
+          pullRequestID={pullRequestID}
+        />
       )}
 
       {!isProjectRoot && measures.issues !== undefined && (

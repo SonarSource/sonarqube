@@ -60,6 +60,7 @@ export function openIssue(
   projectKey: string,
   issueKey: string,
   branchName?: string,
+  pullRequestID?: string,
 ) {
   const showUrl = new URL(buildSonarLintEndpoint(calledPort, '/issues/show'));
 
@@ -69,6 +70,10 @@ export function openIssue(
 
   if (branchName !== undefined) {
     showUrl.searchParams.set('branch', branchName);
+  }
+
+  if (pullRequestID !== undefined) {
+    showUrl.searchParams.set('pullRequest', pullRequestID);
   }
 
   return fetch(showUrl.toString()).then((response: Response) => checkStatus(response, true));
