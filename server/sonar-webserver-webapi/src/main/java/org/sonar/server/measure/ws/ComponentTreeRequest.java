@@ -36,7 +36,7 @@ class ComponentTreeRequest {
   private String metricSort;
   private Integer metricPeriodSort;
   private String metricSortFilter;
-  private List<String> metricKeys;
+  private List<String> metricKeys = List.of();
   private Integer page;
   private Integer pageSize;
 
@@ -139,7 +139,6 @@ class ComponentTreeRequest {
     return this;
   }
 
-  @CheckForNull
   public List<String> getMetricKeys() {
     return metricKeys;
   }

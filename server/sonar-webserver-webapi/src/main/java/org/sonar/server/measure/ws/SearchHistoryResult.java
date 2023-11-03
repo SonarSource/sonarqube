@@ -46,6 +46,7 @@ public class SearchHistoryResult {
   private List<MeasureDto> measures;
   private Common.Paging paging;
   private ComponentDto component;
+  private List<String> requestedMetrics;
 
   public SearchHistoryResult(int page, int pageSize) {
     this.page = page;
@@ -137,5 +138,14 @@ public class SearchHistoryResult {
 
   Common.Paging getPaging() {
     return requireNonNull(paging);
+  }
+
+  public SearchHistoryResult setRequestedMetrics(List<String> requestedMetrics) {
+    this.requestedMetrics = requestedMetrics;
+    return this;
+  }
+
+  public List<String> getRequestedMetrics() {
+    return requestedMetrics;
   }
 }

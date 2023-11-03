@@ -75,7 +75,6 @@ class ComponentTreeData {
     return components;
   }
 
-  @CheckForNull
   int getComponentCount() {
     return componentCount;
   }

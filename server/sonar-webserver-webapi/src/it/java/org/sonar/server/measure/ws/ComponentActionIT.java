@@ -46,6 +46,7 @@ import static java.lang.Double.parseDouble;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.BranchDto.DEFAULT_MAIN_BRANCH_NAME;
@@ -356,6 +357,26 @@ public class ComponentActionIT {
   }
 
   @Test
+  public void shouldReturnRenamedMetric() {
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("MY_PROJECT")
+      .setName("My Project"));
+    userSession.addProjectPermission(USER, projectData.getProjectDto())
+      .registerBranches(projectData.getMainBranchDto());
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    SnapshotDto analysis = db.components().insertSnapshot(mainBranch, s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodMode("previous_version")
+      .setPeriodParam("1.0-SNAPSHOT"));
+
+    MetricDto accepted_issues = insertAcceptedIssuesMetric();
+    db.measures().insertLiveMeasure(mainBranch, accepted_issues, m -> m.setValue(10d));
+
+    db.commit();
+
+    ComponentWsResponse response = newRequest(projectData.projectKey(), "wont_fix_issues");
+    assertThat(response.getMetrics().getMetrics(0).getKey()).isEqualTo("wont_fix_issues");
+  }
+
+  @Test
   public void json_example() {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
@@ -416,6 +437,20 @@ public class ComponentActionIT {
 
     assertJson(response).isSimilarTo(getClass().getResource("component-example.json"));
   }
+
+  private MetricDto insertAcceptedIssuesMetric() {
+    MetricDto acceptedIssues = db.measures().insertMetric(m -> m.setKey("accepted_issues")
+      .setShortName("Accepted Issues")
+      .setDescription("Accepted issues")
+      .setDomain("Issues")
+      .setValueType("INT")
+      .setDirection(-1)
+      .setQualitative(false)
+      .setHidden(false));
+    db.commit();
+    return acceptedIssues;
+  }
+
 
   private ComponentWsResponse newRequest(String componentKey, String metricKeys) {
     return ws.newRequest()

@@ -465,6 +465,44 @@ subprojects {
   }
 
   task generatePackageInfo {
+    doLast {
+      def allPathsContainingJavaFiles = [] as Set
+
+      fileTree('src/main/java/').matching() {
+        include "*/**/*.java"
+        exclude "*/**/package-info.java"
+      }.forEach {
+        allPathsContainingJavaFiles << it.toPath().toFile().getParent();
+      }
+
+      allPathsContainingJavaFiles.each {
+        String packageInfoPath = it + "/package-info.java"
+        File packageInfoFile = new File (packageInfoPath)
+        if (!packageInfoFile.exists()) {
+            logger.warn("Creating file: " + packageInfoPath)
+            def packageName = packageInfoFile.getParent().takeAfter("src/main/java/").replaceAll("/", "\\.")
+            String packageInfoContent = applyPackageInfoTemplate(packageName)
+            packageInfoFile << packageInfoContent
+        }
+      }
+
+      def allPackageInfoFiles = [] as Set
+
+      fileTree('src/main/java/').matching() {
+        include "*/**/package-info.java"
+      }.forEach {
+        allPackageInfoFiles << it.toPath().toFile();
+      }
+
+      allPackageInfoFiles.forEach {
+        File packageInfoFile = it;
+        if (!allPathsContainingJavaFiles.contains(packageInfoFile.getParent())) {
+          logger.warn("Deleting package info file: " + packageInfoFile)
+          packageInfoFile.delete();
+        }
+      }
+
+    }
   }
   build.dependsOn(generatePackageInfo)
   generatePackageInfo.finalizedBy(licenseFormat)

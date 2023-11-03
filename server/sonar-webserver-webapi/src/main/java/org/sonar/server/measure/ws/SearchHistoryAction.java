@@ -21,6 +21,7 @@ package org.sonar.server.measure.ws;
 
 import com.google.common.collect.Sets;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +47,7 @@ import org.sonar.db.component.SnapshotQuery.SORT_ORDER;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.PastMeasureQuery;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.metric.RemovedMetricConverter;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
@@ -93,10 +95,13 @@ public class SearchHistoryAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("search_history-example.json"))
       .setSince("6.3")
       .setChangelog(
+        new Change("10.3", "The metric 'wont_fix_issues' is now deprecated in the response. Consume 'accepted_issues' instead."),
+        new Change("10.3", "The use of 'wont_fix_issues' value in 'metricKeys' param is now deprecated. Use 'accepted_issues' instead."),
+        new Change("10.3", "Added new accepted value for the 'metricKeys' param: 'accepted_issues'."),
         new Change("10.0", format("The use of the following metrics in 'metricKeys' parameter is not deprecated anymore: %s",
-          MeasuresWsModule.getDeprecatedMetrics())),
+          MeasuresWsModule.getDeprecatedMetricsInSonarQube93())),
         new Change("9.3", format("The use of the following metrics in 'metrics' parameter is deprecated: %s",
-          MeasuresWsModule.getDeprecatedMetrics())),
+          MeasuresWsModule.getDeprecatedMetricsInSonarQube93())),
         new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
       .setHandler(this);
 
@@ -165,7 +170,8 @@ public class SearchHistoryAction implements MeasuresWsAction {
         SearchHistoryResult result = new SearchHistoryResult(request.page, request.pageSize)
           .setComponent(component)
           .setAnalyses(searchAnalyses(dbSession, request, component))
-          .setMetrics(searchMetrics(dbSession, request));
+          .setMetrics(searchMetrics(dbSession, request))
+          .setRequestedMetrics(request.getMetrics());
         return result.setMeasures(searchMeasures(dbSession, request, result));
       }
     };
@@ -203,9 +209,10 @@ public class SearchHistoryAction implements MeasuresWsAction {
   }
 
   private List<MetricDto> searchMetrics(DbSession dbSession, SearchHistoryRequest request) {
-    List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, request.getMetrics());
-    if (request.getMetrics().size() > metrics.size()) {
-      Set<String> requestedMetrics = request.getMetrics().stream().collect(Collectors.toSet());
+    List<String> upToDateRequestedMetrics = RemovedMetricConverter.withRemovedMetricAlias(request.getMetrics());
+    List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, upToDateRequestedMetrics);
+    if (upToDateRequestedMetrics.size() > metrics.size()) {
+      Set<String> requestedMetrics = new HashSet<>(upToDateRequestedMetrics);
       Set<String> foundMetrics = metrics.stream().map(MetricDto::getKey).collect(Collectors.toSet());
 
       Set<String> unfoundMetrics = Sets.difference(requestedMetrics, foundMetrics).immutableCopy();

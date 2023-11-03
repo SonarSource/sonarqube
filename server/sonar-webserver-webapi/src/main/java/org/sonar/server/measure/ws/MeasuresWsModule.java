@@ -33,7 +33,7 @@ public class MeasuresWsModule extends Module {
   }
 
 
-  public static String getDeprecatedMetrics() {
+  public static String getDeprecatedMetricsInSonarQube93() {
     return String.join(", ", "releasability_effort", "security_rating_effort", "reliability_rating_effort", "security_review_rating_effort",
       "maintainability_rating_effort", "last_change_on_maintainability_rating", "last_change_on_releasability_rating", "last_change_on_reliability_rating",
       "last_change_on_security_rating", "last_change_on_security_review_rating");

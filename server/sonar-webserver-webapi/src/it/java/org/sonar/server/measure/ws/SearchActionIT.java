@@ -118,6 +118,24 @@ public class SearchActionIT {
   }
 
   @Test
+  public void search_shouldReturnAcceptedIssuesMetric_whenIsCalledWithDeprecatedWontFixIssuesMetric() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    userSession.addProjectPermission(UserRole.USER, project);
+    MetricDto acceptedIssues = db.measures().insertMetric(m -> m.setValueType(INT.name())
+      .setKey("accepted_issues")
+      .setShortName("Accepted Issues"));
+    db.measures().insertLiveMeasure(project, acceptedIssues, m -> m.setValue(10d));
+
+    SearchWsResponse result = call(singletonList(project.getKey()), singletonList("wont_fix_issues"));
+
+    List<Measure> measures = result.getMeasuresList();
+    assertThat(measures).hasSize(1);
+    Measure measure = measures.get(0);
+    assertThat(measure.getMetric()).isEqualTo("wont_fix_issues");
+    assertThat(measure.getValue()).isEqualTo("10");
+  }
+
+  @Test
   public void return_best_value() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(UserRole.USER, project);

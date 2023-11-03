@@ -162,11 +162,16 @@ public class ComponentTreeActionIT {
     db.measures().insertLiveMeasure(dir, newViolations, m -> m.setValue(25.0d));
     db.measures().insertLiveMeasure(mainBranch, newViolations, m -> m.setValue(255.0d));
 
+    MetricDto accepted_issues = insertAcceptedIssuesMetric();
+    db.measures().insertLiveMeasure(file1, accepted_issues, m -> m.setValue(10d));
+    db.measures().insertLiveMeasure(dir, accepted_issues, m -> m.setValue(10d));
+    db.measures().insertLiveMeasure(mainBranch, accepted_issues, m -> m.setValue(10d));
+
     db.commit();
 
     String response = ws.newRequest()
       .setParam(PARAM_COMPONENT, mainBranch.getKey())
-      .setParam(PARAM_METRIC_KEYS, "ncloc, complexity, new_violations")
+      .setParam(PARAM_METRIC_KEYS, "ncloc, complexity, new_violations, accepted_issues")
       .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,period")
       .execute()
       .getInput();
@@ -177,6 +182,31 @@ public class ComponentTreeActionIT {
   private UserSessionRule addProjectPermission(ProjectData projectData) {
     return userSession.addProjectPermission(USER, projectData.getProjectDto())
       .addProjectBranchMapping(projectData.projectUuid(), projectData.getMainBranchComponent());
+  }
+
+  @Test
+  public void shouldReturnRenamedMetric() {
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("MY_PROJECT")
+      .setName("My Project"));
+    addProjectPermission(projectData);
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    SnapshotDto analysis = db.components().insertSnapshot(mainBranch, s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodMode("previous_version")
+      .setPeriodParam("1.0-SNAPSHOT"));
+
+    MetricDto accepted_issues = insertAcceptedIssuesMetric();
+    db.measures().insertLiveMeasure(mainBranch, accepted_issues, m -> m.setValue(10d));
+
+    db.commit();
+
+    ComponentTreeWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, mainBranch.getKey())
+      .setParam(PARAM_METRIC_KEYS, "wont_fix_issues")
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics")
+      .executeProtobuf(ComponentTreeWsResponse.class);
+
+    assertThat(response.getMetrics().getMetrics(0).getKey()).isEqualTo("wont_fix_issues");
+    assertThat(response.getBaseComponent().getMeasures(0).getMetric()).isEqualTo("wont_fix_issues");
   }
 
   @Test
@@ -1073,6 +1103,20 @@ public class ComponentTreeActionIT {
       .setHidden(false)
       .setOptimizedBestValue(true)
       .setBestValue(0.0d));
+    db.commit();
+    return metric;
+  }
+
+  private MetricDto insertAcceptedIssuesMetric() {
+    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDto()
+      .setKey("accepted_issues")
+      .setShortName("Accepted Issues")
+      .setDescription("Accepted issues")
+      .setDomain("Issues")
+      .setValueType(INT.name())
+      .setDirection(-1)
+      .setQualitative(false)
+      .setHidden(false));
     db.commit();
     return metric;
   }

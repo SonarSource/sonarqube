@@ -35,6 +35,7 @@ import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryMeasure;
 import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryValue;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.server.measure.ws.ComponentResponseCommon.addMetricToSearchHistoryResponseIncludingRenamedMetric;
 import static org.sonar.server.measure.ws.MeasureValueFormatter.formatMeasureValue;
 
 class SearchHistoryResponseFactory {
@@ -67,20 +68,14 @@ class SearchHistoryResponseFactory {
     result.getMeasures().forEach(m -> measuresByMetricByAnalysis.put(metricsByUuid.get(m.getMetricUuid()), analysesByUuid.get(m.getAnalysisUuid()), m));
 
     return response -> {
-      result.getMetrics().stream()
-        .map(clearMetric())
-        .map(addMetric())
-        .map(metric -> addValues(measuresByMetricByAnalysis.row(metric)).apply(metric))
-        .forEach(metric -> response.addMeasures(measure));
+      for (MetricDto metric : result.getMetrics()) {
+        measure.setMetric(metric.getKey());
+        addValues(measuresByMetricByAnalysis.row(metric)).apply(metric);
+        addMetricToSearchHistoryResponseIncludingRenamedMetric(response, result.getRequestedMetrics(), measure);
+        measure.clear();
+      }
 
       return response;
-    };
-  }
-
-  private UnaryOperator<MetricDto> addMetric() {
-    return metric -> {
-      measure.setMetric(metric.getKey());
-      return metric;
     };
   }
 

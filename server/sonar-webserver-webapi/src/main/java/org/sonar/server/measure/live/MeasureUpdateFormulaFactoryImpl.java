@@ -78,7 +78,7 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
     new MeasureUpdateFormula(CoreMetrics.FALSE_POSITIVE_ISSUES, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.countByResolution(Issue.RESOLUTION_FALSE_POSITIVE, false))),
 
-    new MeasureUpdateFormula(CoreMetrics.WONT_FIX_ISSUES, false, new AddChildren(),
+    new MeasureUpdateFormula(CoreMetrics.ACCEPTED_ISSUES, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.countByResolution(Issue.RESOLUTION_WONT_FIX, false))),
 
     new MeasureUpdateFormula(CoreMetrics.OPEN_ISSUES, false, new AddChildren(),

@@ -27,7 +27,7 @@ import org.sonar.server.platform.db.migration.step.Upsert;
 public class RenameWontFixIssuesMetric extends DataChange {
 
   private static final String UPDATE_QUERY = """
-    update metrics set name='accepted_issues', description='Accepted issues' where name='wont_fix_issues'
+    update metrics set name='accepted_issues', description='Accepted issues', short_name='Accepted issues' where name='wont_fix_issues'
     """;
 
   public RenameWontFixIssuesMetric(Database db) {

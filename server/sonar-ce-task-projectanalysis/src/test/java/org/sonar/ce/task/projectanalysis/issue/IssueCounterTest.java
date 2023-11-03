@@ -50,6 +50,8 @@ import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.api.measures.CoreMetrics.ACCEPTED_ISSUES;
+import static org.sonar.api.measures.CoreMetrics.ACCEPTED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.BLOCKER_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.BLOCKER_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.BUGS;
@@ -133,7 +135,7 @@ public class IssueCounterTest {
     .add(NEW_MINOR_VIOLATIONS)
     .add(NEW_INFO_VIOLATIONS)
     .add(FALSE_POSITIVE_ISSUES)
-    .add(WONT_FIX_ISSUES)
+    .add(ACCEPTED_ISSUES)
     .add(CODE_SMELLS)
     .add(BUGS)
     .add(VULNERABILITIES)
@@ -200,10 +202,10 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertMeasures(FILE1, entry(VIOLATIONS_KEY, 1), entry(FALSE_POSITIVE_ISSUES_KEY, 1), entry(WONT_FIX_ISSUES_KEY, 1));
-    assertMeasures(FILE2, entry(VIOLATIONS_KEY, 2), entry(FALSE_POSITIVE_ISSUES_KEY, 0), entry(WONT_FIX_ISSUES_KEY, 1));
+    assertMeasures(FILE1, entry(VIOLATIONS_KEY, 1), entry(FALSE_POSITIVE_ISSUES_KEY, 1), entry(ACCEPTED_ISSUES_KEY, 1));
+    assertMeasures(FILE2, entry(VIOLATIONS_KEY, 2), entry(FALSE_POSITIVE_ISSUES_KEY, 0), entry(ACCEPTED_ISSUES_KEY, 1));
     assertMeasures(FILE3, entry(VIOLATIONS_KEY, 0));
-    assertMeasures(PROJECT, entry(VIOLATIONS_KEY, 3), entry(FALSE_POSITIVE_ISSUES_KEY, 1), entry(WONT_FIX_ISSUES_KEY, 2));
+    assertMeasures(PROJECT, entry(VIOLATIONS_KEY, 3), entry(FALSE_POSITIVE_ISSUES_KEY, 1), entry(ACCEPTED_ISSUES_KEY, 2));
   }
 
   @Test

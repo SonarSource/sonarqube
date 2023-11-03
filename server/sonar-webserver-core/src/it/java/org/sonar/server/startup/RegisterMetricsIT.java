@@ -136,10 +136,12 @@ public class RegisterMetricsIT {
   }
 
   @Test
-  public void insert_core_metrics() {
+  public void insert_core_metrics_without_removed_metric() {
     register.start();
 
-    assertThat(dbTester.countRowsOfTable("metrics")).isEqualTo(CoreMetrics.getMetrics().size());
+    // Metric CoreMetrics.WONT_FIX_ISSUES was renamed to CoreMetrics.ACCEPTED_ISSUES in 10.3.
+    // We don't want to insert it anymore
+    assertThat(dbTester.countRowsOfTable("metrics")).isEqualTo(CoreMetrics.getMetrics().size() - 1);
   }
 
   @Test

@@ -90,6 +90,7 @@ public class SearchHistoryActionIT {
   private MetricDto nclocMetric;
   private MetricDto newViolationMetric;
   private MetricDto stringMetric;
+  private MetricDto acceptedIssuesMetric;
 
   @Before
   public void setUp() {
@@ -101,6 +102,7 @@ public class SearchHistoryActionIT {
     complexityMetric = insertComplexityMetric();
     newViolationMetric = insertNewViolationMetric();
     stringMetric = insertStringMetric();
+    acceptedIssuesMetric = insertAcceptedIssuesMetric();
   }
 
   @Test
@@ -145,18 +147,36 @@ public class SearchHistoryActionIT {
   @Test
   public void return_metrics() {
     dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project.mainBranchUuid(), analysis).setValue(42.0d));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(acceptedIssuesMetric, project.mainBranchUuid(), analysis).setValue(10.0d));
     db.commit();
 
     SearchHistoryRequest request = SearchHistoryRequest.builder()
       .setComponent(project.projectKey())
-      .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey()))
+      .setMetrics(asList(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey(), acceptedIssuesMetric.getKey()))
       .build();
 
     SearchHistoryResponse result = call(request);
 
-    assertThat(result.getMeasuresList()).hasSize(3)
+    assertThat(result.getMeasuresList()).hasSize(4)
       .extracting(HistoryMeasure::getMetric)
-      .containsExactly(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey());
+      .containsExactlyInAnyOrder(complexityMetric.getKey(), nclocMetric.getKey(), newViolationMetric.getKey(), acceptedIssuesMetric.getKey());
+  }
+
+  @Test
+  public void return_renamed_and_deprecated_metric() {
+    dbClient.measureDao().insert(dbSession, newMeasureDto(acceptedIssuesMetric, project.mainBranchUuid(), analysis).setValue(10.0d));
+    db.commit();
+
+    SearchHistoryRequest request = SearchHistoryRequest.builder()
+      .setComponent(project.projectKey())
+      .setMetrics(singletonList("wont_fix_issues"))
+      .build();
+
+    SearchHistoryResponse result = call(request);
+
+    assertThat(result.getMeasuresList()).hasSize(1)
+      .extracting(HistoryMeasure::getMetric)
+      .containsExactlyInAnyOrder("wont_fix_issues");
   }
 
   @Test
@@ -554,6 +574,18 @@ public class SearchHistoryActionIT {
       .setKey("a_string")
       .setShortName("A String")
       .setValueType("STRING"));
+    db.commit();
+    return metric;
+  }
+
+  private MetricDto insertAcceptedIssuesMetric() {
+    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
+      .setKey("accepted_issues")
+      .setShortName("Accepted Issues")
+      .setValueType("INT"))
+      .setDirection(-1)
+      .setQualitative(true)
+      .setHidden(false);
     db.commit();
     return metric;
   }

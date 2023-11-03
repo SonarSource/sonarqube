@@ -282,7 +282,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
   public void count_resolved() {
     withNoIssues()
       .assertThatValueIs(CoreMetrics.FALSE_POSITIVE_ISSUES, 0)
-      .assertThatValueIs(CoreMetrics.WONT_FIX_ISSUES, 0);
+      .assertThatValueIs(CoreMetrics.ACCEPTED_ISSUES, 0);
 
     with(
       newResolvedGroup(Issue.RESOLUTION_FIXED, Issue.STATUS_RESOLVED).setCount(3),
@@ -296,7 +296,7 @@ public class MeasureUpdateFormulaFactoryImplTest {
       newGroup(RuleType.VULNERABILITY).setCount(17),
       newGroup(RuleType.BUG).setCount(19))
       .assertThatValueIs(CoreMetrics.FALSE_POSITIVE_ISSUES, 5)
-      .assertThatValueIs(CoreMetrics.WONT_FIX_ISSUES, 7 + 11);
+      .assertThatValueIs(CoreMetrics.ACCEPTED_ISSUES, 7 + 11);
   }
 
   @Test
