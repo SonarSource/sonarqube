@@ -44,6 +44,7 @@ import org.sonarqube.ws.Common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.issue.DefaultTransitions.ACCEPT;
 import static org.sonar.api.issue.DefaultTransitions.CONFIRM;
 import static org.sonar.api.issue.DefaultTransitions.FALSE_POSITIVE;
 import static org.sonar.api.issue.DefaultTransitions.REOPEN;
@@ -89,14 +90,15 @@ public class IssueChangeEventServiceImplTest {
     RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, mainBranch, projectData.getMainBranchComponent(), i -> i.setSeverity(MAJOR.name()));
 
-    assertPushEventIsPersisted(project, mainBranch, issue, null, null, WONT_FIX, true, 1);
-    assertPushEventIsPersisted(project, mainBranch, issue, null, null, REOPEN, false, 2);
-    assertPushEventIsPersisted(project, mainBranch, issue, null, null, FALSE_POSITIVE, true, 3);
-    assertPushEventIsPersisted(project, mainBranch, issue, null, null, REOPEN, false, 4);
-    assertPushEventIsPersisted(project, mainBranch, issue, null, null, RESOLVE, false, 5);
-    assertPushEventIsPersisted(project, mainBranch, issue, null, null, REOPEN, false, 6);
-    assertNoIssueDistribution(project, mainBranch, issue, null, null, CONFIRM, 7);
-    assertNoIssueDistribution(project, mainBranch, issue, null, null, UNCONFIRM, 8);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, null, ACCEPT, true, 1);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, null, WONT_FIX, true, 2);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, null, REOPEN, false, 3);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, null, FALSE_POSITIVE, true, 4);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, null, REOPEN, false, 5);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, null, RESOLVE, false, 6);
+    assertPushEventIsPersisted(project, mainBranch, issue, null, null, REOPEN, false, 7);
+    assertNoIssueDistribution(project, mainBranch, issue, null, null, CONFIRM, 8);
+    assertNoIssueDistribution(project, mainBranch, issue, null, null, UNCONFIRM, 9);
   }
 
   @Test
@@ -115,7 +117,7 @@ public class IssueChangeEventServiceImplTest {
     RuleDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, projectData.getMainBranchDto(), projectData.getMainBranchComponent(), i -> i.setSeverity(MAJOR.name()));
 
-    assertPushEventIsPersisted(projectData.getProjectDto(), projectData.getMainBranchDto(), issue, BLOCKER.name(), Common.RuleType.BUG.name(), WONT_FIX, true, 1);
+    assertPushEventIsPersisted(projectData.getProjectDto(), projectData.getMainBranchDto(), issue, BLOCKER.name(), Common.RuleType.BUG.name(), ACCEPT, true, 1);
   }
 
   @Test

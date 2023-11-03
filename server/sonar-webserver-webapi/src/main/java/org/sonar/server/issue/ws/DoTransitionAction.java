@@ -77,11 +77,15 @@ public class DoTransitionAction implements IssuesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION_DO_TRANSITION)
-      .setDescription("Do workflow transition on an issue. Requires authentication and Browse permission on project.<br/>" +
-        "The transitions '" + DefaultTransitions.WONT_FIX + "' and '" + DefaultTransitions.FALSE_POSITIVE + "' require the permission 'Administer Issues'.<br/>" +
-        "The transitions involving security hotspots require the permission 'Administer Security Hotspot'.")
+      .setDescription("""
+        Do workflow transition on an issue. Requires authentication and Browse permission on project.<br/>
+        The transitions '%s', '%s' and '%s' require the permission 'Administer Issues'.<br/>
+        The transitions involving security hotspots require the permission 'Administer Security Hotspot'.
+        """.formatted(DefaultTransitions.ACCEPT, DefaultTransitions.WONT_FIX, DefaultTransitions.FALSE_POSITIVE))
       .setSince("3.6")
       .setChangelog(
+        new Change("10.4", "The transition '%s' is deprecated. Please use '%s' instead.".formatted(DefaultTransitions.WONT_FIX, DefaultTransitions.ACCEPT)),
+        new Change("10.4", "Add transition '%s'.".formatted(DefaultTransitions.ACCEPT)),
         new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'issueStatus' instead."),
         new Change("10.4", "Add 'issueStatus' field to the response."),
         new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),

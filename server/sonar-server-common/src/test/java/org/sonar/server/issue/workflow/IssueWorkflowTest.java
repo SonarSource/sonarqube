@@ -85,7 +85,7 @@ public class IssueWorkflowTest {
 
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_OPEN);
     List<Transition> transitions = underTest.outTransitions(issue);
-    assertThat(keys(transitions)).containsOnly("confirm", "falsepositive", "resolve", "wontfix");
+    assertThat(keys(transitions)).containsOnly("confirm", "falsepositive", "resolve", "wontfix", "accept");
   }
 
   @Test
@@ -94,7 +94,7 @@ public class IssueWorkflowTest {
 
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_CONFIRMED);
     List<Transition> transitions = underTest.outTransitions(issue);
-    assertThat(keys(transitions)).containsOnly("unconfirm", "falsepositive", "resolve", "wontfix");
+    assertThat(keys(transitions)).containsOnly("unconfirm", "falsepositive", "resolve", "wontfix", "accept");
   }
 
   @Test
@@ -112,7 +112,7 @@ public class IssueWorkflowTest {
 
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_REOPENED);
     List<Transition> transitions = underTest.outTransitions(issue);
-    assertThat(keys(transitions)).containsOnly("confirm", "resolve", "falsepositive", "wontfix");
+    assertThat(keys(transitions)).containsOnly("confirm", "resolve", "falsepositive", "wontfix", "accept");
   }
 
   @Test
@@ -428,6 +428,25 @@ public class IssueWorkflowTest {
     // should remove assignee
     assertThat(issue.assignee()).isNull();
   }
+
+  @Test
+  public void doManualTransition_shouldTransitionToResolutionWontFix_whenAccepted() {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setStatus(STATUS_OPEN)
+      .setRuleKey(RuleKey.of("java", "AvoidCycle"))
+      .setAssigneeUuid("morgan");
+
+    underTest.start();
+    underTest.doManualTransition(issue, DefaultTransitions.ACCEPT, issueChangeContextByScanBuilder(new Date()).build());
+
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
+    assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
+
+    // should remove assignee
+    assertThat(issue.assignee()).isNull();
+  }
+
 
   private static DefaultIssue newClosedIssue(String resolution) {
     return new DefaultIssue()

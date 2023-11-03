@@ -41,6 +41,7 @@ import org.sonar.db.pushevent.PushEventDto;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.elasticsearch.common.Strings.isNullOrEmpty;
+import static org.sonar.api.issue.DefaultTransitions.ACCEPT;
 import static org.sonar.api.issue.DefaultTransitions.CONFIRM;
 import static org.sonar.api.issue.DefaultTransitions.FALSE_POSITIVE;
 import static org.sonar.api.issue.DefaultTransitions.UNCONFIRM;
@@ -159,7 +160,7 @@ public class IssueChangeEventServiceImpl implements IssueChangeEventService {
       return null;
     }
 
-    return transitionOrStatus.equals(WONT_FIX) || transitionOrStatus.equals(FALSE_POSITIVE) ||
+    return transitionOrStatus.equals(ACCEPT) || transitionOrStatus.equals(WONT_FIX) || transitionOrStatus.equals(FALSE_POSITIVE) ||
       transitionOrStatus.equals(FALSE_POSITIVE_KEY) || transitionOrStatus.equals(WONT_FIX_KEY);
   }
 

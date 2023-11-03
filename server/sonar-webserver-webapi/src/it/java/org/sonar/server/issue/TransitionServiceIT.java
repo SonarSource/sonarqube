@@ -71,7 +71,7 @@ public class TransitionServiceIT {
 
     List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());
 
-    assertThat(result).extracting(Transition::key).containsOnly("confirm", "resolve", "falsepositive", "wontfix");
+    assertThat(result).extracting(Transition::key).containsExactly("accept", "falsepositive", "confirm", "resolve", "wontfix");
   }
 
   @Test
@@ -85,7 +85,7 @@ public class TransitionServiceIT {
 
     List<Transition> result = underTest.listTransitions(externalIssue.toDefaultIssue());
 
-    assertThat(result).extracting(Transition::key).containsOnly("confirm", "resolve", "falsepositive", "wontfix");
+    assertThat(result).extracting(Transition::key).containsExactly("accept", "falsepositive", "confirm", "resolve", "wontfix");
   }
 
   @Test

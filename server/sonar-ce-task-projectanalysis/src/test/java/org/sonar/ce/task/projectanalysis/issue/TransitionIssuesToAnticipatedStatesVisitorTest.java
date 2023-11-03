@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
+import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.ce.task.log.CeTaskMessages;
@@ -72,7 +73,7 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
 
     assertThat(issue.isBeingClosed()).isTrue();
     assertThat(issue.getAnticipatedTransitionUuid()).isPresent();
-    verify(issueLifecycle).doManualTransition(issue, "wontfix", "admin");
+    verify(issueLifecycle).doManualTransition(issue, DefaultTransitions.ACCEPT, "admin");
     verify(issueLifecycle).addComment(issue, "doing the transition in an anticipated way", "admin");
   }
 
@@ -91,7 +92,7 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
 
     assertThat(issue.isBeingClosed()).isFalse();
     assertThat(issue.getAnticipatedTransitionUuid()).isEmpty();
-    verify(issueLifecycle).doManualTransition(issue, "wontfix", "admin");
+    verify(issueLifecycle).doManualTransition(issue, DefaultTransitions.ACCEPT, "admin");
     verifyNoMoreInteractions(issueLifecycle);
     assertThat(logTester.logs(Level.WARN))
       .contains(String.format("Cannot resolve issue at line %s of %s due to: %s", issue.getLine(), issue.componentKey(), exceptionMessage));
@@ -157,7 +158,7 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
 
     assertThat(issue.isBeingClosed()).isTrue();
     assertThat(issue.getAnticipatedTransitionUuid()).isPresent();
-    verify(issueLifecycle).doManualTransition(issue, "wontfix", "admin");
+    verify(issueLifecycle).doManualTransition(issue, DefaultTransitions.ACCEPT, "admin");
     verify(issueLifecycle).addComment(issue, "Automatically transitioned from SonarLint", "admin");
   }
 
@@ -182,11 +183,11 @@ public class TransitionIssuesToAnticipatedStatesVisitorTest {
   }
 
   private Collection<AnticipatedTransition> getAnticipatedTransitions(String projecKey, String fileName) {
-    return Stream.of(new AnticipatedTransition("atuuid", projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1, "abcdefghi", "wontfix", "doing the transition in an anticipated way")).collect(Collectors.toList());
+    return Stream.of(new AnticipatedTransition("atuuid", projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1, "abcdefghi", DefaultTransitions.ACCEPT, "doing the transition in an anticipated way")).collect(Collectors.toList());
   }
 
   private Collection<AnticipatedTransition> getAnticipatedTransitionsWithEmptyComment(String projecKey, String fileName) {
-    return Stream.of(new AnticipatedTransition("atuuid", projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1, "abcdefghi", "wontfix", null)).collect(Collectors.toList());
+    return Stream.of(new AnticipatedTransition("atuuid", projecKey, "admin", RuleKey.parse("repo:id"), "issue message", fileName, 1, "abcdefghi", DefaultTransitions.ACCEPT, null)).collect(Collectors.toList());
   }
 
   private Component getComponent(Component.Type type) {

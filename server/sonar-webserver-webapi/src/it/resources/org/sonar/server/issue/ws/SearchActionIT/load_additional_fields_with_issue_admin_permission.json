@@ -11,9 +11,10 @@
         "set_severity"
       ],
       "transitions": [
+        "accept",
+        "falsepositive",
         "confirm",
         "resolve",
-        "falsepositive",
         "wontfix"
       ]
     }

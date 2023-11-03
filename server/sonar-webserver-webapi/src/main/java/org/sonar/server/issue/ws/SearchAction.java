@@ -33,6 +33,7 @@ import javax.annotation.Nullable;
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
+import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.CleanCodeAttributeCategory;
@@ -207,6 +208,8 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("10.4", "Value '%s' for 'transition' response field is deprecated, use '%s' instead".formatted(DefaultTransitions.WONT_FIX, DefaultTransitions.ACCEPT)),
+        new Change("10.4", "Possible value '%s' for 'transition' response field has been added".formatted(DefaultTransitions.ACCEPT)),
         new Change("10.4", format(NEW_PARAM_ADDED_MESSAGE, PARAM_ISSUE_STATUSES)),
         new Change("10.4", format("Parameters '%s' and '%s' are deprecated in favor of '%s'.", PARAM_RESOLUTIONS, PARAM_STATUSES, PARAM_ISSUE_STATUSES)),
         new Change("10.4", format("Parameter '%s' is deprecated.", PARAM_SEVERITIES)),

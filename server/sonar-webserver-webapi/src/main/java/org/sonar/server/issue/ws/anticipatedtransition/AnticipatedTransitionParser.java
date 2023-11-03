@@ -21,17 +21,21 @@ package org.sonar.server.issue.ws.anticipatedtransition;
 
 import com.google.gson.Gson;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.AnticipatedTransition;
 
+import static org.sonar.api.issue.DefaultTransitions.ACCEPT;
+import static org.sonar.api.issue.DefaultTransitions.FALSE_POSITIVE;
+import static org.sonar.api.issue.DefaultTransitions.WONT_FIX;
+
 public class AnticipatedTransitionParser {
   private static final Gson GSON = new Gson();
-  private static final String WONTFIX = "wontfix";
-  private static final String FALSEPOSITIVE = "falsepositive";
-  private static final Set<String> ALLOWED_TRANSITIONS = Set.of(WONTFIX, FALSEPOSITIVE);
-  private static final String TRANSITION_NOT_SUPPORTED_ERROR_MESSAGE = "Transition '%s' not supported. Only 'wontfix' and 'falsepositive' are supported.";
+  private static final Collection<String> ALLOWED_TRANSITIONS = List.of(WONT_FIX, ACCEPT, FALSE_POSITIVE);
+  private static final String TRANSITION_NOT_SUPPORTED_ERROR_MESSAGE = "Transition '%s' not supported." + " Only %s are supported.".formatted(ALLOWED_TRANSITIONS.stream()
+    .map(s -> "'" + s + "'").collect(Collectors.joining(",")));
 
   public List<AnticipatedTransition> parse(String requestBody, String userUuid, String projectKey) {
     List<GsonAnticipatedTransition> anticipatedTransitions;

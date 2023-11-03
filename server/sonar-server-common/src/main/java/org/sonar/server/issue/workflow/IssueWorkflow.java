@@ -75,6 +75,58 @@ public class IssueWorkflow implements Startable {
 
   private static void buildManualTransitions(StateMachine.Builder builder) {
     builder
+      //replacement transition for org.sonar.api.issue.DefaultTransitions.WONT_FIX
+      .transition(Transition.builder(DefaultTransitions.ACCEPT)
+        .from(STATUS_OPEN).to(STATUS_RESOLVED)
+        .conditions(IsNotHotspot.INSTANCE)
+        .functions(new SetResolution(RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
+        .build())
+      .transition(Transition.builder(DefaultTransitions.ACCEPT)
+        .from(STATUS_REOPENED).to(STATUS_RESOLVED)
+        .conditions(IsNotHotspot.INSTANCE)
+        .functions(new SetResolution(RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
+        .build())
+      .transition(Transition.builder(DefaultTransitions.ACCEPT)
+        .from(STATUS_CONFIRMED).to(STATUS_RESOLVED)
+        .conditions(IsNotHotspot.INSTANCE)
+        .functions(new SetResolution(RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
+        .build())
+
+      // resolve as false-positive
+      .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
+        .from(STATUS_OPEN).to(STATUS_RESOLVED)
+        .conditions(IsNotHotspot.INSTANCE)
+        .functions(new SetResolution(RESOLUTION_FALSE_POSITIVE), UnsetAssignee.INSTANCE)
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
+        .build())
+      .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
+        .from(STATUS_REOPENED).to(STATUS_RESOLVED)
+        .conditions(IsNotHotspot.INSTANCE)
+        .functions(new SetResolution(RESOLUTION_FALSE_POSITIVE), UnsetAssignee.INSTANCE)
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
+        .build())
+      .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
+        .from(STATUS_CONFIRMED).to(STATUS_RESOLVED)
+        .conditions(IsNotHotspot.INSTANCE)
+        .functions(new SetResolution(RESOLUTION_FALSE_POSITIVE), UnsetAssignee.INSTANCE)
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
+        .build())
+
+      // reopen
+      .transition(Transition.builder(DefaultTransitions.UNCONFIRM)
+        .from(STATUS_CONFIRMED).to(STATUS_REOPENED)
+        .conditions(IsNotHotspot.INSTANCE)
+        .functions(new SetResolution(null))
+        .build())
+      .transition(Transition.builder(DefaultTransitions.REOPEN)
+        .from(STATUS_RESOLVED).to(STATUS_REOPENED)
+        .conditions(IsNotHotspot.INSTANCE)
+        .functions(new SetResolution(null))
+        .build())
+
       // confirm
       .transition(Transition.builder(DefaultTransitions.CONFIRM)
         .from(STATUS_OPEN).to(STATUS_CONFIRMED)
@@ -107,39 +159,7 @@ public class IssueWorkflow implements Startable {
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
 
-      // reopen
-      .transition(Transition.builder(DefaultTransitions.UNCONFIRM)
-        .from(STATUS_CONFIRMED).to(STATUS_REOPENED)
-        .conditions(IsNotHotspot.INSTANCE)
-        .functions(new SetResolution(null))
-        .build())
-      .transition(Transition.builder(DefaultTransitions.REOPEN)
-        .from(STATUS_RESOLVED).to(STATUS_REOPENED)
-        .conditions(IsNotHotspot.INSTANCE)
-        .functions(new SetResolution(null))
-        .build())
-
-      // resolve as false-positive
-      .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
-        .from(STATUS_OPEN).to(STATUS_RESOLVED)
-        .conditions(IsNotHotspot.INSTANCE)
-        .functions(new SetResolution(RESOLUTION_FALSE_POSITIVE), UnsetAssignee.INSTANCE)
-        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
-        .build())
-      .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
-        .from(STATUS_REOPENED).to(STATUS_RESOLVED)
-        .conditions(IsNotHotspot.INSTANCE)
-        .functions(new SetResolution(RESOLUTION_FALSE_POSITIVE), UnsetAssignee.INSTANCE)
-        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
-        .build())
-      .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
-        .from(STATUS_CONFIRMED).to(STATUS_RESOLVED)
-        .conditions(IsNotHotspot.INSTANCE)
-        .functions(new SetResolution(RESOLUTION_FALSE_POSITIVE), UnsetAssignee.INSTANCE)
-        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
-        .build())
-
-      // resolve as won't fix
+      // resolve as won't fix, deprecated
       .transition(Transition.builder(DefaultTransitions.WONT_FIX)
         .from(STATUS_OPEN).to(STATUS_RESOLVED)
         .conditions(IsNotHotspot.INSTANCE)
@@ -158,6 +178,7 @@ public class IssueWorkflow implements Startable {
         .functions(new SetResolution(RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build());
+
   }
 
   private static void buildSecurityHotspotTransitions(StateMachine.Builder builder) {

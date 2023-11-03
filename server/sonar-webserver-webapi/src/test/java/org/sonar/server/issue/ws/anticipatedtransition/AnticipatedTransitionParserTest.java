@@ -94,7 +94,7 @@ public class AnticipatedTransitionParserTest {
     // when
     Assertions.assertThatThrownBy(() -> underTest.parse(requestBodyWithInvalidTransition, USER_UUID, PROJECT_KEY))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Transition 'invalid-transition' not supported. Only 'wontfix' and 'falsepositive' are supported.");
+      .hasMessage("Transition 'invalid-transition' not supported. Only 'wontfix','accept','falsepositive' are supported.");
   }
 
   // Handwritten Anticipated Transitions that are expected from the request-with-transitions.json file

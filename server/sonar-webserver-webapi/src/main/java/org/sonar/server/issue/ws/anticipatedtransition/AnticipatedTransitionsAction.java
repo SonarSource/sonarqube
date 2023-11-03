@@ -20,6 +20,8 @@
 package org.sonar.server.issue.ws.anticipatedtransition;
 
 import java.io.BufferedReader;
+import org.sonar.api.issue.DefaultTransitions;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -43,7 +45,13 @@ public class AnticipatedTransitionsAction implements IssuesWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction(IssuesWsParameters.ACTION_ANTICIPATED_TRANSITIONS).setDescription("""
+    WebService.NewAction action = controller
+      .createAction(IssuesWsParameters.ACTION_ANTICIPATED_TRANSITIONS)
+      .setChangelog(
+        new Change("10.4", "Transition '%s' is now deprecated. Use '%s' instead.".formatted(DefaultTransitions.WONT_FIX, DefaultTransitions.ACCEPT)),
+        new Change("10.4", "Transition '%s' has been added.".formatted(DefaultTransitions.ACCEPT))
+      )
+      .setDescription("""
       Receive a list of anticipated transitions that can be applied to not yet discovered issues on a specific project.<br>
       Requires the following permission: 'Administer Issues' on the specified project.<br>
       Only <code>falsepositive</code> and <code>wontfix</code> transitions are supported.<br>

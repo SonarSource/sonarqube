@@ -80,10 +80,12 @@ import static java.util.Map.of;
 import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
+import static org.sonar.api.issue.DefaultTransitions.ACCEPT;
 import static org.sonar.api.issue.DefaultTransitions.OPEN_AS_VULNERABILITY;
 import static org.sonar.api.issue.DefaultTransitions.REOPEN;
 import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
 import static org.sonar.api.issue.DefaultTransitions.SET_AS_IN_REVIEW;
+import static org.sonar.api.issue.DefaultTransitions.WONT_FIX;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
@@ -150,9 +152,11 @@ public class BulkChangeAction implements IssuesWsAction {
         "Requires authentication.")
       .setSince("3.7")
       .setChangelog(
+        new Change("10.4", "Transition '%s' is now deprecated. Use transition '%s' instead.".formatted(WONT_FIX, ACCEPT)),
+        new Change("10.4", "Transition  '%s' is now supported.".formatted(ACCEPT)),
         new Change("10.2", format("Parameters '%s' and '%s' are now deprecated.", PARAM_SET_SEVERITY, PARAM_SET_TYPE)),
         new Change("8.2", "Security hotspots are no longer supported and will be ignored."),
-        new Change("8.2", format("transitions '%s', '%s' and '%s' are no more supported", SET_AS_IN_REVIEW, RESOLVE_AS_REVIEWED, OPEN_AS_VULNERABILITY)),
+        new Change("8.2", format("Transitions '%s', '%s' and '%s' are no more supported", SET_AS_IN_REVIEW, RESOLVE_AS_REVIEWED, OPEN_AS_VULNERABILITY)),
         new Change("6.3", "'actions' parameter is ignored"))
       .setHandler(this)
       .setResponseExample(getClass().getResource("bulk_change-example.json"))
