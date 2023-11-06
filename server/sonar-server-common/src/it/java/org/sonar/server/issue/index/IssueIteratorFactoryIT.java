@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.status.SimpleStatus;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
@@ -82,7 +82,7 @@ public class IssueIteratorFactoryIT {
     assertThat(issue.key()).isEqualTo(expected.getKey());
     assertThat(issue.resolution()).isEqualTo("FIXED");
     assertThat(issue.status()).isEqualTo("RESOLVED");
-    assertThat(issue.simpleStatus()).isEqualTo(SimpleStatus.FIXED.name());
+    assertThat(issue.issueStatus()).isEqualTo(IssueStatus.FIXED.name());
     assertThat(issue.severity()).isEqualTo("BLOCKER");
     assertThat(issue.assigneeUuid()).isEqualTo("uuid-of-guy1");
     assertThat(issue.authorLogin()).isEqualTo("guy2");

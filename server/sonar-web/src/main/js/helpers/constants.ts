@@ -29,7 +29,7 @@ import {
   IssueResolution,
   IssueScope,
   IssueSeverity,
-  IssueSimpleStatus,
+  IssueStatus,
   IssueType,
 } from '../types/issues';
 import { RuleType } from '../types/types';
@@ -44,12 +44,12 @@ export const SOFTWARE_QUALITIES = Object.values(SoftwareQuality);
 
 export const STATUSES = ['OPEN', 'CONFIRMED', 'REOPENED', 'RESOLVED', 'CLOSED'];
 
-export const SIMPLE_STATUSES = [
-  IssueSimpleStatus.Open,
-  IssueSimpleStatus.Accepted,
-  IssueSimpleStatus.FalsePositive,
-  IssueSimpleStatus.Confirmed,
-  IssueSimpleStatus.Fixed,
+export const ISSUE_STATUSES = [
+  IssueStatus.Open,
+  IssueStatus.Accepted,
+  IssueStatus.FalsePositive,
+  IssueStatus.Confirmed,
+  IssueStatus.Fixed,
 ];
 
 export const ISSUE_TYPES: IssueType[] = [

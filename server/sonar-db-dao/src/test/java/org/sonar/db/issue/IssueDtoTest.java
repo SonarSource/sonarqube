@@ -27,7 +27,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.time.DateUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.Severity;
@@ -37,7 +36,7 @@ import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.status.SimpleStatus;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
@@ -345,26 +344,26 @@ public class IssueDtoTest {
   }
 
   @Test
-  public void getSimpleStatus_shouldReturnExpectedValueFromStatusAndResolution(){
+  public void getIssueStatus_shouldReturnExpectedValueFromStatusAndResolution() {
     IssueDto dto = new IssueDto();
     dto.setStatus(Issue.STATUS_CLOSED);
-    assertThat(dto.getSimpleStatus()).isEqualTo(SimpleStatus.FIXED);
+    assertThat(dto.getIssueStatus()).isEqualTo(IssueStatus.FIXED);
 
     dto.setStatus(Issue.STATUS_RESOLVED);
     dto.setResolution(Issue.RESOLUTION_FALSE_POSITIVE);
-    assertThat(dto.getSimpleStatus()).isEqualTo(SimpleStatus.FALSE_POSITIVE);
+    assertThat(dto.getIssueStatus()).isEqualTo(IssueStatus.FALSE_POSITIVE);
 
     dto.setStatus(Issue.STATUS_RESOLVED);
     dto.setResolution(Issue.RESOLUTION_WONT_FIX);
-    assertThat(dto.getSimpleStatus()).isEqualTo(SimpleStatus.ACCEPTED);
+    assertThat(dto.getIssueStatus()).isEqualTo(IssueStatus.ACCEPTED);
   }
 
   @Test
-  public void getSimpleStatus_shouldThrowException_whenStatusIsNotInitialized(){
+  public void getIssueStatus_shouldThrowException_whenStatusIsNotInitialized() {
     IssueDto dto = new IssueDto();
-    assertThatThrownBy(dto::getSimpleStatus)
+    assertThatThrownBy(dto::getIssueStatus)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Status must be initialized to retrieve simple status");
+      .hasMessage("Status must be initialized to retrieve issue status");
   }
 
   private DefaultIssue createExampleDefaultIssue(Date dateNow) {

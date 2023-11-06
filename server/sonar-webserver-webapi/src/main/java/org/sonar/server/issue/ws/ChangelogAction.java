@@ -56,7 +56,7 @@ public class ChangelogAction implements IssuesWsAction {
                       "Requires the 'Browse' permission on the project of the specified issue.")
       .setSince("4.1")
       .setChangelog(
-        new Change("10.4", "'simpleStatus' key is added in the differences"),
+        new Change("10.4", "'issueStatus' key is added in the differences"),
         new Change("10.4", "'status' and 'resolution' keys are now deprecated in the differences"),
         new Change("9.7", "'externalUser' and 'webhookSource' information added to the answer"),
         new Change("6.3", "changes on effort is expressed with the raw value in minutes (instead of the duration previously)"))

@@ -166,7 +166,7 @@ message Issue {
   optional sonarqube.ws.commons.CleanCodeAttribute cleanCodeAttribute = 40;
   optional sonarqube.ws.commons.CleanCodeAttributeCategory cleanCodeAttributeCategory = 41;
   repeated sonarqube.ws.commons.Impact impacts = 42;
-  optional string simpleStatus = 43;
+  optional string issueStatus = 43;
 }
 
 message Transitions {

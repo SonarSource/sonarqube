@@ -38,7 +38,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.status.SimpleStatus;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.protobuf.DbIssues.MessageFormattingType;
@@ -435,42 +435,42 @@ public class IssueFieldsSetterTest {
   }
 
   @Test
-  public void setSimpleStatus_shouldTriggerFieldChange() {
+  public void setIssueStatus_shouldTriggerFieldChange() {
     issue.setResolution(null);
     issue.setStatus(Issue.STATUS_OPEN);
 
-    SimpleStatus simpleStatus = issue.getSimpleStatus();
+    IssueStatus issueStatus = issue.getIssueStatus();
 
     underTest.setResolution(issue, Issue.RESOLUTION_WONT_FIX, context);
     underTest.setStatus(issue, Issue.STATUS_RESOLVED, context);
-    underTest.setSimpleStatus(issue, simpleStatus, issue.getSimpleStatus(), context);
+    underTest.setIssueStatus(issue, issueStatus, issue.getIssueStatus(), context);
 
-    FieldDiffs.Diff diff = issue.currentChange().diffs().get(IssueFieldsSetter.SIMPLE_STATUS);
-    assertThat(diff.oldValue()).isEqualTo(SimpleStatus.OPEN);
-    assertThat(diff.newValue()).isEqualTo(SimpleStatus.ACCEPTED);
+    FieldDiffs.Diff diff = issue.currentChange().diffs().get(IssueFieldsSetter.ISSUE_STATUS);
+    assertThat(diff.oldValue()).isEqualTo(IssueStatus.OPEN);
+    assertThat(diff.newValue()).isEqualTo(IssueStatus.ACCEPTED);
   }
 
   @Test
-  public void setSimpleStatus_shouldNotTriggerFieldChange_whenNoChanges() {
+  public void setIssueStatus_shouldNotTriggerFieldChange_whenNoChanges() {
     issue.setResolution(null);
     issue.setStatus(Issue.STATUS_OPEN);
 
-    SimpleStatus simpleStatus = issue.getSimpleStatus();
-    underTest.setSimpleStatus(issue, simpleStatus, issue.getSimpleStatus(), context);
+    IssueStatus issueStatus = issue.getIssueStatus();
+    underTest.setIssueStatus(issue, issueStatus, issue.getIssueStatus(), context);
 
     assertThat(issue.currentChange()).isNull();
   }
 
   @Test
-  public void setSimpleStatus_shouldNotTriggerFieldChange_whenSecurityHotspot() {
+  public void setIssueStatus_shouldNotTriggerFieldChange_whenSecurityHotspot() {
     issue.setResolution(null);
     issue.setStatus(Issue.STATUS_TO_REVIEW);
 
-    SimpleStatus simpleStatus = issue.getSimpleStatus();
+    IssueStatus issueStatus = issue.getIssueStatus();
 
     issue.setResolution(Issue.RESOLUTION_SAFE);
     issue.setStatus(Issue.STATUS_REVIEWED);
-    underTest.setSimpleStatus(issue, simpleStatus, issue.getSimpleStatus(), context);
+    underTest.setIssueStatus(issue, issueStatus, issue.getIssueStatus(), context);
 
     assertThat(issue.currentChange()).isNull();
   }

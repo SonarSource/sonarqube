@@ -22,7 +22,7 @@ import {
   SoftwareImpactSeverity,
   SoftwareQuality,
 } from '../../../types/clean-code-taxonomy';
-import { IssueSimpleStatus } from '../../../types/issues';
+import { IssueStatus } from '../../../types/issues';
 import { SecurityStandard } from '../../../types/security';
 import {
   parseQuery,
@@ -69,7 +69,7 @@ describe('serialize/deserialize', () => {
         severities: ['a', 'b'],
         inNewCodePeriod: true,
         sonarsourceSecurity: ['a', 'b'],
-        simpleStatuses: [IssueSimpleStatus.Accepted, IssueSimpleStatus.Confirmed],
+        issueStatuses: [IssueStatus.Accepted, IssueStatus.Confirmed],
         tags: ['a', 'b'],
         types: ['a', 'b'],
       }),
@@ -102,7 +102,7 @@ describe('serialize/deserialize', () => {
       inNewCodePeriod: 'true',
       severities: 'a,b',
       sonarsourceSecurity: 'a,b',
-      simpleStatuses: 'ACCEPTED,CONFIRMED',
+      issueStatuses: 'ACCEPTED,CONFIRMED',
       tags: 'a,b',
       types: 'a,b',
     });
@@ -149,73 +149,64 @@ describe('serialize/deserialize', () => {
       severities: ['CRITICAL', 'MAJOR'],
       sonarsourceSecurity: [],
       sort: '',
-      simpleStatuses: [],
+      issueStatuses: [],
       tags: [],
       types: [],
     });
   });
 
-  it('should map deprecated status and resolution query to new simple statuses', () => {
-    expect(parseQuery({ statuses: 'OPEN' }).simpleStatuses).toEqual([IssueSimpleStatus.Open]);
-    expect(parseQuery({ statuses: 'REOPENED' }).simpleStatuses).toEqual([IssueSimpleStatus.Open]);
-    expect(parseQuery({ statuses: 'CONFIRMED' }).simpleStatuses).toEqual([
-      IssueSimpleStatus.Confirmed,
+  it('should map deprecated status and resolution query to new issue statuses', () => {
+    expect(parseQuery({ statuses: 'OPEN' }).issueStatuses).toEqual([IssueStatus.Open]);
+    expect(parseQuery({ statuses: 'REOPENED' }).issueStatuses).toEqual([IssueStatus.Open]);
+    expect(parseQuery({ statuses: 'CONFIRMED' }).issueStatuses).toEqual([IssueStatus.Confirmed]);
+    expect(parseQuery({ statuses: 'RESOLVED' }).issueStatuses).toEqual([
+      IssueStatus.Fixed,
+      IssueStatus.Accepted,
+      IssueStatus.FalsePositive,
     ]);
-    expect(parseQuery({ statuses: 'RESOLVED' }).simpleStatuses).toEqual([
-      IssueSimpleStatus.Fixed,
-      IssueSimpleStatus.Accepted,
-      IssueSimpleStatus.FalsePositive,
-    ]);
-    expect(parseQuery({ statuses: 'OPEN,REOPENED' }).simpleStatuses).toEqual([
-      IssueSimpleStatus.Open,
-    ]);
-    expect(parseQuery({ statuses: 'OPEN,CONFIRMED' }).simpleStatuses).toEqual([
-      IssueSimpleStatus.Open,
-      IssueSimpleStatus.Confirmed,
+    expect(parseQuery({ statuses: 'OPEN,REOPENED' }).issueStatuses).toEqual([IssueStatus.Open]);
+    expect(parseQuery({ statuses: 'OPEN,CONFIRMED' }).issueStatuses).toEqual([
+      IssueStatus.Open,
+      IssueStatus.Confirmed,
     ]);
 
     // Resolutions
-    expect(parseQuery({ resolutions: 'FALSE-POSITIVE' }).simpleStatuses).toEqual([
-      IssueSimpleStatus.FalsePositive,
+    expect(parseQuery({ resolutions: 'FALSE-POSITIVE' }).issueStatuses).toEqual([
+      IssueStatus.FalsePositive,
     ]);
-    expect(parseQuery({ resolutions: 'WONTFIX' }).simpleStatuses).toEqual([
-      IssueSimpleStatus.Accepted,
-    ]);
-    expect(parseQuery({ resolutions: 'REMOVED' }).simpleStatuses).toEqual([
-      IssueSimpleStatus.Fixed,
-    ]);
-    expect(parseQuery({ resolutions: 'REMOVED,WONTFIX,FALSE-POSITIVE' }).simpleStatuses).toEqual([
-      IssueSimpleStatus.Fixed,
-      IssueSimpleStatus.Accepted,
-      IssueSimpleStatus.FalsePositive,
+    expect(parseQuery({ resolutions: 'WONTFIX' }).issueStatuses).toEqual([IssueStatus.Accepted]);
+    expect(parseQuery({ resolutions: 'REMOVED' }).issueStatuses).toEqual([IssueStatus.Fixed]);
+    expect(parseQuery({ resolutions: 'REMOVED,WONTFIX,FALSE-POSITIVE' }).issueStatuses).toEqual([
+      IssueStatus.Fixed,
+      IssueStatus.Accepted,
+      IssueStatus.FalsePositive,
     ]);
 
     // Both statuses and resolutions
     expect(
-      parseQuery({ resolutions: 'FALSE-POSITIVE', statuses: 'RESOLVED' }).simpleStatuses,
-    ).toEqual([IssueSimpleStatus.FalsePositive]);
-    expect(parseQuery({ resolutions: 'WONTFIX', statuses: 'RESOLVED' }).simpleStatuses).toEqual([
-      IssueSimpleStatus.Accepted,
+      parseQuery({ resolutions: 'FALSE-POSITIVE', statuses: 'RESOLVED' }).issueStatuses,
+    ).toEqual([IssueStatus.FalsePositive]);
+    expect(parseQuery({ resolutions: 'WONTFIX', statuses: 'RESOLVED' }).issueStatuses).toEqual([
+      IssueStatus.Accepted,
     ]);
 
     // With resolved=false
     expect(
-      parseQuery({ resolutions: 'WONTFIX', statuses: 'RESOLVED', resolved: 'false' })
-        .simpleStatuses,
-    ).toEqual([IssueSimpleStatus.Accepted, IssueSimpleStatus.Open, IssueSimpleStatus.Confirmed]);
-    expect(parseQuery({ statuses: 'OPEN', resolved: 'false' }).simpleStatuses).toEqual([
-      IssueSimpleStatus.Open,
+      parseQuery({ resolutions: 'WONTFIX', statuses: 'RESOLVED', resolved: 'false' }).issueStatuses,
+    ).toEqual([IssueStatus.Accepted, IssueStatus.Open, IssueStatus.Confirmed]);
+    expect(parseQuery({ statuses: 'OPEN', resolved: 'false' }).issueStatuses).toEqual([
+      IssueStatus.Open,
     ]);
 
-    // With simple status
+    // With new status
     expect(
       parseQuery({
         resolutions: 'WONTFIX',
         statuses: 'RESOLVED',
         resolved: 'false',
-        simpleStatuses: 'FIXED',
-      }).simpleStatuses,
-    ).toEqual([IssueSimpleStatus.Fixed]);
+        issueStatuses: 'FIXED',
+      }).issueStatuses,
+    ).toEqual([IssueStatus.Fixed]);
   });
 });
 

@@ -48,7 +48,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
-import org.sonar.core.issue.status.SimpleStatus;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.core.issue.tracking.Trackable;
 
 import static org.sonar.api.utils.DateUtils.truncateToSeconds;
@@ -345,9 +345,9 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
   @Nullable
-  public SimpleStatus getSimpleStatus() {
+  public IssueStatus getIssueStatus() {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(status), "Status must be set");
-    return SimpleStatus.of(status, resolution);
+    return IssueStatus.of(status, resolution);
   }
 
   @Override

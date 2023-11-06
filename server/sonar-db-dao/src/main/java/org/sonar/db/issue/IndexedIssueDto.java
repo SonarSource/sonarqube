@@ -28,7 +28,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.core.issue.status.SimpleStatus;
+import org.sonar.core.issue.status.IssueStatus;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -123,9 +123,9 @@ public final class IndexedIssueDto {
   }
 
   @CheckForNull
-  public String getSimpleStatus() {
-    checkArgument(status != null, "Status must be initialized to retrieve simple status");
-    return Optional.ofNullable(SimpleStatus.of(status, resolution)).map(SimpleStatus::name).orElse(null);
+  public String getIssueStatus() {
+    checkArgument(status != null, "Status must be initialized to retrieve issue status");
+    return Optional.ofNullable(IssueStatus.of(status, resolution)).map(IssueStatus::name).orElse(null);
   }
 
   public Long getEffort() {

@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.core.issue.status.SimpleStatus;
+import org.sonar.core.issue.status.IssueStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -92,17 +92,17 @@ public class IndexedIssueDtoTest {
   }
 
   @Test
-  public void getSimpleStatus_shouldReturnSimpleStatusFromStatusAndResolution() {
+  public void getIssueStatus_shouldReturnIssueStatusFromStatusAndResolution() {
     IndexedIssueDto issue1 = new IndexedIssueDto().setStatus(Issue.STATUS_OPEN);
     IndexedIssueDto issue2 = new IndexedIssueDto().setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_WONT_FIX);
     IndexedIssueDto issue3 = new IndexedIssueDto().setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED);
 
-    assertThat(Set.of(issue1, issue2, issue3)).extracting(IndexedIssueDto::getSimpleStatus)
-      .containsExactlyInAnyOrder(SimpleStatus.OPEN.name(), SimpleStatus.ACCEPTED.name(), SimpleStatus.FIXED.name());
+    assertThat(Set.of(issue1, issue2, issue3)).extracting(IndexedIssueDto::getIssueStatus)
+      .containsExactlyInAnyOrder(IssueStatus.OPEN.name(), IssueStatus.ACCEPTED.name(), IssueStatus.FIXED.name());
     IndexedIssueDto issueWithStatusNull = new IndexedIssueDto();
-    assertThatThrownBy(issueWithStatusNull::getSimpleStatus)
+    assertThatThrownBy(issueWithStatusNull::getIssueStatus)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Status must be initialized to retrieve simple status");
+      .hasMessage("Status must be initialized to retrieve issue status");
   }
 
 }

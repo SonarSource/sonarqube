@@ -19,19 +19,19 @@
  */
 import * as React from 'react';
 import { translate } from '../../helpers/l10n';
-import { IssueSimpleStatus } from '../../types/issues';
-import SimpleStatusIcon from '../icons/SimpleStatusIcon';
+import { IssueStatus } from '../../types/issues';
+import IssueStatusIcon from '../icons/IssueStatusIcon';
 
 interface Props {
   className?: string;
-  simpleStatus: IssueSimpleStatus;
+  issueStatus: IssueStatus;
 }
 
 export default function StatusHelper(props: Props) {
   return (
     <span className={props.className}>
-      <SimpleStatusIcon className="sw-mr-1" simpleStatus={props.simpleStatus} />
-      {translate('issue.simple_status', props.simpleStatus)}
+      <IssueStatusIcon className="sw-mr-1" issueStatus={props.issueStatus} />
+      {translate('issue.issue_status', props.issueStatus)}
     </span>
   );
 }

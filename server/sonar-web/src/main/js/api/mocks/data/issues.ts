@@ -28,10 +28,10 @@ import {
 } from '../../../types/clean-code-taxonomy';
 import {
   IssueActions,
+  IssueDeprecatedStatus,
   IssueResolution,
   IssueScope,
   IssueSeverity,
-  IssueSimpleStatus,
   IssueStatus,
   IssueTransition,
   IssueType,
@@ -318,8 +318,8 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
           { softwareQuality: SoftwareQuality.Security, severity: SoftwareImpactSeverity.High },
         ],
         resolution: IssueResolution.Unresolved,
-        status: IssueStatus.Open,
-        simpleStatus: IssueSimpleStatus.Open,
+        status: IssueDeprecatedStatus.Open,
+        issueStatus: IssueStatus.Open,
         ruleDescriptionContextKey: 'spring',
       }),
       snippets: keyBy(
@@ -346,8 +346,8 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
           endOffset: 1,
         },
         resolution: IssueResolution.Fixed,
-        status: IssueStatus.Confirmed,
-        simpleStatus: IssueSimpleStatus.Confirmed,
+        status: IssueDeprecatedStatus.Confirmed,
+        issueStatus: IssueStatus.Confirmed,
       }),
       snippets: keyBy(
         [

@@ -113,8 +113,8 @@ public class IssueDoc extends BaseDoc {
   }
 
   @CheckForNull
-  public String simpleStatus() {
-    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_SIMPLE_STATUS);
+  public String issueStatus() {
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_NEW_STATUS);
   }
 
   @CheckForNull
@@ -241,8 +241,8 @@ public class IssueDoc extends BaseDoc {
     return this;
   }
 
-  public IssueDoc setSimpleStatus(String s) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_SIMPLE_STATUS, s);
+  public IssueDoc setIssueStatus(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_NEW_STATUS, s);
     return this;
   }
 

@@ -74,8 +74,8 @@ public class SetTagsAction implements IssuesWsAction {
       .setDescription("Set tags on an issue. <br/>" +
         "Requires authentication and Browse permission on project")
       .setChangelog(
-        new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'simpleStatus' instead."),
-        new Change("10.4", "Add 'simpleStatus' field to the response."),
+        new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'issueStatus' instead."),
+        new Change("10.4", "Add 'issueStatus' field to the response."),
         new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
         new Change("9.6", "Response field 'ruleDescriptionContextKey' added"),
         new Change("8.8", "The response field components.uuid is removed"),

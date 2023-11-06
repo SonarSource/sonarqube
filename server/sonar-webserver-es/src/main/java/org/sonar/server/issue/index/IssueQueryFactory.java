@@ -129,7 +129,7 @@ public class IssueQueryFactory {
         .impactSeverities(request.getImpactSeverities())
         .statuses(request.getStatuses())
         .resolutions(request.getResolutions())
-        .simpleStatuses(request.getSimpleStatuses())
+        .issueStatuses(request.getIssueStatuses())
         .resolved(request.getResolved())
         .rules(ruleDtos)
         .ruleUuids(ruleUuids)

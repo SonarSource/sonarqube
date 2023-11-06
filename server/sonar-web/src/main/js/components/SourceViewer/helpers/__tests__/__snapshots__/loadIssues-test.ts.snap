@@ -22,6 +22,7 @@ exports[`loadIssues should load issues with listIssues if re-indexing 1`] = `
     "flows": [],
     "flowsWithType": [],
     "hash": "78417dcee7ba927b7e7c9161e29e02b8",
+    "issueStatus": "OPEN",
     "key": "AWaqVGl3tut9VbnJvk6M",
     "line": 62,
     "message": "Make sure this file handling is safe here.",
@@ -33,7 +34,6 @@ exports[`loadIssues should load issues with listIssues if re-indexing 1`] = `
     "projectQualifier": "TRK",
     "rule": "squid:S4797",
     "secondaryLocations": [],
-    "simpleStatus": "OPEN",
     "status": "OPEN",
     "tags": [
       "cert",
@@ -80,6 +80,7 @@ exports[`loadIssues should load issues with searchIssues if not re-indexing 1`] 
     "flows": [],
     "flowsWithType": [],
     "hash": "78417dcee7ba927b7e7c9161e29e02b8",
+    "issueStatus": "OPEN",
     "key": "AWaqVGl3tut9VbnJvk6M",
     "line": 62,
     "message": "Make sure this file handling is safe here.",
@@ -96,7 +97,6 @@ exports[`loadIssues should load issues with searchIssues if not re-indexing 1`] 
     "ruleName": "Handling files is security-sensitive",
     "ruleStatus": "READY",
     "secondaryLocations": [],
-    "simpleStatus": "OPEN",
     "status": "OPEN",
     "tags": [
       "cert",

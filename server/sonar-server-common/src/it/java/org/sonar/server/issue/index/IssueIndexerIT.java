@@ -153,7 +153,7 @@ public class IssueIndexerIT {
       .containsExactlyInAnyOrder(Map.of(
         SUB_FIELD_SOFTWARE_QUALITY, SoftwareQuality.MAINTAINABILITY.name(),
         SUB_FIELD_SEVERITY, Severity.HIGH.name()));
-    assertThat(doc.simpleStatus()).isEqualTo(issue.getSimpleStatus().name());
+    assertThat(doc.issueStatus()).isEqualTo(issue.getIssueStatus().name());
   }
 
   @Test

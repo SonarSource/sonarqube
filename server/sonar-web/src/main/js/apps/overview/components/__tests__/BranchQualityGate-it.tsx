@@ -39,7 +39,7 @@ it('renders failed QG', () => {
   expect(maintainabilityRatingLink).toBeInTheDocument();
   expect(maintainabilityRatingLink).toHaveAttribute(
     'href',
-    '/project/issues?simpleStatuses=OPEN%2CCONFIRMED&types=CODE_SMELL&pullRequest=1001&sinceLeakPeriod=true&id=my-project',
+    '/project/issues?issueStatuses=OPEN%2CCONFIRMED&types=CODE_SMELL&pullRequest=1001&sinceLeakPeriod=true&id=my-project',
   );
 
   // Security Hotspots rating condition
@@ -59,7 +59,7 @@ it('renders failed QG', () => {
   expect(codeSmellsLink).toBeInTheDocument();
   expect(codeSmellsLink).toHaveAttribute(
     'href',
-    '/project/issues?simpleStatuses=OPEN%2CCONFIRMED&types=CODE_SMELL&pullRequest=1001&id=my-project',
+    '/project/issues?issueStatuses=OPEN%2CCONFIRMED&types=CODE_SMELL&pullRequest=1001&id=my-project',
   );
 
   // Conditions to cover

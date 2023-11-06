@@ -48,7 +48,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.issue.status.SimpleStatus;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -145,7 +145,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IMPACT_SOFT
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_IN_NEW_CODE_PERIOD;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SIMPLE_STATUSES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 
 public class SearchActionIT {
@@ -605,7 +605,7 @@ public class SearchActionIT {
   }
 
   @Test
-  public void search_whenFilteringBySimpleStatuses_shouldReturnSimpleStatusesFacet() {
+  public void search_whenFilteringByIssueStatuses_shouldReturnIssueStatusesFacet() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
@@ -620,8 +620,8 @@ public class SearchActionIT {
     indexPermissionsAndIssues();
 
     SearchWsResponse response = ws.newRequest()
-      .setParam(PARAM_SIMPLE_STATUSES, SimpleStatus.ACCEPTED.name())
-      .setParam(FACETS, PARAM_SIMPLE_STATUSES)
+      .setParam(PARAM_ISSUE_STATUSES, IssueStatus.ACCEPTED.name())
+      .setParam(FACETS, PARAM_ISSUE_STATUSES)
       .executeProtobuf(SearchWsResponse.class);
 
     List<Issue> issuesList = response.getIssuesList();
@@ -630,19 +630,19 @@ public class SearchActionIT {
       .containsExactlyInAnyOrder(expectedIssue.getKey());
 
     Optional<Common.Facet> first = response.getFacets().getFacetsList()
-      .stream().filter(facet -> facet.getProperty().equals(PARAM_SIMPLE_STATUSES))
+      .stream().filter(facet -> facet.getProperty().equals(PARAM_ISSUE_STATUSES))
       .findFirst();
     assertThat(first.get().getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .containsExactlyInAnyOrder(
-        tuple(SimpleStatus.OPEN.name(), 1L),
-        tuple(SimpleStatus.ACCEPTED.name(), 1L),
-        tuple(SimpleStatus.FIXED.name(), 2L),
-        tuple(SimpleStatus.FALSE_POSITIVE.name(), 1L));
+        tuple(IssueStatus.OPEN.name(), 1L),
+        tuple(IssueStatus.ACCEPTED.name(), 1L),
+        tuple(IssueStatus.FIXED.name(), 2L),
+        tuple(IssueStatus.FALSE_POSITIVE.name(), 1L));
   }
 
   @Test
-  public void search_whenSimpleStatusesFacetRequested_shouldReturnFacet() {
+  public void search_whenIssueStatusesFacetRequested_shouldReturnFacet() {
     RuleDto rule = newIssueRule();
     ComponentDto project = db.components().insertPublicProject("PROJECT_ID",
       c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID").setLongName("LONG_NAME_PROJECT_ID").setLanguage("java")).getMainBranchComponent();
@@ -660,20 +660,20 @@ public class SearchActionIT {
     indexPermissionsAndIssues();
 
     SearchWsResponse response = ws.newRequest()
-      .setParam(FACETS, PARAM_SIMPLE_STATUSES)
+      .setParam(FACETS, PARAM_ISSUE_STATUSES)
       .executeProtobuf(SearchWsResponse.class);
 
     Optional<Common.Facet> first = response.getFacets().getFacetsList()
-      .stream().filter(facet -> facet.getProperty().equals(PARAM_SIMPLE_STATUSES))
+      .stream().filter(facet -> facet.getProperty().equals(PARAM_ISSUE_STATUSES))
       .findFirst();
     assertThat(first.get().getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .containsExactlyInAnyOrder(
-        tuple(SimpleStatus.OPEN.name(), 2L),
-        tuple(SimpleStatus.ACCEPTED.name(), 1L),
-        tuple(SimpleStatus.CONFIRMED.name(), 1L),
-        tuple(SimpleStatus.FIXED.name(), 3L),
-        tuple(SimpleStatus.FALSE_POSITIVE.name(), 1L));
+        tuple(IssueStatus.OPEN.name(), 2L),
+        tuple(IssueStatus.ACCEPTED.name(), 1L),
+        tuple(IssueStatus.CONFIRMED.name(), 1L),
+        tuple(IssueStatus.FIXED.name(), 3L),
+        tuple(IssueStatus.FALSE_POSITIVE.name(), 1L));
 
   }
 
@@ -2082,7 +2082,7 @@ public class SearchActionIT {
       "createdBefore", "createdInLast", "directories", "facets", "files", "issues", "scopes", "languages", "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "statuses", "tags", "types", "pciDss-3.2", "pciDss-4.0", "owaspAsvs-4.0",
       "owaspAsvsLevel", "owaspTop10", "owaspTop10-2021", "sansTop25", "cwe", "sonarsourceSecurity", "timeZone", "inNewCodePeriod", "codeVariants",
-      "cleanCodeAttributeCategories", "impactSeverities", "impactSoftwareQualities", "simpleStatuses");
+      "cleanCodeAttributeCategories", "impactSeverities", "impactSoftwareQualities", "issueStatuses");
 
     WebService.Param branch = def.param(PARAM_BRANCH);
     assertThat(branch.isInternal()).isFalse();

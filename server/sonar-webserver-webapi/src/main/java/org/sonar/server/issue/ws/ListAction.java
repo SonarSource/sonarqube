@@ -96,8 +96,8 @@ public class ListAction implements IssuesWsAction {
                       "<br>Requires the 'Browse' permission on the specified project. ")
       .setSince("10.2")
       .setChangelog(
-        new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'simpleStatus' instead."),
-        new Change("10.4", "Add 'simpleStatus' field to the response.")
+        new Change("10.4", "The response fields 'status' and 'resolution' are deprecated. Please use 'issueStatus' instead."),
+        new Change("10.4", "Add 'issueStatus' field to the response.")
       )
       .setResponseExample(getClass().getResource("list-example.json"));
 

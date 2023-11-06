@@ -44,7 +44,7 @@ import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.status.SimpleStatus;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbIssues;
@@ -363,9 +363,9 @@ public final class IssueDto implements Serializable {
     return status;
   }
 
-  public SimpleStatus getSimpleStatus() {
-    checkArgument(status != null, "Status must be initialized to retrieve simple status");
-    return SimpleStatus.of(status, resolution);
+  public IssueStatus getIssueStatus() {
+    checkArgument(status != null, "Status must be initialized to retrieve issue status");
+    return IssueStatus.of(status, resolution);
   }
 
   public IssueDto setStatus(@Nullable String s) {

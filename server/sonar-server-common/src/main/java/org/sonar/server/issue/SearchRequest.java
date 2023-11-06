@@ -61,7 +61,7 @@ public class SearchRequest {
   private List<String> impactSoftwareQualities;
   private List<String> cleanCodeAttributesCategories;
   private List<String> statuses;
-  private List<String> simpleStatuses;
+  private List<String> issueStatuses;
   private List<String> tags;
   private Set<String> types;
   private List<String> pciDss32;
@@ -338,14 +338,14 @@ public class SearchRequest {
     return this;
   }
 
-  public SearchRequest setSimpleStatuses(@Nullable List<String> simpleStatuses) {
-    this.simpleStatuses = simpleStatuses;
+  public SearchRequest setIssueStatuses(@Nullable List<String> issueStatuses) {
+    this.issueStatuses = issueStatuses;
     return this;
   }
 
   @CheckForNull
-  public List<String> getSimpleStatuses() {
-    return simpleStatuses;
+  public List<String> getIssueStatuses() {
+    return issueStatuses;
   }
 
   @CheckForNull

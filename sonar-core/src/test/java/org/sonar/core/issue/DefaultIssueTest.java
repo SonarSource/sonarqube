@@ -27,7 +27,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.utils.Duration;
-import org.sonar.core.issue.status.SimpleStatus;
+import org.sonar.core.issue.status.IssueStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -305,18 +305,18 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void getSimpleStatus_shouldReturnExpectedStatus() {
+  public void getIssueStatus_shouldReturnExpectedStatus() {
     issue.setStatus(Issue.STATUS_RESOLVED);
     issue.setResolution(Issue.RESOLUTION_FIXED);
 
-    assertThat(issue.getSimpleStatus()).isEqualTo(SimpleStatus.FIXED);
+    assertThat(issue.getIssueStatus()).isEqualTo(IssueStatus.FIXED);
   }
 
   @Test
-  public void getSimpleStatus_shouldThrowException_whenStatusNotSet() {
+  public void getIssueStatus_shouldThrowException_whenStatusNotSet() {
     issue.setResolution(Issue.RESOLUTION_FIXED);
 
-    assertThatThrownBy(issue::getSimpleStatus)
+    assertThatThrownBy(issue::getIssueStatus)
       .hasMessage("Status must be set")
       .isInstanceOf(IllegalArgumentException.class);
   }

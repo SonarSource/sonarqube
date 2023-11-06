@@ -44,7 +44,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.status.SimpleStatus;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
@@ -129,7 +129,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SCOPES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITIES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SIMPLE_STATUSES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SONARSOURCE_SECURITY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
@@ -169,7 +169,7 @@ public class SearchAction implements IssuesWsAction {
     PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES,
     PARAM_IMPACT_SOFTWARE_QUALITIES,
     PARAM_IMPACT_SEVERITIES,
-    PARAM_SIMPLE_STATUSES);
+    PARAM_ISSUE_STATUSES);
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
   private static final String NEW_FACET_ADDED_MESSAGE = "Facet '%s' has been added";
@@ -207,14 +207,14 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
-        new Change("10.4", format(NEW_PARAM_ADDED_MESSAGE, PARAM_SIMPLE_STATUSES)),
-        new Change("10.4", format("Parameters '%s' and '%s' are deprecated in favor of '%s'.", PARAM_RESOLUTIONS, PARAM_STATUSES, PARAM_SIMPLE_STATUSES)),
+        new Change("10.4", format(NEW_PARAM_ADDED_MESSAGE, PARAM_ISSUE_STATUSES)),
+        new Change("10.4", format("Parameters '%s' and '%s' are deprecated in favor of '%s'.", PARAM_RESOLUTIONS, PARAM_STATUSES, PARAM_ISSUE_STATUSES)),
         new Change("10.4", format("Parameter '%s' is deprecated.", PARAM_SEVERITIES)),
-        new Change("10.4", format(NEW_FACET_ADDED_MESSAGE, PARAM_SIMPLE_STATUSES)),
-        new Change("10.4", format("Facets '%s' and '%s' are deprecated in favor of '%s'", PARAM_RESOLUTIONS, PARAM_STATUSES, PARAM_SIMPLE_STATUSES)),
-        new Change("10.4", "Response field 'simpleStatus' added"),
-        new Change("10.4", "Response fields 'status' and 'resolutions' are deprecated, in favor of 'simpleStatus'"),
-        new Change("10.4", format("Possible value '%s' for 'simpleStatus' field is deprecated.", SimpleStatus.CONFIRMED)),
+        new Change("10.4", format(NEW_FACET_ADDED_MESSAGE, PARAM_ISSUE_STATUSES)),
+        new Change("10.4", format("Facets '%s' and '%s' are deprecated in favor of '%s'", PARAM_RESOLUTIONS, PARAM_STATUSES, PARAM_ISSUE_STATUSES)),
+        new Change("10.4", "Response field 'issueStatus' added"),
+        new Change("10.4", "Response fields 'status' and 'resolutions' are deprecated, in favor of 'issueStatus'"),
+        new Change("10.4", format("Possible value '%s' for 'issueStatus' field is deprecated.", IssueStatus.CONFIRMED)),
         new Change("10.2", "Add 'impacts', 'cleanCodeAttribute', 'cleanCodeAttributeCategory' fields to the response"),
         new Change("10.2", format(NEW_PARAM_ADDED_MESSAGE, PARAM_IMPACT_SOFTWARE_QUALITIES)),
         new Change("10.2", format(NEW_PARAM_ADDED_MESSAGE, PARAM_IMPACT_SEVERITIES)),
@@ -409,10 +409,10 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("Comma-separated list of code variants.")
       .setExampleValue("windows,linux")
       .setSince("10.1");
-    action.createParam(PARAM_SIMPLE_STATUSES)
+    action.createParam(PARAM_ISSUE_STATUSES)
       .setDescription("")
-      .setPossibleValues(SimpleStatus.values())
-      .setExampleValue("%s,%S".formatted(SimpleStatus.ACCEPTED, SimpleStatus.FIXED))
+      .setPossibleValues(IssueStatus.values())
+      .setExampleValue("%s,%S".formatted(IssueStatus.ACCEPTED, IssueStatus.FIXED))
       .setSince("10.4");
   }
 
@@ -638,7 +638,7 @@ public class SearchAction implements IssuesWsAction {
       .setImpactSoftwareQualities(request.paramAsStrings(PARAM_IMPACT_SOFTWARE_QUALITIES))
       .setCleanCodeAttributesCategories(request.paramAsStrings(PARAM_CLEAN_CODE_ATTRIBUTE_CATEGORIES))
       .setStatuses(request.paramAsStrings(PARAM_STATUSES))
-      .setSimpleStatuses(request.paramAsStrings(PARAM_SIMPLE_STATUSES))
+      .setIssueStatuses(request.paramAsStrings(PARAM_ISSUE_STATUSES))
       .setTags(request.paramAsStrings(PARAM_TAGS))
       .setTypes(allRuleTypesExceptHotspotsIfEmpty(request.paramAsStrings(PARAM_TYPES)))
       .setPciDss32(request.paramAsStrings(PARAM_PCI_DSS_32))

@@ -19,7 +19,7 @@
  */
 import { BugIcon, CodeSmellIcon, SecurityHotspotIcon, VulnerabilityIcon } from 'design-system';
 import { flatten, sortBy } from 'lodash';
-import { IssueSimpleStatus, IssueStatus, IssueType, RawIssue } from '../types/issues';
+import { IssueDeprecatedStatus, IssueStatus, IssueType, RawIssue } from '../types/issues';
 import { MetricKey } from '../types/metrics';
 import { Dict, Flow, FlowLocation, FlowType, Issue, TextRange } from '../types/types';
 import { UserBase } from '../types/users';
@@ -160,16 +160,16 @@ export function parseIssueFromResponse(
     ...splitFlows(issue, components),
     ...prepareClosed(issue),
     ...ensureTextRange(issue),
-    simpleStatus:
-      issue.simpleStatus ??
+    issueStatus:
+      issue.issueStatus ??
       {
-        [IssueStatus.Open]: IssueSimpleStatus.Open,
-        [IssueStatus.Reopened]: IssueSimpleStatus.Open,
-        [IssueStatus.Closed]: IssueSimpleStatus.Fixed,
-        [IssueStatus.Resolved]: IssueSimpleStatus.Fixed,
-        [IssueStatus.Confirmed]: IssueSimpleStatus.Confirmed,
+        [IssueDeprecatedStatus.Open]: IssueStatus.Open,
+        [IssueDeprecatedStatus.Reopened]: IssueStatus.Open,
+        [IssueDeprecatedStatus.Closed]: IssueStatus.Fixed,
+        [IssueDeprecatedStatus.Resolved]: IssueStatus.Fixed,
+        [IssueDeprecatedStatus.Confirmed]: IssueStatus.Confirmed,
       }[issue.status] ??
-      IssueSimpleStatus.Open,
+      IssueStatus.Open,
   } as Issue;
 }
 

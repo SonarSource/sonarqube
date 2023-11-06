@@ -41,7 +41,7 @@ import { translate } from '../../../helpers/l10n';
 import { HttpStatus } from '../../../helpers/request';
 import { BranchLike } from '../../../types/branch-like';
 import { isFile } from '../../../types/component';
-import { IssueStatus } from '../../../types/issues';
+import { IssueDeprecatedStatus } from '../../../types/issues';
 import {
   Dict,
   DuplicatedFile,
@@ -124,7 +124,7 @@ export default class CrossComponentSourceViewer extends React.PureComponent<Prop
 
     try {
       const components =
-        issue.status === IssueStatus.Closed ? {} : await getIssueFlowSnippets(issue.key);
+        issue.status === IssueDeprecatedStatus.Closed ? {} : await getIssueFlowSnippets(issue.key);
       if (components[issue.component] === undefined) {
         const issueComponent = await getComponentForSourceViewer({
           // If the issue's component doesn't exist anymore (typically a deleted file), use the project

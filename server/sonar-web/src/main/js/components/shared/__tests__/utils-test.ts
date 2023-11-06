@@ -23,13 +23,13 @@ import { propsToIssueParams } from '../utils';
 
 describe('propsToIssueParams', () => {
   it('should render correct default parameters', () => {
-    expect(propsToIssueParams('other')).toEqual({ simpleStatuses: 'OPEN,CONFIRMED' });
+    expect(propsToIssueParams('other')).toEqual({ issueStatuses: 'OPEN,CONFIRMED' });
   });
 
   it(`should render correct params`, () => {
     expect(propsToIssueParams(MetricKey.false_positive_issues, true)).toEqual({
       inNewCodePeriod: true,
-      simpleStatuses: 'FALSE_POSITIVE',
+      issueStatuses: 'FALSE_POSITIVE',
     });
   });
 });

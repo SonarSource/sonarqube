@@ -15,7 +15,7 @@
       "severity": "MAJOR",
       "cleanCodeAttribute": "CLEAR",
       "cleanCodeAttributeCategory": "INTENTIONAL",
-      "simpleStatus": "ACCEPTED",
+      "issueStatus": "ACCEPTED",
       "impacts": [
         {
           "softwareQuality": "SECURITY",

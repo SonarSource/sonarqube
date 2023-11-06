@@ -41,7 +41,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.status.SimpleStatus;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserIdDto;
@@ -64,16 +64,16 @@ public class IssueFieldsSetter {
   public static final String ASSIGNEE = "assignee";
 
   /**
-   * @deprecated use {@link IssueFieldsSetter#SIMPLE_STATUS} instead
+   * @deprecated use {@link IssueFieldsSetter#ISSUE_STATUS} instead
    */
   @Deprecated(since = "10.4")
   public static final String RESOLUTION = "resolution";
   /**
-   * @deprecated use {@link IssueFieldsSetter#SIMPLE_STATUS} instead
+   * @deprecated use {@link IssueFieldsSetter#ISSUE_STATUS} instead
    */
   @Deprecated(since = "10.4")
   public static final String STATUS = "status";
-  public static final String SIMPLE_STATUS = "simpleStatus";
+  public static final String ISSUE_STATUS = "issueStatus";
   public static final String AUTHOR = "author";
   public static final String FILE = "file";
   public static final String FROM_BRANCH = "from_branch";
@@ -260,10 +260,10 @@ public class IssueFieldsSetter {
     return false;
   }
 
-  public boolean setSimpleStatus(DefaultIssue issue, @Nullable SimpleStatus previousSimpleStatus, @Nullable SimpleStatus newSimpleStatus, IssueChangeContext context) {
-    if (!Objects.equals(newSimpleStatus, previousSimpleStatus)) {
-      //Currently, simple status is not persisted in database, but is considered as an issue change
-      issue.setFieldChange(context, SIMPLE_STATUS, previousSimpleStatus, issue.getSimpleStatus());
+  public boolean setIssueStatus(DefaultIssue issue, @Nullable IssueStatus previousIssueStatus, @Nullable IssueStatus newIssueStatus, IssueChangeContext context) {
+    if (!Objects.equals(newIssueStatus, previousIssueStatus)) {
+      //Currently, issue status is not persisted in database, but is considered as an issue change
+      issue.setFieldChange(context, ISSUE_STATUS, previousIssueStatus, issue.getIssueStatus());
       return true;
     }
     return false;

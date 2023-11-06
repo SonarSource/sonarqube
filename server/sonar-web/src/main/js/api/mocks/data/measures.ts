@@ -21,7 +21,7 @@
 import { keyBy } from 'lodash';
 import { isDiffMetric } from '../../../helpers/measures';
 import { mockMeasure } from '../../../helpers/testMocks';
-import { IssueStatus, IssueType, RawIssue } from '../../../types/issues';
+import { IssueDeprecatedStatus, IssueType, RawIssue } from '../../../types/issues';
 import { MetricKey } from '../../../types/metrics';
 import { Measure } from '../../../types/types';
 import { ComponentTree } from './components';
@@ -62,9 +62,11 @@ function mockComponentMeasure(tree: ComponentTree, issueList: IssueData[], metri
     .map(({ issue }) => issue)
     .filter(({ component }) => componentKeys.includes(component))
     .filter(({ status }) =>
-      [IssueStatus.Open, IssueStatus.Reopened, IssueStatus.Confirmed].includes(
-        status as IssueStatus,
-      ),
+      [
+        IssueDeprecatedStatus.Open,
+        IssueDeprecatedStatus.Reopened,
+        IssueDeprecatedStatus.Confirmed,
+      ].includes(status as IssueDeprecatedStatus),
     );
 
   if (isIssueType(metricKey)) {

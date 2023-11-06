@@ -29,7 +29,7 @@ import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { isFile } from '../../../types/component';
-import { IssueStatus } from '../../../types/issues';
+import { IssueDeprecatedStatus } from '../../../types/issues';
 import {
   Dict,
   Duplication,
@@ -272,7 +272,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
       ...additionalLines,
     });
 
-    const issueIsClosed = issue.status === IssueStatus.Closed;
+    const issueIsClosed = issue.status === IssueDeprecatedStatus.Closed;
     const issueIsFileLevel = isFile(issue.componentQualifier) && issue.componentEnabled;
     const closedIssueMessageKey = issueIsFileLevel
       ? 'issue.closed.file_level'

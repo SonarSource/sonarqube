@@ -96,7 +96,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       .orElse(null);
     doc.setCleanCodeAttributeCategory(cleanCodeAttributeCategory);
     doc.setStatus(indexedIssueDto.getStatus());
-    doc.setSimpleStatus(indexedIssueDto.getSimpleStatus());
+    doc.setIssueStatus(indexedIssueDto.getIssueStatus());
     doc.setEffort(indexedIssueDto.getEffort());
     doc.setAuthorLogin(indexedIssueDto.getAuthorLogin());
 

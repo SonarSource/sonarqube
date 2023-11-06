@@ -32,7 +32,7 @@ import { ComponentPropsType } from '../../../helpers/testUtils';
 import {
   IssueActions,
   IssueSeverity,
-  IssueSimpleStatus,
+  IssueStatus,
   IssueTransition,
   IssueType,
 } from '../../../types/issues';
@@ -97,7 +97,7 @@ describe('updating', () => {
   it('should allow updating the status', async () => {
     const { ui } = getPageObject();
     const issue = mockRawIssue(false, {
-      simpleStatus: IssueSimpleStatus.Open,
+      issueStatus: IssueStatus.Open,
       transitions: [IssueTransition.Confirm, IssueTransition.UnConfirm],
     });
     issuesHandler.setIssueList([{ issue, snippets: {} }]);
@@ -105,8 +105,8 @@ describe('updating', () => {
       issue: mockIssue(false, { ...pick(issue, 'key', 'status', 'transitions') }),
     });
 
-    await ui.updateStatus(IssueSimpleStatus.Open, IssueTransition.Confirm);
-    expect(ui.updateStatusBtn(IssueSimpleStatus.Confirmed).get()).toBeInTheDocument();
+    await ui.updateStatus(IssueStatus.Open, IssueTransition.Confirm);
+    expect(ui.updateStatusBtn(IssueStatus.Confirmed).get()).toBeInTheDocument();
   });
 
   it('should allow assigning', async () => {
@@ -244,8 +244,8 @@ function getPageObject() {
     setSeverityBtn: (severity: IssueSeverity) => byText(`severity.${severity}`),
 
     // Status
-    updateStatusBtn: (currentStatus: IssueSimpleStatus) =>
-      byLabelText(`issue.transition.status_x_click_to_change.issue.simple_status.${currentStatus}`),
+    updateStatusBtn: (currentStatus: IssueStatus) =>
+      byLabelText(`issue.transition.status_x_click_to_change.issue.issue_status.${currentStatus}`),
     setStatusBtn: (transition: IssueTransition) => byText(`issue.transition.${transition}`),
 
     // Assignee
@@ -297,7 +297,7 @@ function getPageObject() {
         await user.click(selectors.setSeverityBtn(newSeverity).get());
       });
     },
-    async updateStatus(currentStatus: IssueSimpleStatus, transition: IssueTransition) {
+    async updateStatus(currentStatus: IssueStatus, transition: IssueTransition) {
       await user.click(selectors.updateStatusBtn(currentStatus).get());
       await act(async () => {
         await user.click(selectors.setStatusBtn(transition).get());

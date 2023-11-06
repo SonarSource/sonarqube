@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { IssueSimpleStatus } from '../../types/issues';
+import { IssueStatus } from '../../types/issues';
 import { MetricKey } from '../../types/metrics';
 import { Dict } from '../../types/types';
 
@@ -47,7 +47,7 @@ const ISSUE_MEASURES = [
 ];
 
 export const DEFAULT_ISSUES_QUERY = {
-  simpleStatuses: `${IssueSimpleStatus.Open},${IssueSimpleStatus.Confirmed}`,
+  issueStatuses: `${IssueStatus.Open},${IssueStatus.Confirmed}`,
 };
 
 const issueParamsPerMetric: Dict<Dict<string>> = {
@@ -61,10 +61,10 @@ const issueParamsPerMetric: Dict<Dict<string>> = {
   [MetricKey.new_minor_violations]: { severities: 'MINOR' },
   [MetricKey.info_violations]: { severities: 'INFO' },
   [MetricKey.new_info_violations]: { severities: 'INFO' },
-  [MetricKey.open_issues]: { simpleStatuses: IssueSimpleStatus.Open },
-  [MetricKey.reopened_issues]: { simpleStatuses: IssueSimpleStatus.Open },
-  [MetricKey.confirmed_issues]: { simpleStatuses: IssueSimpleStatus.Confirmed },
-  [MetricKey.false_positive_issues]: { simpleStatuses: IssueSimpleStatus.FalsePositive },
+  [MetricKey.open_issues]: { issueStatuses: IssueStatus.Open },
+  [MetricKey.reopened_issues]: { issueStatuses: IssueStatus.Open },
+  [MetricKey.confirmed_issues]: { issueStatuses: IssueStatus.Confirmed },
+  [MetricKey.false_positive_issues]: { issueStatuses: IssueStatus.FalsePositive },
   [MetricKey.code_smells]: { types: 'CODE_SMELL' },
   [MetricKey.new_code_smells]: { types: 'CODE_SMELL' },
   [MetricKey.bugs]: { types: 'BUG' },

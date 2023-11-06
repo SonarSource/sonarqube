@@ -33,7 +33,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.core.issue.status.SimpleStatus;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
@@ -282,13 +282,13 @@ public class SearchResponseFormatFormatOperationTest {
   }
 
   @Test
-  public void formatOperation_shouldReturnExpectedSimpleStatus() {
+  public void formatOperation_shouldReturnExpectedIssueStatus() {
     issueDto.setStatus(org.sonar.api.issue.Issue.STATUS_RESOLVED);
     issueDto.setResolution(org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX);
 
     Operation result = searchResponseFormat.formatOperation(searchResponseData);
 
-    assertThat(result.getIssue().getSimpleStatus()).isEqualTo(SimpleStatus.ACCEPTED.name());
+    assertThat(result.getIssue().getIssueStatus()).isEqualTo(IssueStatus.ACCEPTED.name());
   }
 
   private SearchResponseData newSearchResponseDataMainBranch() {

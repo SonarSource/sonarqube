@@ -19,36 +19,35 @@
  */
 
 import { FacetBox, FacetItem } from 'design-system';
-import { FacetItemsList } from './FacetItemsList';
-
 import { isEqual, sortBy, without } from 'lodash';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
 import { DEFAULT_ISSUES_QUERY } from '../../../components/shared/utils';
-import { SIMPLE_STATUSES } from '../../../helpers/constants';
-import { IssueSimpleStatus } from '../../../types/issues';
+import { ISSUE_STATUSES } from '../../../helpers/constants';
+import { IssueStatus } from '../../../types/issues';
 import { formatFacetStat } from '../utils';
+import { FacetItemsList } from './FacetItemsList';
 import { MultipleSelectionHint } from './MultipleSelectionHint';
 import { CommonProps } from './SimpleListStyleFacet';
 
 interface Props extends CommonProps {
-  simpleStatuses: Array<IssueSimpleStatus>;
+  issueStatuses: Array<IssueStatus>;
 }
 
-const property = 'simpleStatuses';
+const property = 'issueStatuses';
 const headerId = `facet_${property}`;
 
-const defaultStatuses = DEFAULT_ISSUES_QUERY.simpleStatuses.split(',') as IssueSimpleStatus[];
+const defaultStatuses = DEFAULT_ISSUES_QUERY.issueStatuses.split(',') as IssueStatus[];
 
-export function SimpleStatusFacet(props: Readonly<Props>) {
-  const { simpleStatuses = [], stats = {}, fetching, open, help, needIssueSync } = props;
+export function IssueStatusFacet(props: Readonly<Props>) {
+  const { issueStatuses = [], stats = {}, fetching, open, help, needIssueSync } = props;
   const intl = useIntl();
 
-  const nbSelectableItems = SIMPLE_STATUSES.filter(
+  const nbSelectableItems = ISSUE_STATUSES.filter(
     (item) => !defaultStatuses.includes(item) && stats[item],
   ).length;
-  const hasDefaultSelection = isEqual(sortBy(simpleStatuses), sortBy(defaultStatuses));
-  const nbSelectedItems = hasDefaultSelection ? 0 : simpleStatuses.length;
+  const hasDefaultSelection = isEqual(sortBy(issueStatuses), sortBy(defaultStatuses));
+  const nbSelectedItems = hasDefaultSelection ? 0 : issueStatuses.length;
 
   return (
     <FacetBox
@@ -70,8 +69,8 @@ export function SimpleStatusFacet(props: Readonly<Props>) {
       help={help}
     >
       <FacetItemsList labelledby={headerId}>
-        {SIMPLE_STATUSES.map((item) => {
-          const active = simpleStatuses.includes(item);
+        {ISSUE_STATUSES.map((item) => {
+          const active = issueStatuses.includes(item);
           const stat = stats[item];
 
           return (
@@ -79,17 +78,17 @@ export function SimpleStatusFacet(props: Readonly<Props>) {
               active={active}
               className="it__search-navigator-facet"
               key={item}
-              name={intl.formatMessage({ id: `issue.simple_status.${item}` })}
-              onClick={(itemValue: IssueSimpleStatus, multiple) => {
+              name={intl.formatMessage({ id: `issue.issue_status.${item}` })}
+              onClick={(itemValue: IssueStatus, multiple) => {
                 if (multiple) {
                   props.onChange({
                     [property]: active
-                      ? without(simpleStatuses, itemValue)
-                      : [...simpleStatuses, itemValue],
+                      ? without(issueStatuses, itemValue)
+                      : [...issueStatuses, itemValue],
                   });
                 } else {
                   props.onChange({
-                    [property]: active && simpleStatuses.length === 1 ? [] : [itemValue],
+                    [property]: active && issueStatuses.length === 1 ? [] : [itemValue],
                   });
                 }
               }}
@@ -102,7 +101,7 @@ export function SimpleStatusFacet(props: Readonly<Props>) {
 
       <MultipleSelectionHint
         nbSelectableItems={nbSelectableItems}
-        nbSelectedItems={simpleStatuses.length}
+        nbSelectedItems={issueStatuses.length}
       />
     </FacetBox>
   );

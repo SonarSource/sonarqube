@@ -77,7 +77,7 @@ import org.sonar.api.server.rule.RulesDefinition.OwaspTop10Version;
 import org.sonar.api.server.rule.RulesDefinition.PciDssVersion;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.status.SimpleStatus;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchOptions;
@@ -145,7 +145,7 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.RULES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.SANS_TOP_25;
 import static org.sonar.server.issue.index.IssueIndex.Facet.SCOPES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.SEVERITIES;
-import static org.sonar.server.issue.index.IssueIndex.Facet.SIMPLE_STATUSES;
+import static org.sonar.server.issue.index.IssueIndex.Facet.ISSUE_STATUSES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.SONARSOURCE_SECURITY;
 import static org.sonar.server.issue.index.IssueIndex.Facet.STATUSES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.TAGS;
@@ -183,7 +183,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SANS
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SCOPE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SEVERITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SIMPLE_STATUS;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_NEW_STATUS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SQ_SECURITY_CATEGORY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_STATUS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TAGS;
@@ -217,7 +217,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SCOPES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITIES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SIMPLE_STATUSES;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SONARSOURCE_SECURITY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
@@ -267,7 +267,7 @@ public class IssueIndex {
     STATUSES(PARAM_STATUSES, FIELD_ISSUE_STATUS, STICKY, Issue.STATUSES.size()),
     // Resolutions facet returns one more element than the number of resolutions to take into account unresolved issues
     RESOLUTIONS(PARAM_RESOLUTIONS, FIELD_ISSUE_RESOLUTION, STICKY, Issue.RESOLUTIONS.size() + 1),
-    SIMPLE_STATUSES(PARAM_SIMPLE_STATUSES, FIELD_ISSUE_SIMPLE_STATUS, STICKY, SimpleStatus.values().length),
+    ISSUE_STATUSES(PARAM_ISSUE_STATUSES, FIELD_ISSUE_NEW_STATUS, STICKY, IssueStatus.values().length),
     TYPES(PARAM_TYPES, FIELD_ISSUE_TYPE, STICKY, RuleType.values().length),
     SCOPES(PARAM_SCOPES, FIELD_ISSUE_SCOPE, STICKY, MAX_FACET_SIZE),
     LANGUAGES(PARAM_LANGUAGES, FIELD_ISSUE_LANGUAGE, STICKY, MAX_FACET_SIZE),
@@ -486,7 +486,7 @@ public class IssueIndex {
         FIELD_ISSUE_RULE_UUID,
         query.ruleUuids()));
     filters.addFilter(FIELD_ISSUE_STATUS, STATUSES.getFilterScope(), createTermsFilter(FIELD_ISSUE_STATUS, query.statuses()));
-    filters.addFilter(FIELD_ISSUE_SIMPLE_STATUS, SIMPLE_STATUSES.getFilterScope(), createTermsFilter(FIELD_ISSUE_SIMPLE_STATUS, query.simpleStatuses()));
+    filters.addFilter(FIELD_ISSUE_NEW_STATUS, ISSUE_STATUSES.getFilterScope(), createTermsFilter(FIELD_ISSUE_NEW_STATUS, query.issueStatuses()));
     filters.addFilter(FIELD_ISSUE_CODE_VARIANTS, CODE_VARIANTS.getFilterScope(), createTermsFilter(FIELD_ISSUE_CODE_VARIANTS, query.codeVariants()));
 
     // security category
@@ -845,7 +845,7 @@ public class IssueIndex {
   private void configureTopAggregations(TopAggregationHelper aggregationHelper, IssueQuery query, SearchOptions options,
     AllFilters queryFilters, SearchSourceBuilder esRequest) {
     addFacetIfNeeded(options, aggregationHelper, esRequest, STATUSES, NO_SELECTED_VALUES);
-    addFacetIfNeeded(options, aggregationHelper, esRequest, SIMPLE_STATUSES, query.simpleStatuses().toArray());
+    addFacetIfNeeded(options, aggregationHelper, esRequest, ISSUE_STATUSES, query.issueStatuses().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, PROJECT_UUIDS, query.projectUuids().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, DIRECTORIES, query.directories().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, FILES, query.files().toArray());

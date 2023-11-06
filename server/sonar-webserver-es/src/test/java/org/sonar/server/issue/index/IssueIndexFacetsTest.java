@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RulesDefinition.OwaspAsvsVersion;
-import org.sonar.core.issue.status.SimpleStatus;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.Facets;
@@ -372,23 +372,23 @@ public class IssueIndexFacetsTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_shouldReturnSimpleStatusesFacet() {
+  public void search_shouldReturnIssueStatusesFacet() {
     ComponentDto mainBranch = newPrivateProjectDto();
     ComponentDto file = newFileDto(mainBranch);
 
     indexIssues(
-      newDoc("I1", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.CONFIRMED.name()),
-      newDoc("I2", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.FIXED.name()),
-      newDoc("I3", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.OPEN.name()),
-      newDoc("I4", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.OPEN.name()),
-      newDoc("I5", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.ACCEPTED.name()),
-      newDoc("I6", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.ACCEPTED.name()),
-      newDoc("I7", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.ACCEPTED.name()),
-      newDoc("I8", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.FALSE_POSITIVE.name()),
-      newDoc("I9", mainBranch.uuid(), file).setSimpleStatus(SimpleStatus.FALSE_POSITIVE.name()));
+      newDoc("I1", mainBranch.uuid(), file).setIssueStatus(IssueStatus.CONFIRMED.name()),
+      newDoc("I2", mainBranch.uuid(), file).setIssueStatus(IssueStatus.FIXED.name()),
+      newDoc("I3", mainBranch.uuid(), file).setIssueStatus(IssueStatus.OPEN.name()),
+      newDoc("I4", mainBranch.uuid(), file).setIssueStatus(IssueStatus.OPEN.name()),
+      newDoc("I5", mainBranch.uuid(), file).setIssueStatus(IssueStatus.ACCEPTED.name()),
+      newDoc("I6", mainBranch.uuid(), file).setIssueStatus(IssueStatus.ACCEPTED.name()),
+      newDoc("I7", mainBranch.uuid(), file).setIssueStatus(IssueStatus.ACCEPTED.name()),
+      newDoc("I8", mainBranch.uuid(), file).setIssueStatus(IssueStatus.FALSE_POSITIVE.name()),
+      newDoc("I9", mainBranch.uuid(), file).setIssueStatus(IssueStatus.FALSE_POSITIVE.name()));
 
-    assertThatFacetHasSize(IssueQuery.builder().build(), "simpleStatuses", 5);
-    assertThatFacetHasOnly(IssueQuery.builder(), "simpleStatuses",
+    assertThatFacetHasSize(IssueQuery.builder().build(), "issueStatuses", 5);
+    assertThatFacetHasOnly(IssueQuery.builder(), "issueStatuses",
       entry("OPEN", 2L),
       entry("CONFIRMED", 1L),
       entry("FALSE_POSITIVE", 2L),

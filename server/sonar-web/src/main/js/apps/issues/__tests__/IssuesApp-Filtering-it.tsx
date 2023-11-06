@@ -90,7 +90,7 @@ describe('issues app filtering', () => {
     expect(ui.issueItem6.get()).toBeInTheDocument();
 
     // Status
-    await user.click(ui.simpleStatusFacet.get());
+    await user.click(ui.issueStatusFacet.get());
     await user.click(ui.openStatusFilter.get());
     expect(ui.issueItem6.query()).not.toBeInTheDocument(); // Issue 6 should vanish
 
@@ -350,7 +350,7 @@ describe('issues app when reindexing', () => {
     expect(ui.resolutionFacet.query()).not.toBeInTheDocument();
     expect(ui.ruleFacet.query()).not.toBeInTheDocument();
     expect(ui.scopeFacet.query()).not.toBeInTheDocument();
-    expect(ui.simpleStatusFacet.query()).not.toBeInTheDocument();
+    expect(ui.issueStatusFacet.query()).not.toBeInTheDocument();
     expect(ui.tagFacet.query()).not.toBeInTheDocument();
 
     // Indexation message

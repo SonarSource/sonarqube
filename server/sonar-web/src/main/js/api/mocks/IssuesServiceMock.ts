@@ -20,7 +20,7 @@
 import { cloneDeep, uniqueId } from 'lodash';
 import { RuleDescriptionSections } from '../../apps/coding-rules/rule';
 
-import { ISSUE_TYPES, SEVERITIES, SIMPLE_STATUSES, SOURCE_SCOPES } from '../../helpers/constants';
+import { ISSUE_STATUSES, ISSUE_TYPES, SEVERITIES, SOURCE_SCOPES } from '../../helpers/constants';
 import { mockIssueAuthors, mockIssueChangelog } from '../../helpers/mocks/issues';
 import { RequestData } from '../../helpers/request';
 import { getStandards } from '../../helpers/security-standard';
@@ -33,7 +33,7 @@ import {
 import { SearchRulesResponse } from '../../types/coding-rules';
 import {
   ASSIGNEE_ME,
-  IssueSimpleStatus,
+  IssueDeprecatedStatus,
   IssueStatus,
   IssueTransition,
   IssueType,
@@ -331,7 +331,7 @@ export default class IssuesServiceMock {
         values: (
           {
             severities: SEVERITIES,
-            simpleStatuses: SIMPLE_STATUSES,
+            issueStatuses: ISSUE_STATUSES,
             types: ISSUE_TYPES,
             scopes: SOURCE_SCOPES.map(({ scope }) => scope),
             projects: ['org.project1', 'org.project2'],
@@ -384,8 +384,7 @@ export default class IssuesServiceMock {
     const filteredList = this.list
       .filter(
         (item) =>
-          !query.simpleStatuses ||
-          query.simpleStatuses.split(',').includes(item.issue.simpleStatus),
+          !query.issueStatuses || query.issueStatuses.split(',').includes(item.issue.issueStatus),
       )
       .filter((item) => {
         if (!query.cleanCodeAttributeCategories) {
@@ -518,39 +517,39 @@ export default class IssuesServiceMock {
   };
 
   handleSetIssueTransition = (data: { issue: string; transition: string }) => {
-    const simpleStatusMap: { [key: string]: IssueSimpleStatus } = {
-      [IssueTransition.Accept]: IssueSimpleStatus.Accepted,
-      [IssueTransition.Confirm]: IssueSimpleStatus.Confirmed,
-      [IssueTransition.UnConfirm]: IssueSimpleStatus.Open,
-      [IssueTransition.Resolve]: IssueSimpleStatus.Fixed,
-      [IssueTransition.WontFix]: IssueSimpleStatus.Accepted,
-      [IssueTransition.FalsePositive]: IssueSimpleStatus.FalsePositive,
+    const issueStatusMap: { [key: string]: IssueStatus } = {
+      [IssueTransition.Accept]: IssueStatus.Accepted,
+      [IssueTransition.Confirm]: IssueStatus.Confirmed,
+      [IssueTransition.UnConfirm]: IssueStatus.Open,
+      [IssueTransition.Resolve]: IssueStatus.Fixed,
+      [IssueTransition.WontFix]: IssueStatus.Accepted,
+      [IssueTransition.FalsePositive]: IssueStatus.FalsePositive,
     };
 
     const transitionMap: Dict<IssueTransition[]> = {
-      [IssueSimpleStatus.Open]: [
+      [IssueStatus.Open]: [
         IssueTransition.Accept,
         IssueTransition.Confirm,
         IssueTransition.Resolve,
         IssueTransition.FalsePositive,
         IssueTransition.WontFix,
       ],
-      [IssueSimpleStatus.Confirmed]: [
+      [IssueStatus.Confirmed]: [
         IssueTransition.Accept,
         IssueTransition.Resolve,
         IssueTransition.UnConfirm,
         IssueTransition.FalsePositive,
         IssueTransition.WontFix,
       ],
-      [IssueSimpleStatus.FalsePositive]: [IssueTransition.Reopen],
-      [IssueSimpleStatus.Accepted]: [IssueTransition.Reopen],
-      [IssueSimpleStatus.Fixed]: [IssueTransition.Reopen],
+      [IssueStatus.FalsePositive]: [IssueTransition.Reopen],
+      [IssueStatus.Accepted]: [IssueTransition.Reopen],
+      [IssueStatus.Fixed]: [IssueTransition.Reopen],
     };
 
     return this.getActionsResponse(
       {
-        simpleStatus: simpleStatusMap[data.transition],
-        transitions: transitionMap[simpleStatusMap[data.transition]],
+        issueStatus: issueStatusMap[data.transition],
+        transitions: transitionMap[issueStatusMap[data.transition]],
       },
       data.issue,
     );
@@ -639,8 +638,8 @@ export default class IssuesServiceMock {
           diffs: [
             {
               key: 'status',
-              newValue: IssueStatus.Reopened,
-              oldValue: IssueStatus.Confirmed,
+              newValue: IssueDeprecatedStatus.Reopened,
+              oldValue: IssueDeprecatedStatus.Confirmed,
             },
           ],
         }),

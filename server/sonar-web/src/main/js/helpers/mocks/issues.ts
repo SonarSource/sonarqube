@@ -82,7 +82,7 @@ export function mockQuery(overrides: Partial<Query> = {}): Query {
     impactSoftwareQualities: [],
     inNewCodePeriod: false,
     sonarsourceSecurity: [],
-    simpleStatuses: [],
+    issueStatuses: [],
     sort: '',
     tags: [],
     types: [],

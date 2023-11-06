@@ -41,8 +41,8 @@ import {
 } from '../../types/clean-code-taxonomy';
 import {
   Facet,
+  IssueDeprecatedStatus,
   IssueResolution,
-  IssueSimpleStatus,
   IssueStatus,
   RawFacet,
 } from '../../types/issues';
@@ -83,7 +83,7 @@ export interface Query {
   inNewCodePeriod: boolean;
   sonarsourceSecurity: string[];
   sort: string;
-  simpleStatuses: IssueSimpleStatus[];
+  issueStatuses: IssueStatus[];
   tags: string[];
   types: string[];
 }
@@ -130,44 +130,47 @@ export function parseQuery(query: RawQuery): Query {
     severities: parseAsArray(query.severities, parseAsString),
     sonarsourceSecurity: parseAsArray(query.sonarsourceSecurity, parseAsString),
     sort: parseAsSort(query.s),
-    simpleStatuses: parseSimpleStatuses(query),
+    issueStatuses: parseIssueStatuses(query),
     tags: parseAsArray(query.tags, parseAsString),
     types: parseAsArray(query.types, parseAsString),
     codeVariants: parseAsArray(query.codeVariants, parseAsString),
   };
 }
 
-function parseSimpleStatuses(query: RawQuery) {
-  let result: Array<IssueSimpleStatus> = [];
+function parseIssueStatuses(query: RawQuery) {
+  let result: Array<IssueStatus> = [];
 
-  if (query.simpleStatuses) {
-    return parseAsArray<IssueSimpleStatus>(query.simpleStatuses, parseAsString);
+  if (query.issueStatuses) {
+    return parseAsArray<IssueStatus>(query.issueStatuses, parseAsString);
   }
 
   const deprecatedStatusesMap = {
-    [IssueStatus.Open]: [IssueSimpleStatus.Open],
-    [IssueStatus.Confirmed]: [IssueSimpleStatus.Confirmed],
-    [IssueStatus.Reopened]: [IssueSimpleStatus.Open],
-    [IssueStatus.Resolved]: [
-      IssueSimpleStatus.Fixed,
-      IssueSimpleStatus.Accepted,
-      IssueSimpleStatus.FalsePositive,
+    [IssueDeprecatedStatus.Open]: [IssueStatus.Open],
+    [IssueDeprecatedStatus.Confirmed]: [IssueStatus.Confirmed],
+    [IssueDeprecatedStatus.Reopened]: [IssueStatus.Open],
+    [IssueDeprecatedStatus.Resolved]: [
+      IssueStatus.Fixed,
+      IssueStatus.Accepted,
+      IssueStatus.FalsePositive,
     ],
-    [IssueStatus.Closed]: [IssueSimpleStatus.Fixed],
+    [IssueDeprecatedStatus.Closed]: [IssueStatus.Fixed],
   };
   const deprecatedResolutionsMap = {
-    [IssueResolution.FalsePositive]: [IssueSimpleStatus.FalsePositive],
-    [IssueResolution.WontFix]: [IssueSimpleStatus.Accepted],
-    [IssueResolution.Fixed]: [IssueSimpleStatus.Fixed],
-    [IssueResolution.Removed]: [IssueSimpleStatus.Fixed],
-    [IssueResolution.Unresolved]: [IssueSimpleStatus.Open, IssueSimpleStatus.Confirmed],
+    [IssueResolution.FalsePositive]: [IssueStatus.FalsePositive],
+    [IssueResolution.WontFix]: [IssueStatus.Accepted],
+    [IssueResolution.Fixed]: [IssueStatus.Fixed],
+    [IssueResolution.Removed]: [IssueStatus.Fixed],
+    [IssueResolution.Unresolved]: [IssueStatus.Open, IssueStatus.Confirmed],
   };
 
-  const simpleStatusesFromStatuses = parseAsArray<IssueStatus>(query.statuses, parseAsString)
+  const issuesStatusesFromDeprecatedStatuses = parseAsArray<IssueDeprecatedStatus>(
+    query.statuses,
+    parseAsString,
+  )
     .map((status) => deprecatedStatusesMap[status])
     .filter(Boolean)
     .flat();
-  const simpleStatusesFromResolutions = parseAsArray<IssueResolution>(
+  const issueStatusesFromResolutions = parseAsArray<IssueResolution>(
     query.resolutions,
     parseAsString,
   )
@@ -175,22 +178,20 @@ function parseSimpleStatuses(query: RawQuery) {
     .filter(Boolean)
     .flat();
 
-  const intesectedSimpleStatuses = intersection(
-    simpleStatusesFromStatuses,
-    simpleStatusesFromResolutions,
+  const intesectedIssueStatuses = intersection(
+    issuesStatusesFromDeprecatedStatuses,
+    issueStatusesFromResolutions,
   );
-  result = intesectedSimpleStatuses.length
-    ? intesectedSimpleStatuses
-    : simpleStatusesFromResolutions.concat(simpleStatusesFromStatuses);
+  result = intesectedIssueStatuses.length
+    ? intesectedIssueStatuses
+    : issueStatusesFromResolutions.concat(issuesStatusesFromDeprecatedStatuses);
 
   if (
     query.resolved === 'false' &&
-    [IssueSimpleStatus.Open, IssueSimpleStatus.Confirmed].every(
-      (status) => !result.includes(status),
-    )
+    [IssueStatus.Open, IssueStatus.Confirmed].every((status) => !result.includes(status))
   ) {
     result = result.concat(
-      parseAsArray<IssueSimpleStatus>(DEFAULT_ISSUES_QUERY.simpleStatuses, parseAsString),
+      parseAsArray<IssueStatus>(DEFAULT_ISSUES_QUERY.issueStatuses, parseAsString),
     );
   }
 
@@ -238,7 +239,7 @@ export function serializeQuery(query: Query): RawQuery {
     impactSoftwareQualities: serializeStringArray(query.impactSoftwareQualities),
     inNewCodePeriod: query.inNewCodePeriod ? 'true' : undefined,
     sonarsourceSecurity: serializeStringArray(query.sonarsourceSecurity),
-    simpleStatuses: serializeStringArray(query.simpleStatuses),
+    issueStatuses: serializeStringArray(query.issueStatuses),
     tags: serializeStringArray(query.tags),
     types: serializeStringArray(query.types),
     codeVariants: serializeStringArray(query.codeVariants),

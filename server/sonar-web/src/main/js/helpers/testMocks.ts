@@ -33,9 +33,9 @@ import {
 import { RuleRepository } from '../types/coding-rules';
 import { EditionKey } from '../types/editions';
 import {
+  IssueDeprecatedStatus,
   IssueScope,
   IssueSeverity,
-  IssueSimpleStatus,
   IssueStatus,
   IssueType,
   RawIssue,
@@ -312,8 +312,8 @@ export function mockRawIssue(withLocations = false, overrides: Partial<RawIssue>
     severity: IssueSeverity.Major,
     textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
     type: IssueType.CodeSmell,
-    status: IssueStatus.Open,
-    simpleStatus: IssueSimpleStatus.Open,
+    status: IssueDeprecatedStatus.Open,
+    issueStatus: IssueStatus.Open,
     transitions: [],
     scope: IssueScope.Main,
     cleanCodeAttributeCategory: CleanCodeAttributeCategory.Responsible,
@@ -365,8 +365,8 @@ export function mockIssue(withLocations = false, overrides: Partial<Issue> = {})
     scope: IssueScope.Main,
     secondaryLocations: [],
     severity: IssueSeverity.Major,
-    status: IssueStatus.Open,
-    simpleStatus: IssueSimpleStatus.Open,
+    status: IssueDeprecatedStatus.Open,
+    issueStatus: IssueStatus.Open,
     textRange: { startLine: 25, endLine: 26, startOffset: 0, endOffset: 15 },
     transitions: [],
     type: 'BUG',

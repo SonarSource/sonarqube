@@ -154,10 +154,10 @@ describe('issue app', () => {
     // Get a specific issue list item
     const listItem = within(await screen.findByRole('region', { name: 'Fix that' }));
 
-    expect(listItem.getByText('issue.simple_status.OPEN')).toBeInTheDocument();
+    expect(listItem.getByText('issue.issue_status.OPEN')).toBeInTheDocument();
 
     await act(async () => {
-      await user.click(listItem.getByText('issue.simple_status.OPEN'));
+      await user.click(listItem.getByText('issue.issue_status.OPEN'));
     });
     expect(listItem.getByText('issue.transition.accept')).toBeInTheDocument();
     expect(listItem.getByText('issue.transition.confirm')).toBeInTheDocument();
@@ -175,20 +175,20 @@ describe('issue app', () => {
 
     expect(
       listItem.getByLabelText(
-        'issue.transition.status_x_click_to_change.issue.simple_status.CONFIRMED',
+        'issue.transition.status_x_click_to_change.issue.issue_status.CONFIRMED',
       ),
     ).toBeInTheDocument();
 
     // Change status again
     await act(async () => {
-      await user.click(listItem.getByText('issue.simple_status.CONFIRMED'));
+      await user.click(listItem.getByText('issue.issue_status.CONFIRMED'));
       await user.click(listItem.getByText('issue.transition.accept'));
       await user.click(listItem.getByText('resolve'));
     });
 
     expect(
       listItem.getByLabelText(
-        'issue.transition.status_x_click_to_change.issue.simple_status.ACCEPTED',
+        'issue.transition.status_x_click_to_change.issue.issue_status.ACCEPTED',
       ),
     ).toBeInTheDocument();
 

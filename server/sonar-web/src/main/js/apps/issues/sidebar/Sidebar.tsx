@@ -49,13 +49,13 @@ import { AuthorFacet } from './AuthorFacet';
 import { CreationDateFacet } from './CreationDateFacet';
 import { DirectoryFacet } from './DirectoryFacet';
 import { FileFacet } from './FileFacet';
+import { IssueStatusFacet } from './IssueStatusFacet';
 import { LanguageFacet } from './LanguageFacet';
 import { PeriodFilter } from './PeriodFilter';
 import { ProjectFacet } from './ProjectFacet';
 import { RuleFacet } from './RuleFacet';
 import { ScopeFacet } from './ScopeFacet';
 import { SeverityFacet } from './SeverityFacet';
-import { SimpleStatusFacet } from './SimpleStatusFacet';
 import { SoftwareQualityFacet } from './SoftwareQualityFacet';
 import { StandardFacet } from './StandardFacet';
 import { TagFacet } from './TagFacet';
@@ -245,13 +245,13 @@ export class SidebarClass extends React.PureComponent<Props> {
 
             <BasicSeparator className="sw-my-4" />
 
-            <SimpleStatusFacet
-              fetching={this.props.loadingFacets.simpleStatuses === true}
+            <IssueStatusFacet
+              fetching={this.props.loadingFacets.issueStatuses === true}
               onChange={this.props.onFilterChange}
               onToggle={this.props.onFacetToggle}
-              open={!!openFacets.simpleStatuses}
-              simpleStatuses={query.simpleStatuses}
-              stats={facets.simpleStatuses}
+              open={!!openFacets.issueStatuses}
+              issueStatuses={query.issueStatuses}
+              stats={facets.issueStatuses}
             />
 
             <BasicSeparator className="sw-my-4" />

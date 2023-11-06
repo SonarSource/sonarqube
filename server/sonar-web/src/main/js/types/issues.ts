@@ -58,7 +58,7 @@ export enum IssueResolution {
   WontFix = 'WONTFIX',
 }
 
-export enum IssueStatus {
+export enum IssueDeprecatedStatus {
   Open = 'OPEN',
   Confirmed = 'CONFIRMED',
   Reopened = 'REOPENED',
@@ -66,7 +66,7 @@ export enum IssueStatus {
   Closed = 'CLOSED',
 }
 
-export enum IssueSimpleStatus {
+export enum IssueStatus {
   Open = 'OPEN',
   Fixed = 'FIXED',
   Confirmed = 'CONFIRMED',
@@ -149,7 +149,7 @@ export interface RawIssue {
   message?: string;
   severity: string;
   status: string;
-  simpleStatus: IssueSimpleStatus;
+  issueStatus: IssueStatus;
   textRange?: TextRange;
   type: IssueType;
   scope: string;

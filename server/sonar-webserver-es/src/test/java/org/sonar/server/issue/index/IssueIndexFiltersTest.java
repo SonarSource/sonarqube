@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
-import org.sonar.core.issue.status.SimpleStatus;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.SearchOptions;
@@ -925,28 +925,28 @@ public class IssueIndexFiltersTest extends IssueIndexTestCommon {
   }
 
   @Test
-  public void search_whenFilteringBySimpleStatus_shouldReturnRelevantIssues() {
+  public void search_whenFilteringByIssueStatus_shouldReturnRelevantIssues() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
     indexIssues(
-      newDoc("I1", project.uuid(), file).setSimpleStatus(SimpleStatus.CONFIRMED.name()),
-      newDoc("I2", project.uuid(), file).setSimpleStatus(SimpleStatus.FIXED.name()),
-      newDoc("I3", project.uuid(), file).setSimpleStatus(SimpleStatus.OPEN.name()),
-      newDoc("I4", project.uuid(), file).setSimpleStatus(SimpleStatus.OPEN.name()),
-      newDoc("I5", project.uuid(), file).setSimpleStatus(SimpleStatus.ACCEPTED.name()),
-      newDoc("I6", project.uuid(), file).setSimpleStatus(SimpleStatus.ACCEPTED.name()),
-      newDoc("I7", project.uuid(), file).setSimpleStatus(SimpleStatus.ACCEPTED.name()),
-      newDoc("I8", project.uuid(), file).setSimpleStatus(SimpleStatus.FALSE_POSITIVE.name()),
-      newDoc("I9", project.uuid(), file).setSimpleStatus(SimpleStatus.FALSE_POSITIVE.name()));
+      newDoc("I1", project.uuid(), file).setIssueStatus(IssueStatus.CONFIRMED.name()),
+      newDoc("I2", project.uuid(), file).setIssueStatus(IssueStatus.FIXED.name()),
+      newDoc("I3", project.uuid(), file).setIssueStatus(IssueStatus.OPEN.name()),
+      newDoc("I4", project.uuid(), file).setIssueStatus(IssueStatus.OPEN.name()),
+      newDoc("I5", project.uuid(), file).setIssueStatus(IssueStatus.ACCEPTED.name()),
+      newDoc("I6", project.uuid(), file).setIssueStatus(IssueStatus.ACCEPTED.name()),
+      newDoc("I7", project.uuid(), file).setIssueStatus(IssueStatus.ACCEPTED.name()),
+      newDoc("I8", project.uuid(), file).setIssueStatus(IssueStatus.FALSE_POSITIVE.name()),
+      newDoc("I9", project.uuid(), file).setIssueStatus(IssueStatus.FALSE_POSITIVE.name()));
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().simpleStatuses(Set.of(SimpleStatus.CONFIRMED.name(), SimpleStatus.OPEN.name())),
+    assertThatSearchReturnsOnly(IssueQuery.builder().issueStatuses(Set.of(IssueStatus.CONFIRMED.name(), IssueStatus.OPEN.name())),
       "I1", "I3", "I4");
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().simpleStatuses(Set.of(SimpleStatus.FALSE_POSITIVE.name(), SimpleStatus.ACCEPTED.name())),
+    assertThatSearchReturnsOnly(IssueQuery.builder().issueStatuses(Set.of(IssueStatus.FALSE_POSITIVE.name(), IssueStatus.ACCEPTED.name())),
       "I5", "I6", "I7", "I8", "I9");
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().simpleStatuses(Set.of(SimpleStatus.FIXED.name())),
+    assertThatSearchReturnsOnly(IssueQuery.builder().issueStatuses(Set.of(IssueStatus.FIXED.name())),
       "I2");
   }
 

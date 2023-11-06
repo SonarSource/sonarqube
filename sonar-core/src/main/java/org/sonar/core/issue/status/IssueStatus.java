@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
 
-public enum SimpleStatus {
+public enum IssueStatus {
 
 
   OPEN,
@@ -34,19 +34,19 @@ public enum SimpleStatus {
   ACCEPTED,
   FIXED;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(SimpleStatus.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(IssueStatus.class);
 
   @CheckForNull
-  public static SimpleStatus of(String status, @Nullable String resolution) {
+  public static IssueStatus of(String status, @Nullable String resolution) {
     switch (status) {
       case Issue.STATUS_OPEN:
       case Issue.STATUS_REOPENED:
-        return SimpleStatus.OPEN;
+        return IssueStatus.OPEN;
       case Issue.STATUS_CONFIRMED:
-        return SimpleStatus.CONFIRMED;
+        return IssueStatus.CONFIRMED;
       case Issue.STATUS_CLOSED:
-        return SimpleStatus.FIXED;
-      // Security hotspot should not return simple status as they are deprecated.
+        return IssueStatus.FIXED;
+      // Security hotspot should not return issue status as they are deprecated.
       case Issue.STATUS_REVIEWED:
       case Issue.STATUS_TO_REVIEW:
         return null;
@@ -55,15 +55,15 @@ public enum SimpleStatus {
     if (Issue.STATUS_RESOLVED.equals(status) && resolution != null) {
       switch (resolution) {
         case Issue.RESOLUTION_FALSE_POSITIVE:
-          return SimpleStatus.FALSE_POSITIVE;
+          return IssueStatus.FALSE_POSITIVE;
         case Issue.RESOLUTION_WONT_FIX:
-          return SimpleStatus.ACCEPTED;
+          return IssueStatus.ACCEPTED;
         case Issue.RESOLUTION_FIXED:
-          return SimpleStatus.FIXED;
+          return IssueStatus.FIXED;
         default:
       }
     }
-    LOGGER.warn("Can't find mapped simple status for status '{}' and resolution '{}'", status, resolution);
+    LOGGER.warn("Can't find mapped issue status for status '{}' and resolution '{}'", status, resolution);
     return null;
   }
 }
