@@ -33,9 +33,8 @@ import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.status.IssueStatus;
 
-import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
-import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
@@ -247,9 +246,9 @@ public class IssueCounter extends IssueVisitor {
         unresolved++;
         typeBag.add(issue.type());
         severityBag.add(issue.severity());
-      } else if (RESOLUTION_FALSE_POSITIVE.equals(issue.resolution())) {
+      } else if (IssueStatus.FALSE_POSITIVE.equals(issue.getIssueStatus())) {
         falsePositives++;
-      } else if (RESOLUTION_WONT_FIX.equals(issue.resolution())) {
+      } else if (IssueStatus.ACCEPTED.equals(issue.getIssueStatus())) {
         accepted++;
       }
       switch (issue.status()) {

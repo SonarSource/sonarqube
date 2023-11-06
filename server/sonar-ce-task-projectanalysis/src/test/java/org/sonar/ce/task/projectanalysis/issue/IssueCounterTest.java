@@ -185,13 +185,13 @@ public class IssueCounterTest {
     underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR));
     underTest.onIssue(FILE1, createIssue(RESOLUTION_FALSE_POSITIVE, STATUS_RESOLVED, MAJOR));
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_CLOSED, MAJOR));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, MAJOR));
     underTest.afterComponent(FILE1);
 
     underTest.beforeComponent(FILE2);
     underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER));
     underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, MAJOR));
-    underTest.onIssue(FILE2, createIssue(RESOLUTION_WONT_FIX, STATUS_CLOSED, MAJOR));
+    underTest.onIssue(FILE2, createIssue(RESOLUTION_WONT_FIX, STATUS_RESOLVED, MAJOR));
     underTest.afterComponent(FILE2);
 
     underTest.beforeComponent(FILE3);

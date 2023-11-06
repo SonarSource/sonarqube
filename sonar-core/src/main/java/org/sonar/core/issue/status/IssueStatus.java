@@ -29,6 +29,11 @@ public enum IssueStatus {
 
 
   OPEN,
+
+  @Deprecated(since = "10.4")
+  /*
+   * @deprecated use {@link IssueStatus#ACCEPTED} instead
+   */
   CONFIRMED,
   FALSE_POSITIVE,
   ACCEPTED,
