@@ -28,6 +28,10 @@ import { translate, translateWithParameters } from './l10n';
 import { getCurrentLocale } from './l10nBundle';
 import { isDefined } from './types';
 
+export const MEASURES_REDIRECTION: Partial<Record<MetricKey, MetricKey>> = {
+  [MetricKey.wont_fix_issues]: MetricKey.accepted_issues,
+};
+
 export function enhanceMeasuresWithMetrics(
   measures: Measure[],
   metrics: Metric[],

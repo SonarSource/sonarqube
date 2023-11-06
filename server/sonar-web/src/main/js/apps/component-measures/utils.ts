@@ -21,7 +21,7 @@ import { groupBy, memoize, sortBy, toPairs } from 'lodash';
 import { enhanceMeasure } from '../../components/measure/utils';
 import { isBranch, isPullRequest } from '../../helpers/branch-like';
 import { getLocalizedMetricName } from '../../helpers/l10n';
-import { getDisplayMetrics, isDiffMetric } from '../../helpers/measures';
+import { MEASURES_REDIRECTION, getDisplayMetrics, isDiffMetric } from '../../helpers/measures';
 import {
   cleanQuery,
   parseAsOptionalBoolean,
@@ -231,7 +231,8 @@ export interface Query {
 }
 
 export const parseQuery = memoize((urlQuery: RawQuery): Query => {
-  const metric = (parseAsString(urlQuery['metric']) || DEFAULT_METRIC) as MetricKey;
+  const parsedMetric = parseAsString<MetricKey>(urlQuery['metric']) || DEFAULT_METRIC;
+  const metric = MEASURES_REDIRECTION[parsedMetric] ?? parsedMetric;
   return {
     metric,
     selected: parseAsString(urlQuery['selected']),

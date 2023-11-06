@@ -21,6 +21,7 @@ import { startOfDay } from 'date-fns';
 import { isEqual } from 'lodash';
 import { DEFAULT_GRAPH } from '../../components/activity-graph/utils';
 import { parseDate } from '../../helpers/dates';
+import { MEASURES_REDIRECTION } from '../../helpers/measures';
 import {
   cleanQuery,
   parseAsArray,
@@ -30,6 +31,7 @@ import {
   serializeString,
   serializeStringArray,
 } from '../../helpers/query';
+import { MetricKey } from '../../types/metrics';
 import { GraphType, ParsedAnalysis } from '../../types/project-activity';
 import { Dict, RawQuery } from '../../types/types';
 
@@ -109,9 +111,12 @@ export function getAnalysesByVersionByDay(
 }
 
 export function parseQuery(urlQuery: RawQuery): Query {
+  const parsedMetrics = parseAsArray(urlQuery['custom_metrics'], parseAsString<MetricKey>);
+  const customMetrics = parsedMetrics.map((metric) => MEASURES_REDIRECTION[metric] ?? metric);
+
   return {
     category: parseAsString(urlQuery['category']),
-    customMetrics: parseAsArray(urlQuery['custom_metrics'], parseAsString),
+    customMetrics,
     from: parseAsDate(urlQuery['from']),
     graph: parseGraph(urlQuery['graph']),
     project: parseAsString(urlQuery['id']),

@@ -152,6 +152,7 @@ export enum MetricKey {
   uncovered_lines = 'uncovered_lines',
   violations = 'violations',
   vulnerabilities = 'vulnerabilities',
+  accepted_issues = 'accepted_issues',
   wont_fix_issues = 'wont_fix_issues',
 }
 

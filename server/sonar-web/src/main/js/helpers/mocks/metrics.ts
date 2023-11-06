@@ -1485,12 +1485,12 @@ export const DEFAULT_METRICS: Dict<Metric> = {
     qualitative: false,
     hidden: false,
   },
-  wont_fix_issues: {
-    id: 'AXJMbIl_PAOIsUIE3gt5',
-    key: 'wont_fix_issues',
+  accepted_issues: {
+    id: 'AXJMbIl_PAOIsUIE3ga7',
+    key: 'accepted_issues',
     type: 'INT',
-    name: "Won't Fix Issues",
-    description: "Won't fix issues",
+    name: 'Accepted Issues',
+    description: 'Accepted issues',
     domain: 'Issues',
     direction: -1,
     qualitative: false,
