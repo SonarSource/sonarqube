@@ -152,6 +152,13 @@
         WHERE u.external_login=#{externalLogin, jdbcType=VARCHAR} AND u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
     </select>
 
+    <select id="selectByExternalLogin" parameterType="map" resultType="User">
+        SELECT
+        <include refid="userColumns"/>
+        FROM users u
+        WHERE u.external_login=#{externalLogin, jdbcType=VARCHAR}
+    </select>
+
     <sql id="deactivateUserUpdatedFields">
         active = ${_false},
         email = null,

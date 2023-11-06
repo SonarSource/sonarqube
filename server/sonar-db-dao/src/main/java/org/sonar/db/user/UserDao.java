@@ -184,6 +184,11 @@ public class UserDao implements Dao {
     return mapper(dbSession).selectByExternalLoginAndIdentityProvider(externalLogin, externalIdentityProvider);
   }
 
+  public List<UserDto> selectByExternalLogin(DbSession dbSession, String externalLogin) {
+    return mapper(dbSession).selectByExternalLogin(externalLogin);
+  }
+
+
   public long countSonarlintWeeklyUsers(DbSession dbSession) {
     long threshold = system2.now() - WEEK_IN_MS;
     return mapper(dbSession).countActiveSonarlintUsers(threshold);

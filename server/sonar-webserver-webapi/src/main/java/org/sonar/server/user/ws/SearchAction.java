@@ -24,6 +24,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
@@ -36,6 +38,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
+import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.issue.AvatarResolver;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
@@ -48,6 +51,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -62,6 +66,7 @@ import static org.sonarqube.ws.Users.SearchWsResponse.newBuilder;
 
 public class SearchAction implements UsersWsAction {
   private static final String DEACTIVATED_PARAM = "deactivated";
+  static final String EXTERNAL_IDENTITY = "externalIdentity";
   private static final int MAX_PAGE_SIZE = 500;
 
   private final UserSession userSession;
@@ -92,6 +97,7 @@ public class SearchAction implements UsersWsAction {
         "Field 'lastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.")
       .setSince("3.6")
       .setChangelog(
+        new Change("9.9.3", "New optional parameters " + EXTERNAL_IDENTITY + " to find a user by its IdP login"),
         new Change("9.7", "New parameter 'deactivated' to optionally search for deactivated users"),
         new Change("7.7", "New field 'lastConnectionDate' is added to response"),
         new Change("7.4", "External identity is only returned to system administrators"),
@@ -123,25 +129,51 @@ public class SearchAction implements UsersWsAction {
       .setRequired(false)
       .setDefaultValue(false)
       .setBooleanPossibleValues();
+    action.createParam(EXTERNAL_IDENTITY)
+      .setSince("9.9.3")
+      .setDescription("""
+        Find a user by its external identity (ie. its login in the Identity Provider).
+        This is case sensitive and only available with Administer System permission.
+        """);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    throwIfAdminOnlyParametersAreUsed(request);
     Users.SearchWsResponse wsResponse = doHandle(toSearchRequest(request));
     writeProtobuf(wsResponse, request, response);
+  }
+
+  private void throwIfAdminOnlyParametersAreUsed(Request request) {
+    if (!userSession.isSystemAdministrator() && (request.param(EXTERNAL_IDENTITY) != null)) {
+      throw new ServerException(403, "parameter " + EXTERNAL_IDENTITY + " requires Administer System permission.");
+    }
   }
 
   private Users.SearchWsResponse doHandle(SearchRequest request) {
     SearchOptions options = new SearchOptions().setPage(request.getPage(), request.getPageSize());
     SearchResult<UserDoc> result = userIndex.search(UserQuery.builder().setActive(!request.isDeactivated()).setTextQuery(request.getQuery()).build(), options);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<String> logins = result.getDocs().stream().map(UserDoc::login).collect(toList());
+      Set<String> logins = result.getDocs().stream().map(UserDoc::login).collect(toSet());
       Multimap<String, String> groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
-      List<UserDto> users = dbClient.userDao().selectByOrderedLogins(dbSession, logins);
+
+      logins = findUsersWithExternalLoginsIfDefined(dbSession, request.externalLogin, logins);
+
+      List<UserDto> users = dbClient.userDao().selectByOrderedLogins(dbSession, new TreeSet<>(logins));
       Map<String, Integer> tokenCountsByLogin = dbClient.userTokenDao().countTokensByUsers(dbSession, users);
       Paging paging = forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal((int) result.getTotal());
       return buildResponse(users, groupsByLogin, tokenCountsByLogin, paging);
     }
+  }
+
+  private Set<String> findUsersWithExternalLoginsIfDefined(DbSession dbSession, @Nullable String externalLogin, Set<String> loginsFromSearch) {
+    if (externalLogin != null) {
+      List<UserDto> userDtos = dbClient.userDao().selectByExternalLogin(dbSession, externalLogin);
+      return userDtos.stream().map(UserDto::getLogin)
+        .filter(loginsFromSearch::contains)
+        .collect(toSet());
+    }
+    return loginsFromSearch;
   }
 
   private SearchWsResponse buildResponse(List<UserDto> users, Multimap<String, String> groupsByLogin, Map<String, Integer> tokenCountsByLogin, Paging paging) {
@@ -187,6 +219,7 @@ public class SearchAction implements UsersWsAction {
       .setDeactivated(request.mandatoryParamAsBoolean(DEACTIVATED_PARAM))
       .setPage(request.mandatoryParamAsInt(PAGE))
       .setPageSize(pageSize)
+      .setExternalLogin(request.param(EXTERNAL_IDENTITY))
       .build();
   }
 
@@ -195,12 +228,14 @@ public class SearchAction implements UsersWsAction {
     private final Integer pageSize;
     private final String query;
     private final boolean deactivated;
+    private final String externalLogin;
 
     private SearchRequest(Builder builder) {
       this.page = builder.page;
       this.pageSize = builder.pageSize;
       this.query = builder.query;
       this.deactivated = builder.deactivated;
+      this.externalLogin = builder.externalLogin;
     }
 
     @CheckForNull
@@ -233,6 +268,8 @@ public class SearchAction implements UsersWsAction {
     private String query;
     private boolean deactivated;
 
+    private String externalLogin;
+
     private Builder() {
       // enforce factory method use
     }
@@ -254,6 +291,11 @@ public class SearchAction implements UsersWsAction {
 
     public Builder setDeactivated(boolean deactivated) {
       this.deactivated = deactivated;
+      return this;
+    }
+
+    public Builder setExternalLogin(@Nullable String externalLogin) {
+      this.externalLogin = externalLogin;
       return this;
     }
 

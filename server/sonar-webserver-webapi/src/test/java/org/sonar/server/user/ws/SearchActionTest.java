@@ -20,6 +20,7 @@
 package org.sonar.server.user.ws;
 
 import java.util.stream.IntStream;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -29,10 +30,12 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.Users.SearchWsResponse;
@@ -42,8 +45,10 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.server.user.ws.SearchAction.EXTERNAL_IDENTITY;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
@@ -397,7 +402,86 @@ public class SearchActionTest {
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(4);
+    assertThat(action.params()).hasSize(5);
+  }
+
+  @Test
+  public void search_whenFilteringOnExternalIdentityAndNotAdmin_shouldThrow() {
+    userSession.logIn();
+
+    TestRequest testRequest = ws.newRequest()
+      .setParam(EXTERNAL_IDENTITY, "login");
+
+    assertForbiddenException(testRequest);
+  }
+
+  private static void assertForbiddenException(TestRequest testRequest) {
+    assertThatThrownBy(() -> testRequest.executeProtobuf(SearchWsResponse.class))
+      .asInstanceOf(InstanceOfAssertFactories.type(ServerException.class))
+      .extracting(ServerException::httpCode)
+      .isEqualTo(403);
+  }
+
+  @Test
+  public void search_whenFilteringOnExternalIdentityAndMatch_shouldReturnMatchingUser() {
+    userSession.logIn().setSystemAdministrator();
+
+    prepareUsersWithAndWithoutExternalLogin();
+
+    TestRequest testRequest = ws.newRequest()
+      .setParam(EXTERNAL_IDENTITY, "user1");
+
+    assertThat(testRequest.executeProtobuf(SearchWsResponse.class).getUsersList())
+      .extracting(User::getExternalIdentity)
+      .containsExactly("user1");
+  }
+
+  @Test
+  public void search_whenFilteringOnExternalIdentityAndNoMatch_shouldReturnNothing() {
+    userSession.logIn().setSystemAdministrator();
+
+    prepareUsersWithAndWithoutExternalLogin();
+
+    TestRequest testRequest = ws.newRequest()
+      .setParam(EXTERNAL_IDENTITY, "nomatch");
+
+    assertThat(testRequest.executeProtobuf(SearchWsResponse.class).getUsersList()).isEmpty();
+  }
+
+  @Test
+  public void search_whenFilteringOnExternalIdentityAndOtherCriteriaWitoutMatch_shouldReturnNothing() {
+    userSession.logIn().setSystemAdministrator();
+
+    prepareUsersWithAndWithoutExternalLogin();
+
+    TestRequest testRequest = ws.newRequest()
+      .setParam("deactivated", "true")
+      .setParam(EXTERNAL_IDENTITY, "user1");
+
+    assertThat(testRequest.executeProtobuf(SearchWsResponse.class).getUsersList()).isEmpty();
+  }
+
+  @Test
+  public void search_whenFilteringOnExternalIdentityAndOtherCriteriaWithMatch_shouldReturnMatchingUser() {
+    userSession.logIn().setSystemAdministrator();
+
+    prepareUsersWithAndWithoutExternalLogin();
+
+    TestRequest testRequest = ws.newRequest()
+      .setParam("deactivated", "false")
+      .setParam(EXTERNAL_IDENTITY, "user1");
+
+    assertThat(testRequest.executeProtobuf(SearchWsResponse.class).getUsersList())
+      .extracting(User::getExternalIdentity)
+      .containsExactly("user1");
+  }
+
+  private void prepareUsersWithAndWithoutExternalLogin() {
+    db.users().insertUser();
+    db.users().insertUser(user -> user.setExternalLogin("user1"));
+    db.users().insertUser(user -> user.setExternalLogin("USER1"));
+    db.users().insertUser(user -> user.setExternalLogin("user1-oldaccount"));
+    userIndexer.indexAll();
   }
 
 }

@@ -536,6 +536,22 @@ public class UserDaoTest {
   }
 
   @Test
+  public void select_by_external_login() {
+    UserDto activeUser = db.users().insertUser();
+    UserDto disableUser = db.users().insertUser(u -> u.setActive(false));
+
+    findByExternalLoginAndAssertResult(activeUser);
+    findByExternalLoginAndAssertResult(disableUser);
+    assertThat(underTest.selectByExternalLogin(session,  "unknown")).isEmpty();
+  }
+
+  private void findByExternalLoginAndAssertResult(UserDto activeUser) {
+     assertThat(underTest.selectByExternalLogin(session, activeUser.getExternalLogin()))
+       .extracting(UserDto::getLogin)
+       .containsExactly(activeUser.getLogin());
+  }
+
+  @Test
   public void scrollByLUuids() {
     UserDto u1 = insertUser(true);
     UserDto u2 = insertUser(false);
