@@ -581,6 +581,9 @@ export const lightTheme = {
     highlightedSection: COLORS.blueGrey[25],
     highlightedSectionBorder: COLORS.blueGrey[100],
 
+    // highlight ring
+    highlightRingBackground: secondary.light,
+
     // activity comments
     activityCommentPipe: COLORS.tangerine[200],
 

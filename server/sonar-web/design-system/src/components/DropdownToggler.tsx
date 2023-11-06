@@ -27,24 +27,35 @@ type PopupProps = Popup['props'];
 interface Props extends PopupProps {
   onRequestClose: VoidFunction;
   open: boolean;
+  withClickOutHandler?: boolean;
+  withFocusOutHandler?: boolean;
 }
 
 export function DropdownToggler(props: Props) {
-  const { children, open, onRequestClose, overlay, ...popupProps } = props;
+  const {
+    children,
+    open,
+    onRequestClose,
+    withClickOutHandler = true,
+    withFocusOutHandler = true,
+    overlay,
+    ...popupProps
+  } = props;
+
+  let finalOverlay = <EscKeydownHandler onKeydown={onRequestClose}>{overlay}</EscKeydownHandler>;
+
+  if (withFocusOutHandler) {
+    finalOverlay = <FocusOutHandler onFocusOut={onRequestClose}>{finalOverlay}</FocusOutHandler>;
+  }
+
+  if (withClickOutHandler) {
+    finalOverlay = (
+      <OutsideClickHandler onClickOutside={onRequestClose}>{finalOverlay}</OutsideClickHandler>
+    );
+  }
 
   return (
-    <Popup
-      overlay={
-        open ? (
-          <OutsideClickHandler onClickOutside={onRequestClose}>
-            <FocusOutHandler onFocusOut={onRequestClose}>
-              <EscKeydownHandler onKeydown={onRequestClose}>{overlay}</EscKeydownHandler>
-            </FocusOutHandler>
-          </OutsideClickHandler>
-        ) : undefined
-      }
-      {...popupProps}
-    >
+    <Popup overlay={open && finalOverlay} {...popupProps}>
       {children}
     </Popup>
   );

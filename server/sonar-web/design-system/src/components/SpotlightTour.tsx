@@ -42,6 +42,7 @@ export interface SpotlightTourProps extends Omit<JoyrideProps, 'steps'> {
   skipLabel?: string;
   stepXofYLabel?: (x: number, y: number) => string;
   steps: SpotlightTourStep[];
+  width?: number;
 }
 
 export type SpotlightTourStep = Pick<JoyrideStep, 'target' | 'content' | 'title'> & {
@@ -55,6 +56,7 @@ export type SpotlightTourStep = Pick<JoyrideStep, 'target' | 'content' | 'title'
 const PULSE_SIZE = 8;
 const ARROW_LENGTH = 40;
 const DEFAULT_PLACEMENT = 'bottom';
+const DEFAULT_WIDTH = 315;
 
 function TooltipComponent({
   continuous,
@@ -68,9 +70,11 @@ function TooltipComponent({
   primaryProps,
   stepXofYLabel,
   tooltipProps,
+  width = DEFAULT_WIDTH,
 }: TooltipRenderProps & {
   step: SpotlightTourStep;
   stepXofYLabel: SpotlightTourProps['stepXofYLabel'];
+  width?: number;
 }) {
   const [arrowPosition, setArrowPosition] = React.useState({ left: 0, top: 0, rotate: '0deg' });
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -79,6 +83,17 @@ function TooltipComponent({
   }, []);
   const placement = step.placement ?? DEFAULT_PLACEMENT;
   const intl = useIntl();
+
+  React.useEffect(() => {
+    const target =
+      typeof step.target === 'string' ? document.querySelector(step.target) : step.target;
+    // To show the highlight, target has to be HighlightRing from design system
+    target?.classList.add('active');
+
+    return () => {
+      target?.classList.remove('active');
+    };
+  }, [step]);
 
   React.useEffect(() => {
     // We don't compute for "center"; "center" will simply not show any arrow.
@@ -115,10 +130,20 @@ function TooltipComponent({
     }
   }, [step, ref, setArrowPosition, placement]);
 
+  /**
+   * Preventing click events from bubbling to avoid closing other popups, in cases when the guide
+   * is shown simultaneously with other popups.
+   */
+  function handleClick(e: React.MouseEvent) {
+    e.stopPropagation();
+  }
+
   return (
     <StyledPopupWrapper
-      className="sw-p-3 sw-body-sm sw-w-[315px] sw-relative sw-border-0"
+      className="sw-p-3 sw-body-sm sw-relative sw-border-0"
+      onClick={handleClick}
       placement={(step.placement as Placement | undefined) ?? DEFAULT_PLACEMENT}
+      style={{ width }}
       zLevel={PopupZLevel.Absolute}
       {...tooltipProps}
     >
@@ -138,7 +163,7 @@ function TooltipComponent({
         </WrapperButton>
       </div>
       <div>{step.content}</div>
-      <div className="sw-flex sw-justify-between sw-items-center sw-mt-3">
+      <div className="sw-flex sw-justify-between sw-items-center sw-mt-4">
         {(stepXofYLabel || size > 1) && (
           <strong>
             {stepXofYLabel
@@ -166,14 +191,23 @@ function TooltipComponent({
 }
 
 export function SpotlightTour(props: SpotlightTourProps) {
-  const { steps, skipLabel, backLabel, closeLabel, nextLabel, stepXofYLabel, ...otherProps } =
-    props;
+  const {
+    steps,
+    skipLabel,
+    backLabel,
+    closeLabel,
+    nextLabel,
+    stepXofYLabel,
+    disableOverlay = true,
+    width,
+    ...otherProps
+  } = props;
 
   const intl = useIntl();
 
   return (
     <ReactJoyride
-      disableOverlay
+      disableOverlay={disableOverlay}
       floaterProps={{
         styles: {
           floater: {
@@ -202,7 +236,7 @@ export function SpotlightTour(props: SpotlightTourProps) {
       }))}
       tooltipComponent={(
         tooltipProps: React.PropsWithChildren<TooltipRenderProps & { step: SpotlightTourStep }>,
-      ) => <TooltipComponent stepXofYLabel={stepXofYLabel} {...tooltipProps} />}
+      ) => <TooltipComponent stepXofYLabel={stepXofYLabel} width={width} {...tooltipProps} />}
       {...otherProps}
     />
   );

@@ -284,7 +284,7 @@ export const ItemDivider = styled.li`
 `;
 ItemDivider.defaultProps = { role: 'separator' };
 
-const DropdownMenuWrapper = styled.ul`
+export const DropdownMenuWrapper = styled.ul`
   background-color: ${themeColor('dropdownMenu')};
   color: ${themeContrast('dropdownMenu')};
   width: var(--inputSize);

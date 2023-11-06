@@ -44,6 +44,7 @@ import { BranchLike } from '../../../types/branch-like';
 import { IssueActions, IssueType } from '../../../types/issues';
 import { Issue, RuleDetails } from '../../../types/types';
 import IssueHeaderMeta from './IssueHeaderMeta';
+import IssueNewStatusAndTransitionGuide from './IssueNewStatusAndTransitionGuide';
 
 interface Props {
   issue: Issue;
@@ -211,6 +212,11 @@ export default class IssueHeader extends React.PureComponent<Props, State> {
           onIssueChange={this.props.onIssueChange}
           tagsPopupOpen={issuePopupName === 'edit-tags' && canSetTags}
           togglePopup={this.handleIssuePopupToggle}
+        />
+        <IssueNewStatusAndTransitionGuide
+          run
+          issues={[issue]}
+          togglePopup={(_, popup, show) => this.handleIssuePopupToggle(popup, show)}
         />
       </header>
     );

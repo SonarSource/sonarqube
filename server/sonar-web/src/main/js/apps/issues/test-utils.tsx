@@ -141,7 +141,12 @@ export async function waitOnDataLoaded() {
 }
 
 export function renderIssueApp(
-  currentUser = mockCurrentUser({ dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true } }),
+  currentUser = mockCurrentUser({
+    dismissedNotices: {
+      [NoticeType.ISSUE_GUIDE]: true,
+      [NoticeType.ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE]: true,
+    },
+  }),
 ) {
   renderApp('issues', <IssuesApp />, { currentUser });
 }
@@ -149,7 +154,12 @@ export function renderIssueApp(
 export function renderProjectIssuesApp(
   navigateTo?: string,
   overrides?: Partial<Component>,
-  currentUser = mockCurrentUser({ dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true } }),
+  currentUser = mockCurrentUser({
+    dismissedNotices: {
+      [NoticeType.ISSUE_GUIDE]: true,
+      [NoticeType.ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE]: true,
+    },
+  }),
 ) {
   renderAppWithComponentContext(
     'project/issues',

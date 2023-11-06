@@ -45,7 +45,7 @@ const SONARLINT_PR_LS_KEY = 'sonarqube.pr_overview.show_sonarlint_promotion';
 
 export default function SonarLintAd({ status }: Readonly<Props>) {
   const intl = useIntl();
-  const user = useCurrentUser();
+  const { currentUser } = useCurrentUser();
   const [showSLPromotion, setSLPromotion] = useLocalStorage(SONARLINT_PR_LS_KEY, true);
 
   const onDismiss = React.useCallback(() => {
@@ -53,8 +53,8 @@ export default function SonarLintAd({ status }: Readonly<Props>) {
   }, [setSLPromotion]);
 
   if (
-    !isLoggedIn(user) ||
-    user.usingSonarLintConnectedMode ||
+    !isLoggedIn(currentUser) ||
+    currentUser.usingSonarLintConnectedMode ||
     status !== QGStatus.ERROR ||
     !showSLPromotion
   ) {

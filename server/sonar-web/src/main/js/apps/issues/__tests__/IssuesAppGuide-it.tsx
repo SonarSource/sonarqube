@@ -64,7 +64,12 @@ beforeEach(() => {
 
 it('should display guide', async () => {
   const user = userEvent.setup();
-  renderIssueApp(mockCurrentUser({ isLoggedIn: true }));
+  renderIssueApp(
+    mockCurrentUser({
+      isLoggedIn: true,
+      dismissedNotices: { [NoticeType.ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE]: true },
+    }),
+  );
 
   expect(await ui.guidePopup.find()).toBeInTheDocument();
 
@@ -106,7 +111,13 @@ it('should display guide', async () => {
 
 it('should not show guide for those who dismissed it', async () => {
   renderIssueApp(
-    mockCurrentUser({ isLoggedIn: true, dismissedNotices: { [NoticeType.ISSUE_GUIDE]: true } }),
+    mockCurrentUser({
+      isLoggedIn: true,
+      dismissedNotices: {
+        [NoticeType.ISSUE_GUIDE]: true,
+        [NoticeType.ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE]: true,
+      },
+    }),
   );
 
   expect((await ui.issueItems.findAll()).length).toBeGreaterThan(0);
@@ -115,7 +126,12 @@ it('should not show guide for those who dismissed it', async () => {
 
 it('should skip guide', async () => {
   const user = userEvent.setup();
-  renderIssueApp(mockCurrentUser({ isLoggedIn: true }));
+  renderIssueApp(
+    mockCurrentUser({
+      isLoggedIn: true,
+      dismissedNotices: { [NoticeType.ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE]: true },
+    }),
+  );
 
   expect(await ui.guidePopup.find()).toBeInTheDocument();
   expect(ui.guidePopup.get()).toHaveTextContent('guiding.issue_list.1.title');
@@ -127,7 +143,14 @@ it('should skip guide', async () => {
 });
 
 it('should not show guide if issues need sync', async () => {
-  renderProjectIssuesApp(undefined, { needIssueSync: true }, mockCurrentUser({ isLoggedIn: true }));
+  renderProjectIssuesApp(
+    undefined,
+    { needIssueSync: true },
+    mockCurrentUser({
+      isLoggedIn: true,
+      dismissedNotices: { [NoticeType.ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE]: true },
+    }),
+  );
 
   expect((await ui.issueItems.findAll()).length).toBeGreaterThan(0);
   expect(ui.guidePopup.query()).not.toBeInTheDocument();

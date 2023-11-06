@@ -28,9 +28,17 @@ import {
 import { range } from 'lodash';
 import { generateToken, getTokens, revokeToken } from '../api/user-tokens';
 import { addUserToGroup, removeUserFromGroup } from '../api/user_groups';
-import { deleteUser, getUserGroups, getUsers, postUser, updateUser } from '../api/users';
+import {
+  deleteUser,
+  dismissNotice,
+  getUserGroups,
+  getUsers,
+  postUser,
+  updateUser,
+} from '../api/users';
+import { useCurrentUser } from '../app/components/current-user/CurrentUserContext';
 import { UserToken } from '../types/token';
-import { RestUserBase } from '../types/users';
+import { NoticeType, RestUserBase } from '../types/users';
 
 const STALE_TIME = 4 * 60 * 1000;
 
@@ -172,6 +180,17 @@ export function useRemoveUserToGroupMutation() {
       queryClient.setQueryData<number>(['user', data.login, 'groups', 'total'], (oldData) =>
         oldData !== undefined ? oldData - 1 : undefined,
       );
+    },
+  });
+}
+
+export function useDismissNoticeMutation() {
+  const { updateDismissedNotices } = useCurrentUser();
+
+  return useMutation({
+    mutationFn: (data: NoticeType) => dismissNotice(data),
+    onSuccess(_, data) {
+      updateDismissedNotices(data, true);
     },
   });
 }

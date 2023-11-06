@@ -34,15 +34,11 @@ import { IssueTransition } from '../../../types/issues';
 
 type Props = {
   transition: IssueTransition;
-  selectedTransition?: IssueTransition;
+  selected: boolean;
   onSelectTransition: (transition: IssueTransition) => void;
 };
 
-export function IssueTransitionItem({
-  transition,
-  selectedTransition,
-  onSelectTransition,
-}: Readonly<Props>) {
+export function IssueTransitionItem({ transition, selected, onSelectTransition }: Readonly<Props>) {
   const intl = useIntl();
 
   const tooltips: Record<string, React.ReactFragment> = {
@@ -67,7 +63,7 @@ export function IssueTransitionItem({
     <ItemButton
       key={transition}
       onClick={() => onSelectTransition(transition)}
-      selected={selectedTransition === transition}
+      selected={selected}
       className="sw-px-4"
     >
       <div className="it__issue-transition-option sw-flex sw-flex-col">

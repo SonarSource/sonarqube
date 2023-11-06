@@ -33,6 +33,7 @@ export enum NoticeType {
   EDUCATION_PRINCIPLES = 'educationPrinciples',
   SONARLINT_AD = 'sonarlintAd',
   ISSUE_GUIDE = 'issueCleanCodeGuide',
+  ISSUE_NEW_STATUS_AND_TRANSITION_GUIDE = 'issueNewIssueStatusAndTransitionGuide',
   QG_CAYC_CONDITIONS_SIMPLIFICATION = 'qualityGateCaYCConditionsSimplification',
   OVERVIEW_ZERO_NEW_ISSUES_SIMPLIFICATION = 'overviewZeroNewIssuesSimplification',
 }

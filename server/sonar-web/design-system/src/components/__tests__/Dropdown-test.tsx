@@ -24,7 +24,7 @@ import { ButtonSecondary } from '../buttons';
 
 describe('Dropdown', () => {
   it('renders', async () => {
-    const { user } = setupWithChildren();
+    const { user } = renderDropdown();
     expect(screen.getByRole('button')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button'));
@@ -32,17 +32,59 @@ describe('Dropdown', () => {
   });
 
   it('toggles with render prop', async () => {
-    const { user } = setupWithChildren(({ onToggleClick }) => (
-      <ButtonSecondary onClick={onToggleClick} />
-    ));
+    const { user } = renderDropdown({
+      children: ({ onToggleClick }) => <ButtonSecondary onClick={onToggleClick} />,
+    });
 
     await user.click(screen.getByRole('button'));
     expect(screen.getByRole('menu')).toBeVisible();
   });
 
-  function setupWithChildren(children?: Dropdown['props']['children']) {
+  it('closes when clicking outside of menu', async () => {
+    const { user } = renderDropdown();
+
+    await user.click(screen.getByRole('button'));
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+
+    await user.click(document.body);
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  it('does not close when clicking ouside of menu', async () => {
+    const { user } = renderDropdown({ withClickOutHandler: false });
+
+    await user.click(screen.getByRole('button'));
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+
+    await user.click(document.body);
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+  });
+
+  it('closes when other target gets focus', async () => {
+    const { user } = renderDropdown();
+
+    await user.click(screen.getByRole('button'));
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+
+    await user.tab();
+
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  it('does not close when other target gets focus', async () => {
+    const { user } = renderDropdown({ withFocusOutHandler: false });
+
+    await user.click(screen.getByRole('button'));
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+
+    await user.tab();
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+  });
+
+  function renderDropdown(props: Partial<Dropdown['props']> = {}) {
+    const { children, ...rest } = props;
     return renderWithRouter(
-      <Dropdown id="test-menu" overlay={<div id="overlay" />}>
+      <Dropdown id="test-menu" overlay={<div id="overlay" />} {...rest}>
         {children ?? <ButtonSecondary />}
       </Dropdown>,
     );

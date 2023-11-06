@@ -102,6 +102,7 @@ import {
 } from '../utils';
 import BulkChangeModal, { MAX_PAGE_SIZE } from './BulkChangeModal';
 import IssueGuide from './IssueGuide';
+import IssueNewStatusAndTransitionGuide from './IssueNewStatusAndTransitionGuide';
 import IssueReviewHistoryAndComments from './IssueReviewHistoryAndComments';
 import IssuesList from './IssuesList';
 import IssuesSourceViewer from './IssuesSourceViewer';
@@ -1330,6 +1331,11 @@ export class App extends React.PureComponent<Props, State> {
                 <>
                   <Helmet defer={false} title={translate('issues.page')} />
                   <IssueGuide run={!open && !component?.needIssueSync && issues.length > 0} />
+                  <IssueNewStatusAndTransitionGuide
+                    run={!open && !component?.needIssueSync && issues.length > 0}
+                    togglePopup={this.handlePopupToggle}
+                    issues={issues}
+                  />
                 </>
               )}
 

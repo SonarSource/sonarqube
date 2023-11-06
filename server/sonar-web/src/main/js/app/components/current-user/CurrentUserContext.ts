@@ -39,13 +39,11 @@ export const CurrentUserContext = React.createContext<CurrentUserContextInterfac
 });
 
 export function useCurrentUser() {
-  const { currentUser } = useContext(CurrentUserContext);
-
-  return currentUser;
+  return useContext(CurrentUserContext);
 }
 
 export function useCurrentLoginUser() {
-  const currentUser = useCurrentUser();
+  const { currentUser } = useCurrentUser();
 
   if (!currentUser.isLoggedIn) {
     handleRequiredAuthentication();

@@ -53,6 +53,8 @@ interface Props {
   overlay: React.ReactNode;
   placement?: PopupPlacement;
   size?: InputSizeKeys;
+  withClickOutHandler?: boolean;
+  withFocusOutHandler?: boolean;
   zLevel?: PopupZLevel;
 }
 
@@ -124,6 +126,8 @@ export class Dropdown extends React.PureComponent<Readonly<Props>, State> {
           </DropdownMenu>
         }
         placement={this.props.placement}
+        withClickOutHandler={this.props.withClickOutHandler}
+        withFocusOutHandler={this.props.withFocusOutHandler}
         zLevel={zLevel}
       >
         {children}

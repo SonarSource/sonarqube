@@ -5244,6 +5244,7 @@ __metadata:
     react-select-event: 5.5.1
     react-virtualized: 9.22.5
     regenerator-runtime: 0.14.0
+    shared-store-hook: 0.0.4
     tailwindcss: 3.3.3
     turbo: 1.10.13
     typescript: 5.2.2
@@ -12389,6 +12390,15 @@ __metadata:
   version: 1.1.0
   resolution: "shallowequal@npm:1.1.0"
   checksum: f4c1de0837f106d2dbbfd5d0720a5d059d1c66b42b580965c8f06bb1db684be8783538b684092648c981294bf817869f743a066538771dbecb293df78f765e00
+  languageName: node
+  linkType: hard
+
+"shared-store-hook@npm:0.0.4":
+  version: 0.0.4
+  resolution: "shared-store-hook@npm:0.0.4"
+  peerDependencies:
+    react: ">=16.8"
+  checksum: 31f8d9fe8a8dde22067fc3310d9fda8698ad181dd9cf1b5ce6144a8b0d74a37c9f59e34eca79e4d751e0aeb2de5fe96e5e890dc772ffa62b32a32898b1b2a6b0
   languageName: node
   linkType: hard
 

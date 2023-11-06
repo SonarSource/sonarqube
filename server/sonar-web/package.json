@@ -43,6 +43,7 @@
     "react-select": "5.7.4",
     "react-virtualized": "9.22.5",
     "regenerator-runtime": "0.14.0",
+    "shared-store-hook": "0.0.4",
     "valid-url": "1.0.9"
   },
   "devDependencies": {

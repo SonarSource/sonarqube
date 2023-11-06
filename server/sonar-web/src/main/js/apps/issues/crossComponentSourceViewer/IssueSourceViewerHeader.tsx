@@ -64,7 +64,7 @@ export interface Props {
 export function IssueSourceViewerHeader(props: Readonly<Props>) {
   const { component } = React.useContext(ComponentContext);
   const { data: branchData, isLoading: isLoadingBranches } = useBranchesQuery(component);
-  const currentUser = useCurrentUser();
+  const { currentUser } = useCurrentUser();
   const theme = useTheme();
 
   const branchLike = branchData?.branchLike;

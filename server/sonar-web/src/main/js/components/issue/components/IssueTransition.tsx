@@ -18,9 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Dropdown, PopupPlacement, PopupZLevel, SearchSelectDropdownControl } from 'design-system';
+import styled from '@emotion/styled';
+import {
+  Dropdown,
+  DropdownMenuWrapper,
+  ItemDivider,
+  PopupPlacement,
+  PopupZLevel,
+  SearchSelectDropdownControl,
+} from 'design-system';
 import * as React from 'react';
 import { addIssueComment, setIssueTransition } from '../../../api/issues';
+import { useAcceptGuideState } from '../../../apps/issues/components/IssueNewStatusAndTransitionGuide';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Issue } from '../../../types/types';
 import StatusHelper from '../../shared/StatusHelper';
@@ -36,6 +45,8 @@ interface Props {
 
 export default function IssueTransition(props: Readonly<Props>) {
   const { isOpen, issue, onChange, togglePopup } = props;
+
+  const [{ stepIndex: guideStepIndex, guideIsRunning }] = useAcceptGuideState();
 
   const [transitioning, setTransitioning] = React.useState(false);
 
@@ -65,18 +76,21 @@ export default function IssueTransition(props: Readonly<Props>) {
 
   if (issue.transitions?.length) {
     return (
-      <Dropdown
+      <StyledDropdown
         allowResizing
         closeOnClick={false}
         id="issue-transition"
         onClose={handleClose}
         openDropdown={isOpen}
+        withClickOutHandler={!guideIsRunning}
+        withFocusOutHandler={!guideIsRunning}
         overlay={
           <IssueTransitionOverlay
             issue={issue}
             onClose={handleClose}
             onSetTransition={handleSetTransition}
             loading={transitioning}
+            guideStepIndex={guideStepIndex}
           />
         }
         placement={PopupPlacement.Bottom}
@@ -99,9 +113,22 @@ export default function IssueTransition(props: Readonly<Props>) {
             )}
           />
         )}
-      </Dropdown>
+      </StyledDropdown>
     );
   }
 
   return <StatusHelper issueStatus={issue.issueStatus} />;
 }
+
+const StyledDropdown = styled(Dropdown)`
+  overflow: auto;
+
+  & ${DropdownMenuWrapper} {
+    border-radius: 8px;
+
+    ${ItemDivider} {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+`;

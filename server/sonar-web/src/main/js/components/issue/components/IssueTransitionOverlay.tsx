@@ -21,6 +21,7 @@
 import {
   ButtonPrimary,
   ButtonSecondary,
+  HighlightRing,
   InputTextArea,
   ItemDivider,
   PageContentFontWrapper,
@@ -39,12 +40,12 @@ export type Props = {
   issue: Pick<Issue, 'transitions' | 'actions'>;
   onClose: () => void;
   onSetTransition: (transition: IssueTransition, comment?: string) => void;
+  guideStepIndex: number;
   loading?: boolean;
 };
 
 export function IssueTransitionOverlay(props: Readonly<Props>) {
-  const { issue, onClose, onSetTransition, loading } = props;
-
+  const { issue, onClose, onSetTransition, loading, guideStepIndex } = props;
   const intl = useIntl();
 
   const [comment, setComment] = useState('');
@@ -78,24 +79,33 @@ export function IssueTransitionOverlay(props: Readonly<Props>) {
   return (
     <ul className="sw-flex sw-flex-col">
       {filteredTransitionsRecommended.map((transition) => (
-        <IssueTransitionItem
+        <HighlightRing
           key={transition}
-          transition={transition}
-          selectedTransition={selectedTransition}
-          onSelectTransition={selectTransition}
-        />
+          data-guiding-id={transition === IssueTransition.Accept ? 'issue-accept-transition' : ''}
+        >
+          <IssueTransitionItem
+            transition={transition}
+            selected={
+              selectedTransition === transition ||
+              (guideStepIndex === 1 && transition === IssueTransition.Accept)
+            }
+            onSelectTransition={selectTransition}
+          />
+        </HighlightRing>
       ))}
       {filteredTransitionsRecommended.length > 0 && filteredTransitionsDeprecated.length > 0 && (
         <ItemDivider />
       )}
-      {filteredTransitionsDeprecated.map((transition) => (
-        <IssueTransitionItem
-          key={transition}
-          transition={transition}
-          selectedTransition={selectedTransition}
-          onSelectTransition={selectTransition}
-        />
-      ))}
+      <HighlightRing data-guiding-id="issue-deprecated-transitions">
+        {filteredTransitionsDeprecated.map((transition) => (
+          <IssueTransitionItem
+            key={transition}
+            transition={transition}
+            selected={selectedTransition === transition || guideStepIndex === 2}
+            onSelectTransition={selectTransition}
+          />
+        ))}
+      </HighlightRing>
 
       {selectedTransition && (
         <>

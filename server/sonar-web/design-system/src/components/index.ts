@@ -41,6 +41,7 @@ export { FailedQGConditionLink } from './FailedQGConditionLink';
 export * from './FavoriteButton';
 export { DismissableFlagMessage, FlagMessage } from './FlagMessage';
 export * from './FlowStep';
+export * from './HighlightRing';
 export * from './HighlightedSection';
 export { Histogram } from './Histogram';
 export { HotspotRating } from './HotspotRating';

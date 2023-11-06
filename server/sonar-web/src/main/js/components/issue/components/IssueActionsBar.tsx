@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import { HighlightRing } from 'design-system';
 import * as React from 'react';
 import { IssueActions } from '../../../types/issues';
 import { Issue } from '../../../types/types';
@@ -64,14 +65,18 @@ export default function IssueActionsBar(props: Props) {
   return (
     <div className="sw-flex sw-gap-3">
       <ul className="it__issue-header-actions sw-flex sw-items-center sw-gap-3 sw-body-sm">
-        <li className="sw-relative">
+        <HighlightRing
+          as="li"
+          className="sw-relative"
+          data-guiding-id={`issue-transition-${issue.key}`}
+        >
           <IssueTransition
             isOpen={currentPopup === 'transition'}
             togglePopup={togglePopup}
             issue={issue}
             onChange={onChange}
           />
-        </li>
+        </HighlightRing>
 
         <li>
           <IssueAssign
