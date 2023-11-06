@@ -327,7 +327,7 @@ subprojects {
       dependency 'com.oracle.database.jdbc:ojdbc11:23.2.0.0'
       dependency 'org.aspectj:aspectjtools:1.9.20.1'
       // If this gets updated the dependency on okio 3.5.0 should be reviewed
-      dependencySet(group: 'com.squareup.okhttp3', version: '4.11.0') {
+      dependencySet(group: 'com.squareup.okhttp3', version: '4.12.0') {
         entry 'okhttp'
         entry 'mockwebserver'
         entry 'okhttp-tls'
