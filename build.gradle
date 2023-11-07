@@ -284,7 +284,7 @@ subprojects {
         exclude 'commons-logging:commons-logging'
       }
       dependency 'commons-codec:commons-codec:1.16.0'
-      dependency 'commons-dbutils:commons-dbutils:1.8.0'
+      dependency 'commons-dbutils:commons-dbutils:1.8.1'
       dependency 'commons-io:commons-io:2.15.0'
       dependency 'commons-lang:commons-lang:2.6'
       imports { mavenBom 'com.fasterxml.jackson:jackson-bom:2.15.2' }
