@@ -181,9 +181,9 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
-        new Change("10.3", "The metric 'wont_fix_issues' is now deprecated in the response. Consume 'accepted_issues' instead."),
-        new Change("10.3", "The use of 'wont_fix_issues' value in 'metricKeys' and 'metricSort' params is now deprecated. Use 'accepted_issues' instead."),
-        new Change("10.3", "Added new accepted value for the 'metricKeys' and 'metricSort' param: 'accepted_issues'."),
+        new Change("10.4", "The metric 'wont_fix_issues' is now deprecated in the response. Consume 'accepted_issues' instead."),
+        new Change("10.4", "The use of 'wont_fix_issues' value in 'metricKeys' and 'metricSort' params is now deprecated. Use 'accepted_issues' instead."),
+        new Change("10.4", "Added new accepted value for the 'metricKeys' and 'metricSort' param: 'accepted_issues'."),
         new Change("10.1", String.format("The use of 'BRC' as value for parameter '%s' is removed", ComponentsWsParameters.PARAM_QUALIFIERS)),
         new Change("10.0", format("The use of the following metrics in 'metricKeys' parameter is not deprecated anymore: %s",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube93())),

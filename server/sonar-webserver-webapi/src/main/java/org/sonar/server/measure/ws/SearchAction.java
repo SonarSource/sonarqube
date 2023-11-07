@@ -88,9 +88,9 @@ public class SearchAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this)
       .setChangelog(
-        new Change("10.3", "The metric 'wont_fix_issues' is now deprecated in the response. Consume 'accepted_issues' instead."),
-        new Change("10.3", "The use of 'wont_fix_issues' value in 'metricKeys' param is now deprecated. Use 'accepted_issues' instead."),
-        new Change("10.3", "Added new accepted value for the 'metricKeys' param: 'accepted_issues'."),
+        new Change("10.4", "The metric 'wont_fix_issues' is now deprecated in the response. Consume 'accepted_issues' instead."),
+        new Change("10.4", "The use of 'wont_fix_issues' value in 'metricKeys' param is now deprecated. Use 'accepted_issues' instead."),
+        new Change("10.4", "Added new accepted value for the 'metricKeys' param: 'accepted_issues'."),
         new Change("10.0", format("The use of the following metrics in 'metricKeys' parameter is not deprecated anymore: %s",
           MeasuresWsModule.getDeprecatedMetricsInSonarQube93())),
         new Change("9.3", format("The use of the following metrics in 'metricKeys' parameter is deprecated: %s",
