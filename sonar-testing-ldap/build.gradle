@@ -5,7 +5,7 @@ sonar {
 }
 
 dependencies {
-    api 'org.apache.mina:mina-core:2.2.2'
+    api 'org.apache.mina:mina-core:2.2.3'
     implementation ('org.apache.directory.server:apacheds-server-integ:2.0.0.AM26') {
         exclude group: 'log4j', module: 'log4j'
     }
