@@ -34,6 +34,7 @@ export interface SubCategoryDefinitionsListProps {
   settings: Array<SettingDefinitionAndValue>;
   subCategory?: string;
   displaySubCategoryTitle?: boolean;
+  onUpdate?: () => void;
 }
 
 export class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryDefinitionsListProps> {
@@ -103,6 +104,7 @@ export class SubCategoryDefinitionsList extends React.PureComponent<SubCategoryD
               component={component}
               scrollToDefinition={this.scrollToSubCategoryOrDefinition}
               settings={bySubCategory[subCategory.key]}
+              onUpdate={this.props.onUpdate}
             />
             {this.renderEmailForm(subCategory.key)}
           </li>

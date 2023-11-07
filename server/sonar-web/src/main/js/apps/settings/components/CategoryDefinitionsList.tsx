@@ -19,7 +19,11 @@
  */
 import { keyBy } from 'lodash';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { getValues } from '../../../api/settings';
+import DocLink from '../../../components/common/DocLink';
+import { Alert } from '../../../components/ui/Alert';
+import { translate } from '../../../helpers/l10n';
 import {
   ExtendedSettingDefinition,
   SettingDefinitionAndValue,
@@ -38,11 +42,12 @@ interface Props {
 
 interface State {
   settings: SettingDefinitionAndValue[];
+  displayGithubOrganizationWarning: boolean;
 }
 
 export default class CategoryDefinitionsList extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { settings: [] };
+  state: State = { settings: [], displayGithubOrganizationWarning: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -60,7 +65,25 @@ export default class CategoryDefinitionsList extends React.PureComponent<Props, 
     this.mounted = false;
   }
 
-  async loadSettingValues() {
+  shouldDisplayGithubWarning = (settings: SettingDefinitionAndValue[]) => {
+    const { category, subCategory } = this.props;
+    if (category !== 'authentication' || subCategory !== 'github') {
+      return false;
+    }
+    const isGithubEnabled = settings.find((s) => s.definition.key === 'sonar.auth.github.enabled');
+    const organizationsSetting = settings.find(
+      (s) => s.definition.key === 'sonar.auth.github.organizations'
+    );
+    if (
+      isGithubEnabled?.settingValue?.value === 'true' &&
+      organizationsSetting?.settingValue === undefined
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  loadSettingValues = async () => {
     const { category, component, definitions } = this.props;
 
     const categoryDefinitions = definitions.filter(
@@ -83,21 +106,41 @@ export default class CategoryDefinitionsList extends React.PureComponent<Props, 
       };
     });
 
-    this.setState({ settings });
-  }
+    const displayGithubOrganizationWarning = this.shouldDisplayGithubWarning(settings);
+
+    this.setState({ settings, displayGithubOrganizationWarning });
+  };
 
   render() {
     const { category, component, subCategory, displaySubCategoryTitle } = this.props;
-    const { settings } = this.state;
+    const { settings, displayGithubOrganizationWarning } = this.state;
 
     return (
-      <SubCategoryDefinitionsList
-        category={category}
-        component={component}
-        settings={settings}
-        subCategory={subCategory}
-        displaySubCategoryTitle={displaySubCategoryTitle}
-      />
+      <>
+        {displayGithubOrganizationWarning && (
+          <Alert variant="error">
+            <FormattedMessage
+              id="settings.authentication.github.organization.warning"
+              defaultMessage={translate('settings.authentication.github.organization.warning')}
+              values={{
+                learn_more: (
+                  <DocLink to="/instance-administration/authentication/github/#setting-your-authentication-settings-in-sonarqube">
+                    {translate('settings.authentication.github.organization.warning.learn_more')}
+                  </DocLink>
+                ),
+              }}
+            />
+          </Alert>
+        )}
+        <SubCategoryDefinitionsList
+          category={category}
+          component={component}
+          settings={settings}
+          subCategory={subCategory}
+          displaySubCategoryTitle={displaySubCategoryTitle}
+          onUpdate={this.loadSettingValues}
+        />
+      </>
     );
   }
 }

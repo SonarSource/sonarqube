@@ -79,6 +79,8 @@ const ui = {
   testButton: byText('settings.authentication.saml.form.test'),
   textbox1: byRole('textbox', { name: 'test1' }),
   textbox2: byRole('textbox', { name: 'test2' }),
+  githubTab: byRole('tab', { name: 'github GitHub' }),
+  githubOrganizationWarning: byText('settings.authentication.github.organization.warning'),
 };
 
 it('should render tabs and allow navigation', async () => {
@@ -206,6 +208,41 @@ describe('SAML tab', () => {
     renderAuthentication([], [Feature.LoginMessage]);
 
     expect(ui.customMessageInformation.get()).toBeInTheDocument();
+  });
+});
+
+describe('GitHub tab', () => {
+  it('should display a warning if github authentication is enabled but no organizations are whitelisted', async () => {
+    const user = userEvent.setup();
+
+    const definitions = [
+      mockDefinition({
+        key: 'sonar.auth.github.enabled',
+        category: 'authentication',
+        subCategory: 'github',
+        name: '"Enabled"',
+        description:
+          'Enable GitHub users to login. Value is ignored if client ID and secret are not defined.',
+        type: SettingType.BOOLEAN,
+      }),
+      mockDefinition({
+        key: 'sonar.auth.github.organizations',
+        category: 'authentication',
+        subCategory: 'github',
+        name: 'Organizations',
+        description:
+          'Only members of these organizations will be able to authenticate to the server. If a user is a member of any of the organizations listed they will be authenticated.',
+        type: SettingType.BOOLEAN,
+        fields: [],
+        multiValues: true,
+        options: [],
+      }),
+    ];
+
+    renderAuthentication(definitions);
+
+    await user.click(await ui.githubTab.find());
+    expect(ui.githubOrganizationWarning.get()).toBeInTheDocument();
   });
 });
 

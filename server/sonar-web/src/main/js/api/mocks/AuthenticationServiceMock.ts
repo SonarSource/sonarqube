@@ -30,6 +30,7 @@ export default class AuthenticationServiceMock {
     mockSettingValue({ key: 'test2', value: 'test2' }),
     mockSettingValue({ key: 'sonar.auth.saml.certificate.secured' }),
     mockSettingValue({ key: 'sonar.auth.saml.enabled', value: 'false' }),
+    mockSettingValue({ key: 'sonar.auth.github.enabled', value: 'true' }),
   ];
 
   constructor() {

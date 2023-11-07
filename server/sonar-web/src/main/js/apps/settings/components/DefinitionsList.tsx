@@ -26,6 +26,7 @@ interface Props {
   component?: Component;
   scrollToDefinition: (element: HTMLLIElement) => void;
   settings: SettingDefinitionAndValue[];
+  onUpdate?: () => void;
 }
 
 export default function DefinitionsList(props: Props) {
@@ -42,6 +43,7 @@ export default function DefinitionsList(props: Props) {
             component={component}
             definition={setting.definition}
             initialSettingValue={setting.settingValue}
+            onUpdate={props.onUpdate}
           />
         </li>
       ))}

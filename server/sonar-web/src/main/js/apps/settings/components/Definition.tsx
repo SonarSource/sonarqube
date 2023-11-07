@@ -30,6 +30,7 @@ interface Props {
   component?: Component;
   definition: ExtendedSettingDefinition;
   initialSettingValue?: SettingValue;
+  onUpdate?: () => void;
 }
 
 interface State {
@@ -81,6 +82,10 @@ export default class Definition extends React.PureComponent<Props, State> {
     try {
       await resetSettingValue({ keys: definition.key, component: component?.key });
       const settingValue = await getValue({ key: definition.key, component: component?.key });
+
+      if (this.props.onUpdate) {
+        this.props.onUpdate();
+      }
 
       this.setState({
         changedValue: undefined,
@@ -170,6 +175,10 @@ export default class Definition extends React.PureComponent<Props, State> {
       try {
         await setSettingValue(definition, changedValue, component?.key);
         const settingValue = await getValue({ key: definition.key, component: component?.key });
+
+        if (this.props.onUpdate) {
+          this.props.onUpdate();
+        }
 
         this.setState({
           changedValue: undefined,

@@ -158,8 +158,8 @@ public class GitHubSettings {
         .build(),
       PropertyDefinition.builder(ORGANIZATIONS)
         .name("Organizations")
-        .description("Only members of these organizations will be able to authenticate to the server. " +
-          "If a user is a member of any of the organizations listed they will be authenticated.")
+        .description("Only members of these organizations will be able to authenticate to the server. "
+                     + "⚠ if not set, any GitHub user will be able to authenticate to the server.")
         .multiValues(true)
         .category(CATEGORY)
         .subCategory(SUBCATEGORY)
