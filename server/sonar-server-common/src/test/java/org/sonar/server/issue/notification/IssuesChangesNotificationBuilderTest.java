@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.AnalysisChange;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Project;
@@ -50,7 +51,6 @@ public class IssuesChangesNotificationBuilderTest {
       .setRule(newRule("repository", "key", RuleType.CODE_SMELL, "name"))
       .setProject(new Project.Builder("uuid" + i).setKey("key").setProjectName("name").setBranchName("branch-name").build())
       .setNewStatus("status")
-      .setNewResolution("resolution")
       .setAssignee(new User("uuid" + i, "login", "name"))
       .build())
       .collect(Collectors.toSet());
@@ -76,7 +76,6 @@ public class IssuesChangesNotificationBuilderTest {
       .setRule(newRule("repository", "key", RuleType.CODE_SMELL, "name"))
       .setProject(new Project.Builder("uuid" + i).setKey("key").setProjectName("name").setBranchName("branch-name").build())
       .setNewStatus("status")
-      .setNewResolution("resolution")
       .setAssignee(new User("uuid" + i, "login", "name"))
       .build())
       .collect(Collectors.toSet());
@@ -341,12 +340,12 @@ public class IssuesChangesNotificationBuilderTest {
       .setRule(newRule("repository", "key", RuleType.CODE_SMELL, "name"))
       .setProject(new Project.Builder("uuid").setKey("key").setProjectName("name").setBranchName("branch-name").build())
       .setNewStatus("status")
-      .setNewResolution("resolution")
+      .setNewIssueStatus(IssueStatus.ACCEPTED)
       .setAssignee(new User("uuid", "login", "name"))
       .build();
 
     assertThat(changedIssue)
-      .hasToString("ChangedIssue{key='key', newStatus='status', newResolution='resolution', " +
+      .hasToString("ChangedIssue{key='key', newStatus='status', newIssueStatus='ACCEPTED', " +
         "assignee=User{uuid='uuid', login='login', name='name'}, " +
         "rule=Rule{key=repository:key, type=CODE_SMELL, name='name'}, " +
         "project=Project{uuid='uuid', key='key', projectName='name', branchName='branch-name'}}");
@@ -358,14 +357,12 @@ public class IssuesChangesNotificationBuilderTest {
       .setRule(newRule("repository", "key", RuleType.CODE_SMELL, "name"))
       .setProject(new Project.Builder("uuid").setKey("key").setProjectName("name").setBranchName("branch-name").build())
       .setNewStatus("status")
-      .setNewResolution("resolution")
       .setAssignee(new User("uuid", "login", "name"))
       .build();
     ChangedIssue changedIssue2 = new ChangedIssue.Builder("key")
       .setRule(newRule("repository", "key", RuleType.CODE_SMELL, "name"))
       .setProject(new Project.Builder("uuid").setKey("key").setProjectName("name").setBranchName("branch-name").build())
       .setNewStatus("status")
-      .setNewResolution("resolution")
       .setAssignee(new User("uuid", "login", "name"))
       .build();
 
@@ -381,42 +378,30 @@ public class IssuesChangesNotificationBuilderTest {
         .setRule(newRule("repository", "key", RuleType.CODE_SMELL, "name"))
         .setProject(new Project.Builder("uuid").setKey("key").setProjectName("name").setBranchName("branch-name").build())
         .setNewStatus("status")
-        .setNewResolution("resolution")
         .setAssignee(new User("uuid", "login", "name"))
         .build()},
       {new ChangedIssue.Builder("key")
         .setRule(newRule("repository1", "key", RuleType.CODE_SMELL, "name"))
         .setProject(new Project.Builder("uuid").setKey("key").setProjectName("name").setBranchName("branch-name").build())
         .setNewStatus("status")
-        .setNewResolution("resolution")
         .setAssignee(new User("uuid", "login", "name"))
         .build()},
       {new ChangedIssue.Builder("key")
         .setRule(newRule("repository", "key", RuleType.CODE_SMELL, "name"))
         .setProject(new Project.Builder("uuid1").setKey("key").setProjectName("name").setBranchName("branch-name").build())
-        .setNewStatus("status")
-        .setNewResolution("resolution")
+        .setNewStatus("status").setNewIssueStatus(IssueStatus.ACCEPTED)
         .setAssignee(new User("uuid", "login", "name"))
         .build()},
       {new ChangedIssue.Builder("key")
         .setRule(newRule("repository", "key", RuleType.CODE_SMELL, "name"))
         .setProject(new Project.Builder("uuid").setKey("key").setProjectName("name").setBranchName("branch-name").build())
-        .setNewStatus("status1")
-        .setNewResolution("resolution")
-        .setAssignee(new User("uuid", "login", "name"))
-        .build()},
-      {new ChangedIssue.Builder("key")
-        .setRule(newRule("repository", "key", RuleType.CODE_SMELL, "name"))
-        .setProject(new Project.Builder("uuid").setKey("key").setProjectName("name").setBranchName("branch-name").build())
-        .setNewStatus("status")
-        .setNewResolution("resolution1")
+        .setNewStatus("status").setNewIssueStatus(IssueStatus.FIXED)
         .setAssignee(new User("uuid", "login", "name"))
         .build()},
       {new ChangedIssue.Builder("key")
         .setRule(newRule("repository", "key", RuleType.CODE_SMELL, "name"))
         .setProject(new Project.Builder("uuid").setKey("key").setProjectName("name").setBranchName("branch-name").build())
         .setNewStatus("status")
-        .setNewResolution("resolution")
         .setAssignee(new User("uuid1", "login", "name"))
         .build()},
       {null},
@@ -431,7 +416,6 @@ public class IssuesChangesNotificationBuilderTest {
       .setRule(newRule("repository", "key", RuleType.CODE_SMELL, "name"))
       .setProject(new Project.Builder("uuid").setKey("key").setProjectName("name").setBranchName("branch-name").build())
       .setNewStatus("status")
-      .setNewResolution("resolution")
       .setAssignee(new User("uuid", "login", "name"))
       .build();
 
@@ -447,14 +431,12 @@ public class IssuesChangesNotificationBuilderTest {
       .setRule(rule)
       .setProject(project)
       .setNewStatus("status")
-      .setNewResolution("resolution")
       .setAssignee(user)
       .build();
 
     assertThat(changedIssue.getKey()).isEqualTo("key");
     assertThat(changedIssue.getNewStatus()).isEqualTo("status");
     assertThat(changedIssue.getAssignee()).hasValue(user);
-    assertThat(changedIssue.getNewResolution()).hasValue("resolution");
     assertThat(changedIssue.getProject()).isEqualTo(project);
     assertThat(changedIssue.getRule()).isEqualTo(rule);
   }

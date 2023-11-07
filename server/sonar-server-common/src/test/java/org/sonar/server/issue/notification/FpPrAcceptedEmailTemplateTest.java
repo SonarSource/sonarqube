@@ -36,7 +36,7 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.i18n.I18n;
-import org.sonar.server.issue.notification.FPOrWontFixNotification.FpOrWontFix;
+import org.sonar.server.issue.notification.FPOrAcceptedNotification.FpPrAccepted;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.AnalysisChange;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Change;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
@@ -53,17 +53,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
-import static org.sonar.server.issue.notification.FPOrWontFixNotification.FpOrWontFix.FP;
-import static org.sonar.server.issue.notification.FPOrWontFixNotification.FpOrWontFix.WONT_FIX;
+import static org.sonar.server.issue.notification.FPOrAcceptedNotification.FpPrAccepted.FP;
+import static org.sonar.server.issue.notification.FPOrAcceptedNotification.FpPrAccepted.ACCEPTED;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newRandomNotAHotspotRule;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newSecurityHotspotRule;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.randomRuleTypeHotspotExcluded;
 
 @RunWith(DataProviderRunner.class)
-public class FpOrWontFixEmailTemplateTest {
+public class FpPrAcceptedEmailTemplateTest {
   private I18n i18n = mock(I18n.class);
   private EmailSettings emailSettings = mock(EmailSettings.class);
-  private FpOrWontFixEmailTemplate underTest = new FpOrWontFixEmailTemplate(i18n, emailSettings);
+  private FpOrAcceptedEmailTemplate underTest = new FpOrAcceptedEmailTemplate(i18n, emailSettings);
 
   @Test
   public void format_returns_null_on_Notification() {
@@ -74,36 +74,36 @@ public class FpOrWontFixEmailTemplateTest {
 
   @Test
   public void format_sets_message_id_specific_to_fp() {
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(mock(Change.class), Collections.emptySet(), FP));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(mock(Change.class), Collections.emptySet(), FP));
 
     assertThat(emailMessage.getMessageId()).isEqualTo("fp-issue-changes");
   }
 
   @Test
   public void format_sets_message_id_specific_to_wont_fix() {
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(mock(Change.class), Collections.emptySet(), WONT_FIX));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(mock(Change.class), Collections.emptySet(), ACCEPTED));
 
-    assertThat(emailMessage.getMessageId()).isEqualTo("wontfix-issue-changes");
+    assertThat(emailMessage.getMessageId()).isEqualTo("accepted-issue-changes");
   }
 
   @Test
   public void format_sets_subject_specific_to_fp() {
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(mock(Change.class), Collections.emptySet(), FP));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(mock(Change.class), Collections.emptySet(), FP));
 
     assertThat(emailMessage.getSubject()).isEqualTo("Issues marked as False Positive");
   }
 
   @Test
   public void format_sets_subject_specific_to_wont_fix() {
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(mock(Change.class), Collections.emptySet(), WONT_FIX));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(mock(Change.class), Collections.emptySet(), ACCEPTED));
 
-    assertThat(emailMessage.getSubject()).isEqualTo("Issues marked as Won't Fix");
+    assertThat(emailMessage.getSubject()).isEqualTo("Issues marked as Accepted");
   }
 
   @Test
   public void format_sets_from_to_name_of_author_change_when_available() {
     UserChange change = new UserChange(new Random().nextLong(), new User(randomAlphabetic(5), randomAlphabetic(6), randomAlphabetic(7)));
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, Collections.emptySet(), WONT_FIX));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, Collections.emptySet(), ACCEPTED));
 
     assertThat(emailMessage.getFrom()).isEqualTo(change.getUser().getName().get());
   }
@@ -111,7 +111,7 @@ public class FpOrWontFixEmailTemplateTest {
   @Test
   public void format_sets_from_to_login_of_author_change_when_name_is_not_available() {
     UserChange change = new UserChange(new Random().nextLong(), new User(randomAlphabetic(5), randomAlphabetic(6), null));
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, Collections.emptySet(), WONT_FIX));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, Collections.emptySet(), ACCEPTED));
 
     assertThat(emailMessage.getFrom()).isEqualTo(change.getUser().getLogin());
   }
@@ -119,7 +119,7 @@ public class FpOrWontFixEmailTemplateTest {
   @Test
   public void format_sets_from_to_null_when_analysisChange() {
     AnalysisChange change = new AnalysisChange(new Random().nextLong());
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, Collections.emptySet(), WONT_FIX));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, Collections.emptySet(), ACCEPTED));
 
     assertThat(emailMessage.getFrom()).isNull();
   }
@@ -133,17 +133,17 @@ public class FpOrWontFixEmailTemplateTest {
   @Test
   @UseDataProvider("userOrAnalysisChange")
   public void formats_returns_html_message_with_only_footer_and_header_when_no_issue_for_Wont_fixs(Change change) {
-    formats_returns_html_message_with_only_footer_and_header_when_no_issue(change, WONT_FIX, "Won't Fix");
+    formats_returns_html_message_with_only_footer_and_header_when_no_issue(change, ACCEPTED, "Accepted");
   }
 
-  public void formats_returns_html_message_with_only_footer_and_header_when_no_issue(Change change, FpOrWontFix fpOrWontFix, String fpOrWontFixLabel) {
+  public void formats_returns_html_message_with_only_footer_and_header_when_no_issue(Change change, FpPrAccepted fpPrAccepted, String fpOrWontFixLabel) {
     String wordingNotification = randomAlphabetic(20);
     String host = randomAlphabetic(15);
     when(i18n.message(Locale.ENGLISH, "notification.dispatcher.NewFalsePositiveIssue", "notification.dispatcher.NewFalsePositiveIssue"))
       .thenReturn(wordingNotification);
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, Collections.emptySet(), fpOrWontFix));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, Collections.emptySet(), fpPrAccepted));
 
     String footerText = "You received this email because you are subscribed to \"" + wordingNotification + "\" notifications from SonarQube."
       + " Click here to edit your email preferences.";
@@ -161,14 +161,14 @@ public class FpOrWontFixEmailTemplateTest {
 
   @Test
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
-  public void formats_returns_html_message_for_single_issue_on_master(Change change, FpOrWontFix fpOrWontFix) {
+  public void formats_returns_html_message_for_single_issue_on_master(Change change, FpPrAccepted fpPrAccepted) {
     Project project = newProject("1");
     String ruleName = randomAlphabetic(8);
     String host = randomAlphabetic(15);
     ChangedIssue changedIssue = newChangedIssue("key", project, ruleName, randomRuleTypeHotspotExcluded());
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, ImmutableSet.of(changedIssue), fpOrWontFix));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.of(changedIssue), fpPrAccepted));
 
     HtmlFragmentAssert.assertThat(emailMessage.getMessage())
       .hasParagraph().hasParagraph() // skip header
@@ -181,14 +181,14 @@ public class FpOrWontFixEmailTemplateTest {
 
   @Test
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
-  public void formats_returns_html_message_for_single_hotspot_on_master(Change change, FpOrWontFix fpOrWontFix) {
+  public void formats_returns_html_message_for_single_hotspot_on_master(Change change, FpPrAccepted fpPrAccepted) {
     Project project = newProject("1");
     String ruleName = randomAlphabetic(8);
     String host = randomAlphabetic(15);
     ChangedIssue changedIssue = newChangedIssue("key", project, ruleName, SECURITY_HOTSPOT);
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, ImmutableSet.of(changedIssue), fpOrWontFix));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.of(changedIssue), fpPrAccepted));
 
     HtmlFragmentAssert.assertThat(emailMessage.getMessage())
       .hasParagraph().hasParagraph() // skip header
@@ -201,7 +201,7 @@ public class FpOrWontFixEmailTemplateTest {
 
   @Test
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
-  public void formats_returns_html_message_for_single_issue_on_branch(Change change, FpOrWontFix fpOrWontFix) {
+  public void formats_returns_html_message_for_single_issue_on_branch(Change change, FpPrAccepted fpPrAccepted) {
     String branchName = randomAlphabetic(6);
     Project project = newBranch("1", branchName);
     String ruleName = randomAlphabetic(8);
@@ -210,7 +210,7 @@ public class FpOrWontFixEmailTemplateTest {
     ChangedIssue changedIssue = newChangedIssue(key, project, ruleName, randomRuleTypeHotspotExcluded());
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, ImmutableSet.of(changedIssue), fpOrWontFix));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.of(changedIssue), fpPrAccepted));
 
     HtmlFragmentAssert.assertThat(emailMessage.getMessage())
       .hasParagraph().hasParagraph() // skip header
@@ -224,7 +224,7 @@ public class FpOrWontFixEmailTemplateTest {
 
   @Test
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
-  public void formats_returns_html_message_for_single_hotspot_on_branch(Change change, FpOrWontFix fpOrWontFix) {
+  public void formats_returns_html_message_for_single_hotspot_on_branch(Change change, FpPrAccepted fpPrAccepted) {
     String branchName = randomAlphabetic(6);
     Project project = newBranch("1", branchName);
     String ruleName = randomAlphabetic(8);
@@ -233,7 +233,7 @@ public class FpOrWontFixEmailTemplateTest {
     ChangedIssue changedIssue = newChangedIssue(key, project, ruleName, SECURITY_HOTSPOT);
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, ImmutableSet.of(changedIssue), fpOrWontFix));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.of(changedIssue), fpPrAccepted));
 
     HtmlFragmentAssert.assertThat(emailMessage.getMessage())
       .hasParagraph().hasParagraph() // skip header
@@ -247,7 +247,7 @@ public class FpOrWontFixEmailTemplateTest {
 
   @Test
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
-  public void formats_returns_html_message_for_multiple_issues_of_same_rule_on_same_project_on_master(Change change, FpOrWontFix fpOrWontFix) {
+  public void formats_returns_html_message_for_multiple_issues_of_same_rule_on_same_project_on_master(Change change, FpPrAccepted fpPrAccepted) {
     Project project = newProject("1");
     String ruleName = randomAlphabetic(8);
     String host = randomAlphabetic(15);
@@ -257,7 +257,7 @@ public class FpOrWontFixEmailTemplateTest {
       .collect(toList());
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, ImmutableSet.copyOf(changedIssues), fpOrWontFix));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), fpPrAccepted));
 
     String expectedHref = host + "/project/issues?id=" + project.getKey()
       + "&issues=" + changedIssues.stream().map(ChangedIssue::getKey).collect(joining("%2C"));
@@ -273,7 +273,7 @@ public class FpOrWontFixEmailTemplateTest {
 
   @Test
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
-  public void formats_returns_html_message_for_multiple_hotspots_of_same_rule_on_same_project_on_master(Change change, FpOrWontFix fpOrWontFix) {
+  public void formats_returns_html_message_for_multiple_hotspots_of_same_rule_on_same_project_on_master(Change change, FpPrAccepted fpPrAccepted) {
     Project project = newProject("1");
     String ruleName = randomAlphabetic(8);
     String host = randomAlphabetic(15);
@@ -283,7 +283,7 @@ public class FpOrWontFixEmailTemplateTest {
       .collect(toList());
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, ImmutableSet.copyOf(changedIssues), fpOrWontFix));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), fpPrAccepted));
 
     String expectedHref = host + "/project/issues?id=" + project.getKey()
       + "&issues=" + changedIssues.stream().map(ChangedIssue::getKey).collect(joining("%2C"));
@@ -299,7 +299,7 @@ public class FpOrWontFixEmailTemplateTest {
 
   @Test
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
-  public void formats_returns_html_message_for_multiple_issues_of_same_rule_on_same_project_on_branch(Change change, FpOrWontFix fpOrWontFix) {
+  public void formats_returns_html_message_for_multiple_issues_of_same_rule_on_same_project_on_branch(Change change, FpPrAccepted fpPrAccepted) {
     String branchName = randomAlphabetic(19);
     Project project = newBranch("1", branchName);
     String ruleName = randomAlphabetic(8);
@@ -310,7 +310,7 @@ public class FpOrWontFixEmailTemplateTest {
       .collect(toList());
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, ImmutableSet.copyOf(changedIssues), fpOrWontFix));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), fpPrAccepted));
 
     String expectedHref = host + "/project/issues?id=" + project.getKey() + "&branch=" + branchName
       + "&issues=" + changedIssues.stream().map(ChangedIssue::getKey).collect(joining("%2C"));
@@ -326,7 +326,7 @@ public class FpOrWontFixEmailTemplateTest {
 
   @Test
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
-  public void formats_returns_html_message_for_multiple_hotspots_of_same_rule_on_same_project_on_branch(Change change, FpOrWontFix fpOrWontFix) {
+  public void formats_returns_html_message_for_multiple_hotspots_of_same_rule_on_same_project_on_branch(Change change, FpPrAccepted fpPrAccepted) {
     String branchName = randomAlphabetic(19);
     Project project = newBranch("1", branchName);
     String ruleName = randomAlphabetic(8);
@@ -337,7 +337,7 @@ public class FpOrWontFixEmailTemplateTest {
       .collect(toList());
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, ImmutableSet.copyOf(changedIssues), fpOrWontFix));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), fpPrAccepted));
 
     String expectedHref = host + "/project/issues?id=" + project.getKey() + "&branch=" + branchName
       + "&issues=" + changedIssues.stream().map(ChangedIssue::getKey).collect(joining("%2C"));
@@ -353,7 +353,7 @@ public class FpOrWontFixEmailTemplateTest {
 
   @Test
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
-  public void formats_returns_html_message_with_projects_ordered_by_name(Change change, FpOrWontFix fpOrWontFix) {
+  public void formats_returns_html_message_with_projects_ordered_by_name(Change change, FpPrAccepted fpPrAccepted) {
     Project project1 = newProject("1");
     Project project1Branch1 = newBranch("1", "a");
     Project project1Branch2 = newBranch("1", "b");
@@ -367,7 +367,7 @@ public class FpOrWontFixEmailTemplateTest {
     Collections.shuffle(changedIssues);
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, ImmutableSet.copyOf(changedIssues), fpOrWontFix));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), fpPrAccepted));
 
     HtmlFragmentAssert.assertThat(emailMessage.getMessage())
       .hasParagraph().hasParagraph() // skip header
@@ -389,7 +389,7 @@ public class FpOrWontFixEmailTemplateTest {
 
   @Test
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
-  public void formats_returns_html_message_with_rules_ordered_by_name(Change change, FpOrWontFix fpOrWontFix) {
+  public void formats_returns_html_message_with_rules_ordered_by_name(Change change, FpPrAccepted fpPrAccepted) {
     Project project = newProject("1");
     Rule rule1 = newRandomNotAHotspotRule("1");
     Rule rule2 = newRandomNotAHotspotRule("a");
@@ -402,7 +402,7 @@ public class FpOrWontFixEmailTemplateTest {
     Collections.shuffle(changedIssues);
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, ImmutableSet.copyOf(changedIssues), fpOrWontFix));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), fpPrAccepted));
 
     HtmlFragmentAssert.assertThat(emailMessage.getMessage())
       .hasParagraph().hasParagraph() // skip header
@@ -418,7 +418,7 @@ public class FpOrWontFixEmailTemplateTest {
 
   @Test
   @UseDataProvider("fpOrWontFixValuesByUserOrAnalysisChange")
-  public void formats_returns_html_message_with_multiple_links_by_rule_of_groups_of_up_to_40_issues(Change change, FpOrWontFix fpOrWontFix) {
+  public void formats_returns_html_message_with_multiple_links_by_rule_of_groups_of_up_to_40_issues(Change change, FpPrAccepted fpPrAccepted) {
     Project project1 = newProject("1");
     Project project2 = newProject("V");
     Project project2Branch = newBranch("V", "AB");
@@ -435,7 +435,7 @@ public class FpOrWontFixEmailTemplateTest {
     Collections.shuffle(changedIssues);
     when(emailSettings.getServerBaseURL()).thenReturn(host);
 
-    EmailMessage emailMessage = underTest.format(new FPOrWontFixNotification(change, ImmutableSet.copyOf(changedIssues), fpOrWontFix));
+    EmailMessage emailMessage = underTest.format(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), fpPrAccepted));
 
     HtmlFragmentAssert.assertThat(emailMessage.getMessage())
       .hasParagraph().hasParagraph() // skip header
@@ -488,9 +488,9 @@ public class FpOrWontFixEmailTemplateTest {
       new Random().nextBoolean() ? null : randomAlphabetic(7)));
     return new Object[][] {
       {analysisChange, FP},
-      {analysisChange, WONT_FIX},
+      {analysisChange, ACCEPTED},
       {userChange, FP},
-      {userChange, WONT_FIX}
+      {userChange, ACCEPTED}
     };
   }
 

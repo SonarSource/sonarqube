@@ -19,17 +19,17 @@
  */
 package org.sonar.server.issue.notification;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.sonar.api.issue.Issue;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
 import org.sonar.server.notification.EmailNotificationHandler;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
@@ -41,26 +41,25 @@ import org.sonar.server.notification.email.EmailNotificationChannel.EmailDeliver
 import static com.google.common.collect.Sets.intersection;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.of;
-import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedFlattenIndex;
 import static org.sonar.core.util.stream.MoreCollectors.unorderedIndex;
-import static org.sonar.server.issue.notification.FPOrWontFixNotification.FpOrWontFix.FP;
-import static org.sonar.server.issue.notification.FPOrWontFixNotification.FpOrWontFix.WONT_FIX;
+import static org.sonar.server.issue.notification.FPOrAcceptedNotification.FpPrAccepted.ACCEPTED;
+import static org.sonar.server.issue.notification.FPOrAcceptedNotification.FpPrAccepted.FP;
 import static org.sonar.server.notification.NotificationManager.SubscriberPermissionsOnProject.ALL_MUST_HAVE_ROLE_USER;
 
-public class FPOrWontFixNotificationHandler extends EmailNotificationHandler<IssuesChangesNotification> {
+public class FPOrAcceptedNotificationHandler extends EmailNotificationHandler<IssuesChangesNotification> {
 
   public static final String KEY = "NewFalsePositiveIssue";
   private static final NotificationDispatcherMetadata METADATA = NotificationDispatcherMetadata.create(KEY)
     .setProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION, String.valueOf(false))
     .setProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION, String.valueOf(true));
 
-  private static final Set<String> FP_OR_WONTFIX_RESOLUTIONS = ImmutableSet.of(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_WONT_FIX);
+  private static final Set<IssueStatus> FP_OR_ACCEPTED_SIMPLE_STATUSES = EnumSet.of(IssueStatus.ACCEPTED, IssueStatus.FALSE_POSITIVE);
 
   private final NotificationManager notificationManager;
   private final IssuesChangesNotificationSerializer serializer;
 
-  public FPOrWontFixNotificationHandler(NotificationManager notificationManager,
+  public FPOrAcceptedNotificationHandler(NotificationManager notificationManager,
     EmailNotificationChannel emailNotificationChannel, IssuesChangesNotificationSerializer serializer) {
     super(emailNotificationChannel);
     this.notificationManager = notificationManager;
@@ -83,18 +82,18 @@ public class FPOrWontFixNotificationHandler extends EmailNotificationHandler<Iss
 
   @Override
   public Set<EmailDeliveryRequest> toEmailDeliveryRequests(Collection<IssuesChangesNotification> notifications) {
-    Set<NotificationWithProjectKeys> changeNotificationsWithFpOrWontFix = notifications.stream()
+    Set<NotificationWithProjectKeys> changeNotificationsWithFpOrAccepted = notifications.stream()
       .map(serializer::from)
-      // ignore notifications which contain no issue changed to a FP or Won't Fix resolution
+      // ignore notifications which contain no issue changed to a FP or Accepted status
       .filter(t -> t.getIssues().stream()
-        .filter(issue -> issue.getNewResolution().isPresent())
-        .anyMatch(issue -> FP_OR_WONTFIX_RESOLUTIONS.contains(issue.getNewResolution().get())))
+        .filter(issue -> issue.getNewIssueStatus().isPresent())
+        .anyMatch(issue -> FP_OR_ACCEPTED_SIMPLE_STATUSES.contains(issue.getNewIssueStatus().get())))
       .map(NotificationWithProjectKeys::new)
       .collect(Collectors.toSet());
-    if (changeNotificationsWithFpOrWontFix.isEmpty()) {
+    if (changeNotificationsWithFpOrAccepted.isEmpty()) {
       return emptySet();
     }
-    Set<String> projectKeys = changeNotificationsWithFpOrWontFix.stream()
+    Set<String> projectKeys = changeNotificationsWithFpOrAccepted.stream()
       .flatMap(t -> t.getProjectKeys().stream())
       .collect(Collectors.toSet());
 
@@ -102,7 +101,7 @@ public class FPOrWontFixNotificationHandler extends EmailNotificationHandler<Iss
     // the same project
     if (projectKeys.size() == 1) {
       Set<EmailRecipient> recipients = notificationManager.findSubscribedEmailRecipients(KEY, projectKeys.iterator().next(), ALL_MUST_HAVE_ROLE_USER);
-      return changeNotificationsWithFpOrWontFix.stream()
+      return changeNotificationsWithFpOrAccepted.stream()
         .flatMap(notification -> toRequests(notification, projectKeys, recipients))
         .collect(Collectors.toSet());
     }
@@ -120,7 +119,7 @@ public class FPOrWontFixNotificationHandler extends EmailNotificationHandler<Iss
       .entrySet().stream()
       .collect(unorderedIndex(t -> (Set<String>) t.getValue(), Map.Entry::getKey));
 
-    return changeNotificationsWithFpOrWontFix.stream()
+    return changeNotificationsWithFpOrAccepted.stream()
       .flatMap(notification -> {
         // builds sets of recipients for each sub group of the notification's projectKeys necessary
         SetMultimap<Set<String>, EmailRecipient> recipientsByProjectKeys = recipientsBySubscribedProjects.asMap().entrySet()
@@ -137,35 +136,28 @@ public class FPOrWontFixNotificationHandler extends EmailNotificationHandler<Iss
       // do not notify author of the change
       .filter(recipient -> !notification.getChange().isAuthorLogin(recipient.login()))
       .flatMap(recipient -> {
-        SetMultimap<String, ChangedIssue> issuesByNewResolution = notification.getIssues().stream()
+        SetMultimap<IssueStatus, ChangedIssue> issuesByNewIssueStatus = notification.getIssues().stream()
           // ignore issues not changed to a FP or Won't Fix resolution
-          .filter(issue -> issue.getNewResolution().filter(FP_OR_WONTFIX_RESOLUTIONS::contains).isPresent())
+          .filter(issue -> issue.getNewIssueStatus().filter(FP_OR_ACCEPTED_SIMPLE_STATUSES::contains).isPresent())
           // ignore issues belonging to projects the recipients have not subscribed to
           .filter(issue -> projectKeys.contains(issue.getProject().getKey()))
-          .collect(unorderedIndex(t -> t.getNewResolution().get(), issue -> issue));
+          .collect(unorderedIndex(t -> t.getNewIssueStatus().get(), issue -> issue));
 
         return Stream.of(
-          ofNullable(issuesByNewResolution.get(Issue.RESOLUTION_FALSE_POSITIVE))
+          of(issuesByNewIssueStatus.get(IssueStatus.FALSE_POSITIVE))
             .filter(t -> !t.isEmpty())
-            .map(fpIssues -> new FPOrWontFixNotification(notification.getChange(), fpIssues, FP))
+            .map(fpIssues -> new FPOrAcceptedNotification(notification.getChange(), fpIssues, FP))
             .orElse(null),
-          ofNullable(issuesByNewResolution.get(Issue.RESOLUTION_WONT_FIX))
+          of(issuesByNewIssueStatus.get(IssueStatus.ACCEPTED))
             .filter(t -> !t.isEmpty())
-            .map(wontFixIssues -> new FPOrWontFixNotification(notification.getChange(), wontFixIssues, WONT_FIX))
+            .map(acceptedIssues -> new FPOrAcceptedNotification(notification.getChange(), acceptedIssues, ACCEPTED))
             .orElse(null))
           .filter(Objects::nonNull)
-          .map(fpOrWontFixNotification -> new EmailDeliveryRequest(recipient.email(), fpOrWontFixNotification));
+          .map(fpOrAcceptedNotification -> new EmailDeliveryRequest(recipient.email(), fpOrAcceptedNotification));
       });
   }
 
-  private static final class EmailRecipientAndProject {
-    private final EmailRecipient recipient;
-    private final String projectKey;
-
-    private EmailRecipientAndProject(EmailRecipient recipient, String projectKey) {
-      this.recipient = recipient;
-      this.projectKey = projectKey;
-    }
+  private record EmailRecipientAndProject(EmailRecipient recipient, String projectKey) {
   }
 
 }

@@ -33,11 +33,11 @@ import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Rule
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.issue.notification.FPOrWontFixNotification.FpOrWontFix.FP;
-import static org.sonar.server.issue.notification.FPOrWontFixNotification.FpOrWontFix.WONT_FIX;
+import static org.sonar.server.issue.notification.FPOrAcceptedNotification.FpPrAccepted.FP;
+import static org.sonar.server.issue.notification.FPOrAcceptedNotification.FpPrAccepted.ACCEPTED;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.newRandomNotAHotspotRule;
 
-public class FPOrWontFixNotificationTest {
+public class FPOrAcceptedNotificationTest {
   @Test
   public void equals_is_based_on_issues_change_and_resolution() {
     Rule rule = newRandomNotAHotspotRule("rule_name");
@@ -51,18 +51,18 @@ public class FPOrWontFixNotificationTest {
       .collect(Collectors.toSet());
     AnalysisChange change = new AnalysisChange(12);
     User user = new User("uuid", "login", null);
-    FPOrWontFixNotification underTest = new FPOrWontFixNotification(change, changedIssues, WONT_FIX);
+    FPOrAcceptedNotification underTest = new FPOrAcceptedNotification(change, changedIssues, ACCEPTED);
 
     assertThat(underTest)
-      .isEqualTo(new FPOrWontFixNotification(change, changedIssues, WONT_FIX))
-      .isEqualTo(new FPOrWontFixNotification(change, ImmutableSet.copyOf(changedIssues), WONT_FIX))
+      .isEqualTo(new FPOrAcceptedNotification(change, changedIssues, ACCEPTED))
+      .isEqualTo(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), ACCEPTED))
       .isNotEqualTo(new Object())
       .isNotNull()
-      .isNotEqualTo(new FPOrWontFixNotification(change, Collections.emptySet(), WONT_FIX))
-      .isNotEqualTo(new FPOrWontFixNotification(change, ImmutableSet.of(changedIssues.iterator().next()), WONT_FIX))
-      .isNotEqualTo(new FPOrWontFixNotification(new AnalysisChange(14), changedIssues, WONT_FIX))
-      .isNotEqualTo(new FPOrWontFixNotification(new IssuesChangesNotificationBuilder.UserChange(12, user), changedIssues, WONT_FIX))
-      .isNotEqualTo(new FPOrWontFixNotification(change, changedIssues, FP));
+      .isNotEqualTo(new FPOrAcceptedNotification(change, Collections.emptySet(), ACCEPTED))
+      .isNotEqualTo(new FPOrAcceptedNotification(change, ImmutableSet.of(changedIssues.iterator().next()), ACCEPTED))
+      .isNotEqualTo(new FPOrAcceptedNotification(new AnalysisChange(14), changedIssues, ACCEPTED))
+      .isNotEqualTo(new FPOrAcceptedNotification(new IssuesChangesNotificationBuilder.UserChange(12, user), changedIssues, ACCEPTED))
+      .isNotEqualTo(new FPOrAcceptedNotification(change, changedIssues, FP));
   }
 
   @Test
@@ -78,16 +78,16 @@ public class FPOrWontFixNotificationTest {
       .collect(Collectors.toSet());
     AnalysisChange change = new AnalysisChange(12);
     User user = new User("uuid", "login", null);
-    FPOrWontFixNotification underTest = new FPOrWontFixNotification(change, changedIssues, WONT_FIX);
+    FPOrAcceptedNotification underTest = new FPOrAcceptedNotification(change, changedIssues, ACCEPTED);
 
     assertThat(underTest.hashCode())
-      .isEqualTo(new FPOrWontFixNotification(change, changedIssues, WONT_FIX).hashCode())
-      .isEqualTo(new FPOrWontFixNotification(change, ImmutableSet.copyOf(changedIssues), WONT_FIX).hashCode())
+      .isEqualTo(new FPOrAcceptedNotification(change, changedIssues, ACCEPTED).hashCode())
+      .isEqualTo(new FPOrAcceptedNotification(change, ImmutableSet.copyOf(changedIssues), ACCEPTED).hashCode())
       .isNotEqualTo(new Object().hashCode())
-      .isNotEqualTo(new FPOrWontFixNotification(change, Collections.emptySet(), WONT_FIX).hashCode())
-      .isNotEqualTo(new FPOrWontFixNotification(change, ImmutableSet.of(changedIssues.iterator().next()), WONT_FIX).hashCode())
-      .isNotEqualTo(new FPOrWontFixNotification(new AnalysisChange(14), changedIssues, WONT_FIX).hashCode())
-      .isNotEqualTo(new FPOrWontFixNotification(new IssuesChangesNotificationBuilder.UserChange(12, user), changedIssues, WONT_FIX).hashCode())
-      .isNotEqualTo(new FPOrWontFixNotification(change, changedIssues, FP)).hashCode();
+      .isNotEqualTo(new FPOrAcceptedNotification(change, Collections.emptySet(), ACCEPTED).hashCode())
+      .isNotEqualTo(new FPOrAcceptedNotification(change, ImmutableSet.of(changedIssues.iterator().next()), ACCEPTED).hashCode())
+      .isNotEqualTo(new FPOrAcceptedNotification(new AnalysisChange(14), changedIssues, ACCEPTED).hashCode())
+      .isNotEqualTo(new FPOrAcceptedNotification(new IssuesChangesNotificationBuilder.UserChange(12, user), changedIssues, ACCEPTED).hashCode())
+      .isNotEqualTo(new FPOrAcceptedNotification(change, changedIssues, FP)).hashCode();
   }
 }

@@ -29,6 +29,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.ChangedIssue;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Project;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.Rule;
@@ -87,7 +88,7 @@ public class IssuesChangesNotificationSerializer {
     return issues.stream()
       .map(issue -> new ChangedIssue.Builder(issue.key)
         .setNewStatus(issue.newStatus)
-        .setNewResolution(issue.newResolution)
+        .setNewIssueStatus(issue.newIssueStatus == null ? null : IssueStatus.valueOf(issue.newIssueStatus))
         .setAssignee(issue.assignee)
         .setRule(rules.get(issue.ruleKey))
         .setProject(projects.get(issue.projectUuid))
@@ -121,9 +122,9 @@ public class IssuesChangesNotificationSerializer {
         assignee.getName()
           .ifPresent(name -> notification.setFieldValue(issuePropertyPrefix + ".assignee.name", name));
       });
-    issue.getNewResolution()
-      .ifPresent(newResolution -> notification.setFieldValue(issuePropertyPrefix + ".newResolution", newResolution));
     notification.setFieldValue(issuePropertyPrefix + ".newStatus", issue.getNewStatus());
+    issue.getNewIssueStatus()
+      .ifPresent(newIssueStatus -> notification.setFieldValue(issuePropertyPrefix + ".newIssueStatus", newIssueStatus.name()));
     notification.setFieldValue(issuePropertyPrefix + ".ruleKey", issue.getRule().getKey().toString());
     notification.setFieldValue(issuePropertyPrefix + ".projectUuid", issue.getProject().getUuid());
   }
@@ -135,6 +136,7 @@ public class IssuesChangesNotificationSerializer {
       .setKey(getIssueFieldValue(notification, issuePropertyPrefix + ".key", index))
       .setNewStatus(getIssueFieldValue(notification, issuePropertyPrefix + ".newStatus", index))
       .setNewResolution(notification.getFieldValue(issuePropertyPrefix + ".newResolution"))
+      .setNewIssueStatus(notification.getFieldValue(issuePropertyPrefix + ".newIssueStatus"))
       .setAssignee(assignee)
       .setRuleKey(getIssueFieldValue(notification, issuePropertyPrefix + ".ruleKey", index))
       .setProjectUuid(getIssueFieldValue(notification, issuePropertyPrefix + ".projectUuid", index))
@@ -250,6 +252,8 @@ public class IssuesChangesNotificationSerializer {
     @CheckForNull
     private final String newResolution;
     @CheckForNull
+    private final String newIssueStatus;
+    @CheckForNull
     private final User assignee;
     private final RuleKey ruleKey;
     private final String projectUuid;
@@ -261,6 +265,7 @@ public class IssuesChangesNotificationSerializer {
       this.assignee = builder.assignee;
       this.ruleKey = RuleKey.parse(builder.ruleKey);
       this.projectUuid = builder.projectUuid;
+      this.newIssueStatus = builder.newIssueStatus;
     }
 
     static class Builder {
@@ -272,6 +277,7 @@ public class IssuesChangesNotificationSerializer {
       private User assignee = null;
       private String ruleKey = null;
       private String projectUuid = null;
+      private String newIssueStatus = null;
 
       public Builder setKey(String key) {
         this.key = key;
@@ -285,6 +291,11 @@ public class IssuesChangesNotificationSerializer {
 
       public Builder setNewResolution(@Nullable String newResolution) {
         this.newResolution = newResolution;
+        return this;
+      }
+
+      public Builder setNewIssueStatus(@Nullable String newIssueStatus) {
+        this.newIssueStatus = newIssueStatus;
         return this;
       }
 

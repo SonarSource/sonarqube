@@ -47,6 +47,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -334,7 +335,7 @@ public class BulkChangeAction implements IssuesWsAction {
     Optional<UserDto> assignee = Optional.ofNullable(issue.assignee()).map(userDtoByUuid::get);
     return new ChangedIssue.Builder(issue.key())
       .setNewStatus(issue.status())
-      .setNewResolution(issue.resolution())
+      .setNewIssueStatus(IssueStatus.of(issue.status(), issue.resolution()))
       .setAssignee(assignee.map(u -> new User(u.getUuid(), u.getLogin(), u.getName())).orElse(null))
       .setRule(new IssuesChangesNotificationBuilder.Rule(ruleDefinitionDto.getKey(), RuleType.valueOfNullable(ruleDefinitionDto.getType()), ruleDefinitionDto.getName()))
       .setProject(new Project.Builder(projectDto.uuid())

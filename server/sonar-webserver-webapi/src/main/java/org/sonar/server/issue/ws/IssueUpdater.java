@@ -28,6 +28,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -49,6 +50,7 @@ import org.sonar.server.notification.NotificationManager;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 
@@ -120,15 +122,15 @@ public class IssueUpdater {
       return issueDto;
     }
 
-    Optional<UserDto> assignee = Optional.ofNullable(issue.assignee())
+    Optional<UserDto> assignee = ofNullable(issue.assignee())
       .map(assigneeUuid -> dbClient.userDao().selectByUuid(session, assigneeUuid));
-    UserDto author = Optional.ofNullable(context.userUuid())
+    UserDto author = ofNullable(context.userUuid())
       .map(authorUuid -> dbClient.userDao().selectByUuid(session, authorUuid))
       .orElseThrow(() -> new IllegalStateException("Can not find dto for change author " + context.userUuid()));
     IssuesChangesNotificationBuilder notificationBuilder = new IssuesChangesNotificationBuilder(singleton(
       new ChangedIssue.Builder(issue.key())
-        .setNewResolution(issue.resolution())
         .setNewStatus(issue.status())
+        .setNewIssueStatus(IssueStatus.of(issue.status(), issue.resolution()))
         .setAssignee(assignee.map(assigneeDto -> new User(assigneeDto.getUuid(), assigneeDto.getLogin(), assigneeDto.getName())).orElse(null))
         .setRule(new Rule(ruleDto.getKey(), RuleType.valueOfNullable(ruleDto.getType()), ruleDto.getName()))
         .setProject(new Project.Builder(project.uuid())

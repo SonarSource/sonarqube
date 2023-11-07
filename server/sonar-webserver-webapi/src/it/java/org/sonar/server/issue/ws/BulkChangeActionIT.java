@@ -418,7 +418,6 @@ public class BulkChangeActionIT {
     ChangedIssue changedIssue = builder.getIssues().iterator().next();
     assertThat(changedIssue.getKey()).isEqualTo(issue.getKey());
     assertThat(changedIssue.getNewStatus()).isEqualTo(STATUS_CONFIRMED);
-    assertThat(changedIssue.getNewResolution()).isEmpty();
     assertThat(changedIssue.getAssignee()).isEmpty();
     assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
     assertThat(changedIssue.getProject()).isEqualTo(projectBranchOf(db, branch));
@@ -485,7 +484,6 @@ public class BulkChangeActionIT {
     ChangedIssue changedIssue = builder.getIssues().iterator().next();
     assertThat(changedIssue.getKey()).isEqualTo(issue3.getKey());
     assertThat(changedIssue.getNewStatus()).isEqualTo(STATUS_OPEN);
-    assertThat(changedIssue.getNewResolution()).isEmpty();
     assertThat(changedIssue.getAssignee()).isEmpty();
     assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
     assertThat(changedIssue.getProject()).isEqualTo(projectOf(project));

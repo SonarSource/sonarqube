@@ -33,25 +33,25 @@ import static org.sonar.core.util.stream.MoreCollectors.unorderedIndex;
  * This notification is never serialized to DB.
  * <p>
  * It is derived from {@link IssuesChangesNotification} by
- * {@link FPOrWontFixNotificationHandler} and extends {@link Notification} only to comply with
+ * {@link FPOrAcceptedNotificationHandler} and extends {@link Notification} only to comply with
  * {@link org.sonar.server.issue.notification.EmailTemplate#format(Notification)} API.
  */
-class FPOrWontFixNotification extends Notification {
-  private static final String KEY = "FPorWontFix";
+class FPOrAcceptedNotification extends Notification {
+  private static final String KEY = "FPorAccepted";
 
-  public enum FpOrWontFix {
-    FP, WONT_FIX
+  public enum FpPrAccepted {
+    FP, ACCEPTED
   }
 
   private final Change change;
   private final SetMultimap<Project, ChangedIssue> changedIssues;
-  private final FpOrWontFix resolution;
+  private final FpPrAccepted issueStatusAfterUpdate;
 
-  public FPOrWontFixNotification(Change change, Collection<ChangedIssue> changedIssues, FpOrWontFix resolution) {
+  public FPOrAcceptedNotification(Change change, Collection<ChangedIssue> changedIssues, FpPrAccepted issueStatusAfterUpdate) {
     super(KEY);
     this.changedIssues = changedIssues.stream().collect(unorderedIndex(ChangedIssue::getProject, t -> t));
     this.change = change;
-    this.resolution = resolution;
+    this.issueStatusAfterUpdate = issueStatusAfterUpdate;
   }
 
   public Change getChange() {
@@ -62,8 +62,8 @@ class FPOrWontFixNotification extends Notification {
     return changedIssues;
   }
 
-  public FpOrWontFix getResolution() {
-    return resolution;
+  public FpPrAccepted getIssueStatusAfterUpdate() {
+    return issueStatusAfterUpdate;
   }
 
   @Override
@@ -74,23 +74,23 @@ class FPOrWontFixNotification extends Notification {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    FPOrWontFixNotification that = (FPOrWontFixNotification) o;
+    FPOrAcceptedNotification that = (FPOrAcceptedNotification) o;
     return Objects.equals(changedIssues, that.changedIssues) &&
       Objects.equals(change, that.change) &&
-      resolution == that.resolution;
+      issueStatusAfterUpdate == that.issueStatusAfterUpdate;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(changedIssues, change, resolution);
+    return Objects.hash(changedIssues, change, issueStatusAfterUpdate);
   }
 
   @Override
   public String toString() {
-    return "FPOrWontFixNotification{" +
+    return "FPOrAcceptedNotification{" +
       "changedIssues=" + changedIssues +
       ", change=" + change +
-      ", resolution=" + resolution +
+      ", issueStatusAfterUpdate=" + issueStatusAfterUpdate +
       '}';
   }
 }

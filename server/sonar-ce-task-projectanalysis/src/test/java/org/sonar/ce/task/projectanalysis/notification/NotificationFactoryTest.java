@@ -727,7 +727,6 @@ public class NotificationFactoryTest {
       issue -> {
         ChangedIssue changedIssue = changedIssuesByKey.get(issue.key());
         assertThat(changedIssue.getNewStatus()).isEqualTo(issue.status());
-        assertThat(changedIssue.getNewResolution()).isEmpty();
         assertThat(changedIssue.getAssignee()).isEmpty();
         assertThat(changedIssue.getRule().getKey()).isEqualTo(issue.ruleKey());
         assertThat(changedIssue.getRule().getName()).isEqualTo(ruleRepository.getByKey(issue.ruleKey()).getName());

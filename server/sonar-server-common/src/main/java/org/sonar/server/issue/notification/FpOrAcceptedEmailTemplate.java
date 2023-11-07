@@ -23,35 +23,35 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.core.i18n.I18n;
-import org.sonar.server.issue.notification.FPOrWontFixNotification.FpOrWontFix;
+import org.sonar.server.issue.notification.FPOrAcceptedNotification.FpPrAccepted;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.User;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder.UserChange;
 
-import static org.sonar.server.issue.notification.FPOrWontFixNotification.FpOrWontFix.FP;
-import static org.sonar.server.issue.notification.FPOrWontFixNotification.FpOrWontFix.WONT_FIX;
+import static org.sonar.server.issue.notification.FPOrAcceptedNotification.FpPrAccepted.ACCEPTED;
+import static org.sonar.server.issue.notification.FPOrAcceptedNotification.FpPrAccepted.FP;
 
 /**
  * Creates email message for notification "issue-changes".
  */
-public class FpOrWontFixEmailTemplate extends IssueChangesEmailTemplate {
+public class FpOrAcceptedEmailTemplate extends IssueChangesEmailTemplate {
 
   private static final String NOTIFICATION_NAME_I18N_KEY = "notification.dispatcher.NewFalsePositiveIssue";
 
-  public FpOrWontFixEmailTemplate(I18n i18n, EmailSettings settings) {
+  public FpOrAcceptedEmailTemplate(I18n i18n, EmailSettings settings) {
     super(i18n, settings);
   }
 
   @Override
   @CheckForNull
   public EmailMessage format(Notification notif) {
-    if (!(notif instanceof FPOrWontFixNotification)) {
+    if (!(notif instanceof FPOrAcceptedNotification)) {
       return null;
     }
 
-    FPOrWontFixNotification notification = (FPOrWontFixNotification) notif;
+    FPOrAcceptedNotification notification = (FPOrAcceptedNotification) notif;
 
     EmailMessage emailMessage = new EmailMessage()
-      .setMessageId(getMessageId(notification.getResolution()))
+      .setMessageId(getMessageId(notification.getIssueStatusAfterUpdate()))
       .setSubject(buildSubject(notification))
       .setHtmlMessage(buildMessage(notification));
     if (notification.getChange() instanceof UserChange userChange) {
@@ -61,25 +61,25 @@ public class FpOrWontFixEmailTemplate extends IssueChangesEmailTemplate {
     return emailMessage;
   }
 
-  private static String getMessageId(FpOrWontFix resolution) {
-    if (resolution == WONT_FIX) {
-      return "wontfix-issue-changes";
+  private static String getMessageId(FpPrAccepted issueStatusAfterUpdate) {
+    if (issueStatusAfterUpdate == ACCEPTED) {
+      return "accepted-issue-changes";
     }
-    if (resolution == FP) {
+    if (issueStatusAfterUpdate == FP) {
       return "fp-issue-changes";
     }
-    throw new IllegalArgumentException("Unsupported resolution " + resolution);
+    throw new IllegalArgumentException("Unsupported issue status after update " + issueStatusAfterUpdate);
   }
 
-  private static String buildSubject(FPOrWontFixNotification notification) {
-    return "Issues marked as " + resolutionLabel(notification.getResolution());
+  private static String buildSubject(FPOrAcceptedNotification notification) {
+    return "Issues marked as " + getIssueStatusLabel(notification.getIssueStatusAfterUpdate());
   }
 
-  private String buildMessage(FPOrWontFixNotification notification) {
+  private String buildMessage(FPOrAcceptedNotification notification) {
     StringBuilder sb = new StringBuilder();
     paragraph(sb, s -> s.append("Hi,"));
     paragraph(sb, s -> s.append("A manual change has resolved ").append(notification.getChangedIssues().size() > 1 ? "issues" : "an issue")
-      .append(" as ").append(resolutionLabel(notification.getResolution())).append(":"));
+      .append(" as ").append(getIssueStatusLabel(notification.getIssueStatusAfterUpdate())).append(":"));
 
     addIssuesByProjectThenRule(sb, notification.getChangedIssues());
 
@@ -88,14 +88,14 @@ public class FpOrWontFixEmailTemplate extends IssueChangesEmailTemplate {
     return sb.toString();
   }
 
-  private static String resolutionLabel(FpOrWontFix resolution) {
-    if (resolution == WONT_FIX) {
-      return "Won't Fix";
+  private static String getIssueStatusLabel(FpPrAccepted issueStatusAfterUpdate) {
+    if (issueStatusAfterUpdate == ACCEPTED) {
+      return "Accepted";
     }
-    if (resolution == FP) {
+    if (issueStatusAfterUpdate == FP) {
       return "False Positive";
     }
-    throw new IllegalArgumentException("Unsupported resolution " + resolution);
+    throw new IllegalArgumentException("Unsupported issue status after update " + issueStatusAfterUpdate);
   }
 
 }

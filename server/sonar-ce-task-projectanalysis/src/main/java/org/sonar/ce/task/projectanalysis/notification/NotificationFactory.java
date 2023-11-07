@@ -37,6 +37,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.status.IssueStatus;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.notification.IssuesChangesNotification;
 import org.sonar.server.issue.notification.IssuesChangesNotificationBuilder;
@@ -89,8 +90,8 @@ public class NotificationFactory {
     Set<ChangedIssue> changedIssues = issues.stream()
       .map(issue -> new ChangedIssue.Builder(issue.key())
         .setAssignee(getAssignee(issue.assignee(), assigneesByUuid))
-        .setNewResolution(issue.resolution())
         .setNewStatus(issue.status())
+        .setNewIssueStatus(issue.status() != null ? IssueStatus.of(issue.status(), issue.resolution()) : null)
         .setRule(getRuleByRuleKey(issue.ruleKey()))
         .setProject(getProject())
         .build())

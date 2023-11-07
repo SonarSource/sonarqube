@@ -123,7 +123,6 @@ public class IssueUpdaterIT {
     ChangedIssue changedIssue = builder.getIssues().iterator().next();
     assertThat(changedIssue.getKey()).isEqualTo(issue.key());
     assertThat(changedIssue.getNewStatus()).isEqualTo(issue.status());
-    assertThat(changedIssue.getNewResolution()).isEmpty();
     assertThat(changedIssue.getAssignee()).contains(userOf(assignee));
     assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
     assertThat(changedIssue.getProject()).isEqualTo(projectOf(project));
@@ -152,7 +151,6 @@ public class IssueUpdaterIT {
     ChangedIssue changedIssue = builder.getIssues().iterator().next();
     assertThat(changedIssue.getKey()).isEqualTo(issue.key());
     assertThat(changedIssue.getNewStatus()).isEqualTo(issue.status());
-    assertThat(changedIssue.getNewResolution()).contains(RESOLUTION_FIXED);
     assertThat(changedIssue.getAssignee()).contains(userOf(assignee));
     assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
     assertThat(changedIssue.getProject()).isEqualTo(projectOf(project));
@@ -180,7 +178,6 @@ public class IssueUpdaterIT {
     ChangedIssue changedIssue = builder.getIssues().iterator().next();
     assertThat(changedIssue.getKey()).isEqualTo(issue.key());
     assertThat(changedIssue.getNewStatus()).isEqualTo(issue.status());
-    assertThat(changedIssue.getNewResolution()).isEmpty();
     assertThat(changedIssue.getAssignee()).isEmpty();
     assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
     assertThat(changedIssue.getProject()).isEqualTo(projectBranchOf(db, branch));
@@ -238,7 +235,6 @@ public class IssueUpdaterIT {
     ChangedIssue changedIssue = builder.getIssues().iterator().next();
     assertThat(changedIssue.getKey()).isEqualTo(issue.key());
     assertThat(changedIssue.getNewStatus()).isEqualTo(issue.status());
-    assertThat(changedIssue.getNewResolution()).isEmpty();
     assertThat(changedIssue.getAssignee()).contains(userOf(newAssignee));
     assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
     assertThat(changedIssue.getProject()).isEqualTo(projectOf(project));

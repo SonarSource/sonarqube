@@ -20,7 +20,7 @@
 package org.sonar.server.notification.ws;
 
 import org.junit.Test;
-import org.sonar.server.issue.notification.FPOrWontFixNotificationHandler;
+import org.sonar.server.issue.notification.FPOrAcceptedNotificationHandler;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationHandler;
 import org.sonar.server.issue.notification.NewIssuesNotificationHandler;
 import org.sonar.server.notification.NotificationChannel;
@@ -43,7 +43,7 @@ public class DispatchersImplTest {
       NotificationDispatcherMetadata.create(QGChangeNotificationHandler.KEY)
         .setProperty(GLOBAL_NOTIFICATION, "true")
         .setProperty(PER_PROJECT_NOTIFICATION, "true"),
-      NotificationDispatcherMetadata.create(FPOrWontFixNotificationHandler.KEY)
+      NotificationDispatcherMetadata.create(FPOrAcceptedNotificationHandler.KEY)
         .setProperty(GLOBAL_NOTIFICATION, "false")
         .setProperty(PER_PROJECT_NOTIFICATION, "true")
     },
@@ -64,7 +64,7 @@ public class DispatchersImplTest {
     underTest.start();
 
     assertThat(underTest.getProjectDispatchers()).containsExactly(
-      QGChangeNotificationHandler.KEY, FPOrWontFixNotificationHandler.KEY, MyNewIssuesNotificationHandler.KEY);
+      QGChangeNotificationHandler.KEY, FPOrAcceptedNotificationHandler.KEY, MyNewIssuesNotificationHandler.KEY);
   }
 
 }

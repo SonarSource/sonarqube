@@ -28,10 +28,10 @@ public class IssuesChangesNotificationModule extends Module {
       ChangesOnMyIssueNotificationHandler.class,
       ChangesOnMyIssueNotificationHandler.newMetadata(),
       ChangesOnMyIssuesEmailTemplate.class,
-      FPOrWontFixNotificationHandler.class,
-      FPOrWontFixNotificationHandler.newMetadata(),
+      FPOrAcceptedNotificationHandler.class,
+      FPOrAcceptedNotificationHandler.newMetadata(),
       IssuesChangesNotificationSerializer.class,
-      FpOrWontFixEmailTemplate.class
+      FpOrAcceptedEmailTemplate.class
     );
   }
 }
