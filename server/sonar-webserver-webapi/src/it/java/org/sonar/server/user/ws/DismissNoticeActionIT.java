@@ -79,7 +79,7 @@ public class DismissNoticeActionIT {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(
         "Value of parameter 'notice' (not_supported_value) must be one of: [educationPrinciples, sonarlintAd, issueCleanCodeGuide, qualityGateCaYCConditionsSimplification, " +
-          "overviewZeroNewIssuesSimplification]");
+          "overviewZeroNewIssuesSimplification, issueNewIssueStatusAndTransitionGuide]");
   }
 
   @Test
