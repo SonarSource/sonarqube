@@ -386,7 +386,7 @@ subprojects {
       dependency('org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.14') {
         exclude 'org.apache.logging.log4j:log4j-core'
       }
-      dependency 'org.elasticsearch.plugin:transport-netty4-client:7.17.12'
+      dependency 'org.elasticsearch.plugin:transport-netty4-client:7.17.14'
       dependency 'org.elasticsearch:mocksocket:1.2'
       dependency 'org.codelibs.elasticsearch.module:analysis-common:7.17.9'
       dependency 'org.codelibs.elasticsearch.module:reindex:7.17.9'
