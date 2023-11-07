@@ -129,7 +129,7 @@
     "lint-report-ci": "yarn install --immutable && eslint --ext js,ts,tsx --config .eslintrc-ci -f json -o eslint-report/eslint-report.json src/main/js  || yarn lint",
     "ts-check": "tsc --noEmit",
     "validate": "yarn dep-check && yarn lint && yarn ts-check && yarn format-check && yarn test",
-    "validate-ci": "yarn install --immutable && yarn dep-check && yarn test --coverage --maxWorkers=4 --ci",
+    "validate-ci": "yarn install --immutable && yarn dep-check && yarn test --coverage --maxWorkers=6 --workerIdleMemoryLimit=2G --ci",
     "check-ci": "yarn install --immutable && yarn ts-check && yarn format-check && yarn test-eslint-local-rules",
     "update-cwes": "node scripts/update-cwes.js",
     "dep-check": "node scripts/validate-package-json.js"
