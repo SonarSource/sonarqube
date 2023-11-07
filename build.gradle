@@ -423,7 +423,7 @@ subprojects {
       dependency 'org.hibernate:hibernate-validator:6.2.5.Final'
       dependency 'javax.el:javax.el-api:3.0.0'
       dependency 'org.glassfish:javax.el:3.0.0'
-      dependency 'org.kohsuke:github-api:1.316'
+      dependency 'org.kohsuke:github-api:1.317'
 
       // please keep this list alphabetically ordered
     }
