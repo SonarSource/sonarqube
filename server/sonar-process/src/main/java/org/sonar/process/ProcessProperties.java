@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.core.config.ProxyProperties;
 import org.sonar.core.extension.CoreExtension;
 import org.sonar.core.extension.ServiceLoaderWrapper;
 
@@ -112,8 +113,8 @@ public class ProcessProperties {
     HTTPS_PROXY_HOST("https.proxyHost"),
     HTTP_PROXY_PORT("http.proxyPort"),
     HTTPS_PROXY_PORT("https.proxyPort"),
-    HTTP_PROXY_USER("http.proxyUser"),
-    HTTP_PROXY_PASSWORD("http.proxyPassword"),
+    HTTP_PROXY_USER(ProxyProperties.HTTP_PROXY_USER),
+    HTTP_PROXY_PASSWORD(ProxyProperties.HTTP_PROXY_PASSWORD),
     HTTP_NON_PROXY_HOSTS("http.nonProxyHosts", "localhost|127.*|[::1]"),
     HTTP_AUTH_NTLM_DOMAIN("http.auth.ntlm.domain"),
     SOCKS_PROXY_HOST("socksProxyHost"),

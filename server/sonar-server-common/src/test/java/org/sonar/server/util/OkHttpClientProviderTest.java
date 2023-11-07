@@ -35,6 +35,8 @@ import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.config.ProxyProperties.HTTP_PROXY_PASSWORD;
+import static org.sonar.core.config.ProxyProperties.HTTP_PROXY_USER;
 
 public class OkHttpClientProviderTest {
 
@@ -60,8 +62,8 @@ public class OkHttpClientProviderTest {
 
   @Test
   public void get_returns_a_OkHttpClient_with_proxy_authentication() throws Exception {
-    settings.setProperty("http.proxyUser", "the-login");
-    settings.setProperty("http.proxyPassword", "the-password");
+    settings.setProperty(HTTP_PROXY_USER, "the-login");
+    settings.setProperty(HTTP_PROXY_PASSWORD, "the-password");
 
     OkHttpClient client = underTest.provide(settings.asConfig(), sonarQubeVersion);
     Response response = new Response.Builder().protocol(Protocol.HTTP_1_1).request(new Request.Builder().url("http://foo").build()).code(407)

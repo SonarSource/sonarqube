@@ -30,6 +30,8 @@ import org.springframework.context.annotation.Bean;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.sonar.core.config.ProxyProperties.HTTP_PROXY_PASSWORD;
+import static org.sonar.core.config.ProxyProperties.HTTP_PROXY_USER;
 
 public class ScannerWsClientProvider {
   static final int CONNECT_TIMEOUT_MS = 5_000;
@@ -56,9 +58,9 @@ public class ScannerWsClientProvider {
       .credentials(login, scannerProps.property(CoreProperties.PASSWORD));
 
     // OkHttp detect 'http.proxyHost' java property, but credentials should be filled
-    final String proxyUser = System.getProperty("http.proxyUser", "");
+    final String proxyUser = System.getProperty(HTTP_PROXY_USER, "");
     if (!proxyUser.isEmpty()) {
-      connectorBuilder.proxyCredentials(proxyUser, System.getProperty("http.proxyPassword"));
+      connectorBuilder.proxyCredentials(proxyUser, System.getProperty(HTTP_PROXY_PASSWORD));
     }
 
     return new DefaultScannerWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null,

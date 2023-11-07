@@ -26,11 +26,11 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.Optional;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
@@ -40,6 +40,8 @@ import org.sonar.api.utils.SonarException;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
+import static org.sonar.core.config.ProxyProperties.HTTP_PROXY_PASSWORD;
+import static org.sonar.core.config.ProxyProperties.HTTP_PROXY_USER;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 /**
@@ -51,28 +53,18 @@ public class DefaultHttpDownloader extends HttpDownloader {
 
   private final OkHttpClient client;
 
+
   @Inject
   public DefaultHttpDownloader(Server server, Configuration config) {
-    this(server, config, null, null);
+    client = buildHttpClient(server, config);
   }
 
-  public DefaultHttpDownloader(Server server, Configuration config, @Nullable Integer connectTimeout, @Nullable Integer readTimeout) {
-    client = buildHttpClient(server, config, connectTimeout, readTimeout);
-  }
-
-  private static OkHttpClient buildHttpClient(Server server, Configuration config, @Nullable Integer connectTimeout,
-    @Nullable Integer readTimeout) {
+  private static OkHttpClient buildHttpClient(Server server, Configuration config) {
     OkHttpClientBuilder clientBuilder = new OkHttpClientBuilder()
       .setFollowRedirects(true)
       .setUserAgent(getUserAgent(server, config));
-    if (connectTimeout != null) {
-      clientBuilder
-        .setConnectTimeoutMs(connectTimeout);
-    }
-    if (readTimeout != null) {
-      clientBuilder
-        .setReadTimeoutMs(readTimeout);
-    }
+    clientBuilder.setProxyLogin(config.get(HTTP_PROXY_USER).orElse(null));
+    clientBuilder.setProxyPassword(config.get(HTTP_PROXY_PASSWORD).orElse(null));
     return clientBuilder.build();
   }
 
@@ -144,7 +136,17 @@ public class DefaultHttpDownloader extends HttpDownloader {
 
   private Response executeCall(URI uri) throws IOException {
     Request request = new Request.Builder().url(uri.toURL()).get().build();
-    return client.newCall(request).execute();
+    Response response = client.newCall(request).execute();
+    throwExceptionIfResponseIsNotSuccesful(uri, response);
+    return response;
+  }
+
+  private static void throwExceptionIfResponseIsNotSuccesful(URI uri, Response response) throws IOException {
+    if (!response.isSuccessful()) {
+      try (ResponseBody responseBody = response.body()) {
+        throw new HttpException(uri, response.code(), responseBody.string());
+      }
+    }
   }
 
   private static SonarException failToDownload(URI uri, IOException e) {

@@ -55,6 +55,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.HttpDownloader.HttpException;
 
 public class DefaultHttpDownloaderIT {
 
@@ -75,13 +76,6 @@ public class DefaultHttpDownloaderIT {
           if (req.getPath().getPath().contains("/redirect/")) {
             resp.setCode(303);
             resp.setValue("Location", "/redirected");
-          } else if (req.getPath().getPath().contains("/timeout/")) {
-            try {
-              Thread.sleep(500);
-              writeDefaultResponse(req, resp);
-            } catch (InterruptedException e) {
-              throw new IllegalStateException(e);
-            }
           } else if (req.getPath().getPath().contains("/gzip/")) {
             if (!"gzip".equals(req.getValue("Accept-Encoding"))) {
               throw new IllegalStateException("Should accept gzip");
@@ -92,6 +86,8 @@ public class DefaultHttpDownloaderIT {
             gzipOutputStream.close();
           } else if (req.getPath().getPath().contains("/redirected")) {
             resp.getPrintStream().append("redirected");
+          } else if (req.getPath().getPath().contains("/error")) {
+            writeErrorResponse(req, resp);
           } else {
             writeDefaultResponse(req, resp);
           }
@@ -115,6 +111,11 @@ public class DefaultHttpDownloaderIT {
     return resp.getPrintStream().append("agent=" + req.getValues("User-Agent").get(0));
   }
 
+  private static void writeErrorResponse(Request req, Response resp) throws IOException {
+    resp.setCode(500);
+    resp.getPrintStream().append("agent=" + req.getValues("User-Agent").get(0));
+  }
+
   @AfterClass
   public static void stopServer() throws IOException {
     if (null != socketConnection) {
@@ -124,11 +125,11 @@ public class DefaultHttpDownloaderIT {
 
   @Test(timeout = 10000)
   public void openStream_network_errors() throws IOException, URISyntaxException {
-    // non routable address
-    String url = "http://10.255.255.1";
+    // host not accepting connections
+    String url = "http://127.0.0.1:1";
 
     assertThatThrownBy(() -> {
-      DefaultHttpDownloader downloader = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig(), 10, 10);
+      DefaultHttpDownloader downloader = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig());
       downloader.openStream(new URI(url));
     })
       .isInstanceOf(SonarException.class)
@@ -147,7 +148,7 @@ public class DefaultHttpDownloaderIT {
   @Test
   public void downloadBytes() throws URISyntaxException {
     byte[] bytes = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readBytes(new URI(baseUrl));
-    assertThat(bytes.length).isGreaterThan(10);
+    assertThat(bytes).hasSizeGreaterThan(10);
   }
 
   @Test
@@ -166,22 +167,6 @@ public class DefaultHttpDownloaderIT {
   public void readStringWithDefaultTimeout() throws URISyntaxException {
     String text = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
-  }
-
-  @Test
-  public void readStringWithTimeout() throws URISyntaxException {
-    assertThatThrownBy(
-      () -> new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig(), null, 50).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8))
-      .isEqualToComparingFieldByField(new BaseMatcher<Exception>() {
-        @Override
-        public boolean matches(Object ex) {
-          return ex instanceof SonarException && ((SonarException) ex).getCause() instanceof SocketTimeoutException;
-        }
-
-        @Override
-        public void describeTo(Description arg0) {
-        }
-      });
   }
 
   @Test
@@ -249,6 +234,13 @@ public class DefaultHttpDownloaderIT {
   public void uri_description() throws URISyntaxException {
     String description = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).description(new URI("http://sonarsource.org"));
     assertThat(description).isEqualTo("http://sonarsource.org");
+  }
+
+  @Test
+  public void readBytes_whenServerReturnsError_shouldThrow() throws URISyntaxException {
+    DefaultHttpDownloader downloader = new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig());
+    URI errorUri = new URI(baseUrl + "/error");
+    assertThatThrownBy(() -> downloader.readBytes(errorUri)).isInstanceOf(HttpException.class).hasMessage("Fail to download [" + errorUri + "]. Response code: 500");
   }
 
 }
