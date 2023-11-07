@@ -346,7 +346,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   @Nullable
   public IssueStatus getIssueStatus() {
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(status), "Status must be set");
     return IssueStatus.of(status, resolution);
   }
 

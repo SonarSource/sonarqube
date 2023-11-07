@@ -124,7 +124,6 @@ public final class IndexedIssueDto {
 
   @CheckForNull
   public String getIssueStatus() {
-    checkArgument(status != null, "Status must be initialized to retrieve issue status");
     return Optional.ofNullable(IssueStatus.of(status, resolution)).map(IssueStatus::name).orElse(null);
   }
 

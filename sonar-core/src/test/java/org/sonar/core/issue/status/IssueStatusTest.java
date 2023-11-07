@@ -54,7 +54,7 @@ public class IssueStatusTest {
   }
 
   @Test
-  public void of_shouldReturnNull_WhenStatusBelongsToHotspot() {
+  public void of_shouldReturnNull_whenStatusBelongsToHotspot() {
     assertThat(IssueStatus.of(Issue.STATUS_TO_REVIEW, null))
       .isNull();
 
@@ -66,12 +66,18 @@ public class IssueStatusTest {
   }
 
   @Test
-  public void of_shouldThrowExceptionWhenUnknownMapping() {
+  public void of_shouldLogWarning_whenUnknownMapping() {
     assertThat(IssueStatus.of(Issue.STATUS_RESOLVED, null)).isNull();
     assertThat(logTester.getLogs()).extracting(LogAndArguments::getFormattedMsg).contains("Can't find mapped issue status for status 'RESOLVED' and resolution 'null'");
 
     assertThat(IssueStatus.of(Issue.STATUS_RESOLVED, Issue.RESOLUTION_SAFE)).isNull();
     assertThat(logTester.getLogs()).extracting(LogAndArguments::getFormattedMsg).contains("Can't find mapped issue status for status 'RESOLVED' and resolution 'SAFE'");
+  }
+
+  @Test
+  public void of_shouldLogWarning_whenStatusIsNull() {
+    assertThat(IssueStatus.of(null, null)).isEqualTo(IssueStatus.OPEN);
+    assertThat(logTester.getLogs()).extracting(LogAndArguments::getFormattedMsg).contains("Missing status, falling back to OPEN");
   }
 
 }

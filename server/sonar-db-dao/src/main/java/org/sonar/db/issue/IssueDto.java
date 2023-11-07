@@ -363,8 +363,8 @@ public final class IssueDto implements Serializable {
     return status;
   }
 
+  @Nullable
   public IssueStatus getIssueStatus() {
-    checkArgument(status != null, "Status must be initialized to retrieve issue status");
     return IssueStatus.of(status, resolution);
   }
 

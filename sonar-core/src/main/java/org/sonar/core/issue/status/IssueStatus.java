@@ -42,7 +42,14 @@ public enum IssueStatus {
   private static final Logger LOGGER = LoggerFactory.getLogger(IssueStatus.class);
 
   @CheckForNull
-  public static IssueStatus of(String status, @Nullable String resolution) {
+  public static IssueStatus of(@Nullable String status, @Nullable String resolution) {
+
+    //null status is not supposed to happen, but since it is nullable in database, we want the mapping to be resilient.
+    if (status == null) {
+      LOGGER.warn("Missing status, falling back to {}", IssueStatus.OPEN);
+      return IssueStatus.OPEN;
+    }
+
     switch (status) {
       case Issue.STATUS_OPEN:
       case Issue.STATUS_REOPENED:
@@ -68,6 +75,8 @@ public enum IssueStatus {
         default:
       }
     }
+
+
     LOGGER.warn("Can't find mapped issue status for status '{}' and resolution '{}'", status, resolution);
     return null;
   }

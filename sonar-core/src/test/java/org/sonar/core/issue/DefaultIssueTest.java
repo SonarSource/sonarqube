@@ -313,15 +313,6 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void getIssueStatus_shouldThrowException_whenStatusNotSet() {
-    issue.setResolution(Issue.RESOLUTION_FIXED);
-
-    assertThatThrownBy(issue::getIssueStatus)
-      .hasMessage("Status must be set")
-      .isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
   public void replaceImpacts_shouldReplaceExistingImpacts() {
     issue.addImpact(SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
     issue.addImpact(SoftwareQuality.RELIABILITY, Severity.LOW);

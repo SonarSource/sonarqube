@@ -99,10 +99,6 @@ public class IndexedIssueDtoTest {
 
     assertThat(Set.of(issue1, issue2, issue3)).extracting(IndexedIssueDto::getIssueStatus)
       .containsExactlyInAnyOrder(IssueStatus.OPEN.name(), IssueStatus.ACCEPTED.name(), IssueStatus.FIXED.name());
-    IndexedIssueDto issueWithStatusNull = new IndexedIssueDto();
-    assertThatThrownBy(issueWithStatusNull::getIssueStatus)
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Status must be initialized to retrieve issue status");
   }
 
 }

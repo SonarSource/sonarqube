@@ -359,11 +359,10 @@ public class IssueDtoTest {
   }
 
   @Test
-  public void getIssueStatus_shouldThrowException_whenStatusIsNotInitialized() {
+  public void getIssueStatus_shouldReturnOpen_whenStatusIsNull() {
     IssueDto dto = new IssueDto();
-    assertThatThrownBy(dto::getIssueStatus)
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Status must be initialized to retrieve issue status");
+    assertThat(dto.getIssueStatus())
+      .isEqualTo(IssueStatus.OPEN);
   }
 
   private DefaultIssue createExampleDefaultIssue(Date dateNow) {
