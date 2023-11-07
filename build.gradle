@@ -315,7 +315,7 @@ subprojects {
         exclude 'org.codehaus.mojo:animal-sniffer-annotations'
       }
       dependency "com.google.protobuf:protobuf-java:${protobufVersion}"
-      dependency 'com.h2database:h2:2.2.222'
+      dependency 'com.h2database:h2:2.2.224'
       dependencySet(group: 'com.hazelcast', version: '5.3.5') {
         entry 'hazelcast'
       }
