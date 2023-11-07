@@ -19,7 +19,9 @@
  */
 
 import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockRawIssue } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
+import { IssueStatus, IssueType } from '../../../../types/issues';
 import loadIssues from '../loadIssues';
 
 const mockListResolvedValue = {
@@ -41,7 +43,7 @@ const mockListResolvedValue = {
     },
   ],
   issues: [
-    {
+    mockRawIssue(false, {
       actions: ['set_tags', 'comment', 'assign'],
       assignee: 'luke',
       author: 'luke@sonarsource.com',
@@ -49,19 +51,18 @@ const mockListResolvedValue = {
       component: 'foo.java',
       creationDate: '2016-08-15T15:25:38+0200',
       flows: [],
-      hash: '78417dcee7ba927b7e7c9161e29e02b8',
       key: 'AWaqVGl3tut9VbnJvk6M',
       line: 62,
       message: 'Make sure this file handling is safe here.',
       project: 'org.sonarsource.java:java',
       rule: 'squid:S4797',
       status: 'OPEN',
+      issueStatus: IssueStatus.Open,
       tags: ['cert', 'cwe', 'owasp-a1', 'owasp-a3'],
       textRange: { startLine: 62, endLine: 62, startOffset: 93, endOffset: 96 },
       transitions: [],
-      type: 'SECURITY_HOTSPOT',
-      updateDate: '2018-10-25T10:23:08+0200',
-    },
+      type: IssueType.SecurityHotspot,
+    }),
   ],
   paging: { pageIndex: 1, pageSize: 500, total: 1 },
 };
