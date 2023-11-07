@@ -26,8 +26,8 @@ before_cache:
   - rm -fr $HOME/.gradle/caches/*/scripts/
 
 before_install:
-  - nvm install 16
-  - nvm use 16
+  - nvm install 18
+  - nvm use 18
 
 notifications:
   email: false
