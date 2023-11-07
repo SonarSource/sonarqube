@@ -21,7 +21,7 @@
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { branchHandler, componentsHandler, issuesHandler, renderIssueApp } from '../test-utils';
+import { branchHandler, componentsHandler, issuesHandler, renderIssueApp, ui } from '../test-utils';
 
 jest.mock('../sidebar/Sidebar', () => {
   const fakeSidebar = () => {
@@ -59,26 +59,18 @@ it('should be able to add or update comment', async () => {
   issuesHandler.setIsAdmin(true);
   renderIssueApp();
   await act(async () => {
-    await user.click(await screen.findByRole('link', { name: 'Fix that' }));
+    await user.click(await ui.issueItemAction5.find());
   });
 
-  expect(
-    screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` }),
-  ).toBeInTheDocument();
+  expect(ui.issueActivityTab.get()).toBeInTheDocument();
 
   await act(async () => {
-    await user.click(
-      screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` }),
-    );
+    await user.click(ui.issueActivityTab.get());
   });
 
   // Add comment to the issue
   await act(async () => {
-    await user.click(
-      screen.getByRole('button', {
-        name: `issue.activity.add_comment`,
-      }),
-    );
+    await user.click(ui.issueActivityAddComment.get());
     await user.click(screen.getByRole('textbox'));
     await user.keyboard('activity comment');
     await user.click(screen.getByText('hotspots.comment.submit'));
@@ -87,7 +79,7 @@ it('should be able to add or update comment', async () => {
 
   // Cancel editing the comment
   await act(async () => {
-    await user.click(screen.getByRole('button', { name: 'issue.comment.edit' }));
+    await user.click(ui.issueAcitivityEditComment.get());
     await user.click(screen.getByRole('textbox'));
     await user.keyboard(' new');
     await user.click(screen.getByRole('button', { name: 'cancel' }));
@@ -96,7 +88,7 @@ it('should be able to add or update comment', async () => {
 
   // Edit the comment
   await act(async () => {
-    await user.click(screen.getByRole('button', { name: 'issue.comment.edit' }));
+    await user.click(ui.issueAcitivityEditComment.get());
     await user.click(screen.getByRole('textbox'));
     await user.keyboard(' new');
     await user.click(screen.getByText('hotspots.comment.submit'));
@@ -105,7 +97,7 @@ it('should be able to add or update comment', async () => {
 
   // Delete the comment
   await act(async () => {
-    await user.click(screen.getByRole('button', { name: 'issue.comment.delete' }));
+    await user.click(ui.issueActivityDeleteComment.get());
     await user.click(screen.getByRole('button', { name: 'delete' })); // Confirm button
   });
   expect(screen.queryByText('activity comment new')).not.toBeInTheDocument();
@@ -117,11 +109,9 @@ it('should be able to show changelog', async () => {
   renderIssueApp();
 
   await act(async () => {
-    await user.click(await screen.findByRole('link', { name: 'Fix that' }));
+    await user.click(await ui.issueItemAction5.find());
 
-    await user.click(
-      screen.getByRole('tab', { name: `coding_rules.description_section.title.activity` }),
-    );
+    await user.click(ui.issueActivityTab.get());
   });
 
   expect(screen.getByText('issue.activity.review_history.created')).toBeInTheDocument();
@@ -135,4 +125,14 @@ it('should be able to show changelog', async () => {
       'issue.changelog.changed_to.issue.changelog.field.status.REOPENED (issue.changelog.was.CONFIRMED)',
     ),
   ).toBeInTheDocument();
+  expect(
+    screen.getByText(
+      'issue.changelog.changed_to.issue.changelog.field.issueStatus.ACCEPTED (issue.changelog.was.OPEN)',
+    ),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByText(
+      'issue.changelog.changed_to.issue.changelog.field.status.RESOLVED (issue.changelog.was.REOPENED)',
+    ),
+  ).not.toBeInTheDocument();
 });

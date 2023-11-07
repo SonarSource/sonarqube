@@ -131,6 +131,13 @@ export const ui = {
   ruleFacetSearch: byPlaceholderText('search.search_for_rules'),
   tagFacetSearch: byPlaceholderText('search.search_for_tags'),
 
+  issueActivityTab: byRole('tab', { name: 'coding_rules.description_section.title.activity' }),
+  issueActivityAddComment: byRole('button', {
+    name: `issue.activity.add_comment`,
+  }),
+  issueAcitivityEditComment: byRole('button', { name: 'issue.comment.edit' }),
+  issueActivityDeleteComment: byRole('button', { name: 'issue.comment.delete' }),
+
   guidePopup: byRole('alertdialog'),
 };
 

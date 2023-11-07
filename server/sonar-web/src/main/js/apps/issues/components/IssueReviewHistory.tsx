@@ -57,7 +57,20 @@ export default function IssueReviewHistory(props: HotspotReviewHistoryProps) {
   React.useEffect(() => {
     getIssueChangelog(issue.key).then(
       ({ changelog }) => {
-        setChangeLog(changelog);
+        const updatedChangelog = changelog.map((changelogItem) => {
+          const diffHasIssueStatusChange = changelogItem.diffs.some(
+            (diff) => diff.key === 'issueStatus',
+          );
+
+          return {
+            ...changelogItem,
+            // If the diff is an issue status change, we remove deprecated status and resolution diffs
+            diffs: changelogItem.diffs.filter(
+              (diff) => !(diffHasIssueStatusChange && ['resolution', 'status'].includes(diff.key)),
+            ),
+          };
+        });
+        setChangeLog(updatedChangelog);
       },
       () => {},
     );

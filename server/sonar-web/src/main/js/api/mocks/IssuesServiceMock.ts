@@ -34,6 +34,7 @@ import { SearchRulesResponse } from '../../types/coding-rules';
 import {
   ASSIGNEE_ME,
   IssueDeprecatedStatus,
+  IssueResolution,
   IssueStatus,
   IssueTransition,
   IssueType,
@@ -656,6 +657,26 @@ export default class IssuesServiceMock {
               key: 'assign',
               newValue: 'darth.vader',
               oldValue: 'luke.skywalker',
+            },
+          ],
+        }),
+        mockIssueChangelog({
+          creationDate: '2018-11-01',
+          diffs: [
+            {
+              key: 'status',
+              newValue: IssueDeprecatedStatus.Reopened,
+              oldValue: IssueDeprecatedStatus.Resolved,
+            },
+            {
+              key: 'resolution',
+              newValue: IssueResolution.Unresolved,
+              oldValue: IssueResolution.WontFix,
+            },
+            {
+              key: 'issueStatus',
+              newValue: IssueStatus.Accepted,
+              oldValue: IssueStatus.Open,
             },
           ],
         }),
