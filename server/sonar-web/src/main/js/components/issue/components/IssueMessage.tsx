@@ -27,7 +27,6 @@ import { getComponentIssuesUrl, getIssuesUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { Issue } from '../../../types/types';
 import { useLocation } from '../../hoc/withRouter';
-import { DEFAULT_ISSUES_QUERY } from '../../shared/utils';
 
 export interface IssueMessageProps {
   issue: Issue;
@@ -49,7 +48,6 @@ export default function IssueMessage(props: IssueMessageProps) {
     ...getBranchLikeQuery(branchLike),
     files: issue.componentLongName,
     open: issue.key,
-    ...DEFAULT_ISSUES_QUERY,
     why: '1',
   });
 
