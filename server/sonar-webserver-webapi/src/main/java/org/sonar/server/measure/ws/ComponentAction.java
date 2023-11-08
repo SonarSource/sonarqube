@@ -154,8 +154,7 @@ public class ComponentAction implements MeasuresWsAction {
       Map<MetricDto, LiveMeasureDto> measuresByMetric = getMeasuresByMetric(measures, metrics);
 
       Measures.Period period = snapshotToWsPeriods(analysis).orElse(null);
-      RefComponent reference = getReference(dbSession, component).orElse(null);
-      return buildResponse(dbSession, request, component, reference, measuresByMetric, metrics, period, request.getMetricKeys());
+      return buildResponse(dbSession, request, component, measuresByMetric, metrics, period, request.getMetricKeys());
     }
   }
 
@@ -232,11 +231,13 @@ public class ComponentAction implements MeasuresWsAction {
     return refBranch.map(rb -> new RefComponent(rb, refComponent.get()));
   }
 
-  private ComponentWsResponse buildResponse(DbSession dbSession, ComponentRequest request, ComponentDto component, @Nullable RefComponent reference,
+  private ComponentWsResponse buildResponse(DbSession dbSession, ComponentRequest request, ComponentDto component,
     Map<MetricDto, LiveMeasureDto> measuresByMetric, Collection<MetricDto> metrics, @Nullable Measures.Period period,
     Collection<String> requestedMetrics) {
+
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
 
+    RefComponent reference = getReference(dbSession, component).orElse(null);
     if (reference != null) {
       BranchDto refBranch = reference.getRefBranch();
       ComponentDto refComponent = reference.getComponent();

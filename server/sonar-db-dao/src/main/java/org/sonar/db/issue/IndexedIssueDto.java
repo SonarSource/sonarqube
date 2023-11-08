@@ -30,8 +30,6 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.core.issue.status.IssueStatus;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 public final class IndexedIssueDto {
   private String issueKey = null;
   private String assignee = null;
