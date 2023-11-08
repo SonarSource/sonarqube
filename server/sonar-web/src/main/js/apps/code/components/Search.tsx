@@ -28,7 +28,7 @@ import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { KeyboardKeys } from '../../../helpers/keycodes';
 import { translate } from '../../../helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import { ComponentMeasure } from '../../../types/types';
 
 interface Props {
@@ -144,7 +144,9 @@ export class Search extends React.PureComponent<Props, State> {
   render() {
     const { component, newCodeSelected } = this.props;
     const { loading, query } = this.state;
-    const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
+
+    const isPortfolio = isPortfolioLike(component.qualifier);
+    const searchPlaceholder = getSearchPlaceholderLabel(component.qualifier as ComponentQualifier);
 
     return (
       <div className="code-search" id="code-search">
@@ -171,9 +173,8 @@ export class Search extends React.PureComponent<Props, State> {
           minLength={3}
           onChange={this.handleQueryChange}
           onKeyDown={this.handleKeyDown}
-          placeholder={translate(
-            isPortfolio ? 'code.search_placeholder.portfolio' : 'code.search_placeholder'
-          )}
+          placeholder={searchPlaceholder}
+          aria-label={searchPlaceholder}
           value={this.state.query}
         />
         <DeferredSpinner className="spacer-left" loading={loading} />
@@ -183,3 +184,17 @@ export class Search extends React.PureComponent<Props, State> {
 }
 
 export default withRouter(Search);
+
+function getSearchPlaceholderLabel(qualifier: ComponentQualifier) {
+  switch (qualifier) {
+    case ComponentQualifier.Portfolio:
+    case ComponentQualifier.SubPortfolio:
+      return translate('code.search_placeholder.portfolio');
+
+    case ComponentQualifier.Application:
+      return translate('code.search_placeholder.application');
+
+    default:
+      return translate('code.search_placeholder');
+  }
+}
