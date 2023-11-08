@@ -92,7 +92,7 @@ public class ComponentAction implements MeasuresWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_COMPONENT)
       .setDescription("Return component with specified measures.<br>" +
-        "Requires the following permission: 'Browse' on the project of specified component.")
+                      "Requires the following permission: 'Browse' on the project of specified component.")
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.4")
       .setChangelog(
@@ -153,8 +153,8 @@ public class ComponentAction implements MeasuresWsAction {
       List<LiveMeasureDto> measures = searchMeasures(dbSession, component, metrics);
       Map<MetricDto, LiveMeasureDto> measuresByMetric = getMeasuresByMetric(measures, metrics);
 
-      Optional<Measures.Period> period = snapshotToWsPeriods(analysis);
-      Optional<RefComponent> reference = getReference(dbSession, component);
+      Measures.Period period = snapshotToWsPeriods(analysis).orElse(null);
+      RefComponent reference = getReference(dbSession, component).orElse(null);
       return buildResponse(dbSession, request, component, reference, measuresByMetric, metrics, period, request.getMetricKeys());
     }
   }
@@ -232,14 +232,14 @@ public class ComponentAction implements MeasuresWsAction {
     return refBranch.map(rb -> new RefComponent(rb, refComponent.get()));
   }
 
-  private ComponentWsResponse buildResponse(DbSession dbSession, ComponentRequest request, ComponentDto component, Optional<RefComponent> reference,
-    Map<MetricDto, LiveMeasureDto> measuresByMetric, Collection<MetricDto> metrics, Optional<Measures.Period> period,
+  private ComponentWsResponse buildResponse(DbSession dbSession, ComponentRequest request, ComponentDto component, @Nullable RefComponent reference,
+    Map<MetricDto, LiveMeasureDto> measuresByMetric, Collection<MetricDto> metrics, @Nullable Measures.Period period,
     Collection<String> requestedMetrics) {
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
 
-    if (reference.isPresent()) {
-      BranchDto refBranch = reference.get().getRefBranch();
-      ComponentDto refComponent = reference.get().getComponent();
+    if (reference != null) {
+      BranchDto refBranch = reference.getRefBranch();
+      ComponentDto refComponent = reference.getComponent();
       response.setComponent(componentDtoToWsComponent(component, measuresByMetric, singletonMap(refComponent.uuid(), refComponent),
         refBranch.isMain() ? null : refBranch.getBranchKey(), null, requestedMetrics));
     } else {
@@ -253,7 +253,7 @@ public class ComponentAction implements MeasuresWsAction {
     return response.build();
   }
 
-  private static void setAdditionalFields(ComponentRequest request, Collection<MetricDto> metrics, Optional<Measures.Period> period,
+  private static void setAdditionalFields(ComponentRequest request, Collection<MetricDto> metrics, @Nullable Measures.Period period,
     ComponentWsResponse.Builder response, Collection<String> requestedMetrics) {
     List<String> additionalFields = request.getAdditionalFields();
     if (additionalFields != null) {
@@ -263,8 +263,8 @@ public class ComponentAction implements MeasuresWsAction {
         }
       }
 
-      if (additionalFields.contains(ADDITIONAL_PERIOD) && period.isPresent()) {
-        response.setPeriod(period.get());
+      if (additionalFields.contains(ADDITIONAL_PERIOD) && period != null) {
+        response.setPeriod(period);
       }
     }
   }
@@ -285,11 +285,11 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   private static class ComponentRequest {
-    private String component;
-    private String branch;
-    private String pullRequest;
-    private List<String> metricKeys;
-    private List<String> additionalFields;
+    private String component = null;
+    private String branch = null;
+    private String pullRequest = null;
+    private List<String> metricKeys = null;
+    private List<String> additionalFields = null;
 
     private String getComponent() {
       return component;
