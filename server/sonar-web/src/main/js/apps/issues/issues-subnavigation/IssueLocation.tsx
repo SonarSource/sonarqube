@@ -55,7 +55,12 @@ export default function IssueLocation(props: Props) {
   );
 
   return (
-    <StyledLink aria-current={selected} onClick={handleClick} to={{}}>
+    <StyledLink
+      aria-label={normalizedMessage}
+      aria-current={selected}
+      onClick={handleClick}
+      to={{}}
+    >
       <StyledLocation
         className={classNames('sw-p-1 sw-rounded-1/2 sw-flex sw-gap-2 sw-body-sm', {
           selected,

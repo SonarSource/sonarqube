@@ -87,8 +87,8 @@ describe('issue app', () => {
       name: 'issue.flow.x_steps.3 issue.full_execution_flow',
     });
 
-    let dataLocation1Button = screen.getByRole('link', { name: '1 Data location 1' });
-    let dataLocation2Button = screen.getByRole('link', { name: '2 Data location 2' });
+    let dataLocation1Button = screen.getByLabelText('Data location 1');
+    let dataLocation2Button = screen.getByLabelText('Data location 2');
 
     expect(dataFlowButton).toBeInTheDocument();
     expect(dataLocation1Button).toBeInTheDocument();
@@ -100,14 +100,14 @@ describe('issue app', () => {
     expect(dataLocation2Button).not.toBeInTheDocument();
 
     await user.click(exectionFlowButton);
-    expect(screen.getByRole('link', { name: '1 Execution location 1' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: '2 Execution location 2' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: '3 Execution location 3' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Execution location 1')).toBeInTheDocument();
+    expect(screen.getByLabelText('Execution location 2')).toBeInTheDocument();
+    expect(screen.getByLabelText('Execution location 3')).toBeInTheDocument();
 
     // Keyboard interaction
     await user.click(dataFlowButton);
-    dataLocation1Button = screen.getByRole('link', { name: '1 Data location 1' });
-    dataLocation2Button = screen.getByRole('link', { name: '2 Data location 2' });
+    dataLocation1Button = screen.getByLabelText('Data location 1');
+    dataLocation2Button = screen.getByLabelText('Data location 2');
 
     // Location navigation
     await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
@@ -126,15 +126,9 @@ describe('issue app', () => {
 
     // Flow navigation
     await user.keyboard('{Alt>}{ArrowRight}{/Alt}');
-    expect(screen.getByRole('link', { name: '1 Execution location 1' })).toHaveAttribute(
-      'aria-current',
-      'true',
-    );
+    expect(screen.getByLabelText('Execution location 1')).toHaveAttribute('aria-current', 'true');
     await user.keyboard('{Alt>}{ArrowLeft}{/Alt}');
-    expect(screen.getByRole('link', { name: '1 Data location 1' })).toHaveAttribute(
-      'aria-current',
-      'true',
-    );
+    expect(screen.getByLabelText('Data location 1')).toHaveAttribute('aria-current', 'true');
   });
 
   it('should show education principles', async () => {
@@ -146,13 +140,13 @@ describe('issue app', () => {
     expect(screen.getByRole('heading', { name: 'Defense-In-Depth', level: 3 })).toBeInTheDocument();
   });
 
-  it('should be able to perform action on issues', async () => {
+  it('should be able to change the issue status', async () => {
     const user = userEvent.setup();
     issuesHandler.setIsAdmin(true);
     renderIssueApp();
 
     // Get a specific issue list item
-    const listItem = within(await screen.findByRole('region', { name: 'Fix that' }));
+    const listItem = within(await screen.findByLabelText('Fix that'));
 
     expect(listItem.getByText('issue.issue_status.OPEN')).toBeInTheDocument();
 
@@ -192,11 +186,21 @@ describe('issue app', () => {
       ),
     ).toBeInTheDocument();
 
+    expect(
+      listItem.queryByRole('button', { name: 'issue.comment.submit' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should be able to assign issue to a different user', async () => {
+    const user = userEvent.setup();
+    issuesHandler.setIsAdmin(true);
+    renderIssueApp();
+
+    // Get a specific issue list item
+    const listItem = within(await screen.findByLabelText('Fix that'));
     // Assign issue to a different user
     await act(async () => {
-      await user.click(
-        listItem.getByRole('combobox', { name: 'issue.assign.unassigned_click_to_assign' }),
-      );
+      await user.click(listItem.getByLabelText('issue.assign.unassigned_click_to_assign'));
       await user.click(screen.getByLabelText('search.search_for_users'));
       await user.keyboard('luke');
     });
@@ -205,21 +209,26 @@ describe('issue app', () => {
     await act(async () => {
       await user.click(screen.getByText('Skywalker'));
     });
-    await listItem.findByRole('combobox', {
-      name: 'issue.assign.assigned_to_x_click_to_change.luke',
-    });
+    await listItem.findByLabelText('issue.assign.assigned_to_x_click_to_change.luke');
     expect(
-      listItem.getByRole('combobox', {
-        name: 'issue.assign.assigned_to_x_click_to_change.luke',
-      }),
+      listItem.getByLabelText('issue.assign.assigned_to_x_click_to_change.luke'),
     ).toBeInTheDocument();
+  });
+
+  it('should be able to change tags on a issue', async () => {
+    const user = userEvent.setup();
+    issuesHandler.setIsAdmin(true);
+    renderIssueApp();
+
+    // Get a specific issue list item
+    const listItem = within(await screen.findByLabelText('Fix that'));
 
     // Change tags
     expect(listItem.getByText('issue.no_tag')).toBeInTheDocument();
     await act(async () => {
       await user.click(listItem.getByText('issue.no_tag'));
     });
-    expect(listItem.getByRole('searchbox', { name: 'search.search_for_tags' })).toBeInTheDocument();
+    expect(listItem.getByLabelText('search.search_for_tags')).toBeInTheDocument();
     expect(listItem.getByText('android')).toBeInTheDocument();
     expect(listItem.getByText('accessibility')).toBeInTheDocument();
 
@@ -239,7 +248,7 @@ describe('issue app', () => {
 
     // Unselect
     await act(async () => {
-      await user.click(screen.getByRole('checkbox', { name: 'accessibility' }));
+      await user.click(screen.getByLabelText('accessibility'));
     });
 
     await user.keyboard('{Escape}');
@@ -252,12 +261,10 @@ describe('issue app', () => {
     });
 
     await act(async () => {
-      await user.click(screen.getByRole('searchbox', { name: 'search.search_for_tags' }));
+      await user.click(screen.getByLabelText('search.search_for_tags'));
       await user.keyboard('addNewTag');
     });
-    expect(
-      screen.getByRole('checkbox', { name: 'issue.create_tag: addnewtag' }),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText('issue.create_tag: addnewtag')).toBeInTheDocument();
   });
 
   it('should not allow performing actions when user does not have permission', async () => {
