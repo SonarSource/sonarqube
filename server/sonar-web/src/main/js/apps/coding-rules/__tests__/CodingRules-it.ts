@@ -666,13 +666,16 @@ describe('Rule app details', () => {
       expect(ui.tagCheckbox(tag).get()).toBeInTheDocument();
     });
 
-    // Rule already has this tag
     expect(ui.tagCheckbox(RULE_TAGS_MOCK[0]).get()).toBeChecked();
 
     // Set tag
     await user.click(ui.tagCheckbox(RULE_TAGS_MOCK[1]).get());
-    expect(ui.tagCheckbox(RULE_TAGS_MOCK[1]).get()).toBeChecked();
-    await user.click(ui.tagCheckbox(RULE_TAGS_MOCK[1]).get());
+    await user.keyboard('{Escape}');
+    await expect(ui.tagsDropdown.byText('multi-threading').get()).toHaveATooltipWithContent(
+      'multi-threading, awesome, cute',
+    );
+
+    await user.click(ui.tagsDropdown.get());
 
     // Search for specific tag
     await user.type(ui.tagSearch.get(), RULE_TAGS_MOCK[2]);

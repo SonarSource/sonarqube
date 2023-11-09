@@ -62,6 +62,7 @@ export function MultiSelectMenuOption(props: MultiSelectOptionProps) {
         className={classNames('sw-flex sw-py-2 sw-px-4', { active })}
         disabled={disabled}
         id={element}
+        label={element}
         onCheck={onSelectChange}
         onFocus={onHover}
         onPointerEnter={onHover}

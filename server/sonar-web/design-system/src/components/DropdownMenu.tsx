@@ -164,12 +164,23 @@ interface ItemCheckboxProps extends ListItemProps {
   checked: boolean;
   disabled?: boolean;
   id?: string;
+  label?: string;
   onCheck: (checked: boolean, id?: string) => void;
 }
 
 export function ItemCheckbox(props: ItemCheckboxProps) {
-  const { checked, children, className, disabled, id, innerRef, onCheck, onFocus, ...liProps } =
-    props;
+  const {
+    checked,
+    children,
+    className,
+    disabled,
+    id,
+    innerRef,
+    label,
+    onCheck,
+    onFocus,
+    ...liProps
+  } = props;
   return (
     <li ref={innerRef} role="none" {...liProps}>
       <ItemCheckboxStyled
@@ -177,6 +188,7 @@ export function ItemCheckbox(props: ItemCheckboxProps) {
         className={classNames(className, { disabled })}
         disabled={disabled}
         id={id}
+        label={label}
         onCheck={onCheck}
         onFocus={onFocus}
       >

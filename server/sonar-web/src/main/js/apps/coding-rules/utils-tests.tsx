@@ -121,7 +121,7 @@ const selectors = {
 
   // Rule tags
   tagsDropdown: byLabelText(/tags_list_x/).byRole('button'),
-  tagCheckbox: (tag: string) => byRole('checkbox', { name: tag }),
+  tagCheckbox: (tag: string) => byLabelText(tag),
   tagSearch: byRole('searchbox', { name: 'search.search_for_tags' }),
 
   // Rule tabs
