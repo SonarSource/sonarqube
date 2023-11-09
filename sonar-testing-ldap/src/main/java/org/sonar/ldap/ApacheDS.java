@@ -30,7 +30,6 @@ import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.ModificationOperation;
-import org.apache.directory.api.ldap.model.exception.LdapOperationException;
 import org.apache.directory.api.ldap.model.ldif.ChangeType;
 import org.apache.directory.api.ldap.model.ldif.LdifEntry;
 import org.apache.directory.api.ldap.model.ldif.LdifReader;
@@ -42,8 +41,6 @@ import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.factory.DefaultDirectoryServiceFactory;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.server.core.partition.impl.avl.AvlPartition;
-import org.apache.directory.server.kerberos.KerberosConfig;
-import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.sasl.MechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.cramMD5.CramMd5MechanismHandler;
@@ -51,18 +48,22 @@ import org.apache.directory.server.ldap.handlers.sasl.digestMD5.DigestMd5Mechani
 import org.apache.directory.server.ldap.handlers.sasl.gssapi.GssapiMechanismHandler;
 import org.apache.directory.server.ldap.handlers.sasl.plain.PlainMechanismHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
-import org.apache.directory.server.protocol.shared.transport.UdpTransport;
 import org.apache.directory.server.xdbm.impl.avl.AvlIndex;
+import org.apache.kerby.kerberos.kerb.KrbException;
+import org.apache.kerby.kerberos.kerb.client.KrbConfigKey;
+import org.apache.kerby.kerberos.kerb.identity.backend.BackendConfig;
+import org.apache.kerby.kerberos.kerb.server.KdcConfigKey;
+import org.apache.kerby.kerberos.kerb.server.KdcServer;
 import org.apache.mina.util.AvailablePortFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class ApacheDS {
-
   private static final Logger LOG = LoggerFactory.getLogger(ApacheDS.class);
-
+  private static final String HOSTNAME_LOCALHOST = "localhost";
   private final String realm;
   private final String baseDn;
+  private int ldapPort;
 
   private DirectoryService directoryService;
   private LdapServer ldapServer;
@@ -77,8 +78,8 @@ public final class ApacheDS {
   public static ApacheDS start(String realm, String baseDn, String workDir, Integer port) throws Exception {
     return new ApacheDS(realm, baseDn)
       .startDirectoryService(workDir)
-      .startKdcServer()
       .startLdapServer(port == null ? AvailablePortFinder.getNextAvailable(1024) : port)
+      .startKdcServer()
       .activateNis();
   }
 
@@ -173,6 +174,7 @@ public final class ApacheDS {
   }
 
   private ApacheDS startLdapServer(int port) throws Exception {
+    this.ldapPort = port;
     ldapServer.setTransports(new TcpTransport(port));
     ldapServer.setDirectoryService(directoryService);
 
@@ -195,34 +197,43 @@ public final class ApacheDS {
     return this;
   }
 
-  private ApacheDS startKdcServer() throws IOException, LdapOperationException {
+
+  private ApacheDS startKdcServer() throws IOException, KrbException {
     int port = AvailablePortFinder.getNextAvailable(6088);
 
-    KerberosConfig kdcConfig = new KerberosConfig();
-    kdcConfig.setServicePrincipal("krbtgt/EXAMPLE.ORG@EXAMPLE.ORG");
-    kdcConfig.setPrimaryRealm("EXAMPLE.ORG");
-    kdcConfig.setPaEncTimestampRequired(false);
-
-    kdcServer = new KdcServer(kdcConfig);
-    kdcServer.setSearchBaseDn("dc=example,dc=org");
-    kdcServer.addTransports(new UdpTransport("localhost", port));
-    kdcServer.setDirectoryService(directoryService);
-    kdcServer.start();
-
-    FileUtils.writeStringToFile(new File("target/krb5.conf"), ""
-      + "[libdefaults]\n"
-      + "    default_realm = EXAMPLE.ORG\n"
-      + "\n"
-      + "[realms]\n"
-      + "    EXAMPLE.ORG = {\n"
-      + "        kdc = localhost:" + port + "\n"
-      + "    }\n"
-      + "\n"
-      + "[domain_realm]\n"
-      + "    .example.org = EXAMPLE.ORG\n"
-      + "    example.org = EXAMPLE.ORG\n",
+    File krbConf = new File("target/krb5.conf");
+    FileUtils.writeStringToFile(krbConf, ""
+        + "[libdefaults]\n"
+        + "    default_realm = EXAMPLE.ORG\n"
+        + "\n"
+        + "[realms]\n"
+        + "    EXAMPLE.ORG = {\n"
+        + "        kdc = localhost:" + port + "\n"
+        + "    }\n"
+        + "\n"
+        + "[domain_realm]\n"
+        + "    .example.org = EXAMPLE.ORG\n"
+        + "    example.org = EXAMPLE.ORG\n",
       StandardCharsets.UTF_8.name());
 
+    kdcServer = new KdcServer(krbConf);
+    kdcServer.setKdcRealm("EXAMPLE.ORG");
+    kdcServer.getKdcConfig().setBoolean(KrbConfigKey.PA_ENC_TIMESTAMP_REQUIRED, false);
+
+    BackendConfig backendConfig = kdcServer.getBackendConfig();
+    backendConfig.setString("host", HOSTNAME_LOCALHOST);
+    backendConfig.setString("base_dn", baseDn);
+    backendConfig.setInt("port", this.ldapPort);
+    backendConfig.setString(KdcConfigKey.KDC_IDENTITY_BACKEND,
+      "org.apache.kerby.kerberos.kdc.identitybackend.LdapIdentityBackend");
+
+    kdcServer.setAllowUdp(true);
+    kdcServer.setAllowTcp(false);
+    kdcServer.setKdcUdpPort(port);
+    kdcServer.setKdcHost(HOSTNAME_LOCALHOST);
+
+    kdcServer.init();
+    kdcServer.start();
     return this;
   }
 

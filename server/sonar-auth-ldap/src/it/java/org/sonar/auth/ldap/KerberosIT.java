@@ -33,6 +33,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.process.ProcessProperties.Property.SONAR_SECURITY_REALM;
 
+/**
+ * Kerby's implementation of Kerberos requires to set following attributes:
+ *
+ * krb5AccountExpirationTime: 20300101000000Z
+ * krb5AccountDisabled: FALSE
+ * krb5KDCFlags: 126
+ * krb5AccountLockedOut: FALSE
+ *
+ * In case failure of expiration time is reported updated following attribute:
+ * krb5AccountExpirationTime: 20300101000000Z
+ */
 public class KerberosIT {
 
   static {

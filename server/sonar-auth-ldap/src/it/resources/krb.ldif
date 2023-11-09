@@ -20,6 +20,10 @@ uid: krbtgt
 userPassword: secret
 krb5PrincipalName: krbtgt/EXAMPLE.ORG@EXAMPLE.ORG
 krb5KeyVersionNumber: 0
+krb5AccountExpirationTime: 20300101000000Z
+krb5AccountDisabled: FALSE
+krb5KDCFlags: 126
+krb5AccountLockedOut: FALSE
 
 dn: cn=SonarQube,ou=Users,dc=example,dc=org
 objectClass: top
@@ -31,6 +35,10 @@ cn: SonarQube
 userPassword: bind_password
 krb5PrincipalName: SonarQube@EXAMPLE.ORG
 krb5KeyVersionNumber: 0
+krb5AccountExpirationTime: 20300101000000Z
+krb5AccountDisabled: FALSE
+krb5KDCFlags: 126
+krb5AccountLockedOut: FALSE
 
 dn: uid=godin,ou=Users,dc=example,dc=org
 objectClass: top
@@ -44,6 +52,10 @@ uid: godin
 userPassword: user_password
 krb5PrincipalName: Godin@EXAMPLE.ORG
 krb5KeyVersionNumber: 0
+krb5AccountExpirationTime: 20300101000000Z
+krb5AccountDisabled: FALSE
+krb5KDCFlags: 126
+krb5AccountLockedOut: FALSE
 
 dn: ou=Groups,dc=example,dc=org
 objectclass:organizationalunit

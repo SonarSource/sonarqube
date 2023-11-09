@@ -6,9 +6,12 @@ sonar {
 
 dependencies {
     api 'org.apache.mina:mina-core:2.2.3'
-    implementation ('org.apache.directory.server:apacheds-server-integ:2.0.0.AM26') {
+    implementation ('org.apache.directory.server:apacheds-server-integ:2.0.0.AM27') {
         exclude group: 'log4j', module: 'log4j'
     }
+
+    implementation 'org.apache.kerby:kerb-simplekdc:2.0.3'
+    implementation 'org.apache.kerby:ldap-backend:2.0.3'
 
     testImplementation 'junit:junit'
     testImplementation 'org.assertj:assertj-core'
