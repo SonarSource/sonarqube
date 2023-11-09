@@ -28,7 +28,7 @@ import { isDiffMetric } from '../../../helpers/measures';
 import { mockComponent } from '../../../helpers/mocks/component';
 import { mockMeasure } from '../../../helpers/testMocks';
 import { renderAppWithComponentContext } from '../../../helpers/testReactTestingUtils';
-import { ReactTestingQuery, byRole, byText } from '../../../helpers/testSelector';
+import { ReactTestingQuery, byLabelText, byRole, byText } from '../../../helpers/testSelector';
 import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import { Component } from '../../../types/types';
@@ -43,6 +43,20 @@ jest.mock('../../../components/SourceViewer/helpers/lines', () => {
     LINES_TO_LOAD: 20,
   };
 });
+
+jest.mock('../../../api/branches', () => ({
+  deleteBranch: jest.fn(),
+  deletePullRequest: jest.fn(),
+  excludeBranchFromPurge: jest.fn(),
+  getBranches: jest.fn(),
+  getPullRequests: jest.fn(),
+  renameBranch: jest.fn(),
+  setMainBranch: jest.fn(),
+}));
+
+jest.mock('../../../api/quality-gates', () => ({
+  getQualityGateProjectStatus: jest.fn(),
+}));
 
 const DEFAULT_LINES_LOADED = 19;
 const originalScrollTo = window.scrollTo;
@@ -385,7 +399,7 @@ function getPageObject(user: UserEvent) {
     showingOutOfTxt: (x: number, y: number) => byText(`x_of_y_shown.${x}.${y}`),
     newCodeBtn: byRole('radio', { name: 'projects.view.new_code' }),
     overallCodeBtn: byRole('radio', { name: 'projects.view.overall_code' }),
-    measureRow: (name: string | RegExp) => byRole('row', { name, exact: false }),
+    measureRow: (name: string | RegExp) => byLabelText(name),
     measureValueCell: (row: ReactTestingQuery, name: string, value: string) => {
       const i = Array.from(screen.getAllByRole('columnheader')).findIndex(
         (c) => c.textContent?.includes(name),

@@ -62,7 +62,7 @@ export default function Component(props: Props) {
     component.qualifier === ComponentQualifier.TestFile;
 
   return (
-    <TableRowInteractive selected={selected}>
+    <TableRowInteractive selected={selected} aria-label={component.name}>
       {canBePinned && (
         <ContentCell className="sw-py-3">
           {isFile && (
