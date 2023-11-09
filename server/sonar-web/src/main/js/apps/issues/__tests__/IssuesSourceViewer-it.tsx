@@ -19,7 +19,7 @@
  */
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { byRole } from '../../../helpers/testSelector';
+import { byLabelText, byRole } from '../../../helpers/testSelector';
 import {
   componentsHandler,
   issuesHandler,
@@ -39,15 +39,15 @@ const ui = {
   expandLinesAbove: byRole('button', { name: 'source_viewer.expand_above' }),
   expandLinesBelow: byRole('button', { name: 'source_viewer.expand_below' }),
 
-  line1: byRole('button', { name: 'source_viewer.line_X.1' }),
-  line44: byRole('button', { name: 'source_viewer.line_X.44' }),
-  line45: byRole('button', { name: 'source_viewer.line_X.45' }),
-  line60: byRole('button', { name: 'source_viewer.line_X.60' }),
-  line199: byRole('button', { name: 'source_viewer.line_X.199' }),
+  line1: byLabelText('source_viewer.line_X.1'),
+  line44: byLabelText('source_viewer.line_X.44'),
+  line45: byLabelText('source_viewer.line_X.45'),
+  line60: byLabelText('source_viewer.line_X.60'),
+  line199: byLabelText('source_viewer.line_X.199'),
 
-  scmInfoLine60: byRole('button', {
-    name: 'source_viewer.author_X.simon.brandhof@sonarsource.com, source_viewer.click_for_scm_info.1',
-  }),
+  scmInfoLine60: byLabelText(
+    'source_viewer.author_X.simon.brandhof@sonarsource.com, source_viewer.click_for_scm_info.1',
+  ),
 };
 
 describe('issues source viewer', () => {
