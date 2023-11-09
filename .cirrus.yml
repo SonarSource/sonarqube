@@ -543,7 +543,6 @@ qa_ldap_task:
 
 promote_task:
   <<: *DEFAULT_TEMPLATE
-  <<: *EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
   depends_on:
     - build
     - sq_analysis
