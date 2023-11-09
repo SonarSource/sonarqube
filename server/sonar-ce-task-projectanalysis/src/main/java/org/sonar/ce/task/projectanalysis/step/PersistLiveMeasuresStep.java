@@ -92,7 +92,6 @@ import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
-import static org.sonar.api.measures.CoreMetrics.WONT_FIX_ISSUES_KEY;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class PersistLiveMeasuresStep implements ComputationStep {

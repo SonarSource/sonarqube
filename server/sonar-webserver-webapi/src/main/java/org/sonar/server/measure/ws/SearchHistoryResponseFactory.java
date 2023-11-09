@@ -109,13 +109,6 @@ class SearchHistoryResponseFactory {
     return analysis;
   }
 
-  private UnaryOperator<MetricDto> clearMetric() {
-    return metric -> {
-      measure.clear();
-      return metric;
-    };
-  }
-
   private UnaryOperator<SnapshotDto> clearValue() {
     return analysis -> {
       value.clear();
