@@ -79,6 +79,9 @@ github_task_template: &GITHUB_TASK_TEMPLATE
     'private/core-extension-github-provisioning/**/*'
     )
 
+skip_master_template: &SKIP_MASTER_TEMPLATE
+  skip: $CIRRUS_BRANCH == $BRANCH_MAIN
+
 gitlab_task_template: &GITLAB_TASK_TEMPLATE
   only_if: >-
     $CIRRUS_BRANCH == $BRANCH_MAIN || $CIRRUS_BRANCH =~ $BRANCH_PATTERN_MAINTENANCE || $CIRRUS_BRANCH == $BRANCH_NIGHTLY ||
@@ -604,8 +607,6 @@ qa_github_task:
     memory: 7Gb
   env:
     QA_CATEGORY: GITHUB
-    GITHUB_COM_CODE_SCANNING_ALERTS_TECHNICAL_USER_USERNAME: QA-task
-    GITHUB_COM_CODE_SCANNING_ALERTS_TECHNICAL_USER_TOKEN: VAULT[development/github/token/SonarSource-sonar-enterprise-code-scanning token]
   script:
     - ./private/cirrus/cirrus-qa.sh h2
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
@@ -622,6 +623,25 @@ qa_github_provisioning_task:
     memory: 7Gb
   env:
     QA_CATEGORY: GITHUB_PROVISIONING
+  script:
+    - ./private/cirrus/cirrus-qa.sh h2
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
+qa_github_slow_task:
+  <<: *DEFAULT_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *GITHUB_TASK_TEMPLATE
+  <<: *SKIP_MASTER_TEMPLATE
+  <<: *JAR_CACHE_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
+    cpu: 4
+    memory: 7Gb
+  env:
+    QA_CATEGORY: GITHUB_SLOW_TESTS
+    GITHUB_COM_CODE_SCANNING_ALERTS_TECHNICAL_USER_USERNAME: QA-task
+    GITHUB_COM_CODE_SCANNING_ALERTS_TECHNICAL_USER_TOKEN: VAULT[development/github/token/SonarSource-sonar-enterprise-code-scanning token]
   script:
     - ./private/cirrus/cirrus-qa.sh h2
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
