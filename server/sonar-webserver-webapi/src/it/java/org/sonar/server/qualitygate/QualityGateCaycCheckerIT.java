@@ -19,9 +19,15 @@
  */
 package org.sonar.server.qualitygate;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.measures.Metric;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
@@ -41,10 +47,13 @@ import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
 import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS;
 import static org.sonar.server.qualitygate.QualityGateCaycChecker.BEST_VALUE_REQUIREMENTS;
 import static org.sonar.server.qualitygate.QualityGateCaycChecker.CAYC_METRICS;
+import static org.sonar.server.qualitygate.QualityGateCaycChecker.LEGACY_BEST_VALUE_REQUIREMENTS;
+import static org.sonar.server.qualitygate.QualityGateCaycChecker.LEGACY_CAYC_METRICS;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.COMPLIANT;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.NON_COMPLIANT;
 import static org.sonar.server.qualitygate.QualityGateCaycStatus.OVER_COMPLIANT;
 
+@RunWith(DataProviderRunner.class)
 public class QualityGateCaycCheckerIT {
 
   @Rule
@@ -52,16 +61,18 @@ public class QualityGateCaycCheckerIT {
   QualityGateCaycChecker underTest = new QualityGateCaycChecker(db.getDbClient());
 
   @Test
-  public void checkCaycCompliant_when_contains_all_and_only_complicant_conditions_should_return_compliant() {
+  @UseDataProvider("caycMetrics")
+  public void checkCaycCompliant_when_contains_all_and_only_compliant_conditions_should_return_compliant(Set<Metric>  caycMetrics) {
     String qualityGateUuid = "abcd";
-    CAYC_METRICS.forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
+    caycMetrics.forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
     assertEquals(COMPLIANT, underTest.checkCaycCompliant(db.getSession(), qualityGateUuid));
   }
 
   @Test
-  public void checkCaycCompliant_when_extra_conditions_should_return_over_compliant() {
+  @UseDataProvider("caycMetrics")
+  public void checkCaycCompliant_when_extra_conditions_should_return_over_compliant(Set<Metric>  caycMetrics) {
     String qualityGateUuid = "abcd";
-    CAYC_METRICS.forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
+    caycMetrics.forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getBestValue()));
 
     // extra conditions outside of CAYC requirements
     List.of(LINE_COVERAGE, DUPLICATED_LINES).forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid,
@@ -71,12 +82,13 @@ public class QualityGateCaycCheckerIT {
   }
 
   @Test
-  public void checkCaycCompliant_when_conditions_have_lesser_threshold_value_should_return_non_compliant() {
-    var metrics = CAYC_METRICS.stream().map(this::insertMetric).toList();
+  @UseDataProvider("caycMetricsAndBestValueRequirements")
+  public void checkCaycCompliant_when_conditions_have_lesser_threshold_value_should_return_non_compliant(Set<Metric>  caycMetrics, Map<String, Double> bestValueRequirements) {
+    var metrics = caycMetrics.stream().map(this::insertMetric).toList();
 
     String qualityGateUuid = "abcd";
     for (var metric : metrics) {
-      if (BEST_VALUE_REQUIREMENTS.keySet().contains(metric.getKey())) {
+      if (bestValueRequirements.keySet().contains(metric.getKey())) {
         insertCondition(metric, qualityGateUuid, metric.getBestValue() - 1);
       } else {
         insertCondition(metric, qualityGateUuid, metric.getBestValue());
@@ -88,6 +100,8 @@ public class QualityGateCaycCheckerIT {
   @Test
   public void isCaycCondition_when_check_compliant_condition_should_return_true() {
     CAYC_METRICS.stream().map(this::toMetricDto)
+      .forEach(metricDto -> assertTrue(underTest.isCaycCondition(metricDto)));
+    LEGACY_CAYC_METRICS.stream().map(this::toMetricDto)
       .forEach(metricDto -> assertTrue(underTest.isCaycCondition(metricDto)));
   }
 
@@ -115,6 +129,21 @@ public class QualityGateCaycCheckerIT {
     List.of(NEW_COVERAGE, NEW_DUPLICATED_LINES_DENSITY)
       .forEach(metric -> insertCondition(insertMetric(metric), qualityGateUuid, metric.getWorstValue()));
     assertEquals(COMPLIANT, underTest.checkCaycCompliant(db.getSession(), qualityGateUuid));
+  }
+
+  @DataProvider
+  public static Object[][] caycMetrics() {
+    return new Object[][]{
+      {CAYC_METRICS}, {LEGACY_CAYC_METRICS}
+    };
+  }
+
+  @DataProvider
+  public static Object[][] caycMetricsAndBestValueRequirements() {
+    return new Object[][]{
+      {CAYC_METRICS, BEST_VALUE_REQUIREMENTS},
+      {LEGACY_CAYC_METRICS, LEGACY_BEST_VALUE_REQUIREMENTS}
+    };
   }
 
   private void insertCondition(MetricDto metricDto, String qualityGateUuid, Double threshold) {
