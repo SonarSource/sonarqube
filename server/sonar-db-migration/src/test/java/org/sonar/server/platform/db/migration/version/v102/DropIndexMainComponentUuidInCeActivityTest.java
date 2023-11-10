@@ -22,7 +22,9 @@ package org.sonar.server.platform.db.migration.version.v102;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
+
+
 
 public class DropIndexMainComponentUuidInCeActivityTest {
 
@@ -31,8 +33,7 @@ public class DropIndexMainComponentUuidInCeActivityTest {
   private static final String INDEX_NAME = "ce_activity_main_component";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(DropIndexMainComponentUuidInCeActivityTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropIndexMainComponentUuidInCeActivity.class);
   private final DropIndexMainComponentUuidInCeActivity underTest = new DropIndexMainComponentUuidInCeActivity(db.database());
 
   @Test

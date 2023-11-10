@@ -20,16 +20,14 @@
 package org.sonar.server.platform.db.migration.version;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.sonar.db.CoreDbTester;
+import org.sonar.db.AbstractDbTester;
+import org.sonar.db.TestDb;
 import org.sonar.server.platform.db.migration.step.RenameVarcharColumnChange;
 
 import static java.sql.Types.VARCHAR;
 
 public abstract class RenameVarcharColumnAbstractTest {
 
-  @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(getClass(), "schema.sql");
   private final String tableName;
   private final String columnName;
   private final boolean isNullable;
@@ -41,18 +39,19 @@ public abstract class RenameVarcharColumnAbstractTest {
   }
 
   protected void verifyMigrationIsReentrant() throws SQLException {
-    db.assertColumnDoesNotExist(tableName, columnName);
+    getDatabase().assertColumnDoesNotExist(tableName, columnName);
     getClassUnderTest().execute();
     getClassUnderTest().execute();
-    db.assertColumnDefinition(tableName, columnName, VARCHAR, 40, isNullable);
+    getDatabase().assertColumnDefinition(tableName, columnName, VARCHAR, 40, isNullable);
   }
 
   protected void verifyColumnIsRenamed() throws SQLException {
-    db.assertColumnDoesNotExist(tableName, columnName);
+    getDatabase().assertColumnDoesNotExist(tableName, columnName);
     getClassUnderTest().execute();
-    db.assertColumnDefinition(tableName, columnName, VARCHAR, 40, isNullable);
+    getDatabase().assertColumnDefinition(tableName, columnName, VARCHAR, 40, isNullable);
   }
 
   protected abstract RenameVarcharColumnChange getClassUnderTest();
 
+  protected abstract AbstractDbTester<? extends TestDb> getDatabase();
 }

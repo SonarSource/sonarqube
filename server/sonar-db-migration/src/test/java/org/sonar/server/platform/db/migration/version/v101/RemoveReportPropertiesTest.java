@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +36,7 @@ public class RemoveReportPropertiesTest {
   private static final String SONAR_GOVERNANCE_REPORT_LAST_SEND_TIME_IN_MS = "sonar.governance.report.lastSendTimeInMs";
   private static final String SONAR_GOVERNANCE_REPORT_PROJECT_BRANCH_LAST_SEND_TIME_IN_MS = "sonar.governance.report.project.branch.lastSendTimeInMs";
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(RemoveReportPropertiesTest.class, "schema.sql");
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(RemoveReportProperties.class);
 
   private final DataChange underTest = new RemoveReportProperties(db.database());
 
@@ -74,7 +74,7 @@ public class RemoveReportPropertiesTest {
       "is_empty", false,
       "text_value", value,
       "created_at", 1000,
-      "component_uuid", componentUuid,
+      "entity_uuid", componentUuid,
       "user_uuid", userUuid
     );
   }

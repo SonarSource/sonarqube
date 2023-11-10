@@ -22,15 +22,15 @@ package org.sonar.server.platform.db.migration.version.v104;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 
 public class RenameWontFixIssuesMetricTest {
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(RenameWontFixIssuesMetricTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(RenameWontFixIssuesMetric.class);
   private final RenameWontFixIssuesMetric underTest = new RenameWontFixIssuesMetric(db.database());
 
   @Test

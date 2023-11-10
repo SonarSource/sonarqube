@@ -31,9 +31,9 @@ import java.util.Properties;
 import java.util.Set;
 import javax.sql.DataSource;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.internal.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.DialectUtils;
 import org.sonar.db.profiling.NullConnectionInterceptor;
@@ -255,5 +255,9 @@ public class DefaultDatabase implements Database {
   @Override
   public String toString() {
     return format("Database[%s]", properties != null ? properties.getProperty(JDBC_URL.getKey()) : "?");
+  }
+
+  public Settings getSettings() {
+    return settings;
   }
 }

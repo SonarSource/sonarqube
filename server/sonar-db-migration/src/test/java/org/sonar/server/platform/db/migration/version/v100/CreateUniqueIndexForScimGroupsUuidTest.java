@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v100;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.version.v100.CreateScimGroupsTable.TABLE_NAME;
@@ -31,8 +31,7 @@ import static org.sonar.server.platform.db.migration.version.v100.CreateUniqueIn
 
 public class CreateUniqueIndexForScimGroupsUuidTest {
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreateUniqueIndexForScimGroupsUuidTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateUniqueIndexForScimGroupsUuid.class);
   private final DdlChange underTest = new CreateUniqueIndexForScimGroupsUuid(db.database());
 
   @Test

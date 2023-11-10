@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v101;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
 
@@ -31,8 +31,7 @@ public class CreateProjectUuidInUserTokensTest {
   private static final String COLUMN_NAME = "project_uuid";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreateProjectUuidInUserTokensTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateProjectUuidInUserTokens.class);
   private final CreateProjectUuidInUserTokens underTest = new CreateProjectUuidInUserTokens(db.database());
 
   @Test

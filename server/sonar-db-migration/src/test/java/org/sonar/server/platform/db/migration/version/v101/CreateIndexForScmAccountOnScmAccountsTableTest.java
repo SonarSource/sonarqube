@@ -22,16 +22,15 @@ package org.sonar.server.platform.db.migration.version.v101;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v101.CreateIndexForScmAccountOnScmAccountsTable.INDEX_NAME;
-import static org.sonar.server.platform.db.migration.version.v101.CreateScmAccountsTable.SCM_ACCOUNT_COLUMN_NAME;
 import static org.sonar.server.platform.db.migration.version.v101.CreateScmAccountsTable.SCM_ACCOUNTS_TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v101.CreateScmAccountsTable.SCM_ACCOUNT_COLUMN_NAME;
 
 public class CreateIndexForScmAccountOnScmAccountsTableTest {
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreateIndexForScmAccountOnScmAccountsTableTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateIndexForScmAccountOnScmAccountsTable.class);
   private final CreateIndexForScmAccountOnScmAccountsTable createIndexForScmAccountOnScmAccountsTable = new CreateIndexForScmAccountOnScmAccountsTable(db.database());
 
   @Test

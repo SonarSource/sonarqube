@@ -28,7 +28,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -40,8 +40,7 @@ public class FixDifferentUuidsForSubportfoliosTest {
   private static final String NEW_CHILD_SUBPF_UUID = "childsubpfUuid";
   private static final String OLD_CHILD_SUBPF_UUID = "old_child_subpf_uuid";
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(FixDifferentUuidsForSubportfoliosTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(FixDifferentUuidsForSubportfolios.class);
   private final FixDifferentUuidsForSubportfolios underTest = new FixDifferentUuidsForSubportfolios(db.database());
 
   @Test

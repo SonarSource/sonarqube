@@ -23,6 +23,9 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
+
+
 
 public class DropIndexComponentUuidInUserRolesTest {
 
@@ -30,9 +33,12 @@ public class DropIndexComponentUuidInUserRolesTest {
   private static final String COLUMN_NAME = "component_uuid";
   private static final String INDEX_NAME = "user_roles_component_uuid";
 
+  /**
+   * {@link MigrationDbTester} is not used because we are expecting index with component_uuid to exist. However, renaming the column component_uuid to entity_uuid
+   * also updated the index
+   */
   @Rule
   public final CoreDbTester db = CoreDbTester.createForSchema(DropIndexComponentUuidInUserRolesTest.class, "schema.sql");
-
   private final DropIndexComponentUuidInUserRoles underTest = new DropIndexComponentUuidInUserRoles(db.database());
 
   @Test

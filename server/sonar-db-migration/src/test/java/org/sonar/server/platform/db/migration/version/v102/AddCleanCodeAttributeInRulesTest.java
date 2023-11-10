@@ -23,14 +23,14 @@ import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 public class AddCleanCodeAttributeInRulesTest {
   private static final String TABLE_NAME = "rules";
   private static final String COLUMN_NAME = "clean_code_attribute";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(AddCleanCodeAttributeInRulesTest.class, "schema.sql");
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AddCleanCodeAttributeInRules.class);
 
   private final AddCleanCodeAttributeInRules underTest = new AddCleanCodeAttributeInRules(db.database());
 

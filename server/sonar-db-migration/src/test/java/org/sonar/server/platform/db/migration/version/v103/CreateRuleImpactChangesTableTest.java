@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
@@ -34,7 +34,7 @@ public class CreateRuleImpactChangesTableTest {
   private final static String TABLE_NAME = "rule_impact_changes";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createEmpty();
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateRuleImpactChangesTable.class);
 
   private final DdlChange underTest = new CreateRuleImpactChangesTable(db.database());
 

@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -33,8 +33,7 @@ public class AddSqVersionColumnInQprofileChangesTableTest {
   private static final String COLUMN_NAME = "sq_version";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(AddSqVersionColumnInQprofileChangesTableTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AddSqVersionColumnInQprofileChangesTable.class);
   private final AddSqVersionColumnInQprofileChangesTable underTest = new AddSqVersionColumnInQprofileChangesTable(db.database());
 
   @Test

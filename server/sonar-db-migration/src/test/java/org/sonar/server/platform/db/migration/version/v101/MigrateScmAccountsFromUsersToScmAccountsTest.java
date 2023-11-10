@@ -29,7 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.version.v101.MigrateScmAccountsFromUsersToScmAccounts.ScmAccountRow;
 
@@ -47,8 +47,7 @@ public class MigrateScmAccountsFromUsersToScmAccountsTest {
   private static final String SCM_ACCOUNT_CAMELCASE = "scmAccount3";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(MigrateScmAccountsFromUsersToScmAccountsTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(MigrateScmAccountsFromUsersToScmAccounts.class);
   private final DataChange migrateScmAccountsFromUsersToScmAccounts = new MigrateScmAccountsFromUsersToScmAccounts(db.database());
 
   @Test

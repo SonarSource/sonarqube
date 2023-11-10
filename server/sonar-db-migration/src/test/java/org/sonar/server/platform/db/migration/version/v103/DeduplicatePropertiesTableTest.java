@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.util.Uuids;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -35,8 +35,7 @@ public class DeduplicatePropertiesTableTest {
   public static final String ENTITY = "entity";
   public static final String USER = "user";
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(DeduplicatePropertiesTableTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DeduplicatePropertiesTable.class);
   private final DeduplicatePropertiesTable underTest = new DeduplicatePropertiesTable(db.database());
 
 

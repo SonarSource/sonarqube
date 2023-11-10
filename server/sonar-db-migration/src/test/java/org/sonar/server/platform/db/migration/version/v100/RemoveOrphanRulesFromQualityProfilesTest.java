@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 public class RemoveOrphanRulesFromQualityProfilesTest {
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(RemoveOrphanRulesFromQualityProfilesTest.class, "schema.sql");
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(RemoveOrphanRulesFromQualityProfiles.class);
   private final System2 system2 = mock(System2.class);
   private final UuidFactory instance = new SequenceUuidFactory();
   private final DataChange underTest = new RemoveOrphanRulesFromQualityProfiles(db.database(), instance, system2);

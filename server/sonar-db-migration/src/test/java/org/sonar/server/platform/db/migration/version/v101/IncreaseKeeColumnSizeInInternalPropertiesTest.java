@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v101;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
 import static org.sonar.server.platform.db.migration.version.v101.IncreaseKeeColumnSizeInInternalProperties.COLUMN_NAME;
@@ -32,8 +32,7 @@ import static org.sonar.server.platform.db.migration.version.v101.IncreaseKeeCol
 public class IncreaseKeeColumnSizeInInternalPropertiesTest {
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(IncreaseKeeColumnSizeInInternalPropertiesTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(IncreaseKeeColumnSizeInInternalProperties.class);
   private final IncreaseKeeColumnSizeInInternalProperties underTest = new IncreaseKeeColumnSizeInInternalProperties(db.database());
 
   @Test

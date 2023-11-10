@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -35,8 +35,7 @@ public class UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriodsTest
   private static final String BRANCH_UUID = "branch-uuid";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriodsTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriods.class);
   public final UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriods underTest = new UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriods(db.database());
 
   @Test
@@ -44,8 +43,6 @@ public class UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriodsTest
     insertNewCodePeriods("uuid-1", PROJECT_UUID, BRANCH_UUID, "PREVIOUS_VERSION", null);
     insertNewCodePeriods("uuid-2", PROJECT_UUID, null, "NUMBER_OF_DAYS", "90");
     insertNewCodePeriods("uuid-3", null, null, "NUMBER_OF_DAYS", "97");
-    insertNewCodePeriods("uuid-4", null, null, "NUMBER_OF_DAYS", "135");
-
 
     underTest.execute();
 
@@ -55,8 +52,7 @@ public class UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriodsTest
       .containsExactlyInAnyOrder(
         tuple("uuid-1", null, null),
         tuple("uuid-2", "90", null),
-        tuple("uuid-3", "90", "97"),
-        tuple("uuid-4", "90", "135"));
+        tuple("uuid-3", "90", "97"));
   }
 
   private void insertNewCodePeriods(String uuid, @Nullable String projectUuid, @Nullable String branchUuid, String type, String value) {

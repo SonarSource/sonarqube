@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v101;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v101.AddReportSchedulesTable.TABLE_NAME;
 import static org.sonar.server.platform.db.migration.version.v101.CreateUniqueIndexForReportSchedulesTable.COLUMN_NAME_BRANCH;
@@ -32,8 +32,7 @@ import static org.sonar.server.platform.db.migration.version.v101.CreateUniqueIn
 
 public class CreateUniqueIndexForReportSchedulesTableTest {
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreateUniqueIndexForReportSchedulesTableTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateUniqueIndexForReportSchedulesTable.class);
   private final CreateUniqueIndexForReportSchedulesTable createUniqueIndexForReportSchedulesTable = new CreateUniqueIndexForReportSchedulesTable(db.database());
 
   @Test

@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v102;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class DropIndexWebhookUuidInWebhookDeliveriesTest {
@@ -32,8 +32,7 @@ public class DropIndexWebhookUuidInWebhookDeliveriesTest {
   private static final String INDEX_NAME = "idx_wbhk_dlvrs_wbhk_uuid";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(DropIndexWebhookUuidInWebhookDeliveriesTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropIndexWebhookUuidInWebhookDeliveries.class);
   private final DdlChange underTest = new DropIndexWebhookUuidInWebhookDeliveries(db.database());
 
   @Test

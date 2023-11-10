@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -33,8 +33,7 @@ import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPe
 public class PopulateGithubPermissionsMappingTest {
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(PopulateGithubPermissionsMappingTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateGithubPermissionsMapping.class);
   @Rule
   public LogTester logTester = new LogTester();
 

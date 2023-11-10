@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class DropIndexProjectUuidInWebhookDeliveriesTest {
@@ -31,9 +32,12 @@ public class DropIndexProjectUuidInWebhookDeliveriesTest {
   private static final String COLUMN_NAME = "project_uuid";
   private static final String INDEX_NAME = "wd_project_uuid";
 
+  /**
+   * {@link MigrationDbTester} is not used because we are expecting index with component_uuid to exist. However, renaming the column component_uuid to entity_uuid
+   * also updated the index
+   */
   @Rule
   public final CoreDbTester db = CoreDbTester.createForSchema(DropIndexProjectUuidInWebhookDeliveriesTest.class, "schema.sql");
-
   private final DdlChange underTest = new DropIndexProjectUuidInWebhookDeliveries(db.database());
 
   @Test

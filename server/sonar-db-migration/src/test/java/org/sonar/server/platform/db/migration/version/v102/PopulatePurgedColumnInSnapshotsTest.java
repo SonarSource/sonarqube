@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -33,8 +33,7 @@ public class PopulatePurgedColumnInSnapshotsTest {
   private static final String TABLE_NAME = "snapshots";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(PopulatePurgedColumnInSnapshotsTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulatePurgedColumnInSnapshots.class);
   private final PopulatePurgedColumnInSnapshots underTest = new PopulatePurgedColumnInSnapshots(db.database());
 
   @Test

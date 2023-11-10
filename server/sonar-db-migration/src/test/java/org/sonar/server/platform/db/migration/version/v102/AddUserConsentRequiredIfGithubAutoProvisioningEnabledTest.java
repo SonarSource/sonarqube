@@ -27,7 +27,7 @@ import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,8 +40,7 @@ public class AddUserConsentRequiredIfGithubAutoProvisioningEnabledTest {
   public LogTester logger = new LogTester();
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(AddUserConsentRequiredIfGithubAutoProvisioningEnabledTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AddUserConsentRequiredIfGithubAutoProvisioningEnabled.class);
   private final DataChange underTest = new AddUserConsentRequiredIfGithubAutoProvisioningEnabled(db.database(), new System2(), UuidFactoryFast.getInstance());
 
   @Before

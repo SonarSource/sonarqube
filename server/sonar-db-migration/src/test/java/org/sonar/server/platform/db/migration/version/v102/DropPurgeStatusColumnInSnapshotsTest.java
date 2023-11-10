@@ -23,7 +23,9 @@ import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
+
+
 
 public class DropPurgeStatusColumnInSnapshotsTest {
 
@@ -31,8 +33,7 @@ public class DropPurgeStatusColumnInSnapshotsTest {
   private static final String COLUMN_NAME = "purge_status";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(DropPurgeStatusColumnInSnapshotsTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropPurgeStatusColumnInSnapshots.class);
   private final DropPurgeStatusColumnInSnapshots underTest = new DropPurgeStatusColumnInSnapshots(db.database());
 
   @Test

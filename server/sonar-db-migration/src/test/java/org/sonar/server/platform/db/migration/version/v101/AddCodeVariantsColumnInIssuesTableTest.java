@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v101;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
 
@@ -33,8 +33,7 @@ public class AddCodeVariantsColumnInIssuesTableTest {
   private static final int COLUMN_SIZE = 4000;
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(AddCodeVariantsColumnInIssuesTableTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AddCodeVariantsColumnInIssuesTable.class);
   private final AddCodeVariantsColumnInIssuesTable underTest = new AddCodeVariantsColumnInIssuesTable(db.database());
 
   @Test

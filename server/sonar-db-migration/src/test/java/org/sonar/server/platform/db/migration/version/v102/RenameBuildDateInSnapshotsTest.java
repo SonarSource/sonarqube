@@ -23,14 +23,15 @@ import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
+
+
 
 public class RenameBuildDateInSnapshotsTest {
   private static final String TABLE_NAME = "snapshots";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(RenameBuildDateInSnapshotsTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(RenameBuildDateInSnapshots.class);
   private final RenameBuildDateInSnapshots underTest = new RenameBuildDateInSnapshots(db.database());
 
   @Test

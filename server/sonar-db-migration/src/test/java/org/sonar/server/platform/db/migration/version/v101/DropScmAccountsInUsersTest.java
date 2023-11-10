@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.version.v101.DropScmAccountsInUsers.COLUMN_NAME;
@@ -32,7 +32,7 @@ import static org.sonar.server.platform.db.migration.version.v101.DropScmAccount
 public class DropScmAccountsInUsersTest {
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(DropScmAccountsInUsersTest.class, "schema.sql");
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropScmAccountsInUsers.class);
   private final DdlChange dropScmAccountsInUsers = new DropScmAccountsInUsers(db.database());
 
   @Test

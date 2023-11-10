@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -32,8 +32,7 @@ public class AddCleanCodeAttributeColumnInIssuesTableTest {
   private static final String COLUMN_NAME = "clean_code_attribute";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(AddCleanCodeAttributeColumnInIssuesTableTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AddCleanCodeAttributeColumnInIssuesTable.class);
   private final AddCleanCodeAttributeColumnInIssuesTable underTest = new AddCleanCodeAttributeColumnInIssuesTable(db.database());
 
   @Test

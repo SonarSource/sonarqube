@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class AddNclocToProjectsTest {
@@ -32,7 +32,7 @@ public class AddNclocToProjectsTest {
   private static final String COLUMN_NAME = "ncloc";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(AddNclocToProjectsTest.class, "schema.sql");
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AddNclocToProjects.class);
   private final DdlChange underTest = new AddNclocToProjects(db.database());
 
   @Test

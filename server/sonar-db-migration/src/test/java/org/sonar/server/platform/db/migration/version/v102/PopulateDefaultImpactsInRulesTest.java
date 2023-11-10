@@ -28,7 +28,7 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.util.Uuids;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -38,8 +38,7 @@ public class PopulateDefaultImpactsInRulesTest {
   private static final String TABLE_NAME = "rules";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(PopulateDefaultImpactsInRulesTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateDefaultImpactsInRules.class);
   @Rule
   public LogTester logTester = new LogTester();
 

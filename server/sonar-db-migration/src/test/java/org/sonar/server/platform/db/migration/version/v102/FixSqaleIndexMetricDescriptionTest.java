@@ -23,15 +23,14 @@ import java.sql.SQLException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FixSqaleIndexMetricDescriptionTest {
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(FixSqaleIndexMetricDescriptionTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(FixSqaleIndexMetricDescription.class);
   private final FixSqaleIndexMetricDescription underTest = new FixSqaleIndexMetricDescription(db.database());
   private final String OLD_DESCRIPTION = "Total effort (in hours) to fix all the issues on the component and therefore to comply to all the requirements.";
   private final String NEW_DESCRIPTION = "Total effort (in minutes) to fix all the issues on the component and therefore to comply to all the requirements.";

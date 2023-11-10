@@ -22,14 +22,15 @@ package org.sonar.server.platform.db.migration.version.v102;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
+
+
 
 public class DropTableProjectMappingsTest {
   public static final String TABLE_NAME = "project_mappings";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(DropTableProjectMappingsTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropTableProjectMappings.class);
   private final DropTableProjectMappings underTest = new DropTableProjectMappings(db.database());
 
   @Test

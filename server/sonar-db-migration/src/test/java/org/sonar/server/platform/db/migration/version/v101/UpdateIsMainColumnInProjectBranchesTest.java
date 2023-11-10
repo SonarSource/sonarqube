@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +36,7 @@ public class UpdateIsMainColumnInProjectBranchesTest {
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(UpdateIsMainColumnInProjectBranchesTest.class, "schema.sql");
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(UpdateIsMainColumnInProjectBranches.class);
 
   private final DataChange underTest = new UpdateIsMainColumnInProjectBranches(db.database());
 

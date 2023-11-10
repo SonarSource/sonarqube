@@ -23,13 +23,13 @@ import java.sql.SQLException;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 public class DropSonarScimEnabledPropertyTest {
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(DropSonarScimEnabledPropertyTest.class, "schema.sql");
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropSonarScimEnabledProperty.class);
   private final DataChange underTest = new DropSonarScimEnabledProperty(db.database());
 
   @Test
@@ -51,7 +51,7 @@ public class DropSonarScimEnabledPropertyTest {
     Assertions.assertThat(db.select("select * from properties")).isEmpty();
   }
 
-  private void insertScimProperty(CoreDbTester db) {
+  private void insertScimProperty(MigrationDbTester db) {
     db.executeInsert("properties ",
       "prop_key", "sonar.scim.enabled",
       "is_empty", false,

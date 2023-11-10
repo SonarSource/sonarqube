@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,8 +34,7 @@ public class SetAllowQualityProfileDisableInheritedRulesTest {
   private static final long NOW = 1;
 
   @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(SetAllowQualityProfileDisableInheritedRulesTest.class, "schema.sql");
-
+  public final MigrationDbTester dbTester = MigrationDbTester.createForMigrationStep(SetAllowQualityProfileDisableInheritedRules.class);
   private final System2 system2 = new TestSystem2().setNow(NOW);
 
   private final SetAllowQualityProfileDisableInheritedRules script = new SetAllowQualityProfileDisableInheritedRules(dbTester.database(), system2, UuidFactoryFast.getInstance());

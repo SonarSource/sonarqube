@@ -24,10 +24,10 @@ import com.sonar.orchestrator.db.DatabaseClient;
 import com.sonar.orchestrator.db.DatabaseFactory;
 import com.sonar.orchestrator.db.DefaultDatabase;
 import java.util.function.Consumer;
-import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.config.internal.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.db.SQDatabase;
 
 public class CreateDb {
@@ -37,7 +37,7 @@ public class CreateDb {
       Settings settings = new MapSettings();
       configuration.asMap().forEach(settings::setProperty);
       logJdbcSettings(settings);
-      SQDatabase.newDatabase(settings, true).start();
+      new SQDatabase.Builder().createSchema(true).withSettings(settings).build().start();
     });
   }
 

@@ -35,7 +35,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -52,7 +52,7 @@ public class PopulateInitialSchemaTest {
   private final SonarQubeVersion sonarQubeVersion = mock(SonarQubeVersion.class);
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(PopulateInitialSchemaTest.class, "v99.sql");
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateInitialSchema.class);
 
   private final PopulateInitialSchema underTest = new PopulateInitialSchema(db.database(), system2, uuidFactory, sonarQubeVersion);
 

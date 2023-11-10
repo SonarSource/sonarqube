@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
@@ -35,7 +35,7 @@ import static org.sonar.server.platform.db.migration.version.v101.CreateExternal
 public class CreateExternalGroupsTableTest {
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createEmpty();
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateExternalGroupsTable.class);
 
   private final DdlChange createExternalGroupsTable = new CreateExternalGroupsTable(db.database());
 

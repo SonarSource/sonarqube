@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v100;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DropScimUserProvisioningTest {
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(DropScimUserProvisioningTest.class, "schema.sql");
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropScimUserProvisioning.class);
   private final DataChange underTest = new DropScimUserProvisioning(db.database());
 
   @Test

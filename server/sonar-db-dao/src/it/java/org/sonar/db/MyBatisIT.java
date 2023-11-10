@@ -34,7 +34,7 @@ public class MyBatisIT {
 
   @BeforeClass
   public static void start() {
-    database = SQDatabase.newH2Database("sonar2", true);
+    database = new SQDatabase.Builder().asH2Database("sonar2").createSchema(true).build();
     database.start();
   }
 

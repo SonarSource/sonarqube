@@ -20,11 +20,18 @@
 package org.sonar.server.platform.db.migration.version.v102;
 
 import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.AbstractDbTester;
+import org.sonar.db.TestDb;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.RenameVarcharColumnChange;
 import org.sonar.server.platform.db.migration.version.RenameVarcharColumnAbstractTest;
 
 public class RenameComponentUuidInWebhookDeliveriesTest extends RenameVarcharColumnAbstractTest {
+
+  @Rule
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(RenameComponentUuidInWebhookDeliveries.class);
 
   public RenameComponentUuidInWebhookDeliveriesTest() {
     super("webhook_deliveries", "project_uuid", false);
@@ -43,6 +50,11 @@ public class RenameComponentUuidInWebhookDeliveriesTest extends RenameVarcharCol
   @Override
   protected RenameVarcharColumnChange getClassUnderTest() {
     return new RenameComponentUuidInWebhookDeliveries(db.database());
+  }
+
+  @Override
+  protected AbstractDbTester<? extends TestDb> getDatabase() {
+    return db;
   }
 
 }

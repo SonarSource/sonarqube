@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +37,7 @@ public class LogMessageIfSonarScimEnabledPresentPropertyTest {
   public LogTester logger = new LogTester();
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(LogMessageIfSonarScimEnabledPresentPropertyTest.class, "schema.sql");
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(LogMessageIfSonarScimEnabledPresentProperty.class);
   private final DataChange underTest = new LogMessageIfSonarScimEnabledPresentProperty(db.database());
 
   @Before

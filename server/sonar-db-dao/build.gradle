@@ -40,6 +40,7 @@ dependencies {
   testRuntimeOnly 'org.postgresql:postgresql'
 
   testFixturesApi testFixtures(project(':server:sonar-db-core'))
+    testFixturesApi testFixtures(project(':server:sonar-db-migration'))
 
   testFixturesImplementation 'com.h2database:h2'
 

@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -35,8 +35,7 @@ public class PopulateCleanCodeAttributeColumnInRulesTest {
   private static final String TABLE_NAME = "rules";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(PopulateCleanCodeAttributeColumnInRulesTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateCleanCodeAttributeColumnInRules.class);
   private final PopulateCleanCodeAttributeColumnInRules underTest = new PopulateCleanCodeAttributeColumnInRules(db.database());
 
   @Test

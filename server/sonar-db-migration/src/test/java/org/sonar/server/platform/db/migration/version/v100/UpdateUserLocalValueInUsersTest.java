@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -38,7 +38,7 @@ public class UpdateUserLocalValueInUsersTest {
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(UpdateUserLocalValueInUsersTest.class, "schema.sql");
+  public MigrationDbTester db = MigrationDbTester.createForMigrationStep(UpdateUserLocalValueInUsers.class);
 
   private final DataChange underTest = new UpdateUserLocalValueInUsers(db.database());
 

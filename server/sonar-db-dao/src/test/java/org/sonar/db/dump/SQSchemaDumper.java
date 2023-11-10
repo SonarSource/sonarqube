@@ -55,7 +55,8 @@ class SQSchemaDumper {
   }).thenComparing(String.CASE_INSENSITIVE_ORDER);
 
   String dumpToText() throws SQLException {
-    SQDatabase database = SQDatabase.newH2Database("SQSchemaDumper", true);
+
+    SQDatabase database = new SQDatabase.Builder().asH2Database("SQSchemaDumper").createSchema(true).build();
     database.start();
 
     try (Connection connection = database.getDataSource().getConnection();

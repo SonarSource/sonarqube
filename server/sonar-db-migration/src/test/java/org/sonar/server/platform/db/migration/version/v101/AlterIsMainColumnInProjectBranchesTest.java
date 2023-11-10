@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v101;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static java.sql.Types.BOOLEAN;
 
@@ -32,8 +32,7 @@ public class AlterIsMainColumnInProjectBranchesTest {
   private static final String COLUMN_NAME = "is_main";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(AlterIsMainColumnInProjectBranchesTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AlterIsMainColumnInProjectBranches.class);
   private final AlterIsMainColumnInProjectBranches underTest = new AlterIsMainColumnInProjectBranches(db.database());
 
   @Test

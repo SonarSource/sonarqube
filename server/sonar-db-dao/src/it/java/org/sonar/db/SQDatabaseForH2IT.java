@@ -29,7 +29,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SQDatabaseForH2IT {
-  SQDatabase db = SQDatabase.newH2Database("sonar2", true);
+  SQDatabase db = new SQDatabase.Builder().asH2Database("sonar2").createSchema(true).build();
 
   @Before
   public void startDb() {

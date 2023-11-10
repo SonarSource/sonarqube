@@ -22,12 +22,11 @@ package org.sonar.server.platform.db.migration.version.v102;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 public class CreateIndexEntityUuidInCeActivityTest {
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreateIndexEntityUuidInCeActivityTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateIndexEntityUuidInCeActivity.class);
   private final CreateIndexEntityUuidInCeActivity createIndex = new CreateIndexEntityUuidInCeActivity(db.database());
 
   @Test

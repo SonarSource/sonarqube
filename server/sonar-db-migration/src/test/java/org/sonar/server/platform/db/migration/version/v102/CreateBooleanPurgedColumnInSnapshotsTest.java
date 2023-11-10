@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v102;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static java.sql.Types.BOOLEAN;
 
@@ -32,7 +32,7 @@ public class CreateBooleanPurgedColumnInSnapshotsTest {
   private static final String COLUMN_NAME = "purged";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreateBooleanPurgedColumnInSnapshotsTest.class, "schema.sql");
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateBooleanPurgedColumnInSnapshots.class);
 
   private final CreateBooleanPurgedColumnInSnapshots underTest = new CreateBooleanPurgedColumnInSnapshots(db.database());
 

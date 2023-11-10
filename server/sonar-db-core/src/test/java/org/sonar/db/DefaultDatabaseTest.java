@@ -58,6 +58,13 @@ public class DefaultDatabaseTest {
   }
 
   @Test
+  public void getSettings_shouldReturnExpectedSettings() {
+    MapSettings settings = new MapSettings();
+    settings.setProperty("test", "test");
+    DefaultDatabase db = new DefaultDatabase(logbackHelper, settings);
+    assertThat(db.getSettings()).isEqualTo(settings);
+  }
+  @Test
   public void shouldExtractHikariProperties() {
     Properties props = new Properties();
     props.setProperty("sonar.jdbc.driverClassName", "my.Driver");

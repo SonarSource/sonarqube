@@ -22,15 +22,16 @@ package org.sonar.server.platform.db.migration.version.v103;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
+
+
 
 public class CreateIndexForRuleImpactChangesTableTest {
 
   static final String INDEX_NAME = "rule_impact_changes_r_c_uuid";
   static final String TABLE_NAME = "rule_impact_changes";
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreateIndexForRuleImpactChangesTableTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateIndexForRuleImpactChangesTable.class);
   private final CreateIndexForRuleImpactChangesTable underTest = new CreateIndexForRuleImpactChangesTable(db.database());
 
   @Test

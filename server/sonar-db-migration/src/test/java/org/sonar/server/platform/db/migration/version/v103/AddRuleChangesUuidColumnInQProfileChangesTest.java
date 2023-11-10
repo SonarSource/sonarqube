@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -33,8 +33,7 @@ public class AddRuleChangesUuidColumnInQProfileChangesTest {
   private static final String COLUMN_NAME = "rule_change_uuid";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(AddRuleChangesUuidColumnInQProfileChangesTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(AddRuleChangesUuidColumnInQProfileChanges.class);
   private final AddRuleChangesUuidColumnInQProfileChanges underTest = new AddRuleChangesUuidColumnInQProfileChanges(db.database());
 
   @Test

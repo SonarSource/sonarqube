@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.version.v101.DropProjectKeyInUserTokens.COLUMN_NAME;
@@ -31,7 +31,7 @@ import static org.sonar.server.platform.db.migration.version.v101.DropProjectKey
 
 public class DropProjectKeyInUserTokensTest {
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(DropProjectKeyInUserTokensTest.class, "schema.sql");
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropProjectKeyInUserTokens.class);
   private final DdlChange underTest = new DropProjectKeyInUserTokens(db.database());
 
   @Test

@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v101;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
 
@@ -32,8 +32,7 @@ public class RenameColumnComponentUuidInPropertiesTest {
   public static final String NEW_COLUMN_NAME = "entity_uuid";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(RenameColumnComponentUuidInPropertiesTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(RenameColumnComponentUuidInProperties.class);
   private final RenameColumnComponentUuidInProperties underTest = new RenameColumnComponentUuidInProperties(db.database());
 
   @Test

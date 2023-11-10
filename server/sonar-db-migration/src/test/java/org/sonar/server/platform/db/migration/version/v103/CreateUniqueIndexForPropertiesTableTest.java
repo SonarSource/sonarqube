@@ -20,10 +20,9 @@
 package org.sonar.server.platform.db.migration.version.v103;
 
 import java.sql.SQLException;
-import junit.framework.TestCase;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v103.CreateUniqueIndexForPropertiesTable.INDEX_NAME;
 import static org.sonar.server.platform.db.migration.version.v103.CreateUniqueIndexForPropertiesTable.PROPERTIES_TABLE_NAME;
@@ -32,8 +31,7 @@ import static org.sonar.server.platform.db.migration.version.v103.CreateUniqueIn
 public class CreateUniqueIndexForPropertiesTableTest {
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreateUniqueIndexForPropertiesTableTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateUniqueIndexForPropertiesTable.class);
   private final CreateUniqueIndexForPropertiesTable createIndex = new CreateUniqueIndexForPropertiesTable(db.database());
 
   @Test

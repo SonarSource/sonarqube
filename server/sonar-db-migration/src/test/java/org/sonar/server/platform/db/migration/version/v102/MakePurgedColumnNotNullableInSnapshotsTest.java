@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v102;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static java.sql.Types.BOOLEAN;
 
@@ -31,8 +31,7 @@ public class MakePurgedColumnNotNullableInSnapshotsTest {
   private static final String COLUMN_NAME = "purged";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(MakePurgedColumnNotNullableInSnapshotsTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(MakePurgedColumnNotNullableInSnapshots.class);
   private final MakePurgedColumnNotNullableInSnapshots underTest = new MakePurgedColumnNotNullableInSnapshots(db.database());
 
   @Test

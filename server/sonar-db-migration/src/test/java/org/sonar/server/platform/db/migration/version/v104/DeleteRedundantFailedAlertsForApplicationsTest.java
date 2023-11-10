@@ -24,7 +24,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DeleteRedundantFailedAlertsForApplicationsTest {
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(DeleteRedundantFailedAlertsForApplicationsTest.class, "schema.sql");
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DeleteRedundantFailedAlertsForApplications.class);
   private final DataChange underTest = new DeleteRedundantFailedAlertsForApplications(db.database());
 
   @Before

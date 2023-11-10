@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v103;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
 import static org.sonar.server.platform.db.migration.version.v103.AddCreationMethodColumnInProjectsTable.PROJECTS_CREATION_METHOD_COLUMN_NAME;
@@ -30,8 +30,7 @@ import static org.sonar.server.platform.db.migration.version.v103.AddCreationMet
 
 public class MakeCreationMethodColumnInProjectsNotNullableTest {
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(MakeCreationMethodColumnInProjectsNotNullableTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(MakeCreationMethodColumnInProjectsNotNullable.class);
   private final MakeCreationMethodColumnInProjectsNotNullable underTest = new MakeCreationMethodColumnInProjectsNotNullable(db.database());
 
   @Test

@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v103;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.platform.db.migration.version.v103.AddCreationMethodColumnInProjectsTable.PROJECTS_TABLE_NAME;
@@ -30,8 +30,7 @@ import static org.sonar.server.platform.db.migration.version.v103.AddCreationMet
 public class PopulateCreationMethodColumnInProjectsTableTest {
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(PopulateCreationMethodColumnInProjectsTableTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateCreationMethodColumnInProjectsTable.class);
   private final PopulateCreationMethodColumnInProjectsTable underTest = new PopulateCreationMethodColumnInProjectsTable(db.database());
 
   @Test

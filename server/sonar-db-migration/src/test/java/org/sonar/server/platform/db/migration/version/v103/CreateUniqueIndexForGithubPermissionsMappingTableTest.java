@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v103;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.GITHUB_PERMISSIONS_MAPPING_TABLE_NAME;
 import static org.sonar.server.platform.db.migration.version.v103.CreateGithubPermissionsMappingTable.GITHUB_ROLE_COLUMN;
@@ -31,8 +31,7 @@ import static org.sonar.server.platform.db.migration.version.v103.CreateUniqueIn
 
 public class CreateUniqueIndexForGithubPermissionsMappingTableTest {
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreateUniqueIndexForGithubPermissionsMappingTableTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateUniqueIndexForGithubPermissionsMappingTable.class);
   private final CreateUniqueIndexForGithubPermissionsMappingTable createIndex = new CreateUniqueIndexForGithubPermissionsMappingTable(db.database());
 
   @Test

@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v101;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v101.CreateIndexForEmailOnUsersTable.COLUMN_NAME;
 import static org.sonar.server.platform.db.migration.version.v101.CreateIndexForEmailOnUsersTable.INDEX_NAME;
@@ -30,8 +30,7 @@ import static org.sonar.server.platform.db.migration.version.v101.CreateIndexFor
 
 public class CreateIndexForEmailOnUsersTableTest {
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreateIndexForEmailOnUsersTableTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateIndexForEmailOnUsersTable.class);
   private final CreateIndexForEmailOnUsersTable createIndexForEmailOnUsersTable = new CreateIndexForEmailOnUsersTable(db.database());
 
   @Test

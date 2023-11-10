@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v102;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
 import static org.sonar.server.platform.db.migration.version.v102.IncreaseIsLastKeyInCeActivity.COLUMN_NAME;
@@ -32,8 +32,7 @@ import static org.sonar.server.platform.db.migration.version.v102.IncreaseIsLast
 public class IncreaseIsLastKeyInCeActivityTest {
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(IncreaseIsLastKeyInCeActivityTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(IncreaseIsLastKeyInCeActivity.class);
   private final IncreaseIsLastKeyInCeActivity underTest = new IncreaseIsLastKeyInCeActivity(db.database());
 
   @Test

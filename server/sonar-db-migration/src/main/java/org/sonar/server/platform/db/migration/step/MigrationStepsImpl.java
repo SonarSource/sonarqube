@@ -38,7 +38,7 @@ class MigrationStepsImpl implements MigrationSteps {
 
   @Override
   public long getMaxMigrationNumber() {
-    return steps.get(steps.size() -1).getMigrationNumber();
+    return steps.get(steps.size() - 1).getMigrationNumber();
   }
 
   @Override

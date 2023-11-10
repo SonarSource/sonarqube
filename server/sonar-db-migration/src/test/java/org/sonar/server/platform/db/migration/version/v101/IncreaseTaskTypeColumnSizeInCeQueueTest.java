@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v101;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
 import static org.sonar.server.platform.db.migration.version.v101.IncreaseTaskTypeColumnSizeInCeQueue.COLUMN_NAME;
@@ -32,8 +32,7 @@ import static org.sonar.server.platform.db.migration.version.v101.IncreaseTaskTy
 public class IncreaseTaskTypeColumnSizeInCeQueueTest {
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(IncreaseTaskTypeColumnSizeInCeQueueTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(IncreaseTaskTypeColumnSizeInCeQueue.class);
   private final IncreaseTaskTypeColumnSizeInCeQueue underTest = new IncreaseTaskTypeColumnSizeInCeQueue(db.database());
 
   @Test

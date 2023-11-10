@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -37,7 +37,7 @@ public class PopulateNclocForForProjectsTest {
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
 
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(PopulateNclocForForProjectsTest.class, "schema.sql");
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(PopulateNclocForForProjects.class);
 
   private final DataChange underTest = new PopulateNclocForForProjects(db.database());
 

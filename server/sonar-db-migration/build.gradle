@@ -32,6 +32,7 @@ dependencies {
   testImplementation project(':sonar-scanner-protocol')
   testImplementation project(':sonar-testing-harness')
   testImplementation testFixtures(project(':server:sonar-db-core'))
+  testImplementation 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
 
   testRuntimeOnly 'com.h2database:h2'
   testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'

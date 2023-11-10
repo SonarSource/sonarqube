@@ -62,7 +62,7 @@ class TestDbImpl extends CoreTestDb {
       if (dialect != null && !"h2".equals(dialect)) {
         return new DefaultDatabase(new LogbackHelper(), settings);
       }
-      return SQDatabase.newH2Database("h2Tests" + DigestUtils.md5Hex(StringUtils.defaultString(schemaPath)), schemaPath == null);
+      return new SQDatabase.Builder().asH2Database("h2Tests" + DigestUtils.md5Hex(StringUtils.defaultString(schemaPath))).createSchema(schemaPath == null).build();
     };
     Consumer<Database> schemaPathExecutor = database -> {
       if (schemaPath == null) {

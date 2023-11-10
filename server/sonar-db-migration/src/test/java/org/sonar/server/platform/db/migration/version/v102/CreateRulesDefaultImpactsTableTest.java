@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 
@@ -31,7 +31,7 @@ public class CreateRulesDefaultImpactsTableTest {
   private static final String EXPECTED_TABLE_NAME = "rules_default_impacts";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createEmpty();
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateRulesDefaultImpactsTable.class);
 
   private final DdlChange underTest = new CreateRulesDefaultImpactsTable(db.database());
 

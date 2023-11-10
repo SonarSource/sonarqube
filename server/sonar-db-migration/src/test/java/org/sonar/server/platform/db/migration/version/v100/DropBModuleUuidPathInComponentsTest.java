@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class DropBModuleUuidPathInComponentsTest {
@@ -31,7 +31,7 @@ public class DropBModuleUuidPathInComponentsTest {
   private static final String COLUMN_NAME = "b_module_uuid_path";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(DropBModuleUuidPathInComponentsTest.class, "schema.sql");
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(DropBModuleUuidPathInComponents.class);
   private final DdlChange underTest = new DropBModuleUuidPathInComponents(db.database());
 
   @Test

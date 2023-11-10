@@ -23,14 +23,14 @@ import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class CreateIssueImpactsTableTest {
   private static final String EXPECTED_TABLE_NAME = "issues_impacts";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createEmpty();
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateIssueImpactsTable.class);
 
   private final DdlChange underTest = new CreateIssueImpactsTable(db.database());
 

@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v102;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static java.sql.Types.VARCHAR;
 
@@ -33,8 +33,7 @@ public class CreatePreviousNonCompliantValueInNewCodePeriodsTest {
   private static final String TABLE_NAME = "new_code_periods";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreatePreviousNonCompliantValueInNewCodePeriodsTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreatePreviousNonCompliantValueInNewCodePeriods.class);
   private final CreatePreviousNonCompliantValueInNewCodePeriods underTest = new CreatePreviousNonCompliantValueInNewCodePeriods(db.database());
 
   @Test

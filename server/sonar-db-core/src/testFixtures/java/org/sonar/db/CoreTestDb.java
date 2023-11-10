@@ -19,22 +19,17 @@
  */
 package org.sonar.db;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.Nullable;
-import javax.sql.DataSource;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.AssumptionViolatedException;
-import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.config.internal.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.db.version.SqTables;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.config.internal.Settings;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.process.ProcessProperties.Property.JDBC_USERNAME;
@@ -132,46 +127,10 @@ class CoreTestDb implements TestDb {
 
   public void truncateTables() {
     try {
-      truncateDatabase(getDatabase().getDataSource());
+      DatabaseTestUtils.truncateAllTables(getDatabase().getDataSource());
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to truncate db tables", e);
     }
-  }
-
-  private void truncateDatabase(DataSource dataSource) throws SQLException {
-    try (Connection connection = dataSource.getConnection()) {
-      connection.setAutoCommit(false);
-      try (Statement statement = connection.createStatement()) {
-        for (String table : SqTables.TABLES) {
-          try {
-            if (shouldTruncate(connection, table)) {
-              statement.executeUpdate(truncateSql(table));
-              connection.commit();
-            }
-          } catch (Exception e) {
-            connection.rollback();
-            throw new IllegalStateException("Fail to truncate table " + table, e);
-          }
-        }
-      }
-    }
-  }
-
-  private static boolean shouldTruncate(Connection connection, String table) {
-    try (Statement stmt = connection.createStatement();
-      ResultSet rs = stmt.executeQuery("select count(1) from " + table)) {
-      if (rs.next()) {
-        return rs.getInt(1) > 0;
-      }
-
-    } catch (SQLException ignored) {
-      // probably because table does not exist. That's the case with H2 tests.
-    }
-    return false;
-  }
-
-  private static String truncateSql(String table) {
-    return "TRUNCATE TABLE " + table;
   }
 
   @Override

@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v101;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v101.CreateExternalGroupsTable.EXTERNAL_GROUP_ID_COLUMN_NAME;
 import static org.sonar.server.platform.db.migration.version.v101.CreateExternalGroupsTable.EXTERNAL_IDENTITY_PROVIDER_COLUMN_NAME;
@@ -32,8 +32,7 @@ import static org.sonar.server.platform.db.migration.version.v101.CreateIndexOnE
 public class CreateIndexOnExternalIdAndIdentityOnExternalGroupsTableTest {
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreateIndexOnExternalIdAndIdentityOnExternalGroupsTableTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(CreateIndexOnExternalIdAndIdentityOnExternalGroupsTable.class);
   private final CreateIndexOnExternalIdAndIdentityOnExternalGroupsTable createIndexOnExternalIdAndIdentityOnExternalGroupsTable = new CreateIndexOnExternalIdAndIdentityOnExternalGroupsTable(
     db.database());
 

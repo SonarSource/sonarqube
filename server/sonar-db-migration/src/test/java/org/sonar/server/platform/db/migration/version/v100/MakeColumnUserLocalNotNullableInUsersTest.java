@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v100;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.MigrationDbTester;
 
 import static java.sql.Types.BOOLEAN;
 
@@ -31,8 +31,7 @@ public class MakeColumnUserLocalNotNullableInUsersTest {
   private static final String COLUMN_NAME = "user_local";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(MakeColumnUserLocalNotNullableInUsersTest.class, "schema.sql");
-
+  public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(MakeColumnUserLocalNotNullableInUsers.class);
   private final MakeColumnUserLocalNotNullableInUsers underTest = new MakeColumnUserLocalNotNullableInUsers(db.database());
 
   @Test
