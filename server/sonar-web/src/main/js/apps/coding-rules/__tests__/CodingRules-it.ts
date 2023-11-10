@@ -135,11 +135,13 @@ describe('Rules app list', () => {
       });
 
       expect(ui.getAllRuleListItems()).toHaveLength(1);
+    });
 
-      // Clear filters
-      await act(async () => {
-        await user.click(ui.clearAllFiltersButton.get());
-      });
+    it('filter by repository', async () => {
+      const { ui, user } = getPageObjects();
+      renderCodingRulesApp(mockCurrentUser());
+      await ui.appLoaded();
+
       expect(ui.getAllRuleListItems()).toHaveLength(11);
 
       // Filter by repository
@@ -155,11 +157,13 @@ describe('Rules app list', () => {
         await user.click(ui.facetItem('Repository 2').get());
       });
       expect(ui.getAllRuleListItems()).toHaveLength(1);
+    });
 
-      // Clear filters
-      await act(async () => {
-        await user.click(ui.clearAllFiltersButton.get());
-      });
+    it('filter by quality profile, tag and search by tag', async () => {
+      const { ui, user } = getPageObjects();
+      renderCodingRulesApp(mockCurrentUser());
+      await ui.appLoaded();
+
       expect(ui.getAllRuleListItems()).toHaveLength(11);
 
       // Filter by quality profile
@@ -182,13 +186,14 @@ describe('Rules app list', () => {
         await user.type(ui.facetSearchInput('search.search_for_tags').get(), 'te');
       });
       expect(ui.facetItem('cute').get()).toHaveAttribute('aria-disabled', 'true');
+    });
 
-      // Clear all filters
-      await act(async () => {
-        await user.click(ui.clearAllFiltersButton.get());
-      });
+    it('filter by clean code category, software quality and severity', async () => {
+      const { ui, user } = getPageObjects();
+      renderCodingRulesApp(mockCurrentUser());
+      await ui.appLoaded();
+
       expect(ui.getAllRuleListItems()).toHaveLength(11);
-
       // Filter by clean code category
       await act(async () => {
         await user.click(ui.facetItem('issue.clean_code_attribute_category.ADAPTABLE').get());
