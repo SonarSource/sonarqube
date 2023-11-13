@@ -126,6 +126,13 @@ export class QualityGatesServiceMock {
         name: 'SonarSource way - CFamily',
         conditions: [
           {
+            id: 'AXJMbIUHPAOIsUIE3eOi',
+            metric: 'new_security_hotspots_reviewed',
+            op: 'LT',
+            error: '85',
+            isCaycCondition: true,
+          },
+          {
             id: 'AXJMbIUHPAOIsUIE3eOu',
             metric: 'new_coverage',
             op: 'LT',
@@ -186,6 +193,17 @@ export class QualityGatesServiceMock {
         isDefault: false,
         isBuiltIn: false,
         caycStatus: CaycStatus.NonCompliant,
+      }),
+      mockQualityGate({
+        name: 'Non Cayc Compliant QG',
+        conditions: [
+          { id: 'AXJMbIUHPAOIsUIE3eNs', metric: 'new_security_rating', op: 'GT', error: '1' },
+          { id: 'AXJMbIUHPAOIsUIE3eOD', metric: 'new_reliability_rating', op: 'GT', error: '1' },
+          { id: 'AXJMbIUHPAOIsUIE3eOF', metric: 'new_coverage', op: 'LT', error: '80' },
+        ],
+        isDefault: false,
+        isBuiltIn: false,
+        caycStatus: CaycStatus.Compliant,
       }),
       mockQualityGate({
         name: 'Over Compliant CAYC QG',
