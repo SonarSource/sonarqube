@@ -65,14 +65,6 @@ public interface ServerFileSystem {
   File getInstalledBundledPluginsDir();
 
   /**
-   * The file listing all the installed plugins. Used by scanner only.
-   * @return an existing file
-   * @deprecated see {@link org.sonar.server.startup.GeneratePluginIndex}
-   */
-  @Deprecated
-  File getPluginIndex();
-
-  /**
    * Directory where plugins to be uninstalled are moved to.
    * @return a directory which may or not exist
    */

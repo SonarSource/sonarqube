@@ -39,14 +39,13 @@ import org.sonar.server.qualityprofile.builtin.BuiltInQualityProfilesUpdateListe
 import org.sonar.server.rule.AdvancedRuleDescriptionSectionsGenerator;
 import org.sonar.server.rule.LegacyHotspotRuleDescriptionSectionsGenerator;
 import org.sonar.server.rule.LegacyIssueRuleDescriptionSectionsGenerator;
+import org.sonar.server.rule.RuleDescriptionSectionsGeneratorResolver;
+import org.sonar.server.rule.WebServerRuleFinder;
 import org.sonar.server.rule.registration.NewRuleCreator;
 import org.sonar.server.rule.registration.QualityProfileChangesUpdater;
 import org.sonar.server.rule.registration.RulesKeyVerifier;
 import org.sonar.server.rule.registration.RulesRegistrant;
-import org.sonar.server.rule.RuleDescriptionSectionsGeneratorResolver;
-import org.sonar.server.rule.WebServerRuleFinder;
 import org.sonar.server.rule.registration.StartupRuleUpdater;
-import org.sonar.server.startup.GeneratePluginIndex;
 import org.sonar.server.startup.RegisterMetrics;
 import org.sonar.server.startup.RegisterPermissionTemplates;
 import org.sonar.server.startup.RegisterPlugins;
@@ -64,8 +63,7 @@ public class PlatformLevelStartup extends PlatformLevel {
 
   @Override
   protected void configureLevel() {
-    add(GeneratePluginIndex.class,
-      ServerLifecycleNotifier.class);
+    add(ServerLifecycleNotifier.class);
 
     addIfStartupLeader(
       IndexerStartupTask.class);

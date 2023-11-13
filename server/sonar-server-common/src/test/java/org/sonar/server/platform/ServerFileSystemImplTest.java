@@ -76,8 +76,6 @@ public class ServerFileSystemImplTest {
     assertThat(underTest.getInstalledBundledPluginsDir()).isEqualTo(new File(homeDir.getAbsolutePath() + "/lib/extensions"));
     assertThat(underTest.getInstalledExternalPluginsDir()).isEqualTo(new File(homeDir.getAbsolutePath() + "/extensions/plugins"));
 
-    assertThat(underTest.getPluginIndex()).isEqualTo(new File(dataDir.getAbsolutePath() + "/web/deploy/plugins/index.txt"));
-
     assertThat(underTest.getUninstalledPluginsDir()).isEqualTo(new File(tempDir.getAbsolutePath() + "/uninstalled-plugins"));
   }
 

@@ -22,10 +22,10 @@ package org.sonar.server.platform;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.Startable;
-import org.sonar.api.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.Startable;
+import org.sonar.api.config.Configuration;
 
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
@@ -86,11 +86,6 @@ public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.pla
   @Override
   public File getInstalledBundledPluginsDir() {
     return new File(getHomeDir(), "lib/extensions");
-  }
-
-  @Override
-  public File getPluginIndex() {
-    return new File(deployDir, "plugins/index.txt");
   }
 
   @Override

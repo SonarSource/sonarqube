@@ -135,11 +135,6 @@ public class CePluginJarExploderTest {
     }
 
     @Override
-    public File getPluginIndex() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public File getUninstalledPluginsDir() {
       throw new UnsupportedOperationException();
     }
