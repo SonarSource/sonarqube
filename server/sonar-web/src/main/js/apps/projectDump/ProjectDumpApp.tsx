@@ -17,6 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import {
+  BasicSeparator,
+  LargeCenteredLayout,
+  PageContentFontWrapper,
+  Spinner,
+  Title,
+} from 'design-system';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getActivity } from '../../api/ce';
@@ -158,42 +165,41 @@ export class ProjectDumpApp extends React.Component<Props, State> {
     const { lastAnalysisTask, lastExportTask, lastImportTask, status } = this.state;
 
     return (
-      <div className="page page-limited" id="project-dump">
-        <Helmet defer={false} title={translate('project_dump.page')} />
-        <header className="page-header">
-          <h1 className="page-title">{translate('project_dump.page')}</h1>
-          <div className="page-description">
-            {projectImportFeatureEnabled
-              ? translate('project_dump.page.description')
-              : translate('project_dump.page.description_without_import')}
-          </div>
-        </header>
+      <LargeCenteredLayout id="project-dump">
+        <PageContentFontWrapper className="sw-my-8 sw-body-sm">
+          <header className="sw-mb-5">
+            <Helmet defer={false} title={translate('project_dump.page')} />
+            <Title className="sw-mb-4">{translate('project_dump.page')}</Title>
+            <p>
+              {projectImportFeatureEnabled
+                ? translate('project_dump.page.description')
+                : translate('project_dump.page.description_without_import')}
+            </p>
+          </header>
 
-        {status === undefined ? (
-          <i className="spinner" />
-        ) : (
-          <div className="columns">
-            <div className="column-half">
-              <Export
-                componentKey={component.key}
-                loadStatus={this.poll}
-                status={status}
-                task={lastExportTask}
-              />
-            </div>
-            <div className="column-half">
-              <Import
-                importEnabled={!!projectImportFeatureEnabled}
-                analysis={lastAnalysisTask}
-                componentKey={component.key}
-                loadStatus={this.poll}
-                status={status}
-                task={lastImportTask}
-              />
-            </div>
-          </div>
-        )}
-      </div>
+          <Spinner loading={status === undefined}>
+            {status && (
+              <>
+                <Export
+                  componentKey={component.key}
+                  loadStatus={this.poll}
+                  status={status}
+                  task={lastExportTask}
+                />
+                <BasicSeparator className="sw-my-8" />
+                <Import
+                  importEnabled={!!projectImportFeatureEnabled}
+                  analysis={lastAnalysisTask}
+                  componentKey={component.key}
+                  loadStatus={this.poll}
+                  status={status}
+                  task={lastImportTask}
+                />
+              </>
+            )}
+          </Spinner>
+        </PageContentFontWrapper>
+      </LargeCenteredLayout>
     );
   }
 }

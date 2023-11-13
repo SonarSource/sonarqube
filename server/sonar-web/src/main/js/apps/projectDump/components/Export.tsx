@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonSecondary, FlagMessage, Link, Spinner } from 'design-system';
 import * as React from 'react';
 import { doExport } from '../../../api/project-dump';
-import Link from '../../../components/common/Link';
-import { Button } from '../../../components/controls/buttons';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { DumpStatus, DumpTask } from '../../../types/project-dump';
 
@@ -34,57 +32,57 @@ interface Props {
   task?: DumpTask;
 }
 
-export default class Export extends React.Component<Props> {
-  handleExport = () => {
-    doExport(this.props.componentKey).then(this.props.loadStatus, () => {
+export default function Export(props: Readonly<Props>) {
+  const handleExport = async () => {
+    try {
+      await doExport(props.componentKey);
+      props.loadStatus();
+    } catch (error) {
       /* no catch needed */
-    });
+    }
   };
 
-  renderHeader() {
+  function renderHeader() {
     return (
-      <div className="boxed-group-header">
-        <h2>{translate('project_dump.export')}</h2>
+      <div className="sw-mb-4">
+        <span className="sw-heading-md">{translate('project_dump.export')}</span>
       </div>
     );
   }
 
-  renderWhenCanNotExport() {
+  function renderWhenCanNotExport() {
     return (
-      <div className="boxed-group" id="project-export">
-        {this.renderHeader()}
-        <div className="boxed-group-inner">
-          <Alert id="export-not-possible" variant="warning">
-            {translate('project_dump.can_not_export')}
-          </Alert>
-        </div>
-      </div>
+      <>
+        {renderHeader()}
+        <FlagMessage className="sw-mb-4" variant="warning">
+          {translate('project_dump.can_not_export')}
+        </FlagMessage>
+      </>
     );
   }
 
-  renderWhenExportPending(task: DumpTask) {
+  function renderWhenExportPending(task: DumpTask) {
     return (
-      <div className="boxed-group" id="project-export">
-        {this.renderHeader()}
-        <div className="boxed-group-inner" id="export-pending">
-          <i className="spinner spacer-right" />
+      <>
+        {renderHeader()}
+        <div>
+          <Spinner />
           <DateTimeFormatter date={task.submittedAt}>
             {(formatted) => (
               <span>{translateWithParameters('project_dump.pending_export', formatted)}</span>
             )}
           </DateTimeFormatter>
         </div>
-      </div>
+      </>
     );
   }
 
-  renderWhenExportInProgress(task: DumpTask) {
+  function renderWhenExportInProgress(task: DumpTask) {
     return (
-      <div className="boxed-group" id="project-export">
-        {this.renderHeader()}
-
-        <div className="boxed-group-inner" id="export-in-progress">
-          <i className="spinner spacer-right" />
+      <>
+        {renderHeader()}
+        <div>
+          <Spinner />
           {task.startedAt && (
             <DateFromNow date={task.startedAt}>
               {(fromNow) => (
@@ -93,96 +91,100 @@ export default class Export extends React.Component<Props> {
             </DateFromNow>
           )}
         </div>
-      </div>
+      </>
     );
   }
 
-  renderWhenExportFailed() {
-    const { componentKey } = this.props;
+  function renderWhenExportFailed() {
+    const { componentKey } = props;
     const detailsUrl = `/project/background_tasks?id=${encodeURIComponent(
       componentKey,
     )}&status=FAILED&taskType=PROJECT_EXPORT`;
 
     return (
-      <div className="boxed-group" id="project-export">
-        {this.renderHeader()}
-
-        <div className="boxed-group-inner">
-          <Alert id="export-in-progress" variant="error">
+      <>
+        {renderHeader()}
+        <div>
+          <FlagMessage className="sw-mb-4" variant="error">
             {translate('project_dump.failed_export')}
-            <Link className="spacer-left" to={detailsUrl}>
+            <Link className="sw-ml-1" to={detailsUrl}>
               {translate('project_dump.see_details')}
             </Link>
-          </Alert>
+          </FlagMessage>
 
-          {this.renderExport()}
+          {renderExport()}
         </div>
-      </div>
+      </>
     );
   }
 
-  renderDump(task?: DumpTask) {
-    const { status } = this.props;
+  function renderDump(task?: DumpTask) {
+    const { status } = props;
 
     return (
-      <Alert className="export-dump" variant="success">
-        {task && task.executedAt && (
-          <DateTimeFormatter date={task.executedAt}>
-            {(formatted) => (
-              <div className="export-dump-message">
-                {translateWithParameters('project_dump.latest_export_available', formatted)}
-              </div>
-            )}
-          </DateTimeFormatter>
-        )}
-        {!task && (
-          <div className="export-dump-message">{translate('project_dump.export_available')}</div>
-        )}
-        <div className="export-dump-path">
-          <code tabIndex={0}>{status.exportedDump}</code>
+      <FlagMessage className="sw-mb-4" variant="success">
+        <div>
+          {task && task.executedAt && (
+            <DateTimeFormatter date={task.executedAt}>
+              {(formatted) => (
+                <div>
+                  {translateWithParameters('project_dump.latest_export_available', formatted)}
+                </div>
+              )}
+            </DateTimeFormatter>
+          )}
+          <div>
+            {!task && <div>{translate('project_dump.export_available')}</div>}
+
+            <code tabIndex={0}>{status.exportedDump}</code>
+          </div>
         </div>
-      </Alert>
+      </FlagMessage>
     );
   }
 
-  renderExport() {
+  function renderExport() {
     return (
+      <>
+        <div>{translate('project_dump.export_form_description')}</div>
+        <ButtonSecondary
+          aria-label={translate('project_dump.do_export')}
+          className="sw-mt-4"
+          onClick={handleExport}
+        >
+          {translate('project_dump.do_export')}
+        </ButtonSecondary>
+      </>
+    );
+  }
+
+  const { task, status } = props;
+
+  if (!status.canBeExported) {
+    return renderWhenCanNotExport();
+  }
+
+  if (task && task.status === 'PENDING') {
+    return renderWhenExportPending(task);
+  }
+
+  if (task && task.status === 'IN_PROGRESS') {
+    return renderWhenExportInProgress(task);
+  }
+
+  if (task && task.status === 'FAILED') {
+    return renderWhenExportFailed();
+  }
+
+  const isDumpAvailable = Boolean(status.exportedDump);
+
+  return (
+    <>
+      {renderHeader()}
       <div>
-        <div className="spacer-bottom">{translate('project_dump.export_form_description')}</div>
-        <Button onClick={this.handleExport}>{translate('project_dump.do_export')}</Button>
+        {isDumpAvailable && renderDump(task)}
+        {renderExport()}
       </div>
-    );
-  }
-
-  render() {
-    const { status, task } = this.props;
-
-    if (!status.canBeExported) {
-      return this.renderWhenCanNotExport();
-    }
-
-    if (task && task.status === 'PENDING') {
-      return this.renderWhenExportPending(task);
-    }
-
-    if (task && task.status === 'IN_PROGRESS') {
-      return this.renderWhenExportInProgress(task);
-    }
-
-    if (task && task.status === 'FAILED') {
-      return this.renderWhenExportFailed();
-    }
-
-    const isDumpAvailable = Boolean(status.exportedDump);
-
-    return (
-      <div className="boxed-group" id="project-export">
-        {this.renderHeader()}
-        <div className="boxed-group-inner">
-          {isDumpAvailable && this.renderDump(task)}
-          {this.renderExport()}
-        </div>
-      </div>
-    );
-  }
+    </>
+  );
 }

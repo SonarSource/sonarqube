@@ -17,14 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
+import { ButtonSecondary, FlagMessage, Link, Spinner } from 'design-system';
 import * as React from 'react';
 import { doImport } from '../../../api/project-dump';
-import Link from '../../../components/common/Link';
-import { Button } from '../../../components/controls/buttons';
 import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
-import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getComponentBackgroundTaskUrl } from '../../../helpers/urls';
 import { DumpStatus, DumpTask } from '../../../types/project-dump';
@@ -39,73 +36,71 @@ interface Props {
   task?: DumpTask;
 }
 
-export default class Import extends React.Component<Props> {
-  handleImport = () => {
-    doImport(this.props.componentKey).then(this.props.loadStatus, () => {
+export default function Import(props: Readonly<Props>) {
+  const handleImport = () => {
+    doImport(props.componentKey).then(props.loadStatus, () => {
       /* no catch needed */
     });
   };
 
-  renderWhenCanNotImport() {
+  function renderWhenCanNotImport() {
+    return <span>{translate('project_dump.can_not_import')}</span>;
+  }
+
+  function renderWhenNoDump() {
     return (
-      <div className="boxed-group-inner" id="import-not-possible">
-        {translate('project_dump.can_not_import')}
-      </div>
+      <FlagMessage variant="warning">{translate('project_dump.no_file_to_import')}</FlagMessage>
     );
   }
 
-  renderWhenNoDump() {
+  function renderImportForm() {
     return (
-      <div className="boxed-group-inner">
-        <Alert id="import-no-file" variant="warning">
-          {translate('project_dump.no_file_to_import')}
-        </Alert>
-      </div>
+      <>
+        <div className="sw-mt-4">{translate('project_dump.import_form_description')}</div>
+        <ButtonSecondary
+          aria-label={translate('project_dump.do_import')}
+          className="sw-mt-4"
+          onClick={handleImport}
+        >
+          {translate('project_dump.do_import')}
+        </ButtonSecondary>
+      </>
     );
   }
 
-  renderImportForm() {
+  function renderWhenImportSuccess(task: DumpTask) {
     return (
-      <div>
-        <div className="spacer-bottom">{translate('project_dump.import_form_description')}</div>
-        <Button onClick={this.handleImport}>{translate('project_dump.do_import')}</Button>
-      </div>
-    );
-  }
-
-  renderWhenImportSuccess(task: DumpTask) {
-    return (
-      <div className="boxed-group-inner">
+      <>
         {task.executedAt && (
           <DateTimeFormatter date={task.executedAt}>
             {(formatted) => (
-              <Alert variant="success">
+              <FlagMessage variant="success">
                 {translateWithParameters('project_dump.import_success', formatted)}
-              </Alert>
+              </FlagMessage>
             )}
           </DateTimeFormatter>
         )}
-      </div>
+      </>
     );
   }
 
-  renderWhenImportPending(task: DumpTask) {
+  function renderWhenImportPending(task: DumpTask) {
     return (
-      <div className="boxed-group-inner" id="import-pending">
-        <i className="spinner spacer-right" />
+      <>
+        <Spinner />
         <DateTimeFormatter date={task.submittedAt}>
           {(formatted) => (
             <span>{translateWithParameters('project_dump.pending_import', formatted)}</span>
           )}
         </DateTimeFormatter>
-      </div>
+      </>
     );
   }
 
-  renderWhenImportInProgress(task: DumpTask) {
+  function renderWhenImportInProgress(task: DumpTask) {
     return (
-      <div className="boxed-group-inner" id="import-in-progress">
-        <i className="spinner spacer-right" />
+      <>
+        <Spinner />
         {task.startedAt && (
           <DateFromNow date={task.startedAt}>
             {(fromNow) => (
@@ -113,12 +108,12 @@ export default class Import extends React.Component<Props> {
             )}
           </DateFromNow>
         )}
-      </div>
+      </>
     );
   }
 
-  renderWhenImportFailed() {
-    const { componentKey } = this.props;
+  function renderWhenImportFailed() {
+    const { componentKey } = props;
     const detailsUrl = getComponentBackgroundTaskUrl(
       componentKey,
       TaskStatuses.Failed,
@@ -126,56 +121,55 @@ export default class Import extends React.Component<Props> {
     );
 
     return (
-      <div className="boxed-group-inner">
-        <Alert id="export-in-progress" variant="error">
+      <div>
+        <FlagMessage variant="error">
           {translate('project_dump.failed_import')}
-          <Link className="spacer-left" to={detailsUrl}>
+          <Link className="sw-ml-1" to={detailsUrl}>
             {translate('project_dump.see_details')}
           </Link>
-        </Alert>
+        </FlagMessage>
 
-        {this.renderImportForm()}
+        {renderImportForm()}
       </div>
     );
   }
 
-  render() {
-    const { importEnabled, status, task, analysis } = this.props;
+  const { importEnabled, status, task, analysis } = props;
 
-    let content: React.ReactNode = null;
-    if (task && task.status === TaskStatuses.Success && !analysis) {
-      content = this.renderWhenImportSuccess(task);
-    } else if (task && task.status === TaskStatuses.Pending) {
-      content = this.renderWhenImportPending(task);
-    } else if (task && task.status === TaskStatuses.InProgress) {
-      content = this.renderWhenImportInProgress(task);
-    } else if (task && task.status === TaskStatuses.Failed) {
-      content = this.renderWhenImportFailed();
-    } else if (!status.canBeImported) {
-      content = this.renderWhenCanNotImport();
-    } else if (!status.dumpToImport) {
-      content = this.renderWhenNoDump();
-    } else {
-      content = <div className="boxed-group-inner">{this.renderImportForm()}</div>;
+  function renderContent(): React.ReactNode {
+    switch (task?.status) {
+      case TaskStatuses.Success:
+        if (!analysis) {
+          return renderWhenImportSuccess(task);
+        }
+        break;
+      case TaskStatuses.Pending:
+        return renderWhenImportPending(task);
+      case TaskStatuses.InProgress:
+        return renderWhenImportInProgress(task);
+      case TaskStatuses.Failed:
+        return renderWhenImportFailed();
+      default:
+        if (!status.canBeImported) {
+          return renderWhenCanNotImport();
+        } else if (!status.dumpToImport) {
+          return renderWhenNoDump();
+        }
+        return <div>{renderImportForm()}</div>;
     }
-    return (
-      <div
-        className={classNames('boxed-group', {
-          'import-disabled text-muted': !importEnabled,
-        })}
-        id="project-import"
-      >
-        <div className="boxed-group-header">
-          <h2>{translate('project_dump.import')}</h2>
-        </div>
-        {importEnabled ? (
-          content
-        ) : (
-          <div className="boxed-group-inner">
-            {translate('project_dump.import_form_description_disabled')}
-          </div>
-        )}
-      </div>
-    );
   }
+
+  return (
+    <>
+      <div className="sw-my-4">
+        <span className="sw-heading-md">{translate('project_dump.import')}</span>
+      </div>
+
+      {importEnabled ? (
+        renderContent()
+      ) : (
+        <div>{translate('project_dump.import_form_description_disabled')}</div>
+      )}
+    </>
+  );
 }
