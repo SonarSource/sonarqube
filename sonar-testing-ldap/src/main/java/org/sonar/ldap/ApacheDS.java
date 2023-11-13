@@ -186,7 +186,7 @@ public final class ApacheDS {
     mechanismHandlerMap.put(SupportedSaslMechanisms.GSSAPI, new GssapiMechanismHandler());
     ldapServer.setSaslMechanismHandlers(mechanismHandlerMap);
 
-    ldapServer.setSaslHost("localhost");
+    ldapServer.setSaslHost(HOSTNAME_LOCALHOST);
     ldapServer.setSaslRealms(Collections.singletonList(realm));
     // TODO ldapServer.setSaslPrincipal();
     // The base DN containing users that can be SASL authenticated.
