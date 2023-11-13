@@ -18,17 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import withAppStateContext from '../../../app/components/app-state/withAppStateContext';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
-import {
-  GRID_INDEX_OFFSET,
-  PERCENT_MULTIPLIER,
-  getMaintainabilityGrid,
-} from '../../../helpers/ratings';
-import { AppState } from '../../../types/appstate';
-import { MetricKey, MetricType } from '../../../types/metrics';
-import { GlobalSettingKeys } from '../../../types/settings';
+import { MetricKey } from '../../../types/metrics';
 import { Condition, Metric } from '../../../types/types';
 import { GreenColorText } from './ConditionValue';
 
@@ -37,50 +29,22 @@ const NO_DESCRIPTION_CONDITION = [
   MetricKey.new_security_hotspots_reviewed,
   MetricKey.new_coverage,
   MetricKey.new_duplicated_lines_density,
+  MetricKey.new_reliability_rating,
+  MetricKey.new_security_rating,
+  MetricKey.new_maintainability_rating,
 ];
 
 interface Props {
-  appState: AppState;
   condition: Condition;
   metric: Metric;
   isToBeModified?: boolean;
 }
 
-function ConditionValueDescription({
+export default function ConditionValueDescription({
   condition,
-  appState: { settings },
   metric,
   isToBeModified = false,
 }: Readonly<Props>) {
-  if (condition.metric === MetricKey.new_maintainability_rating) {
-    const maintainabilityGrid = getMaintainabilityGrid(
-      settings[GlobalSettingKeys.RatingGrid] ?? '',
-    );
-    const maintainabilityRatingThreshold =
-      maintainabilityGrid[Math.floor(Number(condition.error)) - GRID_INDEX_OFFSET];
-    const ratingLetter = formatMeasure(condition.error, MetricType.Rating);
-
-    return (
-      <GreenColorText isToBeModified={isToBeModified}>
-        (
-        {condition.error === '1'
-          ? translateWithParameters(
-              'quality_gates.cayc.new_maintainability_rating.A',
-              formatMeasure(maintainabilityGrid[0] * PERCENT_MULTIPLIER, MetricType.Percent),
-            )
-          : translateWithParameters(
-              'quality_gates.cayc.new_maintainability_rating',
-              ratingLetter,
-              formatMeasure(
-                maintainabilityRatingThreshold * PERCENT_MULTIPLIER,
-                MetricType.Percent,
-              ),
-            )}
-        )
-      </GreenColorText>
-    );
-  }
-
   return (
     <GreenColorText isToBeModified={isToBeModified}>
       {condition.isCaycCondition &&
@@ -99,5 +63,3 @@ function ConditionValueDescription({
     </GreenColorText>
   );
 }
-
-export default withAppStateContext(ConditionValueDescription);

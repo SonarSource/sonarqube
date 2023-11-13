@@ -379,11 +379,63 @@ it('should show warning banner when CAYC condition is not properly set and shoul
   expect(overallConditionsWrapper.getByText('Complexity / Function')).toBeInTheDocument();
 });
 
+it('should show optimize banner when CAYC condition is not properly set and QG is compliant and should be able to update them', async () => {
+  const user = userEvent.setup();
+  qualityGateHandler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  const qualityGate = await screen.findByText('Non Cayc Compliant QG');
+
+  await user.click(qualityGate);
+
+  expect(screen.getByText('quality_gates.cayc_optimize.banner.title')).toBeInTheDocument();
+  expect(screen.getByText('quality_gates.cayc_optimize.banner.description')).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'quality_gates.cayc_condition.review_optimize' }),
+  ).toBeInTheDocument();
+
+  await user.click(
+    screen.getByRole('button', { name: 'quality_gates.cayc_condition.review_optimize' }),
+  );
+  expect(
+    screen.getByRole('dialog', {
+      name: 'quality_gates.cayc.review_optimize_modal.header.Non Cayc Compliant QG',
+    }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText('quality_gates.cayc.review_optimize_modal.description1'),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText('quality_gates.cayc.review_update_modal.description2'),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'quality_gates.cayc.review_optimize_modal.confirm_text' }),
+  ).toBeInTheDocument();
+
+  await user.click(
+    screen.getByRole('button', { name: 'quality_gates.cayc.review_optimize_modal.confirm_text' }),
+  );
+});
+
 it('should not warn user when quality gate is not CAYC compliant and user has no permission to edit it', async () => {
   const user = userEvent.setup();
   renderQualityGateApp();
 
   const nonCompliantQualityGate = await screen.findByRole('button', { name: 'Non Cayc QG' });
+
+  await user.click(nonCompliantQualityGate);
+
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  expect(screen.queryByText('quality_gates.cayc.tooltip.message')).not.toBeInTheDocument();
+});
+
+it('should not show optimize banner when quality gate is compliant but non-CaYC and user has no permission to edit it', async () => {
+  const user = userEvent.setup();
+  renderQualityGateApp();
+
+  const nonCompliantQualityGate = await screen.findByRole('button', {
+    name: 'Non Cayc Compliant QG',
+  });
 
   await user.click(nonCompliantQualityGate);
 
@@ -399,8 +451,25 @@ it('should warn user when quality gate is not CAYC compliant and user has permis
   const nonCompliantQualityGate = await screen.findByRole('button', { name: /Non Cayc QG/ });
 
   await user.click(nonCompliantQualityGate);
+  // expect(screen.getByTestId('conditions')).toMatchSnapshot();
 
   expect(await screen.findByText(/quality_gates.cayc_missing.banner.title/)).toBeInTheDocument();
+  expect(screen.getAllByText('quality_gates.cayc.tooltip.message').length).toBeGreaterThan(0);
+});
+
+it('should show optimize banner when quality gate is compliant but non-CaYC and user has permission to edit it', async () => {
+  const user = userEvent.setup();
+  qualityGateHandler.setIsAdmin(true);
+  renderQualityGateApp();
+
+  const nonCompliantQualityGate = await screen.findByRole('button', {
+    name: /Non Cayc Compliant QG/,
+  });
+
+  await user.click(nonCompliantQualityGate);
+  // expect(screen.getByTestId('conditions')).toMatchSnapshot();
+
+  expect(await screen.findByText(/quality_gates.cayc_optimize.banner.title/)).toBeInTheDocument();
   expect(screen.getAllByText('quality_gates.cayc.tooltip.message').length).toBeGreaterThan(0);
 });
 

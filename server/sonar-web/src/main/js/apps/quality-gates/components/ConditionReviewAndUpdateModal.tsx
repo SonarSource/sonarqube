@@ -40,6 +40,7 @@ interface Props {
   onSaveCondition: (newCondition: Condition, oldCondition: Condition) => void;
   lockEditing: () => void;
   qualityGate: QualityGate;
+  isOptimizing?: boolean;
 }
 
 export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) {
@@ -51,6 +52,7 @@ export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) 
     onAddCondition,
     lockEditing,
     onClose,
+    isOptimizing,
   } = props;
 
   const { weakConditions, missingConditions } = getWeakMissingAndNonCaycConditions(conditions);
@@ -108,8 +110,11 @@ export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) 
     <div className="sw-mb-10">
       <SubHeading as="p" className="sw-body-sm">
         <FormattedMessage
-          id="quality_gates.cayc.review_update_modal.description1"
-          defaultMessage={translate('quality_gates.cayc.review_update_modal.description1')}
+          id={
+            isOptimizing
+              ? 'quality_gates.cayc.review_optimize_modal.description1'
+              : 'quality_gates.cayc.review_update_modal.description1'
+          }
           values={{
             cayc_link: (
               <Link to={getDocUrl('/user-guide/clean-as-you-code/')}>
@@ -164,7 +169,9 @@ export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) 
     <Modal
       isLarge
       headerTitle={translateWithParameters(
-        'quality_gates.cayc.review_update_modal.header',
+        isOptimizing
+          ? 'quality_gates.cayc.review_optimize_modal.header'
+          : 'quality_gates.cayc.review_update_modal.header',
         qualityGate.name,
       )}
       onClose={onClose}
@@ -176,7 +183,11 @@ export default function CaycReviewUpdateConditionsModal(props: Readonly<Props>) 
           type="submit"
           onClick={updateCaycQualityGate}
         >
-          {translate('quality_gates.cayc.review_update_modal.confirm_text')}
+          {translate(
+            isOptimizing
+              ? 'quality_gates.cayc.review_optimize_modal.confirm_text'
+              : 'quality_gates.cayc.review_update_modal.confirm_text',
+          )}
         </ButtonPrimary>
       }
       secondaryButtonLabel={translate('close')}

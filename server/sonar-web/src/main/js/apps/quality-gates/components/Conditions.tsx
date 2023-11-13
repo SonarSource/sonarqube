@@ -19,9 +19,7 @@
  */
 
 import {
-  ButtonPrimary,
   ButtonSecondary,
-  CardWithPrimaryBackground,
   FlagMessage,
   HeadingDark,
   HelperHintIcon,
@@ -29,7 +27,6 @@ import {
   Link,
   Note,
   SubHeading,
-  SubHeadingHighlight,
 } from 'design-system';
 import { differenceWith, map, uniqBy } from 'lodash';
 import * as React from 'react';
@@ -51,10 +48,11 @@ import {
   Metric,
   QualityGate,
 } from '../../../types/types';
-import { CAYC_CONDITIONS, groupAndSortByPriorityConditions } from '../utils';
+import { groupAndSortByPriorityConditions, isQualityGateOptimized } from '../utils';
 import CaYCConditionsSimplificationGuide from './CaYCConditionsSimplificationGuide';
-import CaycConditionsListItem from './CaycConditionsListItem';
+import CaycCompliantBanner from './CaycCompliantBanner';
 import CaycConditionsTable from './CaycConditionsTable';
+import CaycFixOptimizeBanner from './CaycFixOptimizeBanner';
 import ConditionModal from './ConditionModal';
 import CaycReviewUpdateConditionsModal from './ConditionReviewAndUpdateModal';
 import ConditionsTable from './ConditionsTable';
@@ -76,7 +74,7 @@ const FORBIDDEN_METRICS: string[] = [
   MetricKey.new_security_hotspots,
 ];
 
-export function Conditions({
+function Conditions({
   qualityGate,
   metrics,
   onRemoveCondition,
@@ -108,8 +106,6 @@ export function Conditions({
     ...condition,
     metric: metrics[condition.metric],
   }));
-
-  const getDocUrl = useDocUrl();
 
   // set edit only when the name is change
   // i.e when user changes the quality gate
@@ -143,6 +139,11 @@ export function Conditions({
     [metrics, qualityGate, onAddCondition],
   );
 
+  const getDocUrl = useDocUrl();
+  const isCompliantCustomQualityGate =
+    qualityGate.caycStatus !== CaycStatus.NonCompliant && !qualityGate.isBuiltIn;
+  const isOptimizing = isCompliantCustomQualityGate && !isQualityGateOptimized(qualityGate);
+
   const renderCaycModal = React.useCallback(
     ({ onClose }: ModalProps) => {
       const { conditions = [] } = qualityGate;
@@ -160,71 +161,31 @@ export function Conditions({
           conditions={conditions}
           scope="new-cayc"
           onClose={onClose}
+          isOptimizing={isOptimizing}
         />
       );
     },
-    [qualityGate, metrics, updatedConditionId, onAddCondition, onRemoveCondition, onSaveCondition],
+    [
+      qualityGate,
+      metrics,
+      updatedConditionId,
+      onAddCondition,
+      onRemoveCondition,
+      onSaveCondition,
+      isOptimizing,
+    ],
   );
 
   return (
     <div>
       <CaYCConditionsSimplificationGuide />
 
-      {qualityGate.caycStatus !== CaycStatus.NonCompliant && !qualityGate.isBuiltIn && (
-        <CardWithPrimaryBackground className="sw-mb-9 sw-p-8">
-          <SubHeadingHighlight className="sw-mb-2">
-            {translate('quality_gates.cayc.banner.title')}
-          </SubHeadingHighlight>
-
-          <div>
-            <FormattedMessage
-              id="quality_gates.cayc.banner.description1"
-              defaultMessage={translate('quality_gates.cayc.banner.description1')}
-              values={{
-                cayc_link: (
-                  <Link to={getDocUrl('/user-guide/clean-as-you-code/')}>
-                    {translate('quality_gates.cayc')}
-                  </Link>
-                ),
-              }}
-            />
-          </div>
-          <div className="sw-my-2">{translate('quality_gates.cayc.banner.description2')}</div>
-          <ul className="sw-body-sm sw-flex sw-flex-col sw-gap-2">
-            {Object.values(CAYC_CONDITIONS).map((condition) => (
-              <CaycConditionsListItem key={condition.metric} metricKey={condition.metric} />
-            ))}
-          </ul>
-        </CardWithPrimaryBackground>
+      {isCompliantCustomQualityGate && !isOptimizing && <CaycCompliantBanner />}
+      {isCompliantCustomQualityGate && isOptimizing && canEdit && (
+        <CaycFixOptimizeBanner renderCaycModal={renderCaycModal} isOptimizing />
       )}
       {qualityGate.caycStatus === CaycStatus.NonCompliant && canEdit && (
-        <CardWithPrimaryBackground className="sw-mb-9 sw-p-8">
-          <SubHeadingHighlight className="sw-mb-2">
-            {translate('quality_gates.cayc_missing.banner.title')}
-          </SubHeadingHighlight>
-          <div>
-            <FormattedMessage
-              id="quality_gates.cayc_missing.banner.description"
-              defaultMessage={translate('quality_gates.cayc_missing.banner.description')}
-              values={{
-                cayc_link: (
-                  <Link to={getDocUrl('/user-guide/clean-as-you-code/')}>
-                    {translate('quality_gates.cayc')}
-                  </Link>
-                ),
-              }}
-            />
-          </div>
-          {canEdit && (
-            <ModalButton modal={renderCaycModal}>
-              {({ onClick }) => (
-                <ButtonPrimary className="sw-mt-4" onClick={onClick}>
-                  {translate('quality_gates.cayc_condition.review_update')}
-                </ButtonPrimary>
-              )}
-            </ModalButton>
-          )}
-        </CardWithPrimaryBackground>
+        <CaycFixOptimizeBanner renderCaycModal={renderCaycModal} />
       )}
 
       <header className="sw-flex sw-items-center sw-mb-4 sw-justify-between">
