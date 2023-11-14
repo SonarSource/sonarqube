@@ -26,10 +26,28 @@ env:
   BRANCH_NIGHTLY: "branch-nightly-build"
   BRANCH_PATTERN_MAINTENANCE: "branch-.*"
   BRANCH_PATTERN_PUBLIC: "public_.*"
+  CRON_DATABASE_JOB_NAME: "master-weekly"
   GRADLE_ENTERPRISE_USERNAME: VAULT[development/team/sonarqube/kv/data/gradle-enterprise data.username]
   GRADLE_ENTERPRISE_PASSWORD: VAULT[development/team/sonarqube/kv/data/gradle-enterprise data.password]
   GRADLE_ENTERPRISE_URL: VAULT[development/team/sonarqube/kv/data/gradle-enterprise data.url]
   GRADLE_ENTERPRISE_KEY: VAULT[development/team/sonarqube/kv/data/gradle-enterprise data.access-key]
+
+bitbucket_cloud_environment_template: &BITBUCKET_CLOUD_ENVIRONMENT_VARIABLES
+  BBC_CLIENT_ID: VAULT[development/team/sonarqube/kv/data/bitbucket-cloud data.client_id]
+  BBC_CLIENT_SECRET: VAULT[development/team/sonarqube/kv/data/bitbucket-cloud data.client_secret]
+  BBC_USERNAME: VAULT[development/kv/data/bitbucket/sonarqube-its data.username]
+  BBC_READ_REPOS_APP_PASSWORD: VAULT[development/kv/data/bitbucket/sonarqube-its data.password]
+
+gitlab_cloud_environment_template: &GITLAB_CLOUD_ENVIRONMENT_VARIABLES
+  GITLAB_API_TOKEN: VAULT[development/team/sonarqube/kv/data/gitlab-cloud data.api_token]
+  GITLAB_READ_ONLY_TOKEN: VAULT[development/team/sonarqube/kv/data/gitlab-cloud data.api_token_ro]
+  GITLAB_ADMIN_USERNAME: VAULT[development/team/sonarqube/kv/data/gitlab-cloud data.username]
+  GITLAB_ADMIN_PASSWORD: VAULT[development/team/sonarqube/kv/data/gitlab-cloud data.password]
+
+azure_cloud_environment_template: &AZURE_CLOUD_ENVIRONMENT_VARIABLES
+  AZURE_USERNAME_LOGIN: VAULT[development/team/sonarqube/kv/data/azure-instance data.username]
+  AZURE_CODE_READ_AND_WRITE_TOKEN: VAULT[development/team/sonarqube/kv/data/azure-instance data.token_code_read_write]
+  AZURE_FULL_ACCESS_TOKEN: VAULT[development/team/sonarqube/kv/data/azure-instance data.token_full_access]
 
 auto_cancellation: $CIRRUS_BRANCH != $BRANCH_MAIN && $CIRRUS_BRANCH !=~ $BRANCH_PATTERN_MAINTENANCE
 
@@ -52,6 +70,9 @@ master_or_nightly_or_maintenance_task_template:
 
 except_nightly_task_template: &EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
   only_if: $CIRRUS_BRANCH != $BRANCH_NIGHTLY
+
+except_weekly_task_template: &EXCEPT_ON_WEEKLY_TASK_TEMPLATE
+  only_if: $CIRRUS_CRON != $CRON_DATABASE_JOB_NAME
 
 database_related_task_template: &DATABASE_RELATED_TASK_TEMPLATE
   only_if: >-
@@ -135,6 +156,17 @@ t2xlarge_node_selector: &T2XLARGE_NODE_SELECTOR
           operator: In
           values: t2.xlarge
 
+mssql_additional_container_template: &MSSQL_ADDITIONAL_CONTAINER_TEMPLATE
+  name: mssql
+  image: mcr.microsoft.com/mssql/server:2022-latest
+  port: 1433
+  cpu: 2
+  memory: 5Gb
+  env:
+    MSSQL_PID: Developer # this is the default edition
+    ACCEPT_EULA: Y
+    SA_PASSWORD: sonarqube!1
+
 oracle_additional_container_template: &ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
   name: oracle
   image: gvenzl/oracle-xe:21-faststart
@@ -155,6 +187,45 @@ postgres_additional_container_template: &POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   env:
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
+
+gitlab_container_template: &GITLAB_CONTAINER_TEMPLATE
+  name: gitlab
+  ports:
+    - 80
+    - 443
+  cpu: 2
+  memory: 8Gb
+  image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/gitlab:${GITLAB_VERSION}
+  env:
+    - GITLAB_POST_RECONFIGURE_SCRIPT: |-
+        { cat >/tmp/setup.rb <<-'EOF'
+          token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'token');
+          token.set_token('token-here-456');
+          token.expires_at = Date.today+10.day
+          token.save!;
+          token_read = User.find_by_username('root').personal_access_tokens.create(scopes: [:read_user], name: 'token_read');
+          token_read.set_token('token-read-123');
+          token_read.expires_at = Date.today+10.day
+          token_read.save!;
+          user = User.find_by_username('root');
+          user.password = 'eng-YTU1ydh6kyt7tjd';
+          user.password_confirmation = 'eng-YTU1ydh6kyt7tjd';
+          user.save!;
+        EOF
+        } && gitlab-rails runner /tmp/setup.rb && \
+        echo 'from_file "/etc/gitlab/external_gitlab.rb"' >> /etc/gitlab/gitlab.rb && \
+        gitlab-ctl reconfigure
+
+keycloak_container_template: &KEYCLOAK_CONTAINER_TEMPLATE
+  name: keycloak
+  image: quay.io/keycloak/keycloak:22.0.5
+  port: 8080
+  cpu: 1
+  memory: 1Gb
+  command: "/opt/keycloak/bin/kc.sh start-dev --http-relative-path /auth"
+  env:
+    KEYCLOAK_ADMIN: admin
+    KEYCLOAK_ADMIN_PASSWORD: admin
 
 default_artifact_template: &DEFAULT_ARTIFACTS_TEMPLATE
   on_failure:
@@ -264,6 +335,7 @@ publish_task:
   <<: *DEFAULT_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 4
@@ -281,6 +353,7 @@ yarn_lint_task:
   <<: *YARN_CACHE_TEMPLATE
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
   <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
+  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 3
@@ -294,6 +367,7 @@ yarn_check_task:
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *YARN_CACHE_TEMPLATE
   <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
+  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 3
@@ -309,6 +383,7 @@ yarn_validate_task:
   <<: *YARN_CACHE_TEMPLATE
   <<: *JEST_REPORT_CACHE_TEMPLATE
   <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
+  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 7.5
@@ -322,6 +397,7 @@ junit_task:
   <<: *GRADLE_CACHE_TEMPLATE
   <<: *JUNIT_REPORT_CACHE_TEMPLATE
   <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
+  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
   eks_container:
     <<: *CONTAINER_TEMPLATE
     cpu: 7.5
@@ -338,6 +414,7 @@ sq_analysis_task:
   <<: *JEST_REPORT_CACHE_TEMPLATE
   <<: *ESLINT_REPORT_CACHE_TEMPLATE
   <<: *JUNIT_REPORT_CACHE_TEMPLATE
+  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
   depends_on:
     - yarn_validate
     - yarn_lint
@@ -348,54 +425,6 @@ sq_analysis_task:
     memory: 15Gb
   script:
     - ./private/cirrus/cirrus-sq-analysis.sh
-  <<: *DEFAULT_ARTIFACTS_TEMPLATE
-
-qa_task:
-  <<: *DEFAULT_TEMPLATE
-  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
-  <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
-  <<: *GRADLE_CACHE_TEMPLATE
-  <<: *JAR_CACHE_TEMPLATE
-  eks_container:
-    <<: *CONTAINER_TEMPLATE
-    cpu: 3
-    memory: 7Gb
-    additional_containers:
-      - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
-  name: QA $QA_CATEGORY
-  alias: qa
-  env:
-    matrix:
-      # QA name should not exceed 13 characters to be properly reported on wallboard by burgr
-      # QA name cannot contain "_"
-      - QA_CATEGORY: Cat1
-      - QA_CATEGORY: Cat2
-      - QA_CATEGORY: Cat3
-      - QA_CATEGORY: Cat4
-      - QA_CATEGORY: Cat5
-      - QA_CATEGORY: Cat6
-      - QA_CATEGORY: Analysis
-      - QA_CATEGORY: Authorization
-      - QA_CATEGORY: Auth
-      - QA_CATEGORY: Branch1
-      - QA_CATEGORY: Branch2
-      - QA_CATEGORY: CE1
-      - QA_CATEGORY: CE2
-      - QA_CATEGORY: ComputeEngine
-      - QA_CATEGORY: DE1
-      - QA_CATEGORY: DE2
-      - QA_CATEGORY: EE1
-      - QA_CATEGORY: EE2
-      - QA_CATEGORY: Issues1
-      - QA_CATEGORY: Issues2
-      - QA_CATEGORY: License1
-      - QA_CATEGORY: License2
-      - QA_CATEGORY: Plugins
-      - QA_CATEGORY: Project
-      - QA_CATEGORY: QP
-      - QA_CATEGORY: Upgrade
-  script:
-    - ./private/cirrus/cirrus-qa.sh postgres
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
 
 task: #bitbucket
@@ -436,10 +465,7 @@ qa_bb_cloud_task:
     memory: 7Gb
   env:
     QA_CATEGORY: BITBUCKET_CLOUD
-    BBC_CLIENT_ID: VAULT[development/team/sonarqube/kv/data/bitbucket-cloud data.client_id]
-    BBC_CLIENT_SECRET: VAULT[development/team/sonarqube/kv/data/bitbucket-cloud data.client_secret]
-    BBC_USERNAME: VAULT[development/kv/data/bitbucket/sonarqube-its data.username]
-    BBC_READ_REPOS_APP_PASSWORD: VAULT[development/kv/data/bitbucket/sonarqube-its data.password]
+    <<: *BITBUCKET_CLOUD_ENVIRONMENT_VARIABLES
   script:
     - ./private/cirrus/cirrus-qa.sh h2
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
@@ -524,32 +550,8 @@ qa_gitlab_task:
     memory: 7Gb
     use_in_memory_disk: true
     additional_containers:
-      - name: gitlab
-        ports:
-          - 80
-          - 443
-        cpu: 2
-        memory: 8Gb
-        image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/gitlab:${GITLAB_VERSION}
-        env:
-          - GITLAB_POST_RECONFIGURE_SCRIPT: |-
-              { cat >/tmp/setup.rb <<-'EOF'
-                token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'token');
-                token.set_token('token-here-456');
-                token.expires_at = Date.today+10.day
-                token.save!;
-                token_read = User.find_by_username('root').personal_access_tokens.create(scopes: [:read_user], name: 'token_read');
-                token_read.set_token('token-read-123');
-                token_read.expires_at = Date.today+10.day
-                token_read.save!;
-                user = User.find_by_username('root');
-                user.password = 'eng-YTU1ydh6kyt7tjd';
-                user.password_confirmation = 'eng-YTU1ydh6kyt7tjd';
-                user.save!;
-              EOF
-              } && gitlab-rails runner /tmp/setup.rb && \
-              echo 'from_file "/etc/gitlab/external_gitlab.rb"' >> /etc/gitlab/gitlab.rb && \
-              gitlab-ctl reconfigure
+      - <<: *GITLAB_CONTAINER_TEMPLATE
+
   script:
     - ./private/cirrus/cirrus-qa.sh h2
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
@@ -567,10 +569,7 @@ qa_gitlab_cloud_task:
     use_in_memory_disk: true
   env:
     QA_CATEGORY: GITLAB_CLOUD
-    GITLAB_API_TOKEN: VAULT[development/team/sonarqube/kv/data/gitlab-cloud data.api_token]
-    GITLAB_READ_ONLY_TOKEN: VAULT[development/team/sonarqube/kv/data/gitlab-cloud data.api_token_ro]
-    GITLAB_ADMIN_USERNAME: VAULT[development/team/sonarqube/kv/data/gitlab-cloud data.username]
-    GITLAB_ADMIN_PASSWORD: VAULT[development/team/sonarqube/kv/data/gitlab-cloud data.password]
+    <<: *GITLAB_CLOUD_ENVIRONMENT_VARIABLES
   script:
     - ./private/cirrus/cirrus-qa.sh h2
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
@@ -588,9 +587,7 @@ qa_azure_task:
     memory: 7Gb
   env:
     QA_CATEGORY: AZURE
-    AZURE_USERNAME_LOGIN: VAULT[development/team/sonarqube/kv/data/azure-instance data.username]
-    AZURE_CODE_READ_AND_WRITE_TOKEN: VAULT[development/team/sonarqube/kv/data/azure-instance data.token_code_read_write]
-    AZURE_FULL_ACCESS_TOKEN: VAULT[development/team/sonarqube/kv/data/azure-instance data.token_full_access]
+    <<: *AZURE_CLOUD_ENVIRONMENT_VARIABLES
   script:
     - ./private/cirrus/cirrus-qa.sh h2
   <<: *DEFAULT_ARTIFACTS_TEMPLATE
@@ -658,15 +655,7 @@ qa_saml_task:
     cpu: 2.4
     memory: 10Gb
     additional_containers:
-      - name: keycloak
-        image: quay.io/keycloak/keycloak:22.0.5
-        port: 8080
-        cpu: 1
-        memory: 1Gb
-        command: "/opt/keycloak/bin/kc.sh start-dev --http-relative-path /auth"
-        env:
-          KEYCLOAK_ADMIN: admin
-          KEYCLOAK_ADMIN_PASSWORD: admin
+      - <<: *KEYCLOAK_CONTAINER_TEMPLATE
   env:
     QA_CATEGORY: SAML
   script:
@@ -693,6 +682,7 @@ qa_ldap_task:
 promote_task:
   <<: *DEFAULT_TEMPLATE
   <<: *EXCEPT_ON_NIGHTLY_TASK_TEMPLATE
+  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
   depends_on:
     - build
     - sq_analysis
@@ -799,15 +789,7 @@ upgd_mssql_task:
     cpu: 1.5
     memory: 6Gb
     additional_containers:
-      - name: mssql
-        image: mcr.microsoft.com/mssql/server:2022-latest
-        port: 1433
-        cpu: 2
-        memory: 5Gb
-        env:
-          MSSQL_PID: Developer # this is the default edition
-          ACCEPT_EULA: Y
-          SA_PASSWORD: sonarqube!1
+      - <<: *MSSQL_ADDITIONAL_CONTAINER_TEMPLATE
   env:
     QA_CATEGORY: Upgrade
   script:
@@ -857,3 +839,239 @@ mend_scan_task:
   always:
     ws_artifacts:
       path: "whitesource/**/*"
+
+qa_task:
+  <<: *DEFAULT_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  <<: *JAR_CACHE_TEMPLATE
+  <<: *EXCEPT_ON_WEEKLY_TASK_TEMPLATE
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
+    cpu: 3
+    memory: 7Gb
+    additional_containers:
+      - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
+  name: QA $QA_CATEGORY
+  alias: qa
+  env:
+    matrix:
+      # QA name should not exceed 13 characters to be properly reported on wallboard by burgr
+      # QA name cannot contain "_"
+      - QA_CATEGORY: Cat1
+      - QA_CATEGORY: Cat2
+      - QA_CATEGORY: Cat3
+      - QA_CATEGORY: Cat4
+      - QA_CATEGORY: Cat5
+      - QA_CATEGORY: Cat6
+      - QA_CATEGORY: Analysis
+      - QA_CATEGORY: Authorization
+      - QA_CATEGORY: Auth
+      - QA_CATEGORY: Branch1
+      - QA_CATEGORY: Branch2
+      - QA_CATEGORY: CE1
+      - QA_CATEGORY: CE2
+      - QA_CATEGORY: ComputeEngine
+      - QA_CATEGORY: DE1
+      - QA_CATEGORY: DE2
+      - QA_CATEGORY: EE1
+      - QA_CATEGORY: EE2
+      - QA_CATEGORY: Issues1
+      - QA_CATEGORY: Issues2
+      - QA_CATEGORY: License1
+      - QA_CATEGORY: License2
+      - QA_CATEGORY: Plugins
+      - QA_CATEGORY: Project
+      - QA_CATEGORY: QP
+      - QA_CATEGORY: Upgrade
+  script:
+    - ./private/cirrus/cirrus-qa.sh postgres
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
+weekly_postgres_task:
+  <<: *DEFAULT_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  <<: *JAR_CACHE_TEMPLATE
+  only_if: $CIRRUS_CRON == $CRON_DATABASE_JOB_NAME
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
+    cpu: 3
+    memory: 7Gb
+    additional_containers:
+      - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
+  alias: weekly-qa
+  env:
+    GITLAB_VERSION: latest
+    <<: *BITBUCKET_CLOUD_ENVIRONMENT_VARIABLES
+    <<: *GITLAB_CLOUD_ENVIRONMENT_VARIABLES
+    <<: *AZURE_CLOUD_ENVIRONMENT_VARIABLES
+    matrix:
+      # QA name should not exceed 13 characters to be properly reported on wallboard by burgr
+      # QA name cannot contain "_"
+      - QA_CATEGORY: Cat1
+      - QA_CATEGORY: Cat2
+      - QA_CATEGORY: Cat3
+      - QA_CATEGORY: Cat4
+      - QA_CATEGORY: Cat5
+      - QA_CATEGORY: Cat6
+      - QA_CATEGORY: Analysis
+      - QA_CATEGORY: Authorization
+      - QA_CATEGORY: Auth
+      - QA_CATEGORY: Branch1
+      - QA_CATEGORY: Branch2
+      - QA_CATEGORY: CE1
+      - QA_CATEGORY: CE2
+      - QA_CATEGORY: ComputeEngine
+      - QA_CATEGORY: DE1
+      - QA_CATEGORY: DE2
+      - QA_CATEGORY: EE1
+      - QA_CATEGORY: EE2
+      - QA_CATEGORY: Issues1
+      - QA_CATEGORY: Issues2
+      - QA_CATEGORY: License1
+      - QA_CATEGORY: License2
+      - QA_CATEGORY: Plugins
+      - QA_CATEGORY: Project
+      - QA_CATEGORY: QP
+      - QA_CATEGORY: Upgrade
+      - QA_CATEGORY: AnalysisPerformance
+      - QA_CATEGORY: LDAP
+      - QA_CATEGORY: BITBUCKET_CLOUD
+      - QA_CATEGORY: GITLAB_CLOUD
+      - QA_CATEGORY: AZURE
+      #- QA_CATEGORY: GITHUB needs to be disabled because the tests in this package fail when running a scanner
+      #- QA_CATEGORY: GITHUB_PROVISIONING needs to be disabled because tests fail with dangling connection problem
+      #- QA_CATEGORY: HA needs to be disabled because otherwise we would be assigning big container to each category
+  maven_cache:
+    folder: ~/.m2
+  name: Postgres 15 $QA_CATEGORY
+  script: ./private/cirrus/cirrus-qa.sh postgres
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
+
+weekly_oracle_task:
+  <<: *DEFAULT_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  <<: *JAR_CACHE_TEMPLATE
+  only_if: $CIRRUS_CRON == $CRON_DATABASE_JOB_NAME
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
+    cpu: 3
+    memory: 7Gb
+    additional_containers:
+      - <<: *ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
+  alias: weekly-qa
+  env:
+    GITLAB_VERSION: latest
+    <<: *BITBUCKET_CLOUD_ENVIRONMENT_VARIABLES
+    <<: *GITLAB_CLOUD_ENVIRONMENT_VARIABLES
+    <<: *AZURE_CLOUD_ENVIRONMENT_VARIABLES
+    matrix:
+      # QA name should not exceed 13 characters to be properly reported on wallboard by burgr
+      # QA name cannot contain "_"
+      - QA_CATEGORY: Cat1
+      - QA_CATEGORY: Cat2
+      - QA_CATEGORY: Cat3
+      - QA_CATEGORY: Cat4
+      - QA_CATEGORY: Cat5
+      - QA_CATEGORY: Cat6
+      - QA_CATEGORY: Analysis
+      - QA_CATEGORY: Authorization
+      - QA_CATEGORY: Auth
+      - QA_CATEGORY: Branch1
+      - QA_CATEGORY: Branch2
+      - QA_CATEGORY: CE1
+      #- QA_CATEGORY: CE2 needs to be disabled because the tests in SonarLintServerPushTest are very slow on Oracle SONAR-21036
+      - QA_CATEGORY: ComputeEngine
+      - QA_CATEGORY: DE1
+      - QA_CATEGORY: DE2
+      - QA_CATEGORY: EE1
+      - QA_CATEGORY: EE2
+      - QA_CATEGORY: Issues1
+      - QA_CATEGORY: Issues2
+      - QA_CATEGORY: License1
+      - QA_CATEGORY: License2
+      - QA_CATEGORY: Plugins
+      - QA_CATEGORY: Project
+      - QA_CATEGORY: QP
+      - QA_CATEGORY: Upgrade
+      - QA_CATEGORY: AnalysisPerformance
+      - QA_CATEGORY: LDAP
+      - QA_CATEGORY: BITBUCKET_CLOUD
+      - QA_CATEGORY: GITLAB_CLOUD
+      - QA_CATEGORY: AZURE
+      #- QA_CATEGORY: GITHUB needs to be disabled because the tests in this package fail when running a scanner
+      #- QA_CATEGORY: GITHUB_PROVISIONING needs to be disabled because tests fail with dangling connection problem
+      #- QA_CATEGORY: HA needs to be disabled because otherwise we would be assigning big container to each category
+  maven_cache:
+    folder: ~/.m2
+  name: Oracle 21 XE $QA_CATEGORY
+  script: ./private/cirrus/cirrus-qa.sh oracle21
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
+
+weekly_mssql_task:
+  <<: *DEFAULT_TEMPLATE
+  <<: *BUILD_DEPENDANT_TASK_TEMPLATE
+  <<: *CACHE_DEPENDENCIES_DEPENDANT_TASK_TEMPLATE
+  <<: *GRADLE_CACHE_TEMPLATE
+  <<: *JAR_CACHE_TEMPLATE
+  only_if: $CIRRUS_CRON == $CRON_DATABASE_JOB_NAME
+  eks_container:
+    <<: *CONTAINER_TEMPLATE
+    cpu: 3
+    memory: 7Gb
+    additional_containers:
+      - <<: *MSSQL_ADDITIONAL_CONTAINER_TEMPLATE
+  alias: weekly-qa
+  env:
+    GITLAB_VERSION: latest
+    <<: *BITBUCKET_CLOUD_ENVIRONMENT_VARIABLES
+    <<: *GITLAB_CLOUD_ENVIRONMENT_VARIABLES
+    <<: *AZURE_CLOUD_ENVIRONMENT_VARIABLES
+    matrix:
+      # QA name should not exceed 13 characters to be properly reported on wallboard by burgr
+      # QA name cannot contain "_"
+      - QA_CATEGORY: Cat1
+      - QA_CATEGORY: Cat2
+      - QA_CATEGORY: Cat3
+      - QA_CATEGORY: Cat4
+      #- QA_CATEGORY: Cat5 Needs to be disabled because the test PullRequestMeasuresPageTest.test_as_anonymous regularly fails on MSSQL
+      - QA_CATEGORY: Cat6
+      - QA_CATEGORY: Analysis
+      - QA_CATEGORY: Authorization
+      - QA_CATEGORY: Auth
+      - QA_CATEGORY: Branch1
+      - QA_CATEGORY: Branch2
+      - QA_CATEGORY: CE1
+      - QA_CATEGORY: CE2
+      - QA_CATEGORY: ComputeEngine
+      - QA_CATEGORY: DE1
+      - QA_CATEGORY: DE2
+      - QA_CATEGORY: EE1
+      - QA_CATEGORY: EE2
+      - QA_CATEGORY: Issues1
+      - QA_CATEGORY: Issues2
+      - QA_CATEGORY: License1
+      - QA_CATEGORY: License2
+      - QA_CATEGORY: Plugins
+      - QA_CATEGORY: Project
+      - QA_CATEGORY: QP
+      - QA_CATEGORY: Upgrade
+      - QA_CATEGORY: AnalysisPerformance
+      - QA_CATEGORY: LDAP
+      - QA_CATEGORY: BITBUCKET_CLOUD
+      - QA_CATEGORY: GITLAB_CLOUD
+      - QA_CATEGORY: AZURE
+      #- QA_CATEGORY: GITHUB needs to be disabled because the tests in this package fail when running a scanner
+      #- QA_CATEGORY: GITHUB_PROVISIONING needs to be disabled because tests fail with dangling connection problem
+      #- QA_CATEGORY: HA needs to be disabled because otherwise we would be assigning big container to each category
+  maven_cache:
+    folder: ~/.m2
+  name: MSSQL 2022 $QA_CATEGORY
+  script: ./private/cirrus/cirrus-qa.sh mssql
+  <<: *DEFAULT_ARTIFACTS_TEMPLATE
