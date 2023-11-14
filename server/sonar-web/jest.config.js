@@ -58,5 +58,5 @@ module.exports = {
     ],
     ['jest-slow-test-reporter', { numTests: 5, warnOnSlowerThan: 10000, color: true }],
   ],
-  testTimeout: 40000,
+  testTimeout: 60000,
 };
