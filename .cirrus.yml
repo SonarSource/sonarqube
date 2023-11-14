@@ -769,6 +769,7 @@ sql_oracle21_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *DATABASE_RELATED_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
+  timeout_in: 120m
   eks_container:
     <<: *CONTAINER_TEMPLATE
     memory: 5Gb

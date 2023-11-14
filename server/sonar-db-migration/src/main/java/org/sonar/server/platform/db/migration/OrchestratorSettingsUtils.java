@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.server.platform.db.migration;
 
 import java.io.File;
 import java.io.InputStream;
@@ -37,7 +37,7 @@ public class OrchestratorSettingsUtils {
     // prevents instantiation
   }
 
-  public static void loadOrchestratorRuleSettings(Settings settings) {
+  public static void loadOrchestratorSettings(Settings settings) {
     String url = settings.getString("orchestrator.configUrl");
     if (isEmpty(url)) {
       return;

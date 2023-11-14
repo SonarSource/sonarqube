@@ -19,22 +19,13 @@
  */
 package org.sonar.server.platform.db.migration;
 
-import com.sonar.orchestrator.config.Configuration;
-import com.sonar.orchestrator.db.DatabaseClient;
-import com.sonar.orchestrator.db.DatabaseFactory;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
-import org.sonar.api.config.internal.Settings;
 import org.sonar.db.AbstractDbTester;
 import org.sonar.db.DatabaseTestUtils;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
 public class MigrationDbTester extends AbstractDbTester<MigrationTestDb> {
-
-  private DatabaseClient databaseClient;
 
   private MigrationDbTester(@Nullable Class<? extends MigrationStep> migrationStepClass) {
     super(new MigrationTestDb(migrationStepClass));
@@ -54,33 +45,11 @@ public class MigrationDbTester extends AbstractDbTester<MigrationTestDb> {
 
     //Some DataChange steps might fill the tables with some data, data will be removed to ensure tests run on empty tables
     truncateAllTables();
-    Configuration configuration = retrieveConfiguration();
-    databaseClient = DatabaseFactory.create(configuration, configuration.locators());
-  }
-
-  @NotNull
-  private Configuration retrieveConfiguration() {
-    Settings settings = db.getDatabase().getSettings();
-    Configuration.Builder builder = Configuration.builder();
-    settings.getProperties().forEach(builder::setProperty);
-    return builder.build();
   }
 
   @Override
   protected void after() {
-    dropDatabase();
     db.stop();
-  }
-
-  private void dropDatabase() {
-    try (Connection connection = db.getDatabase().getDataSource().getConnection()) {
-      for (String s : databaseClient.getDropDdl()) {
-        PreparedStatement preparedStatement = connection.prepareStatement(s);
-        preparedStatement.execute();
-      }
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   public void truncateAllTables() {
