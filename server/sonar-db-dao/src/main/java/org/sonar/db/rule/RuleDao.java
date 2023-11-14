@@ -288,12 +288,15 @@ public class RuleDao implements Dao {
 
   @VisibleForTesting
   void insertOrUpdateRuleMetadata(DbSession session, RuleMetadataDto ruleMetadataDto) {
-    if (ruleMetadataDto.isUndefined()) {
-      mapper(session).deleteMetadata(ruleMetadataDto);
-    } else if (mapper(session).countMetadata(ruleMetadataDto) > 0) {
-      mapper(session).updateMetadata(ruleMetadataDto);
-    } else {
-      mapper(session).insertMetadata(ruleMetadataDto);
+    // The Rule metadata can be added only on Org level.
+    if (ruleMetadataDto.getOrganizationUuid() != null) {
+      if (ruleMetadataDto.isUndefined()) {
+        mapper(session).deleteMetadata(ruleMetadataDto);
+      } else if (mapper(session).countMetadata(ruleMetadataDto) > 0) {
+        mapper(session).updateMetadata(ruleMetadataDto);
+      } else {
+        mapper(session).insertMetadata(ruleMetadataDto);
+      }
     }
   }
 }

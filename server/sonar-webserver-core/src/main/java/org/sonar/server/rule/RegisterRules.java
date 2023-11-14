@@ -355,6 +355,7 @@ public class RegisterRules implements Startable {
       }
 
       if (context.isUpdated(ruleDto) || context.isRenamed(ruleDto)) {
+        LOG.info(format("Update Rule: language=%s key=%s", ruleDto.getLanguage(), ruleDto.getKey()));
         update(session, ruleDto);
       } else if (!context.isCreated(ruleDto)) {
         context.unchanged(ruleDto);

@@ -460,7 +460,7 @@
       and rm.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
   </select>
 
-  <insert id="insertMetadata" parameterType="org.sonar.db.rule.RuleMetadataDto">
+  <insert id="insertMetadata" parameterType="org.sonar.db.rule.RuleMetadataDto" useGeneratedKeys="false">
     insert into rules_metadata (
       rule_uuid,
       organization_uuid,

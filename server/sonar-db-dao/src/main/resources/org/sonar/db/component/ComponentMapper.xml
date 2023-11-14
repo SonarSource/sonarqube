@@ -40,6 +40,7 @@
     FROM components p
     where
       lower(p.kee)=lower(#{key,jdbcType=VARCHAR})
+      and scope = 'PRJ'
       and p.main_branch_project_uuid is null
   </select>
 
