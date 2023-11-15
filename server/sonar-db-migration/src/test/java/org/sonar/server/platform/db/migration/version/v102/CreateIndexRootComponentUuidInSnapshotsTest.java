@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v102;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.platform.db.migration.MigrationDbTester;
+import org.sonar.db.MigrationDbTester;
 
 
 

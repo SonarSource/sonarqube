@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration;
+package org.sonar.db;
 
 import com.sonar.orchestrator.config.Configuration;
 import com.sonar.orchestrator.db.DatabaseClient;
@@ -27,9 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.config.internal.Settings;
-import org.sonar.db.DefaultDatabase;
-import org.sonar.db.SQDatabase;
-import org.sonar.db.TestDb;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
 public class MigrationTestDb implements TestDb {

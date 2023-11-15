@@ -28,7 +28,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.server.platform.db.migration.MigrationDbTester;
+import org.sonar.db.MigrationDbTester;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -53,9 +53,9 @@ public class FixDifferentUuidsForSubportfoliosTest {
 
     underTest.execute();
 
-    Assertions.assertThat(findValueIn("portfolios", "UUID")).containsExactlyInAnyOrder(PF_UUID, NEW_SUBPF_UUID);
-    Assertions.assertThat(findValueIn("portfolio_projects", "PORTFOLIO_UUID")).containsExactlyInAnyOrder(NEW_SUBPF_UUID);
-    Assertions.assertThat(findValueIn("portfolio_references", "PORTFOLIO_UUID")).containsExactlyInAnyOrder(NEW_SUBPF_UUID);
+    Assertions.assertThat(findValueIn("portfolios", "uuid")).containsExactlyInAnyOrder(PF_UUID, NEW_SUBPF_UUID);
+    Assertions.assertThat(findValueIn("portfolio_projects", "portfolio_uuid")).containsExactlyInAnyOrder(NEW_SUBPF_UUID);
+    Assertions.assertThat(findValueIn("portfolio_references", "portfolio_uuid")).containsExactlyInAnyOrder(NEW_SUBPF_UUID);
   }
 
   @Test
@@ -69,9 +69,9 @@ public class FixDifferentUuidsForSubportfoliosTest {
     underTest.execute();
     underTest.execute();
 
-    Assertions.assertThat(findValueIn("portfolios", "UUID")).containsExactlyInAnyOrder(PF_UUID, NEW_SUBPF_UUID);
-    Assertions.assertThat(findValueIn("portfolio_projects", "PORTFOLIO_UUID")).containsExactlyInAnyOrder(NEW_SUBPF_UUID);
-    Assertions.assertThat(findValueIn("portfolio_references", "PORTFOLIO_UUID")).containsExactlyInAnyOrder(NEW_SUBPF_UUID);
+    Assertions.assertThat(findValueIn("portfolios", "uuid")).containsExactlyInAnyOrder(PF_UUID, NEW_SUBPF_UUID);
+    Assertions.assertThat(findValueIn("portfolio_projects", "portfolio_uuid")).containsExactlyInAnyOrder(NEW_SUBPF_UUID);
+    Assertions.assertThat(findValueIn("portfolio_references", "portfolio_uuid")).containsExactlyInAnyOrder(NEW_SUBPF_UUID);
   }
 
   @Test
@@ -88,10 +88,10 @@ public class FixDifferentUuidsForSubportfoliosTest {
 
     underTest.execute();
 
-    Assertions.assertThat(findValueIn("portfolios", "UUID")).containsExactlyInAnyOrder(PF_UUID, NEW_SUBPF_UUID, NEW_CHILD_SUBPF_UUID);
-    Assertions.assertThat(findValueIn("portfolios", "PARENT_UUID")).containsExactlyInAnyOrder(null, PF_UUID, NEW_SUBPF_UUID);
-    Assertions.assertThat(findValueIn("portfolio_projects", "PORTFOLIO_UUID")).containsExactlyInAnyOrder(NEW_CHILD_SUBPF_UUID);
-    Assertions.assertThat(findValueIn("portfolio_references", "PORTFOLIO_UUID")).containsExactlyInAnyOrder(NEW_CHILD_SUBPF_UUID);
+    Assertions.assertThat(findValueIn("portfolios", "uuid")).containsExactlyInAnyOrder(PF_UUID, NEW_SUBPF_UUID, NEW_CHILD_SUBPF_UUID);
+    Assertions.assertThat(findValueIn("portfolios", "parent_uuid")).containsExactlyInAnyOrder(null, PF_UUID, NEW_SUBPF_UUID);
+    Assertions.assertThat(findValueIn("portfolio_projects", "portfolio_uuid")).containsExactlyInAnyOrder(NEW_CHILD_SUBPF_UUID);
+    Assertions.assertThat(findValueIn("portfolio_references", "portfolio_uuid")).containsExactlyInAnyOrder(NEW_CHILD_SUBPF_UUID);
   }
 
   private Set<String> findValueIn(String table, String field) {

@@ -28,7 +28,7 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.util.Uuids;
-import org.sonar.server.platform.db.migration.MigrationDbTester;
+import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -54,9 +54,9 @@ public class PopulateDefaultImpactsInRulesTest {
     insertRuleWithType("uuid", RuleType.CODE_SMELL, Severity.MAJOR);
     underTest.execute();
 
-    assertThat(db.select("select SOFTWARE_QUALITY, SEVERITY from rules_default_impacts"))
-      .extracting(stringObjectMap -> stringObjectMap.get("SOFTWARE_QUALITY"),
-        stringObjectMap -> stringObjectMap.get("SEVERITY"))
+    assertThat(db.select("select software_quality, severity from rules_default_impacts"))
+      .extracting(stringObjectMap -> stringObjectMap.get("software_quality"),
+        stringObjectMap -> stringObjectMap.get("severity"))
       .containsExactly(tuple(SoftwareQuality.MAINTAINABILITY.name(), org.sonar.api.issue.impact.Severity.MEDIUM.name()));
   }
 
@@ -66,10 +66,10 @@ public class PopulateDefaultImpactsInRulesTest {
     underTest.execute();
     underTest.execute();
 
-    assertThat(db.select("select SOFTWARE_QUALITY, SEVERITY from rules_default_impacts"))
+    assertThat(db.select("select software_quality, severity from rules_default_impacts"))
       .hasSize(1)
-      .extracting(stringObjectMap -> stringObjectMap.get("SOFTWARE_QUALITY"),
-        stringObjectMap -> stringObjectMap.get("SEVERITY"))
+      .extracting(stringObjectMap -> stringObjectMap.get("software_quality"),
+        stringObjectMap -> stringObjectMap.get("severity"))
       .containsExactly(tuple(SoftwareQuality.MAINTAINABILITY.name(), org.sonar.api.issue.impact.Severity.MEDIUM.name()));
 
   }
@@ -79,10 +79,10 @@ public class PopulateDefaultImpactsInRulesTest {
     insertRuleWithAdHocType("uuid", RuleType.CODE_SMELL, Severity.MAJOR);
     underTest.execute();
 
-    assertThat(db.select("select SOFTWARE_QUALITY, SEVERITY from rules_default_impacts"))
+    assertThat(db.select("select software_quality, severity from rules_default_impacts"))
       .hasSize(1)
-      .extracting(stringObjectMap -> stringObjectMap.get("SOFTWARE_QUALITY"),
-        stringObjectMap -> stringObjectMap.get("SEVERITY"))
+      .extracting(stringObjectMap -> stringObjectMap.get("software_quality"),
+        stringObjectMap -> stringObjectMap.get("severity"))
       .containsExactly(tuple(SoftwareQuality.MAINTAINABILITY.name(), org.sonar.api.issue.impact.Severity.MEDIUM.name()));
 
   }
@@ -93,10 +93,10 @@ public class PopulateDefaultImpactsInRulesTest {
     insertImpact("uuid", SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH);
     underTest.execute();
 
-    assertThat(db.select("select SOFTWARE_QUALITY, SEVERITY from rules_default_impacts"))
+    assertThat(db.select("select software_quality, severity from rules_default_impacts"))
       .hasSize(1)
-      .extracting(stringObjectMap -> stringObjectMap.get("SOFTWARE_QUALITY"),
-        stringObjectMap -> stringObjectMap.get("SEVERITY"))
+      .extracting(stringObjectMap -> stringObjectMap.get("software_quality"),
+        stringObjectMap -> stringObjectMap.get("severity"))
       .containsExactly(tuple(SoftwareQuality.SECURITY.name(), org.sonar.api.issue.impact.Severity.HIGH.name()));
 
   }
@@ -106,7 +106,7 @@ public class PopulateDefaultImpactsInRulesTest {
     insertRuleWithType("uuid", null, null);
     underTest.execute();
 
-    assertThat(db.select("select SOFTWARE_QUALITY, SEVERITY from rules_default_impacts"))
+    assertThat(db.select("select software_quality, severity from rules_default_impacts"))
       .isEmpty();
 
   }
@@ -116,7 +116,7 @@ public class PopulateDefaultImpactsInRulesTest {
     insertInvalidRule("uuid");
     underTest.execute();
 
-    assertThat(db.select("select SOFTWARE_QUALITY, SEVERITY from rules_default_impacts"))
+    assertThat(db.select("select software_quality, severity from rules_default_impacts"))
       .isEmpty();
     assertThat(logTester.logs()).contains("Error while mapping type to impact for rule 'uuid'");
 
@@ -127,7 +127,7 @@ public class PopulateDefaultImpactsInRulesTest {
     insertRuleWithType("uuid", RuleType.SECURITY_HOTSPOT, Severity.MAJOR);
     underTest.execute();
 
-    assertThat(db.select("select SOFTWARE_QUALITY, SEVERITY from rules_default_impacts"))
+    assertThat(db.select("select software_quality, severity from rules_default_impacts"))
       .isEmpty();
     assertThat(logTester.logs()).doesNotContain("Error while mapping type to impact for rule 'uuid'");
   }
@@ -137,10 +137,10 @@ public class PopulateDefaultImpactsInRulesTest {
     insertPlaceholderAdhocRule("uuid");
     underTest.execute();
 
-    assertThat(db.select("select SOFTWARE_QUALITY, SEVERITY from rules_default_impacts"))
+    assertThat(db.select("select software_quality, severity from rules_default_impacts"))
       .hasSize(1)
-      .extracting(stringObjectMap -> stringObjectMap.get("SOFTWARE_QUALITY"),
-        stringObjectMap -> stringObjectMap.get("SEVERITY"))
+      .extracting(stringObjectMap -> stringObjectMap.get("software_quality"),
+        stringObjectMap -> stringObjectMap.get("severity"))
       .containsExactly(tuple(SoftwareQuality.MAINTAINABILITY.name(), org.sonar.api.issue.impact.Severity.MEDIUM.name()));
   }
 
@@ -149,10 +149,10 @@ public class PopulateDefaultImpactsInRulesTest {
     insertRule("uuid", RuleType.CODE_SMELL, Severity.CRITICAL, RuleType.VULNERABILITY, Severity.MINOR, true);
     underTest.execute();
 
-    assertThat(db.select("select SOFTWARE_QUALITY, SEVERITY from rules_default_impacts"))
+    assertThat(db.select("select software_quality, severity from rules_default_impacts"))
       .hasSize(1)
-      .extracting(stringObjectMap -> stringObjectMap.get("SOFTWARE_QUALITY"),
-        stringObjectMap -> stringObjectMap.get("SEVERITY"))
+      .extracting(stringObjectMap -> stringObjectMap.get("software_quality"),
+        stringObjectMap -> stringObjectMap.get("severity"))
       .containsExactly(tuple(SoftwareQuality.SECURITY.name(), org.sonar.api.issue.impact.Severity.LOW.name()));
   }
 
@@ -190,9 +190,9 @@ public class PopulateDefaultImpactsInRulesTest {
       "PLUGIN_RULE_KEY", "key",
       "PLUGIN_NAME", "name",
       "SCOPE", "1",
-      "RULE_TYPE", "-1",
-      "PRIORITY", "-1",
-      "AD_HOC_TYPE", "-1",
+      "RULE_TYPE", 100,
+      "PRIORITY", -1,
+      "AD_HOC_TYPE", 100,
       "AD_HOC_SEVERITY", "-1",
       "IS_TEMPLATE", false,
       "IS_AD_HOC", false,

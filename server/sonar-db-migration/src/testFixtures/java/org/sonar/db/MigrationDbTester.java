@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration;
+package org.sonar.db;
 
 import java.sql.SQLException;
 import javax.annotation.Nullable;
-import org.sonar.db.AbstractDbTester;
-import org.sonar.db.DatabaseTestUtils;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
 public class MigrationDbTester extends AbstractDbTester<MigrationTestDb> {

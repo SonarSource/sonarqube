@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.rules.RuleType;
-import org.sonar.server.platform.db.migration.MigrationDbTester;
+import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -47,8 +47,9 @@ public class PopulateCleanCodeAttributeColumnInRulesTest {
   public void execute_whenRuleWithUndefinedCleanCodeAttribute_shouldUpdate() throws SQLException {
     insertRule("1", null);
     underTest.execute();
-    assertThat(db.select("select UUID, CLEAN_CODE_ATTRIBUTE from rules"))
-      .extracting(stringObjectMap -> stringObjectMap.get("CLEAN_CODE_ATTRIBUTE")).containsExactly(CleanCodeAttribute.CONVENTIONAL.name());
+    assertThat(db.select("select uuid, clean_code_attribute from rules"))
+      .extracting(stringObjectMap -> stringObjectMap.get("clean_code_attribute"))
+      .containsExactly(CleanCodeAttribute.CONVENTIONAL.name());
   }
 
   @Test
@@ -56,32 +57,36 @@ public class PopulateCleanCodeAttributeColumnInRulesTest {
     insertRule("1", null);
     underTest.execute();
     underTest.execute();
-    assertThat(db.select("select UUID, CLEAN_CODE_ATTRIBUTE from rules"))
-      .extracting(stringObjectMap -> stringObjectMap.get("CLEAN_CODE_ATTRIBUTE")).containsExactly(CleanCodeAttribute.CONVENTIONAL.name());
+    assertThat(db.select("select uuid, clean_code_attribute from rules"))
+      .extracting(stringObjectMap -> stringObjectMap.get("clean_code_attribute"))
+      .containsExactly(CleanCodeAttribute.CONVENTIONAL.name());
   }
 
   @Test
   public void execute_whenRuleWithDefinedCleanCodeAttribute_shouldNotUpdate() throws SQLException {
     insertRule("1", CleanCodeAttribute.FOCUSED);
     underTest.execute();
-    assertThat(db.select("select UUID, CLEAN_CODE_ATTRIBUTE from rules"))
-      .extracting(stringObjectMap -> stringObjectMap.get("CLEAN_CODE_ATTRIBUTE")).containsExactly(CleanCodeAttribute.FOCUSED.name());
+    assertThat(db.select("select uuid, clean_code_attribute from rules"))
+      .extracting(stringObjectMap -> stringObjectMap.get("clean_code_attribute"))
+      .containsExactly(CleanCodeAttribute.FOCUSED.name());
   }
 
   @Test
   public void execute_whenRuleIsHotspot_shouldNotUpdate() throws SQLException {
     insertRule("1", RuleType.SECURITY_HOTSPOT, null, null);
     underTest.execute();
-    assertThat(db.select("select UUID, CLEAN_CODE_ATTRIBUTE from rules"))
-      .extracting(stringObjectMap -> stringObjectMap.get("CLEAN_CODE_ATTRIBUTE")).containsOnlyNulls();
+    assertThat(db.select("select uuid, clean_code_attribute from rules"))
+      .extracting(stringObjectMap -> stringObjectMap.get("clean_code_attribute"))
+      .containsOnlyNulls();
   }
 
   @Test
   public void execute_whenAdhocRuleIsHotspot_shouldNotUpdate() throws SQLException {
     insertRule("1", null, RuleType.SECURITY_HOTSPOT, null);
     underTest.execute();
-    assertThat(db.select("select UUID, CLEAN_CODE_ATTRIBUTE from rules"))
-      .extracting(stringObjectMap -> stringObjectMap.get("CLEAN_CODE_ATTRIBUTE")).containsOnlyNulls();
+    assertThat(db.select("select uuid, clean_code_attribute from rules"))
+      .extracting(stringObjectMap -> stringObjectMap.get("clean_code_attribute"))
+      .containsOnlyNulls();
   }
 
 

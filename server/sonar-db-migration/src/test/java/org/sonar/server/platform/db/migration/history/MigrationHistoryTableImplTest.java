@@ -25,7 +25,8 @@ import java.sql.Statement;
 import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.db.dialect.MsSql;
+import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +34,7 @@ public class MigrationHistoryTableImplTest {
   private static final String TABLE_SCHEMA_MIGRATIONS = "schema_migrations";
 
   @Rule
-  public CoreDbTester dbTester = CoreDbTester.createEmpty();
+  public MigrationDbTester dbTester = MigrationDbTester.createEmpty();
 
   private MigrationHistoryTableImpl underTest = new MigrationHistoryTableImpl(dbTester.database());
 
@@ -46,12 +47,19 @@ public class MigrationHistoryTableImplTest {
 
   @Test
   public void start_does_not_fail_if_table_exists() throws SQLException {
-    executeDdl("create table " + TABLE_SCHEMA_MIGRATIONS + " (version varchar(255) not null)");
+    executeDdl(String.format("create table %s (version %s(255) not null)", TABLE_SCHEMA_MIGRATIONS, getFieldType()));
     verifyTable();
 
     underTest.start();
 
     verifyTable();
+  }
+
+  private String getFieldType() {
+    if (dbTester.database().getDialect().getId().equals(MsSql.ID)) {
+      return "nvarchar";
+    }
+    return "varchar";
   }
 
   private void executeDdl(String sql) throws SQLException {

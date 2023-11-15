@@ -21,7 +21,7 @@ package org.sonar.server.platform.db.migration.history;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 
 public class NoTableMigrationHistoryImplTest {
   @Rule
-  public CoreDbTester dbTester = CoreDbTester.createEmpty();
+  public MigrationDbTester dbTester = MigrationDbTester.createEmpty();
 
   private MigrationHistoryMeddler migrationHistoryMeddler = mock(MigrationHistoryMeddler.class);
   private MigrationHistoryImpl underTest = new MigrationHistoryImpl(dbTester.database(), migrationHistoryMeddler);

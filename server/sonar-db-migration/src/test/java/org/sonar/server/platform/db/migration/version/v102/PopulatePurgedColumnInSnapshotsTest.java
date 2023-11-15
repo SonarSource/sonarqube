@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.platform.db.migration.MigrationDbTester;
+import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -51,8 +51,8 @@ public class PopulatePurgedColumnInSnapshotsTest {
 
     underTest.execute();
 
-    assertThat(db.select("select UUID, PURGED from snapshots"))
-      .extracting(stringObjectMap -> stringObjectMap.get("UUID"), stringObjectMap -> stringObjectMap.get("PURGED"))
+    assertThat(db.select("select uuid, purged from snapshots"))
+      .extracting(stringObjectMap -> stringObjectMap.get("uuid"), stringObjectMap -> stringObjectMap.get("purged"))
       .containsExactlyInAnyOrder(
         tuple("uuid-1", false),
         tuple("uuid-2", true),
@@ -63,8 +63,8 @@ public class PopulatePurgedColumnInSnapshotsTest {
   private void insertSnapshot(String uuid, @Nullable Integer status) {
     db.executeInsert(TABLE_NAME,
       "UUID", uuid,
-      "ROOT_COMPONENT_UUID", "",
-      "STATUS", "",
+      "ROOT_COMPONENT_UUID", "r_c_uuid",
+      "STATUS", "s",
       "ISLAST", true,
       "PURGE_STATUS", status,
       "PURGED", null);

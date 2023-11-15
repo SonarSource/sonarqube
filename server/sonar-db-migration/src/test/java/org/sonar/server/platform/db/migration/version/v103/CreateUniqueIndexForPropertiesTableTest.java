@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v103;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.platform.db.migration.MigrationDbTester;
+import org.sonar.db.MigrationDbTester;
 
 import static org.sonar.server.platform.db.migration.version.v103.CreateUniqueIndexForPropertiesTable.INDEX_NAME;
 import static org.sonar.server.platform.db.migration.version.v103.CreateUniqueIndexForPropertiesTable.PROPERTIES_TABLE_NAME;

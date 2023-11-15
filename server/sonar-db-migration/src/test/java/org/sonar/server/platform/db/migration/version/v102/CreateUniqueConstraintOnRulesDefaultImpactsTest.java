@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v102;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.platform.db.migration.MigrationDbTester;
+import org.sonar.db.MigrationDbTester;
 
 
 
@@ -49,4 +49,3 @@ public class CreateUniqueConstraintOnRulesDefaultImpactsTest {
     db.assertUniqueIndex("rules_default_impacts", "uniq_rul_uuid_sof_qual", "rule_uuid", "software_quality");
   }
 }
-

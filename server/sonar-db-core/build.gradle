@@ -40,6 +40,9 @@ dependencies {
   testFixturesApi 'commons-dbutils:commons-dbutils'
   testFixturesApi 'junit:junit'
   testFixturesApi 'org.assertj:assertj-core'
+  testFixturesApi 'org.apache.commons:commons-collections4'
+
+  testFixturesImplementation 'com.oracle.database.jdbc:ojdbc11'
 
   testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
 }

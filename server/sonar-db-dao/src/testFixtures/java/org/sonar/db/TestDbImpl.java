@@ -34,7 +34,6 @@ import org.junit.AssumptionViolatedException;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.db.dialect.H2;
 import org.sonar.process.logging.LogbackHelper;
-import org.sonar.server.platform.db.migration.OrchestratorSettingsUtils;
 
 class TestDbImpl extends CoreTestDb {
   private static TestDbImpl defaultSchemaBaseTestDb;

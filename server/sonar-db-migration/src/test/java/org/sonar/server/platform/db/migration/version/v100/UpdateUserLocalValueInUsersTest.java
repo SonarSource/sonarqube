@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.server.platform.db.migration.MigrationDbTester;
+import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -71,7 +71,7 @@ public class UpdateUserLocalValueInUsersTest {
   }
 
   private void assertUserLocalIsUpdatedCorrectly(String userUuid, boolean expected) {
-    String selectSql = String.format("select USER_LOCAL from users where uuid='%s'", userUuid);
+    String selectSql = String.format("select user_local from users where uuid='%s'", userUuid);
     assertThat(db.select(selectSql).stream()
       .map(row -> row.get("USER_LOCAL"))
       .toList())

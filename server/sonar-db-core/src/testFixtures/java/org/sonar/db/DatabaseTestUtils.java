@@ -24,12 +24,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javax.sql.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.db.version.SqTables;
 
 /**
  * Utils class for test-specific database opertations
  */
 public class DatabaseTestUtils {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseTestUtils.class);
 
   private DatabaseTestUtils() {
 
@@ -63,6 +67,12 @@ public class DatabaseTestUtils {
 
     } catch (SQLException ignored) {
       // probably because table does not exist. That's the case with H2 tests.
+      // Connection needs to be rollback to leave it in a clean state
+      try {
+        connection.rollback();
+      } catch (SQLException e) {
+        LOGGER.warn("Fail to rollback transaction when truncating table %s".formatted(table), e);
+      }
     }
     return false;
   }

@@ -29,7 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.server.platform.db.migration.MigrationDbTester;
+import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.version.v101.MigrateScmAccountsFromUsersToScmAccounts.ScmAccountRow;
 
@@ -154,9 +154,9 @@ public class MigrateScmAccountsFromUsersToScmAccountsTest {
 
 
   private Set<ScmAccountRow> findAllScmAccounts() {
-    Set<ScmAccountRow> scmAccounts = db.select("select user_uuid USERUUID, scm_account SCMACCOUNT from scm_accounts")
+    Set<ScmAccountRow> scmAccounts = db.select("select user_uuid, scm_account from scm_accounts")
       .stream()
-      .map(row -> new ScmAccountRow((String) row.get("USERUUID"), (String) row.get("SCMACCOUNT")))
+      .map(row -> new ScmAccountRow((String) row.get("user_uuid"), (String) row.get("scm_account")))
       .collect(toSet());
     return scmAccounts;
   }

@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v100;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.platform.db.migration.MigrationDbTester;
+import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class DropIndexProjectsModuleUuidInComponentsTest {
@@ -44,7 +44,7 @@ public class DropIndexProjectsModuleUuidInComponentsTest {
   @Test
   public void execute_whenIndexNameWithPrefix_shouldStillDelete() throws SQLException {
     String alteredIndexName = "idx_1234567891345678916456789_" + INDEX_NAME;
-    db.executeUpdateSql(String.format("ALTER INDEX %s RENAME TO %s;", INDEX_NAME, alteredIndexName));
+    db.renameIndex(TABLE_NAME, INDEX_NAME, alteredIndexName);
     db.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
     db.assertIndex(TABLE_NAME, alteredIndexName, COLUMN_NAME);
     underTest.execute();

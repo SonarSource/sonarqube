@@ -22,8 +22,8 @@ package org.sonar.server.platform.db.migration.sql;
 import java.util.Map;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
 import org.sonar.db.dialect.Dialect;
+import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.def.TinyIntColumnDef;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 
@@ -39,9 +39,9 @@ import static org.sonar.server.platform.db.migration.sql.CreateTableBuilder.Colu
 
 public class CreateTableBuilderDbTesterTest {
   @ClassRule
-  public static final CoreDbTester dbTester = CoreDbTester.createEmpty();
+  public static final MigrationDbTester dbTester = MigrationDbTester.createEmpty();
 
-  private Dialect dialect = dbTester.database().getDialect();
+  private final Dialect dialect = dbTester.database().getDialect();
   private static int tableNameGenerator = 0;
 
   @Test

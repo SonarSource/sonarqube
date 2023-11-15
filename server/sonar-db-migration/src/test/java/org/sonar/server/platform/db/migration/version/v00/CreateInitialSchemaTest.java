@@ -24,13 +24,16 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.platform.db.migration.MigrationDbTester;
+import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CreateInitialSchemaTest {
+
+  private static final Set<String> SCHEMAS_TO_IGNORE = Set.of("INFORMATION_SCHEMA", "sys", "SYS", "SYSTEM", "CTXSYS", "MDSYS", "XDB");
 
   @Rule
   public final MigrationDbTester dbTester = MigrationDbTester.createForMigrationStep(CreateInitialSchema.class);
@@ -47,7 +50,7 @@ public class CreateInitialSchemaTest {
 
       while (rs.next()) {
         String schema = rs.getString("TABLE_SCHEM");
-        if (!"INFORMATION_SCHEMA".equalsIgnoreCase(schema)) {
+        if (!SCHEMAS_TO_IGNORE.contains(schema)) {
           tables.add(rs.getString("TABLE_NAME").toLowerCase(Locale.ENGLISH));
         }
       }

@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.platform.db.migration.MigrationDbTester;
+import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,7 +59,7 @@ public class FixSqaleIndexMetricDescriptionTest {
   }
 
   private String select() {
-    return (String) db.selectFirst("SELECT DESCRIPTION FROM metrics WHERE NAME = 'sqale_index'").get("DESCRIPTION");
+    return (String) db.selectFirst("SELECT description FROM metrics WHERE name = 'sqale_index'").get("description");
   }
 
 }

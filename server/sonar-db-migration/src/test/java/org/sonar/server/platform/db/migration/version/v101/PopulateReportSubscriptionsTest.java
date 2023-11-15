@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.server.platform.db.migration.MigrationDbTester;
+import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -112,8 +112,8 @@ public class PopulateReportSubscriptionsTest {
       "project_uuid", "project_" + uuid,
       "kee", "kee_" + uuid,
       "branch_type", "BRANCH",
-      "created_at", "1000",
-      "updated_at", "1000",
+      "created_at", 1000,
+      "updated_at", 1000,
       "need_issue_sync", false,
       "is_main", true
     );

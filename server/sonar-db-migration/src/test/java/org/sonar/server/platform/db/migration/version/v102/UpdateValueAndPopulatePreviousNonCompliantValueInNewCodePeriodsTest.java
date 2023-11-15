@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.platform.db.migration.MigrationDbTester;
+import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -46,9 +46,9 @@ public class UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriodsTest
 
     underTest.execute();
 
-    assertThat(db.select("select UUID, VALUE, PREVIOUS_NON_COMPLIANT_VALUE from new_code_periods"))
-      .extracting(stringObjectMap -> stringObjectMap.get("UUID"), stringObjectMap -> stringObjectMap.get("VALUE"),
-        stringObjectMap -> stringObjectMap.get("PREVIOUS_NON_COMPLIANT_VALUE"))
+    assertThat(db.select("select uuid, value, previous_non_compliant_value from new_code_periods"))
+      .extracting(stringObjectMap -> stringObjectMap.get("uuid"), stringObjectMap -> stringObjectMap.get("value"),
+        stringObjectMap -> stringObjectMap.get("previous_non_compliant_value"))
       .containsExactlyInAnyOrder(
         tuple("uuid-1", null, null),
         tuple("uuid-2", "90", null),
@@ -67,4 +67,3 @@ public class UpdateValueAndPopulatePreviousNonCompliantValueInNewCodePeriodsTest
   }
 
 }
-

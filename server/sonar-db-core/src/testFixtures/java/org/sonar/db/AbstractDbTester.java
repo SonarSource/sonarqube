@@ -37,30 +37,54 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.rules.ExternalResource;
 import org.slf4j.LoggerFactory;
+import org.sonar.db.dialect.H2;
+import org.sonar.db.dialect.MsSql;
+import org.sonar.db.dialect.Oracle;
+import org.sonar.db.dialect.PostgreSql;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.asList;
-import static java.sql.ResultSetMetaData.columnNoNulls;
-import static java.sql.ResultSetMetaData.columnNullable;
+import static java.sql.Types.BIGINT;
+import static java.sql.Types.BIT;
+import static java.sql.Types.BOOLEAN;
+import static java.sql.Types.INTEGER;
+import static java.sql.Types.NUMERIC;
+import static java.sql.Types.NVARCHAR;
+import static java.sql.Types.VARCHAR;
+import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class AbstractDbTester<T extends TestDb> extends ExternalResource {
   private static final Joiner COMMA_JOINER = Joiner.on(", ");
+
+  private static final Pattern INDEX_NAME_PATTERN = Pattern.compile("COALESCE\\(([\\w_]*),");
+
+  private static final Map<Integer, Integer> POSTGRES_TYPE_SUBSTITUTION = Map.of(BOOLEAN, BIT);
+  private static final Map<Integer, Integer> MSSQL_TYPE_SUBSTITUTION = Map.of(
+    BOOLEAN, BIT,
+    VARCHAR, NVARCHAR);
+
+  private static final Map<Integer, Integer> ORACLE_TYPE_SUBSTITUTION = Map.of(
+    BOOLEAN, NUMERIC,
+    BIGINT, NUMERIC,
+    INTEGER, NUMERIC);
+
   protected final T db;
 
   public AbstractDbTester(T db) {
@@ -130,10 +154,10 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
     }
 
     String sql = "insert into " + table.toLowerCase(Locale.ENGLISH) + " (" +
-      COMMA_JOINER.join(valuesByColumn.keySet().stream().map(t -> t.toLowerCase(Locale.ENGLISH)).toArray(String[]::new)) +
-      ") values (" +
-      COMMA_JOINER.join(Collections.nCopies(valuesByColumn.size(), '?')) +
-      ")";
+                 COMMA_JOINER.join(valuesByColumn.keySet().stream().map(t -> t.toLowerCase(Locale.ENGLISH)).toArray(String[]::new)) +
+                 ") values (" +
+                 COMMA_JOINER.join(Collections.nCopies(valuesByColumn.size(), '?')) +
+                 ")";
     executeUpdateSql(sql, valuesByColumn.values().toArray(new Object[valuesByColumn.size()]));
   }
 
@@ -209,7 +233,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
     int colCount = metaData.getColumnCount();
     List<Map<String, Object>> rows = new ArrayList<>();
     while (resultSet.next()) {
-      Map<String, Object> columns = new HashMap<>();
+      Map<String, Object> columns = new CaseInsensitiveMap<>();
       for (int i = 1; i <= colCount; i++) {
         Object value = resultSet.getObject(i);
         if (value instanceof Clob) {
@@ -219,7 +243,10 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
         } else if (value instanceof BigDecimal) {
           // In Oracle, INTEGER types are mapped as BigDecimal
           BigDecimal bgValue = ((BigDecimal) value);
-          if (bgValue.scale() == 0) {
+          if (metaData.getPrecision(i) == 1) {
+            // In Oracle, Boolean are considered BigDecimal with a precision of 1.
+            value = bgValue.compareTo(BigDecimal.ONE) == 0;
+          } else if (bgValue.scale() == 0) {
             value = bgValue.longValue();
           } else {
             value = bgValue.doubleValue();
@@ -232,6 +259,8 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
           value = byteValue.intValue();
         } else if (value instanceof Timestamp) {
           value = new Date(((Timestamp) value).getTime());
+        } else if (value instanceof oracle.sql.TIMESTAMP) {
+          value = ((oracle.sql.TIMESTAMP) value).dateValue();
         }
         columns.put(metaData.getColumnLabel(i), value);
       }
@@ -240,25 +269,48 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
     return rows;
   }
 
-  public void assertColumnDefinition(String table, String column, int expectedType, @Nullable Integer expectedSize, @Nullable Boolean isNullable) {
+  public void renameIndex(String tableName, String indexName, String newIndexName) {
+    if (db.getDatabase().getDialect().getId().equals(MsSql.ID)) {
+      executeUpdateSql(String.format("EXEC sp_rename N'%s.%s', N'%s', N'INDEX'", tableName, indexName, newIndexName));
+    } else {
+      executeUpdateSql(String.format("ALTER INDEX %s RENAME TO %s", indexName, newIndexName));
+    }
+  }
+
+  public void assertColumnDefinition(String table, String column, int expectedType, @Nullable Integer expectedSize,
+    @Nullable Boolean isNullable) {
     try (Connection connection = getConnection();
-         PreparedStatement stmt = connection.prepareStatement("select * from " + table);
-         ResultSet res = stmt.executeQuery()) {
-      Integer columnIndex = getColumnIndex(res, column);
-      if (columnIndex == null) {
-        fail("The column '" + column + "' does not exist");
+         ResultSet rs = connection.getMetaData().getColumns(null, null, toVendorCase(table), toVendorCase(column))) {
+      boolean exists = false;
+
+      while (rs.next()) {
+        if (column.equalsIgnoreCase(rs.getString("COLUMN_NAME"))) {
+          exists = true;
+          assertThat(rs.getInt("DATA_TYPE")).isEqualTo(getDBType(expectedType));
+          if (expectedSize != null) {
+            assertThat(rs.getInt("COLUMN_SIZE")).isEqualTo(expectedSize);
+          }
+          if (isNullable != null) {
+            assertThat(rs.getString("IS_NULLABLE")).isEqualTo(isNullable ? "YES" : "NO");
+          }
+        }
       }
 
-      assertThat(res.getMetaData().getColumnType(columnIndex)).isEqualTo(expectedType);
-      if (expectedSize != null) {
-        assertThat(res.getMetaData().getColumnDisplaySize(columnIndex)).isEqualTo(expectedSize);
-      }
-      if (isNullable != null) {
-        assertThat(res.getMetaData().isNullable(columnIndex)).isEqualTo(isNullable ? columnNullable : columnNoNulls);
+      if (!exists) {
+        fail("The column '" + column + "' does not exist");
       }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to check column", e);
     }
+  }
+
+  private int getDBType(int expectedType) {
+    return switch (db.getDatabase().getDialect().getId()) {
+      case PostgreSql.ID -> POSTGRES_TYPE_SUBSTITUTION.getOrDefault(expectedType, expectedType);
+      case MsSql.ID -> MSSQL_TYPE_SUBSTITUTION.getOrDefault(expectedType, expectedType);
+      case Oracle.ID -> ORACLE_TYPE_SUBSTITUTION.getOrDefault(expectedType, expectedType);
+      default -> expectedType;
+    };
   }
 
   public void assertColumnDoesNotExist(String table, String column) throws SQLException {
@@ -302,19 +354,37 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
 
   private void assertIndexImpl(String tableName, String indexName, boolean expectedUnique, String expectedColumn, String... expectedSecondaryColumns) {
     try (Connection connection = getConnection();
-         ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
+         ResultSet rs = connection.getMetaData().getIndexInfo(null, null, toVendorCase(tableName), false, false)) {
       List<String> onColumns = new ArrayList<>();
+
       while (rs.next()) {
         if (indexName.equalsIgnoreCase(rs.getString("INDEX_NAME"))) {
           assertThat(rs.getBoolean("NON_UNIQUE")).isEqualTo(!expectedUnique);
           int position = rs.getInt("ORDINAL_POSITION");
-          onColumns.add(position - 1, rs.getString("COLUMN_NAME").toLowerCase(Locale.ENGLISH));
+          String columnDefinition = rs.getString("COLUMN_NAME");
+          String columnName = getColumnNameFromDefinition(columnDefinition);
+          onColumns.add(position - 1, columnName.toLowerCase(Locale.ENGLISH));
         }
       }
       assertThat(onColumns).containsExactlyInAnyOrderElementsOf(asList(expectedColumn, expectedSecondaryColumns));
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to check index", e);
     }
+  }
+
+  /**
+   * Column definition is not necessarly the column name, as we also create index with special expression
+   * see {@link org.sonar.server.platform.db.migration.sql.CreateIndexBuilder#createSqlStatement()}
+   */
+  private static String getColumnNameFromDefinition(String columnDefinition) {
+    Matcher matcher = INDEX_NAME_PATTERN.matcher(columnDefinition);
+    String columnName;
+    if (matcher.find()) {
+      columnName = matcher.group(1);
+    } else {
+      columnName = columnDefinition;
+    }
+    return columnName;
   }
 
   /**
@@ -325,7 +395,9 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
          ResultSet rs = connection.getMetaData().getIndexInfo(null, null, tableName.toUpperCase(Locale.ENGLISH), false, false)) {
       List<String> indices = new ArrayList<>();
       while (rs.next()) {
-        indices.add(rs.getString("INDEX_NAME").toLowerCase(Locale.ENGLISH));
+        if (rs.getString("INDEX_NAME") != null) {
+          indices.add(rs.getString("INDEX_NAME").toLowerCase(Locale.ENGLISH));
+        }
       }
       assertThat(indices).doesNotContain(indexName);
     } catch (SQLException e) {
@@ -335,10 +407,7 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
 
   public void assertPrimaryKey(String tableName, @Nullable String expectedPkName, String columnName, String... otherColumnNames) {
     try (Connection connection = getConnection()) {
-      PK pk = pkOf(connection, tableName.toUpperCase(Locale.ENGLISH));
-      if (pk == null) {
-        pkOf(connection, tableName.toLowerCase(Locale.ENGLISH));
-      }
+      PK pk = pkOf(connection, toVendorCase(tableName));
       assertThat(pk).as("No primary key is defined on table %s", tableName).isNotNull();
       if (expectedPkName != null) {
         assertThat(pk.getName()).isEqualToIgnoringCase(expectedPkName);
@@ -392,6 +461,13 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
           .map(PkColumn::getName)
           .toList());
     }
+  }
+
+  public String toVendorCase(String input) {
+    if (List.of(H2.ID, Oracle.ID).contains(db.getDatabase().getDialect().getId())) {
+      return input.toUpperCase(Locale.ENGLISH);
+    }
+    return input.toLowerCase(Locale.ENGLISH);
   }
 
   private static final class PkColumn {

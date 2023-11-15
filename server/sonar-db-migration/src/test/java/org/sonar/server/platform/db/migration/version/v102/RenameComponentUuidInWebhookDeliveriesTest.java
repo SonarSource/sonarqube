@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.AbstractDbTester;
 import org.sonar.db.TestDb;
-import org.sonar.server.platform.db.migration.MigrationDbTester;
+import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.RenameVarcharColumnChange;
 import org.sonar.server.platform.db.migration.version.RenameVarcharColumnAbstractTest;
 
