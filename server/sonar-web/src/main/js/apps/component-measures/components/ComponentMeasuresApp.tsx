@@ -42,7 +42,7 @@ import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../../he
 import { translate } from '../../../helpers/l10n';
 import { useBranchesQuery } from '../../../queries/branch';
 import { BranchLike } from '../../../types/branch-like';
-import { ComponentQualifier } from '../../../types/component';
+import { ComponentQualifier, isPortfolioLike } from '../../../types/component';
 import { MeasurePageView } from '../../../types/measures';
 import { MetricKey } from '../../../types/metrics';
 import { ComponentMeasure, Dict, MeasureEnhanced, Metric, Period } from '../../../types/types';
@@ -100,25 +100,31 @@ class ComponentMeasuresApp extends React.PureComponent<Props, State> {
       (metrics) => {
         const byKey = keyBy(metrics, 'key');
         this.setState({ metrics: byKey });
-        this.fetchMeasures(byKey);
       },
       () => {},
     );
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: Props, prevState: State) {
     const prevQuery = parseQuery(prevProps.location.query);
     const query = parseQuery(this.props.location.query);
 
+    const hasSelectedQueryChanged = prevQuery.selected !== query.selected;
+
+    const hasBranchChanged = !isSameBranchLike(prevProps.branchLike, this.props.branchLike);
+
+    const isBranchReady =
+      isPortfolioLike(this.props.component.qualifier) || this.props.branchLike !== undefined;
+
+    const haveMetricsChanged =
+      Object.keys(this.state.metrics).length !== Object.keys(prevState.metrics).length;
+
+    const areMetricsReady = Object.keys(this.state.metrics).length > 0;
+
     if (
-      // If this update is triggered by the branch query resolving, and the metrics query started
-      // in componentDidMount is not done yet, we should not fetch measures just now, as it may
-      // throw a bug in ITs looking for a metric that isn't there yet. In this case the measures
-      // will be fetched once the state updates.
-      Object.keys(this.state.metrics).length > 0 &&
-      (!isSameBranchLike(prevProps.branchLike, this.props.branchLike) ||
-        prevProps.component.key !== this.props.component.key ||
-        prevQuery.selected !== query.selected)
+      areMetricsReady &&
+      isBranchReady &&
+      (haveMetricsChanged || hasBranchChanged || hasSelectedQueryChanged)
     ) {
       this.fetchMeasures(this.state.metrics);
     }

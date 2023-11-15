@@ -392,14 +392,14 @@ describe('redirects', () => {
 
   it('should redirect old metric route', async () => {
     const { ui } = getPageObject();
-    renderMeasuresApp('component_measures/metric/bugs');
+    renderMeasuresApp('component_measures/metric/bugs?id=foo');
     await ui.appLoaded();
     expect(ui.measureBtn('Bugs 0').get()).toHaveAttribute('aria-current', 'true');
   });
 
   it('should redirect old domain route', async () => {
     const { ui } = getPageObject();
-    renderMeasuresApp('component_measures/domain/bugs');
+    renderMeasuresApp('component_measures/domain/bugs?id=foo');
     await ui.appLoaded();
     expect(ui.reliabilityDomainBtn.get()).toHaveAttribute('aria-expanded', 'true');
   });
@@ -493,7 +493,7 @@ function getPageObject() {
     notShowingAllComponentsTxt: byText(/component_measures.hidden_best_score_metrics/),
 
     // Misc
-    loading: byLabelText('loading'),
+    loading: byText('loading'),
     breadcrumbLink: (name: string) => byRole('link', { name }),
     viewSelect: byLabelText('component_measures.view_as'),
     emptyText: byText('component_measures.empty'),
@@ -542,7 +542,7 @@ function getPageObject() {
 
 function renderMeasuresApp(navigateTo?: string, componentContext?: Partial<ComponentContextShape>) {
   return renderAppWithComponentContext(
-    'component_measures',
+    'component_measures?id=foo',
     routes,
     { navigateTo, featureList: [Feature.BranchSupport] },
     { component: mockComponent({ key: 'foo' }), ...componentContext },
