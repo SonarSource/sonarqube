@@ -67,6 +67,7 @@ public class DefaultUserController implements UserController {
 
   private void throwIfAdminOnlyParametersAreUsed(UsersSearchRestRequest usersSearchRestRequest) {
     if (!userSession.isSystemAdministrator()) {
+      throwIfValuePresent("externalIdentity", usersSearchRestRequest.externalIdentity());
       throwIfValuePresent("sonarLintLastConnectionDateFrom", usersSearchRestRequest.sonarLintLastConnectionDateFrom());
       throwIfValuePresent("sonarLintLastConnectionDateTo", usersSearchRestRequest.sonarLintLastConnectionDateTo());
       throwIfValuePresent("sonarQubeLastConnectionDateFrom", usersSearchRestRequest.sonarQubeLastConnectionDateFrom());
@@ -79,7 +80,7 @@ public class DefaultUserController implements UserController {
   }
 
   private static void throwForbiddenFor(String parameterName) {
-    throw new ForbiddenException("parameter " + parameterName + " requires Administer System permission.");
+    throw new ForbiddenException("Parameter " + parameterName + " requires Administer System permission.");
   }
 
   private static UsersSearchRequest toUserSearchRequest(UsersSearchRestRequest usersSearchRestRequest, RestPage page) {
@@ -87,6 +88,7 @@ public class DefaultUserController implements UserController {
       .setDeactivated(Optional.ofNullable(usersSearchRestRequest.active()).map(active -> !active).orElse(false))
       .setManaged(usersSearchRestRequest.managed())
       .setQuery(usersSearchRestRequest.q())
+      .setExternalLogin(usersSearchRestRequest.externalIdentity())
       .setLastConnectionDateFrom(usersSearchRestRequest.sonarQubeLastConnectionDateFrom())
       .setLastConnectionDateTo(usersSearchRestRequest.sonarQubeLastConnectionDateTo())
       .setSonarLintLastConnectionDateFrom(usersSearchRestRequest.sonarLintLastConnectionDateFrom())

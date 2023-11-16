@@ -60,6 +60,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.api.utils.DateUtils.parseOffsetDateTime;
 import static org.sonar.server.v2.WebApiEndpoints.JSON_MERGE_PATCH_CONTENT_TYPE;
 import static org.sonar.server.v2.WebApiEndpoints.USER_ENDPOINT;
 import static org.sonar.server.v2.api.model.RestPage.DEFAULT_PAGE_INDEX;
@@ -104,6 +105,7 @@ public class DefaultUserControllerTest {
         .param("active", "false")
         .param("managed", "true")
         .param("q", "q")
+        .param("externalIdentity", "externalIdentity")
         .param("sonarQubeLastConnectionDateFrom", "2020-01-01T00:00:00+0100")
         .param("sonarQubeLastConnectionDateTo", "2020-01-01T00:00:00+0100")
         .param("sonarLintLastConnectionDateFrom", "2020-01-01T00:00:00+0100")
@@ -114,9 +116,17 @@ public class DefaultUserControllerTest {
 
     ArgumentCaptor<UsersSearchRequest> requestCaptor = ArgumentCaptor.forClass(UsersSearchRequest.class);
     verify(userService).findUsers(requestCaptor.capture());
+
+    assertThat(requestCaptor.getValue().isDeactivated()).isTrue();
+    assertThat(requestCaptor.getValue().isManaged()).isTrue();
+    assertThat(requestCaptor.getValue().getQuery()).isEqualTo("q");
+    assertThat(requestCaptor.getValue().getExternalLogin()).contains("externalIdentity");
+    assertThat(requestCaptor.getValue().getLastConnectionDateFrom()).contains(parseOffsetDateTime("2020-01-01T00:00:00+0100"));
+    assertThat(requestCaptor.getValue().getLastConnectionDateTo()).contains(parseOffsetDateTime("2020-01-01T00:00:00+0100"));
+    assertThat(requestCaptor.getValue().getSonarLintLastConnectionDateFrom()).contains(parseOffsetDateTime("2020-01-01T00:00:00+0100"));
+    assertThat(requestCaptor.getValue().getSonarLintLastConnectionDateTo()).contains(parseOffsetDateTime("2020-01-01T00:00:00+0100"));
     assertThat(requestCaptor.getValue().getPageSize()).isEqualTo(100);
     assertThat(requestCaptor.getValue().getPage()).isEqualTo(2);
-    assertThat(requestCaptor.getValue().isDeactivated()).isTrue();
   }
 
   @Test
@@ -125,25 +135,31 @@ public class DefaultUserControllerTest {
       .param("sonarQubeLastConnectionDateFrom", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
-        content().string("{\"message\":\"parameter sonarQubeLastConnectionDateFrom requires Administer System permission.\"}"));
+        content().string("{\"message\":\"Parameter sonarQubeLastConnectionDateFrom requires Administer System permission.\"}"));
 
     mockMvc.perform(get(USER_ENDPOINT)
       .param("sonarQubeLastConnectionDateTo", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
-        content().string("{\"message\":\"parameter sonarQubeLastConnectionDateTo requires Administer System permission.\"}"));
+        content().string("{\"message\":\"Parameter sonarQubeLastConnectionDateTo requires Administer System permission.\"}"));
 
     mockMvc.perform(get(USER_ENDPOINT)
       .param("sonarLintLastConnectionDateFrom", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
-        content().string("{\"message\":\"parameter sonarLintLastConnectionDateFrom requires Administer System permission.\"}"));
+        content().string("{\"message\":\"Parameter sonarLintLastConnectionDateFrom requires Administer System permission.\"}"));
 
     mockMvc.perform(get(USER_ENDPOINT)
       .param("sonarLintLastConnectionDateTo", "2020-01-01T00:00:00+0100"))
       .andExpectAll(
         status().isForbidden(),
-        content().string("{\"message\":\"parameter sonarLintLastConnectionDateTo requires Administer System permission.\"}"));
+        content().string("{\"message\":\"Parameter sonarLintLastConnectionDateTo requires Administer System permission.\"}"));
+
+    mockMvc.perform(get(USER_ENDPOINT)
+        .param("externalIdentity", "externalIdentity"))
+      .andExpectAll(
+        status().isForbidden(),
+        content().string("{\"message\":\"Parameter externalIdentity requires Administer System permission.\"}"));
   }
 
   @Test

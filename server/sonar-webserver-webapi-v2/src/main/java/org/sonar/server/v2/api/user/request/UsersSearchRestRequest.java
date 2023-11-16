@@ -25,30 +25,41 @@ import javax.annotation.Nullable;
 public record UsersSearchRestRequest(
   @Schema(defaultValue = "true", description = "Return active/inactive users")
   Boolean active,
+
   @Nullable
   @Schema(description = "Return managed or non-managed users. Only available for managed instances, throws for non-managed instances")
   Boolean managed,
+
   @Nullable
   @Schema(description = "Filter on login, name and email.\n"
     + "This parameter can either perform an exact match, or a partial match (contains), it is case insensitive.")
   String q,
+
   @Nullable
-  @Schema(description = "Filter the users based on the last connection date field. Only users who interacted with this instance at or after the date will be returned. "
+  @Schema(description = "Filter on externalIdentity.\n"
+    + "This parameter perform a case-sensitive exact match")
+  String externalIdentity,
+
+  @Nullable
+  @Schema(description = "Filter users based on the last connection date field. Only users who interacted with this instance at or after the date will be returned. "
     + "The format must be ISO 8601 datetime format (YYYY-MM-DDThh:mm:ss±hhmm)",
     example = "2020-01-01T00:00:00+0100")
   String sonarQubeLastConnectionDateFrom,
+
   @Nullable
-  @Schema(description = "Filter the users based on the last connection date field. Only users that never connected or who interacted with this instance at "
+  @Schema(description = "Filter users based on the last connection date field. Only users that never connected or who interacted with this instance at "
     + "or before the date will be returned. The format must be ISO 8601 datetime format (YYYY-MM-DDThh:mm:ss±hhmm)",
     example = "2020-01-01T00:00:00+0100")
   String sonarQubeLastConnectionDateTo,
+
   @Nullable
-  @Schema(description = "Filter the users based on the sonar lint last connection date field Only users who interacted with this instance using SonarLint at or after "
+  @Schema(description = "Filter users based on the SonarLint last connection date field Only users who interacted with this instance using SonarLint at or after "
     + "the date will be returned. The format must be ISO 8601 datetime format (YYYY-MM-DDThh:mm:ss±hhmm)",
     example = "2020-01-01T00:00:00+0100")
   String sonarLintLastConnectionDateFrom,
+
   @Nullable
-  @Schema(description = "Filter the users based on the sonar lint last connection date field. Only users that never connected or who interacted with this instance "
+  @Schema(description = "Filter users based on the SonarLint last connection date field. Only users that never connected or who interacted with this instance "
     + "using SonarLint at or before the date will be returned. The format must be ISO 8601 datetime format (YYYY-MM-DDThh:mm:ss±hhmm)",
     example = "2020-01-01T00:00:00+0100")
   String sonarLintLastConnectionDateTo
