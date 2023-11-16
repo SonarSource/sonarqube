@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import userEvent from '@testing-library/user-event';
+import { addGlobalSuccessMessage } from 'design-system';
 import selectEvent from 'react-select-event';
 import { QualityGatesServiceMock } from '../../../api/mocks/QualityGatesServiceMock';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
@@ -34,6 +35,12 @@ jest.mock('../../../api/quality-gates');
 
 jest.mock('../../../app/utils/handleRequiredAuthorization');
 
+jest.mock('design-system', () => ({
+  ...jest.requireActual('design-system'),
+  addGlobalErrorMessage: jest.fn(),
+  addGlobalSuccessMessage: jest.fn(),
+}));
+
 let handler: QualityGatesServiceMock;
 
 const ui = {
@@ -46,11 +53,8 @@ const ui = {
   QGWithoutConditionsOptionLabel: byRole('radio', {
     name: /option QG without conditions selected/,
   }),
-  QGWithoutNewCodeConditionOptionLabel: byRole('radio', {
-    name: 'project_quality_gate.always_use_specific QG without new code conditions',
-  }),
+
   saveButton: byRole('button', { name: 'save' }),
-  statusMessage: byRole('status'),
   noConditionsNewCodeWarning: byText('project_quality_gate.no_condition_on_new_code'),
   alertMessage: byText('unknown'),
 };
@@ -78,7 +82,7 @@ it('should be able to select and save specific Quality Gate', async () => {
 
   await selectEvent.select(ui.qualityGatesSelect.get(), 'Sonar way');
   await userEvent.click(ui.saveButton.get());
-  expect(ui.statusMessage.get()).toHaveTextContent(/project_quality_gate.success/);
+  expect(addGlobalSuccessMessage).toHaveBeenCalledWith('project_quality_gate.successfully_updated');
 
   // Set back default QG
   await userEvent.click(ui.defaultRadioQualityGate.get());
@@ -86,7 +90,7 @@ it('should be able to select and save specific Quality Gate', async () => {
   expect(ui.defaultRadioQualityGate.get()).toBeChecked();
 
   await userEvent.click(ui.saveButton.get());
-  expect(ui.statusMessage.get()).toHaveTextContent(/project_quality_gate.success/);
+  expect(addGlobalSuccessMessage).toHaveBeenCalledWith('project_quality_gate.successfully_updated');
 });
 
 it('shows warning for quality gate that doesnt have conditions on new code', async () => {
@@ -98,7 +102,6 @@ it('shows warning for quality gate that doesnt have conditions on new code', asy
   expect(ui.QGWithoutConditionsOptionLabel.query()).not.toBeInTheDocument();
 
   await selectEvent.select(ui.qualityGatesSelect.get(), 'QG without new code conditions');
-  expect(ui.QGWithoutNewCodeConditionOptionLabel.get()).toBeInTheDocument();
   expect(ui.noConditionsNewCodeWarning.get()).toBeInTheDocument();
 });
 

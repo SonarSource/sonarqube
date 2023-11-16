@@ -60,10 +60,11 @@ export function RadioButton({
         {
           disabled,
         },
-        className
+        className,
       )}
     >
       <RadioButtonStyled
+        aria-checked={checked}
         aria-disabled={disabled}
         checked={checked}
         disabled={disabled}

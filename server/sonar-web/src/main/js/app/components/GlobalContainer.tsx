@@ -63,6 +63,7 @@ const TEMP_PAGELIST_WITH_NEW_BACKGROUND_WHITE = [
   '/project/deletion',
   '/project/links',
   '/project/import_export',
+  '/project/quality_gate',
 ];
 
 export default function GlobalContainer() {

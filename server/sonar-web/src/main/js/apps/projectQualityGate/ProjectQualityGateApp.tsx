@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { addGlobalSuccessMessage } from 'design-system';
 import * as React from 'react';
 import {
   associateGateWithProject,
@@ -28,14 +29,11 @@ import {
 } from '../../api/quality-gates';
 import withComponentContext from '../../app/components/componentContext/withComponentContext';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
-import {
-  addGlobalErrorMessageFromAPI,
-  addGlobalSuccessMessage,
-} from '../../helpers/globalMessages';
+import { addGlobalErrorMessageFromAPI } from '../../helpers/globalMessages';
 import { translate } from '../../helpers/l10n';
 import { Component, QualityGate } from '../../types/types';
-import { USE_SYSTEM_DEFAULT } from './constants';
 import ProjectQualityGateAppRenderer from './ProjectQualityGateAppRenderer';
+import { USE_SYSTEM_DEFAULT } from './constants';
 
 interface Props {
   component: Component;
