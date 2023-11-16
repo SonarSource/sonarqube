@@ -31,7 +31,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.model.RestPage;
-import org.sonar.server.v2.api.model.RestSortOrder;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
 import org.sonar.server.v2.api.user.model.RestUser;
 import org.sonar.server.v2.api.user.request.UserCreateRestRequest;
@@ -57,9 +56,8 @@ public class DefaultUserController implements UserController {
   }
 
   @Override
-  public UsersSearchRestResponse search(UsersSearchRestRequest usersSearchRestRequest, RestPage page, @Nullable RestSortOrder order) {
+  public UsersSearchRestResponse search(UsersSearchRestRequest usersSearchRestRequest, RestPage page) {
     throwIfAdminOnlyParametersAreUsed(usersSearchRestRequest);
-    checkRequest(!RestSortOrder.DESC.equals(order), "order parameter is present for doc-demo purpose, it will be removed.");
 
     SearchResults<UserInformation> userSearchResults = userService.findUsers(toUserSearchRequest(usersSearchRestRequest, page));
     PaginationInformation paging = forPageIndex(page.pageIndex()).withPageSize(page.pageSize()).andTotal(userSearchResults.total());

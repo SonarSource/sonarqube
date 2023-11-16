@@ -23,9 +23,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import javax.validation.Valid;
-import org.jetbrains.annotations.Nullable;
 import org.sonar.server.v2.api.model.RestPage;
-import org.sonar.server.v2.api.model.RestSortOrder;
 import org.sonar.server.v2.api.user.model.RestUser;
 import org.sonar.server.v2.api.user.request.UserCreateRestRequest;
 import org.sonar.server.v2.api.user.request.UserUpdateRestRequest;
@@ -52,7 +50,6 @@ import static org.sonar.server.v2.WebApiEndpoints.USER_ENDPOINT;
 @RestController
 public interface UserController {
 
-
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Users search", description = """
@@ -66,11 +63,11 @@ public interface UserController {
         'sonarLintLastConnectionDate',
         'tokensCount'.
       Field 'sonarqubeLastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.
+      The results are sorted alphabetically by login.
     """)
   UsersSearchRestResponse search(
     @Valid @ParameterObject UsersSearchRestRequest usersSearchRestRequest,
-    @Valid @ParameterObject RestPage restPage,
-    @RequestParam(name = "order", required = false) @Nullable RestSortOrder order);
+    @Valid @ParameterObject RestPage restPage);
 
   @DeleteMapping(path = "/{login}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
