@@ -30,6 +30,8 @@ import {
   RestUserDetailed,
 } from '../types/users';
 
+const USERS_ENDPOINT = '/api/v2/users-management/users';
+
 export function getCurrentUser(): Promise<CurrentUser> {
   return getJSON('/api/users/current', undefined, true);
 }
@@ -86,7 +88,9 @@ export function getUsers<T extends RestUserBase>(data: {
   pageSize?: number;
   pageIndex?: number;
 }) {
-  return axios.get<{ page: Paging; users: T[] }>(`/api/v2/users`, { params: data });
+  return axios.get<{ page: Paging; users: T[] }>(USERS_ENDPOINT, {
+    params: data,
+  });
 }
 
 export function postUser(data: {
@@ -96,18 +100,18 @@ export function postUser(data: {
   password?: string;
   scmAccounts: string[];
 }) {
-  return axiosToCatch.post<RestUserDetailed>('/api/v2/users', data);
+  return axiosToCatch.post<RestUserDetailed>(USERS_ENDPOINT, data);
 }
 
 export function updateUser(
   id: string,
   data: Partial<Pick<RestUserDetailed, 'email' | 'name' | 'scmAccounts'>>,
 ) {
-  return axiosToCatch.patch<RestUserDetailed>(`/api/v2/users/${id}`, data);
+  return axiosToCatch.patch<RestUserDetailed>(`${USERS_ENDPOINT}/${id}`, data);
 }
 
 export function deleteUser({ login, anonymize }: { login: string; anonymize?: boolean }) {
-  return axios.delete(`/api/v2/users/${login}`, { params: { anonymize } });
+  return axios.delete(`${USERS_ENDPOINT}/${login}`, { params: { anonymize } });
 }
 
 export function setHomePage(homepage: HomePage): Promise<void | Response> {
