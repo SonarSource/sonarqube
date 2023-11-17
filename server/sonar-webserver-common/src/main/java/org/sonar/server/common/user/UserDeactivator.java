@@ -38,22 +38,21 @@ public class UserDeactivator {
     this.userAnonymizer = userAnonymizer;
   }
 
-  public UserDto deactivateUser(DbSession dbSession, String login) {
-    UserDto user = doBeforeDeactivation(dbSession, login);
-    return deactivateUser(dbSession, user);
+  public UserDto deactivateUser(DbSession dbSession, UserDto userDto) {
+    UserDto user = doBeforeDeactivation(dbSession, userDto);
+    return deactivateUserInternal(dbSession, user);
   }
 
-  public UserDto deactivateUserWithAnonymization(DbSession dbSession, String login) {
-    UserDto user = doBeforeDeactivation(dbSession, login);
+  public UserDto deactivateUserWithAnonymization(DbSession dbSession, UserDto userDto) {
+    UserDto user = doBeforeDeactivation(dbSession, userDto);
     anonymizeUser(dbSession, user);
-    return deactivateUser(dbSession, user);
+    return deactivateUserInternal(dbSession, user);
   }
 
-  private UserDto doBeforeDeactivation(DbSession dbSession, String login) {
-    UserDto user = getUserOrThrow(dbSession, login);
-    ensureNotLastAdministrator(dbSession, user);
-    deleteRelatedData(dbSession, user);
-    return user;
+  private UserDto doBeforeDeactivation(DbSession dbSession, UserDto userDto) {
+    ensureNotLastAdministrator(dbSession, userDto);
+    deleteRelatedData(dbSession, userDto);
+    return userDto;
   }
 
   private void ensureNotLastAdministrator(DbSession dbSession, UserDto user) {
@@ -82,7 +81,7 @@ public class UserDeactivator {
     dbClient.scimUserDao().deleteByUserUuid(dbSession, user.getUuid());
   }
 
-  private UserDto deactivateUser(DbSession dbSession, UserDto user) {
+  private UserDto deactivateUserInternal(DbSession dbSession, UserDto user) {
     dbClient.userDao().deactivateUser(dbSession, user);
     dbSession.commit();
     return getUserOrThrow(dbSession, user.getLogin());

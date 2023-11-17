@@ -82,7 +82,7 @@ export default function UserForm(props: Props) {
 
     updateUser(
       {
-        id: login,
+        id: user?.id!,
         data:
           isInstanceManaged || !user?.local
             ? { scmAccounts }

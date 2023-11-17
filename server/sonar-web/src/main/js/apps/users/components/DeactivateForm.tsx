@@ -26,11 +26,11 @@ import { ResetButtonLink, SubmitButton } from '../../../components/controls/butt
 import { Alert } from '../../../components/ui/Alert';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { useDeactivateUserMutation } from '../../../queries/users';
-import { UserActive } from '../../../types/users';
+import { RestUserDetailed } from '../../../types/users';
 
 export interface Props {
   onClose: () => void;
-  user: UserActive;
+  user: RestUserDetailed;
 }
 
 export default function DeactivateForm(props: Props) {
@@ -42,7 +42,7 @@ export default function DeactivateForm(props: Props) {
   const handleDeactivate = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     deactivateUser(
-      { login: user.login, anonymize },
+      { id: user.id, anonymize },
       {
         onSuccess: props.onClose,
       },

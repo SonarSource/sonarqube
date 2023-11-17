@@ -110,8 +110,8 @@ export function updateUser(
   return axiosToCatch.patch<RestUserDetailed>(`${USERS_ENDPOINT}/${id}`, data);
 }
 
-export function deleteUser({ login, anonymize }: { login: string; anonymize?: boolean }) {
-  return axios.delete(`${USERS_ENDPOINT}/${login}`, { params: { anonymize } });
+export function deleteUser({ id, anonymize }: { id: string; anonymize?: boolean }) {
+  return axios.delete(`${USERS_ENDPOINT}/${id}`, { params: { anonymize } });
 }
 
 export function setHomePage(homepage: HomePage): Promise<void | Response> {

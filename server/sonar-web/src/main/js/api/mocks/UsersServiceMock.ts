@@ -287,7 +287,7 @@ export default class UsersServiceMock {
 
   handleUpdateUser: typeof updateUser = (id, data) => {
     const { email, name, scmAccounts } = data;
-    const user = this.users.find((u) => u.login === id);
+    const user = this.users.find((u) => u.id === id);
     if (!user) {
       return Promise.reject('No such user');
     }
@@ -381,7 +381,7 @@ export default class UsersServiceMock {
   };
 
   handleDeactivateUser: typeof deleteUser = (data) => {
-    const index = this.users.findIndex((u) => u.login === data.login);
+    const index = this.users.findIndex((u) => u.id === data.id);
     const user = this.users.splice(index, 1)[0];
     user.active = false;
     return this.reply(undefined);

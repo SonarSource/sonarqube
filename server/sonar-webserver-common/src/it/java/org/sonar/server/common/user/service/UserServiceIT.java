@@ -675,8 +675,9 @@ public class UserServiceIT {
     UserDto admin = db.users().insertUser();
     db.users().insertGlobalPermissionOnUser(admin, GlobalPermission.ADMINISTER);
 
+    String adminUuid = admin.getUuid();
     assertThatThrownBy(() -> {
-      userService.deactivate(admin.getUuid(), false);
+      userService.deactivate(adminUuid, false);
     })
       .isInstanceOf(BadRequestException.class)
       .hasMessage("User is last administrator, and cannot be deactivated");

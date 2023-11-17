@@ -46,6 +46,7 @@ import org.sonar.server.user.UserUpdater;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Comparator.comparing;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
@@ -145,9 +146,9 @@ public class UserService {
       managedInstanceChecker.throwIfUserIsManaged(dbSession, uuid);
       UserDto deactivatedUser;
       if (Boolean.TRUE.equals(anonymize)) {
-        deactivatedUser = userDeactivator.deactivateUserWithAnonymization(dbSession, userDto.getLogin());
+        deactivatedUser = userDeactivator.deactivateUserWithAnonymization(dbSession, userDto);
       } else {
-        deactivatedUser = userDeactivator.deactivateUser(dbSession, userDto.getLogin());
+        deactivatedUser = userDeactivator.deactivateUser(dbSession, userDto);
       }
       dbSession.commit();
       return deactivatedUser;
@@ -178,18 +179,18 @@ public class UserService {
       if (Boolean.FALSE.equals(userCreateRequest.isLocal())) {
         newUserBuilder.setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, login, login));
       }
-      return registerUser(dbSession, login, newUserBuilder.build());
+      return registerUser(dbSession, newUserBuilder.build());
     }
   }
 
-  private UserInformation registerUser(DbSession dbSession, String uuid, NewUser newUserBuilder) {
-    UserDto user = dbClient.userDao().selectByLogin(dbSession, newUserBuilder.login());
+  private UserInformation registerUser(DbSession dbSession, NewUser newUser) {
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, requireNonNull(newUser.login()));
     if (user == null) {
-      user = userUpdater.createAndCommit(dbSession, newUserBuilder, u -> {
+      user = userUpdater.createAndCommit(dbSession, newUser, u -> {
       });
     } else {
       checkArgument(!user.isActive(), "An active user with login '%s' already exists", user.getLogin());
-      user = userUpdater.reactivateAndCommit(dbSession, user, newUserBuilder, u -> {
+      user = userUpdater.reactivateAndCommit(dbSession, user, newUser, u -> {
       });
     }
     return fetchUser(user.getUuid());
