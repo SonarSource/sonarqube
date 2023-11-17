@@ -19,30 +19,27 @@
  */
 package org.sonar.scanner.rule;
 
-import com.google.common.collect.ImmutableSortedMap;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Map;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.rule.LoadedActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.DefaultScannerWsClient;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Active;
 import org.sonarqube.ws.Rules.ActiveList;
 import org.sonarqube.ws.Rules.Actives;
 import org.sonarqube.ws.Rules.Rule;
-import org.sonarqube.ws.Rules.SearchResponse;
-import org.sonarqube.ws.Rules.SearchResponse.Builder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -68,11 +65,11 @@ public class DefaultActiveRulesLoaderTest {
   }
 
   @Test
-  public void feed_real_response_encode_qp() {
+  public void load_shouldRequestRulesAndParseResponse() {
     int total = PAGE_SIZE_1 + PAGE_SIZE_2;
 
-    WsTestUtil.mockStream(wsClient, urlOfPage(1), responseOfSize(PAGE_SIZE_1, total));
-    WsTestUtil.mockStream(wsClient, urlOfPage(2), responseOfSize(PAGE_SIZE_2, total));
+    WsTestUtil.mockStream(wsClient, urlOfPage(1), responseOfSize(1, PAGE_SIZE_1, total));
+    WsTestUtil.mockStream(wsClient, urlOfPage(2), responseOfSize(2, PAGE_SIZE_2, total));
 
     Collection<LoadedActiveRule> activeRules = loader.load("c+-test_c+-values-17445");
     assertThat(activeRules).hasSize(total);
@@ -92,29 +89,20 @@ public class DefaultActiveRulesLoaderTest {
     verifyNoMoreInteractions(wsClient);
   }
 
-  @Test
-  public void exception_thrown_when_elasticsearch_index_inconsistent() {
-    WsTestUtil.mockStream(wsClient, urlOfPage(1), prepareCorruptedResponse());
-    assertThatThrownBy(() -> loader.load("c+-test_c+-values-17445"))
-      .isInstanceOf(MessageException.class)
-      .hasMessage("Elasticsearch indices have become inconsistent. Consider re-indexing. " +
-        "Check documentation for more information https://docs.sonarsource.com/sonarqube/latest/setup/troubleshooting");
-  }
-
   private String urlOfPage(int page) {
-    return "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives,createdAt,updatedAt,deprecatedKeys&activation=true"
-      + ("") + "&qprofile=c%2B-test_c%2B-values-17445&ps=500&p=" + page + "";
+    return "/api/rules/list.protobuf?qprofile=c%2B-test_c%2B-values-17445&ps=500&p=" + page + "";
   }
 
   /**
    * Generates an imaginary protobuf result.
    *
+   * @param pageIndex page index, that the response should contain
    * @param numberOfRules the number of rules, that the response should contain
    * @param total the number of results on all pages
    * @return the binary stream
    */
-  private InputStream responseOfSize(int numberOfRules, int total) {
-    Builder rules = SearchResponse.newBuilder();
+  private InputStream responseOfSize(int pageIndex, int numberOfRules, int total) {
+    Rules.ListResponse.Builder rules = Rules.ListResponse.newBuilder();
     Actives.Builder actives = Actives.newBuilder();
 
     IntStream.rangeClosed(1, numberOfRules)
@@ -133,31 +121,15 @@ public class DefaultActiveRulesLoaderTest {
           activeBuilder.setSeverity(SEVERITY_VALUE);
         }
         ActiveList activeList = Rules.ActiveList.newBuilder().addActiveList(activeBuilder).build();
-        actives.putAllActives(ImmutableSortedMap.of(key.toString(), activeList));
+        actives.putAllActives(Map.of(key.toString(), activeList));
       });
 
     rules.setActives(actives);
-    rules.setPs(numberOfRules);
-    rules.setTotal(total);
-    return new ByteArrayInputStream(rules.build().toByteArray());
-  }
-
-  private InputStream prepareCorruptedResponse() {
-    Builder rules = SearchResponse.newBuilder();
-    Actives.Builder actives = Actives.newBuilder();
-
-    IntStream.rangeClosed(1, 3)
-      .mapToObj(i -> RuleKey.of("java", "S" + i))
-      .forEach(key -> {
-
-        Rule.Builder ruleBuilder = Rule.newBuilder();
-        ruleBuilder.setKey(key.toString());
-        rules.addRules(ruleBuilder);
-      });
-
-    rules.setActives(actives);
-    rules.setPs(3);
-    rules.setTotal(3);
+    rules.setPaging(Common.Paging.newBuilder()
+      .setTotal(total)
+      .setPageIndex(pageIndex)
+      .setPageSize(numberOfRules)
+      .build());
     return new ByteArrayInputStream(rules.build().toByteArray());
   }
 }

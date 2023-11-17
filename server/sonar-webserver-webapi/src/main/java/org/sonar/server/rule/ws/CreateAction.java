@@ -187,7 +187,7 @@ public class CreateAction implements RulesWsAction {
       templateRule.ifPresent(templateRules::add);
     }
     List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, singletonList(rule.getUuid()));
-    SearchAction.SearchResult searchResult = new SearchAction.SearchResult()
+    RulesResponseFormatter.SearchResult searchResult = new RulesResponseFormatter.SearchResult()
       .setRuleParameters(ruleParameters)
       .setTemplateRules(templateRules)
       .setTotal(1L);

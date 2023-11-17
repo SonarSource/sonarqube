@@ -43,6 +43,10 @@ export function searchRules(data: SearchRulesQuery): Promise<SearchRulesResponse
   return getJSON('/api/rules/search', data).catch(throwGlobalError);
 }
 
+export function listRules(data: SearchRulesQuery): Promise<SearchRulesResponse> {
+  return getJSON('/api/rules/list', data).catch(throwGlobalError);
+}
+
 export function getRuleRepositories(parameters: {
   q: string;
 }): Promise<Array<{ key: string; language: string; name: string }>> {

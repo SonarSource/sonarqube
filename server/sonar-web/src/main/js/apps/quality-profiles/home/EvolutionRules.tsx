@@ -21,7 +21,7 @@ import { DiscreetLink, Link, Note } from 'design-system';
 import { noop, sortBy } from 'lodash';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
-import { searchRules } from '../../../api/rules';
+import { listRules } from '../../../api/rules';
 import { toShortISO8601String } from '../../../helpers/dates';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
@@ -54,7 +54,7 @@ export default function EvolutionRules() {
       s: 'createdAt',
     };
 
-    searchRules(data).then(({ actives, rules, paging: { total } }) => {
+    listRules(data).then(({ actives, rules, paging: { total } }) => {
       setLatestRules(sortBy(parseRules(rules, actives), 'langName'));
       setLatestRulesTotal(total);
     }, noop);

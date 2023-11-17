@@ -48,8 +48,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.Pagination;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.issue.ImpactDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto.Scope;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -63,10 +65,11 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
-import static org.sonar.api.rule.RuleStatus.*;
 import static org.sonar.api.rule.RuleStatus.DEPRECATED;
+import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
 import static org.sonar.db.Pagination.forPage;
+import static org.sonar.db.rule.RuleListQuery.RuleListQueryBuilder.newRuleListQueryBuilder;
 
 public class RuleDaoIT {
   private static final String UNKNOWN_RULE_UUID = "unknown-uuid";
@@ -1222,6 +1225,69 @@ public class RuleDaoIT {
         .setOldRuleKey(ruleKey));
     })
       .isInstanceOf(PersistenceException.class);
+  }
+
+  @Test
+  public void selectRules_whenPagination_shouldReturnSpecificPage() {
+    db.rules().insert(rule -> rule.setUuid("uuid_1"));
+    db.rules().insert(rule -> rule.setUuid("uuid_2"));
+    db.rules().insert(rule -> rule.setUuid("uuid_3"));
+    db.rules().insert(rule -> rule.setUuid("uuid_4"));
+    Pagination pagination = Pagination.forPage(1).andSize(2);
+
+    RuleListResult ruleListResult = underTest.selectRules(db.getSession(), newRuleListQueryBuilder().build(), pagination);
+
+    assertThat(ruleListResult.getTotal()).isEqualTo(4);
+    assertThat(ruleListResult.getUuids()).containsExactly("uuid_1", "uuid_2");
+  }
+
+  @Test
+  public void selectRules_whenQueriedWithCreatedAt_shouldReturnRulesCreatedAfterCorrectlySorted() {
+    long baseTime = 1696028921248L;
+    db.rules().insert(rule -> rule.setUuid("uuid_1").setCreatedAt(baseTime));
+    db.rules().insert(rule -> rule.setUuid("uuid_2").setCreatedAt(baseTime + 1000));
+    db.rules().insert(rule -> rule.setUuid("uuid_3").setCreatedAt(baseTime - 2000));
+    db.rules().insert(rule -> rule.setUuid("uuid_4").setCreatedAt(baseTime - 1));
+    db.rules().insert(rule -> rule.setUuid("uuid_5").setCreatedAt(baseTime + 1));
+    RuleListQuery ruleListQuery = newRuleListQueryBuilder().createdAt(baseTime).sortField("createdAt").sortDirection("desc").build();
+
+    RuleListResult ruleListResult = underTest.selectRules(db.getSession(), ruleListQuery, Pagination.all());
+
+    assertThat(ruleListResult.getUuids()).containsExactly("uuid_2", "uuid_5", "uuid_1");
+    assertThat(ruleListResult.getTotal()).isEqualTo(3);
+  }
+
+  @Test
+  public void selectRules_whenQueriedWithLanguage_shouldReturnOnlyRulesWithLanguage() {
+    String queriedLang = "java";
+    db.rules().insert(rule -> rule.setUuid("uuid_1").setLanguage(queriedLang));
+    db.rules().insert(rule -> rule.setUuid("uuid_2").setLanguage("cpp"));
+    db.rules().insert(rule -> rule.setUuid("uuid_3").setLanguage("js"));
+    db.rules().insert(rule -> rule.setUuid("uuid_4").setLanguage(queriedLang));
+    RuleListQuery ruleListQuery = newRuleListQueryBuilder().language(queriedLang).build();
+
+    RuleListResult ruleListResult = underTest.selectRules(db.getSession(), ruleListQuery, Pagination.all());
+
+    assertThat(ruleListResult.getUuids()).containsExactly("uuid_1", "uuid_4");
+    assertThat(ruleListResult.getTotal()).isEqualTo(2);
+  }
+
+  @Test
+  public void selectRules_whenQueriedWithQualityProfile_shouldReturnOnlyRulesActiveForThisQualityProfile() {
+    QProfileDto profile = db.qualityProfiles().insert();
+    RuleDto rule1 = db.rules().insert(rule -> rule.setUuid("uuid_1"));
+    db.rules().insert(rule -> rule.setUuid("uuid_2"));
+    RuleDto rule3 = db.rules().insert(rule -> rule.setUuid("uuid_3"));
+    db.rules().insert(rule -> rule.setUuid("uuid_4"));
+    db.qualityProfiles().activateRule(profile, rule1);
+    db.qualityProfiles().activateRule(profile, rule3);
+
+    RuleListQuery ruleListQuery = newRuleListQueryBuilder().profileUuid(profile.getRulesProfileUuid()).build();
+
+    RuleListResult ruleListResult = underTest.selectRules(db.getSession(), ruleListQuery, Pagination.all());
+
+    assertThat(ruleListResult.getUuids()).containsExactly("uuid_1", "uuid_3");
+    assertThat(ruleListResult.getTotal()).isEqualTo(2);
   }
 
   private static ImpactDto newRuleDefaultImpact(SoftwareQuality softwareQuality, org.sonar.api.issue.impact.Severity severity) {

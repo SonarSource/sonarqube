@@ -87,10 +87,10 @@ public class ShowActionIT {
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
   private final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   private final Languages languages = new Languages(newLanguage("xoo", "Xoo"));
+  private final RuleWsSupport ruleWsSupport = new RuleWsSupport(db.getDbClient(), userSession);
+  private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter());
   private final WsActionTester ws = new WsActionTester(
-    new ShowAction(db.getDbClient(), new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter()),
-      new ActiveRuleCompleter(db.getDbClient(), languages),
-      new RuleWsSupport(db.getDbClient(), userSession)));
+    new ShowAction(db.getDbClient(), new RulesResponseFormatter(db.getDbClient(), ruleWsSupport, ruleMapper, languages)));
   private UserDto userDto;
 
   @Before
@@ -150,7 +150,6 @@ public class ShowActionIT {
       .containsExactly(rule.getTags().toArray(new String[0]));
   }
 
-  //<test case name>_when<conditionInCamelCase>_should<assertionInCamelCase>
   @Test
   public void returnRuleCleanCodeFields_whenEndpointIsCalled() {
     RuleDto rule = db.rules().insert(setTags("tag1", "tag2"), r -> r.setNoteData(null).setNoteUserUuid(null));

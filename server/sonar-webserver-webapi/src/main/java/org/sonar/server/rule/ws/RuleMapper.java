@@ -45,7 +45,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.rule.RuleDescriptionFormatter;
-import org.sonar.server.rule.ws.SearchAction.SearchResult;
+import org.sonar.server.rule.ws.RulesResponseFormatter.SearchResult;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.RuleScope;
@@ -262,8 +262,7 @@ public class RuleMapper {
 
   private static void setGapDescription(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
     String gapDescription = ruleDto.getGapDescription();
-    if (shouldReturnField(fieldsToReturn, FIELD_GAP_DESCRIPTION)
-        && gapDescription != null) {
+    if (shouldReturnField(fieldsToReturn, FIELD_GAP_DESCRIPTION) && gapDescription != null) {
       ruleResponse.setGapDescription(gapDescription);
     }
   }

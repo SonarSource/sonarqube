@@ -72,7 +72,7 @@ import {
   searchUsers,
   setDefaultProfile,
 } from '../quality-profiles';
-import { getRuleDetails, searchRules } from '../rules';
+import { getRuleDetails, searchRules, listRules } from '../rules';
 
 jest.mock('../../api/rules');
 
@@ -110,6 +110,7 @@ export default class QualityProfilesServiceMock {
     jest.mocked(copyProfile).mockImplementation(this.handleCopyProfile);
     jest.mocked(getImporters).mockImplementation(this.handleGetImporters);
     jest.mocked(searchRules).mockImplementation(this.handleSearchRules);
+    jest.mocked(listRules).mockImplementation(this.handleListRules);
     jest.mocked(compareProfiles).mockImplementation(this.handleCompareQualityProfiles);
     jest.mocked(activateRule).mockImplementation(this.handleActivateRule);
     jest.mocked(deactivateRule).mockImplementation(this.handleDeactivateRule);
@@ -520,6 +521,11 @@ export default class QualityProfilesServiceMock {
       });
     }
     return this.reply(this.searchRulesResponse);
+  };
+
+  handleListRules = (data: SearchRulesQuery): Promise<SearchRulesResponse> => {
+    // Both APIs are mocked the same way, this method is only here to make it explicit.
+    return this.handleSearchRules(data);
   };
 
   handleGetQualityProfile = () => {

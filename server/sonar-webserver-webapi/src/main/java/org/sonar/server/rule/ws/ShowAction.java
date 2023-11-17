@@ -35,7 +35,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonarqube.ws.Rules.ShowResponse;
 
 import static java.lang.String.format;
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -49,15 +48,11 @@ public class ShowAction implements RulesWsAction {
   public static final String PARAM_ACTIVES = "actives";
 
   private final DbClient dbClient;
-  private final RuleMapper mapper;
-  private final ActiveRuleCompleter activeRuleCompleter;
-  private final RuleWsSupport ruleWsSupport;
+  private final RulesResponseFormatter rulesResponseFormatter;
 
-  public ShowAction(DbClient dbClient, RuleMapper mapper, ActiveRuleCompleter activeRuleCompleter, RuleWsSupport ruleWsSupport) {
+  public ShowAction(DbClient dbClient, RulesResponseFormatter rulesResponseFormatter) {
     this.dbClient = dbClient;
-    this.activeRuleCompleter = activeRuleCompleter;
-    this.mapper = mapper;
-    this.ruleWsSupport = ruleWsSupport;
+    this.rulesResponseFormatter = rulesResponseFormatter;
   }
 
   @Override
@@ -117,7 +112,7 @@ public class ShowAction implements RulesWsAction {
 
       List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, singletonList(rule.getUuid()));
       ShowResponse showResponse = buildResponse(dbSession, request,
-        new SearchAction.SearchResult()
+        new RulesResponseFormatter.SearchResult()
           .setRules(singletonList(rule))
           .setTemplateRules(templateRules)
           .setRuleParameters(ruleParameters)
@@ -126,13 +121,12 @@ public class ShowAction implements RulesWsAction {
     }
   }
 
-  private ShowResponse buildResponse(DbSession dbSession, Request request, SearchAction.SearchResult searchResult) {
+  private ShowResponse buildResponse(DbSession dbSession, Request request, RulesResponseFormatter.SearchResult searchResult) {
     ShowResponse.Builder responseBuilder = ShowResponse.newBuilder();
     RuleDto rule = searchResult.getRules().get(0);
-    responseBuilder.setRule(mapper.toWsRule(rule, searchResult, Collections.emptySet(),
-      ruleWsSupport.getUsersByUuid(dbSession, searchResult.getRules()), emptyMap()));
+    responseBuilder.setRule(rulesResponseFormatter.formatRule(dbSession, searchResult));
     if (request.mandatoryParamAsBoolean(PARAM_ACTIVES)) {
-      activeRuleCompleter.completeShow(dbSession, rule).forEach(responseBuilder::addActives);
+      responseBuilder.addAllActives(rulesResponseFormatter.formatActiveRule(dbSession, rule));
     }
     return responseBuilder.build();
   }

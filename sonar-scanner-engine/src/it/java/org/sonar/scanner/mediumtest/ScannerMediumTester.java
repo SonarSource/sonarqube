@@ -80,7 +80,7 @@ import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranches;
 import org.sonarqube.ws.NewCodePeriods;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
-import org.sonarqube.ws.Rules.ListResponse.Rule;
+import org.sonarqube.ws.Rules.Rule;
 
 import static java.util.Collections.emptySet;
 
@@ -168,7 +168,7 @@ public class ScannerMediumTester extends ExternalResource {
   public ScannerMediumTester addRule(String key, String repoKey, String internalKey, String name) {
     Rule.Builder builder = Rule.newBuilder();
     builder.setKey(key);
-    builder.setRepository(repoKey);
+    builder.setRepo(repoKey);
     if (internalKey != null) {
       builder.setInternalKey(internalKey);
     }

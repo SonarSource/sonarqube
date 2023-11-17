@@ -17,11 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.rule;
+package org.sonar.db.rule;
 
 import java.util.List;
-import org.sonarqube.ws.Rules;
 
-public interface RulesLoader {
-  List<Rules.Rule> load();
+public class RuleListResult {
+  private final List<String> uuids;
+  private final long total;
+
+  public RuleListResult(List<String> uuids, long total) {
+    this.uuids = uuids;
+    this.total = total;
+  }
+
+  public List<String> getUuids() {
+    return uuids;
+  }
+
+  public long getTotal() {
+    return total;
+  }
 }

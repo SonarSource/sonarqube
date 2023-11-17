@@ -270,4 +270,11 @@ public class RuleDao implements Dao {
   private static String toLowerCaseAndSurroundWithPercentSigns(@Nullable String query) {
     return isBlank(query) ? PERCENT_SIGN : (PERCENT_SIGN + query.toLowerCase(Locale.ENGLISH) + PERCENT_SIGN);
   }
+
+  public RuleListResult selectRules(DbSession dbSession, RuleListQuery ruleListQuery, Pagination pagination) {
+    return new RuleListResult(
+      mapper(dbSession).selectRules(ruleListQuery, pagination),
+      mapper(dbSession).countByQuery(ruleListQuery));
+  }
+
 }

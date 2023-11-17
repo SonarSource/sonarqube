@@ -619,5 +619,42 @@
     <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
 
+  <select id="selectRules">
+    select r.uuid from rules r
+    <include refid="queryList"/>
+    <choose>
+      <when test="query.sortField == 'createdAt'">
+        order by r.created_at ${query.sortDirection}
+      </when>
+      <otherwise>
+        order by r.uuid
+      </otherwise>
+    </choose>
+    <include refid="org.sonar.db.common.Common.pagination"/>
+  </select>
+
+  <select id="countByQuery" resultType="long">
+    select count(r.uuid) from rules r
+    <include refid="queryList"/>
+  </select>
+
+  <sql id="queryList">
+    <if test="query.profileUuid != null">
+      inner join active_rules ar on ar.rule_uuid = r.uuid
+    </if>
+    where
+    r.status != 'REMOVED'
+    and r.is_external = ${_false}
+    <if test="query.createdAt != null">
+      and r.created_at &gt;= #{query.createdAt,jdbcType=BIGINT}
+    </if>
+    <if test="query.language != null">
+      and r.language = #{query.language,jdbcType=VARCHAR}
+    </if>
+    <if test="query.profileUuid != null">
+      and ar.profile_uuid = #{query.profileUuid,jdbcType=VARCHAR}
+    </if>
+  </sql>
+
 </mapper>
 

@@ -250,7 +250,7 @@ public class UpdateAction implements RulesWsAction {
     }
     List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, singletonList(rule.getUuid()));
     UpdateResponse.Builder responseBuilder = UpdateResponse.newBuilder();
-    SearchAction.SearchResult searchResult = new SearchAction.SearchResult()
+    RulesResponseFormatter.SearchResult searchResult = new RulesResponseFormatter.SearchResult()
       .setRules(singletonList(rule))
       .setTemplateRules(templateRules)
       .setRuleParameters(ruleParameters)

@@ -130,13 +130,12 @@ public class SearchActionIT {
   private final RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private final ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
   private final Languages languages = LanguageTesting.newLanguages(JAVA, "js");
-  private final ActiveRuleCompleter activeRuleCompleter = new ActiveRuleCompleter(db.getDbClient(), languages);
   private final RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(db.getDbClient());
   private final MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private final RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter, new RuleDescriptionFormatter());
-  private final SearchAction underTest = new SearchAction(ruleIndex, activeRuleCompleter, ruleQueryFactory, db.getDbClient(), ruleMapper,
-    new RuleWsSupport(db.getDbClient(), userSession));
+  private final SearchAction underTest = new SearchAction(ruleIndex, ruleQueryFactory, db.getDbClient(),
+    new RulesResponseFormatter(db.getDbClient(), new RuleWsSupport(db.getDbClient(), userSession), ruleMapper, languages));
   private final TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
   private final RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, db.getDbClient(), typeValidations, userSession,
@@ -528,9 +527,9 @@ public class SearchActionIT {
     assertThat(result.getFacets().getFacets(0).getValuesList())
       .extracting(v -> entry(v.getVal(), v.getCount())).contains(
         entry(CleanCodeAttribute.COMPLETE.getAttributeCategory().name(), 1L),
-        entry(CleanCodeAttribute.CONVENTIONAL.getAttributeCategory().name(), 0L)
-      );
+        entry(CleanCodeAttribute.CONVENTIONAL.getAttributeCategory().name(), 0L));
   }
+
   @Test
   public void should_included_selected_non_matching_tag_in_facet() {
     RuleDto rule = db.rules().insert(setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tagA"));
