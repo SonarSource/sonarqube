@@ -76,7 +76,7 @@ public class ChangesOnMyIssuesEmailTemplate extends IssueChangesEmailTemplate {
 
   private static String buildAnalysisSubject(Project project) {
     StringBuilder res = new StringBuilder("Analysis has changed some of your issues in ");
-    toString(res, project);
+    toSubjectString(res, project);
     return res.toString();
   }
 

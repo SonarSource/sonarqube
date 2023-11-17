@@ -93,6 +93,15 @@ public abstract class IssueChangesEmailTemplate implements EmailTemplate {
     sb.append(escapeHtml(value));
   }
 
+  protected static void toSubjectString(StringBuilder sb, Project project) {
+    Optional<String> branchName = project.getBranchName();
+    String value = project.getProjectName();
+    if (branchName.isPresent()) {
+      value += " (" + branchName.get() + ")";
+    }
+    sb.append(value);
+  }
+
   static String toUrlParams(Project project) {
     return "id=" + urlEncode(project.getKey()) +
       project.getBranchName().map(branchName -> "&branch=" + urlEncode(branchName)).orElse("");
