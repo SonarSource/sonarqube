@@ -69,14 +69,14 @@ public interface UserController {
     @Valid @ParameterObject UsersSearchRestRequest usersSearchRestRequest,
     @Valid @ParameterObject RestPage restPage);
 
-  @DeleteMapping(path = "/{login}")
+  @DeleteMapping(path = "/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(summary = "Deactivate a user", description = "Deactivates a user. Requires Administer System permission.")
   void deactivate(
-    @PathVariable("login") @Parameter(description = "The login of the user to delete.", required = true, in = ParameterIn.PATH) String login,
+    @PathVariable("id") @Parameter(description = "The ID of the user to delete.", required = true, in = ParameterIn.PATH) String id,
     @RequestParam(value = "anonymize", required = false, defaultValue = "false") @Parameter(description = "Anonymize user in addition to deactivating it.") Boolean anonymize);
 
-  @GetMapping(path = "/{login}")
+  @GetMapping(path = "/{id}")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Fetch a single user", description = """
     Fetch a single user.
@@ -90,15 +90,15 @@ public interface UserController {
         'tokensCount'
       Field 'sonarqubeLastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.
     """)
-  RestUser fetchUser(@PathVariable("login") @Parameter(description = "The login of the user to fetch.", required = true, in = ParameterIn.PATH) String login);
+  RestUser fetchUser(@PathVariable("id") @Parameter(description = "The id of the user to fetch.", required = true, in = ParameterIn.PATH) String id);
 
-  @PatchMapping(path = "/{login}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping(path = "/{id}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Update a user", description = """
     Update a user.
     Allows updating user's name, email and SCM accounts.
     """)
-  RestUser updateUser(@PathVariable("login") String login, @Valid @RequestBody UserUpdateRestRequest updateRequest);
+  RestUser updateUser(@PathVariable("id") String id, @Valid @RequestBody UserUpdateRestRequest updateRequest);
 
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)

@@ -469,7 +469,7 @@ public class UserServiceIT {
       .setName("Ada Lovelace")
       .setScmAccounts(singletonList("al")));
 
-    userService.deactivate(user.getLogin(), false);
+    userService.deactivate(user.getUuid(), false);
 
     verifyThatUserIsDeactivated(user.getLogin());
   }
@@ -483,7 +483,7 @@ public class UserServiceIT {
       .setName("Ada Lovelace")
       .setScmAccounts(singletonList("al")));
 
-    userService.deactivate(user.getLogin(), true);
+    userService.deactivate(user.getUuid(), true);
 
     verifyThatUserIsDeactivated("anonymized");
     verifyThatUserIsAnomymized("anonymized");
@@ -497,7 +497,7 @@ public class UserServiceIT {
     db.users().insertGroup();
     db.users().insertMember(group1, user);
 
-    userService.deactivate(user.getLogin(), false);
+    userService.deactivate(user.getUuid(), false);
 
     assertThat(db.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbSession, user.getUuid())).isEmpty();
   }
@@ -510,7 +510,7 @@ public class UserServiceIT {
     db.users().insertToken(user);
     db.commit();
 
-    userService.deactivate(user.getLogin(), false);
+    userService.deactivate(user.getUuid(),false);
 
     assertThat(db.getDbClient().userTokenDao().selectByUser(dbSession, user)).isEmpty();
   }
@@ -525,7 +525,7 @@ public class UserServiceIT {
     db.properties().insertProperty(newUserPropertyDto(user).setEntityUuid(project.uuid()), project.getKey(),
       project.name(), project.qualifier(), user.getLogin());
 
-    userService.deactivate(user.getLogin(), false);
+    userService.deactivate(user.getUuid(), false);
 
     assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserUuid(user.getUuid()).build(), dbSession)).isEmpty();
     assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserUuid(user.getUuid()).setEntityUuid(project.uuid()).build(), dbSession)).isEmpty();
@@ -541,7 +541,7 @@ public class UserServiceIT {
     db.users().insertProjectPermissionOnUser(user, UserRole.USER, project);
     db.users().insertProjectPermissionOnUser(user, UserRole.CODEVIEWER, project);
 
-    userService.deactivate(user.getLogin(), false);
+    userService.deactivate(user.getUuid(), false);
 
     assertThat(db.getDbClient().userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getUuid())).isEmpty();
     assertThat(db.getDbClient().userPermissionDao().selectEntityPermissionsOfUser(dbSession, user.getUuid(), project.uuid())).isEmpty();
@@ -556,7 +556,7 @@ public class UserServiceIT {
     db.permissionTemplates().addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.USER, template.getName(), user.getLogin());
     db.permissionTemplates().addUserToTemplate(anotherTemplate.getUuid(), user.getUuid(), UserRole.CODEVIEWER, anotherTemplate.getName(), user.getLogin());
 
-    userService.deactivate(user.getLogin(), false);
+    userService.deactivate(user.getUuid(), false);
 
     assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getUuid())).extracting(PermissionTemplateUserDto::getUserUuid)
       .isEmpty();
@@ -571,7 +571,7 @@ public class UserServiceIT {
     QProfileDto profile = db.qualityProfiles().insert();
     db.qualityProfiles().addUserPermission(profile, user);
 
-    userService.deactivate(user.getLogin(), false);
+    userService.deactivate(user.getUuid(), false);
 
     assertThat(db.getDbClient().qProfileEditUsersDao().exists(dbSession, profile, user)).isFalse();
   }
@@ -589,7 +589,7 @@ public class UserServiceIT {
     db.properties().insertProperty(new PropertyDto().setKey("other").setValue(user.getLogin())
       .setEntityUuid(anotherProject.uuid()), anotherProject.getKey(), anotherProject.name(), anotherProject.qualifier(), user.getLogin());
 
-    userService.deactivate(user.getLogin(), false);
+    userService.deactivate(user.getUuid(), false);
 
     assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setKey("sonar.issues.defaultAssigneeLogin").build(), db.getSession())).isEmpty();
     assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().build(), db.getSession())).extracting(PropertyDto::getKey).containsOnly("other");
@@ -603,7 +603,7 @@ public class UserServiceIT {
     db.qualityGates().addUserPermission(qualityGate, user);
     assertThat(db.countRowsOfTable("qgate_user_permissions")).isOne();
 
-    userService.deactivate(user.getLogin(), false);
+    userService.deactivate(user.getUuid(), false);
 
     assertThat(db.countRowsOfTable("qgate_user_permissions")).isZero();
   }
@@ -617,7 +617,7 @@ public class UserServiceIT {
     UserDto anotherUser = db.users().insertUser();
     db.almPats().insert(p -> p.setUserUuid(anotherUser.getUuid()), p -> p.setAlmSettingUuid(almSettingDto.getUuid()));
 
-    userService.deactivate(user.getLogin(), false);
+    userService.deactivate(user.getUuid(), false);
 
     assertThat(db.getDbClient().almPatDao().selectByUserAndAlmSetting(dbSession, user.getUuid(), almSettingDto)).isEmpty();
     assertThat(db.getDbClient().almPatDao().selectByUserAndAlmSetting(dbSession, anotherUser.getUuid(), almSettingDto)).isNotNull();
@@ -632,7 +632,7 @@ public class UserServiceIT {
     UserDto anotherUser = db.users().insertUser();
     SessionTokenDto sessionToken3 = db.users().insertSessionToken(anotherUser);
 
-    userService.deactivate(user.getLogin(), false);
+    userService.deactivate(user.getUuid(), false);
 
     assertThat(db.getDbClient().sessionTokensDao().selectByUuid(dbSession, sessionToken1.getUuid())).isNotPresent();
     assertThat(db.getDbClient().sessionTokensDao().selectByUuid(dbSession, sessionToken2.getUuid())).isNotPresent();
@@ -652,7 +652,7 @@ public class UserServiceIT {
     UserDismissedMessageDto msg3 = db.users().insertUserDismissedMessageOnProject(anotherUser, project1, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
     UserDismissedMessageDto msg4 = db.users().insertUserDismissedMessageOnProject(anotherUser, project2, MessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
 
-    userService.deactivate(user.getLogin(), false);
+    userService.deactivate(user.getUuid(), false);
 
     assertThat(db.getDbClient().userDismissedMessagesDao().selectByUser(dbSession, user)).isEmpty();
     assertThat(db.getDbClient().userDismissedMessagesDao().selectByUser(dbSession, anotherUser))
@@ -676,7 +676,7 @@ public class UserServiceIT {
     db.users().insertGlobalPermissionOnUser(admin, GlobalPermission.ADMINISTER);
 
     assertThatThrownBy(() -> {
-      userService.deactivate(admin.getLogin(), false);
+      userService.deactivate(admin.getUuid(), false);
     })
       .isInstanceOf(BadRequestException.class)
       .hasMessage("User is last administrator, and cannot be deactivated");
@@ -688,7 +688,7 @@ public class UserServiceIT {
 
     UserDto anotherAdmin = createAdminUser();
 
-    userService.deactivate(admin.getLogin(), false);
+    userService.deactivate(admin.getUuid(), false);
 
     verifyThatUserIsDeactivated(admin.getLogin());
     verifyThatUserExists(anotherAdmin.getLogin());
@@ -701,7 +701,7 @@ public class UserServiceIT {
     db.getDbClient().scimUserDao().enableScimForUser(dbSession, user.getUuid());
     db.commit();
 
-    userService.deactivate(user.getLogin(), true);
+    userService.deactivate(user.getUuid(), true);
 
     assertThat(db.getDbClient().scimUserDao().findByUserUuid(dbSession, user.getUuid())).isEmpty();
   }
@@ -712,8 +712,8 @@ public class UserServiceIT {
     UserDto user = db.users().insertUser();
     doThrow(new IllegalStateException("User managed")).when(managedInstanceChecker).throwIfUserIsManaged(any(), eq(user.getUuid()));
 
-    String login = user.getLogin();
-    assertThatThrownBy(() -> userService.deactivate(login, false))
+    String uuid = user.getUuid();
+    assertThatThrownBy(() -> userService.deactivate(uuid, false))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("User managed");
   }
@@ -738,7 +738,7 @@ public class UserServiceIT {
 
     when(managedInstanceService.isUserManaged(any(), eq(user.getUuid()))).thenReturn(false);
 
-    UserInformation result = userService.fetchUser(user.getLogin());
+    UserInformation result = userService.fetchUser(user.getUuid());
     UserDto resultUser = result.userDto();
     Collection<String> resultGroups = result.groups();
 
@@ -764,7 +764,7 @@ public class UserServiceIT {
     updateUser.setEmail("newemail@example.com");
     updateUser.setScmAccounts(List.of("account1", "account2"));
 
-    userService.updateUser(user.getLogin(), updateUser);
+    userService.updateUser(user.getUuid(), updateUser);
 
     UserDto updatedUser = db.users().selectUserByLogin(user.getLogin()).orElseThrow();
 

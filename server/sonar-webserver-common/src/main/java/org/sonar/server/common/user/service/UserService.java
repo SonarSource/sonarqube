@@ -139,32 +139,18 @@ public class UserService {
     return users.stream().map(UserDto::getUuid).collect(Collectors.toSet());
   }
 
-  public UserDto deactivate(String login, Boolean anonymize) {
+  public UserDto deactivate(String uuid, Boolean anonymize) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto userDto = findUserOrThrow(login, dbSession);
-      managedInstanceChecker.throwIfUserIsManaged(dbSession, userDto.getUuid());
+      UserDto userDto = findUserOrThrow(uuid, dbSession);
+      managedInstanceChecker.throwIfUserIsManaged(dbSession, uuid);
       UserDto deactivatedUser;
       if (Boolean.TRUE.equals(anonymize)) {
-        deactivatedUser = userDeactivator.deactivateUserWithAnonymization(dbSession, login);
+        deactivatedUser = userDeactivator.deactivateUserWithAnonymization(dbSession, userDto.getLogin());
       } else {
-        deactivatedUser = userDeactivator.deactivateUser(dbSession, login);
+        deactivatedUser = userDeactivator.deactivateUser(dbSession, userDto.getLogin());
       }
       dbSession.commit();
       return deactivatedUser;
-    }
-  }
-
-  private UserDto findUserOrThrow(String login, DbSession dbSession) {
-    return checkFound(dbClient.userDao().selectByLogin(dbSession, login), USER_NOT_FOUND_MESSAGE, login);
-  }
-
-  public UserInformation fetchUser(String login) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto userDto = findUserOrThrow(login, dbSession);
-      Collection<String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, Set.of(login)).get(login);
-      int tokenCount = dbClient.userTokenDao().selectByUser(dbSession, userDto).size();
-      boolean isManaged = managedInstanceService.isUserManaged(dbSession, userDto.getUuid());
-      return toUserSearchResult(groups, tokenCount, isManaged, userDto);
     }
   }
 
@@ -192,21 +178,21 @@ public class UserService {
       if (Boolean.FALSE.equals(userCreateRequest.isLocal())) {
         newUserBuilder.setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, login, login));
       }
-      return registerUser(dbSession, login, newUserBuilder);
+      return registerUser(dbSession, login, newUserBuilder.build());
     }
   }
 
-  private UserInformation registerUser(DbSession dbSession, String login, NewUser.Builder newUserBuilder) {
-    UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
+  private UserInformation registerUser(DbSession dbSession, String uuid, NewUser newUserBuilder) {
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, newUserBuilder.login());
     if (user == null) {
-      user = userUpdater.createAndCommit(dbSession, newUserBuilder.build(), u -> {
+      user = userUpdater.createAndCommit(dbSession, newUserBuilder, u -> {
       });
     } else {
-      checkArgument(!user.isActive(), "An active user with login '%s' already exists", login);
-      user = userUpdater.reactivateAndCommit(dbSession, user, newUserBuilder.build(), u -> {
+      checkArgument(!user.isActive(), "An active user with login '%s' already exists", user.getLogin());
+      user = userUpdater.reactivateAndCommit(dbSession, user, newUserBuilder, u -> {
       });
     }
-    return fetchUser(user.getLogin());
+    return fetchUser(user.getUuid());
   }
 
   public static void validateScmAccounts(List<String> scmAccounts) {
@@ -225,13 +211,27 @@ public class UserService {
     }
   }
 
-  public UserInformation updateUser(String login, UpdateUser updateUser) {
+  public UserInformation updateUser(String uuid, UpdateUser updateUser) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto userDto = findUserOrThrow(login, dbSession);
+      UserDto userDto = findUserOrThrow(uuid, dbSession);
       userUpdater.updateAndCommit(dbSession, userDto, updateUser, u -> {
       });
-      return fetchUser(userDto.getLogin());
+      return fetchUser(userDto.getUuid());
     }
+  }
+
+  public UserInformation fetchUser(String uuid) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      UserDto userDto = findUserOrThrow(uuid, dbSession);
+      Collection<String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, Set.of(userDto.getLogin())).get(userDto.getLogin());
+      int tokenCount = dbClient.userTokenDao().selectByUser(dbSession, userDto).size();
+      boolean isManaged = managedInstanceService.isUserManaged(dbSession, uuid);
+      return toUserSearchResult(groups, tokenCount, isManaged, userDto);
+    }
+  }
+
+  private UserDto findUserOrThrow(String uuid, DbSession dbSession) {
+    return checkFound(dbClient.userDao().selectByUuid(dbSession, uuid), USER_NOT_FOUND_MESSAGE, uuid);
   }
 
 }

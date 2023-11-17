@@ -84,7 +84,7 @@ public class UsersSearchRestResponseGeneratorTest {
   private static RestUserForAdmins buildExpectedResponseForAdmin(UserInformation userInformation) {
     UserDto userDto = userInformation.userDto();
     return new RestUserForAdmins(
-      userDto.getLogin(),
+      userDto.getUuid(),
       userDto.getLogin(),
       userDto.getName(),
       userDto.getEmail(),
@@ -120,7 +120,7 @@ public class UsersSearchRestResponseGeneratorTest {
   private static RestUserForLoggedInUsers buildExpectedResponseForUser(UserInformation userInformation) {
     UserDto userDto = userInformation.userDto();
     return new RestUserForLoggedInUsers(
-      userDto.getLogin(),
+      userDto.getUuid(),
       userDto.getLogin(),
       userDto.getName(),
       userDto.getEmail(),
@@ -149,7 +149,7 @@ public class UsersSearchRestResponseGeneratorTest {
   private static RestUserForAnonymousUsers buildExpectedResponseForAnonymous(UserInformation userInformation) {
     UserDto userDto = userInformation.userDto();
     return new RestUserForAnonymousUsers(
-      userDto.getLogin(),
+      userDto.getUuid(),
       userDto.getLogin(),
       userDto.getName()
     );

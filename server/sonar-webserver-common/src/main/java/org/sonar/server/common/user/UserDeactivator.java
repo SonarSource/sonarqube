@@ -40,15 +40,13 @@ public class UserDeactivator {
 
   public UserDto deactivateUser(DbSession dbSession, String login) {
     UserDto user = doBeforeDeactivation(dbSession, login);
-    deactivateUser(dbSession, user);
-    return user;
+    return deactivateUser(dbSession, user);
   }
 
   public UserDto deactivateUserWithAnonymization(DbSession dbSession, String login) {
     UserDto user = doBeforeDeactivation(dbSession, login);
     anonymizeUser(dbSession, user);
-    deactivateUser(dbSession, user);
-    return user;
+    return deactivateUser(dbSession, user);
   }
 
   private UserDto doBeforeDeactivation(DbSession dbSession, String login) {
@@ -56,11 +54,6 @@ public class UserDeactivator {
     ensureNotLastAdministrator(dbSession, user);
     deleteRelatedData(dbSession, user);
     return user;
-  }
-
-  private UserDto getUserOrThrow(DbSession dbSession, String login) {
-    UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
-    return checkFound(user, "User '%s' doesn't exist", login);
   }
 
   private void ensureNotLastAdministrator(DbSession dbSession, UserDto user) {
@@ -89,8 +82,14 @@ public class UserDeactivator {
     dbClient.scimUserDao().deleteByUserUuid(dbSession, user.getUuid());
   }
 
-  private void deactivateUser(DbSession dbSession, UserDto user) {
+  private UserDto deactivateUser(DbSession dbSession, UserDto user) {
     dbClient.userDao().deactivateUser(dbSession, user);
     dbSession.commit();
+    return getUserOrThrow(dbSession, user.getLogin());
+  }
+
+  private UserDto getUserOrThrow(DbSession dbSession, String login) {
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
+    return checkFound(user, "User '%s' doesn't exist", login);
   }
 }

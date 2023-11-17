@@ -270,9 +270,9 @@ public class DefaultUserControllerTest {
 
   @Test
   public void deactivate_whenUserTryingToDeactivateThemself_shouldReturnBadRequest() throws Exception {
-    userSession.logIn("userToDelete").setSystemAdministrator();
+    UserSessionRule userToDelete = userSession.logIn("userToDelete").setSystemAdministrator();
 
-    mockMvc.perform(delete(USER_ENDPOINT + "/userToDelete"))
+    mockMvc.perform(delete(USER_ENDPOINT + "/" + userToDelete.getUuid()))
       .andExpectAll(
         status().isBadRequest(),
         content().json("{\"message\":\"Self-deactivation is not possible\"}"));
@@ -450,10 +450,10 @@ public class DefaultUserControllerTest {
     userSession.logIn().setSystemAdministrator();
     UserInformation userInformation = generateUserSearchResult("1", true, true, false, 1, 2);
 
-    when(userService.updateUser(eq("userLogin"), any())).thenReturn(userInformation);
+    when(userService.updateUser(eq("userUuid"), any())).thenReturn(userInformation);
     when(responseGenerator.toRestUser(userInformation)).thenReturn(toRestUser(userInformation));
 
-    MvcResult mvcResult = mockMvc.perform(patch(USER_ENDPOINT + "/userLogin")
+    MvcResult mvcResult = mockMvc.perform(patch(USER_ENDPOINT + "/userUuid")
       .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
       .content(payload))
       .andExpect(
@@ -464,7 +464,7 @@ public class DefaultUserControllerTest {
     assertThat(responseUser).isEqualTo(toRestUser(userInformation));
 
     ArgumentCaptor<UpdateUser> updateUserCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userService).updateUser(eq("userLogin"), updateUserCaptor.capture());
+    verify(userService).updateUser(eq("userUuid"), updateUserCaptor.capture());
     return updateUserCaptor.getValue();
   }
 

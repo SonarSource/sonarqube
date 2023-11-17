@@ -60,10 +60,11 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
   public RestUser toRestUser(UserInformation userInformation) {
     UserDto userDto = userInformation.userDto();
 
+    String id = userDto.getUuid();
     String login = userDto.getLogin();
     String name = userDto.getName();
     if (!userSession.isLoggedIn()) {
-      return new RestUserForAnonymousUsers(login, login, name);
+      return new RestUserForAnonymousUsers(id, login, name);
     }
 
     String avatar = userInformation.avatar().orElse(null);
@@ -78,7 +79,7 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
       String slLastConnectionDate = toDateTime(userDto.getLastSonarlintConnectionDate());
       List<String> scmAccounts = userInformation.userDto().getSortedScmAccounts();
       return new RestUserForAdmins(
-        login,
+        id,
         login,
         name,
         email,
@@ -92,7 +93,7 @@ public class UsersSearchRestResponseGenerator implements UsersSearchResponseGene
         slLastConnectionDate,
         scmAccounts);
     }
-    return new RestUserForLoggedInUsers(login, login, name, email, active, local, externalIdentityProvider, avatar);
+    return new RestUserForLoggedInUsers(id, login, name, email, active, local, externalIdentityProvider, avatar);
   }
 
   private static String toDateTime(@Nullable Long dateTimeMs) {

@@ -350,7 +350,7 @@ public class DeactivateActionIT {
       deactivate("someone");
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("User 'someone' not found");
+      .hasMessage("User 'someone' doesn't exist");
   }
 
   @Test

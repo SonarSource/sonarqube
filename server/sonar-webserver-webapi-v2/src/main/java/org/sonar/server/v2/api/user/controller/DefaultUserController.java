@@ -99,22 +99,22 @@ public class DefaultUserController implements UserController {
   }
 
   @Override
-  public void deactivate(String login, Boolean anonymize) {
+  public void deactivate(String id, Boolean anonymize) {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
-    checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
-    userService.deactivate(login, anonymize);
+    checkRequest(!id.equals(userSession.getUuid()), "Self-deactivation is not possible");
+    userService.deactivate(id, anonymize);
   }
 
   @Override
-  public RestUser fetchUser(String login) {
-    return usersSearchResponseGenerator.toRestUser(userService.fetchUser(login));
+  public RestUser fetchUser(String id) {
+    return usersSearchResponseGenerator.toRestUser(userService.fetchUser(id));
   }
 
   @Override
-  public RestUser updateUser(String login, UserUpdateRestRequest updateRequest) {
+  public RestUser updateUser(String id, UserUpdateRestRequest updateRequest) {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     UpdateUser update = toUpdateUser(updateRequest);
-    UserInformation updatedUser = userService.updateUser(login, update);
+    UserInformation updatedUser = userService.updateUser(id, update);
     return usersSearchResponseGenerator.toRestUser(updatedUser);
   }
 

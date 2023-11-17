@@ -81,22 +81,21 @@ public class DeactivateAction implements UsersWsAction {
     String login = request.mandatoryParam(PARAM_LOGIN);
     checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
     boolean shouldAnonymize = request.mandatoryParamAsBoolean(PARAM_ANONYMIZE);
-    UserDto deactivatedUser = userService.deactivate(login, shouldAnonymize);
-    writeResponse(response, deactivatedUser.getLogin());
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      UserDto userDto = dbClient.userDao().selectByLogin(dbSession, login);
+      checkFound(userDto, "User '%s' doesn't exist", login);
+      UserDto deactivatedUser = userService.deactivate(userDto.getUuid(), shouldAnonymize);
+      writeResponse(response, deactivatedUser);
+    }
   }
 
-  private void writeResponse(Response response, String login) {
+  private void writeResponse(Response response, UserDto userDto) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
-      // safeguard. It exists as the check has already been done earlier
-      // when deactivating user
-      checkFound(user, "User '%s' doesn't exist", login);
-
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
         json.name("user");
-        Set<String> groups = new HashSet<>(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
-        userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
+        Set<String> groups = new HashSet<>(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(userDto.getLogin())).get(userDto.getLogin()));
+        userWriter.write(json, userDto, groups, UserJsonWriter.FIELDS);
         json.endObject();
       }
     }
