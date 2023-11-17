@@ -42,6 +42,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
@@ -365,7 +366,7 @@ public class ActiveRuleDaoIT {
 
   @Test
   public void delete_does_not_fail_when_active_rule_does_not_exist() {
-    underTest.delete(dbSession, ActiveRuleKey.of(profile1, rule1.getKey()));
+    assertThatNoException().isThrownBy(() -> underTest.delete(dbSession, ActiveRuleKey.of(profile1, rule1.getKey())));
   }
 
   @Test
@@ -703,6 +704,41 @@ public class ActiveRuleDaoIT {
       .containsExactlyInAnyOrder(
         tuple(ar2.getUuid(), ar2.getRuleKey().repository(), ar2.getRuleKey().rule(), profile2.getRulesProfileUuid(), ar2.getSeverity()),
         tuple(ar3.getUuid(), ar3.getRuleKey().repository(), ar3.getRuleKey().rule(), profile2.getRulesProfileUuid(), ar3.getSeverity()));
+  }
+
+  @Test
+  public void countMissingRules() {
+    db.qualityProfiles().activateRule(profile1, rule1);
+    db.qualityProfiles().activateRule(profile1, rule3);
+    db.qualityProfiles().activateRule(profile2, rule1);
+    db.qualityProfiles().activateRule(profile2, rule2);
+
+    int result = underTest.countMissingRules(dbSession, profile1.getRulesProfileUuid(), profile2.getRulesProfileUuid());
+
+    assertThat(result).isOne();
+  }
+
+  @Test
+  public void countMissingRules_whenNoRulesInCommon_shouldReturnNumberOfRulesInComparedToProfile() {
+    db.qualityProfiles().activateRule(profile1, rule1);
+    db.qualityProfiles().activateRule(profile2, rule2);
+    db.qualityProfiles().activateRule(profile2, rule3);
+
+    int result = underTest.countMissingRules(dbSession, profile1.getRulesProfileUuid(), profile2.getRulesProfileUuid());
+
+    assertThat(result).isEqualTo(2);
+  }
+
+  @Test
+  public void countMissingRules_whenSomeRulesRemoved_shouldNotCountRemovedRules() {
+    db.qualityProfiles().activateRule(profile1, rule1);
+    db.qualityProfiles().activateRule(profile2, rule2);
+    db.qualityProfiles().activateRule(profile2, rule3);
+    db.qualityProfiles().activateRule(profile2, removedRule);
+
+    int result = underTest.countMissingRules(dbSession, profile1.getRulesProfileUuid(), profile2.getRulesProfileUuid());
+
+    assertThat(result).isEqualTo(2);
   }
 
   private static class Accumulator implements Consumer<IndexedActiveRuleDto> {

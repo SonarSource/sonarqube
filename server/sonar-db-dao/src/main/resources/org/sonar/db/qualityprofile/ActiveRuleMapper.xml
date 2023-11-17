@@ -234,7 +234,8 @@
     delete from active_rule_parameters
     where
       active_rule_uuid in
-    <foreach collection="activeRuleUuids" open="(" close=")" item="activeRuleUuid" separator=",">#{activeRuleUuid, jdbcType=VARCHAR}</foreach>
+    <foreach collection="activeRuleUuids" open="(" close=")" item="activeRuleUuid"
+             separator=",">#{activeRuleUuid, jdbcType=VARCHAR}</foreach>
   </delete>
 
   <select id="selectParamsByActiveRuleUuid" parameterType="String" resultType="ActiveRuleParam">
@@ -282,17 +283,20 @@
     group by oqp.uuid
   </select>
 
-  <select id="scrollAllForIndexing" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollAllForIndexing" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto" fetchSize="${_scrollFetchSize}"
+          resultSetType="FORWARD_ONLY">
     <include refid="scrollAllForIndexingSql"/>
   </select>
 
-  <select id="scrollByUuidsForIndexing" parameterType="map" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollByUuidsForIndexing" parameterType="map" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto"
+          fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     <include refid="scrollAllForIndexingSql"/>
     where ar.uuid in
     <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
   </select>
 
-  <select id="scrollByRuleProfileUuidForIndexing" parameterType="String" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollByRuleProfileUuidForIndexing" parameterType="String" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto"
+          fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     <include refid="scrollAllForIndexingSql"/>
     where rp.uuid = #{ruleProfileUuid, jdbcType=VARCHAR}
   </select>
@@ -310,5 +314,17 @@
     inner join rules_profiles rp on rp.uuid = ar.profile_uuid
     inner join rules r on r.uuid = ar.rule_uuid
   </sql>
+
+  <select id="countMissingRules" parameterType="String" resultType="int">
+    select count(ar.rule_uuid) from active_rules ar
+    inner join rules r on r.uuid = ar.rule_uuid
+    where r.status != 'REMOVED'
+    and not exists (
+      select 1 from active_rules ar2
+      where ar.rule_uuid = ar2.rule_uuid
+      and ar2.profile_uuid = #{rulesProfileUuid,jdbcType=VARCHAR})
+    and ar.profile_uuid = #{compareToRulesProfileUuid,jdbcType=VARCHAR}
+  </select>
+
 </mapper>
 

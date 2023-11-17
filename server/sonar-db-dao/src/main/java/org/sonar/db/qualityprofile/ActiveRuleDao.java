@@ -220,6 +220,10 @@ public class ActiveRuleDao implements Dao {
     });
   }
 
+  public int countMissingRules(DbSession dbSession, String rulesProfileUuid, String compareToRulesProfileUuid) {
+    return mapper(dbSession).countMissingRules(rulesProfileUuid, compareToRulesProfileUuid);
+  }
+
   private static ActiveRuleMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(ActiveRuleMapper.class);
   }

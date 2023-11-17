@@ -19,22 +19,23 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -53,11 +54,12 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 
+@RunWith(DataProviderRunner.class)
 public class ShowActionIT {
 
-  private static Language XOO1 = newLanguage("xoo1");
-  private static Language XOO2 = newLanguage("xoo2");
-  private static Languages LANGUAGES = new Languages(XOO1, XOO2);
+  private final static Language XOO1 = newLanguage("xoo1");
+  private final static Language XOO2 = newLanguage("xoo2");
+  private final static Languages LANGUAGES = new Languages(XOO1, XOO2);
 
   @Rule
   public EsTester es = EsTester.create();
@@ -66,12 +68,8 @@ public class ShowActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
-  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
-  private RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
-
   private WsActionTester ws = new WsActionTester(
-    new ShowAction(db.getDbClient(), new QProfileWsSupport(db.getDbClient(), userSession), LANGUAGES, ruleIndex));
+    new ShowAction(db.getDbClient(), new QProfileWsSupport(db.getDbClient(), userSession), LANGUAGES));
 
   @Test
   public void profile_info() {
@@ -162,8 +160,6 @@ public class ShowActionIT {
     db.qualityProfiles().activateRule(sonarWayProfile, commonRule);
     db.qualityProfiles().activateRule(sonarWayProfile, sonarWayRule1);
     db.qualityProfiles().activateRule(sonarWayProfile, sonarWayRule2);
-    ruleIndexer.indexAll();
-    activeRuleIndexer.indexAll();
 
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
@@ -182,8 +178,6 @@ public class ShowActionIT {
     RuleDto commonRule = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey()));
     db.qualityProfiles().activateRule(profile, commonRule);
     db.qualityProfiles().activateRule(sonarWayProfile, commonRule);
-    ruleIndexer.indexAll();
-    activeRuleIndexer.indexAll();
 
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
@@ -195,50 +189,29 @@ public class ShowActionIT {
       .containsExactly(sonarWayProfile.getKee(), sonarWayProfile.getName(), 0L);
   }
 
-  @Test
-  public void no_comparison_when_sonar_way_does_not_exist() {
-    QProfileDto anotherSonarWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("Another Sonar way").setLanguage(XOO1.getKey()));
-    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
-
-    ShowResponse result = call(ws.newRequest()
-      .setParam(PARAM_KEY, profile.getKee())
-      .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"));
-
-    assertThat(result.hasCompareToSonarWay()).isFalse();
+  @DataProvider
+  public static Object[][] dataForComparison() {
+    Consumer<QProfileDto> sonarWay = p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey());
+    Consumer<QProfileDto> notBuiltInSonarWay = p -> p.setIsBuiltIn(false).setName("Sonar way").setLanguage(XOO1.getKey());
+    Consumer<QProfileDto> anotherSonarWay = p -> p.setIsBuiltIn(true).setName("Another Sonar way").setLanguage(XOO1.getKey());
+    Consumer<QProfileDto> anotherBuiltIn = p -> p.setIsBuiltIn(true).setLanguage(XOO1.getKey());
+    Consumer<QProfileDto> profile = p -> p.setLanguage(XOO1.getKey());
+    return new Object[][] {
+      {profile, anotherSonarWay, "true"},
+      {anotherBuiltIn, sonarWay, "true"},
+      {profile, notBuiltInSonarWay, "true"},
+      {profile, sonarWay, "false"}};
   }
 
   @Test
-  public void no_comparison_when_profile_is_built_in() {
-    QProfileDto sonarWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
-    QProfileDto anotherBuiltInProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setLanguage(XOO1.getKey()));
-
-    ShowResponse result = call(ws.newRequest()
-      .setParam(PARAM_KEY, anotherBuiltInProfile.getKee())
-      .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"));
-
-    assertThat(result.hasCompareToSonarWay()).isFalse();
-  }
-
-  @Test
-  public void no_comparison_if_sonar_way_is_not_built_in() {
-    QProfileDto sonarWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(false).setName("Sonar way").setLanguage(XOO1.getKey()));
-    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
+  @UseDataProvider("dataForComparison")
+  public void response_shouldNotHaveCompareToSonarWay(Consumer<QProfileDto> profileData, Consumer<QProfileDto> profileToCompareData, String paramCompareToSonarWay) {
+    db.qualityProfiles().insert(profileToCompareData);
+    QProfileDto profile = db.qualityProfiles().insert(profileData);
 
     ShowResponse result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
-      .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"));
-
-    assertThat(result.hasCompareToSonarWay()).isFalse();
-  }
-
-  @Test
-  public void no_comparison_when_param_is_false() {
-    QProfileDto sonarWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
-    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
-
-    ShowResponse result = call(ws.newRequest()
-      .setParam(PARAM_KEY, profile.getKee())
-      .setParam(PARAM_COMPARE_TO_SONAR_WAY, "false"));
+      .setParam(PARAM_COMPARE_TO_SONAR_WAY, paramCompareToSonarWay));
 
     assertThat(result.hasCompareToSonarWay()).isFalse();
   }
@@ -261,7 +234,7 @@ public class ShowActionIT {
   @Test
   public void compare_to_sonar_way_over_sonarqube_way() {
     QProfileDto sonarWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
-    QProfileDto sonarQubeWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("SonarQube way").setLanguage(XOO1.getKey()));
+    db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("SonarQube way").setLanguage(XOO1.getKey()));
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
 
     CompareToSonarWay result = call(ws.newRequest()
@@ -291,18 +264,16 @@ public class ShowActionIT {
   public void fail_if_profile_language_is_not_supported() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setKee("unknown-profile").setLanguage("kotlin"));
 
-    assertThatThrownBy(() -> {
-      call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
-    })
+    TestRequest testRequest = ws.newRequest().setParam(PARAM_KEY, profile.getKee());
+    assertThatThrownBy(() -> call(testRequest))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Quality Profile with key 'unknown-profile' does not exist");
   }
 
   @Test
   public void fail_if_profile_does_not_exist() {
-    assertThatThrownBy(() -> {
-      call(ws.newRequest().setParam(PARAM_KEY, "unknown-profile"));
-    })
+    TestRequest testRequest = ws.newRequest().setParam(PARAM_KEY, "unknown-profile");
+    assertThatThrownBy(() -> call(testRequest))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Quality Profile with key 'unknown-profile' does not exist");
   }
@@ -331,7 +302,7 @@ public class ShowActionIT {
       .forEach(project -> db.qualityProfiles().associateWithProject(project, profile));
 
     ws = new WsActionTester(
-      new ShowAction(db.getDbClient(), new QProfileWsSupport(db.getDbClient(), userSession), new Languages(cs), ruleIndex));
+      new ShowAction(db.getDbClient(), new QProfileWsSupport(db.getDbClient(), userSession), new Languages(cs)));
     String result = ws.newRequest().setParam(PARAM_KEY, profile.getKee()).execute().getInput();
 
     assertJson(result).ignoreFields("rulesUpdatedAt", "lastUsed", "userUpdatedAt").isSimilarTo(ws.getDef().responseExampleAsString());
@@ -346,11 +317,13 @@ public class ShowActionIT {
     assertThat(action.since()).isEqualTo("6.5");
 
     WebService.Param profile = action.param("key");
+    assertThat(profile).isNotNull();
     assertThat(profile.isRequired()).isTrue();
     assertThat(profile.isInternal()).isFalse();
     assertThat(profile.description()).isNotEmpty();
 
     WebService.Param compareToSonarWay = action.param("compareToSonarWay");
+    assertThat(compareToSonarWay).isNotNull();
     assertThat(compareToSonarWay.isRequired()).isFalse();
     assertThat(compareToSonarWay.isInternal()).isTrue();
     assertThat(compareToSonarWay.description()).isNotEmpty();
