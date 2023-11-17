@@ -137,7 +137,7 @@ public class ChangesOnMyIssuesEmailTemplateTest {
     EmailMessage emailMessage = underTest.format(new ChangesOnMyIssuesNotification(analysisChange, changedIssues));
 
     Project project = changedIssues.iterator().next().getProject();
-    assertThat(emailMessage.getSubject()).isEqualTo("Analysis has changed some of your issues in " + project.getProjectName() + ", " + project.getBranchName().get());
+    assertThat(emailMessage.getSubject()).isEqualTo("Analysis has changed some of your issues in " + project.getProjectName() + " (" + project.getBranchName().get() + ")");
   }
 
   @Test
