@@ -659,7 +659,7 @@ export const openApiTestData: OpenAPIV3.Document = {
         type: 'object',
         properties: {
           id: { type: 'integer', format: 'int64', example: 10 },
-          name: { type: 'string', example: 'doggie' },
+          name: { type: 'string', minLength: 3, maxLength: 100, example: 'doggie' },
           category: { $ref: '#/components/schemas/Category' },
           photoUrls: {
             type: 'array',
@@ -675,6 +675,7 @@ export const openApiTestData: OpenAPIV3.Document = {
             type: 'string',
             description: 'pet status in the store',
             enum: ['available', 'pending', 'sold'],
+            deprecated: true,
           },
         },
         xml: { name: 'pet' },

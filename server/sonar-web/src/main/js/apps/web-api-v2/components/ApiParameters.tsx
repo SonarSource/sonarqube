@@ -25,6 +25,7 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 import { ExcludeReferences } from '../types';
 import { mapOpenAPISchema } from '../utils';
+import ApiRequestBodyParameters from './ApiRequestParameters';
 import ApiResponseSchema from './ApiResponseSchema';
 
 interface Props {
@@ -53,15 +54,6 @@ export default function ApiParameters({ data }: Props) {
   return (
     <>
       <SubTitle>{translate('api_documentation.v2.parameter_header')}</SubTitle>
-      {!requestBody && !data.parameters?.length && <TextMuted text={translate('no_data')} />}
-      {requestBody && (
-        <div>
-          <SubHeading>
-            {translate('api_documentation.v2.request_subheader.request_body')}
-          </SubHeading>
-          <ApiResponseSchema content={requestBody} />
-        </div>
-      )}
       {Object.entries(groupBy(data.parameters, (p) => p.in)).map(([group, parameters]) => (
         <div key={group}>
           <SubHeading id={`api-parameters-${group}`}>
@@ -103,7 +95,7 @@ export default function ApiParameters({ data }: Props) {
                       text={`${translate('max')}: ${parameter.schema?.maximum}`}
                     />
                   )}
-                  {parameter.schema?.minimum && (
+                  {typeof parameter.schema?.minimum === 'number' && (
                     <TextMuted
                       className="sw-mt-2 sw-block"
                       text={`${translate('min')}: ${parameter.schema?.minimum}`}
@@ -127,6 +119,16 @@ export default function ApiParameters({ data }: Props) {
           </ul>
         </div>
       ))}
+      {!requestBody && !data.parameters?.length && <TextMuted text={translate('no_data')} />}
+      {requestBody && (
+        <div>
+          <SubHeading id="api_documentation.v2.request_subheader.request_body">
+            {translate('api_documentation.v2.request_subheader.request_body')}
+          </SubHeading>
+          <ApiResponseSchema content={requestBody} />
+          <ApiRequestBodyParameters content={requestBody} />
+        </div>
+      )}
     </>
   );
 }

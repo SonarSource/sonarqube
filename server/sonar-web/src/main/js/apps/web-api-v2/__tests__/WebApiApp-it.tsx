@@ -46,6 +46,9 @@ const ui = {
   requestHeader: byRole('list', { name: 'api_documentation.v2.request_subheader.header' }).byRole(
     'listitem',
   ),
+  requestBodyParameter: byRole('list', {
+    name: 'api_documentation.v2.request_subheader.request_body',
+  }).byRole('listitem'),
   response: byRole('list', { name: 'api_documentation.v2.response_header' }).byRole('listitem'),
 };
 
@@ -96,6 +99,22 @@ it('should navigate between apis', async () => {
   expect(ui.pathParameter.query()).not.toBeInTheDocument();
   expect(ui.requestHeader.query()).not.toBeInTheDocument();
   expect(ui.requestBody.get()).toBeInTheDocument();
+  expect(ui.requestBodyParameter.getAll()).toHaveLength(6);
+  expect(ui.requestBodyParameter.byRole('button').getAt(0)).toHaveAttribute(
+    'aria-expanded',
+    'false',
+  );
+  await user.click(ui.requestBodyParameter.byRole('button').getAt(0));
+  expect(ui.requestBodyParameter.byRole('button').getAt(0)).toHaveAttribute(
+    'aria-expanded',
+    'true',
+  );
+  expect(ui.requestBodyParameter.getAt(0)).toHaveTextContent('name requiredmax: 100min: 3');
+  await user.click(ui.requestBodyParameter.byRole('button').getAt(0));
+  expect(ui.requestBodyParameter.byRole('button').getAt(0)).toHaveAttribute(
+    'aria-expanded',
+    'false',
+  );
   expect(ui.response.byRole('button').getAt(0)).toHaveAttribute('aria-expanded', 'true');
   expect(ui.response.byRole('button').getAt(2)).toHaveAttribute('aria-expanded', 'false');
   expect(ui.response.getAt(0)).toHaveTextContent('200Successful operation');
@@ -138,6 +157,10 @@ it('should navigate between apis', async () => {
   expect(ui.queryParameter.getAt(1)).not.toHaveTextContent('deprecated');
   await user.click(ui.queryParameter.byRole('button').getAt(1));
   expect(ui.queryParameter.getAt(1)).toHaveTextContent('max: 5min: -1example: 3');
+
+  await user.click(ui.apiSidebarItem.getAt(7));
+  expect(await screen.findByText('/api/v3/pet/{petId}/uploadImage')).toBeInTheDocument();
+  expect(screen.getByText('no_data')).toBeInTheDocument();
 });
 
 it('should show About page', async () => {
