@@ -769,7 +769,6 @@ sql_oracle21_task:
   <<: *BUILD_DEPENDANT_TASK_TEMPLATE
   <<: *DATABASE_RELATED_TASK_TEMPLATE
   <<: *GRADLE_CACHE_TEMPLATE
-  timeout_in: 120m
   eks_container:
     <<: *CONTAINER_TEMPLATE
     memory: 5Gb
@@ -943,6 +942,7 @@ weekly_postgres_task:
       - QA_CATEGORY: BITBUCKET_CLOUD
       - QA_CATEGORY: GITLAB_CLOUD
       - QA_CATEGORY: AZURE
+      - QA_CATEGORY: MIGRATION
       #- QA_CATEGORY: GITHUB needs to be disabled because the tests in this package fail when running a scanner
       #- QA_CATEGORY: GITHUB_PROVISIONING needs to be disabled because tests fail with dangling connection problem
       #- QA_CATEGORY: HA needs to be disabled because otherwise we would be assigning big container to each category
@@ -1006,6 +1006,7 @@ weekly_oracle_task:
       - QA_CATEGORY: BITBUCKET_CLOUD
       - QA_CATEGORY: GITLAB_CLOUD
       - QA_CATEGORY: AZURE
+      - QA_CATEGORY: MIGRATION
       #- QA_CATEGORY: GITHUB needs to be disabled because the tests in this package fail when running a scanner
       #- QA_CATEGORY: GITHUB_PROVISIONING needs to be disabled because tests fail with dangling connection problem
       #- QA_CATEGORY: HA needs to be disabled because otherwise we would be assigning big container to each category
@@ -1068,6 +1069,7 @@ weekly_mssql_task:
       - QA_CATEGORY: BITBUCKET_CLOUD
       - QA_CATEGORY: GITLAB_CLOUD
       - QA_CATEGORY: AZURE
+      - QA_CATEGORY: MIGRATION
       #- QA_CATEGORY: GITHUB needs to be disabled because the tests in this package fail when running a scanner
       #- QA_CATEGORY: GITHUB_PROVISIONING needs to be disabled because tests fail with dangling connection problem
       #- QA_CATEGORY: HA needs to be disabled because otherwise we would be assigning big container to each category
