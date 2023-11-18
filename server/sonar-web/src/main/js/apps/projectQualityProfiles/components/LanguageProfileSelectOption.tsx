@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Link } from 'design-system';
 import * as React from 'react';
 import { components, OptionProps } from 'react-select';
 import DisableableSelectOption from '../../../components/common/DisableableSelectOption';
-import Link from '../../../components/common/Link';
 import { LabelValueSelectOption } from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 import { getQualityProfileUrl } from '../../../helpers/urls';

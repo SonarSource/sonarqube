@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import userEvent from '@testing-library/user-event';
+import { addGlobalSuccessMessage } from 'design-system';
 import selectEvent from 'react-select-event';
 import {
   ProfileProject,
@@ -27,7 +27,6 @@ import {
   searchQualityProfiles,
 } from '../../../api/quality-profiles';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
-import { addGlobalSuccessMessage } from '../../../helpers/globalMessages';
 import { mockComponent } from '../../../helpers/mocks/component';
 import {
   RenderContext,
@@ -100,13 +99,10 @@ jest.mock('../../../api/quality-profiles', () => {
   };
 });
 
-jest.mock('../../../helpers/globalMessages', () => {
-  const globalMessages = jest.requireActual('../../../helpers/globalMessages');
-  return {
-    ...globalMessages,
-    addGlobalSuccessMessage: jest.fn(),
-  };
-});
+jest.mock('design-system', () => ({
+  ...jest.requireActual('design-system'),
+  addGlobalSuccessMessage: jest.fn(),
+}));
 
 jest.mock('../../../app/utils/handleRequiredAuthorization', () => jest.fn());
 
@@ -116,7 +112,7 @@ const ui = {
   pageTitle: byText('project_quality_profiles.page'),
   pageSubTitle: byText('project_quality_profile.subtitle'),
   pageDescription: byText('project_quality_profiles.page.description'),
-  helpTooltip: byLabelText('help'),
+  helpTooltip: byLabelText('help-tooltip'),
   profileRows: byRole('row'),
   addLanguageButton: byRole('button', { name: 'project_quality_profile.add_language.action' }),
   modalAddLanguageTitle: byText('project_quality_profile.add_language_modal.title'),
@@ -158,9 +154,8 @@ it('should be able to add and change profile for languages', async () => {
   });
 
   expect(ui.pageTitle.get()).toBeInTheDocument();
-  expect(ui.pageSubTitle.get()).toBeInTheDocument();
   expect(ui.pageDescription.get()).toBeInTheDocument();
-  expect(ui.addLanguageButton.get()).toBeInTheDocument();
+  expect(await ui.addLanguageButton.find()).toBeInTheDocument();
   await expect(ui.helpTooltip.get()).toHaveATooltipWithContent(
     'quality_profiles.list.projects.help',
   );
@@ -190,7 +185,7 @@ it('should be able to add and change profile for languages', async () => {
 
   // Updates the page after API call
   const htmlRow = byRole('row', {
-    name: 'HTML html profile 10 project_quality_profile.change_profile',
+    name: 'HTML html profile 10',
   });
 
   expect(ui.htmlLanguage.get()).toBeInTheDocument();
@@ -231,15 +226,14 @@ it('should call authorization api when permissions is not proper', () => {
   expect(handleRequiredAuthorization).toHaveBeenCalled();
 });
 
-it('should still show page with add language button when api fails', () => {
+it('should still show page with add language button when api fails', async () => {
   jest.mocked(searchQualityProfiles).mockRejectedValueOnce(null);
   jest.mocked(getProfileProjects).mockRejectedValueOnce(null);
 
   renderProjectQualityProfilesApp();
   expect(ui.pageTitle.get()).toBeInTheDocument();
-  expect(ui.pageSubTitle.get()).toBeInTheDocument();
   expect(ui.pageDescription.get()).toBeInTheDocument();
-  expect(ui.addLanguageButton.get()).toBeInTheDocument();
+  expect(await ui.addLanguageButton.find()).toBeInTheDocument();
 });
 
 function renderProjectQualityProfilesApp(

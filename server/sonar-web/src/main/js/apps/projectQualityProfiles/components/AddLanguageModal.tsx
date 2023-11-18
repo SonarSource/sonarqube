@@ -17,13 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ButtonPrimary, FormField, InputSelect, Modal } from 'design-system';
 import { difference } from 'lodash';
 import * as React from 'react';
 import { Profile } from '../../../api/quality-profiles';
 import withLanguagesContext from '../../../app/components/languages/withLanguagesContext';
-import Select, { LabelValueSelectOption } from '../../../components/controls/Select';
-import SimpleModal from '../../../components/controls/SimpleModal';
-import { ButtonLink, SubmitButton } from '../../../components/controls/buttons';
+import { LabelValueSelectOption } from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 import { Languages } from '../../../types/languages';
 import { Dict } from '../../../types/types';
@@ -62,80 +61,71 @@ export function AddLanguageModal(props: AddLanguageModalProps) {
         }))
       : [];
 
+  const onFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (language && key) {
+      props.onSubmit(key);
+    }
+  };
+
+  const renderForm = (
+    <form id="add-language-quality-profile" onSubmit={onFormSubmit}>
+      <div>
+        <FormField
+          className="sw-mb-4"
+          label={translate('project_quality_profile.add_language_modal.choose_language')}
+          htmlFor="language"
+        >
+          <InputSelect
+            size="full"
+            id="language"
+            aria-label={translate('project_quality_profile.add_language_modal.choose_language')}
+            onChange={({ value }: LabelValueSelectOption) => {
+              setSelected({ language: value, key: undefined });
+            }}
+            options={languageOptions}
+          />
+        </FormField>
+
+        <FormField
+          className="sw-mb-4"
+          label={translate('project_quality_profile.add_language_modal.choose_profile')}
+          htmlFor="profiles"
+        >
+          <InputSelect
+            size="full"
+            isDisabled={!language}
+            id="profiles"
+            aria-label={translate('project_quality_profile.add_language_modal.choose_profile')}
+            onChange={({ value }: ProfileOption) => setSelected({ language, key: value })}
+            options={profileOptions}
+            components={{
+              Option: LanguageProfileSelectOption,
+            }}
+            value={profileOptions.find((o) => o.value === key) ?? null}
+          />
+        </FormField>
+      </div>
+    </form>
+  );
+
   return (
-    <SimpleModal
-      header={header}
+    <Modal
       onClose={props.onClose}
-      onSubmit={() => {
-        if (language && key) {
-          props.onSubmit(key);
-        }
-      }}
-    >
-      {({ onCloseClick, onFormSubmit, submitting }) => (
-        <>
-          <div className="modal-head">
-            <h2>{header}</h2>
-          </div>
-
-          <form onSubmit={onFormSubmit}>
-            <div className="modal-body">
-              <div className="big-spacer-bottom">
-                <div className="little-spacer-bottom">
-                  <label className="text-bold" htmlFor="language">
-                    {translate('project_quality_profile.add_language_modal.choose_language')}
-                  </label>
-                </div>
-                <Select
-                  className="abs-width-300"
-                  isDisabled={submitting}
-                  id="language"
-                  aria-label={translate(
-                    'project_quality_profile.add_language_modal.choose_language',
-                  )}
-                  onChange={({ value }: LabelValueSelectOption) => {
-                    setSelected({ language: value, key: undefined });
-                  }}
-                  options={languageOptions}
-                />
-              </div>
-
-              <div className="big-spacer-bottom">
-                <div className="little-spacer-bottom">
-                  <label className="text-bold" htmlFor="profiles">
-                    {translate('project_quality_profile.add_language_modal.choose_profile')}
-                  </label>
-                </div>
-                <Select
-                  className="abs-width-300"
-                  isDisabled={submitting || !language}
-                  id="profiles"
-                  aria-label={translate(
-                    'project_quality_profile.add_language_modal.choose_profile',
-                  )}
-                  onChange={({ value }: ProfileOption) => setSelected({ language, key: value })}
-                  options={profileOptions}
-                  components={{
-                    Option: LanguageProfileSelectOption,
-                  }}
-                  value={profileOptions.find((o) => o.value === key) ?? null}
-                />
-              </div>
-            </div>
-
-            <div className="modal-foot">
-              {submitting && <i className="spinner spacer-right" />}
-              <SubmitButton disabled={submitting || !language || !key}>
-                {translate('save')}
-              </SubmitButton>
-              <ButtonLink disabled={submitting} onClick={onCloseClick}>
-                {translate('cancel')}
-              </ButtonLink>
-            </div>
-          </form>
-        </>
-      )}
-    </SimpleModal>
+      headerTitle={header}
+      isOverflowVisible
+      body={renderForm}
+      primaryButton={
+        <ButtonPrimary
+          disabled={!language || !key}
+          form="add-language-quality-profile"
+          type="submit"
+        >
+          {translate('save')}
+        </ButtonPrimary>
+      }
+      secondaryButtonLabel={translate('cancel')}
+    />
   );
 }
 
