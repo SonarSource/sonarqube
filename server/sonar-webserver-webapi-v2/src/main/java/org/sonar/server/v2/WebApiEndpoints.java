@@ -26,7 +26,6 @@ public class WebApiEndpoints {
 
   public static final String USERS_MANAGEMENT_DOMAIN = "/users-management";
   public static final String USER_ENDPOINT = USERS_MANAGEMENT_DOMAIN + "/users";
-  public static final String GITHUB_PERMISSIONS_ENDPOINT = "/github-permission-mappings";
   public static final String JSON_MERGE_PATCH_CONTENT_TYPE = "application/merge-patch+json";
 
   private WebApiEndpoints() {

@@ -22,6 +22,8 @@ import { throwGlobalError } from '../helpers/error';
 import { getJSON, post, postJSON } from '../helpers/request';
 import { GitHubConfigurationStatus, GitHubMapping, GithubStatus } from '../types/provisioning';
 
+const GITHUB_PERMISSION_MAPPINGS = '/api/v2/dop-translation/github-permission-mappings';
+
 export function fetchIsScimEnabled(): Promise<boolean> {
   return getJSON('/api/scim_management/status')
     .then((r) => r.enabled)
@@ -58,7 +60,7 @@ export function syncNowGithubProvisioning(): Promise<void> {
 
 export function fetchGithubRolesMapping() {
   return axios
-    .get<{ githubPermissionsMappings: GitHubMapping[] }>('/api/v2/github-permission-mappings')
+    .get<{ githubPermissionsMappings: GitHubMapping[] }>(GITHUB_PERMISSION_MAPPINGS)
     .then((data) => data.githubPermissionsMappings);
 }
 
@@ -67,15 +69,15 @@ export function updateGithubRolesMapping(
   data: Partial<Pick<GitHubMapping, 'permissions'>>,
 ) {
   return axios.patch<GitHubMapping>(
-    `/api/v2/github-permission-mappings/${encodeURIComponent(role)}`,
+    `${GITHUB_PERMISSION_MAPPINGS}/${encodeURIComponent(role)}`,
     data,
   );
 }
 
 export function addGithubRolesMapping(data: Omit<GitHubMapping, 'id'>) {
-  return axios.post<GitHubMapping>(`/api/v2/github-permission-mappings/`, data);
+  return axios.post<GitHubMapping>(GITHUB_PERMISSION_MAPPINGS, data);
 }
 
 export function deleteGithubRolesMapping(role: string) {
-  return axios.delete(`/api/v2/github-permission-mappings/${encodeURIComponent(role)}`);
+  return axios.delete(`${GITHUB_PERMISSION_MAPPINGS}/${encodeURIComponent(role)}`);
 }

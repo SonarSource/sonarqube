@@ -33,16 +33,12 @@ public class GithubPermissionsService extends BaseService {
   }
 
   public void addPermissionMapping(AddGithubPermissionMappingRequest addGithubPermissionMappingRequest) {
-    try (WsResponse response = callEndpoint(addGithubPermissionMappingRequest)) {
-      if (!response.isSuccessful()) {
-        throw new IllegalStateException("Failed to add github permission mapping, http error code: " + response.code());
-      }
-    }
+    callEndpoint(addGithubPermissionMappingRequest).close();
   }
 
   private WsResponse callEndpoint(AddGithubPermissionMappingRequest addGithubPermissionMappingRequest) {
     return call(
-      new PostRequest(path("github-permission-mappings"))
+      new PostRequest(path("dop-translation/github-permission-mappings"))
         .setBody(new Gson().toJson(addGithubPermissionMappingRequest))
         .setMediaType(MediaTypes.JSON));
   }
