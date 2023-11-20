@@ -103,7 +103,7 @@ buildCache {
       creds.username = System.env.'GRADLE_ENTERPRISE_USERNAME'
       creds.password = System.env.'GRADLE_ENTERPRISE_PASSWORD'
     }
-    enabled = false
+    enabled = true
     push = isCiServer
   }
 }
