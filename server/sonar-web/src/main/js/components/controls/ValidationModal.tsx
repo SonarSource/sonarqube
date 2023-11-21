@@ -25,7 +25,7 @@ import Modal, { ModalProps } from './Modal';
 import ValidationForm, { ChildrenProps } from './ValidationForm';
 import { ResetButtonLink, SubmitButton } from './buttons';
 
-interface Props<V> extends ModalProps {
+interface Props<V> extends Omit<ModalProps, 'children'> {
   children: (props: ChildrenProps<V>) => React.ReactNode;
   confirmButtonText: string;
   header: string;

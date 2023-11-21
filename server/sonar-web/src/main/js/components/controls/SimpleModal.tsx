@@ -27,7 +27,7 @@ export interface ChildrenProps {
   submitting: boolean;
 }
 
-interface Props extends ModalProps {
+interface Props extends Omit<ModalProps, 'children'> {
   children: (props: ChildrenProps) => React.ReactNode;
   header: string;
   onClose: () => void;

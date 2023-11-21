@@ -25,7 +25,7 @@ import { translate } from '../../../helpers/l10n';
 import { ExcludeReferences } from '../types';
 import { mapOpenAPISchema } from '../utils';
 
-interface Props extends HtmlHTMLAttributes<HTMLDivElement> {
+interface Props extends Omit<HtmlHTMLAttributes<HTMLDivElement>, 'content'> {
   content?: Exclude<ExcludeReferences<OpenAPIV3.ResponseObject>['content'], undefined>;
 }
 

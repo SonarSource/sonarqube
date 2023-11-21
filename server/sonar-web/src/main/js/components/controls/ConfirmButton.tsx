@@ -21,7 +21,7 @@ import * as React from 'react';
 import ConfirmModal, { ConfirmModalProps } from './ConfirmModal';
 import ModalButton, { ChildrenProps, ModalProps } from './ModalButton';
 
-interface Props<T> extends ConfirmModalProps<T> {
+interface Props<T> extends Omit<ConfirmModalProps<T>, 'children'> {
   children: (props: ChildrenProps) => React.ReactNode;
   modalBody: React.ReactNode;
   modalHeader: string;
