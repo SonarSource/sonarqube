@@ -49,7 +49,7 @@ export default function SubnavigationIssue(props: ConciseIssueProps) {
 
   React.useEffect(() => {
     if (selected && element.current) {
-      const parent = document.querySelector('nav.it__issues-nav-bar') as HTMLMenuElement;
+      const parent = document.querySelector('nav.issues-nav-bar') as HTMLMenuElement;
       const rect = parent.getBoundingClientRect();
       const offset =
         element.current.offsetTop - rect.height / HALF_DIVIDER + rect.top / HALF_DIVIDER;

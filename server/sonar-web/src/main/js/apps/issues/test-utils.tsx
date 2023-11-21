@@ -63,7 +63,12 @@ export const ui = {
   issueItem6: byRole('region', { name: 'Second issue' }),
   issueItem7: byRole('region', { name: 'Issue with tags' }),
   issueItem8: byRole('region', { name: 'Issue on page 2' }),
+  issueItem9: byRole('region', { name: 'Issue inside folderA' }),
   projectIssueItem6: byRole('button', { name: 'Second issue', exact: false }),
+
+  conciseIssueTotal: byTestId('page-counter-total'),
+  conciseIssueItem2: byTestId('issues-nav-bar').byRole('button', { name: 'Fix that' }),
+  conciseIssueItem4: byTestId('issues-nav-bar').byRole('button', { name: 'Issue with tags' }),
 
   assigneeFacet: byRole('button', { name: 'issues.facet.assignees' }),
   authorFacet: byRole('button', { name: 'issues.facet.authors' }),

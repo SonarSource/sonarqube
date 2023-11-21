@@ -233,14 +233,14 @@ describe('issues app', () => {
       renderIssueApp();
 
       expect(await ui.issueItems.findAll()).toHaveLength(7);
-      expect(ui.issueItem8.query()).not.toBeInTheDocument();
+      expect(ui.issueItem9.query()).not.toBeInTheDocument();
 
       await act(async () => {
         await user.click(screen.getByRole('button', { name: 'show_more' }));
       });
 
-      expect(ui.issueItems.getAll()).toHaveLength(10);
-      expect(ui.issueItem8.get()).toBeInTheDocument();
+      expect(ui.issueItems.getAll()).toHaveLength(9);
+      expect(ui.issueItem9.get()).toBeInTheDocument();
     });
 
     it('should be able to select issues for bulk change', async () => {

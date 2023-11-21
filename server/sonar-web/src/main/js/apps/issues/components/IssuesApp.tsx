@@ -121,7 +121,6 @@ interface Props extends WithIndexationContextProps {
 }
 export interface State {
   bulkChangeModal: boolean;
-  cannotShowOpenIssue?: boolean;
   checkAll?: boolean;
   checked: string[];
   effortTotal?: number;
@@ -150,7 +149,8 @@ export interface State {
   selectedLocationIndex?: number;
 }
 
-const MAX_INITAL_FETCH = 1000;
+// When opening a specific issue, number of issues to fetch through pagination before loading it specifically
+const MAX_INITAL_FETCH = 400;
 const VARIANTS_FACET = 'codeVariants';
 const ISSUES_PAGE_SIZE = 100;
 
@@ -469,32 +469,24 @@ export class App extends React.PureComponent<Props, State> {
 
   createdAfterIncludesTime = () => Boolean(this.props.location.query.createdAfter?.includes('T'));
 
-  fetchIssuesHelper = (query: RawQuery) => {
+  fetchIssuesHelper = async (query: RawQuery) => {
     if (this.props.component?.needIssueSync) {
-      return listIssues({
-        ...query,
-      }).then((response) => {
-        const { components, issues, rules } = response;
-
-        const parsedIssues = issues.map((issue) =>
-          parseIssueFromResponse(issue, components, undefined, rules),
-        );
-
-        return { ...response, issues: parsedIssues } as FetchIssuesPromise;
-      });
+      const response = await listIssues(query);
+      const parsedIssues = response.issues.map((issue) =>
+        parseIssueFromResponse(issue, response.components, undefined, response.rules),
+      );
+      return { ...response, issues: parsedIssues } as FetchIssuesPromise;
     }
 
-    return searchIssues({
+    const response = await searchIssues({
       ...query,
       additionalFields: '_all',
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    }).then((response) => {
-      const parsedIssues = response.issues.map((issue) =>
-        parseIssueFromResponse(issue, response.components, response.users, response.rules),
-      );
-
-      return { ...response, issues: parsedIssues } as FetchIssuesPromise;
     });
+    const parsedIssues = response.issues.map((issue) =>
+      parseIssueFromResponse(issue, response.components, response.users, response.rules),
+    );
+    return { ...response, issues: parsedIssues } as FetchIssuesPromise;
   };
 
   fetchIssues = (
@@ -549,123 +541,131 @@ export class App extends React.PureComponent<Props, State> {
     return this.fetchIssuesHelper(parameters);
   };
 
-  fetchFirstIssues(firstRequest: boolean) {
+  async fetchFirstIssues(firstRequest: boolean) {
     const prevQuery = this.props.location.query;
     const openIssueKey = getOpen(this.props.location.query);
-    let fetchPromise;
 
     this.setState({ checked: [], loading: true });
 
+    let response: FetchIssuesPromise;
     if (openIssueKey !== undefined) {
-      fetchPromise = this.fetchIssuesUntil(1, (pageIssues: Issue[], paging: Paging) => {
-        if (
-          paging.total <= paging.pageIndex * paging.pageSize ||
-          paging.pageIndex * paging.pageSize >= MAX_INITAL_FETCH
-        ) {
-          return true;
-        }
-
-        return pageIssues.some((issue) => issue.key === openIssueKey);
-      });
+      response = await this.fetchIssuesUntil(openIssueKey);
     } else {
-      fetchPromise = this.fetchIssues({}, true, firstRequest);
+      response = await this.fetchIssues({}, true, firstRequest);
     }
 
-    return fetchPromise.then(this.parseFirstIssues(firstRequest, openIssueKey, prevQuery), () => {
+    try {
+      return this.parseFirstIssues(response, firstRequest, prevQuery);
+    } catch (error) {
       if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
         this.setState({ loading: false });
       }
-
       return [];
-    });
+    }
   }
 
-  parseFirstIssues =
-    (firstRequest: boolean, openIssueKey: string | undefined, prevQuery: RawQuery) =>
-    ({ effortTotal, facets, issues, paging, ...other }: FetchIssuesPromise) => {
-      if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
-        const openIssue = getOpenIssue(this.props, issues);
-        let selected: string | undefined = undefined;
+  parseFirstIssues = (response: FetchIssuesPromise, firstRequest: boolean, prevQuery: RawQuery) => {
+    const { effortTotal, facets, issues, paging, ...other } = response;
 
-        if (issues.length > 0) {
-          selected = openIssue ? openIssue.key : issues[0].key;
-        }
+    if (this.mounted && areQueriesEqual(prevQuery, this.props.location.query)) {
+      const openIssue = getOpenIssue(this.props, issues);
+      let selected: string | undefined = undefined;
 
-        this.setState(({ showVariantsFilter }) => ({
-          cannotShowOpenIssue: Boolean(openIssueKey) && !openIssue,
-          effortTotal,
-          facets: parseFacets(facets),
-          issues,
-          loading: false,
-          locationsNavigator: true,
-          openIssue,
-          paging,
-          referencedComponentsById: keyBy(other.components, 'uuid'),
-          referencedComponentsByKey: keyBy(other.components, 'key'),
-          referencedLanguages: keyBy(other.languages, 'key'),
-          referencedRules: keyBy(other.rules, 'key'),
-          referencedUsers: keyBy(other.users, 'login'),
-          selected,
-          selectedFlowIndex: 0,
-          selectedLocationIndex: undefined,
-          showVariantsFilter: firstRequest
-            ? Boolean(facets?.find((f) => f.property === VARIANTS_FACET)?.values.length)
-            : showVariantsFilter,
-        }));
+      if (issues.length > 0) {
+        selected = openIssue ? openIssue.key : issues[0].key;
       }
 
-      return issues;
-    };
+      this.setState(({ showVariantsFilter }) => ({
+        effortTotal,
+        facets: parseFacets(facets),
+        issues,
+        loading: false,
+        locationsNavigator: true,
+        openIssue,
+        paging,
+        referencedComponentsById: keyBy(other.components, 'uuid'),
+        referencedComponentsByKey: keyBy(other.components, 'key'),
+        referencedLanguages: keyBy(other.languages, 'key'),
+        referencedRules: keyBy(other.rules, 'key'),
+        referencedUsers: keyBy(other.users, 'login'),
+        selected,
+        selectedFlowIndex: 0,
+        selectedLocationIndex: undefined,
+        showVariantsFilter: firstRequest
+          ? Boolean(facets?.find((f) => f.property === VARIANTS_FACET)?.values.length)
+          : showVariantsFilter,
+      }));
+    }
 
-  fetchIssuesPage = (p: number) => {
-    return this.fetchIssues({ p });
+    return issues;
   };
 
-  fetchIssuesUntil = (
-    page: number,
-    done: (pageIssues: Issue[], paging: Paging) => boolean,
-  ): Promise<FetchIssuesPromise> => {
-    const recursiveFetch = (p: number, prevIssues: Issue[]): Promise<FetchIssuesPromise> => {
-      return this.fetchIssuesPage(p).then(({ issues: pageIssues, paging, ...other }) => {
-        const issues = [...prevIssues, ...pageIssues];
+  fetchIssuesUntil = async (issueKey: string): Promise<FetchIssuesPromise> => {
+    let issueOfInterest: Issue | undefined;
+    const allIssues: Issue[] = [];
 
-        // eslint-disable-next-line promise/no-callback-in-promise
-        return done(pageIssues, paging)
-          ? { issues, paging, ...other }
-          : recursiveFetch(p + 1, issues);
-      });
+    // Try and find issue of interest in the first pages of issues. Stop if we find it.
+    let currentPage = 1;
+    let lastResponse: FetchIssuesPromise;
+    do {
+      // eslint-disable-next-line no-await-in-loop
+      const response = await this.fetchIssues({ p: currentPage });
+      allIssues.push(...response.issues);
+      lastResponse = response;
+
+      issueOfInterest = response.issues.find((issue) => issue.key === issueKey);
+      if (issueOfInterest) {
+        return { ...response, issues: allIssues };
+      }
+
+      currentPage++;
+    } while (currentPage <= MAX_INITAL_FETCH / ISSUES_PAGE_SIZE);
+
+    // If we could not find the issue, we load it specifically and prepend it to the list
+    const {
+      issues: [issue],
+    } = await this.fetchIssuesHelper({ issues: issueKey });
+    return {
+      ...lastResponse,
+      issues: [issue, ...allIssues],
+      // Use last paging object we got from the previous requests and patch it with this issue
+      paging: {
+        ...lastResponse.paging,
+        total: lastResponse.paging.total + 1,
+      },
     };
-
-    return recursiveFetch(page, []);
   };
 
-  fetchMoreIssues = () => {
+  fetchMoreIssues = async () => {
     const { paging } = this.state;
 
     if (!paging) {
-      return Promise.reject();
+      throw new Error('Paging is not defined');
     }
-
-    const p = paging.pageIndex + 1;
 
     this.setState({ checkAll: false, loadingMore: true });
 
-    return this.fetchIssuesPage(p).then(
-      (response) => {
-        if (this.mounted) {
-          this.setState((state) => ({
-            issues: [...state.issues, ...response.issues],
-            loadingMore: false,
-            paging: response.paging,
-          }));
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loadingMore: false });
-        }
-      },
-    );
+    try {
+      const response = await this.fetchIssues({ p: paging.pageIndex + 1 });
+
+      // In some cases, we can get an issue that we already have in the list as the first issue
+      // When this happens, we filter it out
+      // @see this.fetchIssuesUntil
+      const firstIssueKey = response.issues[0]?.key;
+      response.issues = response.issues.filter((issue) => issue.key !== firstIssueKey);
+
+      if (this.mounted) {
+        this.setState((state) => ({
+          issues: [...state.issues, ...response.issues],
+          loadingMore: false,
+          paging: response.paging,
+        }));
+      }
+    } catch (error) {
+      if (this.mounted) {
+        this.setState({ loadingMore: false });
+      }
+    }
   };
 
   fetchFacet = (facet: string) => {
@@ -1082,7 +1082,8 @@ export class App extends React.PureComponent<Props, State> {
           {({ top }) => (
             <nav
               aria-label={openIssue ? translate('list_of_issues') : translate('filters')}
-              className="it__issues-nav-bar sw-overflow-y-auto issue-filters-list"
+              data-testid="issues-nav-bar"
+              className="issues-nav-bar sw-overflow-y-auto issue-filters-list"
               style={{ height: `calc((100vh - ${top}px) - 60px)` }} // 60px (footer)
             >
               <div className="sw-w-[300px] lg:sw-w-[390px]">
@@ -1210,16 +1211,8 @@ export class App extends React.PureComponent<Props, State> {
   }
 
   renderPage() {
-    const {
-      cannotShowOpenIssue,
-      openRuleDetails,
-      checkAll,
-      issues,
-      loading,
-      openIssue,
-      paging,
-      loadingRule,
-    } = this.state;
+    const { openRuleDetails, checkAll, issues, loading, openIssue, paging, loadingRule } =
+      this.state;
 
     return (
       <ScreenPositionHelper>
@@ -1284,15 +1277,6 @@ export class App extends React.PureComponent<Props, State> {
                           </span>
                         </FlagMessage>
                       </div>
-                    )}
-
-                    {cannotShowOpenIssue && (!paging || paging.total > 0) && (
-                      <FlagMessage className="sw-mb-4" variant="warning">
-                        {translateWithParameters(
-                          'issues.cannot_open_issue_max_initial_X_fetched',
-                          MAX_INITAL_FETCH,
-                        )}
-                      </FlagMessage>
                     )}
 
                     {this.renderList()}

@@ -462,6 +462,12 @@ export default class IssuesServiceMock {
         return item.issue.codeVariants.some(
           (codeVariant) => query.codeVariants?.split(',').includes(codeVariant),
         );
+      })
+      .filter((item) => {
+        if (!query.issues) {
+          return true;
+        }
+        return query.issues.split(',').includes(item.issue.key);
       });
 
     // Splice list items according to paging using a fixed page size

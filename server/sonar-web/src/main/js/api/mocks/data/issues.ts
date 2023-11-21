@@ -387,6 +387,7 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
         project: 'org.project2',
         assignee: 'email1@sonarsource.com',
         author: 'email3@sonarsource.com',
+        issueStatus: IssueStatus.Confirmed,
       }),
       snippets: keyBy(
         [
@@ -438,7 +439,7 @@ export function mockIssuesList(baseComponentKey = PARENT_COMPONENT_KEY): IssueDa
         key: ISSUE_1103,
         component: `${baseComponentKey}:${ISSUE_TO_FILES[ISSUE_1103][0]}`,
         creationDate: '2022-01-15T09:36:01+0100',
-        message: 'Issue inside folderA',
+        message: 'Issue 2 inside folderA',
         type: IssueType.CodeSmell,
         rule: ISSUE_TO_RULE[ISSUE_1103],
         textRange: {

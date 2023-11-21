@@ -33,7 +33,7 @@ export default function PageCounter({ className, current, label, total }: PageCo
     <div className={className}>
       <strong className="sw-mr-1">
         {current !== undefined && formatMeasure(current + 1, MetricType.Integer) + ' / '}
-        <span className="it__page-counter-total">{formatMeasure(total, MetricType.Integer)}</span>
+        <span data-testid="page-counter-total">{formatMeasure(total, MetricType.Integer)}</span>
       </strong>
       {label}
     </div>

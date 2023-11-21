@@ -64,6 +64,14 @@ beforeEach(() => {
 });
 
 describe('issue app', () => {
+  it('should always be able to render the open issue', async () => {
+    renderProjectIssuesApp('project/issues?issueStatuses=CONFIRMED&open=issue2&id=myproject&why=1');
+
+    expect(await ui.conciseIssueTotal.find()).toHaveTextContent('3');
+    expect(ui.conciseIssueItem4.get()).toBeInTheDocument();
+    expect(ui.conciseIssueItem2.get()).toBeInTheDocument();
+  });
+
   it('should navigate to Why is this an issue tab', async () => {
     renderProjectIssuesApp('project/issues?issues=issue2&open=issue2&id=myproject&why=1');
 
