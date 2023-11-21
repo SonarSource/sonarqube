@@ -25,6 +25,7 @@ export const HighlightRing = styled.div`
   &.active {
     box-shadow: 0 0 4px 0 ${themeColor('primary')};
     background: ${themeColor('highlightRingBackground')};
+    z-index: 1;
     ${tw`sw-rounded-1/2`}
   }
 `;

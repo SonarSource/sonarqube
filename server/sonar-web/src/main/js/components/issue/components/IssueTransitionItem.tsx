@@ -47,7 +47,6 @@ export function IssueTransitionItem({ transition, selected, onSelectTransition }
         <span>{translate('issue.transition.confirm.deprecated_tooltip.1')}</span>
         <span>{translate('issue.transition.confirm.deprecated_tooltip.2')}</span>
         <span>{translate('issue.transition.confirm.deprecated_tooltip.3')}</span>
-        <span>{translate('issue.transition.confirm.deprecated_tooltip.4')}</span>
       </div>
     ),
     [IssueTransition.Resolve]: (
