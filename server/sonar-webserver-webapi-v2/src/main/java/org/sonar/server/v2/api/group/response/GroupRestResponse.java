@@ -19,13 +19,19 @@
  */
 package org.sonar.server.v2.api.group.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.annotation.Nullable;
 
-public record RestGroupResponse(
+public record GroupRestResponse(
   @Schema(accessMode = Schema.AccessMode.READ_ONLY)
   String id,
   String name,
   @Nullable
-  String description) {
+  String description,
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+  Boolean managed,
+  @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+  @JsonProperty("default")
+  Boolean isDefault) {
 }

@@ -29,8 +29,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.common.group.service.GroupService;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.common.management.ManagedInstanceChecker;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.UserGroups;
 
@@ -107,7 +107,7 @@ public class UpdateAction implements UserGroupsWsAction {
       String newName = request.param(PARAM_GROUP_NAME);
       String description = request.param(PARAM_GROUP_DESCRIPTION);
 
-      GroupDto updatedGroup = groupService.updateGroup(dbSession, group, newName, description);
+      GroupDto updatedGroup = groupService.updateGroup(dbSession, group, newName, description).groupDto();
       dbSession.commit();
 
       writeResponse(dbSession, request, response, updatedGroup);

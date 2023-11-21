@@ -23,10 +23,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import javax.validation.Valid;
+import org.sonar.server.v2.api.group.request.GroupCreateRestRequest;
 import org.sonar.server.v2.api.group.request.GroupUpdateRestRequest;
 import org.sonar.server.v2.api.group.request.GroupsSearchRestRequest;
 import org.sonar.server.v2.api.group.response.GroupsSearchRestResponse;
-import org.sonar.server.v2.api.group.response.RestGroupResponse;
+import org.sonar.server.v2.api.group.response.GroupRestResponse;
 import org.sonar.server.v2.api.model.RestPage;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -60,7 +62,12 @@ public interface GroupController {
   @GetMapping(path = "/{id}")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Fetch a single group", description = "Fetch a single group.")
-  RestGroupResponse fetchGroup(@PathVariable("id") @Parameter(description = "The id of the group to fetch.", required = true, in = ParameterIn.PATH) String id);
+  GroupRestResponse fetchGroup(@PathVariable("id") @Parameter(description = "The id of the group to fetch.", required = true, in = ParameterIn.PATH) String id);
+
+  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.CREATED)
+  @Operation(summary = "Create a new group", description = "Create a new group.")
+  GroupRestResponse create(@Valid @RequestBody GroupCreateRestRequest request);
 
   @DeleteMapping(path = "/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -73,5 +80,5 @@ public interface GroupController {
     Update a user.
     Allows updating user's name, email and SCM accounts.
     """)
-  RestGroupResponse updateGroup(@PathVariable("id") String id, @Valid @RequestBody GroupUpdateRestRequest updateRequest);
+  GroupRestResponse updateGroup(@PathVariable("id") String id, @Valid @RequestBody GroupUpdateRestRequest updateRequest);
 }

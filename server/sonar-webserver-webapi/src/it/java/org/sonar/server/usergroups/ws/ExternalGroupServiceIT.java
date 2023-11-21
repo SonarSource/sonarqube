@@ -20,6 +20,7 @@
 package org.sonar.server.usergroups.ws;
 
 import java.util.Optional;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -54,6 +55,11 @@ public class ExternalGroupServiceIT {
 
   private final ExternalGroupService externalGroupService = new ExternalGroupService(dbClient, groupService);
 
+  @Before
+  public void setUp() {
+    dbTester.users().insertDefaultGroup();
+  }
+
   @Test
   public void createOrUpdateExternalGroup_whenNewGroup_shouldCreateIt() {
     externalGroupService.createOrUpdateExternalGroup(dbSession, new GroupRegistration(EXTERNAL_ID, EXTERNAL_IDENTITY_PROVIDER, GROUP_NAME));
@@ -67,13 +73,12 @@ public class ExternalGroupServiceIT {
 
     externalGroupService.createOrUpdateExternalGroup(dbSession, new GroupRegistration(EXTERNAL_ID, EXTERNAL_IDENTITY_PROVIDER, GROUP_NAME));
 
-    assertThat(dbTester.users().countAllGroups()).isEqualTo(1);
+    assertThat(dbTester.users().countAllGroups()).isEqualTo(2);
     assertGroupAndExternalGroup();
   }
 
   @Test
   public void createOrUpdateExternalGroup_whenExistingExternalGroup_shouldUpdate() {
-    dbTester.users().insertDefaultGroup();
     GroupDto existingGroupDto = dbTester.users().insertGroup(GROUP_NAME);
     dbTester.users().insertExternalGroup(new ExternalGroupDto(existingGroupDto.getUuid(), EXTERNAL_ID, EXTERNAL_IDENTITY_PROVIDER));
 

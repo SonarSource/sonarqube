@@ -88,7 +88,7 @@ public class CreateAction implements UserGroupsWsAction {
       managedInstanceChecker.throwIfInstanceIsManaged();
       String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
       String groupDescription = request.param(PARAM_GROUP_DESCRIPTION);
-      GroupDto group = groupService.createGroup(dbSession, groupName, groupDescription);
+      GroupDto group = groupService.createGroup(dbSession, groupName, groupDescription).groupDto();
       dbSession.commit();
       writeResponse(request, response, group);
     }

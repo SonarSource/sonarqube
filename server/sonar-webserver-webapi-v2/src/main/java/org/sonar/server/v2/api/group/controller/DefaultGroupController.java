@@ -22,7 +22,6 @@ package org.sonar.server.v2.api.group.controller;
 import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.user.GroupDto;
 import org.sonar.server.common.SearchResults;
 import org.sonar.server.common.group.service.GroupInformation;
 import org.sonar.server.common.group.service.GroupSearchRequest;
@@ -30,10 +29,11 @@ import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.v2.api.group.request.GroupCreateRestRequest;
 import org.sonar.server.v2.api.group.request.GroupUpdateRestRequest;
 import org.sonar.server.v2.api.group.request.GroupsSearchRestRequest;
 import org.sonar.server.v2.api.group.response.GroupsSearchRestResponse;
-import org.sonar.server.v2.api.group.response.RestGroupResponse;
+import org.sonar.server.v2.api.group.response.GroupRestResponse;
 import org.sonar.server.v2.api.model.RestPage;
 import org.sonar.server.v2.api.response.PageRestResponse;
 
@@ -58,63 +58,72 @@ public class DefaultGroupController implements GroupController {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupSearchRequest groupSearchRequest = new GroupSearchRequest(groupsSearchRestRequest.q(), groupsSearchRestRequest.managed(), restPage.pageIndex(), restPage.pageSize());
       SearchResults<GroupInformation> searchResults = groupService.search(dbSession, groupSearchRequest);
-      List<RestGroupResponse> restGroupResponses = toRestGroupResponses(searchResults);
-      return new GroupsSearchRestResponse(restGroupResponses, new PageRestResponse(restPage.pageIndex(), restPage.pageSize(), searchResults.total()));
+      List<GroupRestResponse> groupRestResponses = toGroupRestResponses(searchResults);
+      return new GroupsSearchRestResponse(groupRestResponses, new PageRestResponse(restPage.pageIndex(), restPage.pageSize(), searchResults.total()));
     }
   }
 
-  private static List<RestGroupResponse> toRestGroupResponses(SearchResults<GroupInformation> searchResults) {
+  private static List<GroupRestResponse> toGroupRestResponses(SearchResults<GroupInformation> searchResults) {
     return searchResults.searchResults().stream()
-      .map(groupInformation -> toRestGroup(groupInformation.groupDto()))
+      .map(DefaultGroupController::toRestGroup)
       .toList();
   }
 
   @Override
-  public RestGroupResponse fetchGroup(String id) {
+  public GroupRestResponse fetchGroup(String id) {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     try (DbSession session = dbClient.openSession(false)) {
-      GroupDto groupDto = findGroupDtoOrThrow(id, session);
-      return toRestGroup(groupDto);
+      GroupInformation groupInformation = findGroupInformationOrThrow(id, session);
+      return toRestGroup(groupInformation);
     }
   }
 
   @Override
   public void deleteGroup(String id) {
-    throwIfNotAllowedToChangeGroupName();
+    throwIfNotAllowedToModifyGroups();
     try (DbSession session = dbClient.openSession(false)) {
-      GroupDto group = findGroupDtoOrThrow(id, session);
-      groupService.delete(session, group);
+      GroupInformation group = findGroupInformationOrThrow(id, session);
+      groupService.delete(session, group.groupDto());
       session.commit();
     }
   }
 
   @Override
-  public RestGroupResponse updateGroup(String id, GroupUpdateRestRequest updateRequest) {
-    throwIfNotAllowedToChangeGroupName();
+  public GroupRestResponse updateGroup(String id, GroupUpdateRestRequest updateRequest) {
+    throwIfNotAllowedToModifyGroups();
     try (DbSession session = dbClient.openSession(false)) {
-      GroupDto group = findGroupDtoOrThrow(id, session);
-      GroupDto updatedGroup = groupService.updateGroup(
+      GroupInformation group = findGroupInformationOrThrow(id, session);
+      GroupInformation updatedGroup = groupService.updateGroup(
         session,
-        group,
-        updateRequest.getName().orElse(group.getName()),
-        updateRequest.getDescription().orElse(group.getDescription())
-      );
+        group.groupDto(),
+        updateRequest.getName().orElse(group.groupDto().getName()),
+        updateRequest.getDescription().orElse(group.groupDto().getDescription()));
       session.commit();
       return toRestGroup(updatedGroup);
     }
   }
 
-  private void throwIfNotAllowedToChangeGroupName() {
-    userSession.checkIsSystemAdministrator();
-    managedInstanceChecker.throwIfInstanceIsManaged();
-  }
-
-  private GroupDto findGroupDtoOrThrow(String id, DbSession session) {
+  private GroupInformation findGroupInformationOrThrow(String id, DbSession session) {
     return groupService.findGroupByUuid(session, id)
       .orElseThrow(() -> new NotFoundException(String.format(GROUP_NOT_FOUND_MESSAGE, id)));
   }
 
-  private static RestGroupResponse toRestGroup(GroupDto groupDto) {
-    return new RestGroupResponse(groupDto.getUuid(), groupDto.getName(), groupDto.getDescription());
+  @Override
+  public GroupRestResponse create(GroupCreateRestRequest request) {
+    throwIfNotAllowedToModifyGroups();
+    try (DbSession session = dbClient.openSession(false)) {
+      GroupInformation createdGroup = groupService.createGroup(session, request.name(), request.description());
+      session.commit();
+      return toRestGroup(createdGroup);
+    }
+  }
+
+  private void throwIfNotAllowedToModifyGroups() {
+    userSession.checkIsSystemAdministrator();
+    managedInstanceChecker.throwIfInstanceIsManaged();
+  }
+
+  private static GroupRestResponse toRestGroup(GroupInformation group) {
+    return new GroupRestResponse(group.groupDto().getUuid(), group.groupDto().getName(), group.groupDto().getDescription(), group.isManaged(), group.isDefault());
   }
 }

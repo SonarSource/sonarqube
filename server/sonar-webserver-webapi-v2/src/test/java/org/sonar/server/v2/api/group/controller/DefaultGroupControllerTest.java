@@ -19,8 +19,7 @@
  */
 package org.sonar.server.v2.api.group.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +44,8 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.v2.api.ControllerTester;
 import org.sonar.server.v2.api.group.response.GroupsSearchRestResponse;
-import org.sonar.server.v2.api.group.response.RestGroupResponse;
+import org.sonar.server.v2.api.group.response.GroupRestResponse;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -63,6 +63,7 @@ import static org.sonar.server.v2.api.model.RestPage.DEFAULT_PAGE_SIZE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -70,7 +71,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class DefaultGroupControllerTest {
 
   private static final String GROUP_UUID = "1234";
-  private static final Gson GSON = new GsonBuilder().create();
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -78,7 +79,8 @@ public class DefaultGroupControllerTest {
   private final DbClient dbClient = mock();
   private final DbSession dbSession = mock();
   private final ManagedInstanceChecker managedInstanceChecker = mock();
-  private final MockMvc mockMvc = ControllerTester.getMockMvc(new DefaultGroupController(groupService, dbClient, managedInstanceChecker, userSession));
+  private final MockMvc mockMvc = ControllerTester
+    .getMockMvc(new DefaultGroupController(groupService, dbClient, managedInstanceChecker, userSession));
 
   @Before
   public void setUp() {
@@ -89,8 +91,9 @@ public class DefaultGroupControllerTest {
   public void fetchGroup_whenGroupExists_returnsTheGroup() throws Exception {
 
     GroupDto groupDto = new GroupDto().setUuid(GROUP_UUID).setName("name").setDescription("description");
+    GroupInformation groupInformation = new GroupInformation(groupDto, false, false);
 
-    when(groupService.findGroupByUuid(dbSession, GROUP_UUID)).thenReturn(Optional.of(groupDto));
+    when(groupService.findGroupByUuid(dbSession, GROUP_UUID)).thenReturn(Optional.of(groupInformation));
 
     userSession.logIn().setSystemAdministrator();
     mockMvc.perform(get(GROUPS_ENDPOINT + "/" + GROUP_UUID))
@@ -100,7 +103,32 @@ public class DefaultGroupControllerTest {
           {
             "id": "1234",
             "name": "name",
-            "description": "description"
+            "description": "description",
+            "managed": false,
+            "default": false
+          }
+          """));
+  }
+
+  @Test
+  public void fetchGroup_whenGroupIsManagedOrDefault_returnsCorrectValues() throws Exception {
+
+    GroupDto groupDto = new GroupDto().setUuid(GROUP_UUID).setName("name").setDescription("description");
+    GroupInformation groupInformation = new GroupInformation(groupDto, true, true);
+
+    when(groupService.findGroupByUuid(dbSession, GROUP_UUID)).thenReturn(Optional.of(groupInformation));
+
+    userSession.logIn().setSystemAdministrator();
+    mockMvc.perform(get(GROUPS_ENDPOINT + "/" + GROUP_UUID))
+      .andExpectAll(
+        status().isOk(),
+        content().json("""
+          {
+            "id": "1234",
+            "name": "name",
+            "description": "description",
+            "managed": true,
+            "default": true
           }
           """));
   }
@@ -109,7 +137,7 @@ public class DefaultGroupControllerTest {
   public void fetchGroup_whenCallerIsNotAdmin_shouldReturnForbidden() throws Exception {
     userSession.logIn().setNonSystemAdministrator();
     mockMvc.perform(
-        get(GROUPS_ENDPOINT + "/" + GROUP_UUID))
+      get(GROUPS_ENDPOINT + "/" + GROUP_UUID))
       .andExpectAll(
         status().isForbidden(),
         content().json("{\"message\":\"Insufficient privileges\"}"));
@@ -120,7 +148,7 @@ public class DefaultGroupControllerTest {
     userSession.logIn().setSystemAdministrator();
     when(groupService.findGroupByUuid(dbSession, GROUP_UUID)).thenReturn(Optional.empty());
     mockMvc.perform(
-        get(GROUPS_ENDPOINT + "/" + GROUP_UUID).content("{}"))
+      get(GROUPS_ENDPOINT + "/" + GROUP_UUID).content("{}"))
       .andExpectAll(
         status().isNotFound(),
         content().json("{\"message\":\"Group '1234' not found\"}"));
@@ -130,7 +158,7 @@ public class DefaultGroupControllerTest {
   public void deleteGroup_whenCallerIsNotAdmin_shouldReturnForbidden() throws Exception {
     userSession.logIn().setNonSystemAdministrator();
     mockMvc.perform(
-        delete(GROUPS_ENDPOINT + "/" + GROUP_UUID))
+      delete(GROUPS_ENDPOINT + "/" + GROUP_UUID))
       .andExpectAll(
         status().isForbidden(),
         content().json("{\"message\":\"Insufficient privileges\"}"));
@@ -141,7 +169,7 @@ public class DefaultGroupControllerTest {
     userSession.logIn().setSystemAdministrator();
     doThrow(BadRequestException.create("the instance is managed")).when(managedInstanceChecker).throwIfInstanceIsManaged();
     mockMvc.perform(
-        delete(GROUPS_ENDPOINT + "/" + GROUP_UUID))
+      delete(GROUPS_ENDPOINT + "/" + GROUP_UUID))
       .andExpectAll(
         status().isBadRequest(),
         content().json("{\"message\":\"the instance is managed\"}"));
@@ -152,7 +180,7 @@ public class DefaultGroupControllerTest {
     userSession.logIn().setSystemAdministrator();
     when(groupService.findGroupByUuid(dbSession, GROUP_UUID)).thenReturn(Optional.empty());
     mockMvc.perform(
-        delete(GROUPS_ENDPOINT + "/" + GROUP_UUID).content("{}"))
+      delete(GROUPS_ENDPOINT + "/" + GROUP_UUID).content("{}"))
       .andExpectAll(
         status().isNotFound(),
         content().json("{\"message\":\"Group '1234' not found\"}"));
@@ -161,12 +189,13 @@ public class DefaultGroupControllerTest {
   @Test
   public void deleteGroup_whenGroupExists_shouldDeleteAndReturn204() throws Exception {
     GroupDto groupDto = new GroupDto().setUuid(GROUP_UUID).setName("name").setDescription("description");
+    GroupInformation groupInformation = new GroupInformation(groupDto, false, false);
 
-    when(groupService.findGroupByUuid(dbSession, GROUP_UUID)).thenReturn(Optional.of(groupDto));
+    when(groupService.findGroupByUuid(dbSession, GROUP_UUID)).thenReturn(Optional.of(groupInformation));
 
     userSession.logIn().setSystemAdministrator();
     mockMvc.perform(
-        delete(GROUPS_ENDPOINT + "/" + GROUP_UUID))
+      delete(GROUPS_ENDPOINT + "/" + GROUP_UUID))
       .andExpectAll(
         status().isNoContent(),
         content().string(""));
@@ -176,8 +205,7 @@ public class DefaultGroupControllerTest {
   public void patchGroup_whenCallerIsNotAdmin_shouldReturnForbidden() throws Exception {
     userSession.logIn().setNonSystemAdministrator();
     mockMvc.perform(
-        patch(GROUPS_ENDPOINT + "/" + GROUP_UUID).contentType(JSON_MERGE_PATCH_CONTENT_TYPE).content("{}")
-      )
+      patch(GROUPS_ENDPOINT + "/" + GROUP_UUID).contentType(JSON_MERGE_PATCH_CONTENT_TYPE).content("{}"))
       .andExpectAll(
         status().isForbidden(),
         content().json("{\"message\":\"Insufficient privileges\"}"));
@@ -188,8 +216,7 @@ public class DefaultGroupControllerTest {
     userSession.logIn().setSystemAdministrator();
     doThrow(BadRequestException.create("the instance is managed")).when(managedInstanceChecker).throwIfInstanceIsManaged();
     mockMvc.perform(
-        patch(GROUPS_ENDPOINT + "/" + GROUP_UUID).contentType(JSON_MERGE_PATCH_CONTENT_TYPE).content("{}")
-      )
+      patch(GROUPS_ENDPOINT + "/" + GROUP_UUID).contentType(JSON_MERGE_PATCH_CONTENT_TYPE).content("{}"))
       .andExpectAll(
         status().isBadRequest(),
         content().json("{\"message\":\"the instance is managed\"}"));
@@ -200,8 +227,7 @@ public class DefaultGroupControllerTest {
     userSession.logIn().setSystemAdministrator();
     when(groupService.findGroupByUuid(dbSession, GROUP_UUID)).thenReturn(Optional.empty());
     mockMvc.perform(
-        patch(GROUPS_ENDPOINT + "/" + GROUP_UUID).contentType(JSON_MERGE_PATCH_CONTENT_TYPE).content("{}")
-      )
+      patch(GROUPS_ENDPOINT + "/" + GROUP_UUID).contentType(JSON_MERGE_PATCH_CONTENT_TYPE).content("{}"))
       .andExpectAll(
         status().isNotFound(),
         content().json("{\"message\":\"Group '1234' not found\"}"));
@@ -223,38 +249,142 @@ public class DefaultGroupControllerTest {
     patchGroupAndAssertResponse("newName", "newDescription");
   }
 
-  private void patchGroupAndAssertResponse(@Nullable String newName,@Nullable String newDescription) throws Exception {
+  private void patchGroupAndAssertResponse(@Nullable String newName, @Nullable String newDescription) throws Exception {
     userSession.logIn().setSystemAdministrator();
     GroupDto groupDto = new GroupDto().setUuid(GROUP_UUID).setName("name").setDescription("description");
-    when(groupService.findGroupByUuid(dbSession, GROUP_UUID)).thenReturn(Optional.of(groupDto));
+    GroupInformation groupInformation = new GroupInformation(groupDto, false, false);
+
     GroupDto newDto = new GroupDto().setUuid(GROUP_UUID).setName(newName).setDescription(newDescription);
-    when(groupService.updateGroup(dbSession, groupDto, newName, newDescription)).thenReturn(newDto);
+    GroupInformation newGroupInformation = new GroupInformation(newDto, false, false);
+
+    when(groupService.findGroupByUuid(dbSession, GROUP_UUID))
+      .thenReturn(Optional.of(groupInformation));
+    when(groupService.updateGroup(dbSession, groupDto, newName, newDescription)).thenReturn(newGroupInformation);
 
     MvcResult mvcResult = mockMvc.perform(
-        patch(GROUPS_ENDPOINT + "/" + GROUP_UUID).contentType(JSON_MERGE_PATCH_CONTENT_TYPE).content(
-          """
-            {
-              "name": "%s",
-              "description": %s
-            }
-            """.formatted(newName, newDescription == null ? "null" : "\"" + newDescription + "\"")
-        )
-      )
+      patch(GROUPS_ENDPOINT + "/" + GROUP_UUID).contentType(JSON_MERGE_PATCH_CONTENT_TYPE).content(
+        """
+          {
+            "name": "%s",
+            "description": %s
+          }
+          """.formatted(newName, newDescription == null ? "null" : "\"" + newDescription + "\"")))
       .andExpect(status().isOk())
       .andReturn();
 
-    RestGroupResponse restGroupResponse = GSON.fromJson(mvcResult.getResponse().getContentAsString(), RestGroupResponse.class);
-    assertThat(restGroupResponse.id()).isEqualTo(GROUP_UUID);
-    assertThat(restGroupResponse.name()).isEqualTo(newName);
-    assertThat(restGroupResponse.description()).isEqualTo(newDescription);
+    GroupRestResponse groupRestResponse = OBJECT_MAPPER.readValue(mvcResult.getResponse().getContentAsString(), GroupRestResponse.class);
+    assertThat(groupRestResponse.id()).isEqualTo(GROUP_UUID);
+    assertThat(groupRestResponse.name()).isEqualTo(newName);
+    assertThat(groupRestResponse.description()).isEqualTo(newDescription);
+  }
+
+  @Test
+  public void create_whenInstanceIsManaged_shouldReturnException() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+    doThrow(BadRequestException.create("the instance is managed")).when(managedInstanceChecker).throwIfInstanceIsManaged();
+    mockMvc.perform(
+      post(GROUPS_ENDPOINT)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .content("""
+          {
+            "name": "name",
+            "description": "description"
+          }
+          """))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"the instance is managed\"}"));
+  }
+
+  @Test
+  public void create_whenCallersIsNotAdmin_shouldReturnForbidden() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
+    mockMvc.perform(
+      post(GROUPS_ENDPOINT)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .content("""
+          {
+            "name": "name",
+            "description": "description"
+          }
+          """))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+  }
+
+  @Test
+  public void create_whenUserIsAnAdmin_shouldReturnCreatedGroup() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+
+    GroupDto groupDto = new GroupDto().setUuid(GROUP_UUID).setName("name").setDescription("description");
+    GroupInformation groupInformation = new GroupInformation(groupDto, false, false);
+
+    when(groupService.createGroup(dbSession, "name", "description")).thenReturn(groupInformation);
+
+    mockMvc.perform(
+      post(GROUPS_ENDPOINT)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .content("""
+          {
+            "name": "name",
+            "description": "description"
+          }
+          """))
+      .andExpectAll(
+        status().isCreated(),
+        content().json("""
+          {
+            "id": "1234",
+            "name": "name",
+            "description": "description",
+            "managed": false,
+            "default": false
+          }
+          """));
+  }
+
+  @Test
+  public void create_whenNameIsTooLong_returnBadRequest() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+
+    String tooLongName = "a".repeat(501);
+    mockMvc.perform(
+      post(GROUPS_ENDPOINT)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .content("""
+          {
+            "name": "%s",
+            "description": "description"
+          }
+          """.formatted(tooLongName)))
+      .andExpectAll(
+        status().isBadRequest());
+  }
+
+  @Test
+  public void create_whenDescriptionIsTooLong_returnBadRequest() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+
+    String tooLongDescription = "a".repeat(201);
+    mockMvc.perform(
+      post(GROUPS_ENDPOINT)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .content("""
+          {
+            "name": "name",
+            "description": "%s"
+          }
+          """.formatted(tooLongDescription)))
+      .andExpectAll(
+        status().isBadRequest());
   }
 
   @Test
   public void search_whenCallerIsNotAdmin_shouldReturnForbidden() throws Exception {
     userSession.logIn().setNonSystemAdministrator();
     mockMvc.perform(
-        get(GROUPS_ENDPOINT + "/" + GROUP_UUID)
-      )
+      get(GROUPS_ENDPOINT + "/" + GROUP_UUID))
       .andExpectAll(
         status().isForbidden(),
         content().json("{\"message\":\"Insufficient privileges\"}"));
@@ -281,10 +411,10 @@ public class DefaultGroupControllerTest {
     when(groupService.search(eq(dbSession), any())).thenReturn(new SearchResults<>(List.of(), 0));
 
     mockMvc.perform(get(GROUPS_ENDPOINT)
-        .param("managed", "true")
-        .param("q", "q")
-        .param("pageSize", "100")
-        .param("pageIndex", "2"))
+      .param("managed", "true")
+      .param("q", "q")
+      .param("pageSize", "100")
+      .param("pageIndex", "2"))
       .andExpect(status().isOk());
 
     ArgumentCaptor<GroupSearchRequest> requestCaptor = ArgumentCaptor.forClass(GroupSearchRequest.class);
@@ -310,9 +440,9 @@ public class DefaultGroupControllerTest {
       .andExpect(status().isOk())
       .andReturn();
 
-    GroupsSearchRestResponse actualGroupsSearchRestResponse = GSON.fromJson(mvcResult.getResponse().getContentAsString(), GroupsSearchRestResponse.class);
-    Map<String, RestGroupResponse> groupIdToGroupResponse = actualGroupsSearchRestResponse.groups().stream()
-      .collect(Collectors.toMap(RestGroupResponse::id, Function.identity()));
+    GroupsSearchRestResponse actualGroupsSearchRestResponse = OBJECT_MAPPER.readValue(mvcResult.getResponse().getContentAsString(), GroupsSearchRestResponse.class);
+    Map<String, GroupRestResponse> groupIdToGroupResponse = actualGroupsSearchRestResponse.groups().stream()
+      .collect(Collectors.toMap(GroupRestResponse::id, Function.identity()));
 
     assertResponseContains(groupIdToGroupResponse, group1);
     assertResponseContains(groupIdToGroupResponse, group2);
@@ -324,19 +454,20 @@ public class DefaultGroupControllerTest {
 
   }
 
-  private void assertResponseContains(Map<String, RestGroupResponse> groupIdToGroupResponse, GroupInformation expectedGroup) {
-    RestGroupResponse restGroup = groupIdToGroupResponse.get(expectedGroup.groupDto().getUuid());
+  private void assertResponseContains(Map<String, GroupRestResponse> groupIdToGroupResponse, GroupInformation expectedGroup) {
+    GroupRestResponse restGroup = groupIdToGroupResponse.get(expectedGroup.groupDto().getUuid());
     assertThat(restGroup).isNotNull();
     assertThat(restGroup.name()).isEqualTo(expectedGroup.groupDto().getName());
     assertThat(restGroup.description()).isEqualTo(expectedGroup.groupDto().getDescription());
-    //TODO add assertions for managed & default flag
+    assertThat(restGroup.managed()).isEqualTo(expectedGroup.isManaged());
+    assertThat(restGroup.isDefault()).isEqualTo(expectedGroup.isDefault());
   }
 
   private GroupInformation generateGroupSearchResult(String id, boolean managed, boolean isDefault) {
     GroupDto groupDto = new GroupDto()
       .setUuid(id)
-      .setName("name_"+id)
-      .setDescription("description_"+id);
+      .setName("name_" + id)
+      .setDescription("description_" + id);
     return new GroupInformation(groupDto, managed, isDefault);
   }
 }

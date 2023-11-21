@@ -40,7 +40,7 @@ public class GroupUpdateRestRequest {
   }
 
   @Size(max = 200)
-  @Schema(implementation = String.class, description = "Description of the gorup")
+  @Schema(implementation = String.class, description = "Description of the group")
   public UpdateField<String> getDescription() {
     return description;
   }

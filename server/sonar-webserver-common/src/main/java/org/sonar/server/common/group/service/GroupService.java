@@ -63,8 +63,10 @@ public class GroupService {
     return dbClient.groupDao().selectByName(dbSession, groupName);
   }
 
-  public Optional<GroupDto> findGroupByUuid(DbSession dbSession, String groupUuid) {
-    return Optional.ofNullable(dbClient.groupDao().selectByUuid(dbSession, groupUuid));
+  public Optional<GroupInformation> findGroupByUuid(DbSession dbSession, String groupUuid) {
+
+    return Optional.ofNullable(dbClient.groupDao().selectByUuid(dbSession, groupUuid))
+      .map(group -> groupDtoToGroupInformation(group, dbSession));
   }
 
   public SearchResults<GroupInformation> search(DbSession dbSession, GroupSearchRequest groupSearchRequest) {
@@ -126,18 +128,18 @@ public class GroupService {
     removeGroup(dbSession, group);
   }
 
-  public GroupDto updateGroup(DbSession dbSession, GroupDto group, @Nullable String newName) {
+  public GroupInformation updateGroup(DbSession dbSession, GroupDto group, @Nullable String newName) {
     checkGroupIsNotDefault(dbSession, group);
-    return updateName(dbSession, group, newName);
+    return groupDtoToGroupInformation(updateName(dbSession, group, newName), dbSession);
   }
 
-  public GroupDto updateGroup(DbSession dbSession, GroupDto group, @Nullable String newName, @Nullable String newDescription) {
+  public GroupInformation updateGroup(DbSession dbSession, GroupDto group, @Nullable String newName, @Nullable String newDescription) {
     checkGroupIsNotDefault(dbSession, group);
     GroupDto withUpdatedName = updateName(dbSession, group, newName);
-    return updateDescription(dbSession, withUpdatedName, newDescription);
+    return groupDtoToGroupInformation(updateDescription(dbSession, withUpdatedName, newDescription), dbSession);
   }
 
-  public GroupDto createGroup(DbSession dbSession, String name, @Nullable String description) {
+  public GroupInformation createGroup(DbSession dbSession, String name, @Nullable String description) {
     validateGroupName(name);
     checkNameDoesNotExist(dbSession, name);
 
@@ -145,7 +147,12 @@ public class GroupService {
       .setUuid(uuidFactory.create())
       .setName(name)
       .setDescription(description);
-    return dbClient.groupDao().insert(dbSession, group);
+    return groupDtoToGroupInformation(dbClient.groupDao().insert(dbSession, group), dbSession);
+  }
+
+  private GroupInformation groupDtoToGroupInformation(GroupDto groupDto, DbSession dbSession) {
+    return new GroupInformation(groupDto, managedInstanceService.isGroupManaged(dbSession, groupDto.getUuid()),
+      defaultGroupFinder.findDefaultGroup(dbSession).getUuid().equals(groupDto.getUuid()));
   }
 
   private GroupDto updateName(DbSession dbSession, GroupDto group, @Nullable String newName) {

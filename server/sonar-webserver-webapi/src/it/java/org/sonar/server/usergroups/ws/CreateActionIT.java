@@ -20,6 +20,7 @@
 package org.sonar.server.usergroups.ws;
 
 import org.apache.commons.lang.StringUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.Change;
@@ -59,6 +60,10 @@ public class CreateActionIT {
   private final CreateAction underTest = new CreateAction(db.getDbClient(), userSession, groupService, managedInstanceChecker);
   private final WsActionTester tester = new WsActionTester(underTest);
 
+  @Before
+  public void setUp() {
+    db.users().insertDefaultGroup();
+  }
   @Test
   public void define_create_action() {
     WebService.Action action = tester.getDef();

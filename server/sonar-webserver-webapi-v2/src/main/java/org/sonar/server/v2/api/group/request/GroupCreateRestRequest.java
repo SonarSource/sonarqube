@@ -17,10 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.group.response;
+package org.sonar.server.v2.api.group.request;
 
-import java.util.List;
-import org.sonar.server.v2.api.response.PageRestResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
-public record GroupsSearchRestResponse(List<GroupRestResponse> groups, PageRestResponse page) {
-}
+import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
+
+public record GroupCreateRestRequest(
+
+  @NotEmpty
+  @Size(min = 1, max = GROUP_NAME_MAX_LENGTH)
+  @Schema(description = "Name for the new group. Must be unique. The value 'anyone' is reserved and cannot be used.")
+  String name,
+
+  @Nullable
+  @Size(max = 200)
+  @Schema(description = "Description for the new group.")
+  String description
+
+) {}

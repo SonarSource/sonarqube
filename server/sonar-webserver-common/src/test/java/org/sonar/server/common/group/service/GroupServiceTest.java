@@ -136,13 +136,31 @@ public class GroupServiceTest {
   }
 
   @Test
-  public void findGroupByUuid_whenGroupExists_returnsIt() {
+  public void findGroupByUuid_whenGroupExistsAndIsManagedAndDefault_returnsItWithCorrectValues() {
     GroupDto groupDto = mockGroupDto();
+
+    when(defaultGroupFinder.findDefaultGroup(dbSession)).thenReturn(new GroupDto().setUuid(GROUP_UUID).setName("default-group"));
 
     when(dbClient.groupDao().selectByUuid(dbSession, GROUP_UUID))
       .thenReturn(groupDto);
+    when(managedInstanceService.isGroupManaged(dbSession, groupDto.getUuid())).thenReturn(true);
 
-    assertThat(groupService.findGroupByUuid(dbSession, GROUP_UUID)).contains(groupDto);
+    GroupInformation expected = new GroupInformation(groupDto, true, true);
+    assertThat(groupService.findGroupByUuid(dbSession, GROUP_UUID)).contains(expected);
+  }
+
+  @Test
+  public void findGroupByUuid_whenGroupExistsAndIsNotManagedAndDefault_returnsItWithCorrectValues() {
+    GroupDto groupDto = mockGroupDto();
+
+    when(defaultGroupFinder.findDefaultGroup(dbSession)).thenReturn(new GroupDto().setUuid("another-uuid").setName("default-group"));
+
+    when(dbClient.groupDao().selectByUuid(dbSession, GROUP_UUID))
+      .thenReturn(groupDto);
+    when(managedInstanceService.isGroupManaged(dbSession, groupDto.getUuid())).thenReturn(false);
+
+    GroupInformation expected = new GroupInformation(groupDto, false, false);
+    assertThat(groupService.findGroupByUuid(dbSession, GROUP_UUID)).contains(expected);
   }
 
   @Test
@@ -201,8 +219,10 @@ public class GroupServiceTest {
   public void updateGroup_updatesGroupNameAndDescription() {
     GroupDto group = mockGroupDto();
     GroupDto groupWithUpdatedName = mockGroupDto();
+    GroupDto groupWithUpdatedDescription = mockGroupDto();
     mockDefaultGroup();
     when(dbClient.groupDao().update(dbSession, group)).thenReturn(groupWithUpdatedName);
+    when(dbClient.groupDao().update(dbSession, groupWithUpdatedName)).thenReturn(groupWithUpdatedDescription);
 
     groupService.updateGroup(dbSession, group, "new-name", "New Description");
     verify(group).setName("new-name");
@@ -216,6 +236,7 @@ public class GroupServiceTest {
     GroupDto group = mockGroupDto();
     mockDefaultGroup();
 
+    when(dbClient.groupDao().update(dbSession, group)).thenReturn(group);
     groupService.updateGroup(dbSession, group, "new-name");
     verify(group).setName("new-name");
     verify(dbClient.groupDao()).update(dbSession, group);
@@ -240,7 +261,9 @@ public class GroupServiceTest {
     GroupDto group = mockGroupDto();
     mockDefaultGroup();
 
+    when(dbClient.groupDao().update(dbSession, group)).thenReturn(group);
     groupService.updateGroup(dbSession, group, group.getName(), "New Description");
+
     verify(group).setDescription("New Description");
     verify(dbClient.groupDao()).update(dbSession, group);
   }
@@ -293,14 +316,17 @@ public class GroupServiceTest {
   public void createGroup_whenNameAndDescriptionIsProvided_createsGroup() {
 
     when(uuidFactory.create()).thenReturn("1234");
+    GroupDto createdGroup  = mockGroupDto();
+    when(dbClient.groupDao().insert(eq(dbSession), any())).thenReturn(createdGroup);
+    mockDefaultGroup();
     groupService.createGroup(dbSession, "Name", "Description");
 
     ArgumentCaptor<GroupDto> groupCaptor = ArgumentCaptor.forClass(GroupDto.class);
     verify(dbClient.groupDao()).insert(eq(dbSession), groupCaptor.capture());
-    GroupDto createdGroup = groupCaptor.getValue();
-    assertThat(createdGroup.getName()).isEqualTo("Name");
-    assertThat(createdGroup.getDescription()).isEqualTo("Description");
-    assertThat(createdGroup.getUuid()).isEqualTo("1234");
+    GroupDto groupToCreate = groupCaptor.getValue();
+    assertThat(groupToCreate.getName()).isEqualTo("Name");
+    assertThat(groupToCreate.getDescription()).isEqualTo("Description");
+    assertThat(groupToCreate.getUuid()).isEqualTo("1234");
   }
 
   @Test
@@ -347,8 +373,7 @@ public class GroupServiceTest {
     Map<String, Boolean> groupUuidToManaged = Map.of(
       groupDto1.getUuid(), false,
       groupDto2.getUuid(), true,
-      defaultGroup.getUuid(), false
-    );
+      defaultGroup.getUuid(), false);
     when(managedInstanceService.getGroupUuidToManaged(dbSession, groupUuidToManaged.keySet())).thenReturn(groupUuidToManaged);
 
     when(dbClient.groupDao().countByQuery(eq(dbSession), any())).thenReturn(300);

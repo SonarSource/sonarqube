@@ -72,7 +72,7 @@ public class ExternalGroupService {
       return groupDto.get();
     } else {
       LOG.debug("Creating new group {}", groupRegistration.name());
-      return groupService.createGroup(dbSession, groupRegistration.name(), null);
+      return groupService.createGroup(dbSession, groupRegistration.name(), null).groupDto();
     }
   }
 
