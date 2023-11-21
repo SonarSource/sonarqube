@@ -71,7 +71,7 @@ class EmbedDocsPopup extends React.PureComponent<Props & CurrentUserContextInter
       "operation": "signup",
       "email": currentUser.email,
       "loginName": "support.autorabit",
-      "fullName": currentUser.name,
+      "fullName": encodeURI(currentUser.name),
       "utype": "portal",
     }
 
