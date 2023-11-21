@@ -26,6 +26,7 @@ import org.sonar.server.common.health.CeStatusNodeCheck;
 import org.sonar.server.common.health.DbConnectionNodeCheck;
 import org.sonar.server.common.health.EsStatusNodeCheck;
 import org.sonar.server.common.health.WebServerStatusNodeCheck;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.platform.LivenessChecker;
 import org.sonar.server.common.platform.LivenessCheckerImpl;
 import org.sonar.server.common.user.service.UserService;
@@ -80,8 +81,8 @@ public class PlatformLevel4WebConfig {
   }
 
   @Bean
-  public GroupController groupController(GroupService groupService, DbClient dbClient, UserSession userSession) {
-    return new DefaultGroupController(groupService, dbClient, userSession);
+  public GroupController groupController(GroupService groupService, DbClient dbClient, ManagedInstanceChecker managedInstanceChecker, UserSession userSession) {
+    return new DefaultGroupController(groupService, dbClient, managedInstanceChecker, userSession);
   }
 
 }

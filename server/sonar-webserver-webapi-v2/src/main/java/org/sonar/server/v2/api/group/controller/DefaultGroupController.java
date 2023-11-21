@@ -23,8 +23,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.common.group.service.GroupService;
+import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.v2.api.group.request.GroupUpdateRestRequest;
 import org.sonar.server.v2.api.group.response.RestGroupResponse;
 
 public class DefaultGroupController implements GroupController {
@@ -33,24 +35,61 @@ public class DefaultGroupController implements GroupController {
   private final GroupService groupService;
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final ManagedInstanceChecker managedInstanceChecker;
 
-  public DefaultGroupController(GroupService groupService, DbClient dbClient, UserSession userSession) {
+  public DefaultGroupController(GroupService groupService, DbClient dbClient, ManagedInstanceChecker managedInstanceChecker, UserSession userSession) {
     this.groupService = groupService;
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.managedInstanceChecker = managedInstanceChecker;
   }
 
   @Override
   public RestGroupResponse fetchGroup(String id) {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     try (DbSession session = dbClient.openSession(false)) {
-      return groupService.findGroupByUuid(session, id)
-        .map(DefaultGroupController::groupDtoToResponse)
-        .orElseThrow(() -> new NotFoundException(String.format(GROUP_NOT_FOUND_MESSAGE, id)));
+      GroupDto groupDto = findGroupDtoOrThrow(id, session);
+      return toRestGroup(groupDto);
     }
   }
 
-  private static RestGroupResponse groupDtoToResponse(GroupDto group) {
-    return new RestGroupResponse(group.getUuid(), group.getName(), group.getDescription());
+  @Override
+  public void deleteGroup(String id) {
+    throwIfNotAllowedToChangeGroupName();
+    try (DbSession session = dbClient.openSession(false)) {
+      GroupDto group = findGroupDtoOrThrow(id, session);
+      groupService.delete(session, group);
+      session.commit();
+    }
+  }
+
+  @Override
+  public RestGroupResponse updateGroup(String id, GroupUpdateRestRequest updateRequest) {
+    throwIfNotAllowedToChangeGroupName();
+    try (DbSession session = dbClient.openSession(false)) {
+      GroupDto group = findGroupDtoOrThrow(id, session);
+      GroupDto updatedGroup = groupService.updateGroup(
+        session,
+        group,
+        updateRequest.getName().orElse(group.getName()),
+        updateRequest.getDescription().orElse(group.getDescription())
+      );
+      session.commit();
+      return toRestGroup(updatedGroup);
+    }
+  }
+
+  private void throwIfNotAllowedToChangeGroupName() {
+    userSession.checkIsSystemAdministrator();
+    managedInstanceChecker.throwIfInstanceIsManaged();
+  }
+
+  private GroupDto findGroupDtoOrThrow(String id, DbSession session) {
+    return groupService.findGroupByUuid(session, id)
+      .orElseThrow(() -> new NotFoundException(String.format(GROUP_NOT_FOUND_MESSAGE, id)));
+  }
+
+  private static RestGroupResponse toRestGroup(GroupDto updatedGroup) {
+    return new RestGroupResponse(updatedGroup.getUuid(), updatedGroup.getName(), updatedGroup.getDescription());
   }
 }

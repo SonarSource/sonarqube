@@ -22,15 +22,22 @@ package org.sonar.server.v2.api.group.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import javax.validation.Valid;
+import org.sonar.server.v2.api.group.request.GroupUpdateRestRequest;
 import org.sonar.server.v2.api.group.response.RestGroupResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.sonar.server.v2.WebApiEndpoints.GROUPS_ENDPOINT;
+import static org.sonar.server.v2.WebApiEndpoints.JSON_MERGE_PATCH_CONTENT_TYPE;
 
 @RequestMapping(GROUPS_ENDPOINT)
 @RestController
@@ -40,4 +47,17 @@ public interface GroupController {
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "Fetch a single group", description = "Fetch a single group.")
   RestGroupResponse fetchGroup(@PathVariable("id") @Parameter(description = "The id of the group to fetch.", required = true, in = ParameterIn.PATH) String id);
+
+  @DeleteMapping(path = "/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Deletes a group", description = "Deletes a group.")
+  void deleteGroup(@PathVariable("id") @Parameter(description = "The ID of the group to delete.", required = true, in = ParameterIn.PATH) String id);
+
+  @PatchMapping(path = "/{id}", consumes = JSON_MERGE_PATCH_CONTENT_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(summary = "Update a user", description = """
+    Update a user.
+    Allows updating user's name, email and SCM accounts.
+    """)
+  RestGroupResponse updateGroup(@PathVariable("id") String id, @Valid @RequestBody GroupUpdateRestRequest updateRequest);
 }

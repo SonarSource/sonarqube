@@ -66,6 +66,12 @@ public class UpdateField<T> {
     return undefined();
   }
 
+  @CheckForNull
+  public T orElse(@Nullable T other) {
+    return isDefined ? value : other;
+  }
+
+
   @Override
   public String toString() {
     return value.toString();
