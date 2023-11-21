@@ -21,19 +21,20 @@ import classNames from 'classnames';
 import { Badge, SubHeading, Title } from 'design-system';
 import { OpenAPIV3 } from 'openapi-types';
 import React from 'react';
+import { translate } from '../../../helpers/l10n';
 import { ExcludeReferences } from '../types';
 import { getApiEndpointKey, getMethodClassName } from '../utils';
 import ApiParameters from './ApiParameters';
 import ApiResponses from './ApiResponses';
 
-interface Props<T extends {}> {
-  data: ExcludeReferences<OpenAPIV3.OperationObject<T>>;
+interface Props {
+  data: ExcludeReferences<OpenAPIV3.OperationObject<{ 'x-internal'?: 'true' }>>;
   apiUrl: string;
   name: string;
   method: string;
 }
 
-export default function ApiInformation<T extends {}>({ name, data, method, apiUrl }: Props<T>) {
+export default function ApiInformation({ name, data, method, apiUrl }: Readonly<Props>) {
   return (
     <>
       {data.summary && <Title>{data.summary}</Title>}
@@ -42,6 +43,16 @@ export default function ApiInformation<T extends {}>({ name, data, method, apiUr
           {method}
         </Badge>
         {apiUrl.replace(/.*(?=\/api)/, '') + name}
+        {data['x-internal'] && (
+          <Badge variant="new" className="sw-ml-3">
+            {translate('internal')}
+          </Badge>
+        )}
+        {data.deprecated && (
+          <Badge variant="deleted" className="sw-ml-3">
+            {translate('deprecated')}
+          </Badge>
+        )}
       </SubHeading>
       {data.description && <div>{data.description}</div>}
       <div className="sw-grid sw-grid-cols-2 sw-gap-4 sw-mt-4">

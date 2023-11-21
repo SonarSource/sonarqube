@@ -20,7 +20,7 @@
 
 import { OpenAPIV3 } from 'openapi-types';
 
-export const openApiTestData: OpenAPIV3.Document = {
+export const openApiTestData: OpenAPIV3.Document<{ 'x-internal'?: 'true' }> = {
   openapi: '3.0.2',
   info: {
     title: 'Swagger Petstore - OpenAPI 3.0',
@@ -319,6 +319,7 @@ export const openApiTestData: OpenAPIV3.Document = {
             },
           },
         },
+        'x-internal': 'true',
         security: [{ api_key: [] }],
       },
     },

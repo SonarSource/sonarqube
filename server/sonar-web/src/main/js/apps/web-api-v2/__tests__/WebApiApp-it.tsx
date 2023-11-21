@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import WebApiServiceMock from '../../../api/mocks/WebApiServiceMock';
@@ -32,6 +32,7 @@ const ui = {
   search: byRole('searchbox'),
   title: byRole('link', { name: 'Swagger Petstore - OpenAPI 3.0 1.0.17' }),
   searchClear: byRole('button', { name: 'clear' }),
+  showInternal: byRole('checkbox', { name: 'api_documentation.show_internal' }),
   apiScopePet: byRole('button', { name: 'pet' }),
   apiScopeStore: byRole('button', { name: 'store' }),
   apiScopeUser: byRole('button', { name: 'user' }),
@@ -67,9 +68,9 @@ it('should search apis', async () => {
   await user.click(ui.apiScopePet.get());
   expect(ui.apiSidebarItem.getAll()).toHaveLength(8);
   await user.click(ui.apiScopeStore.get());
-  expect(ui.apiSidebarItem.getAll()).toHaveLength(12);
+  expect(ui.apiSidebarItem.getAll()).toHaveLength(11);
   await user.click(ui.apiScopeUser.get());
-  expect(ui.apiSidebarItem.getAll()).toHaveLength(19);
+  expect(ui.apiSidebarItem.getAll()).toHaveLength(18);
 
   await user.type(ui.search.get(), 'put');
   const putItems = ui.apiSidebarItem.getAll();
@@ -84,6 +85,24 @@ it('should search apis', async () => {
 
   expect(ui.apiScopeStore.get()).toBeInTheDocument();
   expect(ui.apiSidebarItem.getAll().length).toBeGreaterThan(3);
+});
+
+it('should show internal', async () => {
+  const user = userEvent.setup();
+  renderWebApiApp();
+  expect(await ui.apiScopeStore.find()).toBeInTheDocument();
+  await user.click(ui.apiScopeStore.get());
+  expect(ui.apiSidebarItem.getAll()).toHaveLength(3);
+  expect(ui.apiSidebarItem.getAll().some((el) => el.textContent?.includes('internal'))).toBe(false);
+  await user.click(ui.showInternal.get());
+  await waitFor(() => expect(ui.apiSidebarItem.getAll()).toHaveLength(4));
+  const internalItem = ui.apiSidebarItem
+    .getAll()
+    .find((el) => el.textContent?.includes('internal'));
+  expect(internalItem).toBeInTheDocument();
+  await user.click(internalItem!);
+
+  expect(await screen.findByText('/api/v3/store/inventory')).toHaveTextContent(/internal/);
 });
 
 it('should navigate between apis', async () => {

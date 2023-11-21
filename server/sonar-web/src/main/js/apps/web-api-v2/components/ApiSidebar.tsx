@@ -18,25 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import classNames from 'classnames';
-import { Badge, InputSearch, Link, SubnavigationAccordion, SubnavigationItem } from 'design-system';
+import {
+  Badge,
+  Checkbox,
+  HelperHintIcon,
+  InputSearch,
+  Link,
+  SubnavigationAccordion,
+  SubnavigationItem,
+} from 'design-system';
 import { OpenAPIV3 } from 'openapi-types';
 import React, { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import HelpTooltip from '../../../components/controls/HelpTooltip';
 import { translate } from '../../../helpers/l10n';
 import { URL_DIVIDER, getApiEndpointKey, getMethodClassName } from '../utils';
 
 interface Api {
   name: string;
   method: string;
-  info: OpenAPIV3.OperationObject;
+  info: OpenAPIV3.OperationObject<{ 'x-internal'?: 'true' }>;
 }
 interface Props {
   docInfo: OpenAPIV3.InfoObject;
   apisList: Api[];
 }
 
-export default function ApiSidebar({ apisList, docInfo }: Props) {
+export default function ApiSidebar({ apisList, docInfo }: Readonly<Props>) {
   const [search, setSearch] = useState('');
+  const [showInternal, setShowInternal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const activeApi = location.hash.replace('#', '').split(URL_DIVIDER);
@@ -56,6 +66,7 @@ export default function ApiSidebar({ apisList, docInfo }: Props) {
             api.method.toLowerCase().includes(lowerCaseSearch) ||
             api.info.summary?.toLowerCase().includes(lowerCaseSearch),
         )
+        .filter((api) => showInternal || !api.info['x-internal'])
         .reduce<Record<string, Api[]>>((acc, api) => {
           const subgroup = api.name.split('/')[1];
           return {
@@ -63,7 +74,7 @@ export default function ApiSidebar({ apisList, docInfo }: Props) {
             [subgroup]: [...(acc[subgroup] ?? []), api],
           };
         }, {}),
-    [lowerCaseSearch, apisList],
+    [lowerCaseSearch, apisList, showInternal],
   );
 
   return (
@@ -81,6 +92,15 @@ export default function ApiSidebar({ apisList, docInfo }: Props) {
         onChange={setSearch}
         value={search}
       />
+
+      <div className="sw-mt-4">
+        <Checkbox checked={showInternal} onCheck={() => setShowInternal((prev) => !prev)}>
+          <span className="sw-ml-2 sw-mb-1">{translate('api_documentation.show_internal')}</span>
+        </Checkbox>
+        <HelpTooltip className="sw-ml-2" overlay={translate('api_documentation.internal_tooltip')}>
+          <HelperHintIcon aria-label="help-tooltip" />
+        </HelpTooltip>
+      </div>
 
       {Object.entries(groupedList).map(([group, apis]) => (
         <SubnavigationAccordion
@@ -104,8 +124,22 @@ export default function ApiSidebar({ apisList, docInfo }: Props) {
                   {method.toUpperCase()}
                 </Badge>
                 <div>{info.summary ?? name}</div>
+
+                {(info['x-internal'] || info.deprecated) && (
+                  <div className="sw-flex sw-flex-col sw-justify-center sw-gap-2">
+                    {info['x-internal'] && (
+                      <Badge variant="new" className="sw-self-center">
+                        {translate('internal')}
+                      </Badge>
+                    )}
+                    {info.deprecated && (
+                      <Badge variant="deleted" className="sw-self-center">
+                        {translate('deprecated')}
+                      </Badge>
+                    )}
+                  </div>
+                )}
               </div>
-              {info.deprecated && <Badge variant="deleted">{translate('deprecated')}</Badge>}
             </SubnavigationItem>
           ))}
         </SubnavigationAccordion>
