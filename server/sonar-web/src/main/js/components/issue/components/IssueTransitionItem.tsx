@@ -41,7 +41,7 @@ type Props = {
 export function IssueTransitionItem({ transition, selected, onSelectTransition }: Readonly<Props>) {
   const intl = useIntl();
 
-  const tooltips: Record<string, React.ReactFragment> = {
+  const tooltips: Record<string, React.JSX.Element> = {
     [IssueTransition.Confirm]: (
       <div className="sw-flex sw-flex-col sw-gap-2">
         <span>{translate('issue.transition.confirm.deprecated_tooltip.1')}</span>
