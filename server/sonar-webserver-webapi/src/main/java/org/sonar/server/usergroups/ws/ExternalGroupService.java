@@ -26,6 +26,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.ExternalGroupDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.common.group.service.GroupService;
 
 public class ExternalGroupService {
 

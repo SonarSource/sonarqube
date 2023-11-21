@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.usergroups.ws;
+package org.sonar.server.common.group.service;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -100,7 +100,7 @@ public class GroupServiceTest {
   }
 
   @Test
-  public void findGroupDtoOrThrow_whenGroupExists_returnsIt() {
+  public void findGroup_whenGroupExists_returnsIt() {
     GroupDto groupDto = mockGroupDto();
 
     when(dbClient.groupDao().selectByName(dbSession, GROUP_NAME))
@@ -110,11 +110,29 @@ public class GroupServiceTest {
   }
 
   @Test
-  public void findGroupDtoOrThrow_whenGroupDoesntExist_throw() {
+  public void findGroup_whenGroupDoesntExist_returnsEmtpyOptional() {
     when(dbClient.groupDao().selectByName(dbSession, GROUP_NAME))
       .thenReturn(Optional.empty());
 
     assertThat(groupService.findGroup(dbSession, GROUP_NAME)).isEmpty();
+  }
+
+  @Test
+  public void findGroupByUuid_whenGroupExists_returnsIt() {
+    GroupDto groupDto = mockGroupDto();
+
+    when(dbClient.groupDao().selectByUuid(dbSession, GROUP_UUID))
+      .thenReturn(groupDto);
+
+    assertThat(groupService.findGroupByUuid(dbSession, GROUP_UUID)).contains(groupDto);
+  }
+
+  @Test
+  public void findGroupByUuid_whenGroupDoesntExist_returnsEmptyOptional() {
+    when(dbClient.groupDao().selectByUuid(dbSession, GROUP_UUID))
+      .thenReturn(null);
+
+    assertThat(groupService.findGroupByUuid(dbSession, GROUP_UUID)).isEmpty();
   }
 
   @Test

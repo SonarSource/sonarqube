@@ -20,6 +20,8 @@
 package org.sonar.server.v2.config;
 
 import javax.annotation.Nullable;
+import org.sonar.db.DbClient;
+import org.sonar.server.common.group.service.GroupService;
 import org.sonar.server.common.health.CeStatusNodeCheck;
 import org.sonar.server.common.health.DbConnectionNodeCheck;
 import org.sonar.server.common.health.EsStatusNodeCheck;
@@ -31,6 +33,8 @@ import org.sonar.server.health.HealthChecker;
 import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.v2.api.group.controller.DefaultGroupController;
+import org.sonar.server.v2.api.group.controller.GroupController;
 import org.sonar.server.v2.api.system.controller.DefaultLivenessController;
 import org.sonar.server.v2.api.system.controller.HealthController;
 import org.sonar.server.v2.api.system.controller.LivenessController;
@@ -73,6 +77,11 @@ public class PlatformLevel4WebConfig {
     UsersSearchRestResponseGenerator usersSearchResponseGenerator,
     UserService userService) {
     return new DefaultUserController(userSession, userService, usersSearchResponseGenerator);
+  }
+
+  @Bean
+  public GroupController groupController(GroupService groupService, DbClient dbClient, UserSession userSession) {
+    return new DefaultGroupController(groupService, dbClient, userSession);
   }
 
 }

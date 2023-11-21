@@ -29,6 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.ExternalGroupDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.common.group.service.GroupService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

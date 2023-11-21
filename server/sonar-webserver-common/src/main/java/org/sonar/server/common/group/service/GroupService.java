@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.usergroups.ws;
+package org.sonar.server.common.group.service;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -47,6 +47,10 @@ public class GroupService {
 
   public Optional<GroupDto> findGroup(DbSession dbSession, String groupName) {
     return dbClient.groupDao().selectByName(dbSession, groupName);
+  }
+
+  public Optional<GroupDto> findGroupByUuid(DbSession dbSession, String groupUuid) {
+    return Optional.ofNullable(dbClient.groupDao().selectByUuid(dbSession, groupUuid));
   }
 
   public void delete(DbSession dbSession, GroupDto group) {
