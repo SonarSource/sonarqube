@@ -26,7 +26,7 @@ import IssuesServiceMock from '../../api/mocks/IssuesServiceMock';
 import { mockComponent } from '../../helpers/mocks/component';
 import { mockCurrentUser } from '../../helpers/testMocks';
 import { renderApp, renderAppWithComponentContext } from '../../helpers/testReactTestingUtils';
-import { byLabelText, byPlaceholderText, byRole, byTestId } from '../../helpers/testSelector';
+import { byPlaceholderText, byRole, byTestId, byText } from '../../helpers/testSelector';
 import {
   CleanCodeAttributeCategory,
   SoftwareImpactSeverity,
@@ -42,7 +42,7 @@ export const componentsHandler = new ComponentsServiceMock();
 export const branchHandler = new BranchesServiceMock();
 
 export const ui = {
-  loading: byLabelText('loading'),
+  loading: byText('loading'),
   issuePageHeadering: byRole('heading', { level: 1, name: 'issues.page' }),
   issueItemAction1: byRole('link', { name: 'Issue with no location message' }),
   issueItemAction2: byRole('link', { name: 'FlowIssue' }),
