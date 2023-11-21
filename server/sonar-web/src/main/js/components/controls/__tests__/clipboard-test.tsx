@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import {
@@ -43,12 +44,12 @@ describe('ClipboardBase', () => {
     expect(screen.getByText('click to copy')).toBeInTheDocument();
   });
 
-  it('should allow its content to be copied', () => {
+  it('should allow its content to be copied', async () => {
+    const user = userEvent.setup();
     renderClipboardBase();
-    const button = screen.getByRole('button');
-    button.click();
 
-    expect(screen.getByText('copied')).toBeInTheDocument();
+    user.click(screen.getByRole('button'));
+    expect(await screen.findByText('copied')).toBeInTheDocument();
 
     jest.runAllTimers();
 

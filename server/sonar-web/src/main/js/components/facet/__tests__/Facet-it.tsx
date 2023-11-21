@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { renderComponent } from '../../../helpers/testReactTestingUtils';
 import FacetBox, { FacetBoxProps } from '../FacetBox';
@@ -25,7 +26,8 @@ import FacetHeader from '../FacetHeader';
 import FacetItem from '../FacetItem';
 import FacetItemsList from '../FacetItemsList';
 
-it('should render and function correctly', () => {
+it('should render and function correctly', async () => {
+  const user = userEvent.setup();
   const onFacetClick = jest.fn();
   renderFacet(undefined, undefined, { onClick: onFacetClick });
 
@@ -35,7 +37,7 @@ it('should render and function correctly', () => {
   expect(screen.queryByText('Foo/Bar')).not.toBeInTheDocument();
 
   // Expand.
-  facetHeader.click();
+  await user.click(facetHeader);
   facetHeader = screen.getByRole('button', { name: 'foo', expanded: true });
   expect(facetHeader).toBeInTheDocument();
   expect(screen.getByText('Foo/Bar')).toBeInTheDocument();
@@ -43,14 +45,14 @@ it('should render and function correctly', () => {
   // Interact with facets.
   const facet1 = screen.getByRole('checkbox', { name: 'Foo/Bar 10' });
   expect(facet1).toHaveClass('active');
-  facet1.click();
+  await user.click(facet1);
   expect(onFacetClick).toHaveBeenCalledWith('bar', false);
 
   const facet2 = screen.getByRole('checkbox', { name: 'Foo/Baz' });
   expect(facet2).not.toHaveClass('active');
 
   // Collapse again.
-  facetHeader.click();
+  await user.click(facetHeader);
   expect(screen.getByRole('button', { name: 'foo', expanded: false })).toBeInTheDocument();
   expect(screen.queryByText('Foo/Bar')).not.toBeInTheDocument();
 });
@@ -62,10 +64,11 @@ it('should correctly render a header with helper text', async () => {
   );
 });
 
-it('should correctly render a header with value data', () => {
+it('should correctly render a header with value data', async () => {
+  const user = userEvent.setup();
   renderFacet(undefined, { values: ['value 1'] });
   expect(screen.getByText('value 1')).toBeInTheDocument();
-  screen.getByRole('button', { name: 'clear_x_filter.foo' }).click();
+  await user.click(screen.getByRole('button', { name: 'clear_x_filter.foo' }));
   expect(screen.queryByText('value 1')).not.toBeInTheDocument();
 });
 
