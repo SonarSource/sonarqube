@@ -59,7 +59,9 @@ export default function TaskComponent({ task }: Props) {
 
       {task.componentName && (
         <Link className="spacer-right" to={getTaskComponentUrl(task.componentKey, task)}>
-          {task.componentName}
+          <span className="text-limited text-text-top" title={task.componentName}>
+            {task.componentName}
+          </span>
 
           {task.branch && (
             <span className="text-limited text-text-top" title={task.branch}>
