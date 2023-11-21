@@ -20,7 +20,7 @@
 import { ButtonPrimary, HelperHintIcon, Title } from 'design-system';
 import * as React from 'react';
 import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
-import ModalButton from '../../../components/controls/ModalButton';
+import ModalButton, { ModalProps } from '../../../components/controls/ModalButton';
 import { translate } from '../../../helpers/l10n';
 import CreateQualityGateForm from './CreateQualityGateForm';
 
@@ -33,7 +33,9 @@ function CreateQualityGateModal({
   refreshQualityGates,
 }: Readonly<Pick<Props, 'refreshQualityGates'>>) {
   const renderModal = React.useCallback(
-    ({ onClose }) => <CreateQualityGateForm onClose={onClose} onCreate={refreshQualityGates} />,
+    ({ onClose }: ModalProps) => (
+      <CreateQualityGateForm onClose={onClose} onCreate={refreshQualityGates} />
+    ),
     [refreshQualityGates],
   );
 

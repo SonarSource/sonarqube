@@ -49,7 +49,7 @@ export default function HotspotListItem(props: HotspotListItemProps) {
 
   // Use useCallback instead of useEffect/useRef combination to be notified of the ref changes
   const itemRef = useCallback(
-    (node) => {
+    (node: Element) => {
       if (selected && node) {
         node.scrollIntoView({
           block: 'center',

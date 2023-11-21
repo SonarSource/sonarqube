@@ -30,7 +30,7 @@ interface Props {
     Issue,
     'component' | 'key' | 'flows' | 'secondaryLocations' | 'type' | 'flowsWithType'
   >;
-  onFlowSelect: (index: number) => void;
+  onFlowSelect: (index: number | undefined) => void;
   onLocationSelect: (index: number) => void;
   selectedFlowIndex: number | undefined;
   selectedLocationIndex: number | undefined;
@@ -46,7 +46,7 @@ export default function IssueLocationsNavigator(props: Props) {
   const hasSecondaryLocations = issue.secondaryLocations.length > 0;
 
   const handleAccordionClick = useCallback(
-    (index) => {
+    (index: number | undefined) => {
       if (onFlowSelect) {
         onFlowSelect(index === selectedFlowIndex ? undefined : index);
         if (index !== selectedFlowIndex) {
