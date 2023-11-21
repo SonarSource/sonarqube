@@ -125,9 +125,7 @@ it('should not show any OAuth providers if none are configured', async () => {
   expect(heading).toBeInTheDocument();
 
   // No OAuth providers, login form display by default.
-  expect(
-    screen.queryByRole('link', { name: 'login.login_with_x', exact: false }),
-  ).not.toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'login.login_with_x' })).not.toBeInTheDocument();
   expect(screen.getByLabelText('login')).toBeInTheDocument();
 });
 

@@ -388,8 +388,8 @@ it('should correctly show new VS overall measures for Portfolios', async () => {
 function getPageObject(user: UserEvent) {
   const ui = {
     componentName: (name: string) => byText(name),
-    childComponent: (name: string | RegExp) => byRole('cell', { name, exact: false }),
-    searchResult: (name: string | RegExp) => byRole('link', { name, exact: false }),
+    childComponent: (name: string | RegExp) => byRole('cell', { name }),
+    searchResult: (name: string | RegExp) => byRole('link', { name }),
     componentIsEmptyTxt: (qualifier: ComponentQualifier) =>
       byText(`code_viewer.no_source_code_displayed_due_to_empty_analysis.${qualifier}`),
     searchInput: byRole('searchbox'),

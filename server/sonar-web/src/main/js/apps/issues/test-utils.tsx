@@ -64,7 +64,7 @@ export const ui = {
   issueItem7: byRole('region', { name: 'Issue with tags' }),
   issueItem8: byRole('region', { name: 'Issue on page 2' }),
   issueItem9: byRole('region', { name: 'Issue inside folderA' }),
-  projectIssueItem6: byRole('button', { name: 'Second issue', exact: false }),
+  projectIssueItem6: byRole('button', { name: 'Second issue' }),
 
   conciseIssueTotal: byTestId('page-counter-total'),
   conciseIssueItem2: byTestId('issues-nav-bar').byRole('button', { name: 'Fix that' }),
